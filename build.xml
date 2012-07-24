@@ -16,15 +16,9 @@
  <target name="api-tests" depends="prepare" description="Run unit tests with PHPUnit">
   <exec executable="phpunit" failonerror="true">
 	<arg value="--configuration"/>
-	<arg path="phpunit.api.xml.dist"/>
+	<arg path="phpunit.xml.dist"/>
   </exec>
  </target>
 
-	<target name="web-tests" depends="prepare" description="Run unit tests with PHPUnit">
-  <exec executable="phpunit" failonerror="true">
-	<arg value="--configuration"/>
-	<arg path="phpunit.web.xml.dist"/>
-  </exec>
- </target>
 
 </project>
