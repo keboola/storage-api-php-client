@@ -113,7 +113,6 @@ class Client
 		$this->_log("Bucket {$result["id"]} created", array("options" => $options, "result" => $result));
 
 		return $result["id"];
-
 	}
 
 	/**
@@ -126,6 +125,26 @@ class Client
 	public function dropBucket($bucketId)
 	{
 		return $this->_apiDelete("/storage/buckets/" . $bucketId);
+	}
+
+
+	/**
+	 *
+	 * Checks if a bucket exists
+	 *
+	 * @param $bucketId
+	 * @return bool
+	 */
+	public function bucketExists($bucketId)
+	{
+		$buckets = $this->listBuckets();
+		foreach($buckets as $bucket)
+		{
+			if ($bucket->id == $bucketId) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -253,6 +272,25 @@ class Client
 		$result = $this->_apiDelete("/storage/tables/" . $tableId);
 		$this->_log("Table {$tableId} deleted");
 		return $result;
+	}
+
+	/**
+	 *
+	 * Checks if a table exists
+	 *
+	 * @param $tableId
+	 * @return bool
+	 */
+	public function tableExists($tableId)
+	{
+		$tables = $this->listTables();
+		foreach($tables as $table)
+		{
+			if ($table->id == $tableId) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
