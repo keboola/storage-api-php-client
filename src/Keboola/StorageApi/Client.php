@@ -491,13 +491,13 @@ class Client
 	private function _parseResponse($jsonString)
 	{
 		$data = json_decode($jsonString, true);
-		if (!$data) {
+		if ($data === null) {
 			return null;
 		}
-		if($data["error"]) {
+		if(isset($data["error"])) {
 			throw new ClientException($data["error"]);
 		}
-		if (count($data) === 1 && $data["uri"]) {
+		if (count($data) === 1 && isset($data["uri"])) {
 			return $this->_curlGet($data["uri"]);
 		}
 		return $data;

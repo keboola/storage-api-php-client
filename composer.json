@@ -1,0 +1,11 @@
+{
+	"name": "keboola/storageApiClient",
+	"description": "Keboola Storage API PHP CLient",
+	"homepage": "http://keboola.com",
+	"autoload": {
+		"files": ["Nette/loader.php"]
+	},
+	"autoload": {
+        "psr-0": {"Keboola": "src/"}
+    }
+}

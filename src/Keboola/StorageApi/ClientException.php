@@ -1,9 +1,10 @@
 <?
 namespace Keboola\StorageApi;
+
 class ClientException extends \Exception
 {
 	/**
-	 * @var null|Exception
+	 * @var null|\Exception
 	 */
 	private $_previous = null;
 
@@ -12,7 +13,7 @@ class ClientException extends \Exception
 	 *
 	 * @param  string $msg
 	 * @param  int $code
-	 * @param  Exception $previous
+	 * @param  \Exception $previous
 	 * @return void
 	 */
 	public function __construct($msg = '', $code = 0, \Exception $previous = null)
@@ -24,4 +25,5 @@ class ClientException extends \Exception
 			parent::__construct($msg, (int) $code, $previous);
 		}
 	}
+
 }

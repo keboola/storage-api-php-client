@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="api-tests" default="build">
+
+ <target name="build" depends="prepare, api-tests, web-tests"/>
+
+<target name="clean" description="Cleanup build artifacts">
+  <delete dir="${basedir}/build/results/logs"/>
+ </target>
+
+ <target name="prepare" depends="clean"
+         description="Prepare for build">
+  <mkdir dir="${basedir}/build/results/logs"/>
+ </target>
+
+ <target name="api-tests" depends="prepare" description="Run unit tests with PHPUnit">
+  <exec executable="phpunit" failonerror="true">
+	<arg value="--configuration"/>
+	<arg path="phpunit.api.xml.dist"/>
+  </exec>
+ </target>
+
+	<target name="web-tests" depends="prepare" description="Run unit tests with PHPUnit">
+  <exec executable="phpunit" failonerror="true">
+	<arg value="--configuration"/>
+	<arg path="phpunit.web.xml.dist"/>
+  </exec>
+ </target>
+
+</project>
