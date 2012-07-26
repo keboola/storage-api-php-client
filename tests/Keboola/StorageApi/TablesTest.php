@@ -47,6 +47,22 @@ class Keboola_StorageApi_Buckets_TablesTest extends PHPUnit_Framework_TestCase
 
 	}
 
+	public function testTableDelete()
+	{
+		$table1Id = $this->_client->createTable($this->_bucketId, 'languages', __DIR__ . '/_data/languages.csv');
+		$table2Id = $this->_client->createTable($this->_bucketId, 'languages_2', __DIR__ . '/_data/languages.csv');
+		$tables = $this->_client->listTables();
+
+		$this->assertCount(2, $tables);
+		$this->_client->dropTable($table1Id);
+
+		$tables = $this->_client->listTables();
+		$this->assertCount(1, $tables);
+
+		$table = reset($tables);
+		$this->assertEquals($table2Id, $table['id']);
+	}
+
 	public function testTableImport()
 	{
 		$importFile = __DIR__ . '/_data/languages.csv';
@@ -55,14 +71,22 @@ class Keboola_StorageApi_Buckets_TablesTest extends PHPUnit_Framework_TestCase
 		$result = $this->_client->writeTable($tableId, __DIR__ . '/_data/languages.csv');
 
 		$this->assertEmpty($result['warnings']);
-		$this->assertEquals(array('id', 'name'), $result['importedColumns']);
+		$this->assertEquals(array('id', 'name'), array_values($result['importedColumns']), 'columns');
 		$this->assertEmpty($result['transaction']);
 
 		// compare data
 		$dataInTable = array_map('str_getcsv', explode("\n", $this->_client->exportTable($tableId)));
 		$expectedData  =  array_map('str_getcsv', explode("\n", file_get_contents($importFile)));
 
-		$this->assertEquals($expectedData, $dataInTable);
+		$this->assertEquals($expectedData, $dataInTable, 'imported data comparsion');
+	}
+
+	public function testGoodDataXml()
+	{
+		$table1Id = $this->_client->createTable($this->_bucketId, 'languages', __DIR__ . '/_data/languages.csv');
+
+		$xml = $this->_client->getGdXmlConfig($table1Id);
+		var_dump($xml);
 	}
 
 }

@@ -7,5 +7,5 @@
  *
  */
 
-define('STORAGE_API_URL', 'https://connection-devel.keboola.com');
-define('STORAGE_API_TOKEN', 'a57f06945b36f2e43a922cda928e5b11');
+define('STORAGE_API_URL', getenv('STORAGE_API_URL') ? getenv('STORAGE_API_URL') : 'https://connection-devel.keboola.com');
+define('STORAGE_API_TOKEN', getenv('STORAGE_API_TOKEN') ? getenv('STORAGE_API_TOKEN') : 'your_token');

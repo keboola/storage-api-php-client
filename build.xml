@@ -2,7 +2,7 @@
 
 <project name="api-tests" default="build">
 
- <target name="build" depends="prepare, api-tests, web-tests"/>
+ <target name="build" depends="prepare, api-tests"/>
 
 <target name="clean" description="Cleanup build artifacts">
   <delete dir="${basedir}/build/results/logs"/>
