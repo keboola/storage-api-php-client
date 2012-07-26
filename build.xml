@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project name="api-tests" default="build">
+ <property name="storage-api-url" value="https://connection-devel.keboola.com"/>
+ <property name="storage-api-token" value="your_token"/>
 
  <target name="build" depends="prepare, api-tests"/>
 
@@ -15,6 +17,8 @@
 
  <target name="api-tests" depends="prepare" description="Run unit tests with PHPUnit">
   <exec executable="phpunit" failonerror="true">
+	<env key="STORAGE_API_URL" value="${storage-api-url}"/>
+	<env key="STORAGE_API_TOKEN" value="${storage-api-token}"/>
 	<arg value="--configuration"/>
 	<arg path="phpunit.xml.dist"/>
   </exec>
