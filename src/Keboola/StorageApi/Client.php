@@ -206,7 +206,7 @@ class Client
 	 *
 	 * @param $name
 	 * @param $bucketId
-	 * @return mixed
+	 * @return bool|string table id or false
 	 */
 	public function getTableId($name, $bucketId)
 	{
