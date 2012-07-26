@@ -85,8 +85,9 @@ class Keboola_StorageApi_Buckets_TablesTest extends PHPUnit_Framework_TestCase
 	{
 		$table1Id = $this->_client->createTable($this->_bucketId, 'languages', __DIR__ . '/_data/languages.csv');
 
-		$xml = $this->_client->getGdXmlConfig($table1Id);
-		var_dump($xml);
+		$doc = DOMDocument::loadXML($this->_client->getGdXmlConfig($table1Id));
+		$this->assertEquals('schema', $doc->firstChild->tagName);
+		$this->assertEquals(2, $doc->firstChild->childNodes->length);
 	}
 
 }
