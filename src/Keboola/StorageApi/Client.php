@@ -92,7 +92,7 @@ class Client
 	 * @param $stage bucket stage
 	 * @param $description bucket description
 	 *
-	 * @return mixed|string bucket URL
+	 * @return string bucket Id
 	 */
 	public function createBucket($name, $stage, $description)
 	{
@@ -140,7 +140,7 @@ class Client
 		$buckets = $this->listBuckets();
 		foreach($buckets as $bucket)
 		{
-			if ($bucket->id == $bucketId) {
+			if ($bucket["id"] == $bucketId) {
 				return true;
 			}
 		}
@@ -286,7 +286,7 @@ class Client
 		$tables = $this->listTables();
 		foreach($tables as $table)
 		{
-			if ($table->id == $tableId) {
+			if ($table["id"] == $tableId) {
 				return true;
 			}
 		}
