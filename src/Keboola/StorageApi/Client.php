@@ -295,6 +295,37 @@ class Client
 
 	/**
 	 *
+	 * Generates a MySQL table definition
+	 *
+	 * @param $tableId Storage API table id
+	 * @param string $tableName target table name (optional)
+	 * @return string
+	 */
+	public function getTableDefinition($tableId, $tableName=null)
+	{
+		if (!$tableName) {
+			$tableName =  $tableId;
+		}
+		$table = $this->getTable($tableId);
+		$definition = "CREATE TABLE `{$tableName}`\n(";
+
+		// Column definition
+		$columns = array();
+		foreach($table["columns"] as $column) {
+			$columns[] = "`{$column}` varchar(255) NOT NULL DEFAULT ''";
+		}
+		$definition .= join(",\n", $columns);
+
+		// Primary key indexes
+		if ($table["primaryKey"] && count($table["primaryKey"])) {
+			$definition .= ",\n PRIMARY KEY (`" . join("`, `", $table["primaryKey"]) . "`)";
+		}
+		$definition .= ") ENGINE=InnoDB DEFAULT CHARSET=utf8;";
+		return $definition;
+	}
+
+	/**
+	 *
 	 * returns all tokens
 	 *
 	 * @return mixed|string
