@@ -90,4 +90,12 @@ class Keboola_StorageApi_Buckets_TablesTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals(2, $doc->firstChild->childNodes->length);
 	}
 
+	public function testTableDefinition()
+	{
+		$table1Id = $this->_client->createTable($this->_bucketId, 'languages', __DIR__ . '/_data/languages.csv');
+		$sql = $this->_client->getTableDefinition($table1Id);
+		$this->assertNotEmpty($sql);
+		$this->_client->dropTable($table1Id);
+	}
+
 }
