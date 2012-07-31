@@ -81,6 +81,17 @@ class Keboola_StorageApi_Buckets_TablesTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals($expectedData, $dataInTable, 'imported data comparsion');
 	}
 
+	/**
+	 * @expectedException Keboola\StorageApi\ClientException
+	 */
+	public function testTableInvalidImport()
+	{
+		$importFile = __DIR__ . '/_data/languages.csv';
+		$tableId = $this->_client->createTable($this->_bucketId, 'languages', $importFile);
+
+		$this->_client->writeTable($tableId, __DIR__ . '/_data/languages.invalid.csv');
+	}
+
 	public function testGoodDataXml()
 	{
 		$table1Id = $this->_client->createTable($this->_bucketId, 'languages', __DIR__ . '/_data/languages.csv');
