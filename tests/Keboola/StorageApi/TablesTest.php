@@ -23,9 +23,9 @@ class Keboola_StorageApi_Buckets_TablesTest extends PHPUnit_Framework_TestCase
 		// prepare bucket for tests
 		$this->_client = new Keboola\StorageApi\Client(STORAGE_API_TOKEN, STORAGE_API_URL);
 
-		$bucketId = $this->_client->getBucketId('c-main', 'in');
+		$bucketId = $this->_client->getBucketId('c-api_tests', 'in');
 		if (!$bucketId) {
-			throw new Exception('bucket in.c-main not found');
+			$bucketId = $this->_client->createBucket('api_tests', 'in', 'Api tests');
 		}
 		$tables = $this->_client->listTables($bucketId);
 		foreach ($tables as $table) {

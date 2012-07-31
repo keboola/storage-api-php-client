@@ -25,7 +25,7 @@ class Keboola_StorageApi_BucketsTest extends PHPUnit_Framework_TestCase
 	public function testBucketsList()
 	{
 		$buckets = $this->_client->listBuckets();
-		$this->assertCount(2, $buckets);
+		$this->assertTrue(count($buckets) >= 2);
 
 		$this->assertEquals('in.c-main', $buckets[0]['id']);
 		$this->assertEquals('out.c-main', $buckets[1]['id']);
