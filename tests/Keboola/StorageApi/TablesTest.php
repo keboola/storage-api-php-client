@@ -109,4 +109,29 @@ class Keboola_StorageApi_Buckets_TablesTest extends PHPUnit_Framework_TestCase
 		$this->_client->dropTable($table1Id);
 	}
 
+	public function testTableAttributes()
+	{
+		$tableId = $this->_client->createTable($this->_bucketId, 'languages', __DIR__ . '/_data/languages.csv');
+
+		$table = $this->_client->getTable($tableId);
+		$this->assertEmpty($table['attributes'], 'empty attributes after table create');
+
+		// create
+		$this->_client->setTableAttribute($tableId, 'something', 'lala');
+		$this->_client->setTableAttribute($tableId, 'other', 'hello');
+		$table = $this->_client->getTable($tableId);
+		$this->assertEquals($table['attributes'], array('something' => 'lala', 'other' => 'hello'), 'attribute set');
+
+		// update
+		$this->_client->setTableAttribute($tableId, 'something', 'papa');
+		$table = $this->_client->getTable($tableId);
+		$this->assertEquals($table['attributes'], array('something' => 'papa', 'other' => 'hello'), 'attribute update');
+
+		// delete
+		$this->_client->deleteTableAttribute($tableId, 'something');
+		$table = $this->_client->getTable($tableId);
+		$this->assertEquals($table['attributes'], array('other' => 'hello'), 'attribute delete');
+	}
+
+
 }

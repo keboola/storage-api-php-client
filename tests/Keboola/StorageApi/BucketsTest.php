@@ -61,4 +61,31 @@ class Keboola_StorageApi_BucketsTest extends PHPUnit_Framework_TestCase
 		$this->_client->dropBucket($newBucket['id']);
 	}
 
+	public function testBucketAttributes()
+	{
+		$bucketId = 'in.c-main';
+
+		$bucket = $this->_client->getBucket($bucketId);
+		$this->assertEmpty($bucket['attributes'], 'empty attributes');
+
+
+		// create
+		$this->_client->setBucketAttribute($bucketId, 'something', 'lala');
+		$this->_client->setBucketAttribute($bucketId, 'other', 'hello');
+		$bucket = $this->_client->getBucket($bucketId);
+		$this->assertEquals($bucket['attributes'], array('something' => 'lala', 'other' => 'hello'), 'attribute set');
+
+		// update
+		$this->_client->setBucketAttribute($bucketId, 'something', 'papa');
+		$bucket = $this->_client->getBucket($bucketId);
+		$this->assertEquals($bucket['attributes'], array('something' => 'papa', 'other' => 'hello'), 'attribute update');
+
+		// delete
+		$this->_client->deleteBucketAttribute($bucketId, 'something');
+		$bucket = $this->_client->getBucket($bucketId);
+		$this->assertEquals($bucket['attributes'], array('other' => 'hello'), 'attribute delete');
+
+		$this->_client->deleteBucketAttribute($bucketId, 'other');
+	}
+
 }

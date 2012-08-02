@@ -127,6 +127,20 @@ class Client
 		return $this->_apiDelete("/storage/buckets/" . $bucketId);
 	}
 
+	public function setBucketAttribute($bucketId, $key, $value)
+	{
+		$this->_apiPost("/storage/buckets/$bucketId/attributes/$key", array(
+			"value" => $value,
+		));
+	}
+
+	public function deleteBucketAttribute($bucketId, $key)
+	{
+		$result = $this->_apiDelete("/storage/buckets/$bucketId/attributes/$key");
+		$this->_log("Bucket $bucketId attribute $key deleted");
+		return $result;
+	}
+
 
 	/**
 	 *
@@ -271,6 +285,20 @@ class Client
 	{
 		$result = $this->_apiDelete("/storage/tables/" . $tableId);
 		$this->_log("Table {$tableId} deleted");
+		return $result;
+	}
+
+	public function setTableAttribute($tableId, $key, $value)
+	{
+		$this->_apiPost("/storage/tables/$tableId/attributes/$key", array(
+			"value" => $value,
+		));
+	}
+
+	public function deleteTableAttribute($tableId, $key)
+	{
+		$result = $this->_apiDelete("/storage/tables/$tableId/attributes/$key");
+		$this->_log("Table $tableId attribute $key deleted");
 		return $result;
 	}
 
