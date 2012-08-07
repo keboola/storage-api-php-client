@@ -15,3 +15,5 @@ require_once 'config.php';
 require_once 'src/Keboola/StorageApi/Exception.php';
 require_once 'src/Keboola/StorageApi/Client.php';
 require_once 'src/Keboola/StorageApi/ClientException.php';
+require_once 'src/Keboola/StorageApi/OneLiner.php';
+require_once 'src/Keboola/StorageApi/OneLinerException.php';
