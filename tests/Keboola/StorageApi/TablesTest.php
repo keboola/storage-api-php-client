@@ -15,7 +15,8 @@ class Keboola_StorageApi_Buckets_TablesTest extends PHPUnit_Framework_TestCase
 	 */
 	protected $_client;
 
-	protected $_bucketId;
+	protected $_inBucketId;
+	protected $_outBucketId;
 
 
 	public function setUp()
@@ -23,22 +24,28 @@ class Keboola_StorageApi_Buckets_TablesTest extends PHPUnit_Framework_TestCase
 		// prepare bucket for tests
 		$this->_client = new Keboola\StorageApi\Client(STORAGE_API_TOKEN, STORAGE_API_URL);
 
-		$bucketId = $this->_client->getBucketId('c-api_tests', 'in');
+		$this->_outBucketId = $this->_initBucket('api-tests', 'out');
+		$this->_inBucketId = $this->_initBucket('api-tests', 'in');
+	}
+
+	protected function _initBucket($name, $stage)
+	{
+		$bucketId = $this->_client->getBucketId('c-' . $name, $stage);
 		if (!$bucketId) {
-			$bucketId = $this->_client->createBucket('api_tests', 'in', 'Api tests');
+			$bucketId = $this->_client->createBucket($name, $stage, 'Api tests');
 		}
 		$tables = $this->_client->listTables($bucketId);
 		foreach ($tables as $table) {
 			$this->_client->dropTable($table['id']);
 		}
 
-		$this->_bucketId = $bucketId;
+		return $bucketId;
 	}
 
 
 	public function testTableCreate()
 	{
-		$tableId = $this->_client->createTable($this->_bucketId, 'languages', __DIR__ . '/_data/languages.csv');
+		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', __DIR__ . '/_data/languages.csv');
 		$table = $this->_client->getTable($tableId);
 
 		$this->assertEquals($tableId, $table['id']);
@@ -49,8 +56,8 @@ class Keboola_StorageApi_Buckets_TablesTest extends PHPUnit_Framework_TestCase
 
 	public function testTableDelete()
 	{
-		$table1Id = $this->_client->createTable($this->_bucketId, 'languages', __DIR__ . '/_data/languages.csv');
-		$table2Id = $this->_client->createTable($this->_bucketId, 'languages_2', __DIR__ . '/_data/languages.csv');
+		$table1Id = $this->_client->createTable($this->_inBucketId, 'languages', __DIR__ . '/_data/languages.csv');
+		$table2Id = $this->_client->createTable($this->_inBucketId, 'languages_2', __DIR__ . '/_data/languages.csv');
 		$tables = $this->_client->listTables();
 
 		$this->assertCount(2, $tables);
@@ -66,7 +73,7 @@ class Keboola_StorageApi_Buckets_TablesTest extends PHPUnit_Framework_TestCase
 	public function testTableImport()
 	{
 		$importFile = __DIR__ . '/_data/languages.csv';
-		$tableId = $this->_client->createTable($this->_bucketId, 'languages', $importFile);
+		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $importFile);
 
 		$result = $this->_client->writeTable($tableId, __DIR__ . '/_data/languages.csv');
 
@@ -87,14 +94,14 @@ class Keboola_StorageApi_Buckets_TablesTest extends PHPUnit_Framework_TestCase
 	public function testTableInvalidImport()
 	{
 		$importFile = __DIR__ . '/_data/languages.csv';
-		$tableId = $this->_client->createTable($this->_bucketId, 'languages', $importFile);
+		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $importFile);
 
 		$this->_client->writeTable($tableId, __DIR__ . '/_data/languages.invalid.csv');
 	}
 
 	public function testGoodDataXml()
 	{
-		$table1Id = $this->_client->createTable($this->_bucketId, 'languages', __DIR__ . '/_data/languages.csv');
+		$table1Id = $this->_client->createTable($this->_inBucketId, 'languages', __DIR__ . '/_data/languages.csv');
 
 		$doc = DOMDocument::loadXML($this->_client->getGdXmlConfig($table1Id));
 		$this->assertEquals('schema', $doc->firstChild->tagName);
@@ -103,7 +110,7 @@ class Keboola_StorageApi_Buckets_TablesTest extends PHPUnit_Framework_TestCase
 
 	public function testTableDefinition()
 	{
-		$table1Id = $this->_client->createTable($this->_bucketId, 'languages', __DIR__ . '/_data/languages.csv');
+		$table1Id = $this->_client->createTable($this->_inBucketId, 'languages', __DIR__ . '/_data/languages.csv');
 		$sql = $this->_client->getTableDefinition($table1Id);
 		$this->assertNotEmpty($sql);
 		$this->_client->dropTable($table1Id);
@@ -111,7 +118,7 @@ class Keboola_StorageApi_Buckets_TablesTest extends PHPUnit_Framework_TestCase
 
 	public function testTableAttributes()
 	{
-		$tableId = $this->_client->createTable($this->_bucketId, 'languages', __DIR__ . '/_data/languages.csv');
+		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', __DIR__ . '/_data/languages.csv');
 
 		$table = $this->_client->getTable($tableId);
 		$this->assertEmpty($table['attributes'], 'empty attributes after table create');
@@ -133,5 +140,55 @@ class Keboola_StorageApi_Buckets_TablesTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals($table['attributes'], array('other' => 'hello'), 'attribute delete');
 	}
 
+	public function testTableAlias()
+	{
+		$importFile = __DIR__ . '/_data/languages.csv';
+
+		// create and import data into source table
+		$sourceTableId = $this->_client->createTable($this->_inBucketId, 'languages', $importFile);
+		$this->_client->writeTable($sourceTableId, __DIR__ . '/_data/languages.csv');
+		$sourceTable = $this->_client->getTable($sourceTableId);
+		$this->assertEquals(file_get_contents($importFile), $this->_client->exportTable($sourceTableId), 'data are present in source table');
+
+		// create alias table
+		$aliasTableId = $this->_client->createAliasTable($this->_outBucketId, $sourceTableId);
+
+		$aliasTable = $this->_client->getTable($aliasTableId);
+		$this->assertNotEmpty($sourceTable['lastImportDate']);
+		$this->assertEquals($sourceTable['lastImportDate'], $aliasTable['lastImportDate']);
+		$this->assertEquals($sourceTable['columns'], $aliasTable['columns']);
+
+		$this->assertArrayHasKey('sourceTable', $aliasTable);
+		$this->assertEquals($sourceTableId, $aliasTable['sourceTable']['id'], 'new table linked to source table');
+		$this->assertEquals(file_get_contents($importFile), $this->_client->exportTable($aliasTableId), 'data are exported from source table');
+
+		// second import into source table
+		$this->_client->writeTable($sourceTableId, __DIR__ . '/_data/languages.csv');
+		$sourceTable = $this->_client->getTable($sourceTableId);
+		$aliasTable = $this->_client->getTable($aliasTableId);
+		$this->assertEquals($sourceTable['lastImportDate'], $aliasTable['lastImportDate']);
+
+		// columns auto-create
+		$this->_client->writeTable($sourceTableId, __DIR__ . '/_data/languages.more-columns.csv');
+		$sourceTable = $this->_client->getTable($sourceTableId);
+		$expectedColumns = array(
+			'id',
+			'name',
+			'count'
+		);
+		$this->assertEquals($expectedColumns, $sourceTable['columns'], 'Columns autocreate in source table');
+
+		$aliasTable = $this->_client->getTable($aliasTableId);
+		$this->assertEquals($expectedColumns, $aliasTable['columns'], 'Columns autocreate in alias table');
+
+		try {
+			$this->_client->dropTable($sourceTableId);
+			$this->fail('Delete table with associated aliases should not been deleted');
+		} catch (\Keboola\StorageApi\ClientException $e) {}
+
+		// first delete alias, than source table
+		$this->_client->dropTable($aliasTableId);
+		$this->_client->dropTable($sourceTableId);
+	}
 
 }

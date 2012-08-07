@@ -200,6 +200,25 @@ class Client
 	}
 
 	/**
+	 * Create table alias
+	 * @param $bucketId
+	 * @param $sourceTableId
+	 * @param null $name
+	 * @return mixed
+	 */
+	public function createAliasTable($bucketId, $sourceTableId, $name = NULL)
+	{
+		$options = array(
+			'sourceTable' => $sourceTableId,
+			'name' => $name,
+		);
+
+		$result = $this->_apiPost("/storage/buckets/" . $bucketId . "/table-aliases", $options);
+		$this->_log("Table alias {$result["id"]}  created", array("options" => $options, "result" => $result));
+		return $result["id"];
+	}
+
+	/**
 	 *
 	 * Get all available tables
 	 *
