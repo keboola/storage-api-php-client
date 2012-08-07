@@ -10,7 +10,7 @@ class Client
 	const INCREMENTAL_UPDATE = true;
 
 	// Object token
-	private $_token;
+	public $token;
 
 	// API URL
 	private $_apiUrl = "https://connection.keboola.com";
@@ -28,7 +28,7 @@ class Client
 			$this->setApiUrl($url);
 		}
 
-		$this->_token = $this->verifyToken($tokenString);
+		$this->token = $this->verifyToken($tokenString);
 	}
 
 	/**
@@ -100,7 +100,7 @@ class Client
 			"name" => $name,
 			"stage" => $stage,
 			"description" => $description,
-			"token" => $this->_token["token"]
+			"token" => $this->token["token"]
 		);
 
 		$bucketId = $this->getBucketId($name, $stage);
@@ -127,6 +127,14 @@ class Client
 		return $this->_apiDelete("/storage/buckets/" . $bucketId);
 	}
 
+	/**
+	 *
+	 * Set a bucket attribute
+	 *
+	 * @param $bucketId string
+	 * @param $key string
+	 * @param $value string
+	 */
 	public function setBucketAttribute($bucketId, $key, $value)
 	{
 		$this->_apiPost("/storage/buckets/$bucketId/attributes/$key", array(
@@ -134,13 +142,20 @@ class Client
 		));
 	}
 
+	/**
+	 *
+	 * Delete a bucket attribute
+	 *
+	 * @param $bucketId
+	 * @param $key
+	 * @return mixed|string
+	 */
 	public function deleteBucketAttribute($bucketId, $key)
 	{
 		$result = $this->_apiDelete("/storage/buckets/$bucketId/attributes/$key");
 		$this->_log("Bucket $bucketId attribute $key deleted");
 		return $result;
 	}
-
 
 	/**
 	 *
@@ -167,17 +182,17 @@ class Client
 	 *
 	 * @param $bucketId
 	 * @param $name
-	 * @param $dataFile Oneliner with table headers
-	 * @param string $delimiter
-	 * @param string $enclosure
-	 * @param null $primaryKey
-	 * @param int $transactional
+	 * @param $dataFile string Oneliner with table headers
+	 * @param $delimiter string
+	 * @param $enclosure string
+	 * @param $primaryKey string
+	 * @param $transactional bool
 	 * @return mixed
 	 */
 	public function createTable($bucketId, $name, $dataFile, $delimiter=",", $enclosure='"', $primaryKey=null, $transactional=0)
 	{
 		$options = array(
-			"token" => $this->_token["token"],
+			"token" => $this->token["token"],
 			"bucketId" => $bucketId,
 			"name" => $name,
 			"delimiter" => $delimiter,
@@ -203,10 +218,10 @@ class Client
 	 * Create table alias
 	 * @param $bucketId
 	 * @param $sourceTableId
-	 * @param null $name
+	 * @param $name string
 	 * @return mixed
 	 */
-	public function createAliasTable($bucketId, $sourceTableId, $name = NULL)
+	public function createAliasTable($bucketId, $sourceTableId, $name=NULL)
 	{
 		$options = array(
 			'sourceTable' => $sourceTableId,
@@ -222,7 +237,7 @@ class Client
 	 *
 	 * Get all available tables
 	 *
-	 * @param $bucketId limit search to a specific bucket
+	 * @param $bucketId string limit search to a specific bucket
 	 * @return mixed|string
 	 */
 	public function listTables($bucketId=null)
@@ -258,15 +273,15 @@ class Client
 	 *
 	 * @param $tableId
 	 * @param $dataFile
-	 * @param null $transaction
-	 * @param string $delimiter
-	 * @param string $enclosure
+	 * @param $transaction string
+	 * @param $delimiter string
+	 * @param $enclosure string
 	 */
 	public function writeTable($tableId, $dataFile, $transaction=null, $delimiter=",", $enclosure='"', $incremental=false, $partial=false)
 	{
 		// TODO Gzip data
 		$options = array(
-			"token" => $this->_token["token"],
+			"token" => $this->token["token"],
 			"tableId" => $tableId,
 			"delimiter" => $delimiter,
 			"enclosure" => $enclosure,
@@ -307,6 +322,14 @@ class Client
 		return $result;
 	}
 
+	/**
+	 *
+	 * Set a table attribute
+	 *
+	 * @param $tableId string
+	 * @param $key string
+	 * @param $value string
+	 */
 	public function setTableAttribute($tableId, $key, $value)
 	{
 		$this->_apiPost("/storage/tables/$tableId/attributes/$key", array(
@@ -314,6 +337,14 @@ class Client
 		));
 	}
 
+	/**
+	 *
+	 * Delete a table attribute
+	 *
+	 * @param $tableId
+	 * @param $key
+	 * @return mixed|string
+	 */
 	public function deleteTableAttribute($tableId, $key)
 	{
 		$result = $this->_apiDelete("/storage/tables/$tableId/attributes/$key");
@@ -344,8 +375,8 @@ class Client
 	 *
 	 * Generates a MySQL table definition
 	 *
-	 * @param $tableId Storage API table id
-	 * @param string $tableName target table name (optional)
+	 * @param $tableId string Storage API table id
+	 * @param $tableName string target table name (optional)
 	 * @return string
 	 */
 	public function getTableDefinition($tableId, $tableName=null)
@@ -359,7 +390,11 @@ class Client
 		// Column definition
 		$columns = array();
 		foreach($table["columns"] as $column) {
-			$columns[] = "`{$column}` varchar(255) NOT NULL DEFAULT ''";
+			if (in_array($column, $table["primaryKey"])) {
+				$columns[] = "`{$column}` VARCHAR(255) NOT NULL DEFAULT ''";
+			} else {
+				$columns[] = "`{$column}` TEXT NOT NULL";
+			}
 		}
 		$definition .= join(",\n", $columns);
 
@@ -386,7 +421,7 @@ class Client
 	 *
 	 * get token detail
 	 *
-	 * @param $tokenId token id
+	 * @param $tokenId string token id
 	 * @return mixed|string
 	 */
 	public function getToken($tokenId)
@@ -398,12 +433,12 @@ class Client
 	 *
 	 * Verify the token
 	 *
-	 * @param string $token Optional token
+	 * @param $token string Optional token
 	 */
 	public function verifyToken($token=null)
 	{
 		if (!$token) {
-			$token = $this->_token["token"];
+			$token = $this->token["token"];
 		}
 		$tokenObj = $this->_apiGet("/storage/tokens/verify", $token);
 
@@ -416,8 +451,8 @@ class Client
 	 *
 	 * create a new token
 	 *
-	 * @param array $permissions hash bucketId => permission (read/write)
-	 * @param string $description
+	 * @param $permissions array hash bucketId => permission (read/write)
+	 * @param $description string
 	 * @return integer token id
 	 */
 	public function createToken($permissions, $description=null)
@@ -442,9 +477,9 @@ class Client
 	 *
 	 * update token details
 	 *
-	 * @param $tokenId
-	 * @param $permissions
-	 * @param null $description
+	 * @param $tokenId string
+	 * @param $permissions array
+	 * @param $description string
 	 * @return mixed
 	 */
 	public function updateToken($tokenId, $permissions, $description=null)
@@ -469,19 +504,19 @@ class Client
 	 *
 	 * Refreshes a token. If refreshing current token, the token is updated.
 	 *
-	 * @param $tokenId If not set, defaults to self
+	 * @param $tokenId string If not set, defaults to self
 	 * @return string new token
 	 */
 	public function refreshToken($tokenId=null)
 	{
 		if ($tokenId == null) {
-			$tokenId = $this->_token["id"];
+			$tokenId = $this->token["id"];
 		}
 
 		$result = $this->_apiPost("/storage/tokens/" . $tokenId . "/refresh");
 
-		if ($this->_token["id"] == $result["id"]) {
-			$this->_token = $result;
+		if ($this->token["id"] == $result["id"]) {
+			$this->token = $result;
 		}
 
 		$this->_log("Token {$tokenId} refreshed", array("token" => $result));
@@ -495,8 +530,8 @@ class Client
 	 * TODO Test!
 	 *
 	 * @param $tableId
-	 * @param $fileName file to store data
-	 * @return mixed|string¨
+	 * @param $fileName string file to store data
+	 * @return mixed|string
 	 */
 	public function getGdXmlConfig($tableId, $fileName=null)
 	{
@@ -507,10 +542,10 @@ class Client
 	 *
 	 * Exports table contents to CSV
 	 *
-	 * @param $tableId
-	 * @param $fileName file to store data
-	 * @param int $limit TODO to be implemented
-	 * @param int $days  TODO to be implemented
+	 * @param $tableId string
+	 * @param $fileName string file to store data
+	 * @param $limit int TODO to be implemented
+	 * @param $days  int TODO to be implemented
 	 * @return string data
 	 */
 	public function exportTable($tableId, $fileName=null, $limit=0, $days=0)
@@ -531,7 +566,7 @@ class Client
 	{
 		// TODO Gzip data
 		$options = array(
-			"token" => $this->_token["token"],
+			"token" => $this->token["token"],
 			"file" => "@" . $fileName
 		);
 
@@ -546,14 +581,14 @@ class Client
 	 *
 	 * Generates URL for api call
 	 *
-	 * @param $url
-	 * @param string $token Optional token
+	 * @param $url string
+	 * @param $token string Optional token
 	 * @return string
 	 */
 	private function _constructUrl($url, $token=null)
 	{
 		if (!$token) {
-			$token = $this->_token["token"];
+			$token = $this->token["token"];
 		}
 		return $this->_apiUrl . $url . "?token=" . $token;
 	}
@@ -586,7 +621,7 @@ class Client
 	 * Prepare URL and call a GET request
 	 *
 	 * @param $url
-	 * @param null $token
+	 * @param $token
 	 * @return mixed|string
 	 */
 	protected function _apiGet($url, $token=null, $fileName=null)
@@ -599,8 +634,8 @@ class Client
 	 * Prepare URL and call a POST request
 	 *
 	 * @param $url
-	 * @param null $postData
-	 * @param null $token
+	 * @param $postData
+	 * @param $token
 	 * @return mixed|string
 	 */
 	protected function _apiPost($url, $postData=null, $token=null)
@@ -613,7 +648,7 @@ class Client
 	 * Prepare URL and call a DELETE request
 	 *
 	 * @param $url
-	 * @param null $token
+	 * @param $token
 	 * @return mixed|string
 	 */
 	protected function _apiDelete($url, $token=null)
@@ -626,7 +661,7 @@ class Client
 	 * CURL GET request, may be written to a file
 	 *
 	 * @param $url
-	 * @param null $fileName
+	 * @param $fileName
 	 * @return bool|mixed|string
 	 * @throws ClientException
 	 */
@@ -693,7 +728,7 @@ class Client
 	 * CURL POST request
 	 *
 	 * @param $url
-	 * @param array $postData
+	 * @param $postData array
 	 * @return mixed|string
 	 */
 	protected function _curlPost($url, $postData=null) {
@@ -798,14 +833,14 @@ class Client
 	}
 
 	/**
-	 * @param $message Messageto log
-	 * @param $data Data to log
+	 * @param $message string Messageto log
+	 * @param $data array Data to log
 	 *
 	 */
 	protected function _log($message, $data=array())
 	{
 		if (Client::$_log) {
-			$data["token"] = $this->_token["token"];
+			$data["token"] = $this->token["token"];
 			$message = "Storage API: " . $message;
 			call_user_func(Client::$_log, $message, $data);
 		}
@@ -813,7 +848,7 @@ class Client
 
 	/**
 	 * @static
-	 * @param $function anonymous function with $message and $data params
+	 * @param $function function anonymous function with $message and $data params
 	 */
 	public static function setLogger($function)
 	{
@@ -823,7 +858,7 @@ class Client
 	/**
 	 * Timer function
 	 *
-	 * @param string $name
+	 * @param $name string
 	 * @return float
 	 */
 	private function _timer($name=null)
