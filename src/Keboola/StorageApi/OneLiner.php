@@ -109,7 +109,7 @@ class OneLiner
 	 */
 	public function save()
 	{
-		$dataFile = self::$tmpDir . "data.csv";
+		$dataFile = tempnam(self::$tmpDir, "oneliner");
 
 		$fData = fopen($dataFile, "w");
 		fputcsv($fData, array_keys($this->_data));
@@ -122,6 +122,7 @@ class OneLiner
 		}
 
 		self::$client->writeTable($this->_tableId, $dataFile);
+		unlink($dataFile);
 	}
 
 	/**
