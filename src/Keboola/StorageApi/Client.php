@@ -856,6 +856,47 @@ class Client
 	}
 
 	/**
+	 *
+	 * Parse CSV into array
+	 *
+	 * @static
+	 * @param $string
+	 * @param $header bool if first line contains header
+	 * @param $delimiter string CSV delimiter
+	 * @param $enclosure string CSV field enclosure
+	 * @return array
+	 */
+	public static function parseCSV($csv, $header=true, $delimiter=",", $enclosure='"', $escape=null)
+	{
+		$data = array();
+		$headers = array();
+		$firstLine = true;
+		foreach(explode("\n", $csv) as $line) {
+			if (trim($line) == "") {
+				continue;
+			}
+			$parsedLine = str_getcsv($line, $delimiter, $enclosure, $escape);
+			if (!$header) {
+				$data[] = $parsedLine;
+			} else {
+				if ($firstLine) {
+					$headers = $parsedLine;
+				} else {
+					$lineData = array();
+					foreach($headers as $i => $headerName) {
+						$lineData[$headerName] = $parsedLine[$i];
+					}
+					$data[] = $lineData;
+				}
+			}
+			if ($firstLine) {
+				$firstLine = false;
+			}
+		}
+		return $data;
+	}
+
+	/**
 	 * Timer function
 	 *
 	 * @param $name string
