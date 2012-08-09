@@ -194,8 +194,10 @@ class Keboola_StorageApi_Buckets_TablesTest extends PHPUnit_Framework_TestCase
 	public function testParseCsv()
 	{
 		$csvData = '"column1","column2"' . "\n" . '"value1","value2"';
-		$data1 = \Keboola\StorageApi\Client::parseCSV($csvData);
-		$data2 = \Keboola\StorageApi\Client::parseCSV($csvData, false);
+
+		$data1 = \Keboola\StorageApi\Client::parseCsv($csvData);
+		$data2 = \Keboola\StorageApi\Client::parseCsv($csvData, false);
+
 		$this->assertEquals($data1[0]["column1"], "value1", 'Parse CSV');
 		$this->assertEquals($data1[0]["column2"], "value2", 'Parse CSV');
 		$this->assertEquals($data2[0][0], "column1", 'Parse CSV');

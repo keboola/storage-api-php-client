@@ -857,7 +857,8 @@ class Client
 
 	/**
 	 *
-	 * Parse CSV into array
+	 * Parse CSV string into array
+	 * uses str_getcsv function
 	 *
 	 * @static
 	 * @param $string
@@ -866,7 +867,7 @@ class Client
 	 * @param $enclosure string CSV field enclosure
 	 * @return array
 	 */
-	public static function parseCSV($csv, $header=true, $delimiter=",", $enclosure='"', $escape=null)
+	public static function parseCsv($csv, $header=true, $delimiter=",", $enclosure='"', $escape=null)
 	{
 		$data = array();
 		$headers = array();
