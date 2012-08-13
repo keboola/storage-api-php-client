@@ -261,7 +261,7 @@ class Client
 	{
 		$tables = $this->listTables($bucketId);
 		foreach($tables as $table) {
-			if ($table["name"] == $name && $table["bucket"]["id"] == $bucketId) {
+			if ($table["name"] == $name) {
 				return $table["id"];
 			}
 		}
