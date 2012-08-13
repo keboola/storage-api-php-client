@@ -34,8 +34,12 @@ class Reader
 	 * @param $bucket
 	 * @return array|string
 	 */
-	public static function read($bucket)
+	public static function read($bucket, $token=null)
 	{
+		if ($token) {
+			self::$client = new \Keboola\StorageApi\Client($token);
+		}
+		
 		$sApiArray = self::load($bucket);
 		return self::parse($sApiArray);
 
