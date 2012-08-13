@@ -259,7 +259,7 @@ class Client
 	 */
 	public function getTableId($name, $bucketId)
 	{
-		$tables = $this->listTables($bucketId);
+		$tables = $this->listTables();
 		foreach($tables as $table) {
 			if ($table["name"] == $name) {
 				return $table["id"];
@@ -500,11 +500,21 @@ class Client
 			$options["description"] = $description;
 		}
 
-		$result = $this->_apiPost("/storage/tokens", $options);
+		$result = $this->_apiPut("/storage/tokens/" . $tokenId, $options);
 
 		$this->_log("Token {$tokenId} updated", array("options" => $options, "result" => $result));
 
 		return $tokenId;
+	}
+
+	/**
+	 * @param $tokenId
+	 */
+	public function dropToken($tokenId)
+	{
+		$result = $this->_apiDelete("/storage/tokens/" . $tokenId);
+		$this->_log("Token {$tokenId} deleted");
+		return $result;
 	}
 
 	/**
@@ -653,6 +663,20 @@ class Client
 
 	/**
 	 *
+	 * Prepare URL and call a POST request
+	 *
+	 * @param $url
+	 * @param $postData
+	 * @param $token
+	 * @return mixed|string
+	 */
+	protected function _apiPut($url, $postData=null, $token=null)
+	{
+		return $this->_curlPut($this->_constructUrl($url, $token), $postData);
+	}
+
+	/**
+	 *
 	 * Prepare URL and call a DELETE request
 	 *
 	 * @param $url
@@ -740,14 +764,14 @@ class Client
 	 * @throws ClientException
 	 * @return mixed|string
 	 */
-	protected function _curlPost($url, $postData=null) {
+	protected function _curlPost($url, $postData=null, $method = 'POST') {
 
 		$logData = array("url" => $url, "postData" => $postData);
 		Client::_timer("request");
 
 		$ch = $this->_curlSetOpts();
 		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
 		curl_setopt($ch, CURLOPT_POST, 1);
 		if ($postData) {
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
@@ -776,6 +800,20 @@ class Client
 			$this->_log("POST Request failed", $logData);
 			throw new ClientException("CURL: " . $curlError);
 		}
+	}
+
+	/**
+	 *
+	 * CURL PUT request
+	 *
+	 * @param $url
+	 * @param $postData array
+	 * @throws ClientException
+	 * @return mixed|string
+	 */
+	protected function _curlPut($url, $postData=null)
+	{
+		$this->_curlPost($url, $postData, 'PUT');
 	}
 
 	/**
