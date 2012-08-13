@@ -5,6 +5,7 @@ class Client
 	// Stage names
 	const STAGE_IN = "in";
 	const STAGE_OUT = "out";
+	const STAGE_SYS = "sys";
 
 	const PARTIAL_UPDATE = true;
 	const INCREMENTAL_UPDATE = true;
