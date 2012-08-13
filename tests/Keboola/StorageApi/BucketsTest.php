@@ -7,20 +7,8 @@
  *
  */
 
-class Keboola_StorageApi_BucketsTest extends PHPUnit_Framework_TestCase
+class Keboola_StorageApi_BucketsTest extends StorageApiTestCase
 {
-
-	/**
-	 * @var Keboola\StorageApi\Client
-	 */
-	protected $_client;
-
-
-	public function setUp()
-	{
-		$this->_client = new Keboola\StorageApi\Client(STORAGE_API_TOKEN, STORAGE_API_URL);
-	}
-
 
 	public function testBucketsList()
 	{

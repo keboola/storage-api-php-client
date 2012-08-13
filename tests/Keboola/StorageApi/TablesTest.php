@@ -7,13 +7,8 @@
  *
  */
 
-class Keboola_StorageApi_Buckets_TablesTest extends PHPUnit_Framework_TestCase
+class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 {
-
-	/**
-	 * @var Keboola\StorageApi\Client
-	 */
-	protected $_client;
 
 	protected $_inBucketId;
 	protected $_outBucketId;
@@ -21,27 +16,11 @@ class Keboola_StorageApi_Buckets_TablesTest extends PHPUnit_Framework_TestCase
 
 	public function setUp()
 	{
-		// prepare bucket for tests
-		$this->_client = new Keboola\StorageApi\Client(STORAGE_API_TOKEN, STORAGE_API_URL);
+		parent::setUp();
 
-		$this->_outBucketId = $this->_initBucket('api-tests', 'out');
-		$this->_inBucketId = $this->_initBucket('api-tests', 'in');
+		$this->_outBucketId = $this->_initEmptyBucket('api-tests', 'out');
+		$this->_inBucketId = $this->_initEmptyBucket('api-tests', 'in');
 	}
-
-	protected function _initBucket($name, $stage)
-	{
-		$bucketId = $this->_client->getBucketId('c-' . $name, $stage);
-		if (!$bucketId) {
-			$bucketId = $this->_client->createBucket($name, $stage, 'Api tests');
-		}
-		$tables = $this->_client->listTables($bucketId);
-		foreach ($tables as $table) {
-			$this->_client->dropTable($table['id']);
-		}
-
-		return $bucketId;
-	}
-
 
 	public function testTableCreate()
 	{

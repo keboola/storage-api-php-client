@@ -12,6 +12,7 @@ ini_set('display_errors', true);
 date_default_timezone_set('Europe/Prague');
 
 require_once 'config.php';
+require_once 'tests/Test/StorageApiTestCase.php';
 require_once 'src/Keboola/StorageApi/Exception.php';
 require_once 'src/Keboola/StorageApi/Client.php';
 require_once 'src/Keboola/StorageApi/ClientException.php';
