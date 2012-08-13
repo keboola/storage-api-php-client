@@ -624,6 +624,9 @@ class Client
 		if ($data === null) {
 			return null;
 		}
+		if (is_string($data)) {
+			return $data;
+		}
 		if(isset($data["error"])) {
 			throw new ClientException($data["error"]);
 		}
