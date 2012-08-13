@@ -259,7 +259,7 @@ class Client
 	 */
 	public function getTableId($name, $bucketId)
 	{
-		$tables = $this->listTables();
+		$tables = $this->listTables($bucketId);
 		foreach($tables as $table) {
 			if ($table["name"] == $name) {
 				return $table["id"];

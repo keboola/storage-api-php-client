@@ -12,8 +12,6 @@
 
 	<testsuite name="API Test Suite">
 		<directory>tests</directory>
-		<file>tests/Keboola/StorageApi/BucketsTest.php</file>
-		<file>tests/Keboola/StorageApi/TablesTest.php</file>
 	</testsuite>
 
 	<logging>
