@@ -19,7 +19,7 @@ class Client
 	private static $_log;
 
 	/**
-	 * @param $token
+	 * @param $tokenString
 	 * @param $url API Url
 	 */
 	public function __construct($tokenString, $url=null)
@@ -186,10 +186,11 @@ class Client
 	 * @param $delimiter string
 	 * @param $enclosure string
 	 * @param $primaryKey string
-	 * @param $transactional bool
+	 * @param bool|int $transactional bool
 	 * @return mixed
 	 */
-	public function createTable($bucketId, $name, $dataFile, $delimiter=",", $enclosure='"', $primaryKey=null, $transactional=0)
+	public function createTable($bucketId, $name, $dataFile, $delimiter=",", $enclosure='"', $primaryKey=null,
+								$transactional=0)
 	{
 		$options = array(
 			"token" => $this->token["token"],
@@ -258,7 +259,7 @@ class Client
 	 */
 	public function getTableId($name, $bucketId)
 	{
-		$tables = $this->listTables();
+		$tables = $this->listTables($bucketId);
 		foreach($tables as $table) {
 			if ($table["name"] == $name && $table["bucket"]["id"] == $bucketId) {
 				return $table["id"];
@@ -276,8 +277,12 @@ class Client
 	 * @param $transaction string
 	 * @param $delimiter string
 	 * @param $enclosure string
+	 * @param bool $incremental
+	 * @param bool $partial
+	 * @return mixed|string
 	 */
-	public function writeTable($tableId, $dataFile, $transaction=null, $delimiter=",", $enclosure='"', $incremental=false, $partial=false)
+	public function writeTable($tableId, $dataFile, $transaction=null, $delimiter=",", $enclosure='"',
+							   $incremental=false, $partial=false)
 	{
 		// TODO Gzip data
 		$options = array(
@@ -314,6 +319,7 @@ class Client
 	 * Drop a table
 	 *
 	 * @param $tableId
+	 * @return mixed|string
 	 */
 	public function dropTable($tableId)
 	{
@@ -434,6 +440,7 @@ class Client
 	 * Verify the token
 	 *
 	 * @param $token string Optional token
+	 * @return mixed|string
 	 */
 	public function verifyToken($token=null)
 	{
@@ -598,8 +605,8 @@ class Client
 	 * Converts JSON to object and detects errors
 	 *
 	 * @param $jsonString
+	 * @throws ClientException
 	 * @return mixed
-	 * @throws Exception
 	 */
 	private function _parseResponse($jsonString)
 	{
@@ -622,6 +629,7 @@ class Client
 	 *
 	 * @param $url
 	 * @param $token
+	 * @param null $fileName
 	 * @return mixed|string
 	 */
 	protected function _apiGet($url, $token=null, $fileName=null)
@@ -729,6 +737,7 @@ class Client
 	 *
 	 * @param $url
 	 * @param $postData array
+	 * @throws ClientException
 	 * @return mixed|string
 	 */
 	protected function _curlPost($url, $postData=null) {
@@ -774,8 +783,8 @@ class Client
 	 * CURL DELETE request
 	 *
 	 * @param $url
+	 * @throws ClientException
 	 * @return mixed
-	 * @throws Exception
 	 */
 	protected function _curlDelete($url)
 	{
@@ -861,10 +870,11 @@ class Client
 	 * uses str_getcsv function
 	 *
 	 * @static
-	 * @param $string
+	 * @param $csv
 	 * @param $header bool if first line contains header
 	 * @param $delimiter string CSV delimiter
 	 * @param $enclosure string CSV field enclosure
+	 * @param null $escape
 	 * @return array
 	 */
 	public static function parseCsv($csv, $header=true, $delimiter=",", $enclosure='"', $escape=null)
