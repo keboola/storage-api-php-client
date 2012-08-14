@@ -16,6 +16,9 @@ class Client
 	// API URL
 	private $_apiUrl = "https://connection.keboola.com";
 
+	// User agent header send with each API request
+	private $_userAgent = 'Keboola Storage API PHP Client';
+
 	// Log anonymous function
 	private static $_log;
 
@@ -23,10 +26,14 @@ class Client
 	 * @param $tokenString
 	 * @param $url API Url
 	 */
-	public function __construct($tokenString, $url=null)
+	public function __construct($tokenString, $url=null, $userAgent=null)
 	{
 		if ($url) {
 			$this->setApiUrl($url);
+		}
+
+		if ($userAgent) {
+			$this->setUserAgent($userAgent);
 		}
 
 		$this->token = $this->verifyToken($tokenString);
@@ -41,6 +48,17 @@ class Client
 	public function setApiUrl($url)
 	{
 		$this->_apiUrl = $url;
+	}
+
+
+	/**
+	 * @param $userAgent
+	 * @return Client
+	 */
+	public function setUserAgent($userAgent)
+	{
+		$this->_userAgent = (string) $userAgent;
+		return $this;
 	}
 
 	/**
@@ -880,6 +898,7 @@ class Client
 		curl_setopt($ch, CURL_HTTP_VERSION_1_1, true);
 		curl_setopt($ch, CURLOPT_HTTPGET, true);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+		curl_setopt($ch, CURLOPT_USERAGENT, $this->_userAgent);
 		return $ch;
 	}
 
