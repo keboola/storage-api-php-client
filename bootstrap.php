@@ -11,7 +11,16 @@ ini_set('display_errors', true);
 
 date_default_timezone_set('Europe/Prague');
 
-require_once 'config.php';
+if (file_exists('config.php')) {
+	require_once 'config.php';
+}
+
+defined('STORAGE_API_URL')
+	|| define('STORAGE_API_URL', getenv('STORAGE_API_URL') ? getenv('STORAGE_API_URL') : 'https://connection-devel.keboola.com');
+
+defined('STORAGE_API_TOKEN')
+	|| define('STORAGE_API_TOKEN', getenv('STORAGE_API_TOKEN') ? getenv('STORAGE_API_TOKEN') : 'your_token');
+
 require_once 'tests/Test/StorageApiTestCase.php';
 require_once 'src/Keboola/StorageApi/Exception.php';
 require_once 'src/Keboola/StorageApi/Client.php';

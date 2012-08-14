@@ -30,6 +30,8 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 		$this->assertEquals($tableId, $table['id']);
 		$this->assertEquals('languages', $table['name']);
 		$this->assertEquals('languages', $table['gdName']);
+		$this->assertNotEmpty($table['created']);
+		$this->assertNotEquals('0000-00-00 00:00:00', $table['created']);
 
 		$this->assertEquals(file_get_contents(__DIR__ . '/_data/languages.csv'),
 			$this->_client->exportTable($tableId), 'initial data imported into table');
@@ -138,6 +140,8 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 		$this->assertNotEmpty($sourceTable['lastImportDate']);
 		$this->assertEquals($sourceTable['lastImportDate'], $aliasTable['lastImportDate']);
 		$this->assertEquals($sourceTable['columns'], $aliasTable['columns']);
+		$this->assertNotEmpty($aliasTable['created']);
+		$this->assertNotEquals('0000-00-00 00:00:00', $aliasTable['created']);
 
 		$this->assertArrayHasKey('sourceTable', $aliasTable);
 		$this->assertEquals($sourceTableId, $aliasTable['sourceTable']['id'], 'new table linked to source table');
