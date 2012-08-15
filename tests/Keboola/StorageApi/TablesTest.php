@@ -22,9 +22,13 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 		$this->_inBucketId = $this->_initEmptyBucket('api-tests', 'in');
 	}
 
-	public function testTableCreate()
+	/**
+	 * @dataProvider tableCreateData
+	 * @param $langugesFile
+	 */
+	public function testTableCreate($langugesFile)
 	{
-		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', __DIR__ . '/_data/languages.csv');
+		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', __DIR__ . '/_data/' . $langugesFile);
 		$table = $this->_client->getTable($tableId);
 
 		$this->assertEquals($tableId, $table['id']);
@@ -35,6 +39,14 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 
 		$this->assertEquals(file_get_contents(__DIR__ . '/_data/languages.csv'),
 			$this->_client->exportTable($tableId), 'initial data imported into table');
+	}
+
+	public function tableCreateData()
+	{
+		return array(
+			array('languages.csv'),
+			array('languages.csv.gz'),
+		);
 	}
 
 	public function testTableDelete()
@@ -53,12 +65,16 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 		$this->assertEquals($table2Id, $table['id']);
 	}
 
-	public function testTableImport()
+	/**
+	 * @dataProvider tableImportData
+	 * @param $languagesFile
+	 */
+	public function testTableImport($languagesFile)
 	{
-		$importFile = __DIR__ . '/_data/languages.csv';
-		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $importFile);
+		$importFile = __DIR__ . '/_data/' . $languagesFile;
+		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', __DIR__ . '/_data/languages.csv');
 
-		$result = $this->_client->writeTable($tableId, __DIR__ . '/_data/languages.csv');
+		$result = $this->_client->writeTable($tableId, $importFile);
 
 		$this->assertEmpty($result['warnings']);
 		$this->assertEquals(array('id', 'name'), array_values($result['importedColumns']), 'columns');
@@ -66,20 +82,40 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 
 		// compare data
 		$dataInTable = array_map('str_getcsv', explode("\n", $this->_client->exportTable($tableId)));
-		$expectedData  =  array_map('str_getcsv', explode("\n", file_get_contents($importFile)));
+		$expectedData  =  array_map('str_getcsv', explode("\n", file_get_contents(__DIR__ . '/_data/languages.csv')));
 
 		$this->assertEquals($expectedData, $dataInTable, 'imported data comparsion');
 	}
 
+	public function tableImportData()
+	{
+		return array(
+			array('languages.csv'),
+			array('languages.zip'),
+			array('languages.csv.gz'),
+		);
+	}
+
+
 	/**
+	 * @dataProvider tableImportInvalidData
 	 * @expectedException Keboola\StorageApi\ClientException
 	 */
-	public function testTableInvalidImport()
+	public function testTableInvalidImport($languagesFile)
 	{
-		$importFile = __DIR__ . '/_data/languages.csv';
-		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $importFile);
+		$importFile = __DIR__ . '/_data/' . $languagesFile;
+		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', __DIR__ . '/_data/languages.csv');
 
-		$this->_client->writeTable($tableId, __DIR__ . '/_data/languages.invalid.csv');
+		$this->_client->writeTable($tableId, $importFile);
+	}
+
+	public function tableImportInvalidData()
+	{
+		return array(
+			array('languages.invalid.csv'),
+			array('languages.invalid.gzip'),
+			array('languages.invalid.zip'),
+		);
 	}
 
 	public function testGoodDataXml()
