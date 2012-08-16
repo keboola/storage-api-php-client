@@ -348,6 +348,17 @@ class Client
 	}
 
 	/**
+	 * Unlink aliased table from source table
+	 * @param $tableId
+	 */
+	public function unlinkTable($tableId)
+	{
+		$result = $this->_apiDelete("/storage/tables/" . $tableId . '?unlink');
+		$this->_log("Table {$tableId} unlinked");
+		return $result;
+	}
+
+	/**
 	 *
 	 * Set a table attribute
 	 *
@@ -626,7 +637,7 @@ class Client
 		if (!$token) {
 			$token = $this->token["token"];
 		}
-		return $this->_apiUrl . $url . "?token=" . $token;
+		return $this->_apiUrl . $url . (strpos($url, '?') === false ?  '?' : '&') . "token=" . $token;
 	}
 
 	/**

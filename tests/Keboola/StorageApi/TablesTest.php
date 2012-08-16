@@ -212,6 +212,36 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 		$this->_client->dropTable($sourceTableId);
 	}
 
+	public function testTableAliasUnlink()
+	{
+		$importFile = __DIR__ . '/_data/languages.csv';
+
+		// create and import data into source table
+		$sourceTableId = $this->_client->createTable($this->_inBucketId, 'languages', $importFile);
+		$this->_client->writeTable($sourceTableId, __DIR__ . '/_data/languages.csv');
+
+		// create alias table
+		$aliasTableId = $this->_client->createAliasTable($this->_outBucketId, $sourceTableId);
+		$aliasTable = $this->_client->getTable($aliasTableId);
+
+		$this->assertArrayHasKey('sourceTable', $aliasTable);
+		$this->assertEquals($sourceTableId, $aliasTable['sourceTable']['id'], 'new table linked to source table');
+
+		// unlink
+		$this->_client->unlinkTable($aliasTableId);
+
+		$aliasTable = $this->_client->getTable($aliasTableId);
+		$this->assertArrayNotHasKey('sourceTable', $aliasTable);
+
+		// real table cannot be unlinked
+		try {
+			$this->_client->unlinkTable($aliasTableId);
+			$this->fail('Real table should not be unlinked');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+		}
+
+	}
+
 	public function testParseCsv()
 	{
 		$csvData = '"column1","column2"' . "\n" . '"value1","value2"';
