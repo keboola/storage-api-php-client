@@ -36,6 +36,8 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 		$this->assertEquals('languages', $table['gdName']);
 		$this->assertNotEmpty($table['created']);
 		$this->assertNotEquals('0000-00-00 00:00:00', $table['created']);
+		$this->assertEquals(count($this->_readCsv(__DIR__ . '/_data/languages.csv')) - 1, $table['rowsCount']);
+		$this->assertNotEmpty($table['dataSizeBytes']);
 
 		$this->assertEquals(file_get_contents(__DIR__ . '/_data/languages.csv'),
 			$this->_client->exportTable($tableId), 'initial data imported into table');
@@ -75,16 +77,26 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', __DIR__ . '/_data/languages.csv');
 
 		$result = $this->_client->writeTable($tableId, $importFile);
+		$table = $this->_client->getTable($tableId);
 
+		$rowsCountInCsv = count($this->_readCsv(__DIR__ . '/_data/languages.csv')) - 1;
 		$this->assertEmpty($result['warnings']);
 		$this->assertEquals(array('id', 'name'), array_values($result['importedColumns']), 'columns');
 		$this->assertEmpty($result['transaction']);
+		$this->assertEquals($rowsCountInCsv, $table['rowsCount']);
+		$this->assertNotEmpty($table['dataSizeBytes']);
+		$this->assertEquals($rowsCountInCsv, $result['totalRowsCount']);
+		$this->assertNotEmpty($result['totalDataSizeBytes']);
 
 		// compare data
 		$dataInTable = array_map('str_getcsv', explode("\n", $this->_client->exportTable($tableId)));
 		$expectedData  =  array_map('str_getcsv', explode("\n", file_get_contents(__DIR__ . '/_data/languages.csv')));
-
 		$this->assertEquals($expectedData, $dataInTable, 'imported data comparsion');
+
+		// incremental
+		$result = $this->_client->writeTable($tableId, $importFile, null, ",", '"', true);
+		$this->assertEquals(2 * $rowsCountInCsv, $result['totalRowsCount']);
+		$this->assertNotEmpty($result['totalDataSizeBytes']);
 	}
 
 	public function tableImportData()
@@ -255,6 +267,21 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 		$this->assertEquals($data2[0][1], "column2", 'Parse CSV');
 		$this->assertEquals($data2[1][0], "value1", 'Parse CSV');
 		$this->assertEquals($data2[1][1], "value2", 'Parse CSV');
+	}
+
+	/**
+	 * @param $path
+	 * @return array
+	 */
+	protected function _readCsv($path)
+	{
+		$fh = fopen($path, 'r');
+		$lines = array();
+		while (($data = fgetcsv($fh, 1000, ",")) !== FALSE) {
+		  $lines[] = $data;
+		}
+		fclose($fh);
+		return $lines;
 	}
 
 }
