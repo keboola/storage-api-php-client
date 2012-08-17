@@ -15,11 +15,11 @@
 	</testsuite>
 
 	<logging>
-	  <log type="coverage-html" target="../build/results/coverage" title="php-demo"
+	  <log type="coverage-html" target="build/results/coverage" title="php-demo"
 	   charset="UTF-8" yui="true" highlight="true"
 	   lowUpperBound="0" highLowerBound="0"/>
-	  <log type="coverage-clover" target="../build/results/logs/clover.xml"/>
-	  <log type="junit" target="../build/results/logs/junit.xml" logIncompleteSkipped="false"/>
+	  <log type="coverage-clover" target="build/results/logs/clover.xml"/>
+	  <log type="junit" target="build/results/logs/junit.xml" logIncompleteSkipped="false"/>
 	</logging>
 
 </phpunit>
