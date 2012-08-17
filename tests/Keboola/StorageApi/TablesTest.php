@@ -190,6 +190,8 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 		$this->assertEquals($sourceTable['columns'], $aliasTable['columns']);
 		$this->assertNotEmpty($aliasTable['created']);
 		$this->assertNotEquals('0000-00-00 00:00:00', $aliasTable['created']);
+		$this->assertEquals($sourceTable['rowsCount'], $aliasTable['rowsCount']);
+		$this->assertEquals($sourceTable['dataSizeBytes'], $aliasTable['dataSizeBytes']);
 
 		$this->assertArrayHasKey('sourceTable', $aliasTable);
 		$this->assertEquals($sourceTableId, $aliasTable['sourceTable']['id'], 'new table linked to source table');
