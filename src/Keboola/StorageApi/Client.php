@@ -10,7 +10,7 @@ class Client
 	const PARTIAL_UPDATE = true;
 	const INCREMENTAL_UPDATE = true;
 
-	// Object token
+	// Token string
 	public $token;
 
 	// API URL
@@ -36,7 +36,7 @@ class Client
 			$this->setUserAgent($userAgent);
 		}
 
-		$this->token = $this->verifyToken($tokenString);
+		$this->token = $tokenString;
 	}
 
 	/**
@@ -119,7 +119,6 @@ class Client
 			"name" => $name,
 			"stage" => $stage,
 			"description" => $description,
-			"token" => $this->token["token"]
 		);
 
 		$bucketId = $this->getBucketId($name, $stage);
@@ -212,7 +211,6 @@ class Client
 								$transactional=0)
 	{
 		$options = array(
-			"token" => $this->token["token"],
 			"bucketId" => $bucketId,
 			"name" => $name,
 			"delimiter" => $delimiter,
@@ -305,7 +303,6 @@ class Client
 	{
 		// TODO Gzip data
 		$options = array(
-			"token" => $this->token["token"],
 			"tableId" => $tableId,
 			"delimiter" => $delimiter,
 			"enclosure" => $enclosure,
@@ -469,15 +466,11 @@ class Client
 	 *
 	 * Verify the token
 	 *
-	 * @param $token string Optional token
 	 * @return mixed|string
 	 */
-	public function verifyToken($token=null)
+	public function verifyToken()
 	{
-		if (!$token) {
-			$token = $this->token["token"];
-		}
-		$tokenObj = $this->_apiGet("/storage/tokens/verify", $token);
+		$tokenObj = $this->_apiGet("/storage/tokens/verify");
 
 		$this->_log("Token verified", array("token" => $tokenObj));
 
@@ -556,14 +549,15 @@ class Client
 	 */
 	public function refreshToken($tokenId=null)
 	{
+		$currentToken = $this->verifyToken();
 		if ($tokenId == null) {
-			$tokenId = $this->token["id"];
+			$tokenId = $currentToken["id"];
 		}
 
 		$result = $this->_apiPost("/storage/tokens/" . $tokenId . "/refresh");
 
-		if ($this->token["id"] == $result["id"]) {
-			$this->token = $result;
+		if ($currentToken["id"] == $result["id"]) {
+			$this->token = $result['token'];
 		}
 
 		$this->_log("Token {$tokenId} refreshed", array("token" => $result));
@@ -613,7 +607,6 @@ class Client
 	{
 		// TODO Gzip data
 		$options = array(
-			"token" => $this->token["token"],
 			"file" => "@" . $fileName
 		);
 
@@ -629,15 +622,11 @@ class Client
 	 * Generates URL for api call
 	 *
 	 * @param $url string
-	 * @param $token string Optional token
 	 * @return string
 	 */
-	private function _constructUrl($url, $token=null)
+	private function _constructUrl($url)
 	{
-		if (!$token) {
-			$token = $this->token["token"];
-		}
-		return $this->_apiUrl . $url . (strpos($url, '?') === false ?  '?' : '&') . "token=" . $token;
+		return $this->_apiUrl . $url;
 	}
 
 	/**
@@ -671,13 +660,12 @@ class Client
 	 * Prepare URL and call a GET request
 	 *
 	 * @param $url
-	 * @param $token
 	 * @param null $fileName
 	 * @return mixed|string
 	 */
-	protected function _apiGet($url, $token=null, $fileName=null)
+	protected function _apiGet($url, $fileName=null)
 	{
-		return $this->_curlGet($this->_constructUrl($url, $token), $fileName);
+		return $this->_curlGet($this->_constructUrl($url), $fileName);
 	}
 
 	/**
@@ -686,12 +674,11 @@ class Client
 	 *
 	 * @param $url
 	 * @param $postData
-	 * @param $token
 	 * @return mixed|string
 	 */
-	protected function _apiPost($url, $postData=null, $token=null)
+	protected function _apiPost($url, $postData=null)
 	{
-		return $this->_curlPost($this->_constructUrl($url, $token), $postData);
+		return $this->_curlPost($this->_constructUrl($url), $postData);
 	}
 
 	/**
@@ -700,12 +687,11 @@ class Client
 	 *
 	 * @param $url
 	 * @param $postData
-	 * @param $token
 	 * @return mixed|string
 	 */
-	protected function _apiPut($url, $postData=null, $token=null)
+	protected function _apiPut($url, $postData=null)
 	{
-		return $this->_curlPut($this->_constructUrl($url, $token), $postData);
+		return $this->_curlPut($this->_constructUrl($url), $postData);
 	}
 
 	/**
@@ -713,12 +699,11 @@ class Client
 	 * Prepare URL and call a DELETE request
 	 *
 	 * @param $url
-	 * @param $token
 	 * @return mixed|string
 	 */
-	protected function _apiDelete($url, $token=null)
+	protected function _apiDelete($url)
 	{
-		return $this->_curlDelete($this->_constructUrl($url, $token));
+		return $this->_curlDelete($this->_constructUrl($url));
 	}
 
 	/**
@@ -910,6 +895,9 @@ class Client
 		curl_setopt($ch, CURLOPT_HTTPGET, true);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 		curl_setopt($ch, CURLOPT_USERAGENT, $this->_userAgent);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+			"X-StorageApi-Token: {$this->token}",
+		));
 		return $ch;
 	}
 
@@ -921,7 +909,7 @@ class Client
 	protected function _log($message, $data=array())
 	{
 		if (Client::$_log) {
-			$data["token"] = $this->token["token"];
+			$data["token"] = $this->token;
 			$message = "Storage API: " . $message;
 			call_user_func(Client::$_log, $message, $data);
 		}
