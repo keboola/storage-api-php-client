@@ -650,6 +650,10 @@ class Client
 	 */
 	private function _parseResponse($jsonString)
 	{
+		// Detect JSON string
+		if ($jsonString[0] != "{" && $jsonString[0] != "[" ) {
+			return null;
+		};
 		$data = json_decode($jsonString, true);
 		if ($data === null) {
 			return null;
