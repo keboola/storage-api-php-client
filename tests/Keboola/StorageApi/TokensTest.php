@@ -82,6 +82,9 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 
 		$client = new Keboola\StorageApi\Client($token['token'], STORAGE_API_URL);
 
+		// token getter
+		$this->assertEquals($client->getTokenString(), $token['token']);
+
 		// check assigned buckets
 		$buckets = $client->listBuckets();
 		$this->assertCount(1, $buckets);

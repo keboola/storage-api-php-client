@@ -464,6 +464,17 @@ class Client
 
 	/**
 	 *
+	 * Returns the token string
+	 *
+	 * @return string
+	 */
+	public function getTokenString()
+	{
+		return $this->token;
+	}
+
+	/**
+	 *
 	 * Verify the token
 	 *
 	 * @return mixed|string
