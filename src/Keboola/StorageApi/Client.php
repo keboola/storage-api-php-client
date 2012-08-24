@@ -730,20 +730,28 @@ class Client
 	 * @return bool|mixed|string
 	 * @throws ClientException
 	 */
-	protected function _curlGet($url, $fileName=null)
+	protected function _curlGet($url, $fileName=null, $gzip = true)
 	{
 
 		$logData = array("url" => $url);
 		Client::_timer("request");
 
-		$ch = $this->_curlSetOpts();
-		curl_setopt($ch, CURLOPT_URL, $url);
-
+		$headers = array();
+		$file = null;
 		if ($fileName) {
+
 			$file = fopen($fileName, "w");
 			if (!$file) {
 				throw new ClientException("Cannot open file {$fileName}");
 			}
+			if ($gzip) {
+				$headers[] = "Accept-encoding: gzip";
+			}
+		}
+
+		$ch = $this->_curlSetOpts($headers);
+		curl_setopt($ch, CURLOPT_URL, $url);
+		if (is_resource($file)) {
 			curl_setopt($ch, CURLOPT_FILE, $file);
 		}
 
@@ -754,38 +762,67 @@ class Client
 			fclose($file);
 			// Read the first line from the file, as it might contain errors
 			$file = fopen($fileName, "r");
-			$result = fgets($file);
+			$result = fgets($file, 1024);
 			fclose($file);
 		}
 
 		$logData["requestTime"] = Client::_timer("request");
 
-		if ($result) {
-			$this->_log("GET Request finished", $logData);
-			try {
-				$parsedData = $this->_parseResponse($result);
-				// If data cannot be parsed, there might be no error - JSON not parsed
-				if ($parsedData===null) {
-					if ($fileName) {
-						return true;
-					}
-					return $result;
-				}
-				return $parsedData;
-			} catch (ClientException $e) {
-				$errData = array(
-					"error" => $e->getMessage(),
-					"url" => $url
-				);
-				$this->_log("Error in GET request response", $errData);
-				throw $e;
-			}
-		} else {
+		if (!$result) {
 			$curlError = curl_error($ch);
 			$logData["curlError"] = $curlError;
 			$this->_log("GET Request failed", $logData);
 			throw new ClientException("CURL: " . curl_error($ch));
 		}
+
+		$this->_log("GET Request finished", $logData);
+		try {
+			$parsedData = $this->_parseResponse($result);
+
+			// If data cannot be parsed, there might be no error - JSON not parsed
+			if ($parsedData !== null) {
+				return $parsedData;
+			}
+
+			if (!$fileName) {
+				return $result;
+			}
+
+			if ($gzip) {
+				$this->_ungzipFile($fileName);
+			}
+
+			return true;
+		} catch (ClientException $e) {
+			$errData = array(
+				"error" => $e->getMessage(),
+				"url" => $url
+			);
+			$this->_log("Error in GET request response", $errData);
+			throw $e;
+		}
+
+	}
+
+	private function _ungzipFile($fileName)
+	{
+		$suffix = pathinfo($fileName, PATHINFO_EXTENSION);
+		$cmd = 'gzip --d ' . escapeshellarg($fileName) . ' --suffix ' .  '.' . $suffix;
+
+		$expectedFile = pathinfo($fileName, PATHINFO_DIRNAME) . '/' . basename($fileName, '.' . $suffix);
+		if (is_file($expectedFile)) {
+			throw new  ClientException("Cannot unzip file, file $expectedFile alreadyExists");
+		}
+		shell_exec($cmd);
+
+		if (!is_file($expectedFile)) {
+			throw new ClientException('Error on response decode');
+		}
+
+		if (!rename($expectedFile, $fileName)) {
+			throw new ClientException('Error on response decode');
+		}
+
 	}
 
 	/**
@@ -900,7 +937,7 @@ class Client
 	 *
 	 * @return resource
 	 */
-	protected function _curlSetOpts()
+	protected function _curlSetOpts($headers = array())
 	{
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -910,9 +947,9 @@ class Client
 		curl_setopt($ch, CURLOPT_HTTPGET, true);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 		curl_setopt($ch, CURLOPT_USERAGENT, $this->_userAgent);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array_merge(array(
 			"X-StorageApi-Token: {$this->token}",
-		));
+		), $headers));
 		return $ch;
 	}
 
