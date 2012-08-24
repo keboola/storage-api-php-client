@@ -602,7 +602,7 @@ class Client
 	 */
 	public function exportTable($tableId, $fileName=null, $limit=0, $days=0)
 	{
-		return $this->_apiGet("/storage/tables/{$tableId}/export", null, $fileName);
+		return $this->_apiGet("/storage/tables/{$tableId}/export", $fileName);
 	}
 
 	/**
