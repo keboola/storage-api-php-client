@@ -948,6 +948,7 @@ class Client
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 		curl_setopt($ch, CURLOPT_USERAGENT, $this->_userAgent);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array_merge(array(
+			"Connection: close",
 			"X-StorageApi-Token: {$this->token}",
 		), $headers));
 		return $ch;
