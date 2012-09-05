@@ -208,7 +208,7 @@ class Client
 	 * @return mixed
 	 */
 	public function createTable($bucketId, $name, $dataFile, $delimiter=",", $enclosure='"', $primaryKey=null,
-								$transactional=0)
+								$transactional=0, $transaction=null)
 	{
 		$options = array(
 			"bucketId" => $bucketId,
@@ -219,6 +219,9 @@ class Client
 			"transactional" => $transactional,
 			"data" => "@" . $dataFile
 		);
+		if ($transaction) {
+			$options["transaction"] = $transaction;
+		}
 
 		$tableId = $this->getTableId($name, $bucketId);
 		if ($tableId) {
