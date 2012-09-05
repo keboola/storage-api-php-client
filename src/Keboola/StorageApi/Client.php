@@ -422,9 +422,18 @@ class Client
 
 		// Column definition
 		$columns = array();
+
+		// Key length can be 1000 bytes in MySQL
+		// As we use UTF-8, every character might occupy up to 3 bytes, thus joint primary keys (varchars)
+		// exceed the 1000 byte limit. We calculate maximum varchar length so all columns in the primary key
+		// do not exceed the total allowed length.
+		$varcharKeyLength = 255;
+		if (count($table["primaryKey"]) > 1) {
+			$varcharKeyLength = floor (1000 / (count($table["primaryKey"])*3));
+		}
 		foreach($table["columns"] as $column) {
 			if (in_array($column, $table["primaryKey"])) {
-				$columns[] = "`{$column}` VARCHAR(255) NOT NULL DEFAULT ''";
+				$columns[] = "`{$column}` VARCHAR({$varcharKeyLength}) NOT NULL DEFAULT ''";
 			} else {
 				$columns[] = "`{$column}` TEXT NOT NULL";
 			}
