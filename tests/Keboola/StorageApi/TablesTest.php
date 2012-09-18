@@ -99,6 +99,16 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 		$this->assertNotEmpty($result['totalDataSizeBytes']);
 	}
 
+	public function tableImportData()
+	{
+		return array(
+			array('languages.csv'),
+			array('languages.utf8.bom.csv'),
+			array('languages.zip'),
+			array('languages.csv.gz'),
+		);
+	}
+
 	public function testTableFileExport()
 	{
 		$importFile =  __DIR__ . '/_data/languages.csv';
@@ -112,16 +122,6 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 		$this->_client->exportTable($tableId, $outputFile);
 		$this->assertFileEquals($importFile, $outputFile);
 	}
-
-	public function tableImportData()
-	{
-		return array(
-			array('languages.csv'),
-			array('languages.zip'),
-			array('languages.csv.gz'),
-		);
-	}
-
 
 	/**
 	 * @dataProvider tableImportInvalidData
