@@ -1,0 +1,6 @@
+"col1","col2"
+"standard with enclosure","neco"
+"item with\nline break","second row"
+"enclosure inside test"" escaped with enclosure and with backslash "" on the end","another"
+"backslash  in text","backslash escaped with basckslash \\ in text"
+"[{""about"":0,""name"":""\\""Stored by way of Bell: The Recent Class\\"""",""sentiment"":0}]","another"

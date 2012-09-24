@@ -69,19 +69,20 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 
 	/**
 	 * @dataProvider tableImportData
-	 * @param $languagesFile
+	 * @param $importFileName
 	 */
-	public function testTableImport($languagesFile)
+	public function testTableImport($importFileName, $expectationsFileName, $colNames)
 	{
-		$importFile = __DIR__ . '/_data/' . $languagesFile;
-		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', __DIR__ . '/_data/languages.csv');
+		$importFile = __DIR__ . '/_data/' . $importFileName;
+		$expectationsFile = __DIR__ . '/_data/' . $expectationsFileName;
+		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $expectationsFile);
 
 		$result = $this->_client->writeTable($tableId, $importFile);
 		$table = $this->_client->getTable($tableId);
 
-		$rowsCountInCsv = count($this->_readCsv(__DIR__ . '/_data/languages.csv')) - 1;
+		$rowsCountInCsv = count($this->_readCsv($expectationsFile)) - 1;
 		$this->assertEmpty($result['warnings']);
-		$this->assertEquals(array('id', 'name'), array_values($result['importedColumns']), 'columns');
+		$this->assertEquals($colNames, array_values($result['importedColumns']), 'columns');
 		$this->assertEmpty($result['transaction']);
 		$this->assertEquals($rowsCountInCsv, $table['rowsCount']);
 		$this->assertNotEmpty($table['dataSizeBytes']);
@@ -89,9 +90,9 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 		$this->assertNotEmpty($result['totalDataSizeBytes']);
 
 		// compare data
-		$dataInTable = array_map('str_getcsv', explode("\n", $this->_client->exportTable($tableId)));
-		$expectedData  =  array_map('str_getcsv', explode("\n", file_get_contents(__DIR__ . '/_data/languages.csv')));
-		$this->assertEquals($expectedData, $dataInTable, 'imported data comparsion');
+//		$dataInTable = array_map('str_getcsv', explode("\n", $this->_client->exportTable($tableId)));
+//		$expectedData  =  array_map('str_getcsv', explode("\n", file_get_contents($expectationsFile)));
+		$this->assertEquals(file_get_contents($expectationsFile), $this->_client->exportTable($tableId), 'imported data comparsion');
 
 		// incremental
 		$result = $this->_client->writeTable($tableId, $importFile, null, ",", '"', true);
@@ -102,10 +103,11 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 	public function tableImportData()
 	{
 		return array(
-			array('languages.csv'),
-			array('languages.utf8.bom.csv'),
-			array('languages.zip'),
-			array('languages.csv.gz'),
+			array('languages.csv', 'languages.csv', array('id', 'name')),
+			array('languages.utf8.bom.csv', 'languages.csv', array('id', 'name')),
+			array('languages.zip', 'languages.csv', array('id', 'name')),
+			array('languages.csv.gz', 'languages.csv', array('id', 'name')),
+			array('escaping.csv', 'escaping.out.csv', array('col1', 'col2')),
 		);
 	}
 
