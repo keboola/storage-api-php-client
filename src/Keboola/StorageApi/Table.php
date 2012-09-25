@@ -108,20 +108,26 @@ class Table
 	 */
 	public function setHeader($header)
 	{
-		$this->_header = $header;
+		$this->_header = self::normalizeHeader($header);
 	}
 
 	/**
 	 * @param array $data
 	 * @param bool $header
 	 */
-	public function setFromArray($data, $header=false)
+	public function setFromArray($data, $hasHeader=false)
 	{
-		if ($header) {
+		if ($hasHeader) {
 			$this->_header = array_shift($data);
 		}
 
 		$this->_data = $data;
+	}
+
+	public function setFromString($string, $delimiter=',', $enclosure='"', $hasHeader=false)
+	{
+		$data = self::csvStringToArray($string, $delimiter, $enclosure);
+		$this->setFromArray($data, $hasHeader);
 	}
 
 
@@ -158,6 +164,30 @@ class Table
 		if (empty($this->_data)) {
 			throw new TableException('No data set');
 		}
+	}
+
+	public static function normalizeHeader(&$header)
+	{
+		foreach($header as &$col) {
+			$col = self::removeSpecialChars($col);
+		}
+
+		return $header;
+	}
+
+	public static function removeSpecialChars($string)
+	{
+		$string = str_replace('#', 'count', $string);
+		$string = preg_replace("/[^A-Za-z0-9_\s]/", '', $string);
+		$string = trim($string);
+		$string = str_replace(' ', '_', $string);
+		$string = lcfirst($string);
+
+		if (!strlen($string)) {
+			$string = 'empty';
+		}
+
+		return $string;
 	}
 
 	public static function csvStringToArray($string, $delimiter = ',', $enclosure = '"')
