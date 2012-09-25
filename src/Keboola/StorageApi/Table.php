@@ -48,7 +48,7 @@ class Table
 	 * @param Client $client
 	 * @param string $id - table ID
 	 */
-	public function __construct(Client $client, string $id)
+	public function __construct(Client $client, $id)
 	{
 		$this->_client = $client;
 		$this->_id = $id;
@@ -102,7 +102,7 @@ class Table
 	/**
 	 * @param array $header
 	 */
-	public function setHeader(array $header)
+	public function setHeader($header)
 	{
 		$this->_header = $header;
 	}
@@ -111,7 +111,7 @@ class Table
 	 * @param array $data
 	 * @param bool $header
 	 */
-	public function setFromArray(array $data, $header=false)
+	public function setFromArray($data, $header=false)
 	{
 		if ($header) {
 			$this->_header = array_shift($data);
