@@ -55,7 +55,11 @@ class Table
 
 		$tableNameArr = explode('.', $id);
 		$this->_name = $tableNameArr[2];
-		$this->_bucketId = $tableNameArr[0] . '.' . $tableNameArr[1];
+
+		$bucketName = $tableNameArr[1];
+		$stage = $tableNameArr[0];
+
+		$this->_bucketId = $this->_client->getBucketId($bucketName, $stage);
 	}
 
 	/**
@@ -131,8 +135,11 @@ class Table
 		if (!fputcsv($fh, $this->_header, ',', '"')) {
 			throw new TableException('Error while writing header.');
 		}
-		if (!fputcsv($fh, $this->_data, ',', '"')) {
-			throw new TableException('Error while writing data.');
+
+		foreach ($this->_data as $row) {
+			if (!fputcsv($fh, $row, ',', '"')) {
+				throw new TableException('Error while writing data.');
+			}
 		}
 
 		if (!$this->_client->tableExists($this->_id)) {
@@ -151,5 +158,22 @@ class Table
 		if (empty($this->_data)) {
 			throw new TableException('No data set');
 		}
+	}
+
+	public static function csvStringToArray($string, $delimiter = ',', $enclosure = '"')
+	{
+		$result = array();
+		$rows = explode("\n", $string);
+
+		foreach($rows as $row) {
+			// Strip Double Quotes
+			$row = str_replace('"""', '"', $row);
+
+			if (!empty($row)) {
+				$result[] = str_getcsv($row, $delimiter, $enclosure);
+			}
+		}
+
+		return $result;
 	}
 }

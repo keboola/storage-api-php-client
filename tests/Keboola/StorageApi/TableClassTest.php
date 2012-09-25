@@ -10,6 +10,7 @@ class Keboola_StorageApi_TableClassTest extends StorageApiTestCase
 {
 	protected $_inBucketId;
 	protected $_outBucketId;
+	protected $_tableId = 'in.c-api-tests.table';
 
 
 	public function setUp()
@@ -22,8 +23,6 @@ class Keboola_StorageApi_TableClassTest extends StorageApiTestCase
 
 	public function testSetFromArray()
 	{
-		$tableId = 'in.api-tests.table';
-
 		$header = array('id', 'col1', 'col2', 'col3', 'col4');
 		$data = array(
 			array('1', 'abc', 'def', 'ghj', 'klm'),
@@ -40,24 +39,46 @@ class Keboola_StorageApi_TableClassTest extends StorageApiTestCase
 			array('4', 'nop', 'qrs', 'tuv', 'wxyz')
 		);
 
-		$table = new \Keboola\StorageApi\Table($this->_client, $tableId);
+		$table = new \Keboola\StorageApi\Table($this->_client, $this->_tableId);
+
+		$this->assertEquals($this->_tableId, $table->getId());
+		$this->assertEquals('table', $table->getName());
+		$this->assertEquals('in.c-api-tests', $table->getBucketId());
 
 		$table->setHeader($header);
 		$table->setFromArray($data);
 
-		$this->assertEquals($tableId, $table->getId());
-		$this->assertEquals('table', $table->getName());
-		$this->assertEquals('in.api-test', $table->getBucketId());
 		$this->assertNotEmpty($table->getData());
 		$this->assertNotEmpty($table->getHeader());
+		$this->assertEquals($header, $table->getHeader());
+		$this->assertEquals($data, $table->getData());
 
-		$table->setFromArray($dataWithHeader);
+		$table->setFromArray($dataWithHeader, true);
 
-		$this->assertEquals($tableId, $table->getId());
-		$this->assertEquals('table', $table->getName());
-		$this->assertEquals('in.api-test', $table->getBucketId());
 		$this->assertNotEmpty($table->getData());
 		$this->assertNotEmpty($table->getHeader());
+		$this->assertEquals($header, $table->getHeader());
+		$this->assertEquals($data, $table->getData());
+	}
+
+	public function testSave()
+	{
+		$data = array(
+			array('id', 'col1', 'col2', 'col3', 'col4'),
+			array('1', 'abc', 'def', 'ghj', 'klm'),
+			array('2', 'nop', 'qrs', 'tuv', 'wxyz'),
+			array('3', 'abc', 'def', 'ghj', 'klm'),
+			array('4', 'nop', 'qrs', 'tuv', 'wxyz')
+		);
+
+		$table = new \Keboola\StorageApi\Table($this->_client, $this->_tableId);
+
+		$table->setFromArray($data, true);
+		$table->save();
+
+		$result = \Keboola\StorageApi\Table::csvStringToArray($this->_client->exportTable($this->_tableId));
+
+		$this->assertEquals($data, $result, 'data saving to Storage API');
 	}
 
 }
