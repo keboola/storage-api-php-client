@@ -1,0 +1,8 @@
+{
+	"name": "keboola/storage-api-client",
+	"description": "Keboola Storage API PHP CLient",
+	"homepage": "http://keboola.com",
+	"autoload": {
+        "psr-0": {"Keboola": "src/"}
+    }
+}
