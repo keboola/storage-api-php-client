@@ -59,6 +59,47 @@ class Table
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getId()
+	{
+		return $this->_id;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getName()
+	{
+		return $this->_name;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getBucketId()
+	{
+		return $this->_bucketId;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getHeader()
+	{
+		return $this->_header;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getData()
+	{
+		return $this->_data;
+	}
+
+
+	/**
 	 * @param array $header
 	 */
 	public function setHeader(array $header)
@@ -72,6 +113,7 @@ class Table
 	 */
 	public function setFromArray(array $data, boolean $header=false)
 	{
+		$this->_header = array_shift($data);
 		$this->_data = $data;
 	}
 
