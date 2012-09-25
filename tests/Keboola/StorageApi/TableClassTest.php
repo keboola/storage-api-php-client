@@ -47,7 +47,7 @@ class Keboola_StorageApi_TableClassTest extends StorageApiTestCase
 
 		$this->assertEquals($tableId, $table->getId());
 		$this->assertEquals('table', $table->getName());
-		$this->assertEquals('in.api-test', $table->getBucketId());
+		$this->assertEquals('in.api-tests', $table->getBucketId());
 		$this->assertNotEmpty($table->getData());
 		$this->assertNotEmpty($table->getHeader());
 
@@ -55,7 +55,7 @@ class Keboola_StorageApi_TableClassTest extends StorageApiTestCase
 
 		$this->assertEquals($tableId, $table->getId());
 		$this->assertEquals('table', $table->getName());
-		$this->assertEquals('in.api-test', $table->getBucketId());
+		$this->assertEquals('in.api-tests', $table->getBucketId());
 		$this->assertNotEmpty($table->getData());
 		$this->assertNotEmpty($table->getHeader());
 	}
