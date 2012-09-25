@@ -111,9 +111,12 @@ class Table
 	 * @param array $data
 	 * @param bool $header
 	 */
-	public function setFromArray(array $data, boolean $header=false)
+	public function setFromArray(array $data, $header=false)
 	{
-		$this->_header = array_shift($data);
+		if ($header) {
+			$this->_header = array_shift($data);
+		}
+
 		$this->_data = $data;
 	}
 
