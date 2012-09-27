@@ -71,7 +71,7 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 	 * @dataProvider tableImportData
 	 * @param $importFileName
 	 */
-	public function testTableImport($importFileName, $expectationsFileName, $colNames)
+	public function testTableImportExport($importFileName, $expectationsFileName, $colNames, $exportEscapeOutput = false)
 	{
 		$importFile = __DIR__ . '/_data/' . $importFileName;
 		$expectationsFile = __DIR__ . '/_data/' . $expectationsFileName;
@@ -84,15 +84,13 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 		$this->assertEmpty($result['warnings']);
 		$this->assertEquals($colNames, array_values($result['importedColumns']), 'columns');
 		$this->assertEmpty($result['transaction']);
-		$this->assertEquals($rowsCountInCsv, $table['rowsCount']);
+		$this->assertEquals($rowsCountInCsv, $table['rowsCount'], 'rows count in csv');
 		$this->assertNotEmpty($table['dataSizeBytes']);
-		$this->assertEquals($rowsCountInCsv, $result['totalRowsCount']);
+		$this->assertEquals($rowsCountInCsv, $result['totalRowsCount'], 'rows count in csv result');
 		$this->assertNotEmpty($result['totalDataSizeBytes']);
 
 		// compare data
-//		$dataInTable = array_map('str_getcsv', explode("\n", $this->_client->exportTable($tableId)));
-//		$expectedData  =  array_map('str_getcsv', explode("\n", file_get_contents($expectationsFile)));
-		$this->assertEquals(file_get_contents($expectationsFile), $this->_client->exportTable($tableId), 'imported data comparsion');
+		$this->assertEquals(file_get_contents($expectationsFile), $this->_client->exportTable($tableId, null, null, null, $exportEscapeOutput), 'imported data comparsion');
 
 		// incremental
 		$result = $this->_client->writeTable($tableId, $importFile, null, ",", '"', true);
@@ -107,7 +105,8 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 			array('languages.utf8.bom.csv', 'languages.csv', array('id', 'name')),
 			array('languages.zip', 'languages.csv', array('id', 'name')),
 			array('languages.csv.gz', 'languages.csv', array('id', 'name')),
-			array('escaping.csv', 'escaping.out.csv', array('col1', 'col2')),
+			array('escaping.csv', 'escaping.standard.out.csv', array('col1', 'col2')),
+			array('escaping.csv', 'escaping.backslash.out.csv', array('col1', 'col2'), true),
 		);
 	}
 
@@ -299,11 +298,11 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 	 * @param $path
 	 * @return array
 	 */
-	protected function _readCsv($path)
+	protected function _readCsv($path, $delimiter = ",", $enclosure = '"', $escape = '"')
 	{
 		$fh = fopen($path, 'r');
 		$lines = array();
-		while (($data = fgetcsv($fh, 1000, ",")) !== FALSE) {
+		while (($data = fgetcsv($fh, 1000, $delimiter, $enclosure, $escape)) !== FALSE) {
 		  $lines[] = $data;
 		}
 		fclose($fh);

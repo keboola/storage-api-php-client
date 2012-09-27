@@ -612,12 +612,21 @@ class Client
 	 * @param $days  int TODO to be implemented
 	 * @return string data
 	 */
-	public function exportTable($tableId, $fileName=null, $limit=null, $days=null)
+	public function exportTable($tableId, $fileName=null, $limit=0, $days=0, $escapeOutput = false)
 	{
 		$url = "/storage/tables/{$tableId}/export";
+		
+		$queryParams = array();
 		if ($limit) {
-			$url .= "?limit=$limit";
+			$queryParams["limit"] = (int) $limit;
 		}
+		
+		if ($escapeOutput) {
+			$queryParams["escapeOutput"] = (int) $queryParams["escapeOutput"];
+		}
+		
+		$url .= '?' . http_build_query($queryParams);
+		
 		return $this->_apiGet($url, $fileName);
 	}
 
