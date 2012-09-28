@@ -81,4 +81,5 @@ class Keboola_StorageApi_TableClassTest extends StorageApiTestCase
 		$this->assertEquals($data, $result, 'data saving to Storage API');
 	}
 
+	//TODO: test attribute saving
 }

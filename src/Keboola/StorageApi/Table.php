@@ -45,6 +45,13 @@ class Table
 	protected $_data;
 
 	/**
+	 * key value pairs of attributes
+	 *
+	 * @var array
+	 */
+	protected $_attributes;
+
+	/**
 	 * @param Client $client
 	 * @param string $id - table ID
 	 */
@@ -130,7 +137,17 @@ class Table
 		$this->setFromArray($data, $hasHeader);
 	}
 
+	public function setAttribute($key, $value)
+	{
+		$this->_attributes[$key] = $value;
+	}
 
+
+	/**
+	 * Save data and table attributes to Storage API
+	 *
+	 * @throws TableException
+	 */
 	public function save()
 	{
 		$this->_preSave();
@@ -152,6 +169,11 @@ class Table
 			$this->_client->createTable($this->_bucketId, $this->_name, $tempfile);
 		} else {
 			$this->_client->writeTable($this->_id, $tempfile, null, ',', '"', true);
+		}
+
+		// Save table attributes
+		foreach ($this->_attributes as $k => $v) {
+			$this->_client->setTableAttribute($this->_id, $k, $v);
 		}
 	}
 
