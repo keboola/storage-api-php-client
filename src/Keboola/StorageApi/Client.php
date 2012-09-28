@@ -612,9 +612,13 @@ class Client
 	 * @param $days  int TODO to be implemented
 	 * @return string data
 	 */
-	public function exportTable($tableId, $fileName=null, $limit=0, $days=0)
+	public function exportTable($tableId, $fileName=null, $limit=null, $days=null)
 	{
-		return $this->_apiGet("/storage/tables/{$tableId}/export", $fileName);
+		$url = "/storage/tables/{$tableId}/export";
+		if ($limit) {
+			$url .= "?limit=$limit";
+		}
+		return $this->_apiGet($url, $fileName);
 	}
 
 	/**

@@ -119,8 +119,15 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 			unlink($outputFile);
 		}
 
+		// Full download
 		$this->_client->exportTable($tableId, $outputFile);
 		$this->assertFileEquals($importFile, $outputFile);
+		unlink($outputFile);
+
+		// Download with limit
+		$this->_client->exportTable($tableId, $outputFile, 1);
+		$this->assertEquals(exec("wc -l < {$outputFile}"), "2");
+		unlink($outputFile);
 	}
 
 	/**
