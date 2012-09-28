@@ -125,7 +125,7 @@ class Table
 	public function setFromArray($data, $hasHeader=false)
 	{
 		if ($hasHeader) {
-			$this->_header = array_shift($data);
+			$this->setHeader(array_shift($data));
 		}
 
 		$this->_data = $data;
@@ -148,7 +148,7 @@ class Table
 	 *
 	 * @throws TableException
 	 */
-	public function save()
+	public function save($incremental=false)
 	{
 		$this->_preSave();
 
@@ -168,7 +168,7 @@ class Table
 		if (!$this->_client->tableExists($this->_id)) {
 			$this->_client->createTable($this->_bucketId, $this->_name, $tempfile);
 		} else {
-			$this->_client->writeTable($this->_id, $tempfile, null, ',', '"', true);
+			$this->_client->writeTable($this->_id, $tempfile, null, ',', '"', $incremental);
 		}
 
 		// Save table attributes
