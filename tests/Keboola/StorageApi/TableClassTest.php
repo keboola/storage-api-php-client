@@ -74,12 +74,17 @@ class Keboola_StorageApi_TableClassTest extends StorageApiTestCase
 		$table = new \Keboola\StorageApi\Table($this->_client, $this->_tableId);
 
 		$table->setFromArray($data, true);
+
+		$table->setAttribute('testAttribute', 'test');
+
 		$table->save();
 
 		$result = \Keboola\StorageApi\Table::csvStringToArray($this->_client->exportTable($this->_tableId));
 
 		$this->assertEquals($data, $result, 'data saving to Storage API');
+		$this->assertEquals($table->getAttribute('testAttribute'), 'test', 'savinng attributes to Storage API');
 	}
 
-	//TODO: test attribute saving
+	//@TODO: Test Exceptions
+
 }

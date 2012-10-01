@@ -1,11 +1,14 @@
 <?php
 /**
- * Created by JetBrains PhpStorm.
- * User: Miro
- * Date: 25.9.12
- * Time: 12:53
- * To change this template use File | Settings | File Templates.
+ * Storage API Client - Table abstraction
+ *
+ * Useful for data insertion to Storage API from array or string, without need to write temporary CSV files.
+ * Temporary CSV file creation is handled by this class.
+ *
+ * @author Miroslav Cillik <miro@keboola.com>
+ * @date: 25.9.12
  */
+
 namespace Keboola\StorageApi;
 
 class Table
@@ -42,14 +45,14 @@ class Table
 	 *
 	 * @var array
 	 */
-	protected $_data;
+	protected $_data = array();
 
 	/**
 	 * key value pairs of attributes
 	 *
 	 * @var array
 	 */
-	protected $_attributes;
+	protected $_attributes = array();
 
 	/**
 	 * @param Client $client
@@ -109,7 +112,6 @@ class Table
 		return $this->_data;
 	}
 
-
 	/**
 	 * @param array $header
 	 */
@@ -118,12 +120,38 @@ class Table
 		$this->_header = self::normalizeHeader($header);
 	}
 
+	public function setAttribute($key, $value)
+	{
+		$this->_attributes[$key] = $value;
+	}
+
+	/**
+	 * @param $key
+	 * @return string
+	 */
+	public function getAttribute($key)
+	{
+		return $this->_attributes[$key];
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getAttributes()
+	{
+		return $this->_attributes;
+	}
+
 	/**
 	 * @param array $data
 	 * @param bool $header
 	 */
 	public function setFromArray($data, $hasHeader=false)
 	{
+		if (!is_array($this->_data)) {
+			throw new TableException('Invalid data type - expected 2D Array');
+		}
+
 		if ($hasHeader) {
 			$this->setHeader(array_shift($data));
 		}
@@ -136,12 +164,6 @@ class Table
 		$data = self::csvStringToArray($string, $delimiter, $enclosure);
 		$this->setFromArray($data, $hasHeader);
 	}
-
-	public function setAttribute($key, $value)
-	{
-		$this->_attributes[$key] = $value;
-	}
-
 
 	/**
 	 * Save data and table attributes to Storage API
