@@ -202,11 +202,7 @@ class Table
 	protected function _preSave()
 	{
 		if (empty($this->_header)) {
-			throw new TableException('Empty header');
-		}
-
-		if (empty($this->_data)) {
-			throw new TableException('No data set');
+			throw new TableException('Empty header. Header must be set.');
 		}
 	}
 
