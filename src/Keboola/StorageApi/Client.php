@@ -608,8 +608,9 @@ class Client
 	 *
 	 * @param $tableId string
 	 * @param $fileName string file to store data
-	 * @param $limit int TODO to be implemented
-	 * @param $days  int TODO to be implemented
+	 * @param $limit int
+	 * @param $days  int
+	 * @param $escapeOutput bool
 	 * @return string data
 	 */
 	public function exportTable($tableId, $fileName=null, $limit=0, $days=0, $escapeOutput = false)
@@ -620,9 +621,13 @@ class Client
 		if ($limit) {
 			$queryParams["limit"] = (int) $limit;
 		}
+
+		if ($days) {
+			$queryParams["days"] = (int) $days;
+		}
 		
 		if ($escapeOutput) {
-			$queryParams["escapeOutput"] = (int) $queryParams["escapeOutput"];
+			$queryParams["escape"] = (int) $escapeOutput;
 		}
 		
 		$url .= '?' . http_build_query($queryParams);
