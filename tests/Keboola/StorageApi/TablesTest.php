@@ -106,6 +106,7 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 			array('languages.zip', 'languages.csv', array('id', 'name')),
 			array('languages.csv.gz', 'languages.csv', array('id', 'name')),
 			array('escaping.csv', 'escaping.standard.out.csv', array('col1', 'col2')),
+			array('escaping.nl-last-row.csv', 'escaping.standard.out.csv', array('col1', 'col2')),
 			array('escaping.csv', 'escaping.backslash.out.csv', array('col1', 'col2'), true),
 		);
 	}
