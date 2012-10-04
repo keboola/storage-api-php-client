@@ -24,6 +24,12 @@
 		<mkdir dir="${basedir}/build/results/logs"/>
 		<mkdir dir="${basedir}/build/results/pdepend"/>
 		<mkdir dir="${basedir}/build/results/apigen"/>
+		<exec executable="/usr/local/bin/composer">
+			<arg value="install" />
+ 		</exec>
+ 		<exec executable="/usr/local/bin/composer">
+			<arg value="update" />
+  		</exec>
 	</target>
 
 	<target name="lint">
