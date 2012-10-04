@@ -1002,11 +1002,10 @@ class Client
 	 * @param $csv
 	 * @param $header bool if first line contains header
 	 * @param $delimiter string CSV delimiter
-	 * @param $enclosure string CSV field enclosure
-	 * @param null $escape
+	 * @param $enclosure string CSV field enclosure (should remain '"' with new CSV handling)
 	 * @return array
 	 */
-	public static function parseCsv($csv, $header=true, $delimiter=",", $enclosure='"', $escape=null)
+	public static function parseCsv($csv, $header=true, $delimiter=",", $enclosure='"')
 	{
 		$data = array();
 		$headers = array();
@@ -1015,7 +1014,7 @@ class Client
 			if (trim($line) == "") {
 				continue;
 			}
-			$parsedLine = str_getcsv($line, $delimiter, $enclosure, $escape);
+			$parsedLine = str_getcsv($line, $delimiter, $enclosure, $enclosure);
 			if (!$header) {
 				$data[] = $parsedLine;
 			} else {

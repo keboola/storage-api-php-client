@@ -167,24 +167,16 @@ class Table
 
 	/**
 	 * Save data and table attributes to Storage API
-	 *
-	 * @throws TableException
 	 */
 	public function save($incremental=false)
 	{
 		$this->_preSave();
 
 		$tempfile = tempnam(ROOT_PATH . "/tmp/", 'sapi-client-' . $this->_id . '-');
-		$fh = fopen($tempfile, 'w+');
-
-		if (!fputcsv($fh, $this->_header, ',', '"')) {
-			throw new TableException('Error while writing header.');
-		}
-
+		$file = new \Keboola\Csv\CsvFile($tempfile);
+		$file->writeRow($this->_header);
 		foreach ($this->_data as $row) {
-			if (!fputcsv($fh, $row, ',', '"')) {
-				throw new TableException('Error while writing data.');
-			}
+			$file->writeRow($row);
 		}
 
 		if (!$this->_client->tableExists($this->_id)) {
@@ -202,11 +194,7 @@ class Table
 	protected function _preSave()
 	{
 		if (empty($this->_header)) {
-			throw new TableException('Empty header');
-		}
-
-		if (empty($this->_data)) {
-			throw new TableException('No data set');
+			throw new TableException('Empty header. Header must be set.');
 		}
 	}
 
@@ -240,11 +228,8 @@ class Table
 		$rows = explode("\n", $string);
 
 		foreach($rows as $row) {
-			// Strip Double Quotes
-			$row = str_replace('"""', '"', $row);
-
 			if (!empty($row)) {
-				$result[] = str_getcsv($row, $delimiter, $enclosure);
+				$result[] = str_getcsv($row, $delimiter, $enclosure, $enclosure);
 			}
 		}
 

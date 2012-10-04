@@ -31,3 +31,5 @@ require_once 'src/Keboola/StorageApi/Config/Reader.php';
 require_once 'src/Keboola/StorageApi/Config/Exception.php';
 require_once 'src/Keboola/StorageApi/Table.php';
 require_once 'src/Keboola/StorageApi/TableException.php';
+
+require_once ROOT_PATH . '/vendor/autoload.php';
