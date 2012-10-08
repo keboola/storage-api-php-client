@@ -1,4 +1,4 @@
-"col1","col2"
+"col1","col2_with_space"
 "line without enclosure","second column"
 "line with enclosure","second column"
 "column with enclosure "", and comma inside text","second column enclosure in text """
