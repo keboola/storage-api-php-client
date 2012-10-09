@@ -35,6 +35,8 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 		$this->assertEquals('languages', $table['name']);
 		$this->assertEquals('languages', $table['gdName']);
 		$this->assertNotEmpty($table['created']);
+		$this->assertNotEmpty($table['lastChangeDate']);
+		$this->assertNotEmpty($table['lastImportDate']);
 		$this->assertNotEquals('0000-00-00 00:00:00', $table['created']);
 		$this->assertEquals(count($this->_readCsv(__DIR__ . '/_data/languages.csv')) - 1, $table['rowsCount']);
 		$this->assertNotEmpty($table['dataSizeBytes']);
@@ -211,6 +213,7 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 		$aliasTable = $this->_client->getTable($aliasTableId);
 		$this->assertNotEmpty($sourceTable['lastImportDate']);
 		$this->assertEquals($sourceTable['lastImportDate'], $aliasTable['lastImportDate']);
+		$this->assertEquals($sourceTable['lastChangeDate'], $aliasTable['lastChangeDate']);
 		$this->assertEquals($sourceTable['columns'], $aliasTable['columns']);
 		$this->assertNotEmpty($aliasTable['created']);
 		$this->assertNotEquals('0000-00-00 00:00:00', $aliasTable['created']);
@@ -226,6 +229,7 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 		$sourceTable = $this->_client->getTable($sourceTableId);
 		$aliasTable = $this->_client->getTable($aliasTableId);
 		$this->assertEquals($sourceTable['lastImportDate'], $aliasTable['lastImportDate']);
+		$this->assertEquals($sourceTable['lastChangeDate'], $aliasTable['lastChangeDate']);
 
 		// columns auto-create
 		$this->_client->writeTable($sourceTableId, __DIR__ . '/_data/languages.more-columns.csv');
