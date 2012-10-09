@@ -185,6 +185,9 @@ class Client
 	public function bucketExists($bucketId)
 	{
 		$buckets = $this->listBuckets();
+		if (!count($buckets)) {
+			return false;
+		}
 		foreach($buckets as $bucket)
 		{
 			if ($bucket["id"] == $bucketId) {
