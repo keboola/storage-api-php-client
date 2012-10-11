@@ -229,7 +229,6 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 		$sourceTable = $this->_client->getTable($sourceTableId);
 		$aliasTable = $this->_client->getTable($aliasTableId);
 		$this->assertEquals($sourceTable['lastImportDate'], $aliasTable['lastImportDate']);
-		$this->assertEquals($sourceTable['lastChangeDate'], $aliasTable['lastChangeDate']);
 
 		// columns auto-create
 		$this->_client->writeTable($sourceTableId, __DIR__ . '/_data/languages.more-columns.csv');
