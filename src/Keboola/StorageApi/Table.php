@@ -189,6 +189,7 @@ class Table
 		foreach ($this->_attributes as $k => $v) {
 			$this->_client->setTableAttribute($this->_id, $k, $v);
 		}
+		unlink($tempfile);
 	}
 
 	protected function _preSave()

@@ -1,6 +1,7 @@
 <?
 namespace Keboola\StorageApi;
 
+use Keboola\Csv\CsvFile;
 /**
  *
  * Data model for One Line CSV file
@@ -81,7 +82,6 @@ class OneLiner
 	 */
 	public function __set($name, $value)
 	{
-		$value = str_replace(array("\r", "\n"), "", $value);
 		$this->_data[$name] = $value;
 	}
 
@@ -111,14 +111,13 @@ class OneLiner
 	{
 		$dataFile = tempnam(self::$tmpDir, "oneliner");
 
-		$fData = fopen($dataFile, "w");
-		fputcsv($fData, array_keys($this->_data));
-		fputcsv($fData, array_values($this->_data));
-		fclose($fData);
+		$csvFile = new CsvFile($dataFile);
+		$csvFile->writeRow(array_keys($this->_data));
+		$csvFile->writeRow($this->_data);
 
 		if (!self::$client->tableExists($this->_tableId)) {
 			$tableInfo = explode(".",$this->_tableId);
-			self::$client->createTable($tableInfo[0] . "." . $tableInfo[1], $tableInfo[2], $dataFile);
+			self::$client->createTable($tableInfo[0] . "." . $tableInfo[1], $tableInfo[2], $csvFile);
 		}
 
 		self::$client->writeTable($this->_tableId, $dataFile);
@@ -138,9 +137,12 @@ class OneLiner
 		}
 
 		$data = self::$client->exportTable($this->_tableId);
-		$data = explode("\n", $data);
-		$headers = str_getcsv($data[0]);
-		$data = str_getcsv($data[1]);
+
+		$fh = tmpfile();
+		fwrite($fh, $data);
+		rewind($fh);
+		$headers = fgetcsv($fh, null, ",", '"', '"');
+		$data = fgetcsv($fh, null, ",", '"', '"');
 
 		if (count($data) > 0 && count($headers) != count($data) || count($headers) == 0) {
 			throw new OneLinerException("Cannot load data from {$this->_tableId}");

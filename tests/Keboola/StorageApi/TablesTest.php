@@ -285,17 +285,40 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 
 	public function testParseCsv()
 	{
-		$csvData = '"column1","column2"' . "\n" . '"value1","value2"';
+		$csvData = '"column1","column2"' . PHP_EOL
+			. '"valu\ "",e1","value2"' . PHP_EOL
+			. '"new'  . PHP_EOL . 'line","col2"'
+		;
 
-		$data1 = \Keboola\StorageApi\Client::parseCsv($csvData);
-		$data2 = \Keboola\StorageApi\Client::parseCsv($csvData, false);
+		$expectedSimple = array(
+			array(
+				"column1",
+				"column2",
+			),
+			array(
+				'valu\ ",e1', 'value2',
+			),
+			array(
+				"new\nline","col2",
+			),
+		);
+		$expectedHashmap = array(
+			array(
+				"column1" => 'valu\ ",e1',
+				"column2" => 'value2',
+			),
+			array(
+				"column1" => "new\nline",
+				"column2" => "col2",
+			),
+		);
 
-		$this->assertEquals($data1[0]["column1"], "value1", 'Parse CSV');
-		$this->assertEquals($data1[0]["column2"], "value2", 'Parse CSV');
-		$this->assertEquals($data2[0][0], "column1", 'Parse CSV');
-		$this->assertEquals($data2[0][1], "column2", 'Parse CSV');
-		$this->assertEquals($data2[1][0], "value1", 'Parse CSV');
-		$this->assertEquals($data2[1][1], "value2", 'Parse CSV');
+
+		$data = \Keboola\StorageApi\Client::parseCsv($csvData, false);
+		$this->assertEquals($expectedSimple, $data, "Csv parse to flat array");
+
+		$data = \Keboola\StorageApi\Client::parseCsv($csvData, true);
+		$this->assertEquals($expectedHashmap, $data, "Csv parse to associative array");
 	}
 
 	/**

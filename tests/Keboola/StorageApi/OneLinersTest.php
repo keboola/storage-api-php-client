@@ -23,8 +23,8 @@ class Keboola_StorageApi_OneLinersTest extends StorageApiTestCase
 	public function testOneLinerCreate()
 	{
 		$oneLiner = $this->uploadOneLiner();
-		$this->assertEquals($oneLiner->id, 1);
-		$this->assertEquals($oneLiner->name, "whatever");
+		$this->assertEquals(1, $oneLiner->id);
+		$this->assertEquals("whatever" . PHP_EOL . "new line", $oneLiner->name);
 	}
 
 	public function testOneLinerLoad()
@@ -34,15 +34,15 @@ class Keboola_StorageApi_OneLinersTest extends StorageApiTestCase
 
 		$oneLiner2 = new Keboola\StorageApi\OneLiner($this->_inBucketId . ".oneLinerTest");
 
-		$this->assertEquals($oneLiner2->id, 1);
-		$this->assertEquals($oneLiner2->name, "whatever");
+		$this->assertEquals(1, $oneLiner2->id);
+		$this->assertEquals("whatever" . PHP_EOL . "new line", $oneLiner2->name);
 	}
 
 	private function uploadOneLiner()
 	{
 		$oneLiner = new Keboola\StorageApi\OneLiner($this->_inBucketId . ".oneLinerTest");
 		$oneLiner->id = 1;
-		$oneLiner->name = "whatever";
+		$oneLiner->name = "whatever" . PHP_EOL . "new line";
 		return $oneLiner;
 	}
 }

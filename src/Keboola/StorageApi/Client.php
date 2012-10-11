@@ -1016,22 +1016,23 @@ class Client
 	 * uses str_getcsv function
 	 *
 	 * @static
-	 * @param $csv
+	 * @param $csvString
 	 * @param $header bool if first line contains header
 	 * @param $delimiter string CSV delimiter
 	 * @param $enclosure string CSV field enclosure (should remain '"' with new CSV handling)
 	 * @return array
 	 */
-	public static function parseCsv($csv, $header=true, $delimiter=",", $enclosure='"')
+	public static function parseCsv($csvString, $header=true, $delimiter=",", $enclosure='"')
 	{
 		$data = array();
 		$headers = array();
 		$firstLine = true;
-		foreach(explode("\n", $csv) as $line) {
-			if (trim($line) == "") {
-				continue;
-			}
-			$parsedLine = str_getcsv($line, $delimiter, $enclosure, $enclosure);
+
+		$tmpFile = tmpfile();
+		fwrite($tmpFile, $csvString);
+		rewind($tmpFile);
+
+		while ($parsedLine = fgetcsv($tmpFile, null, ",", '"', '"')) {
 			if (!$header) {
 				$data[] = $parsedLine;
 			} else {
@@ -1049,6 +1050,8 @@ class Client
 				$firstLine = false;
 			}
 		}
+		fclose($tmpFile);
+
 		return $data;
 	}
 
