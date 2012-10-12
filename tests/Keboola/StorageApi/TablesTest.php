@@ -273,6 +273,9 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 
 		$aliasTable = $this->_client->getTable($aliasTableId);
 		$this->assertArrayNotHasKey('sourceTable', $aliasTable);
+		$this->assertEmpty($aliasTable['lastImportDate'], 'Last import date is null');
+		$this->assertEquals(0, $aliasTable['dataSizeBytes']);
+		$this->assertEquals(0, $aliasTable['rowsCount']);
 
 		// real table cannot be unlinked
 		try {
