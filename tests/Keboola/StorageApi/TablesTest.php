@@ -53,6 +53,21 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 		);
 	}
 
+	public function testListTables()
+	{
+		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', __DIR__ . '/_data/languages.csv');
+		$tables = $this->_client->listTables($this->_inBucketId);
+
+		$this->assertCount(1, $tables);
+
+		$firstTable = reset($tables);
+		$this->assertArrayHasKey('attributes', $firstTable, 'List bucket tables are returned with attributes');
+
+		$tables = $this->_client->listTables();
+		$firstTable = reset($tables);
+		$this->assertArrayHasKey('attributes', $firstTable, 'List tables are returned with attributes');
+	}
+
 	public function testTableDelete()
 	{
 		$table1Id = $this->_client->createTable($this->_inBucketId, 'languages', __DIR__ . '/_data/languages.csv');
