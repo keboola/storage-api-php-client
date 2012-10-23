@@ -32,15 +32,16 @@ class Reader
 	 * @static
 	 * @param $token
 	 * @param $bucket
+	 * @param $readCsvData if the config reader should read CSV data from all tables (is much slower)
 	 * @return array|string
 	 */
-	public static function read($bucket, $token=null)
+	public static function read($bucket, $token=null, $readCsvData=true)
 	{
 		if ($token) {
 			self::$client = new \Keboola\StorageApi\Client($token);
 		}
-		
-		$sApiArray = self::load($bucket);
+
+		$sApiArray = self::load($bucket, $readCsvData);
 		return self::parse($sApiArray);
 
 	}
@@ -83,9 +84,10 @@ class Reader
 	 *
 	 * @param $token
 	 * @param $bucket
+	 * @param $readCsvData
 	 * @return array
 	 */
-	protected static function load($bucket)
+	protected static function load($bucket, $readCsvData=true)
 	{
 		$data = array();
 		$sApi = self::$client;
@@ -101,16 +103,15 @@ class Reader
 		}
 
 		// Tables
-		foreach($sApi->listTables($bucket) as $table) {
-			$tableInfo = $sApi->getTable($table["id"]);
-
-			if ($tableInfo["attributes"]) {
-				$data[self::$container][$table["name"]] = $tableInfo["attributes"];
+		foreach ($bucketInfo["tables"] as $table) {
+			if ($table["attributes"]) {
+				$data[self::$container][$table["name"]] = $table["attributes"];
 			}
-
-			$csvData = $sApi->exportTable($table["id"]);
-			if ($csvData) {
-				$data[self::$container][$table["name"]][self::$container] = \Keboola\StorageApi\Client::parseCsv($csvData);
+			if($readCsvData) {
+				$csvData = $sApi->exportTable($table["id"]);
+				if ($csvData) {
+					$data[self::$container][$table["name"]][self::$container] = \Keboola\StorageApi\Client::parseCsv($csvData);
+				}
 			}
 		}
 		return $data;
