@@ -40,6 +40,7 @@ class Client
 		}
 
 		$this->token = $tokenString;
+		$this->verifyToken();
 	}
 
 	/**
@@ -624,7 +625,7 @@ class Client
 	public function exportTable($tableId, $fileName=null, $limit=0, $days=0, $escapeOutput = false)
 	{
 		$url = "/storage/tables/{$tableId}/export";
-		
+
 		$queryParams = array();
 		if ($limit) {
 			$queryParams["limit"] = (int) $limit;
@@ -633,13 +634,13 @@ class Client
 		if ($days) {
 			$queryParams["days"] = (int) $days;
 		}
-		
+
 		if ($escapeOutput) {
 			$queryParams["escape"] = (int) $escapeOutput;
 		}
-		
+
 		$url .= '?' . http_build_query($queryParams);
-		
+
 		return $this->_apiGet($url, $fileName);
 	}
 
@@ -1015,11 +1016,12 @@ class Client
 	public function getLogData()
 	{
 		if (!$this->_tokenObj) {
-			$this->_tokenObj = $this->verifyToken();
+			$logData["token"] = substr($this->token, 0, 6);
+			return $logData;
 		}
 		$logData = array();
-		$logData["owner"] = $this->_tokenObj["owner"];
 		$logData["token"] = substr($this->_tokenObj["token"], 0, 6);
+		$logData["owner"] = $this->_tokenObj["owner"];
 		$logData["id"] = $this->_tokenObj["id"];
 		$logData["description"] = $this->_tokenObj["description"];
 		return $logData;
@@ -1094,9 +1096,4 @@ class Client
 		$time[$name] = $now;
 		return $delta;
 	}
-
-
 }
-
-
-
