@@ -13,6 +13,9 @@ class Client
 	// Token string
 	public $token;
 
+	// Token object
+	private $_tokenObj = null;
+
 	// API URL
 	private $_apiUrl = "https://connection.keboola.com";
 
@@ -498,7 +501,8 @@ class Client
 	{
 		$tokenObj = $this->_apiGet("/storage/tokens/verify");
 
-		$this->_log("Token verified", array("token" => $tokenObj));
+		$this->_tokenObj = $tokenObj;
+		$this->_log("Token verified");
 
 		return $tokenObj;
 	}
@@ -584,6 +588,7 @@ class Client
 
 		if ($currentToken["id"] == $result["id"]) {
 			$this->token = $result['token'];
+			$this->_tokenObj = $result;
 		}
 
 		$this->_log("Token {$tokenId} refreshed", array("token" => $result));
@@ -995,10 +1000,30 @@ class Client
 	protected function _log($message, $data=array())
 	{
 		if (Client::$_log) {
-			$data["token"] = $this->token;
+			$data["token"] = $this->getLogData();
 			$message = "Storage API: " . $message;
 			call_user_func(Client::$_log, $message, $data);
 		}
+	}
+
+	/**
+	 *
+	 * Prepare data for logs - to avoid having token string directly in logs
+	 *
+	 * @return array
+	 */
+	public function getLogData()
+	{
+		if (!$this->_tokenObj) {
+			$this->_tokenObj = $this->verifyToken();
+		}
+		$logData = array();
+		$logData["owner"] = $this->_tokenObj["owner"];
+		$logData["token"] = substr($this->_tokenObj["token"], 0, 6);
+		$logData["id"] = $this->_tokenObj["id"];
+		$logData["description"] = $this->_tokenObj["description"];
+		return $logData;
+
 	}
 
 	/**

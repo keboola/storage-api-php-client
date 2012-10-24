@@ -34,6 +34,13 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 		}
 	}
 
+	public function testTokenLogData()
+	{
+		$this->_client->verifyToken();
+		$logData = $this->_client->getLogData();
+		$this->assertNotEmpty($logData);
+	}
+
 	public function testTokenManagement()
 	{
 		$description = 'Out read token';
