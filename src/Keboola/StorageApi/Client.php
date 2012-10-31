@@ -703,6 +703,9 @@ class Client
 		if(isset($data["error"])) {
 			throw new ClientException($data["error"]);
 		}
+		if(isset($data["status"]) && $data["status"] == "maintenance") {
+			throw new ClientException($data["reason"], null, null, "MAINTENANCE", $data);
+		}
 		if (count($data) === 1 && isset($data["uri"])) {
 			return $this->_curlGet($data["uri"]);
 		}
