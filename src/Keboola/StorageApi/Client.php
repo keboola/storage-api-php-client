@@ -774,7 +774,6 @@ class Client
 	 */
 	protected function _curlGet($url, $fileName=null, $gzip = true)
 	{
-
 		$logData = array("url" => $url);
 		Client::_timer("request");
 
@@ -798,7 +797,6 @@ class Client
 		}
 
 		$result = curl_exec($ch);
-		curl_close($ch);
 
 		if ($fileName) {
 			fclose($file);
@@ -844,6 +842,7 @@ class Client
 			throw $e;
 		}
 
+		curl_close($ch);
 	}
 
 	private function _ungzipFile($fileName)
@@ -889,7 +888,6 @@ class Client
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
 		}
 		$result = curl_exec($ch);
-		curl_close($ch);
 
 		$logData["requestTime"] = Client::_timer("request");
 
@@ -912,6 +910,8 @@ class Client
 			$this->_log("POST Request failed", $logData);
 			throw new ClientException("CURL: " . $curlError);
 		}
+
+		curl_close($ch);
 	}
 
 	/**
@@ -946,7 +946,6 @@ class Client
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
 		$result = curl_exec($ch);
 		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		curl_close($ch);
 
 		$logData["requestTime"] = Client::_timer("request");
 
@@ -971,6 +970,8 @@ class Client
 			$this->_log("POST Request failed", $logData);
 			throw new ClientException("CURL: " . $curlError);
 		}
+
+		curl_close($ch);
 	}
 
 	/**
