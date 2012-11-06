@@ -19,6 +19,8 @@ class Client
 	// API URL
 	private $_apiUrl = "https://connection.keboola.com";
 
+	private $_apiVersion = "v2";
+
 	// User agent header send with each API request
 	private $_userAgent = 'Keboola Storage API PHP Client';
 
@@ -157,11 +159,15 @@ class Client
 	 * @param $key string
 	 * @param $value string
 	 */
-	public function setBucketAttribute($bucketId, $key, $value)
+	public function setBucketAttribute($bucketId, $key, $value, $protected = null)
 	{
-		$this->_apiPost("/storage/buckets/$bucketId/attributes/$key", array(
-			"value" => $value,
-		));
+		$data = array(
+			'value' => $value,
+		);
+		if ($protected !== null) {
+			$data['protected'] = (bool) $protected;
+		}
+		$this->_apiPost("/storage/buckets/$bucketId/attributes/$key", $data);
 	}
 
 	/**
@@ -373,11 +379,15 @@ class Client
 	 * @param $key string
 	 * @param $value string
 	 */
-	public function setTableAttribute($tableId, $key, $value)
+	public function setTableAttribute($tableId, $key, $value, $protected = null)
 	{
-		$this->_apiPost("/storage/tables/$tableId/attributes/$key", array(
-			"value" => $value,
-		));
+		$data = array(
+			'value' => $value,
+		);
+		if ($protected !== null) {
+			$data['protected'] = (bool) $protected;
+		}
+		$this->_apiPost("/storage/tables/$tableId/attributes/$key", $data);
 	}
 
 	/**
@@ -676,7 +686,7 @@ class Client
 	 */
 	private function _constructUrl($url)
 	{
-		return $this->_apiUrl . $url;
+		return $this->_apiUrl . '/' . $this->_apiVersion . $url;
 	}
 
 	/**

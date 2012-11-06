@@ -187,19 +187,51 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 
 		// create
 		$this->_client->setTableAttribute($tableId, 'something', 'lala');
-		$this->_client->setTableAttribute($tableId, 'other', 'hello');
+		$this->_client->setTableAttribute($tableId, 'other', 'hello', true);
 		$table = $this->_client->getTable($tableId);
-		$this->assertEquals($table['attributes'], array('something' => 'lala', 'other' => 'hello'), 'attribute set');
+
+
+		$this->assertArrayEqualsSorted($table['attributes'], array(
+				array(
+					'name' => 'something',
+					'value' => 'lala',
+					'protected' => false,
+				),
+				array(
+					'name' => 'other',
+					'value' => 'hello',
+					'protected' => true,
+				),
+			), 'name', 'attribute set');
 
 		// update
 		$this->_client->setTableAttribute($tableId, 'something', 'papa');
 		$table = $this->_client->getTable($tableId);
-		$this->assertEquals($table['attributes'], array('something' => 'papa', 'other' => 'hello'), 'attribute update');
+		$this->assertArrayEqualsSorted($table['attributes'], array(
+			array(
+				'name' => 'something',
+				'value' => 'papa',
+				'protected' => false,
+			),
+			array(
+				'name' => 'other',
+				'value' => 'hello',
+				'protected' => true,
+			),
+		), 'name', 'attribute update');
 
 		// delete
 		$this->_client->deleteTableAttribute($tableId, 'something');
 		$table = $this->_client->getTable($tableId);
-		$this->assertEquals($table['attributes'], array('other' => 'hello'), 'attribute delete');
+		$this->assertArrayEqualsSorted($table['attributes'], array(
+			array(
+				'name' => 'other',
+				'value' => 'hello',
+				'protected' => true,
+			),
+		), 'attribute delete');
+
+		$this->_client->deleteTableAttribute($tableId, 'other');
 	}
 
 	public function testTableAlias()

@@ -99,13 +99,13 @@ class Reader
 		// Bucket attributes
 		$bucketInfo = $sApi->getBucket($bucket);
 		if ($bucketInfo["attributes"]) {
-			$data = array_merge($data, $bucketInfo["attributes"]);
+			$data = array_merge($data, self::attributesKeyValueMap($bucketInfo["attributes"]));
 		}
 
 		// Tables
 		foreach ($bucketInfo["tables"] as $table) {
 			if ($table["attributes"]) {
-				$data[self::$container][$table["name"]] = $table["attributes"];
+				$data[self::$container][$table["name"]] = self::attributesKeyValueMap($table["attributes"]);
 			}
 			if($readCsvData) {
 				$csvData = $sApi->exportTable($table["id"]);
@@ -115,5 +115,14 @@ class Reader
 			}
 		}
 		return $data;
+	}
+
+	private static function attributesKeyValueMap($attributes)
+	{
+		$map = array();
+		foreach ($attributes as $attribute) {
+			$map[$attribute['name']] = $attribute['value'];
+		}
+		return $map;
 	}
 }

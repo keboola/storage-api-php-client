@@ -39,4 +39,17 @@ class StorageApiTestCase extends \PHPUnit_Framework_TestCase
 		return $bucketId;
 	}
 
+	public  function assertArrayEqualsSorted($expected, $actual, $sortKey, $message = "")
+	{
+		$comparsion = function($attrLeft, $attrRight) use($sortKey) {
+			if ($attrLeft[$sortKey] == $attrRight[$sortKey]) {
+				return 0;
+			}
+			return $attrLeft[$sortKey] < $attrRight[$sortKey] ? -1 : 1;
+		};
+		usort($expected, $comparsion);
+		usort($actual, $comparsion);
+		return $this->assertEquals($expected, $actual, $message);
+	}
+
 }
