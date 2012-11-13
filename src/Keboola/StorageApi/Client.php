@@ -524,9 +524,10 @@ class Client
 	 *
 	 * @param $permissions array hash bucketId => permission (read/write)
 	 * @param $description string
+	 * @param $expiresIn integer number of seconds until token expires
 	 * @return integer token id
 	 */
-	public function createToken($permissions, $description=null)
+	public function createToken($permissions, $description=null, $expiresIn = null)
 	{
 		$options = array();
 		foreach($permissions as $tableId => $permission) {
@@ -535,6 +536,9 @@ class Client
 		}
 		if ($description) {
 			$options["description"] = $description;
+		}
+		if ($expiresIn) {
+			$options["expiresIn"] = (int) $expiresIn;
 		}
 
 		$result = $this->_apiPost("/storage/tokens", $options);
@@ -711,7 +715,11 @@ class Client
 			return $data;
 		}
 		if(isset($data["error"])) {
-			throw new ClientException($data["error"]);
+			$stringCode = null;
+			if (isset($data['code'])) {
+				$stringCode = $data['code'];
+			}
+			throw new ClientException($data["error"], null, null, $stringCode);
 		}
 		if(isset($data["status"]) && $data["status"] == "maintenance") {
 			throw new ClientException($data["reason"], null, null, "MAINTENANCE", $data);
