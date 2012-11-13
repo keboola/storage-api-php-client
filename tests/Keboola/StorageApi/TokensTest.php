@@ -130,10 +130,6 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 
 	public function testAllBucketsTokenPermissions()
 	{
-		// prepare token and test tables
-		$inTableId = $this->_client->createTable($this->_inBucketId, 'languages', __DIR__ . '/_data/languages.csv');
-		$outTableId = $this->_client->createTable($this->_outBucketId, 'languages', __DIR__ . '/_data/languages.csv');
-
 		$description = 'Out read token';
 		$tokenId = $this->_client->createToken('manage', $description);
 		$token = $this->_client->getToken($tokenId);
