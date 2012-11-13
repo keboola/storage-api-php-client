@@ -522,7 +522,7 @@ class Client
 	 *
 	 * create a new token
 	 *
-	 * @param $permissions array hash bucketId => permission (read/write)
+	 * @param $permissions array hash bucketId => permission (read/write) or "manage" for all buckets permissions
 	 * @param $description string
 	 * @param $expiresIn integer number of seconds until token expires
 	 * @return integer token id
@@ -530,9 +530,14 @@ class Client
 	public function createToken($permissions, $description=null, $expiresIn = null)
 	{
 		$options = array();
-		foreach($permissions as $tableId => $permission) {
-			$key = "bucketPermissions[{$tableId}]";
-			$options[$key] = $permission;
+
+		if ($permissions == 'manage') {
+			$options['canManageBuckets'] = 1;
+		} else {
+			foreach((array) $permissions as $tableId => $permission) {
+				$key = "bucketPermissions[{$tableId}]";
+				$options[$key] = $permission;
+			}
 		}
 		if ($description) {
 			$options["description"] = $description;

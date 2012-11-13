@@ -128,6 +128,39 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 
 	}
 
+	public function testAllBucketsTokenPermissions()
+	{
+		// prepare token and test tables
+		$inTableId = $this->_client->createTable($this->_inBucketId, 'languages', __DIR__ . '/_data/languages.csv');
+		$outTableId = $this->_client->createTable($this->_outBucketId, 'languages', __DIR__ . '/_data/languages.csv');
+
+		$description = 'Out read token';
+		$tokenId = $this->_client->createToken('manage', $description);
+		$token = $this->_client->getToken($tokenId);
+
+		$client = new Keboola\StorageApi\Client($token['token'], STORAGE_API_URL);
+
+		// token getter
+		$this->assertEquals($client->getTokenString(), $token['token']);
+		$this->assertEmpty($token['expires']);
+		$this->assertFalse($token['isExpired']);
+
+		// check assigned buckets
+		$buckets = $client->listBuckets();
+		$this->assertCount(4, $buckets);
+
+		// create new bucket with master token
+		$newBucketId = $this->_client->createBucket('test', 'in', 'testing');
+
+		// check if new token has access to token
+		$buckets = $client->listBuckets();
+		$this->assertCount(5, $buckets);
+
+		$bucket = $client->getBucket($newBucketId);
+		$client->dropBucket($newBucketId);
+
+	}
+
 	public function testTokenWithExpiration()
 	{
 		$description = 'Out read token with expiration';
