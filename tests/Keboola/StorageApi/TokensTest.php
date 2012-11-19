@@ -74,6 +74,21 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 		$this->assertCount(1, $tokens);
 	}
 
+	public function testTokenRefresh()
+	{
+		$description = 'Out read token';
+		$bucketPermissions = array(
+			'out.c-api-tests' => 'read'
+		);
+		$tokenId = $this->_client->createToken($bucketPermissions, $description);
+		$token = $this->_client->getToken($tokenId);
+
+		$this->_client->refreshToken($tokenId);
+		$tokenAfterRefresh = $this->_client->getToken($tokenId);
+
+		$this->assertNotEquals($token['token'], $tokenAfterRefresh['token']);
+	}
+
 	public function testTokenPermissions()
 	{
 		// prepare token and test tables
