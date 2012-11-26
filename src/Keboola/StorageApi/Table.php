@@ -29,6 +29,11 @@ class Table
 	protected $_bucketId;
 
 	/**
+	 * @var string
+	 */
+	protected $_filename;
+
+	/**
 	 * @var Client
 	 */
 	protected $_client;
@@ -57,11 +62,13 @@ class Table
 	/**
 	 * @param Client $client
 	 * @param string $id - table ID
+	 * @param string $filename - path to csv file (optional)
 	 */
-	public function __construct(Client $client, $id)
+	public function __construct(Client $client, $id, $filename = '')
 	{
 		$this->_client = $client;
 		$this->_id = $id;
+		$this->_filename = $filename;
 
 		$tableNameArr = explode('.', $id);
 		$this->_name = $tableNameArr[2];
@@ -91,6 +98,14 @@ class Table
 	/**
 	 * @return string
 	 */
+	public function getFilename()
+	{
+		return $this->_filename;
+	}
+
+	/**
+	 * @return string
+	 */
 	public function getBucketId()
 	{
 		return $this->_bucketId;
@@ -110,6 +125,14 @@ class Table
 	public function getData()
 	{
 		return $this->_data;
+	}
+
+	/**
+	 * @param string $filename
+	 */
+	public function setFilename($filename)
+	{
+		$this->_filename = $filename;
 	}
 
 	/**
@@ -168,15 +191,22 @@ class Table
 	/**
 	 * Save data and table attributes to Storage API
 	 */
-	public function save($incremental=false)
+	public function save($incremental=false, $fromFile=false, $preserve=false)
 	{
-		$this->_preSave();
+		if ($fromFile) {
+			if (empty($this->_filename)) {
+				throw new TableException('No filename was set. Set filename or use save(..., $fromFile=false).');
+			}
+			$tempfile = $this->_filename;
+		} else {
+			$this->_preSave();
 
-		$tempfile = tempnam(ROOT_PATH . "/tmp/", 'sapi-client-' . $this->_id . '-');
-		$file = new \Keboola\Csv\CsvFile($tempfile);
-		$file->writeRow($this->_header);
-		foreach ($this->_data as $row) {
-			$file->writeRow($row);
+			$tempfile = tempnam(ROOT_PATH . "/tmp/", 'sapi-client-' . $this->_id . '-');
+			$file = new \Keboola\Csv\CsvFile($tempfile);
+			$file->writeRow($this->_header);
+			foreach ($this->_data as $row) {
+				$file->writeRow($row);
+			}
 		}
 
 		if (!$this->_client->tableExists($this->_id)) {
@@ -189,7 +219,10 @@ class Table
 		foreach ($this->_attributes as $k => $v) {
 			$this->_client->setTableAttribute($this->_id, $k, $v);
 		}
-		unlink($tempfile);
+
+		if (!$preserve) {
+			unlink($tempfile);
+		}
 	}
 
 	protected function _preSave()

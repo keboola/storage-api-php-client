@@ -72,17 +72,37 @@ class Keboola_StorageApi_TableClassTest extends StorageApiTestCase
 		);
 
 		$table = new \Keboola\StorageApi\Table($this->_client, $this->_tableId);
-
 		$table->setFromArray($data, true);
-
 		$table->setAttribute('testAttribute', 'test');
-
 		$table->save();
 
 		$result = \Keboola\StorageApi\Table::csvStringToArray($this->_client->exportTable($this->_tableId));
 
 		$this->assertEquals($data, $result, 'data saving to Storage API');
 		$this->assertEquals($table->getAttribute('testAttribute'), 'test', 'savinng attributes to Storage API');
+	}
+
+	public function testSaveFromFile()
+	{
+		$data = array(
+			array('id', 'col1', 'col2', 'col3', 'col4'),
+			array('1', 'abc', 'def', 'ghj', 'klm'),
+			array('2', 'nop', 'qrs', 'tuv', 'wxyz'),
+			array('3', 'abc', 'def', 'ghj', 'klm'),
+			array('4', 'nop', 'qrs', 'tuv', 'wxyz')
+		);
+
+		$tempfile = tempnam(__DIR__ . "/tmp/", 'sapi-client-test-table-');
+		$file = new \Keboola\Csv\CsvFile($tempfile);
+		foreach ($data as $row) {
+			$file->writeRow($row);
+		}
+
+		$table = new \Keboola\StorageApi\Table($this->_client, $this->_tableId, $tempfile);
+		$table->save(false, true);
+
+		$result = \Keboola\StorageApi\Table::csvStringToArray($this->_client->exportTable($this->_tableId));
+		$this->assertEquals($data, $result, 'data saving to Storage API');
 	}
 
 	//@TODO: Test Exceptions
