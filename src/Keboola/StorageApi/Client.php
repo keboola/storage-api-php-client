@@ -522,12 +522,14 @@ class Client
 	 *
 	 * create a new token
 	 *
+	 * @TODO refactor parameters
+	 *
 	 * @param $permissions array hash bucketId => permission (read/write) or "manage" for all buckets permissions
 	 * @param $description string
 	 * @param $expiresIn integer number of seconds until token expires
 	 * @return integer token id
 	 */
-	public function createToken($permissions, $description=null, $expiresIn = null)
+	public function createToken($permissions, $description=null, $expiresIn = null, $canReadAllFileUploads = false)
 	{
 		$options = array();
 
@@ -545,6 +547,7 @@ class Client
 		if ($expiresIn) {
 			$options["expiresIn"] = (int) $expiresIn;
 		}
+		$options['canReadAllFileUploads'] = (bool) $canReadAllFileUploads;
 
 		$result = $this->_apiPost("/storage/tokens", $options);
 
