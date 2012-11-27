@@ -307,7 +307,7 @@ class Table
 		} else {
 			$this->_preSave();
 
-			$tempfile = tempnam(ROOT_PATH . "/tmp/", 'sapi-client-' . $this->_id . '-');
+			$tempfile = tempnam(__DIR__ . "/tmp/", 'sapi-client-' . $this->_id . '-');
 			$file = new \Keboola\Csv\CsvFile($tempfile);
 			$file->writeRow($this->_header);
 			foreach ($this->_data as $row) {
