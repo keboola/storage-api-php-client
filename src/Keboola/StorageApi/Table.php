@@ -60,12 +60,31 @@ class Table
 	protected $_attributes = array();
 
 	/**
+	 * @var bool
+	 */
+	protected $_incremental = false;
+
+	/**
+	 * @var bool
+	 */
+	protected $_transactional = false;
+
+	protected $_delimiter = ',';
+
+	protected $_enclosure = '"';
+
+	protected $_partial = false;
+
+	protected $_primaryKey;
+
+	/**
 	 * @param Client $client
 	 * @param string $id - table ID
 	 * @param string $filename - path to csv file (optional)
 	 */
-	public function __construct(Client $client, $id, $filename = '')
-	{
+	public function __construct(Client $client, $id, $filename = '', $primaryKey=null,
+        $transactional=false, $delimiter=',', $enclosure='"', $incremental=false, $partial=false
+	) {
 		$this->_client = $client;
 		$this->_id = $id;
 		$this->_filename = $filename;
@@ -77,6 +96,12 @@ class Table
 		$stage = $tableNameArr[0];
 
 		$this->_bucketId = $this->_client->getBucketId($bucketName, $stage);
+
+		$this->_transactional = $transactional;
+		$this->_delimiter = $delimiter;
+		$this->_enclosure = $enclosure;
+		$this->_incremental = $incremental;
+		$this->_partial = $partial;
 	}
 
 	/**
@@ -101,6 +126,54 @@ class Table
 	public function getFilename()
 	{
 		return $this->_filename;
+	}
+
+	/**
+	 * @param bool $bool
+	 */
+	public function setTransactional($bool)
+	{
+		$this->_transactional = $bool;
+	}
+
+	/**
+	 * @param bool $bool
+	 */
+	public function setIncremental($bool)
+	{
+		$this->_incremental = $bool;
+	}
+
+	/**
+	 * @param bool $bool
+	 */
+	public function setPartial($bool)
+	{
+		$this->_partial = $bool;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isTransactional()
+	{
+		return $this->_transactional;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isIncremental()
+	{
+		return $this->_incremental;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isPartial()
+	{
+		return $this->_partial;
 	}
 
 	/**
@@ -143,9 +216,45 @@ class Table
 		$this->_header = self::normalizeHeader($header);
 	}
 
+	/**
+	 * @param $key
+	 * @param $value
+	 */
 	public function setAttribute($key, $value)
 	{
 		$this->_attributes[$key] = $value;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getDelimiter()
+	{
+		return $this->_delimiter;
+	}
+
+	/**
+	 * @param string $delim
+	 */
+	public function setDelimiter($delim)
+	{
+		$this->_delimiter = $delim;
+	}
+
+	/**
+	 * @param string $enc
+	 */
+	public function setEnclosure($enc)
+	{
+		$this->_enclosure = $enc;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getEnclosure()
+	{
+		return $this->_enclosure;
 	}
 
 	/**
@@ -191,12 +300,9 @@ class Table
 	/**
 	 * Save data and table attributes to Storage API
 	 */
-	public function save($incremental=false, $fromFile=false, $preserve=false)
+	public function save()
 	{
-		if ($fromFile) {
-			if (empty($this->_filename)) {
-				throw new TableException('No filename was set. Set filename or use save(..., $fromFile=false).');
-			}
+		if (!empty($this->_filename)) {
 			$tempfile = $this->_filename;
 		} else {
 			$this->_preSave();
@@ -210,9 +316,10 @@ class Table
 		}
 
 		if (!$this->_client->tableExists($this->_id)) {
-			$this->_client->createTable($this->_bucketId, $this->_name, $tempfile);
+			$this->_client->createTable($this->_bucketId, $this->_name, $tempfile, $this->_delimiter,
+				$this->_enclosure, $this->_primaryKey, $this->_transactional);
 		} else {
-			$this->_client->writeTable($this->_id, $tempfile, null, ',', '"', $incremental);
+			$this->_client->writeTable($this->_id, $tempfile, $this->_transactional, ',', '"', $this->_incremental);
 		}
 
 		// Save table attributes
@@ -220,9 +327,7 @@ class Table
 			$this->_client->setTableAttribute($this->_id, $k, $v);
 		}
 
-		if (!$preserve) {
-			unlink($tempfile);
-		}
+		unlink($tempfile);
 	}
 
 	protected function _preSave()
