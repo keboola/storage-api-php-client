@@ -167,6 +167,7 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 			array('languages.invalid.csv'),
 			array('languages.invalid.gzip'),
 			array('languages.invalid.zip'),
+			array('languages.invalid.duplicateColumns.csv'),
 		);
 	}
 

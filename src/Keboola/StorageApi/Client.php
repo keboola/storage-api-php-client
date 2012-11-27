@@ -522,12 +522,14 @@ class Client
 	 *
 	 * create a new token
 	 *
+	 * @TODO refactor parameters
+	 *
 	 * @param $permissions array hash bucketId => permission (read/write) or "manage" for all buckets permissions
 	 * @param $description string
 	 * @param $expiresIn integer number of seconds until token expires
 	 * @return integer token id
 	 */
-	public function createToken($permissions, $description=null, $expiresIn = null)
+	public function createToken($permissions, $description=null, $expiresIn = null, $canReadAllFileUploads = false)
 	{
 		$options = array();
 
@@ -545,6 +547,7 @@ class Client
 		if ($expiresIn) {
 			$options["expiresIn"] = (int) $expiresIn;
 		}
+		$options['canReadAllFileUploads'] = (bool) $canReadAllFileUploads;
 
 		$result = $this->_apiPost("/storage/tokens", $options);
 
@@ -667,23 +670,41 @@ class Client
 	 *
 	 * Uploads a file
 	 *
-	 * TODO Test!
 	 *
 	 * @param $fileName
 	 * @return mixed|string
 	 */
-	public function uploadFile($fileName)
+	public function uploadFile($fileName, $isPublic = false)
 	{
 		// TODO Gzip data
 		$options = array(
-			"file" => "@" . $fileName
+			"file" => "@" . $fileName,
+			"isPublic" => $isPublic,
 		);
 
 		$result = $this->_apiPost("/storage/files/", $options);
 
 		$this->_log("File {$fileName} uploaded ", array("options" => $options, "result" => $result));
 
-		return true;
+		return $result['id'];
+	}
+
+	/**
+	 * Get a single file
+	 * @param $fileId
+	 * @return mixed|string
+	 */
+	public function getFile($fileId)
+	{
+		return $this->_apiGet('/storage/files/' . $fileId);
+	}
+
+	/**
+	 * Files list
+	 */
+	public function listFiles()
+	{
+		return $this->_apiGet('/storage/files');
 	}
 
 	/**
