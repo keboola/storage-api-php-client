@@ -7,7 +7,7 @@
  *
  */
 
-class Keboola_StorageApi_Buckets_FilesTest extends StorageApiTestCase
+class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 {
 
 	protected $_testFilePath;

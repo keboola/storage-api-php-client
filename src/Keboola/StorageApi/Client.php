@@ -1,5 +1,6 @@
 <?
 namespace Keboola\StorageApi;
+
 class Client
 {
 	// Stage names
@@ -705,6 +706,26 @@ class Client
 	public function listFiles()
 	{
 		return $this->_apiGet('/storage/files');
+	}
+
+
+	/**
+	 * Create new event
+	 * @param Event $event
+	 * @return mixed|string
+	 */
+	public function createEvent(Event $event)
+	{
+		$result = $this->_apiPost('/storage/events', array(
+			'componentName' => $event->getComponentName(),
+			'componentType' => $event->getComponentType(),
+			'message' => $event->getMessage(),
+			'type' => $event->getType(),
+			'params' => json_encode($event->getParams()),
+			'results' => json_encode($event->getResults()),
+			'duration' => $event->getDuration(),
+		));
+		return $result['id'];
 	}
 
 	/**
