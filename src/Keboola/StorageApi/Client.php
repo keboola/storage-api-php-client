@@ -11,6 +11,10 @@ class Client
 	const PARTIAL_UPDATE = true;
 	const INCREMENTAL_UPDATE = true;
 
+	// Throw an Exception if Storage API returns an error
+	// If false, just return the error response
+	public $translateApiErrors = true;
+
 	// Token string
 	public $token;
 
@@ -27,6 +31,7 @@ class Client
 
 	// Log anonymous function
 	private static $_log;
+
 
 	/**
 	 * @param $tokenString
@@ -761,14 +766,14 @@ class Client
 		if (is_string($data)) {
 			return $data;
 		}
-		if(isset($data["error"])) {
+		if($this->translateApiErrors && isset($data["error"])) {
 			$stringCode = null;
 			if (isset($data['code'])) {
 				$stringCode = $data['code'];
 			}
 			throw new ClientException($data["error"], null, null, $stringCode);
 		}
-		if(isset($data["status"]) && $data["status"] == "maintenance") {
+		if($this->translateApiErrors && isset($data["status"]) && $data["status"] == "maintenance") {
 			throw new ClientException($data["reason"], null, null, "MAINTENANCE", $data);
 		}
 		if (count($data) === 1 && isset($data["uri"])) {
