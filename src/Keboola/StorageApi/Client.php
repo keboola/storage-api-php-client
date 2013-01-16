@@ -1098,6 +1098,7 @@ class Client
 		$logData["owner"] = $this->_tokenObj["owner"];
 		$logData["id"] = $this->_tokenObj["id"];
 		$logData["description"] = $this->_tokenObj["description"];
+		$logData["url"] = $this->_apiUrl;
 		return $logData;
 
 	}
