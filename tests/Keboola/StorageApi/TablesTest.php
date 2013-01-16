@@ -7,7 +7,7 @@
  *
  */
 
-class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
+class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 {
 
 	protected $_inBucketId;
@@ -71,12 +71,12 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 	{
 		$table1Id = $this->_client->createTable($this->_inBucketId, 'languages', __DIR__ . '/_data/languages.csv');
 		$table2Id = $this->_client->createTable($this->_inBucketId, 'languages_2', __DIR__ . '/_data/languages.csv');
-		$tables = $this->_client->listTables();
+		$tables = $this->_client->listTables($this->_inBucketId);
 
 		$this->assertCount(2, $tables);
 		$this->_client->dropTable($table1Id);
 
-		$tables = $this->_client->listTables();
+		$tables = $this->_client->listTables($this->_inBucketId);
 		$this->assertCount(1, $tables);
 
 		$table = reset($tables);
@@ -169,6 +169,15 @@ class Keboola_StorageApi_Buckets_TablesTest extends StorageApiTestCase
 			array('languages.invalid.zip'),
 			array('languages.invalid.duplicateColumns.csv'),
 		);
+	}
+
+	/**
+	 * @expectedException Keboola\StorageApi\ClientException
+	 */
+	public function testTableNotExistsImport()
+	{
+		$importFile = __DIR__ . '/_data/languages.csv';
+		$this->_client->writeTable('languages', $importFile);
 	}
 
 	public function testTableDefinition()

@@ -146,6 +146,7 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 	public function testAllBucketsTokenPermissions()
 	{
 		$description = 'Out read token';
+		$bucketsInitialCount = count($this->_client->listBuckets());
 		$tokenId = $this->_client->createToken('manage', $description);
 		$token = $this->_client->getToken($tokenId);
 
@@ -158,14 +159,14 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 
 		// check assigned buckets
 		$buckets = $client->listBuckets();
-		$this->assertCount(4, $buckets);
+		$this->assertCount($bucketsInitialCount, $buckets);
 
 		// create new bucket with master token
 		$newBucketId = $this->_client->createBucket('test', 'in', 'testing');
 
 		// check if new token has access to token
 		$buckets = $client->listBuckets();
-		$this->assertCount(5, $buckets);
+		$this->assertCount($bucketsInitialCount + 1, $buckets);
 
 		$bucket = $client->getBucket($newBucketId);
 		$client->dropBucket($newBucketId);
