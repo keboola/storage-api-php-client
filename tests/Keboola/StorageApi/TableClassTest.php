@@ -105,6 +105,24 @@ class Keboola_StorageApi_TableClassTest extends StorageApiTestCase
 		$this->assertEquals($data, $result, 'data saving to Storage API');
 	}
 
+	public function testEmptyHeaderReplacement()
+	{
+		$data = array(
+			array('', '', '', '', ''),
+			array('1', 'abc', 'def', 'ghj', 'klm'),
+			array('2', 'nop', 'qrs', 'tuv', 'wxyz'),
+			array('3', 'abc', 'def', 'ghj', 'klm'),
+			array('4', 'nop', 'qrs', 'tuv', 'wxyz')
+		);
+
+		$table = new \Keboola\StorageApi\Table($this->_client, $this->_tableId);
+		$table->setFromArray($data, true);
+
+		$testHeader = array('col0', 'col1', 'col2', 'col3', 'col4');
+
+		$this->assertEquals($table->getHeader(), $testHeader);
+	}
+
 	//@TODO: Test Exceptions
 
 }

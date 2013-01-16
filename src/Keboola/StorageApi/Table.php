@@ -339,8 +339,13 @@ class Table
 
 	public static function normalizeHeader(&$header)
 	{
+		$emptyCnt = 0;
 		foreach($header as &$col) {
 			$col = self::removeSpecialChars($col);
+			if ($col == 'col') {
+				$col .= $emptyCnt;
+				$emptyCnt++;
+			}
 		}
 
 		return $header;
@@ -355,7 +360,7 @@ class Table
 		$string = lcfirst($string);
 
 		if (!strlen($string)) {
-			$string = 'empty';
+			$string = 'col';
 		}
 
 		return $string;
