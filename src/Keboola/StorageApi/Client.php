@@ -32,6 +32,13 @@ class Client
 	// Log anonymous function
 	private static $_log;
 
+	/**
+	 *
+	 * CURL request timeout in seconds
+	 *
+	 * @var int
+	 */
+	public $_curlTimeout = 1800;
 
 	/**
 	 * @param $tokenString
@@ -868,6 +875,10 @@ class Client
 
 		$result = curl_exec($ch);
 
+		if (curl_errno($ch)) {
+			throw new Exception(curl_error($ch), curl_errno($ch), null, "CURL_ERROR");
+		}
+
 		if ($fileName) {
 			fclose($file);
 			// Read the first line from the file, as it might contain errors
@@ -959,6 +970,10 @@ class Client
 		}
 		$result = curl_exec($ch);
 
+		if (curl_errno($ch)) {
+			throw new Exception(curl_error($ch), curl_errno($ch), null, "CURL_ERROR");
+		}
+
 		$logData["requestTime"] = Client::_timer("request");
 
 		if ($result) {
@@ -1015,6 +1030,11 @@ class Client
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
 		$result = curl_exec($ch);
+
+		if (curl_errno($ch)) {
+			throw new Exception(curl_error($ch), curl_errno($ch), null, "CURL_ERROR");
+		}
+
 		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
 		$logData["requestTime"] = Client::_timer("request");
@@ -1054,6 +1074,7 @@ class Client
 	{
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($ch, CURLOPT_TIMEOUT, $this->getCurlTimeout());
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_HEADER, false);
 		curl_setopt($ch, CURL_HTTP_VERSION_1_1, true);
@@ -1170,5 +1191,27 @@ class Client
 		$delta = isset($time[$name]) ? $now-$time[$name] : 0;
 		$time[$name] = $now;
 		return $delta;
+	}
+
+	/**
+	 *
+	 * Set CURL timeout in seconds
+	 *
+	 * @param $timeout
+	 */
+	public function setCurlTimeout($timeout)
+	{
+		$this->_curlTimeout = $timeout;
+	}
+
+	/**
+	 *
+	 * Get CURL timeout in seconds
+	 *
+	 * @return int
+	 */
+	public function getCurlTimeout()
+	{
+		return $this->_curlTimeout;
 	}
 }
