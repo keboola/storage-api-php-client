@@ -34,11 +34,11 @@ class Client
 
 	/**
 	 *
-	 * CURL request timeout in seconds
+	 * Request timeout in seconds
 	 *
 	 * @var int
 	 */
-	public $_curlTimeout = 1800;
+	public $_connectionTimeout = 1800;
 
 	/**
 	 * @param $tokenString
@@ -1074,7 +1074,7 @@ class Client
 	{
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-		curl_setopt($ch, CURLOPT_TIMEOUT, $this->getCurlTimeout());
+		curl_setopt($ch, CURLOPT_TIMEOUT, $this->getTimeout());
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_HEADER, false);
 		curl_setopt($ch, CURL_HTTP_VERSION_1_1, true);
@@ -1199,9 +1199,9 @@ class Client
 	 *
 	 * @param $timeout
 	 */
-	public function setCurlTimeout($timeout)
+	public function setTimeout($timeout)
 	{
-		$this->_curlTimeout = $timeout;
+		$this->_connectionTimeout = $timeout;
 	}
 
 	/**
@@ -1210,8 +1210,8 @@ class Client
 	 *
 	 * @return int
 	 */
-	public function getCurlTimeout()
+	public function getTimeout()
 	{
-		return $this->_curlTimeout;
+		return $this->_connectionTimeout;
 	}
 }
