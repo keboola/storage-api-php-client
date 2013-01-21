@@ -149,6 +149,13 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		unlink($outputFile);
 	}
 
+	public function testTableEventsExportParams()
+	{
+
+		$data = $this->_client->exportTable('sys.logs.events', null, 10, 1);
+		$this->assertNotEmpty($data);
+	}
+
 	/**
 	 * @dataProvider tableImportInvalidData
 	 * @expectedException Keboola\StorageApi\ClientException
