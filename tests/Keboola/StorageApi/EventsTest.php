@@ -21,6 +21,7 @@ class Keboola_StorageApi_EventsTest extends StorageApiTestCase
 			->setType('info')
 			->setRunId('ddddssss')
 			->setMessage('Table Opportunity fetched.')
+			->setDescription('Some longer description of event')
 			->setParams(array(
 				'accountName' => 'Keboola',
 				'configuration' => 'sys.c-sfdc.sfdc-01',

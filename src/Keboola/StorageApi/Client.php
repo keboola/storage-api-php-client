@@ -733,6 +733,7 @@ class Client
 			'configurationId' => $event->getConfigurationId(),
 			'runId' => $event->getRunId(),
 			'message' => $event->getMessage(),
+			'description' => $event->getDescription(),
 			'type' => $event->getType(),
 			'params' => json_encode($event->getParams()),
 			'results' => json_encode($event->getResults()),
