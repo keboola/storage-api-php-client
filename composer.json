@@ -3,7 +3,7 @@
 	"description": "Keboola Storage API PHP CLient",
 	"homepage": "http://keboola.com",
 	"autoload": {
-        "psr-0": {"Keboola": "src/"}
+        "psr-0": {"Keboola\\StorageApi": "src/"}
     },
 	"require": {
 		"keboola/csv": "1.0.*"
