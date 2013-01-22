@@ -748,6 +748,16 @@ class Client
 	}
 
 	/**
+	 * Unique 64bit sequence generator
+	 * @return mixed
+	 */
+	public function generateId()
+	{
+		$result = $this->_apiPost('/storage/tickets');
+		return $result['id'];
+	}
+
+	/**
 	 *
 	 * Generates URL for api call
 	 *
