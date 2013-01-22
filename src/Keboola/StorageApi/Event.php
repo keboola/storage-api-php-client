@@ -13,22 +13,31 @@ namespace Keboola\StorageApi;
 class Event {
 
 	/**
-	 * Component name e.q. SFDC
-	 * @var string
+	 * @var
 	 */
-	private $_componentName;
+	private $_component;
 
 	/**
-	 * Component type e.q. Extractor
-	 * @var string
+	 * @var
 	 */
-	private $_componentType;
+	private $_configurationId;
+
+	/**
+	 * @var
+	 */
+	private $_runId;
 
 	/**
 	 * Log message
 	 * @var string
 	 */
 	private $_message;
+
+	/**
+	 * More detailed description
+	 * @var
+	 */
+	private $_description;
 
 	/**
 	 * info | error
@@ -53,35 +62,42 @@ class Event {
 	 */
 	private $_duration;
 
+	/**
+	 * @deprecated
+	 * @return mixed
+	 */
 	public function getComponentName()
 	{
-		return $this->_componentName;
+		return $this->getConfigurationId();
 	}
 
-
 	/**
+	 * @deprecated
 	 * @param $componentName
 	 * @return Event
 	 */
 	public function setComponentName($componentName)
 	{
-		$this->_componentName = $componentName;
-		return $this;
-	}
-
-	public function getComponentType()
-	{
-		return $this->_componentType;
+		return $this->setConfigurationId($componentName);
 	}
 
 	/**
+	 * @deprecated
+	 * @return mixed
+	 */
+	public function getComponentType()
+	{
+		return $this->getComponent();
+	}
+
+	/**
+	 * @deprecated
 	 * @param $componentType
 	 * @return Event
 	 */
 	public function setComponentType($componentType)
 	{
-		$this->_componentType = $componentType;
-		return $this;
+		return $this->setComponent($componentType);
 	}
 
 	public function getMessage()
@@ -166,4 +182,75 @@ class Event {
 		$this->_duration = (int) $duration;
 		return $this;
 	}
+
+	public function getComponent()
+	{
+		return $this->_component;
+	}
+
+	/**
+	 * @param $component
+	 * @return Event
+	 */
+	public function setComponent($component)
+	{
+		$this->_component = $component;
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getConfigurationId()
+	{
+		return $this->_configurationId;
+	}
+
+	/**
+	 * @param $configurationId
+	 * @return Event
+	 */
+	public function setConfigurationId($configurationId)
+	{
+		$this->_configurationId = $configurationId;
+		return $this;
+	}
+
+	/**
+	 * @return
+	 */
+	public function getRunId()
+	{
+		return $this->_runId;
+	}
+
+	/**
+	 * @param $runId
+	 * @return Event
+	 */
+	public function setRunId($runId)
+	{
+		$this->_runId = $runId;
+		return $this;
+	}
+
+	/**
+	 * @return
+	 */
+	public function getDescription()
+	{
+		return $this->_description;
+	}
+
+
+	/**
+	 * @param $description
+	 * @return Event
+	 */
+	public function setDescription($description)
+	{
+		$this->_description = $description;
+		return $this;
+	}
+
 }

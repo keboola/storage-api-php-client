@@ -729,8 +729,9 @@ class Client
 	public function createEvent(Event $event)
 	{
 		$result = $this->_apiPost('/storage/events', array(
-			'componentName' => $event->getComponentName(),
-			'componentType' => $event->getComponentType(),
+			'component' => $event->getComponent(),
+			'configurationId' => $event->getConfigurationId(),
+			'runId' => $event->getRunId(),
 			'message' => $event->getMessage(),
 			'type' => $event->getType(),
 			'params' => json_encode($event->getParams()),
@@ -738,6 +739,11 @@ class Client
 			'duration' => $event->getDuration(),
 		));
 		return $result['id'];
+	}
+
+	public function getEvent($id)
+	{
+		return $this->_apiGet('/storage/events/' . $id);
 	}
 
 	/**
