@@ -28,7 +28,6 @@ class Keboola_StorageApi_EventsTest extends StorageApiTestCase
 			));
 
 		$id = $this->_client->createEvent($event);
-
 		$savedEvent = $this->_client->getEvent($id);
 
 		$this->assertEquals($event->getComponent(), $savedEvent['component']);
@@ -50,6 +49,29 @@ class Keboola_StorageApi_EventsTest extends StorageApiTestCase
 		$savedEvent = $this->_client->getEvent($id);
 		$this->assertEquals($event->getComponentName(), $savedEvent['configurationId']);
 		$this->assertEquals($event->getComponentType(), $savedEvent['component']);
+	}
+
+	public function testEventList()
+	{
+		// at least one event should be generated
+		$this->_client->listBuckets();
+
+		$events = $this->_client->listEvents(1);
+		$this->assertCount(1, $events);
+	}
+
+	public function testRunIdPropagation()
+	{
+		$runId = 'some-run-id';
+		$this->_client->setRunId($runId);
+
+		// generate event
+		$this->_client->listBuckets();
+
+		$events = $this->_client->listEvents(1);
+		$event = reset($events);
+
+		$this->assertEquals($runId, $event['runId']);
 	}
 
 }

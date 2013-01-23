@@ -21,6 +21,9 @@ class Client
 	// Token object
 	private $_tokenObj = null;
 
+	// curren run id sent with all request
+	private $_runId = null;
+
 	// API URL
 	private $_apiUrl = "https://connection.keboola.com";
 
@@ -747,6 +750,15 @@ class Client
 		return $this->_apiGet('/storage/events/' . $id);
 	}
 
+	public function listEvents($limit = 100, $offset = 0)
+	{
+		$queryParams = array(
+			'limit' => $limit,
+			'offset' => $offset,
+		);
+		return $this->_apiGet('/storage/events?' . http_build_query($queryParams));
+	}
+
 	/**
 	 * Unique 64bit sequence generator
 	 * @return mixed
@@ -1089,6 +1101,10 @@ class Client
 	 */
 	protected function _curlSetOpts($headers = array())
 	{
+		if ($this->getRunId()) {
+			$headers[] = 'X-KBC-RunId: ' . $this->getRunId();
+		}
+
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($ch, CURLOPT_TIMEOUT, $this->getTimeout());
@@ -1230,5 +1246,20 @@ class Client
 	public function getTimeout()
 	{
 		return $this->_connectionTimeout;
+	}
+
+	public function getRunId()
+	{
+		return $this->_runId;
+	}
+
+	/**
+	 * @param $runId
+	 * @return Client
+	 */
+	public function setRunId($runId)
+	{
+		$this->_runId = $runId;
+		return $this;
 	}
 }
