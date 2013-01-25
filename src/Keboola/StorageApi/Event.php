@@ -12,6 +12,12 @@ namespace Keboola\StorageApi;
 
 class Event {
 
+
+	const TYPE_INFO = 'info';
+	const TYPE_SUCCESS = 'success';
+	const TYPE_WARN = 'warn';
+	const TYPE_ERROR = 'error';
+
 	/**
 	 * @var
 	 */
@@ -127,8 +133,10 @@ class Event {
 	public function setType($type)
 	{
 		$allowedTypes = array(
-			'info',
-			'error',
+			self::TYPE_ERROR,
+			self::TYPE_INFO,
+			self::TYPE_SUCCESS,
+			self::TYPE_WARN
 		);
 		if (!in_array($type, $allowedTypes)) {
 			throw new Exception("{$type} is not allowed. Allowed types: " . implode(',', $allowedTypes));

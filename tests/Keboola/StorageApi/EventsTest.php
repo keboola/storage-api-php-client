@@ -37,6 +37,15 @@ class Keboola_StorageApi_EventsTest extends StorageApiTestCase
 		$this->assertEquals($event->getType(), $savedEvent['type']);
 	}
 
+	/**
+	 * @expectedException Keboola\StorageApi\Exception
+	 */
+	public function testInvalidType()
+	{
+		$event = new Event();
+		$event->setType('homeless');
+	}
+
 	public function testEventCompatibility()
 	{
 		$event = new Event();
