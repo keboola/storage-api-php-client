@@ -341,186 +341,13 @@ class Client
 			"transaction" => $transaction,
 			"incremental" => $incremental,
 			"partial" => $partial,
+			"data" => "@" . $dataFile
 		);
-
-		$boundary = "---------------------".substr(md5(rand(0,32000)), 0, 10);
-		$dataStart = self::_encodeFormData($boundary, $options);
-
-		// uploaded file
-		$dataStart .= "--$boundary\r\n";
-		$dataStart .= "Content-Disposition: form-data; name=\"data\"; filename=\"" . basename($dataFile) . "\"\r\n";
-		$dataStart .= "\r\n";
-
-		$dataEnd = "\r\n";
-		$dataEnd .= "--$boundary--\r\n";
-		$contentLength = strlen($dataStart) + strlen($dataEnd) + filesize($dataFile);
-
-		$urlParsed = parse_url($this->_apiUrl);
-		$sock = fsockopen("ssl://" . $urlParsed['host'], 443, $errno, $errstr, 5);
-		if ($sock === false) {
-			throw new ClientException('Connection error:' . $errstr, $errno, NULL, 'CONNECTION_ERROR');
-		}
-
-		stream_set_timeout($sock, $this->getTimeout());
-
-		$dataFileStream = fopen($dataFile, 'r');
-		if ($dataFileStream === false) {
-			throw new ClientException("Cannot open file $dataFile");
-		}
-
-		fwrite($sock, "POST " . $this->_constructUrl("/storage/tables/{$tableId}/import") . " HTTP/1.1\r\n");
-		fwrite($sock, "Host: $urlParsed[host]\r\n");
-		fwrite($sock, "Content-type: multipart/form-data; boundary=$boundary\r\n");
-		fwrite($sock, implode("\r\n", $this->_getHeaders()) . "\r\n");
-		fwrite($sock, "Content-length: $contentLength\r\n");
-		fwrite($sock, "Accept: */*\r\n");
-		fwrite($sock, "\r\n");
-		fwrite($sock, $dataStart);
-		stream_copy_to_stream($dataFileStream, $sock);
-		fwrite($sock, $dataEnd);
-
-		$headersRaw = "";
-		while ($str = trim(fgets($sock, 4096))) {
-			$headersRaw .= "$str\n";
-		}
-
-		$headers = self::_extractHttpResponseHeaders($headersRaw);
-
-		$body = "";
-		while (!feof($sock)) {
-			$body .= fgets($sock, 4096);
-		}
-
-		if (isset($headers['transfer-encoding']) && $headers['transfer-encoding'] == 'chunked') {
-			$body = self::_decodeChunkedBody($body);
-		}
-
-		$streamInfo = stream_get_meta_data($sock);
-
-		fclose($dataFileStream);
-		fclose($sock);
-
-		if (isset($streamInfo['timed_out']) && $streamInfo['timed_out'] == true) {
-			throw new ClientException('Connection timeout', NULL, NULL, 'TIMEOUT');
-		}
-
-		$responseCode = self::_extractHttpResponseCode($headersRaw);
-		if ($responseCode !== 200) {
-			throw new ClientException('Error:' . $body);
-		}
-
-		$result = json_decode($body, true);
+		$result = $this->_apiPost("/storage/tables/{$tableId}/import" , $options);
 
 		$this->_log("Data written to table {$tableId}", array("options" => $options, "result" => $result));
+
 		return $result;
-	}
-
-	private static function _encodeFormData($boundary, $postData)
-	{
-		$data = '';
-		foreach($postData as $key => $val) {
-			$data .= "--$boundary\r\n";
-			$data .= "Content-Disposition: form-data; name=\"$key\"\r\n";
-			$data .= "\r\n" ;
-			$data .= $val . "\r\n";
-		}
-		return $data;
-	}
-
-	private static function _extractHttpResponseCode($response_str)
-	{
-		preg_match("|^HTTP/[\d\.x]+ (\d+)|", $response_str, $m);
-
-		if (isset($m[1])) {
-			return (int) $m[1];
-		} else {
-			return false;
-		}
-	}
-
-	private  static function _extractHttpResponseHeaders($response_str)
-	{
-		$headers = array();
-
-		// First, split body and headers
-		$parts = preg_split('|(?:\r?\n){2}|m', $response_str, 2);
-		if (! $parts[0]) return $headers;
-
-		// Split headers part to lines
-		$lines = explode("\n", $parts[0]);
-		unset($parts);
-		$last_header = null;
-
-		foreach($lines as $line) {
-			$line = trim($line, "\r\n");
-			if ($line == "") break;
-
-			// Locate headers like 'Location: ...' and 'Location:...' (note the missing space)
-			if (preg_match("|^([\w-]+):\s*(.+)|", $line, $m)) {
-				unset($last_header);
-				$h_name = strtolower($m[1]);
-				$h_value = $m[2];
-
-				if (isset($headers[$h_name])) {
-					if (! is_array($headers[$h_name])) {
-						$headers[$h_name] = array($headers[$h_name]);
-					}
-
-					$headers[$h_name][] = $h_value;
-				} else {
-					$headers[$h_name] = $h_value;
-				}
-				$last_header = $h_name;
-			} elseif (preg_match("|^\s+(.+)$|", $line, $m) && $last_header !== null) {
-				if (is_array($headers[$last_header])) {
-					end($headers[$last_header]);
-					$last_header_key = key($headers[$last_header]);
-					$headers[$last_header][$last_header_key] .= $m[1];
-				} else {
-					$headers[$last_header] .= $m[1];
-				}
-			}
-		}
-
-		return $headers;
-	}
-
-	/**
-	 * Decode a "chunked" transfer-encoded body and return the decoded text
-	 *
-	 * @param string $body
-	 * @return string
-	 */
-	private static function _decodeChunkedBody($body)
-	{
-		$decBody = '';
-
-		// If mbstring overloads substr and strlen functions, we have to
-		// override it's internal encoding
-		if (function_exists('mb_internal_encoding') &&
-		   ((int) ini_get('mbstring.func_overload')) & 2) {
-
-			$mbIntEnc = mb_internal_encoding();
-			mb_internal_encoding('ASCII');
-		}
-
-		while (trim($body)) {
-			if (! preg_match("/^([\da-fA-F]+)[^\r\n]*\r\n/sm", $body, $m)) {
-				// require_once 'Zend/Http/Exception.php';
-				throw new Zend_Http_Exception("Error parsing body - doesn't seem to be a chunked message");
-			}
-
-			$length = hexdec(trim($m[1]));
-			$cut = strlen($m[0]);
-			$decBody .= substr($body, $cut, $length);
-			$body = substr($body, $cut + $length + 2);
-		}
-
-		if (isset($mbIntEnc)) {
-			mb_internal_encoding($mbIntEnc);
-		}
-
-		return $decBody;
 	}
 
 	/**
@@ -1274,6 +1101,10 @@ class Client
 	 */
 	protected function _curlSetOpts($headers = array())
 	{
+		if ($this->getRunId()) {
+			$headers[] = 'X-KBC-RunId: ' . $this->getRunId();
+		}
+
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($ch, CURLOPT_TIMEOUT, $this->getTimeout());
@@ -1283,19 +1114,11 @@ class Client
 		curl_setopt($ch, CURLOPT_HTTPGET, true);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 		curl_setopt($ch, CURLOPT_USERAGENT, $this->_userAgent);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array_merge($this->_getHeaders(), $headers));
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array_merge(array(
+			"Connection: close",
+			"X-StorageApi-Token: {$this->token}",
+		), $headers));
 		return $ch;
-	}
-
-	protected function _getHeaders()
-	{
-		$headers = array();
-		if ($this->getRunId()) {
-			$headers[] = 'X-KBC-RunId: ' . $this->getRunId();
-		}
-		$headers[] = "Connection: close";
-		$headers[] = "X-StorageApi-Token: {$this->token}";
-		return $headers;
 	}
 
 	/**
