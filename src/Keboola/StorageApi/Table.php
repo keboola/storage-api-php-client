@@ -319,7 +319,7 @@ class Table
 			$this->_client->createTable($this->_bucketId, $this->_name, $tempfile, $this->_delimiter,
 				$this->_enclosure, $this->_primaryKey, $this->_transactional);
 		} else {
-			$this->_client->writeTable($this->_id, $tempfile, $this->_transactional, ',', '"', $this->_incremental);
+			$this->_client->writeTable($this->_id, $tempfile, $this->_transactional, ',', '"', $this->_incremental, $this->_partial);
 		}
 
 		// Save table attributes
