@@ -7,6 +7,9 @@
  *
  */
 
+
+use Keboola\StorageApi\Client;
+
 class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 {
 
@@ -106,7 +109,9 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$this->assertNotEmpty($result['totalDataSizeBytes']);
 
 		// compare data
-		$this->assertEquals(file_get_contents($expectationsFile), $this->_client->exportTable($tableId, null, null, null, $exportEscapeOutput), 'imported data comparsion');
+		$this->assertEquals(file_get_contents($expectationsFile), $this->_client->exportTable($tableId, null, array(
+			'escape' => $exportEscapeOutput,
+		)), 'imported data comparsion');
 
 		// incremental
 		$result = $this->_client->writeTable($tableId, $importFile, null, ",", '"', true);
@@ -143,17 +148,45 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		unlink($outputFile);
 
 		// Download with limit
-		$this->_client->exportTable($tableId, $outputFile, 1);
+		$this->_client->exportTable($tableId, $outputFile, array(
+			'limit' => 1,
+		));
 
 		$this->assertEquals(exec("wc -l < " . escapeshellarg($outputFile)), "2");
 		unlink($outputFile);
 	}
 
-	public function testTableEventsExportParams()
+	public function testTableExportParams()
 	{
+		$importFile =  __DIR__ . '/_data/languages.csv';
+		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $importFile);
 
-		$data = $this->_client->exportTable('sys.logs.events', null, 10, 1);
-		$this->assertNotEmpty($data);
+		$originalFileLinesCount = exec("wc -l <" . escapeshellarg($importFile));
+
+		$data = $this->_client->exportTable($tableId);
+		$this->assertEquals($originalFileLinesCount,  count(Client::parseCsv($data, false)));
+
+		$data = $this->_client->exportTable($tableId, null, array(
+			'limit' => 2,
+		));
+		$this->assertEquals(3, count(Client::parseCsv($data, false)), "limit parameter");
+
+		sleep(5);
+		$this->_client->writeTable($tableId, $importFile, null, ",", '"', true); // incremental load
+		$this->_client->writeTable($tableId, $importFile, null, ",", '"', true); // incremental load
+		$data = $this->_client->exportTable($tableId);
+		$this->assertEquals((3 * ($originalFileLinesCount - 1)) + 1, count(Client::parseCsv($data ,false)), "lines count after incremental load");
+
+		$data = $this->_client->exportTable($tableId, null, array(
+			'changedSince' => '-3 second',
+		));
+		$this->assertEquals((2 * ($originalFileLinesCount - 1)) + 1, count(Client::parseCsv($data ,false)), "changedSince parameter");
+
+		$data = $this->_client->exportTable($tableId, null, array(
+			'changedUntil' => '-5 second',
+		));
+		$this->assertEquals($originalFileLinesCount, count(Client::parseCsv($data, false)), "changedUntil parameter");
+
 	}
 
 	/**

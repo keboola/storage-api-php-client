@@ -650,34 +650,24 @@ class Client
 	}
 
 	/**
-	 *
-	 * Exports table contents to CSV
-	 *
-	 * @param $tableId string
-	 * @param $fileName string file to store data
-	 * @param $limit int
-	 * @param $days  int
-	 * @param $escapeOutput bool
-	 * @return string data
+	 * @param $tableId
+	 * @param null $fileName
+	 * @param array $options - (int) limit, (timestamp | strtotime format) changedSince, (timestamp | strtotime format) changedUntil, (bool) escape
+	 * @return mixed|string
 	 */
-	public function exportTable($tableId, $fileName=null, $limit=0, $days=0, $escapeOutput = false)
+	public function exportTable($tableId, $fileName = null, $options = array())
 	{
 		$url = "/storage/tables/{$tableId}/export";
 
-		$queryParams = array();
-		if ($limit) {
-			$queryParams["limit"] = (int) $limit;
-		}
+		$allowedOptions = array(
+			'limit',
+			'changedSince',
+			'changedUntil',
+			'escape',
+		);
 
-		if ($days) {
-			$queryParams["days"] = (int) $days;
-		}
-
-		if ($escapeOutput) {
-			$queryParams["escape"] = (int) $escapeOutput;
-		}
-
-		$url .= '?' . http_build_query($queryParams);
+		$filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
+		$url .= '?' . http_build_query($filteredOptions);
 
 		return $this->_apiGet($url, $fileName);
 	}
