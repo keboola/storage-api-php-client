@@ -171,19 +171,20 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		));
 		$this->assertEquals(3, count(Client::parseCsv($data, false)), "limit parameter");
 
-		sleep(5);
+		sleep(10);
+		$startTime = time();
 		$this->_client->writeTable($tableId, $importFile, null, ",", '"', true); // incremental load
 		$this->_client->writeTable($tableId, $importFile, null, ",", '"', true); // incremental load
 		$data = $this->_client->exportTable($tableId);
 		$this->assertEquals((3 * ($originalFileLinesCount - 1)) + 1, count(Client::parseCsv($data ,false)), "lines count after incremental load");
 
 		$data = $this->_client->exportTable($tableId, null, array(
-			'changedSince' => '-3 second',
+			'changedSince' => sprintf('-%d second', ceil(time() - $startTime)),
 		));
 		$this->assertEquals((2 * ($originalFileLinesCount - 1)) + 1, count(Client::parseCsv($data ,false)), "changedSince parameter");
 
 		$data = $this->_client->exportTable($tableId, null, array(
-			'changedUntil' => '-5 second',
+			'changedUntil' => sprintf('-%d second', ceil(time() - $startTime)),
 		));
 		$this->assertEquals($originalFileLinesCount, count(Client::parseCsv($data, false)), "changedUntil parameter");
 
