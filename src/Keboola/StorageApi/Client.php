@@ -652,7 +652,7 @@ class Client
 	/**
 	 * @param $tableId
 	 * @param null $fileName
-	 * @param array $options - (int) limit, (timestamp | strtotime format) changedSince, (timestamp | strtotime format) changedUntil, (bool) escape
+	 * @param array $options - (int) limit, (timestamp | strtotime format) changedSince, (timestamp | strtotime format) changedUntil, (bool) escape, (array) columns
 	 * @return mixed|string
 	 */
 	public function exportTable($tableId, $fileName = null, $options = array())
@@ -667,6 +667,11 @@ class Client
 		);
 
 		$filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
+
+		if (isset($options['columns'])) {
+			$filteredOptions['columns'] = implode(',', (array) $options['columns']);
+		}
+
 		$url .= '?' . http_build_query($filteredOptions);
 
 		return $this->_apiGet($url, $fileName);

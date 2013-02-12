@@ -190,6 +190,22 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 
 	}
 
+	public function testTableExportColumnsParam()
+	{
+		$importFile =  __DIR__ . '/_data/languages.csv';
+		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $importFile);
+
+		$data = $this->_client->exportTable($tableId, null, array(
+			'columns' => array('id'),
+		));
+		$parsed = Client::parseCsv($data, false);
+		$firstRow = reset($parsed);
+
+		$this->assertCount(1, $firstRow);
+		$this->assertArrayHasKey(0, $firstRow);
+		$this->assertEquals("id", $firstRow[0]);
+	}
+
 	/**
 	 * @dataProvider tableImportInvalidData
 	 * @expectedException Keboola\StorageApi\ClientException
