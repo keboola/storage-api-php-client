@@ -132,6 +132,48 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		);
 	}
 
+	public function testTableColumnAdd()
+	{
+		$importFile =  __DIR__ . '/_data/languages.csv';
+		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $importFile);
+
+		$this->_client->addTableColumn($tableId, 'state');
+
+		$detail = $this->_client->getTable($tableId);
+
+		$this->assertArrayHasKey('columns', $detail);
+		$this->assertContains('state', $detail['columns']);
+		$this->assertEquals(array('id','name','state'), $detail['columns']);
+	}
+
+	/**
+	 * @expectedException Keboola\StorageApi\ClientException
+	 */
+	public function testTableExistingColumnAdd()
+	{
+		$importFile =  __DIR__ . '/_data/languages.csv';
+		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $importFile);
+		$this->_client->addTableColumn($tableId, 'id');
+	}
+
+	public function testTableColumnDelete()
+	{
+		$importFile =  __DIR__ . '/_data/languages.csv';
+		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $importFile);
+
+		$this->_client->deleteTableColumn($tableId, 'name');
+
+		$detail = $this->_client->getTable($tableId);
+		$this->assertEquals(array('id'), $detail['columns']);
+
+		try {
+			$this->_client->deleteTableColumn($tableId, 'id');
+			$this->fail("Exception should be thrown when last column is remaining");
+		} catch (\Keboola\StorageApi\ClientException $e) {
+		}
+
+	}
+
 	public function testTableFileExport()
 	{
 		$importFile =  __DIR__ . '/_data/languages.csv';

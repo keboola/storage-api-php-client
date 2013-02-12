@@ -423,6 +423,35 @@ class Client
 
 	/**
 	 *
+	 * Add column to table
+	 *
+	 * @param $tableId string
+	 * @param $name string
+	 */
+	public function addTableColumn($tableId, $name)
+	{
+		$data = array(
+			'name' => $name,
+		);
+		$this->_apiPost("/storage/tables/$tableId/columns", $data);
+	}
+
+	/**
+	 *
+	 * Delete a table attribute
+	 *
+	 * @param $tableId
+	 * @param $key
+	 * @return mixed|string
+	 */
+	public function deleteTableColumn($tableId, $name)
+	{
+		$this->_apiDelete("/storage/tables/$tableId/columns/$name");
+		$this->_log("Table $tableId column $name deleted");
+	}
+
+	/**
+	 *
 	 * Checks if a table exists
 	 *
 	 * @param $tableId
