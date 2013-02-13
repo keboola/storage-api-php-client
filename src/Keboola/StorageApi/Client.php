@@ -229,7 +229,7 @@ class Client
 	 *
 	 * @param $bucketId
 	 * @param $name
-	 * @param $dataFile string Oneliner with table headers
+	 * @param $dataFile local file or url
 	 * @param $delimiter string
 	 * @param $enclosure string
 	 * @param $primaryKey string
@@ -246,10 +246,15 @@ class Client
 			"enclosure" => $enclosure,
 			"primaryKey" => $primaryKey,
 			"transactional" => $transactional,
-			"data" => "@" . $dataFile
 		);
 		if ($transaction) {
 			$options["transaction"] = $transaction;
+		}
+
+		if ($this->_isUrl($dataFile)) {
+			$options["dataUrl"] = $dataFile;
+		} else {
+			$options["data"] = "@$dataFile";
 		}
 
 		$tableId = $this->getTableId($name, $bucketId);
@@ -262,6 +267,11 @@ class Client
 
 		return $result["id"];
 
+	}
+
+	private function _isUrl($path)
+	{
+		return preg_match('/^https?:\/\/.*$/', $path);
 	}
 
 	/**
@@ -343,7 +353,7 @@ class Client
 			"partial" => $partial,
 		);
 
-		if (preg_match('/^https?:\/\/.*$/', $dataFile)) {
+		if ($this->_isUrl($dataFile)) {
 			$options["dataUrl"] = $dataFile;
 		} else {
 			$options["data"] = "@$dataFile";

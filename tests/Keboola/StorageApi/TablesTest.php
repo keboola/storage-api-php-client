@@ -31,7 +31,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	 */
 	public function testTableCreate($langugesFile)
 	{
-		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', __DIR__ . '/_data/' . $langugesFile);
+		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $langugesFile);
 		$table = $this->_client->getTable($tableId);
 
 		$this->assertEquals($tableId, $table['id']);
@@ -44,14 +44,15 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$this->assertNotEmpty($table['dataSizeBytes']);
 
 		$this->assertEquals(file_get_contents(__DIR__ . '/_data/languages.csv'),
-			$this->_client->exportTable($tableId), 'initial data imported into table');
+		$this->_client->exportTable($tableId), 'initial data imported into table');
 	}
 
 	public function tableCreateData()
 	{
 		return array(
-			array('languages.csv'),
-			array('languages.csv.gz'),
+			array(__DIR__ . '/_data/languages.csv'),
+			array('https://s3.amazonaws.com/keboola-tests/languages.csv'),
+			array(__DIR__ . '/_data/languages.csv.gz'),
 		);
 	}
 
