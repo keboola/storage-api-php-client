@@ -90,9 +90,8 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	 * @dataProvider tableImportData
 	 * @param $importFileName
 	 */
-	public function testTableImportExport($importFileName, $expectationsFileName, $colNames, $exportEscapeOutput = false)
+	public function testTableImportExport($importFile, $expectationsFileName, $colNames, $exportEscapeOutput = false)
 	{
-		$importFile = __DIR__ . '/_data/' . $importFileName;
 		$expectationsFile = __DIR__ . '/_data/' . $expectationsFileName;
 		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $expectationsFile);
 
@@ -122,13 +121,16 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function tableImportData()
 	{
 		return array(
-			array('languages.csv', 'languages.csv', array('id', 'name')),
-			array('languages.utf8.bom.csv', 'languages.csv', array('id', 'name')),
-			array('languages.zip', 'languages.csv', array('id', 'name')),
-			array('languages.csv.gz', 'languages.csv', array('id', 'name')),
-			array('escaping.csv', 'escaping.standard.out.csv', array('col1', 'col2_with_space')),
-			array('escaping.nl-last-row.csv', 'escaping.standard.out.csv', array('col1', 'col2_with_space')),
-			array('escaping.csv', 'escaping.backslash.out.csv', array('col1', 'col2_with_space'), true),
+			array(__DIR__ . '/_data/languages.csv', 'languages.csv', array('id', 'name')),
+			array('https://s3.amazonaws.com/keboola-tests/languages.csv', 'languages.csv', array('id', 'name')),
+			array('https://s3.amazonaws.com/keboola-tests/languages.csv.gz', 'languages.csv', array('id', 'name')),
+			array('https://s3.amazonaws.com/keboola-tests/languages.zip', 'languages.csv', array('id', 'name')),
+			array(__DIR__ . '/_data/languages.utf8.bom.csv', 'languages.csv', array('id', 'name')),
+			array(__DIR__ . '/_data/languages.zip', 'languages.csv', array('id', 'name')),
+			array(__DIR__ . '/_data/languages.csv.gz', 'languages.csv', array('id', 'name')),
+			array(__DIR__ . '/_data/escaping.csv', 'escaping.standard.out.csv', array('col1', 'col2_with_space')),
+			array(__DIR__ . '/_data/escaping.nl-last-row.csv', 'escaping.standard.out.csv', array('col1', 'col2_with_space')),
+			array(__DIR__ . '/_data/escaping.csv', 'escaping.backslash.out.csv', array('col1', 'col2_with_space'), true),
 		);
 	}
 
@@ -221,12 +223,12 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$this->assertEquals((3 * ($originalFileLinesCount - 1)) + 1, count(Client::parseCsv($data ,false)), "lines count after incremental load");
 
 		$data = $this->_client->exportTable($tableId, null, array(
-			'changedSince' => sprintf('-%d second', ceil(time() - $startTime)),
+			'changedSince' => sprintf('-%d second', ceil(time() - $startTime) + 5),
 		));
 		$this->assertEquals((2 * ($originalFileLinesCount - 1)) + 1, count(Client::parseCsv($data ,false)), "changedSince parameter");
 
 		$data = $this->_client->exportTable($tableId, null, array(
-			'changedUntil' => sprintf('-%d second', ceil(time() - $startTime)),
+			'changedUntil' => sprintf('-%d second', ceil(time() - $startTime) + 5),
 		));
 		$this->assertEquals($originalFileLinesCount, count(Client::parseCsv($data, false)), "changedUntil parameter");
 

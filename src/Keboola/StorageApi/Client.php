@@ -322,7 +322,7 @@ class Client
 	 * Writes data to table
 	 *
 	 * @param $tableId
-	 * @param $dataFile
+	 * @param $dataFile local path to file or file URL
 	 * @param $transaction string
 	 * @param $delimiter string
 	 * @param $enclosure string
@@ -341,8 +341,14 @@ class Client
 			"transaction" => $transaction,
 			"incremental" => $incremental,
 			"partial" => $partial,
-			"data" => "@" . $dataFile
 		);
+
+		if (preg_match('/^https?:\/\/.*$/', $dataFile)) {
+			$options["dataUrl"] = $dataFile;
+		} else {
+			$options["data"] = "@$dataFile";
+		}
+
 		$result = $this->_apiPost("/storage/tables/{$tableId}/import" , $options);
 
 		$this->_log("Data written to table {$tableId}", array("options" => $options, "result" => $result));
