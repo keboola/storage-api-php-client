@@ -175,6 +175,23 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		} catch (\Keboola\StorageApi\ClientException $e) {
 		}
 
+
+	}
+
+	public function testTablePkColumnDelete()
+	{
+		$importFile =  __DIR__ . '/_data/languages.csv';
+		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $importFile, ",", '"', "id,name");
+
+		$detail =  $this->_client->getTable($tableId);
+
+		$this->assertEquals(array('id', 'name'), $detail['primaryKey']);
+
+		$this->_client->deleteTableColumn($tableId, 'name');
+		$detail = $this->_client->getTable($tableId);
+
+		$this->assertEquals(array('id'), $detail['columns']);
+		$this->assertEquals(array('id'), $detail['primaryKey']);
 	}
 
 	public function testTableFileExport()
@@ -357,7 +374,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$this->assertEquals(file_get_contents($importFile), $this->_client->exportTable($sourceTableId), 'data are present in source table');
 
 		// create alias table
-		$aliasTableId = $this->_client->createAliasTable($this->_outBucketId, $sourceTableId);
+		$aliasTableId = $this->_client->createAliasTable($this->_outBucketId, $sourceTableId, 'languages-alias');
 
 		$aliasTable = $this->_client->getTable($aliasTableId);
 		$this->assertNotEmpty($sourceTable['lastImportDate']);
