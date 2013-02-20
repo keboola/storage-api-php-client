@@ -39,12 +39,30 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$this->assertNotEmpty($table['created']);
 		$this->assertNotEmpty($table['lastChangeDate']);
 		$this->assertNotEmpty($table['lastImportDate']);
+		$this->assertEquals(array("id", "name"), $table['columns']);
+		$this->assertEmpty($table['indexedColumns']);
 		$this->assertNotEquals('0000-00-00 00:00:00', $table['created']);
 		$this->assertEquals(count($this->_readCsv(__DIR__ . '/_data/languages.csv')) - 1, $table['rowsCount']);
 		$this->assertNotEmpty($table['dataSizeBytes']);
 
 		$this->assertEquals(file_get_contents(__DIR__ . '/_data/languages.csv'),
 		$this->_client->exportTable($tableId), 'initial data imported into table');
+	}
+
+	public function testTableCreateWithPK()
+	{
+		$tableId = $this->_client->createTable(
+			$this->_inBucketId,
+			'languages',
+			__DIR__ . '/_data/languages.csv',
+			",",
+			'"',
+			'id'
+		);
+
+		$table = $this->_client->getTable($tableId);
+		$this->assertEquals(array('id'), $table['primaryKey']);
+		$this->assertEquals(array('id'), $table['indexedColumns']);
 	}
 
 	public function tableCreateData()
@@ -186,12 +204,15 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$detail =  $this->_client->getTable($tableId);
 
 		$this->assertEquals(array('id', 'name'), $detail['primaryKey']);
+		$this->assertEquals(array('id', 'name'), $detail['indexedColumns']);
 
 		$this->_client->deleteTableColumn($tableId, 'name');
 		$detail = $this->_client->getTable($tableId);
 
 		$this->assertEquals(array('id'), $detail['columns']);
+
 		$this->assertEquals(array('id'), $detail['primaryKey']);
+		$this->assertEquals(array('id'), $detail['indexedColumns']);
 	}
 
 	public function testTableFileExport()
@@ -249,7 +270,93 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 			'changedUntil' => sprintf('-%d second', ceil(time() - $startTime) + 5),
 		));
 		$this->assertEquals($originalFileLinesCount, count(Client::parseCsv($data, false)), "changedUntil parameter");
+	}
 
+	/**
+	 * @param $exportOptions
+	 * @param $expectedResult
+	 * @dataProvider tableExportFiltersData
+	 */
+	public function testTableExportFilters($exportOptions, $expectedResult)
+	{
+		$importFile =  __DIR__ . '/_data/users.csv';
+		$tableId = $this->_client->createTable($this->_inBucketId, 'users', $importFile);
+		$this->_client->markTableColumnAsIndexed($tableId, 'city');
+
+		$data = $this->_client->exportTable($tableId, null, $exportOptions);
+		$parsedData = Client::parseCsv($data, false);
+		array_shift($parsedData); // remove header
+
+		$this->assertEquals($expectedResult, $parsedData);
+	}
+
+	public function tableExportFiltersData()
+	{
+		return array(
+			// first test
+			array(
+				array(
+					'whereColumn' => 'city',
+					'whereValues' => array('PRG')
+				),
+				array(
+					array(
+						"1",
+						"martin",
+						"PRG",
+						"male"
+					),
+					array(
+						"2",
+						"klara",
+						"PRG",
+						"female",
+					),
+				),
+			),
+			// second test
+			array(
+				array(
+					'whereColumn' => 'city',
+					'whereValues' => array('PRG', 'VAN')
+				),
+				array(
+					array(
+						"1",
+						"martin",
+						"PRG",
+						"male"
+					),
+					array(
+						"2",
+						"klara",
+						"PRG",
+						"female",
+					),
+					array(
+						"3",
+						"ondra",
+						"VAN",
+						"male",
+					),
+				),
+			),
+		);
+	}
+
+	public function testTableExportFilterShouldFailOnNonIndexedColumn()
+	{
+		$importFile =  __DIR__ . '/_data/users.csv';
+		$tableId = $this->_client->createTable($this->_inBucketId, 'users', $importFile);
+
+		try {
+			$this->_client->exportTable($tableId, null, array(
+				'whereColumn' => 'city',
+				'whereValues' => array('PRG'),
+			));
+		} catch(\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.tables.columnNotIndexed', $e->getStringCode());
+		}
 	}
 
 	public function testTableExportColumnsParam()
@@ -368,10 +475,15 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$importFile = __DIR__ . '/_data/languages.csv';
 
 		// create and import data into source table
-		$sourceTableId = $this->_client->createTable($this->_inBucketId, 'languages', $importFile);
+		$sourceTableId = $this->_client->createTable($this->_inBucketId, 'languages', $importFile, ",", '"', 'id');
 		$this->_client->writeTable($sourceTableId, __DIR__ . '/_data/languages.csv');
 		$sourceTable = $this->_client->getTable($sourceTableId);
-		$this->assertEquals(file_get_contents($importFile), $this->_client->exportTable($sourceTableId), 'data are present in source table');
+
+		$expectedData = Client::parseCsv(file_get_contents($importFile));
+		usort($expectedData, function($a, $b) {
+			return $a['id'] > $b['id'];
+		});
+		$this->assertEquals($expectedData, Client::parseCsv($this->_client->exportTable($sourceTableId)), 'data are present in source table');
 
 		// create alias table
 		$aliasTableId = $this->_client->createAliasTable($this->_outBucketId, $sourceTableId, 'languages-alias');
@@ -381,6 +493,8 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$this->assertEquals($sourceTable['lastImportDate'], $aliasTable['lastImportDate']);
 		$this->assertEquals($sourceTable['lastChangeDate'], $aliasTable['lastChangeDate']);
 		$this->assertEquals($sourceTable['columns'], $aliasTable['columns']);
+		$this->assertEquals($sourceTable['indexedColumns'], $aliasTable['indexedColumns']);
+		$this->assertEquals($sourceTable['primaryKey'], $aliasTable['primaryKey']);
 		$this->assertNotEmpty($aliasTable['created']);
 		$this->assertNotEquals('0000-00-00 00:00:00', $aliasTable['created']);
 		$this->assertEquals($sourceTable['rowsCount'], $aliasTable['rowsCount']);
@@ -388,7 +502,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 
 		$this->assertArrayHasKey('sourceTable', $aliasTable);
 		$this->assertEquals($sourceTableId, $aliasTable['sourceTable']['id'], 'new table linked to source table');
-		$this->assertEquals(file_get_contents($importFile), $this->_client->exportTable($aliasTableId), 'data are exported from source table');
+		$this->assertEquals($expectedData, Client::parseCsv($this->_client->exportTable($aliasTableId)), 'data are exported from source table');
 
 		// second import into source table
 		$this->_client->writeTable($sourceTableId, __DIR__ . '/_data/languages.csv');
@@ -488,6 +602,60 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 
 		$data = \Keboola\StorageApi\Client::parseCsv($csvData, true);
 		$this->assertEquals($expectedHashmap, $data, "Csv parse to associative array");
+	}
+
+	public function testIndexedColumnsChanges()
+	{
+		$importFile = __DIR__ . '/_data/users.csv';
+
+		// create and import data into source table
+		$tableId = $this->_client->createTable($this->_inBucketId, 'users', $importFile, ",", '"', 'id');
+		$aliasTableId = $this->_client->createAliasTable($this->_outBucketId, $tableId);
+
+		$this->_client->markTableColumnAsIndexed($tableId, 'city');
+
+		$detail = $this->_client->getTable($tableId);
+		$aliasDetail = $this->_client->getTable($aliasTableId);
+
+		$this->assertEquals(array("id", "city"), $detail['indexedColumns'], "Primary key is indexed with city column");
+		$this->assertEquals(array("id", "city"), $aliasDetail['indexedColumns'], "Primary key is indexed with city column in alias Table");
+
+		$this->_client->removeTableColumnFromIndexed($tableId, 'city');
+		$detail = $this->_client->getTable($tableId);
+		$aliasDetail = $this->_client->getTable($aliasTableId);
+
+		$this->assertEquals(array("id"), $detail['indexedColumns']);
+		$this->assertEquals(array("id"), $aliasDetail['indexedColumns']);
+
+		try {
+			$this->_client->removeTableColumnFromIndexed($tableId, 'id');
+			$this->fail('Primary key should not be able to remove from indexed columns');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+
+		}
+
+		$this->_client->dropTable($aliasTableId);
+		$this->_client->dropTable($tableId);
+	}
+
+	public function testIndexedColumnsCountShouldBeLimited()
+	{
+		$importFile = __DIR__ . '/_data/more-columns.csv';
+
+		// create and import data into source table
+		$tableId = $this->_client->createTable($this->_inBucketId, 'users', $importFile);
+
+		$this->_client->markTableColumnAsIndexed($tableId, 'col1');
+		$this->_client->markTableColumnAsIndexed($tableId, 'col2');
+		$this->_client->markTableColumnAsIndexed($tableId, 'col3');
+		$this->_client->markTableColumnAsIndexed($tableId, 'col4');
+
+		try {
+			$this->_client->markTableColumnAsIndexed($tableId, 'col5');
+			$this->fail('Exception should be thrown');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.tables.indexedColumnsCountExceed', $e->getStringCode());
+		}
 	}
 
 	/**

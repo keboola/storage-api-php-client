@@ -452,6 +452,7 @@ class Client
 		$this->_apiPost("/storage/tables/$tableId/columns", $data);
 	}
 
+
 	/**
 	 *
 	 * Delete a table attribute
@@ -464,6 +465,36 @@ class Client
 	{
 		$this->_apiDelete("/storage/tables/$tableId/columns/$name");
 		$this->_log("Table $tableId column $name deleted");
+	}
+
+	/**
+	 *
+	 * Add column to table
+	 *
+	 * @param $tableId string
+	 * @param $columnName string
+	 */
+	public function markTableColumnAsIndexed($tableId, $columnName)
+	{
+		$data = array(
+			'name' => $columnName,
+		);
+		$this->_apiPost("/storage/tables/$tableId/indexed-columns", $data);
+	}
+
+
+	/**
+	 *
+	 * Delete a table attribute
+	 *
+	 * @param $tableId
+	 * @param $key
+	 * @return mixed|string
+	 */
+	public function removeTableColumnFromIndexed($tableId, $columnName)
+	{
+		$this->_apiDelete("/storage/tables/$tableId/indexed-columns/$columnName");
+		$this->_log("Table $tableId indexed column $columnName deleted");
 	}
 
 	/**
@@ -709,12 +740,17 @@ class Client
 			'changedSince',
 			'changedUntil',
 			'escape',
+			'whereColumn',
 		);
 
 		$filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
 
 		if (isset($options['columns'])) {
 			$filteredOptions['columns'] = implode(',', (array) $options['columns']);
+		}
+
+		if (isset($options['whereValues'])) {
+			$filteredOptions['whereValues'] = (array) $options['whereValues'];
 		}
 
 		$url .= '?' . http_build_query($filteredOptions);
