@@ -1,4 +1,4 @@
-<?
+<?php
 namespace Keboola\StorageApi\Config;
 use \Keboola\StorageApi;
 class Reader
