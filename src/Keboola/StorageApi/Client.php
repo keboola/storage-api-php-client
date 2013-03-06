@@ -544,6 +544,11 @@ class Client
 			$varcharKeyLength = floor (1000 / (count($table["primaryKey"])*3));
 		}
 		foreach($table["columns"] as $column) {
+			if (isset($options["columns"]) && count($options["columns"])) {
+				if (!in_array($column, $options["columns"])) {
+					continue;
+				}
+			}
 			if (in_array($column, $table["primaryKey"])) {
 				$columns[] = "`{$column}` VARCHAR({$varcharKeyLength}) NOT NULL DEFAULT ''";
 			} else {
@@ -554,7 +559,18 @@ class Client
 
 		// Primary key indexes
 		if ($table["primaryKey"] && count($table["primaryKey"])) {
-			$definition .= ",\n PRIMARY KEY (`" . join("`, `", $table["primaryKey"]) . "`)";
+			$includePK = true;
+			// Do not create PK if not all parts of the PK are imported
+			if (isset($options["columns"]) && count($options["columns"])) {
+				foreach($table["primaryKey"] as $pk) {
+					if (in_array($pk, $options["columns"])) {
+						$includePK = false;
+					}
+				}
+			}
+			if ($includePK) {
+				$definition .= ",\n PRIMARY KEY (`" . join("`, `", $table["primaryKey"]) . "`)";
+			}
 		}
 		$definition .= ") ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 		return $definition;
