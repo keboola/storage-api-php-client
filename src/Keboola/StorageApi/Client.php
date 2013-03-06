@@ -522,9 +522,10 @@ class Client
 	 *
 	 * @param $tableId string Storage API table id
 	 * @param $tableName string target table name (optional)
+	 * @param $options - export options ("columns")
 	 * @return string
 	 */
-	public function getTableDefinition($tableId, $tableName=null)
+	public function getTableDefinition($tableId, $tableName=null, $options=array())
 	{
 		if (!$tableName) {
 			$tableName =  $tableId;
