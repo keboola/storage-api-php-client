@@ -1,4 +1,4 @@
-<?
+<?php
 namespace Keboola\StorageApi;
 
 use Keboola\Csv\CsvFile;
