@@ -564,7 +564,7 @@ class Client
 			// Do not create PK if not all parts of the PK are imported
 			if (isset($options["columns"]) && count($options["columns"])) {
 				foreach($table["primaryKey"] as $pk) {
-					if (in_array($pk, $options["columns"])) {
+					if (!in_array($pk, $options["columns"])) {
 						$includePK = false;
 					}
 				}
