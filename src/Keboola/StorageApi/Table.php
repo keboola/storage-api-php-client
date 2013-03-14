@@ -102,6 +102,7 @@ class Table
 		$this->_enclosure = $enclosure;
 		$this->_incremental = $incremental;
 		$this->_partial = $partial;
+		$this->_primaryKey = $primaryKey;
 	}
 
 	/**
