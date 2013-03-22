@@ -1016,9 +1016,12 @@ class Client
 		}
 
 		$result = curl_exec($ch);
+		$curlError = curl_error($ch);
+		$curlErrNo = curl_errno($ch);
+		curl_close($ch);
 
-		if (curl_errno($ch)) {
-			throw new Exception(curl_error($ch), curl_errno($ch), null, "CURL_ERROR");
+		if ($curlErrNo) {
+			throw new Exception($curlError, $curlErrNo, null, "CURL_ERROR");
 		}
 
 		if ($fileName) {
@@ -1032,10 +1035,9 @@ class Client
 		$logData["requestTime"] = Client::_timer("request");
 
 		if (!$result) {
-			$curlError = curl_error($ch);
 			$logData["curlError"] = $curlError;
 			$this->_log("GET Request failed", $logData);
-			throw new ClientException("CURL: " . curl_error($ch));
+			throw new ClientException("CURL: " . $curlError);
 		}
 
 		$this->_log("GET Request finished", $logData);
@@ -1064,8 +1066,6 @@ class Client
 			$this->_log("Error in GET request response", $errData);
 			throw $e;
 		}
-
-		curl_close($ch);
 	}
 
 	private function _ungzipFile($fileName)
@@ -1114,9 +1114,12 @@ class Client
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
 		}
 		$result = curl_exec($ch);
+		$curlError = curl_error($ch);
+		$curlErrNo = curl_errno($ch);
+		curl_close($ch);
 
 		if (curl_errno($ch)) {
-			throw new Exception(curl_error($ch), curl_errno($ch), null, "CURL_ERROR");
+			throw new Exception($curlError, $curlErrNo, null, "CURL_ERROR");
 		}
 
 		$logData["requestTime"] = Client::_timer("request");
@@ -1135,13 +1138,10 @@ class Client
 				throw $e;
 			}
 		} else {
-			$curlError = curl_error($ch);
 			$logData["curlError"] = $curlError;
 			$this->_log("POST Request failed", $logData);
 			throw new ClientException("CURL: " . $curlError);
 		}
-
-		curl_close($ch);
 	}
 
 	/**
@@ -1177,12 +1177,14 @@ class Client
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
 		$result = curl_exec($ch);
-
-		if (curl_errno($ch)) {
-			throw new Exception(curl_error($ch), curl_errno($ch), null, "CURL_ERROR");
-		}
-
+		$curlError = curl_error($ch);
+		$curlErrNo = curl_errno($ch);
 		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		curl_close($ch);
+
+		if ($curlErrNo) {
+			throw new Exception($curlError, $curlErrNo, null, "CURL_ERROR");
+		}
 
 		$logData["requestTime"] = Client::_timer("request");
 
@@ -1202,13 +1204,10 @@ class Client
 			$this->_log("DELETE Request finished", $logData);
 			return true;
 		} else {
-			$curlError = curl_error($ch);
 			$logData["curlError"] = $curlError;
 			$this->_log("POST Request failed", $logData);
 			throw new ClientException("CURL: " . $curlError);
 		}
-
-		curl_close($ch);
 	}
 
 	/**
