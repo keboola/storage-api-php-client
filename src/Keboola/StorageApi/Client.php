@@ -1118,7 +1118,7 @@ class Client
 		$curlErrNo = curl_errno($ch);
 		curl_close($ch);
 
-		if (curl_errno($ch)) {
+		if ($curlErrNo) {
 			throw new Exception($curlError, $curlErrNo, null, "CURL_ERROR");
 		}
 
