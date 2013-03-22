@@ -45,7 +45,8 @@ class Client
 
 	/**
 	 * @param $tokenString
-	 * @param $url API Url
+	 * @param string null $url
+	 * @param string null $userAgent
 	 */
 	public function __construct($tokenString, $url=null, $userAgent=null)
 	{
@@ -65,7 +66,7 @@ class Client
 	 *
 	 * Change API Url
 	 *
-	 * @param $url
+	 * @param string $url
 	 */
 	public function setApiUrl($url)
 	{
@@ -74,7 +75,7 @@ class Client
 
 
 	/**
-	 * @param $userAgent
+	 * @param string $userAgent
 	 * @return Client
 	 */
 	public function setUserAgent($userAgent)
@@ -98,8 +99,8 @@ class Client
 	 *
 	 * Get bucket id from name and stage
 	 *
-	 * @param $name
-	 * @param $stage
+	 * @param string $name
+	 * @param string $stage
 	 * @return bool|string
 	 */
 	public function getBucketId($name, $stage)
@@ -117,7 +118,7 @@ class Client
 	 *
 	 * Bucket details
 	 *
-	 * @param $bucketId
+	 * @param string $bucketId
 	 * @return mixed|string
 	 */
 	public function getBucket($bucketId)
@@ -129,9 +130,9 @@ class Client
 	 *
 	 * Create a bucket. If a bucket exists, return existing bucket URL.
 	 *
-	 * @param $name bucket name
-	 * @param $stage bucket stage
-	 * @param $description bucket description
+	 * @param string $name bucket name
+	 * @param string $stage bucket stage
+	 * @param string $description bucket description
 	 *
 	 * @return string bucket Id
 	 */
@@ -159,7 +160,7 @@ class Client
 	 *
 	 * Delete a bucket. Only empty buckets can be deleted
 	 *
-	 * @param $bucketId
+	 * @param string $bucketId
 	 * @return mixed|string
 	 */
 	public function dropBucket($bucketId)
@@ -171,9 +172,10 @@ class Client
 	 *
 	 * Set a bucket attribute
 	 *
-	 * @param $bucketId string
-	 * @param $key string
-	 * @param $value string
+	 * @param string $bucketId
+	 * @param string $key
+	 * @param string $value
+	 * @param bool null $protected
 	 */
 	public function setBucketAttribute($bucketId, $key, $value, $protected = null)
 	{
@@ -190,8 +192,8 @@ class Client
 	 *
 	 * Delete a bucket attribute
 	 *
-	 * @param $bucketId
-	 * @param $key
+	 * @param string $bucketId
+	 * @param string $key
 	 * @return mixed|string
 	 */
 	public function deleteBucketAttribute($bucketId, $key)
@@ -205,7 +207,7 @@ class Client
 	 *
 	 * Checks if a bucket exists
 	 *
-	 * @param $bucketId
+	 * @param string $bucketId
 	 * @return bool
 	 */
 	public function bucketExists($bucketId)
@@ -227,13 +229,14 @@ class Client
 	 *
 	 * Creates a table and returns table id. If table exists, returns table id.
 	 *
-	 * @param $bucketId
-	 * @param $name
-	 * @param $dataFile local file or url
-	 * @param $delimiter string
-	 * @param $enclosure string
-	 * @param $primaryKey string
-	 * @param bool|int $transactional bool
+	 * @param string $bucketId
+	 * @param string $name
+	 * @param string $dataFile local file or url
+	 * @param string $delimiter
+	 * @param string $enclosure
+	 * @param string null $primaryKey
+	 * @param bool|int $transactional
+	 * @param string null $transaction
 	 * @return mixed
 	 */
 	public function createTable($bucketId, $name, $dataFile, $delimiter=",", $enclosure='"', $primaryKey=null,
@@ -276,9 +279,9 @@ class Client
 
 	/**
 	 * Create table alias
-	 * @param $bucketId
-	 * @param $sourceTableId
-	 * @param $name string
+	 * @param string $bucketId
+	 * @param string $sourceTableId
+	 * @param string null $name
 	 * @return mixed
 	 */
 	public function createAliasTable($bucketId, $sourceTableId, $name=NULL)
@@ -297,7 +300,7 @@ class Client
 	 *
 	 * Get all available tables
 	 *
-	 * @param $bucketId string limit search to a specific bucket
+	 * @param string $bucketId limit search to a specific bucket
 	 * @return mixed|string
 	 */
 	public function listTables($bucketId=null)
@@ -312,8 +315,8 @@ class Client
 	 *
 	 * Gets the table id from bucket id and table name
 	 *
-	 * @param $name
-	 * @param $bucketId
+	 * @param string $name
+	 * @param string $bucketId
 	 * @return bool|string table id or false
 	 */
 	public function getTableId($name, $bucketId)
@@ -331,11 +334,11 @@ class Client
 	 *
 	 * Writes data to table
 	 *
-	 * @param $tableId
-	 * @param $dataFile local path to file or file URL
-	 * @param $transaction string
-	 * @param $delimiter string
-	 * @param $enclosure string
+	 * @param string $tableId
+	 * @param string $dataFile local path to file or file URL
+	 * @param string null $transaction
+	 * @param string $delimiter
+	 * @param string $enclosure
 	 * @param bool $incremental
 	 * @param bool $partial
 	 * @return mixed|string
@@ -370,7 +373,7 @@ class Client
 	 *
 	 * Get table details
 	 *
-	 * @param $tableId
+	 * @param string $tableId
 	 * @return mixed
 	 */
 	public function getTable($tableId)
@@ -382,7 +385,7 @@ class Client
 	 *
 	 * Drop a table
 	 *
-	 * @param $tableId
+	 * @param string $tableId
 	 * @return mixed|string
 	 */
 	public function dropTable($tableId)
@@ -394,7 +397,8 @@ class Client
 
 	/**
 	 * Unlink aliased table from source table
-	 * @param $tableId
+	 * @param string $tableId
+	 * @return mixed|string
 	 */
 	public function unlinkTable($tableId)
 	{
@@ -407,9 +411,10 @@ class Client
 	 *
 	 * Set a table attribute
 	 *
-	 * @param $tableId string
-	 * @param $key string
-	 * @param $value string
+	 * @param string $tableId
+	 * @param string $key
+	 * @param string $value
+	 * @param bool null $protected
 	 */
 	public function setTableAttribute($tableId, $key, $value, $protected = null)
 	{
@@ -426,8 +431,8 @@ class Client
 	 *
 	 * Delete a table attribute
 	 *
-	 * @param $tableId
-	 * @param $key
+	 * @param string $tableId
+	 * @param string $key
 	 * @return mixed|string
 	 */
 	public function deleteTableAttribute($tableId, $key)
@@ -441,8 +446,8 @@ class Client
 	 *
 	 * Add column to table
 	 *
-	 * @param $tableId string
-	 * @param $name string
+	 * @param string $tableId
+	 * @param string $name
 	 */
 	public function addTableColumn($tableId, $name)
 	{
@@ -457,8 +462,8 @@ class Client
 	 *
 	 * Delete a table attribute
 	 *
-	 * @param $tableId
-	 * @param $key
+	 * @param string $tableId
+	 * @param string $name
 	 * @return mixed|string
 	 */
 	public function deleteTableColumn($tableId, $name)
@@ -471,8 +476,8 @@ class Client
 	 *
 	 * Add column to table
 	 *
-	 * @param $tableId string
-	 * @param $columnName string
+	 * @param string $tableId
+	 * @param string $columnName
 	 */
 	public function markTableColumnAsIndexed($tableId, $columnName)
 	{
@@ -487,8 +492,8 @@ class Client
 	 *
 	 * Delete a table attribute
 	 *
-	 * @param $tableId
-	 * @param $key
+	 * @param string $tableId
+	 * @param string $columnName
 	 * @return mixed|string
 	 */
 	public function removeTableColumnFromIndexed($tableId, $columnName)
@@ -501,7 +506,7 @@ class Client
 	 *
 	 * Checks if a table exists
 	 *
-	 * @param $tableId
+	 * @param string $tableId
 	 * @return bool
 	 */
 	public function tableExists($tableId)
@@ -520,9 +525,9 @@ class Client
 	 *
 	 * Generates a MySQL table definition
 	 *
-	 * @param $tableId string Storage API table id
-	 * @param $tableName string target table name (optional)
-	 * @param $options - export options ("columns")
+	 * @param string $tableId Storage API table id
+	 * @param string $tableName target table name (optional)
+	 * @param array $options - export options ("columns")
 	 * @return string
 	 */
 	public function getTableDefinition($tableId, $tableName=null, $options=array())
@@ -592,7 +597,7 @@ class Client
 	 *
 	 * get token detail
 	 *
-	 * @param $tokenId string token id
+	 * @param string $tokenId token id
 	 * @return mixed|string
 	 */
 	public function getToken($tokenId)
@@ -633,9 +638,10 @@ class Client
 	 *
 	 * @TODO refactor parameters
 	 *
-	 * @param $permissions array hash bucketId => permission (read/write) or "manage" for all buckets permissions
-	 * @param $description string
-	 * @param $expiresIn integer number of seconds until token expires
+	 * @param array $permissions hash bucketId => permission (read/write) or "manage" for all buckets permissions
+	 * @param string null $description
+	 * @param integer $expiresIn number of seconds until token expires
+	 * @param bool $canReadAllFileUploads
 	 * @return integer token id
 	 */
 	public function createToken($permissions, $description=null, $expiresIn = null, $canReadAllFileUploads = false)
@@ -669,9 +675,9 @@ class Client
 	 *
 	 * update token details
 	 *
-	 * @param $tokenId string
-	 * @param $permissions array
-	 * @param $description string
+	 * @param string $tokenId
+	 * @param array $permissions
+	 * @param string null $description
 	 * @return mixed
 	 */
 	public function updateToken($tokenId, $permissions, $description=null)
@@ -693,7 +699,8 @@ class Client
 	}
 
 	/**
-	 * @param $tokenId
+	 * @param string $tokenId
+	 * @return mixed|string
 	 */
 	public function dropToken($tokenId)
 	{
@@ -706,7 +713,7 @@ class Client
 	 *
 	 * Refreshes a token. If refreshing current token, the token is updated.
 	 *
-	 * @param $tokenId string If not set, defaults to self
+	 * @param string $tokenId If not set, defaults to self
 	 * @return string new token
 	 */
 	public function refreshToken($tokenId=null)
@@ -733,8 +740,8 @@ class Client
 	 * Generate GoodData XML configuration for table
 	 * TODO Test!
 	 *
-	 * @param $tableId
-	 * @param $fileName string file to store data
+	 * @param string $tableId
+	 * @param string $fileName file to store data
 	 * @return mixed|string
 	 */
 	public function getGdXmlConfig($tableId, $fileName=null)
@@ -743,8 +750,8 @@ class Client
 	}
 
 	/**
-	 * @param $tableId
-	 * @param null $fileName
+	 * @param string $tableId
+	 * @param string null $fileName
 	 * @param array $options - (int) limit, (timestamp | strtotime format) changedSince, (timestamp | strtotime format) changedUntil, (bool) escape, (array) columns
 	 * @return mixed|string
 	 */
@@ -780,7 +787,8 @@ class Client
 	 * Uploads a file
 	 *
 	 *
-	 * @param $fileName
+	 * @param string $fileName
+	 * @param bool $isPublic
 	 * @return mixed|string
 	 */
 	public function uploadFile($fileName, $isPublic = false)
@@ -800,7 +808,7 @@ class Client
 
 	/**
 	 * Get a single file
-	 * @param $fileId
+	 * @param string $fileId
 	 * @return mixed|string
 	 */
 	public function getFile($fileId)
@@ -838,11 +846,20 @@ class Client
 		return $result['id'];
 	}
 
+	/**
+	 * @param $id
+	 * @return mixed|string
+	 */
 	public function getEvent($id)
 	{
 		return $this->_apiGet('/storage/events/' . $id);
 	}
 
+	/**
+	 * @param int $limit
+	 * @param int $offset
+	 * @return mixed|string
+	 */
 	public function listEvents($limit = 100, $offset = 0)
 	{
 		$queryParams = array(
@@ -866,7 +883,7 @@ class Client
 	 *
 	 * Generates URL for api call
 	 *
-	 * @param $url string
+	 * @param string $url
 	 * @return string
 	 */
 	private function _constructUrl($url)
@@ -878,7 +895,7 @@ class Client
 	 *
 	 * Converts JSON to object and detects errors
 	 *
-	 * @param $jsonString
+	 * @param string $jsonString
 	 * @throws ClientException
 	 * @return mixed
 	 */
@@ -915,8 +932,8 @@ class Client
 	 *
 	 * Prepare URL and call a GET request
 	 *
-	 * @param $url
-	 * @param null $fileName
+	 * @param string $url
+	 * @param string null $fileName
 	 * @return mixed|string
 	 */
 	protected function _apiGet($url, $fileName=null)
@@ -928,8 +945,8 @@ class Client
 	 *
 	 * Prepare URL and call a POST request
 	 *
-	 * @param $url
-	 * @param $postData
+	 * @param string $url
+	 * @param array $postData
 	 * @return mixed|string
 	 */
 	protected function _apiPost($url, $postData=null)
@@ -941,8 +958,8 @@ class Client
 	 *
 	 * Prepare URL and call a POST request
 	 *
-	 * @param $url
-	 * @param $postData
+	 * @param string $url
+	 * @param array $postData
 	 * @return mixed|string
 	 */
 	protected function _apiPut($url, $postData=null)
@@ -954,7 +971,7 @@ class Client
 	 *
 	 * Prepare URL and call a DELETE request
 	 *
-	 * @param $url
+	 * @param string $url
 	 * @return mixed|string
 	 */
 	protected function _apiDelete($url)
@@ -966,10 +983,13 @@ class Client
 	 *
 	 * CURL GET request, may be written to a file
 	 *
-	 * @param $url
-	 * @param $fileName
-	 * @return bool|mixed|string
+	 * @param string $url
+	 * @param string null $fileName
+	 * @param bool $gzip
 	 * @throws ClientException
+	 * @throws Exception
+	 * @throws \Exception|ClientException
+	 * @return bool|mixed|string
 	 */
 	protected function _curlGet($url, $fileName=null, $gzip = true)
 	{
@@ -1073,9 +1093,12 @@ class Client
 	 *
 	 * CURL POST request
 	 *
-	 * @param $url
-	 * @param $postData array
+	 * @param string $url
+	 * @param array $postData
+	 * @param string $method
 	 * @throws ClientException
+	 * @throws Exception
+	 * @throws \Exception|ClientException
 	 * @return mixed|string
 	 */
 	protected function _curlPost($url, $postData=null, $method = 'POST') {
@@ -1139,8 +1162,10 @@ class Client
 	 *
 	 * CURL DELETE request
 	 *
-	 * @param $url
+	 * @param string $url
 	 * @throws ClientException
+	 * @throws Exception
+	 * @throws \Exception|ClientException
 	 * @return mixed
 	 */
 	protected function _curlDelete($url)
@@ -1190,6 +1215,7 @@ class Client
 	 *
 	 * Init cUrl and set common params
 	 *
+	 * @param array $headers
 	 * @return resource
 	 */
 	protected function _curlSetOpts($headers = array())
@@ -1215,8 +1241,8 @@ class Client
 	}
 
 	/**
-	 * @param $message string Messageto log
-	 * @param $data array Data to log
+	 * @param string $message Message to log
+	 * @param array $data Data to log
 	 *
 	 */
 	protected function _log($message, $data=array())
@@ -1252,7 +1278,7 @@ class Client
 
 	/**
 	 * @static
-	 * @param $function function anonymous function with $message and $data params
+	 * @param callback $function anonymous function with $message and $data params
 	 */
 	public static function setLogger($function)
 	{
@@ -1265,10 +1291,10 @@ class Client
 	 * uses str_getcsv function
 	 *
 	 * @static
-	 * @param $csvString
-	 * @param $header bool if first line contains header
-	 * @param $delimiter string CSV delimiter
-	 * @param $enclosure string CSV field enclosure (should remain '"' with new CSV handling)
+	 * @param string $csvString
+	 * @param bool $header if first line contains header
+	 * @param string $delimiter CSV delimiter
+	 * @param string $enclosure CSV field enclosure (should remain '"' with new CSV handling)
 	 * @return array
 	 */
 	public static function parseCsv($csvString, $header=true, $delimiter=",", $enclosure='"')
@@ -1307,7 +1333,7 @@ class Client
 	/**
 	 * Timer function
 	 *
-	 * @param $name string
+	 * @param string null $name
 	 * @return float
 	 */
 	private function _timer($name=null)
@@ -1323,7 +1349,7 @@ class Client
 	 *
 	 * Set CURL timeout in seconds
 	 *
-	 * @param $timeout
+	 * @param integer $timeout
 	 */
 	public function setTimeout($timeout)
 	{

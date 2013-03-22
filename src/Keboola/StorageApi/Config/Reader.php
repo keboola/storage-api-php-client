@@ -30,9 +30,9 @@ class Reader
 	 * load and return data
 	 *
 	 * @static
-	 * @param $token
-	 * @param $bucket
-	 * @param $readCsvData if the config reader should read CSV data from all tables (is much slower)
+	 * @param string $bucket
+	 * @param string null $token
+	 * @param bool $readCsvData if the config reader should read CSV data from all tables (is much slower)
 	 * @return array|string
 	 */
 	public static function read($bucket, $token=null, $readCsvData=true)
@@ -51,7 +51,7 @@ class Reader
 	 * Parse key/value
 	 *
 	 * @static
-	 * @param $data
+	 * @param array|string $data
 	 * @return array|string
 	 */
 	protected static function parse($data)
@@ -82,9 +82,9 @@ class Reader
 	 *
 	 * Load from StorageApi
 	 *
-	 * @param $token
-	 * @param $bucket
-	 * @param $readCsvData
+	 * @param string $bucket
+	 * @param bool $readCsvData
+	 * @throws Exception
 	 * @return array
 	 */
 	protected static function load($bucket, $readCsvData=true)

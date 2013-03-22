@@ -15,12 +15,12 @@ class Exception extends \Exception
 	/**
 	 * Construct the exception
 	 *
-	 * @param  string $msg
+	 * @param null $message
 	 * @param  int $code
 	 * @param  \Exception $previous
 	 * @param  string $stringCode
 	 * @param  mixed|array $params
-	 * @return void
+	 * @return \Keboola\StorageApi\Exception
 	 */
 	public function __construct($message = NULL, $code = NULL, $previous = NULL, $stringCode = NULL, $params = NULL)
 	{
