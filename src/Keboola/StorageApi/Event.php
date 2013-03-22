@@ -128,6 +128,7 @@ class Event {
 
 	/**
 	 * @param $type
+	 * @throws Exception
 	 * @return Event
 	 */
 	public function setType($type)
