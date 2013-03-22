@@ -81,6 +81,12 @@ class Table
 	 * @param Client $client
 	 * @param string $id - table ID
 	 * @param string $filename - path to csv file (optional)
+	 * @param null $primaryKey
+	 * @param bool $transactional
+	 * @param string $delimiter
+	 * @param string $enclosure
+	 * @param bool $incremental
+	 * @param bool $partial
 	 */
 	public function __construct(Client $client, $id, $filename = '', $primaryKey=null,
         $transactional=false, $delimiter=',', $enclosure='"', $incremental=false, $partial=false
@@ -277,7 +283,8 @@ class Table
 
 	/**
 	 * @param array $data
-	 * @param bool $header
+	 * @param bool $hasHeader
+	 * @throws TableException
 	 */
 	public function setFromArray($data, $hasHeader=false)
 	{

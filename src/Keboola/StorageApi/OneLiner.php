@@ -51,7 +51,7 @@ class OneLiner
 	 *
 	 * Load data from table
 	 *
-	 * @param $table
+	 * @param $tableId
 	 */
 	public function __construct($tableId)
 	{
@@ -64,6 +64,8 @@ class OneLiner
 	 * Getter
 	 *
 	 * @param $name string
+	 * @throws OneLinerException
+	 * @return
 	 */
 	public function __get($name)
 	{
