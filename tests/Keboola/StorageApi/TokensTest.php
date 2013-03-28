@@ -43,6 +43,7 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 
 	public function testTokenManagement()
 	{
+		$initialTokens = $this->_client->listTokens();
 		$description = 'Out read token';
 		$bucketPermissions = array(
 			$this->_outBucketId => 'read',
@@ -58,7 +59,7 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 		$this->assertEquals($bucketPermissions, $token['bucketPermissions']);
 
 		$tokens = $this->_client->listTokens();
-		$this->assertCount(2, $tokens);
+		$this->assertCount(count($initialTokens) + 1, $tokens);
 
 		// update and check token again
 		$newBucketPermissions = array(
@@ -68,10 +69,21 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 		$token = $this->_client->getToken($tokenId);
 		$this->assertEquals($newBucketPermissions, $token['bucketPermissions']);
 
+		// invalid permission
+		$invalidBucketPermissions = array(
+			$this->_inBucketId => 'manage',
+		);
+		try {
+			$this->_client->updateToken($tokenId, $invalidBucketPermissions);
+			$this->fail('Manage permissions shouild not be allower to set');
+		} catch(\Keboola\StorageApi\ClientException $e) {}
+		$token = $this->_client->getToken($tokenId);
+		$this->assertEquals($newBucketPermissions, $token['bucketPermissions']);
+
 		// drop token test
 		$this->_client->dropToken($tokenId);
 		$tokens = $this->_client->listTokens();
-		$this->assertCount(1, $tokens);
+		$this->assertCount(count($initialTokens), $tokens);
 	}
 
 	public function testTokenRefresh()
@@ -191,6 +203,8 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 
 	public function testExpiredToken()
 	{
+		$initialTokens = $this->_client->listTokens();
+
 		$description = 'Out read token with expiration';
 		$bucketPermissions = array(
 			'out.c-api-tests' => 'read'
@@ -213,9 +227,10 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 		}
 
 		$tokens = $this->_client->listTokens();
-		$this->assertCount(2, $tokens);
+		$this->assertCount(count($initialTokens) + 1, $tokens);
 
 		$token = $this->_client->getToken($tokenId);
 		$this->assertTrue($token['isExpired']);
 	}
+
 }
