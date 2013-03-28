@@ -60,6 +60,13 @@ class Table
 	protected $_attributes = array();
 
 	/**
+	 * array of indices to add
+	 *
+	 * @var array
+	 */
+	protected $_indices = array();
+
+	/**
 	 * @var bool
 	 */
 	protected $_incremental = false;
@@ -281,6 +288,21 @@ class Table
 		return $this->_attributes;
 	}
 
+	public function addIndex($index)
+	{
+		$this->_indices[] = $index;
+	}
+
+	public function setIndices(array $indices)
+	{
+		$this->_indices = $indices;
+	}
+
+	public function getIndices()
+	{
+		return $this->_indices;
+	}
+
 	/**
 	 * @param array $data
 	 * @param bool $hasHeader
@@ -333,6 +355,11 @@ class Table
 		// Save table attributes
 		foreach ($this->_attributes as $k => $v) {
 			$this->_client->setTableAttribute($this->_id, $k, $v);
+		}
+
+		// Add table indices
+		foreach ($this->_indices as $v) {
+			$this->_client->markTableColumnAsIndexed($this->_id, $v);
 		}
 
 		unlink($tempfile);
