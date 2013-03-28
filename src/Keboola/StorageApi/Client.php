@@ -765,6 +765,7 @@ class Client
 			'changedUntil',
 			'escape',
 			'whereColumn',
+			'whereOperator'
 		);
 
 		$filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
