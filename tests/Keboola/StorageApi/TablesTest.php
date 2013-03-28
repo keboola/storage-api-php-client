@@ -314,6 +314,28 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 					),
 				),
 			),
+			// first test with defined operator
+			array(
+				array(
+					'whereColumn' => 'city',
+					'whereValues' => array('PRG'),
+					'whereOperator' => 'eq',
+				),
+				array(
+					array(
+						"1",
+						"martin",
+						"PRG",
+						"male"
+					),
+					array(
+						"2",
+						"klara",
+						"PRG",
+						"female",
+					),
+				),
+			),
 			// second test
 			array(
 				array(
@@ -337,6 +359,44 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 						"3",
 						"ondra",
 						"VAN",
+						"male",
+					),
+				),
+			),
+			// third test
+			array(
+				array(
+					'whereColumn' => 'city',
+					'whereValues' => array('PRG'),
+					'whereOperator' => 'ne'
+				),
+				array(
+					array(
+						"4",
+						"miro",
+						"BRA",
+						"male",
+					),
+					array(
+						"3",
+						"ondra",
+						"VAN",
+						"male",
+					),
+				),
+			),
+			// fourth test
+			array(
+				array(
+					'whereColumn' => 'city',
+					'whereValues' => array('PRG', 'VAN'),
+					'whereOperator' => 'ne'
+				),
+				array(
+					array(
+						"4",
+						"miro",
+						"BRA",
 						"male",
 					),
 				),
