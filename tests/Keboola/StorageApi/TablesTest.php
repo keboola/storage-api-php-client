@@ -372,6 +372,12 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 				),
 				array(
 					array(
+						"5",
+						"hidden",
+						"",
+						"male",
+					),
+					array(
 						"4",
 						"miro",
 						"BRA",
@@ -397,6 +403,62 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 						"4",
 						"miro",
 						"BRA",
+						"male",
+					),
+					array(
+						"5",
+						"hidden",
+						"",
+						"male",
+					),
+				),
+			),
+			// fifth test
+			array(
+				array(
+					'whereColumn' => 'city',
+					'whereValues' => array(''),
+					'whereOperator' => 'eq'
+				),
+				array(
+					array(
+						"5",
+						"hidden",
+						"",
+						"male",
+					),
+				),
+			),
+			// sixth test
+			array(
+				array(
+					'whereColumn' => 'city',
+					'whereValues' => array(''),
+					'whereOperator' => 'ne'
+				),
+				array(
+					array(
+						"4",
+						"miro",
+						"BRA",
+						"male",
+					),
+					array(
+						"1",
+						"martin",
+						"PRG",
+						"male"
+					),
+					array(
+						"2",
+						"klara",
+						"PRG",
+						"female",
+					),
+					array(
+						"3",
+						"ondra",
+						"VAN",
 						"male",
 					),
 				),
