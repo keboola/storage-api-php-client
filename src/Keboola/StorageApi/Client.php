@@ -73,6 +73,16 @@ class Client
 		$this->_apiUrl = $url;
 	}
 
+	/**
+	 * Get API Url
+	 * 
+	 * @return string
+	 */
+	public function getApiUrl()
+	{
+		return $this->_apiUrl;
+	}
+
 
 	/**
 	 * @param string $userAgent
