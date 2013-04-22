@@ -774,6 +774,7 @@ class Client
 			'changedSince',
 			'changedUntil',
 			'escape',
+			'format',
 			'whereColumn',
 			'whereOperator'
 		);

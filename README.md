@@ -51,5 +51,8 @@ Tests expects master token and performs all operations including bucket and tabl
 
 **Never run this tests on production user with real data, always create user for testing purposes!!!**
 
-When the parameters are set you can run tests by **phpunit** command. 
+When the parameters are set you can run tests by **phpunit** command.
+
+## Release History
+See the [CHANGELOG](CHANGELOG.md).
 
