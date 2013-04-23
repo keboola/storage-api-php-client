@@ -7,6 +7,6 @@
         "psr-0": {"Keboola\\StorageApi": "src/"}
     },
 	"require": {
-		"keboola/csv": "1.0.*"
+		"keboola/csv": "1.1.*"
 	}
 }

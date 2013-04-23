@@ -352,6 +352,7 @@ class Client
 			"tableId" => $tableId,
 			"delimiter" => $csvFile->getDelimiter(),
 			"enclosure" => $csvFile->getEnclosure(),
+			"escapedBy" => $csvFile->getEscapedBy(),
 			"transaction" => isset($options['transaction']) ? $options['transaction'] : null,
 			"incremental" => isset($options['incremental']) ? (bool) $options['incremental'] : false,
 			"partial" => isset($options['partial']) ? (bool) $options['partial'] : false,

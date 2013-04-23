@@ -115,13 +115,12 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	 * @dataProvider tableImportData
 	 * @param $importFileName
 	 */
-	public function testTableImportExport($createTableFile, $importFile, $expectationsFileName, $colNames, $format = 'rfc')
+	public function testTableImportExport(CsvFile $importFile, $expectationsFileName, $colNames, $format = 'rfc')
 	{
 		$expectationsFile = __DIR__ . '/_data/' . $expectationsFileName;
-		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', new CsvFile($createTableFile));
+		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $importFile);
 
-		$importCsv  = new Keboola\Csv\CsvFile($importFile);
-		$result = $this->_client->writeTable($tableId, $importCsv);
+		$result = $this->_client->writeTable($tableId, $importFile);
 		$table = $this->_client->getTable($tableId);
 
 		$rowsCountInCsv = count($this->_readCsv($expectationsFile)) - 1;
@@ -139,7 +138,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		)), 'imported data comparsion');
 
 		// incremental
-		$result = $this->_client->writeTable($tableId,  $importCsv, array(
+		$result = $this->_client->writeTable($tableId,  $importFile, array(
 			'incremental' => true,
 		));
 		$this->assertEquals(2 * $rowsCountInCsv, $result['totalRowsCount']);
@@ -149,17 +148,18 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function tableImportData()
 	{
 		return array(
-			array(__DIR__ . '/_data/languages.csv', __DIR__ . '/_data/languages.csv', 'languages.csv', array('id', 'name')),
-			array(__DIR__ . '/_data/languages.csv', 'https://s3.amazonaws.com/keboola-tests/languages.csv', 'languages.csv', array('id', 'name')),
-			array(__DIR__ . '/_data/languages.csv', 'https://s3.amazonaws.com/keboola-tests/languages.csv.gz', 'languages.csv', array('id', 'name')),
-			array(__DIR__ . '/_data/languages.csv', 'https://s3.amazonaws.com/keboola-tests/languages.zip', 'languages.csv', array('id', 'name')),
-			array(__DIR__ . '/_data/languages.csv', __DIR__ . '/_data/languages.utf8.bom.csv', 'languages.csv', array('id', 'name')),
-			array(__DIR__ . '/_data/languages.csv', __DIR__ . '/_data/languages.zip', 'languages.csv', array('id', 'name')),
-			array(__DIR__ . '/_data/languages.csv', __DIR__ . '/_data/languages.csv.gz', 'languages.csv', array('id', 'name')),
-			array(__DIR__ . '/_data/escaping.csv', __DIR__ . '/_data/escaping.csv', 'escaping.standard.out.csv', array('col1', 'col2_with_space')),
-			array(__DIR__ . '/_data/escaping.csv', __DIR__ . '/_data/escaping.nl-last-row.csv', 'escaping.standard.out.csv', array('col1', 'col2_with_space')),
-			array(__DIR__ . '/_data/escaping.csv',__DIR__ . '/_data/escaping.csv', 'escaping.backslash.out.csv', array('col1', 'col2_with_space'), 'escaped'),
-			array(__DIR__ . '/_data/escaping.csv',__DIR__ . '/_data/escaping.csv', 'escaping.raw.out.csv', array('col1', 'col2_with_space'), 'raw'),
+			array(new CsvFile(__DIR__ . '/_data/languages.csv'), 'languages.csv', array('id', 'name')),
+			array( new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.csv'), 'languages.csv', array('id', 'name')),
+			array( new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.csv.gz'), 'languages.csv', array('id', 'name')),
+			array( new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.zip'), 'languages.csv', array('id', 'name')),
+			array( new CsvFile(__DIR__ . '/_data/languages.utf8.bom.csv'), 'languages.csv', array('id', 'name')),
+//			array( new CsvFile( __DIR__ . '/_data/languages.zip'), 'languages.csv', array('id', 'name')),
+			array( new CsvFile(__DIR__ . '/_data/languages.csv.gz'), 'languages.csv', array('id', 'name')),
+			array( new CsvFile(__DIR__ . '/_data/escaping.csv'), 'escaping.standard.out.csv', array('col1', 'col2_with_space')),
+			array( new CsvFile(__DIR__ . '/_data/escaping.nl-last-row.csv'), 'escaping.standard.out.csv', array('col1', 'col2_with_space')),
+			array( new CsvFile(__DIR__ . '/_data/escaping.csv'), 'escaping.backslash.out.csv', array('col1', 'col2_with_space'), 'escaped'),
+			array( new CsvFile(__DIR__ . '/_data/escaping.csv'), 'escaping.raw.csv', array('col1', 'col2_with_space'), 'raw'),
+			array( new CsvFile(__DIR__ . '/_data/escaping.raw.csv', "\t", "", "\\"), 'escaping.raw.csv', array('col1', 'col2_with_space'), 'raw'),
 		);
 	}
 
