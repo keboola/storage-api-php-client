@@ -17,8 +17,8 @@ class Keboola_StorageApi_ConfigsTest extends StorageApiTestCase
 		parent::setUp();
 		$this->_inBucketId = $this->_initEmptyBucket('api-tests', 'in');
 		$this->_client->setBucketAttribute($this->_inBucketId, "property1", "value1");
-		$table1Id = $this->_client->createTable($this->_inBucketId, "config1", __DIR__ . '/_data/config.csv');
-		$table2Id = $this->_client->createTable($this->_inBucketId, "config2", __DIR__ . '/_data/config.csv');
+		$table1Id = $this->_client->createTable($this->_inBucketId, "config1", new \Keboola\Csv\CsvFile(__DIR__ . '/_data/config.csv'));
+		$table2Id = $this->_client->createTable($this->_inBucketId, "config2", new \Keboola\Csv\CsvFile(__DIR__ . '/_data/config.csv'));
 		$this->_client->setTableAttribute($table1Id, "property2", "value2");
 		$this->_client->setTableAttribute($table2Id, "nestedProperty.property", "value3");
 		$this->_client->setTableAttribute($table2Id, "nestedProperty2.level2.property", "value3");

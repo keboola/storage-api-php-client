@@ -122,7 +122,7 @@ class OneLiner
 			self::$client->createTable($tableInfo[0] . "." . $tableInfo[1], $tableInfo[2], $csvFile);
 		}
 
-		self::$client->writeTable($this->_tableId, $dataFile);
+		self::$client->writeTable($this->_tableId, $csvFile);
 		unlink($dataFile);
 	}
 

@@ -11,6 +11,8 @@
 
 namespace Keboola\StorageApi;
 
+use Keboola\Csv\CsvFile;
+
 class Table
 {
 	/**
@@ -346,10 +348,26 @@ class Table
 		}
 
 		if (!$this->_client->tableExists($this->_id)) {
-			$this->_client->createTable($this->_bucketId, $this->_name, $tempfile, $this->_delimiter,
-				$this->_enclosure, $this->_primaryKey, $this->_transactional);
+			$this->_client->createTable(
+				$this->_bucketId,
+				$this->_name,
+				new CsvFile($tempfile, $this->_delimiter, $this->_enclosure),
+				array(
+					'primaryKey' => $this->_primaryKey,
+					'transactional' =>
+					$this->_transactional
+				)
+			);
 		} else {
-			$this->_client->writeTable($this->_id, $tempfile, $this->_transactional, ',', '"', $this->_incremental, $this->_partial);
+			$this->_client->writeTable(
+				$this->_id,
+				new CsvFile($tempfile,$this->_delimiter, $this->_enclosure),
+				array(
+					'transactional' => $this->_transactional,
+					'incremental' => $this->_incremental,
+					'partial' => $this->_partial
+				)
+			);
 		}
 
 		// Save table attributes
