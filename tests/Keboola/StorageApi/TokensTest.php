@@ -7,6 +7,8 @@
  *
  */
 
+use Keboola\Csv\CsvFile;
+
 class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 {
 
@@ -104,8 +106,8 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 	public function testTokenPermissions()
 	{
 		// prepare token and test tables
-		$inTableId = $this->_client->createTable($this->_inBucketId, 'languages', __DIR__ . '/_data/languages.csv');
-		$outTableId = $this->_client->createTable($this->_outBucketId, 'languages', __DIR__ . '/_data/languages.csv');
+		$inTableId = $this->_client->createTable($this->_inBucketId, 'languages', new CsvFile(__DIR__ . '/_data/languages.csv'));
+		$outTableId = $this->_client->createTable($this->_outBucketId, 'languages', new CsvFile(__DIR__ . '/_data/languages.csv'));
 
 		$description = 'Out read token';
 		$bucketPermissions = array(
@@ -144,12 +146,12 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 
 		// write into table
 		try {
-			$client->writeTable($outTableId, __DIR__ . '/_data/languages.csv');
+			$client->writeTable($outTableId, new CsvFile(__DIR__ . '/_data/languages.csv'));
 			$this->fail('Table imported with read token');
 		} catch (Keboola\StorageApi\ClientException  $e) {}
 
 		try {
-			$client->writeTable($inTableId, __DIR__ . '/_data/languages.csv');
+			$client->writeTable($inTableId, new CsvFile(__DIR__ . '/_data/languages.csv'));
 			$this->fail('Table imported with no permissions');
 		} catch (Keboola\StorageApi\ClientException  $e) {}
 

@@ -1,6 +1,9 @@
 <?php
 namespace Keboola\StorageApi;
 
+
+use Keboola\Csv\CsvFile;
+
 class Client
 {
 	// Stage names
@@ -236,38 +239,30 @@ class Client
 	}
 
 	/**
-	 *
-	 * Creates a table and returns table id. If table exists, returns table id.
-	 *
-	 * @param string $bucketId
-	 * @param string $name
-	 * @param string $dataFile local file or url
-	 * @param string $delimiter
-	 * @param string $enclosure
-	 * @param string null $primaryKey
-	 * @param bool|int $transactional
-	 * @param string null $transaction
-	 * @return mixed
+	 * @param $bucketId
+	 * @param $name
+	 * @param CsvFile $csvFile
+	 * @param array $options
+	 *  - primaryKey
+	 *  - transactional
+	 *  - transaction
+	 * @return bool|string
 	 */
-	public function createTable($bucketId, $name, $dataFile, $delimiter=",", $enclosure='"', $primaryKey=null,
-								$transactional=0, $transaction=null)
+	public function createTable($bucketId, $name, CsvFile $csvFile, $options = array())
 	{
 		$options = array(
 			"bucketId" => $bucketId,
 			"name" => $name,
-			"delimiter" => $delimiter,
-			"enclosure" => $enclosure,
-			"primaryKey" => $primaryKey,
-			"transactional" => $transactional,
+			"delimiter" => $csvFile->getDelimiter(),
+			"enclosure" => $csvFile->getEnclosure(),
+			"primaryKey" => isset($options['primaryKey']) ? $options['primaryKey'] : null,
+			"transactional" => isset($options['transactional']) ? $options['transactional'] : false,
 		);
-		if ($transaction) {
-			$options["transaction"] = $transaction;
-		}
 
-		if ($this->_isUrl($dataFile)) {
-			$options["dataUrl"] = $dataFile;
+		if ($this->_isUrl($csvFile->getPathname())) {
+			$options["dataUrl"] = $csvFile->getPathname();
 		} else {
-			$options["data"] = "@$dataFile";
+			$options["data"] = "@{$csvFile->getPathname()}";
 		}
 
 		$tableId = $this->getTableId($name, $bucketId);
@@ -341,35 +336,32 @@ class Client
 	}
 
 	/**
-	 *
-	 * Writes data to table
-	 *
-	 * @param string $tableId
-	 * @param string $dataFile local path to file or file URL
-	 * @param string null $transaction
-	 * @param string $delimiter
-	 * @param string $enclosure
-	 * @param bool $incremental
-	 * @param bool $partial
+	 * @param $tableId
+	 * @param CsvFile $csvFile
+	 * @param array $options
+	 * 	Available options:
+	 *  - transaction
+	 *  - incremental
+	 *  - partial
 	 * @return mixed|string
 	 */
-	public function writeTable($tableId, $dataFile, $transaction=null, $delimiter=",", $enclosure='"',
-							   $incremental=false, $partial=false)
+	public function writeTable($tableId, CsvFile $csvFile,  $options = array())
 	{
 		// TODO Gzip data
 		$options = array(
 			"tableId" => $tableId,
-			"delimiter" => $delimiter,
-			"enclosure" => $enclosure,
-			"transaction" => $transaction,
-			"incremental" => $incremental,
-			"partial" => $partial,
+			"delimiter" => $csvFile->getDelimiter(),
+			"enclosure" => $csvFile->getEnclosure(),
+			"escapedBy" => $csvFile->getEscapedBy(),
+			"transaction" => isset($options['transaction']) ? $options['transaction'] : null,
+			"incremental" => isset($options['incremental']) ? (bool) $options['incremental'] : false,
+			"partial" => isset($options['partial']) ? (bool) $options['partial'] : false,
 		);
 
-		if ($this->_isUrl($dataFile)) {
-			$options["dataUrl"] = $dataFile;
+		if ($this->_isUrl($csvFile->getPathname())) {
+			$options["dataUrl"] = $csvFile->getPathname();
 		} else {
-			$options["data"] = "@$dataFile";
+			$options["data"] = "@{$csvFile->getPathname()}";
 		}
 
 		$result = $this->_apiPost("/storage/tables/{$tableId}/import" , $options);
