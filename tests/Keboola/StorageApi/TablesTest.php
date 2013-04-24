@@ -550,14 +550,6 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$this->_client->writeTable('languages', $importCsvFile);
 	}
 
-	public function testTableDefinition()
-	{
-		$table1Id = $this->_client->createTable($this->_inBucketId, 'languages', new CsvFile(__DIR__ . '/_data/languages.csv'));
-		$sql = $this->_client->getTableDefinition($table1Id);
-		$this->assertNotEmpty($sql);
-		$this->_client->dropTable($table1Id);
-	}
-
 	public function testTableAttributes()
 	{
 		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', new CsvFile(__DIR__ . '/_data/languages.csv'));

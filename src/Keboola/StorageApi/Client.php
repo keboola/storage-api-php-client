@@ -525,67 +525,6 @@ class Client
 
 	/**
 	 *
-	 * Generates a MySQL table definition
-	 *
-	 * @param string $tableId Storage API table id
-	 * @param string $tableName target table name (optional)
-	 * @param array $options - export options ("columns")
-	 * @return string
-	 */
-	public function getTableDefinition($tableId, $tableName=null, $options=array())
-	{
-		if (!$tableName) {
-			$tableName =  $tableId;
-		}
-		$table = $this->getTable($tableId);
-		$definition = "CREATE TABLE `{$tableName}`\n(";
-
-		// Column definition
-		$columns = array();
-
-		// Key length can be 1000 bytes in MySQL
-		// As we use UTF-8, every character might occupy up to 3 bytes, thus joint primary keys (varchars)
-		// exceed the 1000 byte limit. We calculate maximum varchar length so all columns in the primary key
-		// do not exceed the total allowed length.
-		$varcharKeyLength = 255;
-		if (count($table["primaryKey"]) > 1) {
-			$varcharKeyLength = floor (1000 / (count($table["primaryKey"])*3));
-		}
-		foreach($table["columns"] as $column) {
-			if (isset($options["columns"]) && count($options["columns"])) {
-				if (!in_array($column, $options["columns"])) {
-					continue;
-				}
-			}
-			if (in_array($column, $table["primaryKey"])) {
-				$columns[] = "`{$column}` VARCHAR({$varcharKeyLength}) NOT NULL DEFAULT ''";
-			} else {
-				$columns[] = "`{$column}` TEXT NOT NULL";
-			}
-		}
-		$definition .= join(",\n", $columns);
-
-		// Primary key indexes
-		if ($table["primaryKey"] && count($table["primaryKey"])) {
-			$includePK = true;
-			// Do not create PK if not all parts of the PK are imported
-			if (isset($options["columns"]) && count($options["columns"])) {
-				foreach($table["primaryKey"] as $pk) {
-					if (!in_array($pk, $options["columns"])) {
-						$includePK = false;
-					}
-				}
-			}
-			if ($includePK) {
-				$definition .= ",\n PRIMARY KEY (`" . join("`, `", $table["primaryKey"]) . "`)";
-			}
-		}
-		$definition .= ") ENGINE=InnoDB DEFAULT CHARSET=utf8;";
-		return $definition;
-	}
-
-	/**
-	 *
 	 * returns all tokens
 	 *
 	 * @return mixed|string
