@@ -202,8 +202,48 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 			$this->fail("Exception should be thrown when last column is remaining");
 		} catch (\Keboola\StorageApi\ClientException $e) {
 		}
+	}
 
+	public function testColumnUsedInFilteredAliasShouldNotBeDeletable()
+	{
+		$importFile =  __DIR__ . '/_data/languages.csv';
+		$sourceTableId = $this->_client->createTable($this->_inBucketId, 'languages', new CsvFile($importFile));
+		$this->_client->markTableColumnAsIndexed($sourceTableId, 'id');
 
+		$aliasTable = $this->_client->createAliasTable($this->_outBucketId, $sourceTableId, 'languages', array(
+			'filter' => array(
+				'column' => 'id',
+				'values' => array('1'),
+			),
+		));
+
+		try {
+			$this->_client->deleteTableColumn($sourceTableId, 'id');
+			$this->fail('Exception should be thrown when filtered column is deleted');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.tables.cannotDeleteReferencedColumn', $e->getStringCode());
+		}
+	}
+
+	public function testColumnUsedInFilteredAliasShouldNotBeRemovedFromIndexed()
+	{
+		$importFile =  __DIR__ . '/_data/languages.csv';
+		$sourceTableId = $this->_client->createTable($this->_inBucketId, 'languages', new CsvFile($importFile));
+		$this->_client->markTableColumnAsIndexed($sourceTableId, 'id');
+
+		$aliasTable = $this->_client->createAliasTable($this->_outBucketId, $sourceTableId, 'languages', array(
+			'filter' => array(
+				'column' => 'id',
+				'values' => array('1'),
+			),
+		));
+
+		try {
+			$this->_client->removeTableColumnFromIndexed($sourceTableId, 'id');
+			$this->fail('Exception should be thrown when filtered column is deleted');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.tables.cannotRemoveReferencedColumnFromIndexed', $e->getStringCode());
+		}
 	}
 
 	public function testTablePkColumnDelete()
@@ -310,6 +350,43 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		array_shift($parsedData); // remove header
 
 		$this->assertEquals($expectedResult, $parsedData);
+	}
+
+	/**
+	 * @param $filterOptions
+	 * @param $expectedResult
+	 * @dataProvider tableExportFiltersData
+	 */
+	public function testFilteredAliases($filterOptions, $expectedResult)
+	{
+		// source table
+		$sourceTableId = $this->_client->createTable(
+			$this->_inBucketId,
+			'users',
+			new CsvFile(__DIR__ . '/_data/users.csv')
+		);
+		$this->_client->markTableColumnAsIndexed($sourceTableId, 'city');
+
+		// alias table
+		$aliasTableId = $this->_client->createAliasTable(
+			$this->_outBucketId,
+			$sourceTableId,
+			'users',
+			array(
+				'filter' => array(
+					'column' => $filterOptions['whereColumn'],
+					'operator' => isset($filterOptions['whereOperator']) ? $filterOptions['whereOperator'] : '',
+					'values' => $filterOptions['whereValues'],
+				),
+			)
+		);
+
+		$data = $this->_client->exportTable($aliasTableId);
+		$parsedData = Client::parseCsv($data, false);
+		array_shift($parsedData); // remove header
+
+		$this->assertEquals($expectedResult, $parsedData);
+		$this->_client->dropTable($aliasTableId);
 	}
 
 	public function tableExportFiltersData()
@@ -499,7 +576,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 				'whereValues' => array('PRG'),
 			));
 		} catch(\Keboola\StorageApi\ClientException $e) {
-			$this->assertEquals('storage.tables.columnNotIndexed', $e->getStringCode());
+			$this->assertEquals('storage.tables.validation.columnNotIndexed', $e->getStringCode());
 		}
 	}
 
@@ -674,6 +751,53 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		// first delete alias, than source table
 		$this->_client->dropTable($aliasTableId);
 		$this->_client->dropTable($sourceTableId);
+	}
+
+	public function testTableAliasFilterModifications()
+	{
+		// source table
+		$sourceTableId = $this->_client->createTable(
+			$this->_inBucketId,
+			'users',
+			new CsvFile(__DIR__ . '/_data/users.csv')
+		);
+		$this->_client->markTableColumnAsIndexed($sourceTableId, 'city');
+
+		// alias table
+		$aliasTableId = $this->_client->createAliasTable(
+			$this->_outBucketId,
+			$sourceTableId,
+			'users',
+			array(
+				'filter' => array(
+					'column' => 'city',
+					'values' => array('PRG'),
+					'operator' => 'eq',
+				),
+			)
+		);
+
+		$aliasTable = $this->_client->getTable($aliasTableId);
+
+		$this->assertEquals('city', $aliasTable['filter']['column']);
+		$this->assertEquals(array('PRG'), $aliasTable['filter']['values']);
+		$this->assertEquals('eq', $aliasTable['filter']['operator']);
+
+		$this->assertNull($aliasTable['dataSizeBytes'], 'Filtered alias should have unknown size');
+		$this->assertNull($aliasTable['rowsCount'], 'Filtered alias should have unknown rows count');
+
+		$aliasTable = $this->_client->setAliasFilter($aliasTableId, array(
+			'values' => array('VAN'),
+		));
+
+		$this->assertEquals('city', $aliasTable['filter']['column']);
+		$this->assertEquals(array('VAN'), $aliasTable['filter']['values']);
+		$this->assertEquals('eq', $aliasTable['filter']['operator']);
+
+		$this->_client->removeAliasFilter($aliasTableId);
+		$aliasTable = $this->_client->getTable($aliasTableId);
+
+		$this->assertArrayNotHasKey('filter', $aliasTable);
 	}
 
 	public function testTableAliasUnlink()

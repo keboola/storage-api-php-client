@@ -15,6 +15,7 @@ class Keboola_StorageApi_ConfigsTest extends StorageApiTestCase
 	public function setUp()
 	{
 		parent::setUp();
+		$this->_initEmptyBucket('api-tests', 'out');
 		$this->_inBucketId = $this->_initEmptyBucket('api-tests', 'in');
 		$this->_client->setBucketAttribute($this->_inBucketId, "property1", "value1");
 		$table1Id = $this->_client->createTable($this->_inBucketId, "config1", new \Keboola\Csv\CsvFile(__DIR__ . '/_data/config.csv'));

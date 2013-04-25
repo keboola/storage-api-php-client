@@ -274,7 +274,6 @@ class Client
 		$this->_log("Table {$result["id"]} created", array("options" => $options, "result" => $result));
 
 		return $result["id"];
-
 	}
 
 	private function _isUrl($path)
@@ -289,16 +288,40 @@ class Client
 	 * @param string null $name
 	 * @return mixed
 	 */
-	public function createAliasTable($bucketId, $sourceTableId, $name=NULL)
+	public function createAliasTable($bucketId, $sourceTableId, $name = NULL, $options = array())
 	{
-		$options = array(
+		$filteredOptions = array(
 			'sourceTable' => $sourceTableId,
 			'name' => $name,
 		);
 
-		$result = $this->_apiPost("/storage/buckets/" . $bucketId . "/table-aliases", $options);
-		$this->_log("Table alias {$result["id"]}  created", array("options" => $options, "result" => $result));
+		if (isset($options['filter'])) {
+			$filteredOptions['filter'] = $options['filter'];
+		}
+
+		$result = $this->_apiPost("/storage/buckets/" . $bucketId . "/table-aliases", http_build_query($filteredOptions));
+		$this->_log("Table alias {$result["id"]}  created", array("options" => $filteredOptions, "result" => $result));
 		return $result["id"];
+	}
+
+	/**
+	 * @param $tableId
+	 * @param array $filter
+	 * @return mixed|string
+	 */
+	public function setAliasFilter($tableId, array $filter)
+	{
+		$result = $this->_apiPost("/storage/tables/$tableId/filter", http_build_query($filter));
+		$this->_log("Table $tableId filter set", array(
+			'filter' => $filter,
+			'result' => $result,
+		));
+		return $result;
+	}
+
+	public function removeAliasFilter($tableId)
+	{
+		$this->_apiDelete("/storage/tables/$tableId/filter");
 	}
 
 	/**
@@ -1098,7 +1121,7 @@ class Client
 	 */
 	protected function _curlPut($url, $postData=null)
 	{
-		$this->_curlPost($url, $postData, 'PUT');
+		return $this->_curlPost($url, $postData, 'PUT');
 	}
 
 	/**

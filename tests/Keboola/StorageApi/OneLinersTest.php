@@ -15,6 +15,7 @@ class Keboola_StorageApi_OneLinersTest extends StorageApiTestCase
 	public function setUp()
 	{
 		parent::setUp();
+		$this->_initEmptyBucket('api-tests', 'out');
 		$this->_inBucketId = $this->_initEmptyBucket('api-tests', 'in');
 
 		Keboola\StorageApi\OneLiner::setClient($this->_client);
