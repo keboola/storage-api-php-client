@@ -282,10 +282,14 @@ class Client
 	}
 
 	/**
-	 * Create table alias
-	 * @param string $bucketId
-	 * @param string $sourceTableId
-	 * @param string null $name
+	 * @param $bucketId
+	 * @param $sourceTableId
+	 * @param null $name
+	 * @param array $options
+	 *  - sourceTable
+	 *  - name (optional)
+	 *  - aliasFilter (optional)
+	 *  - (array) aliasColumns (optional)
 	 * @return mixed
 	 */
 	public function createAliasTable($bucketId, $sourceTableId, $name = NULL, $options = array())
@@ -295,8 +299,12 @@ class Client
 			'name' => $name,
 		);
 
-		if (isset($options['filter'])) {
-			$filteredOptions['filter'] = $options['filter'];
+		if (isset($options['aliasFilter'])) {
+			$filteredOptions['aliasFilter'] = (array) $options['aliasFilter'];
+		}
+
+		if (isset($options['aliasColumns'])) {
+			$filteredOptions['aliasColumns'] = (array) $options['aliasColumns'];
 		}
 
 		$result = $this->_apiPost("/storage/buckets/" . $bucketId . "/table-aliases", http_build_query($filteredOptions));
@@ -309,19 +317,35 @@ class Client
 	 * @param array $filter
 	 * @return mixed|string
 	 */
-	public function setAliasFilter($tableId, array $filter)
+	public function setAliasTableFilter($tableId, array $filter)
 	{
-		$result = $this->_apiPost("/storage/tables/$tableId/filter", http_build_query($filter));
-		$this->_log("Table $tableId filter set", array(
+		$result = $this->_apiPost("/storage/tables/$tableId/alias-filter", http_build_query($filter));
+		$this->_log("Table $tableId  filter set", array(
 			'filter' => $filter,
 			'result' => $result,
 		));
 		return $result;
 	}
 
-	public function removeAliasFilter($tableId)
+	public function removeAliasTableFilter($tableId)
 	{
-		$this->_apiDelete("/storage/tables/$tableId/filter");
+		$this->_apiDelete("/storage/tables/$tableId/alias-filter");
+	}
+
+	/**
+	 * @param $tableId
+	 */
+	public function enableAliasTableColumnsAutoSync($tableId)
+	{
+		$this->_apiPost("/storage/tables/{$tableId}/alias-columns-auto-sync");
+	}
+
+	/**
+	 * @param $tableId
+	 */
+	public function disableAliasTableColumnsAutoSync($tableId)
+	{
+		$this->_apiDelete("/storage/tables/{$tableId}/alias-columns-auto-sync");
 	}
 
 	/**

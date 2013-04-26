@@ -204,6 +204,73 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		}
 	}
 
+	public function testAliasColumnWithoutAutoSyncShouldBeDeletable()
+	{
+		$importFile =  __DIR__ . '/_data/users.csv';
+		$sourceTableId = $this->_client->createTable($this->_inBucketId, 'users', new CsvFile($importFile));
+		$this->_client->markTableColumnAsIndexed($sourceTableId, 'city');
+
+		$aliasTableId = $this->_client->createAliasTable($this->_outBucketId, $sourceTableId, 'users', array(
+			'aliasColumns' => array(
+				'city',
+				'id',
+				'name',
+			),
+		));
+
+		$this->_client->deleteTableColumn($aliasTableId, 'city');
+
+		$aliasTable = $this->_client->getTable($aliasTableId);
+		$this->assertEquals(array('id', 'name'), $aliasTable['columns']);
+	}
+
+	public function testAliasColumnWithoutAutoSyncCanBeAdded()
+	{
+		$importFile =  __DIR__ . '/_data/users.csv';
+		$sourceTableId = $this->_client->createTable($this->_inBucketId, 'users', new CsvFile($importFile));
+		$this->_client->markTableColumnAsIndexed($sourceTableId, 'city');
+
+		$aliasTableId = $this->_client->createAliasTable($this->_outBucketId, $sourceTableId, 'users', array(
+			'aliasColumns' => array(
+				'id',
+				'name',
+			),
+		));
+
+		$this->_client->addTableColumn($aliasTableId, 'city');
+
+		$aliasTable = $this->_client->getTable($aliasTableId);
+		$this->assertEquals(array('id', 'name', 'city'), $aliasTable['columns']);
+	}
+
+	public function testAliasColumnsAutoSync()
+	{
+		$importFile =  __DIR__ . '/_data/users.csv';
+		$sourceTableId = $this->_client->createTable($this->_inBucketId, 'users', new CsvFile($importFile));
+		$this->_client->markTableColumnAsIndexed($sourceTableId, 'city');
+
+		$aliasTableId = $this->_client->createAliasTable($this->_outBucketId, $sourceTableId, 'users');
+
+		$aliasTable = $this->_client->getTable($aliasTableId);
+		$this->assertEquals(array("id","name","city","sex"), $aliasTable["columns"]);
+
+		$this->_client->addTableColumn($sourceTableId, 'age');
+
+		$aliasTable = $this->_client->getTable($aliasTableId);
+		$this->assertEquals(array("id","name","city","sex","age"), $aliasTable["columns"]);
+
+		$this->_client->disableAliasTableColumnsAutoSync($aliasTableId);
+
+		$aliasTable = $this->_client->getTable($aliasTableId);
+		$this->assertFalse($aliasTable['aliasColumnsAutoSync']);
+
+		$this->_client->addTableColumn($sourceTableId, 'birthDate');
+		$this->_client->deleteTableColumn($aliasTableId, 'name');
+
+		$aliasTable = $this->_client->getTable($aliasTableId);
+		$this->assertEquals(array("id","city","sex","age"), $aliasTable["columns"]);
+	}
+
 	public function testColumnUsedInFilteredAliasShouldNotBeDeletable()
 	{
 		$importFile =  __DIR__ . '/_data/languages.csv';
@@ -211,7 +278,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$this->_client->markTableColumnAsIndexed($sourceTableId, 'id');
 
 		$aliasTable = $this->_client->createAliasTable($this->_outBucketId, $sourceTableId, 'languages', array(
-			'filter' => array(
+			'aliasFilter' => array(
 				'column' => 'id',
 				'values' => array('1'),
 			),
@@ -225,6 +292,28 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		}
 	}
 
+	public function testColumnAssignedToAliasWithoutAutoSyncShouldNotBeDeletable()
+	{
+		$importFile =  __DIR__ . '/_data/users.csv';
+		$sourceTableId = $this->_client->createTable($this->_inBucketId, 'users', new CsvFile($importFile));
+		$this->_client->markTableColumnAsIndexed($sourceTableId, 'city');
+
+		$aliasTable = $this->_client->createAliasTable($this->_outBucketId, $sourceTableId, 'users', array(
+			'aliasColumns' => array(
+				'city',
+				'id',
+				'name',
+			),
+		));
+
+		try {
+			$this->_client->deleteTableColumn($sourceTableId, 'city');
+			$this->fail('Exception should be thrown when referenced column is deleted');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.tables.cannotDeleteReferencedColumn', $e->getStringCode());
+		}
+	}
+
 	public function testColumnUsedInFilteredAliasShouldNotBeRemovedFromIndexed()
 	{
 		$importFile =  __DIR__ . '/_data/languages.csv';
@@ -232,7 +321,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$this->_client->markTableColumnAsIndexed($sourceTableId, 'id');
 
 		$aliasTable = $this->_client->createAliasTable($this->_outBucketId, $sourceTableId, 'languages', array(
-			'filter' => array(
+			'aliasFilter' => array(
 				'column' => 'id',
 				'values' => array('1'),
 			),
@@ -352,6 +441,46 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$this->assertEquals($expectedResult, $parsedData);
 	}
 
+	public function testAliasColumns()
+	{
+		// source table
+		$sourceTableId = $this->_client->createTable(
+			$this->_inBucketId,
+			'users',
+			new CsvFile(__DIR__ . '/_data/users.csv')
+		);
+		$this->_client->markTableColumnAsIndexed($sourceTableId, 'city');
+		$this->_client->markTableColumnAsIndexed($sourceTableId, 'name');
+
+		$aliasColumns = array(
+			'id',
+			'city',
+		);
+		// alias table
+		$aliasTableId = $this->_client->createAliasTable(
+			$this->_outBucketId,
+			$sourceTableId,
+			'users',
+			array(
+				'aliasColumns' => $aliasColumns,
+			)
+		);
+
+		$aliasTable = $this->_client->getTable($aliasTableId);
+
+		$this->assertFalse($aliasTable['aliasColumnsAutoSync']);
+		$this->assertEquals($aliasColumns, $aliasTable['columns']);
+		$this->assertEquals(array('city'), $aliasTable['indexedColumns']);
+
+		$this->_client->removeTableColumnFromIndexed($sourceTableId, 'city');
+		$this->_client->addTableColumn($sourceTableId, 'another');
+
+		$aliasTable = $this->_client->getTable($aliasTableId);
+		$this->assertEmpty($aliasTable['indexedColumns'], 'Index should be removed also from alias');
+		$this->assertEquals($aliasTable['columns'], $aliasColumns, 'Column should not be added to alias with auto sync disabled');
+	}
+
+
 	/**
 	 * @param $filterOptions
 	 * @param $expectedResult
@@ -373,7 +502,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 			$sourceTableId,
 			'users',
 			array(
-				'filter' => array(
+				'aliasFilter' => array(
 					'column' => $filterOptions['whereColumn'],
 					'operator' => isset($filterOptions['whereOperator']) ? $filterOptions['whereOperator'] : '',
 					'values' => $filterOptions['whereValues'],
@@ -719,6 +848,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$this->assertNotEquals('0000-00-00 00:00:00', $aliasTable['created']);
 		$this->assertEquals($sourceTable['rowsCount'], $aliasTable['rowsCount']);
 		$this->assertEquals($sourceTable['dataSizeBytes'], $aliasTable['dataSizeBytes']);
+		$this->assertTrue($aliasTable['aliasColumnsAutoSync']);
 
 		$this->assertArrayHasKey('sourceTable', $aliasTable);
 		$this->assertEquals($sourceTableId, $aliasTable['sourceTable']['id'], 'new table linked to source table');
@@ -769,7 +899,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 			$sourceTableId,
 			'users',
 			array(
-				'filter' => array(
+				'aliasFilter' => array(
 					'column' => 'city',
 					'values' => array('PRG'),
 					'operator' => 'eq',
@@ -779,25 +909,25 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 
 		$aliasTable = $this->_client->getTable($aliasTableId);
 
-		$this->assertEquals('city', $aliasTable['filter']['column']);
-		$this->assertEquals(array('PRG'), $aliasTable['filter']['values']);
-		$this->assertEquals('eq', $aliasTable['filter']['operator']);
+		$this->assertEquals('city', $aliasTable['aliasFilter']['column']);
+		$this->assertEquals(array('PRG'), $aliasTable['aliasFilter']['values']);
+		$this->assertEquals('eq', $aliasTable['aliasFilter']['operator']);
 
 		$this->assertNull($aliasTable['dataSizeBytes'], 'Filtered alias should have unknown size');
 		$this->assertNull($aliasTable['rowsCount'], 'Filtered alias should have unknown rows count');
 
-		$aliasTable = $this->_client->setAliasFilter($aliasTableId, array(
+		$aliasTable = $this->_client->setAliasTableFilter($aliasTableId, array(
 			'values' => array('VAN'),
 		));
 
-		$this->assertEquals('city', $aliasTable['filter']['column']);
-		$this->assertEquals(array('VAN'), $aliasTable['filter']['values']);
-		$this->assertEquals('eq', $aliasTable['filter']['operator']);
+		$this->assertEquals('city', $aliasTable['aliasFilter']['column']);
+		$this->assertEquals(array('VAN'), $aliasTable['aliasFilter']['values']);
+		$this->assertEquals('eq', $aliasTable['aliasFilter']['operator']);
 
-		$this->_client->removeAliasFilter($aliasTableId);
+		$this->_client->removeAliasTableFilter($aliasTableId);
 		$aliasTable = $this->_client->getTable($aliasTableId);
 
-		$this->assertArrayNotHasKey('filter', $aliasTable);
+		$this->assertArrayNotHasKey('aliasFilter', $aliasTable);
 	}
 
 	public function testTableAliasUnlink()
