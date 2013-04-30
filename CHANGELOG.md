@@ -1,4 +1,7 @@
 
+## 2.7.1
+ * [Feature] Alias filter
+ * [Feature] Alias columns autosync enable/disable
 
 ## 2.7.0
 

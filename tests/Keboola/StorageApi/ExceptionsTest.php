@@ -16,14 +16,14 @@ class Keboola_StorageApi_ExceptionsTest extends StorageApiTestCase
 	 */
 	public function testException()
 	{
-		$this->_client->getTable("nonexistingtable");
+		$t = $this->_client->getTable("nonexistingtable");
 	}
 
 	public function testErrorMessage()
 	{
 		$this->_client->translateApiErrors = false;
 		$response = $this->_client->getTable("nonexistingtable");
-		$this->assertEquals("accessDenied", $response["code"]);
+		$this->assertEquals("storage.tables.notFound", $response["code"]);
 		$this->_client->translateApiErrors = true;
 	}
 }
