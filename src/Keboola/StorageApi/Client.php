@@ -1127,7 +1127,7 @@ class Client
 				$this->_log("Error in POST request response", $errData);
 				throw $e;
 			}
-		} else {
+		} elseif ($curlError) {
 			$logData["curlError"] = $curlError;
 			$this->_log("POST Request failed", $logData);
 			throw new ClientException("CURL: " . $curlError);

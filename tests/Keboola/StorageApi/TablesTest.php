@@ -55,6 +55,20 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$this->_client->exportTable($tableId), 'initial data imported into table');
 	}
 
+	public function testTableWithUnsupportedCharactersInNameShouldNotBeCreated()
+	{
+		try {
+			$tableId = $this->_client->createTable(
+				$this->_inBucketId,
+				'languages.main',
+				new CsvFile(__DIR__ . '/_data/languages.csv')
+			);
+			$this->fail('Table with dot in name should not be created');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.tables.validation', $e->getStringCode());
+		}
+	}
+
 	public function testTableCreateWithPK()
 	{
 		$tableId = $this->_client->createTable(
@@ -257,7 +271,8 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$this->_client->addTableColumn($sourceTableId, 'age');
 
 		$aliasTable = $this->_client->getTable($aliasTableId);
-		$this->assertEquals(array("id","name","city","sex","age"), $aliasTable["columns"]);
+		$expectedColumns = array("id","name","city","sex","age");
+		$this->assertEquals($expectedColumns, $aliasTable["columns"]);
 
 		$this->_client->disableAliasTableColumnsAutoSync($aliasTableId);
 
@@ -268,7 +283,17 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$this->_client->deleteTableColumn($aliasTableId, 'name');
 
 		$aliasTable = $this->_client->getTable($aliasTableId);
-		$this->assertEquals(array("id","city","sex","age"), $aliasTable["columns"]);
+
+		$expectedColumns = array("id","city","sex","age");
+		$this->assertEquals($expectedColumns, $aliasTable["columns"]);
+
+		$data = $this->_client->parseCsv($this->_client->exportTable($aliasTableId));
+		$this->assertEquals($expectedColumns, array_keys(reset($data)));
+
+		$this->_client->enableAliasTableColumnsAutoSync($aliasTableId);
+		$aliasTable = $this->_client->getTable($aliasTableId);
+
+		$this->assertEquals(array("id","name","city","sex","age","birthDate"), $aliasTable['columns']);
 	}
 
 	public function testColumnUsedInFilteredAliasShouldNotBeDeletable()
@@ -924,10 +949,21 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$this->assertEquals(array('VAN'), $aliasTable['aliasFilter']['values']);
 		$this->assertEquals('eq', $aliasTable['aliasFilter']['operator']);
 
+
+		try {
+			$this->_client->setAliasTableFilter($aliasTableId, array(
+				'column' => 'name',
+			));
+			$this->fail('Filter cannot be applied on column without index');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.tables.columnNotIndexed', $e->getStringCode());
+		}
+
 		$this->_client->removeAliasTableFilter($aliasTableId);
 		$aliasTable = $this->_client->getTable($aliasTableId);
 
 		$this->assertArrayNotHasKey('aliasFilter', $aliasTable);
+
 	}
 
 	public function testTableAliasUnlink()
