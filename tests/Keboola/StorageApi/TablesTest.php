@@ -540,7 +540,58 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		array_shift($parsedData); // remove header
 
 		$this->assertEquals($expectedResult, $parsedData);
-		$this->_client->dropTable($aliasTableId);
+	}
+
+	public function testFilterOnFilteredAlias()
+	{
+		// source table
+		$sourceTableId = $this->_client->createTable(
+			$this->_inBucketId,
+			'users',
+			new CsvFile(__DIR__ . '/_data/users.csv')
+		);
+		$this->_client->markTableColumnAsIndexed($sourceTableId, 'city');
+		$this->_client->markTableColumnAsIndexed($sourceTableId, 'sex');
+
+		// alias table
+		$aliasTableId = $this->_client->createAliasTable(
+			$this->_outBucketId,
+			$sourceTableId,
+			'users',
+			array(
+				'aliasFilter' => array(
+					'column' => 'city',
+					'values' => array('PRG'),
+				),
+			)
+		);
+
+		$expectedResult = array(
+			array(
+				"1",
+				"martin",
+				"PRG",
+				"male"
+			)
+		);
+
+		$data = $this->_client->exportTable($aliasTableId, null, array(
+			'whereColumn' => 'sex',
+			'whereValues' => array('male'),
+		));
+		$parsedData = Client::parseCsv($data, false);
+		array_shift($parsedData); // remove header
+
+		$this->assertEquals($expectedResult, $parsedData);
+
+		$data = $this->_client->exportTable($aliasTableId, null, array(
+			'whereColumn' => 'city',
+			'whereValues'=> array('VAN'),
+		));
+		$parsedData = Client::parseCsv($data, false);
+		array_shift($parsedData); // remove header
+
+		$this->assertEmpty($parsedData, 'Export filter should not overload alias filter');
 	}
 
 	public function tableExportFiltersData()
