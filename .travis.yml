@@ -1,7 +1,13 @@
+---
 language: php
 php:
-  - 5.3
-  - 5.4
+- 5.3
+- 5.4
 before_install:
-  - composer install
-
+- composer install
+env:
+  global:
+  - secure: |-
+      z1l8r5VnvJ1Y2EBRpP9aPXBYqSsSvzLgBVGi8J7ht25GRhTFEyIY42vG0+CP
+      K/tc8hZ8N9ID/mYbM9dZ8/f54lMhZ9b8gumYXeBKQDO3iIw+efNJnP87M5f8
+      gA+pwEzKEQPcWBhPFGYIqCPeiK2y3WlvCE9m/i2TpHcjJZ+BnHo=
