@@ -463,7 +463,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$parsedData = Client::parseCsv($data, false);
 		array_shift($parsedData); // remove header
 
-		$this->assertEquals($expectedResult, $parsedData);
+		$this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
 	}
 
 	public function testAliasColumns()
@@ -539,7 +539,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$parsedData = Client::parseCsv($data, false);
 		array_shift($parsedData); // remove header
 
-		$this->assertEquals($expectedResult, $parsedData);
+		$this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
 	}
 
 	public function testFilterOnFilteredAlias()
