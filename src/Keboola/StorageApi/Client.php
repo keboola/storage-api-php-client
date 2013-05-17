@@ -850,12 +850,25 @@ class Client
 	 * @param int $offset
 	 * @return mixed|string
 	 */
-	public function listEvents($limit = 100, $offset = 0)
+	public function listEvents($params = array())
 	{
-		$queryParams = array(
-			'limit' => $limit,
-			'offset' => $offset,
+		$defaultParams = array(
+			'limit' => 100,
+			'offset' => 0,
 		);
+
+		if (!is_array($params)) {
+			// BC compatibility
+			$args = func_get_args();
+			$params = array(
+				'limit' => $args[0],
+			);
+			if (isset($args[1])) {
+				$params['offset'] = $args[1];
+			}
+		}
+
+		$queryParams = array_merge($defaultParams, $params);
 		return $this->_apiGet('/storage/events?' . http_build_query($queryParams));
 	}
 

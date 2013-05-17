@@ -83,4 +83,49 @@ class Keboola_StorageApi_EventsTest extends StorageApiTestCase
 		$this->assertEquals($runId, $event['runId']);
 	}
 
+	public function testEventsFiltering()
+	{
+		$events = $this->_client->listEvents(array(
+			'limit' => 100,
+			'offset' => 0
+		));
+
+		$lastEvent = reset($events);
+		$lastEventId = $lastEvent['id'];
+
+		$runId = 'test';
+		$event = new Event();
+		$event
+			->setComponent('transformation')
+			->setRunId($runId)
+			->setType('info')
+			->setMessage('test')
+			->setConfigurationId('myConfig');
+		$this->_client->createEvent($event);
+
+		$event->setComponent('ex-fb');
+		$this->_client->createEvent($event);
+		$event->setMessage('another');
+		$this->_client->createEvent($event);
+		$events = $this->_client->listEvents(array(
+			'sinceId' => $lastEventId,
+		));
+
+		$this->assertCount(3, $events);
+
+		$events = $this->_client->listEvents(array(
+			'sinceId' => $lastEventId,
+			'component' => 'transformation',
+		));
+		$this->assertCount(1, $events, 'filter by component');
+
+		$event->setRunId('rundId2');
+		$this->_client->createEvent($event);
+
+		$events = $this->_client->listEvents(array(
+			'sinceId' => $lastEventId,
+			'runId' => $runId,
+		));
+		$this->assertCount(3, $events);
+	}
 }
