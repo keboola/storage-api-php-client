@@ -1,4 +1,4 @@
-# Keboola Storage API PHP client
+# Keboola Storage API PHP client [![Build Status](https://travis-ci.org/keboola/storage-api-php-client.png?branch=master)](https://travis-ci.org/keboola/storage-api-php-client)
 
 Simple PHP wrapper library for [Keboola Storage REST API](http://docs.keboola.apiary.io/)
 
