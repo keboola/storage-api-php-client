@@ -2,7 +2,11 @@
 namespace Keboola\StorageApi;
 
 
-use Keboola\Csv\CsvFile;
+use Guzzle\Http\Message\Request;
+use Guzzle\Http\Message\RequestInterface;
+use Guzzle\Plugin\Log\LogPlugin;
+use Keboola\Csv\CsvFile,
+	Guzzle\Http\Client as GuzzleClient;
 
 class Client
 {
@@ -14,9 +18,6 @@ class Client
 	const PARTIAL_UPDATE = true;
 	const INCREMENTAL_UPDATE = true;
 
-	// Throw an Exception if Storage API returns an error
-	// If false, just return the error response
-	public $translateApiErrors = true;
 
 	// Token string
 	public $token;
@@ -37,6 +38,8 @@ class Client
 
 	// Log anonymous function
 	private static $_log;
+
+	private $_client;
 
 	/**
 	 *
@@ -62,6 +65,10 @@ class Client
 		}
 
 		$this->token = $tokenString;
+		$this->_client = new GuzzleClient($this->getApiUrl());
+		$this->_client->setDefaultHeaders(array(
+			'X-StorageApi-Token' => $tokenString,
+		));
 		$this->verifyToken();
 	}
 
@@ -307,7 +314,7 @@ class Client
 			$filteredOptions['aliasColumns'] = (array) $options['aliasColumns'];
 		}
 
-		$result = $this->_apiPost("/storage/buckets/" . $bucketId . "/table-aliases", http_build_query($filteredOptions));
+		$result = $this->_apiPost("/storage/buckets/" . $bucketId . "/table-aliases", $filteredOptions);
 		$this->_log("Table alias {$result["id"]}  created", array("options" => $filteredOptions, "result" => $result));
 		return $result["id"];
 	}
@@ -319,7 +326,7 @@ class Client
 	 */
 	public function setAliasTableFilter($tableId, array $filter)
 	{
-		$result = $this->_apiPost("/storage/tables/$tableId/alias-filter", http_build_query($filter));
+		$result = $this->_apiPost("/storage/tables/$tableId/alias-filter", $filter);
 		$this->_log("Table $tableId  filter set", array(
 			'filter' => $filter,
 			'result' => $result,
@@ -679,7 +686,7 @@ class Client
 			$options["description"] = $description;
 		}
 
-		$result = $this->_apiPut("/storage/tokens/" . $tokenId, $options);
+		$result = $this->_apiPut("/storage/tokens/" . $tokenId, http_build_query($options));
 
 		$this->_log("Token {$tokenId} updated", array("options" => $options, "result" => $result));
 
@@ -896,43 +903,6 @@ class Client
 
 	/**
 	 *
-	 * Converts JSON to object and detects errors
-	 *
-	 * @param string $jsonString
-	 * @throws ClientException
-	 * @return mixed
-	 */
-	private function _parseResponse($jsonString)
-	{
-		// Detect JSON string
-		if ($jsonString[0] != "{" && $jsonString[0] != "[" ) {
-			return null;
-		};
-		$data = json_decode($jsonString, true);
-		if ($data === null) {
-			return null;
-		}
-		if (is_string($data)) {
-			return $data;
-		}
-		if($this->translateApiErrors && isset($data["error"])) {
-			$stringCode = null;
-			if (isset($data['code'])) {
-				$stringCode = $data['code'];
-			}
-			throw new ClientException($data["error"], null, null, $stringCode);
-		}
-		if($this->translateApiErrors && isset($data["status"]) && $data["status"] == "maintenance") {
-			throw new ClientException($data["reason"], null, null, "MAINTENANCE", $data);
-		}
-		if (count($data) === 1 && isset($data["uri"])) {
-			return $this->_curlGet($data["uri"]);
-		}
-		return $data;
-	}
-
-	/**
-	 *
 	 * Prepare URL and call a GET request
 	 *
 	 * @param string $url
@@ -941,7 +911,54 @@ class Client
 	 */
 	protected function _apiGet($url, $fileName=null)
 	{
-		return $this->_curlGet($this->_constructUrl($url), $fileName);
+		return $this->_request($this->_client->get($this->_constructUrl($url)), $fileName);
+	}
+
+	protected function _request(RequestInterface $request, $fileName = null )
+	{
+		$this->_client->setBaseUrl($this->_apiUrl)
+			->setDefaultHeaders(array(
+				'X-StorageApi-Token' => $this->token,
+				'Accept-Encoding' => 'gzip',
+			));
+		$this->_client->setUserAgent($this->_userAgent);
+		$request->getCurlOptions()->set(CURLOPT_TIMEOUT, $this->getTimeout());
+
+		if ($this->getRunId()) {
+			$request->addHeader('X-KBC-RunId', $this->getRunId());
+		}
+
+//		$this->_client->addSubscriber(LogPlugin::getDebugPlugin());
+
+		$responseFile = null;
+		if ($fileName) {
+			$responseFile = fopen($fileName, "w");
+			if (!$responseFile) {
+				throw new ClientException("Cannot open file {$fileName}");
+			}
+			$request->setResponseBody($responseFile);
+		}
+
+		try {
+			$response = $request->send();
+		} catch (\Guzzle\Http\Exception\BadResponseException $e) {
+			$response = $e->getResponse();
+			$body = $response->json();
+			throw new ClientException($body['error'], $e->getResponse()->getStatusCode(), $e, $body['code'], $body);
+		} catch (\Guzzle\Http\Exception\CurlException $e) {
+			throw new ClientException("Http error: " . $e->getMessage(), null, $e, "HTTP_ERROR");
+		}
+
+		if ($responseFile) {
+			fclose($responseFile);
+			return $response;
+		}
+
+		if ($response->getContentType() == 'application/json') {
+			return $response->json();
+		}
+
+		return $response->getBody();
 	}
 
 	/**
@@ -954,7 +971,7 @@ class Client
 	 */
 	protected function _apiPost($url, $postData=null)
 	{
-		return $this->_curlPost($this->_constructUrl($url), $postData);
+		return $this->_request($this->_client->post($this->_constructUrl($url), null, $postData));
 	}
 
 	/**
@@ -967,7 +984,9 @@ class Client
 	 */
 	protected function _apiPut($url, $postData=null)
 	{
-		return $this->_curlPut($this->_constructUrl($url), $postData);
+		$request = $this->_client->put($this->_constructUrl($url), null, $postData);
+		$request->addHeader('content-type', 'application/x-www-form-urlencoded');
+		return $this->_request($request);
 	}
 
 	/**
@@ -979,266 +998,9 @@ class Client
 	 */
 	protected function _apiDelete($url)
 	{
-		return $this->_curlDelete($this->_constructUrl($url));
+		return $this->_request($this->_client->delete($this->_constructUrl($url)));
 	}
 
-	/**
-	 *
-	 * CURL GET request, may be written to a file
-	 *
-	 * @param string $url
-	 * @param string null $fileName
-	 * @param bool $gzip
-	 * @throws ClientException
-	 * @throws Exception
-	 * @throws \Exception|ClientException
-	 * @return bool|mixed|string
-	 */
-	protected function _curlGet($url, $fileName=null, $gzip = true)
-	{
-		$logData = array("url" => $url);
-		Client::_timer("request");
-
-		$headers = array();
-		$file = null;
-		if ($fileName) {
-
-			$file = fopen($fileName, "w");
-			if (!$file) {
-				throw new ClientException("Cannot open file {$fileName}");
-			}
-			if ($gzip) {
-				$headers[] = "Accept-encoding: gzip";
-			}
-		}
-
-		$ch = $this->_curlSetOpts($headers);
-		curl_setopt($ch, CURLOPT_URL, $url);
-		if (is_resource($file)) {
-			curl_setopt($ch, CURLOPT_FILE, $file);
-		}
-
-		$result = curl_exec($ch);
-		$curlError = curl_error($ch);
-		$curlErrNo = curl_errno($ch);
-		curl_close($ch);
-
-		if ($curlErrNo) {
-			throw new Exception($curlError, $curlErrNo, null, "CURL_ERROR");
-		}
-
-		if ($fileName) {
-			fclose($file);
-			// Read the first line from the file, as it might contain errors
-			$file = fopen($fileName, "r");
-			$result = fgets($file, 1024);
-			fclose($file);
-		}
-
-		$logData["requestTime"] = Client::_timer("request");
-
-		if (!$result) {
-			$logData["curlError"] = $curlError;
-			$this->_log("GET Request failed", $logData);
-			throw new ClientException("CURL: " . $curlError);
-		}
-
-		$this->_log("GET Request finished", $logData);
-		try {
-			$parsedData = $this->_parseResponse($result);
-
-			// If data cannot be parsed, there might be no error - JSON not parsed
-			if ($parsedData !== null) {
-				return $parsedData;
-			}
-
-			if (!$fileName) {
-				return $result;
-			}
-
-			if ($gzip) {
-				$this->_ungzipFile($fileName);
-			}
-
-			return true;
-		} catch (ClientException $e) {
-			$errData = array(
-				"error" => $e->getMessage(),
-				"url" => $url
-			);
-			$this->_log("Error in GET request response", $errData);
-			throw $e;
-		}
-	}
-
-	private function _ungzipFile($fileName)
-	{
-		$suffix = pathinfo($fileName, PATHINFO_EXTENSION);
-		$cmd = 'gzip --d ' . escapeshellarg($fileName) . ' --suffix ' .  '.' . $suffix;
-
-		$expectedFile = pathinfo($fileName, PATHINFO_DIRNAME) . '/' . basename($fileName, '.' . $suffix);
-		if (is_file($expectedFile)) {
-			throw new  ClientException("Cannot unzip file, file $expectedFile alreadyExists");
-		}
-		shell_exec($cmd);
-
-		if (!is_file($expectedFile)) {
-			throw new ClientException('Error on response decode');
-		}
-
-		if (!rename($expectedFile, $fileName)) {
-			throw new ClientException('Error on response decode');
-		}
-
-	}
-
-	/**
-	 *
-	 * CURL POST request
-	 *
-	 * @param string $url
-	 * @param array $postData
-	 * @param string $method
-	 * @throws ClientException
-	 * @throws Exception
-	 * @throws \Exception|ClientException
-	 * @return mixed|string
-	 */
-	protected function _curlPost($url, $postData=null, $method = 'POST') {
-
-		$logData = array("url" => $url, "postData" => $postData);
-		Client::_timer("request");
-
-		$ch = $this->_curlSetOpts();
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
-		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
-		$result = curl_exec($ch);
-		$curlError = curl_error($ch);
-		$curlErrNo = curl_errno($ch);
-		curl_close($ch);
-
-		if ($curlErrNo) {
-			throw new Exception($curlError, $curlErrNo, null, "CURL_ERROR");
-		}
-
-		$logData["requestTime"] = Client::_timer("request");
-
-		if ($result) {
-			$this->_log("POST Request finished", $logData);
-			try{
-				return $this->_parseResponse($result);
-			} catch (ClientException $e) {
-				$errData = array(
-					"error" => $e->getMessage(),
-					"url" => $url,
-					"postData" => $postData
-				);
-				$this->_log("Error in POST request response", $errData);
-				throw $e;
-			}
-		} elseif ($curlError) {
-			$logData["curlError"] = $curlError;
-			$this->_log("POST Request failed", $logData);
-			throw new ClientException("CURL: " . $curlError);
-		}
-	}
-
-	/**
-	 *
-	 * CURL PUT request
-	 *
-	 * @param $url
-	 * @param $postData array
-	 * @throws ClientException
-	 * @return mixed|string
-	 */
-	protected function _curlPut($url, $postData=null)
-	{
-		return $this->_curlPost($url, $postData, 'PUT');
-	}
-
-	/**
-	 *
-	 * CURL DELETE request
-	 *
-	 * @param string $url
-	 * @throws ClientException
-	 * @throws Exception
-	 * @throws \Exception|ClientException
-	 * @return mixed
-	 */
-	protected function _curlDelete($url)
-	{
-		$logData = array("url" => $url);
-		Client::_timer("request");
-
-		$ch = $this->_curlSetOpts();
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
-		$result = curl_exec($ch);
-		$curlError = curl_error($ch);
-		$curlErrNo = curl_errno($ch);
-		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		curl_close($ch);
-
-		if ($curlErrNo) {
-			throw new Exception($curlError, $curlErrNo, null, "CURL_ERROR");
-		}
-
-		$logData["requestTime"] = Client::_timer("request");
-
-		if ($result) {
-			$this->_log("DELETE Request finished", $logData);
-			try{
-				return $this->_parseResponse($result);
-			} catch (ClientException $e) {
-				$errData = array(
-					"error" => $e->getMessage(),
-					"url" => $url
-				);
-				$this->_log("Error in DELETE request response", $errData);
-				throw $e;
-			}
-		} else if ($httpCode == 204) {
-			$this->_log("DELETE Request finished", $logData);
-			return true;
-		} else {
-			$logData["curlError"] = $curlError;
-			$this->_log("POST Request failed", $logData);
-			throw new ClientException("CURL: " . $curlError);
-		}
-	}
-
-	/**
-	 *
-	 * Init cUrl and set common params
-	 *
-	 * @param array $headers
-	 * @return resource
-	 */
-	protected function _curlSetOpts($headers = array())
-	{
-		if ($this->getRunId()) {
-			$headers[] = 'X-KBC-RunId: ' . $this->getRunId();
-		}
-
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-		curl_setopt($ch, CURLOPT_TIMEOUT, $this->getTimeout());
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_HEADER, false);
-		curl_setopt($ch, CURL_HTTP_VERSION_1_1, true);
-		curl_setopt($ch, CURLOPT_HTTPGET, true);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-		curl_setopt($ch, CURLOPT_USERAGENT, $this->_userAgent);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array_merge(array(
-			"Connection: close",
-			"X-StorageApi-Token: {$this->token}",
-		), $headers));
-		return $ch;
-	}
 
 	/**
 	 * @param string $message Message to log
