@@ -1,4 +1,7 @@
 
+## 2.7.3
+ * [Bugfix] cUrl post without data caused Request Entity Too Large error
+
 ## 2.7.2
  * [Feature] Events filtering
 
@@ -11,7 +14,6 @@
  * [BC break] writeTable, createTable methods arguments list switched to options array
  * [BC break] getTableDefinition method removed
  * [Feature] writeTable, createTable - CSV escaped by parameter added
-
 
 ## 2.6.17
  * [Feature] Table export formats: `rfc`, `escaped`, `raw`

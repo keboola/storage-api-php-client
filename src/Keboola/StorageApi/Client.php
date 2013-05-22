@@ -1113,9 +1113,7 @@ class Client
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
 		curl_setopt($ch, CURLOPT_POST, 1);
-		if ($postData) {
-			curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
-		}
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
 		$result = curl_exec($ch);
 		$curlError = curl_error($ch);
 		$curlErrNo = curl_errno($ch);
