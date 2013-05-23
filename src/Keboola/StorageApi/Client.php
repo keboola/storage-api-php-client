@@ -7,6 +7,7 @@ use Guzzle\Http\Message\Request;
 use Guzzle\Http\Message\RequestInterface;
 use Guzzle\Http\Message\Response;
 use Guzzle\Log\ClosureLogAdapter;
+use Guzzle\Log\MessageFormatter;
 use Guzzle\Plugin\Backoff\BackoffLogger;
 use Guzzle\Plugin\Backoff\BackoffPlugin;
 use Guzzle\Plugin\Log\LogPlugin;
@@ -121,7 +122,7 @@ class Client
 
 		$backoffLogger = new BackoffLogger(
 			$logAdapter,
-			'[{ts}] {method} {url} - {code} {phrase} - Retries: {retries}, Delay: {delay}, cURL: {curl_code} {curl_error}'
+			new MessageFormatter('[{ts}] {method} {url} - {code} {phrase} - Retries: {retries}, Delay: {delay}, cURL: {curl_code} {curl_error}')
 		);
 		$this->_client->addSubscriber($backoffLogger);
 	}
