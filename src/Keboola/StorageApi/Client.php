@@ -119,7 +119,10 @@ class Client
 			"HTTP request: [{ts}] \"{method} {resource} {protocol}/{version}\" {code} {res_header_Content-Length}"
 		));
 
-		$backoffLogger = new BackoffLogger($logAdapter);
+		$backoffLogger = new BackoffLogger(
+			$logAdapter,
+			'[{ts}] {method} {url} - {code} {phrase} - Retries: {retries}, Delay: {delay}, cURL: {curl_code} {curl_error}'
+		);
 		$this->_client->addSubscriber($backoffLogger);
 	}
 
