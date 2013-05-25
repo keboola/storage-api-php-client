@@ -40,7 +40,7 @@ class Client
 
 	private $_apiVersion = "v2";
 
-	private $_backoffMaxTries = 7;
+	private $_backoffMaxTries = 9;
 
 	// User agent header send with each API request
 	private $_userAgent = 'Keboola Storage API PHP Client';
@@ -98,7 +98,10 @@ class Client
 
 	protected function _initExponentialBackoff()
 	{
-		$backoffPlugin = BackoffPlugin::getExponentialBackoff($this->_backoffMaxTries);
+		$backoffPlugin = BackoffPlugin::getExponentialBackoff(
+			$this->_backoffMaxTries,
+			array(500) // backoff only on 500 errors
+		);
 		$backoffPlugin->setEventDispatcher($this->_client->getEventDispatcher());
 		$this->_client->addSubscriber($backoffPlugin);
 	}
@@ -1002,6 +1005,11 @@ class Client
 		} catch (\Guzzle\Http\Exception\BadResponseException $e) {
 			$response = $e->getResponse();
 			$body = $response->json();
+
+			if ($response->getStatusCode() == 503) {
+				throw new MaintenanceException($body['reason'], $response->getHeader('Retry-After'));
+			}
+
 			throw new ClientException(
 				isset($body['error']) ? $body['error'] : $e->getMessage(),
 				$e->getResponse()->getStatusCode(),
@@ -1156,21 +1164,6 @@ class Client
 		fclose($tmpFile);
 
 		return $data;
-	}
-
-	/**
-	 * Timer function
-	 *
-	 * @param string null $name
-	 * @return float
-	 */
-	private function _timer($name=null)
-	{
-		static $_time = array();
-		$now = microtime(true);
-		$delta = isset($time[$name]) ? $now-$time[$name] : 0;
-		$time[$name] = $now;
-		return $delta;
 	}
 
 	/**
