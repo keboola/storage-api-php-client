@@ -21,9 +21,8 @@ class Keboola_StorageApi_MaintenanceTest extends StorageApiTestCase
 			$this->assertEquals(503, $e->getCode());
 			$params = $e->getContextParams();
 			$this->assertEquals('maintenance', $params["status"]);
-			$paramsKeys = array_keys($params);
-			$this->assertTrue(in_array("estimatedEndTime", $paramsKeys));
-			$this->assertTrue(in_array("reason", $paramsKeys));
+			$this->assertArrayHasKey('reason', $params);
+			$this->assertArrayHasKey('estimatedEndTime', $params);
 		}
 	}
 }
