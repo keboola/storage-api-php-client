@@ -2,7 +2,18 @@
 namespace Keboola\StorageApi;
 
 
-use Keboola\Csv\CsvFile;
+use Guzzle\Http\Curl\CurlHandle;
+use Guzzle\Http\Message\Request;
+use Guzzle\Http\Message\RequestInterface;
+use Guzzle\Http\Message\Response;
+use Guzzle\Log\ClosureLogAdapter;
+use Guzzle\Log\MessageFormatter;
+use Guzzle\Plugin\Backoff\BackoffLogger;
+use Guzzle\Plugin\Backoff\BackoffPlugin;
+use Guzzle\Plugin\Log\LogPlugin;
+use Guzzle\Tests\Log\ClosureLogAdapterTest;
+use Keboola\Csv\CsvFile,
+	Guzzle\Http\Client as GuzzleClient;
 
 class Client
 {
@@ -14,9 +25,6 @@ class Client
 	const PARTIAL_UPDATE = true;
 	const INCREMENTAL_UPDATE = true;
 
-	// Throw an Exception if Storage API returns an error
-	// If false, just return the error response
-	public $translateApiErrors = true;
 
 	// Token string
 	public $token;
@@ -32,11 +40,18 @@ class Client
 
 	private $_apiVersion = "v2";
 
+	private $_backoffMaxTries = 9;
+
 	// User agent header send with each API request
 	private $_userAgent = 'Keboola Storage API PHP Client';
 
 	// Log anonymous function
 	private static $_log;
+
+	/**
+	 * @var \Guzzle\Http\Client
+	 */
+	private $_client;
 
 	/**
 	 *
@@ -62,7 +77,72 @@ class Client
 		}
 
 		$this->token = $tokenString;
+		$this->_initClient();
+		$this->_initExponentialBackoff();
+		$this->_initLogger();
+
 		$this->verifyToken();
+	}
+
+	protected function _initClient()
+	{
+		$this->_client = new GuzzleClient($this->_getApiBaseUrl(), array(
+			'version' => $this->_apiVersion,
+		));
+	}
+
+	protected function _getApiBaseUrl()
+	{
+		return $this->getApiUrl() . "/{version}";
+	}
+
+	protected function _initExponentialBackoff()
+	{
+		$backoffPlugin = BackoffPlugin::getExponentialBackoff(
+			$this->_backoffMaxTries,
+			array(500) // backoff only on 500 errors
+		);
+		$backoffPlugin->setEventDispatcher($this->_client->getEventDispatcher());
+		$this->_client->addSubscriber($backoffPlugin);
+	}
+
+
+	protected function _initLogger()
+	{
+		$sapiClient = $this;
+		$logAdapter = new ClosureLogAdapter(function($message, $priority, $extras) use ($sapiClient) {
+			$params = array();
+			if (isset($extras['response']) && $extras['response'] instanceof Response) {
+				$params['duration'] = $extras['response']->getInfo('total_time');
+			}
+			$sapiClient->_guzzleLog($message, $params);
+		});
+
+		$this->_client->addSubscriber(new LogPlugin(
+			$logAdapter,
+			"HTTP request: [{ts}] \"{method} {resource} {protocol}/{version}\" {code} {res_header_Content-Length}"
+		));
+
+		$backoffLogger = new BackoffLogger(
+			$logAdapter,
+			new MessageFormatter('[{ts}] {method} {url} - {code} {phrase} - Retries: {retries}, Delay: {delay}, cURL: {curl_code} {curl_error}')
+		);
+		$this->_client->addSubscriber($backoffLogger);
+	}
+
+	/**
+	 * Call private method from closure hack
+	 * @param $method
+	 * @param $args
+	 * @return mixed
+	 * @throws \BadMethodCallException
+	 */
+	public function __call($method, $args) {
+
+		if ($method == '_guzzleLog') {
+			return call_user_func_array(array($this, '_log'), $args);
+		}
+		throw new \BadMethodCallException('Unknown method: ' . $method);
 	}
 
 	/**
@@ -105,7 +185,7 @@ class Client
 	 */
 	public function listBuckets()
 	{
-		return $this->_apiGet("/storage/buckets");
+		return $this->_apiGet("storage/buckets");
 	}
 
 	/**
@@ -136,7 +216,7 @@ class Client
 	 */
 	public function getBucket($bucketId)
 	{
-		return $this->_apiGet("/storage/buckets/" . $bucketId);
+		return $this->_apiGet("storage/buckets/" . $bucketId);
 	}
 
 	/**
@@ -162,7 +242,7 @@ class Client
 			return $bucketId;
 		}
 
-		$result = $this->_apiPost("/storage/buckets", $options);
+		$result = $this->_apiPost("storage/buckets", $options);
 
 		$this->_log("Bucket {$result["id"]} created", array("options" => $options, "result" => $result));
 
@@ -178,7 +258,7 @@ class Client
 	 */
 	public function dropBucket($bucketId)
 	{
-		return $this->_apiDelete("/storage/buckets/" . $bucketId);
+		return $this->_apiDelete("storage/buckets/" . $bucketId);
 	}
 
 	/**
@@ -198,7 +278,7 @@ class Client
 		if ($protected !== null) {
 			$data['protected'] = (bool) $protected;
 		}
-		$this->_apiPost("/storage/buckets/$bucketId/attributes/$key", $data);
+		$this->_apiPost("storage/buckets/$bucketId/attributes/$key", $data);
 	}
 
 	/**
@@ -211,7 +291,7 @@ class Client
 	 */
 	public function deleteBucketAttribute($bucketId, $key)
 	{
-		$result = $this->_apiDelete("/storage/buckets/$bucketId/attributes/$key");
+		$result = $this->_apiDelete("storage/buckets/$bucketId/attributes/$key");
 		$this->_log("Bucket $bucketId attribute $key deleted");
 		return $result;
 	}
@@ -269,7 +349,7 @@ class Client
 		if ($tableId) {
 			return $tableId;
 		}
-		$result = $this->_apiPost("/storage/buckets/" . $bucketId . "/tables", $options);
+		$result = $this->_apiPost("storage/buckets/" . $bucketId . "/tables", $options);
 
 		$this->_log("Table {$result["id"]} created", array("options" => $options, "result" => $result));
 
@@ -307,7 +387,7 @@ class Client
 			$filteredOptions['aliasColumns'] = (array) $options['aliasColumns'];
 		}
 
-		$result = $this->_apiPost("/storage/buckets/" . $bucketId . "/table-aliases", http_build_query($filteredOptions));
+		$result = $this->_apiPost("storage/buckets/" . $bucketId . "/table-aliases", $filteredOptions);
 		$this->_log("Table alias {$result["id"]}  created", array("options" => $filteredOptions, "result" => $result));
 		return $result["id"];
 	}
@@ -319,7 +399,7 @@ class Client
 	 */
 	public function setAliasTableFilter($tableId, array $filter)
 	{
-		$result = $this->_apiPost("/storage/tables/$tableId/alias-filter", http_build_query($filter));
+		$result = $this->_apiPost("storage/tables/$tableId/alias-filter", $filter);
 		$this->_log("Table $tableId  filter set", array(
 			'filter' => $filter,
 			'result' => $result,
@@ -329,7 +409,7 @@ class Client
 
 	public function removeAliasTableFilter($tableId)
 	{
-		$this->_apiDelete("/storage/tables/$tableId/alias-filter");
+		$this->_apiDelete("storage/tables/$tableId/alias-filter");
 	}
 
 	/**
@@ -337,7 +417,7 @@ class Client
 	 */
 	public function enableAliasTableColumnsAutoSync($tableId)
 	{
-		$this->_apiPost("/storage/tables/{$tableId}/alias-columns-auto-sync");
+		$this->_apiPost("storage/tables/{$tableId}/alias-columns-auto-sync");
 	}
 
 	/**
@@ -345,7 +425,7 @@ class Client
 	 */
 	public function disableAliasTableColumnsAutoSync($tableId)
 	{
-		$this->_apiDelete("/storage/tables/{$tableId}/alias-columns-auto-sync");
+		$this->_apiDelete("storage/tables/{$tableId}/alias-columns-auto-sync");
 	}
 
 	/**
@@ -358,9 +438,9 @@ class Client
 	public function listTables($bucketId=null)
 	{
 		if ($bucketId) {
-			return $this->_apiGet("/storage/buckets/{$bucketId}/tables");
+			return $this->_apiGet("storage/buckets/{$bucketId}/tables");
 		}
-		return $this->_apiGet("/storage/tables");
+		return $this->_apiGet("storage/tables");
 	}
 
 	/**
@@ -411,7 +491,7 @@ class Client
 			$options["data"] = "@{$csvFile->getPathname()}";
 		}
 
-		$result = $this->_apiPost("/storage/tables/{$tableId}/import" , $options);
+		$result = $this->_apiPost("storage/tables/{$tableId}/import" , $options);
 
 		$this->_log("Data written to table {$tableId}", array("options" => $options, "result" => $result));
 
@@ -427,7 +507,7 @@ class Client
 	 */
 	public function getTable($tableId)
 	{
-		return $this->_apiGet("/storage/tables/" . $tableId);
+		return $this->_apiGet("storage/tables/" . $tableId);
 	}
 
 	/**
@@ -439,7 +519,7 @@ class Client
 	 */
 	public function dropTable($tableId)
 	{
-		$result = $this->_apiDelete("/storage/tables/" . $tableId);
+		$result = $this->_apiDelete("storage/tables/" . $tableId);
 		$this->_log("Table {$tableId} deleted");
 		return $result;
 	}
@@ -451,7 +531,7 @@ class Client
 	 */
 	public function unlinkTable($tableId)
 	{
-		$result = $this->_apiDelete("/storage/tables/" . $tableId . '?unlink');
+		$result = $this->_apiDelete("storage/tables/" . $tableId . '?unlink');
 		$this->_log("Table {$tableId} unlinked");
 		return $result;
 	}
@@ -473,7 +553,7 @@ class Client
 		if ($protected !== null) {
 			$data['protected'] = (bool) $protected;
 		}
-		$this->_apiPost("/storage/tables/$tableId/attributes/$key", $data);
+		$this->_apiPost("storage/tables/$tableId/attributes/$key", $data);
 	}
 
 	/**
@@ -486,7 +566,7 @@ class Client
 	 */
 	public function deleteTableAttribute($tableId, $key)
 	{
-		$result = $this->_apiDelete("/storage/tables/$tableId/attributes/$key");
+		$result = $this->_apiDelete("storage/tables/$tableId/attributes/$key");
 		$this->_log("Table $tableId attribute $key deleted");
 		return $result;
 	}
@@ -503,7 +583,7 @@ class Client
 		$data = array(
 			'name' => $name,
 		);
-		$this->_apiPost("/storage/tables/$tableId/columns", $data);
+		$this->_apiPost("storage/tables/$tableId/columns", $data);
 	}
 
 
@@ -517,7 +597,7 @@ class Client
 	 */
 	public function deleteTableColumn($tableId, $name)
 	{
-		$this->_apiDelete("/storage/tables/$tableId/columns/$name");
+		$this->_apiDelete("storage/tables/$tableId/columns/$name");
 		$this->_log("Table $tableId column $name deleted");
 	}
 
@@ -533,7 +613,7 @@ class Client
 		$data = array(
 			'name' => $columnName,
 		);
-		$this->_apiPost("/storage/tables/$tableId/indexed-columns", $data);
+		$this->_apiPost("storage/tables/$tableId/indexed-columns", $data);
 	}
 
 
@@ -547,7 +627,7 @@ class Client
 	 */
 	public function removeTableColumnFromIndexed($tableId, $columnName)
 	{
-		$this->_apiDelete("/storage/tables/$tableId/indexed-columns/$columnName");
+		$this->_apiDelete("storage/tables/$tableId/indexed-columns/$columnName");
 		$this->_log("Table $tableId indexed column $columnName deleted");
 	}
 
@@ -578,7 +658,7 @@ class Client
 	 */
 	public function listTokens()
 	{
-		return $this->_apiGet("/storage/tokens");
+		return $this->_apiGet("storage/tokens");
 	}
 
 	/**
@@ -590,7 +670,7 @@ class Client
 	 */
 	public function getToken($tokenId)
 	{
-		return $this->_apiGet("/storage/tokens/" . $tokenId);
+		return $this->_apiGet("storage/tokens/" . $tokenId);
 	}
 
 	/**
@@ -612,7 +692,7 @@ class Client
 	 */
 	public function verifyToken()
 	{
-		$tokenObj = $this->_apiGet("/storage/tokens/verify");
+		$tokenObj = $this->_apiGet("storage/tokens/verify");
 
 		$this->_tokenObj = $tokenObj;
 		$this->_log("Token verified");
@@ -652,7 +732,7 @@ class Client
 		}
 		$options['canReadAllFileUploads'] = (bool) $canReadAllFileUploads;
 
-		$result = $this->_apiPost("/storage/tokens", $options);
+		$result = $this->_apiPost("storage/tokens", $options);
 
 		$this->_log("Token {$result["id"]} created", array("options" => $options, "result" => $result));
 
@@ -679,7 +759,7 @@ class Client
 			$options["description"] = $description;
 		}
 
-		$result = $this->_apiPut("/storage/tokens/" . $tokenId, $options);
+		$result = $this->_apiPut("storage/tokens/" . $tokenId, http_build_query($options));
 
 		$this->_log("Token {$tokenId} updated", array("options" => $options, "result" => $result));
 
@@ -692,7 +772,7 @@ class Client
 	 */
 	public function dropToken($tokenId)
 	{
-		$result = $this->_apiDelete("/storage/tokens/" . $tokenId);
+		$result = $this->_apiDelete("storage/tokens/" . $tokenId);
 		$this->_log("Token {$tokenId} deleted");
 		return $result;
 	}
@@ -711,7 +791,7 @@ class Client
 			$tokenId = $currentToken["id"];
 		}
 
-		$result = $this->_apiPost("/storage/tokens/" . $tokenId . "/refresh");
+		$result = $this->_apiPost("storage/tokens/" . $tokenId . "/refresh");
 
 		if ($currentToken["id"] == $result["id"]) {
 			$this->token = $result['token'];
@@ -734,7 +814,7 @@ class Client
 	 */
 	public function getGdXmlConfig($tableId, $fileName=null)
 	{
-		return $this->_apiGet("/storage/tables/{$tableId}/gooddata-xml", null, $fileName);
+		return $this->_apiGet("storage/tables/{$tableId}/gooddata-xml", null, $fileName);
 	}
 
 	/**
@@ -745,7 +825,7 @@ class Client
 	 */
 	public function exportTable($tableId, $fileName = null, $options = array())
 	{
-		$url = "/storage/tables/{$tableId}/export";
+		$url = "storage/tables/{$tableId}/export";
 
 		$allowedOptions = array(
 			'limit',
@@ -789,7 +869,7 @@ class Client
 			"isPublic" => $isPublic,
 		);
 
-		$result = $this->_apiPost("/storage/files/", $options);
+		$result = $this->_apiPost("storage/files/", $options);
 
 		$this->_log("File {$fileName} uploaded ", array("options" => $options, "result" => $result));
 
@@ -803,7 +883,7 @@ class Client
 	 */
 	public function getFile($fileId)
 	{
-		return $this->_apiGet('/storage/files/' . $fileId);
+		return $this->_apiGet('storage/files/' . $fileId);
 	}
 
 	/**
@@ -811,7 +891,7 @@ class Client
 	 */
 	public function listFiles()
 	{
-		return $this->_apiGet('/storage/files');
+		return $this->_apiGet('storage/files');
 	}
 
 
@@ -822,7 +902,7 @@ class Client
 	 */
 	public function createEvent(Event $event)
 	{
-		$result = $this->_apiPost('/storage/events', array(
+		$result = $this->_apiPost('storage/events', array(
 			'component' => $event->getComponent(),
 			'configurationId' => $event->getConfigurationId(),
 			'runId' => $event->getRunId(),
@@ -842,7 +922,7 @@ class Client
 	 */
 	public function getEvent($id)
 	{
-		return $this->_apiGet('/storage/events/' . $id);
+		return $this->_apiGet('storage/events/' . $id);
 	}
 
 	/**
@@ -869,7 +949,7 @@ class Client
 		}
 
 		$queryParams = array_merge($defaultParams, $params);
-		return $this->_apiGet('/storage/events?' . http_build_query($queryParams));
+		return $this->_apiGet('storage/events?' . http_build_query($queryParams));
 	}
 
 	/**
@@ -878,57 +958,8 @@ class Client
 	 */
 	public function generateId()
 	{
-		$result = $this->_apiPost('/storage/tickets');
+		$result = $this->_apiPost('storage/tickets');
 		return $result['id'];
-	}
-
-	/**
-	 *
-	 * Generates URL for api call
-	 *
-	 * @param string $url
-	 * @return string
-	 */
-	private function _constructUrl($url)
-	{
-		return $this->_apiUrl . '/' . $this->_apiVersion . $url;
-	}
-
-	/**
-	 *
-	 * Converts JSON to object and detects errors
-	 *
-	 * @param string $jsonString
-	 * @throws ClientException
-	 * @return mixed
-	 */
-	private function _parseResponse($jsonString)
-	{
-		// Detect JSON string
-		if ($jsonString[0] != "{" && $jsonString[0] != "[" ) {
-			return null;
-		};
-		$data = json_decode($jsonString, true);
-		if ($data === null) {
-			return null;
-		}
-		if (is_string($data)) {
-			return $data;
-		}
-		if($this->translateApiErrors && isset($data["error"])) {
-			$stringCode = null;
-			if (isset($data['code'])) {
-				$stringCode = $data['code'];
-			}
-			throw new ClientException($data["error"], null, null, $stringCode);
-		}
-		if($this->translateApiErrors && isset($data["status"]) && $data["status"] == "maintenance") {
-			throw new ClientException($data["reason"], null, null, "MAINTENANCE", $data);
-		}
-		if (count($data) === 1 && isset($data["uri"])) {
-			return $this->_curlGet($data["uri"]);
-		}
-		return $data;
 	}
 
 	/**
@@ -941,7 +972,65 @@ class Client
 	 */
 	protected function _apiGet($url, $fileName=null)
 	{
-		return $this->_curlGet($this->_constructUrl($url), $fileName);
+		return $this->_request($this->_client->get($url), $fileName);
+	}
+
+	protected function _request(RequestInterface $request, $responseFileName = null )
+	{
+		$this->_client
+			->setUserAgent($this->_userAgent)
+			->setBaseUrl($this->_getApiBaseUrl());
+
+		$request->getCurlOptions()->set(CURLOPT_TIMEOUT, $this->getTimeout());
+		$request->addHeaders(array(
+			'X-StorageApi-Token' => $this->token,
+			'Accept-Encoding' => 'gzip',
+		));
+
+		if ($this->getRunId()) {
+			$request->addHeader('X-KBC-RunId', $this->getRunId());
+		}
+
+		$responseFile = null;
+		if ($responseFileName) {
+			$responseFile = fopen($responseFileName, "w");
+			if (!$responseFile) {
+				throw new ClientException("Cannot open file {$responseFileName}");
+			}
+			$request->setResponseBody($responseFile);
+		}
+
+		try {
+			$response = $request->send();
+		} catch (\Guzzle\Http\Exception\BadResponseException $e) {
+			$response = $e->getResponse();
+			$body = $response->json();
+
+			if ($response->getStatusCode() == 503) {
+				throw new MaintenanceException($body['reason'], $response->getHeader('Retry-After', true), $body);
+			}
+
+			throw new ClientException(
+				isset($body['error']) ? $body['error'] : $e->getMessage(),
+				$e->getResponse()->getStatusCode(),
+				$e,
+				isset($body['code']) ? $body['code'] : "",
+				$body
+			);
+		} catch (\Guzzle\Http\Exception\CurlException $e) {
+			throw new ClientException("Http error: " . $e->getMessage(), null, $e, "HTTP_ERROR");
+		}
+
+		if ($responseFile) {
+			fclose($responseFile);
+			return "";
+		}
+
+		if ($response->getContentType() == 'application/json') {
+			return $response->json();
+		}
+
+		return (string) $response->getBody();
 	}
 
 	/**
@@ -954,7 +1043,7 @@ class Client
 	 */
 	protected function _apiPost($url, $postData=null)
 	{
-		return $this->_curlPost($this->_constructUrl($url), $postData);
+		return $this->_request($this->_client->post($url, null, $postData));
 	}
 
 	/**
@@ -967,7 +1056,9 @@ class Client
 	 */
 	protected function _apiPut($url, $postData=null)
 	{
-		return $this->_curlPut($this->_constructUrl($url), $postData);
+		$request = $this->_client->put($url, null, $postData);
+		$request->addHeader('content-type', 'application/x-www-form-urlencoded');
+		return $this->_request($request);
 	}
 
 	/**
@@ -979,266 +1070,9 @@ class Client
 	 */
 	protected function _apiDelete($url)
 	{
-		return $this->_curlDelete($this->_constructUrl($url));
+		return $this->_request($this->_client->delete($url));
 	}
 
-	/**
-	 *
-	 * CURL GET request, may be written to a file
-	 *
-	 * @param string $url
-	 * @param string null $fileName
-	 * @param bool $gzip
-	 * @throws ClientException
-	 * @throws Exception
-	 * @throws \Exception|ClientException
-	 * @return bool|mixed|string
-	 */
-	protected function _curlGet($url, $fileName=null, $gzip = true)
-	{
-		$logData = array("url" => $url);
-		Client::_timer("request");
-
-		$headers = array();
-		$file = null;
-		if ($fileName) {
-
-			$file = fopen($fileName, "w");
-			if (!$file) {
-				throw new ClientException("Cannot open file {$fileName}");
-			}
-			if ($gzip) {
-				$headers[] = "Accept-encoding: gzip";
-			}
-		}
-
-		$ch = $this->_curlSetOpts($headers);
-		curl_setopt($ch, CURLOPT_URL, $url);
-		if (is_resource($file)) {
-			curl_setopt($ch, CURLOPT_FILE, $file);
-		}
-
-		$result = curl_exec($ch);
-		$curlError = curl_error($ch);
-		$curlErrNo = curl_errno($ch);
-		curl_close($ch);
-
-		if ($curlErrNo) {
-			throw new Exception($curlError, $curlErrNo, null, "CURL_ERROR");
-		}
-
-		if ($fileName) {
-			fclose($file);
-			// Read the first line from the file, as it might contain errors
-			$file = fopen($fileName, "r");
-			$result = fgets($file, 1024);
-			fclose($file);
-		}
-
-		$logData["requestTime"] = Client::_timer("request");
-
-		if (!$result) {
-			$logData["curlError"] = $curlError;
-			$this->_log("GET Request failed", $logData);
-			throw new ClientException("CURL: " . $curlError);
-		}
-
-		$this->_log("GET Request finished", $logData);
-		try {
-			$parsedData = $this->_parseResponse($result);
-
-			// If data cannot be parsed, there might be no error - JSON not parsed
-			if ($parsedData !== null) {
-				return $parsedData;
-			}
-
-			if (!$fileName) {
-				return $result;
-			}
-
-			if ($gzip) {
-				$this->_ungzipFile($fileName);
-			}
-
-			return true;
-		} catch (ClientException $e) {
-			$errData = array(
-				"error" => $e->getMessage(),
-				"url" => $url
-			);
-			$this->_log("Error in GET request response", $errData);
-			throw $e;
-		}
-	}
-
-	private function _ungzipFile($fileName)
-	{
-		$suffix = pathinfo($fileName, PATHINFO_EXTENSION);
-		$cmd = 'gzip --d ' . escapeshellarg($fileName) . ' --suffix ' .  '.' . $suffix;
-
-		$expectedFile = pathinfo($fileName, PATHINFO_DIRNAME) . '/' . basename($fileName, '.' . $suffix);
-		if (is_file($expectedFile)) {
-			throw new  ClientException("Cannot unzip file, file $expectedFile alreadyExists");
-		}
-		shell_exec($cmd);
-
-		if (!is_file($expectedFile)) {
-			throw new ClientException('Error on response decode');
-		}
-
-		if (!rename($expectedFile, $fileName)) {
-			throw new ClientException('Error on response decode');
-		}
-
-	}
-
-	/**
-	 *
-	 * CURL POST request
-	 *
-	 * @param string $url
-	 * @param array $postData
-	 * @param string $method
-	 * @throws ClientException
-	 * @throws Exception
-	 * @throws \Exception|ClientException
-	 * @return mixed|string
-	 */
-	protected function _curlPost($url, $postData=null, $method = 'POST') {
-
-		$logData = array("url" => $url, "postData" => $postData);
-		Client::_timer("request");
-
-		$ch = $this->_curlSetOpts();
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
-		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
-		$result = curl_exec($ch);
-		$curlError = curl_error($ch);
-		$curlErrNo = curl_errno($ch);
-		curl_close($ch);
-
-		if ($curlErrNo) {
-			throw new Exception($curlError, $curlErrNo, null, "CURL_ERROR");
-		}
-
-		$logData["requestTime"] = Client::_timer("request");
-
-		if ($result) {
-			$this->_log("POST Request finished", $logData);
-			try{
-				return $this->_parseResponse($result);
-			} catch (ClientException $e) {
-				$errData = array(
-					"error" => $e->getMessage(),
-					"url" => $url,
-					"postData" => $postData
-				);
-				$this->_log("Error in POST request response", $errData);
-				throw $e;
-			}
-		} elseif ($curlError) {
-			$logData["curlError"] = $curlError;
-			$this->_log("POST Request failed", $logData);
-			throw new ClientException("CURL: " . $curlError);
-		}
-	}
-
-	/**
-	 *
-	 * CURL PUT request
-	 *
-	 * @param $url
-	 * @param $postData array
-	 * @throws ClientException
-	 * @return mixed|string
-	 */
-	protected function _curlPut($url, $postData=null)
-	{
-		return $this->_curlPost($url, $postData, 'PUT');
-	}
-
-	/**
-	 *
-	 * CURL DELETE request
-	 *
-	 * @param string $url
-	 * @throws ClientException
-	 * @throws Exception
-	 * @throws \Exception|ClientException
-	 * @return mixed
-	 */
-	protected function _curlDelete($url)
-	{
-		$logData = array("url" => $url);
-		Client::_timer("request");
-
-		$ch = $this->_curlSetOpts();
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
-		$result = curl_exec($ch);
-		$curlError = curl_error($ch);
-		$curlErrNo = curl_errno($ch);
-		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		curl_close($ch);
-
-		if ($curlErrNo) {
-			throw new Exception($curlError, $curlErrNo, null, "CURL_ERROR");
-		}
-
-		$logData["requestTime"] = Client::_timer("request");
-
-		if ($result) {
-			$this->_log("DELETE Request finished", $logData);
-			try{
-				return $this->_parseResponse($result);
-			} catch (ClientException $e) {
-				$errData = array(
-					"error" => $e->getMessage(),
-					"url" => $url
-				);
-				$this->_log("Error in DELETE request response", $errData);
-				throw $e;
-			}
-		} else if ($httpCode == 204) {
-			$this->_log("DELETE Request finished", $logData);
-			return true;
-		} else {
-			$logData["curlError"] = $curlError;
-			$this->_log("POST Request failed", $logData);
-			throw new ClientException("CURL: " . $curlError);
-		}
-	}
-
-	/**
-	 *
-	 * Init cUrl and set common params
-	 *
-	 * @param array $headers
-	 * @return resource
-	 */
-	protected function _curlSetOpts($headers = array())
-	{
-		if ($this->getRunId()) {
-			$headers[] = 'X-KBC-RunId: ' . $this->getRunId();
-		}
-
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-		curl_setopt($ch, CURLOPT_TIMEOUT, $this->getTimeout());
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_HEADER, false);
-		curl_setopt($ch, CURL_HTTP_VERSION_1_1, true);
-		curl_setopt($ch, CURLOPT_HTTPGET, true);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-		curl_setopt($ch, CURLOPT_USERAGENT, $this->_userAgent);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array_merge(array(
-			"Connection: close",
-			"X-StorageApi-Token: {$this->token}",
-		), $headers));
-		return $ch;
-	}
 
 	/**
 	 * @param string $message Message to log
@@ -1253,6 +1087,8 @@ class Client
 			call_user_func(Client::$_log, $message, $data);
 		}
 	}
+
+
 
 	/**
 	 *
@@ -1328,21 +1164,6 @@ class Client
 		fclose($tmpFile);
 
 		return $data;
-	}
-
-	/**
-	 * Timer function
-	 *
-	 * @param string null $name
-	 * @return float
-	 */
-	private function _timer($name=null)
-	{
-		static $_time = array();
-		$now = microtime(true);
-		$delta = isset($time[$name]) ? $now-$time[$name] : 0;
-		$time[$name] = $now;
-		return $delta;
 	}
 
 	/**

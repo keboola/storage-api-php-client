@@ -61,7 +61,7 @@ class Keboola_StorageApi_BucketsTest extends StorageApiTestCase
 		$this->_client->setBucketAttribute($bucketId, 'something', 'lala');
 		$this->_client->setBucketAttribute($bucketId, 'other', 'hello', true);
 		$bucket = $this->_client->getBucket($bucketId);
-		$this->assertArrayEqualsSorted($bucket['attributes'], array(
+		$this->assertArrayEqualsSorted(array(
 				array(
 					'name' => 'something',
 					'value' => 'lala',
@@ -72,7 +72,7 @@ class Keboola_StorageApi_BucketsTest extends StorageApiTestCase
 					'value' => 'hello',
 					'protected' => true,
 				),
-			), 'name', 'attribute set');
+			), $bucket['attributes'], 'name', 'attribute set');
 
 		// update
 		$this->_client->setBucketAttribute($bucketId, 'something', 'papa');
