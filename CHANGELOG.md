@@ -2,6 +2,7 @@
  * [BC-BREAK] translateApiErrors toggle removed - Client exception is thrown always from now
  * [Feature] SSL certificate validation
  * [Feature] Exponential backoff for curl errors and HTTP 5OO errors
+ * [Feature] All HTTP requests gziped
  * [Refactoring] HTTP access migrated from raw curl to Guzzle
 
 
