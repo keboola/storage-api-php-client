@@ -1,3 +1,8 @@
+## 2.8.0
+ * [BC-BREAK] translateApiErrors toggle removed - Client exception is thrown always from now
+ * [Feature] Exponential backoff for curl errors and HTTP 5OO errors
+ * [Refactoring] HTTP access migrated from raw curl to Guzzle
+
 
 ## 2.7.3
  * [Bugfix] cUrl post without data caused Request Entity Too Large error
