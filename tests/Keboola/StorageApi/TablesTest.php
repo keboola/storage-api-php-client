@@ -177,6 +177,21 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		);
 	}
 
+	public function testInvalidExportFormat()
+	{
+		$importFile =  __DIR__ . '/_data/languages.csv';
+		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', new CsvFile($importFile));
+
+		try {
+			$this->_client->exportTable($tableId, null, array(
+				'format' => 'csv',
+			));
+			$this->fail('Should throw exception');
+		} catch(\Keboola\StorageApi\Exception $e) {
+			$this->assertEquals('storage.tables.validation.invalidFormat', $e->getStringCode());
+		}
+	}
+
 	public function testTableColumnAdd()
 	{
 		$importFile =  __DIR__ . '/_data/languages.csv';
