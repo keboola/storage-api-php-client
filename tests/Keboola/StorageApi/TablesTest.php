@@ -177,6 +177,27 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		);
 	}
 
+	public function testPartialImport()
+	{
+		$tableId = $this->_client->createTable(
+			$this->_inBucketId, 'users',
+			new CsvFile(__DIR__ . '/_data/users.csv'),
+			array(
+				'primaryKey' => 'id',
+			)
+		);
+
+		$this->_client->writeTable($tableId, new CsvFile(__DIR__ . '/_data/users-partial.csv'), array(
+			'incremental' => true,
+			'partial' => true,
+		));
+
+		$expectedData = Client::parseCsv(file_get_contents(__DIR__ . '/_data/users-partial-expected.csv'), false);
+		$parsedData = Client::parseCsv($this->_client->exportTable($tableId), false);
+
+		$this->assertEquals($expectedData, $parsedData);
+	}
+
 	public function testInvalidExportFormat()
 	{
 		$importFile =  __DIR__ . '/_data/languages.csv';
