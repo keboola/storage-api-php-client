@@ -1,10 +1,12 @@
+## 2.8.1
+ * [Bugfix] Guzzle version fixed to 3.6.0. + upgrade related issues
+
 ## 2.8.0
  * [BC break] translateApiErrors toggle removed - Client exception is thrown always from now
  * [Feature] SSL certificate validation
  * [Feature] Exponential backoff for curl errors and HTTP 500 errors
  * [Feature] All HTTP requests gzipped
  * [Refactoring] HTTP access migrated from raw curl to Guzzle
-
 
 ## 2.7.3
  * [Bugfix] cUrl post without data caused Request Entity Too Large error
