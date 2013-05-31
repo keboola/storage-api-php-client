@@ -3,6 +3,7 @@ namespace Keboola\StorageApi;
 
 
 use Guzzle\Http\Curl\CurlHandle;
+use Guzzle\Http\Exception\RequestException;
 use Guzzle\Http\Message\Request;
 use Guzzle\Http\Message\RequestInterface;
 use Guzzle\Http\Message\Response;
@@ -861,17 +862,32 @@ class Client
 	 * @param bool $isPublic
 	 * @return mixed|string
 	 */
-	public function uploadFile($fileName, $isPublic = false)
+	public function uploadFile($fileName, $isPublic = false, $notify = true)
 	{
-		// TODO Gzip data
-		$options = array(
-			"file" => "@" . $fileName,
-			"isPublic" => $isPublic,
-		);
+		// 1. prepare resource
+		$result = $this->_apiPost("storage/files/prepare", array(
+			'isPublic' => $isPublic,
+			'notify' => $notify,
+			'name' => basename($fileName),
+		));
 
-		$result = $this->_apiPost("storage/files/", $options);
+		// 2. upload directly do S3 using returned credentials
+		$uploadParams = $result['uploadParams'];
+		$client = new GuzzleClient($uploadParams['url']);
+		$client->addSubscriber(BackoffPlugin::getExponentialBackoff());
 
-		$this->_log("File {$fileName} uploaded ", array("options" => $options, "result" => $result));
+		try {
+			$client->post('/', null, array(
+				'key' => $uploadParams['key'],
+				'acl' => $uploadParams['acl'],
+				'signature' => $uploadParams['signature'],
+				'policy' => $uploadParams['policy'],
+				'AWSAccessKeyId' => $uploadParams['AWSAccessKeyId'],
+				'file' => "@$fileName",
+			))->send();
+		} catch(RequestException $e) {
+			throw new ClientException("Error on file upload to S3: " . $e->getMessage(), $e->getCode(), $e);
+		}
 
 		return $result['id'];
 	}

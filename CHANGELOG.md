@@ -1,3 +1,6 @@
+## 2.8.2
+ * [Refactoring] File uploads directly to S3 (http://docs.keboola.apiary.io/#post-%2Fv2%2Fstorage%2Ffiles%2Fprepare)
+
 ## 2.8.1
  * [Bugfix] Guzzle version fixed to 3.6.0. + upgrade related issues
 
