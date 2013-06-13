@@ -177,6 +177,17 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		);
 	}
 
+	public function testTableAsyncImport()
+	{
+		$importFile = new CsvFile(__DIR__ . '/_data/languages.csv');
+		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $importFile);
+		$result = $this->_client->writeTableAsync($tableId, $importFile, array(
+			'incremental' => true,
+		));
+
+		$this->assertEquals('success', $result['status']);
+	}
+
 	public function testPartialImport()
 	{
 		$tableId = $this->_client->createTable(

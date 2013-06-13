@@ -476,15 +476,7 @@ class Client
 	public function writeTable($tableId, CsvFile $csvFile,  $options = array())
 	{
 		// TODO Gzip data
-		$options = array(
-			"tableId" => $tableId,
-			"delimiter" => $csvFile->getDelimiter(),
-			"enclosure" => $csvFile->getEnclosure(),
-			"escapedBy" => $csvFile->getEscapedBy(),
-			"transaction" => isset($options['transaction']) ? $options['transaction'] : null,
-			"incremental" => isset($options['incremental']) ? (bool) $options['incremental'] : false,
-			"partial" => isset($options['partial']) ? (bool) $options['partial'] : false,
-		);
+		$options = $this->_writeTableOptionsPrepare($csvFile, $options);
 
 		if ($this->_isUrl($csvFile->getPathname())) {
 			$options["dataUrl"] = $csvFile->getPathname();
@@ -497,6 +489,59 @@ class Client
 		$this->_log("Data written to table {$tableId}", array("options" => $options, "result" => $result));
 
 		return $result;
+	}
+
+	/**
+	 * Write data into table asynchronously and wait for result
+	 * @param $tableId
+	 * @param CsvFile $csvFile
+	 * @param array $options
+	 * @return mixed|string
+	 */
+	public function writeTableAsync($tableId, CsvFile $csvFile, $options = array())
+	{
+		$options = $this->_writeTableOptionsPrepare($csvFile, $options);
+
+		if ($this->_isUrl($csvFile->getPathname())) {
+			$options['dataUrl'] = $csvFile->getPathname();
+		} else {
+			// upload file
+			$fileId = $this->uploadFile($csvFile->getPathname(), false, false);
+			$options['dataFileId'] = $fileId;
+		}
+
+		$job = $this->_apiPost("storage/tables/{$tableId}/import-async", $options);
+
+		$maxEndTime = time() + $this->getTimeout();
+		$maxWaitPeriod = 60;
+		$retries = 0;
+
+		// poll for status
+		do {
+			$job = $this->getJob($job['id']);
+
+			if (time() >= $maxEndTime) {
+				throw new ClientException("Poll timeout");
+			}
+
+			$waitSeconds = min(pow(2, $retries), $maxWaitPeriod);
+			sleep($waitSeconds);
+			$retries++;
+		} while(!in_array($job['status'], array('success', 'error')));
+		return $job;
+	}
+
+
+	private function _writeTableOptionsPrepare(CsvFile $csvFile, $options)
+	{
+		return array(
+			"delimiter" => $csvFile->getDelimiter(),
+			"enclosure" => $csvFile->getEnclosure(),
+			"escapedBy" => $csvFile->getEscapedBy(),
+			"transaction" => isset($options['transaction']) ? $options['transaction'] : null,
+			"incremental" => isset($options['incremental']) ? (bool) $options['incremental'] : false,
+			"partial" => isset($options['partial']) ? (bool) $options['partial'] : false,
+		);
 	}
 
 	/**
@@ -649,6 +694,15 @@ class Client
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * @param $jobId
+	 * @return mixed|string
+	 */
+	public function getJob($jobId)
+	{
+		return $this->_apiGet("storage/jobs/" . $jobId);
 	}
 
 	/**
