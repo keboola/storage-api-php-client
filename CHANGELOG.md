@@ -1,3 +1,6 @@
+## 2.8.3
+ * [Feature] Async table import
+
 ## 2.8.2
  * [Refactoring] File uploads directly to S3 (http://docs.keboola.apiary.io/#post-%2Fv2%2Fstorage%2Ffiles%2Fprepare)
 
