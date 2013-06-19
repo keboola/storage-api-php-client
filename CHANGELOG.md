@@ -1,3 +1,6 @@
+## 2.8.4
+ * [Feature] File upload prepare - send file size
+
 ## 2.8.3
  * [Feature] Async table import
 

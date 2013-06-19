@@ -28,21 +28,22 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 	/**
 	 * @dataProvider uploadData
 	 */
-	public function testFileUpload($path, $isPublic)
+	public function testFileUpload($isPublic)
 	{
 		$fileId = $this->_client->uploadFile($this->_testFilePath, $isPublic);
 		$file = $this->_client->getFile($fileId);
 
 		$this->assertEquals($isPublic, $file['isPublic']);
 		$this->assertEquals(basename($this->_testFilePath), $file['name']);
+		$this->assertEquals(filesize($this->_testFilePath), $file['sizeBytes']);
 		$this->assertEquals(file_get_contents($this->_testFilePath), file_get_contents($file['url']));
 	}
 
 	public function uploadData()
 	{
 		return array(
-			array($this->_testFilePath, false),
-			array($this->_testFilePath, true),
+			array(false),
+			array(true),
 		);
 	}
 

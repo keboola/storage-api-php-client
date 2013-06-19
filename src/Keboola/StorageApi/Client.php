@@ -923,6 +923,7 @@ class Client
 			'isPublic' => $isPublic,
 			'notify' => $notify,
 			'name' => basename($fileName),
+			'sizeBytes' => filesize($fileName),
 		));
 
 		// 2. upload directly do S3 using returned credentials
