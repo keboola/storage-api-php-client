@@ -1,3 +1,6 @@
+## 2.8.5
+ * [Feature] Async table create method added
+
 ## 2.8.4
  * [Feature] File upload prepare - send file size
 

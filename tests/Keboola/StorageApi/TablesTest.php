@@ -31,9 +31,10 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	 * @dataProvider tableCreateData
 	 * @param $langugesFile
 	 */
-	public function testTableCreate($langugesFile)
+	public function testTableCreate($langugesFile, $async)
 	{
-		$tableId = $this->_client->createTable(
+		$createMethod = $async ? 'createTableAsync' : 'createTable';
+		$tableId = $this->_client->{$createMethod}(
 			$this->_inBucketId,
 			'languages',
 			new CsvFile($langugesFile)
@@ -54,6 +55,8 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$this->assertEquals(file_get_contents(__DIR__ . '/_data/languages.csv'),
 		$this->_client->exportTable($tableId), 'initial data imported into table');
 	}
+
+
 
 	public function testTableWithUnsupportedCharactersInNameShouldNotBeCreated()
 	{
@@ -88,9 +91,10 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function tableCreateData()
 	{
 		return array(
-			array(__DIR__ . '/_data/languages.csv'),
-			array('https://s3.amazonaws.com/keboola-tests/languages.csv'),
-			array(__DIR__ . '/_data/languages.csv.gz'),
+			array(__DIR__ . '/_data/languages.csv', false),
+			array('https://s3.amazonaws.com/keboola-tests/languages.csv', false),
+			array(__DIR__ . '/_data/languages.csv.gz', false),
+			array(__DIR__ . '/_data/languages.csv', true),
 		);
 	}
 

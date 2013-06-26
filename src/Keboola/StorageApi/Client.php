@@ -357,6 +357,37 @@ class Client
 		return $result["id"];
 	}
 
+	/**
+	 * Creates table with header of CSV file, then import whole csv file by async import
+	 * @param $bucketId
+	 * @param $name
+	 * @param CsvFile $csvFile
+	 * @param array $options
+	 * @return bool|string
+	 */
+	public function createTableAsync($bucketId, $name, CsvFile $csvFile, $options = array())
+	{
+		if ($this->_isUrl($csvFile->getPathname())) {
+			return $this->createTable($bucketId, $name, $csvFile, $options);
+		}
+
+
+		$headerCsvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'sapi-client'));
+		try {
+			$headerCsvFile->writeRow($csvFile->getHeader());
+
+			$tableId = $this->createTable($bucketId, $name, $headerCsvFile, $options);
+
+			$this->writeTableAsync($tableId, $csvFile, $options);
+		} catch(\Exception $e) {
+			unlink($headerCsvFile->getRealPath());
+			throw $e;
+		}
+		unlink($headerCsvFile->getRealPath());
+
+		return $tableId;
+	}
+
 	private function _isUrl($path)
 	{
 		return preg_match('/^https?:\/\/.*$/', $path);
