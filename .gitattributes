@@ -1,5 +1,4 @@
-# set default behaviour, in case users don't have core.autocrlf set.
-* text=lf
+ text=auto
 
-
-
+ # disable auto line ending conversion
+ *.csv binary
