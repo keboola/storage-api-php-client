@@ -151,6 +151,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$this->assertNotEmpty($result['totalDataSizeBytes']);
 
 		// compare data
+
 		$this->assertEquals(file_get_contents($expectationsFile), $this->_client->exportTable($tableId, null, array(
 			'format' => $format,
 		)), 'imported data comparsion');
@@ -174,6 +175,8 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 //			array( new CsvFile( __DIR__ . '/_data/languages.zip'), 'languages.csv', array('id', 'name')),
 			array( new CsvFile(__DIR__ . '/_data/languages.csv.gz'), 'languages.csv', array('id', 'name')),
 			array( new CsvFile(__DIR__ . '/_data/escaping.csv'), 'escaping.standard.out.csv', array('col1', 'col2_with_space')),
+			array( new CsvFile(__DIR__ . '/_data/escaping.win.csv'), 'escaping.raw.win.csv', array('col1', 'col2_with_space'), 'raw'),
+			array( new CsvFile(__DIR__ . '/_data/escaping.raw.win.csv', "\t", "", "\\"), 'escaping.win.csv', array('col1', 'col2_with_space'), 'rfc'),
 			array( new CsvFile(__DIR__ . '/_data/escaping.nl-last-row.csv'), 'escaping.standard.out.csv', array('col1', 'col2_with_space')),
 			array( new CsvFile(__DIR__ . '/_data/escaping.csv'), 'escaping.backslash.out.csv', array('col1', 'col2_with_space'), 'escaped'),
 			array( new CsvFile(__DIR__ . '/_data/escaping.csv'), 'escaping.raw.csv', array('col1', 'col2_with_space'), 'raw'),
