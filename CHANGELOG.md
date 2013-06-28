@@ -1,3 +1,6 @@
+## 2.8.6
+ * [Feature] Token share by email method added
+
 ## 2.8.5
  * [Feature] Async table create method added
 
