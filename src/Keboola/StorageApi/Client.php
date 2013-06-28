@@ -890,6 +890,19 @@ class Client
 	}
 
 	/**
+	 * @param $tokenId
+	 * @param $recipientEmail
+	 * @param $message
+	 */
+	public function shareToken($tokenId, $recipientEmail, $message)
+	{
+		$this->_apiPost("storage/tokens/$tokenId/share", array(
+			'recipientEmail' => $recipientEmail,
+			'message' => $message,
+		));
+	}
+
+	/**
 	 *
 	 * Generate GoodData XML configuration for table
 	 * TODO Test!
