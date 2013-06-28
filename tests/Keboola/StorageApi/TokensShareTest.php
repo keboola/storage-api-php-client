@@ -9,7 +9,7 @@
 
 use Keboola\Csv\CsvFile;
 
-class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
+class Keboola_StorageApi_Buckets_TokensShareTest extends StorageApiTestCase
 {
 
 	public function testMasterTokenShouldNotBeShareable()
