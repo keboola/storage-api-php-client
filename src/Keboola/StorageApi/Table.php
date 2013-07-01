@@ -332,7 +332,7 @@ class Table
 	/**
 	 * Save data and table attributes to Storage API
 	 */
-	public function save()
+	public function save($async = false)
 	{
 		if (!empty($this->_filename)) {
 			$tempfile = $this->_filename;
@@ -348,7 +348,11 @@ class Table
 		}
 
 		if (!$this->_client->tableExists($this->_id)) {
-			$this->_client->createTable(
+			$method = 'createTable';
+			if ($async) {
+				$method .= 'Async';
+			}
+			$this->_client->$method(
 				$this->_bucketId,
 				$this->_name,
 				new CsvFile($tempfile, $this->_delimiter, $this->_enclosure),
@@ -359,7 +363,11 @@ class Table
 				)
 			);
 		} else {
-			$this->_client->writeTable(
+			$method = 'writeTable';
+			if ($async) {
+				$method .= 'Async';
+			}
+			$this->_client->$method(
 				$this->_id,
 				new CsvFile($tempfile,$this->_delimiter, $this->_enclosure),
 				array(

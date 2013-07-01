@@ -110,6 +110,34 @@ class Keboola_StorageApi_TableClassTest extends StorageApiTestCase
 		$this->assertEquals($data, $result, 'data saving to Storage API');
 	}
 
+	public function testSaveAsync()
+	{
+		$data = array(
+			array('id', 'col1', 'col2', 'col3', 'col4'),
+			array('1', 'abc', 'def', 'ghj', 'klm'),
+			array('2', 'nop', 'qrs', 'tuv', 'wxyz'),
+			array('3', 'abc', 'def', 'ghj', 'klm'),
+			array('4', 'nop', 'qrs', 'tuv', 'wxyz')
+		);
+
+		$table = new \Keboola\StorageApi\Table($this->_client, $this->_tableId);
+		$table->setFromArray($data, true);
+		$table->setAttribute('testAttribute', 'test');
+		$table->addIndex('col1');
+		$table->addIndex('col2');
+
+		// Async set to true
+		$table->save($async = true);
+
+		$result = \Keboola\StorageApi\Table::csvStringToArray($this->_client->exportTable($this->_tableId));
+
+		$this->assertEquals($data, $result, 'data saving to Storage API');
+		$this->assertEquals($table->getAttribute('testAttribute'), 'test', 'saving attributes to Storage API');
+
+		$tableInfo = $this->_client->getTable($this->_tableId);
+		$this->assertEquals(2, count(array_intersect($tableInfo['indexedColumns'], $table->getIndices())), 'getting indexed columns from Storage API');
+	}
+
 	public function testEmptyHeaderReplacement()
 	{
 		$data = array(

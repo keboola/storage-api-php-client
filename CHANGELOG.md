@@ -1,3 +1,6 @@
+## 2.8.7
+ * [Feature] Table class method save() has now optional $async parameter (default: $async = false)
+
 ## 2.8.6
  * [Feature] Token share by email method added
 
