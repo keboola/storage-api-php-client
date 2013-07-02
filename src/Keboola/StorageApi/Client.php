@@ -552,14 +552,25 @@ class Client
 			$job = $this->getJob($job['id']);
 
 			if (time() >= $maxEndTime) {
-				throw new ClientException("Poll timeout");
+				throw new ClientException("Poll timeout after {$this->getTimeout()} seconds");
 			}
 
 			$waitSeconds = min(pow(2, $retries), $maxWaitPeriod);
 			sleep($waitSeconds);
 			$retries++;
 		} while(!in_array($job['status'], array('success', 'error')));
-		return $job;
+
+		if ($job['status'] == 'error') {
+			throw new ClientException(
+				$job['error']['message'],
+				null,
+				null,
+				$job['error']['code'],
+				$job['error']
+			);
+		}
+
+		return $job['results'];
 	}
 
 

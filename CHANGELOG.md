@@ -1,5 +1,11 @@
-## 2.8.7
+## 2.8.9
+ * [Bugfix] Async import method outpur compatible with sync import method, exception is thrown when job finishes with error
+
+## 2.8.8
  * [Feature] Table class method save() has now optional $async parameter (default: $async = false)
+
+## 2.8.7
+ * [Bugfix] Tests bugfixes
 
 ## 2.8.6
  * [Feature] Token share by email method added

@@ -189,10 +189,27 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$importFile = new CsvFile(__DIR__ . '/_data/languages.csv');
 		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $importFile);
 		$result = $this->_client->writeTableAsync($tableId, $importFile, array(
-			'incremental' => true,
+			'incremental' => false,
 		));
 
-		$this->assertEquals('success', $result['status']);
+		$this->assertEmpty($result['warnings']);
+		$rowsCountInCsv = count($this->_readCsv(__DIR__ . '/_data/languages.csv')) - 1;
+		$this->assertEquals($rowsCountInCsv, $result['totalRowsCount'], 'rows count in csv result');
+		$this->assertNotEmpty($result['totalDataSizeBytes']);
+	}
+
+	public function testTableInvalidAsyncImport()
+	{
+		$importFile = new CsvFile(__DIR__ . '/_data/languages.csv');
+		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $importFile);
+		$this->_client->addTableColumn($tableId, 'missing');
+		try {
+			$this->_client->writeTableAsync($tableId, $importFile);
+			$this->fail('Exception should be thrown');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('csvImport.columnsNotMatch', $e->getStringCode());
+			$this->arrayHasKey('exceptionId', $e->getContextParams());
+		}
 	}
 
 	public function testPartialImport()
