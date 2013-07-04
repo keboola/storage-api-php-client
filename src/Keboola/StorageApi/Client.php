@@ -541,36 +541,7 @@ class Client
 			$options['dataFileId'] = $fileId;
 		}
 
-		$job = $this->_apiPost("storage/tables/{$tableId}/import-async", $options);
-
-		$maxEndTime = time() + $this->getTimeout();
-		$maxWaitPeriod = 60;
-		$retries = 0;
-
-		// poll for status
-		do {
-			$job = $this->getJob($job['id']);
-
-			if (time() >= $maxEndTime) {
-				throw new ClientException("Poll timeout after {$this->getTimeout()} seconds");
-			}
-
-			$waitSeconds = min(pow(2, $retries), $maxWaitPeriod);
-			sleep($waitSeconds);
-			$retries++;
-		} while(!in_array($job['status'], array('success', 'error')));
-
-		if ($job['status'] == 'error') {
-			throw new ClientException(
-				$job['error']['message'],
-				null,
-				null,
-				$job['error']['code'],
-				$job['error']
-			);
-		}
-
-		return $job['results'];
+		return $this->_apiPost("storage/tables/{$tableId}/import-async", $options);
 	}
 
 
@@ -1147,6 +1118,11 @@ class Client
 			throw new ClientException("Http error: " . $e->getMessage(), null, $e, "HTTP_ERROR");
 		}
 
+		// wait for asynchronous task completion
+		if ($response->getStatusCode() == 202) {
+			return $this->_handleAsyncTask($response);
+		}
+
 		if ($responseFile) {
 			fclose($responseFile);
 			return "";
@@ -1157,6 +1133,44 @@ class Client
 		}
 
 		return (string) $response->getBody();
+	}
+
+	/**
+	 * @param Response $jobCreatedResponse
+	 * @return mixed
+	 * @throws ClientException
+	 */
+	protected function _handleAsyncTask(Response $jobCreatedResponse)
+	{
+		$job = $jobCreatedResponse->json();
+		$maxEndTime = time() + $this->getTimeout();
+		$maxWaitPeriod = 60;
+		$retries = 0;
+
+		// poll for status
+		do {
+			$job = $this->getJob($job['id']);
+
+			if (time() >= $maxEndTime) {
+				throw new ClientException("Poll timeout after {$this->getTimeout()} seconds");
+			}
+
+			$waitSeconds = min(pow(2, $retries), $maxWaitPeriod);
+			sleep($waitSeconds);
+			$retries++;
+		} while(!in_array($job['status'], array('success', 'error')));
+
+		if ($job['status'] == 'error') {
+			throw new ClientException(
+				$job['error']['message'],
+				null,
+				null,
+				$job['error']['code'],
+				$job['error']
+			);
+		}
+
+		return $job['results'];
 	}
 
 	/**
