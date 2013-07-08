@@ -1,3 +1,6 @@
+## 2.8.10
+ * [Refactoring] Automatic async tasks handling
+
 ## 2.8.9
  * [Bugfix] Async import method outpur compatible with sync import method, exception is thrown when job finishes with error
 
