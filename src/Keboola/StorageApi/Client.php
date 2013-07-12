@@ -336,6 +336,7 @@ class Client
 			"name" => $name,
 			"delimiter" => $csvFile->getDelimiter(),
 			"enclosure" => $csvFile->getEnclosure(),
+			"escapedBy" => $csvFile->getEscapedBy(),
 			"primaryKey" => isset($options['primaryKey']) ? $options['primaryKey'] : null,
 			"transactional" => isset($options['transactional']) ? $options['transactional'] : false,
 		);
@@ -367,25 +368,27 @@ class Client
 	 */
 	public function createTableAsync($bucketId, $name, CsvFile $csvFile, $options = array())
 	{
+		$options = array(
+			"bucketId" => $bucketId,
+			"name" => $name,
+			"delimiter" => $csvFile->getDelimiter(),
+			"enclosure" => $csvFile->getEnclosure(),
+			"escapedBy" => $csvFile->getEscapedBy(),
+			"primaryKey" => isset($options['primaryKey']) ? $options['primaryKey'] : null,
+			"transactional" => isset($options['transactional']) ? $options['transactional'] : false,
+		);
+
 		if ($this->_isUrl($csvFile->getPathname())) {
-			return $this->createTable($bucketId, $name, $csvFile, $options);
+			$options['dataUrl'] = $csvFile->getPathname();
+		} else {
+			// upload file
+			$fileId = $this->uploadFile($csvFile->getPathname(), false, false);
+			$options['dataFileId'] = $fileId;
 		}
 
+		$createdTable = $this->_apiPost("storage/buckets/{$bucketId}/tables-async", $options);
 
-		$headerCsvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'sapi-client'));
-		try {
-			$headerCsvFile->writeRow($csvFile->getHeader());
-
-			$tableId = $this->createTable($bucketId, $name, $headerCsvFile, $options);
-
-			$this->writeTableAsync($tableId, $csvFile, $options);
-		} catch(\Exception $e) {
-			unlink($headerCsvFile->getRealPath());
-			throw $e;
-		}
-		unlink($headerCsvFile->getRealPath());
-
-		return $tableId;
+		return $createdTable['id'];
 	}
 
 	private function _isUrl($path)
