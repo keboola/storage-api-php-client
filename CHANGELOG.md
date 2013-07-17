@@ -1,3 +1,6 @@
+## 2.8.11
+ * [Refactoring] Create table async refactored to use new create-async table method
+
 ## 2.8.10
  * [Refactoring] Automatic async tasks handling
 
