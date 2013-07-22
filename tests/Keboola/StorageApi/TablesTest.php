@@ -873,6 +873,57 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	}
 
 	/**
+	 * @param $filterParams
+	 * @param $expectedTableContent
+	 * @dataProvider tableDeleteRowsByFiltersData
+	 */
+	public function testTableDeleterRowsByFilter($filterParams, $expectedTableContent)
+	{
+		$importFile =  __DIR__ . '/_data/users.csv';
+		$tableId = $this->_client->createTable($this->_inBucketId, 'users', new CsvFile($importFile));
+		$this->_client->markTableColumnAsIndexed($tableId, 'city');
+
+		$data = $this->_client->deleteTableRows($tableId, $filterParams);
+		$parsedData = Client::parseCsv($data, false);
+		array_shift($parsedData); // remove header
+
+		$this->assertArrayEqualsSorted($expectedTableContent, $parsedData, 0);
+	}
+
+	public function tableDeleteRowsByFiltersData()
+	{
+		return array(
+			// first test
+			array(
+				array(
+					'whereColumn' => 'city',
+					'whereValues' => array('PRG')
+				),
+				array(
+					array(
+						"3",
+						"ondra",
+						"VAN",
+						"male"
+					),
+					array(
+						"4",
+						"miro",
+						"BRA",
+						"male",
+					),
+					array(
+						"5",
+						"hidden",
+						"",
+						"male",
+					),
+				),
+			),
+		);
+	}
+
+	/**
 	 * @dataProvider tableImportInvalidData
 	 * @expectedException Keboola\StorageApi\ClientException
 	 */
