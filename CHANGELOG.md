@@ -1,3 +1,6 @@
+## 2.8.12
+ * [Refactoring] Guzzle upgraded to 3.7.*
+
 ## 2.8.11
  * [Refactoring] Create table async refactored to use new create-async table method
 
