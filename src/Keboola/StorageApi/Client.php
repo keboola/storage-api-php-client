@@ -431,6 +431,19 @@ class Client
 
 	/**
 	 * @param $tableId
+	 * @return mixed
+	 */
+	public function createTableSnapshot($tableId, $snapshotDescription = null)
+	{
+		$result = $this->_apiPost("storage/tables/{$tableId}/snapshots", array(
+			'description' => $snapshotDescription,
+		));
+		$this->_log("Snapthos {$result['id']} of table {$tableId} created.");
+		return $result["id"];
+	}
+
+	/**
+	 * @param $tableId
 	 * @param array $filter
 	 * @return mixed|string
 	 */
@@ -1065,6 +1078,11 @@ class Client
 		return $this->_apiGet("storage/tables/{$tableId}/events?" . http_build_query($queryParams));
 	}
 
+	public function getSnapshot($id)
+	{
+		return $this->_apiGet("storage/snapshots/$id");
+	}
+
 	/**
 	 * Unique 64bit sequence generator
 	 * @return mixed
@@ -1358,4 +1376,23 @@ class Client
 		$this->_runId = $runId;
 		return $this;
 	}
+
+	/**
+	 * @return int
+	 */
+	public function getBackoffMaxTries()
+	{
+		return $this->_backoffMaxTries;
+	}
+
+	/**
+	 * @param $backoffMaxTries
+	 * @return $this
+	 */
+	public function setBackoffMaxTries($backoffMaxTries)
+	{
+		$this->_backoffMaxTries = (int) $backoffMaxTries;
+		return $this;
+	}
+
 }
