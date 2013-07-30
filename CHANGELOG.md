@@ -1,3 +1,7 @@
+## 2.8.13
+ * [Feature] Set exponential backoff maximum tries number in constructor
+ * [Feature] Exponencial backoff also for maintenance
+
 ## 2.8.12
  * [Refactoring] Guzzle upgraded to 3.7.*
 

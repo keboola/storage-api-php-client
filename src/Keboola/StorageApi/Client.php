@@ -3,6 +3,8 @@ namespace Keboola\StorageApi;
 
 
 use Guzzle\Http\Curl\CurlHandle;
+use Guzzle\Http\Exception\BadResponseException;
+use Guzzle\Http\Exception\CurlException;
 use Guzzle\Http\Exception\RequestException;
 use Guzzle\Http\Message\Request;
 use Guzzle\Http\Message\RequestInterface;
@@ -12,7 +14,6 @@ use Guzzle\Log\MessageFormatter;
 use Guzzle\Plugin\Backoff\BackoffLogger;
 use Guzzle\Plugin\Backoff\BackoffPlugin;
 use Guzzle\Plugin\Log\LogPlugin;
-use Guzzle\Tests\Log\ClosureLogAdapterTest;
 use Keboola\Csv\CsvFile,
 	Guzzle\Http\Client as GuzzleClient;
 
@@ -1103,7 +1104,7 @@ class Client
 
 		try {
 			$response = $request->send();
-		} catch (\Guzzle\Http\Exception\BadResponseException $e) {
+		} catch (BadResponseException $e) {
 			$response = $e->getResponse();
 			$body = $response->json();
 
@@ -1118,7 +1119,7 @@ class Client
 				isset($body['code']) ? $body['code'] : "",
 				$body
 			);
-		} catch (\Guzzle\Http\Exception\CurlException $e) {
+		} catch (CurlException $e) {
 			throw new ClientException("Http error: " . $e->getMessage(), null, $e, "HTTP_ERROR");
 		}
 
