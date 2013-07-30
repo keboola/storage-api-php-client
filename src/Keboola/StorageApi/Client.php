@@ -393,6 +393,20 @@ class Client
 		return $createdTable['id'];
 	}
 
+	/**
+	 * @param $bucketId destination bucket
+	 * @param $snapshotId source snapshot
+	 * @param null $name table name (optional) otherwise fetched from snapshot
+	 */
+	public function createTableFromSnapshot($bucketId, $snapshotId, $name = null)
+	{
+		$createdTable = $this->_apiPost("storage/buckets/{$bucketId}/tables-async", array(
+			'snapshotId' => $snapshotId,
+			'name' => $name,
+		));
+		return $createdTable['id'];
+	}
+
 	private function _isUrl($path)
 	{
 		return preg_match('/^https?:\/\/.*$/', $path);
@@ -440,6 +454,15 @@ class Client
 		));
 		$this->_log("Snapthos {$result['id']} of table {$tableId} created.");
 		return $result["id"];
+	}
+
+	/**
+	 * @param $tableId
+	 * @return mixed|string
+	 */
+	public function listTableSnapshots($tableId, $options = array())
+	{
+		return $this->_apiGet("storage/tables/{$tableId}/snapshots?" . http_build_query($options));
 	}
 
 	/**
