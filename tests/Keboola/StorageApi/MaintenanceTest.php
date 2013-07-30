@@ -14,7 +14,7 @@ class Keboola_StorageApi_MaintenanceTest extends StorageApiTestCase
 	public function testMaintenance()
 	{
 		try {
-			$client = new \Keboola\StorageApi\Client(STORAGE_API_TOKEN, STORAGE_API_MAINTENANCE_URL);
+			$client = new \Keboola\StorageApi\Client(STORAGE_API_TOKEN, STORAGE_API_MAINTENANCE_URL, '',  $backoffMaxTries = 0);
 		} catch (\Keboola\StorageApi\MaintenanceException $e) {
 			$this->assertNotEmpty($e->getRetryAfter());
 			$this->assertEquals('MAINTENANCE', $e->getStringCode());

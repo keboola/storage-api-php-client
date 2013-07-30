@@ -41,7 +41,7 @@ class Client
 
 	private $_apiVersion = "v2";
 
-	private $_backoffMaxTries = 9;
+	private $_backoffMaxTries;
 
 	// User agent header send with each API request
 	private $_userAgent = 'Keboola Storage API PHP Client';
@@ -67,7 +67,7 @@ class Client
 	 * @param string null $url
 	 * @param string null $userAgent
 	 */
-	public function __construct($tokenString, $url=null, $userAgent=null)
+	public function __construct($tokenString, $url=null, $userAgent=null, $backoffMaxTries = 9)
 	{
 		if ($url) {
 			$this->setApiUrl($url);
@@ -78,6 +78,7 @@ class Client
 		}
 
 		$this->token = $tokenString;
+		$this->_backoffMaxTries = (int) $backoffMaxTries;
 		$this->_initClient();
 		$this->_initExponentialBackoff();
 		$this->_initLogger();
@@ -101,7 +102,7 @@ class Client
 	{
 		$backoffPlugin = BackoffPlugin::getExponentialBackoff(
 			$this->_backoffMaxTries,
-			array(500) // backoff only on 500 errors
+			array(500,  503)
 		);
 		$backoffPlugin->setEventDispatcher($this->_client->getEventDispatcher());
 		$this->_client->addSubscriber($backoffPlugin);
