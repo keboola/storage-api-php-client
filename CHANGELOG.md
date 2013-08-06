@@ -1,3 +1,6 @@
+## 2.8.14
+ * [Feature] `ListTableEvents` method added
+
 ## 2.8.13
  * [Feature] Set exponential backoff maximum tries number in constructor
  * [Feature] Exponencial backoff also for maintenance

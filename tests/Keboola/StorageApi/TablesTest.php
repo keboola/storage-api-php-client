@@ -54,6 +54,10 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 
 		$this->assertEquals(file_get_contents(__DIR__ . '/_data/languages.csv'),
 		$this->_client->exportTable($tableId), 'initial data imported into table');
+
+		$events = $this->_client->listTableEvents($tableId);
+		$lastEvent = reset($events);
+		$this->assertEquals('storage.tableExported', $lastEvent['event']);
 	}
 
 

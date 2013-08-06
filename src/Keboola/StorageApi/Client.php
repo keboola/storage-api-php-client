@@ -1054,6 +1054,17 @@ class Client
 		return $this->_apiGet('storage/events?' . http_build_query($queryParams));
 	}
 
+	public function listTableEvents($tableId, $params = array())
+	{
+		$defaultParams = array(
+			'limit' => 100,
+			'offset' => 0,
+		);
+
+		$queryParams = array_merge($defaultParams, $params);
+		return $this->_apiGet("storage/tables/{$tableId}/events?" . http_build_query($queryParams));
+	}
+
 	/**
 	 * Unique 64bit sequence generator
 	 * @return mixed
