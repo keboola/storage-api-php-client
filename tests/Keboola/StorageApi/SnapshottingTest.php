@@ -48,6 +48,7 @@ class Keboola_StorageApi_SnapshottingTest extends StorageApiTestCase
 		$this->assertEquals($description, $snapshot['description']);
 		$this->assertEquals($table['primaryKey'], $snapshot['table']['primaryKey']);
 		$this->assertEquals($table['columns'], $snapshot['table']['columns']);
+		$this->assertEquals($table['indexedColumns'], $snapshot['table']['indexedColumns']);
 		$this->assertEquals($table['attributes'], $snapshot['table']['attributes']);
 		$this->assertArrayHasKey('creatorToken', $snapshot);
 		$this->assertNotEmpty($snapshot['dataFileId']);

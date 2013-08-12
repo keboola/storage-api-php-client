@@ -1,3 +1,6 @@
+## 2.8.15
+ * [Feature] Snapshotting support init
+
 ## 2.8.14
  * [Feature] `ListTableEvents` method added
 
