@@ -1,3 +1,6 @@
+## 2.8.16
+ * [Feature] Table rollback from snapshot
+
 ## 2.8.15
  * [Feature] Snapshotting support init
 

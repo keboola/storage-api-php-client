@@ -456,6 +456,13 @@ class Client
 		return $result["id"];
 	}
 
+	public function rollbackTableFromSnapshot($tableId, $snapshotId)
+	{
+		return $this->_apiPost("storage/tables/{$tableId}/rollback", array(
+			'snapshotId' => $snapshotId,
+		));
+	}
+
 	/**
 	 * @param $tableId
 	 * @return mixed|string

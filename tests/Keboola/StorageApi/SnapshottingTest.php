@@ -124,11 +124,6 @@ class Keboola_StorageApi_SnapshottingTest extends StorageApiTestCase
 		}
 	}
 
-	public function testTableRollbackFromSnapshot()
-	{
-
-	}
-
 	public function testGetTableSnapshot()
 	{
 		$sourceTableId = $this->_client->createTable(
@@ -152,8 +147,137 @@ class Keboola_StorageApi_SnapshottingTest extends StorageApiTestCase
 		$newestSnapshot = reset($snapshots);
 		$this->assertEquals($snapshotId, $newestSnapshot['id']);
 		$this->assertEquals('second', $newestSnapshot['description']);
+	}
 
 
+	public function testTableRollbackFromSnapshot()
+	{
+		$sourceTableId = $this->_client->createTable(
+			$this->_inBucketId,
+			'languages',
+			new CsvFile(__DIR__ . '/_data/languages.csv')
+		);
+
+		$this->_client->markTableColumnAsIndexed($sourceTableId, 'name');
+		$this->_client->setTableAttribute($sourceTableId, 'first', 'value');
+		$this->_client->setTableAttribute($sourceTableId, 'second', 'another');
+
+		$tableInfo = $this->_client->getTable($sourceTableId);
+		$tableData = $this->_client->exportTable($sourceTableId);
+
+		// create snapshot
+		$snapshotId = $this->_client->createTableSnapshot($sourceTableId);
+
+		// do some modifications
+		$this->_client->deleteTableAttribute($sourceTableId, 'first');
+		$this->_client->removeTableColumnFromIndexed($sourceTableId, 'name');
+		$this->_client->setTableAttribute($sourceTableId, 'third', 'my value');
+		$this->_client->writeTable($sourceTableId, new CsvFile(__DIR__ . '/_data/languages.csv'), array(
+			'incremental' => true,
+		));
+		$this->_client->addTableColumn($sourceTableId, 'new_column');
+
+		$aliasTableId = $this->_client->createAliasTable($this->_outBucketId, $sourceTableId);
+
+		// and rollback to snapshot
+		$this->_client->rollbackTableFromSnapshot($sourceTableId, $snapshotId);
+
+		$tableInfoAfterRollback = $this->_client->getTable($sourceTableId);
+		$aliasInfo = $this->_client->getTable($aliasTableId);
+
+		$this->assertEquals($tableInfo['columns'], $tableInfoAfterRollback['columns']);
+		$this->assertEquals($tableInfo['columns'], $aliasInfo['columns']);
+		$this->assertEquals($tableInfo['primaryKey'], $tableInfoAfterRollback['primaryKey']);
+		$this->assertEquals($tableInfo['primaryKey'], $aliasInfo['primaryKey']);
+		$this->assertEquals($tableInfo['indexedColumns'], $tableInfoAfterRollback['indexedColumns']);
+		$this->assertEquals($tableInfo['indexedColumns'], $aliasInfo['indexedColumns']);
+		$this->assertEquals($tableInfo['attributes'], $tableInfoAfterRollback['attributes']);
+		$this->assertEmpty($aliasInfo['attributes']);
+		$this->assertEquals($tableInfo['rowsCount'], $tableInfoAfterRollback['rowsCount']);
+		$this->assertEquals($tableInfo['rowsCount'], $aliasInfo['rowsCount']);
+		$this->assertEquals($tableInfo['dataSize'], $tableInfoAfterRollback['dataSize']);
+		$this->assertEquals($tableInfo['dataSize'], $aliasInfo['dataSize']);
+
+		$this->assertEquals($tableData, $this->_client->exportTable($sourceTableId));
+	}
+
+	public function testRollbackShouldBeDeniedWhenThereAreFilteredAliasesOnColumnsNotIndexedInSnapshot()
+	{
+		$sourceTableId = $this->_client->createTable(
+			$this->_inBucketId,
+			'languages',
+			new CsvFile(__DIR__ . '/_data/languages.csv')
+		);
+
+		$snapshotId = $this->_client->createTableSnapshot($sourceTableId);
+
+		// add index and create filtered alias
+		$this->_client->markTableColumnAsIndexed($sourceTableId, 'name');
+		$this->_client->createAliasTable($this->_outBucketId, $sourceTableId, null, array(
+			'aliasFilter' => array(
+				'column' => 'name',
+				'values' => array('czech'),
+			),
+		));
+
+		try {
+			$this->_client->rollbackTableFromSnapshot($sourceTableId, $snapshotId);
+			$this->fail('Rollback should be denied');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.tables.missingIndexesInSnapshot', $e->getStringCode());
+		}
+	}
+
+	public function testRollbackShouldBeDeniedWhenThereAreFilteredAliasesOnColumnsNotPresentInSnapshot()
+	{
+		$sourceTableId = $this->_client->createTable(
+			$this->_inBucketId,
+			'languages',
+			new CsvFile(__DIR__ . '/_data/languages.csv')
+		);
+
+		$snapshotId = $this->_client->createTableSnapshot($sourceTableId);
+
+		// add index and create filtered alias
+		$this->_client->addTableColumn($sourceTableId, 'hermafrodit');
+		$this->_client->markTableColumnAsIndexed($sourceTableId, 'hermafrodit');
+		$this->_client->createAliasTable($this->_outBucketId, $sourceTableId, null, array(
+			'aliasFilter' => array(
+				'column' => 'hermafrodit',
+				'values' => array('ano'),
+			),
+		));
+
+		try {
+			$this->_client->rollbackTableFromSnapshot($sourceTableId, $snapshotId);
+			$this->fail('Rollback should be denied');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.tables.missingColumnsInSnapshot', $e->getStringCode());
+		}
+	}
+
+	public function testRollbackShouldBeDeniedWhenThereAreColumnsInAliasNotPresentInSnapshot()
+	{
+		$sourceTableId = $this->_client->createTable(
+			$this->_inBucketId,
+			'languages',
+			new CsvFile(__DIR__ . '/_data/languages.csv')
+		);
+
+		$snapshotId = $this->_client->createTableSnapshot($sourceTableId);
+
+		// add index and create filtered alias
+		$this->_client->addTableColumn($sourceTableId, 'hermafrodit');
+		$this->_client->markTableColumnAsIndexed($sourceTableId, 'hermafrodit');
+		$aliasId = $this->_client->createAliasTable($this->_outBucketId, $sourceTableId, null);
+		$this->_client->disableAliasTableColumnsAutoSync($aliasId);
+
+		try {
+			$this->_client->rollbackTableFromSnapshot($sourceTableId, $snapshotId);
+			$this->fail('Rollback should be denied');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.tables.missingColumnsInSnapshot', $e->getStringCode());
+		}
 	}
 
 }
