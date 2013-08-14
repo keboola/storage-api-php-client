@@ -3,6 +3,8 @@ namespace Keboola\StorageApi;
 
 
 use Guzzle\Http\Curl\CurlHandle;
+use Guzzle\Http\Exception\BadResponseException;
+use Guzzle\Http\Exception\CurlException;
 use Guzzle\Http\Exception\RequestException;
 use Guzzle\Http\Message\Request;
 use Guzzle\Http\Message\RequestInterface;
@@ -12,7 +14,6 @@ use Guzzle\Log\MessageFormatter;
 use Guzzle\Plugin\Backoff\BackoffLogger;
 use Guzzle\Plugin\Backoff\BackoffPlugin;
 use Guzzle\Plugin\Log\LogPlugin;
-use Guzzle\Tests\Log\ClosureLogAdapterTest;
 use Keboola\Csv\CsvFile,
 	Guzzle\Http\Client as GuzzleClient;
 
@@ -41,7 +42,7 @@ class Client
 
 	private $_apiVersion = "v2";
 
-	private $_backoffMaxTries = 9;
+	private $_backoffMaxTries;
 
 	// User agent header send with each API request
 	private $_userAgent = 'Keboola Storage API PHP Client';
@@ -67,7 +68,7 @@ class Client
 	 * @param string null $url
 	 * @param string null $userAgent
 	 */
-	public function __construct($tokenString, $url=null, $userAgent=null)
+	public function __construct($tokenString, $url=null, $userAgent=null, $backoffMaxTries = 9)
 	{
 		if ($url) {
 			$this->setApiUrl($url);
@@ -78,6 +79,7 @@ class Client
 		}
 
 		$this->token = $tokenString;
+		$this->_backoffMaxTries = (int) $backoffMaxTries;
 		$this->_initClient();
 		$this->_initExponentialBackoff();
 		$this->_initLogger();
@@ -101,7 +103,7 @@ class Client
 	{
 		$backoffPlugin = BackoffPlugin::getExponentialBackoff(
 			$this->_backoffMaxTries,
-			array(500) // backoff only on 500 errors
+			array(500,  503)
 		);
 		$backoffPlugin->setEventDispatcher($this->_client->getEventDispatcher());
 		$this->_client->addSubscriber($backoffPlugin);
@@ -391,6 +393,20 @@ class Client
 		return $createdTable['id'];
 	}
 
+	/**
+	 * @param $bucketId destination bucket
+	 * @param $snapshotId source snapshot
+	 * @param null $name table name (optional) otherwise fetched from snapshot
+	 */
+	public function createTableFromSnapshot($bucketId, $snapshotId, $name = null)
+	{
+		$createdTable = $this->_apiPost("storage/buckets/{$bucketId}/tables-async", array(
+			'snapshotId' => $snapshotId,
+			'name' => $name,
+		));
+		return $createdTable['id'];
+	}
+
 	private function _isUrl($path)
 	{
 		return preg_match('/^https?:\/\/.*$/', $path);
@@ -425,6 +441,35 @@ class Client
 		$result = $this->_apiPost("storage/buckets/" . $bucketId . "/table-aliases", $filteredOptions);
 		$this->_log("Table alias {$result["id"]}  created", array("options" => $filteredOptions, "result" => $result));
 		return $result["id"];
+	}
+
+	/**
+	 * @param $tableId
+	 * @return mixed
+	 */
+	public function createTableSnapshot($tableId, $snapshotDescription = null)
+	{
+		$result = $this->_apiPost("storage/tables/{$tableId}/snapshots", array(
+			'description' => $snapshotDescription,
+		));
+		$this->_log("Snapthos {$result['id']} of table {$tableId} created.");
+		return $result["id"];
+	}
+
+	public function rollbackTableFromSnapshot($tableId, $snapshotId)
+	{
+		return $this->_apiPost("storage/tables/{$tableId}/rollback", array(
+			'snapshotId' => $snapshotId,
+		));
+	}
+
+	/**
+	 * @param $tableId
+	 * @return mixed|string
+	 */
+	public function listTableSnapshots($tableId, $options = array())
+	{
+		return $this->_apiGet("storage/tables/{$tableId}/snapshots?" . http_build_query($options));
 	}
 
 	/**
@@ -937,6 +982,33 @@ class Client
 	}
 
 	/**
+	 * @param $tableId
+	 * @param array $options - (int) limit, (timestamp | strtotime format) changedSince, (timestamp | strtotime format) changedUntil, (bool) escape, (array) columns
+	 * @return mixed|string
+	 */
+	public function deleteTableRows($tableId, $options = array())
+	{
+		$url = "storage/tables/{$tableId}/rows";
+
+		$allowedOptions = array(
+			'changedSince',
+			'changedUntil',
+			'whereColumn',
+			'whereOperator'
+		);
+
+		$filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
+
+		if (isset($options['whereValues'])) {
+			$filteredOptions['whereValues'] = (array) $options['whereValues'];
+		}
+
+		$url .= '?' . http_build_query($filteredOptions);
+
+		return $this->_apiDelete($url);
+	}
+
+	/**
 	 *
 	 * Uploads a file
 	 *
@@ -1052,6 +1124,22 @@ class Client
 		return $this->_apiGet('storage/events?' . http_build_query($queryParams));
 	}
 
+	public function listTableEvents($tableId, $params = array())
+	{
+		$defaultParams = array(
+			'limit' => 100,
+			'offset' => 0,
+		);
+
+		$queryParams = array_merge($defaultParams, $params);
+		return $this->_apiGet("storage/tables/{$tableId}/events?" . http_build_query($queryParams));
+	}
+
+	public function getSnapshot($id)
+	{
+		return $this->_apiGet("storage/snapshots/$id");
+	}
+
 	/**
 	 * Unique 64bit sequence generator
 	 * @return mixed
@@ -1102,7 +1190,7 @@ class Client
 
 		try {
 			$response = $request->send();
-		} catch (\Guzzle\Http\Exception\BadResponseException $e) {
+		} catch (BadResponseException $e) {
 			$response = $e->getResponse();
 			$body = $response->json();
 
@@ -1117,7 +1205,7 @@ class Client
 				isset($body['code']) ? $body['code'] : "",
 				$body
 			);
-		} catch (\Guzzle\Http\Exception\CurlException $e) {
+		} catch (CurlException $e) {
 			throw new ClientException("Http error: " . $e->getMessage(), null, $e, "HTTP_ERROR");
 		}
 
@@ -1345,4 +1433,23 @@ class Client
 		$this->_runId = $runId;
 		return $this;
 	}
+
+	/**
+	 * @return int
+	 */
+	public function getBackoffMaxTries()
+	{
+		return $this->_backoffMaxTries;
+	}
+
+	/**
+	 * @param $backoffMaxTries
+	 * @return $this
+	 */
+	public function setBackoffMaxTries($backoffMaxTries)
+	{
+		$this->_backoffMaxTries = (int) $backoffMaxTries;
+		return $this;
+	}
+
 }

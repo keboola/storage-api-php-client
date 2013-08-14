@@ -1,3 +1,19 @@
+## 2.8.16
+ * [Feature] Table rollback from snapshot
+
+## 2.8.15
+ * [Feature] Snapshotting support init
+
+## 2.8.14
+ * [Feature] `ListTableEvents` method added
+
+## 2.8.13
+ * [Feature] Set exponential backoff maximum tries number in constructor
+ * [Feature] Exponencial backoff also for maintenance
+
+## 2.8.12
+ * [Refactoring] Guzzle upgraded to 3.7.*
+
 ## 2.8.11
  * [Refactoring] Create table async refactored to use new create-async table method
 

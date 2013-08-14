@@ -54,6 +54,10 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 
 		$this->assertEquals(file_get_contents(__DIR__ . '/_data/languages.csv'),
 		$this->_client->exportTable($tableId), 'initial data imported into table');
+
+		$events = $this->_client->listTableEvents($tableId);
+		$lastEvent = reset($events);
+		$this->assertEquals('storage.tableExported', $lastEvent['event']);
 	}
 
 
@@ -70,6 +74,35 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		} catch (\Keboola\StorageApi\ClientException $e) {
 			$this->assertEquals('storage.tables.validation', $e->getStringCode());
 		}
+	}
+
+	/**
+	 * @param $async
+	 * @dataProvider tableColumnSanitizeData
+	 */
+	public function testTableColumnNamesSanitize($async)
+	{
+		$csv = new Keboola\Csv\CsvFile(__DIR__ . '/_data/filtering.csv');
+
+		$method = $async ? 'createTableAsync' : 'createTable';
+		$tableId = $this->_client->{$method}(
+			$this->_inBucketId,
+			'sanitize',
+			$csv
+		);
+
+		$table = $this->_client->getTable($tableId);
+		$this->assertEquals(array('with_spaces', 'scrscz', 'with_underscore'), $table['columns']);
+		$writeMethod = $async ? 'writeTableAsync' : 'writeTable';
+		$this->_client->{$writeMethod}($tableId, new Keboola\Csv\CsvFile(__DIR__ . '/_data/filtering.csv'));
+	}
+
+	public function tableColumnSanitizeData()
+	{
+		return array(
+			array(false),
+			array(true)
+		);
 	}
 
 	public function testTableCreateWithPK()
@@ -209,6 +242,43 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		} catch (\Keboola\StorageApi\ClientException $e) {
 			$this->assertEquals('csvImport.columnsNotMatch', $e->getStringCode());
 			$this->arrayHasKey('exceptionId', $e->getContextParams());
+		}
+	}
+
+	public function testTableInvalidPartialImport()
+	{
+		$createFile = new CsvFile(__DIR__ . '/_data/languages.csv');
+		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $createFile);
+		$importFile = new CsvFile(__DIR__ . '/_data/config.csv');
+		try {
+			$this->_client->writeTableAsync($tableId, $importFile, array(
+				'partial' => true,
+			));
+			$this->fail('Exception should be thrown');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('csvImport.noMatchingColumnsInTable', $e->getStringCode());
+			$this->arrayHasKey('exceptionId', $e->getContextParams());
+		}
+	}
+
+	public function testTableImportFromInvalidUrl()
+	{
+		$createFile = new CsvFile(__DIR__ . '/_data/languages.csv');
+		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $createFile);
+
+		$csvFile = new CsvFile("http://unknown");
+		try {
+			$this->_client->writeTableAsync($tableId, $csvFile);
+			$this->fail('Exception should be thrown on invalid URL');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.urlFetchError', $e->getStringCode());
+		}
+
+		try {
+			$this->_client->writeTable($tableId, $csvFile);
+			$this->fail('Exception should be thrown on invalid URL');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.urlFetchError', $e->getStringCode());
 		}
 	}
 
@@ -883,7 +953,10 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$tableId = $this->_client->createTable($this->_inBucketId, 'users', new CsvFile($importFile));
 		$this->_client->markTableColumnAsIndexed($tableId, 'city');
 
-		$data = $this->_client->deleteTableRows($tableId, $filterParams);
+		$this->_client->deleteTableRows($tableId, $filterParams);
+
+		$data = $this->_client->exportTable($tableId);
+
 		$parsedData = Client::parseCsv($data, false);
 		array_shift($parsedData); // remove header
 
@@ -892,8 +965,11 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 
 	public function tableDeleteRowsByFiltersData()
 	{
+		$yesterday = new \DateTime('-1 day');
+		$tomorrow = new \DateTime('+1 day');
+
 		return array(
-			// first test
+			// 1st test
 			array(
 				array(
 					'whereColumn' => 'city',
@@ -905,6 +981,109 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 						"ondra",
 						"VAN",
 						"male"
+					),
+					array(
+						"4",
+						"miro",
+						"BRA",
+						"male",
+					),
+					array(
+						"5",
+						"hidden",
+						"",
+						"male",
+					),
+				),
+			),
+			// 2nd test
+			array(
+				array(
+					'changedSince' => $yesterday->getTimestamp(),
+				),
+				array(
+				),
+			),
+			// 3rd test
+			array(
+				array(
+				),
+				array(
+				),
+			),
+			// 4th test
+			array(
+				array(
+					'whereOperator' => 'ne',
+					'whereColumn' => 'city',
+					'whereValues' => array('PRG')
+				),
+				array(
+					array(
+						"1",
+						"martin",
+						"PRG",
+						"male"
+					),
+					array(
+						"2",
+						"klara",
+						"PRG",
+						"female",
+					),
+				),
+			),
+			// 5th test
+			array(
+				array(
+					'whereOperator' => 'ne',
+					'whereColumn' => 'city',
+					'whereValues' => array('PRG', 'BRA')
+				),
+				array(
+					array(
+						"1",
+						"martin",
+						"PRG",
+						"male"
+					),
+					array(
+						"2",
+						"klara",
+						"PRG",
+						"female",
+					),
+					array(
+						"4",
+						"miro",
+						"BRA",
+						"male",
+					),
+				),
+			),
+			// 6th test
+			array(
+				array(
+					'changedSince' => $tomorrow->getTimestamp(),
+				),
+				array(
+					array(
+						"1",
+						"martin",
+						"PRG",
+						"male"
+					),
+					array(
+						"2",
+						"klara",
+						"PRG",
+						"female",
+					),
+					array(
+						"3",
+						"ondra",
+						"VAN",
+						"male",
 					),
 					array(
 						"4",
