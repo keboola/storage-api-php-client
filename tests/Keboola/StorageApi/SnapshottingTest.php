@@ -195,10 +195,9 @@ class Keboola_StorageApi_SnapshottingTest extends StorageApiTestCase
 		$this->assertEmpty($aliasInfo['attributes']);
 		$this->assertEquals($tableInfo['rowsCount'], $tableInfoAfterRollback['rowsCount']);
 		$this->assertEquals($tableInfo['rowsCount'], $aliasInfo['rowsCount']);
-		$this->assertEquals($tableInfo['dataSize'], $tableInfoAfterRollback['dataSize']);
-		$this->assertEquals($tableInfo['dataSize'], $aliasInfo['dataSize']);
 
 		$this->assertEquals($tableData, $this->_client->exportTable($sourceTableId));
+		$this->assertEquals($tableData, $this->_client->exportTable($aliasTableId));
 	}
 
 	public function testRollbackShouldBeDeniedWhenThereAreFilteredAliasesOnColumnsNotIndexedInSnapshot()

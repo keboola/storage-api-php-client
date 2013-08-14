@@ -8,6 +8,7 @@ set_include_path(implode(PATH_SEPARATOR, array(
 	get_include_path(),
 )));
 ini_set('display_errors', true);
+error_reporting(E_ALL);
 
 date_default_timezone_set('Europe/Prague');
 
