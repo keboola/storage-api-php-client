@@ -937,6 +937,33 @@ class Client
 	}
 
 	/**
+	 * @param $tableId
+	 * @param array $options - (int) limit, (timestamp | strtotime format) changedSince, (timestamp | strtotime format) changedUntil, (bool) escape, (array) columns
+	 * @return mixed|string
+	 */
+	public function deleteTableRows($tableId, $options = array())
+	{
+		$url = "storage/tables/{$tableId}/rows";
+
+		$allowedOptions = array(
+			'changedSince',
+			'changedUntil',
+			'whereColumn',
+			'whereOperator'
+		);
+
+		$filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
+
+		if (isset($options['whereValues'])) {
+			$filteredOptions['whereValues'] = (array) $options['whereValues'];
+		}
+
+		$url .= '?' . http_build_query($filteredOptions);
+
+		return $this->_apiDelete($url);
+	}
+
+	/**
 	 *
 	 * Uploads a file
 	 *
