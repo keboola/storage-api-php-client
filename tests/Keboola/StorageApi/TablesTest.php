@@ -54,6 +54,10 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 
 		$this->assertEquals(file_get_contents(__DIR__ . '/_data/languages.csv'),
 		$this->_client->exportTable($tableId), 'initial data imported into table');
+
+		$events = $this->_client->listTableEvents($tableId);
+		$lastEvent = reset($events);
+		$this->assertEquals('storage.tableExported', $lastEvent['event']);
 	}
 
 
@@ -70,6 +74,35 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		} catch (\Keboola\StorageApi\ClientException $e) {
 			$this->assertEquals('storage.tables.validation', $e->getStringCode());
 		}
+	}
+
+	/**
+	 * @param $async
+	 * @dataProvider tableColumnSanitizeData
+	 */
+	public function testTableColumnNamesSanitize($async)
+	{
+		$csv = new Keboola\Csv\CsvFile(__DIR__ . '/_data/filtering.csv');
+
+		$method = $async ? 'createTableAsync' : 'createTable';
+		$tableId = $this->_client->{$method}(
+			$this->_inBucketId,
+			'sanitize',
+			$csv
+		);
+
+		$table = $this->_client->getTable($tableId);
+		$this->assertEquals(array('with_spaces', 'scrscz', 'with_underscore'), $table['columns']);
+		$writeMethod = $async ? 'writeTableAsync' : 'writeTable';
+		$this->_client->{$writeMethod}($tableId, new Keboola\Csv\CsvFile(__DIR__ . '/_data/filtering.csv'));
+	}
+
+	public function tableColumnSanitizeData()
+	{
+		return array(
+			array(false),
+			array(true)
+		);
 	}
 
 	public function testTableCreateWithPK()
@@ -209,6 +242,43 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		} catch (\Keboola\StorageApi\ClientException $e) {
 			$this->assertEquals('csvImport.columnsNotMatch', $e->getStringCode());
 			$this->arrayHasKey('exceptionId', $e->getContextParams());
+		}
+	}
+
+	public function testTableInvalidPartialImport()
+	{
+		$createFile = new CsvFile(__DIR__ . '/_data/languages.csv');
+		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $createFile);
+		$importFile = new CsvFile(__DIR__ . '/_data/config.csv');
+		try {
+			$this->_client->writeTableAsync($tableId, $importFile, array(
+				'partial' => true,
+			));
+			$this->fail('Exception should be thrown');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('csvImport.noMatchingColumnsInTable', $e->getStringCode());
+			$this->arrayHasKey('exceptionId', $e->getContextParams());
+		}
+	}
+
+	public function testTableImportFromInvalidUrl()
+	{
+		$createFile = new CsvFile(__DIR__ . '/_data/languages.csv');
+		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $createFile);
+
+		$csvFile = new CsvFile("http://unknown");
+		try {
+			$this->_client->writeTableAsync($tableId, $csvFile);
+			$this->fail('Exception should be thrown on invalid URL');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.urlFetchError', $e->getStringCode());
+		}
+
+		try {
+			$this->_client->writeTable($tableId, $csvFile);
+			$this->fail('Exception should be thrown on invalid URL');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.urlFetchError', $e->getStringCode());
 		}
 	}
 

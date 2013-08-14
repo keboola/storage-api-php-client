@@ -156,6 +156,12 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 			$this->fail('Table imported with read token');
 		} catch (Keboola\StorageApi\ClientException  $e) {}
 
+		// table attribute
+		try {
+			$client->setTableAttribute($outTableId, 'my', 'value');
+			$this->fail('Table attribute written with read token');
+		} catch(\Keboola\StorageApi\ClientException $e) {}
+
 		try {
 			$client->writeTable($inTableId, new CsvFile(__DIR__ . '/_data/languages.csv'));
 			$this->fail('Table imported with no permissions');
