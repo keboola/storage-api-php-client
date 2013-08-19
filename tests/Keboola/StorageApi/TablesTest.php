@@ -947,13 +947,14 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	 * @param $expectedTableContent
 	 * @dataProvider tableDeleteRowsByFiltersData
 	 */
-	public function testTableDeleterRowsByFilter($filterParams, $expectedTableContent)
+	public function testTableDeleteRowsByFilter($filterParams, $expectedTableContent)
 	{
 		$importFile =  __DIR__ . '/_data/users.csv';
 		$tableId = $this->_client->createTable($this->_inBucketId, 'users', new CsvFile($importFile));
 		$this->_client->markTableColumnAsIndexed($tableId, 'city');
 
 		$this->_client->deleteTableRows($tableId, $filterParams);
+		$tableInfo = $this->_client->getTable($tableId);
 
 		$data = $this->_client->exportTable($tableId);
 
@@ -961,6 +962,41 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		array_shift($parsedData); // remove header
 
 		$this->assertArrayEqualsSorted($expectedTableContent, $parsedData, 0);
+		$this->assertEquals($tableInfo['rowsCount'], count($expectedTableContent));
+	}
+
+	public function testTableDeleteRowsAliasShouldBeUpdated()
+	{
+		$importFile =  __DIR__ . '/_data/users.csv';
+		$tableId = $this->_client->createTable($this->_inBucketId, 'users', new CsvFile($importFile));
+		$this->_client->markTableColumnAsIndexed($tableId, 'city');
+
+		$aliasId = $this->_client->createAliasTable($this->_outBucketId, $tableId);
+
+		$this->_client->deleteTableRows($tableId);
+
+		$tableInfo = $this->_client->getTable($tableId);
+		$aliasInfo = $this->_client->getTable($aliasId);
+
+		$this->assertEquals(0, $tableInfo['rowsCount']);
+		$this->assertEquals(0, $aliasInfo['rowsCount']);
+
+	}
+
+
+	public function testDeleteRowsFromAliasShouldNotBeAllowed()
+	{
+		$importFile =  __DIR__ . '/_data/users.csv';
+		$tableId = $this->_client->createTable($this->_inBucketId, 'users', new CsvFile($importFile));
+
+		$aliasId = $this->_client->createAliasTable($this->_outBucketId, $tableId);
+
+		try {
+			$this->_client->deleteTableRows($aliasId);
+			$this->fail('Delete rows from alias should not be allowed');
+		} catch(\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.tables.aliasRowsDeleteNotAllowed', $e->getStringCode());
+		}
 	}
 
 	public function tableDeleteRowsByFiltersData()
@@ -1098,6 +1134,11 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 						"male",
 					),
 				),
+			),
+			// 7th test
+			array(
+				array(),
+				array(),
 			),
 		);
 	}
