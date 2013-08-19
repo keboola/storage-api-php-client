@@ -1,3 +1,6 @@
+## 2.8.17
+ * [Feature] Table rows delete
+
 ## 2.8.16
  * [Feature] Table rollback from snapshot
 
