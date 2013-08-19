@@ -964,6 +964,35 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		);
 	}
 
+	public function testTableImportInvalidLineBreaks()
+	{
+		$importCsvFile = new CsvFile(__DIR__ . '/_data/escaping.mac-os-9.csv');
+		try {
+			$this->_client->createTable($this->_inBucketId, 'languages', $importCsvFile);
+			$this->fail('Mac os 9 line breaks should not be allowd');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.validation.invalidParam', $e->getStringCode());
+		}
+
+		try {
+			$this->_client->createTableAsync($this->_inBucketId, 'languages', $importCsvFile);
+			$this->fail('Mac os 9 line breaks should not be allowd');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.validation.invalidParam', $e->getStringCode());
+		}
+
+		$createCsvFile = new CsvFile(__DIR__ . '/_data/languages.csv');
+		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $createCsvFile);
+		try {
+			$this->_client->writeTable($tableId, $importCsvFile);
+			$this->fail('Mac os 9 line breaks should not be allowd');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.validation.invalidParam', $e->getStringCode());
+		}
+
+	}
+
+
 	/**
 	 * @expectedException Keboola\StorageApi\ClientException
 	 */
