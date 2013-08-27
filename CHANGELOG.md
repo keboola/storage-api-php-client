@@ -1,3 +1,6 @@
+## 2.8.18
+ * [Feature] Index method returning information about Keboola Connection stack
+
 ## 2.8.17
  * [Feature] Table rows delete
 

@@ -180,6 +180,11 @@ class Client
 		return $this;
 	}
 
+	public function indexAction()
+	{
+		return $this->_apiGet("storage");
+	}
+
 	/**
 	 *
 	 * List all buckets
