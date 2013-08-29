@@ -17,6 +17,19 @@ class Keboola_StorageApi_BucketsTest extends StorageApiTestCase
 
 		$this->assertEquals('in.c-main', $buckets[0]['id']);
 		$this->assertEquals('out.c-main', $buckets[1]['id']);
+
+		$firstBucket = reset($buckets);
+		$this->assertArrayHasKey('attributes', $firstBucket);
+	}
+
+	public function testBucketsListWithIncludeParameter()
+	{
+		$buckets = $this->_client->listBuckets(array(
+			'include' => '',
+		));
+
+		$firstBucket = reset($buckets);
+		$this->assertArrayNotHasKey('attributes', $firstBucket);
 	}
 
 	public function testBucketDetail()

@@ -191,9 +191,9 @@ class Client
 	 *
 	 * @return mixed|string
 	 */
-	public function listBuckets()
+	public function listBuckets($options = array())
 	{
-		return $this->_apiGet("storage/buckets");
+		return $this->_apiGet("storage/buckets?" . http_build_query($options));
 	}
 
 	/**
@@ -518,14 +518,15 @@ class Client
 	 * Get all available tables
 	 *
 	 * @param string $bucketId limit search to a specific bucket
+	 * @param array $options
 	 * @return mixed|string
 	 */
-	public function listTables($bucketId=null)
+	public function listTables($bucketId=null, $options = array())
 	{
 		if ($bucketId) {
-			return $this->_apiGet("storage/buckets/{$bucketId}/tables");
+			return $this->_apiGet("storage/buckets/{$bucketId}/tables?" . http_build_query($options));
 		}
-		return $this->_apiGet("storage/tables");
+		return $this->_apiGet("storage/tables?" . http_build_query($options));
 	}
 
 	/**

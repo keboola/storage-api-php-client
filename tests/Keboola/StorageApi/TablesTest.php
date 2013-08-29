@@ -133,17 +133,49 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 
 	public function testListTables()
 	{
-		$this->_client->createTable($this->_inBucketId, 'languages', new CsvFile(__DIR__ . '/_data/languages.csv'));
+		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', new CsvFile(__DIR__ . '/_data/languages.csv'));
+		$this->_client->setTableAttribute($tableId, 'test', 'something');
 		$tables = $this->_client->listTables($this->_inBucketId);
 
 		$this->assertCount(1, $tables);
 
 		$firstTable = reset($tables);
 		$this->assertArrayHasKey('attributes', $firstTable, 'List bucket tables are returned with attributes');
+		$this->assertCount(1, $firstTable['attributes']);
 
 		$tables = $this->_client->listTables();
-		$firstTable = reset($tables);
+		$firstTable = false;
+		foreach ($tables as $table) {
+			if ($table['id'] != $tableId) {
+				continue;
+			}
+			$firstTable = $table;
+			break;
+		}
+
 		$this->assertArrayHasKey('attributes', $firstTable, 'List tables are returned with attributes');
+		$this->assertCount(1, $firstTable['attributes']);
+		$this->assertArrayHasKey('bucket', $firstTable, 'List tables are returned with attributes');
+	}
+
+	public function testListTablesWithIncludeParam()
+	{
+		$this->_client->createTable($this->_inBucketId, 'languages', new CsvFile(__DIR__ . '/_data/languages.csv'));
+		$tables = $this->_client->listTables($this->_inBucketId, array(
+			'include' => '', // don't include anything
+		));
+
+		$firstTable = reset($tables);
+		$this->assertArrayNotHasKey('attributes', $firstTable);
+		$this->assertArrayNotHasKey('bucket', $firstTable);
+
+		$tables = $this->_client->listTables(null, array(
+			'include' => '', // don't include anything
+		));
+
+		$firstTable = reset($tables);
+		$this->assertArrayNotHasKey('attributes', $firstTable);
+		$this->assertArrayNotHasKey('bucket', $firstTable);
 	}
 
 	public function testTableDelete()

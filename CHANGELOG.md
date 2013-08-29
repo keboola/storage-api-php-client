@@ -1,3 +1,6 @@
+## 2.8.19
+ * [Feature] Partial responses support in list methods
+
 ## 2.8.18
  * [Feature] Index method returning information about Keboola Connection stack
 
