@@ -27,7 +27,7 @@ class Keboola_StorageApi_EventsTest extends StorageApiTestCase
 				'configuration' => 'sys.c-sfdc.sfdc-01',
 			));
 
-		$id = $this->_client->createEvent($event);
+		$id = $this->createAndWaitForEvent($event);
 		$savedEvent = $this->_client->getEvent($id);
 
 		$this->assertEquals($event->getComponent(), $savedEvent['component']);
@@ -54,7 +54,7 @@ class Keboola_StorageApi_EventsTest extends StorageApiTestCase
 			->setMessage('test');
 
 
-		$id = $this->_client->createEvent($event);
+		$id = $this->createAndWaitForEvent($event);
 		$savedEvent = $this->_client->getEvent($id);
 		$this->assertEquals($event->getComponentName(), $savedEvent['configurationId']);
 		$this->assertEquals($event->getComponentType(), $savedEvent['component']);
@@ -67,20 +67,6 @@ class Keboola_StorageApi_EventsTest extends StorageApiTestCase
 
 		$events = $this->_client->listEvents(1);
 		$this->assertCount(1, $events);
-	}
-
-	public function testRunIdPropagation()
-	{
-		$runId = 'some-run-id';
-		$this->_client->setRunId($runId);
-
-		// generate event
-		$this->_client->listBuckets();
-
-		$events = $this->_client->listEvents(1);
-		$event = reset($events);
-
-		$this->assertEquals($runId, $event['runId']);
 	}
 
 	public function testEventsFiltering()
@@ -101,12 +87,12 @@ class Keboola_StorageApi_EventsTest extends StorageApiTestCase
 			->setType('info')
 			->setMessage('test')
 			->setConfigurationId('myConfig');
-		$this->_client->createEvent($event);
+		$this->createAndWaitForEvent($event);
 
 		$event->setComponent('ex-fb');
-		$this->_client->createEvent($event);
+		$this->createAndWaitForEvent($event);
 		$event->setMessage('another');
-		$this->_client->createEvent($event);
+		$this->createAndWaitForEvent($event);
 		$events = $this->_client->listEvents(array(
 			'sinceId' => $lastEventId,
 		));
@@ -120,12 +106,31 @@ class Keboola_StorageApi_EventsTest extends StorageApiTestCase
 		$this->assertCount(1, $events, 'filter by component');
 
 		$event->setRunId('rundId2');
-		$this->_client->createEvent($event);
+		$this->createAndWaitForEvent($event);
 
 		$events = $this->_client->listEvents(array(
 			'sinceId' => $lastEventId,
 			'runId' => $runId,
 		));
 		$this->assertCount(3, $events);
+	}
+
+	protected function createAndWaitForEvent(Event $event)
+	{
+		$id = $this->_client->createEvent($event);
+
+		$tries = 0;
+		while (true) {
+			try {
+				$this->_client->getEvent($id);
+				return $id;
+			} catch(\Keboola\StorageApi\ClientException $e) {}
+			if ($tries > 4) {
+				throw new \Exception('Max tries exceeded.');
+			}
+			$tries++;
+			sleep(pow(2, $tries));
+		}
+
 	}
 }
