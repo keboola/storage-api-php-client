@@ -181,6 +181,16 @@ class Client
 	}
 
 	/**
+	 * Get UserAgent name
+	 *
+	 * @return string
+	 */
+	public function getUserAgent()
+	{
+		return $this->_userAgent;
+	}
+
+	/**
 	 *
 	 * List all buckets
 	 *
