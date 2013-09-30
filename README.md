@@ -38,7 +38,18 @@ require 'vendor/autoload.php';
 
 Read more in [Composer documentation](http://getcomposer.org/doc/01-basic-usage.md)
 
+## Usage
 
+Table write example:
+
+```php
+use Keboola\StorageApi\Client,
+	\Keboola\Csv\CsvFile;
+
+$client = new Client('your_token');
+$csvFile = new CsvFile(__DIR__ . '/my.csv', ',', '"');
+$client->writeTableAsync('in.c-main.my-table', $csvFile);
+```
 
 ## Tests
 Tests requires valid Storage API token and URL of API.
@@ -47,9 +58,9 @@ You can set these by copying file config.template.php into config.php and fillin
     export=STORAGE_API_URL=http://connection.keboola.com
     export=STORAGE_API_TOKEN=YOUR_TOKEN
 
-Tests expects master token and performs all operations including bucket and table deletes on users storage associated to token. 
+Tests expects master token and performs all operations including bucket and table deletes on project storage associated to token. 
 
-**Never run this tests on production user with real data, always create user for testing purposes!!!**
+**Never run this tests on production project with real data, always create project for testing purposes!!!**
 
 When the parameters are set you can run tests by **phpunit** command.
 
