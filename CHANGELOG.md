@@ -1,3 +1,6 @@
+## 2.8.20
+ * [Feature] Added getter for UserAgent
+
 ## 2.8.19
  * [Feature] Partial responses support in list methods
 
