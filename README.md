@@ -44,7 +44,7 @@ Table write example:
 
 ```php
 use Keboola\StorageApi\Client,
-	\Keboola\Csv\CsvFile;
+	Keboola\Csv\CsvFile;
 
 $client = new Client('your_token');
 $csvFile = new CsvFile(__DIR__ . '/my.csv', ',', '"');
