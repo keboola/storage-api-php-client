@@ -1,3 +1,6 @@
+## 2.8.21
+ * [Feature] `getComponents` method - returns parsed data from indexAction
+
 ## 2.8.20
  * [Feature] Added getter for UserAgent
 
