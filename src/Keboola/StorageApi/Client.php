@@ -1468,4 +1468,23 @@ class Client
 		return $this;
 	}
 
+	/**
+	 *
+	 * Returns components from indexAction
+	 *
+	 * @return array
+	 */
+	public function getComponents()
+	{
+		$data = $this->indexAction();
+		$components = array();
+		if (!isset($data["components"])) {
+			return $components;
+		}
+		foreach($data["components"] as $component) {
+			$components[$component["id"]] = $component["uri"];
+		}
+		return $components;
+	}
+
 }
