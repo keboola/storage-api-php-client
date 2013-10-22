@@ -1,3 +1,6 @@
+## 2.8.22
+ * [Bugfix] Backoff - added retry on curl error 18 (CURLE_PARTIAL_FILE)
+
 ## 2.8.21
  * [Feature] `getComponents` method - returns parsed data from indexAction
 

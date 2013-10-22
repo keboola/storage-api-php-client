@@ -103,7 +103,12 @@ class Client
 	{
 		$backoffPlugin = BackoffPlugin::getExponentialBackoff(
 			$this->_backoffMaxTries,
-			array(500,  503)
+			array(500,  503),
+			array(
+				CURLE_COULDNT_RESOLVE_HOST, CURLE_COULDNT_CONNECT, CURLE_WRITE_ERROR, CURLE_READ_ERROR,
+				CURLE_OPERATION_TIMEOUTED, CURLE_SSL_CONNECT_ERROR, CURLE_HTTP_PORT_FAILED, CURLE_GOT_NOTHING,
+				CURLE_SEND_ERROR, CURLE_RECV_ERROR, CURLE_PARTIAL_FILE
+			)
 		);
 		$backoffPlugin->setEventDispatcher($this->_client->getEventDispatcher());
 		$this->_client->addSubscriber($backoffPlugin);
