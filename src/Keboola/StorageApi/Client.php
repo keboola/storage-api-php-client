@@ -14,6 +14,7 @@ use Guzzle\Log\MessageFormatter;
 use Guzzle\Plugin\Backoff\BackoffLogger;
 use Guzzle\Plugin\Backoff\BackoffPlugin;
 use Guzzle\Plugin\Log\LogPlugin;
+use Guzzle\Http\EntityBody;
 use Keboola\Csv\CsvFile,
 	Guzzle\Http\Client as GuzzleClient;
 
@@ -91,6 +92,7 @@ class Client
 	{
 		$this->_client = new GuzzleClient($this->_getApiBaseUrl(), array(
 			'version' => $this->_apiVersion,
+			CURLOPT_ENCODING => "gzip"
 		));
 	}
 
@@ -161,7 +163,7 @@ class Client
 
 	/**
 	 * Get API Url
-	 * 
+	 *
 	 * @return string
 	 */
 	public function getApiUrl()
@@ -1045,18 +1047,23 @@ class Client
 
 		// 2. upload directly do S3 using returned credentials
 		$uploadParams = $result['uploadParams'];
-		$client = new GuzzleClient($uploadParams['url']);
+		$curlopts = array(
+			CURLOPT_ENCODING => "gzip"
+		);
+		$client = new GuzzleClient($uploadParams['url'], array('curl.options' => $curlopts));
 		$client->addSubscriber(BackoffPlugin::getExponentialBackoff());
 
 		try {
-			$client->post('/', null, array(
+			$body = EntityBody::factory(array(
 				'key' => $uploadParams['key'],
 				'acl' => $uploadParams['acl'],
 				'signature' => $uploadParams['signature'],
 				'policy' => $uploadParams['policy'],
 				'AWSAccessKeyId' => $uploadParams['AWSAccessKeyId'],
 				'file' => "@$fileName",
-			))->send();
+			));
+			$body->compress();
+			$client->post('/', null, $body)->send();
 		} catch(RequestException $e) {
 			throw new ClientException("Error on file upload to S3: " . $e->getMessage(), $e->getCode(), $e);
 		}
