@@ -1,3 +1,7 @@
+## 2.8.23
+ * [Bugfix] Default exponential backoff increased to 11 retries (30 min)
+ * [Bugfix] Tests - default urls changed
+
 ## 2.8.22
  * [Bugfix] Backoff - added retry on curl error 18 (CURLE_PARTIAL_FILE)
 

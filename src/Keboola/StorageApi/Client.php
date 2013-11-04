@@ -68,7 +68,7 @@ class Client
 	 * @param string null $url
 	 * @param string null $userAgent
 	 */
-	public function __construct($tokenString, $url=null, $userAgent=null, $backoffMaxTries = 9)
+	public function __construct($tokenString, $url=null, $userAgent=null, $backoffMaxTries = 11)
 	{
 		if ($url) {
 			$this->setApiUrl($url);
