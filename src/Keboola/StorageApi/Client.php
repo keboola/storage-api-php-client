@@ -1264,7 +1264,9 @@ class Client
 			$job = $this->getJob($job['id']);
 
 			if (time() >= $maxEndTime) {
-				throw new ClientException("Poll timeout after {$this->getTimeout()} seconds");
+				throw new ClientException(
+					"Job {$job['id']} execution timeout after " . round($this->getTimeout() / 60) . " minutes."
+				);
 			}
 
 			$waitSeconds = min(pow(2, $retries), $maxWaitPeriod);

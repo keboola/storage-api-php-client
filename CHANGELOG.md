@@ -1,3 +1,6 @@
+## 2.8.24
+ * [Improvement] Asynchronous task timeout message more descriptive
+
 ## 2.8.23
  * [Bugfix] Default exponential backoff increased to 11 retries (30 min)
  * [Bugfix] Tests - default urls changed
