@@ -1043,12 +1043,18 @@ class Client
 	public function uploadFile($fileName, $isPublic = false, $notify = true, $compress = false)
 	{
 		if ($compress) {
-			$gzFileName = $fileName . ".gz";
-			$gzFile = gzopen($gzFileName, 'w9');
-			gzwrite($gzFile, file_get_contents($fileName));
-			gzclose($gzFile);
+			$finfo = finfo_open(FILEINFO_MIME_TYPE);
+			// do not compress already gz'd files
+			if(finfo_file($finfo, $fileName) == "application/x-gzip") {
+				$compress = false;
+			} else {
+				$gzFileName = $fileName . ".gz";
+				$gzFile = gzopen($gzFileName, 'w9');
+				gzwrite($gzFile, file_get_contents($fileName));
+				gzclose($gzFile);
 
-			$fileName = $gzFileName;
+				$fileName = $gzFileName;
+			}
 		}
 
 		// 1. prepare resource
