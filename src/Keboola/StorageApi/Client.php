@@ -406,7 +406,7 @@ class Client
 			$options['dataUrl'] = $csvFile->getPathname();
 		} else {
 			// upload file
-			$fileId = $this->uploadFile($csvFile->getPathname(), false, false);
+			$fileId = $this->uploadFile($csvFile->getPathname(), false, false, true);
 			$options['dataFileId'] = $fileId;
 		}
 
@@ -608,7 +608,7 @@ class Client
 			$options['dataUrl'] = $csvFile->getPathname();
 		} else {
 			// upload file
-			$fileId = $this->uploadFile($csvFile->getPathname(), false, false);
+			$fileId = $this->uploadFile($csvFile->getPathname(), false, false, true);
 			$options['dataFileId'] = $fileId;
 		}
 
@@ -1040,8 +1040,17 @@ class Client
 	 * @param bool $isPublic
 	 * @return mixed|string
 	 */
-	public function uploadFile($fileName, $isPublic = false, $notify = true)
+	public function uploadFile($fileName, $isPublic = false, $notify = true, $compress = false)
 	{
+		if ($compress) {
+			$gzFileName = $fileName . ".gz";
+			$gzFile = gzopen($gzFileName, 'w9');
+			gzwrite($gzFile, file_get_contents($fileName));
+			gzclose($gzFile);
+
+			$fileName = $gzFileName;
+		}
+
 		// 1. prepare resource
 		$result = $this->_apiPost("storage/files/prepare", array(
 			'isPublic' => $isPublic,
@@ -1052,25 +1061,24 @@ class Client
 
 		// 2. upload directly do S3 using returned credentials
 		$uploadParams = $result['uploadParams'];
-		$curlopts = array(
-			CURLOPT_ENCODING => "gzip"
-		);
-		$client = new GuzzleClient($uploadParams['url'], array('curl.options' => $curlopts));
+		$client = new GuzzleClient($uploadParams['url']);
 		$client->addSubscriber(BackoffPlugin::getExponentialBackoff());
 
 		try {
-			$body = EntityBody::factory(array(
+			$client->post('/', null, array(
 				'key' => $uploadParams['key'],
 				'acl' => $uploadParams['acl'],
 				'signature' => $uploadParams['signature'],
 				'policy' => $uploadParams['policy'],
 				'AWSAccessKeyId' => $uploadParams['AWSAccessKeyId'],
 				'file' => "@$fileName",
-			));
-			$body->compress();
-			$client->post('/', null, $body)->send();
+			))->send();
 		} catch(RequestException $e) {
 			throw new ClientException("Error on file upload to S3: " . $e->getMessage(), $e->getCode(), $e);
+		}
+
+		if ($compress) {
+			unlink($fileName);
 		}
 
 		return $result['id'];
