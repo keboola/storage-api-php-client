@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * Local tests configuration
  */
