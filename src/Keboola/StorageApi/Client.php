@@ -69,7 +69,7 @@ class Client
 	 * @param string null $url
 	 * @param string null $userAgent
 	 */
-	public function __construct($tokenString, $url=null, $userAgent=null, $backoffMaxTries = 9)
+	public function __construct($tokenString, $url=null, $userAgent=null, $backoffMaxTries = 11)
 	{
 		if ($url) {
 			$this->setApiUrl($url);
@@ -105,7 +105,12 @@ class Client
 	{
 		$backoffPlugin = BackoffPlugin::getExponentialBackoff(
 			$this->_backoffMaxTries,
-			array(500,  503)
+			array(500,  503),
+			array(
+				CURLE_COULDNT_RESOLVE_HOST, CURLE_COULDNT_CONNECT, CURLE_WRITE_ERROR, CURLE_READ_ERROR,
+				CURLE_OPERATION_TIMEOUTED, CURLE_SSL_CONNECT_ERROR, CURLE_HTTP_PORT_FAILED, CURLE_GOT_NOTHING,
+				CURLE_SEND_ERROR, CURLE_RECV_ERROR, CURLE_PARTIAL_FILE
+			)
 		);
 		$backoffPlugin->setEventDispatcher($this->_client->getEventDispatcher());
 		$this->_client->addSubscriber($backoffPlugin);
@@ -1266,7 +1271,9 @@ class Client
 			$job = $this->getJob($job['id']);
 
 			if (time() >= $maxEndTime) {
-				throw new ClientException("Poll timeout after {$this->getTimeout()} seconds");
+				throw new ClientException(
+					"Job {$job['id']} execution timeout after " . round($this->getTimeout() / 60) . " minutes."
+				);
 			}
 
 			$waitSeconds = min(pow(2, $retries), $maxWaitPeriod);
