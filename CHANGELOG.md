@@ -1,3 +1,6 @@
+## 2.8.25
+ * [Bugfix] Short open tags removed
+
 ## 2.8.24
  * [Improvement] Asynchronous task timeout message more descriptive
 
