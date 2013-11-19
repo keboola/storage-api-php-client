@@ -76,9 +76,12 @@ class Keboola_StorageApi_EventsTest extends StorageApiTestCase
 			'offset' => 0
 		));
 
+
 		$lastEvent = reset($events);
 		$lastEventId = $lastEvent['id'];
 
+		// we have assign runId to isolate testing events,
+		// because if someone displays navigation in KBC "bucketListed" event is created
 		$runId = 'test';
 		$event = new Event();
 		$event
@@ -95,6 +98,7 @@ class Keboola_StorageApi_EventsTest extends StorageApiTestCase
 		$this->createAndWaitForEvent($event);
 		$events = $this->_client->listEvents(array(
 			'sinceId' => $lastEventId,
+			'runId' => $runId,
 		));
 
 		$this->assertCount(3, $events);
