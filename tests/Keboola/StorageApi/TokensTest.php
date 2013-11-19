@@ -241,18 +241,18 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 		$oneSecondExpiration = 1;
 		$tokenId = $this->_client->createToken($bucketPermissions, $description, $oneSecondExpiration);
 		$token = $this->_client->getToken($tokenId);
-		sleep(2);
+		$tries = 0;
 
 		$client = null;
 		try {
-			$client = new Keboola\StorageApi\Client($token['token'], STORAGE_API_URL);
+			while ($tries < 5) {
+				$client = new Keboola\StorageApi\Client($token['token'], STORAGE_API_URL);
+				sleep(pow(2, $tries++));
+			}
 		} catch(\Keboola\StorageApi\ClientException $e) {
 			if ($e->getStringCode() !== 'storage.tokenExpired') {
 				$this->fail('storage.tokenExpired code should be rerturned from API.');
 			}
-		}
-		if ($client !== null) {
-			$this->fail('It should not be able to login with expired token');
 		}
 
 		$tokens = $this->_client->listTokens();
