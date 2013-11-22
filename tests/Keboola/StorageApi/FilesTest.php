@@ -37,6 +37,10 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$this->assertEquals(basename($this->_testFilePath), $file['name']);
 		$this->assertEquals(filesize($this->_testFilePath), $file['sizeBytes']);
 		$this->assertEquals(file_get_contents($this->_testFilePath), file_get_contents($file['url']));
+
+		$info = $this->_client->getLogData();
+		$this->assertEquals($file['creatorToken']['id'], (int) $info['id']);
+		$this->assertEquals($file['creatorToken']['description'], $info['description']);
 	}
 
 	public function uploadData()
