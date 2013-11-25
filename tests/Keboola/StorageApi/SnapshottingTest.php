@@ -67,6 +67,7 @@ class Keboola_StorageApi_SnapshottingTest extends StorageApiTestCase
 
 		$this->_client->setTableAttribute($sourceTableId, 'first', 'some value');
 		$this->_client->setTableAttribute($sourceTableId, 'second', 'other value');
+		$this->_client->markTableColumnAsIndexed($sourceTableId, 'name');
 		$sourceTable = $this->_client->getTable($sourceTableId);
 
 		$snapshotId = $this->_client->createTableSnapshot($sourceTableId);
