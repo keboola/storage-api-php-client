@@ -1,3 +1,6 @@
+## 2.8.26
+ * [Bugfix] Reading CSV on Windows
+
 ## 2.8.25
  * [Bugfix] Short open tags removed
 
