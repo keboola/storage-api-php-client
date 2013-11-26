@@ -581,7 +581,7 @@ class Client
 		if ($this->_isUrl($csvFile->getPathname())) {
 			$options["dataUrl"] = $csvFile->getPathname();
 		} else {
-			$options["data"] = "@{$csvFile->getPathname()}";
+			$options["data"] = "@{$csvFile->getRealPath()}";
 		}
 
 		$result = $this->_apiPost("storage/tables/{$tableId}/import" , $options);
