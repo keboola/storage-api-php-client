@@ -1047,11 +1047,6 @@ class Client
 			if(finfo_file($finfo, $fileName) == "application/x-gzip") {
 				$compress = false;
 			} else {
-				/* FIXME tempfile shant overwrite if a .gz with the same name already exists
-				- append an uniqid()
-				- OR create it in temp (seems cleaner, requires tempservice instance, needs to know the gz file's not there either)
-				*/
-
 				$fs = new Filesystem();
 				$sapiClientTempDir = sys_get_temp_dir() . '/sapi-php-client';
 				if (!$fs->exists($sapiClientTempDir)) {
@@ -1097,11 +1092,10 @@ class Client
 		}
 
 		if ($compress) {
-			$fs->rmdir($currentUploadDir);
+			$fs->remove($currentUploadDir);
 			if ($rmSapiDir) {
-				$fs->rmdir($sapiClientTempDir);
+				$fs->remove($sapiClientTempDir);
 			}
-
 		}
 
 		return $result['id'];
