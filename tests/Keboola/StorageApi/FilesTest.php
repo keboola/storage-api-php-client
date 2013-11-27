@@ -47,9 +47,10 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$fileId = $this->_client->uploadFile($this->_testFilePath, false, true, true);
 		$file = $this->_client->getFile($fileId);
 
-		$this->assertEquals(basename($this->_testFilePath), $file['name']);
-		$this->assertEquals(filesize($this->_testFilePath), $file['sizeBytes']);
-		$this->assertEquals(file_get_contents($this->_testFilePath), file_get_contents($file['url']));
+		$this->assertEquals(basename($this->_testFilePath) . ".gz", $file['name']);
+
+		$gzFile = gzopen($file['url'], "r");
+		$this->assertEquals(file_get_contents($this->_testFilePath), gzread($gzFile, 524288));
 	}
 
 	public function uploadData()
