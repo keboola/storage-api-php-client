@@ -14,7 +14,7 @@ use Guzzle\Log\MessageFormatter;
 use Guzzle\Plugin\Backoff\BackoffLogger;
 use Guzzle\Plugin\Backoff\BackoffPlugin;
 use Guzzle\Plugin\Log\LogPlugin;
-use Guzzle\Http\EntityBody;
+use Symfony\Component\Filesystem\Filesystem;
 use Keboola\Csv\CsvFile,
 	Guzzle\Http\Client as GuzzleClient;
 
@@ -91,8 +91,7 @@ class Client
 	protected function _initClient()
 	{
 		$this->_client = new GuzzleClient($this->_getApiBaseUrl(), array(
-			'version' => $this->_apiVersion,
-			CURLOPT_ENCODING => "gzip"
+			'version' => $this->_apiVersion
 		));
 	}
 
@@ -1048,12 +1047,26 @@ class Client
 			if(finfo_file($finfo, $fileName) == "application/x-gzip") {
 				$compress = false;
 			} else {
-				$gzFileName = $fileName . ".gz";
-				$gzFile = gzopen($gzFileName, 'w9');
-				gzwrite($gzFile, file_get_contents($fileName));
-				gzclose($gzFile);
+				/* FIXME tempfile shant overwrite if a .gz with the same name already exists
+				- append an uniqid()
+				- OR create it in temp (seems cleaner, requires tempservice instance, needs to know the gz file's not there either)
+				*/
 
-				$fileName = $gzFileName;
+				$fs = new Filesystem();
+				$sapiClientTempDir = sys_get_temp_dir() . '/sapi-php-client';
+				if (!$fs->exists($sapiClientTempDir)) {
+					$fs->mkdir($sapiClientTempDir);
+					$rmSapiDir = true;
+				}
+
+				$currentUploadDir = $sapiClientTempDir . '/' . uniqid('file-upload');
+				$fs->mkdir($currentUploadDir);
+
+				// gzip file and preserve it's base name
+				$gzFilePath = $currentUploadDir . '/'. basename($fileName) . '.gz';
+				exec(sprintf("gzip -c %s > %s", escapeshellarg($fileName), escapeshellarg($gzFilePath)));
+
+				$fileName = $gzFilePath;
 			}
 		}
 
@@ -1084,7 +1097,11 @@ class Client
 		}
 
 		if ($compress) {
-			unlink($fileName);
+			$fs->rmdir($currentUploadDir);
+			if ($rmSapiDir) {
+				$fs->rmdir($sapiClientTempDir);
+			}
+
 		}
 
 		return $result['id'];
