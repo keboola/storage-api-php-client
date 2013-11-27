@@ -1093,7 +1093,7 @@ class Client
 
 		if ($compress) {
 			$fs->remove($currentUploadDir);
-			if ($rmSapiDir) {
+			if (!empty($rmSapiDir)) {
 				$fs->remove($sapiClientTempDir);
 			}
 		}
