@@ -14,6 +14,7 @@ use Guzzle\Log\MessageFormatter;
 use Guzzle\Plugin\Backoff\BackoffLogger;
 use Guzzle\Plugin\Backoff\BackoffPlugin;
 use Guzzle\Plugin\Log\LogPlugin;
+use Symfony\Component\Filesystem\Filesystem;
 use Keboola\Csv\CsvFile,
 	Guzzle\Http\Client as GuzzleClient;
 
@@ -90,7 +91,7 @@ class Client
 	protected function _initClient()
 	{
 		$this->_client = new GuzzleClient($this->_getApiBaseUrl(), array(
-			'version' => $this->_apiVersion,
+			'version' => $this->_apiVersion
 		));
 	}
 
@@ -166,7 +167,7 @@ class Client
 
 	/**
 	 * Get API Url
-	 * 
+	 *
 	 * @return string
 	 */
 	public function getApiUrl()
@@ -404,7 +405,7 @@ class Client
 			$options['dataUrl'] = $csvFile->getPathname();
 		} else {
 			// upload file
-			$fileId = $this->uploadFile($csvFile->getPathname(), false, false);
+			$fileId = $this->uploadFile($csvFile->getPathname(), false, false, true);
 			$options['dataFileId'] = $fileId;
 		}
 
@@ -606,7 +607,7 @@ class Client
 			$options['dataUrl'] = $csvFile->getPathname();
 		} else {
 			// upload file
-			$fileId = $this->uploadFile($csvFile->getPathname(), false, false);
+			$fileId = $this->uploadFile($csvFile->getPathname(), false, false, true);
 			$options['dataFileId'] = $fileId;
 		}
 
@@ -1038,8 +1039,32 @@ class Client
 	 * @param bool $isPublic
 	 * @return mixed|string
 	 */
-	public function uploadFile($fileName, $isPublic = false, $notify = true)
+	public function uploadFile($fileName, $isPublic = false, $notify = true, $compress = false)
 	{
+		if ($compress) {
+			$finfo = finfo_open(FILEINFO_MIME_TYPE);
+			// do not compress already gz'd files
+			if(finfo_file($finfo, $fileName) == "application/x-gzip") {
+				$compress = false;
+			} else {
+				$fs = new Filesystem();
+				$sapiClientTempDir = sys_get_temp_dir() . '/sapi-php-client';
+				if (!$fs->exists($sapiClientTempDir)) {
+					$fs->mkdir($sapiClientTempDir);
+					$rmSapiDir = true;
+				}
+
+				$currentUploadDir = $sapiClientTempDir . '/' . uniqid('file-upload');
+				$fs->mkdir($currentUploadDir);
+
+				// gzip file and preserve it's base name
+				$gzFilePath = $currentUploadDir . '/'. basename($fileName) . '.gz';
+				exec(sprintf("gzip -c %s > %s", escapeshellarg($fileName), escapeshellarg($gzFilePath)));
+
+				$fileName = $gzFilePath;
+			}
+		}
+
 		// 1. prepare resource
 		$result = $this->_apiPost("storage/files/prepare", array(
 			'isPublic' => $isPublic,
@@ -1064,6 +1089,13 @@ class Client
 			))->send();
 		} catch(RequestException $e) {
 			throw new ClientException("Error on file upload to S3: " . $e->getMessage(), $e->getCode(), $e);
+		}
+
+		if ($compress) {
+			$fs->remove($currentUploadDir);
+			if (!empty($rmSapiDir)) {
+				$fs->remove($sapiClientTempDir);
+			}
 		}
 
 		return $result['id'];
