@@ -1,3 +1,7 @@
+## 2.8.27
+ * [Bugfix] Maintenance response missing reason
+ * [Feature] Automatic compression of CSV files imported asynchronously
+
 ## 2.8.26
  * [Bugfix] Reading CSV on Windows
 
