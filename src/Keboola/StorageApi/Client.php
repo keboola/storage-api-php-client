@@ -1044,7 +1044,7 @@ class Client
 		if ($compress) {
 			$finfo = finfo_open(FILEINFO_MIME_TYPE);
 			// do not compress already gz'd files
-			if(finfo_file($finfo, $fileName) == "application/x-gzip") {
+			if(in_array(finfo_file($finfo, $fileName), array("application/x-gzip", "application/zip"))) {
 				$compress = false;
 			} else {
 				$fs = new Filesystem();
