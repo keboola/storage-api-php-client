@@ -1215,8 +1215,8 @@ class Client
 			$response = $e->getResponse();
 			$body = $response->json();
 
-			if ($response->getStatusCode() == 503 && isset($body["reason"])) {
-				throw new MaintenanceException($body['reason'], (string) $response->getHeader('Retry-After'), $body);
+			if ($response->getStatusCode() == 503) {
+				throw new MaintenanceException(isset($body["reason"]) ? $body['reason'] : 'Maintenance', (string) $response->getHeader('Retry-After'), $body);
 			}
 
 			throw new ClientException(
