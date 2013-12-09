@@ -82,7 +82,7 @@ class Keboola_StorageApi_EventsTest extends StorageApiTestCase
 
 		// we have assign runId to isolate testing events,
 		// because if someone displays navigation in KBC "bucketListed" event is created
-		$runId = 'test';
+		$runId = $this->_client->generateId();
 		$event = new Event();
 		$event
 			->setComponent('transformation')
