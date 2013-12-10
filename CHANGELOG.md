@@ -1,3 +1,8 @@
+## 2.8.28
+ * [Change] Default timeout increased from 30 minutes to 2 hours
+ * [Bugfix] Added check if gzip compression succeded. If failed, then the resulting error message was "File sizeBytes must be set" because gziped file was zero size
+ * [Bugfix] Forced closing of temporary file in Table::save()
+
 ## 2.8.27
  * [Bugfix] Maintenance response missing reason
  * [Feature] Automatic compression of CSV files imported asynchronously
