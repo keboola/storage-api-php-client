@@ -1058,11 +1058,11 @@ class Client
 				$fs->mkdir($currentUploadDir);
 
 				// gzip file and preserve it's base name
-				$gzFilePath = $currentUploadDir . '/'. basename($fileName) . '.gz';
+				$gzFilePath = $currentUploadDir . '/' . basename($fileName) . '.gz';
 				exec(sprintf("gzip -c %s > %s", escapeshellarg($fileName), escapeshellarg($gzFilePath)), $output, $ret);
-                if ($ret !== 0) {
-                    throw new ClientException("Failed to gzip file, command return code: " . $ret);
-                }
+				if ($ret !== 0) {
+					throw new ClientException("Failed to gzip file, command return code: " . $ret);
+				}
 				$fileName = $gzFilePath;
 			}
 		}

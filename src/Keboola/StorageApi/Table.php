@@ -345,8 +345,8 @@ class Table
 			foreach ($this->_data as $row) {
 				$file->writeRow($row);
 			}
-            // Close the file
-            unset($file);
+			// Close the file
+			unset($file);
 		}
 
 		if (!$this->_client->tableExists($this->_id)) {
