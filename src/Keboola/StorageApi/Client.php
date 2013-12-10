@@ -62,7 +62,7 @@ class Client
 	 *
 	 * @var int
 	 */
-	public $_connectionTimeout = 1800;
+	public $_connectionTimeout = 7200;
 
 	/**
 	 * @param $tokenString
