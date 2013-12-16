@@ -1,3 +1,6 @@
+## 2.8.29
+ * [Bugfix] File upload - compress detection switched to suffix comparation
+
 ## 2.8.28
  * [Change] Default timeout increased from 30 minutes to 2 hours
  * [Bugfix] Added check if gzip compression succeded. If failed, then the resulting error message was "File sizeBytes must be set" because gziped file was zero size
