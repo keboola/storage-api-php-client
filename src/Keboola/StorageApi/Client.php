@@ -1042,9 +1042,8 @@ class Client
 	public function uploadFile($fileName, $isPublic = false, $notify = true, $compress = false)
 	{
 		if ($compress) {
-			$finfo = finfo_open(FILEINFO_MIME_TYPE);
 			// do not compress already gz'd files
-			if(in_array(finfo_file($finfo, $fileName), array("application/x-gzip", "application/zip"))) {
+			if (in_array(strtolower(pathinfo($fileName, PATHINFO_EXTENSION)), array("gzip", "gz", "zip"))) {
 				$compress = false;
 			} else {
 				$fs = new Filesystem();
