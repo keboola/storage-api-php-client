@@ -349,7 +349,7 @@ class Table
 			unset($file);
 		}
 
-		if (!$this->_client->tableExists($this->_id)) {
+		try {
 			$method = 'createTable';
 			if ($async) {
 				$method .= 'Async';
@@ -364,7 +364,7 @@ class Table
 					$this->_transactional
 				)
 			);
-		} else {
+		} catch (ClientException $e) {
 			$method = 'writeTable';
 			if ($async) {
 				$method .= 'Async';
