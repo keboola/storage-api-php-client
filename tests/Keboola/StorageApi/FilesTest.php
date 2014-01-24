@@ -7,16 +7,12 @@
  *
  */
 
+use \Keboola\StorageApi\FileUploadOptions;
+
 class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 {
 
-	protected $_testFilePath;
 
-	public function setUp()
-	{
-		parent::setUp();
-		$this->_testFilePath = __DIR__ . '/_data/files.upload.txt';
-	}
 
 	public function testFileList()
 	{
@@ -29,42 +25,68 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 	/**
 	 * @dataProvider uploadData
 	 */
-	public function testFileUpload($isPublic)
+	public function testFileUpload(FileUploadOptions $options)
 	{
-		$fileId = $this->_client->uploadFile($this->_testFilePath, $isPublic);
+		$fileId = $this->_client->uploadFile($options);
 		$file = $this->_client->getFile($fileId);
 
-		$this->assertEquals($isPublic, $file['isPublic']);
-		$this->assertEquals(basename($this->_testFilePath), $file['name']);
-		$this->assertEquals(filesize($this->_testFilePath), $file['sizeBytes']);
-		$this->assertEquals(file_get_contents($this->_testFilePath), file_get_contents($file['url']));
+		$this->assertEquals($options->getIsPublic(), $file['isPublic']);
+		$this->assertEquals(basename($options->getFileName()), $file['name']);
+		$this->assertEquals(filesize($options->getFileName()), $file['sizeBytes']);
+		$this->assertEquals(file_get_contents($options->getFileName()), file_get_contents($file['url']));
+
+		$tags = $options->getTags();
+		sort($tags);
+		$fileTags = $file['tags'];
+		sort($fileTags);
+		$this->assertEquals($tags, $fileTags);
 
 		$info = $this->_client->getLogData();
 		$this->assertEquals($file['creatorToken']['id'], (int) $info['id']);
 		$this->assertEquals($file['creatorToken']['description'], $info['description']);
 	}
 
+
 	/**
 	 * @dataProvider uploadData with compress = true
 	 */
 	public function testFileUploadCompress()
 	{
-		$fileId = $this->_client->uploadFile($this->_testFilePath, false, true, true);
+		$filePath = __DIR__ . '/_data/files.upload.txt';
+		$fileId = $this->_client->uploadFile((new FileUploadOptions())->setFileName($filePath)->setCompress(true));
 		$file = $this->_client->getFile($fileId);
 
-		$this->assertEquals(basename($this->_testFilePath) . ".gz", $file['name']);
+		$this->assertEquals(basename($filePath) . ".gz", $file['name']);
 
 		$gzFile = gzopen($file['url'], "r");
-		$this->assertEquals(file_get_contents($this->_testFilePath), gzread($gzFile, 524288));
+		$this->assertEquals(file_get_contents($filePath), gzread($gzFile, 524288));
 	}
 
 	public function uploadData()
 	{
+		$path  = __DIR__ . '/_data/files.upload.txt';;
 		return array(
-			array(false),
-			array(true),
+			array(
+				(new FileUploadOptions())
+					->setFileName($path)
+			),
+			array(
+				(new FileUploadOptions())
+					->setFileName($path)
+					->setNotify(false)
+					->setCompress(false)
+					->setIsPublic(false)
+			),
+			array(
+				(new FileUploadOptions())
+					->setFileName($path)
+					->setIsPublic(true)
+					->setTags(array('sapi-import', 'martin'))
+			),
 		);
 	}
+
+
 
 	public function testFilesPermissions()
 	{

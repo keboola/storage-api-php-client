@@ -16,6 +16,7 @@ use Guzzle\Plugin\Backoff\BackoffPlugin;
 use Guzzle\Plugin\Log\LogPlugin;
 use Symfony\Component\Filesystem\Filesystem;
 use Keboola\Csv\CsvFile,
+	Keboola\StorageApi\FileUploadOptions,
 	Guzzle\Http\Client as GuzzleClient;
 
 class Client
@@ -1035,13 +1036,15 @@ class Client
 	 * Uploads a file
 	 *
 	 *
+	 *
 	 * @param string $fileName
 	 * @param bool $isPublic
 	 * @return mixed|string
 	 */
-	public function uploadFile($fileName, $isPublic = false, $notify = true, $compress = false)
+	public function uploadFile(FileUploadOptions $options)
 	{
-		if ($compress) {
+		$fileName = $options->getFileName();
+		if ($options->getCompress()) {
 			// do not compress already gz'd files
 			if (in_array(strtolower(pathinfo($fileName, PATHINFO_EXTENSION)), array("gzip", "gz", "zip"))) {
 				$compress = false;
@@ -1068,10 +1071,11 @@ class Client
 
 		// 1. prepare resource
 		$result = $this->_apiPost("storage/files/prepare", array(
-			'isPublic' => $isPublic,
-			'notify' => $notify,
+			'isPublic' => $options->getIsPublic(),
+			'notify' => $options->getNotify(),
 			'name' => basename($fileName),
 			'sizeBytes' => filesize($fileName),
+			'tags' => $options->getTags(),
 		));
 
 		// 2. upload directly do S3 using returned credentials
@@ -1092,7 +1096,7 @@ class Client
 			throw new ClientException("Error on file upload to S3: " . $e->getMessage(), $e->getCode(), $e);
 		}
 
-		if ($compress) {
+		if ($options->getCompress()) {
 			$fs->remove($currentUploadDir);
 			if (!empty($rmSapiDir)) {
 				$fs->remove($sapiClientTempDir);
