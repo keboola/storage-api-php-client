@@ -20,9 +20,10 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 
 	public function testFileList()
 	{
-		$initialFilesCount = count($this->_client->listFiles());
-		$this->_client->uploadFile($this->_testFilePath);
-		$this->assertCount($initialFilesCount + 1, $this->_client->listFiles());
+		$fileId = $this->_client->uploadFile($this->_testFilePath);
+		$files = $this->_client->listFiles();
+		$this->assertNotEmpty($files);
+		$this->assertEquals($fileId, reset($files)['id']);
 	}
 
 	/**
@@ -70,7 +71,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 
 		$newTokenId = $this->_client->createToken(array(), 'Files test');
 		$newToken = $this->_client->getToken($newTokenId);
-		$this->_client->uploadFile($this->_testFilePath);
+		$firstFileId = $this->_client->uploadFile($this->_testFilePath);
 
 		$totalFilesCount = count($this->_client->listFiles());
 		$this->assertNotEmpty($totalFilesCount);
@@ -79,11 +80,14 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$newTokenClient = new Keboola\StorageApi\Client($newToken['token'], STORAGE_API_URL);
 		$this->assertEmpty($newTokenClient->listFiles());
 
-		$newTokenClient->uploadFile($this->_testFilePath);
-		$this->assertCount(1, $newTokenClient->listFiles());
+		$newFileId = $newTokenClient->uploadFile($this->_testFilePath);
+		$files = $newTokenClient->listFiles();
+		$this->assertCount(1, $files);
+		$this->assertEquals($newFileId, reset($files)['id']);
 
 		// new file should be visible for master token
-		$this->assertCount($totalFilesCount + 1, $this->_client->listFiles());
+		$files = $this->_client->listFiles();
+		$this->assertEquals($newFileId, reset($files)['id']);
 
 		$this->_client->dropToken($newTokenId);
 
@@ -91,9 +95,6 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$newTokenId = $this->_client->createToken(array(), 'files manage', null, true);
 		$newToken = $this->_client->getToken($newTokenId);
 
-		// shooul se all files as master token
-		$newTokenClient = new Keboola\StorageApi\Client($newToken['token'], STORAGE_API_URL);
-		$this->assertCount($totalFilesCount + 1, $newTokenClient->listFiles());
 
 		$this->_client->dropToken($newTokenId);
 	}

@@ -96,6 +96,7 @@ class Keboola_StorageApi_EventsTest extends StorageApiTestCase
 		$this->createAndWaitForEvent($event);
 		$event->setMessage('another');
 		$this->createAndWaitForEvent($event);
+
 		$events = $this->_client->listEvents(array(
 			'sinceId' => $lastEventId,
 			'runId' => $runId,
