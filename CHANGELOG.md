@@ -1,3 +1,6 @@
+## 2.8.30
+ * Keboola/csv patch version unlocked from 1.1.3
+
 ## 2.8.29
  * [Bugfix] File upload - compress detection switched to suffix comparation
 
