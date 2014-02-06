@@ -14,9 +14,10 @@ use Guzzle\Log\MessageFormatter;
 use Guzzle\Plugin\Backoff\BackoffLogger;
 use Guzzle\Plugin\Backoff\BackoffPlugin;
 use Guzzle\Plugin\Log\LogPlugin;
+use Keboola\StorageApi\Options\ListFilesOptions;
 use Symfony\Component\Filesystem\Filesystem;
 use Keboola\Csv\CsvFile,
-	Keboola\StorageApi\FileUploadOptions,
+	Keboola\StorageApi\Options\FileUploadOptions,
 	Guzzle\Http\Client as GuzzleClient;
 
 class Client
@@ -1119,9 +1120,9 @@ class Client
 	/**
 	 * Files list
 	 */
-	public function listFiles()
+	public function listFiles(ListFilesOptions $options = null)
 	{
-		return $this->_apiGet('storage/files');
+		return $this->_apiGet('storage/files?' . http_build_query($options ? $options->toArray() : array()));
 	}
 
 

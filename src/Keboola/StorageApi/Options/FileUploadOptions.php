@@ -7,7 +7,7 @@
  * To change this template use File | Settings | File Templates.
  */
 
-namespace Keboola\StorageApi;
+namespace Keboola\StorageApi\Options;
 
 
 class FileUploadOptions {

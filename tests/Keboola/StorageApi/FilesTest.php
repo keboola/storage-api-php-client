@@ -7,7 +7,8 @@
  *
  */
 
-use \Keboola\StorageApi\FileUploadOptions;
+use \Keboola\StorageApi\Options\FileUploadOptions,
+	\Keboola\StorageApi\Options\ListFilesOptions;
 
 class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 {
@@ -16,10 +17,27 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 
 	public function testFileList()
 	{
-		$fileId = $this->_client->uploadFile($this->_testFilePath);
-		$files = $this->_client->listFiles();
+		$options = new FileUploadOptions();
+		$options->setFileName(__DIR__ . '/_data/files.upload.txt');
+		$fileId = $this->_client->uploadFile($options);
+		$files = $this->_client->listFiles(new ListFilesOptions());
 		$this->assertNotEmpty($files);
 		$this->assertEquals($fileId, reset($files)['id']);
+	}
+
+	public function testFilesListFilterByTags()
+	{
+		$filePath = __DIR__ . '/_data/files.upload.txt';
+
+		$this->_client->uploadFile((new FileUploadOptions())->setFileName($filePath));
+		$tag = uniqid('tag-test');
+		$fileId = $this->_client->uploadFile((new FileUploadOptions())->setFileName($filePath)->setTags(array($tag)));
+
+		$files = $this->_client->listFiles((new ListFilesOptions())->setTags(array($tag)));
+
+		$this->assertCount(1, $files);
+		$file = reset($files);
+		$this->assertEquals($fileId, $file['id']);
 	}
 
 	/**
@@ -90,10 +108,11 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 
 	public function testFilesPermissions()
 	{
+		$uploadOptions = (new FileUploadOptions())->setFileName( __DIR__ . '/_data/files.upload.txt');
 
 		$newTokenId = $this->_client->createToken(array(), 'Files test');
 		$newToken = $this->_client->getToken($newTokenId);
-		$firstFileId = $this->_client->uploadFile($this->_testFilePath);
+		$firstFileId = $this->_client->uploadFile($uploadOptions);
 
 		$totalFilesCount = count($this->_client->listFiles());
 		$this->assertNotEmpty($totalFilesCount);
@@ -102,7 +121,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$newTokenClient = new Keboola\StorageApi\Client($newToken['token'], STORAGE_API_URL);
 		$this->assertEmpty($newTokenClient->listFiles());
 
-		$newFileId = $newTokenClient->uploadFile($this->_testFilePath);
+		$newFileId = $newTokenClient->uploadFile($uploadOptions);
 		$files = $newTokenClient->listFiles();
 		$this->assertCount(1, $files);
 		$this->assertEquals($newFileId, reset($files)['id']);
