@@ -23,68 +23,68 @@ class Table
 	/**
 	 * @var string
 	 */
-	protected $_name;
+	protected $name;
 
 	/**
 	 * @var string
 	 */
-	protected $_bucketId;
+	protected $bucketId;
 
 	/**
 	 * @var string
 	 */
-	protected $_filename;
+	protected $filename;
 
 	/**
 	 * @var Client
 	 */
-	protected $_client;
+	protected $client;
 
 	/**
 	 * Header columns array
 	 *
 	 * @var array
 	 */
-	protected $_header;
+	protected $header;
 
 	/**
 	 * 2 dimensional array of data - Rows x Columns
 	 *
 	 * @var array
 	 */
-	protected $_data = array();
+	protected $data = array();
 
 	/**
 	 * key value pairs of attributes
 	 *
 	 * @var array
 	 */
-	protected $_attributes = array();
+	protected $attributes = array();
 
 	/**
 	 * array of indices to add
 	 *
 	 * @var array
 	 */
-	protected $_indices = array();
+	protected $indices = array();
 
 	/**
 	 * @var bool
 	 */
-	protected $_incremental = false;
+	protected $incremental = false;
 
 	/**
 	 * @var bool
 	 */
-	protected $_transactional = false;
+	protected $transactional = false;
 
-	protected $_delimiter = ',';
+	protected $delimiter = ',';
 
-	protected $_enclosure = '"';
+	protected $enclosure = '"';
 
-	protected $_partial = false;
+	protected $partial = false;
 
-	protected $_primaryKey;
+	protected $primaryKey;
 
 	/**
 	 * @param Client $client
@@ -100,24 +100,24 @@ class Table
 	public function __construct(Client $client, $id, $filename = '', $primaryKey=null,
         $transactional=false, $delimiter=',', $enclosure='"', $incremental=false, $partial=false
 	) {
-		$this->_client = $client;
+		$this->client = $client;
 		$this->_id = $id;
-		$this->_filename = $filename;
+		$this->filename = $filename;
 
 		$tableNameArr = explode('.', $id);
-		$this->_name = $tableNameArr[2];
+		$this->name = $tableNameArr[2];
 
 		$bucketName = $tableNameArr[1];
 		$stage = $tableNameArr[0];
 
-		$this->_bucketId = $this->_client->getBucketId($bucketName, $stage);
+		$this->bucketId = $this->client->getBucketId($bucketName, $stage);
 
-		$this->_transactional = $transactional;
-		$this->_delimiter = $delimiter;
-		$this->_enclosure = $enclosure;
-		$this->_incremental = $incremental;
-		$this->_partial = $partial;
-		$this->_primaryKey = $primaryKey;
+		$this->transactional = $transactional;
+		$this->delimiter = $delimiter;
+		$this->enclosure = $enclosure;
+		$this->incremental = $incremental;
+		$this->partial = $partial;
+		$this->primaryKey = $primaryKey;
 	}
 
 	/**
@@ -133,7 +133,7 @@ class Table
 	 */
 	public function getName()
 	{
-		return $this->_name;
+		return $this->name;
 	}
 
 	/**
@@ -141,7 +141,7 @@ class Table
 	 */
 	public function getFilename()
 	{
-		return $this->_filename;
+		return $this->filename;
 	}
 
 	/**
@@ -149,7 +149,7 @@ class Table
 	 */
 	public function setTransactional($bool)
 	{
-		$this->_transactional = $bool;
+		$this->transactional = $bool;
 	}
 
 	/**
@@ -157,7 +157,7 @@ class Table
 	 */
 	public function setIncremental($bool)
 	{
-		$this->_incremental = $bool;
+		$this->incremental = $bool;
 	}
 
 	/**
@@ -165,7 +165,7 @@ class Table
 	 */
 	public function setPartial($bool)
 	{
-		$this->_partial = $bool;
+		$this->partial = $bool;
 	}
 
 	/**
@@ -173,7 +173,7 @@ class Table
 	 */
 	public function isTransactional()
 	{
-		return $this->_transactional;
+		return $this->transactional;
 	}
 
 	/**
@@ -181,7 +181,7 @@ class Table
 	 */
 	public function isIncremental()
 	{
-		return $this->_incremental;
+		return $this->incremental;
 	}
 
 	/**
@@ -189,7 +189,7 @@ class Table
 	 */
 	public function isPartial()
 	{
-		return $this->_partial;
+		return $this->partial;
 	}
 
 	/**
@@ -197,7 +197,7 @@ class Table
 	 */
 	public function getBucketId()
 	{
-		return $this->_bucketId;
+		return $this->bucketId;
 	}
 
 	/**
@@ -205,7 +205,7 @@ class Table
 	 */
 	public function getHeader()
 	{
-		return $this->_header;
+		return $this->header;
 	}
 
 	/**
@@ -213,7 +213,7 @@ class Table
 	 */
 	public function getData()
 	{
-		return $this->_data;
+		return $this->data;
 	}
 
 	/**
@@ -221,7 +221,7 @@ class Table
 	 */
 	public function setFilename($filename)
 	{
-		$this->_filename = $filename;
+		$this->filename = $filename;
 	}
 
 	/**
@@ -229,7 +229,7 @@ class Table
 	 */
 	public function setHeader($header)
 	{
-		$this->_header = self::normalizeHeader($header);
+		$this->header = self::normalizeHeader($header);
 	}
 
 	/**
@@ -238,7 +238,7 @@ class Table
 	 */
 	public function setAttribute($key, $value)
 	{
-		$this->_attributes[$key] = $value;
+		$this->attributes[$key] = $value;
 	}
 
 	/**
@@ -246,7 +246,7 @@ class Table
 	 */
 	public function getDelimiter()
 	{
-		return $this->_delimiter;
+		return $this->delimiter;
 	}
 
 	/**
@@ -254,7 +254,7 @@ class Table
 	 */
 	public function setDelimiter($delim)
 	{
-		$this->_delimiter = $delim;
+		$this->delimiter = $delim;
 	}
 
 	/**
@@ -262,7 +262,7 @@ class Table
 	 */
 	public function setEnclosure($enc)
 	{
-		$this->_enclosure = $enc;
+		$this->enclosure = $enc;
 	}
 
 	/**
@@ -270,7 +270,7 @@ class Table
 	 */
 	public function getEnclosure()
 	{
-		return $this->_enclosure;
+		return $this->enclosure;
 	}
 
 	/**
@@ -279,7 +279,7 @@ class Table
 	 */
 	public function getAttribute($key)
 	{
-		return $this->_attributes[$key];
+		return $this->attributes[$key];
 	}
 
 	/**
@@ -287,22 +287,22 @@ class Table
 	 */
 	public function getAttributes()
 	{
-		return $this->_attributes;
+		return $this->attributes;
 	}
 
 	public function addIndex($index)
 	{
-		$this->_indices[] = $index;
+		$this->indices[] = $index;
 	}
 
 	public function setIndices(array $indices)
 	{
-		$this->_indices = $indices;
+		$this->indices = $indices;
 	}
 
 	public function getIndices()
 	{
-		return $this->_indices;
+		return $this->indices;
 	}
 
 	/**
@@ -312,7 +312,7 @@ class Table
 	 */
 	public function setFromArray($data, $hasHeader=false)
 	{
-		if (!is_array($this->_data)) {
+		if (!is_array($this->data)) {
 			throw new TableException('Invalid data type - expected 2D Array');
 		}
 
@@ -320,7 +320,7 @@ class Table
 			$this->setHeader(array_shift($data));
 		}
 
-		$this->_data = $data;
+		$this->data = $data;
 	}
 
 	public function setFromString($string, $delimiter=',', $enclosure='"', $hasHeader=false)
@@ -334,34 +334,34 @@ class Table
 	 */
 	public function save($async = false)
 	{
-		if (!empty($this->_filename)) {
-			$tempfile = $this->_filename;
+		if (!empty($this->filename)) {
+			$tempfile = $this->filename;
 		} else {
-			$this->_preSave();
+			$this->preSave();
 
 			$tempfile = tempnam(__DIR__ . "/tmp/", 'sapi-client-' . $this->_id . '-');
 			$file = new \Keboola\Csv\CsvFile($tempfile);
-			$file->writeRow($this->_header);
-			foreach ($this->_data as $row) {
+			$file->writeRow($this->header);
+			foreach ($this->data as $row) {
 				$file->writeRow($row);
 			}
 			// Close the file
 			unset($file);
 		}
 
-		if (!$this->_client->tableExists($this->_id)) {
+		if (!$this->client->tableExists($this->_id)) {
 			$method = 'createTable';
 			if ($async) {
 				$method .= 'Async';
 			}
-			$this->_client->$method(
-				$this->_bucketId,
-				$this->_name,
-				new CsvFile($tempfile, $this->_delimiter, $this->_enclosure),
+			$this->client->$method(
+				$this->bucketId,
+				$this->name,
+				new CsvFile($tempfile, $this->delimiter, $this->enclosure),
 				array(
-					'primaryKey' => $this->_primaryKey,
+					'primaryKey' => $this->primaryKey,
 					'transactional' =>
-					$this->_transactional
+					$this->transactional
 				)
 			);
 		} else {
@@ -369,33 +369,33 @@ class Table
 			if ($async) {
 				$method .= 'Async';
 			}
-			$this->_client->$method(
+			$this->client->$method(
 				$this->_id,
-				new CsvFile($tempfile,$this->_delimiter, $this->_enclosure),
+				new CsvFile($tempfile,$this->delimiter, $this->enclosure),
 				array(
-					'transactional' => $this->_transactional,
-					'incremental' => $this->_incremental,
-					'partial' => $this->_partial
+					'transactional' => $this->transactional,
+					'incremental' => $this->incremental,
+					'partial' => $this->partial
 				)
 			);
 		}
 
 		// Save table attributes
-		foreach ($this->_attributes as $k => $v) {
-			$this->_client->setTableAttribute($this->_id, $k, $v);
+		foreach ($this->attributes as $k => $v) {
+			$this->client->setTableAttribute($this->_id, $k, $v);
 		}
 
 		// Add table indices
-		foreach ($this->_indices as $v) {
-			$this->_client->markTableColumnAsIndexed($this->_id, $v);
+		foreach ($this->indices as $v) {
+			$this->client->markTableColumnAsIndexed($this->_id, $v);
 		}
 
 		unlink($tempfile);
 	}
 
-	protected function _preSave()
+	protected function preSave()
 	{
-		if (empty($this->_header)) {
+		if (empty($this->header)) {
 			throw new TableException('Empty header. Header must be set.');
 		}
 	}

@@ -37,7 +37,7 @@ class OneLiner
 	 *
 	 * @var array
 	 */
-	private $_data = array();
+	private $data = array();
 
 	/**
 	 *
@@ -45,7 +45,7 @@ class OneLiner
 	 *
 	 * @var string
 	 */
-	private $_tableId;
+	private $tableId;
 
 	/**
 	 *
@@ -55,7 +55,7 @@ class OneLiner
 	 */
 	public function __construct($tableId)
 	{
-		$this->_tableId = $tableId;
+		$this->tableId = $tableId;
 		$this->load();
 	}
 
@@ -69,8 +69,8 @@ class OneLiner
 	 */
 	public function __get($name)
 	{
-		if (array_key_exists($name, $this->_data)) {
-			return $this->_data[$name];
+		if (array_key_exists($name, $this->data)) {
+			return $this->data[$name];
 		}
 		throw new OneLinerException("Attribute {$name} not found");
 	}
@@ -84,7 +84,7 @@ class OneLiner
 	 */
 	public function __set($name, $value)
 	{
-		$this->_data[$name] = $value;
+		$this->data[$name] = $value;
 	}
 
 	/**
@@ -93,7 +93,7 @@ class OneLiner
 	 */
 	public function __isset($name)
 	{
-		return isset($this->_data[$name]);
+		return isset($this->data[$name]);
 	}
 
 	/**
@@ -101,7 +101,7 @@ class OneLiner
 	 */
 	public function __unset($name)
 	{
-		unset($this->_data[$name]);
+		unset($this->data[$name]);
 	}
 
 	/**
@@ -114,15 +114,15 @@ class OneLiner
 		$dataFile = tempnam(self::$tmpDir, "oneliner");
 
 		$csvFile = new CsvFile($dataFile);
-		$csvFile->writeRow(array_keys($this->_data));
-		$csvFile->writeRow($this->_data);
+		$csvFile->writeRow(array_keys($this->data));
+		$csvFile->writeRow($this->data);
 
-		if (!self::$client->tableExists($this->_tableId)) {
-			$tableInfo = explode(".",$this->_tableId);
+		if (!self::$client->tableExists($this->tableId)) {
+			$tableInfo = explode(".",$this->tableId);
 			self::$client->createTable($tableInfo[0] . "." . $tableInfo[1], $tableInfo[2], $csvFile);
 		}
 
-		self::$client->writeTable($this->_tableId, $csvFile);
+		self::$client->writeTable($this->tableId, $csvFile);
 		unlink($dataFile);
 	}
 
@@ -134,11 +134,11 @@ class OneLiner
 	public function load()
 	{
 		// If table not found, create a new one
-		if (!self::$client->tableExists($this->_tableId)) {
+		if (!self::$client->tableExists($this->tableId)) {
 			return;
 		}
 
-		$data = self::$client->exportTable($this->_tableId);
+		$data = self::$client->exportTable($this->tableId);
 
 		$fh = tmpfile();
 		fwrite($fh, $data);
@@ -147,7 +147,7 @@ class OneLiner
 		$data = fgetcsv($fh, null, ",", '"', '"');
 
 		if (count($data) > 0 && count($headers) != count($data) || count($headers) == 0) {
-			throw new OneLinerException("Cannot load data from {$this->_tableId}");
+			throw new OneLinerException("Cannot load data from {$this->tableId}");
 		}
 		foreach($headers as $i => $header) {
 			if (isset($data[$i])) {

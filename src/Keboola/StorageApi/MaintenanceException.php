@@ -7,11 +7,11 @@ class MaintenanceException extends ClientException
 	/**
 	 * @var int
 	 */
-	private $_retryAfter;
+	private $retryAfter;
 
 	function __construct($reason, $retryAfter, $params)
 	{
-		$this->_retryAfter = (int) $retryAfter;
+		$this->retryAfter = (int) $retryAfter;
 		parent::__construct($reason, 503, null, "MAINTENANCE", $params);
 	}
 
@@ -20,7 +20,7 @@ class MaintenanceException extends ClientException
 	 */
 	public function getRetryAfter()
 	{
-		return $this->_retryAfter;
+		return $this->retryAfter;
 	}
 
 }

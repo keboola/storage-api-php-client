@@ -21,52 +21,52 @@ class Event {
 	/**
 	 * @var
 	 */
-	private $_component;
+	private $component;
 
 	/**
 	 * @var
 	 */
-	private $_configurationId;
+	private $configurationId;
 
 	/**
 	 * @var
 	 */
-	private $_runId;
+	private $runId;
 
 	/**
 	 * Log message
 	 * @var string
 	 */
-	private $_message;
+	private $message;
 
 	/**
 	 * More detailed description
 	 * @var
 	 */
-	private $_description;
+	private $description;
 
 	/**
 	 * info | error
 	 * @var string
 	 */
-	private $_type;
+	private $type;
 
 	/**
 	 * Params associated to event e.q. sfdc configuration id
 	 * @var array
 	 */
-	private $_params = array();
+	private $params = array();
 
 	/**
 	 * Results associated to event, some performance metrics, fetched rows. couts etc.
 	 * @var array
 	 */
-	private $_results = array();
+	private $results = array();
 
 	/**
 	 * @var int run duration in seconds
 	 */
-	private $_duration;
+	private $duration;
 
 	/**
 	 * @deprecated
@@ -108,7 +108,7 @@ class Event {
 
 	public function getMessage()
 	{
-		return $this->_message;
+		return $this->message;
 	}
 
 	/**
@@ -117,13 +117,13 @@ class Event {
 	 */
 	public function setMessage($message)
 	{
-		$this->_message = $message;
+		$this->message = $message;
 		return $this;
 	}
 
 	public function getType()
 	{
-		return $this->_type;
+		return $this->type;
 	}
 
 	/**
@@ -143,13 +143,13 @@ class Event {
 			throw new Exception("{$type} is not allowed. Allowed types: " . implode(',', $allowedTypes));
 		}
 
-		$this->_type = $type;
+		$this->type = $type;
 		return $this;
 	}
 
 	public function getParams()
 	{
-		return $this->_params;
+		return $this->params;
 	}
 
 	/**
@@ -158,13 +158,13 @@ class Event {
 	 */
 	public function setParams(array $params)
 	{
-		$this->_params = $params;
+		$this->params = $params;
 		return $this;
 	}
 
 	public function getResults()
 	{
-		return $this->_results;
+		return $this->results;
 	}
 
 	/**
@@ -173,13 +173,13 @@ class Event {
 	 */
 	public function setResults(array $results)
 	{
-		$this->_results = $results;
+		$this->results = $results;
 		return $this;
 	}
 
 	public function getDuration()
 	{
-		return $this->_duration;
+		return $this->duration;
 	}
 
 	/**
@@ -188,13 +188,13 @@ class Event {
 	 */
 	public function setDuration($duration)
 	{
-		$this->_duration = (int) $duration;
+		$this->duration = (int) $duration;
 		return $this;
 	}
 
 	public function getComponent()
 	{
-		return $this->_component;
+		return $this->component;
 	}
 
 	/**
@@ -203,7 +203,7 @@ class Event {
 	 */
 	public function setComponent($component)
 	{
-		$this->_component = $component;
+		$this->component = $component;
 		return $this;
 	}
 
@@ -212,7 +212,7 @@ class Event {
 	 */
 	public function getConfigurationId()
 	{
-		return $this->_configurationId;
+		return $this->configurationId;
 	}
 
 	/**
@@ -221,7 +221,7 @@ class Event {
 	 */
 	public function setConfigurationId($configurationId)
 	{
-		$this->_configurationId = $configurationId;
+		$this->configurationId = $configurationId;
 		return $this;
 	}
 
@@ -230,7 +230,7 @@ class Event {
 	 */
 	public function getRunId()
 	{
-		return $this->_runId;
+		return $this->runId;
 	}
 
 	/**
@@ -239,7 +239,7 @@ class Event {
 	 */
 	public function setRunId($runId)
 	{
-		$this->_runId = $runId;
+		$this->runId = $runId;
 		return $this;
 	}
 
@@ -248,7 +248,7 @@ class Event {
 	 */
 	public function getDescription()
 	{
-		return $this->_description;
+		return $this->description;
 	}
 
 
@@ -258,7 +258,7 @@ class Event {
 	 */
 	public function setDescription($description)
 	{
-		$this->_description = $description;
+		$this->description = $description;
 		return $this;
 	}
 
