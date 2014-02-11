@@ -1354,7 +1354,7 @@ class Client
 	 * @param array $postData
 	 * @return mixed|string
 	 */
-	protected function apiPost($url, $postData=null)
+	public function apiPost($url, $postData=null)
 	{
 		return $this->request($this->client->post($url, null, $postData));
 	}
@@ -1365,9 +1365,9 @@ class Client
 	 *
 	 * @param string $url
 	 * @param array $postData
-	 * @return mixed|string
+	 * @return mixed|stringgit d
 	 */
-	protected function apiPut($url, $postData=null)
+	public function apiPut($url, $postData=null)
 	{
 		$request = $this->client->put($url, null, $postData);
 		$request->addHeader('content-type', 'application/x-www-form-urlencoded');
@@ -1381,7 +1381,7 @@ class Client
 	 * @param string $url
 	 * @return mixed|string
 	 */
-	protected function apiDelete($url)
+	public function apiDelete($url)
 	{
 		return $this->request($this->client->delete($url));
 	}
@@ -1392,7 +1392,7 @@ class Client
 	 * @param array $data Data to log
 	 *
 	 */
-	private function log($message, $data=array())
+	public function log($message, $data=array())
 	{
 		if (Client::$log) {
 			$data["token"] = $this->getLogData();
