@@ -17,6 +17,8 @@ class FileUploadOptions {
 	private $isPublic = false;
 	private $tags = array();
 	private $compress = false;
+	private $federationToken = false;
+	private $sizeBytes;
 
 	/**
 	 * @return mixed
@@ -105,6 +107,42 @@ class FileUploadOptions {
 	public function setCompress($compress)
 	{
 		$this->compress = $compress;
+		return $this;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function getFederationToken()
+	{
+		return $this->federationToken;
+	}
+
+	/**
+	 * @param $federationToken
+	 * @return $this
+	 */
+	public function setFederationToken($federationToken)
+	{
+		$this->federationToken = (bool) $federationToken;
+		return $this;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getSizeBytes()
+	{
+		return $this->sizeBytes;
+	}
+
+	/**
+	 * @param $sizeBytes
+	 * @return $this
+	 */
+	public function setSizeBytes($sizeBytes)
+	{
+		$this->sizeBytes = (int) $sizeBytes;
 		return $this;
 	}
 

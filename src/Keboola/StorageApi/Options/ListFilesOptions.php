@@ -17,6 +17,8 @@ class ListFilesOptions
 
 	private $offset = 0;
 
+	private $query;
+
 	/**
 	 * @return array
 	 */
@@ -77,7 +79,26 @@ class ListFilesOptions
 			'limit' => $this->getLimit(),
 			'offset' => $this->getOffset(),
 			'tags' => $this->getTags(),
+			'q' => $this->getQuery(),
 		);
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getQuery()
+	{
+		return $this->query;
+	}
+
+	/**
+	 * @param $query
+	 * @return $this
+	 */
+	public function setQuery($query)
+	{
+		$this->query = $query;
+		return $this;
 	}
 
 }

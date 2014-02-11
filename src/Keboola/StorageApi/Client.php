@@ -609,7 +609,13 @@ class Client
 			$options['dataUrl'] = $csvFile->getPathname();
 		} else {
 			// upload file
-			$fileId = $this->uploadFile($csvFile->getPathname(), false, false, true);
+			$fileId = $this->uploadFile(
+				$csvFile->getPathname(),
+				(new FileUploadOptions())
+					->setNotify(false)
+					->setIsPublic(false)
+					->setCompress(true)
+			);
 			$options['dataFileId'] = $fileId;
 		}
 
@@ -1038,18 +1044,17 @@ class Client
 	 *
 	 *
 	 *
-	 * @param string $fileName
+	 * @param string $filePath
 	 * @param bool $isPublic
 	 * @return mixed|string
 	 */
-	public function uploadFile(FileUploadOptions $options)
+	public function uploadFile($filePath, FileUploadOptions $options)
 	{
-		$fileName = $options->getFileName();
-		if ($options->getCompress()) {
+		$newOptions = clone $options;
+		$compressed = false;
+		if ($newOptions->getCompress()) {
 			// do not compress already gz'd files
-			if (in_array(strtolower(pathinfo($fileName, PATHINFO_EXTENSION)), array("gzip", "gz", "zip"))) {
-				$compress = false;
-			} else {
+			if (!in_array(strtolower(pathinfo($filePath, PATHINFO_EXTENSION)), array("gzip", "gz", "zip"))) {
 				$fs = new Filesystem();
 				$sapiClientTempDir = sys_get_temp_dir() . '/sapi-php-client';
 				if (!$fs->exists($sapiClientTempDir)) {
@@ -1061,23 +1066,21 @@ class Client
 				$fs->mkdir($currentUploadDir);
 
 				// gzip file and preserve it's base name
-				$gzFilePath = $currentUploadDir . '/' . basename($fileName) . '.gz';
-				exec(sprintf("gzip -c %s > %s", escapeshellarg($fileName), escapeshellarg($gzFilePath)), $output, $ret);
+				$gzFilePath = $currentUploadDir . '/' . basename($filePath) . '.gz';
+				exec(sprintf("gzip -c %s > %s", escapeshellarg($filePath), escapeshellarg($gzFilePath)), $output, $ret);
 				if ($ret !== 0) {
 					throw new ClientException("Failed to gzip file, command return code: " . $ret);
 				}
-				$fileName = $gzFilePath;
+				$filePath = $gzFilePath;
+				$compressed = true;
 			}
 		}
+		$newOptions
+			->setFileName(basename($filePath))
+			->setSizeBytes(filesize($filePath));
 
 		// 1. prepare resource
-		$result = $this->_apiPost("storage/files/prepare", array(
-			'isPublic' => $options->getIsPublic(),
-			'notify' => $options->getNotify(),
-			'name' => basename($fileName),
-			'sizeBytes' => filesize($fileName),
-			'tags' => $options->getTags(),
-		));
+		$result = $this->prepareFileUpload($newOptions);
 
 		// 2. upload directly do S3 using returned credentials
 		$uploadParams = $result['uploadParams'];
@@ -1091,13 +1094,13 @@ class Client
 				'signature' => $uploadParams['signature'],
 				'policy' => $uploadParams['policy'],
 				'AWSAccessKeyId' => $uploadParams['AWSAccessKeyId'],
-				'file' => "@$fileName",
+				'file' => "@$filePath",
 			))->send();
 		} catch(RequestException $e) {
 			throw new ClientException("Error on file upload to S3: " . $e->getMessage(), $e->getCode(), $e);
 		}
 
-		if ($options->getCompress()) {
+		if ($compressed) {
 			$fs->remove($currentUploadDir);
 			if (!empty($rmSapiDir)) {
 				$fs->remove($sapiClientTempDir);
@@ -1105,6 +1108,18 @@ class Client
 		}
 
 		return $result['id'];
+	}
+
+	public function prepareFileUpload(FileUploadOptions $options)
+	{
+		return $this->_apiPost("storage/files/prepare", array(
+			'isPublic' => $options->getIsPublic(),
+			'notify' => $options->getNotify(),
+			'name' => $options->getFileName(),
+			'sizeBytes' => $options->getSizeBytes(),
+			'tags' => $options->getTags(),
+			'federationToken' => $options->getFederationToken(),
+		));
 	}
 
 	/**

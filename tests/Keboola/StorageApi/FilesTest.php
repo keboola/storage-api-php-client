@@ -18,8 +18,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 	public function testFileList()
 	{
 		$options = new FileUploadOptions();
-		$options->setFileName(__DIR__ . '/_data/files.upload.txt');
-		$fileId = $this->_client->uploadFile($options);
+		$fileId = $this->_client->uploadFile(__DIR__ . '/_data/files.upload.txt', $options);
 		$files = $this->_client->listFiles(new ListFilesOptions());
 		$this->assertNotEmpty($files);
 		$this->assertEquals($fileId, reset($files)['id']);
@@ -29,11 +28,24 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 	{
 		$filePath = __DIR__ . '/_data/files.upload.txt';
 
-		$this->_client->uploadFile((new FileUploadOptions())->setFileName($filePath));
+		$this->_client->uploadFile($filePath, new FileUploadOptions());
 		$tag = uniqid('tag-test');
-		$fileId = $this->_client->uploadFile((new FileUploadOptions())->setFileName($filePath)->setTags(array($tag)));
+		$fileId = $this->_client->uploadFile($filePath, (new FileUploadOptions())->setTags(array($tag)));
 
 		$files = $this->_client->listFiles((new ListFilesOptions())->setTags(array($tag)));
+
+		$this->assertCount(1, $files);
+		$file = reset($files);
+		$this->assertEquals($fileId, $file['id']);
+	}
+
+	public function testFileListSearch()
+	{
+
+		$fileId = $this->_client->uploadFile(__DIR__ . '/_data/users.csv', new FileUploadOptions());
+		$this->_client->uploadFile(__DIR__ . '/_data/files.upload.txt', new FileUploadOptions());
+
+		$files = $this->_client->listFiles((new ListFilesOptions())->setQuery('users')->setLimit(1));
 
 		$this->assertCount(1, $files);
 		$file = reset($files);
@@ -43,15 +55,15 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 	/**
 	 * @dataProvider uploadData
 	 */
-	public function testFileUpload(FileUploadOptions $options)
+	public function testFileUpload($filePath, FileUploadOptions $options)
 	{
-		$fileId = $this->_client->uploadFile($options);
+		$fileId = $this->_client->uploadFile($filePath, $options);
 		$file = $this->_client->getFile($fileId);
 
 		$this->assertEquals($options->getIsPublic(), $file['isPublic']);
-		$this->assertEquals(basename($options->getFileName()), $file['name']);
-		$this->assertEquals(filesize($options->getFileName()), $file['sizeBytes']);
-		$this->assertEquals(file_get_contents($options->getFileName()), file_get_contents($file['url']));
+		$this->assertEquals(basename($filePath), $file['name']);
+		$this->assertEquals(filesize($filePath), $file['sizeBytes']);
+		$this->assertEquals(file_get_contents($filePath), file_get_contents($file['url']));
 
 		$tags = $options->getTags();
 		sort($tags);
@@ -64,6 +76,38 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$this->assertEquals($file['creatorToken']['description'], $info['description']);
 	}
 
+	public function testFileUploadUsingFederationToken()
+	{
+		$pathToFile = __DIR__ . '/_data/files.upload.txt';
+		$options = new FileUploadOptions();
+		$options
+			->setFileName('upload.txt')
+			->setFederationToken(true);
+
+		$result = $this->_client->prepareFileUpload($options);
+
+		$uploadParams = $result['uploadParams'];
+		$this->assertArrayHasKey('credentials', $uploadParams);
+
+		$credentials = new Aws\Common\Credentials\Credentials(
+			$uploadParams['credentials']['AccessKeyId'],
+			$uploadParams['credentials']['SecretAccessKey'],
+			$uploadParams['credentials']['SessionToken']
+		);
+
+		$s3Client = \Aws\S3\S3Client::factory(array('credentials' => $credentials));
+		$s3Client->putObject(array(
+			'Bucket' => $uploadParams['bucket'],
+			'Key'    => $uploadParams['key'],
+			'Body'   => fopen($pathToFile, 'r+')
+		));
+
+		$file = $this->_client->getFile($result['id']);
+
+		$this->assertEquals(file_get_contents($pathToFile), file_get_contents($file['url']));
+	}
+
+
 
 	/**
 	 * @dataProvider uploadData with compress = true
@@ -71,7 +115,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 	public function testFileUploadCompress()
 	{
 		$filePath = __DIR__ . '/_data/files.upload.txt';
-		$fileId = $this->_client->uploadFile((new FileUploadOptions())->setFileName($filePath)->setCompress(true));
+		$fileId = $this->_client->uploadFile($filePath, (new FileUploadOptions())->setCompress(true));
 		$file = $this->_client->getFile($fileId);
 
 		$this->assertEquals(basename($filePath) . ".gz", $file['name']);
@@ -85,19 +129,19 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$path  = __DIR__ . '/_data/files.upload.txt';;
 		return array(
 			array(
+				$path,
 				(new FileUploadOptions())
-					->setFileName($path)
 			),
 			array(
+				$path,
 				(new FileUploadOptions())
-					->setFileName($path)
 					->setNotify(false)
 					->setCompress(false)
 					->setIsPublic(false)
 			),
 			array(
+				$path,
 				(new FileUploadOptions())
-					->setFileName($path)
 					->setIsPublic(true)
 					->setTags(array('sapi-import', 'martin'))
 			),
@@ -108,11 +152,12 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 
 	public function testFilesPermissions()
 	{
-		$uploadOptions = (new FileUploadOptions())->setFileName( __DIR__ . '/_data/files.upload.txt');
+		$filePath = __DIR__ . '/_data/files.upload.txt';
+		$uploadOptions = new FileUploadOptions();
 
 		$newTokenId = $this->_client->createToken(array(), 'Files test');
 		$newToken = $this->_client->getToken($newTokenId);
-		$firstFileId = $this->_client->uploadFile($uploadOptions);
+		$firstFileId = $this->_client->uploadFile($filePath, $uploadOptions);
 
 		$totalFilesCount = count($this->_client->listFiles());
 		$this->assertNotEmpty($totalFilesCount);
@@ -121,7 +166,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$newTokenClient = new Keboola\StorageApi\Client($newToken['token'], STORAGE_API_URL);
 		$this->assertEmpty($newTokenClient->listFiles());
 
-		$newFileId = $newTokenClient->uploadFile($uploadOptions);
+		$newFileId = $newTokenClient->uploadFile($filePath, $uploadOptions);
 		$files = $newTokenClient->listFiles();
 		$this->assertCount(1, $files);
 		$this->assertEquals($newFileId, reset($files)['id']);
