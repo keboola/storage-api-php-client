@@ -28,10 +28,6 @@ class Client
 	const STAGE_OUT = "out";
 	const STAGE_SYS = "sys";
 
-	const PARTIAL_UPDATE = true;
-	const INCREMENTAL_UPDATE = true;
-
-
 	// Token string
 	public $token;
 
