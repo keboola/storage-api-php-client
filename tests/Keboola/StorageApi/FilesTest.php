@@ -185,4 +185,29 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$this->_client->dropToken($newTokenId);
 	}
 
+	public function testGetFileFederationToken()
+	{
+		$filePath = __DIR__ . '/_data/files.upload.txt';
+		$fileId = $this->_client->uploadFile($filePath, (new FileUploadOptions())->setNotify(false)->setIsPublic(false));
+
+		$file = $this->_client->getFile($fileId, (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
+
+		$this->assertArrayHasKey('credentials', $file);
+		$this->assertArrayHasKey('s3Path', $file);
+		$this->assertArrayHasKey('Expiration', $file['credentials']);
+
+		$credentials = new Aws\Common\Credentials\Credentials(
+			$file['credentials']['AccessKeyId'],
+			$file['credentials']['SecretAccessKey'],
+			$file['credentials']['SessionToken']
+		);
+
+		$s3Client = \Aws\S3\S3Client::factory(array('credentials' => $credentials));
+		$object = $s3Client->getObject(array(
+			'Bucket' => $file['s3Path']['bucket'],
+			'Key' => $file['s3Path']['key'],
+		));
+		$this->assertEquals(file_get_contents($filePath), $object['Body']);
+	}
+
 }

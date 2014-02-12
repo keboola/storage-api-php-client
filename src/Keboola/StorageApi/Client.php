@@ -14,6 +14,7 @@ use Guzzle\Log\MessageFormatter;
 use Guzzle\Plugin\Backoff\BackoffLogger;
 use Guzzle\Plugin\Backoff\BackoffPlugin;
 use Guzzle\Plugin\Log\LogPlugin;
+use Keboola\StorageApi\Options\GetFileOptions;
 use Keboola\StorageApi\Options\ListFilesOptions;
 use Symfony\Component\Filesystem\Filesystem;
 use Keboola\Csv\CsvFile,
@@ -1133,9 +1134,9 @@ class Client
 	 * @param string $fileId
 	 * @return mixed|string
 	 */
-	public function getFile($fileId)
+	public function getFile($fileId, GetFileOptions $options = null)
 	{
-		return $this->apiGet('storage/files/' . $fileId);
+		return $this->apiGet("storage/files/$fileId?". http_build_query($options ? $options->toArray() : array()));
 	}
 
 	/**
