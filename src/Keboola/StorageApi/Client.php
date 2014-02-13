@@ -1138,6 +1138,23 @@ class Client
 	}
 
 	/**
+	 * Delete file tag
+	 * @param $fileId
+	 * @param $tagName
+	 */
+	public function deleteFileTag($fileId, $tagName)
+	{
+		$this->apiDelete("storage/files/$fileId/tags/$tagName");
+	}
+
+	public function addFileTag($fileId, $tagName)
+	{
+		$this->apiPost("storage/files/$fileId/tags", array(
+			'tag' => $tagName,
+		));
+	}
+
+	/**
 	 * Files list
 	 */
 	public function listFiles(ListFilesOptions $options = null)

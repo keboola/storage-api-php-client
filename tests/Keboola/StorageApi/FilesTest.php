@@ -228,4 +228,23 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		} catch (\Aws\S3\Exception\AccessDeniedException $e) {}
 	}
 
+	public function testTagging()
+	{
+		$filePath = __DIR__ . '/_data/files.upload.txt';
+		$initialTags = array('gooddata', 'image');
+		$fileId = $this->_client->uploadFile($filePath, (new FileUploadOptions())->setTags($initialTags));
+
+		$file = $this->_client->getFile($fileId);
+		$this->assertEquals($initialTags, $file['tags']);
+
+		$this->_client->deleteFileTag($fileId, 'gooddata');
+
+		$file = $this->_client->getFile($fileId);
+		$this->assertEquals(array('image'), $file['tags']);
+
+		$this->_client->addFileTag($fileId, 'new');
+		$file = $this->_client->getFile($fileId);
+		$this->assertEquals(array('image', 'new'), $file['tags']);
+	}
+
 }
