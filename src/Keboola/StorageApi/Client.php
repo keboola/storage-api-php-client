@@ -410,6 +410,7 @@ class Client
 					->setNotify(false)
 					->setIsPublic(false)
 					->setCompress(true)
+					->setTags('file-import')
 			);
 			$options['dataFileId'] = $fileId;
 		}
@@ -618,6 +619,7 @@ class Client
 					->setNotify(false)
 					->setIsPublic(false)
 					->setCompress(true)
+					->setTags(array('table-import'))
 			);
 			$options['dataFileId'] = $fileId;
 		}

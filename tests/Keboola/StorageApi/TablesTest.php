@@ -248,7 +248,10 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 
 	public function testTableAsyncImport()
 	{
-		$importFile = new CsvFile(__DIR__ . '/_data/languages.csv');
+		$runId = uniqid('sapi-import');
+		$this->_client->setRunId($runId);
+		$filePath = __DIR__ . '/_data/languages.csv';
+		$importFile = new CsvFile($filePath);
 		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $importFile);
 		$result = $this->_client->writeTableAsync($tableId, $importFile, array(
 			'incremental' => false,
@@ -258,6 +261,16 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$rowsCountInCsv = count($this->_readCsv(__DIR__ . '/_data/languages.csv')) - 1;
 		$this->assertEquals($rowsCountInCsv, $result['totalRowsCount'], 'rows count in csv result');
 		$this->assertNotEmpty($result['totalDataSizeBytes']);
+
+		$events = $this->_client->listEvents(array('limit' => 1, 'runId' => $runId));
+		$importEvent = reset($events);
+		$this->assertEquals('storage.tableImportDone', $importEvent['event']);
+		$this->assertEquals($tableId, $importEvent['objectId']);
+		$this->assertCount(1, $importEvent['attachments']);
+
+		$importFileBackup = reset($importEvent['attachments']);
+		$this->assertEquals(file_get_contents($filePath), gzdecode(file_get_contents($importFileBackup['url'])));
+
 	}
 
 	public function testTableInvalidAsyncImport()
