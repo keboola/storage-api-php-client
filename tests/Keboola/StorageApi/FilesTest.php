@@ -208,6 +208,24 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 			'Key' => $file['s3Path']['key'],
 		));
 		$this->assertEquals(file_get_contents($filePath), $object['Body']);
+
+		/**
+		 * @var \Guzzle\Service\Resource\Model $objects
+		 */
+		$objects = $s3Client->listObjects(array(
+			'Bucket' => $file['s3Path']['bucket'],
+			'Prefix' => $file['s3Path']['key'],
+		));
+
+		$this->assertCount(1, $objects->get('Contents'), 'Only one file should be returned');
+
+		try {
+			$s3Client->listObjects(array(
+				'Bucket' => $file['s3Path']['bucket'],
+				'Prefix' => dirname($file['s3Path']['key']),
+			));
+			$this->fail('Access denied exception should be thrown');
+		} catch (\Aws\S3\Exception\AccessDeniedException $e) {}
 	}
 
 }
