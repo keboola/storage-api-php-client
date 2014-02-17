@@ -410,7 +410,7 @@ class Client
 					->setNotify(false)
 					->setIsPublic(false)
 					->setCompress(true)
-					->setTags('file-import')
+					->setTags(array('file-import'))
 			);
 			$options['dataFileId'] = $fileId;
 		}
@@ -1119,6 +1119,7 @@ class Client
 	{
 		return $this->apiPost("storage/files/prepare", array(
 			'isPublic' => $options->getIsPublic(),
+			'isPermanent' => $options->getIsPermanent(),
 			'notify' => $options->getNotify(),
 			'name' => $options->getFileName(),
 			'sizeBytes' => $options->getSizeBytes(),

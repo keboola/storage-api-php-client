@@ -74,6 +74,13 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$info = $this->_client->getLogData();
 		$this->assertEquals($file['creatorToken']['id'], (int) $info['id']);
 		$this->assertEquals($file['creatorToken']['description'], $info['description']);
+
+		if ($options->getIsPermanent()) {
+			$this->assertNull($file['maxAgeDays']);
+		} else {
+			$this->assertInternalType('integer', $file['maxAgeDays']);
+			$this->assertEquals(180, $file['maxAgeDays']);
+		}
 	}
 
 	public function testFileUploadUsingFederationToken()
@@ -106,7 +113,6 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 
 		$this->assertEquals(file_get_contents($pathToFile), file_get_contents($file['url']));
 	}
-
 
 
 	/**
@@ -143,6 +149,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 				$path,
 				(new FileUploadOptions())
 					->setIsPublic(true)
+					->setIsPermanent(true)
 					->setTags(array('sapi-import', 'martin'))
 			),
 		);

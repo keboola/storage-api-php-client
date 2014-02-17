@@ -19,6 +19,7 @@ class FileUploadOptions {
 	private $compress = false;
 	private $federationToken = false;
 	private $sizeBytes;
+	private $isPermanent = false;
 
 	/**
 	 * @return mixed
@@ -143,6 +144,24 @@ class FileUploadOptions {
 	public function setSizeBytes($sizeBytes)
 	{
 		$this->sizeBytes = (int) $sizeBytes;
+		return $this;
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function getIsPermanent()
+	{
+		return $this->isPermanent;
+	}
+
+	/**
+	 * @param $permanent
+	 * @return $this
+	 */
+	public function setIsPermanent($permanent)
+	{
+		$this->isPermanent = (bool) $permanent;
 		return $this;
 	}
 
