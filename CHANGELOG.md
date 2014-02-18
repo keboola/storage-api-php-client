@@ -1,3 +1,12 @@
+## 2.9.0
+ * [Feature] Asynchronous table export
+ * [Feature] File uploads - lifecycle settings `isPermanent` parameter
+ * [Feature] File uploads - federation token for better integration with AWS services
+ * [Feature] File uploads - tagging and search support
+ * [BC Break] File uploads - methods accespts options objects instead of arrays or single parameters
+ * [BC Break] Most of protected methods and properties switched to private
+ * [BC Break] Code style - removed underscore prefixes from private and protected methods and properties
+
 ## 2.8.30
  * Keboola/csv patch version unlocked from 1.1.3
 
