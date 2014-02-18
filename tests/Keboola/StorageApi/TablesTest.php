@@ -248,7 +248,10 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 
 	public function testTableAsyncImport()
 	{
-		$importFile = new CsvFile(__DIR__ . '/_data/languages.csv');
+		$runId = uniqid('sapi-import');
+		$this->_client->setRunId($runId);
+		$filePath = __DIR__ . '/_data/languages.csv';
+		$importFile = new CsvFile($filePath);
 		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $importFile);
 		$result = $this->_client->writeTableAsync($tableId, $importFile, array(
 			'incremental' => false,
@@ -258,6 +261,16 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$rowsCountInCsv = count($this->_readCsv(__DIR__ . '/_data/languages.csv')) - 1;
 		$this->assertEquals($rowsCountInCsv, $result['totalRowsCount'], 'rows count in csv result');
 		$this->assertNotEmpty($result['totalDataSizeBytes']);
+
+		$events = $this->_client->listEvents(array('limit' => 1, 'runId' => $runId));
+		$importEvent = reset($events);
+		$this->assertEquals('storage.tableImportDone', $importEvent['event']);
+		$this->assertEquals($tableId, $importEvent['objectId']);
+		$this->assertCount(1, $importEvent['attachments']);
+
+		$importFileBackup = reset($importEvent['attachments']);
+		$this->assertEquals(file_get_contents($filePath), gzdecode(file_get_contents($importFileBackup['url'])));
+
 	}
 
 	public function testTableInvalidAsyncImport()
@@ -459,6 +472,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 
 		$data = $this->_client->parseCsv($this->_client->exportTable($aliasTableId));
 		$this->assertEquals($expectedColumns, array_keys(reset($data)));
+
 
 		$this->_client->enableAliasTableColumnsAutoSync($aliasTableId);
 		$aliasTable = $this->_client->getTable($aliasTableId);
@@ -710,6 +724,12 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		array_shift($parsedData); // remove header
 
 		$this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
+
+		$results = $this->_client->exportTableAsync($aliasTableId);
+		$file = $this->_client->getFile($results['file']['id']);
+		$parsedData = Client::parseCsv(file_get_contents($file['url']), false);
+		array_shift($parsedData);
+		$this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
 	}
 
 	public function testFilterOnFilteredAlias()
@@ -751,7 +771,15 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		));
 		$parsedData = Client::parseCsv($data, false);
 		array_shift($parsedData); // remove header
+		$this->assertEquals($expectedResult, $parsedData);
 
+		$results = $this->_client->exportTableAsync($aliasTableId, array(
+			'whereColumn' => 'sex',
+			'whereValues' => array('male'),
+		));
+		$file = $this->_client->getFile($results['file']['id']);
+		$parsedData = Client::parseCsv(file_get_contents($file['url']), false);
+		array_shift($parsedData); // remove header
 		$this->assertEquals($expectedResult, $parsedData);
 
 		$data = $this->_client->exportTable($aliasTableId, null, array(
@@ -762,6 +790,15 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		array_shift($parsedData); // remove header
 
 		$this->assertEmpty($parsedData, 'Export filter should not overload alias filter');
+
+		$results = $this->_client->exportTableAsync($aliasTableId, array(
+			'whereColumn' => 'city',
+			'whereValues'=> array('VAN'),
+		));
+		$file = $this->_client->getFile($results['file']['id']);
+		$parsedData = Client::parseCsv(file_get_contents($file['url']), false);
+		array_shift($parsedData); // remove header
+		$this->assertEmpty($parsedData);
 	}
 
 	public function tableExportFiltersData()
@@ -969,6 +1006,63 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$this->assertCount(1, $firstRow);
 		$this->assertArrayHasKey(0, $firstRow);
 		$this->assertEquals("id", $firstRow[0]);
+	}
+
+	public function testTableExportAsyncColumnsParam()
+	{
+		$importFile =  __DIR__ . '/_data/languages.csv';
+		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', new CsvFile($importFile));
+
+		$results = $this->_client->exportTableAsync($tableId, array(
+			'columns' => array('id'),
+		));
+		$file = $this->_client->getFile($results['file']['id']);
+		$parsed = Client::parseCsv(file_get_contents($file['url']), false);
+		$firstRow = reset($parsed);
+
+		$this->assertCount(1, $firstRow);
+		$this->assertArrayHasKey(0, $firstRow);
+		$this->assertEquals("id", $firstRow[0]);
+	}
+
+	/**
+	 * @param $exportOptions
+	 * @param $expectedResult
+	 * @dataProvider tableExportFiltersData
+	 */
+	public function testTableExportAsync($exportOptions, $expectedResult)
+	{
+		$importFile =  __DIR__ . '/_data/users.csv';
+		$tableId = $this->_client->createTable($this->_inBucketId, 'users', new CsvFile($importFile));
+		$this->_client->markTableColumnAsIndexed($tableId, 'city');
+
+		$results = $this->_client->exportTableAsync($tableId);
+
+		$exportedFile = $this->_client->getFile($results['file']['id']);
+		$parsedData = Client::parseCsv(file_get_contents($exportedFile['url']), false);
+		array_shift($parsedData); // remove header
+
+		$this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
+	}
+
+	public function testTableExportAsyncGzip()
+	{
+		$importFile =  __DIR__ . '/_data/users.csv';
+		$tableId = $this->_client->createTable($this->_inBucketId, 'users', new CsvFile($importFile));
+		$this->_client->markTableColumnAsIndexed($tableId, 'city');
+
+		$results = $this->_client->exportTableAsync($tableId, array(
+			'gzip' => true,
+		));
+
+		$exportedFile = $this->_client->getFile($results['file']['id']);
+		$parsedData = Client::parseCsv(gzdecode(file_get_contents($exportedFile['url'])), false);
+		array_shift($parsedData); // remove header
+
+		$expected = Client::parseCsv(file_get_contents($importFile), false);
+		array_shift($expected);
+
+		$this->assertArrayEqualsSorted($expected, $parsedData, 0);
 	}
 
 	/**
@@ -1310,6 +1404,10 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		});
 		$this->assertEquals($expectedData, Client::parseCsv($this->_client->exportTable($sourceTableId)), 'data are present in source table');
 
+		$results = $this->_client->exportTableAsync($sourceTableId);
+		$file = $this->_client->getFile($results['file']['id']);
+		$this->assertEquals($expectedData, Client::parseCsv(file_get_contents($file['url'])));
+
 		// create alias table
 		$aliasTableId = $this->_client->createAliasTable($this->_outBucketId, $sourceTableId, 'languages-alias');
 
@@ -1329,6 +1427,10 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$this->assertArrayHasKey('sourceTable', $aliasTable);
 		$this->assertEquals($sourceTableId, $aliasTable['sourceTable']['id'], 'new table linked to source table');
 		$this->assertEquals($expectedData, Client::parseCsv($this->_client->exportTable($aliasTableId)), 'data are exported from source table');
+
+		$results = $this->_client->exportTableAsync($aliasTableId);
+		$file = $this->_client->getFile($results['file']['id']);
+		$this->assertEquals($expectedData, Client::parseCsv(file_get_contents($file['url'])));
 
 		// second import into source table
 		$this->_client->writeTable($sourceTableId, new CsvFile(__DIR__ . '/_data/languages.csv'));

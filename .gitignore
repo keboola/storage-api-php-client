@@ -2,5 +2,6 @@
 cache.properties
 config.php
 composer.lock
+vendor
 *.kdev4
 .kdev4

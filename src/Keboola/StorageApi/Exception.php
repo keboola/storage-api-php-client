@@ -6,11 +6,11 @@ class Exception extends \Exception
 	/**
 	 * @var null|\Exception
 	 */
-	private $_previous = null;
+	private $previous = null;
 
-	protected $_stringCode;
+	protected $stringCode;
 
-	protected $_contextParams;
+	protected $contextParams;
 
 	/**
 	 * Construct the exception
@@ -28,7 +28,7 @@ class Exception extends \Exception
 		$this->setContextParams($params);
 		if (version_compare(PHP_VERSION, '5.3.0', '<')) {
 			parent::__construct($message, (int) $code);
-			$this->_previous = $previous;
+			$this->previous = $previous;
 		} else {
 			parent::__construct($message, (int) $code, $previous);
 		}
@@ -37,7 +37,7 @@ class Exception extends \Exception
 
 	public function getStringCode()
 	{
-		return $this->_stringCode;
+		return $this->stringCode;
 	}
 
 	/**
@@ -47,16 +47,16 @@ class Exception extends \Exception
 	public function setStringCode($stringCode)
 	{
 		if ($stringCode) {
-			$this->_stringCode = (string) $stringCode;
+			$this->stringCode = (string) $stringCode;
 		} else {
-			$this->_stringCode = "APPLICATION_ERROR";
+			$this->stringCode = "APPLICATION_ERROR";
 		}
 		return $this;
 	}
 
 	public function getContextParams()
 	{
-		return $this->_contextParams;
+		return $this->contextParams;
 	}
 
 	/**
@@ -65,7 +65,7 @@ class Exception extends \Exception
 	 */
 	public function setContextParams($contextParams)
 	{
-		$this->_contextParams = (array) $contextParams;
+		$this->contextParams = (array) $contextParams;
 		return $this;
 	}
 
