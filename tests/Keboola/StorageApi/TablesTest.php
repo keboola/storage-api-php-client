@@ -1036,7 +1036,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$tableId = $this->_client->createTable($this->_inBucketId, 'users', new CsvFile($importFile));
 		$this->_client->markTableColumnAsIndexed($tableId, 'city');
 
-		$results = $this->_client->exportTableAsync($tableId);
+		$results = $this->_client->exportTableAsync($tableId, $exportOptions);
 
 		$exportedFile = $this->_client->getFile($results['file']['id']);
 		$parsedData = Client::parseCsv(file_get_contents($exportedFile['url']), false);
