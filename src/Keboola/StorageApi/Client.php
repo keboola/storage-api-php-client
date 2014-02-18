@@ -990,7 +990,26 @@ class Client
 	public function exportTable($tableId, $fileName = null, $options = array())
 	{
 		$url = "storage/tables/{$tableId}/export";
+		$url .= '?' . http_build_query($this->prepareExportOptions($options));
 
+		return $this->apiGet($url, $fileName);
+	}
+
+	/**
+	 * @param $tableId
+	 * @param array $options
+	 * @return array job results
+	 */
+	public function exportTableAsync($tableId, $options = array())
+	{
+		return $this->apiPost(
+			"storage/tables/{$tableId}/export-async",
+			$this->prepareExportOptions($options)
+		);
+	}
+
+	private function prepareExportOptions(array $options)
+	{
 		$allowedOptions = array(
 			'limit',
 			'changedSince',
@@ -998,7 +1017,8 @@ class Client
 			'escape',
 			'format',
 			'whereColumn',
-			'whereOperator'
+			'whereOperator',
+			'gzip',
 		);
 
 		$filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
@@ -1011,9 +1031,7 @@ class Client
 			$filteredOptions['whereValues'] = (array) $options['whereValues'];
 		}
 
-		$url .= '?' . http_build_query($filteredOptions);
-
-		return $this->apiGet($url, $fileName);
+		return $filteredOptions;
 	}
 
 	/**
