@@ -1045,6 +1045,57 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
 	}
 
+	public function testTableExportAsyncCache()
+	{
+		$importFile =  __DIR__ . '/_data/users.csv';
+		$tableId = $this->_client->createTable($this->_inBucketId, 'users', new CsvFile($importFile));
+		$this->_client->markTableColumnAsIndexed($tableId, 'city');
+
+		$results = $this->_client->exportTableAsync($tableId);
+		$fileId = $results['file']['id'];
+		$this->assertFalse($results['cacheHit']);
+
+		$results = $this->_client->exportTableAsync($tableId);
+		$this->assertTrue($results['cacheHit']);
+		$this->assertEquals($fileId, $results['file']['id']);
+
+		$results = $this->_client->exportTableAsync($tableId, array(
+			'gzip' => true,
+		));
+
+		$gzippedFileId = $results['file']['id'];
+		$this->assertFalse($results['cacheHit']);
+		$this->assertNotEquals($fileId, $gzippedFileId);
+		$results = $this->_client->exportTableAsync($tableId, array(
+			'gzip' => true,
+		));
+		$this->assertTrue($results['cacheHit']);
+		$this->assertEquals($gzippedFileId, $results['file']['id']);
+
+		$results = $this->_client->exportTableAsync($tableId, array(
+			'whereColumn' => 'city',
+			'whereValues' => array('PRG'),
+		));
+		$filteredByCityFileId = $results['file']['id'];
+		$this->assertFalse($results['cacheHit']);
+		$this->assertNotEquals($fileId, $filteredByCityFileId);
+
+		$this->_client->writeTable($tableId, new CsvFile($importFile));
+
+		$results = $this->_client->exportTableAsync($tableId);
+		$newFileId = $results['file']['id'];
+		$this->assertFalse($results['cacheHit']);
+		$this->assertNotEquals($fileId, $newFileId);
+
+		$results = $this->_client->exportTableAsync($tableId, array(
+			'gzip' => true,
+		));
+		$this->assertFalse($results['cacheHit']);
+
+
+
+	}
+
 	public function testTableExportAsyncGzip()
 	{
 		$importFile =  __DIR__ . '/_data/users.csv';
