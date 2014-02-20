@@ -124,12 +124,15 @@ class Keboola_StorageApi_EventsTest extends StorageApiTestCase
 	{
 		$id = $this->_client->createEvent($event);
 
+		sleep(2); // wait for ES refresh
 		$tries = 0;
 		while (true) {
 			try {
 				$this->_client->getEvent($id);
 				return $id;
-			} catch(\Keboola\StorageApi\ClientException $e) {}
+			} catch(\Keboola\StorageApi\ClientException $e) {
+				echo 'Event not found: ' . $id . PHP_EOL;
+			}
 			if ($tries > 4) {
 				throw new \Exception('Max tries exceeded.');
 			}
