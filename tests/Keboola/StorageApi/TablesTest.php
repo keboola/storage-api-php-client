@@ -732,6 +732,68 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
 	}
 
+
+	/**
+	 * Test case when alias is filtered but column with filter is not present in alias
+	 */
+	public function testFilteredAliasWithColumnsListed()
+	{
+		$sourceTableId = $this->_client->createTable(
+			$this->_inBucketId,
+			'users',
+			new CsvFile(__DIR__ . '/_data/users.csv')
+		);
+		$this->_client->markTableColumnAsIndexed($sourceTableId, 'sex');
+
+		$aliasTableId = $this->_client->createAliasTable(
+			$this->_outBucketId,
+			$sourceTableId,
+			'males',
+			array(
+				'aliasColumns' => array('id', 'name', 'city'),
+				'aliasFilter' => array(
+					'column' => 'sex',
+					'values' => array('male'),
+				),
+			)
+		);
+
+		$expectedResult = array(
+			array(
+				"1",
+				"martin",
+				"PRG",
+			),
+			array(
+				"3",
+				"ondra",
+				"VAN",
+			),
+			array(
+				"4",
+				"miro",
+				"BRA",
+			),
+			array(
+				"5",
+				"hidden",
+				"",
+			)
+		);
+
+		$data =$this->_client->exportTable($aliasTableId);
+		$parsedData = Client::parseCsv($data, false);
+		array_shift($parsedData); // remove header
+		$this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
+
+		$results = $this->_client->exportTableAsync($aliasTableId);
+		$file = $this->_client->getFile($results['file']['id']);
+		$parsedData = Client::parseCsv(file_get_contents($file['url']), false);
+		array_shift($parsedData);
+		$this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
+	}
+
+
 	public function testFilterOnFilteredAlias()
 	{
 		// source table
