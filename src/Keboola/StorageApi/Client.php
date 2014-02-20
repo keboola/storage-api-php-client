@@ -328,17 +328,15 @@ class Client
 	 */
 	public function bucketExists($bucketId)
 	{
-		$buckets = $this->listBuckets();
-		if (!count($buckets) || !is_array($buckets)) {
-			return false;
-		}
-		foreach($buckets as $bucket)
-		{
-			if ($bucket["id"] == $bucketId) {
-				return true;
+		try {
+			$this->getBucket($bucketId);
+			return true;
+		} catch (ClientException $e) {
+			if ($e->getCode() == 404) {
+				return false;
 			}
+			throw $e;
 		}
-		return false;
 	}
 
 	/**
@@ -782,14 +780,15 @@ class Client
 	 */
 	public function tableExists($tableId)
 	{
-		$tables = $this->listTables();
-		foreach($tables as $table)
-		{
-			if ($table["id"] == $tableId) {
-				return true;
+		try {
+			$this->getTable($tableId);
+			return true;
+		} catch (ClientException $e) {
+			if ($e->getCode() == 404) {
+				return false;
 			}
+			throw $e;
 		}
-		return false;
 	}
 
 	/**

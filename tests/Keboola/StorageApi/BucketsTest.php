@@ -117,4 +117,9 @@ class Keboola_StorageApi_BucketsTest extends StorageApiTestCase
 		$this->_client->deleteBucketAttribute($bucketId, 'other');
 	}
 
+	public function testBucketExists()
+	{
+		$this->assertTrue($this->_client->bucketExists('in.c-main'));
+		$this->assertFalse($this->_client->bucketExists('in.ukulele'));
+	}
 }

@@ -57,6 +57,19 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 
 	}
 
+	public function testTableExists()
+	{
+
+		$this->assertFalse($this->_client->tableExists($this->_inBucketId . '.languages'));
+
+		$tableId = $this->_client->createTable(
+			$this->_inBucketId,
+			'languages',
+			new CsvFile(__DIR__ . '/_data/languages.csv')
+		);
+		$this->assertTrue($this->_client->tableExists($tableId));
+	}
+
 
 
 	public function testTableWithUnsupportedCharactersInNameShouldNotBeCreated()
