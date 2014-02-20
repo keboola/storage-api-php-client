@@ -1,3 +1,6 @@
+## 2.9.1
+ * [Performance] bucketExists and tableExists methods use get resource instead of list
+
 ## 2.9.0
  * [Feature] Asynchronous table export
  * [Feature] File uploads - lifecycle settings `isPermanent` parameter
