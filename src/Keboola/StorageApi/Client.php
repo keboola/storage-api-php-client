@@ -1354,17 +1354,19 @@ class Client
 
 		// poll for status
 		do {
-			$job = $this->getJob($job['id']);
-
 			if (time() >= $maxEndTime) {
 				throw new ClientException(
 					"Job {$job['id']} execution timeout after " . round($this->getTimeout() / 60) . " minutes."
 				);
 			}
 
-			$waitSeconds = min(pow(2, $retries), $maxWaitPeriod);
-			sleep($waitSeconds);
+			if ($retries > 0) {
+				$waitSeconds = min(pow(2, $retries), $maxWaitPeriod);
+				sleep($waitSeconds);
+			}
 			$retries++;
+
+			$job = $this->getJob($job['id']);
 		} while(!in_array($job['status'], array('success', 'error')));
 
 		if ($job['status'] == 'error') {
