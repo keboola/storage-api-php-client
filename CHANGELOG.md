@@ -1,3 +1,6 @@
+## 2.9.3 (2014-02-21)
+ * [Bugfix] File uploads - gzipped folder deleted when running two uploads simultaneously
+
 ## 2.9.2 (2014-02-21)
  * [Bugfix] handleAsyncTask - not waiting after success
  * [Feature] handleAsyncTask - wait max. 30 seconds
