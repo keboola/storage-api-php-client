@@ -1050,7 +1050,6 @@ class Client
 				$sapiClientTempDir = sys_get_temp_dir() . '/sapi-php-client';
 				if (!$fs->exists($sapiClientTempDir)) {
 					$fs->mkdir($sapiClientTempDir);
-					$rmSapiDir = true;
 				}
 
 				$currentUploadDir = $sapiClientTempDir . '/' . uniqid('file-upload');
@@ -1094,9 +1093,6 @@ class Client
 
 		if ($compress) {
 			$fs->remove($currentUploadDir);
-			if (!empty($rmSapiDir)) {
-				$fs->remove($sapiClientTempDir);
-			}
 		}
 
 		return $result['id'];
