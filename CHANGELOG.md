@@ -1,3 +1,7 @@
+## 2.9.2 (2014-02-21)
+ * [Bugfix] handleAsyncTask - not waiting after success
+ * [Feature] handleAsyncTask - wait max. 30 seconds
+
 ## 2.9.1
  * [Performance] bucketExists and tableExists methods use get resource instead of list
 
