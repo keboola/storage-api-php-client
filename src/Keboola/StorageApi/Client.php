@@ -1074,28 +1074,24 @@ class Client
 	{
 		$newOptions = clone $options;
 		$compressed = false;
-		if ($newOptions->getCompress()) {
-			// do not compress already gz'd files
-			if (!in_array(strtolower(pathinfo($filePath, PATHINFO_EXTENSION)), array("gzip", "gz", "zip"))) {
-				$fs = new Filesystem();
-				$sapiClientTempDir = sys_get_temp_dir() . '/sapi-php-client';
-				if (!$fs->exists($sapiClientTempDir)) {
-					$fs->mkdir($sapiClientTempDir);
-					$rmSapiDir = true;
-				}
-
-				$currentUploadDir = $sapiClientTempDir . '/' . uniqid('file-upload');
-				$fs->mkdir($currentUploadDir);
-
-				// gzip file and preserve it's base name
-				$gzFilePath = $currentUploadDir . '/' . basename($filePath) . '.gz';
-				exec(sprintf("gzip -c %s > %s", escapeshellarg($filePath), escapeshellarg($gzFilePath)), $output, $ret);
-				if ($ret !== 0) {
-					throw new ClientException("Failed to gzip file, command return code: " . $ret);
-				}
-				$filePath = $gzFilePath;
-				$compressed = true;
+		if ($newOptions->getCompress() && !in_array(strtolower(pathinfo($filePath, PATHINFO_EXTENSION)), array("gzip", "gz", "zip"))) {
+			$fs = new Filesystem();
+			$sapiClientTempDir = sys_get_temp_dir() . '/sapi-php-client';
+			if (!$fs->exists($sapiClientTempDir)) {
+				$fs->mkdir($sapiClientTempDir);
 			}
+
+			$currentUploadDir = $sapiClientTempDir . '/' . uniqid('file-upload');
+			$fs->mkdir($currentUploadDir);
+
+			// gzip file and preserve it's base name
+			$gzFilePath = $currentUploadDir . '/' . basename($filePath) . '.gz';
+			exec(sprintf("gzip -c %s > %s", escapeshellarg($filePath), escapeshellarg($gzFilePath)), $output, $ret);
+			if ($ret !== 0) {
+				throw new ClientException("Failed to gzip file, command return code: " . $ret);
+			}
+			$filePath = $gzFilePath;
+			$compressed = true;
 		}
 		$newOptions
 			->setFileName(basename($filePath))
@@ -1118,15 +1114,12 @@ class Client
 				'AWSAccessKeyId' => $uploadParams['AWSAccessKeyId'],
 				'file' => "@$filePath",
 			))->send();
-		} catch(RequestException $e) {
+		} catch (RequestException $e) {
 			throw new ClientException("Error on file upload to S3: " . $e->getMessage(), $e->getCode(), $e);
 		}
 
 		if ($compressed) {
 			$fs->remove($currentUploadDir);
-			if (!empty($rmSapiDir)) {
-				$fs->remove($sapiClientTempDir);
-			}
 		}
 
 		return $result['id'];
