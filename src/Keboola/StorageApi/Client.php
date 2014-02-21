@@ -1349,7 +1349,7 @@ class Client
 	{
 		$job = $jobCreatedResponse->json();
 		$maxEndTime = time() + $this->getTimeout();
-		$maxWaitPeriod = 60;
+		$maxWaitPeriod = 20;
 		$retries = 0;
 
 		// poll for status
