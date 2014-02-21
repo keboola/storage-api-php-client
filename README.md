@@ -19,7 +19,7 @@ mv ./composer.phar ~/bin/composer # or /usr/local/bin/composer
 {
     "require": {
         "php" : ">=5.3.2",
-        "keboola/storage-api-client": "2.8.*"
+        "keboola/storage-api-client": "2.9.*"
     }
 }
 ```
