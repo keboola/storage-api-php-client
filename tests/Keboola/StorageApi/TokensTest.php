@@ -42,6 +42,7 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 
 		try {
 			$client = new \Keboola\StorageApi\Client($invalidToken, STORAGE_API_URL);
+			$client->verifyToken();
 			$this->fail('Exception should be thrown on invalid token');
 		} catch (\Keboola\StorageApi\ClientException $e) {
 			$this->assertNotContains($invalidToken, $e->getMessage(), "Token value should not be returned back");

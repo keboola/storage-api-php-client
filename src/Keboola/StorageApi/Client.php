@@ -83,8 +83,6 @@ class Client
 		$this->initClient();
 		$this->initExponentialBackoff();
 		$this->initLogger();
-
-		$this->verifyToken();
 	}
 
 	private function initClient()
@@ -842,12 +840,7 @@ class Client
 	 */
 	public function verifyToken()
 	{
-		$tokenObj = $this->apiGet("storage/tokens/verify");
-
-		$this->tokenObj = $tokenObj;
-		$this->log("Token verified");
-
-		return $tokenObj;
+		return $this->apiGet("storage/tokens/verify");
 	}
 
 	/**
@@ -1441,9 +1434,9 @@ class Client
 	public function getLogData()
 	{
 		if (!$this->tokenObj) {
-			$logData["token"] = substr($this->token, 0, 6);
-			return $logData;
+			$this->tokenObj = $this->verifyToken();
 		}
+
 		$logData = array();
 		$logData["token"] = substr($this->tokenObj["token"], 0, 6);
 		$logData["owner"] = $this->tokenObj["owner"];
