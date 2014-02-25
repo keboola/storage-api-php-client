@@ -20,6 +20,7 @@ class FileUploadOptions {
 	private $federationToken = false;
 	private $sizeBytes;
 	private $isPermanent = false;
+	private $isSliced = false;
 
 	/**
 	 * @return mixed
@@ -162,6 +163,24 @@ class FileUploadOptions {
 	public function setIsPermanent($permanent)
 	{
 		$this->isPermanent = (bool) $permanent;
+		return $this;
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function getIsSliced()
+	{
+		return $this->isSliced;
+	}
+
+	/**
+	 * @param $isSliced
+	 * @return $this
+	 */
+	public function setIsSliced($isSliced)
+	{
+		$this->isSliced = $isSliced;
 		return $this;
 	}
 

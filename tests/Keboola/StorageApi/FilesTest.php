@@ -106,12 +106,110 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$s3Client->putObject(array(
 			'Bucket' => $uploadParams['bucket'],
 			'Key'    => $uploadParams['key'],
-			'Body'   => fopen($pathToFile, 'r+')
+			'Body'   => fopen($pathToFile, 'r+'),
 		));
 
 		$file = $this->_client->getFile($result['id']);
 
 		$this->assertEquals(file_get_contents($pathToFile), file_get_contents($file['url']));
+
+		try {
+			$s3Client->putObject(array(
+				'Bucket' => $uploadParams['bucket'],
+				'Key'    => $uploadParams['key'] . '_part0001',
+				'Body'   => fopen($pathToFile, 'r+'),
+			));
+			$this->fail('Access denied exception should be thrown');
+		} catch (\Aws\S3\Exception\AccessDeniedException $e) {}
+	}
+
+	public function testSlicedFileUpload()
+	{
+		$pathToFile = __DIR__ . '/_data/files.upload.txt';
+		$options = new FileUploadOptions();
+		$options
+			->setIsSliced(true)
+			->setFileName('upload.txt');
+
+		$preparedFile = $this->_client->prepareFileUpload($options);
+
+		$uploadParams = $preparedFile['uploadParams'];
+		$this->assertArrayHasKey('credentials', $uploadParams);
+		$this->assertTrue($preparedFile['isSliced']);
+
+		$credentials = new Aws\Common\Credentials\Credentials(
+			$uploadParams['credentials']['AccessKeyId'],
+			$uploadParams['credentials']['SecretAccessKey'],
+			$uploadParams['credentials']['SessionToken']
+		);
+
+		$s3Client = \Aws\S3\S3Client::factory(array('credentials' => $credentials));
+		$part1URL = $s3Client->putObject(array(
+			'Bucket' => $uploadParams['bucket'],
+			'Key'    => $uploadParams['key'] . 'part001',
+			'Body'   => fopen($pathToFile, 'r+'),
+		))->get('ObjectURL');
+		$part2URL = $s3Client->putObject(array(
+			'Bucket' => $uploadParams['bucket'],
+			'Key'    => $uploadParams['key'] . 'part002',
+			'Body'   => fopen($pathToFile, 'r+'),
+		))->get('ObjectURL');
+
+		$manifest = array(
+			'entries' => array(
+				array(
+					'url' => $part1URL,
+				),
+				array(
+					'url' => $part2URL,
+				)
+			),
+		);
+		$s3Client->putObject(array(
+			'Bucket' => $uploadParams['bucket'],
+			'Key'    => $uploadParams['key'] . 'manifest',
+			'Body'   => json_encode($manifest),
+		));
+
+		$file = $this->_client->getFile($preparedFile['id']);
+		$this->assertEquals(json_encode($manifest), file_get_contents($file['url']));
+
+		// download sliced file
+		$file = $this->_client->getFile($preparedFile['id'], (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
+		$this->assertTrue($file['isSliced']);
+
+		$downloadCredentials = new Aws\Common\Credentials\Credentials(
+			$file['credentials']['AccessKeyId'],
+			$file['credentials']['SecretAccessKey'],
+			$file['credentials']['SessionToken']
+		);
+
+		$s3Client = \Aws\S3\S3Client::factory(array('credentials' => $downloadCredentials));
+
+		$objects = $s3Client->listObjects(array(
+			'Bucket' => $file['s3Path']['bucket'],
+			'Prefix' => $file['s3Path']['key'],
+		));
+
+		$this->assertCount(3, $objects->get('Contents'));
+
+		$object = $s3Client->getObject(array(
+			'Bucket' => $file['s3Path']['bucket'],
+			'Key' => $file['s3Path']['key'] . 'manifest',
+		));
+		$this->assertEquals(json_encode($manifest), $object['Body']);
+
+		$object = $s3Client->getObject(array(
+			'Bucket' => $file['s3Path']['bucket'],
+			'Key' => $file['s3Path']['key'] . 'part001',
+		));
+		$this->assertEquals(file_get_contents($pathToFile), $object['Body']);
+
+		$object = $s3Client->getObject(array(
+			'Bucket' => $file['s3Path']['bucket'],
+			'Key' => $file['s3Path']['key'] . 'part002',
+		));
+		$this->assertEquals(file_get_contents($pathToFile), $object['Body']);
 	}
 
 
@@ -233,6 +331,15 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 			));
 			$this->fail('Access denied exception should be thrown');
 		} catch (\Aws\S3\Exception\AccessDeniedException $e) {}
+
+		try {
+			$s3Client->listObjects(array(
+				'Bucket' => $file['s3Path']['bucket'],
+				'Prefix' => $file['s3Path']['key'] . 'manifest',
+			));
+			$this->fail('Access denied exception should be thrown');
+		} catch (\Aws\S3\Exception\AccessDeniedException $e) {}
+
 	}
 
 	public function testTagging()

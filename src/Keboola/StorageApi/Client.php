@@ -1123,6 +1123,7 @@ class Client
 		return $this->apiPost("storage/files/prepare", array(
 			'isPublic' => $options->getIsPublic(),
 			'isPermanent' => $options->getIsPermanent(),
+			'isSliced' => $options->getIsSliced(),
 			'notify' => $options->getNotify(),
 			'name' => $options->getFileName(),
 			'sizeBytes' => $options->getSizeBytes(),
