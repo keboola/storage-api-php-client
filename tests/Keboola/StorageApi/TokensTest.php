@@ -233,8 +233,6 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 
 	public function testExpiredToken()
 	{
-		$initialTokens = $this->_client->listTokens();
-
 		$description = 'Out read token with expiration';
 		$bucketPermissions = array(
 			'out.c-api-tests' => 'read'
@@ -255,9 +253,6 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 				$this->fail('storage.tokenExpired code should be rerturned from API.');
 			}
 		}
-
-		$tokens = $this->_client->listTokens();
-		$this->assertCount(count($initialTokens) + 1, $tokens);
 
 		$token = $this->_client->getToken($tokenId);
 		$this->assertTrue($token['isExpired']);
