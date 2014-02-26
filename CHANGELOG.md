@@ -1,3 +1,10 @@
+## 2.10.0 (2014-02-26)
+ * [Feature] File uploads - sliced files support
+ * [Feature] Table import - sliced files can be imported
+ * [Feature] Table import - files without headers can be imported
+ * [BC break] Verify token is not called in contstructor
+
+
 ## 2.9.3 (2014-02-21)
  * [Bugfix] File uploads - gzipped folder deleted when running two uploads simultaneously
 
