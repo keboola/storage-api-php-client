@@ -306,6 +306,21 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$this->assertNotEmpty($result['totalDataSizeBytes']);
 	}
 
+	public function testTableImportFromString()
+	{
+		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', new Keboola\Csv\CsvFile(__DIR__ . '/_data/languages-headers.csv'));
+
+		$lines = '"id","name"';
+		$lines .= "\n" . '"first","second"' . "\n";
+		$this->_client->apiPost("storage/tables/$tableId/import", array(
+			'dataString' => $lines,
+		));
+
+		$this->assertEquals($lines, $this->_client->exportTable($tableId, null, array(
+			'format' =>'rfc',
+		)));
+	}
+
 	public function testTableInvalidAsyncImport()
 	{
 		$importFile = new CsvFile(__DIR__ . '/_data/languages.csv');
