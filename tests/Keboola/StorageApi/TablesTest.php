@@ -286,6 +286,26 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 
 	}
 
+	public function testImportWithoutHeaders()
+	{
+
+		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', new Keboola\Csv\CsvFile(__DIR__ . '/_data/languages-headers.csv'));
+
+		$importedFile = __DIR__ . '/_data/languages-without-headers.csv';
+		$result = $this->_client->writeTable($tableId, new CsvFile($importedFile), array(
+			'withoutHeaders' => true,
+		));
+		$table = $this->_client->getTable($tableId);
+
+		$rowsCountInCsv = count($this->_readCsv($importedFile));
+		$this->assertEmpty($result['warnings']);
+		$this->assertEmpty($result['transaction']);
+		$this->assertEquals($rowsCountInCsv, $table['rowsCount'], 'rows count in csv');
+		$this->assertNotEmpty($table['dataSizeBytes']);
+		$this->assertEquals($rowsCountInCsv, $result['totalRowsCount'], 'rows count in csv result');
+		$this->assertNotEmpty($result['totalDataSizeBytes']);
+	}
+
 	public function testTableInvalidAsyncImport()
 	{
 		$importFile = new CsvFile(__DIR__ . '/_data/languages.csv');

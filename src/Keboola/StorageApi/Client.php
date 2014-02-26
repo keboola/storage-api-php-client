@@ -579,15 +579,19 @@ class Client
 	public function writeTable($tableId, CsvFile $csvFile,  $options = array())
 	{
 		// TODO Gzip data
-		$options = $this->writeTableOptionsPrepare($csvFile, $options);
+		$optionsExtended = $this->writeTableOptionsPrepare(array_merge($options, array(
+			"delimiter" => $csvFile->getDelimiter(),
+			"enclosure" => $csvFile->getEnclosure(),
+			"escapedBy" => $csvFile->getEscapedBy(),
+		)));
 
 		if ($this->isUrl($csvFile->getPathname())) {
-			$options["dataUrl"] = $csvFile->getPathname();
+			$optionsExtended["dataUrl"] = $csvFile->getPathname();
 		} else {
-			$options["data"] = "@{$csvFile->getRealPath()}";
+			$optionsExtended["data"] = "@{$csvFile->getRealPath()}";
 		}
 
-		$result = $this->apiPost("storage/tables/{$tableId}/import" , $options);
+		$result = $this->apiPost("storage/tables/{$tableId}/import" , $optionsExtended);
 
 		$this->log("Data written to table {$tableId}", array("options" => $options, "result" => $result));
 
@@ -603,10 +607,14 @@ class Client
 	 */
 	public function writeTableAsync($tableId, CsvFile $csvFile, $options = array())
 	{
-		$options = $this->writeTableOptionsPrepare($csvFile, $options);
+		$optionsExtended = array_merge($options, array(
+			"delimiter" => $csvFile->getDelimiter(),
+			"enclosure" => $csvFile->getEnclosure(),
+			"escapedBy" => $csvFile->getEscapedBy(),
+		));
 
 		if ($this->isUrl($csvFile->getPathname())) {
-			$options['dataUrl'] = $csvFile->getPathname();
+			$optionsExtended['dataUrl'] = $csvFile->getPathname();
 		} else {
 			// upload file
 			$fileId = $this->uploadFile(
@@ -617,23 +625,40 @@ class Client
 					->setCompress(true)
 					->setTags(array('table-import'))
 			);
-			$options['dataFileId'] = $fileId;
+			$optionsExtended['dataFileId'] = $fileId;
 		}
 
-		return $this->apiPost("storage/tables/{$tableId}/import-async", $options);
+		return $this->writeTableAsyncDirect($tableId, $optionsExtended);
 	}
 
-
-	private function writeTableOptionsPrepare(CsvFile $csvFile, $options)
+	/**
+	 * @param $tableId
+	 * @param array $options
+	 */
+	public function writeTableAsyncDirect($tableId, $options = array())
 	{
-		return array(
-			"delimiter" => $csvFile->getDelimiter(),
-			"enclosure" => $csvFile->getEnclosure(),
-			"escapedBy" => $csvFile->getEscapedBy(),
+		return $this->apiPost("storage/tables/{$tableId}/import-async", $this->writeTableOptionsPrepare($options));
+	}
+
+	private function writeTableOptionsPrepare($options)
+	{
+		$allowedOptions = array(
+			'delimiter',
+			'enclosure',
+			'escapedBy',
+			'dataFileId',
+			'dataUrl',
+			'data',
+			'withoutHeaders',
+		);
+
+		$filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
+
+		return array_merge($filteredOptions, array(
 			"transaction" => isset($options['transaction']) ? $options['transaction'] : null,
 			"incremental" => isset($options['incremental']) ? (bool) $options['incremental'] : false,
 			"partial" => isset($options['partial']) ? (bool) $options['partial'] : false,
-		);
+		));
 	}
 
 	/**
