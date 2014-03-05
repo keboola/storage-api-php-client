@@ -1,3 +1,7 @@
+## 2.10.1 (2014-03-05)
+ * [Feature] Table import - columns parameter
+ * [Deprecation] Table import - withoutHeaders parameter deprecated
+
 ## 2.10.0 (2014-02-26)
  * [Feature] File uploads - sliced files support
  * [Feature] Table import - sliced files can be imported
