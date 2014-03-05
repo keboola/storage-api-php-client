@@ -244,7 +244,7 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 
 		$client = null;
 		try {
-			while ($tries < 5) {
+			while ($tries < 7) {
 				$client = new Keboola\StorageApi\Client($token['token'], STORAGE_API_URL);
 				$client->verifyToken();
 				sleep(pow(2, $tries++));

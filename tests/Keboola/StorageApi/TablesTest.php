@@ -239,6 +239,41 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$this->assertNotEmpty($result['totalDataSizeBytes']);
 	}
 
+	/**
+	 * @dataProvider tableImportData
+	 * @param $importFileName
+	 */
+	public function testTableAsyncImportExport(CsvFile $importFile, $expectationsFileName, $colNames, $format = 'rfc')
+	{
+		$expectationsFile = __DIR__ . '/_data/' . $expectationsFileName;
+		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $importFile);
+
+		$result = $this->_client->writeTableAsync($tableId, $importFile);
+		$table = $this->_client->getTable($tableId);
+
+		$rowsCountInCsv = count($this->_readCsv($expectationsFile)) - 1;
+		$this->assertEmpty($result['warnings']);
+		$this->assertEquals($colNames, array_values($result['importedColumns']), 'columns');
+		$this->assertEmpty($result['transaction']);
+		$this->assertEquals($rowsCountInCsv, $table['rowsCount'], 'rows count in csv');
+		$this->assertNotEmpty($table['dataSizeBytes']);
+		$this->assertEquals($rowsCountInCsv, $result['totalRowsCount'], 'rows count in csv result');
+		$this->assertNotEmpty($result['totalDataSizeBytes']);
+
+		// compare data
+
+		$this->assertEquals(file_get_contents($expectationsFile), $this->_client->exportTable($tableId, null, array(
+			'format' => $format,
+		)), 'imported data comparsion');
+
+		// incremental
+		$result = $this->_client->writeTableAsync($tableId,  $importFile, array(
+			'incremental' => true,
+		));
+		$this->assertEquals(2 * $rowsCountInCsv, $result['totalRowsCount']);
+		$this->assertNotEmpty($result['totalDataSizeBytes']);
+	}
+
 	public function tableImportData()
 	{
 		return array(
@@ -288,12 +323,31 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 
 	public function testImportWithoutHeaders()
 	{
-
 		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', new Keboola\Csv\CsvFile(__DIR__ . '/_data/languages-headers.csv'));
 
 		$importedFile = __DIR__ . '/_data/languages-without-headers.csv';
 		$result = $this->_client->writeTable($tableId, new CsvFile($importedFile), array(
 			'withoutHeaders' => true,
+		));
+		$table = $this->_client->getTable($tableId);
+
+		$rowsCountInCsv = count($this->_readCsv($importedFile));
+		$this->assertEmpty($result['warnings']);
+		$this->assertEmpty($result['transaction']);
+		$this->assertEquals($rowsCountInCsv, $table['rowsCount'], 'rows count in csv');
+		$this->assertNotEmpty($table['dataSizeBytes']);
+		$this->assertEquals($rowsCountInCsv, $result['totalRowsCount'], 'rows count in csv result');
+		$this->assertNotEmpty($result['totalDataSizeBytes']);
+	}
+
+	public function testImportWithColumnsList()
+	{
+		$headersCsv = new Keboola\Csv\CsvFile(__DIR__ . '/_data/languages-headers.csv');
+		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $headersCsv);
+
+		$importedFile = __DIR__ . '/_data/languages-without-headers.csv';
+		$result = $this->_client->writeTable($tableId, new CsvFile($importedFile), array(
+			'columns' => $headersCsv->getHeader(),
 		));
 		$table = $this->_client->getTable($tableId);
 

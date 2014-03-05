@@ -650,6 +650,7 @@ class Client
 			'dataUrl',
 			'data',
 			'withoutHeaders',
+			'columns',
 		);
 
 		$filteredOptions = array_intersect_key($options, array_flip($allowedOptions));

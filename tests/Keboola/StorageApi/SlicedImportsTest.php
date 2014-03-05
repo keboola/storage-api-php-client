@@ -71,10 +71,11 @@ class Keboola_StorageApi_SlicedImportsTest extends StorageApiTestCase
 			)),
 		))->get('ObjectURL');
 
-		$tableId = $this->_client->createTable($this->_inBucketId, 'entries', new CsvFile(__DIR__ . '/_data/sliced/header.csv'));
+		$headerFile = new CsvFile(__DIR__ . '/_data/sliced/header.csv');
+		$tableId = $this->_client->createTable($this->_inBucketId, 'entries', $headerFile);
 		$this->_client->writeTableAsyncDirect($tableId, array(
 			'dataFileId' => $slicedFile['id'],
-			'withoutHeaders' => true,
+			'columns' => $headerFile->getHeader(),
 			'delimiter' => '|',
 			'enclosure' => '',
 			'escapedBy' => '',
