@@ -1255,9 +1255,34 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 			'gzip' => true,
 		));
 		$this->assertFalse($results['cacheHit']);
+	}
+
+	/**
+	 * Test access to cached file by various tokens
+	 */
+	public function testTableExportAsyncPermissions()
+	{
+		$importFile =  __DIR__ . '/_data/users.csv';
+		$tableId = $this->_client->createTable($this->_inBucketId, 'users', new CsvFile($importFile));
+		$this->_client->markTableColumnAsIndexed($tableId, 'city');
+
+		$results = $this->_client->exportTableAsync($tableId);
+		$fileId = $results['file']['id'];
+		$this->assertFalse($results['cacheHit']);
+
+		$newTokenId = $this->_client->createToken(array(
+			$this->_inBucketId => 'read',
+		));
+		$newToken = $this->_client->getToken($newTokenId);
+		$client = new Keboola\StorageApi\Client($newToken['token'], STORAGE_API_URL);
+
+		$results = $client->exportTableAsync($tableId);
+		$this->assertTrue($results['cacheHit']);
+		$this->assertEquals($fileId, $results['file']['id']);
 
 
-
+		$file = $client->getFile($results['file']['id']);
+		Client::parseCsv(file_get_contents($file['url']), false);
 	}
 
 	public function testTableExportAsyncGzip()
