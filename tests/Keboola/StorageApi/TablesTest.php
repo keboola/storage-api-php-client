@@ -318,7 +318,25 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 
 		$importFileBackup = reset($importEvent['attachments']);
 		$this->assertEquals(file_get_contents($filePath), gzdecode(file_get_contents($importFileBackup['url'])));
+	}
 
+	public function testTableAsyncImportMissingFile()
+	{
+		$filePath = __DIR__ . '/_data/languages.csv';
+		$importFile = new CsvFile($filePath);
+		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $importFile);
+
+		// prepare file but not upload it
+		$file = $this->_client->prepareFileUpload((new \Keboola\StorageApi\Options\FileUploadOptions())->setFileName('languages.csv'));
+
+		try {
+			$this->_client->writeTableAsyncDirect($tableId, array(
+				'dataFileId' => $file['id'],
+			));
+			$this->fail('Exception should be thrown');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.fileNotUploaded', $e->getStringCode());
+		}
 	}
 
 	public function testImportWithoutHeaders()
