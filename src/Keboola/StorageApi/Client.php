@@ -2,18 +2,11 @@
 namespace Keboola\StorageApi;
 
 
-use Guzzle\Http\Curl\CurlHandle;
-use Guzzle\Http\Exception\BadResponseException;
-use Guzzle\Http\Exception\CurlException;
-use Guzzle\Http\Exception\RequestException;
-use Guzzle\Http\Message\Request;
-use Guzzle\Http\Message\RequestInterface;
-use Guzzle\Http\Message\Response;
-use Guzzle\Log\ClosureLogAdapter;
-use Guzzle\Log\MessageFormatter;
-use Guzzle\Plugin\Backoff\BackoffLogger;
-use Guzzle\Plugin\Backoff\BackoffPlugin;
-use Guzzle\Plugin\Log\LogPlugin;
+
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Message\Response;
+use GuzzleHttp\Subscriber\Log\LogSubscriber;
+use GuzzleHttp\Subscriber\Retry\RetrySubscriber;
 use Keboola\StorageApi\Options\GetFileOptions;
 use Keboola\StorageApi\Options\ListFilesOptions;
 use Symfony\Component\Filesystem\Filesystem;
@@ -51,7 +44,7 @@ class Client
 	private static $log;
 
 	/**
-	 * @var \Guzzle\Http\Client
+	 * @var \GuzzleHttp\Client
 	 */
 	private $client;
 
@@ -87,53 +80,57 @@ class Client
 
 	private function initClient()
 	{
-		$this->client = new GuzzleClient($this->getApiBaseUrl(), array(
-			'version' => $this->apiVersion
-		));
+		$this->client = new \GuzzleHttp\Client([
+			'base_url' => $this->apiUrl,
+		]);
 	}
 
-	private function getApiBaseUrl()
-	{
-		return $this->getApiUrl() . "/{version}";
-	}
 
 	private function initExponentialBackoff()
 	{
-		$backoffPlugin = BackoffPlugin::getExponentialBackoff(
-			$this->backoffMaxTries,
-			array(500,  503),
-			array(
-				CURLE_COULDNT_RESOLVE_HOST, CURLE_COULDNT_CONNECT, CURLE_WRITE_ERROR, CURLE_READ_ERROR,
-				CURLE_OPERATION_TIMEOUTED, CURLE_SSL_CONNECT_ERROR, CURLE_HTTP_PORT_FAILED, CURLE_GOT_NOTHING,
-				CURLE_SEND_ERROR, CURLE_RECV_ERROR, CURLE_PARTIAL_FILE
-			)
-		);
-		$backoffPlugin->setEventDispatcher($this->client->getEventDispatcher());
-		$this->client->addSubscriber($backoffPlugin);
+		$retry = $this->createExponentialBackoffSubsriber();
+		$this->client->getEmitter()->detach($retry);
+		$this->client->getEmitter()->attach($retry);
+	}
+
+	private function createExponentialBackoffSubsriber()
+	{
+		$filter = RetrySubscriber::createChainFilter([
+			RetrySubscriber::createCurlFilter(),
+			RetrySubscriber::createStatusFilter(),
+		]);
+		return new RetrySubscriber([
+			'filter' => $filter,
+//			'delay' => RetrySubscriber::createLoggingDelay(['RetrySubscriber', 'exponentialDelay'])
+			'max' => $this->backoffMaxTries,
+		]);
 	}
 
 
 	private function initLogger()
 	{
-		$sapiClient = $this;
-		$logAdapter = new ClosureLogAdapter(function($message, $priority, $extras) use ($sapiClient) {
-			$params = array();
-			if (isset($extras['response']) && $extras['response'] instanceof Response) {
-				$params['duration'] = $extras['response']->getInfo('total_time');
-			}
-			$sapiClient->guzzleLog($message, $params);
-		});
+//		$sapiClient = $this;
+//		$logAdapter = new ClosureLogAdapter(function($message, $priority, $extras) use ($sapiClient) {
+//			$params = array();
+//			if (isset($extras['response']) && $extras['response'] instanceof Response) {
+//				$params['duration'] = $extras['response']->getInfo('total_time');
+//			}
+//			$sapiClient->guzzleLog($message, $params);
+//		});
 
-		$this->client->addSubscriber(new LogPlugin(
-			$logAdapter,
-			"HTTP request: [{ts}] \"{method} {resource} {protocol}/{version}\" {code} {res_header_Content-Length}"
-		));
+		$logSubsriber = new LogSubscriber(null,"{hostname} {req_header_User-Agent} - [{ts}] \"{method} {resource} {protocol}/{version}\" {code} {res_header_Content-Length} {req_headers}");
+		$this->client->getEmitter()->attach($logSubsriber);
 
-		$backoffLogger = new BackoffLogger(
-			$logAdapter,
-			new MessageFormatter('[{ts}] {method} {url} - {code} {phrase} - Retries: {retries}, Delay: {delay}, cURL: {curl_code} {curl_error}')
-		);
-		$this->client->addSubscriber($backoffLogger);
+//		$this->client->addSubscriber(new LogPlugin(
+//			$logAdapter,
+//			"HTTP request: [{ts}] \"{method} {resource} {protocol}/{version}\" {code} {res_header_Content-Length}"
+//		));
+
+//		$backoffLogger = new BackoffLogger(
+//			$logAdapter,
+//			new MessageFormatter('[{ts}] {method} {url} - {code} {phrase} - Retries: {retries}, Delay: {delay}, cURL: {curl_code} {curl_error}')
+//		);
+//		$this->client->addSubscriber($backoffLogger);
 	}
 
 	/**
@@ -362,7 +359,7 @@ class Client
 		if ($this->isUrl($csvFile->getPathname())) {
 			$options["dataUrl"] = $csvFile->getPathname();
 		} else {
-			$options["data"] = "@{$csvFile->getPathname()}";
+			$options["data"] = fopen($csvFile->getPathname(), 'r');
 		}
 
 		$tableId = $this->getTableId($name, $bucketId);
@@ -588,12 +585,12 @@ class Client
 		if ($this->isUrl($csvFile->getPathname())) {
 			$optionsExtended["dataUrl"] = $csvFile->getPathname();
 		} else {
-			$optionsExtended["data"] = "@{$csvFile->getRealPath()}";
+			$optionsExtended["data"] = fopen($csvFile->getRealPath(), 'r');
 		}
 
 		$result = $this->apiPost("storage/tables/{$tableId}/import" , $optionsExtended);
 
-		$this->log("Data written to table {$tableId}", array("options" => $options, "result" => $result));
+		$this->log("Data written to table {$tableId}", array("options" => $optionsExtended, "result" => $result));
 
 		return $result;
 	}
@@ -1092,7 +1089,8 @@ class Client
 	public function uploadFile($filePath, FileUploadOptions $options)
 	{
 		$newOptions = clone $options;
-		$compressed = false;
+		$fs = null;
+		$currentUploadDir = null;
 		if ($newOptions->getCompress() && !in_array(strtolower(pathinfo($filePath, PATHINFO_EXTENSION)), array("gzip", "gz", "zip"))) {
 			$fs = new Filesystem();
 			$sapiClientTempDir = sys_get_temp_dir() . '/sapi-php-client';
@@ -1110,7 +1108,6 @@ class Client
 				throw new ClientException("Failed to gzip file, command return code: " . $ret);
 			}
 			$filePath = $gzFilePath;
-			$compressed = true;
 		}
 		$newOptions
 			->setFileName(basename($filePath))
@@ -1121,23 +1118,24 @@ class Client
 
 		// 2. upload directly do S3 using returned credentials
 		$uploadParams = $result['uploadParams'];
-		$client = new GuzzleClient($uploadParams['url']);
-		$client->addSubscriber(BackoffPlugin::getExponentialBackoff());
+		$client = new \GuzzleHttp\Client();
+		$client->getEmitter()->attach($this->createExponentialBackoffSubsriber());
 
 		try {
-			$client->post('/', null, array(
-				'key' => $uploadParams['key'],
-				'acl' => $uploadParams['acl'],
-				'signature' => $uploadParams['signature'],
-				'policy' => $uploadParams['policy'],
-				'AWSAccessKeyId' => $uploadParams['AWSAccessKeyId'],
-				'file' => "@$filePath",
-			))->send();
+			$client->post($uploadParams['url'], array(
+				'body' => array(
+					'key' => $uploadParams['key'],
+					'acl' => $uploadParams['acl'],
+					'signature' => $uploadParams['signature'],
+					'policy' => $uploadParams['policy'],
+					'AWSAccessKeyId' => $uploadParams['AWSAccessKeyId'],
+					'file' => fopen($filePath, 'r'),
+			)));
 		} catch (RequestException $e) {
 			throw new ClientException("Error on file upload to S3: " . $e->getMessage(), $e->getCode(), $e);
 		}
 
-		if ($compressed) {
+		if ($fs) {
 			$fs->remove($currentUploadDir);
 		}
 
@@ -1287,53 +1285,100 @@ class Client
 	 */
 	protected function apiGet($url, $fileName=null)
 	{
-		return $this->request($this->client->get($url), $fileName);
+		return $this->request('GET', $this->versionUrl($url), array(), $fileName);
 	}
 
-	protected function request(RequestInterface $request, $responseFileName = null )
+	/**
+	 *
+	 * Prepare URL and call a POST request
+	 *
+	 * @param string $url
+	 * @param array $postData
+	 * @return mixed|string
+	 */
+	public function apiPost($url, $postData=null)
 	{
-		$this->client
-			->setUserAgent($this->userAgent)
-			->setBaseUrl($this->getApiBaseUrl());
+		return $this->request('post', $this->versionUrl($url), array('body' => $postData));
+	}
 
-		$request->getCurlOptions()->set(CURLOPT_TIMEOUT, $this->getTimeout());
+	/**
+	 *
+	 * Prepare URL and call a POST request
+	 *
+	 * @param string $url
+	 * @param array $postData
+	 * @return mixed|stringgit d
+	 */
+	public function apiPut($url, $postData=null)
+	{
+		return $this->request('put', $this->versionUrl($url), array(
+			'body' => $postData,
+			'headers' => array(
+				'content-type' => 'application/x-www-form-urlencoded',
+			),
+		));
+	}
+
+	/**
+	 *
+	 * Prepare URL and call a DELETE request
+	 *
+	 * @param string $url
+	 * @return mixed|string
+	 */
+	public function apiDelete($url)
+	{
+		return $this->request('delete', $this->versionUrl($url));
+	}
+
+	private function versionUrl($path)
+	{
+		return "{$this->apiVersion}/$path";
+	}
+
+
+	protected function request($method, $url, $options = array(), $responseFileName = null )
+	{
+		// fix body
+		if (isset($options['body']) && is_array($options['body'])) {
+			$options['body'] = $this->fixRequestBody($options['body']);
+		}
+
+		$request = $this->client->createRequest($method, $url, array_merge(
+			$options,
+			array(
+				'timeout' => $this->getTimeout(),
+			)
+		));
 		$request->addHeaders(array(
 			'X-StorageApi-Token' => $this->token,
 			'Accept-Encoding' => 'gzip',
+			'User-Agent' => $this->getUserAgent(),
 		));
 
 		if ($this->getRunId()) {
 			$request->addHeader('X-KBC-RunId', $this->getRunId());
 		}
 
-		$responseFile = null;
-		if ($responseFileName) {
-			$responseFile = fopen($responseFileName, "w");
-			if (!$responseFile) {
-				throw new ClientException("Cannot open file {$responseFileName}");
-			}
-			$request->setResponseBody($responseFile);
-		}
+
 
 		try {
-			$response = $request->send();
-		} catch (BadResponseException $e) {
+			$response = $this->client->send($request);
+		} catch (RequestException $e) {
 			$response = $e->getResponse();
-			$body = $response->json();
+			$body = $response ? $response->json() : array();
 
-			if ($response->getStatusCode() == 503) {
-				throw new MaintenanceException(isset($body["reason"]) ? $body['reason'] : 'Maintenance', (string) $response->getHeader('Retry-After'), $body);
+			if ($response && $response->getStatusCode() == 503) {
+				throw new MaintenanceException(isset($body["reason"]) ? $body['reason'] : 'Maintenance', $response ? (string) $response->getHeader('Retry-After') : null, $body);
 			}
 
 			throw new ClientException(
 				isset($body['error']) ? $body['error'] : $e->getMessage(),
-				$e->getResponse()->getStatusCode(),
+				$response ? $response->getStatusCode() : $e->getCode(),
 				$e,
 				isset($body['code']) ? $body['code'] : "",
 				$body
 			);
-		} catch (CurlException $e) {
-			throw new ClientException("Http error: " . $e->getMessage(), null, $e, "HTTP_ERROR");
 		}
 
 		// wait for asynchronous task completion
@@ -1341,16 +1386,43 @@ class Client
 			return $this->handleAsyncTask($response);
 		}
 
-		if ($responseFile) {
+
+		if ($responseFileName) {
+
+			$responseFile = fopen($responseFileName, "w");
+			if (!$responseFile) {
+				throw new ClientException("Cannot open file {$responseFileName}");
+			}
+			$body = $response->getBody();
+			$body->seek(0);
+			while (!$body->eof()) {
+				fwrite($responseFile, $body->read(1024 * 10));
+			}
 			fclose($responseFile);
 			return "";
 		}
 
-		if ($response->getContentType() == 'application/json') {
+		if ($response->getHeader('Content-Type') == 'application/json') {
 			return $response->json();
 		}
 
 		return (string) $response->getBody();
+	}
+
+	private function fixRequestBody(array $body)
+	{
+		$fixedBody = array();
+		foreach ($body as $key => $value) {
+			if (!is_array($value)) {
+				$fixedBody[$key] = $value;
+				continue;
+			}
+
+			foreach ($value as $deeperKey => $deeperValue) {
+				$fixedBody[sprintf("%s[%s]", $key, $deeperKey)] = $deeperValue;
+			}
+		}
+		return $fixedBody;
 	}
 
 	/**
@@ -1393,46 +1465,6 @@ class Client
 		}
 
 		return $job['results'];
-	}
-
-	/**
-	 *
-	 * Prepare URL and call a POST request
-	 *
-	 * @param string $url
-	 * @param array $postData
-	 * @return mixed|string
-	 */
-	public function apiPost($url, $postData=null)
-	{
-		return $this->request($this->client->post($url, null, $postData));
-	}
-
-	/**
-	 *
-	 * Prepare URL and call a POST request
-	 *
-	 * @param string $url
-	 * @param array $postData
-	 * @return mixed|stringgit d
-	 */
-	public function apiPut($url, $postData=null)
-	{
-		$request = $this->client->put($url, null, $postData);
-		$request->addHeader('content-type', 'application/x-www-form-urlencoded');
-		return $this->request($request);
-	}
-
-	/**
-	 *
-	 * Prepare URL and call a DELETE request
-	 *
-	 * @param string $url
-	 * @return mixed|string
-	 */
-	public function apiDelete($url)
-	{
-		return $this->request($this->client->delete($url));
 	}
 
 
@@ -1580,6 +1612,7 @@ class Client
 	public function setBackoffMaxTries($backoffMaxTries)
 	{
 		$this->backoffMaxTries = (int) $backoffMaxTries;
+		$this->initExponentialBackoff();
 		return $this;
 	}
 
