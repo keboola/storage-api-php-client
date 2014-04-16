@@ -1,3 +1,6 @@
+## 2.10.2 (2014-05-16)
+ * [Refactoring] Guzzle upgraded to 3.9
+
 ## 2.10.1 (2014-03-05)
  * [Feature] Table import - columns parameter
  * [Deprecation] Table import - withoutHeaders parameter deprecated
