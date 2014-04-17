@@ -12,12 +12,14 @@ HTTP backend migrated to Guzzle 4.0.
     * Static logging callback removed
     * Logger must be set in constructor:
 
+```php
      $client = new Keboola\StorageApi\Client(array(
         'token' => STORAGE_API_TOKEN,
         'logger' => new \GuzzleHttp\Subscriber\Log\SimpleLogger(function($message) {
             echo $message . PHP_EOL;
         })
       ));
+```
 
 ## 2.10.2 (2014-05-16)
  * [Refactoring] Guzzle upgraded to 3.9
