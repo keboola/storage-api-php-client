@@ -18,8 +18,8 @@ mv ./composer.phar ~/bin/composer # or /usr/local/bin/composer
 ```json
 {
     "require": {
-        "php" : ">=5.3.2",
-        "keboola/storage-api-client": "2.9.*"
+        "php" : ">=5.4.0",
+        "keboola/storage-api-client": "2.11.*"
     }
 }
 ```
@@ -46,7 +46,9 @@ Table write example:
 use Keboola\StorageApi\Client,
 	Keboola\Csv\CsvFile;
 
-$client = new Client('your_token');
+$client = new Client([
+  'token' => 'YOUR_TOKEN',
+]);
 $csvFile = new CsvFile(__DIR__ . '/my.csv', ',', '"');
 $client->writeTableAsync('in.c-main.my-table', $csvFile);
 ```
