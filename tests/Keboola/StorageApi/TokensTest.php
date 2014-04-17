@@ -41,7 +41,10 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 		$invalidToken = 'tohlejeneplatnytoken';
 
 		try {
-			$client = new \Keboola\StorageApi\Client($invalidToken, STORAGE_API_URL);
+			$client = new \Keboola\StorageApi\Client(array(
+				'token' => $invalidToken,
+				'url' => STORAGE_API_URL,
+			));
 			$client->verifyToken();
 			$this->fail('Exception should be thrown on invalid token');
 		} catch (\Keboola\StorageApi\ClientException $e) {
@@ -123,7 +126,10 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 		$tokenId = $this->_client->createToken($bucketPermissions, $description);
 		$token = $this->_client->getToken($tokenId);
 
-		$client = new Keboola\StorageApi\Client($token['token'], STORAGE_API_URL);
+		$client = new Keboola\StorageApi\Client(array(
+			'token' => $token['token'],
+			'url' => STORAGE_API_URL,
+		));
 
 		// token getter
 		$this->assertEquals($client->getTokenString(), $token['token']);
@@ -192,7 +198,10 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 		$tokenId = $this->_client->createToken('manage', $description);
 		$token = $this->_client->getToken($tokenId);
 
-		$client = new Keboola\StorageApi\Client($token['token'], STORAGE_API_URL);
+		$client = new Keboola\StorageApi\Client(array(
+			'token' => $token['token'],
+			'url' => STORAGE_API_URL,
+		));
 
 		// token getter
 		$this->assertEquals($client->getTokenString(), $token['token']);
@@ -225,7 +234,10 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 		$tokenId = $this->_client->createToken($bucketPermissions, $description, $twoMinutesExpiration);
 		$token = $this->_client->getToken($tokenId);
 
-		$client = new Keboola\StorageApi\Client($token['token'], STORAGE_API_URL);
+		$client = new Keboola\StorageApi\Client(array(
+			'token' => $token['token'],
+			'url' => STORAGE_API_URL,
+		));
 		$token = $client->verifyToken();
 		$this->assertNotEmpty($token['expires']);
 		$this->assertFalse($token['isExpired']);
@@ -245,7 +257,10 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 		$client = null;
 		try {
 			while ($tries < 7) {
-				$client = new Keboola\StorageApi\Client($token['token'], STORAGE_API_URL);
+				$client = new Keboola\StorageApi\Client(array(
+					'token' => $token['token'],
+					'url' => STORAGE_API_URL,
+				));
 				$client->verifyToken();
 				sleep(pow(2, $tries++));
 			}

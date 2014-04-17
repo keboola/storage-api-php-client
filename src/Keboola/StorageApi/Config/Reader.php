@@ -38,12 +38,13 @@ class Reader
 	public static function read($bucket, $token=null, $readCsvData=true)
 	{
 		if ($token) {
-			self::$client = new \Keboola\StorageApi\Client($token);
+			self::$client = new \Keboola\StorageApi\Client(array(
+				'token' => $token,
+			));
 		}
 
 		$sApiArray = self::load($bucket, $readCsvData);
 		return self::parse($sApiArray);
-
 	}
 
 	/**

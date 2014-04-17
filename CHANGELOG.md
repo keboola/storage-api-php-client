@@ -1,3 +1,24 @@
+## 2.11.0 (2014-05-17)
+
+HTTP backend migrated to Guzzle 4.0.
+
+### BC Breaks
+  * Constructor accepts configuration array instead of list of parameters
+  * Following setters removed, these can be set only from constructor from now:
+    * `setApiUrl`
+    * `setUserAgent`
+    * `setBackoffMaxTries`
+  * Changes in logging
+    * Static logging callback removed
+    * Logger must be set in constructor:
+
+     $client = new Keboola\StorageApi\Client(array(
+        'token' => STORAGE_API_TOKEN,
+        'logger' => new \GuzzleHttp\Subscriber\Log\SimpleLogger(function($message) {
+            echo $message . PHP_EOL;
+        })
+      ));
+
 ## 2.10.2 (2014-05-16)
  * [Refactoring] Guzzle upgraded to 3.9
 

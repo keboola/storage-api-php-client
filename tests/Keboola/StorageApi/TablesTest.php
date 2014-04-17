@@ -1292,7 +1292,10 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 			$this->_inBucketId => 'read',
 		));
 		$newToken = $this->_client->getToken($newTokenId);
-		$client = new Keboola\StorageApi\Client($newToken['token'], STORAGE_API_URL);
+		$client = new Keboola\StorageApi\Client(array(
+			'token' => $newToken['token'],
+			'url' => STORAGE_API_URL,
+		));
 
 		$results = $client->exportTableAsync($tableId);
 		$this->assertTrue($results['cacheHit']);

@@ -268,7 +268,10 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$this->assertNotEmpty($totalFilesCount);
 
 		// new token should not have access to any files
-		$newTokenClient = new Keboola\StorageApi\Client($newToken['token'], STORAGE_API_URL);
+		$newTokenClient = new Keboola\StorageApi\Client(array(
+			'token' => $newToken['token'],
+			'url' => STORAGE_API_URL
+		));
 		$this->assertEmpty($newTokenClient->listFiles());
 
 		$newFileId = $newTokenClient->uploadFile($filePath, $uploadOptions);

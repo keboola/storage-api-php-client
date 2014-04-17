@@ -3,16 +3,18 @@ namespace Keboola\StorageApi;
 
 
 
+use GuzzleHttp\Event\AbstractTransferEvent;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Message\Response;
 use GuzzleHttp\Subscriber\Log\LogSubscriber;
 use GuzzleHttp\Subscriber\Retry\RetrySubscriber;
 use Keboola\StorageApi\Options\GetFileOptions;
 use Keboola\StorageApi\Options\ListFilesOptions;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\Filesystem\Filesystem;
 use Keboola\Csv\CsvFile,
-	Keboola\StorageApi\Options\FileUploadOptions,
-	Guzzle\Http\Client as GuzzleClient;
+	Keboola\StorageApi\Options\FileUploadOptions;
 
 class Client
 {
@@ -35,13 +37,22 @@ class Client
 
 	private $apiVersion = "v2";
 
-	private $backoffMaxTries;
+	private $backoffMaxTries = 11;
 
 	// User agent header send with each API request
 	private $userAgent = 'Keboola Storage API PHP Client';
 
-	// Log anonymous function
-	private static $log;
+	/**
+	 * Log callback
+	 * @var callable
+	 */
+	private $log;
+
+	/**
+	 * @var LoggerInterface
+	 *
+	 */
+	private $logger;
 
 	/**
 	 * @var \GuzzleHttp\Client
@@ -57,25 +68,51 @@ class Client
 	public $connectionTimeout = 7200;
 
 	/**
-	 * @param $tokenString
-	 * @param string null $url
-	 * @param string null $userAgent
+	 * Clients accept an array of constructor parameters.
+	 *
+	 * Here's an example of creating a client using an URI template for the
+	 * client's base_url and an array of default request options to apply
+	 * to each request:
+	 *
+	 *     $client = new Client([
+	 *         'url' => 'https://connection.keboola.com'
+	 *         'token' => 'your_sapi_token',
+	 *     ]);
+	 *
+	 * @param array $config Client configuration settings
+	 *     - token: (required) Storage API token
+	 *     - url: (optional) Storage API URL
+	 *     - userAgent: custom user agent
+	 *     - backoffMaxTries: backoff maximum number of attempts
+	 *     - logger: instance of LoggerInterface
 	 */
-	public function __construct($tokenString, $url=null, $userAgent=null, $backoffMaxTries = 11)
+	public function __construct(array $config = array())
 	{
-		if ($url) {
-			$this->setApiUrl($url);
+		if (isset($config['url'])) {
+			$this->apiUrl = $config['url'];
 		}
 
-		if ($userAgent) {
-			$this->setUserAgent($userAgent);
+		if (isset($config['userAgent'])) {
+			$this->userAgent = $config['userAgent'];
 		}
 
-		$this->token = $tokenString;
-		$this->backoffMaxTries = (int) $backoffMaxTries;
+		if (!isset($config['token'])) {
+			throw new \InvalidArgumentException('token must be set');
+		}
+		$this->token = $config['token'];
+
+		if (isset($config['backoffMaxTries'])) {
+			$this->backoffMaxTries = (int) $config['backoffMaxTries'];
+		}
+
+		if (isset($config['logger'])) {
+			$this->setLogger($config['logger']);
+		} else {
+			$this->setLogger(new NullLogger());
+		}
+
 		$this->initClient();
 		$this->initExponentialBackoff();
-		$this->initLogger();
 	}
 
 	private function initClient()
@@ -83,14 +120,14 @@ class Client
 		$this->client = new \GuzzleHttp\Client([
 			'base_url' => $this->apiUrl,
 		]);
+		$logSubsriber = new LogSubscriber($this->logger, "{hostname} {req_header_User-Agent} - [{ts}] \"{method} {resource} {protocol}/{version}\" {code} {res_header_Content-Length}");
+		$this->client->getEmitter()->attach($logSubsriber);
 	}
 
 
 	private function initExponentialBackoff()
 	{
-		$retry = $this->createExponentialBackoffSubsriber();
-		$this->client->getEmitter()->detach($retry);
-		$this->client->getEmitter()->attach($retry);
+		$this->client->getEmitter()->attach($this->createExponentialBackoffSubsriber());
 	}
 
 	private function createExponentialBackoffSubsriber()
@@ -101,62 +138,12 @@ class Client
 		]);
 		return new RetrySubscriber([
 			'filter' => $filter,
-//			'delay' => RetrySubscriber::createLoggingDelay(['RetrySubscriber', 'exponentialDelay'])
+			'delay' => RetrySubscriber::createLoggingDelay(['GuzzleHttp\Subscriber\Retry\RetrySubscriber', 'exponentialDelay'], $this->logger),
+			'sleep' => function ($time, AbstractTransferEvent $event) {
+				usleep($time * 1000 * 1000);
+			},
 			'max' => $this->backoffMaxTries,
 		]);
-	}
-
-
-	private function initLogger()
-	{
-//		$sapiClient = $this;
-//		$logAdapter = new ClosureLogAdapter(function($message, $priority, $extras) use ($sapiClient) {
-//			$params = array();
-//			if (isset($extras['response']) && $extras['response'] instanceof Response) {
-//				$params['duration'] = $extras['response']->getInfo('total_time');
-//			}
-//			$sapiClient->guzzleLog($message, $params);
-//		});
-
-		$logSubsriber = new LogSubscriber(null,"{hostname} {req_header_User-Agent} - [{ts}] \"{method} {resource} {protocol}/{version}\" {code} {res_header_Content-Length} {req_headers}");
-		$this->client->getEmitter()->attach($logSubsriber);
-
-//		$this->client->addSubscriber(new LogPlugin(
-//			$logAdapter,
-//			"HTTP request: [{ts}] \"{method} {resource} {protocol}/{version}\" {code} {res_header_Content-Length}"
-//		));
-
-//		$backoffLogger = new BackoffLogger(
-//			$logAdapter,
-//			new MessageFormatter('[{ts}] {method} {url} - {code} {phrase} - Retries: {retries}, Delay: {delay}, cURL: {curl_code} {curl_error}')
-//		);
-//		$this->client->addSubscriber($backoffLogger);
-	}
-
-	/**
-	 * Call private method from closure hack
-	 * @param $method
-	 * @param $args
-	 * @return mixed
-	 * @throws \BadMethodCallException
-	 */
-	public function __call($method, $args) {
-
-		if ($method == 'guzzleLog') {
-			return call_user_func_array(array($this, 'log'), $args);
-		}
-		throw new \BadMethodCallException('Unknown method: ' . $method);
-	}
-
-	/**
-	 *
-	 * Change API Url
-	 *
-	 * @param string $url
-	 */
-	public function setApiUrl($url)
-	{
-		$this->apiUrl = $url;
 	}
 
 	/**
@@ -167,17 +154,6 @@ class Client
 	public function getApiUrl()
 	{
 		return $this->apiUrl;
-	}
-
-
-	/**
-	 * @param string $userAgent
-	 * @return Client
-	 */
-	public function setUserAgent($userAgent)
-	{
-		$this->userAgent = (string) $userAgent;
-		return $this;
 	}
 
 	public function indexAction()
@@ -1360,8 +1336,6 @@ class Client
 			$request->addHeader('X-KBC-RunId', $this->getRunId());
 		}
 
-
-
 		try {
 			$response = $this->client->send($request);
 		} catch (RequestException $e) {
@@ -1470,18 +1444,13 @@ class Client
 
 	/**
 	 * @param string $message Message to log
-	 * @param array $data Data to log
+	 * @param array $context Data to log
 	 *
 	 */
-	public function log($message, $data=array())
+	private function log($message, $context = array())
 	{
-		if (Client::$log) {
-			$data["token"] = $this->getLogData();
-			$message = "Storage API: " . $message;
-			call_user_func(Client::$log, $message, $data);
-		}
+		$this->logger->info($message, $context);
 	}
-
 
 
 	/**
@@ -1507,12 +1476,11 @@ class Client
 	}
 
 	/**
-	 * @static
-	 * @param callback $function anonymous function with $message and $data params
+	 * @param LoggerInterface $logger
 	 */
-	public static function setLogger($function)
+	private  function setLogger(LoggerInterface $logger)
 	{
-		Client::$log = $function;
+		$this->logger = $logger;
 	}
 
 	/**
@@ -1603,17 +1571,6 @@ class Client
 	public function getBackoffMaxTries()
 	{
 		return $this->backoffMaxTries;
-	}
-
-	/**
-	 * @param $backoffMaxTries
-	 * @return $this
-	 */
-	public function setBackoffMaxTries($backoffMaxTries)
-	{
-		$this->backoffMaxTries = (int) $backoffMaxTries;
-		$this->initExponentialBackoff();
-		return $this;
 	}
 
 	/**
