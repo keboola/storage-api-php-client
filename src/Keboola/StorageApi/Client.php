@@ -1097,6 +1097,10 @@ class Client
 		$client = new \GuzzleHttp\Client();
 		$client->getEmitter()->attach($this->createExponentialBackoffSubsriber());
 
+		$fh = @fopen($filePath, 'r');
+		if ($fh === false) {
+			throw new ClientException("Error on file upload to S3: Cannot open file: " . $filePath);
+		}
 		try {
 			$client->post($uploadParams['url'], array(
 				'body' => array(
@@ -1105,11 +1109,12 @@ class Client
 					'signature' => $uploadParams['signature'],
 					'policy' => $uploadParams['policy'],
 					'AWSAccessKeyId' => $uploadParams['AWSAccessKeyId'],
-					'file' => fopen($filePath, 'r'),
+					'file' => $fh,
 			)));
 		} catch (RequestException $e) {
 			throw new ClientException("Error on file upload to S3: " . $e->getMessage(), $e->getCode(), $e);
 		}
+		fclose($fh);
 
 		if ($fs) {
 			$fs->remove($currentUploadDir);
