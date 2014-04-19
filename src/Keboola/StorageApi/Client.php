@@ -561,13 +561,16 @@ class Client
 		if ($this->isUrl($csvFile->getPathname())) {
 			$optionsExtended["dataUrl"] = $csvFile->getPathname();
 		} else {
-			$optionsExtended["data"] = fopen($csvFile->getRealPath(), 'r');
+			$optionsExtended["data"] = @fopen($csvFile->getRealPath(), 'r');
+			if ($optionsExtended["data"] === false) {
+				throw new ClientException("Failed to open temporary data file " . $csvFile->getRealPath());
+			}
 		}
 
 		$result = $this->apiPost("storage/tables/{$tableId}/import" , $optionsExtended);
 
 		$this->log("Data written to table {$tableId}", array("options" => $optionsExtended, "result" => $result));
-
+		fclose($optionsExtended["data"]);
 		return $result;
 	}
 
@@ -1097,6 +1100,10 @@ class Client
 		$client = new \GuzzleHttp\Client();
 		$client->getEmitter()->attach($this->createExponentialBackoffSubsriber());
 
+		$fh = @fopen($filePath, 'r');
+		if ($fh === false) {
+			throw new ClientException("Error on file upload to S3: " . $filePath);
+		}
 		try {
 			$client->post($uploadParams['url'], array(
 				'body' => array(
@@ -1105,11 +1112,12 @@ class Client
 					'signature' => $uploadParams['signature'],
 					'policy' => $uploadParams['policy'],
 					'AWSAccessKeyId' => $uploadParams['AWSAccessKeyId'],
-					'file' => fopen($filePath, 'r'),
+					'file' => $fh,
 			)));
 		} catch (RequestException $e) {
 			throw new ClientException("Error on file upload to S3: " . $e->getMessage(), $e->getCode(), $e);
 		}
+		fclose($fh);
 
 		if ($fs) {
 			$fs->remove($currentUploadDir);
