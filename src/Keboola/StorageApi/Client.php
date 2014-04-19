@@ -561,13 +561,16 @@ class Client
 		if ($this->isUrl($csvFile->getPathname())) {
 			$optionsExtended["dataUrl"] = $csvFile->getPathname();
 		} else {
-			$optionsExtended["data"] = fopen($csvFile->getRealPath(), 'r');
+			$optionsExtended["data"] = @fopen($csvFile->getRealPath(), 'r');
+			if ($optionsExtended["data"] === false) {
+				throw new ClientException("Failed to open temporary data file " . $csvFile->getRealPath());
+			}
 		}
 
 		$result = $this->apiPost("storage/tables/{$tableId}/import" , $optionsExtended);
 
 		$this->log("Data written to table {$tableId}", array("options" => $optionsExtended, "result" => $result));
-
+		fclose($optionsExtended["data"]);
 		return $result;
 	}
 
@@ -1099,7 +1102,7 @@ class Client
 
 		$fh = @fopen($filePath, 'r');
 		if ($fh === false) {
-			throw new ClientException("Error on file upload to S3: Cannot open file: " . $filePath);
+			throw new ClientException("Error on file upload to S3: " . $filePath);
 		}
 		try {
 			$client->post($uploadParams['url'], array(
