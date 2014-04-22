@@ -1,3 +1,6 @@
+## 2.11.1 (2014-05-22)
+  * [Bugfix] Exception handling of case when temporary files cannot be opened
+
 ## 2.11.0 (2014-05-17)
 
 HTTP backend migrated to Guzzle 4.0.
