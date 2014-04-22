@@ -228,6 +228,15 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$this->assertEquals(file_get_contents($filePath), gzread($gzFile, 524288));
 	}
 
+	public function testNotExistingFileUpload()
+	{
+		try {
+			$this->_client->uploadFile('invalid.csv', new FileUploadOptions());
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('fileNotReadable', $e->getStringCode());
+		}
+	}
+
 	public function uploadData()
 	{
 		$path  = __DIR__ . '/_data/files.upload.txt';;

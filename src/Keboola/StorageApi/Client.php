@@ -563,14 +563,13 @@ class Client
 		} else {
 			$optionsExtended["data"] = @fopen($csvFile->getRealPath(), 'r');
 			if ($optionsExtended["data"] === false) {
-				throw new ClientException("Failed to open temporary data file " . $csvFile->getRealPath());
+				throw new ClientException("Failed to open temporary data file " . $csvFile->getRealPath(), null, null, 'fileNotReadable');
 			}
 		}
 
 		$result = $this->apiPost("storage/tables/{$tableId}/import" , $optionsExtended);
 
 		$this->log("Data written to table {$tableId}", array("options" => $optionsExtended, "result" => $result));
-		fclose($optionsExtended["data"]);
 		return $result;
 	}
 
@@ -1067,6 +1066,9 @@ class Client
 	 */
 	public function uploadFile($filePath, FileUploadOptions $options)
 	{
+		if (!is_readable($filePath)) {
+			throw new ClientException("File is not readable: " . $filePath, null, null, 'fileNotReadable');
+		}
 		$newOptions = clone $options;
 		$fs = null;
 		$currentUploadDir = null;
@@ -1102,7 +1104,7 @@ class Client
 
 		$fh = @fopen($filePath, 'r');
 		if ($fh === false) {
-			throw new ClientException("Error on file upload to S3: " . $filePath);
+			throw new ClientException("Error on file upload to S3: " . $filePath, null, null, 'fileNotReadable');
 		}
 		try {
 			$client->post($uploadParams['url'], array(
@@ -1117,7 +1119,6 @@ class Client
 		} catch (RequestException $e) {
 			throw new ClientException("Error on file upload to S3: " . $e->getMessage(), $e->getCode(), $e);
 		}
-		fclose($fh);
 
 		if ($fs) {
 			$fs->remove($currentUploadDir);

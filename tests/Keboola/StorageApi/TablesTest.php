@@ -1549,6 +1549,15 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		);
 	}
 
+	public function testTableImportNotExistingFile()
+	{
+		try {
+			$this->_client->writeTable($this->_inBucketId . '.languages', new CsvFile('invalid.csv'));
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('fileNotReadable', $e->getStringCode());
+		}
+	}
+
 	public function testTableImportInvalidLineBreaks()
 	{
 		$importCsvFile = new CsvFile(__DIR__ . '/_data/escaping.mac-os-9.csv');
