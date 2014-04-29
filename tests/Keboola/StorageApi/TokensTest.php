@@ -36,6 +36,38 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 		}
 	}
 
+	public function testTokenProperties()
+	{
+		$token = $this->_client->verifyToken();
+		$this->arrayHasKey('created', $token);
+		$this->arrayHasKey('description', $token);
+		$this->arrayHasKey('id', $token);
+		$this->assertTrue($token['isMasterToken']);
+		$this->assertTrue($token['canManageBuckets']);
+		$this->assertTrue($token['canReadAllFileUploads']);
+		$this->assertFalse($token['isDisabled']);
+		$this->assertNotEmpty($token['bucketPermissions']);
+		$this->arrayHasKey('owner', $token);
+		$this->arrayHasKey('admin', $token);
+
+
+		$tokens = $this->_client->listTokens();
+		foreach ($tokens as $currentToken) {
+			if ($currentToken['id'] != $token['id']) {
+				continue;
+			}
+
+			$this->arrayHasKey($currentToken['admin']);
+
+			$admin = $currentToken['admin'];
+			$this->arrayHasKey('id', $admin);
+			$this->arrayHasKey('name', $admin);
+			return;
+		}
+
+		$this->fail("Token $token[id] not present in list");
+	}
+
 	public function testInvalidToken()
 	{
 		$invalidToken = 'tohlejeneplatnytoken';
