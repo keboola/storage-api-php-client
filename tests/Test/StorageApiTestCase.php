@@ -29,18 +29,23 @@ class StorageApiTestCase extends \PHPUnit_Framework_TestCase
 	 * @param $stage
 	 * @return bool|string
 	 */
-	protected function _initEmptyBucket($name, $stage)
+	protected function _initEmptyBucket($name, $stage, $backend = 'mysql')
 	{
-		$bucketId = $this->_client->getBucketId('c-' . $name, $stage);
-		if (!$bucketId) {
-			$bucketId = $this->_client->createBucket($name, $stage, 'Api tests');
-		}
-		$tables = $this->_client->listTables($bucketId);
-		foreach ($tables as $table) {
-			$this->_client->dropTable($table['id']);
-		}
+		try {
+			$bucket = $this->_client->getBucket("$stage.c-$name");
+			$tables = $this->_client->listTables($bucket['id']);
+			foreach ($tables as $table) {
+				$this->_client->dropTable($table['id']);
+			}
 
-		return $bucketId;
+			if ($bucket['backend'] != $backend) {
+				$this->_client->dropBucket($bucket['id']);
+				return $this->_client->createBucket($name, $stage, 'Api tests', $backend);
+			}
+			return $bucket['id'];
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			return $this->_client->createBucket($name, $stage, 'Api tests', $backend);
+		}
 	}
 
 	public  function assertArrayEqualsSorted($expected, $actual, $sortKey, $message = "")

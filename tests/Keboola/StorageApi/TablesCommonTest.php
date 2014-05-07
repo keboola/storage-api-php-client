@@ -12,19 +12,25 @@ use Keboola\StorageApi\Client;
 
 use Keboola\Csv\CsvFile;
 
-class Keboola_StorageApi_TablesTest extends StorageApiTestCase
+class Keboola_StorageApi_TablesCommonTest extends StorageApiTestCase
 {
 
-	protected $_inBucketId;
-	protected $_outBucketId;
+	protected $_inMysqlBucketId;
+	protected $_outMysqlBucketId;
+
+	protected $_inRedshiftBucketId;
+	protected $_outRedshiftBucketId;
 
 
 	public function setUp()
 	{
 		parent::setUp();
 
-		$this->_outBucketId = $this->_initEmptyBucket('api-tests', 'out');
-		$this->_inBucketId = $this->_initEmptyBucket('api-tests', 'in');
+		$this->_outMysqlBucketId = $this->_initEmptyBucket('api-tests', 'out');
+		$this->_inMysqlBucketId = $this->_initEmptyBucket('api-tests', 'in');
+
+		$this->_inRedshiftBucketId = $this->_initEmptyBucket('api-rs-tests', 'in', 'redshift');
+		$this->_outRedshiftBucketId = $this->_initEmptyBucket('api-rs-tests', 'out', 'redshift');
 	}
 
 	/**
@@ -35,7 +41,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	{
 		$createMethod = $async ? 'createTableAsync' : 'createTable';
 		$tableId = $this->_client->{$createMethod}(
-			$this->_inBucketId,
+			$this->_inMysqlBucketId,
 			'languages',
 			new CsvFile($langugesFile)
 		);
@@ -60,10 +66,10 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testTableExists()
 	{
 
-		$this->assertFalse($this->_client->tableExists($this->_inBucketId . '.languages'));
+		$this->assertFalse($this->_client->tableExists($this->_inMysqlBucketId . '.languages'));
 
 		$tableId = $this->_client->createTable(
-			$this->_inBucketId,
+			$this->_inMysqlBucketId,
 			'languages',
 			new CsvFile(__DIR__ . '/_data/languages.csv')
 		);
@@ -76,7 +82,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	{
 		try {
 			$tableId = $this->_client->createTable(
-				$this->_inBucketId,
+				$this->_inMysqlBucketId,
 				'languages.main',
 				new CsvFile(__DIR__ . '/_data/languages.csv')
 			);
@@ -96,7 +102,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 
 		$method = $async ? 'createTableAsync' : 'createTable';
 		$tableId = $this->_client->{$method}(
-			$this->_inBucketId,
+			$this->_inMysqlBucketId,
 			'sanitize',
 			$csv
 		);
@@ -118,7 +124,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testTableCreateWithPK()
 	{
 		$tableId = $this->_client->createTable(
-			$this->_inBucketId,
+			$this->_inMysqlBucketId,
 			'languages',
 			new CsvFile(__DIR__ . '/_data/languages.csv'),
 			array(
@@ -143,9 +149,9 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 
 	public function testListTables()
 	{
-		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', new CsvFile(__DIR__ . '/_data/languages.csv'));
+		$tableId = $this->_client->createTable($this->_inMysqlBucketId, 'languages', new CsvFile(__DIR__ . '/_data/languages.csv'));
 		$this->_client->setTableAttribute($tableId, 'test', 'something');
-		$tables = $this->_client->listTables($this->_inBucketId);
+		$tables = $this->_client->listTables($this->_inMysqlBucketId);
 
 		$this->assertCount(1, $tables);
 
@@ -170,8 +176,8 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 
 	public function testListTablesWithIncludeParam()
 	{
-		$this->_client->createTable($this->_inBucketId, 'languages', new CsvFile(__DIR__ . '/_data/languages.csv'));
-		$tables = $this->_client->listTables($this->_inBucketId, array(
+		$this->_client->createTable($this->_inMysqlBucketId, 'languages', new CsvFile(__DIR__ . '/_data/languages.csv'));
+		$tables = $this->_client->listTables($this->_inMysqlBucketId, array(
 			'include' => '', // don't include anything
 		));
 
@@ -190,14 +196,14 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 
 	public function testTableDelete()
 	{
-		$table1Id = $this->_client->createTable($this->_inBucketId, 'languages', new CsvFile(__DIR__ . '/_data/languages.csv'));
-		$table2Id = $this->_client->createTable($this->_inBucketId, 'languages_2', new CsvFile(__DIR__ . '/_data/languages.csv'));
-		$tables = $this->_client->listTables($this->_inBucketId);
+		$table1Id = $this->_client->createTable($this->_inMysqlBucketId, 'languages', new CsvFile(__DIR__ . '/_data/languages.csv'));
+		$table2Id = $this->_client->createTable($this->_inMysqlBucketId, 'languages_2', new CsvFile(__DIR__ . '/_data/languages.csv'));
+		$tables = $this->_client->listTables($this->_inMysqlBucketId);
 
 		$this->assertCount(2, $tables);
 		$this->_client->dropTable($table1Id);
 
-		$tables = $this->_client->listTables($this->_inBucketId);
+		$tables = $this->_client->listTables($this->_inMysqlBucketId);
 		$this->assertCount(1, $tables);
 
 		$table = reset($tables);
@@ -211,7 +217,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testTableImportExport(CsvFile $importFile, $expectationsFileName, $colNames, $format = 'rfc')
 	{
 		$expectationsFile = __DIR__ . '/_data/' . $expectationsFileName;
-		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $importFile);
+		$tableId = $this->_client->createTable($this->_inMysqlBucketId, 'languages', $importFile);
 
 		$result = $this->_client->writeTable($tableId, $importFile);
 		$table = $this->_client->getTable($tableId);
@@ -246,7 +252,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testTableAsyncImportExport(CsvFile $importFile, $expectationsFileName, $colNames, $format = 'rfc')
 	{
 		$expectationsFile = __DIR__ . '/_data/' . $expectationsFileName;
-		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $importFile);
+		$tableId = $this->_client->createTable($this->_inMysqlBucketId, 'languages', $importFile);
 
 		$result = $this->_client->writeTableAsync($tableId, $importFile);
 		$table = $this->_client->getTable($tableId);
@@ -300,7 +306,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$this->_client->setRunId($runId);
 		$filePath = __DIR__ . '/_data/languages.csv';
 		$importFile = new CsvFile($filePath);
-		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $importFile);
+		$tableId = $this->_client->createTable($this->_inMysqlBucketId, 'languages', $importFile);
 		$result = $this->_client->writeTableAsync($tableId, $importFile, array(
 			'incremental' => false,
 		));
@@ -324,7 +330,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	{
 		$filePath = __DIR__ . '/_data/languages.csv';
 		$importFile = new CsvFile($filePath);
-		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $importFile);
+		$tableId = $this->_client->createTable($this->_inMysqlBucketId, 'languages', $importFile);
 
 		// prepare file but not upload it
 		$file = $this->_client->prepareFileUpload((new \Keboola\StorageApi\Options\FileUploadOptions())->setFileName('languages.csv'));
@@ -341,7 +347,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 
 	public function testImportWithoutHeaders()
 	{
-		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', new Keboola\Csv\CsvFile(__DIR__ . '/_data/languages-headers.csv'));
+		$tableId = $this->_client->createTable($this->_inMysqlBucketId, 'languages', new Keboola\Csv\CsvFile(__DIR__ . '/_data/languages-headers.csv'));
 
 		$importedFile = __DIR__ . '/_data/languages-without-headers.csv';
 		$result = $this->_client->writeTable($tableId, new CsvFile($importedFile), array(
@@ -361,7 +367,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testImportWithColumnsList()
 	{
 		$headersCsv = new Keboola\Csv\CsvFile(__DIR__ . '/_data/languages-headers.csv');
-		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $headersCsv);
+		$tableId = $this->_client->createTable($this->_inMysqlBucketId, 'languages', $headersCsv);
 
 		$importedFile = __DIR__ . '/_data/languages-without-headers.csv';
 		$result = $this->_client->writeTable($tableId, new CsvFile($importedFile), array(
@@ -380,7 +386,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 
 	public function testTableImportFromString()
 	{
-		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', new Keboola\Csv\CsvFile(__DIR__ . '/_data/languages-headers.csv'));
+		$tableId = $this->_client->createTable($this->_inMysqlBucketId, 'languages', new Keboola\Csv\CsvFile(__DIR__ . '/_data/languages-headers.csv'));
 
 		$lines = '"id","name"';
 		$lines .= "\n" . '"first","second"' . "\n";
@@ -396,7 +402,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testTableInvalidAsyncImport()
 	{
 		$importFile = new CsvFile(__DIR__ . '/_data/languages.csv');
-		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $importFile);
+		$tableId = $this->_client->createTable($this->_inMysqlBucketId, 'languages', $importFile);
 		$this->_client->addTableColumn($tableId, 'missing');
 		try {
 			$this->_client->writeTableAsync($tableId, $importFile);
@@ -410,7 +416,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testTableInvalidPartialImport()
 	{
 		$createFile = new CsvFile(__DIR__ . '/_data/languages.csv');
-		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $createFile);
+		$tableId = $this->_client->createTable($this->_inMysqlBucketId, 'languages', $createFile);
 		$importFile = new CsvFile(__DIR__ . '/_data/config.csv');
 		try {
 			$this->_client->writeTableAsync($tableId, $importFile, array(
@@ -426,7 +432,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testTableImportFromInvalidUrl()
 	{
 		$createFile = new CsvFile(__DIR__ . '/_data/languages.csv');
-		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $createFile);
+		$tableId = $this->_client->createTable($this->_inMysqlBucketId, 'languages', $createFile);
 
 		$csvFile = new CsvFile("http://unknown");
 		try {
@@ -447,7 +453,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testPartialImport()
 	{
 		$tableId = $this->_client->createTable(
-			$this->_inBucketId, 'users',
+			$this->_inMysqlBucketId, 'users',
 			new CsvFile(__DIR__ . '/_data/users.csv'),
 			array(
 				'primaryKey' => 'id',
@@ -468,7 +474,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testInvalidExportFormat()
 	{
 		$importFile =  __DIR__ . '/_data/languages.csv';
-		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', new CsvFile($importFile));
+		$tableId = $this->_client->createTable($this->_inMysqlBucketId, 'languages', new CsvFile($importFile));
 
 		try {
 			$this->_client->exportTable($tableId, null, array(
@@ -483,7 +489,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testTableColumnAdd()
 	{
 		$importFile =  __DIR__ . '/_data/languages.csv';
-		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', new CsvFile($importFile));
+		$tableId = $this->_client->createTable($this->_inMysqlBucketId, 'languages', new CsvFile($importFile));
 
 		$this->_client->addTableColumn($tableId, 'state');
 
@@ -500,14 +506,14 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testTableExistingColumnAdd()
 	{
 		$importFile =  __DIR__ . '/_data/languages.csv';
-		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', new CsvFile($importFile));
+		$tableId = $this->_client->createTable($this->_inMysqlBucketId, 'languages', new CsvFile($importFile));
 		$this->_client->addTableColumn($tableId, 'id');
 	}
 
 	public function testTableColumnDelete()
 	{
 		$importFile =  __DIR__ . '/_data/languages.csv';
-		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', new CsvFile($importFile));
+		$tableId = $this->_client->createTable($this->_inMysqlBucketId, 'languages', new CsvFile($importFile));
 
 		$this->_client->deleteTableColumn($tableId, 'name');
 
@@ -524,10 +530,10 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testAliasColumnWithoutAutoSyncShouldBeDeletable()
 	{
 		$importFile =  __DIR__ . '/_data/users.csv';
-		$sourceTableId = $this->_client->createTable($this->_inBucketId, 'users', new CsvFile($importFile));
+		$sourceTableId = $this->_client->createTable($this->_inMysqlBucketId, 'users', new CsvFile($importFile));
 		$this->_client->markTableColumnAsIndexed($sourceTableId, 'city');
 
-		$aliasTableId = $this->_client->createAliasTable($this->_outBucketId, $sourceTableId, 'users', array(
+		$aliasTableId = $this->_client->createAliasTable($this->_outMysqlBucketId, $sourceTableId, 'users', array(
 			'aliasColumns' => array(
 				'city',
 				'id',
@@ -544,10 +550,10 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testAliasColumnWithoutAutoSyncCanBeAdded()
 	{
 		$importFile =  __DIR__ . '/_data/users.csv';
-		$sourceTableId = $this->_client->createTable($this->_inBucketId, 'users', new CsvFile($importFile));
+		$sourceTableId = $this->_client->createTable($this->_inMysqlBucketId, 'users', new CsvFile($importFile));
 		$this->_client->markTableColumnAsIndexed($sourceTableId, 'city');
 
-		$aliasTableId = $this->_client->createAliasTable($this->_outBucketId, $sourceTableId, 'users', array(
+		$aliasTableId = $this->_client->createAliasTable($this->_outMysqlBucketId, $sourceTableId, 'users', array(
 			'aliasColumns' => array(
 				'id',
 				'name',
@@ -563,10 +569,10 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testAliasColumnsAutoSync()
 	{
 		$importFile =  __DIR__ . '/_data/users.csv';
-		$sourceTableId = $this->_client->createTable($this->_inBucketId, 'users', new CsvFile($importFile));
+		$sourceTableId = $this->_client->createTable($this->_inMysqlBucketId, 'users', new CsvFile($importFile));
 		$this->_client->markTableColumnAsIndexed($sourceTableId, 'city');
 
-		$aliasTableId = $this->_client->createAliasTable($this->_outBucketId, $sourceTableId, 'users');
+		$aliasTableId = $this->_client->createAliasTable($this->_outMysqlBucketId, $sourceTableId, 'users');
 
 		$aliasTable = $this->_client->getTable($aliasTableId);
 		$this->assertEquals(array("id","name","city","sex"), $aliasTable["columns"]);
@@ -603,10 +609,10 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testColumnUsedInFilteredAliasShouldNotBeDeletable()
 	{
 		$importFile =  __DIR__ . '/_data/languages.csv';
-		$sourceTableId = $this->_client->createTable($this->_inBucketId, 'languages', new CsvFile($importFile));
+		$sourceTableId = $this->_client->createTable($this->_inMysqlBucketId, 'languages', new CsvFile($importFile));
 		$this->_client->markTableColumnAsIndexed($sourceTableId, 'id');
 
-		$aliasTable = $this->_client->createAliasTable($this->_outBucketId, $sourceTableId, 'languages', array(
+		$aliasTable = $this->_client->createAliasTable($this->_outMysqlBucketId, $sourceTableId, 'languages', array(
 			'aliasFilter' => array(
 				'column' => 'id',
 				'values' => array('1'),
@@ -624,10 +630,10 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testColumnAssignedToAliasWithoutAutoSyncShouldNotBeDeletable()
 	{
 		$importFile =  __DIR__ . '/_data/users.csv';
-		$sourceTableId = $this->_client->createTable($this->_inBucketId, 'users', new CsvFile($importFile));
+		$sourceTableId = $this->_client->createTable($this->_inMysqlBucketId, 'users', new CsvFile($importFile));
 		$this->_client->markTableColumnAsIndexed($sourceTableId, 'city');
 
-		$aliasTable = $this->_client->createAliasTable($this->_outBucketId, $sourceTableId, 'users', array(
+		$aliasTable = $this->_client->createAliasTable($this->_outMysqlBucketId, $sourceTableId, 'users', array(
 			'aliasColumns' => array(
 				'city',
 				'id',
@@ -646,10 +652,10 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testColumnUsedInFilteredAliasShouldNotBeRemovedFromIndexed()
 	{
 		$importFile =  __DIR__ . '/_data/languages.csv';
-		$sourceTableId = $this->_client->createTable($this->_inBucketId, 'languages', new CsvFile($importFile));
+		$sourceTableId = $this->_client->createTable($this->_inMysqlBucketId, 'languages', new CsvFile($importFile));
 		$this->_client->markTableColumnAsIndexed($sourceTableId, 'id');
 
-		$aliasTable = $this->_client->createAliasTable($this->_outBucketId, $sourceTableId, 'languages', array(
+		$aliasTable = $this->_client->createAliasTable($this->_outMysqlBucketId, $sourceTableId, 'languages', array(
 			'aliasFilter' => array(
 				'column' => 'id',
 				'values' => array('1'),
@@ -668,7 +674,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	{
 		$importFile =  __DIR__ . '/_data/languages.csv';
 		$tableId = $this->_client->createTable(
-			$this->_inBucketId,
+			$this->_inMysqlBucketId,
 			'languages',
 			new CsvFile($importFile),
 			array(
@@ -693,7 +699,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testTableFileExport()
 	{
 		$importFile =  __DIR__ . '/_data/languages.csv';
-		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', new CsvFile($importFile));
+		$tableId = $this->_client->createTable($this->_inMysqlBucketId, 'languages', new CsvFile($importFile));
 
 		$outputFile = __DIR__ . '/_tmp/languagesExport.csv';
 		if (file_exists($outputFile)) {
@@ -717,7 +723,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testTableExportParams()
 	{
 		$importFile =  __DIR__ . '/_data/languages.csv';
-		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', new CsvFile($importFile));
+		$tableId = $this->_client->createTable($this->_inMysqlBucketId, 'languages', new CsvFile($importFile));
 
 		$originalFileLinesCount = exec("wc -l <" . escapeshellarg($importFile));
 
@@ -760,7 +766,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testTableExportFilters($exportOptions, $expectedResult)
 	{
 		$importFile =  __DIR__ . '/_data/users.csv';
-		$tableId = $this->_client->createTable($this->_inBucketId, 'users', new CsvFile($importFile));
+		$tableId = $this->_client->createTable($this->_inMysqlBucketId, 'users', new CsvFile($importFile));
 		$this->_client->markTableColumnAsIndexed($tableId, 'city');
 
 		$data = $this->_client->exportTable($tableId, null, $exportOptions);
@@ -774,7 +780,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	{
 		// source table
 		$sourceTableId = $this->_client->createTable(
-			$this->_inBucketId,
+			$this->_inMysqlBucketId,
 			'users',
 			new CsvFile(__DIR__ . '/_data/users.csv')
 		);
@@ -787,7 +793,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		);
 		// alias table
 		$aliasTableId = $this->_client->createAliasTable(
-			$this->_outBucketId,
+			$this->_outMysqlBucketId,
 			$sourceTableId,
 			'users',
 			array(
@@ -819,7 +825,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	{
 		// source table
 		$sourceTableId = $this->_client->createTable(
-			$this->_inBucketId,
+			$this->_inMysqlBucketId,
 			'users',
 			new CsvFile(__DIR__ . '/_data/users.csv')
 		);
@@ -827,7 +833,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 
 		// alias table
 		$aliasTableId = $this->_client->createAliasTable(
-			$this->_outBucketId,
+			$this->_outMysqlBucketId,
 			$sourceTableId,
 			'users',
 			array(
@@ -859,14 +865,14 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testFilteredAliasWithColumnsListed()
 	{
 		$sourceTableId = $this->_client->createTable(
-			$this->_inBucketId,
+			$this->_inMysqlBucketId,
 			'users',
 			new CsvFile(__DIR__ . '/_data/users.csv')
 		);
 		$this->_client->markTableColumnAsIndexed($sourceTableId, 'sex');
 
 		$aliasTableId = $this->_client->createAliasTable(
-			$this->_outBucketId,
+			$this->_outMysqlBucketId,
 			$sourceTableId,
 			'males',
 			array(
@@ -918,7 +924,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	{
 		// source table
 		$sourceTableId = $this->_client->createTable(
-			$this->_inBucketId,
+			$this->_inMysqlBucketId,
 			'users',
 			new CsvFile(__DIR__ . '/_data/users.csv')
 		);
@@ -927,7 +933,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 
 		// alias table
 		$aliasTableId = $this->_client->createAliasTable(
-			$this->_outBucketId,
+			$this->_outMysqlBucketId,
 			$sourceTableId,
 			'users',
 			array(
@@ -1162,7 +1168,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testTableExportFilterShouldFailOnNonIndexedColumn()
 	{
 		$importFile =  __DIR__ . '/_data/users.csv';
-		$tableId = $this->_client->createTable($this->_inBucketId, 'users', new CsvFile($importFile));
+		$tableId = $this->_client->createTable($this->_inMysqlBucketId, 'users', new CsvFile($importFile));
 
 		try {
 			$this->_client->exportTable($tableId, null, array(
@@ -1177,7 +1183,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testTableExportColumnsParam()
 	{
 		$importFile =  __DIR__ . '/_data/languages.csv';
-		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', new CsvFile($importFile));
+		$tableId = $this->_client->createTable($this->_inMysqlBucketId, 'languages', new CsvFile($importFile));
 
 		$data = $this->_client->exportTable($tableId, null, array(
 			'columns' => array('id'),
@@ -1193,7 +1199,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testTableExportAsyncColumnsParam()
 	{
 		$importFile =  __DIR__ . '/_data/languages.csv';
-		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', new CsvFile($importFile));
+		$tableId = $this->_client->createTable($this->_inMysqlBucketId, 'languages', new CsvFile($importFile));
 
 		$results = $this->_client->exportTableAsync($tableId, array(
 			'columns' => array('id'),
@@ -1215,7 +1221,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testTableExportAsync($exportOptions, $expectedResult)
 	{
 		$importFile =  __DIR__ . '/_data/users.csv';
-		$tableId = $this->_client->createTable($this->_inBucketId, 'users', new CsvFile($importFile));
+		$tableId = $this->_client->createTable($this->_inMysqlBucketId, 'users', new CsvFile($importFile));
 		$this->_client->markTableColumnAsIndexed($tableId, 'city');
 
 		$results = $this->_client->exportTableAsync($tableId, $exportOptions);
@@ -1230,7 +1236,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testTableExportAsyncCache()
 	{
 		$importFile =  __DIR__ . '/_data/users.csv';
-		$tableId = $this->_client->createTable($this->_inBucketId, 'users', new CsvFile($importFile));
+		$tableId = $this->_client->createTable($this->_inMysqlBucketId, 'users', new CsvFile($importFile));
 		$this->_client->markTableColumnAsIndexed($tableId, 'city');
 
 		$results = $this->_client->exportTableAsync($tableId);
@@ -1281,7 +1287,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testTableExportAsyncPermissions()
 	{
 		$importFile =  __DIR__ . '/_data/users.csv';
-		$tableId = $this->_client->createTable($this->_inBucketId, 'users', new CsvFile($importFile));
+		$tableId = $this->_client->createTable($this->_inMysqlBucketId, 'users', new CsvFile($importFile));
 		$this->_client->markTableColumnAsIndexed($tableId, 'city');
 
 		$results = $this->_client->exportTableAsync($tableId);
@@ -1289,7 +1295,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$this->assertFalse($results['cacheHit']);
 
 		$newTokenId = $this->_client->createToken(array(
-			$this->_inBucketId => 'read',
+			$this->_inMysqlBucketId => 'read',
 		));
 		$newToken = $this->_client->getToken($newTokenId);
 		$client = new Keboola\StorageApi\Client(array(
@@ -1309,7 +1315,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testTableExportAsyncGzip()
 	{
 		$importFile =  __DIR__ . '/_data/users.csv';
-		$tableId = $this->_client->createTable($this->_inBucketId, 'users', new CsvFile($importFile));
+		$tableId = $this->_client->createTable($this->_inMysqlBucketId, 'users', new CsvFile($importFile));
 		$this->_client->markTableColumnAsIndexed($tableId, 'city');
 
 		$results = $this->_client->exportTableAsync($tableId, array(
@@ -1334,7 +1340,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testTableDeleteRowsByFilter($filterParams, $expectedTableContent)
 	{
 		$importFile =  __DIR__ . '/_data/users.csv';
-		$tableId = $this->_client->createTable($this->_inBucketId, 'users', new CsvFile($importFile));
+		$tableId = $this->_client->createTable($this->_inMysqlBucketId, 'users', new CsvFile($importFile));
 		$this->_client->markTableColumnAsIndexed($tableId, 'city');
 
 		$this->_client->deleteTableRows($tableId, $filterParams);
@@ -1352,10 +1358,10 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testTableDeleteRowsAliasShouldBeUpdated()
 	{
 		$importFile =  __DIR__ . '/_data/users.csv';
-		$tableId = $this->_client->createTable($this->_inBucketId, 'users', new CsvFile($importFile));
+		$tableId = $this->_client->createTable($this->_inMysqlBucketId, 'users', new CsvFile($importFile));
 		$this->_client->markTableColumnAsIndexed($tableId, 'city');
 
-		$aliasId = $this->_client->createAliasTable($this->_outBucketId, $tableId);
+		$aliasId = $this->_client->createAliasTable($this->_outMysqlBucketId, $tableId);
 
 		$this->_client->deleteTableRows($tableId);
 
@@ -1371,9 +1377,9 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testDeleteRowsFromAliasShouldNotBeAllowed()
 	{
 		$importFile =  __DIR__ . '/_data/users.csv';
-		$tableId = $this->_client->createTable($this->_inBucketId, 'users', new CsvFile($importFile));
+		$tableId = $this->_client->createTable($this->_inMysqlBucketId, 'users', new CsvFile($importFile));
 
-		$aliasId = $this->_client->createAliasTable($this->_outBucketId, $tableId);
+		$aliasId = $this->_client->createAliasTable($this->_outMysqlBucketId, $tableId);
 
 		try {
 			$this->_client->deleteTableRows($aliasId);
@@ -1534,7 +1540,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testTableInvalidImport($languagesFile)
 	{
 		$importCsvFile = new CsvFile(__DIR__ . '/_data/' . $languagesFile);
-		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', new CsvFile(__DIR__ . '/_data/languages.csv'));
+		$tableId = $this->_client->createTable($this->_inMysqlBucketId, 'languages', new CsvFile(__DIR__ . '/_data/languages.csv'));
 
 		$this->_client->writeTable($tableId, $importCsvFile);
 	}
@@ -1552,7 +1558,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	public function testTableImportNotExistingFile()
 	{
 		try {
-			$this->_client->writeTable($this->_inBucketId . '.languages', new CsvFile('invalid.csv'));
+			$this->_client->writeTable($this->_inMysqlBucketId . '.languages', new CsvFile('invalid.csv'));
 		} catch (\Keboola\StorageApi\ClientException $e) {
 			$this->assertEquals('fileNotReadable', $e->getStringCode());
 		}
@@ -1562,21 +1568,21 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	{
 		$importCsvFile = new CsvFile(__DIR__ . '/_data/escaping.mac-os-9.csv');
 		try {
-			$this->_client->createTable($this->_inBucketId, 'languages', $importCsvFile);
+			$this->_client->createTable($this->_inMysqlBucketId, 'languages', $importCsvFile);
 			$this->fail('Mac os 9 line breaks should not be allowd');
 		} catch (\Keboola\StorageApi\ClientException $e) {
 			$this->assertEquals('storage.validation.invalidParam', $e->getStringCode());
 		}
 
 		try {
-			$this->_client->createTableAsync($this->_inBucketId, 'languages', $importCsvFile);
+			$this->_client->createTableAsync($this->_inMysqlBucketId, 'languages', $importCsvFile);
 			$this->fail('Mac os 9 line breaks should not be allowd');
 		} catch (\Keboola\StorageApi\ClientException $e) {
 			$this->assertEquals('storage.validation.invalidParam', $e->getStringCode());
 		}
 
 		$createCsvFile = new CsvFile(__DIR__ . '/_data/languages.csv');
-		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', $createCsvFile);
+		$tableId = $this->_client->createTable($this->_inMysqlBucketId, 'languages', $createCsvFile);
 		try {
 			$this->_client->writeTable($tableId, $importCsvFile);
 			$this->fail('Mac os 9 line breaks should not be allowd');
@@ -1598,7 +1604,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 
 	public function testTableAttributes()
 	{
-		$tableId = $this->_client->createTable($this->_inBucketId, 'languages', new CsvFile(__DIR__ . '/_data/languages.csv'));
+		$tableId = $this->_client->createTable($this->_inMysqlBucketId, 'languages', new CsvFile(__DIR__ . '/_data/languages.csv'));
 
 		$table = $this->_client->getTable($tableId);
 		$this->assertEmpty($table['attributes'], 'empty attributes after table create');
@@ -1658,7 +1664,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 
 		// create and import data into source table
 		$sourceTableId = $this->_client->createTable(
-			$this->_inBucketId,
+			$this->_inMysqlBucketId,
 			'languages',
 			new CsvFile($importFile),
 			array(
@@ -1679,7 +1685,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$this->assertEquals($expectedData, Client::parseCsv(file_get_contents($file['url'])));
 
 		// create alias table
-		$aliasTableId = $this->_client->createAliasTable($this->_outBucketId, $sourceTableId, 'languages-alias');
+		$aliasTableId = $this->_client->createAliasTable($this->_outMysqlBucketId, $sourceTableId, 'languages-alias');
 
 		$aliasTable = $this->_client->getTable($aliasTableId);
 		$this->assertNotEmpty($sourceTable['lastImportDate']);
@@ -1735,7 +1741,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 	{
 		// source table
 		$sourceTableId = $this->_client->createTable(
-			$this->_inBucketId,
+			$this->_inMysqlBucketId,
 			'users',
 			new CsvFile(__DIR__ . '/_data/users.csv')
 		);
@@ -1743,7 +1749,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 
 		// alias table
 		$aliasTableId = $this->_client->createAliasTable(
-			$this->_outBucketId,
+			$this->_outMysqlBucketId,
 			$sourceTableId,
 			'users',
 			array(
@@ -1794,11 +1800,11 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$importFile = __DIR__ . '/_data/languages.csv';
 
 		// create and import data into source table
-		$sourceTableId = $this->_client->createTable($this->_inBucketId, 'languages', new CsvFile($importFile));
+		$sourceTableId = $this->_client->createTable($this->_inMysqlBucketId, 'languages', new CsvFile($importFile));
 		$this->_client->writeTable($sourceTableId, new CsvFile(__DIR__ . '/_data/languages.csv'));
 
 		// create alias table
-		$aliasTableId = $this->_client->createAliasTable($this->_outBucketId, $sourceTableId);
+		$aliasTableId = $this->_client->createAliasTable($this->_outMysqlBucketId, $sourceTableId);
 		$aliasTable = $this->_client->getTable($aliasTableId);
 
 		$this->assertArrayHasKey('sourceTable', $aliasTable);
@@ -1866,14 +1872,14 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 
 		// create and import data into source table
 		$tableId = $this->_client->createTable(
-			$this->_inBucketId,
+			$this->_inMysqlBucketId,
 			'users',
 			new CsvFile($importFile),
 			array(
 				'primaryKey' => 'id'
 			)
 		);
-		$aliasTableId = $this->_client->createAliasTable($this->_outBucketId, $tableId);
+		$aliasTableId = $this->_client->createAliasTable($this->_outMysqlBucketId, $tableId);
 
 		$this->_client->markTableColumnAsIndexed($tableId, 'city');
 
@@ -1906,7 +1912,7 @@ class Keboola_StorageApi_TablesTest extends StorageApiTestCase
 		$importFile = __DIR__ . '/_data/more-columns.csv';
 
 		// create and import data into source table
-		$tableId = $this->_client->createTable($this->_inBucketId, 'users', new CsvFile($importFile));
+		$tableId = $this->_client->createTable($this->_inMysqlBucketId, 'users', new CsvFile($importFile));
 
 		$this->_client->markTableColumnAsIndexed($tableId, 'col1');
 		$this->_client->markTableColumnAsIndexed($tableId, 'col2');

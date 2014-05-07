@@ -32,26 +32,54 @@ class Keboola_StorageApi_BucketsTest extends StorageApiTestCase
 		$this->assertArrayNotHasKey('attributes', $firstBucket);
 	}
 
-	public function testBucketDetail()
+	public function testBucketDetail($backend)
 	{
 		$bucket = $this->_client->getBucket('in.c-main');
-		$this->assertEquals('in.c-main', $bucket['id']);
+		$this->assertEquals('mysql', $bucket['backend']);
 	}
 
-	public function testBucketManipulation()
+	public function backends()
+	{
+		return array(
+			array('mysql'),
+			array('redshift'),
+		);
+	}
+
+	public function testBucketCreateWithInvalidBackend()
+	{
+		try {
+			$this->_client->createBucket('unknown-backend', 'in', 'desc', 'redshit');
+			$this->fail('Exception should be thrown');
+		} catch (\Keboola\StorageApi\ClientException $e){
+			$this->assertEquals('storage.buckets.validation', $e->getStringCode());
+		}
+	}
+
+	/**
+	 * @dataProvider backends
+	 */
+	public function testBucketManipulation($backend)
 	{
 		$bucketData = array(
 			'name' => 'test',
 			'stage' => 'in',
 			'description' => 'this is just a test',
+			'backend' => $backend,
 		);
-		$newBucketId = $this->_client->createBucket($bucketData['name'], $bucketData['stage'], $bucketData['description']);
+		$newBucketId = $this->_client->createBucket(
+			$bucketData['name'],
+			$bucketData['stage'],
+			$bucketData['description'],
+			$bucketData['backend']
+		);
 
 
 		$newBucket = $this->_client->getBucket($newBucketId);
 		$this->assertEquals('c-' . $bucketData['name'], $newBucket['name'], 'bucket name');
 		$this->assertEquals($bucketData['stage'], $newBucket['stage'], 'bucket stage');
 		$this->assertEquals($bucketData['description'], $newBucket['description'], 'bucket description');
+		$this->assertEquals($bucketData['backend'], $newBucket['backend'], 'backend');
 
 		// check if bucket is in list
 		$buckets = $this->_client->listBuckets();
