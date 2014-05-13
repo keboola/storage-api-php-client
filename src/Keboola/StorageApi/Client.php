@@ -1423,7 +1423,7 @@ class Client
 		// poll for status
 		do {
 			if (time() >= $maxEndTime) {
-				throw new ClientException(
+				throw new TimeoutException(
 					"Job {$job['id']} execution timeout after " . round($this->getTimeout() / 60) . " minutes."
 				);
 			}

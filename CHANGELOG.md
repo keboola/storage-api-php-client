@@ -1,7 +1,11 @@
-## 2.11.1 (2014-05-22)
+## 2.11.2 (2014-05-13)
+
+  * [Improvement] Use different exception class for async job timeouts
+
+## 2.11.1 (2014-04-22)
   * [Bugfix] Exception handling of case when temporary files cannot be opened
 
-## 2.11.0 (2014-05-17)
+## 2.11.0 (2014-04-17)
 
 HTTP backend migrated to Guzzle 4.0.
 
@@ -24,7 +28,7 @@ HTTP backend migrated to Guzzle 4.0.
       ));
 ```
 
-## 2.10.2 (2014-05-16)
+## 2.10.2 (2014-04-16)
  * [Refactoring] Guzzle upgraded to 3.9
 
 ## 2.10.1 (2014-03-05)
