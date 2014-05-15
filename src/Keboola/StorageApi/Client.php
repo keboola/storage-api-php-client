@@ -1416,17 +1416,11 @@ class Client
 	private function handleAsyncTask(Response $jobCreatedResponse)
 	{
 		$job = $jobCreatedResponse->json();
-		$maxEndTime = time() + $this->getTimeout();
 		$maxWaitPeriod = 20;
 		$retries = 0;
 
 		// poll for status
 		do {
-			if (time() >= $maxEndTime) {
-				throw new TimeoutException(
-					"Job {$job['id']} execution timeout after " . round($this->getTimeout() / 60) . " minutes."
-				);
-			}
 
 			if ($retries > 0) {
 				$waitSeconds = min(pow(2, $retries), $maxWaitPeriod);

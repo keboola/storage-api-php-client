@@ -1,3 +1,6 @@
+## 2.11.3 (2014-05-15)
+  * [Improvement] Removed timeout on async tasks
+
 ## 2.11.2 (2014-05-13)
 
   * [Improvement] Use different exception class for async job timeouts
