@@ -8,28 +8,22 @@
 
 use Keboola\Csv\CsvFile;
 
-class Keboola_StorageApi_SnapshottingTest extends StorageApiTestCase
+class Keboola_StorageApi_Tables_SnapshottingTest extends StorageApiTestCase
 {
-
-	protected $_inBucketId;
-	protected $_outBucketId;
-
 
 	public function setUp()
 	{
 		parent::setUp();
-
-		$this->_outBucketId = $this->_initEmptyBucket('api-tests', 'out');
-		$this->_inBucketId = $this->_initEmptyBucket('api-tests', 'in');
+		$this->_initEmptyBucketsForAllBackends();
 	}
 
 
 	public function testTableSnapshotCreate()
 	{
 		$tableId = $this->_client->createTable(
-			$this->_inBucketId,
+			$this->getTestBucketId(),
 			'languages',
-			new CsvFile(__DIR__ . '/_data/languages.csv'),
+			new CsvFile(__DIR__ . '/../_data/languages.csv'),
 			array(
 				'primaryKey' => 'id',
 			)
@@ -57,9 +51,9 @@ class Keboola_StorageApi_SnapshottingTest extends StorageApiTestCase
 	public function testCreateTableFromSnapshot()
 	{
 		$sourceTableId = $this->_client->createTable(
-			$this->_inBucketId,
+			$this->getTestBucketId(self::STAGE_IN),
 			'languages',
-			new CsvFile(__DIR__ . '/_data/languages.csv'),
+			new CsvFile(__DIR__ . '/../_data/languages.csv'),
 			array(
 				'primaryKey' => 'id',
 			)
@@ -71,7 +65,7 @@ class Keboola_StorageApi_SnapshottingTest extends StorageApiTestCase
 		$sourceTable = $this->_client->getTable($sourceTableId);
 
 		$snapshotId = $this->_client->createTableSnapshot($sourceTableId);
-		$newTableId = $this->_client->createTableFromSnapshot($this->_outBucketId, $snapshotId);
+		$newTableId = $this->_client->createTableFromSnapshot($this->getTestBucketId(self::STAGE_OUT), $snapshotId);
 		$newTable = $this->_client->getTable($newTableId);
 
 		$this->assertEquals($sourceTable['name'], $newTable['name']);
@@ -88,9 +82,9 @@ class Keboola_StorageApi_SnapshottingTest extends StorageApiTestCase
 	public function testCreateTableFromSnapshotWithDifferentName()
 	{
 		$sourceTableId = $this->_client->createTable(
-			$this->_inBucketId,
+			$this->getTestBucketId(),
 			'languages',
-			new CsvFile(__DIR__ . '/_data/languages.csv'),
+			new CsvFile(__DIR__ . '/../_data/languages.csv'),
 			array(
 				'primaryKey' => 'id',
 			)
@@ -98,7 +92,7 @@ class Keboola_StorageApi_SnapshottingTest extends StorageApiTestCase
 		$sourceTable = $this->_client->getTable($sourceTableId);
 		$snapshotId = $this->_client->createTableSnapshot($sourceTableId);
 
-		$newTableId = $this->_client->createTableFromSnapshot($this->_inBucketId, $snapshotId, 'new-table');
+		$newTableId = $this->_client->createTableFromSnapshot($this->getTestBucketId(), $snapshotId, 'new-table');
 		$newTable = $this->_client->getTable($newTableId);
 
 		$this->assertEquals('new-table', $newTable['name']);
@@ -107,15 +101,15 @@ class Keboola_StorageApi_SnapshottingTest extends StorageApiTestCase
 	public function testAliasSnapshotCreateShouldNotBeAllowed()
 	{
 		$sourceTableId = $this->_client->createTable(
-			$this->_inBucketId,
+			$this->getTestBucketId(self::STAGE_IN),
 			'languages',
-			new CsvFile(__DIR__ . '/_data/languages.csv'),
+			new CsvFile(__DIR__ . '/../_data/languages.csv'),
 			array(
 				'primaryKey' => 'id',
 			)
 		);
 
-		$aliasTableId = $this->_client->createAliasTable($this->_outBucketId, $sourceTableId);
+		$aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId);
 
 		try {
 			$this->_client->createTableSnapshot($aliasTableId);
@@ -128,9 +122,9 @@ class Keboola_StorageApi_SnapshottingTest extends StorageApiTestCase
 	public function testGetTableSnapshot()
 	{
 		$sourceTableId = $this->_client->createTable(
-			$this->_inBucketId,
+			$this->getTestBucketId(),
 			'languages',
-			new CsvFile(__DIR__ . '/_data/languages.csv'),
+			new CsvFile(__DIR__ . '/../_data/languages.csv'),
 			array(
 				'primaryKey' => 'id',
 			)
@@ -154,9 +148,9 @@ class Keboola_StorageApi_SnapshottingTest extends StorageApiTestCase
 	public function testTableRollbackFromSnapshot()
 	{
 		$sourceTableId = $this->_client->createTable(
-			$this->_inBucketId,
+			$this->getTestBucketId(self::STAGE_IN),
 			'languages',
-			new CsvFile(__DIR__ . '/_data/languages.csv')
+			new CsvFile(__DIR__ . '/../_data/languages.csv')
 		);
 
 		$this->_client->markTableColumnAsIndexed($sourceTableId, 'name');
@@ -173,12 +167,12 @@ class Keboola_StorageApi_SnapshottingTest extends StorageApiTestCase
 		$this->_client->deleteTableAttribute($sourceTableId, 'first');
 		$this->_client->removeTableColumnFromIndexed($sourceTableId, 'name');
 		$this->_client->setTableAttribute($sourceTableId, 'third', 'my value');
-		$this->_client->writeTable($sourceTableId, new CsvFile(__DIR__ . '/_data/languages.csv'), array(
+		$this->_client->writeTable($sourceTableId, new CsvFile(__DIR__ . '/../_data/languages.csv'), array(
 			'incremental' => true,
 		));
 		$this->_client->addTableColumn($sourceTableId, 'new_column');
 
-		$aliasTableId = $this->_client->createAliasTable($this->_outBucketId, $sourceTableId);
+		$aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId);
 
 		// and rollback to snapshot
 		$this->_client->rollbackTableFromSnapshot($sourceTableId, $snapshotId);
@@ -204,16 +198,16 @@ class Keboola_StorageApi_SnapshottingTest extends StorageApiTestCase
 	public function testRollbackShouldBeDeniedWhenThereAreFilteredAliasesOnColumnsNotIndexedInSnapshot()
 	{
 		$sourceTableId = $this->_client->createTable(
-			$this->_inBucketId,
+			$this->getTestBucketId(self::STAGE_IN),
 			'languages',
-			new CsvFile(__DIR__ . '/_data/languages.csv')
+			new CsvFile(__DIR__ . '/../_data/languages.csv')
 		);
 
 		$snapshotId = $this->_client->createTableSnapshot($sourceTableId);
 
 		// add index and create filtered alias
 		$this->_client->markTableColumnAsIndexed($sourceTableId, 'name');
-		$this->_client->createAliasTable($this->_outBucketId, $sourceTableId, null, array(
+		$this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, null, array(
 			'aliasFilter' => array(
 				'column' => 'name',
 				'values' => array('czech'),
@@ -231,9 +225,9 @@ class Keboola_StorageApi_SnapshottingTest extends StorageApiTestCase
 	public function testRollbackShouldBeDeniedWhenThereAreFilteredAliasesOnColumnsNotPresentInSnapshot()
 	{
 		$sourceTableId = $this->_client->createTable(
-			$this->_inBucketId,
+			$this->getTestBucketId(self::STAGE_IN),
 			'languages',
-			new CsvFile(__DIR__ . '/_data/languages.csv')
+			new CsvFile(__DIR__ . '/../_data/languages.csv')
 		);
 
 		$snapshotId = $this->_client->createTableSnapshot($sourceTableId);
@@ -241,7 +235,7 @@ class Keboola_StorageApi_SnapshottingTest extends StorageApiTestCase
 		// add index and create filtered alias
 		$this->_client->addTableColumn($sourceTableId, 'hermafrodit');
 		$this->_client->markTableColumnAsIndexed($sourceTableId, 'hermafrodit');
-		$this->_client->createAliasTable($this->_outBucketId, $sourceTableId, null, array(
+		$this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, null, array(
 			'aliasFilter' => array(
 				'column' => 'hermafrodit',
 				'values' => array('ano'),
@@ -259,9 +253,9 @@ class Keboola_StorageApi_SnapshottingTest extends StorageApiTestCase
 	public function testRollbackShouldBeDeniedWhenThereAreColumnsInAliasNotPresentInSnapshot()
 	{
 		$sourceTableId = $this->_client->createTable(
-			$this->_inBucketId,
+			$this->getTestBucketId(self::STAGE_IN),
 			'languages',
-			new CsvFile(__DIR__ . '/_data/languages.csv')
+			new CsvFile(__DIR__ . '/../_data/languages.csv')
 		);
 
 		$snapshotId = $this->_client->createTableSnapshot($sourceTableId);
@@ -269,7 +263,7 @@ class Keboola_StorageApi_SnapshottingTest extends StorageApiTestCase
 		// add index and create filtered alias
 		$this->_client->addTableColumn($sourceTableId, 'hermafrodit');
 		$this->_client->markTableColumnAsIndexed($sourceTableId, 'hermafrodit');
-		$aliasId = $this->_client->createAliasTable($this->_outBucketId, $sourceTableId, null);
+		$aliasId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, null);
 		$this->_client->disableAliasTableColumnsAutoSync($aliasId);
 
 		try {

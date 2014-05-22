@@ -38,14 +38,6 @@ class Keboola_StorageApi_BucketsTest extends StorageApiTestCase
 		$this->assertEquals('mysql', $bucket['backend']);
 	}
 
-	public function backends()
-	{
-		return array(
-			array('mysql'),
-			array('redshift'),
-		);
-	}
-
 	public function testBucketCreateWithInvalidBackend()
 	{
 		try {
