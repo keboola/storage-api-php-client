@@ -13,7 +13,7 @@
         "guzzlehttp/guzzle": "~4.0.2",
         "guzzlehttp/retry-subscriber": "~0.1.1",
         "guzzlehttp/log-subscriber": "1.*",
-		"symfony/filesystem": "~2.3.5"
+		"symfony/filesystem": "~2.4"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "3.7.*",
