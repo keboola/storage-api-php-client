@@ -1,3 +1,6 @@
+## 2.11.4 (2014-05-27)
+  * [Improvement] Symfony components updated to 2.4.
+
 ## 2.11.3 (2014-05-15)
   * [Improvement] Removed timeout on async tasks
 
