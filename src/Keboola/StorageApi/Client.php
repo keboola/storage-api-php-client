@@ -334,13 +334,15 @@ class Client
 			"escapedBy" => $csvFile->getEscapedBy(),
 			"primaryKey" => isset($options['primaryKey']) ? $options['primaryKey'] : null,
 			"transactional" => isset($options['transactional']) ? $options['transactional'] : false,
-		);
+			"columns" => isset($options['columns']) ? $options['columns'] : null,
+ 		);
 
 		if ($this->isUrl($csvFile->getPathname())) {
 			$options["dataUrl"] = $csvFile->getPathname();
 		} else {
 			$options["data"] = fopen($csvFile->getPathname(), 'r');
 		}
+
 
 		$tableId = $this->getTableId($name, $bucketId);
 		if ($tableId) {
