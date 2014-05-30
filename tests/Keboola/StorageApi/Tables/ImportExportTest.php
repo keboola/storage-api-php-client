@@ -54,6 +54,41 @@ class Keboola_StorageApi_Tables_ImportExportTest extends StorageApiTestCase
 		$this->assertNotEmpty($result['totalDataSizeBytes']);
 	}
 
+	/**
+	 * @dataProvider tableImportData
+	 * @param $importFileName
+	 */
+	public function testTableAsyncImportExport($backend, CsvFile $importFile, $expectationsFileName, $colNames, $format = 'rfc')
+	{
+		$expectationsFile = __DIR__ . '/../_data/' . $expectationsFileName;
+		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, $backend), 'languages', $importFile);
+
+		$result = $this->_client->writeTableAsync($tableId, $importFile);
+		$table = $this->_client->getTable($tableId);
+
+		$rowsCountInCsv = count($this->_readCsv($expectationsFile)) - 1;
+		$this->assertEmpty($result['warnings']);
+		$this->assertEquals($colNames, array_values($result['importedColumns']), 'columns');
+		$this->assertEmpty($result['transaction']);
+		$this->assertEquals($rowsCountInCsv, $table['rowsCount'], 'rows count in csv');
+		$this->assertNotEmpty($table['dataSizeBytes']);
+		$this->assertEquals($rowsCountInCsv, $result['totalRowsCount'], 'rows count in csv result');
+		$this->assertNotEmpty($result['totalDataSizeBytes']);
+
+		// compare data
+		$this->assertLinesEqualsSorted(file_get_contents($expectationsFile), $this->_client->exportTable($tableId, null, array(
+			'format' => $format,
+		)), 'imported data comparsion');
+
+		// incremental
+
+		$result = $this->_client->writeTableAsync($tableId, $importFile, array(
+			'incremental' => true,
+		));
+		$this->assertEquals(2 * $rowsCountInCsv, $result['totalRowsCount']);
+		$this->assertNotEmpty($result['totalDataSizeBytes']);
+	}
+
 	public function tableImportData()
 	{
 		return array(
@@ -93,119 +128,6 @@ class Keboola_StorageApi_Tables_ImportExportTest extends StorageApiTestCase
 	}
 
 	/**
-	 * @dataProvider tableImportDataMysql
-	 * @param $importFileName
-	 */
-	public function testTableAsyncImportExportMysql(CsvFile $importFile, $expectationsFileName, $colNames, $format = 'rfc')
-	{
-		$expectationsFile = __DIR__ . '/../_data/' . $expectationsFileName;
-		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, self::BACKEND_MYSQL), 'languages', $importFile);
-
-		$result = $this->_client->writeTableAsync($tableId, $importFile);
-		$table = $this->_client->getTable($tableId);
-
-		$rowsCountInCsv = count($this->_readCsv($expectationsFile)) - 1;
-		$this->assertEmpty($result['warnings']);
-		$this->assertEquals($colNames, array_values($result['importedColumns']), 'columns');
-		$this->assertEmpty($result['transaction']);
-		$this->assertEquals($rowsCountInCsv, $table['rowsCount'], 'rows count in csv');
-		$this->assertNotEmpty($table['dataSizeBytes']);
-		$this->assertEquals($rowsCountInCsv, $result['totalRowsCount'], 'rows count in csv result');
-		$this->assertNotEmpty($result['totalDataSizeBytes']);
-
-		// compare data
-		$this->assertLinesEqualsSorted(file_get_contents($expectationsFile), $this->_client->exportTable($tableId, null, array(
-			'format' => $format,
-		)), 'imported data comparsion');
-
-		// incremental
-
-		$result = $this->_client->writeTableAsync($tableId, $importFile, array(
-			'incremental' => true,
-		));
-		$this->assertEquals(2 * $rowsCountInCsv, $result['totalRowsCount']);
-		$this->assertNotEmpty($result['totalDataSizeBytes']);
-	}
-
-	public function tableImportDataMysql()
-	{
-		return array(
-			array( new CsvFile(__DIR__ . '/../_data/languages.csv'), 'languages.csv', array('id', 'name')),
-
-			array( new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.csv'), 'languages.csv', array('id', 'name')),
-
-			array( new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.csv.gz'), 'languages.csv', array('id', 'name')),
-//			  array( new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.zip'), 'languages.csv', array('id', 'name')),
-
-			array( new CsvFile(__DIR__ . '/../_data/languages.utf8.bom.csv'), 'languages.csv', array('id', 'name')),
-//			  array( new CsvFile( __DIR__ . '/../_data/languages.zip'), 'languages.csv', array('id', 'name')),
-
-			array( new CsvFile(__DIR__ . '/../_data/languages.csv.gz'), 'languages.csv', array('id', 'name')),
-
-			array( new CsvFile(__DIR__ . '/../_data/escaping.csv'), 'escaping.standard.out.csv', array('col1', 'col2_with_space')),
-
-			array( new CsvFile(__DIR__ . '/../_data/escaping.win.csv'), 'escaping.raw.win.csv', array('col1', 'col2_with_space'), 'raw'),
-
-			array( new CsvFile(__DIR__ . '/../_data/escaping.raw.win.csv', "\t", "", "\\"), 'escaping.win.csv', array('col1', 'col2_with_space'), 'rfc'),
-
-			array( new CsvFile(__DIR__ . '/../_data/escaping.nl-last-row.csv'), 'escaping.standard.out.csv', array('col1', 'col2_with_space')),
-
-			array( new CsvFile(__DIR__ . '/../_data/escaping.csv'), 'escaping.backslash.out.csv', array('col1', 'col2_with_space'), 'escaped'),
-
-			array( new CsvFile(__DIR__ . '/../_data/escaping.csv'), 'escaping.raw.csv', array('col1', 'col2_with_space'), 'raw'),
-
-			array( new CsvFile(__DIR__ . '/../_data/escaping.raw.csv', "\t", "", "\\"), 'escaping.raw.csv', array('col1', 'col2_with_space'), 'raw'),
-		);
-	}
-
-	/**
-	 * @dataProvider tableImportDataRedshift
-	 * @param $importFileName
-	 */
-	public function testTableAsyncImportExportRedshift(CsvFile $importFile, $expectationsFileName, $colNames, $format = 'rfc')
-	{
-		$expectationsFile = __DIR__ . '/../_data/' . $expectationsFileName;
-		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT), 'languages', $importFile, array(
-			'columns' => $colNames,
-		));
-
-		$options = array(
-			'columns' => $colNames,
-		);
-		$result = $this->_client->writeTableAsync($tableId, $importFile, $options);
-		$table = $this->_client->getTable($tableId);
-
-		$rowsCountInCsv = count($this->_readCsv($expectationsFile)) - 1;
-		$this->assertEmpty($result['warnings']);
-		$this->assertEquals($colNames, array_values($result['importedColumns']), 'columns');
-		$this->assertEmpty($result['transaction']);
-		$this->assertEquals($rowsCountInCsv, $table['rowsCount'], 'rows count in csv');
-		$this->assertNotEmpty($table['dataSizeBytes']);
-		$this->assertEquals($rowsCountInCsv, $result['totalRowsCount'], 'rows count in csv result');
-		$this->assertNotEmpty($result['totalDataSizeBytes']);
-
-		// compare data
-		$this->assertLinesEqualsSorted(file_get_contents($expectationsFile), $this->_client->exportTable($tableId, null, array(
-			'format' => $format,
-		)), 'imported data comparsion');
-
-		// incremental
-
-		$result = $this->_client->writeTableAsync($tableId, $importFile, array_merge(array(
-			'incremental' => true,
-		), $options));
-		$this->assertEquals(2 * $rowsCountInCsv, $result['totalRowsCount']);
-		$this->assertNotEmpty($result['totalDataSizeBytes']);
-	}
-
-	public function tableImportDataRedshift()
-	{
-		return array(
-			array( new CsvFile(__DIR__ . '/../_data/languages.no-headers.csv'), 'languages.csv', array('id', 'name')),
-		);
-	}
-
-	/**
 	 * @dataProvider tableImportInvalidData
 	 * @expectedException Keboola\StorageApi\ClientException
 	 */
@@ -220,9 +142,9 @@ class Keboola_StorageApi_Tables_ImportExportTest extends StorageApiTestCase
 	public function tableImportInvalidData()
 	{
 		return array(
-//			array('languages.invalid.csv'),
-//			array('languages.invalid.gzip'),
-//			array('languages.invalid.zip'),
+			array('languages.invalid.csv'),
+			array('languages.invalid.gzip'),
+			array('languages.invalid.zip'),
 			array('languages.invalid.duplicateColumns.csv'),
 		);
 	}
@@ -306,7 +228,7 @@ class Keboola_StorageApi_Tables_ImportExportTest extends StorageApiTestCase
 	 */
 	public function testTableImportCreateMissingColumns($backend)
 	{
-		$filePath = __DIR__ . '/../_data/languages.csv';
+		$filePath = __DIR__ . '/../_data/languages.camel-case-columns.csv';
 		$importFile = new CsvFile($filePath);
 		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, $backend), 'languages', $importFile);
 
@@ -316,7 +238,7 @@ class Keboola_StorageApi_Tables_ImportExportTest extends StorageApiTestCase
 
 		$rowsCountInCsv = count($this->_readCsv($extendedFile)) - 1;
 		$this->assertEmpty($result['warnings']);
-		$this->assertEquals(array('id','name','iso','something'), array_values($result['importedColumns']), 'columns');
+		$this->assertEquals(array('Id','Name','iso','Something'), array_values($result['importedColumns']), 'columns');
 		$this->assertEmpty($result['transaction']);
 		$this->assertEquals($rowsCountInCsv, $table['rowsCount'], 'rows count in csv');
 		$this->assertNotEmpty($table['dataSizeBytes']);
@@ -324,7 +246,6 @@ class Keboola_StorageApi_Tables_ImportExportTest extends StorageApiTestCase
 		$this->assertNotEmpty($result['totalDataSizeBytes']);
 
 		// compare data
-
 		$this->assertLinesEqualsSorted(file_get_contents($extendedFile), $this->_client->exportTable($tableId, null, array(
 			'format' => 'rfc',
 		)), 'imported data comparsion');
@@ -350,12 +271,16 @@ class Keboola_StorageApi_Tables_ImportExportTest extends StorageApiTestCase
 		}
 	}
 
-	public function testImportWithoutHeaders()
+	/**
+	 * @dataProvider backends
+	 * @param $backend
+	 */
+	public function testImportWithoutHeaders($backend)
 	{
-		$tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new Keboola\Csv\CsvFile(__DIR__ . '/../_data/languages-headers.csv'));
+		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, $backend), 'languages', new Keboola\Csv\CsvFile(__DIR__ . '/../_data/languages-headers.csv'));
 
 		$importedFile = __DIR__ . '/../_data/languages-without-headers.csv';
-		$result = $this->_client->writeTable($tableId, new CsvFile($importedFile), array(
+		$result = $this->_client->writeTableAsync($tableId, new CsvFile($importedFile), array(
 			'withoutHeaders' => true,
 		));
 		$table = $this->_client->getTable($tableId);
@@ -369,13 +294,18 @@ class Keboola_StorageApi_Tables_ImportExportTest extends StorageApiTestCase
 		$this->assertNotEmpty($result['totalDataSizeBytes']);
 	}
 
-	public function testImportWithColumnsList()
+
+	/**
+	 * @dataProvider backends
+	 * @param $backend
+	 */
+	public function testImportWithColumnsList($backend)
 	{
 		$headersCsv = new Keboola\Csv\CsvFile(__DIR__ . '/../_data/languages-headers.csv');
-		$tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', $headersCsv);
+		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, $backend), 'languages', $headersCsv);
 
 		$importedFile = __DIR__ . '/../_data/languages-without-headers.csv';
-		$result = $this->_client->writeTable($tableId, new CsvFile($importedFile), array(
+		$result = $this->_client->writeTableAsync($tableId, new CsvFile($importedFile), array(
 			'columns' => $headersCsv->getHeader(),
 		));
 		$table = $this->_client->getTable($tableId);
@@ -389,9 +319,13 @@ class Keboola_StorageApi_Tables_ImportExportTest extends StorageApiTestCase
 		$this->assertNotEmpty($result['totalDataSizeBytes']);
 	}
 
-	public function testTableImportFromString()
+	/**
+	 * @dataProvider backends
+	 * @param $backend
+	 */
+	public function testTableImportFromString($backend)
 	{
-		$tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new Keboola\Csv\CsvFile(__DIR__ . '/../_data/languages-headers.csv'));
+		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, $backend), 'languages', new Keboola\Csv\CsvFile(__DIR__ . '/../_data/languages-headers.csv'));
 
 		$lines = '"id","name"';
 		$lines .= "\n" . '"first","second"' . "\n";
@@ -455,10 +389,10 @@ class Keboola_StorageApi_Tables_ImportExportTest extends StorageApiTestCase
 		}
 	}
 
-	public function testPartialImport()
+	public function testPartialImportMysql()
 	{
 		$tableId = $this->_client->createTable(
-			$this->_inMysqlBucketId, 'users',
+			$this->getTestBucketId(self::STAGE_IN, self::BACKEND_MYSQL), 'users',
 			new CsvFile(__DIR__ . '/../_data/users.csv'),
 			array(
 				'primaryKey' => 'id',
@@ -474,6 +408,28 @@ class Keboola_StorageApi_Tables_ImportExportTest extends StorageApiTestCase
 		$parsedData = Client::parseCsv($this->_client->exportTable($tableId), false);
 
 		$this->assertEquals($expectedData, $parsedData);
+	}
+
+	public function testPartialImportRedshift()
+	{
+		$tableId = $this->_client->createTable(
+			$this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT), 'users',
+			new CsvFile(__DIR__ . '/../_data/users.csv'),
+			array(
+				'primaryKey' => 'id',
+			)
+		);
+
+		try {
+			$this->_client->writeTable($tableId, new CsvFile(__DIR__ . '/../_data/users-partial.csv'), array(
+				'incremental' => true,
+				'partial' => true,
+			));
+			$this->fail('Exception should be thrown');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.partialImportNotSupported', $e->getStringCode());
+		}
+
 	}
 
 	public function testInvalidExportFormat()
@@ -624,7 +580,7 @@ class Keboola_StorageApi_Tables_ImportExportTest extends StorageApiTestCase
 	 * @param $expectedResult
 	 * @dataProvider tableExportFiltersData
 	 */
-	public function testTableExportAsync($exportOptions, $expectedResult)
+	public function testTableExportAsyncMysql($exportOptions, $expectedResult)
 	{
 		$importFile =  __DIR__ . '/../_data/users.csv';
 		$tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));

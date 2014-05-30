@@ -23,7 +23,7 @@ class Keboola_StorageApi_Tables_CreateTest extends StorageApiTestCase
 	 * @dataProvider tableCreateData
 	 * @param $langugesFile
 	 */
-	public function testTableCreate($langugesFile, $async, $backend, $options = array())
+	public function testTableCreate($langugesFile, $expectationFile, $async, $backend, $options = array())
 	{
 		$createMethod = $async ? 'createTableAsync' : 'createTable';
 		$tableId = $this->_client->{$createMethod}(
@@ -34,38 +34,40 @@ class Keboola_StorageApi_Tables_CreateTest extends StorageApiTestCase
 		);
 		$table = $this->_client->getTable($tableId);
 
+		$expectationFileCsv = new CsvFile($expectationFile);
+
 		$this->assertEquals($tableId, $table['id']);
 		$this->assertEquals('languages', $table['name']);
 		$this->assertNotEmpty($table['created']);
 		$this->assertNotEmpty($table['lastChangeDate']);
 		$this->assertNotEmpty($table['lastImportDate']);
-		$this->assertEquals(array("id", "name"), $table['columns']);
+		$this->assertEquals($expectationFileCsv->getHeader(), $table['columns']);
 		$this->assertEmpty($table['indexedColumns']);
 		$this->assertNotEquals('0000-00-00 00:00:00', $table['created']);
-		$this->assertEquals(count($this->_readCsv(__DIR__ . '/../_data/languages.csv')) - 1, $table['rowsCount']);
+		$this->assertEquals(count($this->_readCsv($expectationFile)) - 1, $table['rowsCount']);
 		$this->assertNotEmpty($table['dataSizeBytes']);
 
-		if ($backend !== self::BACKEND_REDSHIFT) {
-			$this->assertEquals(file_get_contents(__DIR__ . '/../_data/languages.csv'),
-				$this->_client->exportTable($tableId), 'initial data imported into table');
-		}
+		$this->assertLinesEqualsSorted(
+			file_get_contents($expectationFile),
+			$this->_client->exportTable($tableId), 'initial data imported into table'
+		);
 	}
 
 	public function tableCreateData()
 	{
 		return array(
-			array(__DIR__ . '/../_data/languages.csv', false, self::BACKEND_REDSHIFT),
-			array(__DIR__ . '/../_data/languages.csv', false, self::BACKEND_MYSQL),
-			array('https://s3.amazonaws.com/keboola-tests/languages.csv', false, self::BACKEND_MYSQL),
-			array(__DIR__ . '/../_data/languages.csv.gz', false, self::BACKEND_MYSQL),
-			array(__DIR__ . '/../_data/languages.csv.gz', true, self::BACKEND_MYSQL),
-			array(__DIR__ . '/../_data/languages.csv.gz', true, self::BACKEND_REDSHIFT, array(
-				'columns' => array('id', 'name'),
-			)),
-			array(__DIR__ . '/../_data/languages.csv', true, self::BACKEND_MYSQL),
-			array(__DIR__ . '/../_data/languages.csv', true, self::BACKEND_REDSHIFT, array(
-				'columns' => array('id', 'name'),
-			)),
+			array(__DIR__ . '/../_data/languages.csv', __DIR__ . '/../_data/languages.csv', false, self::BACKEND_REDSHIFT),
+			array(__DIR__ . '/../_data/languages.csv', __DIR__ . '/../_data/languages.csv', false, self::BACKEND_MYSQL),
+			array('https://s3.amazonaws.com/keboola-tests/languages.csv', __DIR__ . '/../_data/languages.csv', false, self::BACKEND_MYSQL),
+			array(__DIR__ . '/../_data/languages.csv.gz', __DIR__ . '/../_data/languages.csv', false, self::BACKEND_MYSQL),
+			array(__DIR__ . '/../_data/languages.csv.gz', __DIR__ . '/../_data/languages.csv', true, self::BACKEND_MYSQL),
+			array(__DIR__ . '/../_data/languages.csv.gz', __DIR__ . '/../_data/languages.csv', true, self::BACKEND_REDSHIFT),
+			array(__DIR__ . '/../_data/languages.csv', __DIR__ . '/../_data/languages.csv', true, self::BACKEND_MYSQL),
+			array(__DIR__ . '/../_data/languages.csv', __DIR__ . '/../_data/languages.csv', true, self::BACKEND_REDSHIFT),
+			array(__DIR__ . '/../_data/languages.camel-case-columns.csv', __DIR__ . '/../_data/languages.camel-case-columns.csv', true, self::BACKEND_MYSQL),
+			array(__DIR__ . '/../_data/languages.camel-case-columns.csv', __DIR__ . '/../_data/languages.camel-case-columns.csv', true, self::BACKEND_REDSHIFT),
+			array(__DIR__ . '/../_data/languages.camel-case-columns.csv', __DIR__ . '/../_data/languages.camel-case-columns.csv', false, self::BACKEND_REDSHIFT),
+			array(__DIR__ . '/../_data/languages.camel-case-columns.csv', __DIR__ . '/../_data/languages.camel-case-columns.csv', false, self::BACKEND_MYSQL),
 		);
 	}
 
@@ -87,13 +89,13 @@ class Keboola_StorageApi_Tables_CreateTest extends StorageApiTestCase
 	 * @param $async
 	 * @dataProvider tableColumnSanitizeData
 	 */
-	public function testTableColumnNamesSanitize($async)
+	public function testTableColumnNamesSanitize($backend, $async)
 	{
 		$csv = new Keboola\Csv\CsvFile(__DIR__ . '/../_data/filtering.csv');
 
 		$method = $async ? 'createTableAsync' : 'createTable';
 		$tableId = $this->_client->{$method}(
-			$this->getTestBucketId(),
+			$this->getTestBucketId(self::STAGE_IN, $backend),
 			'sanitize',
 			$csv
 		);
@@ -106,10 +108,10 @@ class Keboola_StorageApi_Tables_CreateTest extends StorageApiTestCase
 
 	public function tableColumnSanitizeData()
 	{
-		return array(
+		return $this->dataWithBackendPrepended(array(
 			array(false),
 			array(true)
-		);
+		));
 	}
 
 	public function testTableCreateWithPK()

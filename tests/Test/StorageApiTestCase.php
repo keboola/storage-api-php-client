@@ -293,4 +293,21 @@ class StorageApiTestCase extends \PHPUnit_Framework_TestCase
 		return $this->_bucketIds[$stage . '-' . $backend];
 	}
 
+	/**
+	 * Prepends backend for each testing data
+	 * @param $data
+	 * @return array
+	 */
+	protected function dataWithBackendPrepended($data)
+	{
+		$backends = $this->backends();
+		$return = array();
+		foreach ($data as $row) {
+			foreach ($backends as $backend) {
+				$return[] = array_merge(array($backend[0]), $row);
+			}
+		}
+		return $return;
+	}
+
 }

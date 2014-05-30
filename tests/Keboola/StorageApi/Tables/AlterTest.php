@@ -28,13 +28,13 @@ class Keboola_StorageApi_Tables_AlterTest extends StorageApiTestCase
 		$importFile =  __DIR__ . '/../_data/languages.csv';
 		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, $backend), 'languages', new CsvFile($importFile));
 
-		$this->_client->addTableColumn($tableId, 'state');
+		$this->_client->addTableColumn($tableId, 'State');
 
 		$detail = $this->_client->getTable($tableId);
 
 		$this->assertArrayHasKey('columns', $detail);
-		$this->assertContains('state', $detail['columns']);
-		$this->assertEquals(array('id','name','state'), $detail['columns']);
+		$this->assertContains('State', $detail['columns']);
+		$this->assertEquals(array('id','name','State'), $detail['columns']);
 	}
 
 	/**
@@ -53,16 +53,16 @@ class Keboola_StorageApi_Tables_AlterTest extends StorageApiTestCase
 	 */
 	public function testTableColumnDelete($backend)
 	{
-		$importFile =  __DIR__ . '/../_data/languages.csv';
+		$importFile =  __DIR__ . '/../_data/languages.camel-case-columns.csv';
 		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, $backend), 'languages', new CsvFile($importFile));
 
-		$this->_client->deleteTableColumn($tableId, 'name');
+		$this->_client->deleteTableColumn($tableId, 'Name');
 
 		$detail = $this->_client->getTable($tableId);
-		$this->assertEquals(array('id'), $detail['columns']);
+		$this->assertEquals(array('Id'), $detail['columns']);
 
 		try {
-			$this->_client->deleteTableColumn($tableId, 'id');
+			$this->_client->deleteTableColumn($tableId, 'Id');
 			$this->fail("Exception should be thrown when last column is remaining");
 		} catch (\Keboola\StorageApi\ClientException $e) {
 		}

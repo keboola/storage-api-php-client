@@ -48,6 +48,27 @@ class Keboola_StorageApi_Tables_SnapshottingTest extends StorageApiTestCase
 		$this->assertNotEmpty($snapshot['dataFileId']);
 	}
 
+	public function testRedshiftTableSnapshotCreateShouldNotBeImplemented()
+	{
+		$tableId = $this->_client->createTable(
+			$this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT),
+			'languages',
+			new CsvFile(__DIR__ . '/../_data/languages.csv'),
+			array(
+				'primaryKey' => 'id',
+				'columns' => array('id', 'name'),
+			)
+		);
+
+		try {
+			$this->_client->createTableSnapshot($tableId);
+			$this->fail('Exception should be thrown');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals(501, $e->getCode());
+			$this->assertEquals('notImplemented', $e->getStringCode());
+		}
+	}
+
 	public function testCreateTableFromSnapshot()
 	{
 		$sourceTableId = $this->_client->createTable(
@@ -77,6 +98,26 @@ class Keboola_StorageApi_Tables_SnapshottingTest extends StorageApiTestCase
 		$this->assertEquals($sourceTable['rowsCount'], $newTable['rowsCount']);
 
 		$this->assertEquals($this->_client->exportTable($sourceTableId), $this->_client->exportTable($newTableId));
+	}
+
+	public function testRedshiftTableCreateFromSnapshotShouldNotBeImplemented()
+	{
+		$sourceTableId = $this->_client->createTable(
+			$this->getTestBucketId(self::STAGE_IN),
+			'languages',
+			new CsvFile(__DIR__ . '/../_data/languages.csv'),
+			array(
+				'primaryKey' => 'id',
+			)
+		);
+
+		$snapshotId = $this->_client->createTableSnapshot($sourceTableId);
+		try {
+			$this->_client->createTableFromSnapshot($this->getTestBucketId(self::STAGE_OUT, self::BACKEND_REDSHIFT), $snapshotId);
+			$this->fail('Exception should be thrown');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('notImplemented', $e->getStringCode());
+		}
 	}
 
 	public function testCreateTableFromSnapshotWithDifferentName()

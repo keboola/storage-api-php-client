@@ -99,6 +99,28 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 		$this->_client->dropTable($sourceTableId);
 	}
 
+	public function testAliasingShouldNotBeImplementedForRedshiftTables()
+	{
+		$importFile = __DIR__ . '/../_data/languages.csv';
+		$sourceTableId = $this->_client->createTable(
+			$this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT),
+			'languages',
+			new CsvFile($importFile),
+			array(
+				'primaryKey' => 'id',
+				'columns' => array('id', 'name'),
+			)
+		);
+
+		try {
+			$alias = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT, self::BACKEND_REDSHIFT), $sourceTableId);
+			$this->fail('It should throw exception');
+		} catch(\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('notImplemented', $e->getStringCode());
+		}
+
+	}
+
 	public function testTableAliasFilterModifications()
 	{
 		// source table
