@@ -28,7 +28,7 @@ class Keboola_StorageApi_Tables_CreateTest extends StorageApiTestCase
 		$createMethod = $async ? 'createTableAsync' : 'createTable';
 		$tableId = $this->_client->{$createMethod}(
 			$this->getTestBucketId(self::STAGE_IN, $backend),
-			'languages',
+			'Languages',
 			new CsvFile($langugesFile),
 			$options
 		);
@@ -37,7 +37,7 @@ class Keboola_StorageApi_Tables_CreateTest extends StorageApiTestCase
 		$expectationFileCsv = new CsvFile($expectationFile);
 
 		$this->assertEquals($tableId, $table['id']);
-		$this->assertEquals('languages', $table['name']);
+		$this->assertEquals('Languages', $table['name']);
 		$this->assertNotEmpty($table['created']);
 		$this->assertNotEmpty($table['lastChangeDate']);
 		$this->assertNotEmpty($table['lastImportDate']);
