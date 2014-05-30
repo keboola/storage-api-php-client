@@ -128,6 +128,22 @@ class Keboola_StorageApi_Tables_ImportExportTest extends StorageApiTestCase
 	}
 
 	/**
+	 * @dataProvider backends
+	 * @param $backend
+	 */
+	public function testTableImportColumnsCaseInsensitive($backend)
+	{
+		$importFile = new CsvFile(__DIR__ . '/../_data/languages.csv');
+		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, $backend), 'languages', $importFile);
+
+		$result = $this->_client->writeTableAsync($tableId, new CsvFile(__DIR__ . '/../_data/languages.camel-case-columns.csv'));
+
+		$table = $this->_client->getTable($tableId);
+		$this->assertEquals($importFile->getHeader(), $table['columns']);
+	}
+
+
+	/**
 	 * @dataProvider tableImportInvalidData
 	 * @expectedException Keboola\StorageApi\ClientException
 	 */
