@@ -14,4 +14,36 @@
 		<directory>tests</directory>
 	</testsuite>
 
+    <testsuite name="common">
+        <file>tests/Keboola/StorageApi/BucketsTest.php</file>
+        <file>tests/Keboola/StorageApi/CommonTest.php</file>
+        <file>tests/Keboola/StorageApi/ConfigsTest.php</file>
+        <file>tests/Keboola/StorageApi/EventsTest.php</file>
+        <file>tests/Keboola/StorageApi/ExceptionsTest.php</file>
+        <file>tests/Keboola/StorageApi/FilesTest.php</file>
+        <file>tests/Keboola/StorageApi/IndexTest.php</file>
+        <file>tests/Keboola/StorageApi/LoggingTest.php</file>
+        <file>tests/Keboola/StorageApi/MaintenanceTest.php</file>
+        <file>tests/Keboola/StorageApi/OneLinersTest.php</file>
+        <file>tests/Keboola/StorageApi/TableClassTest.php</file>
+        <file>tests/Keboola/StorageApi/TicketsTest.php</file>
+        <file>tests/Keboola/StorageApi/TokensShareTest.php</file>
+        <file>tests/Keboola/StorageApi/TokensTest.php</file>
+    </testsuite>
+
+    <testsuite name="tables-common">
+        <file>tests/Keboola/StorageApi/Tables/AliasesTest.php</file>
+        <file>tests/Keboola/StorageApi/Tables/AlterTest.php</file>
+        <file>tests/Keboola/StorageApi/Tables/DeleteRowsTest.php</file>
+        <file>tests/Keboola/StorageApi/Tables/DeleteTest.php</file>
+        <file>tests/Keboola/StorageApi/Tables/ListingTest.php</file>
+        <file>tests/Keboola/StorageApi/Tables/SnapshottingTest.php</file>
+    </testsuite>
+
+    <testsuite name="table-create-import-export">
+        <file>tests/Keboola/StorageApi/Tables/CreateTest.php</file>
+        <file>tests/Keboola/StorageApi/Tables/ImportExportTest.php</file>
+        <file>tests/Keboola/StorageApi/Tables/SlicedImportsTest.php</file>
+    </testsuite>
+
 </phpunit>
