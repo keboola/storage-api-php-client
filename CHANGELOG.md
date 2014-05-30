@@ -1,3 +1,6 @@
+## 2.11.5 (2014-05-30)
+  * [Feature] Create bucket - backend type can be set by parameter. Allowed types are `mysql` and `redshift`, `mysql` is default.
+
 ## 2.11.4 (2014-05-27)
   * [Improvement] Symfony components updated to 2.4.
 
