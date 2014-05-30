@@ -32,7 +32,7 @@ class Keboola_StorageApi_BucketsTest extends StorageApiTestCase
 		$this->assertArrayNotHasKey('attributes', $firstBucket);
 	}
 
-	public function testBucketDetail($backend)
+	public function testBucketDetail()
 	{
 		$bucket = $this->_client->getBucket('in.c-main');
 		$this->assertEquals('mysql', $bucket['backend']);
