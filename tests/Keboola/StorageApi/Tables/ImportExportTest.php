@@ -452,7 +452,7 @@ class Keboola_StorageApi_Tables_ImportExportTest extends StorageApiTestCase
 		$importFile =  __DIR__ . '/../_data/languages.csv';
 		$tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile($importFile));
 
-		$outputFile = __DIR__ . '/_tmp/languagesExport.csv';
+		$outputFile = __DIR__ . '/../_tmp/languagesExport.csv';
 		if (file_exists($outputFile)) {
 			unlink($outputFile);
 		}
@@ -696,7 +696,7 @@ class Keboola_StorageApi_Tables_ImportExportTest extends StorageApiTestCase
 		$this->assertFalse($results['cacheHit']);
 
 		$newTokenId = $this->_client->createToken(array(
-			$this->_inMysqlBucketId => 'read',
+			$this->getTestBucketId() => 'read',
 		));
 		$newToken = $this->_client->getToken($newTokenId);
 		$client = new Keboola\StorageApi\Client(array(
