@@ -14,7 +14,7 @@
 		<directory>tests</directory>
 	</testsuite>
 
-    <testsuite name="common">
+    <testsuite name="part-1">
         <file>tests/Keboola/StorageApi/BucketsTest.php</file>
         <file>tests/Keboola/StorageApi/CommonTest.php</file>
         <file>tests/Keboola/StorageApi/ConfigsTest.php</file>
@@ -29,9 +29,7 @@
         <file>tests/Keboola/StorageApi/TicketsTest.php</file>
         <file>tests/Keboola/StorageApi/TokensShareTest.php</file>
         <file>tests/Keboola/StorageApi/TokensTest.php</file>
-    </testsuite>
 
-    <testsuite name="tables-common">
         <file>tests/Keboola/StorageApi/Tables/AliasesTest.php</file>
         <file>tests/Keboola/StorageApi/Tables/AlterTest.php</file>
         <file>tests/Keboola/StorageApi/Tables/DeleteRowsTest.php</file>
@@ -40,10 +38,14 @@
         <file>tests/Keboola/StorageApi/Tables/SnapshottingTest.php</file>
     </testsuite>
 
-    <testsuite name="table-create-import-export">
+    <testsuite name="part-2">
         <file>tests/Keboola/StorageApi/Tables/CreateTest.php</file>
-        <file>tests/Keboola/StorageApi/Tables/ImportExportTest.php</file>
         <file>tests/Keboola/StorageApi/Tables/SlicedImportsTest.php</file>
+        <file>tests/Keboola/StorageApi/Tables/ExportParamsTest.php</file>
+    </testsuite>
+
+    <testsuite name="part-3">
+        <file>tests/Keboola/StorageApi/Tables/ImportExportCommonTest.php</file>
     </testsuite>
 
 </phpunit>
