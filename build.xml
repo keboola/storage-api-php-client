@@ -144,7 +144,7 @@
 			<env key="STORAGE_API_URL" value="${storage-api-url}"/>
 			<env key="STORAGE_API_TOKEN" value="${storage-api-token}"/>
             <arg value="--testsuite"/>
-            <arg path="${testsuite}"/>
+            <arg value="${testsuite}"/>
 			<arg value="--configuration"/>
 			<arg path="phpunit-ci.xml.dist"/>
 		</exec>
