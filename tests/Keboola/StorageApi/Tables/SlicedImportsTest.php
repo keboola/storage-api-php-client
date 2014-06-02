@@ -21,7 +21,11 @@ class Keboola_StorageApi_Tables_SlicedImportsTest extends StorageApiTestCase
 		$this->_initEmptyBucketsForAllBackends();
 	}
 
-	public function testSlicedImportGzipped()
+	/**
+	 * @dataProvider backends
+	 * @param $backend
+	 */
+	public function testSlicedImportGzipped($backend)
 	{
 
 		$uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
@@ -38,13 +42,13 @@ class Keboola_StorageApi_Tables_SlicedImportsTest extends StorageApiTestCase
 		);
 
 		$s3Client = \Aws\S3\S3Client::factory(array('credentials' => $credentials));
-		$part1URL = $s3Client->putObject(array(
+		$s3Client->putObject(array(
 			'Bucket' => $uploadParams['bucket'],
 			'Key'    => $uploadParams['key'] . 'part001.gz',
 			'Body'   => fopen(__DIR__ . '/../_data/sliced/neco_0000_part_00.gz', 'r+'),
 		))->get('ObjectURL');
 
-		$part2URL = $s3Client->putObject(array(
+		$s3Client->putObject(array(
 			'Bucket' => $uploadParams['bucket'],
 			'Key'    => $uploadParams['key'] . 'part002.gz',
 			'Body'   => fopen(__DIR__ . '/../_data/sliced/neco_0001_part_00.gz', 'r+'),
@@ -56,27 +60,30 @@ class Keboola_StorageApi_Tables_SlicedImportsTest extends StorageApiTestCase
 			'Body'   => json_encode(array(
 				'entries' => array(
 					array(
-						'url' => $part1URL,
+						'url' => 's3://' . $uploadParams['bucket'] . '/' . $uploadParams['key'] . 'part001.gz',
 					),
 					array(
-						'url' => $part2URL,
+						'url' => 's3://' . $uploadParams['bucket'] . '/' . $uploadParams['key'] . 'part002.gz',
 					)
 				),
 			)),
 		))->get('ObjectURL');
 
 		$headerFile = new CsvFile(__DIR__ . '/../_data/sliced/header.csv');
-		$tableId = $this->_client->createTable($this->getTestBucketId(), 'entries', $headerFile);
+		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, $backend), 'entries', $headerFile);
 		$this->_client->writeTableAsyncDirect($tableId, array(
 			'dataFileId' => $slicedFile['id'],
 			'columns' => $headerFile->getHeader(),
 			'delimiter' => '|',
 			'enclosure' => '',
-			'escapedBy' => '',
 		));
 	}
 
-	public function testSlicedImportSingleFile()
+	/**
+	 * @dataProvider backends
+	 * @param $backend
+	 */
+	public function testSlicedImportSingleFile($backend)
 	{
 		$uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
 		$uploadOptions
@@ -95,7 +102,7 @@ class Keboola_StorageApi_Tables_SlicedImportsTest extends StorageApiTestCase
 		$part1URL = $s3Client->putObject(array(
 			'Bucket' => $uploadParams['bucket'],
 			'Key'    => $uploadParams['key'] . 'part001.csv',
-			'Body'   => fopen(__DIR__ . '/../_data/languages.csv', 'r+'),
+			'Body'   => fopen(__DIR__ . '/../_data/languages.no-headers.csv', 'r+'),
 		))->get('ObjectURL');
 
 		$s3Client->putObject(array(
@@ -104,22 +111,23 @@ class Keboola_StorageApi_Tables_SlicedImportsTest extends StorageApiTestCase
 			'Body'   => json_encode(array(
 				'entries' => array(
 					array(
-						'url' => $part1URL,
+						'url' => 's3://' . $uploadParams['bucket'] . '/' . $uploadParams['key'] . 'part001.csv',
 					),
 				),
 			)),
 		))->get('ObjectURL');
 
-		$tableId = $this->_client->createTable($this->getTestBucketId(), 'entries', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, $backend), 'entries', new CsvFile(__DIR__ . '/../_data/languages.csv'));
 		$this->_client->deleteTableRows($tableId);
 		$this->_client->writeTableAsyncDirect($tableId, array(
 			'dataFileId' => $slicedFile['id'],
 			'delimiter' => ',',
 			'enclosure' => '"',
 			'escapedBy' => '',
+			'columns' => array('id', 'name'),
 		));
 
-		$this->assertEquals(file_get_contents(__DIR__ . '/../_data/languages.csv'), $this->_client->exportTable($tableId, null, array(
+		$this->assertLinesEqualsSorted(file_get_contents(__DIR__ . '/../_data/languages.csv'), $this->_client->exportTable($tableId, null, array(
 			'format' => 'rfc',
 		)), 'imported data comparsion');
 
@@ -130,6 +138,7 @@ class Keboola_StorageApi_Tables_SlicedImportsTest extends StorageApiTestCase
 			'delimiter' => ',',
 			'enclosure' => '"',
 			'escapedBy' => '',
+			'columns' => array('id', 'name'),
 		));
 
 		$data = file_get_contents(__DIR__ . '/../_data/languages.csv');
@@ -137,12 +146,16 @@ class Keboola_StorageApi_Tables_SlicedImportsTest extends StorageApiTestCase
 		array_shift($lines);
 		$data = $data . implode("\n", $lines);
 
-		$this->assertEquals($data, $this->_client->exportTable($tableId, null, array(
+		$this->assertLinesEqualsSorted($data, $this->_client->exportTable($tableId, null, array(
 			'format' => 'rfc',
 		)), 'imported data comparsion');
 	}
 
-	public function testSlicedImportMissingManifest()
+	/**
+	 * @dataProvider backends
+	 * @param $backend
+	 */
+	public function testSlicedImportMissingManifest($backend)
 	{
 		$uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
 		$uploadOptions
@@ -150,7 +163,7 @@ class Keboola_StorageApi_Tables_SlicedImportsTest extends StorageApiTestCase
 			->setIsSliced(true);
 		$slicedFile = $this->_client->prepareFileUpload($uploadOptions);
 
-		$tableId = $this->_client->createTable($this->getTestBucketId(), 'entries', new CsvFile(__DIR__ . '/../_data/sliced/header.csv'));
+		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, $backend), 'entries', new CsvFile(__DIR__ . '/../_data/sliced/header.csv'));
 
 		try {
 			$this->_client->writeTableAsyncDirect($tableId, array(
@@ -196,10 +209,10 @@ class Keboola_StorageApi_Tables_SlicedImportsTest extends StorageApiTestCase
 			'Body'   => json_encode(array(
 				'entries' => array(
 					array(
-						'url' => $part1URL,
+						'url' => 's3://' . $uploadParams['bucket'] . '/' . $uploadParams['key'] . 'part001.gz',
 					),
 					array(
-						'url' => $part1URL . 'some',
+						'url' => 's3://' . $uploadParams['bucket'] . '/' . $uploadParams['key'] . 'part001.gzsome',
 					)
 				),
 			)),
@@ -208,10 +221,8 @@ class Keboola_StorageApi_Tables_SlicedImportsTest extends StorageApiTestCase
 		try {
 			$this->_client->writeTableAsyncDirect($tableId, array(
 				'dataFileId' => $slicedFile['id'],
-				'withoutHeaders' => true,
-				'delimiter' => '|',
-				'enclosure' => '',
-				'escapedBy' => '',
+				'columns' => array('id', 'added_manually', 'start', 'end', 'task_id', 'project_id'),
+				'delimiter' => '|'
 			));
 			$this->fail('Exception should be thrown');
 		} catch (\Keboola\StorageApi\ClientException $e) {
@@ -219,9 +230,13 @@ class Keboola_StorageApi_Tables_SlicedImportsTest extends StorageApiTestCase
 		}
 	}
 
-	public function testUnauthorizedAccessInManifestFile()
+	/**
+	 * @dataProvider backends
+	 * @param $backend
+	 */
+	public function testUnauthorizedAccessInManifestFile($backend)
 	{
-		$tableId = $this->_client->createTable($this->getTestBucketId(), 'entries', new CsvFile(__DIR__ . '/../_data/sliced/header.csv'));
+		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, $backend), 'entries', new CsvFile(__DIR__ . '/../_data/sliced/header.csv'));
 
 		$uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
 		$uploadOptions
@@ -273,8 +288,6 @@ class Keboola_StorageApi_Tables_SlicedImportsTest extends StorageApiTestCase
 				'dataFileId' => $slicedFile['id'],
 				'withoutHeaders' => true,
 				'delimiter' => '|',
-				'enclosure' => '',
-				'escapedBy' => '',
 			));
 			$this->fail('Exception should be thrown');
 		} catch (\Keboola\StorageApi\ClientException $e) {
