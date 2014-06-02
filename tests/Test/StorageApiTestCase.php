@@ -107,7 +107,7 @@ class StorageApiTestCase extends \PHPUnit_Framework_TestCase
 	public function backends()
 	{
 		return array(
-//			array('mysql'),
+			array('mysql'),
 			array('redshift'),
 		);
 	}
