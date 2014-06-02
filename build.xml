@@ -3,6 +3,7 @@
 <project name="api-tests" default="build">
 	<property name="storage-api-url" value="https://connection-devel.keboola.com"/>
 	<property name="storage-api-token" value="your_token"/>
+    <property name="testsuite" value="all"/>
 
 	<target name="build"
 			depends="prepare,lint,api-tests-ci,phploc,pdepend,phpmd-ci,phpcs-ci,phpcpd,apigen,phpcb"/>
@@ -142,6 +143,8 @@
 		<exec executable="phpunit" failonerror="true">
 			<env key="STORAGE_API_URL" value="${storage-api-url}"/>
 			<env key="STORAGE_API_TOKEN" value="${storage-api-token}"/>
+            <arg value="--testsuite"/>
+            <arg path="${testsuite}"/>
 			<arg value="--configuration"/>
 			<arg path="phpunit-ci.xml.dist"/>
 		</exec>
