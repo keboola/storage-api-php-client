@@ -1,3 +1,6 @@
+## 2.11.6 (2014-06-06)
+  * [Feature] TableExporter class to export sliced tables to a single CSV file.
+
 ## 2.11.5 (2014-05-30)
   * [Feature] Create bucket - backend type can be set by parameter. Allowed types are `mysql` and `redshift`, `mysql` is default.
 
