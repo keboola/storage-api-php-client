@@ -95,7 +95,7 @@ class TableExporter
 				if ($exportOptions["gzip"]) {
 					$catCmd = "gunzip " . escapeshellarg($file) . " --to-stdout >> " . escapeshellarg($destination) . ".tmp";
 				} else {
-					$catCmd = "cat $file >> $destination";
+					$catCmd = "cat " . escapeshellarg($file) ." >> " . escapeshellarg($destination);
 				}
 				(new Process($catCmd))->mustRun();
 				$fs->remove($file);
