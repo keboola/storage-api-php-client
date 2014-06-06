@@ -15,10 +15,23 @@ class Keboola_StorageApi_Tables_TableExporterTest extends StorageApiTestCase
 {
 
 
+	private $downloadPath;
+	private $downloadPathGZip;
+
 	public function setUp()
 	{
 		parent::setUp();
 		$this->_initEmptyBucketsForAllBackends();
+		$this->downloadPath = __DIR__ . '/../_tmp/languages.sliced.csv';
+		if (file_exists($this->downloadPath)) {
+			unlink($this->downloadPath);
+		}
+		$this->downloadPathGZip = __DIR__ . '/../_tmp/languages.sliced.csv.gz';
+		if (file_exists($this->downloadPathGZip)) {
+			unlink($this->downloadPathGZip);
+		}
+
+
 	}
 
 	/**
@@ -27,14 +40,12 @@ class Keboola_StorageApi_Tables_TableExporterTest extends StorageApiTestCase
 	 */
 	public function testTableAsyncExport($backend, CsvFile $importFile, $expectationsFileName, $exportOptions=array())
 	{
-		$downloadPath = __DIR__ . '/../_tmp/languages.csv';
 		$expectationsFile = __DIR__ . '/../_data/' . $expectationsFileName;
+
 		if (!isset($exportOptions['format'])) {
 			$exportOptions['format'] = 'rfc';
 		}
-		if (isset($exportOptions['gzip']) && $exportOptions['gzip'] === true) {
-			$downloadPath .= '.gz';
-		} else {
+		if (!isset($exportOptions['gzip']) ) {
 			$exportOptions['gzip'] = false;
 		}
 
@@ -43,21 +54,18 @@ class Keboola_StorageApi_Tables_TableExporterTest extends StorageApiTestCase
 		$result = $this->_client->writeTable($tableId, $importFile);
 
 		$this->assertEmpty($result['warnings']);
-
 		$exporter = new TableExporter($this->_client);
-		$exporter->exportTable($tableId, $downloadPath, $exportOptions);
 
 		if ($exportOptions['gzip'] === true) {
-			(new \Symfony\Component\Process\Process("gunzip " . escapeshellarg($downloadPath)))->mustRun();
-			$downloadPath = substr($downloadPath, 0, -3);
+			$exporter->exportTable($tableId, $this->downloadPathGZip, $exportOptions);
+			(new \Symfony\Component\Process\Process("gunzip " . escapeshellarg($this->downloadPathGZip)))->mustRun();
+		} else {
+			$exporter->exportTable($tableId, $this->downloadPath, $exportOptions);
 		}
-		// compare data
-		$this->assertTrue(file_exists($downloadPath));
-		$this->assertLinesEqualsSorted(file_get_contents($expectationsFile), file_get_contents($downloadPath), 'imported data comparsion');
 
-		if (file_exists($downloadPath)) {
-			unlink($downloadPath);
-		}
+		// compare data
+		$this->assertTrue(file_exists($this->downloadPath));
+		$this->assertLinesEqualsSorted(file_get_contents($expectationsFile), file_get_contents($this->downloadPath), 'imported data comparsion');
 
 	}
 
