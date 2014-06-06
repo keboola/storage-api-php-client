@@ -19,7 +19,7 @@ class TableExporter
 	/**
 	 * @var Client
 	 */
-	protected $client;
+	private $client;
 
 	/**
 	 * @param Client $client
