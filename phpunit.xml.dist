@@ -42,11 +42,11 @@
         <file>tests/Keboola/StorageApi/Tables/CreateTest.php</file>
         <file>tests/Keboola/StorageApi/Tables/SlicedImportsTest.php</file>
         <file>tests/Keboola/StorageApi/Tables/ExportParamsTest.php</file>
+	    <file>tests/Keboola/StorageApi/Tables/TableExporterTest.php</file>
     </testsuite>
 
     <testsuite name="part-3">
         <file>tests/Keboola/StorageApi/Tables/ImportExportCommonTest.php</file>
-        <file>tests/Keboola/StorageApi/Tables/TableExporterTest.php</file>
     </testsuite>
 
 </phpunit>
