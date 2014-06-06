@@ -48,7 +48,7 @@ class Keboola_StorageApi_Tables_TableExporterTest extends StorageApiTestCase
 		$exporter->exportTable($tableId, $downloadPath, $exportOptions);
 
 		if ($exportOptions['gzip'] === true) {
-			(new \Symfony\Component\Process\Process("gunzip $downloadPath"))->mustRun();
+			(new \Symfony\Component\Process\Process("gunzip " . escapeshellarg($downloadPath)))->mustRun();
 			$downloadPath = substr($downloadPath, 0, -3);
 		}
 		// compare data

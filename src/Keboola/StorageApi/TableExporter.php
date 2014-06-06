@@ -83,7 +83,7 @@ class TableExporter
 
 			foreach($files as $file) {
 				if ($exportOptions["gzip"]) {
-					$catCmd = "gunzip $file --to-stdout >> $destination.tmp";
+					$catCmd = "gunzip " . escapeshellarg($file) . " --to-stdout >> " . escapeshellarg($destination) . ".tmp";
 				} else {
 					$catCmd = "cat $file >> $destination";
 				}
@@ -91,7 +91,7 @@ class TableExporter
 				$fs->remove($file);
 			}
 			if ($exportOptions["gzip"]) {
-				$gZipCmd = "gzip $destination.tmp --fast";
+				$gZipCmd = "gzip " . escapeshellarg($destination) . ".tmp --fast";
 				(new Process($gZipCmd))->mustRun();
 				$fs->rename($destination.'.tmp.gz', $destination);
 			}
