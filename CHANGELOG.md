@@ -1,3 +1,6 @@
+## 2.11.7 (2014-06-10)
+  * [Feature] Client method `createTableAsyncDirect` added
+
 ## 2.11.6 (2014-06-06)
   * [Feature] TableExporter class to export sliced tables to a single CSV file.
 
