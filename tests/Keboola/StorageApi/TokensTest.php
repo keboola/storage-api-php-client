@@ -50,6 +50,12 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 		$this->arrayHasKey('owner', $token);
 		$this->arrayHasKey('admin', $token);
 
+		$owner = $token['owner'];
+		$this->assertArrayHasKey('redshift', $owner);
+
+		$redshift=  $owner['redshift'];
+		$this->assertArrayHasKey('connectionId', $redshift);
+		$this->assertArrayHasKey('databaseName', $redshift);
 
 		$tokens = $this->_client->listTokens();
 		foreach ($tokens as $currentToken) {

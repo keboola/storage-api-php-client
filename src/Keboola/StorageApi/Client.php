@@ -630,6 +630,7 @@ class Client
 			'escapedBy',
 			'dataFileId',
 			'dataUrl',
+			'dataTableName',
 			'data',
 			'withoutHeaders',
 			'columns',
@@ -638,7 +639,6 @@ class Client
 		$filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
 
 		return array_merge($filteredOptions, array(
-			"transaction" => isset($options['transaction']) ? $options['transaction'] : null,
 			"incremental" => isset($options['incremental']) ? (bool) $options['incremental'] : false,
 			"partial" => isset($options['partial']) ? (bool) $options['partial'] : false,
 		));
@@ -1482,7 +1482,6 @@ class Client
 		$logData["description"] = $this->tokenObj["description"];
 		$logData["url"] = $this->apiUrl;
 		return $logData;
-
 	}
 
 	/**
