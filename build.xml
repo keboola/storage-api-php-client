@@ -5,6 +5,10 @@
 	<property name="storage-api-token" value="your_token"/>
     <property name="testsuite" value="all"/>
 
+    <property name="redshift-hostname" value="all"/>
+    <property name="redshift-user" value="all"/>
+    <property name="redshift-password" value="all"/>
+
 	<target name="build"
 			depends="prepare,lint,api-tests-ci,phploc,pdepend,phpmd-ci,phpcs-ci,phpcpd,apigen,phpcb"/>
 
@@ -134,6 +138,9 @@
 		<exec executable="phpunit" failonerror="true">
 			<env key="STORAGE_API_URL" value="${storage-api-url}"/>
 			<env key="STORAGE_API_TOKEN" value="${storage-api-token}"/>
+			<env key="REDSHIFT_HOSTNAME" value="${redshift-hostname}"/>
+			<env key="REDSHIFT_USER" value="${redshift-user}"/>
+			<env key="REDSHIFT_PASSWORD" value="${redshift-password}"/>
 			<arg value="--configuration"/>
 			<arg path="phpunit.xml.dist"/>
 		</exec>
@@ -143,6 +150,9 @@
 		<exec executable="phpunit" failonerror="true">
 			<env key="STORAGE_API_URL" value="${storage-api-url}"/>
 			<env key="STORAGE_API_TOKEN" value="${storage-api-token}"/>
+            <env key="REDSHIFT_HOSTNAME" value="${redshift-hostname}"/>
+            <env key="REDSHIFT_USER" value="${redshift-user}"/>
+            <env key="REDSHIFT_PASSWORD" value="${redshift-password}"/>
             <arg value="--testsuite"/>
             <arg value="${testsuite}"/>
 			<arg value="--configuration"/>

@@ -26,5 +26,15 @@ defined('STORAGE_API_MAINTENANCE_URL')
 	|| define('STORAGE_API_MAINTENANCE_URL', getenv('STORAGE_API_MAINTENANCE_URL') ? getenv('STORAGE_API_MAINTENANCE_URL') : 'https://maintenance-testing.keboola.com/');
 
 
+defined('REDSHIFT_HOSTNAME')
+|| define('REDSHIFT_HOSTNAME', getenv('REDSHIFT_HOSTNAME') ? getenv('REDSHIFT_HOSTNAME') : '');
+
+defined('REDSHIFT_USER')
+|| define('REDSHIFT_USER', getenv('REDSHIFT_USER') ? getenv('REDSHIFT_USER') : '');
+
+defined('REDSHIFT_PASSWORD')
+|| define('REDSHIFT_PASSWORD', getenv('REDSHIFT_PASSWORD') ? getenv('REDSHIFT_PASSWORD') : '');
+
+
 require_once 'tests/Test/StorageApiTestCase.php';
 require_once ROOT_PATH . '/vendor/autoload.php';
