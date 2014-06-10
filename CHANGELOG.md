@@ -1,3 +1,6 @@
+## 2.11.8 (2014-06-10)
+  * [Improvement] Modify S3Client CURL options
+
 ## 2.11.7 (2014-06-10)
   * [Feature] Client method `createTableAsyncDirect` added
 

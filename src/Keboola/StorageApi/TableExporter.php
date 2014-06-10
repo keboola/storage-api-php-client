@@ -56,6 +56,12 @@ class TableExporter
 			"token" => $fileInfo["credentials"]["SessionToken"]
 		));
 
+		// CURL options
+		$s3Client->getConfig()->set('curl.options', array(
+			CURLOPT_SSLVERSION => 3,
+			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_0
+		));
+
 		// Temporary folder to save downloaded files from S3
 		$tmpFilePath = sys_get_temp_dir() . '/sapi-php-client' . '/' . uniqid('sapi-export-');
 
