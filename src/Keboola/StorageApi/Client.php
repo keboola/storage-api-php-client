@@ -391,8 +391,12 @@ class Client
 			$options['dataFileId'] = $fileId;
 		}
 
-		$createdTable = $this->apiPost("storage/buckets/{$bucketId}/tables-async", $options);
+		return $this->createTableAsyncDirect($bucketId, $options);
+	}
 
+	public function createTableAsyncDirect($bucketId, $options = array())
+	{
+		$createdTable = $this->apiPost("storage/buckets/{$bucketId}/tables-async", $options);
 		return $createdTable['id'];
 	}
 
@@ -403,11 +407,10 @@ class Client
 	 */
 	public function createTableFromSnapshot($bucketId, $snapshotId, $name = null)
 	{
-		$createdTable = $this->apiPost("storage/buckets/{$bucketId}/tables-async", array(
+		return $this->createTableAsyncDirect($bucketId, array(
 			'snapshotId' => $snapshotId,
 			'name' => $name,
 		));
-		return $createdTable['id'];
 	}
 
 	private function isUrl($path)

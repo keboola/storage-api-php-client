@@ -21,6 +21,25 @@ class Keboola_StorageApi_Tables_RedshiftCopyImportTest extends StorageApiTestCas
 		$this->_initEmptyBucketsForAllBackends();
 	}
 
+	public function testCopyCreate()
+	{
+		$this->initDb();
+		$tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT), array(
+			'name' => 'languages',
+			'dataTableName' => 'languages',
+		));
+
+		$expected = array(
+			'"id","name"',
+			'"1","cz"',
+			'"2","en"',
+		);
+
+		$this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->exportTable($tableId, null, array(
+			'format' => 'rfc',
+		)), 'imported data comparsion');
+	}
+
 	public function testCopyImport()
 	{
 		$this->initDb();
