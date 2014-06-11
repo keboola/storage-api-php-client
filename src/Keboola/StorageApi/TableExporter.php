@@ -63,9 +63,15 @@ class TableExporter
 		));
 
 		// Temporary folder to save downloaded files from S3
-		$tmpFilePath = sys_get_temp_dir() . '/sapi-php-client' . '/' . uniqid('sapi-export-');
+		$workingDir = sys_get_temp_dir() . '/sapi-php-client';
+
 
 		$fs = new Filesystem();
+		if (!$fs->exists($workingDir)) {
+			$fs->mkdir($workingDir);
+		}
+
+		$tmpFilePath = $workingDir . '/' . uniqid('sapi-export-');
 
 		if ($fileInfo['isSliced'] === true) {
 			/**
@@ -89,7 +95,26 @@ class TableExporter
 			}
 
 			// Create file with header
-			$header = '"' . join($table["columns"], '","') . '"' . "\n";
+			$format = 'raw';
+			if (isset($exportOptions['format'])) {
+				$format = $exportOptions['format'];
+			}
+			switch ($format) {
+				case 'raw':
+					$delimiter = "\t";
+					$enclosure = "";
+					break;
+				case 'rfc':
+					$delimiter = ",";
+					$enclosure = '"';
+					break;
+				case 'escaped':
+					$delimiter = "\t";
+					$enclosure = '"';
+					break;
+			}
+
+			$header = $enclosure . join($table["columns"], $enclosure . $delimiter . $enclosure) . $enclosure . "\n";
 			if ($exportOptions["gzip"] === true) {
 				$fs->dumpFile($destination . '.tmp', $header);
 			} else {
@@ -125,6 +150,8 @@ class TableExporter
 			));
 			$fs->rename($tmpFilePath, $destination);
 		}
+
+		$fs->remove($tmpFilePath);
 
 		return;
 	}
