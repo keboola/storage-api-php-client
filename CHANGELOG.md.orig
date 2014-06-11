@@ -1,9 +1,10 @@
-
-## 2.11.9 (2014-06-11)
-  * [Bugfix] TableExporter - respect output format when composing csv file header
-
+<<<<<<< HEAD
 ## 2.11.8 (2014-06-10)
   * [Improvement] Modify S3Client CURL options
+=======
+## 2.11.8 (2014-06-11)
+  * [Bugfix] TableExporter - respect output format when composing csv file header
+>>>>>>> Release 2.11.8
 
 ## 2.11.7 (2014-06-10)
   * [Feature] Client method `createTableAsyncDirect` added
