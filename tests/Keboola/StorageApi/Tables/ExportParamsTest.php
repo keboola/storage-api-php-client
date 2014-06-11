@@ -196,7 +196,9 @@ class Keboola_StorageApi_Tables_ExportParamsTest extends StorageApiTestCase
 			'columns' => $csvFile->getHeader(),
 		));
 
-		$results = $this->_client->exportTableAsync($tableId, $exportOptions);
+		$results = $this->_client->exportTableAsync($tableId, array_merge($exportOptions, array(
+			'format' => 'raw',
+		)));
 
 		$exportedFile = $this->_client->getFile($results['file']['id'], (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
 
