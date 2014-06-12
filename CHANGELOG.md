@@ -1,4 +1,3 @@
-
 ## 2.11.9 (2014-06-11)
   * [Bugfix] TableExporter - respect output format when composing csv file header
 
