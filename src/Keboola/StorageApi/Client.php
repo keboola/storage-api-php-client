@@ -1517,7 +1517,12 @@ class Client
 		fwrite($tmpFile, $csvString);
 		rewind($tmpFile);
 
-		while ($parsedLine = fgetcsv($tmpFile, null, ",", '"', '"')) {
+		if (!$enclosure) {
+			$enclosure = chr(0);
+		}
+
+		while ($parsedLine = fgetcsv($tmpFile, null, $delimiter, $enclosure, '"')) {
+
 			if (!$header) {
 				$data[] = $parsedLine;
 			} else {

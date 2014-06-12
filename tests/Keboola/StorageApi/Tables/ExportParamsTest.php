@@ -220,7 +220,7 @@ class Keboola_StorageApi_Tables_ExportParamsTest extends StorageApiTestCase
 			$csv .= file_get_contents($filePart['url']);
 		}
 
-		$parsedData = Client::parseCsv($csv, false);
+		$parsedData = Client::parseCsv($csv, false, "\t", "");
 		$this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
 	}
 
