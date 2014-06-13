@@ -63,6 +63,7 @@ class Keboola_StorageApi_Tables_TableExporterTest extends StorageApiTestCase
 			$exporter->exportTable($tableId, $this->downloadPath, $exportOptions);
 		}
 
+
 		// compare data
 		$this->assertTrue(file_exists($this->downloadPath));
 		$this->assertLinesEqualsSorted(file_get_contents($expectationsFile), file_get_contents($this->downloadPath), 'imported data comparsion');
@@ -78,6 +79,7 @@ class Keboola_StorageApi_Tables_TableExporterTest extends StorageApiTestCase
 
 			array(self::BACKEND_REDSHIFT, new CsvFile('https://s3.amazonaws.com/keboola-tests/escaping.csv'), 'escaping.raw.out.redshift.csv', array('format' => 'raw')),
 			array(self::BACKEND_REDSHIFT, new CsvFile('https://s3.amazonaws.com/keboola-tests/escaping.csv'), 'escaping.raw.out.redshift.csv', array('gzip' => true, 'format' => 'raw')),
+			array(self::BACKEND_REDSHIFT, new CsvFile('https://s3.amazonaws.com/keboola-tests/escaping.csv'), 'escaping.standard.out.csv', array('gzip' => true)),
 		);
 	}
 
