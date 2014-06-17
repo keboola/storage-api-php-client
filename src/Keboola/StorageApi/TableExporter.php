@@ -11,7 +11,7 @@
 
 namespace Keboola\StorageApi;
 
-use Aws\S3\S3Client;
+use Keboola\StorageApi\Aws\S3\S3Client;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 
