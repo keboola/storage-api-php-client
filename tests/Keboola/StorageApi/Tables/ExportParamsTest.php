@@ -222,6 +222,23 @@ class Keboola_StorageApi_Tables_ExportParamsTest extends StorageApiTestCase
 
 		$parsedData = Client::parseCsv($csv, false, "\t", "");
 		$this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
+
+		// Check S3 ACL and listing bucket
+		$s3Client = \Aws\S3\S3Client::factory(array(
+			"key" => $exportedFile["credentials"]["AccessKeyId"],
+			"secret" => $exportedFile["credentials"]["SecretAccessKey"],
+			"token" => $exportedFile["credentials"]["SessionToken"]
+		));
+		$bucket = $exportedFile["s3Path"]["bucket"];
+		$prefix = $exportedFile["s3Path"]["key"];
+		$objects = $s3Client->listObjects(array(
+			"Bucket" => $bucket,
+			"Prefix" => $prefix
+		));
+		$this->assertEquals(3, count($objects["Contents"]));
+		foreach($objects["Contents"] as $object) {
+			$this->assertStringStartsWith($prefix, $object["Key"]);
+		}
 	}
 
 	public function testTableExportAsyncCache()
