@@ -1,3 +1,8 @@
+## 2.11.10 (2014-06-17)
+  * [Improvement] TableExporter - use custom S3 backoff
+  * [Bugfix] Tests - allow listObjects with prefix on sliced async exports
+  * [Bugfix] Tests - redshift export fix
+
 ## 2.11.9 (2014-06-11)
   * [Bugfix] TableExporter - respect output format when composing csv file header
 
