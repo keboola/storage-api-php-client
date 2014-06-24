@@ -2,7 +2,7 @@
 namespace Keboola\StorageApi;
 
 
-
+use GuzzleHttp\Event\SubscriberInterface;
 use GuzzleHttp\Event\AbstractTransferEvent;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Message\Response;
@@ -55,6 +55,11 @@ class Client
 	private $logger;
 
 	/**
+	 * @var SubscriberInterface
+	 */
+	private $subscriber;
+
+	/**
 	 * @var \GuzzleHttp\Client
 	 */
 	private $client;
@@ -85,6 +90,7 @@ class Client
 	 *     - userAgent: custom user agent
 	 *     - backoffMaxTries: backoff maximum number of attempts
 	 *     - logger: instance of LoggerInterface
+	 *     - eventSubscriber: instance of SubscriberInterface
 	 */
 	public function __construct(array $config = array())
 	{
@@ -111,6 +117,12 @@ class Client
 			$this->setLogger(new NullLogger());
 		}
 
+		if (isset($config['eventSubscriber'])) {
+			$this->setSubscriber($config['eventSubscriber']);
+		} else {
+			$this->setSubscriber(new LogSubscriber($this->logger, "{hostname} {req_header_User-Agent} - [{ts}] \"{method} {resource} {protocol}/{version}\" {code} {res_header_Content-Length}"));
+		}
+
 		$this->initClient();
 		$this->initExponentialBackoff();
 	}
@@ -120,8 +132,8 @@ class Client
 		$this->client = new \GuzzleHttp\Client([
 			'base_url' => $this->apiUrl,
 		]);
-		$logSubsriber = new LogSubscriber($this->logger, "{hostname} {req_header_User-Agent} - [{ts}] \"{method} {resource} {protocol}/{version}\" {code} {res_header_Content-Length}");
-		$this->client->getEmitter()->attach($logSubsriber);
+
+		$this->client->getEmitter()->attach($this->subscriber);
 	}
 
 
@@ -1485,6 +1497,14 @@ class Client
 		$logData["description"] = $this->tokenObj["description"];
 		$logData["url"] = $this->apiUrl;
 		return $logData;
+	}
+
+	/**
+	 * @param SubscriberInterface $subscriber
+	 */
+	private function setSubscriber(SubscriberInterface $subscriber)
+	{
+		$this->subscriber = $subscriber;
 	}
 
 	/**
