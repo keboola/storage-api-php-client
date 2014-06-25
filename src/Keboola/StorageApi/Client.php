@@ -150,7 +150,7 @@ class Client
 			'delay' => RetrySubscriber::createLoggingDelay(['GuzzleHttp\Subscriber\Retry\RetrySubscriber', 'exponentialDelay'], $this->logger),
 			'sleep' => function ($time, AbstractTransferEvent $event) {
 					usleep($time * 1000 * 1000);
-				},
+			},
 			'max' => $this->backoffMaxTries,
 		]);
 	}
@@ -1134,7 +1134,7 @@ class Client
 					'policy' => $uploadParams['policy'],
 					'AWSAccessKeyId' => $uploadParams['AWSAccessKeyId'],
 					'file' => $fh,
-				)));
+			)));
 		} catch (RequestException $e) {
 			throw new ClientException("Error on file upload to S3: " . $e->getMessage(), $e->getCode(), $e);
 		}
