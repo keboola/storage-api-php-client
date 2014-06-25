@@ -2,6 +2,7 @@
 namespace Keboola\StorageApi;
 
 
+
 use GuzzleHttp\Event\SubscriberInterface;
 use GuzzleHttp\Event\AbstractTransferEvent;
 use GuzzleHttp\Exception\RequestException;
@@ -53,11 +54,6 @@ class Client
 	 *
 	 */
 	private $logger;
-
-	/**
-	 * @var SubscriberInterface
-	 */
-	private $subscriber;
 
 	/**
 	 * @var \GuzzleHttp\Client
@@ -117,14 +113,15 @@ class Client
 			$this->setLogger(new NullLogger());
 		}
 
-		if (isset($config['eventSubscriber'])) {
-			$this->setSubscriber($config['eventSubscriber']);
-		} else {
-			$this->setSubscriber(new LogSubscriber($this->logger, "{hostname} {req_header_User-Agent} - [{ts}] \"{method} {resource} {protocol}/{version}\" {code} {res_header_Content-Length}"));
-		}
-
 		$this->initClient();
 		$this->initExponentialBackoff();
+
+		if (isset($config['eventSubscriber'])) {
+			if (!$config['eventSubscriber'] instanceof SubscriberInterface)
+				throw new \InvalidArgumentException('eventSubscriber must be instance of GuzzleHttp\Event\SubscriberInterface');
+
+			$this->client->getEmitter()->attach($config['eventSubscriber']);
+		}
 	}
 
 	private function initClient()
@@ -132,8 +129,8 @@ class Client
 		$this->client = new \GuzzleHttp\Client([
 			'base_url' => $this->apiUrl,
 		]);
-
-		$this->client->getEmitter()->attach($this->subscriber);
+		$logSubsriber = new LogSubscriber($this->logger, "{hostname} {req_header_User-Agent} - [{ts}] \"{method} {resource} {protocol}/{version}\" {code} {res_header_Content-Length}");
+		$this->client->getEmitter()->attach($logSubsriber);
 	}
 
 
@@ -152,8 +149,8 @@ class Client
 			'filter' => $filter,
 			'delay' => RetrySubscriber::createLoggingDelay(['GuzzleHttp\Subscriber\Retry\RetrySubscriber', 'exponentialDelay'], $this->logger),
 			'sleep' => function ($time, AbstractTransferEvent $event) {
-				usleep($time * 1000 * 1000);
-			},
+					usleep($time * 1000 * 1000);
+				},
 			'max' => $this->backoffMaxTries,
 		]);
 	}
@@ -347,7 +344,7 @@ class Client
 			"primaryKey" => isset($options['primaryKey']) ? $options['primaryKey'] : null,
 			"transactional" => isset($options['transactional']) ? $options['transactional'] : false,
 			"columns" => isset($options['columns']) ? $options['columns'] : null,
- 		);
+		);
 
 		if ($this->isUrl($csvFile->getPathname())) {
 			$options["dataUrl"] = $csvFile->getPathname();
@@ -1137,7 +1134,7 @@ class Client
 					'policy' => $uploadParams['policy'],
 					'AWSAccessKeyId' => $uploadParams['AWSAccessKeyId'],
 					'file' => $fh,
-			)));
+				)));
 		} catch (RequestException $e) {
 			throw new ClientException("Error on file upload to S3: " . $e->getMessage(), $e->getCode(), $e);
 		}
@@ -1497,14 +1494,6 @@ class Client
 		$logData["description"] = $this->tokenObj["description"];
 		$logData["url"] = $this->apiUrl;
 		return $logData;
-	}
-
-	/**
-	 * @param SubscriberInterface $subscriber
-	 */
-	private function setSubscriber(SubscriberInterface $subscriber)
-	{
-		$this->subscriber = $subscriber;
 	}
 
 	/**
