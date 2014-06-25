@@ -340,7 +340,7 @@ class Table
 			$this->preSave();
 
 			$tempfile = tempnam(__DIR__ . "/tmp/", 'sapi-client-' . $this->_id . '-');
-			$file = new \Keboola\Csv\CsvFile($tempfile);
+			$file = new CsvFile($tempfile, $this->delimiter, $this->enclosure);
 			$file->writeRow($this->header);
 			foreach ($this->data as $row) {
 				$file->writeRow($row);
