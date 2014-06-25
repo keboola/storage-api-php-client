@@ -149,7 +149,7 @@ class Client
 			'filter' => $filter,
 			'delay' => RetrySubscriber::createLoggingDelay(['GuzzleHttp\Subscriber\Retry\RetrySubscriber', 'exponentialDelay'], $this->logger),
 			'sleep' => function ($time, AbstractTransferEvent $event) {
-					usleep($time * 1000 * 1000);
+				usleep($time * 1000 * 1000);
 			},
 			'max' => $this->backoffMaxTries,
 		]);
