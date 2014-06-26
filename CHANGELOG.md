@@ -1,4 +1,4 @@
-## 1.11.11 (2014-06-26)
+## 2.11.11 (2014-06-26)
   * [Feat] Event subsriber
   * [Bugfix] Table class - csv file delimiter and enclosure
 
