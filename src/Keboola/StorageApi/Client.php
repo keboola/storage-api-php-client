@@ -117,9 +117,9 @@ class Client
 		$this->initExponentialBackoff();
 
 		if (isset($config['eventSubscriber'])) {
-			if (!$config['eventSubscriber'] instanceof SubscriberInterface)
+			if (!$config['eventSubscriber'] instanceof SubscriberInterface) {
 				throw new \InvalidArgumentException('eventSubscriber must be instance of GuzzleHttp\Event\SubscriberInterface');
-
+			}
 			$this->client->getEmitter()->attach($config['eventSubscriber']);
 		}
 	}
