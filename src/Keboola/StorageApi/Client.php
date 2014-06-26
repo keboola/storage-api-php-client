@@ -3,6 +3,7 @@ namespace Keboola\StorageApi;
 
 
 
+use GuzzleHttp\Event\SubscriberInterface;
 use GuzzleHttp\Event\AbstractTransferEvent;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Message\Response;
@@ -85,6 +86,7 @@ class Client
 	 *     - userAgent: custom user agent
 	 *     - backoffMaxTries: backoff maximum number of attempts
 	 *     - logger: instance of LoggerInterface
+	 *     - eventSubscriber: instance of SubscriberInterface
 	 */
 	public function __construct(array $config = array())
 	{
@@ -113,6 +115,13 @@ class Client
 
 		$this->initClient();
 		$this->initExponentialBackoff();
+
+		if (isset($config['eventSubscriber'])) {
+			if (!$config['eventSubscriber'] instanceof SubscriberInterface)
+				throw new \InvalidArgumentException('eventSubscriber must be instance of GuzzleHttp\Event\SubscriberInterface');
+
+			$this->client->getEmitter()->attach($config['eventSubscriber']);
+		}
 	}
 
 	private function initClient()
@@ -335,7 +344,7 @@ class Client
 			"primaryKey" => isset($options['primaryKey']) ? $options['primaryKey'] : null,
 			"transactional" => isset($options['transactional']) ? $options['transactional'] : false,
 			"columns" => isset($options['columns']) ? $options['columns'] : null,
- 		);
+		);
 
 		if ($this->isUrl($csvFile->getPathname())) {
 			$options["dataUrl"] = $csvFile->getPathname();
