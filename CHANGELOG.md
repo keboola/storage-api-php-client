@@ -1,3 +1,7 @@
+## 1.11.11 (2014-06-26)
+  * [Feat] Event subsriber
+  * [Bugfix] Table class - csv file delimiter and enclosure
+
 ## 2.11.10 (2014-06-17)
   * [Improvement] TableExporter - use custom S3 backoff
   * [Bugfix] Tests - allow listObjects with prefix on sliced async exports
