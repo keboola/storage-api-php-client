@@ -1,3 +1,6 @@
+## 2.11.12 (2014-07-08)
+  * [Improvement] Allow Symfony components from 2.3
+
 ## 2.11.11 (2014-06-26)
   * [Feat] Event subsriber
   * [Bugfix] Table class - csv file delimiter and enclosure

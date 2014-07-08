@@ -13,8 +13,8 @@
     "guzzlehttp/guzzle": "~4.0.2",
     "guzzlehttp/retry-subscriber": "~0.1.1",
     "guzzlehttp/log-subscriber": "1.*",
-		"symfony/filesystem": "~2.4",
-		"symfony/process": "~2.4",
+		"symfony/filesystem": "~2.3",
+		"symfony/process": "~2.3",
     "aws/aws-sdk-php": "2.6.*"
 	},
 	"require-dev": {
