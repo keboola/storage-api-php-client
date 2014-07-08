@@ -1,3 +1,6 @@
+## 2.11.13 (2014-07-08)
+  * [Fix] TableExporter - overwrite existing destination file
+
 ## 2.11.12 (2014-07-08)
   * [Improvement] Allow Symfony components from 2.3
 
