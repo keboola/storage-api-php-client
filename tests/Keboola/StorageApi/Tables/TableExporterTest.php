@@ -23,15 +23,7 @@ class Keboola_StorageApi_Tables_TableExporterTest extends StorageApiTestCase
 		parent::setUp();
 		$this->_initEmptyBucketsForAllBackends();
 		$this->downloadPath = __DIR__ . '/../_tmp/languages.sliced.csv';
-		if (file_exists($this->downloadPath)) {
-			unlink($this->downloadPath);
-		}
 		$this->downloadPathGZip = __DIR__ . '/../_tmp/languages.sliced.csv.gz';
-		if (file_exists($this->downloadPathGZip)) {
-			unlink($this->downloadPathGZip);
-		}
-
-
 	}
 
 	/**
@@ -58,6 +50,9 @@ class Keboola_StorageApi_Tables_TableExporterTest extends StorageApiTestCase
 
 		if ($exportOptions['gzip'] === true) {
 			$exporter->exportTable($tableId, $this->downloadPathGZip, $exportOptions);
+			if (file_exists($this->downloadPath)) {
+				unlink($this->downloadPath);
+			}
 			(new \Symfony\Component\Process\Process("gunzip " . escapeshellarg($this->downloadPathGZip)))->mustRun();
 		} else {
 			$exporter->exportTable($tableId, $this->downloadPath, $exportOptions);

@@ -71,6 +71,10 @@ class TableExporter
 			$fs->mkdir($workingDir);
 		}
 
+		if ($fs->exists($destination)) {
+			$fs->remove($destination);
+		}
+
 		$tmpFilePath = $workingDir . '/' . uniqid('sapi-export-');
 
 		if ($fileInfo['isSliced'] === true) {
