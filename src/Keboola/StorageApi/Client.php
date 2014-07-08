@@ -1300,9 +1300,9 @@ class Client
 	 * @param array $postData
 	 * @return mixed|string
 	 */
-	public function apiPost($url, $postData=null)
+	public function apiPost($url, $postData = null, $handleAsyncTask = true)
 	{
-		return $this->request('post', $this->versionUrl($url), array('body' => $postData));
+		return $this->request('post', $this->versionUrl($url), array('body' => $postData), null, $handleAsyncTask);
 	}
 
 	/**
@@ -1341,7 +1341,7 @@ class Client
 	}
 
 
-	protected function request($method, $url, $options = array(), $responseFileName = null )
+	protected function request($method, $url, $options = array(), $responseFileName = null, $handleAsyncTask = true)
 	{
 		// fix body
 		if (isset($options['body']) && is_array($options['body'])) {
@@ -1384,7 +1384,7 @@ class Client
 		}
 
 		// wait for asynchronous task completion
-		if ($response->getStatusCode() == 202) {
+		if ($handleAsyncTask && $response->getStatusCode() == 202) {
 			return $this->handleAsyncTask($response);
 		}
 

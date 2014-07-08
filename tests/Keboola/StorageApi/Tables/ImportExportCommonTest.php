@@ -448,5 +448,17 @@ class Keboola_StorageApi_Tables_ImportExportCommonTest extends StorageApiTestCas
 
 	}
 
+	public function testEmptyTableAsyncExportShouldBeInFastQueue()
+	{
+		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, self::BACKEND_MYSQL), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+		$this->_client->deleteTableRows($tableId);
+
+		$job = $this->_client->apiPost(
+			"storage/tables/{$tableId}/export-async",
+			null,
+			$handleAsyncTask = false
+		);
+		$this->assertEquals('main_fast', $job['operationParams']['queue']);
+	}
 
 }
