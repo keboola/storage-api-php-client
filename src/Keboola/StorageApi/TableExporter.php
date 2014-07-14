@@ -13,6 +13,7 @@ namespace Keboola\StorageApi;
 
 use Keboola\StorageApi\Aws\S3\S3Client;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
 class TableExporter
@@ -132,14 +133,20 @@ class TableExporter
 				} else {
 					$catCmd = "cat " . escapeshellarg($file) ." >> " . escapeshellarg($destination);
 				}
-				(new Process($catCmd))->mustRun();
+				$process = new Process($catCmd);
+				if (0 !== $process->run()) {
+					throw new ProcessFailedException($process);
+				}
 				$fs->remove($file);
 			}
 
 			// Compress the file afterwards if required
 			if ($exportOptions["gzip"]) {
 				$gZipCmd = "gzip " . escapeshellarg($destination) . ".tmp --fast";
-				(new Process($gZipCmd))->mustRun();
+				$process = new Process($gZipCmd);
+				if (0 !== $process->run()) {
+					throw new ProcessFailedException($process);
+				}
 				$fs->rename($destination.'.tmp.gz', $destination);
 			}
 

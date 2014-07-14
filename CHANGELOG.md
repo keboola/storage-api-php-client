@@ -1,3 +1,6 @@
+## 2.11.14 (2014-07-14)
+  * [Fix] TableExporter - Symfony 2.3 compatibility
+
 ## 2.11.13 (2014-07-08)
   * [Fix] TableExporter - overwrite existing destination file
 
