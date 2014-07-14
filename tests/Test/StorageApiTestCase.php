@@ -61,7 +61,7 @@ class StorageApiTestCase extends \PHPUnit_Framework_TestCase
 	{
 		foreach ($this->backends() as $backend) {
 			foreach (array(self::STAGE_OUT, self::STAGE_IN) as $stage) {
-				$this->_bucketIds[$stage . '-' . $backend[0]] = $this->_initEmptyBucket('api-tests-' . $backend[0], $stage, $backend[0]);
+				$this->_bucketIds[$stage . '-' . $backend[0]] = $this->_initEmptyBucket('API-tests-' . $backend[0], $stage, $backend[0]);
 			}
 		}
 	}
