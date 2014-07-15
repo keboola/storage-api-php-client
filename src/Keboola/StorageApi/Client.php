@@ -30,7 +30,7 @@ class Client
 	// Token object
 	private $tokenObj = null;
 
-	// curren run id sent with all request
+	// current run id sent with all request
 	private $runId = null;
 
 	// API URL
@@ -1368,7 +1368,11 @@ class Client
 			$response = $this->client->send($request);
 		} catch (RequestException $e) {
 			$response = $e->getResponse();
-			$body = $response ? $response->json() : array();
+			try {
+				$body = $response ? $response->json() : array();
+			} catch (\GuzzleHttp\Exception\ParseException $e2) {
+				$body = array();
+			}
 
 			if ($response && $response->getStatusCode() == 503) {
 				throw new MaintenanceException(isset($body["reason"]) ? $body['reason'] : 'Maintenance', $response ? (string) $response->getHeader('Retry-After') : null, $body);
