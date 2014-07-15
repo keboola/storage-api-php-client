@@ -15,8 +15,14 @@ class Keboola_StorageApi_BucketsTest extends StorageApiTestCase
 		$buckets = $this->_client->listBuckets();
 		$this->assertTrue(count($buckets) >= 2);
 
-		$this->assertEquals('in.c-main', $buckets[0]['id']);
-		$this->assertEquals('out.c-main', $buckets[1]['id']);
+		$inBucketFound = false;
+		$outBucketFound = false;
+		foreach ($buckets as $bucket) {
+			if ($bucket['id'] == 'in.c-main') $inBucketFound = true;
+			if ($bucket['id'] == 'out.c-main') $outBucketFound = true;
+		}
+		$this->assertTrue($inBucketFound);
+		$this->assertTrue($outBucketFound);
 
 		$firstBucket = reset($buckets);
 		$this->assertArrayHasKey('attributes', $firstBucket);
