@@ -448,6 +448,21 @@ class Keboola_StorageApi_Tables_ImportExportCommonTest extends StorageApiTestCas
 
 	}
 
+	public function testRedshiftErrorInCsv()
+	{
+		$tableId = $this->_client->createTable(
+			$this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT), 'languages',
+			new CsvFile(__DIR__ . '/../_data/languages.csv')
+		);
+
+		try {
+			$this->_client->writeTableAsync($tableId, new Keboola\Csv\CsvFile(__DIR__ . '/../_data/languages.invalid-data.csv'));
+			$this->fail('Exception should be thrown');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('invalidData', $e->getStringCode());
+		}
+	}
+
 	public function testEmptyTableAsyncExportShouldBeInFastQueue()
 	{
 		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, self::BACKEND_MYSQL), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
