@@ -114,7 +114,7 @@ class TableExporter
 					$enclosure = '"';
 					break;
 				case 'escaped':
-					$delimiter = "\t";
+					$delimiter = ",";
 					$enclosure = '"';
 					break;
 			}
