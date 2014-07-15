@@ -26,10 +26,10 @@ class Keboola_StorageApi_Tables_DeleteRowsTest extends StorageApiTestCase
 	 * @param $expectedTableContent
 	 * @dataProvider tableDeleteRowsByFiltersData
 	 */
-	public function testTableDeleteRowsByFilter($filterParams, $expectedTableContent)
+	public function testTableDeleteRowsByFilter($backend, $filterParams, $expectedTableContent)
 	{
 		$importFile =  __DIR__ . '/../_data/users.csv';
-		$tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));
+		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, $backend), 'users', new CsvFile($importFile));
 		$this->_client->markTableColumnAsIndexed($tableId, 'city');
 
 		$this->_client->deleteTableRows($tableId, $filterParams);
@@ -86,6 +86,7 @@ class Keboola_StorageApi_Tables_DeleteRowsTest extends StorageApiTestCase
 		return array(
 			// 1st test
 			array(
+				self::BACKEND_MYSQL,
 				array(
 					'whereColumn' => 'city',
 					'whereValues' => array('PRG')
@@ -113,6 +114,7 @@ class Keboola_StorageApi_Tables_DeleteRowsTest extends StorageApiTestCase
 			),
 			// 2nd test
 			array(
+				self::BACKEND_MYSQL,
 				array(
 					'changedSince' => $yesterday->getTimestamp(),
 				),
@@ -121,6 +123,7 @@ class Keboola_StorageApi_Tables_DeleteRowsTest extends StorageApiTestCase
 			),
 			// 3rd test
 			array(
+				self::BACKEND_MYSQL,
 				array(
 				),
 				array(
@@ -128,6 +131,7 @@ class Keboola_StorageApi_Tables_DeleteRowsTest extends StorageApiTestCase
 			),
 			// 4th test
 			array(
+				self::BACKEND_MYSQL,
 				array(
 					'whereOperator' => 'ne',
 					'whereColumn' => 'city',
@@ -150,6 +154,7 @@ class Keboola_StorageApi_Tables_DeleteRowsTest extends StorageApiTestCase
 			),
 			// 5th test
 			array(
+				self::BACKEND_MYSQL,
 				array(
 					'whereOperator' => 'ne',
 					'whereColumn' => 'city',
@@ -178,6 +183,7 @@ class Keboola_StorageApi_Tables_DeleteRowsTest extends StorageApiTestCase
 			),
 			// 6th test
 			array(
+				self::BACKEND_MYSQL,
 				array(
 					'changedSince' => $tomorrow->getTimestamp(),
 				),
@@ -216,8 +222,38 @@ class Keboola_StorageApi_Tables_DeleteRowsTest extends StorageApiTestCase
 			),
 			// 7th test
 			array(
+				self::BACKEND_REDSHIFT,
 				array(),
 				array(),
+			),
+			// 8th test
+			array(
+				self::BACKEND_REDSHIFT,
+				array(
+					'whereOperator' => 'ne',
+					'whereColumn' => 'city',
+					'whereValues' => array('PRG', 'BRA')
+				),
+				array(
+					array(
+						"1",
+						"martin",
+						"PRG",
+						"male"
+					),
+					array(
+						"2",
+						"klara",
+						"PRG",
+						"female",
+					),
+					array(
+						"4",
+						"miro",
+						"BRA",
+						"male",
+					),
+				),
 			),
 		);
 	}
