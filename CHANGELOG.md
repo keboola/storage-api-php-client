@@ -1,3 +1,7 @@
+## 2.11.15 (2014-07-16)
+  * [Fix] Handling of non-json response from SAPI
+  * [Fix] Redshift escaped format
+
 ## 2.11.14 (2014-07-14)
   * [Fix] TableExporter - Symfony 2.3 compatibility
 
