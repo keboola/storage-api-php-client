@@ -1,3 +1,6 @@
+## 2.11.16 (2014-07-17)
+  * [Feat] Delete file from file uploads
+
 ## 2.11.15 (2014-07-16)
   * [Fix] Handling of non-json response from SAPI
   * [Fix] Redshift escaped format

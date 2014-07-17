@@ -228,6 +228,24 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$this->assertEquals(file_get_contents($filePath), gzread($gzFile, 524288));
 	}
 
+	public function testFileDelete()
+	{
+		$filePath  = __DIR__ . '/_data/files.upload.txt';;
+		$options = new FileUploadOptions();
+
+		$fileId = $this->_client->uploadFile($filePath, $options);
+		$this->_client->getFile($fileId);
+
+		$this->_client->deleteFile($fileId);
+
+		try {
+			$this->_client->getFile($fileId);
+			$this->fail('File should not exists');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.files.notFound', $e->getStringCode());
+		}
+	}
+
 	public function testNotExistingFileUpload()
 	{
 		try {

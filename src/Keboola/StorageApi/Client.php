@@ -1161,6 +1161,17 @@ class Client
 	}
 
 	/**
+	 * Delete a single file
+	 * @param $fileId
+	 * @return mixed|string
+	 */
+	public function deleteFile($fileId)
+	{
+		return $this->apiDelete("storage/files/$fileId");
+	}
+
+
+	/**
 	 * Get a single file
 	 * @param string $fileId
 	 * @return mixed|string
