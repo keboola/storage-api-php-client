@@ -1,3 +1,6 @@
+## 2.11.17 (2014-07-24)
+  * [Fix] Table exporter - process timeout
+
 ## 2.11.16 (2014-07-17)
   * [Feat] Delete file from file uploads
 
