@@ -21,15 +21,15 @@ class Keboola_StorageApi_Tables_CreateTest extends StorageApiTestCase
 
 	/**
 	 * @dataProvider tableCreateData
-	 * @param $langugesFile
+	 * @param $createFile
 	 */
-	public function testTableCreate($langugesFile, $expectationFile, $async, $backend, $options = array())
+	public function testTableCreate($tableName, $createFile, $expectationFile, $async, $backend, $options = array())
 	{
 		$createMethod = $async ? 'createTableAsync' : 'createTable';
 		$tableId = $this->_client->{$createMethod}(
 			$this->getTestBucketId(self::STAGE_IN, $backend),
-			'Languages',
-			new CsvFile($langugesFile),
+			$tableName,
+			new CsvFile($createFile),
 			$options
 		);
 		$table = $this->_client->getTable($tableId);
@@ -37,7 +37,7 @@ class Keboola_StorageApi_Tables_CreateTest extends StorageApiTestCase
 		$expectationFileCsv = new CsvFile($expectationFile);
 
 		$this->assertEquals($tableId, $table['id']);
-		$this->assertEquals('Languages', $table['name']);
+		$this->assertEquals($tableName, $table['name']);
 		$this->assertNotEmpty($table['created']);
 		$this->assertNotEmpty($table['lastChangeDate']);
 		$this->assertNotEmpty($table['lastImportDate']);
@@ -56,21 +56,27 @@ class Keboola_StorageApi_Tables_CreateTest extends StorageApiTestCase
 	public function tableCreateData()
 	{
 		return array(
-			array(__DIR__ . '/../_data/languages.csv', __DIR__ . '/../_data/languages.csv', false, self::BACKEND_REDSHIFT),
-			array(__DIR__ . '/../_data/languages.csv', __DIR__ . '/../_data/languages.csv', false, self::BACKEND_MYSQL),
-			array('https://s3.amazonaws.com/keboola-tests/languages.csv', __DIR__ . '/../_data/languages.csv', false, self::BACKEND_MYSQL),
-			array('https://s3.amazonaws.com/keboola-tests/languages.csv', __DIR__ . '/../_data/languages.csv', true, self::BACKEND_MYSQL),
-			array('https://s3.amazonaws.com/keboola-tests/languages.csv', __DIR__ . '/../_data/languages.csv', false, self::BACKEND_REDSHIFT),
-			array('https://s3.amazonaws.com/keboola-tests/languages.csv', __DIR__ . '/../_data/languages.csv', true, self::BACKEND_REDSHIFT),
-			array(__DIR__ . '/../_data/languages.csv.gz', __DIR__ . '/../_data/languages.csv', false, self::BACKEND_MYSQL),
-			array(__DIR__ . '/../_data/languages.csv.gz', __DIR__ . '/../_data/languages.csv', true, self::BACKEND_MYSQL),
-			array(__DIR__ . '/../_data/languages.csv.gz', __DIR__ . '/../_data/languages.csv', true, self::BACKEND_REDSHIFT),
-			array(__DIR__ . '/../_data/languages.csv', __DIR__ . '/../_data/languages.csv', true, self::BACKEND_MYSQL),
-			array(__DIR__ . '/../_data/languages.csv', __DIR__ . '/../_data/languages.csv', true, self::BACKEND_REDSHIFT),
-			array(__DIR__ . '/../_data/languages.camel-case-columns.csv', __DIR__ . '/../_data/languages.camel-case-columns.csv', true, self::BACKEND_MYSQL),
-			array(__DIR__ . '/../_data/languages.camel-case-columns.csv', __DIR__ . '/../_data/languages.camel-case-columns.csv', true, self::BACKEND_REDSHIFT),
-			array(__DIR__ . '/../_data/languages.camel-case-columns.csv', __DIR__ . '/../_data/languages.camel-case-columns.csv', false, self::BACKEND_REDSHIFT),
-			array(__DIR__ . '/../_data/languages.camel-case-columns.csv', __DIR__ . '/../_data/languages.camel-case-columns.csv', false, self::BACKEND_MYSQL),
+			array('Languages', __DIR__ . '/../_data/languages.csv', __DIR__ . '/../_data/languages.csv', false, self::BACKEND_REDSHIFT),
+			array('Languages', __DIR__ . '/../_data/languages.csv', __DIR__ . '/../_data/languages.csv', false, self::BACKEND_MYSQL),
+			array('Languages', 'https://s3.amazonaws.com/keboola-tests/languages.csv', __DIR__ . '/../_data/languages.csv', false, self::BACKEND_MYSQL),
+			array('Languages', 'https://s3.amazonaws.com/keboola-tests/languages.csv', __DIR__ . '/../_data/languages.csv', true, self::BACKEND_MYSQL),
+			array('Languages', 'https://s3.amazonaws.com/keboola-tests/languages.csv', __DIR__ . '/../_data/languages.csv', false, self::BACKEND_REDSHIFT),
+			array('Languages', 'https://s3.amazonaws.com/keboola-tests/languages.csv', __DIR__ . '/../_data/languages.csv', true, self::BACKEND_REDSHIFT),
+			array('Languages', __DIR__ . '/../_data/languages.csv.gz', __DIR__ . '/../_data/languages.csv', false, self::BACKEND_MYSQL),
+			array('Languages', __DIR__ . '/../_data/languages.csv.gz', __DIR__ . '/../_data/languages.csv', true, self::BACKEND_MYSQL),
+			array('Languages', __DIR__ . '/../_data/languages.csv.gz', __DIR__ . '/../_data/languages.csv', true, self::BACKEND_REDSHIFT),
+			array('Languages', __DIR__ . '/../_data/languages.csv', __DIR__ . '/../_data/languages.csv', true, self::BACKEND_MYSQL),
+			array('Languages', __DIR__ . '/../_data/languages.csv', __DIR__ . '/../_data/languages.csv', true, self::BACKEND_REDSHIFT),
+			array('Languages', __DIR__ . '/../_data/languages.camel-case-columns.csv', __DIR__ . '/../_data/languages.camel-case-columns.csv', true, self::BACKEND_MYSQL),
+			array('Languages', __DIR__ . '/../_data/languages.camel-case-columns.csv', __DIR__ . '/../_data/languages.camel-case-columns.csv', true, self::BACKEND_REDSHIFT),
+			array('Languages', __DIR__ . '/../_data/languages.camel-case-columns.csv', __DIR__ . '/../_data/languages.camel-case-columns.csv', false, self::BACKEND_REDSHIFT),
+			array('Languages', __DIR__ . '/../_data/languages.camel-case-columns.csv', __DIR__ . '/../_data/languages.camel-case-columns.csv', false, self::BACKEND_MYSQL),
+
+			// only numeric table and column names
+			array('1', __DIR__ . '/../_data/numbers.csv', __DIR__ . '/../_data/numbers.csv', false, self::BACKEND_REDSHIFT),
+			array('1', __DIR__ . '/../_data/numbers.csv', __DIR__ . '/../_data/numbers.csv', false, self::BACKEND_MYSQL),
+			array('1', __DIR__ . '/../_data/numbers.csv', __DIR__ . '/../_data/numbers.csv', true, self::BACKEND_MYSQL),
+			array('1', __DIR__ . '/../_data/numbers.csv', __DIR__ . '/../_data/numbers.csv', true, self::BACKEND_MYSQL),
 		);
 	}
 
