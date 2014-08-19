@@ -85,14 +85,14 @@ class Keboola_StorageApi_Tables_ListingTest extends StorageApiTestCase
 		$this->assertEmpty($table['attributes'], 'empty attributes after table create');
 
 		// create
-		$this->_client->setTableAttribute($tableId, 'something', 'lala');
+		$this->_client->setTableAttribute($tableId, 's', 'lala');
 		$this->_client->setTableAttribute($tableId, 'other', 'hello', true);
 		$table = $this->_client->getTable($tableId);
 
 
 		$this->assertArrayEqualsSorted($table['attributes'], array(
 			array(
-				'name' => 'something',
+				'name' => 's',
 				'value' => 'lala',
 				'protected' => false,
 			),
@@ -104,11 +104,11 @@ class Keboola_StorageApi_Tables_ListingTest extends StorageApiTestCase
 		), 'name', 'attribute set');
 
 		// update
-		$this->_client->setTableAttribute($tableId, 'something', 'papa');
+		$this->_client->setTableAttribute($tableId, 's', 'papa');
 		$table = $this->_client->getTable($tableId);
 		$this->assertArrayEqualsSorted($table['attributes'], array(
 			array(
-				'name' => 'something',
+				'name' => 's',
 				'value' => 'papa',
 				'protected' => false,
 			),
@@ -120,7 +120,7 @@ class Keboola_StorageApi_Tables_ListingTest extends StorageApiTestCase
 		), 'name', 'attribute update');
 
 		// delete
-		$this->_client->deleteTableAttribute($tableId, 'something');
+		$this->_client->deleteTableAttribute($tableId, 's');
 		$table = $this->_client->getTable($tableId);
 		$this->assertArrayEqualsSorted($table['attributes'], array(
 			array(

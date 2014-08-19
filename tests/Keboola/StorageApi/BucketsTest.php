@@ -97,12 +97,12 @@ class Keboola_StorageApi_BucketsTest extends StorageApiTestCase
 
 
 		// create
-		$this->_client->setBucketAttribute($bucketId, 'something', 'lala');
+		$this->_client->setBucketAttribute($bucketId, 's', 'lala');
 		$this->_client->setBucketAttribute($bucketId, 'other', 'hello', true);
 		$bucket = $this->_client->getBucket($bucketId);
 		$this->assertArrayEqualsSorted(array(
 				array(
-					'name' => 'something',
+					'name' => 's',
 					'value' => 'lala',
 					'protected' => false,
 				),
@@ -114,11 +114,11 @@ class Keboola_StorageApi_BucketsTest extends StorageApiTestCase
 			), $bucket['attributes'], 'name', 'attribute set');
 
 		// update
-		$this->_client->setBucketAttribute($bucketId, 'something', 'papa');
+		$this->_client->setBucketAttribute($bucketId, 's', 'papa');
 		$bucket = $this->_client->getBucket($bucketId);
 		$this->assertArrayEqualsSorted($bucket['attributes'], array(
 			array(
-				'name' => 'something',
+				'name' => 's',
 				'value' => 'papa',
 				'protected' => false,
 			),
@@ -130,7 +130,7 @@ class Keboola_StorageApi_BucketsTest extends StorageApiTestCase
 		), 'name', 'attribute update');
 
 		// delete
-		$this->_client->deleteBucketAttribute($bucketId, 'something');
+		$this->_client->deleteBucketAttribute($bucketId, 's');
 		$bucket = $this->_client->getBucket($bucketId);
 		$this->assertArrayEqualsSorted($bucket['attributes'], array(
 			array(
