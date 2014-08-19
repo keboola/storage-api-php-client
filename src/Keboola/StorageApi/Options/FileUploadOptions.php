@@ -13,7 +13,7 @@ namespace Keboola\StorageApi\Options;
 class FileUploadOptions {
 
 	private $fileName;
-	private $notify = true;
+	private $notify = false;
 	private $isPublic = false;
 	private $tags = array();
 	private $compress = false;
