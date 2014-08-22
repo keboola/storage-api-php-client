@@ -26,7 +26,7 @@ class Keboola_StorageApi_Tables_RedshiftCopyImportTest extends StorageApiTestCas
 		$this->initDb();
 		$tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT), array(
 			'name' => 'languages',
-			'dataTableName' => 'languages',
+			'dataTableName' => 'out.languages',
 		));
 
 		$expected = array(
@@ -49,7 +49,7 @@ class Keboola_StorageApi_Tables_RedshiftCopyImportTest extends StorageApiTestCas
 		));
 
 		$result = $this->_client->writeTableAsyncDirect($table['id'], array(
-			'dataTableName' => 'languages',
+			'dataTableName' => 'out.languages',
 		));
 
 		$expected = array(
@@ -82,18 +82,18 @@ class Keboola_StorageApi_Tables_RedshiftCopyImportTest extends StorageApiTestCas
 			$dbh->query('CREATE SCHEMA ' . $workingSchemaName);
 		}
 
-		$stmt = $dbh->prepare("SELECT table_name FROM information_schema.tables WHERE table_name = ? AND table_schema = ?");
-		$stmt->execute(array('languages', $workingSchemaName));
+		$stmt = $dbh->prepare("SELECT table_name FROM information_schema.tables WHERE table_name = 'out.languages' AND table_schema = ?");
+		$stmt->execute(array($workingSchemaName));
 		while ($table = $stmt->fetch()) {
-			$dbh->query("drop table $workingSchemaName." . $table['table_name']);
+			$dbh->query("drop table $workingSchemaName." . '"' . $table['table_name'] . '"');
 		}
 
-		$dbh->query("create table $workingSchemaName.languages (
+		$dbh->query("create table $workingSchemaName.\"out.languages\" (
 			Id integer not null,
 			Name varchar(max) not null
 		);");
 
-		$dbh->query("insert into $workingSchemaName.languages values (1, 'cz'), (2, 'en');");
+		$dbh->query("insert into $workingSchemaName.\"out.languages\" values (1, 'cz'), (2, 'en');");
 
 	}
 
