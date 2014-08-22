@@ -48,7 +48,7 @@ class Keboola_StorageApi_Tables_RedshiftCopyImportTest extends StorageApiTestCas
 			'name' => 'languages',
 		));
 
-		$result = $this->_client->writeTableAsyncDirect($table['id'], array(
+		$this->_client->writeTableAsyncDirect($table['id'], array(
 			'dataTableName' => 'out.languages',
 		));
 
@@ -61,6 +61,24 @@ class Keboola_StorageApi_Tables_RedshiftCopyImportTest extends StorageApiTestCas
 		$this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->exportTable($table['id'], null, array(
 			'format' => 'rfc',
 		)), 'imported data comparsion');
+	}
+
+	public function testCopyImportFromNotExistingTableShouldReturnError()
+	{
+		$this->initDb();
+		$table = $this->_client->apiPost("storage/buckets/" . $this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT) . "/tables", array(
+			"dataString" => 'Id,Name',
+			'name' => 'languages',
+		));
+
+		try {
+			$this->_client->writeTableAsyncDirect($table['id'], array(
+				'dataTableName' => 'out.languagess',
+			));
+			$this->fail('exception should be thrown');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.tableNotFound', $e->getStringCode());
+		}
 	}
 
 	private function initDb()
