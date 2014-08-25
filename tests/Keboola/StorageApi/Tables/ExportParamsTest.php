@@ -59,10 +59,14 @@ class Keboola_StorageApi_Tables_ExportParamsTest extends StorageApiTestCase
 		unlink($outputFile);
 	}
 
-	public function testTableExportParams()
+	/**
+	 * @param $backend
+	 * @dataProvider backends
+	 */
+	public function testTableExportParams($backend)
 	{
 		$importFile =  __DIR__ . '/../_data/languages.csv';
-		$tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile($importFile));
+		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, $backend), 'languages', new CsvFile($importFile));
 
 		$originalFileLinesCount = exec("wc -l <" . escapeshellarg($importFile));
 
