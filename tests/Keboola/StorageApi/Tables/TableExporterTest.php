@@ -68,6 +68,25 @@ class Keboola_StorageApi_Tables_TableExporterTest extends StorageApiTestCase
 
 	}
 
+	/**
+	 * @param $backend
+	 * @dataProvider backends
+	 */
+	public function testLimitParameter($backend)
+	{
+		$importFile = new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.csv');
+		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, $backend), 'languages', $importFile);
+		$this->_client->writeTable($tableId, $importFile);
+
+		$exportOptions = array(
+			'limit' => 2,
+		);
+		$exporter = new TableExporter($this->_client);
+		$exporter->exportTable($tableId, $this->downloadPath, $exportOptions);
+		$this->assertTrue(file_exists($this->downloadPath));
+		$parsed = Client::parseCsv(file_get_contents($this->downloadPath));
+		$this->assertCount($exportOptions['limit'], $parsed);
+	}
 
 	public function tableImportData()
 	{
