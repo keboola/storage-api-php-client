@@ -1,3 +1,6 @@
+## 2.11.18 (2014-09-02)
+  * [Feat] File uploads - don't notify by default
+
 ## 2.11.17 (2014-07-24)
   * [Fix] Table exporter - process timeout
 
