@@ -41,7 +41,6 @@ class Keboola_StorageApi_Tables_DeleteRowsTest extends StorageApiTestCase
 		array_shift($parsedData); // remove header
 
 		$this->assertArrayEqualsSorted($expectedTableContent, $parsedData, 0);
-		$this->assertEquals($tableInfo['rowsCount'], count($expectedTableContent));
 	}
 
 	public function testTableDeleteRowsAliasShouldBeUpdated()
