@@ -1,0 +1,8 @@
+col1	col2_with_space
+line without enclosure	second column
+line with enclosure	second column
+column with enclosure ", and comma inside text	second column enclosure in text "
+columns with new line	columns with tab
+column with backshash \ inside	column with backslash and enclosure \"
+column with \n \t \\	second col
+first	something with  double new line
