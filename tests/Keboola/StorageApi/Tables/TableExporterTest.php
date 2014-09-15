@@ -63,6 +63,7 @@ class Keboola_StorageApi_Tables_TableExporterTest extends StorageApiTestCase
 
 
 		// compare data
+		echo file_exists($this->downloadPath) . PHP_EOL . PHP_EOL;
 		$this->assertTrue(file_exists($this->downloadPath));
 		$this->assertLinesEqualsSorted(file_get_contents($expectationsFile), file_get_contents($this->downloadPath), 'imported data comparsion');
 
@@ -94,8 +95,8 @@ class Keboola_StorageApi_Tables_TableExporterTest extends StorageApiTestCase
 			array(self::BACKEND_MYSQL, new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.csv.gz'), 'languages.csv'),
 			array(self::BACKEND_MYSQL, new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.csv.gz'), 'languages.csv', array('gzip' => true)),
 
-			array(self::BACKEND_REDSHIFT, new CsvFile('https://s3.amazonaws.com/keboola-tests/escaping.csv'), 'escaping.backslash.out.csv', array('format' => 'escaped')),
-			array(self::BACKEND_REDSHIFT, new CsvFile('https://s3.amazonaws.com/keboola-tests/escaping.csv'), 'escaping.backslash.out.csv', array('format' => 'escaped')),
+			array(self::BACKEND_REDSHIFT, new CsvFile('https://s3.amazonaws.com/keboola-tests/escaping.csv'), 'escaping.backslash.redshift.out.csv', array('format' => 'escaped')),
+			array(self::BACKEND_REDSHIFT, new CsvFile('https://s3.amazonaws.com/keboola-tests/escaping.csv'), 'escaping.backslash.redshift.out.csv', array('format' => 'escaped')),
 			array(self::BACKEND_REDSHIFT, new CsvFile('https://s3.amazonaws.com/keboola-tests/escaping.csv'), 'escaping.raw.out.csv', array('format' => 'raw')),
 			array(self::BACKEND_REDSHIFT, new CsvFile('https://s3.amazonaws.com/keboola-tests/escaping.csv'), 'escaping.raw.out.csv', array('gzip' => true, 'format' => 'raw')),
 			array(self::BACKEND_REDSHIFT, new CsvFile('https://s3.amazonaws.com/keboola-tests/escaping.csv'), 'escaping.standard.out.csv', array('gzip' => true)),
