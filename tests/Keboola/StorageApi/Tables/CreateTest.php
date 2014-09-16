@@ -44,7 +44,6 @@ class Keboola_StorageApi_Tables_CreateTest extends StorageApiTestCase
 		$this->assertEquals($expectationFileCsv->getHeader(), $table['columns']);
 		$this->assertEmpty($table['indexedColumns']);
 		$this->assertNotEquals('0000-00-00 00:00:00', $table['created']);
-		$this->assertEquals(count($this->_readCsv($expectationFile)) - 1, $table['rowsCount']);
 		$this->assertNotEmpty($table['dataSizeBytes']);
 
 		$this->assertLinesEqualsSorted(

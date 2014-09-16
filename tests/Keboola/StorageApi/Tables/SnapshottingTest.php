@@ -95,7 +95,6 @@ class Keboola_StorageApi_Tables_SnapshottingTest extends StorageApiTestCase
 		$this->assertEquals($sourceTable['indexedColumns'], $newTable['indexedColumns']);
 		$this->assertEquals($sourceTable['transactional'], $newTable['transactional']);
 		$this->assertEquals($sourceTable['attributes'], $newTable['attributes']);
-		$this->assertEquals($sourceTable['rowsCount'], $newTable['rowsCount']);
 
 		$this->assertEquals($this->_client->exportTable($sourceTableId), $this->_client->exportTable($newTableId));
 	}
@@ -229,8 +228,6 @@ class Keboola_StorageApi_Tables_SnapshottingTest extends StorageApiTestCase
 		$this->assertEquals($tableInfo['indexedColumns'], $aliasInfo['indexedColumns']);
 		$this->assertEquals($tableInfo['attributes'], $tableInfoAfterRollback['attributes']);
 		$this->assertEmpty($aliasInfo['attributes']);
-		$this->assertEquals($tableInfo['rowsCount'], $tableInfoAfterRollback['rowsCount']);
-		$this->assertEquals($tableInfo['rowsCount'], $aliasInfo['rowsCount']);
 
 		$this->assertEquals($tableData, $this->_client->exportTable($sourceTableId));
 		$this->assertEquals($tableData, $this->_client->exportTable($aliasTableId));
