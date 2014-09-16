@@ -1298,7 +1298,7 @@ class Client
 	 * @param string null $fileName
 	 * @return mixed|string
 	 */
-	protected function apiGet($url, $fileName=null)
+	public function apiGet($url, $fileName = null)
 	{
 		return $this->request('GET', $this->versionUrl($url), array(), $fileName);
 	}

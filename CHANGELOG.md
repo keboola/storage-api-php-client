@@ -1,3 +1,6 @@
+## 2.11.19 (2014-09-16)
+  * [Feat] Components resource added
+
 ## 2.11.18 (2014-09-02)
   * [Feat] File uploads - don't notify by default
 
