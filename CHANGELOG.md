@@ -1,3 +1,6 @@
+## 2.11.20 (2014-09-16)
+  * [Feat] Components - get configuration method added
+
 ## 2.11.19 (2014-09-16)
   * [Feat] Components resource added
 

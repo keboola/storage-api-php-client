@@ -42,6 +42,11 @@ class Components {
 		));
 	}
 
+	public function getConfiguration($componentId, $configurationId)
+	{
+		return $this->client->apiGet("storage/components/{$componentId}/configs/{$configurationId}");
+	}
+
 	public function deleteConfiguration($componentId, $configurationId)
 	{
 		return $this->client->apiDelete("storage/components/{$componentId}/configs/{$configurationId}");

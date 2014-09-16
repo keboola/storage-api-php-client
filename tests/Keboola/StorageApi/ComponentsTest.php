@@ -35,6 +35,10 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 			->setDescription('some desc')
 		);
 
+		$component = $components->getConfiguration('gooddata-writer', 'main-1');
+		$this->assertEquals('Main', $component['name']);
+		$this->assertEquals('some desc', $component['description']);
+
 		$components = $components->listComponents();
 		$this->assertCount(1, $components);
 
