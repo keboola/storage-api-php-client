@@ -30,6 +30,7 @@
         <file>tests/Keboola/StorageApi/TicketsTest.php</file>
         <file>tests/Keboola/StorageApi/TokensShareTest.php</file>
         <file>tests/Keboola/StorageApi/TokensTest.php</file>
+        <file>tests/Keboola/StorageApi/ComponentsTest.php</file>
 
         <file>tests/Keboola/StorageApi/Tables/AliasesTest.php</file>
         <file>tests/Keboola/StorageApi/Tables/AlterTest.php</file>
