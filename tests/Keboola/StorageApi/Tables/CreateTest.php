@@ -74,7 +74,7 @@ class Keboola_StorageApi_Tables_CreateTest extends StorageApiTestCase
 			// only numeric table and column names
 			array('1', __DIR__ . '/../_data/numbers.csv', __DIR__ . '/../_data/numbers.csv', false, self::BACKEND_REDSHIFT),
 			array('1', __DIR__ . '/../_data/numbers.csv', __DIR__ . '/../_data/numbers.csv', false, self::BACKEND_MYSQL),
-			array('1', __DIR__ . '/../_data/numbers.csv', __DIR__ . '/../_data/numbers.csv', true, self::BACKEND_MYSQL),
+			array('1', __DIR__ . '/../_data/numbers.csv', __DIR__ . '/../_data/numbers.csv', true, self::BACKEND_REDSHIFT),
 			array('1', __DIR__ . '/../_data/numbers.csv', __DIR__ . '/../_data/numbers.csv', true, self::BACKEND_MYSQL),
 		);
 	}

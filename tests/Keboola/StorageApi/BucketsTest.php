@@ -72,7 +72,6 @@ class Keboola_StorageApi_BucketsTest extends StorageApiTestCase
 			$bucketData['backend']
 		);
 
-
 		$newBucket = $this->_client->getBucket($newBucketId);
 		$this->assertEquals('c-' . $bucketData['name'], $newBucket['name'], 'bucket name');
 		$this->assertEquals($bucketData['stage'], $newBucket['stage'], 'bucket stage');
