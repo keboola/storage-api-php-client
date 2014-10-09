@@ -215,6 +215,7 @@ class Keboola_StorageApi_Tables_SnapshottingTest extends StorageApiTestCase
 		$aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId);
 
 		// and rollback to snapshot
+		$tableInfoBeforeRollback = $this->_client->getTable($sourceTableId);
 		$this->_client->rollbackTableFromSnapshot($sourceTableId, $snapshotId);
 
 		$tableInfoAfterRollback = $this->_client->getTable($sourceTableId);
@@ -228,6 +229,9 @@ class Keboola_StorageApi_Tables_SnapshottingTest extends StorageApiTestCase
 		$this->assertEquals($tableInfo['indexedColumns'], $aliasInfo['indexedColumns']);
 		$this->assertEquals($tableInfo['attributes'], $tableInfoAfterRollback['attributes']);
 		$this->assertEmpty($aliasInfo['attributes']);
+
+		$this->assertNotEquals($tableInfoBeforeRollback['lastChangeDate'], $tableInfoAfterRollback['lastChangeDate']);
+		$this->assertNotEquals($tableInfoBeforeRollback['lastImportDate'], $tableInfoAfterRollback['lastImportDate']);
 
 		$this->assertEquals($tableData, $this->_client->exportTable($sourceTableId));
 		$this->assertEquals($tableData, $this->_client->exportTable($aliasTableId));
