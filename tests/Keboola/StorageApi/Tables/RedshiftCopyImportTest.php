@@ -81,6 +81,38 @@ class Keboola_StorageApi_Tables_RedshiftCopyImportTest extends StorageApiTestCas
 		}
 	}
 
+	public function testCopyImportFromInvalidTableShouldReturnError()
+	{
+		$this->initDb();
+		$table = $this->_client->apiPost("storage/buckets/" . $this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT) . "/tables", array(
+			'dataString' => 'Id,Name',
+			'name' => 'languages',
+			'primaryKey' => 'Id',
+		));
+
+		try {
+			$this->_client->writeTableAsyncDirect($table['id'], array(
+				'dataTableName' => 'out.languages2',
+			));
+			$this->fail('exception should be thrown');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.redshiftQuery', $e->getStringCode());
+		}
+
+
+		try {
+			$this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT), array(
+				'name' => 'languages2',
+				'primaryKey' => 'Id',
+				'dataTableName' => 'out.languages2',
+			));
+			$this->fail('exception should be thrown');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.redshiftQuery', $e->getStringCode());
+		}
+
+	}
+
 	private function initDb()
 	{
 		$token = $this->_client->verifyToken();
@@ -100,7 +132,7 @@ class Keboola_StorageApi_Tables_RedshiftCopyImportTest extends StorageApiTestCas
 			$dbh->query('CREATE SCHEMA ' . $workingSchemaName);
 		}
 
-		$stmt = $dbh->prepare("SELECT table_name FROM information_schema.tables WHERE table_name = 'out.languages' AND table_schema = ?");
+		$stmt = $dbh->prepare("SELECT table_name FROM information_schema.tables WHERE table_schema = ?");
 		$stmt->execute(array($workingSchemaName));
 		while ($table = $stmt->fetch()) {
 			$dbh->query("drop table $workingSchemaName." . '"' . $table['table_name'] . '"');
@@ -113,6 +145,13 @@ class Keboola_StorageApi_Tables_RedshiftCopyImportTest extends StorageApiTestCas
 
 		$dbh->query("insert into $workingSchemaName.\"out.languages\" values (1, 'cz'), (2, 'en');");
 
+		$dbh->query("create table $workingSchemaName.\"out.languages2\" (
+			Id integer,
+			Name varchar(max)
+		);");
+
+
+		$dbh->query("insert into $workingSchemaName.\"out.languages2\" values (1, 'cz'), (NULL, 'en');");
 	}
 
 }
