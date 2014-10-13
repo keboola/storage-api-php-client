@@ -108,6 +108,13 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 		$this->assertFalse($token['canManageBuckets']);
 		$this->assertEquals($bucketPermissions, $token['bucketPermissions']);
 
+		$currentToken = $this->_client->verifyToken();
+		$this->assertArrayHasKey('creatorToken', $token);
+
+		$creatorToken = $token['creatorToken'];
+		$this->assertEquals($currentToken['id'], $creatorToken['id']);
+		$this->assertEquals($currentToken['description'], $creatorToken['description']);
+
 		$tokens = $this->_client->listTokens();
 		$this->assertCount(count($initialTokens) + 1, $tokens);
 
@@ -134,6 +141,17 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 		$this->_client->dropToken($tokenId);
 		$tokens = $this->_client->listTokens();
 		$this->assertCount(count($initialTokens), $tokens);
+	}
+
+	public function testCreateTokenWithoutDescription()
+	{
+		$currentToken = $this->_client->verifyToken();
+		$newTokenId = $this->_client->createToken(array());
+		$newToken = $this->_client->getToken($newTokenId);
+
+		$this->assertEquals('Created by ' . $currentToken['description'], $newToken['description']);
+
+		$this->_client->dropToken($newTokenId);
 	}
 
 	public function testTokenRefresh()
