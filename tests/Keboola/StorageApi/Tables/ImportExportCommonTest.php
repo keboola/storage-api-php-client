@@ -54,10 +54,10 @@ class Keboola_StorageApi_Tables_ImportExportCommonTest extends StorageApiTestCas
 	 * @dataProvider tableImportData
 	 * @param $importFileName
 	 */
-	public function testTableAsyncImportExport($backend, CsvFile $importFile, $expectationsFileName, $colNames, $format = 'rfc')
+	public function testTableAsyncImportExport($backend, CsvFile $importFile, $expectationsFileName, $colNames, $format = 'rfc', $createTableOptions = array())
 	{
 		$expectationsFile = __DIR__ . '/../_data/' . $expectationsFileName;
-		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, $backend), 'languages', $importFile);
+		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, $backend), 'languages', $importFile, $createTableOptions);
 
 		$result = $this->_client->writeTableAsync($tableId, $importFile);
 		$table = $this->_client->getTable($tableId);
@@ -86,6 +86,17 @@ class Keboola_StorageApi_Tables_ImportExportCommonTest extends StorageApiTestCas
 		return array(
 			array(self::BACKEND_MYSQL, new CsvFile(__DIR__ . '/../_data/languages.csv'), 'languages.csv', array('id', 'name')),
 			array(self::BACKEND_REDSHIFT, new CsvFile(__DIR__ . '/../_data/languages.csv'), 'languages.csv', array('id', 'name')),
+			array(self::BACKEND_REDSHIFT, new CsvFile(__DIR__ . '/../_data/languages.csv'), 'languages.csv', array('id', 'name'), 'rfc', array(
+				'primaryKey' => 'id,name',
+			)),
+
+			array(self::BACKEND_MYSQL, new CsvFile(__DIR__ . '/../_data/languages.special-column-names.csv'), 'languages.special-column-names.csv', array('Id', 'queryId'), 'rfc', array(
+				'primaryKey' => 'Id,queryId',
+			)),
+
+			array(self::BACKEND_REDSHIFT, new CsvFile(__DIR__ . '/../_data/languages.special-column-names.csv'), 'languages.special-column-names.csv', array('Id', 'queryId'), 'rfc', array(
+				'primaryKey' => 'Id,queryId',
+			)),
 
 			array(self::BACKEND_MYSQL, new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.csv'), 'languages.csv', array('id', 'name')),
 			array(self::BACKEND_REDSHIFT, new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.csv'), 'languages.csv', array('id', 'name')),
