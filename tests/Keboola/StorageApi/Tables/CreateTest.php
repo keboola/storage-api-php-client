@@ -94,6 +94,23 @@ class Keboola_StorageApi_Tables_CreateTest extends StorageApiTestCase
 	}
 
 	/**
+	 * @dataProvider backends
+	 * @param $backend
+	 */
+	public function testTableWithEmptyColumnNamesShouldNotBeCreated($backend)
+	{
+		try {
+			$this->_client->createTable(
+				$this->getTestBucketId(self::STAGE_IN, $backend),
+				'languages',
+				new CsvFile(__DIR__ . '/../_data/languages.invalid-column-name.csv')
+			);
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.tables.validation.invalidColumnName', $e->getStringCode());
+		}
+	}
+
+	/**
 	 * @param $async
 	 * @dataProvider tableColumnSanitizeData
 	 */
