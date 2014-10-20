@@ -59,7 +59,6 @@ class TableExporter
 
 		// CURL options
 		$s3Client->getConfig()->set('curl.options', array(
-			CURLOPT_SSLVERSION => 3,
 			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_0
 		));
 
