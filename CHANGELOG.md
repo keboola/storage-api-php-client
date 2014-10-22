@@ -1,3 +1,10 @@
+## 2.11.22 (2014-10-21)
+  * [Feat] Client version in user agent
+  * [Fix] file upload - S3 error response body
+
+## 2.11.21 (2014-10-20)
+  * [Fix] tableExporter - remove SSL v3
+
 ## 2.11.20 (2014-09-16)
   * [Feat] Components - get configuration method added
 
