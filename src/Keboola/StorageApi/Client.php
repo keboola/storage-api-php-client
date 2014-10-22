@@ -1139,7 +1139,12 @@ class Client
 					'file' => $fh,
 			)));
 		} catch (RequestException $e) {
-			throw new ClientException("Error on file upload to S3: " . $e->getMessage(), $e->getCode(), $e);
+			$response = $e->getResponse();
+			$message = "Error on file upload to S3: " . $e->getMessage();
+			if ($response) {
+				$message .= ' ' . (string) $response->getBody();
+			}
+			throw new ClientException($message, $e->getCode(), $e);
 		}
 
 		if ($fs) {
