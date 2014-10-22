@@ -24,6 +24,8 @@ class Client
 	const STAGE_OUT = "out";
 	const STAGE_SYS = "sys";
 
+	const VERSION = '2.11.21';
+
 	// Token string
 	public $token;
 
@@ -94,8 +96,9 @@ class Client
 			$this->apiUrl = $config['url'];
 		}
 
+		$this->userAgent .= '/' . self::VERSION;
 		if (isset($config['userAgent'])) {
-			$this->userAgent = $config['userAgent'];
+			$this->userAgent .= ' ' . $config['userAgent'];
 		}
 
 		if (!isset($config['token'])) {
