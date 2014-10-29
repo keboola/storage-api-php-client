@@ -1,3 +1,6 @@
+## 2.11.23 (2014-10-29)
+  * [Feat] Bucket credentials resource support added
+
 ## 2.11.22 (2014-10-21)
   * [Feat] Client version in user agent
   * [Fix] file upload - S3 error response body
