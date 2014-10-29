@@ -69,7 +69,7 @@ class Keboola_StorageApi_BucketCredentialsTest extends StorageApiTestCase
 		$pdo = $this->createDbConnection($credentials['redshift']);
 
 		// we can query the table
-		$pdo->query("SELECT * FROM \"{$credentials['redshift']['schemaname']}\".\"languages\"")->fetchAll();
+		$pdo->query("SELECT * FROM \"{$credentials['redshift']['schemaName']}\".\"languages\"")->fetchAll();
 
 		try {
 			$pdo->query("SELECT * FROM \"{$outBucketId}\".\"languages\"")->fetchAll();
@@ -106,9 +106,10 @@ class Keboola_StorageApi_BucketCredentialsTest extends StorageApiTestCase
 		$redshiftParams = $credentials['redshift'];
 
 		$this->assertArrayHasKey('host', $redshiftParams);
-		$this->assertArrayHasKey('username', $redshiftParams);
+		$this->assertArrayHasKey('userName', $redshiftParams);
 		$this->assertArrayHasKey('port', $redshiftParams);
-		$this->assertArrayHasKey('dbname', $redshiftParams);
+		$this->assertArrayHasKey('databaseName', $redshiftParams);
+		$this->assertArrayHasKey('schemaName', $redshiftParams);
 		$this->assertArrayNotHasKey('password', $redshiftParams);
 
 		$this->assertEquals($bucketId, $credentials['bucket']['id']);
@@ -151,9 +152,10 @@ class Keboola_StorageApi_BucketCredentialsTest extends StorageApiTestCase
 		$redshiftParams = $firstCredentias['redshift'];
 
 		$this->assertArrayHasKey('host', $redshiftParams);
-		$this->assertArrayHasKey('username', $redshiftParams);
+		$this->assertArrayHasKey('userName', $redshiftParams);
 		$this->assertArrayHasKey('port', $redshiftParams);
-		$this->assertArrayHasKey('dbname', $redshiftParams);
+		$this->assertArrayHasKey('databaseName', $redshiftParams);
+		$this->assertArrayHasKey('schemaName', $redshiftParams);
 		$this->assertArrayNotHasKey('password', $redshiftParams);
 
 
@@ -202,8 +204,8 @@ class Keboola_StorageApi_BucketCredentialsTest extends StorageApiTestCase
 	private function createDbConnection($credentials)
 	{
 		$pdo = new PDO(
-			"pgsql:dbname={$credentials['dbname']};port={$credentials['port']};host=" . $credentials['host'],
-			$credentials['username'],
+			"pgsql:dbname={$credentials['databaseName']};port={$credentials['port']};host=" . $credentials['host'],
+			$credentials['userName'],
 			$credentials['password']
 		);
 		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
