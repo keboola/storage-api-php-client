@@ -1,3 +1,6 @@
+## 2.11.24 (2014-10-21)
+  * [Feat] List Files `maxId` and `sinceId` parameters added
+
 ## 2.11.23 (2014-10-29)
   * [Feat] Bucket credentials resource support added
 
