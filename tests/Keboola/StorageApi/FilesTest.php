@@ -52,6 +52,30 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$this->assertEquals($fileId, $file['id']);
 	}
 
+	public function testFileListFilterBySinceIdMaxId()
+	{
+		$files = $this->_client->listFiles((new ListFilesOptions())
+			->setLimit(1)
+			->setOffset(0)
+		);
+
+		$lastFile = reset($files);
+		$lastFileId = $lastFile['id'];
+
+		$firstFileId = $this->_client->uploadFile(__DIR__ . '/_data/users.csv', new FileUploadOptions());
+		$secondFileId = $this->_client->uploadFile(__DIR__ . '/_data/users.csv', new FileUploadOptions());
+
+		$files = $this->_client->listFiles((new ListFilesOptions())->setSinceId($lastFileId));
+		$this->assertCount(2, $files);
+
+		$this->assertEquals($firstFileId, $files[1]['id']);
+		$this->assertEquals($secondFileId, $files[0]['id']);
+
+		$files = $this->_client->listFiles((new ListFilesOptions())->setMaxId($secondFileId)->setLimit(1));
+		$this->assertCount(1, $files);
+		$this->assertEquals($firstFileId, $files[0]['id']);
+	}
+
 	/**
 	 * @dataProvider uploadData
 	 */

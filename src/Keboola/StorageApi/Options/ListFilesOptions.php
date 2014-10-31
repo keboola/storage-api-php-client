@@ -17,6 +17,10 @@ class ListFilesOptions
 
 	private $offset = 0;
 
+	private $sinceId;
+
+	private $maxId;
+
 	private $query;
 
 	/**
@@ -80,6 +84,8 @@ class ListFilesOptions
 			'offset' => $this->getOffset(),
 			'tags' => $this->getTags(),
 			'q' => $this->getQuery(),
+			'sinceId' => $this->getSinceId(),
+			'maxId' => $this->getMaxId(),
 		);
 	}
 
@@ -98,6 +104,40 @@ class ListFilesOptions
 	public function setQuery($query)
 	{
 		$this->query = $query;
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getSinceId()
+	{
+		return $this->sinceId;
+	}
+
+	/**
+	 * @param mixed $sinceId
+	 */
+	public function setSinceId($sinceId)
+	{
+		$this->sinceId = (int) $sinceId;
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getMaxId()
+	{
+		return $this->maxId;
+	}
+
+	/**
+	 * @param mixed $maxId
+	 */
+	public function setMaxId($maxId)
+	{
+		$this->maxId = (int) $maxId;
 		return $this;
 	}
 
