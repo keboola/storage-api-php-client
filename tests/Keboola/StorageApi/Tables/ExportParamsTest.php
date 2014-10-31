@@ -207,6 +207,7 @@ class Keboola_StorageApi_Tables_ExportParamsTest extends StorageApiTestCase
 		$exportedFile = $this->_client->getFile($results['file']['id'], (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
 
 		$this->assertTrue($exportedFile['isSliced']);
+		$this->assertGreaterThan(0, $exportedFile['sizeBytes']);
 
 		$manifest = json_decode(file_get_contents($exportedFile['url']), true);
 
