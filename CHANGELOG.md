@@ -1,3 +1,6 @@
+## 2.11.26 (2014-11-10)
+  * [Fix] allow guzzlehttp 4.0 =< 5 (4.1.2 is buggy)
+
 ## 2.11.25 (2014-11-10)
   * [Fix] Client version
 
