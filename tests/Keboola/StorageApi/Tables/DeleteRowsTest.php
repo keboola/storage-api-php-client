@@ -77,6 +77,23 @@ class Keboola_StorageApi_Tables_DeleteRowsTest extends StorageApiTestCase
 		}
 	}
 
+	public function  testDeleteRowsMissingValuesShouldReturnUserError()
+	{
+		$importFile =  __DIR__ . '/../_data/users.csv';
+		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+		$this->_client->markTableColumnAsIndexed($tableId, 'city');
+
+		try {
+			$this->_client->deleteTableRows($tableId, array(
+				'whereColumn' => 'city',
+			));
+			$this->fail('Exception should be thrown');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.tables.validation.invalidFilterValues', $e->getStringCode());
+
+		}
+	}
+
 	public function tableDeleteRowsByFiltersData()
 	{
 		$yesterday = new \DateTime('-1 day');
