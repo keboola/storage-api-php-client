@@ -131,12 +131,81 @@ class Keboola_StorageApi_Tables_CreateTest extends StorageApiTestCase
 		$this->_client->{$writeMethod}($tableId, new Keboola\Csv\CsvFile(__DIR__ . '/../_data/filtering.csv'));
 	}
 
+	/**
+	 * @param $backend
+	 * @param $async
+	 * @dataProvider tableColumnSanitizeData
+	 */
+	public function testTableWithLongColumnNamesShouldNotBeCreated($backend, $async)
+	{
+		try {
+			$method = $async ? 'createTableAsync' : 'createTable';
+			$this->_client->{$method}(
+				$this->getTestBucketId(self::STAGE_IN, $backend),
+				'languages',
+				new CsvFile(__DIR__ . '/../_data/long-column-names.csv')
+			);
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.tables.validation.invalidColumnName', $e->getStringCode());
+		}
+	}
+
+	/**
+	 * @param $async
+	 * @dataProvider syncAsyncData
+	 */
+	public function testTableWithLongPkShouldNotBeCreatedInMysql($async)
+	{
+		try {
+			$method = $async ? 'createTableAsync' : 'createTable';
+			$this->_client->{$method}(
+				$this->getTestBucketId(self::STAGE_IN, self::BACKEND_MYSQL),
+				'languages',
+				new CsvFile(__DIR__ . '/../_data/multiple-columns-pk.csv'),
+				array(
+					'primaryKey' => 'Paid_Search_Engine_Account,Date,Paid_Search_Campaign,Paid_Search_Ad_ID,Site__DFA',
+				)
+			);
+			$this->fail('Exception should be thrown');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.tables.validation.primaryKeyTooLong', $e->getStringCode());
+		}
+
+	}
+
+	/**
+	 * @param $async
+	 * @dataProvider syncAsyncData
+	 */
+	public function testTableWithLongPkShouldNotBeCreatedInRedshift($async)
+	{
+		$method = $async ? 'createTableAsync' : 'createTable';
+		$id = $this->_client->{$method}(
+			$this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT),
+			'languages',
+			new CsvFile(__DIR__ . '/../_data/multiple-columns-pk.csv'),
+			array(
+				'primaryKey' => 'Paid_Search_Engine_Account,Date,Paid_Search_Campaign,Paid_Search_Ad_ID,Site__DFA',
+			)
+		);
+		$this->assertNotEmpty($id);
+	}
+
+
 	public function tableColumnSanitizeData()
 	{
 		return $this->dataWithBackendPrepended(array(
 			array(false),
 			array(true)
 		));
+	}
+
+	public function syncAsyncData()
+	{
+		return array(
+			array(false),
+			array(true),
+		);
 	}
 
 	public function testTableCreateWithPK()
