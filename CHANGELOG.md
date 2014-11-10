@@ -1,3 +1,6 @@
+## 2.11.25 (2014-11-10)
+  * [Fix] Client version
+
 ## 2.11.24 (2014-10-21)
   * [Feat] List Files `maxId` and `sinceId` parameters added
 
