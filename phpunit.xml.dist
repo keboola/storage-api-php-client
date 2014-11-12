@@ -41,6 +41,7 @@
 
         <file>tests/Keboola/StorageApi/EventSubsriberTest.php</file>
         <file>tests/Keboola/StorageApi/BucketCredentialsTest.php</file>
+        <file>tests/Keboola/StorageApi/RunIdTest.php</file>
     </testsuite>
 
     <testsuite name="part-2">

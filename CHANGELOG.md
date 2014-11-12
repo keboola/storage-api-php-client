@@ -1,3 +1,6 @@
+## 2.11.27 (2014-11-12)
+   * [Feat] `generateRunId` method added, support for runId hieararchy
+
 ## 2.11.26 (2014-11-10)
   * [Fix] allow guzzlehttp 4.0 =< 5 (4.1.2 is buggy)
 

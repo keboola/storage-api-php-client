@@ -24,7 +24,7 @@ class Client
 	const STAGE_OUT = "out";
 	const STAGE_SYS = "sys";
 
-	const VERSION = '2.11.26';
+	const VERSION = '2.11.27';
 
 	// Token string
 	public $token;
@@ -1296,6 +1296,21 @@ class Client
 	{
 		$result = $this->apiPost('storage/tickets');
 		return $result['id'];
+	}
+
+	/**
+	 * @param null $previousRunId Allows runId hierarchy. If previous run Id is set, returned id will be in form of
+	 * previousRunId.newRunId
+	 */
+	public function generateRunId($previousRunId = null)
+	{
+		$newRunId = $this->generateId();
+
+		if ($previousRunId) {
+			return $previousRunId . '.' . $newRunId;
+		} else {
+			return $newRunId;
+		}
 	}
 
 	/**
