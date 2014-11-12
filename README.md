@@ -1,4 +1,7 @@
 # Keboola Storage API PHP client
+[![Latest Stable Version](https://poser.pugx.org/keboola/storage-api-client/v/stable.svg)](https://packagist.org/packages/keboola/storage-api-client)
+[![License](https://poser.pugx.org/keboola/storage-api-client/license.svg)](https://packagist.org/packages/keboola/storage-api-client)
+[![Total Downloads](https://poser.pugx.org/keboola/storage-api-client/downloads.svg)](https://packagist.org/packages/keboola/storage-api-client)
 
 Simple PHP wrapper library for [Keboola Storage REST API](http://docs.keboola.apiary.io/)
 
