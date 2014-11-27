@@ -168,6 +168,10 @@ class Client
 		return $this->apiUrl;
 	}
 
+	/**
+	 * API index with available components list
+	 * @return array
+	 */
 	public function indexAction()
 	{
 		return $this->apiGet("storage");
@@ -187,7 +191,7 @@ class Client
 	 *
 	 * List all buckets
 	 *
-	 * @return mixed|string
+	 * @return array
 	 */
 	public function listBuckets($options = array())
 	{
@@ -218,7 +222,7 @@ class Client
 	 * Bucket details
 	 *
 	 * @param string $bucketId
-	 * @return mixed|string
+	 * @return array
 	 */
 	public function getBucket($bucketId)
 	{
@@ -331,10 +335,8 @@ class Client
 	 * @param $name
 	 * @param CsvFile $csvFile
 	 * @param array $options
-	 *  - primaryKey
-	 *  - transactional
-	 *  - transaction
-	 * @return bool|string
+	 *  - primaryKey - string, multiple column primary keys separate by comma
+	 * @return string - created table id
 	 */
 	public function createTable($bucketId, $name, CsvFile $csvFile, $options = array())
 	{
@@ -345,7 +347,6 @@ class Client
 			"enclosure" => $csvFile->getEnclosure(),
 			"escapedBy" => $csvFile->getEscapedBy(),
 			"primaryKey" => isset($options['primaryKey']) ? $options['primaryKey'] : null,
-			"transactional" => isset($options['transactional']) ? $options['transactional'] : false,
 			"columns" => isset($options['columns']) ? $options['columns'] : null,
 		);
 
@@ -369,11 +370,19 @@ class Client
 
 	/**
 	 * Creates table with header of CSV file, then import whole csv file by async import
+	 * Handles async operation. Starts import job and waits when it is finished. Throws exception if job finishes with error.
+	 *
+	 * Workflow:
+	 *  - Upload file to File Uploads
+	 *  - Initialize table import with previously uploaded file
+	 *  - Wait until job is finished
+	 *  - Return created table id
+	 *
 	 * @param $bucketId
 	 * @param $name
 	 * @param CsvFile $csvFile
-	 * @param array $options
-	 * @return bool|string
+	 * @param array $options - see createTable method params
+	 * @return string - created table id
 	 */
 	public function createTableAsync($bucketId, $name, CsvFile $csvFile, $options = array())
 	{
@@ -406,6 +415,14 @@ class Client
 		return $this->createTableAsyncDirect($bucketId, $options);
 	}
 
+	/**
+	 * Starts and waits for async table import.
+	 *
+	 *
+	 * @param $bucketId
+	 * @param array $options see createTable method params
+	 * @return string - created table id
+	 */
 	public function createTableAsyncDirect($bucketId, $options = array())
 	{
 		$createdTable = $this->apiPost("storage/buckets/{$bucketId}/tables-async", $options);
@@ -416,6 +433,7 @@ class Client
 	 * @param $bucketId destination bucket
 	 * @param $snapshotId source snapshot
 	 * @param null $name table name (optional) otherwise fetched from snapshot
+	 * @return string - created table id
 	 */
 	public function createTableFromSnapshot($bucketId, $snapshotId, $name = null)
 	{
@@ -439,7 +457,7 @@ class Client
 	 *  - name (optional)
 	 *  - aliasFilter (optional)
 	 *  - (array) aliasColumns (optional)
-	 * @return mixed
+	 * @return string  - created table id
 	 */
 	public function createAliasTable($bucketId, $sourceTableId, $name = NULL, $options = array())
 	{
@@ -463,7 +481,7 @@ class Client
 
 	/**
 	 * @param $tableId
-	 * @return mixed
+	 * @return int - snapshot id
 	 */
 	public function createTableSnapshot($tableId, $snapshotDescription = null)
 	{
@@ -532,7 +550,7 @@ class Client
 	 *
 	 * @param string $bucketId limit search to a specific bucket
 	 * @param array $options
-	 * @return mixed|string
+	 * @return array
 	 */
 	public function listTables($bucketId=null, $options = array())
 	{
@@ -566,14 +584,12 @@ class Client
 	 * @param CsvFile $csvFile
 	 * @param array $options
 	 * 	Available options:
-	 *  - transaction
 	 *  - incremental
 	 *  - partial
 	 * @return mixed|string
 	 */
 	public function writeTable($tableId, CsvFile $csvFile,  $options = array())
 	{
-		// TODO Gzip data
 		$optionsExtended = $this->writeTableOptionsPrepare(array_merge($options, array(
 			"delimiter" => $csvFile->getDelimiter(),
 			"enclosure" => $csvFile->getEnclosure(),
@@ -597,10 +613,11 @@ class Client
 
 	/**
 	 * Write data into table asynchronously and wait for result
+	 *
 	 * @param $tableId
 	 * @param CsvFile $csvFile
 	 * @param array $options
-	 * @return mixed|string
+	 * @return array - table write results
 	 */
 	public function writeTableAsync($tableId, CsvFile $csvFile, $options = array())
 	{
@@ -629,8 +646,11 @@ class Client
 	}
 
 	/**
+	 * Performs asynchronous write and waits for result
+	 * Executes http://docs.keboola.apiary.io/#post-%2Fv2%2Fstorage%2Fbuckets%2F%7Bbucket_id%7D%2Ftables-async
 	 * @param $tableId
 	 * @param array $options
+	 * @return array
 	 */
 	public function writeTableAsyncDirect($tableId, $options = array())
 	{
@@ -664,7 +684,7 @@ class Client
 	 * Get table details
 	 *
 	 * @param string $tableId
-	 * @return mixed
+	 * @return array
 	 */
 	public function getTable($tableId)
 	{
@@ -814,7 +834,7 @@ class Client
 
 	/**
 	 * @param $jobId
-	 * @return mixed|string
+	 * @return array
 	 */
 	public function getJob($jobId)
 	{
@@ -825,7 +845,7 @@ class Client
 	 *
 	 * returns all tokens
 	 *
-	 * @return mixed|string
+	 * @return array
 	 */
 	public function listTokens()
 	{
@@ -837,7 +857,7 @@ class Client
 	 * get token detail
 	 *
 	 * @param string $tokenId token id
-	 * @return mixed|string
+	 * @return array
 	 */
 	public function getToken($tokenId)
 	{
@@ -912,7 +932,7 @@ class Client
 	 * @param string $tokenId
 	 * @param array $permissions
 	 * @param string null $description
-	 * @return mixed
+	 * @return int token id
 	 */
 	public function updateToken($tokenId, $permissions, $description=null)
 	{
@@ -982,24 +1002,20 @@ class Client
 		));
 	}
 
-	/**
-	 *
-	 * Generate GoodData XML configuration for table
-	 * TODO Test!
-	 *
-	 * @param string $tableId
-	 * @param string $fileName file to store data
-	 * @return mixed|string
-	 */
-	public function getGdXmlConfig($tableId, $fileName=null)
-	{
-		return $this->apiGet("storage/tables/{$tableId}/gooddata-xml", null, $fileName);
-	}
 
 	/**
+	 * Exports table http://docs.keboola.apiary.io/#get-%2Fv2%2Fstorage%2Ftables%2F%7Btable_id%7D%2Fexport
+	 *
 	 * @param string $tableId
-	 * @param string null $fileName
-	 * @param array $options - (int) limit, (timestamp | strtotime format) changedSince, (timestamp | strtotime format) changedUntil, (bool) escape, (array) columns
+	 * @param string null $fileName export to file if specified, instead table content is returned
+	 * @param array $options all options are optional
+	 * 	- (int) limit,
+	 *  - (timestamp | strtotime format) changedSince
+	 *  - (timestamp | strtotime format) changedUntil
+	 *  - (bool) escape
+	 *  - (array) columns
+	 *  - (string) format - one of rfc, raw, escaped. rfc is default
+	 *
 	 * @return mixed|string
 	 */
 	public function exportTable($tableId, $fileName = null, $options = array())
@@ -1011,8 +1027,17 @@ class Client
 	}
 
 	/**
+	 * Exports table content into File Uploads asynchronously. Waits for async operation result. Created file id is stored in returned job results.
+	 * http://docs.keboola.apiary.io/#post-%2Fv2%2Fstorage%2Ftables%2F%7Btable_id%7D%2Fexport-async
+	 *
 	 * @param $tableId
 	 * @param array $options
+	 * 	- (int) limit,
+	 *  - (timestamp | strtotime format) changedSince
+	 *  - (timestamp | strtotime format) changedUntil
+	 *  - (bool) escape
+	 *  - (array) columns
+	 *  - (string) format - one of rfc, raw, escaped. rfc is default
 	 * @return array job results
 	 */
 	public function exportTableAsync($tableId, $options = array())
@@ -1077,14 +1102,11 @@ class Client
 	}
 
 	/**
-	 *
-	 * Uploads a file
-	 *
-	 *
+	 * Upload a file to file uploads
 	 *
 	 * @param string $filePath
-	 * @param bool $isPublic
-	 * @return mixed|string
+	 * @param FileUploadOptions $options
+	 * @return int - created file id
 	 */
 	public function uploadFile($filePath, FileUploadOptions $options)
 	{
@@ -1154,6 +1176,13 @@ class Client
 		return $result['id'];
 	}
 
+	/**
+	 * Prepares file metadata in Storage
+	 * http://docs.keboola.apiary.io/#post-%2Fv2%2Fstorage%2Ffiles%2Fprepare
+	 *
+	 * @param FileUploadOptions $options
+	 * @return array file info
+	 */
 	public function prepareFileUpload(FileUploadOptions $options)
 	{
 		return $this->apiPost("storage/files/prepare", array(
@@ -1182,7 +1211,7 @@ class Client
 	/**
 	 * Get a single file
 	 * @param string $fileId
-	 * @return mixed|string
+	 * @return array
 	 */
 	public function getFile($fileId, GetFileOptions $options = null)
 	{
@@ -1207,7 +1236,10 @@ class Client
 	}
 
 	/**
-	 * Files list
+	 * List files
+	 *
+	 * @param ListFilesOptions $options
+	 * @return array
 	 */
 	public function listFiles(ListFilesOptions $options = null)
 	{
@@ -1217,8 +1249,9 @@ class Client
 
 	/**
 	 * Create new event
+	 *
 	 * @param Event $event
-	 * @return mixed|string
+	 * @return int - created event id
 	 */
 	public function createEvent(Event $event)
 	{
@@ -1238,7 +1271,7 @@ class Client
 
 	/**
 	 * @param $id
-	 * @return mixed|string
+	 * @return array
 	 */
 	public function getEvent($id)
 	{
@@ -1248,7 +1281,7 @@ class Client
 	/**
 	 * @param int $limit
 	 * @param int $offset
-	 * @return mixed|string
+	 * @return array
 	 */
 	public function listEvents($params = array())
 	{
@@ -1272,6 +1305,11 @@ class Client
 		return $this->apiGet('storage/events?' . http_build_query($queryParams));
 	}
 
+	/**
+	 * @param $tableId
+	 * @param array $params
+	 * @return array
+	 */
 	public function listTableEvents($tableId, $params = array())
 	{
 		$defaultParams = array(
@@ -1283,6 +1321,10 @@ class Client
 		return $this->apiGet("storage/tables/{$tableId}/events?" . http_build_query($queryParams));
 	}
 
+	/**
+	 * @param $id
+	 * @return array
+	 */
 	public function getSnapshot($id)
 	{
 		return $this->apiGet("storage/snapshots/$id");
@@ -1290,7 +1332,7 @@ class Client
 
 	/**
 	 * Unique 64bit sequence generator
-	 * @return mixed
+	 * @return int generated id
 	 */
 	public function generateId()
 	{
@@ -1301,6 +1343,8 @@ class Client
 	/**
 	 * @param null $previousRunId Allows runId hierarchy. If previous run Id is set, returned id will be in form of
 	 * previousRunId.newRunId
+	 *
+	 * @return string
 	 */
 	public function generateRunId($previousRunId = null)
 	{
@@ -1537,7 +1581,7 @@ class Client
 	/**
 	 * @param LoggerInterface $logger
 	 */
-	private  function setLogger(LoggerInterface $logger)
+	private function setLogger(LoggerInterface $logger)
 	{
 		$this->logger = $logger;
 	}
@@ -1640,6 +1684,7 @@ class Client
 	/**
 	 *
 	 * Returns components from indexAction
+	 * @deprecated
 	 *
 	 * @return array
 	 */
