@@ -41,11 +41,13 @@ require 'vendor/autoload.php';
 
 Read more in [Composer documentation](http://getcomposer.org/doc/01-basic-usage.md)
 
-## Usage
+## Usage examples
 
-Table write example:
+Table write:
 
 ```php
+require 'vendor/autoload.php';
+
 use Keboola\StorageApi\Client,
 	Keboola\Csv\CsvFile;
 
@@ -54,6 +56,21 @@ $client = new Client([
 ]);
 $csvFile = new CsvFile(__DIR__ . '/my.csv', ',', '"');
 $client->writeTableAsync('in.c-main.my-table', $csvFile);
+```
+
+Table export to file:
+
+```php
+require 'vendor/autoload.php';
+
+use Keboola\StorageApi\Client,
+  Keboola\StorageApi\TableExporter;
+
+$client = new Client(['token' => 'YOUR_TOKEN',]);
+
+$exporter = new TableExporter($client);
+$exporter->exportTable('in.c-main.my-table', './in.c-main.my-table.csv', []);
+
 ```
 
 ## Tests
