@@ -1,4 +1,5 @@
 .idea
+apidoc
 cache.properties
 config.php
 composer.lock
