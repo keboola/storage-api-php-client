@@ -37,6 +37,32 @@ class Keboola_StorageApi_EventsTest extends StorageApiTestCase
 		$this->assertEquals($event->getType(), $savedEvent['type']);
 	}
 
+	public function testEventCreateWithoutParams()
+	{
+		$event = new Event();
+		$event->setComponent('ex-sfdc')
+			->setDuration(200)
+			->setType('info')
+			->setMessage('Table Opportunity fetched.');
+
+		$id = $this->createAndWaitForEvent($event);
+
+		// to check if params is object we have to convert received json to objects instead of assoc array
+		// so we have to use raw Http Client
+		$client = new \GuzzleHttp\Client([
+			'base_url' => $this->_client->getApiUrl(),
+		]);
+
+		$response = $client->get('/v2/storage/events/' . $id, array(
+			'headers' => array(
+				'X-StorageApi-Token' => $this->_client->getTokenString(),
+			),
+		))->json(['object' => true]);
+
+		$this->assertInstanceOf('stdclass', $response->params);
+		$this->assertInstanceOf('stdclass', $response->results);
+	}
+
 	/**
 	 * @expectedException Keboola\StorageApi\Exception
 	 */
