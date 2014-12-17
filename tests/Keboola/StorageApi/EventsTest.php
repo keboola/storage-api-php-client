@@ -41,7 +41,6 @@ class Keboola_StorageApi_EventsTest extends StorageApiTestCase
 	{
 		$event = new Event();
 		$event->setComponent('ex-sfdc')
-			->setDuration(200)
 			->setType('info')
 			->setMessage('Table Opportunity fetched.');
 
