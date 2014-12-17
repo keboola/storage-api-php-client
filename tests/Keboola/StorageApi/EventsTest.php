@@ -61,6 +61,7 @@ class Keboola_StorageApi_EventsTest extends StorageApiTestCase
 
 		$this->assertInstanceOf('stdclass', $response->params);
 		$this->assertInstanceOf('stdclass', $response->results);
+		$this->assertInstanceOf('stdclass', $response->performance);
 	}
 
 	/**
