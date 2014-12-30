@@ -21,6 +21,7 @@ class FileUploadOptions {
 	private $sizeBytes;
 	private $isPermanent = false;
 	private $isSliced = false;
+	private $isEncrypted = false;
 
 	/**
 	 * @return mixed
@@ -181,6 +182,24 @@ class FileUploadOptions {
 	public function setIsSliced($isSliced)
 	{
 		$this->isSliced = $isSliced;
+		return $this;
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function getIsEncrypted()
+	{
+		return $this->isEncrypted;
+	}
+
+	/**
+	 * @param $encrypted
+	 * @return $this
+	 */
+	public function setIsEncrypted($encrypted)
+	{
+		$this->isEncrypted = (bool) $encrypted;
 		return $this;
 	}
 

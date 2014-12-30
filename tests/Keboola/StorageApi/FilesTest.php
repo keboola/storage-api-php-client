@@ -98,6 +98,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$info = $this->_client->getLogData();
 		$this->assertEquals($file['creatorToken']['id'], (int) $info['id']);
 		$this->assertEquals($file['creatorToken']['description'], $info['description']);
+		$this->assertEquals($file['isEncrypted'], $options->getIsEncrypted());
 
 		if ($options->getIsPermanent()) {
 			$this->assertNull($file['maxAgeDays']);
@@ -107,13 +108,19 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		}
 	}
 
-	public function testFileUploadUsingFederationToken()
+
+	/**
+	 * @dataProvider encryptedData
+	 * @param $encrypted
+	 */
+	public function testFileUploadUsingFederationToken($encrypted)
 	{
 		$pathToFile = __DIR__ . '/_data/files.upload.txt';
 		$options = new FileUploadOptions();
 		$options
 			->setFileName('upload.txt')
-			->setFederationToken(true);
+			->setFederationToken(true)
+			->setIsEncrypted($encrypted);
 
 		$result = $this->_client->prepareFileUpload($options);
 
@@ -127,15 +134,23 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		);
 
 		$s3Client = \Aws\S3\S3Client::factory(array('credentials' => $credentials));
-		$s3Client->putObject(array(
+
+		$putParams = array(
 			'Bucket' => $uploadParams['bucket'],
 			'Key'    => $uploadParams['key'],
 			'Body'   => fopen($pathToFile, 'r+'),
-		));
+		);
+
+		if ($options->getIsEncrypted()) {
+			$putParams['ServerSideEncryption'] = $uploadParams['x-amz-server-side-encryption'];
+		}
+
+		$s3Client->putObject($putParams);
 
 		$file = $this->_client->getFile($result['id']);
 
 		$this->assertEquals(file_get_contents($pathToFile), file_get_contents($file['url']));
+		$this->assertEquals($result['isEncrypted'], $options->getIsEncrypted());
 
 		try {
 			$s3Client->putObject(array(
@@ -145,6 +160,77 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 			));
 			$this->fail('Access denied exception should be thrown');
 		} catch (\Aws\S3\Exception\AccessDeniedException $e) {}
+	}
+
+	public function encryptedData()
+	{
+		return array(
+			array(false),
+			array(true),
+		);
+	}
+
+	public function testEncryptionMustBeSetWhenEnabled()
+	{
+		$path  = __DIR__ . '/_data/files.upload.txt';
+		$options = new FileUploadOptions();
+		$options->setIsEncrypted(true)
+			->setFileName('neco');
+
+		// using presigned form
+		$result = $this->_client->prepareFileUpload($options);
+		$uploadParams = $result['uploadParams'];
+		$this->assertEquals('AES256', $uploadParams['x-amz-server-side-encryption']);
+		$client = new \GuzzleHttp\Client();
+
+		$fh = @fopen($path, 'r');
+
+		$body = array(
+			'key' => $uploadParams['key'],
+			'acl' => $uploadParams['acl'],
+			'signature' => $uploadParams['signature'],
+			'policy' => $uploadParams['policy'],
+			'AWSAccessKeyId' => $uploadParams['AWSAccessKeyId'],
+			'file' => $fh,
+		);
+
+
+		try {
+			$client->post($uploadParams['url'], array(
+				'body' => $body,
+			));
+			$this->fail('x-amz-server-side​-encryption should be required');
+		} catch (\GuzzleHttp\Exception\ClientException $e) {
+			$this->assertEquals(403, $e->getResponse()->getStatusCode());
+		}
+
+		// using federation token
+		$options = $options->setFederationToken(true);
+		$result = $this->_client->prepareFileUpload($options);
+		$uploadParams = $result['uploadParams'];
+		$this->assertEquals('AES256', $uploadParams['x-amz-server-side-encryption']);
+
+		$credentials = new Aws\Common\Credentials\Credentials(
+			$uploadParams['credentials']['AccessKeyId'],
+			$uploadParams['credentials']['SecretAccessKey'],
+			$uploadParams['credentials']['SessionToken']
+		);
+
+		$s3Client = \Aws\S3\S3Client::factory(array('credentials' => $credentials));
+
+		$putParams = array(
+			'Bucket' => $uploadParams['bucket'],
+			'Key'    => $uploadParams['key'],
+			'Body'   => fopen($path, 'r+'),
+		);
+
+		try {
+			$s3Client->putObject($putParams);
+			$this->fail('access denied should be thrown');
+		} catch (\Aws\S3\Exception\AccessDeniedException $e) {
+			$this->assertEquals(403, $e->getResponse()->getStatusCode());
+		}
+
 	}
 
 	public function testSlicedFileUpload()
@@ -286,6 +372,11 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 			array(
 				$path,
 				(new FileUploadOptions())
+			),
+			array(
+				$path,
+				(new FileUploadOptions())
+					->setIsEncrypted(true)
 			),
 			array(
 				$path,

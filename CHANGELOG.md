@@ -1,3 +1,6 @@
+## 2.11.28 (2014-12-30)
+   * [Feat] `file uploads` encryption support
+
 ## 2.11.27 (2014-11-12)
    * [Feat] `generateRunId` method added, support for runId hieararchy
 

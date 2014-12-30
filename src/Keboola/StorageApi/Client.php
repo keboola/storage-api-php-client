@@ -1151,15 +1151,23 @@ class Client
 			throw new ClientException("Error on file upload to S3: " . $filePath, null, null, 'fileNotReadable');
 		}
 		try {
+
+			$body = array(
+				'key' => $uploadParams['key'],
+				'acl' => $uploadParams['acl'],
+				'signature' => $uploadParams['signature'],
+				'policy' => $uploadParams['policy'],
+				'AWSAccessKeyId' => $uploadParams['AWSAccessKeyId'],
+				'file' => $fh,
+			);
+			if ($options->getIsEncrypted()) {
+				$body['x-amz-server-side-encryption'] = $uploadParams['x-amz-server-side-encryption'];
+			}
+
 			$client->post($uploadParams['url'], array(
-				'body' => array(
-					'key' => $uploadParams['key'],
-					'acl' => $uploadParams['acl'],
-					'signature' => $uploadParams['signature'],
-					'policy' => $uploadParams['policy'],
-					'AWSAccessKeyId' => $uploadParams['AWSAccessKeyId'],
-					'file' => $fh,
-			)));
+				'body' => $body,
+			));
+
 		} catch (RequestException $e) {
 			$response = $e->getResponse();
 			$message = "Error on file upload to S3: " . $e->getMessage();
@@ -1188,6 +1196,7 @@ class Client
 		return $this->apiPost("storage/files/prepare", array(
 			'isPublic' => $options->getIsPublic(),
 			'isPermanent' => $options->getIsPermanent(),
+			'isEncrypted' => $options->getIsEncrypted(),
 			'isSliced' => $options->getIsSliced(),
 			'notify' => $options->getNotify(),
 			'name' => $options->getFileName(),
