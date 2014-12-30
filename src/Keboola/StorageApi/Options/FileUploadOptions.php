@@ -21,7 +21,7 @@ class FileUploadOptions {
 	private $sizeBytes;
 	private $isPermanent = false;
 	private $isSliced = false;
-	private $isEncrypted = false;
+	private $isEncrypted = true;
 
 	/**
 	 * @return mixed

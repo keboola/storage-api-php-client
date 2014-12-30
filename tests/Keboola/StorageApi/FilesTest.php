@@ -239,6 +239,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$options = new FileUploadOptions();
 		$options
 			->setIsSliced(true)
+			->setIsEncrypted(false)
 			->setFileName('upload.txt');
 
 		$preparedFile = $this->_client->prepareFileUpload($options);
@@ -372,6 +373,11 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 			array(
 				$path,
 				(new FileUploadOptions())
+			),
+			array(
+				$path,
+				(new FileUploadOptions())
+					->setIsEncrypted(false)
 			),
 			array(
 				$path,

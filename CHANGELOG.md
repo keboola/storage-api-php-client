@@ -1,3 +1,6 @@
+## 2.12.0 (2014-12-30)
+   * [BC break] `file uploads` files are encrypted by default. `x-amz-server-side-encryption` header has to be added to direct uploads to S3, if `uploadFile` method is used nothing has to be changed.
+
 ## 2.11.28 (2014-12-30)
    * [Feat] `file uploads` encryption support
 
