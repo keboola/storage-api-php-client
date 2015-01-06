@@ -31,6 +31,7 @@ class Keboola_StorageApi_Tables_SlicedImportsTest extends StorageApiTestCase
 		$uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
 		$uploadOptions
 			->setFileName('entries_')
+			->setIsEncrypted(false)
 			->setIsSliced(true);
 		$slicedFile = $this->_client->prepareFileUpload($uploadOptions);
 
@@ -88,7 +89,8 @@ class Keboola_StorageApi_Tables_SlicedImportsTest extends StorageApiTestCase
 		$uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
 		$uploadOptions
 			->setFileName('languages_')
-			->setIsSliced(true);
+			->setIsSliced(true)
+			->setIsEncrypted(false);
 		$slicedFile = $this->_client->prepareFileUpload($uploadOptions);
 
 		$uploadParams = $slicedFile['uploadParams'];
@@ -160,6 +162,7 @@ class Keboola_StorageApi_Tables_SlicedImportsTest extends StorageApiTestCase
 		$uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
 		$uploadOptions
 			->setFileName('entries_')
+			->setIsEncrypted(false)
 			->setIsSliced(true);
 		$slicedFile = $this->_client->prepareFileUpload($uploadOptions);
 
@@ -184,6 +187,7 @@ class Keboola_StorageApi_Tables_SlicedImportsTest extends StorageApiTestCase
 		$uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
 		$uploadOptions
 			->setFileName('entries_')
+			->setIsEncrypted(false)
 			->setIsSliced(true);
 		$slicedFile = $this->_client->prepareFileUpload($uploadOptions);
 
@@ -241,6 +245,7 @@ class Keboola_StorageApi_Tables_SlicedImportsTest extends StorageApiTestCase
 		$uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
 		$uploadOptions
 			->setFileName('entries_')
+			->setIsEncrypted(false)
 			->setIsSliced(true);
 
 		// First upload
