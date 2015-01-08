@@ -89,6 +89,18 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 		$aliasTable = $this->_client->getTable($aliasTableId);
 		$this->assertEquals($expectedColumns, $aliasTable['columns'], 'Columns autocreate in alias table');
 
+		// test creating alias from alias
+		$callFailed = false;
+		try {
+			$this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $aliasTableId, 'double-alias');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			if ($e->getCode() == 400) {
+				$callFailed = true;
+			}
+		}
+		$this->assertTrue($callFailed, 'Alias of already aliased table should fail');
+
+
 		try {
 			$this->_client->dropTable($sourceTableId);
 			$this->fail('Delete table with associated aliases should not been deleted');
