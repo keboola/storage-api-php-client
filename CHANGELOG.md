@@ -1,3 +1,6 @@
+## 2.12.1 (2015-01-09)
+   * [Feat] `Components` - component configuration JSON storage
+
 ## 2.12.0 (2014-12-30)
    * [BC break] `file uploads` files are encrypted by default. `x-amz-server-side-encryption` header has to be added to direct uploads to S3, if `uploadFile` method is used nothing has to be changed.
 
