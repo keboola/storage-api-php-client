@@ -31,6 +31,7 @@ class Components {
 			'name' => $options->getName(),
 			'description' => $options->getDescription(),
 			'configurationId' => $options->getConfigurationId(),
+			'configuration' => $options->getConfiguration() ? json_encode($options->getConfiguration()) : null,
 		));
 	}
 
@@ -39,6 +40,7 @@ class Components {
 		return $this->client->apiPut("storage/components/{$options->getComponentId()}/configs/{$options->getConfigurationId()}", array(
 			'name' => $options->getName(),
 			'description' => $options->getDescription(),
+			'configuration' => $options->getConfiguration() ? json_encode($options->getConfiguration()) : null,
 		));
 	}
 

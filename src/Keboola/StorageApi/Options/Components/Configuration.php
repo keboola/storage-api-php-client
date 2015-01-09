@@ -16,6 +16,8 @@ class Configuration
 
 	private $configurationId;
 
+	private $configuration;
+
 	private $name;
 
 	private $description;
@@ -88,5 +90,22 @@ class Configuration
 		return $this;
 	}
 
+	/**
+	 * @return mixed
+	 */
+	public function getConfiguration()
+	{
+		return $this->configuration;
+	}
+
+	/**
+	 * @param $configuration
+	 * @return $this
+	 */
+	public function setConfiguration($configuration)
+	{
+		$this->configuration = (array) $configuration;
+		return $this;
+	}
 
 }

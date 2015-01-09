@@ -14,6 +14,8 @@ class ListConfigurationsOptions
 {
 	private $componentType;
 
+	private $include = array();
+
 	/**
 	 * @return mixed
 	 */
@@ -35,7 +37,23 @@ class ListConfigurationsOptions
 	{
 		return array(
 			'componentType' => $this->getComponentType(),
+			'include' => implode(',', $this->getInclude()),
 		);
+	}
+
+	/**
+	 * @param array $include
+	 * @return $this
+	 */
+	public function setInclude($include = array())
+	{
+		$this->include = (array) $include;
+		return $this;
+	}
+
+	public function getInclude()
+	{
+		return $this->include;
 	}
 
 }
