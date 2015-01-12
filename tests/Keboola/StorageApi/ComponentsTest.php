@@ -137,6 +137,17 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$this->assertEquals(1, $configuration['version']);
 	}
 
+	public function testComponentConfigsListShouldNotBeImplemented()
+	{
+		try {
+			$this->_client->apiGet('storage/components/gooddata-writer/configs');
+			$this->fail('Method should not be implemented');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals(501, $e->getCode());
+			$this->assertEquals('notImplemented', $e->getStringCode());
+		}
+	}
+
 	public function testListConfigs()
 	{
 		$components = new \Keboola\StorageApi\Components($this->_client);
