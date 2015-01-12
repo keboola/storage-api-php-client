@@ -100,6 +100,11 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 		}
 		$this->assertTrue($callFailed, 'Alias of already aliased table should fail');
 
+		$this->assertArrayHasKey('isAlias', $sourceTable);
+		$this->assertFalse($sourceTable['isAlias']);
+		$this->assertArrayHasKey('isAlias', $aliasTable);
+		$this->assertTrue($aliasTable['isAlias']);
+
 
 		try {
 			$this->_client->dropTable($sourceTableId);
