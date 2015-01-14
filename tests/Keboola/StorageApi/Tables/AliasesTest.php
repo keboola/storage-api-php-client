@@ -116,11 +116,12 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 		$this->_client->dropTable($sourceTableId);
 	}
 
-	public function testAliasingShouldNotBeImplementedForRedshiftTables()
+	public function testRedshiftAliasUnsupportedMethods()
 	{
+		$testBucketId = $this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT);
 		$importFile = __DIR__ . '/../_data/languages.csv';
 		$sourceTableId = $this->_client->createTable(
-			$this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT),
+			$testBucketId,
 			'languages',
 			new CsvFile($importFile),
 			array(
@@ -129,13 +130,48 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 			)
 		);
 
-		try {
-			$alias = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT, self::BACKEND_REDSHIFT), $sourceTableId);
-			$this->fail('It should throw exception');
-		} catch(\Keboola\StorageApi\ClientException $e) {
-			$this->assertEquals('notImplemented', $e->getStringCode());
-		}
+		$sql = 'SELECT name FROM ' . $testBucketId . '.languages LIMIT 2';
+		$aliasTableId = $this->_client->createRedshiftAliasTable($this->getTestBucketId(self::STAGE_OUT, self::BACKEND_REDSHIFT), $sql, null, $sourceTableId);
 
+		$testPassed = false;
+		try {
+			$this->_client->setAliasTableFilter($aliasTableId, array('values' => array('VAN')));
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			if ($e->getCode() == 501) {
+				$testPassed = true;
+			}
+		}
+		$this->assertTrue($testPassed, 'Setting of alias filter for redshift backend should fail');
+
+		$testPassed = false;
+		try {
+			$this->_client->removeAliasTableFilter($aliasTableId, array('values' => array('VAN')));
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			if ($e->getCode() == 501) {
+				$testPassed = true;
+			}
+		}
+		$this->assertTrue($testPassed, 'Removing of alias filter for redshift backend should fail');
+
+		$testPassed = false;
+		try {
+			$this->_client->enableAliasTableColumnsAutoSync($aliasTableId);
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			if ($e->getCode() == 501) {
+				$testPassed = true;
+			}
+		}
+		$this->assertTrue($testPassed, 'Columns syncing of alias filter for redshift backend should fail');
+
+		$testPassed = false;
+		try {
+			$this->_client->disableAliasTableColumnsAutoSync($aliasTableId);
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			if ($e->getCode() == 501) {
+				$testPassed = true;
+			}
+		}
+		$this->assertTrue($testPassed, 'Columns syncing of alias filter for redshift backend should fail');
 	}
 
 	public function testTableAliasFilterModifications()
