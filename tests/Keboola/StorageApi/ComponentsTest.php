@@ -124,9 +124,10 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 
 		$newName = 'neco';
 		$newDesc = 'some desc';
+		$configurationData = array('x' => 'y');
 		$config->setName($newName)
 			->setDescription($newDesc)
-			->setConfiguration(array('x' => 'y'));
+			->setConfiguration($configurationData);
 		$components->updateConfiguration($config);
 
 		$configuration = $components->getConfiguration($config->getComponentId(), $config->getConfigurationId());
@@ -135,6 +136,27 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$this->assertEquals($newDesc, $configuration['description']);
 		$this->assertEquals($config->getConfiguration(), $configuration['configuration']);
 		$this->assertEquals(1, $configuration['version']);
+
+		$config = (new \Keboola\StorageApi\Options\Components\Configuration())
+			->setComponentId('gooddata-writer')
+			->setConfigurationId('main-1')
+			->setDescription('neco');
+
+		$components->updateConfiguration($config);
+		$configuration = $components->getConfiguration($config->getComponentId(), $config->getConfigurationId());
+
+		$this->assertEquals($newName, $configuration['name'], 'Name should not be changed after description update');
+		$this->assertEquals('neco', $configuration['description']);
+		$this->assertEquals($configurationData, $configuration['configuration']);
+
+		$config = (new \Keboola\StorageApi\Options\Components\Configuration())
+			->setComponentId('gooddata-writer')
+			->setConfigurationId('main-1')
+			->setDescription('');
+
+		$components->updateConfiguration($config);
+		$configuration = $components->getConfiguration($config->getComponentId(), $config->getConfigurationId());
+		$this->assertEquals('', $configuration['description'], 'Description can be set empty');
 	}
 
 	public function testComponentConfigsListShouldNotBeImplemented()

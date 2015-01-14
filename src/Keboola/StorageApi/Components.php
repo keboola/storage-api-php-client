@@ -37,11 +37,23 @@ class Components {
 
 	public function updateConfiguration(Configuration $options)
 	{
-		return $this->client->apiPut("storage/components/{$options->getComponentId()}/configs/{$options->getConfigurationId()}", array(
-			'name' => $options->getName(),
-			'description' => $options->getDescription(),
-			'configuration' => $options->getConfiguration() ? json_encode($options->getConfiguration()) : null,
-		));
+		$data = array();
+		if ($options->getName() !== null) {
+			$data['name'] = $options->getName();
+		}
+
+		if ($options->getDescription() !== null) {
+			$data['description'] = $options->getDescription();
+		}
+
+		if ($options->getConfiguration()) {
+			$data['configuration'] = json_encode($options->getConfiguration());
+		}
+
+		return $this->client->apiPut(
+			"storage/components/{$options->getComponentId()}/configs/{$options->getConfigurationId()}",
+			$data
+		);
 	}
 
 	public function getConfiguration($componentId, $configurationId)
