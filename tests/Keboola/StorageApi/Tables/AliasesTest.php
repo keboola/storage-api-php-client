@@ -1,4 +1,4 @@
-	<?php
+<?php
 /**
  * Created by JetBrains PhpStorm.
  * User: martinhalamicek
@@ -130,48 +130,82 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 			)
 		);
 
-		$sql = 'SELECT name FROM ' . $testBucketId . '.languages LIMIT 2';
+		$sql = 'SELECT name FROM "' . $testBucketId . '".languages LIMIT 2';
 		$aliasTableId = $this->_client->createRedshiftAliasTable($this->getTestBucketId(self::STAGE_OUT, self::BACKEND_REDSHIFT), $sql, null, $sourceTableId);
 
-		$testPassed = false;
 		try {
 			$this->_client->setAliasTableFilter($aliasTableId, array('values' => array('VAN')));
+			$this->fail('Setting of alias filter for redshift backend should fail');
 		} catch (\Keboola\StorageApi\ClientException $e) {
-			if ($e->getCode() == 501) {
-				$testPassed = true;
-			}
+			$this->assertEquals(501, $e->getCode());
 		}
-		$this->assertTrue($testPassed, 'Setting of alias filter for redshift backend should fail');
 
-		$testPassed = false;
 		try {
 			$this->_client->removeAliasTableFilter($aliasTableId, array('values' => array('VAN')));
+			$this->fail('Removing of alias filter for redshift backend should fail');
 		} catch (\Keboola\StorageApi\ClientException $e) {
-			if ($e->getCode() == 501) {
-				$testPassed = true;
-			}
+			$this->assertEquals(501, $e->getCode());
 		}
-		$this->assertTrue($testPassed, 'Removing of alias filter for redshift backend should fail');
 
-		$testPassed = false;
 		try {
 			$this->_client->enableAliasTableColumnsAutoSync($aliasTableId);
+			$this->fail('Columns syncing of alias filter for redshift backend should fail');
 		} catch (\Keboola\StorageApi\ClientException $e) {
-			if ($e->getCode() == 501) {
-				$testPassed = true;
-			}
+			$this->assertEquals(501, $e->getCode());
 		}
-		$this->assertTrue($testPassed, 'Columns syncing of alias filter for redshift backend should fail');
 
-		$testPassed = false;
 		try {
 			$this->_client->disableAliasTableColumnsAutoSync($aliasTableId);
+			$this->fail('Columns syncing of alias filter for redshift backend should fail');
 		} catch (\Keboola\StorageApi\ClientException $e) {
-			if ($e->getCode() == 501) {
-				$testPassed = true;
-			}
+			$this->assertEquals(501, $e->getCode());
 		}
-		$this->assertTrue($testPassed, 'Columns syncing of alias filter for redshift backend should fail');
+	}
+
+	public function testRedshiftAliases()
+	{
+		$testBucketId = $this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT);
+		$importFile = __DIR__ . '/../_data/languages.csv';
+		$sourceTableId = $this->_client->createTable(
+			$testBucketId,
+			'languages',
+			new CsvFile($importFile),
+			array(
+				'primaryKey' => 'id',
+				'columns' => array('id', 'name'),
+			)
+		);
+		$aliasBucketId = $this->getTestBucketId(self::STAGE_OUT, self::BACKEND_REDSHIFT);
+
+		$sql = "SELECT name FROM \"$testBucketId\".languages LIMIT 2";
+		$aliasTableId = $this->_client->createRedshiftAliasTable($aliasBucketId, $sql, null, $sourceTableId);
+
+		$aliasTable = $this->_client->getTable($aliasTableId);
+		$this->assertArrayHasKey('selectSql', $aliasTable);
+		$this->assertEquals($sql, $aliasTable['selectSql']);
+		$this->assertArrayHasKey('isAlias', $aliasTable);
+		$this->assertEquals(1, $aliasTable['isAlias']);
+
+		$data = $this->_client->exportTable($aliasTableId);
+		$parsedData = Client::parseCsv($data, false);
+		$this->assertEquals(3, count($parsedData));
+
+		$this->_client->dropTable($aliasTableId);
+
+		$this->testAliasWithWrongSql($aliasBucketId, "SELECT name FROM $testBucketId.languages LIMIT 2");
+		$this->testAliasWithWrongSql($aliasBucketId, "DELETE FROM \"$testBucketId\".languages");
+		$this->testAliasWithWrongSql($aliasBucketId, "SELECT name FROM $testBucketId.languages LIMIT 2;DELETE FROM \"$testBucketId\".languages");
+
+	}
+
+	private function testAliasWithWrongSql($aliasBucketId, $sql)
+	{
+		try {
+			$this->_client->createRedshiftAliasTable($aliasBucketId, $sql, uniqid());
+			$this->fail();
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('buckets.cannotCreateAliasFromSql', $e->getStringCode());
+		}
 	}
 
 	public function testTableAliasFilterModifications()
