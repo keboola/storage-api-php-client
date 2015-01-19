@@ -177,7 +177,7 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 		);
 		$aliasBucketId = $this->getTestBucketId(self::STAGE_OUT, self::BACKEND_REDSHIFT);
 
-		$sql = "SELECT name FROM \"$testBucketId\".languages LIMIT 2";
+		$sql = "SELECT name FROM \"$testBucketId\".languages WHERE name='czech'";
 		$aliasTableId = $this->_client->createRedshiftAliasTable($aliasBucketId, $sql, null, $sourceTableId);
 
 		$aliasTable = $this->_client->getTable($aliasTableId);
@@ -188,7 +188,16 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 
 		$data = $this->_client->exportTable($aliasTableId);
 		$parsedData = Client::parseCsv($data, false);
-		$this->assertEquals(3, count($parsedData));
+		$this->assertEquals(2, count($parsedData));
+		$this->assertEquals(array('czech'), $parsedData[1]);
+
+		$sql2 = "SELECT name FROM \"$testBucketId\".languages WHERE name='english'";
+		$this->_client->updateRedshiftAliasTable($aliasTableId, $sql2);
+
+		$data = $this->_client->exportTable($aliasTableId);
+		$parsedData = Client::parseCsv($data, false);
+		$this->assertEquals(2, count($parsedData));
+		$this->assertEquals(array('english'), $parsedData[1]);
 
 		$this->_client->dropTable($aliasTableId);
 

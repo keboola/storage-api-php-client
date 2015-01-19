@@ -510,6 +510,12 @@ class Client
 		return $result["id"];
 	}
 
+	public function updateRedshiftAliasTable($tableId, $sql)
+	{
+		$result = $this->apiPut("storage/tables/" . $tableId, array('selectSql' => $sql));
+		return $result;
+	}
+
 	/**
 	 * @param $tableId
 	 * @return int - snapshot id
