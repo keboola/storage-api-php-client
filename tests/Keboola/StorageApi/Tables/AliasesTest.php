@@ -193,16 +193,38 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 		$this->_client->dropTable($aliasTableId);
 
 		$this->_testAliasWithWrongSql($aliasBucketId, "SELECT name FROM $testBucketId.languages LIMIT 2");
+		$this->_testAliasWithWrongSql($aliasBucketId, "SELECT nonexistent FROM \"$testBucketId\".languages");
 		$this->_testAliasWithWrongSql($aliasBucketId, "DELETE FROM \"$testBucketId\".languages");
+		$this->_testAliasWithWrongSql($aliasBucketId, "SELECTX FROM \"$testBucketId\".languages");
 		$this->_testAliasWithWrongSql($aliasBucketId, "SELECT name FROM $testBucketId.languages LIMIT 2;DELETE FROM \"$testBucketId\".languages");
 
+		// test join
+		$importFile = __DIR__ . '/../_data/languages.csv';
+		$this->_client->createTable(
+			$testBucketId,
+			'languages2',
+			new CsvFile($importFile),
+			array(
+				'primaryKey' => 'id',
+				'columns' => array('id', 'name'),
+			)
+		);
+		$sql = "SELECT l1.name AS name1, l2.name AS name2 FROM \"$testBucketId\".languages l1 LEFT JOIN \"$testBucketId\".languages l2 ON (l1.id=l2.id) WHERE l1.name LIKE 'f%'";
+		$aliasTableId = $this->_client->createRedshiftAliasTable($aliasBucketId, $sql, 'test2');
+
+		$data = $this->_client->exportTable($aliasTableId);
+		$parsedData = Client::parseCsv($data, false);
+		$this->assertGreaterThanOrEqual(1, $parsedData);
+		$this->assertEquals(array('name1', 'name2'), current($parsedData));
+
+		$this->_client->dropTable($aliasTableId);
 	}
 
 	private function _testAliasWithWrongSql($aliasBucketId, $sql)
 	{
 		try {
 			$this->_client->createRedshiftAliasTable($aliasBucketId, $sql, uniqid());
-			$this->fail();
+			$this->fail('Alias with such sql should fail: ' . $sql);
 		} catch (\Keboola\StorageApi\ClientException $e) {
 			$this->assertEquals('buckets.cannotCreateAliasFromSql', $e->getStringCode());
 		}
