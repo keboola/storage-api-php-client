@@ -192,13 +192,13 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 
 		$this->_client->dropTable($aliasTableId);
 
-		$this->testAliasWithWrongSql($aliasBucketId, "SELECT name FROM $testBucketId.languages LIMIT 2");
-		$this->testAliasWithWrongSql($aliasBucketId, "DELETE FROM \"$testBucketId\".languages");
-		$this->testAliasWithWrongSql($aliasBucketId, "SELECT name FROM $testBucketId.languages LIMIT 2;DELETE FROM \"$testBucketId\".languages");
+		$this->_testAliasWithWrongSql($aliasBucketId, "SELECT name FROM $testBucketId.languages LIMIT 2");
+		$this->_testAliasWithWrongSql($aliasBucketId, "DELETE FROM \"$testBucketId\".languages");
+		$this->_testAliasWithWrongSql($aliasBucketId, "SELECT name FROM $testBucketId.languages LIMIT 2;DELETE FROM \"$testBucketId\".languages");
 
 	}
 
-	private function testAliasWithWrongSql($aliasBucketId, $sql)
+	private function _testAliasWithWrongSql($aliasBucketId, $sql)
 	{
 		try {
 			$this->_client->createRedshiftAliasTable($aliasBucketId, $sql, uniqid());
