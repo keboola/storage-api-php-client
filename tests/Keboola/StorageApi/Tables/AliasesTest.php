@@ -185,6 +185,7 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 		$this->assertEquals($sql, $aliasTable['selectSql']);
 		$this->assertArrayHasKey('isAlias', $aliasTable);
 		$this->assertEquals(1, $aliasTable['isAlias']);
+		$this->assertEquals($sourceTableId, $aliasTable['sourceTable']['id']);
 
 		$data = $this->_client->exportTable($aliasTableId);
 		$parsedData = Client::parseCsv($data, false);
@@ -221,6 +222,9 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 		$sql = "SELECT l1.name AS name1, l2.name AS name2 FROM \"$testBucketId\".languages l1 LEFT JOIN \"$testBucketId\".languages l2 ON (l1.id=l2.id) WHERE l1.name LIKE 'f%'";
 		$aliasTableId = $this->_client->createRedshiftAliasTable($aliasBucketId, $sql, 'test2');
 
+		$aliasTable = $this->_client->getTable($aliasTableId);
+		$this->assertEquals($sql, $aliasTable['selectSql']);
+		$this->assertArrayNotHasKey('sourceTable', $aliasTable);
 		$data = $this->_client->exportTable($aliasTableId);
 		$parsedData = Client::parseCsv($data, false);
 		$this->assertGreaterThanOrEqual(1, $parsedData);
