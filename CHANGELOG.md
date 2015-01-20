@@ -1,3 +1,6 @@
+## 2.12.2 (2015-01-20)
+  * [Feat] Redshift aliases supported
+
 ## 2.12.1 (2015-01-09)
    * [Feat] `Components` - component configuration JSON storage
 
