@@ -162,6 +162,40 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 		}
 	}
 
+	public function testRedshiftInvalidSqlAliases()
+	{
+		$testBucketId = $this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT);
+		$importFile = __DIR__ . '/../_data/languages.csv';
+		$this->_client->createTable(
+			$testBucketId,
+			'languages',
+			new CsvFile($importFile),
+			array(
+				'primaryKey' => 'id',
+				'columns' => array('id', 'name'),
+			)
+		);
+		$aliasBucketId = $this->getTestBucketId(self::STAGE_OUT, self::BACKEND_REDSHIFT);
+
+		$this->_testAliasWithWrongSql($aliasBucketId, "SELECT name AS _name FROM \"$testBucketId\".languages"); // invalid column name
+		$this->_testAliasWithWrongSql($aliasBucketId, "SELECT upper(name), upper(name) FROM \"$testBucketId\".languages"); // duplicate upper column
+		$this->_testAliasWithWrongSql($aliasBucketId, "SELECT name FROM $testBucketId.languages LIMIT 2");
+		$this->_testAliasWithWrongSql($aliasBucketId, "SELECT nonexistent FROM \"$testBucketId\".languages");
+		$this->_testAliasWithWrongSql($aliasBucketId, "DELETE FROM \"$testBucketId\".languages");
+		$this->_testAliasWithWrongSql($aliasBucketId, "SELECTX FROM \"$testBucketId\".languages");
+		$this->_testAliasWithWrongSql($aliasBucketId, "SELECT name FROM $testBucketId.languages LIMIT 2;DELETE FROM \"$testBucketId\".languages");
+	}
+
+	private function _testAliasWithWrongSql($aliasBucketId, $sql)
+	{
+		try {
+			$this->_client->createRedshiftAliasTable($aliasBucketId, $sql, uniqid());
+			$this->fail('Alias with such sql should fail: ' . $sql);
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('buckets.cannotCreateAliasFromSql', $e->getStringCode());
+		}
+	}
+
 	public function testRedshiftAliases()
 	{
 		$testBucketId = $this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT);
@@ -202,11 +236,6 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 
 		$this->_client->dropTable($aliasTableId);
 
-		$this->_testAliasWithWrongSql($aliasBucketId, "SELECT name FROM $testBucketId.languages LIMIT 2");
-		$this->_testAliasWithWrongSql($aliasBucketId, "SELECT nonexistent FROM \"$testBucketId\".languages");
-		$this->_testAliasWithWrongSql($aliasBucketId, "DELETE FROM \"$testBucketId\".languages");
-		$this->_testAliasWithWrongSql($aliasBucketId, "SELECTX FROM \"$testBucketId\".languages");
-		$this->_testAliasWithWrongSql($aliasBucketId, "SELECT name FROM $testBucketId.languages LIMIT 2;DELETE FROM \"$testBucketId\".languages");
 
 		// test join
 		$importFile = __DIR__ . '/../_data/languages.csv';
@@ -233,15 +262,7 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 		$this->_client->dropTable($aliasTableId);
 	}
 
-	private function _testAliasWithWrongSql($aliasBucketId, $sql)
-	{
-		try {
-			$this->_client->createRedshiftAliasTable($aliasBucketId, $sql, uniqid());
-			$this->fail('Alias with such sql should fail: ' . $sql);
-		} catch (\Keboola\StorageApi\ClientException $e) {
-			$this->assertEquals('buckets.cannotCreateAliasFromSql', $e->getStringCode());
-		}
-	}
+
 
 	public function testTableAliasFilterModifications()
 	{
