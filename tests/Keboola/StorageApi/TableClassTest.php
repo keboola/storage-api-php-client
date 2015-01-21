@@ -159,6 +159,21 @@ class Keboola_StorageApi_TableClassTest extends StorageApiTestCase
 		$this->assertEquals($table->getHeader(), $testHeader);
 	}
 
-	//@TODO: Test Exceptions
-
+	public function testInvalidTableName()
+	{
+		try {
+			new \Keboola\StorageApi\Table($this->_client, 'completely-invalid-name');
+			$this->fail("Invalid table name should cause exception.");
+		} catch (TableException $e) {}
 	}
+
+	public function testInvalidBucket()
+	{
+		try {
+			new \Keboola\StorageApi\Table($this->_client, 'in.non-existent-bucket.test-table');
+			$this->fail("Non-existent bucket should cause exception.");
+		} catch (TableException $e) {}
+	}
+
+	//@TODO: Test Exceptions
+}

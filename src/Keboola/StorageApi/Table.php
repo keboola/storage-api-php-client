@@ -105,12 +105,18 @@ class Table
 		$this->filename = $filename;
 
 		$tableNameArr = explode('.', $id);
+		if (count($tableNameArr) != 3) {
+			throw new TableException('Invalid table name - string in form "stage.bucket.table" expected.');
+		}
 		$this->name = $tableNameArr[2];
 
 		$bucketName = $tableNameArr[1];
 		$stage = $tableNameArr[0];
 
 		$this->bucketId = $this->client->getBucketId($bucketName, $stage);
+		if (!$this->bucketId) {
+			throw new TableException("Bucket {$this->bucketId} not found.");
+		}
 
 		$this->transactional = $transactional;
 		$this->delimiter = $delimiter;
