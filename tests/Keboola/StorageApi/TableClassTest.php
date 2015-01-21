@@ -1,4 +1,6 @@
 <?php
+use Keboola\StorageApi\TableException;
+
 /**
  * Created by JetBrains PhpStorm.
  * User: Miro
@@ -102,6 +104,7 @@ class Keboola_StorageApi_TableClassTest extends StorageApiTestCase
 		foreach ($data as $row) {
 			$file->writeRow($row);
 		}
+		unset($file);
 
 		$table = new \Keboola\StorageApi\Table($this->_client, $this->_tableId, $tempfile);
 		$table->save(false, true);
@@ -158,4 +161,4 @@ class Keboola_StorageApi_TableClassTest extends StorageApiTestCase
 
 	//@TODO: Test Exceptions
 
-}
+	}

@@ -365,6 +365,9 @@ class Client
 
 		$this->log("Table {$result["id"]} created", array("options" => $options, "result" => $result));
 
+		if (!empty($options['data'])) {
+			fclose($options['data']);
+		}
 		return $result["id"];
 	}
 
@@ -1214,6 +1217,7 @@ class Client
 			throw new ClientException($message, $e->getCode(), $e);
 		}
 
+		fclose($fh);
 		if ($fs) {
 			$fs->remove($currentUploadDir);
 		}
