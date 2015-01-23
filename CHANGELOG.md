@@ -1,3 +1,7 @@
+## 2.12.3 (2015-01-23)
+  * [Fix] added close file commands for windows compatibility
+  * [Fix] added error checking in Table constructor
+
 ## 2.12.2 (2015-01-20)
   * [Feat] Redshift aliases supported
 
