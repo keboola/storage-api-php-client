@@ -365,7 +365,7 @@ class Client
 
 		$this->log("Table {$result["id"]} created", array("options" => $options, "result" => $result));
 
-		if (!empty($options['data'])) {
+		if (!empty($options['data']) && is_resource($options['data'])) {
 			fclose($options['data']);
 		}
 		return $result["id"];
@@ -1217,7 +1217,10 @@ class Client
 			throw new ClientException($message, $e->getCode(), $e);
 		}
 
-		fclose($fh);
+		if (is_resource($fh)) {
+			fclose($fh);
+		}
+
 		if ($fs) {
 			$fs->remove($currentUploadDir);
 		}

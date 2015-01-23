@@ -1,3 +1,6 @@
+## 2.12.4 (2015-01-24)
+  * [Fix] close file commands
+
 ## 2.12.3 (2015-01-23)
   * [Fix] added close file commands for windows compatibility
   * [Fix] added error checking in Table constructor
