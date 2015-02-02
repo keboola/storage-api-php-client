@@ -69,10 +69,14 @@ class Keboola_StorageApi_Tables_SnapshottingTest extends StorageApiTestCase
 		}
 	}
 
-	public function testCreateTableFromSnapshot()
+	/**
+	 * @dataProvider backends
+	 * @param $backend
+	 */
+	public function testCreateTableFromSnapshot($backend)
 	{
 		$sourceTableId = $this->_client->createTable(
-			$this->getTestBucketId(self::STAGE_IN),
+			$this->getTestBucketId(self::STAGE_IN, self::BACKEND_MYSQL),
 			'languages',
 			new CsvFile(__DIR__ . '/../_data/languages.csv'),
 			array(
@@ -86,7 +90,7 @@ class Keboola_StorageApi_Tables_SnapshottingTest extends StorageApiTestCase
 		$sourceTable = $this->_client->getTable($sourceTableId);
 
 		$snapshotId = $this->_client->createTableSnapshot($sourceTableId);
-		$newTableId = $this->_client->createTableFromSnapshot($this->getTestBucketId(self::STAGE_OUT), $snapshotId);
+		$newTableId = $this->_client->createTableFromSnapshot($this->getTestBucketId(self::STAGE_OUT, $backend), $snapshotId);
 		$newTable = $this->_client->getTable($newTableId);
 
 		$this->assertEquals($sourceTable['name'], $newTable['name']);
@@ -96,7 +100,7 @@ class Keboola_StorageApi_Tables_SnapshottingTest extends StorageApiTestCase
 		$this->assertEquals($sourceTable['transactional'], $newTable['transactional']);
 		$this->assertEquals($sourceTable['attributes'], $newTable['attributes']);
 
-		$this->assertEquals($this->_client->exportTable($sourceTableId), $this->_client->exportTable($newTableId));
+		$this->assertLinesEqualsSorted($this->_client->exportTable($sourceTableId), $this->_client->exportTable($newTableId));
 	}
 
 	public function testRedshiftTableCreateFromSnapshotShouldNotBeImplemented()
