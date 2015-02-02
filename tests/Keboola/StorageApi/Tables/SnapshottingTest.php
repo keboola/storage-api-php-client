@@ -18,10 +18,14 @@ class Keboola_StorageApi_Tables_SnapshottingTest extends StorageApiTestCase
 	}
 
 
-	public function testTableSnapshotCreate()
+	/**
+	 * @dataProvider backends
+	 * @param $backend
+	 */
+	public function testTableSnapshotCreate($backend)
 	{
 		$tableId = $this->_client->createTable(
-			$this->getTestBucketId(),
+			$this->getTestBucketId(self::STAGE_IN, $backend),
 			'languages',
 			new CsvFile(__DIR__ . '/../_data/languages.csv'),
 			array(
@@ -48,49 +52,28 @@ class Keboola_StorageApi_Tables_SnapshottingTest extends StorageApiTestCase
 		$this->assertNotEmpty($snapshot['dataFileId']);
 	}
 
-	public function testRedshiftTableSnapshotCreateShouldNotBeImplemented()
-	{
-		$tableId = $this->_client->createTable(
-			$this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT),
-			'languages',
-			new CsvFile(__DIR__ . '/../_data/languages.csv'),
-			array(
-				'primaryKey' => 'id',
-				'columns' => array('id', 'name'),
-			)
-		);
-
-		try {
-			$this->_client->createTableSnapshot($tableId);
-			$this->fail('Exception should be thrown');
-		} catch (\Keboola\StorageApi\ClientException $e) {
-			$this->assertEquals(501, $e->getCode());
-			$this->assertEquals('notImplemented', $e->getStringCode());
-		}
-	}
-
 	/**
-	 * @dataProvider backends
+	 * @dataProvider inOutBackends
 	 * @param $backend
 	 */
-	public function testCreateTableFromSnapshot($backend)
+	public function testCreateTableFromSnapshot($inBackend, $outBackend)
 	{
 		$sourceTableId = $this->_client->createTable(
-			$this->getTestBucketId(self::STAGE_IN, self::BACKEND_MYSQL),
+			$this->getTestBucketId(self::STAGE_IN, $inBackend),
 			'languages',
-			new CsvFile(__DIR__ . '/../_data/languages.csv'),
+			new CsvFile(__DIR__ . '/../_data/escaping.csv'),
 			array(
-				'primaryKey' => 'id',
+				'primaryKey' => 'col1',
 			)
 		);
 
 		$this->_client->setTableAttribute($sourceTableId, 'first', 'some value');
 		$this->_client->setTableAttribute($sourceTableId, 'second', 'other value');
-		$this->_client->markTableColumnAsIndexed($sourceTableId, 'name');
+		$this->_client->markTableColumnAsIndexed($sourceTableId, 'col2_with_space');
 		$sourceTable = $this->_client->getTable($sourceTableId);
 
 		$snapshotId = $this->_client->createTableSnapshot($sourceTableId);
-		$newTableId = $this->_client->createTableFromSnapshot($this->getTestBucketId(self::STAGE_OUT, $backend), $snapshotId);
+		$newTableId = $this->_client->createTableFromSnapshot($this->getTestBucketId(self::STAGE_OUT, $outBackend), $snapshotId);
 		$newTable = $this->_client->getTable($newTableId);
 
 		$this->assertEquals($sourceTable['name'], $newTable['name']);
@@ -103,25 +86,16 @@ class Keboola_StorageApi_Tables_SnapshottingTest extends StorageApiTestCase
 		$this->assertLinesEqualsSorted($this->_client->exportTable($sourceTableId), $this->_client->exportTable($newTableId));
 	}
 
-	public function testRedshiftTableCreateFromSnapshotShouldNotBeImplemented()
+	public function inOutBackends()
 	{
-		$sourceTableId = $this->_client->createTable(
-			$this->getTestBucketId(self::STAGE_IN),
-			'languages',
-			new CsvFile(__DIR__ . '/../_data/languages.csv'),
-			array(
-				'primaryKey' => 'id',
-			)
+		return array(
+			array('mysql', 'mysql'),
+			array('mysql', 'redshift'),
+			array('redshift', 'mysql'),
+			array('redshift', 'redshift'),
 		);
-
-		$snapshotId = $this->_client->createTableSnapshot($sourceTableId);
-		try {
-			$this->_client->createTableFromSnapshot($this->getTestBucketId(self::STAGE_OUT, self::BACKEND_REDSHIFT), $snapshotId);
-			$this->fail('Exception should be thrown');
-		} catch (\Keboola\StorageApi\ClientException $e) {
-			$this->assertEquals('notImplemented', $e->getStringCode());
-		}
 	}
+
 
 	public function testCreateTableFromSnapshotWithDifferentName()
 	{
@@ -189,15 +163,19 @@ class Keboola_StorageApi_Tables_SnapshottingTest extends StorageApiTestCase
 	}
 
 
+	/**
+	 * @param $backend
+	 */
 	public function testTableRollbackFromSnapshot()
 	{
+		$backend = self::BACKEND_MYSQL;
 		$sourceTableId = $this->_client->createTable(
-			$this->getTestBucketId(self::STAGE_IN),
+			$this->getTestBucketId(self::STAGE_IN, $backend),
 			'languages',
-			new CsvFile(__DIR__ . '/../_data/languages.csv')
+			new CsvFile(__DIR__ . '/../_data/escaping.csv')
 		);
 
-		$this->_client->markTableColumnAsIndexed($sourceTableId, 'name');
+		$this->_client->markTableColumnAsIndexed($sourceTableId, 'col1');
 		$this->_client->setTableAttribute($sourceTableId, 'first', 'value');
 		$this->_client->setTableAttribute($sourceTableId, 'second', 'another');
 
@@ -209,36 +187,45 @@ class Keboola_StorageApi_Tables_SnapshottingTest extends StorageApiTestCase
 
 		// do some modifications
 		$this->_client->deleteTableAttribute($sourceTableId, 'first');
-		$this->_client->removeTableColumnFromIndexed($sourceTableId, 'name');
+		$this->_client->removeTableColumnFromIndexed($sourceTableId, 'col1');
 		$this->_client->setTableAttribute($sourceTableId, 'third', 'my value');
-		$this->_client->writeTable($sourceTableId, new CsvFile(__DIR__ . '/../_data/languages.csv'), array(
+		$this->_client->writeTable($sourceTableId, new CsvFile(__DIR__ . '/../_data/escaping.csv'), array(
 			'incremental' => true,
 		));
 		$this->_client->addTableColumn($sourceTableId, 'new_column');
 
-		$aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId);
+		$aliasTableId = null;
+		if ($backend == self::BACKEND_MYSQL) {
+			$aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT, $backend), $sourceTableId);
+		}
 
 		// and rollback to snapshot
 		$tableInfoBeforeRollback = $this->_client->getTable($sourceTableId);
 		$this->_client->rollbackTableFromSnapshot($sourceTableId, $snapshotId);
 
 		$tableInfoAfterRollback = $this->_client->getTable($sourceTableId);
-		$aliasInfo = $this->_client->getTable($aliasTableId);
+		if ($aliasTableId) {
+			$aliasInfo = $this->_client->getTable($aliasTableId);
+		}
 
 		$this->assertEquals($tableInfo['columns'], $tableInfoAfterRollback['columns']);
-		$this->assertEquals($tableInfo['columns'], $aliasInfo['columns']);
 		$this->assertEquals($tableInfo['primaryKey'], $tableInfoAfterRollback['primaryKey']);
 		$this->assertEquals($tableInfo['primaryKey'], $aliasInfo['primaryKey']);
 		$this->assertEquals($tableInfo['indexedColumns'], $tableInfoAfterRollback['indexedColumns']);
 		$this->assertEquals($tableInfo['indexedColumns'], $aliasInfo['indexedColumns']);
 		$this->assertEquals($tableInfo['attributes'], $tableInfoAfterRollback['attributes']);
-		$this->assertEmpty($aliasInfo['attributes']);
+
 
 		$this->assertNotEquals($tableInfoBeforeRollback['lastChangeDate'], $tableInfoAfterRollback['lastChangeDate']);
 		$this->assertNotEquals($tableInfoBeforeRollback['lastImportDate'], $tableInfoAfterRollback['lastImportDate']);
 
 		$this->assertEquals($tableData, $this->_client->exportTable($sourceTableId));
-		$this->assertEquals($tableData, $this->_client->exportTable($aliasTableId));
+
+		if ($aliasTableId) {
+			$this->assertEmpty($aliasInfo['attributes']);
+			$this->assertEquals($tableInfo['columns'], $aliasInfo['columns']);
+			$this->assertEquals($tableData, $this->_client->exportTable($aliasTableId));
+		}
 	}
 
 	public function testRollbackShouldBeDeniedWhenThereAreFilteredAliasesOnColumnsNotIndexedInSnapshot()
