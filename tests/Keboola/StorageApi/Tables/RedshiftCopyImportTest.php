@@ -44,24 +44,49 @@ class Keboola_StorageApi_Tables_RedshiftCopyImportTest extends StorageApiTestCas
 	{
 		$this->initDb();
 		$table = $this->_client->apiPost("storage/buckets/" . $this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT) . "/tables", array(
-			"dataString" => 'Id,Name',
+			'dataString' => 'Id,Name,update',
 			'name' => 'languages',
+			'primaryKey' => 'Id',
 		));
 
 		$this->_client->writeTableAsyncDirect($table['id'], array(
-			'dataTableName' => 'out.languages',
+			'dataTableName' => 'out.languages3',
 		));
 
 		$expected = array(
-			'"Id","Name"',
-			'"1","cz"',
-			'"2","en"',
+			'"Id","Name","update"',
+			'"1","cz",""',
+			'"2","en",""',
 		);
 
 		$this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->exportTable($table['id'], null, array(
 			'format' => 'rfc',
 		)), 'imported data comparsion');
+
+		$token = $this->_client->verifyToken();
+		$db = $this->getDb($token);
+
+		$workingSchemaName = sprintf('tapi_%d_tran', $token['id']);
+
+		$db->query("truncate table $workingSchemaName.\"out.languages\"");
+		$db->query("insert into $workingSchemaName.\"out.languages3\" values (1, 'cz', '1'), (3, 'sk', '1');");
+
+		$this->_client->writeTableAsyncDirect($table['id'], array(
+			'dataTableName' => 'out.languages3',
+			'incremental' => true,
+		));
+
+		$expected = array(
+			'"Id","Name","update"',
+			'"1","cz","1"',
+			'"2","en",""',
+			'"3","sk","1"',
+		);
+		$this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->exportTable($table['id'], null, array(
+			'format' => 'rfc',
+		)), 'imported data comparsion');
 	}
+
 
 	public function testCopyImportFromNotExistingTableShouldReturnError()
 	{
@@ -116,12 +141,7 @@ class Keboola_StorageApi_Tables_RedshiftCopyImportTest extends StorageApiTestCas
 	private function initDb()
 	{
 		$token = $this->_client->verifyToken();
-
-		$dbh = new PDO(
-			"pgsql:dbname={$token['owner']['redshift']['databaseName']};port=5439;host=" . REDSHIFT_HOSTNAME,
-			REDSHIFT_USER,
-			REDSHIFT_PASSWORD
-		);
+		$dbh = $this->getDb($token);
 
 		$workingSchemaName = sprintf('tapi_%d_tran', $token['id']);
 		$stmt = $dbh->prepare("SELECT * FROM pg_catalog.pg_namespace WHERE nspname = ?");
@@ -149,9 +169,27 @@ class Keboola_StorageApi_Tables_RedshiftCopyImportTest extends StorageApiTestCas
 			Id integer,
 			Name varchar(max)
 		);");
-
-
 		$dbh->query("insert into $workingSchemaName.\"out.languages2\" values (1, 'cz'), (NULL, 'en');");
+
+		$dbh->query("create table $workingSchemaName.\"out.languages3\" (
+			Id integer not null,
+			Name varchar(max) not null,
+			update varchar(10) not null
+		);");
+
+		$dbh->query("insert into $workingSchemaName.\"out.languages3\" values (1, 'cz', ''), (2, 'en', '');");
+	}
+
+	/**
+	 * @return PDO
+	 */
+	private function getDb($token)
+	{
+		return new PDO(
+			"pgsql:dbname={$token['owner']['redshift']['databaseName']};port=5439;host=" . REDSHIFT_HOSTNAME,
+			REDSHIFT_USER,
+			REDSHIFT_PASSWORD
+		);
 	}
 
 }
