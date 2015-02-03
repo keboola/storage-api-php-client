@@ -106,37 +106,6 @@ class Keboola_StorageApi_Tables_RedshiftCopyImportTest extends StorageApiTestCas
 		}
 	}
 
-	public function testCopyImportFromInvalidTableShouldReturnError()
-	{
-		$this->initDb();
-		$table = $this->_client->apiPost("storage/buckets/" . $this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT) . "/tables", array(
-			'dataString' => 'Id,Name',
-			'name' => 'languages',
-			'primaryKey' => 'Id',
-		));
-
-		try {
-			$this->_client->writeTableAsyncDirect($table['id'], array(
-				'dataTableName' => 'out.languages2',
-			));
-			$this->fail('exception should be thrown');
-		} catch (\Keboola\StorageApi\ClientException $e) {
-			$this->assertEquals('storage.redshiftQuery', $e->getStringCode());
-		}
-
-
-		try {
-			$this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT), array(
-				'name' => 'languages2',
-				'primaryKey' => 'Id',
-				'dataTableName' => 'out.languages2',
-			));
-			$this->fail('exception should be thrown');
-		} catch (\Keboola\StorageApi\ClientException $e) {
-			$this->assertEquals('storage.redshiftQuery', $e->getStringCode());
-		}
-
-	}
 
 	private function initDb()
 	{
