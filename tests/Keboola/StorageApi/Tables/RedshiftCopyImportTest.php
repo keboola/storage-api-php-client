@@ -174,10 +174,10 @@ class Keboola_StorageApi_Tables_RedshiftCopyImportTest extends StorageApiTestCas
 		$dbh->query("create table $workingSchemaName.\"out.languages3\" (
 			Id integer not null,
 			Name varchar(max) not null,
-			update varchar(10) not null
+			update varchar(10)
 		);");
 
-		$dbh->query("insert into $workingSchemaName.\"out.languages3\" values (1, 'cz', ''), (2, 'en', '');");
+		$dbh->query("insert into $workingSchemaName.\"out.languages3\" values (1, 'cz'), (2, 'en');");
 	}
 
 	/**
