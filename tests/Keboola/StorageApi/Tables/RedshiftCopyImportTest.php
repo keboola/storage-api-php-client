@@ -68,7 +68,7 @@ class Keboola_StorageApi_Tables_RedshiftCopyImportTest extends StorageApiTestCas
 
 		$workingSchemaName = sprintf('tapi_%d_tran', $token['id']);
 
-		$db->query("truncate table $workingSchemaName.\"out.languages\"");
+		$db->query("truncate table $workingSchemaName.\"out.languages3\"");
 		$db->query("insert into $workingSchemaName.\"out.languages3\" values (1, 'cz', '1'), (3, 'sk', '1');");
 
 		$this->_client->writeTableAsyncDirect($table['id'], array(
@@ -84,7 +84,26 @@ class Keboola_StorageApi_Tables_RedshiftCopyImportTest extends StorageApiTestCas
 		);
 		$this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->exportTable($table['id'], null, array(
 			'format' => 'rfc',
-		)), 'imported data comparsion');
+		)), 'previously null column updated');
+
+		$db->query("truncate table $workingSchemaName.\"out.languages3\"");
+		$db->query("alter table $workingSchemaName.\"out.languages3\" ADD COLUMN new_col varchar");
+		$db->query("insert into $workingSchemaName.\"out.languages3\" values (1, 'cz', '1', null), (3, 'sk', '1', 'newValue');");
+
+		$this->_client->writeTableAsyncDirect($table['id'], array(
+			'dataTableName' => 'out.languages3',
+			'incremental' => true,
+		));
+
+		$expected = array(
+			'"Id","Name","update","new_col"',
+			'"1","cz","1",""',
+			'"2","en","",""',
+			'"3","sk","1","newValue"',
+		);
+		$this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->exportTable($table['id'], null, array(
+			'format' => 'rfc',
+		)), 'new  column added');
 	}
 
 
