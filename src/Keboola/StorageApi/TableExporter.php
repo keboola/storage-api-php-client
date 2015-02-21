@@ -34,9 +34,9 @@ class TableExporter
 	 *
 	 * Process async export and prepare the file on disk
 	 *
-	 * @param $tableId SAPI Table Id
-	 * @param $destination destination file
-	 * @param $exportOptions SAPI Client export options
+	 * @param $tableId string SAPI Table Id
+	 * @param $destination string destination file
+	 * @param $exportOptions array SAPI Client export options
 	 * @return void
 	 */
 	public function exportTable($tableId, $destination, $exportOptions)
