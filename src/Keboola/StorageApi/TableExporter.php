@@ -118,13 +118,7 @@ class TableExporter
 					break;
 			}
 
-			if (isset($exportOptions["columns"])) {
-				$columns = $exportOptions["columns"];
-			} else {
-				$columns = $table["columns"];
-			}
-
-			$header = $enclosure . join($columns, $enclosure . $delimiter . $enclosure) . $enclosure . "\n";
+			$header = $enclosure . join($table["columns"], $enclosure . $delimiter . $enclosure) . $enclosure . "\n";
 			if ($exportOptions["gzip"] === true) {
 				$fs->dumpFile($destination . '.tmp', $header);
 			} else {
