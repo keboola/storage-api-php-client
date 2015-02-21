@@ -34,13 +34,9 @@ class Keboola_StorageApi_Tables_TableExporterTest extends StorageApiTestCase
 	{
 		$expectationsFile = __DIR__ . '/../_data/' . $expectationsFileName;
 
-		if (!isset($exportOptions['format'])) {
-			$exportOptions['format'] = 'rfc';
-		}
 		if (!isset($exportOptions['gzip']) ) {
 			$exportOptions['gzip'] = false;
 		}
-
 
 		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, $backend), 'languages', $importFile);
 		$result = $this->_client->writeTable($tableId, $importFile);
