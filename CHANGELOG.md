@@ -1,3 +1,7 @@
+## 2.12.7 (2015-02-21)
+ * [Fix] `TableExporter` fixed columns parameter handling
+ * [Fix] `TableExporter` fix in default format used for header composition for sliced files
+
 ## 2.12.6 (2015-02-21)
  * [Fix] revert of changes from 2.12.5
 
