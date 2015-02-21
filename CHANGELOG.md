@@ -1,3 +1,7 @@
+## 2.12.5 (2015-02-20)
+  * [Fix] Forward `columns` attribute in export option in `TableExporter`
+  * [Fix] Fix phpdoc in `TableExporter`
+
 ## 2.12.4 (2015-01-24)
   * [Fix] close file commands
 
