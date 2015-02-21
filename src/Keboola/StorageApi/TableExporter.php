@@ -99,7 +99,7 @@ class TableExporter
 			}
 
 			// Create file with header
-			$format = 'raw';
+			$format = 'rfc';
 			if (isset($exportOptions['format'])) {
 				$format = $exportOptions['format'];
 			}
