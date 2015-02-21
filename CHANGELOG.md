@@ -1,3 +1,6 @@
+## 2.12.6 (2015-02-21)
+ * [Fix] revert of changes from 2.12.5
+
 ## 2.12.5 (2015-02-20)
   * [Fix] Forward `columns` attribute in export option in `TableExporter`
   * [Fix] Fix phpdoc in `TableExporter`
@@ -284,4 +287,3 @@ HTTP backend migrated to Guzzle 4.0.
 
 ## 2.6.17
  * [Feature] Table export formats: `rfc`, `escaped`, `raw`
-
