@@ -868,4 +868,69 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 		$this->assertEmpty($parsedData);
 	}
 
+	public function testAliasingToSysStageShouldNotBeEnabled()
+	{
+		$sysBucketId = $this->_initEmptyBucket('tests', self::STAGE_SYS);
+		$sourceTableId = $this->_client->createTable(
+			$this->getTestBucketId(self::STAGE_IN),
+			'users',
+			new CsvFile(__DIR__ . '/../_data/users.csv')
+		);
+
+		try {
+			$this->_client->createAliasTable($sysBucketId, $sourceTableId);
+			$this->fail('create alias in sys stage should not be allowed.');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.buckets.invalidAliasStages', $e->getStringCode());
+		}
+	}
+
+	public function testAliasingFromSysStageShouldNotBeEnabled()
+	{
+		$sysBucketId = $this->_initEmptyBucket('tests', self::STAGE_SYS);
+		$sourceTableId = $this->_client->createTable(
+			$sysBucketId,
+			'users',
+			new CsvFile(__DIR__ . '/../_data/users.csv')
+		);
+
+		try {
+			$this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $sourceTableId);
+			$this->fail('create alias in sys stage should not be allowed.');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.buckets.invalidAliasStages', $e->getStringCode());
+		}
+	}
+
+	public function testAliasingBetweenInAndOutShouldBeAllowed()
+	{
+		$inTableId = $this->_client->createTable(
+			$this->getTestBucketId(self::STAGE_IN),
+			'users',
+			new CsvFile(__DIR__ . '/../_data/users.csv')
+		);
+
+		$aliasId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $inTableId);
+		$this->assertNotEmpty($aliasId, 'in -> out');
+		$this->_client->dropTable($aliasId);
+
+		$aliasId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $inTableId, 'users-alias');
+		$this->assertNotEmpty($aliasId, 'in -> in');
+		$this->_client->dropTable($aliasId);
+
+		$outTableId = $this->_client->createTable(
+			$this->getTestBucketId(self::STAGE_OUT),
+			'users',
+			new CsvFile(__DIR__ . '/../_data/users.csv')
+		);
+
+		$aliasId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $outTableId, 'users-alias-from-out');
+		$this->assertNotEmpty($aliasId, 'out -> out');
+		$this->_client->dropTable($aliasId);
+
+		$aliasId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $outTableId, 'users-alias-from-out');
+		$this->assertNotEmpty($aliasId, 'out -> in');
+		$this->_client->dropTable($aliasId);
+	}
+
 }
