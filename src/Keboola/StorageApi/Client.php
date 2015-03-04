@@ -974,7 +974,7 @@ class Client
 	 * @param string null $description
 	 * @return int token id
 	 */
-	public function updateToken($tokenId, $permissions, $description=null)
+	public function updateToken($tokenId, $permissions, $description = null, $canReadAllFileUploads = null)
 	{
 		$options = array();
 		foreach($permissions as $tableId => $permission) {
@@ -983,6 +983,10 @@ class Client
 		}
 		if ($description) {
 			$options["description"] = $description;
+		}
+
+		if (!is_null($canReadAllFileUploads)) {
+			$options["canReadAllFileUploads"] = (bool) $canReadAllFileUploads;
 		}
 
 		$result = $this->apiPut("storage/tokens/" . $tokenId, http_build_query($options));

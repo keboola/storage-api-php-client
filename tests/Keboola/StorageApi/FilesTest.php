@@ -441,6 +441,42 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$this->_client->dropToken($newTokenId);
 	}
 
+	public function testFilesPermissionsCanReadAllFiles()
+	{
+		$uploadOptions = new FileUploadOptions();
+		$uploadOptions->setFileName('test.txt');
+		$file = $this->_client->prepareFileUpload($uploadOptions);
+
+
+		$newTokenId = $this->_client->createToken(array(), 'Files test', null, true);
+		$newToken = $this->_client->getToken($newTokenId);
+
+		// new token should not have access to any files
+		$newTokenClient = new Keboola\StorageApi\Client(array(
+			'token' => $newToken['token'],
+			'url' => STORAGE_API_URL
+		));
+
+		$file = $newTokenClient->getFile($file['id']);
+		$this->assertNotEmpty($file);
+
+		$this->_client->updateToken($newTokenId, array(), null, false);
+
+		$token = $this->_client->getToken($newTokenId);
+		$this->assertFalse($token['canReadAllFileUploads']);
+
+		try {
+			$newTokenClient->getFile($file['id']);
+			$this->fail('Access to file should be denied');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals(403, $e->getCode());
+			$this->assertEquals('accessDenied', $e->getStringCode());
+		}
+
+		$files = $newTokenClient->listFiles();
+		$this->assertEmpty($files);
+	}
+
 	public function testGetFileFederationToken()
 	{
 		$filePath = __DIR__ . '/_data/files.upload.txt';
