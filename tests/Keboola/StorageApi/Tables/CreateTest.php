@@ -225,10 +225,10 @@ class Keboola_StorageApi_Tables_CreateTest extends StorageApiTestCase
 	}
 
 	/**
-	 * @dataProvider backends
+	 * @dataProvider invalidPrimaryKeys
 	 * @param $backend
 	 */
-	public function testTableCreateWithInvalidPK($backend)
+	public function testTableCreateWithInvalidPK($backend, $primaryKey)
 	{
 		try {
 			$this->_client->createTable(
@@ -236,13 +236,37 @@ class Keboola_StorageApi_Tables_CreateTest extends StorageApiTestCase
 				'languages',
 				new CsvFile(__DIR__ . '/../_data/languages.csv'),
 				array(
-					'primaryKey' => 'idus',
+					'primaryKey' => $primaryKey,
 				)
 			);
 			$this->fail('exception should be thrown');
 		} catch (\Keboola\StorageApi\ClientException $e) {
 			$this->assertEquals('storage.tables.validation.invalidPrimaryKeyColumns', $e->getStringCode());
 		}
+
+		try {
+			$this->_client->createTableAsync(
+				$this->getTestBucketId(self::STAGE_IN, $backend),
+				'languages',
+				new CsvFile(__DIR__ . '/../_data/languages.csv'),
+				array(
+					'primaryKey' => $primaryKey,
+				)
+			);
+			$this->fail('exception should be thrown');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.tables.validation.invalidPrimaryKeyColumns', $e->getStringCode());
+		}
+	}
+
+	public function invalidPrimaryKeys()
+	{
+		return array(
+			array(self::BACKEND_MYSQL, 'ID'),
+			array(self::BACKEND_REDSHIFT, 'ID'),
+			array(self::BACKEND_MYSQL, 'idus'),
+			array(self::BACKEND_REDSHIFT, 'idus'),
+		);
 	}
 
 }
