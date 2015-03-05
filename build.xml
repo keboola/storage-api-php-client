@@ -135,7 +135,7 @@
 	</target>
 
 	<target name="api-tests" depends="prepare" description="Run unit tests with PHPUnit">
-		<exec executable="phpunit" failonerror="true">
+		<exec executable="php ${basedir}vendor/bin/phpunit" failonerror="true">
 			<env key="STORAGE_API_URL" value="${storage-api-url}"/>
 			<env key="STORAGE_API_TOKEN" value="${storage-api-token}"/>
 			<env key="REDSHIFT_HOSTNAME" value="${redshift-hostname}"/>
