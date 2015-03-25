@@ -133,6 +133,74 @@ class Keboola_StorageApi_Tables_ListingTest extends StorageApiTestCase
 		$this->_client->deleteTableAttribute($tableId, 'other');
 	}
 
+	public function testTableAttributesReplace()
+	{
+		$tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+		$this->_client->setTableAttribute($tableId, 'first', 'something');
+
+		$newAttributes = array(
+			array(
+				'name' => 'new',
+				'value' => 'new',
+			),
+			array(
+				'name' => 'second',
+				'value' => 'second value',
+				'protected' => true,
+			),
+		);
+		$this->_client->replaceTableAttributes($tableId, $newAttributes);
+
+		$table = $this->_client->getTable($tableId);
+		$this->assertCount(count($newAttributes), $table['attributes']);
+
+		$this->assertEquals($newAttributes[0]['name'], $table['attributes'][0]['name']);
+		$this->assertEquals($newAttributes[0]['value'], $table['attributes'][0]['value']);
+		$this->assertFalse($table['attributes'][0]['protected']);
+	}
+
+	public function testTableAttributesClear()
+	{
+		$tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+		$this->_client->setTableAttribute($tableId, 'first', 'something');
+
+		$this->_client->replaceTableAttributes($tableId);
+		$table = $this->_client->getTable($tableId);
+
+		$this->assertEmpty($table['attributes']);
+	}
+
+	/**
+	 * @param $attributes
+	 * @dataProvider invalidAttributes
+	 */
+	public function testTableAttributesReplaceValidation($attributes)
+	{
+		$tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+		try {
+			$this->_client->replaceTableAttributes($tableId, $attributes);
+			$this->fail('Attributes should be invalid');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.attributes.validation', $e->getStringCode());
+		}
+	}
+
+	public function invalidAttributes()
+	{
+		return array(
+			array(
+				array(
+					array(
+						'nome' => 'ukulele',
+					),
+					array(
+						'name' => 'jehovista',
+					),
+				),
+			)
+		);
+	}
+
 
 
 

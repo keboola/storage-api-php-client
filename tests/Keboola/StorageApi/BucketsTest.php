@@ -9,6 +9,11 @@
 
 class Keboola_StorageApi_BucketsTest extends StorageApiTestCase
 {
+	public function setUp()
+	{
+		parent::setUp();
+		$this->_initEmptyBucketsForAllBackends();
+	}
 
 	public function testBucketsList()
 	{
@@ -146,5 +151,86 @@ class Keboola_StorageApi_BucketsTest extends StorageApiTestCase
 	{
 		$this->assertTrue($this->_client->bucketExists('in.c-main'));
 		$this->assertFalse($this->_client->bucketExists('in.ukulele'));
+	}
+
+	public function testBucketAttributesReplace()
+	{
+		$bucketId = $this->getTestBucketId();
+		$this->clearBucketAttributes($bucketId);
+		$this->_client->setBucketAttribute($bucketId, 'first', 'something');
+
+		$newAttributes = array(
+			array(
+				'name' => 'new',
+				'value' => 'new',
+			),
+			array(
+				'name' => 'second',
+				'value' => 'second value',
+				'protected' => true,
+			),
+		);
+		$this->_client->replaceBucketAttributes($bucketId, $newAttributes);
+
+		$bucket = $this->_client->getBucket($bucketId);
+		$this->assertCount(count($newAttributes), $bucket['attributes']);
+
+		$this->assertEquals($newAttributes[0]['name'], $bucket['attributes'][0]['name']);
+		$this->assertEquals($newAttributes[0]['value'], $bucket['attributes'][0]['value']);
+		$this->assertFalse($bucket['attributes'][0]['protected']);
+	}
+
+	public function testBucketAttributesClear()
+	{
+		$bucketId = $this->getTestBucketId();
+		$this->clearBucketAttributes($bucketId);
+
+		$this->_client->replaceBucketAttributes($bucketId);
+		$bucket = $this->_client->getBucket($bucketId);
+
+		$this->assertEmpty($bucket['attributes']);
+	}
+
+	/**
+	 * @param $attributes
+	 * @dataProvider invalidAttributes
+	 */
+	public function testBucketAttributesReplaceValidation($attributes)
+	{
+		$bucketId = $this->getTestBucketId();
+		$this->clearBucketAttributes($bucketId);
+
+		try {
+			$this->_client->replaceBucketAttributes($bucketId, $attributes);
+			$this->fail('Attributes should be invalid');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.attributes.validation', $e->getStringCode());
+		}
+	}
+
+	public function invalidAttributes()
+	{
+		return array(
+			array(
+				array(
+					array(
+						'nome' => 'ukulele',
+					),
+					array(
+						'name' => 'jehovista',
+					),
+				),
+			)
+		);
+	}
+
+
+	private function clearBucketAttributes($bucketId)
+	{
+		$bucket = $this->_client->getBucket($bucketId);
+
+		foreach ($bucket['attributes'] as $attribute) {
+			$this->_client->deleteBucketAttribute($bucketId, $attribute['name']);
+		}
 	}
 }

@@ -296,6 +296,20 @@ class Client
 	}
 
 	/**
+	 * @param $tableId
+	 * @param array $attributes array of objects with `name`, `value`, `protected` keys
+	 */
+	public function replaceBucketAttributes($bucketId, $attributes = array())
+	{
+		$params = array();
+		if (!empty($attributes)) {
+			$params['attributes'] = $attributes;
+		}
+		$this->apiPost("storage/buckets/$bucketId/attributes", $params);
+	}
+
+
+	/**
 	 *
 	 * Delete a bucket attribute
 	 *
@@ -775,6 +789,19 @@ class Client
 			$data['protected'] = (bool) $protected;
 		}
 		$this->apiPost("storage/tables/$tableId/attributes/$key", $data);
+	}
+
+	/**
+	 * @param $tableId
+	 * @param array $attributes array of objects with `name`, `value`, `protected` keys
+	 */
+	public function replaceTableAttributes($tableId, $attributes = array())
+	{
+		$params = array();
+		if (!empty($attributes)) {
+			$params['attributes'] = $attributes;
+		}
+		$this->apiPost("storage/tables/$tableId/attributes", $params);
 	}
 
 	/**
