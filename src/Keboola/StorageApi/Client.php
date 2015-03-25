@@ -16,6 +16,7 @@ use Psr\Log\NullLogger;
 use Symfony\Component\Filesystem\Filesystem;
 use Keboola\Csv\CsvFile,
 	Keboola\StorageApi\Options\FileUploadOptions;
+use Symfony\Component\Process\Process;
 
 class Client
 {
@@ -1199,10 +1200,19 @@ class Client
 
 			// gzip file and preserve it's base name
 			$gzFilePath = $currentUploadDir . '/' . basename($filePath) . '.gz';
-			exec(sprintf("gzip -c %s > %s", escapeshellarg($filePath), escapeshellarg($gzFilePath)), $output, $ret);
-			if ($ret !== 0) {
-				throw new ClientException("Failed to gzip file, command return code: " . $ret);
+			$command = sprintf("gzip -c %s > %s", escapeshellarg($filePath), escapeshellarg($gzFilePath));
+
+			$process = new Process($command);
+			$process->setTimeout(null);
+			if (0 !== $process->run()) {
+				$error = sprintf('The command "%s" failed.'."\nExit Code: %s(%s)",
+					$process->getCommandLine(),
+					$process->getExitCode(),
+					$process->getExitCodeText()
+				);
+				throw new ClientException("Failed to gzip file. " . $error);
 			}
+
 			$filePath = $gzFilePath;
 		}
 		$newOptions
