@@ -23,6 +23,8 @@ class ListFilesOptions
 
 	private $query;
 
+	private $runId;
+
 	/**
 	 * @return array
 	 */
@@ -86,6 +88,7 @@ class ListFilesOptions
 			'q' => $this->getQuery(),
 			'sinceId' => $this->getSinceId(),
 			'maxId' => $this->getMaxId(),
+			'runId' => $this->getRunId(),
 		);
 	}
 
@@ -138,6 +141,23 @@ class ListFilesOptions
 	public function setMaxId($maxId)
 	{
 		$this->maxId = (int) $maxId;
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getRunId()
+	{
+		return $this->runId;
+	}
+
+	/**
+	 * @param mixed $runId
+	 */
+	public function setRunId($runId)
+	{
+		$this->runId = $runId;
 		return $this;
 	}
 

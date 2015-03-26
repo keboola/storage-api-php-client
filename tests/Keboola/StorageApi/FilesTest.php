@@ -76,6 +76,23 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$this->assertEquals($firstFileId, $files[0]['id']);
 	}
 
+	public function testFileListFilterByRunId()
+	{
+		$options = new FileUploadOptions();
+		$options->setFileName('upload.txt');
+
+		$runId = $this->_client->generateRunId();
+		$this->_client->setRunId($runId);
+
+		$file = $this->_client->prepareFileUpload($options);
+		$this->assertEquals($runId, $file['runId']);
+
+		$files = $this->_client->listFiles((new ListFilesOptions())->setRunId($runId));
+
+		$this->assertCount(1, $files);
+		$this->assertEquals($file['id'], $files[0]['id']);
+	}
+
 	/**
 	 * @dataProvider uploadData
 	 */
