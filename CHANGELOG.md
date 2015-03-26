@@ -1,3 +1,6 @@
+## 2.12.9 (2015-03-26)
+ * [Feat] `File uploads` files can be filtered by runId
+
 ## 2.12.8 (2015-03-25)
  * [Feat] Replace table/bucket attributes method
  * [Refactor] use Symfony/Process for gzip command execution
