@@ -240,7 +240,7 @@ class Client
 	 *
 	 * @return string bucket Id
 	 */
-	public function createBucket($name, $stage, $description, $backend = null)
+	public function createBucket($name, $stage, $description =  "", $backend = null)
 	{
 		$options = array(
 			"name" => $name,

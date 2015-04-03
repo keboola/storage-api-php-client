@@ -92,6 +92,14 @@ class Keboola_StorageApi_BucketsTest extends StorageApiTestCase
 		$this->_client->dropBucket($newBucket['id']);
 	}
 
+	public function testBucketCreateWithoutDescription()
+	{
+		$bucketId = $this->_client->createBucket('something', self::STAGE_IN);
+		$bucket = $this->_client->getBucket($bucketId);
+		$this->assertEmpty($bucket['description']);
+		$this->_client->dropBucket($bucket['id']);
+	}
+
 	public function testBucketAttributes()
 	{
 		$bucketId = 'in.c-main';
