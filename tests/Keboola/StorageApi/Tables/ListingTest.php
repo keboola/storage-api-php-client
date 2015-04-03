@@ -55,6 +55,7 @@ class Keboola_StorageApi_Tables_ListingTest extends StorageApiTestCase
 		$this->assertArrayHasKey('attributes', $firstTable, 'List tables are returned with attributes');
 		$this->assertCount(1, $firstTable['attributes']);
 		$this->assertArrayHasKey('bucket', $firstTable, 'List tables are returned with attributes');
+		$this->assertArrayNotHasKey('columns', $firstTable);
 	}
 
 	public function testListTablesWithIncludeParam()
@@ -75,6 +76,28 @@ class Keboola_StorageApi_Tables_ListingTest extends StorageApiTestCase
 		$firstTable = reset($tables);
 		$this->assertArrayNotHasKey('attributes', $firstTable);
 		$this->assertArrayNotHasKey('bucket', $firstTable);
+
+	}
+
+	public function testListTablesWithColumns()
+	{
+		$this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+
+		$tables = $this->_client->listTables($this->getTestBucketId(), array(
+			'include' => 'columns',
+		));
+
+		$firstTable = reset($tables);
+		$this->assertArrayHasKey('columns', $firstTable);
+		$this->assertEquals(array('id', 'name'), $firstTable['columns']);
+
+		$tables = $this->_client->listTables(null, array(
+			'include' => 'columns',
+		));
+
+		$firstTable = reset($tables);
+		$this->assertArrayHasKey('columns', $firstTable);
+		$this->assertEquals(array('id', 'name'), $firstTable['columns']);
 	}
 
 	public function testTableAttributes()
