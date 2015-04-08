@@ -68,6 +68,7 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 			$admin = $currentToken['admin'];
 			$this->arrayHasKey('id', $admin);
 			$this->arrayHasKey('name', $admin);
+			$this->arrayHasKey('features', $admin);
 			return;
 		}
 
