@@ -1,3 +1,6 @@
+## 2.12.10 (2015-04-08)
+ * [Refactor] AWS SDK updated to 2.7.*
+
 ## 2.12.9 (2015-03-26)
  * [Feat] `File uploads` files can be filtered by runId
 
