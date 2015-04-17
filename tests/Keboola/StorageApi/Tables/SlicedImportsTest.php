@@ -31,7 +31,7 @@ class Keboola_StorageApi_Tables_SlicedImportsTest extends StorageApiTestCase
 		$uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
 		$uploadOptions
 			->setFileName('entries_')
-			->setIsEncrypted(false)
+			->setIsEncrypted(true)
 			->setIsSliced(true);
 		$slicedFile = $this->_client->prepareFileUpload($uploadOptions);
 
@@ -47,17 +47,20 @@ class Keboola_StorageApi_Tables_SlicedImportsTest extends StorageApiTestCase
 			'Bucket' => $uploadParams['bucket'],
 			'Key'    => $uploadParams['key'] . 'part001.gz',
 			'Body'   => fopen(__DIR__ . '/../_data/sliced/neco_0000_part_00.gz', 'r+'),
+			'ServerSideEncryption' => $uploadParams['x-amz-server-side-encryption'],
 		))->get('ObjectURL');
 
 		$s3Client->putObject(array(
 			'Bucket' => $uploadParams['bucket'],
 			'Key'    => $uploadParams['key'] . 'part002.gz',
 			'Body'   => fopen(__DIR__ . '/../_data/sliced/neco_0001_part_00.gz', 'r+'),
+			'ServerSideEncryption' => $uploadParams['x-amz-server-side-encryption'],
 		))->get('ObjectURL');
 
 		$s3Client->putObject(array(
 			'Bucket' => $uploadParams['bucket'],
 			'Key'    => $uploadParams['key'] . 'manifest',
+			'ServerSideEncryption' => $uploadParams['x-amz-server-side-encryption'],
 			'Body'   => json_encode(array(
 				'entries' => array(
 					array(

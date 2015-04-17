@@ -187,6 +187,38 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		);
 	}
 
+	public function testRequireEncryptionForSliced()
+	{
+		// sliced file
+		$uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
+		$uploadOptions
+			->setFileName('entries_')
+			->setIsEncrypted(true)
+			->setIsSliced(true);
+		$slicedFile = $this->_client->prepareFileUpload($uploadOptions);
+
+		$uploadParams = $slicedFile['uploadParams'];
+		$credentials = new Aws\Common\Credentials\Credentials(
+			$uploadParams['credentials']['AccessKeyId'],
+			$uploadParams['credentials']['SecretAccessKey'],
+			$uploadParams['credentials']['SessionToken']
+		);
+
+		$s3Client = \Aws\S3\S3Client::factory(array('credentials' => $credentials));
+
+		try {
+			// write without encryption header
+			$s3Client->putObject(array(
+				'Bucket' => $uploadParams['bucket'],
+				'Key'    => $uploadParams['key'] . 'part001.gz',
+				'Body'   => fopen(__DIR__ . '/_data/sliced/neco_0000_part_00.gz', 'r+'),
+			))->get('ObjectURL');
+			$this->fail('Write should not be allowed');
+		} catch (\Aws\S3\Exception\AccessDeniedException $e) {
+			$this->assertEquals(403, $e->getResponse()->getStatusCode());
+		}
+	}
+
 	public function testEncryptionMustBeSetWhenEnabled()
 	{
 		$path  = __DIR__ . '/_data/files.upload.txt';
@@ -247,6 +279,8 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		} catch (\Aws\S3\Exception\AccessDeniedException $e) {
 			$this->assertEquals(403, $e->getResponse()->getStatusCode());
 		}
+
+
 
 	}
 
