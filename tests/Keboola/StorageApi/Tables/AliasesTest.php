@@ -116,6 +116,32 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 		$this->_client->dropTable($sourceTableId);
 	}
 
+	public function testRedshiftAliasAliasedTableDeleteShouldThrowUserError()
+	{
+		$testBucketId = $this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT);
+		$importFile = __DIR__ . '/../_data/languages.csv';
+		$sourceTableId = $this->_client->createTable(
+			$testBucketId,
+			'languages',
+			new CsvFile($importFile),
+			array(
+				'primaryKey' => 'id',
+				'columns' => array('id', 'name'),
+			)
+		);
+
+		$sql = 'SELECT name FROM "' . $testBucketId . '".languages LIMIT 2';
+		$this->_client->createRedshiftAliasTable($this->getTestBucketId(self::STAGE_OUT, self::BACKEND_REDSHIFT), $sql, 'test');
+
+		try {
+			$this->_client->dropTable($sourceTableId);
+			$this->fail('Delete should not be allowed');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.dependentObjects', $e->getStringCode());
+			$this->assertEquals([strtolower($sourceTableId)], $e->getContextParams()['params']['dependencies']['tables']);
+		}
+	}
+
 	public function testRedshiftAliasUnsupportedMethods()
 	{
 		$testBucketId = $this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT);
