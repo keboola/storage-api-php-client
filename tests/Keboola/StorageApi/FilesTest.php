@@ -39,6 +39,18 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$this->assertEquals($fileId, $file['id']);
 	}
 
+	public function testSetTagsFromArrayWithGaps()
+	{
+		$file = $this->_client->prepareFileUpload((new FileUploadOptions())
+			->setFileName('test.json')
+			->setTags([
+				0 => 'neco',
+				12 => 'another',
+			])
+		);
+		$this->assertEquals(['neco', 'another'], $file['tags']);
+	}
+
 	public function testFileListSearch()
 	{
 
