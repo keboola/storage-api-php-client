@@ -49,6 +49,18 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$this->assertEquals($fileId, $file['id']);
 	}
 
+	public function testFilesListFilterByInvalidValues()
+	{
+		try {
+			$this->_client->apiGet('storage/files?' . http_build_query([
+				'tags' => 'tag',
+			]));
+			$this->fail('Validation error should be thrown');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.validation', $e->getStringCode());
+		}
+	}
+
 	public function testSetTagsFromArrayWithGaps()
 	{
 		$file = $this->_client->prepareFileUpload((new FileUploadOptions())
