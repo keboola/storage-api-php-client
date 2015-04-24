@@ -562,6 +562,17 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$this->assertEmpty($files);
 	}
 
+	public function testsDuplicateTagsShouldBeDeduped()
+	{
+		$uploadOptions = new FileUploadOptions();
+		$uploadOptions
+			->setFileName('test.txt')
+			->setTags(['first', 'first', 'second']);
+		$file = $this->_client->prepareFileUpload($uploadOptions);
+		$file = $this->_client->getFile($file['id']);
+		$this->assertEquals(['first', 'second'], $file['tags']);
+	}
+
 	public function testGetFileFederationToken()
 	{
 		$filePath = __DIR__ . '/_data/files.upload.txt';
@@ -631,6 +642,10 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$this->_client->addFileTag($fileId, 'new');
 		$file = $this->_client->getFile($fileId);
 		$this->assertEquals(array('image', 'new'), $file['tags']);
+
+		$this->_client->addFileTag($fileId, 'new');
+		$file = $this->_client->getFile($fileId);
+		$this->assertEquals(array('image', 'new'), $file['tags'], 'duplicate tag add is ignored');
 	}
 
 }
