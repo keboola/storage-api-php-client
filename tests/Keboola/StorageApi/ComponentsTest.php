@@ -259,5 +259,29 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 
 	}
 
+	public function testTokenWithManageAllBucketsShouldHaveAccessToComponents()
+	{
+		$tokenId = $this->_client->createToken('manage', 'test components');
+		$token = $this->_client->getToken($tokenId);
+
+		$client = new Keboola\StorageApi\Client(array(
+			'token' => $token['token'],
+			'url' => STORAGE_API_URL,
+		));
+		$components = new \Keboola\StorageApi\Components($client);
+		$componentsList = $components->listComponents();
+		$this->assertEmpty($componentsList);
+
+		$config = $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
+			->setComponentId('gooddata-writer')
+			->setName('Main'));
+
+		$componentsList = $components->listComponents();
+		$this->assertCount(1, $componentsList);
+		$this->assertEquals($config['id'], $componentsList[0]['configurations'][0]['id']);
+
+		$this->_client->dropToken($tokenId);
+	}
+
 
 }
