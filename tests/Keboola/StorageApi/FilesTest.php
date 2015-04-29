@@ -86,6 +86,17 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$this->assertEquals($fileId, $file['id']);
 	}
 
+	public function testSyntaxErrorInQueryShouldReturnUserError()
+	{
+		try {
+			$this->_client->listFiles((new ListFilesOptions())->setQuery('tags[]:sd'));
+			$this->fail('exception should be thrown');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals(400, $e->getCode());
+			$this->assertEquals('query.syntax', $e->getStringCode());
+		}
+	}
+
 	public function testFileListFilterBySinceIdMaxId()
 	{
 		$files = $this->_client->listFiles((new ListFilesOptions())
