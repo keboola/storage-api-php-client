@@ -25,6 +25,8 @@ class Keboola_StorageApi_StatsTest extends StorageApiTestCase
 
 		$importFile =  __DIR__ . '/_data/languages.csv';
 		$table1Id = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile($importFile));
+		$this->_client->writeTableAsync($table1Id, new CsvFile($importFile));
+
 		$table2Id = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'other', new CsvFile($importFile));
 
 		$this->_client->exportTableAsync($table2Id);
@@ -41,25 +43,23 @@ class Keboola_StorageApi_StatsTest extends StorageApiTestCase
 		$this->assertArrayHasKey('export', $tables);
 
 		$import = $tables['import'];
-		$this->assertEquals(2, $import['total']);
 		$this->assertCount(2, $import['tables']);
 
 		$table = reset($import['tables']);
 		$this->assertArrayHasKey('id', $table);
-		$this->assertEquals(1, $table['count']);
+		$this->assertEquals(2, $table['count']);
 		$this->assertArrayHasKey('durationTotalSeconds', $table);
-		$this->assertContains($table['id'], [$table1Id, $table2Id]);
+		$this->assertEquals($table1Id, $table['id']);
 
 
 		$export = $tables['export'];
-		$this->assertEquals(1, $export['total']);
 		$this->assertCount(1, $export['tables']);
 
 		$this->assertArrayHasKey('files', $stats);
 		$files = $stats['files'];
-		$this->assertEquals(3, $files['total']['count']);
+		$this->assertEquals(4, $files['total']['count']); // 3 imports + 1 export
 
-		$this->assertCount(1, $files['tags']['tags']);
+		$this->assertCount(2, $files['tags']['tags']);
 
 	}
 
