@@ -1,3 +1,6 @@
+# 2.12.11 (2015-05-05)
+ * [Feat] New `stats` resource
+
 ## 2.12.10 (2015-04-08)
  * [Refactor] AWS SDK updated to 2.7.*
 
