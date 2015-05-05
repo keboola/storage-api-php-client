@@ -55,6 +55,7 @@
     <testsuite name="part-3">
         <file>tests/Keboola/StorageApi/Tables/ImportExportCommonTest.php</file>
         <file>tests/Keboola/StorageApi/RedshiftUnloadToFilesTest.php</file>
+        <file>tests/Keboola/StorageApi/StatsTest.php</file>
     </testsuite>
 
 </phpunit>

@@ -11,6 +11,7 @@ use GuzzleHttp\Subscriber\Log\LogSubscriber;
 use GuzzleHttp\Subscriber\Retry\RetrySubscriber;
 use Keboola\StorageApi\Options\GetFileOptions;
 use Keboola\StorageApi\Options\ListFilesOptions;
+use Keboola\StorageApi\Options\StatsOptions;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\Filesystem\Filesystem;
@@ -1793,6 +1794,11 @@ class Client
 			$components[$component["id"]] = $component["uri"];
 		}
 		return $components;
+	}
+
+	public function getStats(StatsOptions $options)
+	{
+		return $this->apiGet('storage/stats?' . http_build_query($options->toArray()));
 	}
 
 }
