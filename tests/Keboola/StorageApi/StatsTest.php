@@ -41,7 +41,7 @@ class Keboola_StorageApi_StatsTest extends StorageApiTestCase
 		$this->assertArrayHasKey('export', $tables);
 
 		$import = $tables['import'];
-		$this->assertEquals(0, $import['other']);
+		$this->assertEquals(2, $import['total']);
 		$this->assertCount(2, $import['tables']);
 
 		$table = reset($import['tables']);
@@ -52,7 +52,7 @@ class Keboola_StorageApi_StatsTest extends StorageApiTestCase
 
 
 		$export = $tables['export'];
-		$this->assertEquals(0, $export['other']);
+		$this->assertEquals(1, $export['total']);
 		$this->assertCount(1, $export['tables']);
 
 		$this->assertArrayHasKey('files', $stats);
