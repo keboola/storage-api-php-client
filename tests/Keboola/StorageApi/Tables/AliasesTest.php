@@ -662,6 +662,68 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 		}
 	}
 
+	public function testRedshiftAliasShouldNotBeUpdatableIfUsedInAnotherAlias()
+	{
+		$testBucketId = $this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT);
+		$importFile = __DIR__ . '/../_data/languages.csv';
+		$this->_client->createTable(
+			$testBucketId,
+			'languages',
+			new CsvFile($importFile),
+			array(
+				'primaryKey' => 'id',
+				'columns' => array('id', 'name'),
+			)
+		);
+
+		$sql1 = 'SELECT name FROM "' . $testBucketId . '".languages LIMIT 2';
+		$aliasBucketId = $this->getTestBucketId(self::STAGE_OUT, self::BACKEND_REDSHIFT);
+		$aliasTable1Id = $this->_client->createRedshiftAliasTable($aliasBucketId, $sql1, 'test1');
+		$sql2 = 'SELECT name FROM "' . $aliasBucketId . '".test1';
+		$aliasTable2Id = $this->_client->createRedshiftAliasTable($this->getTestBucketId(self::STAGE_OUT, self::BACKEND_REDSHIFT), $sql2, 'test2');
+
+		try {
+			$this->_client->updateRedshiftAliasTable($aliasTable1Id, $sql1);
+			$this->fail('Update should not be allowed');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.dependentObjects', $e->getStringCode());
+			$this->assertContains(strtolower($aliasTable2Id), $e->getMessage());
+		}
+
+		$this->_client->dropTable($aliasTable2Id);
+	}
+
+	public function testRedshiftAliasWithDependenciesShouldNotBeDeletable()
+	{
+		$testBucketId = $this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT);
+		$importFile = __DIR__ . '/../_data/languages.csv';
+		$this->_client->createTable(
+			$testBucketId,
+			'languages',
+			new CsvFile($importFile),
+			array(
+				'primaryKey' => 'id',
+				'columns' => array('id', 'name'),
+			)
+		);
+
+		$sql1 = 'SELECT name FROM "' . $testBucketId . '".languages LIMIT 2';
+		$aliasBucketId = $this->getTestBucketId(self::STAGE_OUT, self::BACKEND_REDSHIFT);
+		$aliasTable1Id = $this->_client->createRedshiftAliasTable($aliasBucketId, $sql1, 'test1');
+		$sql2 = 'SELECT name FROM "' . $aliasBucketId . '".test1';
+		$aliasTable2Id = $this->_client->createRedshiftAliasTable($this->getTestBucketId(self::STAGE_OUT, self::BACKEND_REDSHIFT), $sql2, 'test2');
+
+		try {
+			$this->_client->dropTable($aliasTable1Id);
+			$this->fail('Delete should not be allowed');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.dependentObjects', $e->getStringCode());
+			$this->assertContains(strtolower($aliasTable2Id), $e->getMessage());
+		}
+
+		$this->_client->dropTable($aliasTable2Id);
+	}
+
 	public function testColumnAssignedToAliasWithoutAutoSyncShouldNotBeDeletable()
 	{
 		$importFile =  __DIR__ . '/../_data/users.csv';
