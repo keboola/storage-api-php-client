@@ -86,9 +86,6 @@ class Keboola_StorageApi_Tables_ImportExportCommonTest extends StorageApiTestCas
 	{
 		return array(
 			array(self::BACKEND_MYSQL, new CsvFile(__DIR__ . '/../_data/languages.csv'), 'languages.csv', array('id', 'name')),
-		);
-		return array(
-			array(self::BACKEND_MYSQL, new CsvFile(__DIR__ . '/../_data/languages.csv'), 'languages.csv', array('id', 'name')),
 			array(self::BACKEND_REDSHIFT, new CsvFile(__DIR__ . '/../_data/languages.csv'), 'languages.csv', array('id', 'name')),
 			array(self::BACKEND_REDSHIFT, new CsvFile(__DIR__ . '/../_data/languages.csv'), 'languages.csv', array('id', 'name'), 'rfc', array(
 				'primaryKey' => 'id,name',
