@@ -54,6 +54,7 @@
             <file>tests/Keboola/StorageApi/Tables/ImportExportCommonTest.php</file>
             <file>tests/Keboola/StorageApi/RedshiftUnloadToFilesTest.php</file>
             <file>tests/Keboola/StorageApi/StatsTest.php</file>
+            <file>tests/Keboola/StorageApi/Tables/MetricsTest.php</file>
         </testsuite>
 
 	<logging>

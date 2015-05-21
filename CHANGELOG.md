@@ -1,3 +1,6 @@
+# 2.12.12 (2015-05-21)
+ * [Feat] `waitForJob` method added to client
+
 # 2.12.11 (2015-05-05)
  * [Feat] New `stats` resource
 

@@ -1612,20 +1612,7 @@ class Client
 	private function handleAsyncTask(Response $jobCreatedResponse)
 	{
 		$job = $jobCreatedResponse->json();
-		$maxWaitPeriod = 20;
-		$retries = 0;
-
-		// poll for status
-		do {
-
-			if ($retries > 0) {
-				$waitSeconds = min(pow(2, $retries), $maxWaitPeriod);
-				sleep($waitSeconds);
-			}
-			$retries++;
-
-			$job = $this->getJob($job['id']);
-		} while(!in_array($job['status'], array('success', 'error')));
+		$job = $this->waitForJob($job['id']);
 
 		if ($job['status'] == 'error') {
 			throw new ClientException(
@@ -1638,6 +1625,32 @@ class Client
 		}
 
 		return $job['results'];
+	}
+
+	/**
+	 * @param $jobId
+	 * @return array|null
+	 */
+	public function waitForJob($jobId)
+	{
+		$maxWaitPeriod = 20;
+		$retries = 0;
+		$job = null;
+
+		// poll for status
+		do {
+
+			if ($retries > 0) {
+				$waitSeconds = min(pow(2, $retries), $maxWaitPeriod);
+				sleep($waitSeconds);
+			}
+			$retries++;
+
+			$job = $this->getJob($jobId);
+			$jobId = $job['id'];
+		} while(!in_array($job['status'], array('success', 'error')));
+
+		return $job;
 	}
 
 

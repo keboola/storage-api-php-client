@@ -81,8 +81,12 @@ class Keboola_StorageApi_Tables_ImportExportCommonTest extends StorageApiTestCas
 		$this->assertNotEmpty($result['totalDataSizeBytes']);
 	}
 
+
 	public function tableImportData()
 	{
+		return array(
+			array(self::BACKEND_MYSQL, new CsvFile(__DIR__ . '/../_data/languages.csv'), 'languages.csv', array('id', 'name')),
+		);
 		return array(
 			array(self::BACKEND_MYSQL, new CsvFile(__DIR__ . '/../_data/languages.csv'), 'languages.csv', array('id', 'name')),
 			array(self::BACKEND_REDSHIFT, new CsvFile(__DIR__ . '/../_data/languages.csv'), 'languages.csv', array('id', 'name')),
@@ -103,11 +107,9 @@ class Keboola_StorageApi_Tables_ImportExportCommonTest extends StorageApiTestCas
 
 			array(self::BACKEND_MYSQL, new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.csv.gz'), 'languages.csv', array('id', 'name')),
 			array(self::BACKEND_REDSHIFT, new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.csv.gz'), 'languages.csv', array('id', 'name')),
-//			  array( new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.zip'), 'languages.csv', array('id', 'name')),
 
 			array(self::BACKEND_MYSQL, new CsvFile(__DIR__ . '/../_data/languages.utf8.bom.csv'), 'languages.csv', array('id', 'name')),
 			array(self::BACKEND_REDSHIFT, new CsvFile(__DIR__ . '/../_data/languages.utf8.bom.csv'), 'languages.csv', array('id', 'name')),
-//			  array( new CsvFile( __DIR__ . '/../_data/languages.zip'), 'languages.csv', array('id', 'name')),
 
 			array(self::BACKEND_MYSQL, new CsvFile(__DIR__ . '/../_data/languages.csv.gz'), 'languages.csv', array('id', 'name')),
 			array(self::BACKEND_REDSHIFT, new CsvFile(__DIR__ . '/../_data/languages.csv.gz'), 'languages.csv', array('id', 'name')),
