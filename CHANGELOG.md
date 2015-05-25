@@ -1,3 +1,6 @@
+# 2.12.13 (2015-05-25)
+ * [Feat] Exponential backoff for HTTP status 504 (Gateway timeout)
+
 # 2.12.12 (2015-05-21)
  * [Feat] `waitForJob` method added to client
 

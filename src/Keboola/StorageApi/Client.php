@@ -26,7 +26,7 @@ class Client
 	const STAGE_OUT = "out";
 	const STAGE_SYS = "sys";
 
-	const VERSION = '2.12.12';
+	const VERSION = '2.12.13';
 
 	// Token string
 	public $token;
@@ -148,7 +148,7 @@ class Client
 	{
 		$filter = RetrySubscriber::createChainFilter([
 			RetrySubscriber::createCurlFilter(),
-			RetrySubscriber::createStatusFilter(),
+			RetrySubscriber::createStatusFilter([500, 503, 504]),
 		]);
 		return new RetrySubscriber([
 			'filter' => $filter,
