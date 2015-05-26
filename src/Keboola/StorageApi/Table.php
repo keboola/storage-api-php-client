@@ -115,7 +115,7 @@ class Table
 
 		$this->bucketId = $this->client->getBucketId($bucketName, $stage);
 		if (!$this->bucketId) {
-			throw new TableException("Bucket {$this->bucketId} not found.");
+			throw new TableException("Bucket {$bucketName} not found in stage {$stage}.");
 		}
 
 		$this->transactional = $transactional;

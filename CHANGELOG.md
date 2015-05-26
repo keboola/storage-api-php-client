@@ -1,3 +1,6 @@
+# 2.12.14 (2015-05-26)
+ * [Fix] `Table` bucket not found message
+
 # 2.12.13 (2015-05-25)
  * [Feat] Exponential backoff for HTTP status 504 (Gateway timeout)
 
