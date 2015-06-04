@@ -20,6 +20,7 @@ class Keboola_StorageApi_IndexTest extends StorageApiTestCase
 		$index = $this->_client->indexAction();
 		$this->assertEquals('storage', $index['api']);
 		$this->assertEquals('v2', $index['version']);
+		$this->assertArrayHasKey('revision', $index);
 
 		$this->assertInternalType('array', $index['components']);
 
