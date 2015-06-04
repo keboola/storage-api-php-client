@@ -445,4 +445,39 @@ class Keboola_StorageApi_Tables_ImportExportCommonTest extends StorageApiTestCas
 		$this->assertEquals('main_fast', $job['operationParams']['queue']);
 	}
 
+	/**
+	 * @dataProvider backends
+	 * @param $backend
+	 */
+	public function testTableImportFromEmptyFileShouldFail($backend)
+	{
+		$tableId = $this->_client->createTable(
+			$this->getTestBucketId(self::STAGE_IN, $backend),
+			'languages',
+			new CsvFile(__DIR__ . '/../_data/languages.csv')
+		);
+		try {
+			$this->_client->writeTable($tableId, new CsvFile(__DIR__ . '/../_data/empty.csv'));
+			$this->fail('Table should not be imported');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.tables.validation.noColumns', $e->getStringCode());
+		}
+
+		try {
+			$fileId = $this->_client->uploadFile(__DIR__ . '/../_data/empty.csv', (new \Keboola\StorageApi\Options\FileUploadOptions())
+					->setFileName('languages')
+					->setCompress(false)
+			);
+			$this->_client->writeTableAsyncDirect(
+				$tableId,
+				[
+					'dataFileId' => $fileId
+				]
+			);
+			$this->fail('Table should not be imported');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('csvImport.columnsNotMatch', $e->getStringCode());
+		}
+	}
+
 }

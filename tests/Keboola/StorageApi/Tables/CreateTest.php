@@ -105,8 +105,45 @@ class Keboola_StorageApi_Tables_CreateTest extends StorageApiTestCase
 				'languages',
 				new CsvFile(__DIR__ . '/../_data/languages.invalid-column-name.csv')
 			);
+			$this->fail('Table should not be created');
 		} catch (\Keboola\StorageApi\ClientException $e) {
 			$this->assertEquals('storage.tables.validation.invalidColumnName', $e->getStringCode());
+		}
+	}
+
+	/**
+	 * @dataProvider backends
+	 * @param $backend
+	 */
+	public function testTableFromEmptyFileShouldNotBeCreated($backend)
+	{
+		try {
+			$this->_client->createTable(
+				$this->getTestBucketId(self::STAGE_IN, $backend),
+				'languages',
+				new CsvFile(__DIR__ . '/../_data/empty.csv')
+			);
+			$this->fail('Table should not be created');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.tables.validation.noColumns', $e->getStringCode());
+		}
+
+		try {
+			$fileId = $this->_client->uploadFile(__DIR__ . '/../_data/empty.csv', (new \Keboola\StorageApi\Options\FileUploadOptions())
+					->setFileName('languages')
+					->setCompress(false)
+			);
+
+			$this->_client->createTableAsyncDirect(
+				$this->getTestBucketId(self::STAGE_IN, $backend),
+				[
+					'name' => 'languages',
+					'dataFileId' => $fileId
+				]
+			);
+			$this->fail('Table should not be created');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.tables.validation.noColumns', $e->getStringCode());
 		}
 	}
 
