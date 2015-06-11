@@ -27,6 +27,11 @@ class Keboola_StorageApi_IndexTest extends StorageApiTestCase
 		$component = reset($index['components']);
 		$this->assertArrayHasKey('id', $component);
 		$this->assertArrayHasKey('uri', $component);
+
+		$this->assertArrayHasKey('urlTemplates', $index);
+
+		$urlTemplates = $index['urlTemplates'];
+		$this->assertArrayHasKey('orchestrationJob', $urlTemplates);
 	}
 
 }
