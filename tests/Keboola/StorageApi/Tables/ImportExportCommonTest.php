@@ -432,6 +432,34 @@ class Keboola_StorageApi_Tables_ImportExportCommonTest extends StorageApiTestCas
 		}
 	}
 
+	/**
+	 * Enclosure and escaped by should not be specified together
+	 */
+	public function testRedshiftUnsupportedCsvParams()
+	{
+		$tableId = $this->_client->createTable(
+			$this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT), 'languages',
+			new CsvFile(__DIR__ . '/../_data/languages.csv')
+		);
+
+		$csv = new CsvFile(__DIR__ . '/../_data/languages.csv', ",", '"', "\\");
+		try {
+			$this->_client->writeTableAsync($tableId, $csv);
+			$this->fail('Exception should be thrown');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('csvImport.invalidCsvParams', $e->getStringCode());
+		}
+
+		try {
+			$this->_client->createTable(
+				$this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT), 'languages-2',
+				$csv
+			);
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('csvImport.invalidCsvParams', $e->getStringCode());
+		}
+	}
+
 	public function testEmptyTableAsyncExportShouldBeInFastQueue()
 	{
 		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, self::BACKEND_MYSQL), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
