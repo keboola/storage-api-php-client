@@ -315,6 +315,35 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 		$this->_testAliasWithWrongSql($aliasBucketId, "SELECT name FROM $testBucketId.languages LIMIT 2;DELETE FROM \"$testBucketId\".languages");
 	}
 
+	public function testRedshiftErrorOnAliasExportWithInvalidSourceData()
+	{
+		$testBucketId = $this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT);
+		$importFile = __DIR__ . '/../_data/languages.csv';
+		$sourceTableId = $this->_client->createTable(
+			$testBucketId,
+			'languages',
+			new CsvFile($importFile),
+			array(
+				'primaryKey' => 'id',
+				'columns' => array('id', 'name'),
+			)
+		);
+		$this->_client->deleteTableRows($sourceTableId);
+		$aliasBucketId = $this->getTestBucketId(self::STAGE_OUT, self::BACKEND_REDSHIFT);
+		$aliasId = $this->_client->createRedshiftAliasTable($aliasBucketId, "SELECT name::DECIMAL(12,8) as n FROM \"$testBucketId\".languages", 'number');
+
+		$this->_client->writeTable($sourceTableId, new CsvFile($importFile));
+
+		try {
+			$this->_client->exportTableAsync($aliasId);
+			$this->fail('export should not be allowed');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.unload', $e->getStringCode());
+		}
+
+		$this->_client->dropTable($aliasId);
+	}
+
 	private function _testAliasWithWrongSql($aliasBucketId, $sql)
 	{
 		try {
