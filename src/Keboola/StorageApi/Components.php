@@ -32,6 +32,7 @@ class Components {
 			'description' => $options->getDescription(),
 			'configurationId' => $options->getConfigurationId(),
 			'configuration' => $options->getConfiguration() ? json_encode($options->getConfiguration()) : null,
+			'state' => $options->getState() ? json_encode($options->getState()) : null,
 		));
 	}
 
@@ -48,6 +49,10 @@ class Components {
 
 		if ($options->getConfiguration()) {
 			$data['configuration'] = json_encode($options->getConfiguration());
+		}
+
+		if ($options->getState()) {
+			$data['state'] = json_encode($options->getState());
 		}
 
 		return $this->client->apiPut(

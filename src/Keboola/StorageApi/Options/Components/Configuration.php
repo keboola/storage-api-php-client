@@ -22,6 +22,8 @@ class Configuration
 
 	private $description;
 
+	private $state;
+
 	/**
 	 * @return mixed
 	 */
@@ -105,6 +107,23 @@ class Configuration
 	public function setConfiguration($configuration)
 	{
 		$this->configuration = (array) $configuration;
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getState()
+	{
+		return $this->state;
+	}
+
+	/**
+	 * @param mixed $state
+	 */
+	public function setState($state)
+	{
+		$this->state = $state;
 		return $this;
 	}
 

@@ -94,6 +94,31 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$this->assertEquals(0, $config['version']);
 	}
 
+	public function testComponentConfigCreateWithStateJson()
+	{
+		$state = array(
+			'queries' => array(
+				array(
+					'id' => 1,
+					'query' => 'SELECT * from some_table',
+				)
+			),
+		);
+		$components = new \Keboola\StorageApi\Components($this->_client);
+		$components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
+				->setComponentId('gooddata-writer')
+				->setConfigurationId('main-1')
+				->setName('Main')
+				->setDescription('some desc')
+				->setState($state)
+		);
+
+		$config = $components->getConfiguration('gooddata-writer', 'main-1');
+
+		$this->assertEquals($state, $config['state']);
+		$this->assertEquals(0, $config['version']);
+	}
+
 	public function testComponentConfigCreateIdAutoCreate()
 	{
 		$components = new \Keboola\StorageApi\Components($this->_client);
@@ -120,7 +145,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$components = new \Keboola\StorageApi\Components($this->_client);
 		$newConfiguration = $components->addConfiguration($config);
 		$this->assertEquals(0, $newConfiguration['version']);
-
+		$this->assertEmpty($newConfiguration['state']);
 
 		$newName = 'neco';
 		$newDesc = 'some desc';
@@ -137,10 +162,14 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$this->assertEquals($config->getConfiguration(), $configuration['configuration']);
 		$this->assertEquals(1, $configuration['version']);
 
+		$state = [
+			'cache' => true,
+		];
 		$config = (new \Keboola\StorageApi\Options\Components\Configuration())
 			->setComponentId('gooddata-writer')
 			->setConfigurationId('main-1')
-			->setDescription('neco');
+			->setDescription('neco')
+			->setState($state);
 
 		$components->updateConfiguration($config);
 		$configuration = $components->getConfiguration($config->getComponentId(), $config->getConfigurationId());
@@ -148,6 +177,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$this->assertEquals($newName, $configuration['name'], 'Name should not be changed after description update');
 		$this->assertEquals('neco', $configuration['description']);
 		$this->assertEquals($configurationData, $configuration['configuration']);
+		$this->assertEquals($state, $configuration['state']);
 
 		$config = (new \Keboola\StorageApi\Options\Components\Configuration())
 			->setComponentId('gooddata-writer')
