@@ -1,3 +1,6 @@
+# 2.12.15 (2015-07-08)
+ * [Feat] Component configurations support `state` parameter
+
 # 2.12.14 (2015-05-26)
  * [Fix] `Table` bucket not found message
 
