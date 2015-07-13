@@ -1,3 +1,6 @@
+# 2.13.0 (2015-07-13)
+ * [BC break] `Table::removeSpecialChars` method doesn't use `lcfirst` function anymore
+
 # 2.12.15 (2015-07-08)
  * [Feat] Component configurations support `state` parameter
 

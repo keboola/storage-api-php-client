@@ -87,17 +87,18 @@ class Table
 	protected $primaryKey;
 
 	/**
-	 * @param Client $client
-	 * @param string $id - table ID
-	 * @param string $filename - path to csv file (optional)
-	 * @param null $primaryKey
-	 * @param bool $transactional
-	 * @param string $delimiter
-	 * @param string $enclosure
-	 * @param bool $incremental
-	 * @param bool $partial
-	 */
-	public function __construct(Client $client, $id, $filename = '', $primaryKey=null,
+     * @param Client $client
+     * @param string $id - table ID
+     * @param string $filename - path to csv file (optional)
+     * @param null   $primaryKey
+     * @param bool   $transactional
+     * @param string $delimiter
+     * @param string $enclosure
+     * @param bool   $incremental
+     * @param bool   $partial
+     * @throws TableException
+     */
+    public function __construct(Client $client, $id, $filename = '', $primaryKey=null,
         $transactional=false, $delimiter=',', $enclosure='"', $incremental=false, $partial=false
 	) {
 		$this->client = $client;
@@ -409,7 +410,7 @@ class Table
 	public static function normalizeHeader(&$header)
 	{
 		$emptyCnt = 0;
-		foreach($header as &$col) {
+		foreach ($header as &$col) {
 			$col = self::removeSpecialChars($col);
 			if ($col == 'col') {
 				$col .= $emptyCnt;
@@ -426,7 +427,6 @@ class Table
 		$string = preg_replace("/[^A-Za-z0-9_\s]/", '', $string);
 		$string = trim($string);
 		$string = str_replace(' ', '_', $string);
-		$string = lcfirst($string);
 
 		if (!strlen($string)) {
 			$string = 'col';
@@ -440,7 +440,7 @@ class Table
 		$result = array();
 		$rows = explode("\n", $string);
 
-		foreach($rows as $row) {
+		foreach ($rows as $row) {
 			if (!empty($row)) {
 				$result[] = str_getcsv($row, $delimiter, $enclosure, $enclosure);
 			}
