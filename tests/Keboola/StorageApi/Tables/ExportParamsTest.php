@@ -134,6 +134,27 @@ class Keboola_StorageApi_Tables_ExportParamsTest extends StorageApiTestCase
 		}
 	}
 
+	/**
+	 * @dataProvider backends
+	 * @param $backend
+	 */
+	public function testTableExportShouldFailOnNonExistingColumn($backend)
+	{
+		$importFile =  __DIR__ . '/../_data/users.csv';
+		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, $backend), 'users', new CsvFile($importFile));
+
+		try {
+			$this->_client->exportTable($tableId, null, array(
+				'whereColumn' => 'mesto',
+				'whereValues' => array('PRG'),
+			));
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			var_dump($e->getMessage(), $e->getStringCode());
+			$this->assertEquals('storage.tables.validation.columnNotExists', $e->getStringCode());
+		}
+
+	}
+
 	public function testTableExportColumnsParam()
 	{
 		$importFile =  __DIR__ . '/../_data/languages.csv';
