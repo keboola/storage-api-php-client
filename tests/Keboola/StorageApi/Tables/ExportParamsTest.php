@@ -149,7 +149,6 @@ class Keboola_StorageApi_Tables_ExportParamsTest extends StorageApiTestCase
 				'whereValues' => array('PRG'),
 			));
 		} catch (\Keboola\StorageApi\ClientException $e) {
-			var_dump($e->getMessage(), $e->getStringCode());
 			$this->assertEquals('storage.tables.validation.columnNotExists', $e->getStringCode());
 		}
 
