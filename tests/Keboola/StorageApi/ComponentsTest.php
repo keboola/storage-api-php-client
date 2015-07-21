@@ -171,7 +171,12 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 			->setDescription('neco')
 			->setState($state);
 
-		$components->updateConfiguration($config);
+		$updatedConfig = $components->updateConfiguration($config);
+		$this->assertEquals($newName, $updatedConfig['name'], 'Name should not be changed after description update');
+		$this->assertEquals('neco', $updatedConfig['description']);
+		$this->assertEquals($configurationData, $updatedConfig['configuration']);
+		$this->assertEquals($state, $updatedConfig['state']);
+
 		$configuration = $components->getConfiguration($config->getComponentId(), $config->getConfigurationId());
 
 		$this->assertEquals($newName, $configuration['name'], 'Name should not be changed after description update');
