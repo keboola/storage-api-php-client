@@ -201,7 +201,52 @@ class Keboola_StorageApi_Tables_ImportExportCommonTest extends StorageApiTestCas
 		} catch (\Keboola\StorageApi\ClientException $e) {
 			$this->assertEquals('storage.validation.invalidParam', $e->getStringCode());
 		}
+	}
 
+	/**
+	 * @dataProvider backends
+	 * @param $backend
+	 */
+	public function testTableImportInvalidCsvParams($backend)
+	{
+		try {
+			$this->_client->apiPost("storage/buckets/{$this->getTestBucketId(self::STAGE_IN, $backend)}/tables", [
+				'dataString' => 'id,name',
+				'delimiter' => '/t',
+			]);
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('invalidCsv', $e->getStringCode());
+		}
+
+		$fileId = $this->_client->uploadFile(__DIR__ . '/../_data/languages.csv', (new \Keboola\StorageApi\Options\FileUploadOptions())->setFileName('test.csv'));
+		try {
+			$this->_client->apiPost("storage/buckets/{$this->getTestBucketId(self::STAGE_IN, $backend)}/tables-async", [
+				'dataFileId' => $fileId,
+				'delimiter' => '/t',
+			]);
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('invalidCsv', $e->getStringCode());
+		}
+
+		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, $backend), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+		try {
+			$this->_client->apiPost("storage/tables/{$tableId}/import", [
+				'dataString' => 'id,name',
+				'delimiter' => '/t',
+			]);
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('invalidCsv', $e->getStringCode());
+		}
+
+		try {
+			$this->_client->apiPost("storage/tables/{$tableId}/import-async", [
+				'dataFileId' => $fileId,
+				'delimiter' => '/t',
+				'incremental' => true,
+			]);
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('invalidCsv', $e->getStringCode());
+		}
 	}
 
 
