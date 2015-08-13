@@ -19,7 +19,7 @@
 		<delete dir="${basedir}/build/results/logs"/>
 		<delete dir="${basedir}/build/results/pdepend"/>
 		<delete dir="${basedir}/build/results/apigen"/>
-		<delete dir="${basedir}/composer.lock"/>
+		<delete file="${basedir}/composer.lock"/>
 	</target>
 
 	<target name="prepare" depends="clean"
