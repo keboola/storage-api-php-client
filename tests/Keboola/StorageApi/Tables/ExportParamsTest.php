@@ -231,13 +231,15 @@ class Keboola_StorageApi_Tables_ExportParamsTest extends StorageApiTestCase
 
 		$manifest = json_decode(file_get_contents($exportedFile['url']), true);
 
-		$downloadCredentials = new Aws\Common\Credentials\Credentials(
-			$exportedFile['credentials']['AccessKeyId'],
-			$exportedFile['credentials']['SecretAccessKey'],
-			$exportedFile['credentials']['SessionToken']
-		);
-
-		$s3Client = \Aws\S3\S3Client::factory(array('credentials' => $downloadCredentials));
+		$s3Client = new \Aws\S3\S3Client([
+			'credentials' => [
+				'key' => $exportedFile['credentials']['AccessKeyId'],
+				'secret' => $exportedFile['credentials']['SecretAccessKey'],
+				'token' => $exportedFile['credentials']['SessionToken'],
+			],
+			'version' => 'latest',
+			'region' => 'us-east-1'
+		]);
 		$s3Client->registerStreamWrapper();
 
 		$csv = "";
@@ -249,11 +251,15 @@ class Keboola_StorageApi_Tables_ExportParamsTest extends StorageApiTestCase
 		$this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
 
 		// Check S3 ACL and listing bucket
-		$s3Client = \Aws\S3\S3Client::factory(array(
-			"key" => $exportedFile["credentials"]["AccessKeyId"],
-			"secret" => $exportedFile["credentials"]["SecretAccessKey"],
-			"token" => $exportedFile["credentials"]["SessionToken"]
-		));
+		$s3Client = new \Aws\S3\S3Client([
+			'credentials' => [
+				'key' => $exportedFile['credentials']['AccessKeyId'],
+				'secret' => $exportedFile['credentials']['SecretAccessKey'],
+				'token' => $exportedFile['credentials']['SessionToken'],
+			],
+			'version' => 'latest',
+			'region' => 'us-east-1'
+		]);
 		$bucket = $exportedFile["s3Path"]["bucket"];
 		$prefix = $exportedFile["s3Path"]["key"];
 		$objects = $s3Client->listObjects(array(

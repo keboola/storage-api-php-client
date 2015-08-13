@@ -23,4 +23,20 @@ class Keboola_StorageApi_LoggingTest extends StorageApiTestCase
 		$this->assertArrayHasKey('owner', $logData);
 	}
 
+	public function testLogger()
+	{
+		$logger = $this->getMockBuilder('\Psr\Log\NullLogger')
+			->getMock();
+
+		$logger->expects($this->once())
+			->method('log');
+
+		$client = new \Keboola\StorageApi\Client(array(
+			'token' => STORAGE_API_TOKEN,
+			'url' => STORAGE_API_URL,
+			'logger' => $logger,
+		));
+		$client->verifyToken();
+	}
+
 }

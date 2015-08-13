@@ -3,17 +3,17 @@ namespace Keboola\StorageApi;
 
 
 
-use GuzzleHttp\Event\SubscriberInterface;
-use GuzzleHttp\Event\AbstractTransferEvent;
 use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Message\Response;
-use GuzzleHttp\Subscriber\Log\LogSubscriber;
-use GuzzleHttp\Subscriber\Retry\RetrySubscriber;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\MessageFormatter;
+use GuzzleHttp\Middleware;
+use GuzzleHttp\Psr7\Response;
 use Keboola\StorageApi\Options\GetFileOptions;
 use Keboola\StorageApi\Options\ListFilesOptions;
 use Keboola\StorageApi\Options\StatsOptions;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 use Symfony\Component\Filesystem\Filesystem;
 use Keboola\Csv\CsvFile,
 	Keboola\StorageApi\Options\FileUploadOptions;
@@ -89,8 +89,7 @@ class Client
 	 *     - url: (optional) Storage API URL
 	 *     - userAgent: custom user agent
 	 *     - backoffMaxTries: backoff maximum number of attempts
-	 *     - logger: instance of LoggerInterface
-	 *     - eventSubscriber: instance of SubscriberInterface
+	 *     - logger: instance of Psr\Log\LoggerInterface
 	 */
 	public function __construct(array $config = array())
 	{
@@ -114,51 +113,58 @@ class Client
 
 		if (isset($config['logger'])) {
 			$this->setLogger($config['logger']);
-		} else {
-			$this->setLogger(new NullLogger());
 		}
 
 		$this->initClient();
-		$this->initExponentialBackoff();
-
-		if (isset($config['eventSubscriber'])) {
-			if (!$config['eventSubscriber'] instanceof SubscriberInterface) {
-				throw new \InvalidArgumentException('eventSubscriber must be instance of GuzzleHttp\Event\SubscriberInterface');
-			}
-			$this->client->getEmitter()->attach($config['eventSubscriber']);
-		}
 	}
 
 	private function initClient()
 	{
+		$handlerStack = HandlerStack::create();
+		$handlerStack->push(Middleware::retry(
+			self::createDefaultDecider($this->backoffMaxTries),
+			self::createExponentialDelay()
+		));
+
+		if ($this->logger) {
+			$handlerStack->push(Middleware::log(
+				$this->logger,
+				new MessageFormatter("{hostname} {req_header_User-Agent} - [{ts}] \"{method} {resource} {protocol}/{version}\" {code} {res_header_Content-Length}")
+			));
+		}
 		$this->client = new \GuzzleHttp\Client([
-			'base_url' => $this->apiUrl,
+			'base_uri' => $this->apiUrl,
+			'handler' => $handlerStack,
 		]);
-		$logSubsriber = new LogSubscriber($this->logger, "{hostname} {req_header_User-Agent} - [{ts}] \"{method} {resource} {protocol}/{version}\" {code} {res_header_Content-Length}");
-		$this->client->getEmitter()->attach($logSubsriber);
 	}
 
-
-	private function initExponentialBackoff()
+	private static function createDefaultDecider($maxRetries = 3)
 	{
-		$this->client->getEmitter()->attach($this->createExponentialBackoffSubsriber());
+		return function (
+			$retries,
+			RequestInterface $request,
+			ResponseInterface $response = null,
+			$error = null
+		) use ($maxRetries) {
+			if ($retries >= $maxRetries) {
+				return false;
+			} elseif ($response && $response->getStatusCode() > 499) {
+				return true;
+			} elseif ($error) {
+				return true;
+			} else {
+				return false;
+			}
+		};
 	}
 
-	private function createExponentialBackoffSubsriber()
+	private static function createExponentialDelay()
 	{
-		$filter = RetrySubscriber::createChainFilter([
-			RetrySubscriber::createCurlFilter(),
-			RetrySubscriber::createStatusFilter([500, 503, 504]),
-		]);
-		return new RetrySubscriber([
-			'filter' => $filter,
-			'delay' => RetrySubscriber::createLoggingDelay(['GuzzleHttp\Subscriber\Retry\RetrySubscriber', 'exponentialDelay'], $this->logger),
-			'sleep' => function ($time, AbstractTransferEvent $event) {
-				usleep($time * 1000 * 1000);
-			},
-			'max' => $this->backoffMaxTries,
-		]);
+		return function($retries) {
+			return (int) pow(2, $retries - 1) * 1000;
+		};
 	}
+
 
 	/**
 	 * Get API Url
@@ -377,7 +383,7 @@ class Client
 		if ($tableId) {
 			return $tableId;
 		}
-		$result = $this->apiPost("storage/buckets/" . $bucketId . "/tables", $options);
+		$result = $this->apiPostMultipart("storage/buckets/" . $bucketId . "/tables", $this->prepareMultipartData($options));
 
 		$this->log("Table {$result["id"]} created", array("options" => $options, "result" => $result));
 
@@ -661,7 +667,7 @@ class Client
 			}
 		}
 
-		$result = $this->apiPost("storage/tables/{$tableId}/import" , $optionsExtended);
+		$result = $this->apiPostMultipart("storage/tables/{$tableId}/import" , $this->prepareMultipartData($optionsExtended));
 
 		$this->log("Data written to table {$tableId}", array("options" => $optionsExtended, "result" => $result));
 		return $result;
@@ -1018,7 +1024,7 @@ class Client
 			$options["canReadAllFileUploads"] = (bool) $canReadAllFileUploads;
 		}
 
-		$result = $this->apiPut("storage/tokens/" . $tokenId, http_build_query($options));
+		$result = $this->apiPut("storage/tokens/" . $tokenId, $options);
 
 		$this->log("Token {$tokenId} updated", array("options" => $options, "result" => $result));
 
@@ -1226,29 +1232,51 @@ class Client
 		// 2. upload directly do S3 using returned credentials
 		$uploadParams = $result['uploadParams'];
 		$client = new \GuzzleHttp\Client();
-		$client->getEmitter()->attach($this->createExponentialBackoffSubsriber());
+//		$client->getEmitter()->attach($this->createExponentialBackoffSubsriber());
 
 		$fh = @fopen($filePath, 'r');
 		if ($fh === false) {
 			throw new ClientException("Error on file upload to S3: " . $filePath, null, null, 'fileNotReadable');
 		}
 		try {
+			$multipart = [
+				[
+					'name' => 'key',
+					'contents' => $uploadParams['key'],
+				],
+				[
+					'name' => 'acl',
+					'contents' => $uploadParams['acl'],
+				],
+				[
+					'name' => 'signature',
+					'contents' => $uploadParams['signature'],
+				],
+				[
+					'name' => 'policy',
+					'contents' => $uploadParams['policy'],
+				],
+				[
+					'name' => 'AWSAccessKeyId',
+					'contents' => $uploadParams['AWSAccessKeyId'],
+				],
+			];
 
-			$body = array(
-				'key' => $uploadParams['key'],
-				'acl' => $uploadParams['acl'],
-				'signature' => $uploadParams['signature'],
-				'policy' => $uploadParams['policy'],
-				'AWSAccessKeyId' => $uploadParams['AWSAccessKeyId'],
-				'file' => $fh,
-			);
 			if ($options->getIsEncrypted()) {
-				$body['x-amz-server-side-encryption'] = $uploadParams['x-amz-server-side-encryption'];
+				$multipart[] = [
+					'name' => 'x-amz-server-side-encryption',
+					'contents' =>  $uploadParams['x-amz-server-side-encryption']
+				];
 			}
 
-			$client->post($uploadParams['url'], array(
-				'body' => $body,
-			));
+			$multipart[] = [
+				'name' => 'file',
+				'contents' => $fh,
+			];
+
+			$client->post($uploadParams['url'], [
+				'multipart' => $multipart,
+			]);
 
 		} catch (RequestException $e) {
 			$response = $e->getResponse();
@@ -1475,8 +1503,14 @@ class Client
 	 */
 	public function apiPost($url, $postData = null, $handleAsyncTask = true)
 	{
-		return $this->request('post', $this->versionUrl($url), array('body' => $postData), null, $handleAsyncTask);
+		return $this->request('post', $this->versionUrl($url), array('form_params' => $postData), null, $handleAsyncTask);
 	}
+
+	public function apiPostMultipart($url, $postData = null, $handleAsyncTask = true)
+	{
+		return $this->request('post', $this->versionUrl($url), array('multipart' => $postData), null, $handleAsyncTask);
+	}
+
 
 	/**
 	 *
@@ -1488,12 +1522,9 @@ class Client
 	 */
 	public function apiPut($url, $postData=null)
 	{
-		return $this->request('put', $this->versionUrl($url), array(
-			'body' => $postData,
-			'headers' => array(
-				'content-type' => 'application/x-www-form-urlencoded',
-			),
-		));
+		return $this->request('put', $this->versionUrl($url), [
+			'form_params' => $postData,
+		]);
 	}
 
 	/**
@@ -1516,39 +1547,30 @@ class Client
 
 	protected function request($method, $url, $options = array(), $responseFileName = null, $handleAsyncTask = true)
 	{
-		// fix body
-		if (isset($options['body']) && is_array($options['body'])) {
-			$options['body'] = $this->fixRequestBody($options['body']);
-		}
-
-		$request = $this->client->createRequest($method, $url, array_merge(
-			$options,
-			array(
-				'timeout' => $this->getTimeout(),
-			)
-		));
-		$request->addHeaders(array(
-			'X-StorageApi-Token' => $this->token,
-			'Accept-Encoding' => 'gzip',
-			'User-Agent' => $this->getUserAgent(),
-		));
+		$requestOptions = array_merge($options, [
+			'timeout' => $this->getTimeout(),
+			'headers' => [
+				'X-StorageApi-Token' => $this->token,
+				'Accept-Encoding' => 'gzip',
+				'User-Agent' => $this->getUserAgent(),
+			]
+		]);
 
 		if ($this->getRunId()) {
-			$request->addHeader('X-KBC-RunId', $this->getRunId());
+			$requestOptions['headers']['X-KBC-RunId'] = $this->getRunId();
 		}
 
 		try {
-			$response = $this->client->send($request);
+			/**
+			 * @var ResponseInterface $response
+			 */
+			$response = $this->client->request($method, $url ,$requestOptions);
 		} catch (RequestException $e) {
 			$response = $e->getResponse();
-			try {
-				$body = $response ? $response->json() : array();
-			} catch (\GuzzleHttp\Exception\ParseException $e2) {
-				$body = array();
-			}
+			$body = $response ? json_decode((string) $response->getBody(), true) : array();
 
 			if ($response && $response->getStatusCode() == 503) {
-				throw new MaintenanceException(isset($body["reason"]) ? $body['reason'] : 'Maintenance', $response ? (string) $response->getHeader('Retry-After') : null, $body);
+				throw new MaintenanceException(isset($body["reason"]) ? $body['reason'] : 'Maintenance', $response && $response->hasHeader('Retry-After') ? (string) $response->getHeader('Retry-After')[0] : null, $body);
 			}
 
 			throw new ClientException(
@@ -1565,7 +1587,6 @@ class Client
 			return $this->handleAsyncTask($response);
 		}
 
-
 		if ($responseFileName) {
 
 			$responseFile = fopen($responseFileName, "w");
@@ -1581,8 +1602,8 @@ class Client
 			return "";
 		}
 
-		if ($response->getHeader('Content-Type') == 'application/json') {
-			return $response->json();
+		if ($response->hasHeader('Content-Type') && $response->getHeader('Content-Type')[0] == 'application/json') {
+			return json_decode((string) $response->getBody(), true);
 		}
 
 		return (string) $response->getBody();
@@ -1611,7 +1632,7 @@ class Client
 	 */
 	private function handleAsyncTask(Response $jobCreatedResponse)
 	{
-		$job = $jobCreatedResponse->json();
+		$job = json_decode((string) $jobCreatedResponse->getBody(), true);
 		$job = $this->waitForJob($job['id']);
 
 		if ($job['status'] == 'error') {
@@ -1661,7 +1682,9 @@ class Client
 	 */
 	private function log($message, $context = array())
 	{
-		$this->logger->info($message, $context);
+		if ($this->logger) {
+			$this->logger->info($message, $context);
+		}
 	}
 
 
@@ -1814,4 +1837,15 @@ class Client
 		return $this->apiGet('storage/stats?' . http_build_query($options->toArray()));
 	}
 
+	private function prepareMultipartData($data)
+	{
+		$multipart = [];
+		foreach ($data as $key => $value) {
+			$multipart[] = [
+				'name' => $key,
+				'contents' => in_array(gettype($value), ['object', 'resource', 'NULL']) ? $value : (string) $value,
+			];
+		}
+		return $multipart;
+	}
 }

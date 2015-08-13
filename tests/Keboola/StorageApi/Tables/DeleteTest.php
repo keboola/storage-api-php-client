@@ -68,7 +68,6 @@ class Keboola_StorageApi_Tables_DeleteTest extends StorageApiTestCase
 			new CsvFile($importFile),
 			array(
 				'primaryKey' => 'id',
-				'columns' => array('id', 'name'),
 			)
 		);
 		$dbh->query("CREATE VIEW \"$workingSchemaName\".languages AS SELECT * FROM \"$testBucketId\".languages");

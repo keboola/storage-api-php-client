@@ -36,13 +36,15 @@ class Keboola_StorageApi_Tables_SlicedImportsTest extends StorageApiTestCase
 		$slicedFile = $this->_client->prepareFileUpload($uploadOptions);
 
 		$uploadParams = $slicedFile['uploadParams'];
-		$credentials = new Aws\Common\Credentials\Credentials(
-			$uploadParams['credentials']['AccessKeyId'],
-			$uploadParams['credentials']['SecretAccessKey'],
-			$uploadParams['credentials']['SessionToken']
-		);
-
-		$s3Client = \Aws\S3\S3Client::factory(array('credentials' => $credentials));
+		$s3Client = new \Aws\S3\S3Client([
+			'credentials' => [
+				'key' => $uploadParams['credentials']['AccessKeyId'],
+				'secret' => $uploadParams['credentials']['SecretAccessKey'],
+				'token' => $uploadParams['credentials']['SessionToken'],
+			],
+			'version' => 'latest',
+			'region' => 'us-east-1'
+		]);
 		$s3Client->putObject(array(
 			'Bucket' => $uploadParams['bucket'],
 			'Key'    => $uploadParams['key'] . 'part001.gz',
@@ -97,13 +99,15 @@ class Keboola_StorageApi_Tables_SlicedImportsTest extends StorageApiTestCase
 		$slicedFile = $this->_client->prepareFileUpload($uploadOptions);
 
 		$uploadParams = $slicedFile['uploadParams'];
-		$credentials = new Aws\Common\Credentials\Credentials(
-			$uploadParams['credentials']['AccessKeyId'],
-			$uploadParams['credentials']['SecretAccessKey'],
-			$uploadParams['credentials']['SessionToken']
-		);
-
-		$s3Client = \Aws\S3\S3Client::factory(array('credentials' => $credentials));
+		$s3Client = new \Aws\S3\S3Client([
+			'credentials' => [
+				'key' => $uploadParams['credentials']['AccessKeyId'],
+				'secret' => $uploadParams['credentials']['SecretAccessKey'],
+				'token' => $uploadParams['credentials']['SessionToken'],
+			],
+			'version' => 'latest',
+			'region' => 'us-east-1'
+		]);
 		$part1URL = $s3Client->putObject(array(
 			'Bucket' => $uploadParams['bucket'],
 			'Key'    => $uploadParams['key'] . 'part001.csv',
@@ -197,13 +201,15 @@ class Keboola_StorageApi_Tables_SlicedImportsTest extends StorageApiTestCase
 		$tableId = $this->_client->createTable($this->getTestBucketId(), 'entries', new CsvFile(__DIR__ . '/../_data/sliced/header.csv'));
 
 		$uploadParams = $slicedFile['uploadParams'];
-		$credentials = new Aws\Common\Credentials\Credentials(
-			$uploadParams['credentials']['AccessKeyId'],
-			$uploadParams['credentials']['SecretAccessKey'],
-			$uploadParams['credentials']['SessionToken']
-		);
-
-		$s3Client = \Aws\S3\S3Client::factory(array('credentials' => $credentials));
+		$s3Client = new \Aws\S3\S3Client([
+			'credentials' => [
+				'key' => $uploadParams['credentials']['AccessKeyId'],
+				'secret' => $uploadParams['credentials']['SecretAccessKey'],
+				'token' => $uploadParams['credentials']['SessionToken'],
+			],
+			'version' => 'latest',
+			'region' => 'us-east-1'
+		]);
 		$part1URL = $s3Client->putObject(array(
 			'Bucket' => $uploadParams['bucket'],
 			'Key'    => $uploadParams['key'] . 'part001.gz',
@@ -255,13 +261,15 @@ class Keboola_StorageApi_Tables_SlicedImportsTest extends StorageApiTestCase
 		$slicedFile = $this->_client->prepareFileUpload($uploadOptions);
 
 		$uploadParams = $slicedFile['uploadParams'];
-		$credentials = new Aws\Common\Credentials\Credentials(
-			$uploadParams['credentials']['AccessKeyId'],
-			$uploadParams['credentials']['SecretAccessKey'],
-			$uploadParams['credentials']['SessionToken']
-		);
-
-		$s3Client = \Aws\S3\S3Client::factory(array('credentials' => $credentials));
+		$s3Client = new \Aws\S3\S3Client([
+			'credentials' => [
+				'key' => $uploadParams['credentials']['AccessKeyId'],
+				'secret' => $uploadParams['credentials']['SecretAccessKey'],
+				'token' => $uploadParams['credentials']['SessionToken'],
+			],
+			'version' => 'latest',
+			'region' => 'us-east-1'
+		]);
 		$part1URL = $s3Client->putObject(array(
 			'Bucket' => $uploadParams['bucket'],
 			'Key'    => $uploadParams['key'] . 'part001.gz',
@@ -272,12 +280,15 @@ class Keboola_StorageApi_Tables_SlicedImportsTest extends StorageApiTestCase
 		// Second upload
 		$slicedFile = $this->_client->prepareFileUpload($uploadOptions);
 		$uploadParams = $slicedFile['uploadParams'];
-		$credentials = new Aws\Common\Credentials\Credentials(
-			$uploadParams['credentials']['AccessKeyId'],
-			$uploadParams['credentials']['SecretAccessKey'],
-			$uploadParams['credentials']['SessionToken']
-		);
-		$s3Client = \Aws\S3\S3Client::factory(array('credentials' => $credentials));
+		$s3Client = new \Aws\S3\S3Client([
+			'credentials' => [
+				'key' => $uploadParams['credentials']['AccessKeyId'],
+				'secret' => $uploadParams['credentials']['SecretAccessKey'],
+				'token' => $uploadParams['credentials']['SessionToken'],
+			],
+			'version' => 'latest',
+			'region' => 'us-east-1'
+		]);
 
 		$s3Client->putObject(array(
 			'Bucket' => $uploadParams['bucket'],

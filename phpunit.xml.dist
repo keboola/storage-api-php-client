@@ -39,7 +39,6 @@
         <file>tests/Keboola/StorageApi/Tables/ListingTest.php</file>
         <file>tests/Keboola/StorageApi/Tables/SnapshottingTest.php</file>
 
-        <file>tests/Keboola/StorageApi/EventSubsriberTest.php</file>
         <file>tests/Keboola/StorageApi/BucketCredentialsTest.php</file>
         <file>tests/Keboola/StorageApi/RunIdTest.php</file>
     </testsuite>

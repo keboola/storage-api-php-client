@@ -10,16 +10,15 @@
 	},
 	"require": {
 		"keboola/csv": "~1.1.3",
-		"guzzlehttp/guzzle": "~4.0",
-		"guzzlehttp/retry-subscriber": "~0.1.1",
-		"guzzlehttp/log-subscriber": "1.*",
+		"guzzlehttp/guzzle": "~6.0",
 		"symfony/filesystem": "~2.3",
 		"symfony/process": "~2.3",
-		"aws/aws-sdk-php": "2.7.*"
+		"aws/aws-sdk-php": "~3.2"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "3.7.*",
 		"apigen/apigen": "4.0.0-RC4",
+        "psr/log": "~1.0",
 		"ext-pdo_pgsql": "*"
 	}
 }

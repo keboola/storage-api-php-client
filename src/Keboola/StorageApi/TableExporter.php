@@ -11,7 +11,7 @@
 
 namespace Keboola\StorageApi;
 
-use Keboola\StorageApi\Aws\S3\S3Client;
+use Aws\S3\S3Client;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
@@ -51,16 +51,15 @@ class TableExporter
 		$fileInfo = $this->client->getFile($fileId["file"]["id"], (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
 
 		// Initialize S3Client with credentials from Storage API
-		$s3Client = S3Client::factory(array(
-			"key" => $fileInfo["credentials"]["AccessKeyId"],
-			"secret" => $fileInfo["credentials"]["SecretAccessKey"],
-			"token" => $fileInfo["credentials"]["SessionToken"]
-		));
-
-		// CURL options
-		$s3Client->getConfig()->set('curl.options', array(
-			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_0
-		));
+		$s3Client = new S3Client([
+			'version' => '2006-03-01',
+			'region' => 'us-east-1',
+			'credentials' => [
+				'key' => $fileInfo["credentials"]["AccessKeyId"],
+				'secret' => $fileInfo["credentials"]["SecretAccessKey"],
+				'token' => $fileInfo["credentials"]["SessionToken"],
+			],
+		]);
 
 		// Temporary folder to save downloaded files from S3
 		$workingDir = sys_get_temp_dir() . '/sapi-php-client';

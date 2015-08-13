@@ -189,13 +189,15 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$uploadParams = $result['uploadParams'];
 		$this->assertArrayHasKey('credentials', $uploadParams);
 
-		$credentials = new Aws\Common\Credentials\Credentials(
-			$uploadParams['credentials']['AccessKeyId'],
-			$uploadParams['credentials']['SecretAccessKey'],
-			$uploadParams['credentials']['SessionToken']
-		);
-
-		$s3Client = \Aws\S3\S3Client::factory(array('credentials' => $credentials));
+		$s3Client = new \Aws\S3\S3Client([
+			'version'     => 'latest',
+			'region'      => 'us-east-1',
+			'credentials' => [
+				'key' => $uploadParams['credentials']['AccessKeyId'],
+				'secret' => $uploadParams['credentials']['SecretAccessKey'],
+				'token' => $uploadParams['credentials']['SessionToken'],
+			],
+		]);
 
 		$putParams = array(
 			'Bucket' => $uploadParams['bucket'],
@@ -221,7 +223,9 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 				'Body'   => fopen($pathToFile, 'r+'),
 			));
 			$this->fail('Access denied exception should be thrown');
-		} catch (\Aws\S3\Exception\AccessDeniedException $e) {}
+		} catch (\Aws\S3\Exception\S3Exception $e) {
+			$this->assertEquals(403, $e->getStatusCode());
+		}
 	}
 
 	public function encryptedData()
@@ -243,13 +247,16 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$slicedFile = $this->_client->prepareFileUpload($uploadOptions);
 
 		$uploadParams = $slicedFile['uploadParams'];
-		$credentials = new Aws\Common\Credentials\Credentials(
-			$uploadParams['credentials']['AccessKeyId'],
-			$uploadParams['credentials']['SecretAccessKey'],
-			$uploadParams['credentials']['SessionToken']
-		);
 
-		$s3Client = \Aws\S3\S3Client::factory(array('credentials' => $credentials));
+		$s3Client = new \Aws\S3\S3Client([
+			'version'     => 'latest',
+			'region'      => 'us-east-1',
+			'credentials' => [
+				'key' => $uploadParams['credentials']['AccessKeyId'],
+				'secret' => $uploadParams['credentials']['SecretAccessKey'],
+				'token' => $uploadParams['credentials']['SessionToken'],
+			],
+		]);
 
 		try {
 			// write without encryption header
@@ -259,8 +266,9 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 				'Body'   => fopen(__DIR__ . '/_data/sliced/neco_0000_part_00.gz', 'r+'),
 			))->get('ObjectURL');
 			$this->fail('Write should not be allowed');
-		} catch (\Aws\S3\Exception\AccessDeniedException $e) {
-			$this->assertEquals(403, $e->getResponse()->getStatusCode());
+		} catch (\Aws\S3\Exception\S3Exception $e) {
+			$this->assertEquals(403, $e->getStatusCode());
+			$this->assertEquals('AccessDenied', $e->getAwsErrorCode());
 		}
 	}
 
@@ -279,19 +287,37 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 
 		$fh = @fopen($path, 'r');
 
-		$body = array(
-			'key' => $uploadParams['key'],
-			'acl' => $uploadParams['acl'],
-			'signature' => $uploadParams['signature'],
-			'policy' => $uploadParams['policy'],
-			'AWSAccessKeyId' => $uploadParams['AWSAccessKeyId'],
-			'file' => $fh,
-		);
 
+		$multipart = [
+			[
+				'name' => 'key',
+				'contents' => $uploadParams['key'],
+			],
+			[
+				'name' => 'acl',
+				'contents' => $uploadParams['acl'],
+			],
+			[
+				'name' => 'signature',
+				'contents' => $uploadParams['signature'],
+			],
+			[
+				'name' => 'policy',
+				'contents' => $uploadParams['policy'],
+			],
+			[
+				'name' => 'AWSAccessKeyId',
+				'contents' => $uploadParams['AWSAccessKeyId'],
+			],
+			[
+				'name' => 'file',
+				'contents' => $fh,
+			]
+		];
 
 		try {
 			$client->post($uploadParams['url'], array(
-				'body' => $body,
+				'multipart' => $multipart,
 			));
 			$this->fail('x-amz-server-side​-encryption should be required');
 		} catch (\GuzzleHttp\Exception\ClientException $e) {
@@ -304,13 +330,15 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$uploadParams = $result['uploadParams'];
 		$this->assertEquals('AES256', $uploadParams['x-amz-server-side-encryption']);
 
-		$credentials = new Aws\Common\Credentials\Credentials(
-			$uploadParams['credentials']['AccessKeyId'],
-			$uploadParams['credentials']['SecretAccessKey'],
-			$uploadParams['credentials']['SessionToken']
-		);
-
-		$s3Client = \Aws\S3\S3Client::factory(array('credentials' => $credentials));
+		$s3Client = new \Aws\S3\S3Client([
+			'version'     => 'latest',
+			'region'      => 'us-east-1',
+			'credentials' => [
+				'key' => $uploadParams['credentials']['AccessKeyId'],
+				'secret' => $uploadParams['credentials']['SecretAccessKey'],
+				'token' => $uploadParams['credentials']['SessionToken'],
+			],
+		]);
 
 		$putParams = array(
 			'Bucket' => $uploadParams['bucket'],
@@ -321,12 +349,10 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		try {
 			$s3Client->putObject($putParams);
 			$this->fail('access denied should be thrown');
-		} catch (\Aws\S3\Exception\AccessDeniedException $e) {
-			$this->assertEquals(403, $e->getResponse()->getStatusCode());
+		} catch (\Aws\S3\Exception\S3Exception $e) {
+			$this->assertEquals(403, $e->getStatusCode());
+			$this->assertEquals('AccessDenied', $e->getAwsErrorCode());
 		}
-
-
-
 	}
 
 	public function testSlicedFileUpload()
@@ -344,13 +370,17 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$this->assertArrayHasKey('credentials', $uploadParams);
 		$this->assertTrue($preparedFile['isSliced']);
 
-		$credentials = new Aws\Common\Credentials\Credentials(
-			$uploadParams['credentials']['AccessKeyId'],
-			$uploadParams['credentials']['SecretAccessKey'],
-			$uploadParams['credentials']['SessionToken']
-		);
 
-		$s3Client = \Aws\S3\S3Client::factory(array('credentials' => $credentials));
+		$s3Client = new \Aws\S3\S3Client([
+			'version'     => 'latest',
+			'region'      => 'us-east-1',
+			'credentials' => [
+				'key' => $uploadParams['credentials']['AccessKeyId'],
+				'secret' => $uploadParams['credentials']['SecretAccessKey'],
+				'token' => $uploadParams['credentials']['SessionToken'],
+			],
+		]);
+
 		$part1URL = $s3Client->putObject(array(
 			'Bucket' => $uploadParams['bucket'],
 			'Key'    => $uploadParams['key'] . 'part001',
@@ -385,13 +415,15 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$file = $this->_client->getFile($preparedFile['id'], (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
 		$this->assertTrue($file['isSliced']);
 
-		$downloadCredentials = new Aws\Common\Credentials\Credentials(
-			$file['credentials']['AccessKeyId'],
-			$file['credentials']['SecretAccessKey'],
-			$file['credentials']['SessionToken']
-		);
-
-		$s3Client = \Aws\S3\S3Client::factory(array('credentials' => $downloadCredentials));
+		$s3Client = new \Aws\S3\S3Client([
+			'version'     => 'latest',
+			'region'      => 'us-east-1',
+			'credentials' => [
+				'key' => $file['credentials']['AccessKeyId'],
+				'secret' => $file['credentials']['SecretAccessKey'],
+				'token' => $file['credentials']['SessionToken'],
+			],
+		]);
 
 		$objects = $s3Client->listObjects(array(
 			'Bucket' => $file['s3Path']['bucket'],
@@ -595,22 +627,22 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$this->assertArrayHasKey('s3Path', $file);
 		$this->assertArrayHasKey('Expiration', $file['credentials']);
 
-		$credentials = new Aws\Common\Credentials\Credentials(
-			$file['credentials']['AccessKeyId'],
-			$file['credentials']['SecretAccessKey'],
-			$file['credentials']['SessionToken']
-		);
+		$s3Client = new \Aws\S3\S3Client([
+			'version'     => 'latest',
+			'region'      => 'us-east-1',
+			'credentials' => [
+				'key' => $file['credentials']['AccessKeyId'],
+				'secret' => $file['credentials']['SecretAccessKey'],
+				'token' => $file['credentials']['SessionToken'],
+			],
+		]);
 
-		$s3Client = \Aws\S3\S3Client::factory(array('credentials' => $credentials));
 		$object = $s3Client->getObject(array(
 			'Bucket' => $file['s3Path']['bucket'],
 			'Key' => $file['s3Path']['key'],
 		));
 		$this->assertEquals(file_get_contents($filePath), $object['Body']);
 
-		/**
-		 * @var \Guzzle\Service\Resource\Model $objects
-		 */
 		$objects = $s3Client->listObjects(array(
 			'Bucket' => $file['s3Path']['bucket'],
 			'Prefix' => $file['s3Path']['key'],
@@ -624,7 +656,9 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 				'Prefix' => dirname($file['s3Path']['key']),
 			));
 			$this->fail('Access denied exception should be thrown');
-		} catch (\Aws\S3\Exception\AccessDeniedException $e) {}
+		} catch (\Aws\S3\Exception\S3Exception $e) {
+			$this->assertEquals(403, $e->getStatusCode());
+		}
 
 		try {
 			$s3Client->listObjects(array(
@@ -632,7 +666,9 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 				'Prefix' => $file['s3Path']['key'] . 'manifest',
 			));
 			$this->fail('Access denied exception should be thrown');
-		} catch (\Aws\S3\Exception\AccessDeniedException $e) {}
+		} catch (\Aws\S3\Exception\S3Exception $e) {
+			$this->assertEquals(403, $e->getStatusCode());
+		}
 
 	}
 

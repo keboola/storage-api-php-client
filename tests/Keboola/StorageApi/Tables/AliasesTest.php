@@ -126,7 +126,6 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 			new CsvFile($importFile),
 			array(
 				'primaryKey' => 'id',
-				'columns' => array('id', 'name'),
 			)
 		);
 
@@ -152,7 +151,6 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 			new CsvFile($importFile),
 			array(
 				'primaryKey' => 'id',
-				'columns' => array('id', 'name'),
 			)
 		);
 
@@ -198,7 +196,6 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 			new CsvFile($importFile),
 			array(
 				'primaryKey' => 'id',
-				'columns' => array('id', 'name'),
 			)
 		);
 		$aliasBucketId = $this->getTestBucketId(self::STAGE_OUT, self::BACKEND_REDSHIFT);
@@ -231,7 +228,6 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 			new CsvFile($importFile),
 			array(
 				'primaryKey' => 'id',
-				'columns' => array('id', 'name'),
 			)
 		);
 		$aliasBucketId = $this->getTestBucketId(self::STAGE_OUT, self::BACKEND_REDSHIFT);
@@ -256,7 +252,6 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 			new CsvFile($importFile),
 			array(
 				'primaryKey' => 'id',
-				'columns' => array('id', 'name'),
 			)
 		);
 		$aliasBucketId = $this->getTestBucketId(self::STAGE_OUT, self::BACKEND_REDSHIFT);
@@ -301,7 +296,6 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 			new CsvFile($importFile),
 			array(
 				'primaryKey' => 'id',
-				'columns' => array('id', 'name'),
 			)
 		);
 		$aliasBucketId = $this->getTestBucketId(self::STAGE_OUT, self::BACKEND_REDSHIFT);
@@ -325,7 +319,6 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 			new CsvFile($importFile),
 			array(
 				'primaryKey' => 'id',
-				'columns' => array('id', 'name'),
 			)
 		);
 		$this->_client->deleteTableRows($sourceTableId);
@@ -364,7 +357,6 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 			new CsvFile($importFile),
 			array(
 				'primaryKey' => 'id',
-				'columns' => array('id', 'name'),
 			)
 		);
 		$aliasBucketId = $this->getTestBucketId(self::STAGE_OUT, self::BACKEND_REDSHIFT);
@@ -403,7 +395,6 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 			new CsvFile($importFile),
 			array(
 				'primaryKey' => 'id',
-				'columns' => array('id', 'name'),
 			)
 		);
 		$sql = "SELECT l1.name AS name1, l2.name AS name2 FROM \"$testBucketId\".languages l1 LEFT JOIN \"$testBucketId\".languages l2 ON (l1.id=l2.id) WHERE l1.name LIKE 'f%'";
@@ -430,7 +421,6 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 			new CsvFile($importFile),
 			array(
 				'primaryKey' => 'id',
-				'columns' => array('id', 'name'),
 			)
 		);
 
@@ -675,7 +665,6 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 			new CsvFile($importFile),
 			array(
 				'primaryKey' => 'id',
-				'columns' => array('id', 'name'),
 			)
 		);
 
@@ -701,7 +690,6 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 			new CsvFile($importFile),
 			array(
 				'primaryKey' => 'id',
-				'columns' => array('id', 'name'),
 			)
 		);
 
@@ -732,7 +720,6 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 			new CsvFile($importFile),
 			array(
 				'primaryKey' => 'id',
-				'columns' => array('id', 'name'),
 			)
 		);
 

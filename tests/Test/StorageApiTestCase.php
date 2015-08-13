@@ -28,7 +28,7 @@ class StorageApiTestCase extends \PHPUnit_Framework_TestCase
 		$this->_client = new Keboola\StorageApi\Client(array(
 			'token' => STORAGE_API_TOKEN,
 			'url' => STORAGE_API_URL,
-			'backoffMaxTries' => 0,
+			'backoffMaxTries' => 1,
 		));
 	}
 
