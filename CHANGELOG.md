@@ -1,4 +1,4 @@
-# 2.14.0 (Upcoming)
+## 2.14.0 (Upcoming)
   * Dependencies update - Guzzle 6.x, AWS SDK 3.x
   * [BC break] event subscriber removed
   * [BC break] Logger must utilize `Psr\Log\LoggerInterface`
@@ -10,22 +10,22 @@
         ));
     ```
 
-# 2.13.0 (2015-07-13)
+## 2.13.0 (2015-07-13)
  * [BC break] `Table::removeSpecialChars` method doesn't use `lcfirst` function anymore
 
-# 2.12.15 (2015-07-08)
+## 2.12.15 (2015-07-08)
  * [Feat] Component configurations support `state` parameter
 
-# 2.12.14 (2015-05-26)
+## 2.12.14 (2015-05-26)
  * [Fix] `Table` bucket not found message
 
-# 2.12.13 (2015-05-25)
+## 2.12.13 (2015-05-25)
  * [Feat] Exponential backoff for HTTP status 504 (Gateway timeout)
 
-# 2.12.12 (2015-05-21)
+## 2.12.12 (2015-05-21)
  * [Feat] `waitForJob` method added to client
 
-# 2.12.11 (2015-05-05)
+## 2.12.11 (2015-05-05)
  * [Feat] New `stats` resource
 
 ## 2.12.10 (2015-04-08)
