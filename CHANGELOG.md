@@ -1,3 +1,15 @@
+# 2.14.0 (Upcoming)
+  * Dependencies update - Guzzle 6.x, AWS SDK 3.x
+  * [BC break] event subscriber removed
+  * [BC break] Logger must utilize `Psr\Log\LoggerInterface`
+
+    ```php
+        $client = new Keboola\StorageApi\Client(array(
+            'token' => STORAGE_API_TOKEN,
+            'logger' => new \Psr\Log\NullLogger(),
+        ));
+    ```
+
 # 2.13.0 (2015-07-13)
  * [BC break] `Table::removeSpecialChars` method doesn't use `lcfirst` function anymore
 
