@@ -190,6 +190,7 @@ HTTP backend migrated to Guzzle 4.0.
  * [Feature] Table import - sliced files can be imported
  * [Feature] Table import - files without headers can be imported
  * [BC break] Verify token is not called in contstructor
+ * [BC break] PHP 5.5 and newer is required
 
 
 ## 2.9.3 (2014-02-21)
