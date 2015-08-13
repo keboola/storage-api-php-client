@@ -54,6 +54,7 @@ class TableExporter
 		$s3Client = new S3Client([
 			'version' => '2006-03-01',
 			'region' => 'us-east-1',
+			'retries' => 40,
 			'credentials' => [
 				'key' => $fileInfo["credentials"]["AccessKeyId"],
 				'secret' => $fileInfo["credentials"]["SecretAccessKey"],
