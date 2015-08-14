@@ -1,4 +1,4 @@
-## 2.14.0 (Upcoming)
+## 2.14.0 (2015-08-14)
   * Dependencies update - Guzzle 6.x, AWS SDK 3.x
   * [BC break] event subscriber removed
   * [BC break] Logger must utilize `Psr\Log\LoggerInterface`
