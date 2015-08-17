@@ -54,6 +54,18 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$this->assertEquals('some desc', $configuration['description']);
 	}
 
+	public function testConfigurationNameShouldBeRequired()
+	{
+		try {
+			$this->_client->apiPost('storage/components/gooddata-writer/configs', [
+			]);
+			$this->fail('Params should be invalid');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.components.validation', $e->getStringCode());
+			$this->assertContains('name', $e->getMessage());
+		}
+	}
+
 	public function testNonJsonConfigurationShouldNotBeAllowed()
 	{
 		try {
