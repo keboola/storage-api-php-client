@@ -238,7 +238,7 @@ class Keboola_StorageApi_Tables_ExportParamsTest extends StorageApiTestCase
 				'token' => $exportedFile['credentials']['SessionToken'],
 			],
 			'version' => 'latest',
-			'region' => 'us-east-1'
+			'region' => $exportedFile['region']
 		]);
 		$s3Client->registerStreamWrapper();
 
@@ -258,7 +258,7 @@ class Keboola_StorageApi_Tables_ExportParamsTest extends StorageApiTestCase
 				'token' => $exportedFile['credentials']['SessionToken'],
 			],
 			'version' => 'latest',
-			'region' => 'us-east-1'
+			'region' => $exportedFile['region']
 		]);
 		$bucket = $exportedFile["s3Path"]["bucket"];
 		$prefix = $exportedFile["s3Path"]["key"];

@@ -53,7 +53,7 @@ class TableExporter
 		// Initialize S3Client with credentials from Storage API
 		$s3Client = new S3Client([
 			'version' => '2006-03-01',
-			'region' => 'us-east-1',
+			'region' => $fileInfo['region'],
 			'retries' => 40,
 			'credentials' => [
 				'key' => $fileInfo["credentials"]["AccessKeyId"],

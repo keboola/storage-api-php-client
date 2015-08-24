@@ -21,7 +21,10 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$fileId = $this->_client->uploadFile(__DIR__ . '/_data/files.upload.txt', $options);
 		$files = $this->_client->listFiles(new ListFilesOptions());
 		$this->assertNotEmpty($files);
-		$this->assertEquals($fileId, reset($files)['id']);
+
+		$uploadedFile = reset($files);
+		$this->assertEquals($fileId, $uploadedFile['id']);
+		$this->assertArrayHasKey('region', $uploadedFile);
 	}
 
 	public function testFilesListFilterByTags()
