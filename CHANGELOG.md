@@ -1,3 +1,6 @@
+## 2.14.1 (2015-08-25)
+  * [Feat] `File uploads` Fetch file S3 region from API response
+
 ## 2.14.0 (2015-08-14)
   * Dependencies update - Guzzle 6.x, AWS SDK 3.x
   * [BC break] event subscriber removed
