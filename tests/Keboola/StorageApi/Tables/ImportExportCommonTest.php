@@ -553,4 +553,66 @@ class Keboola_StorageApi_Tables_ImportExportCommonTest extends StorageApiTestCas
 		}
 	}
 
+	/**
+	 * @dataProvider backends
+	 * @param $importFileName
+	 */
+	public function testTableAsyncExportRepeatedly($backend)
+	{
+		$importFile = new CsvFile(__DIR__ . '/../_data/languages.csv');
+		$oldRunId = $this->_client->generateRunId();
+		$this->_client->setRunId($oldRunId);
+
+		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, $backend), 'languages', $importFile);
+		$result = $this->_client->writeTable($tableId, $importFile);
+
+		$this->assertEmpty($result['warnings']);
+
+		// First export validation
+		$fileId = $this->_client->exportTableAsync($tableId);
+		$fileInfo = $this->_client->getFile($fileId["file"]["id"], (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
+
+		$this->assertArrayHasKey('runId', $fileInfo);
+		$this->assertEquals($oldRunId, $fileInfo['runId']);
+
+		$this->assertArrayHasKey('runIds', $fileInfo);
+		$this->assertCount(1, $fileInfo['runIds']);
+
+		$runIdExists = false;
+		foreach ($fileInfo['runIds'] AS $runId) {
+			if ($oldRunId == $runId) {
+				$runIdExists = true;
+			}
+		}
+
+		$this->assertTrue($runIdExists);
+
+		// Second export validation (cached)
+		$oldFileInfo = $fileInfo;
+		$newRunId = $this->_client->generateRunId();
+		$this->_client->setRunId($newRunId);
+
+		$fileId = $this->_client->exportTableAsync($tableId);
+		$fileInfo = $this->_client->getFile($fileId["file"]["id"], (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
+
+		$this->assertArrayHasKey('runId', $fileInfo);
+		$this->assertEquals($oldRunId, $fileInfo['runId']);
+
+		$this->assertArrayHasKey('runIds', $fileInfo);
+		$this->assertCount(2, $fileInfo['runIds']);
+
+		$runIdExists = false;
+		foreach ($fileInfo['runIds'] AS $runId) {
+			if ($newRunId == $runId) {
+				$runIdExists = true;
+			}
+		}
+
+		$this->assertTrue($runIdExists);
+
+
+		$this->assertTrue($oldFileInfo["id"] === $fileInfo["id"]);
+	}
+
+
 }
