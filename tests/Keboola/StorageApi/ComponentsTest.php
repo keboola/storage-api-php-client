@@ -206,6 +206,103 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$this->assertEquals('', $configuration['description'], 'Description can be set empty');
 	}
 
+	public function testComponentConfigsVersioning()
+	{
+		$config = (new \Keboola\StorageApi\Options\Components\Configuration())
+			->setComponentId('gooddata-writer')
+			->setConfigurationId('main-1')
+			->setName('Main');
+		$components = new \Keboola\StorageApi\Components($this->_client);
+		$newConfiguration = $components->addConfiguration($config);
+		$this->assertEquals(0, $newConfiguration['version']);
+		$this->assertEmpty($newConfiguration['state']);
+
+		$newName = 'neco';
+		$newDesc = 'some desc';
+		$configurationData = array('x' => 'y');
+		$config->setName($newName)
+			->setDescription($newDesc)
+			->setConfiguration($configurationData);
+		$components->updateConfiguration($config);
+
+		$configuration = $components->getConfiguration($config->getComponentId(), $config->getConfigurationId());
+		$this->assertEquals(1, $configuration['version']);
+
+		$config = (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
+			->setComponentId($config->getComponentId())
+			->setConfigurationId($config->getConfigurationId())
+			->setInclude(array('name', 'state'));
+		$result = $components->listConfigurationVersions($config);
+		$this->assertCount(2, $result);
+		$this->assertArrayHasKey('version', $result[0]);
+		$this->assertEquals(0, $result[0]['version']);
+		$this->assertArrayHasKey('name', $result[0]);
+		$this->assertEquals('Main', $result[0]['name']);
+		$this->assertArrayHasKey('state', $result[0]);
+		$this->assertArrayNotHasKey('description', $result[0]);
+		$this->assertArrayHasKey('version', $result[1]);
+		$this->assertEquals(1, $result[1]['version']);
+		$this->assertArrayHasKey('name', $result[1]);
+		$this->assertEquals('neco', $result[1]['name']);
+
+		$config = (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
+			->setComponentId($config->getComponentId())
+			->setConfigurationId($config->getConfigurationId())
+			->setInclude(array('name', 'configuration'))
+			->setOffset(1)
+			->setLimit(1);
+		$result = $components->listConfigurationVersions($config);
+		$this->assertCount(1, $result);
+		$this->assertArrayHasKey('version', $result[0]);
+		$this->assertEquals(1, $result[0]['version']);
+		$this->assertArrayNotHasKey('state', $result[0]);
+		$this->assertArrayHasKey('configuration', $result[0]);
+
+		$config = (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
+			->setComponentId($config->getComponentId())
+			->setConfigurationId($config->getConfigurationId());
+		$result = $components->getConfigurationVersion($config->getComponentId(), $config->getConfigurationId(), 1);
+		$this->assertArrayHasKey('version', $result);
+		$this->assertEquals(1, $result['version']);
+		$this->assertArrayHasKey('state', $result);
+		$this->assertArrayHasKey('configuration', $result);
+		$result = $components->listConfigurationVersions($config);
+		$this->assertCount(2, $result);
+
+		$result = $components->rollbackConfiguration($config->getComponentId(), $config->getConfigurationId(), 0);
+		$this->assertArrayHasKey('version', $result);
+		$this->assertEquals(2, $result['version']);
+		$result = $components->getConfigurationVersion($config->getComponentId(), $config->getConfigurationId(), 2);
+		$this->assertArrayHasKey('name', $result);
+		$this->assertEquals('Main', $result['name']);
+		$result = $components->listConfigurationVersions($config);
+		$this->assertCount(3, $result);
+
+		$result = $components->createConfigurationFromVersion($config->getComponentId(), $config->getConfigurationId(), 1, 'New');
+		$this->assertArrayHasKey('id', $result);
+		$configuration = $components->getConfiguration($config->getComponentId(), $result['id']);
+		$this->assertArrayHasKey('name', $configuration);
+		$this->assertEquals('New', $configuration['name']);
+		$this->assertArrayHasKey('description', $configuration);
+		$this->assertEquals($newDesc, $configuration['description']);
+		$this->assertArrayHasKey('version', $configuration);
+		$this->assertEquals(0, $configuration['version']);
+		$this->assertArrayHasKey('configuration', $configuration);
+		$this->assertEquals($configurationData, $configuration['configuration']);
+
+		$result = $components->createConfigurationFromVersion($config->getComponentId(), $config->getConfigurationId(), 0, 'New 2');
+		$this->assertArrayHasKey('id', $result);
+		$configuration = $components->getConfiguration($config->getComponentId(), $result['id']);
+		$this->assertArrayHasKey('name', $configuration);
+		$this->assertEquals('New 2', $configuration['name']);
+		$this->assertArrayHasKey('description', $configuration);
+		$this->assertEmpty($configuration['description']);
+		$this->assertArrayHasKey('version', $configuration);
+		$this->assertEquals(0, $configuration['version']);
+		$this->assertArrayHasKey('configuration', $configuration);
+		$this->assertEmpty($configuration['configuration']);
+	}
+
 	public function testComponentConfigsListShouldNotBeImplemented()
 	{
 		try {

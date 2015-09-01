@@ -12,6 +12,7 @@ namespace Keboola\StorageApi;
 
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ListConfigurationsOptions;
+use Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions;
 
 class Components {
 
@@ -79,4 +80,30 @@ class Components {
 		return $this->client->apiGet("storage/components?" . http_build_query($options->toParamsArray()));
 	}
 
+	public function listConfigurationVersions(ListConfigurationVersionsOptions $options = null)
+	{
+		if (!$options) {
+			$options = new ListConfigurationVersionsOptions();
+		}
+		return $this->client->apiGet("storage/components/{$options->getComponentId()}/configs/"
+			. "{$options->getConfigurationId()}/versions?" . http_build_query($options->toParamsArray()));
+	}
+
+	public function getConfigurationVersion($componentId, $configurationId, $version)
+	{
+		return $this->client->apiGet("storage/components/{$componentId}/configs/{$configurationId}/versions/{$version}");
+	}
+
+	public function rollbackConfiguration($componentId, $configurationId, $version)
+	{
+		return $this->client->apiPost("storage/components/{$componentId}/configs/{$configurationId}/versions/{$version}/rollback");
+	}
+
+	public function createConfigurationFromVersion($componentId, $configurationId, $version, $name, $description = null)
+	{
+		return $this->client->apiPost(
+			"storage/components/{$componentId}/configs/{$configurationId}/versions/{$version}/create",
+			array('name' => $name, 'description' => $description)
+		);
+	}
 }
