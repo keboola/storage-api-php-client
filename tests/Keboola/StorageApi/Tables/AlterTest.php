@@ -94,6 +94,85 @@ class Keboola_StorageApi_Tables_AlterTest extends StorageApiTestCase
 		$this->assertEquals(array('id'), $detail['indexedColumns']);
 	}
 
+	public function testPrimaryKeyDelete()
+	{
+		$indexColumn = 'city';
+		$importFile = __DIR__ . '/../_data/users.csv';
+
+		// create and import data into source table
+		$tableId = $this->_client->createTable(
+			$this->getTestBucketId(),
+			'users',
+			new CsvFile($importFile),
+			array(
+				'primaryKey' => 'id'
+			)
+		);
+
+		$this->_client->markTableColumnAsIndexed($tableId, $indexColumn);
+
+		$aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $tableId);
+
+		$tables = array(
+			$this->_client->getTable($tableId),
+			$this->_client->getTable($aliasTableId),
+		);
+
+		foreach ($tables AS $tableDetail) {
+			$this->assertArrayHasKey('primaryKey', $tableDetail);
+			$this->assertEquals(array('id'), $tableDetail['primaryKey']);
+
+			$this->assertArrayHasKey('indexedColumns', $tableDetail);
+			$this->assertEquals(array('id', $indexColumn), $tableDetail['indexedColumns']);
+		}
+
+		$this->_client->removeTablePrimaryKey($tableId);
+
+		$tables = array(
+			$this->_client->getTable($tableId),
+			$this->_client->getTable($aliasTableId),
+		);
+
+		foreach ($tables AS $tableDetail) {
+			$this->assertArrayHasKey('primaryKey', $tableDetail);
+			$this->assertEmpty($tableDetail['primaryKey']);
+
+			$this->assertArrayHasKey('indexedColumns', $tableDetail);
+			$this->assertEquals(array($indexColumn), $tableDetail['indexedColumns']);
+		}
+
+		// composite primary key
+		$indexColumn = 'iso';
+		$importFile =  __DIR__ . '/../_data/languages-more-columns.csv';
+		$tableId = $this->_client->createTable(
+			$this->getTestBucketId(),
+			'languages',
+			new CsvFile($importFile),
+			array(
+				'primaryKey' => "Id,Name",
+			)
+		);
+
+		$this->_client->markTableColumnAsIndexed($tableId, $indexColumn);
+
+		$tableDetail =  $this->_client->getTable($tableId);
+
+		$this->assertArrayHasKey('primaryKey', $tableDetail);
+		$this->assertEquals(array('Id', 'Name'), $tableDetail['primaryKey']);
+		$this->assertArrayHasKey('indexedColumns', $tableDetail);
+		$this->assertEquals(array('Id', 'Name', $indexColumn), $tableDetail['indexedColumns']);
+
+		$this->_client->removeTablePrimaryKey($tableId);
+
+		$tableDetail = $this->_client->getTable($tableId);
+
+		$this->assertArrayHasKey('primaryKey', $tableDetail);
+		$this->assertEmpty($tableDetail['primaryKey']);
+
+		$this->assertArrayHasKey('indexedColumns', $tableDetail);
+		$this->assertEquals(array($indexColumn), $tableDetail['indexedColumns']);
+	}
+
 	public function testIndexedColumnsChanges()
 	{
 		$importFile = __DIR__ . '/../_data/users.csv';
