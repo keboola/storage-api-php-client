@@ -1848,4 +1848,15 @@ class Client
 		}
 		return $multipart;
 	}
+
+	/**
+	 * Remove table primary key
+	 *
+	 * @param $tableId
+	 */
+	public function removeTablePrimaryKey($tableId)
+	{
+		$this->apiDelete("storage/tables/$tableId/primary-key");
+		$this->log("Table $tableId primary key deleted");
+	}
 }
