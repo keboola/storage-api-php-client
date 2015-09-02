@@ -1859,4 +1859,18 @@ class Client
 		$this->apiDelete("storage/tables/$tableId/primary-key");
 		$this->log("Table $tableId primary key deleted");
 	}
+
+	/**
+	 * Create table primary key
+	 *
+	 * @param string $tableId
+	 * @param string $columns
+	 */
+	public function createTablePrimaryKey($tableId, $columns)
+	{
+		$data = array(
+			'columns' => $columns,
+		);
+		$this->apiPost("storage/tables/$tableId/primary-key", $data);
+	}
 }
