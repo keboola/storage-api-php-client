@@ -1,3 +1,6 @@
+## 2.14.2 (2015-09-03)
+  * [Feat] Components configurations supports access to older versions
+
 ## 2.14.1 (2015-08-25)
   * [Feat] `File uploads` Fetch file S3 region from API response
 
