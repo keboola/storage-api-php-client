@@ -208,7 +208,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$this->assertEquals('', $configuration['description'], 'Description can be set empty');
 	}
 
-	public function testComponentConfigsVersioning()
+	public function testComponentConfigsVersionsList()
 	{
 		$config = (new \Keboola\StorageApi\Options\Components\Configuration())
 			->setComponentId('gooddata-writer')
@@ -259,7 +259,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$this->assertEquals(1, $result[0]['version']);
 		$this->assertArrayNotHasKey('state', $result[0]);
 		$this->assertArrayHasKey('configuration', $result[0]);
-		$this->assertEquals($newConfiguration, $result[0]['configuration']);
+		$this->assertEquals($configurationData, $result[0]['configuration']);
 
 		$config = (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
 			->setComponentId($config->getComponentId())
@@ -271,10 +271,33 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$this->assertInternalType('int', $result['creatorToken']['id']);
 		$this->assertArrayHasKey('state', $result);
 		$this->assertArrayHasKey('configuration', $result);
-		$this->assertEquals($newConfiguration, $result[0]['configuration']);
+		$this->assertEquals($configurationData, $result['configuration']);
 		$result = $components->listConfigurationVersions($config);
 		$this->assertCount(2, $result);
+	}
 
+	public function testComponentConfigsVersionsRollback()
+	{
+		$config = (new \Keboola\StorageApi\Options\Components\Configuration())
+			->setComponentId('gooddata-writer')
+			->setConfigurationId('main-1')
+			->setName('Main');
+		$components = new \Keboola\StorageApi\Components($this->_client);
+		$newConfiguration = $components->addConfiguration($config);
+		$this->assertEquals(0, $newConfiguration['version']);
+		$this->assertEmpty($newConfiguration['state']);
+
+		$newName = 'neco';
+		$newDesc = 'some desc';
+		$configurationData = array('x' => 'y');
+		$config->setName($newName)
+			->setDescription($newDesc)
+			->setConfiguration($configurationData);
+		$components->updateConfiguration($config);
+
+		$config = (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
+			->setComponentId($config->getComponentId())
+			->setConfigurationId($config->getConfigurationId());
 		$result = $components->rollbackConfiguration($config->getComponentId(), $config->getConfigurationId(), 0);
 		$this->assertArrayHasKey('version', $result);
 		$this->assertEquals(2, $result['version']);
@@ -283,6 +306,26 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$this->assertEquals('Main', $result['name']);
 		$result = $components->listConfigurationVersions($config);
 		$this->assertCount(3, $result);
+	}
+
+	public function testComponentConfigsVersionsCreate()
+	{
+		$config = (new \Keboola\StorageApi\Options\Components\Configuration())
+			->setComponentId('gooddata-writer')
+			->setConfigurationId('main-1')
+			->setName('Main');
+		$components = new \Keboola\StorageApi\Components($this->_client);
+		$newConfiguration = $components->addConfiguration($config);
+		$this->assertEquals(0, $newConfiguration['version']);
+		$this->assertEmpty($newConfiguration['state']);
+
+		$newName = 'neco';
+		$newDesc = 'some desc';
+		$configurationData = array('x' => 'y');
+		$config->setName($newName)
+			->setDescription($newDesc)
+			->setConfiguration($configurationData);
+		$components->updateConfiguration($config);
 
 		$result = $components->createConfigurationFromVersion($config->getComponentId(), $config->getConfigurationId(), 1, 'New');
 		$this->assertArrayHasKey('id', $result);
