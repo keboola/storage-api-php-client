@@ -54,6 +54,8 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 		$this->assertArrayHasKey('redshift', $owner);
 		$this->assertInternalType('integer', $owner['dataSizeBytes']);
 		$this->assertInternalType('integer', $owner['rowsCount']);
+		$this->assertInternalType('boolean', $owner['hasRedshift']);
+		$this->assertTrue($owner['hasRedshift']);
 
 		$redshift=  $owner['redshift'];
 		$this->assertArrayHasKey('connectionId', $redshift);
