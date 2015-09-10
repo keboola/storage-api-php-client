@@ -94,6 +94,138 @@ class Keboola_StorageApi_Tables_AlterTest extends StorageApiTestCase
 		$this->assertEquals(array('id'), $detail['indexedColumns']);
 	}
 
+	public function testPrimaryKeyAddWithDuplicty()
+	{
+		$primaryKeyColumns = array('id');
+		$importFile = __DIR__ . '/../_data/users.csv';
+
+		$tableId = $this->_client->createTable(
+			$this->getTestBucketId(self::STAGE_IN),
+			'users',
+			new CsvFile($importFile),
+			array()
+		);
+
+		$this->_client->writeTableAsync(
+			$tableId,
+			new CsvFile($importFile),
+			array(
+				'incremental' => true,
+			)
+		);
+
+		$failure = false;
+		try  {
+			$this->_client->createTablePrimaryKey($tableId, $primaryKeyColumns);
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			if ($e->getStringCode() == 'storage.tables.cannotCreatePrimaryKey') {
+				$failure = true;
+			} else {
+				throw $e;
+			}
+		}
+
+		$this->assertTrue($failure);
+
+		// composite primary key
+		$primaryKeyColumns = array('Id', 'Name');
+		$importFile = __DIR__ . '/../_data/languages-more-columns.csv';
+
+		$tableId = $this->_client->createTable(
+			$this->getTestBucketId(self::STAGE_IN),
+			'languages',
+			new CsvFile($importFile),
+			array()
+		);
+
+		$this->_client->writeTableAsync(
+			$tableId,
+			new CsvFile($importFile),
+			array(
+				'incremental' => true,
+			)
+		);
+
+		$failure = false;
+		try  {
+			$this->_client->createTablePrimaryKey($tableId, $primaryKeyColumns);
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			if ($e->getStringCode() == 'storage.tables.cannotCreatePrimaryKey') {
+				$failure = true;
+			} else {
+				throw $e;
+			}
+		}
+
+		$this->assertTrue($failure);
+	}
+
+	public function testRedshiftPrimaryKeyAddWithDuplicty()
+	{
+		$primaryKeyColumns = array('id');
+		$importFile = __DIR__ . '/../_data/users.csv';
+
+		$tableId = $this->_client->createTable(
+			$this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT),
+			'users',
+			new CsvFile($importFile),
+			array()
+		);
+
+		$this->_client->writeTableAsync(
+			$tableId,
+			new CsvFile($importFile),
+			array(
+				'incremental' => true,
+			)
+		);
+
+		$failure = false;
+		try  {
+			$this->_client->createTablePrimaryKey($tableId, $primaryKeyColumns);
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			if ($e->getStringCode() == 'storage.tables.cannotCreatePrimaryKey') {
+				$failure = true;
+			} else {
+				throw $e;
+			}
+		}
+
+		$this->assertTrue($failure);
+
+		// composite primary key
+		$primaryKeyColumns = array('Id', 'Name');
+		$importFile = __DIR__ . '/../_data/languages-more-columns.csv';
+
+		$tableId = $this->_client->createTable(
+			$this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT),
+			'languages',
+			new CsvFile($importFile),
+			array()
+		);
+
+		$this->_client->writeTableAsync(
+			$tableId,
+			new CsvFile($importFile),
+			array(
+				'incremental' => true,
+			)
+		);
+
+		$failure = false;
+		try  {
+			$this->_client->createTablePrimaryKey($tableId, $primaryKeyColumns);
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			if ($e->getStringCode() == 'storage.tables.cannotCreatePrimaryKey') {
+				$failure = true;
+			} else {
+				throw $e;
+			}
+		}
+
+		$this->assertTrue($failure);
+	}
+
 	public function testPrimaryKeyAdd()
 	{
 		$indexColumn = 'city';
@@ -515,6 +647,41 @@ class Keboola_StorageApi_Tables_AlterTest extends StorageApiTestCase
 
 	public function testRedshiftPrimaryKeyDelete()
 	{
+		$indexColumn = 'iso';
+		$importFile =  __DIR__ . '/../_data/languages-more-columns.csv';
+
+		$tableId = $this->_client->createTable(
+			$this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT),
+			'languages',
+			new CsvFile($importFile),
+			array(
+				'primaryKey' => "Id,Name",
+			)
+		);
+
+		$this->_client->markTableColumnAsIndexed($tableId, $indexColumn);
+
+		$tableDetail =  $this->_client->getTable($tableId);
+
+		$this->assertArrayHasKey('primaryKey', $tableDetail);
+		$this->assertEquals(array('Id', 'Name'), $tableDetail['primaryKey']);
+		$this->assertArrayHasKey('indexedColumns', $tableDetail);
+		$this->assertEquals(array('Id', 'Name', $indexColumn), $tableDetail['indexedColumns']);
+
+		$this->_client->removeTablePrimaryKey($tableId);
+
+		$tableDetail = $this->_client->getTable($tableId);
+
+		$this->assertArrayHasKey('primaryKey', $tableDetail);
+		$this->assertEmpty($tableDetail['primaryKey']);
+
+		$this->assertArrayHasKey('indexedColumns', $tableDetail);
+		$this->assertEquals(array($indexColumn), $tableDetail['indexedColumns']);
+
+
+		return;
+
+
 		$indexColumn = 'city';
 		$importFile = __DIR__ . '/../_data/users.csv';
 
@@ -542,7 +709,14 @@ class Keboola_StorageApi_Tables_AlterTest extends StorageApiTestCase
 			$this->assertEquals(array('id', $indexColumn), $tableDetail['indexedColumns']);
 		}
 
-		$this->_client->removeTablePrimaryKey($tableId);
+		try {
+			$this->_client->removeTablePrimaryKey($tableId);
+		} catch (\Exception $e) {
+			echo $e->getMessage();
+			echo PHP_EOL;
+			throw $e;
+		}
+
 
 		$tables = array(
 			$this->_client->getTable($tableId),
