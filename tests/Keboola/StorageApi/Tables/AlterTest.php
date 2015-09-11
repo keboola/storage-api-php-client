@@ -114,18 +114,11 @@ class Keboola_StorageApi_Tables_AlterTest extends StorageApiTestCase
 			)
 		);
 
-		$failure = false;
 		try  {
 			$this->_client->createTablePrimaryKey($tableId, $primaryKeyColumns);
 		} catch (\Keboola\StorageApi\ClientException $e) {
-			if ($e->getStringCode() == 'storage.tables.cannotCreatePrimaryKey') {
-				$failure = true;
-			} else {
-				throw $e;
-			}
+			$this->assertEquals('storage.tables.primaryKeyDuplicateValues', $e->getStringCode());
 		}
-
-		$this->assertTrue($failure);
 
 		// composite primary key
 		$primaryKeyColumns = array('Id', 'Name');
@@ -146,18 +139,12 @@ class Keboola_StorageApi_Tables_AlterTest extends StorageApiTestCase
 			)
 		);
 
-		$failure = false;
 		try  {
 			$this->_client->createTablePrimaryKey($tableId, $primaryKeyColumns);
+			$this->fail('create should not be allowed');
 		} catch (\Keboola\StorageApi\ClientException $e) {
-			if ($e->getStringCode() == 'storage.tables.cannotCreatePrimaryKey') {
-				$failure = true;
-			} else {
-				throw $e;
-			}
+			$this->assertEquals('storage.tables.primaryKeyDuplicateValues', $e->getStringCode());
 		}
-
-		$this->assertTrue($failure);
 	}
 
 	public function testRedshiftPrimaryKeyAddWithDuplicty()
@@ -180,18 +167,12 @@ class Keboola_StorageApi_Tables_AlterTest extends StorageApiTestCase
 			)
 		);
 
-		$failure = false;
 		try  {
 			$this->_client->createTablePrimaryKey($tableId, $primaryKeyColumns);
+			$this->fail('create primary key should not be allowed');
 		} catch (\Keboola\StorageApi\ClientException $e) {
-			if ($e->getStringCode() == 'storage.tables.cannotCreatePrimaryKey') {
-				$failure = true;
-			} else {
-				throw $e;
-			}
+			$this->assertEquals('storage.tables.primaryKeyDuplicateValues', $e->getStringCode());
 		}
-
-		$this->assertTrue($failure);
 
 		// composite primary key
 		$primaryKeyColumns = array('Id', 'Name');
@@ -212,18 +193,12 @@ class Keboola_StorageApi_Tables_AlterTest extends StorageApiTestCase
 			)
 		);
 
-		$failure = false;
 		try  {
 			$this->_client->createTablePrimaryKey($tableId, $primaryKeyColumns);
+			$this->fail('create should not be allowed');
 		} catch (\Keboola\StorageApi\ClientException $e) {
-			if ($e->getStringCode() == 'storage.tables.cannotCreatePrimaryKey') {
-				$failure = true;
-			} else {
-				throw $e;
-			}
+			$this->assertEquals('storage.tables.primaryKeyDuplicateValues', $e->getStringCode());
 		}
-
-		$this->assertTrue($failure);
 	}
 
 	public function testPrimaryKeyAdd()
@@ -336,17 +311,13 @@ class Keboola_StorageApi_Tables_AlterTest extends StorageApiTestCase
 		$this->assertArrayHasKey('indexedColumns', $tableDetail);
 		$this->assertEquals($primaryKeyColumns, $tableDetail['indexedColumns']);
 
-		$keyCreated = false;
 		try {
 			$this->_client->createTablePrimaryKey($tableId, $primaryKeyColumns);
+			$this->fail('create should not be allowed');
 			$keyCreated = true;
 		} catch (\Keboola\StorageApi\ClientException $e) {
-			if ($e->getStringCode() != 'storage.tables.cannotCreatePrimaryKey') {
-				throw $e;
-			}
+			$this->assertEquals('storage.tables.primaryKeyAlreadyExists', $e->getStringCode());
 		}
-
-		$this->assertFalse($keyCreated);
 	}
 
 	public function testRedshiftPrimaryKeyAdd()
@@ -468,17 +439,12 @@ class Keboola_StorageApi_Tables_AlterTest extends StorageApiTestCase
 		$this->assertArrayHasKey('indexedColumns', $tableDetail);
 		$this->assertEquals(array($primaryKeyColumn), $tableDetail['indexedColumns']);
 
-		$keyCreated = false;
 		try {
 			$this->_client->createTablePrimaryKey($tableId, $primaryKeyColumn);
-			$keyCreated = true;
+			$this->fail('show not be created');
 		} catch (\Keboola\StorageApi\ClientException $e) {
-			if ($e->getStringCode() != 'storage.tables.cannotCreatePrimaryKey') {
-				throw $e;
-			}
+			$this->assertEquals('storage.tables.primaryKeyAlreadyExists', $e->getStringCode());
 		}
-
-		$this->assertFalse($keyCreated);
 	}
 
 	public function testPrimaryKeyDelete()
