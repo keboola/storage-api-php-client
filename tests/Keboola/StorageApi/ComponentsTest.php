@@ -153,9 +153,9 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 	public function testComponentConfigUpdate()
 	{
 		$config = (new \Keboola\StorageApi\Options\Components\Configuration())
-			->setComponentId('gooddata-writer')
-			->setConfigurationId('main-1')
-			->setName('Main');
+				->setComponentId('gooddata-writer')
+				->setConfigurationId('main-1')
+				->setName('Main');
 		$components = new \Keboola\StorageApi\Components($this->_client);
 		$newConfiguration = $components->addConfiguration($config);
 		$this->assertEquals(0, $newConfiguration['version']);
@@ -165,8 +165,8 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$newDesc = 'some desc';
 		$configurationData = array('x' => 'y');
 		$config->setName($newName)
-			->setDescription($newDesc)
-			->setConfiguration($configurationData);
+				->setDescription($newDesc)
+				->setConfiguration($configurationData);
 		$components->updateConfiguration($config);
 
 		$configuration = $components->getConfiguration($config->getComponentId(), $config->getConfigurationId());
@@ -177,13 +177,13 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$this->assertEquals(1, $configuration['version']);
 
 		$state = [
-			'cache' => true,
+				'cache' => true,
 		];
 		$config = (new \Keboola\StorageApi\Options\Components\Configuration())
-			->setComponentId('gooddata-writer')
-			->setConfigurationId('main-1')
-			->setDescription('neco')
-			->setState($state);
+				->setComponentId('gooddata-writer')
+				->setConfigurationId('main-1')
+				->setDescription('neco')
+				->setState($state);
 
 		$updatedConfig = $components->updateConfiguration($config);
 		$this->assertEquals($newName, $updatedConfig['name'], 'Name should not be changed after description update');
@@ -199,13 +199,53 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$this->assertEquals($state, $configuration['state']);
 
 		$config = (new \Keboola\StorageApi\Options\Components\Configuration())
-			->setComponentId('gooddata-writer')
-			->setConfigurationId('main-1')
-			->setDescription('');
+				->setComponentId('gooddata-writer')
+				->setConfigurationId('main-1')
+				->setDescription('');
 
 		$components->updateConfiguration($config);
 		$configuration = $components->getConfiguration($config->getComponentId(), $config->getConfigurationId());
 		$this->assertEquals('', $configuration['description'], 'Description can be set empty');
+	}
+
+	public function testComponentConfigUpdateVersioning()
+	{
+		$config = (new \Keboola\StorageApi\Options\Components\Configuration())
+				->setComponentId('gooddata-writer')
+				->setConfigurationId('main-1')
+				->setName('Main');
+		$components = new \Keboola\StorageApi\Components($this->_client);
+		$newConfiguration = $components->addConfiguration($config);
+		$this->assertEquals(0, $newConfiguration['version']);
+		$this->assertEmpty($newConfiguration['state']);
+
+		$listConfig = (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
+				->setComponentId($config->getComponentId())
+				->setConfigurationId($config->getConfigurationId())
+				->setInclude(array('name', 'state'));
+		$versions = $components->listConfigurationVersions($listConfig);
+		$this->assertCount(1, $versions, 'Configuration should have one version');
+
+		$newName = 'neco';
+		$newDesc = 'some desc';
+		$configurationData = array('x' => 'y');
+		$config->setName($newName)
+				->setDescription($newDesc)
+				->setConfiguration($configurationData);
+		$components->updateConfiguration($config);
+
+		$versions = $components->listConfigurationVersions($listConfig);
+		$this->assertCount(2, $versions, 'Update of configuration name should add version');
+
+		$state = ['cache' => true];
+		$config = (new \Keboola\StorageApi\Options\Components\Configuration())
+				->setComponentId('gooddata-writer')
+				->setConfigurationId('main-1')
+				->setState($state);
+		$components->updateConfiguration($config);
+
+		$versions = $components->listConfigurationVersions($listConfig);
+		$this->assertCount(2, $versions, 'Update of configuration state should not add version');
 	}
 
 	public function testComponentConfigsVersionsList()
