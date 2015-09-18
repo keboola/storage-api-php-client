@@ -24,6 +24,8 @@ class Configuration
 
 	private $state;
 
+	private $changeDescription;
+
 	/**
 	 * @return mixed
 	 */
@@ -126,5 +128,24 @@ class Configuration
 		$this->state = $state;
 		return $this;
 	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getChangeDescription()
+	{
+		return $this->changeDescription;
+	}
+
+	/**
+	 * @param mixed $changeDescription
+	 */
+	public function setChangeDescription($changeDescription)
+	{
+		$this->changeDescription = $changeDescription;
+		return $this;
+	}
+
+
 
 }

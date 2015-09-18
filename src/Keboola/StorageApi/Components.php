@@ -56,6 +56,10 @@ class Components {
 			$data['state'] = json_encode($options->getState());
 		}
 
+		if ($options->getChangeDescription()) {
+			$data['changeDescription'] = $options->getChangeDescription();
+		}
+
 		return $this->client->apiPut(
 			"storage/components/{$options->getComponentId()}/configs/{$options->getConfigurationId()}",
 			$data
