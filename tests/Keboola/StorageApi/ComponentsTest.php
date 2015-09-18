@@ -233,19 +233,18 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 				->setDescription($newDesc)
 				->setConfiguration($configurationData);
 		$components->updateConfiguration($config);
-
 		$versions = $components->listConfigurationVersions($listConfig);
 		$this->assertCount(2, $versions, 'Update of configuration name should add version');
 
 		$state = ['cache' => true];
-		$config = (new \Keboola\StorageApi\Options\Components\Configuration())
-				->setComponentId('gooddata-writer')
-				->setConfigurationId('main-1')
-				->setState($state);
+		$config->setState($state);
 		$components->updateConfiguration($config);
-
 		$versions = $components->listConfigurationVersions($listConfig);
 		$this->assertCount(2, $versions, 'Update of configuration state should not add version');
+
+		$components->updateConfiguration($config);
+		$versions = $components->listConfigurationVersions($listConfig);
+		$this->assertCount(2, $versions, 'Update without change should not add version');
 	}
 
 	public function testComponentConfigsVersionsList()
