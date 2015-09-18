@@ -310,21 +310,21 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$result = $components->listConfigurationVersions($config);
 		$this->assertCount(2, $result);
 		$this->assertArrayHasKey('version', $result[0]);
-		$this->assertEquals(0, $result[0]['version']);
+		$this->assertEquals(1, $result[0]['version']);
 		$this->assertArrayHasKey('name', $result[0]);
-		$this->assertEquals('Main', $result[0]['name']);
+		$this->assertEquals('neco', $result[0]['name']);
 		$this->assertArrayHasKey('state', $result[0]);
 		$this->assertArrayNotHasKey('description', $result[0]);
 		$this->assertArrayHasKey('version', $result[1]);
-		$this->assertEquals(1, $result[1]['version']);
+		$this->assertEquals(0, $result[1]['version']);
 		$this->assertArrayHasKey('name', $result[1]);
-		$this->assertEquals('neco', $result[1]['name']);
+		$this->assertEquals('Main', $result[1]['name']);
 
 		$config = (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
 			->setComponentId($config->getComponentId())
 			->setConfigurationId($config->getConfigurationId())
 			->setInclude(array('name', 'configuration'))
-			->setOffset(1)
+			->setOffset(0)
 			->setLimit(1);
 		$result = $components->listConfigurationVersions($config);
 		$this->assertCount(1, $result);
