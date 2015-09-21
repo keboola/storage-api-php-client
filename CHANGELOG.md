@@ -1,3 +1,6 @@
+## 2.14.4 (2015-09-21)
+  * [Feat] Components configurations - change description
+
 ## 2.14.3 (2015-09-11)
   * [Feat] Add/Remove table primary key
 
