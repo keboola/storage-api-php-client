@@ -209,7 +209,7 @@ class Keboola_StorageApi_Tables_AlterTest extends StorageApiTestCase
 
 		$tableId = $this->_client->createTable(
 			$this->getTestBucketId(self::STAGE_IN),
-			'users',
+			'Users',
 			new CsvFile($importFile),
 			array()
 		);
@@ -253,7 +253,7 @@ class Keboola_StorageApi_Tables_AlterTest extends StorageApiTestCase
 
 		$tableId = $this->_client->createTable(
 			$this->getTestBucketId(self::STAGE_IN),
-			'languages',
+			'LanGuages',
 			new CsvFile($importFile),
 			array()
 		);
@@ -296,7 +296,7 @@ class Keboola_StorageApi_Tables_AlterTest extends StorageApiTestCase
 
 		$tableId = $this->_client->createTable(
 			$this->getTestBucketId(self::STAGE_IN),
-			'languages-more-columns',
+			'Languages-more-columns',
 			new CsvFile($importFile),
 			array(
 				'primaryKey' => reset($primaryKeyColumns)
@@ -314,7 +314,6 @@ class Keboola_StorageApi_Tables_AlterTest extends StorageApiTestCase
 		try {
 			$this->_client->createTablePrimaryKey($tableId, $primaryKeyColumns);
 			$this->fail('create should not be allowed');
-			$keyCreated = true;
 		} catch (\Keboola\StorageApi\ClientException $e) {
 			$this->assertEquals('storage.tables.primaryKeyAlreadyExists', $e->getStringCode());
 		}
@@ -329,7 +328,7 @@ class Keboola_StorageApi_Tables_AlterTest extends StorageApiTestCase
 
 		$tableId = $this->_client->createTable(
 			$testBucketId,
-			'users',
+			'Users',
 			new CsvFile($importFile),
 			array()
 		);
@@ -377,7 +376,7 @@ class Keboola_StorageApi_Tables_AlterTest extends StorageApiTestCase
 
 		$tableId = $this->_client->createTable(
 			$testBucketId,
-			'languages',
+			'LanGuages',
 			new CsvFile($importFile),
 			array()
 		);
@@ -424,7 +423,7 @@ class Keboola_StorageApi_Tables_AlterTest extends StorageApiTestCase
 
 		$tableId = $this->_client->createTable(
 			$this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT),
-			'languages-more-columns',
+			'Languages-More-Columns',
 			new CsvFile($importFile),
 			array(
 				'primaryKey' => $primaryKeyColumn
