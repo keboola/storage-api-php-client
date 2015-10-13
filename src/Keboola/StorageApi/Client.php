@@ -26,7 +26,7 @@ class Client
 	const STAGE_OUT = "out";
 	const STAGE_SYS = "sys";
 
-	const VERSION = '2.14.4';
+	const VERSION = '2.14.5';
 
 	// Token string
 	public $token;
@@ -1706,6 +1706,11 @@ class Client
 		$logData["id"] = $this->tokenObj["id"];
 		$logData["description"] = $this->tokenObj["description"];
 		$logData["url"] = $this->apiUrl;
+
+		if (isset($this->tokenObj["admin"])) {
+			$logData["admin"] = $this->tokenObj["admin"];
+		}
+
 		return $logData;
 	}
 

@@ -1,3 +1,6 @@
+## 2.14.5 (2015-10-13)
+  * [Feat] `getLogData` contains token admin
+
 ## 2.14.4 (2015-09-21)
   * [Feat] Components configurations - change description
 

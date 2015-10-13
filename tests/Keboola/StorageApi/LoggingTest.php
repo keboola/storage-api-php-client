@@ -21,6 +21,11 @@ class Keboola_StorageApi_LoggingTest extends StorageApiTestCase
 		$this->assertArrayHasKey('id', $logData);
 		$this->assertArrayHasKey('token', $logData);
 		$this->assertArrayHasKey('owner', $logData);
+		$this->assertArrayHasKey('admin', $logData);
+
+		$admin = $logData['admin'];
+		$this->assertInternalType('int', $admin['id']);
+		$this->assertNotEmpty($admin['name']);
 	}
 
 	public function testLogger()
