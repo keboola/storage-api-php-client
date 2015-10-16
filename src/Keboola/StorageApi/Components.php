@@ -11,6 +11,8 @@ namespace Keboola\StorageApi;
 
 
 use Keboola\StorageApi\Options\Components\Configuration;
+use Keboola\StorageApi\Options\Components\ConfigurationRow;
+use Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions;
 
@@ -108,6 +110,30 @@ class Components {
 		return $this->client->apiPost(
 			"storage/components/{$componentId}/configs/{$configurationId}/versions/{$version}/create",
 			array('name' => $name, 'description' => $description)
+		);
+	}
+
+	public function listConfigurationRows(ListConfigurationRowsOptions $options = null)
+	{
+		if (!$options) {
+			$options = new ListConfigurationRowsOptions();
+		}
+		return $this->client->apiGet("storage/components/{$options->getComponentId()}/configs/"
+			. "{$options->getConfigurationId()}/rows");
+	}
+
+	public function addConfigurationRow(ConfigurationRow $options)
+	{
+		return $this->client->apiPost(
+			sprintf(
+				"storage/components/%s/configs/%s/rows",
+				$options->getComponentConfiguration()->getComponentId(),
+				$options->getComponentConfiguration()->getConfigurationId()
+			),
+			array(
+				'rowId' => $options->getRowId(),
+				'configuration' => $options->getConfiguration() ? json_encode($options->getConfiguration()) : null,
+			)
 		);
 	}
 }
