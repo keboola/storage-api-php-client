@@ -136,4 +136,26 @@ class Components {
 			)
 		);
 	}
+
+	public function deleteConfigurationRow($componentId, $configurationId, $rowId)
+	{
+		return $this->client->apiDelete("storage/components/{$componentId}/configs/{$configurationId}/rows/{$rowId}");
+	}
+
+	public function updateConfigurationRow(ConfigurationRow $options)
+	{
+		$data = array();
+
+		$data['configuration'] = $options->getConfiguration() ? json_encode($options->getConfiguration()) : null;
+
+		return $this->client->apiPut(
+			sprintf(
+				"storage/components/%s/configs/%s/rows/%s",
+				$options->getComponentConfiguration()->getComponentId(),
+				$options->getComponentConfiguration()->getConfigurationId(),
+				$options->getRowId()
+			),
+			$data
+		);
+	}
 }
