@@ -208,6 +208,87 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$this->assertEquals('', $configuration['description'], 'Description can be set empty');
 	}
 
+	public function testComponentConfigUpdateWithRows()
+	{
+		$config = (new \Keboola\StorageApi\Options\Components\Configuration())
+				->setComponentId('gooddata-writer')
+				->setConfigurationId('main-1')
+				->setName('Main');
+		$components = new \Keboola\StorageApi\Components($this->_client);
+		$newConfiguration = $components->addConfiguration($config);
+		$this->assertEquals(1, $newConfiguration['version']);
+		$this->assertEmpty($newConfiguration['state']);
+
+		$newName = 'neco';
+		$newDesc = 'some desc';
+		$configurationData = array('x' => 'y');
+		$config->setName($newName)
+				->setDescription($newDesc)
+				->setConfiguration($configurationData);
+		$components->updateConfiguration($config);
+
+		$configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config);
+		$configurationRow->setRowId('main-1-1');
+
+		$components->addConfigurationRow($configurationRow);
+
+		$configuration = $components->getConfiguration($config->getComponentId(), $config->getConfigurationId());
+
+		$this->assertEquals($newName, $configuration['name']);
+		$this->assertEquals($newDesc, $configuration['description']);
+		$this->assertEquals($config->getConfiguration(), $configuration['configuration']);
+		$this->assertEquals(3, $configuration['version']);
+
+		$this->assertArrayHasKey('rows', $configuration);
+		$this->assertCount(1, $configuration['rows']);
+
+		$row = reset($configuration['rows']);
+		$this->assertEquals('main-1-1', $row['id']);
+
+		$state = [
+				'cache' => true,
+		];
+		$config = (new \Keboola\StorageApi\Options\Components\Configuration())
+				->setComponentId('gooddata-writer')
+				->setConfigurationId('main-1')
+				->setDescription('neco')
+				->setState($state);
+
+		$updatedConfig = $components->updateConfiguration($config);
+		$this->assertEquals($newName, $updatedConfig['name'], 'Name should not be changed after description update');
+		$this->assertEquals('neco', $updatedConfig['description']);
+		$this->assertEquals($configurationData, $updatedConfig['configuration']);
+		$this->assertEquals($state, $updatedConfig['state']);
+
+		$this->assertArrayHasKey('rows', $updatedConfig);
+		$this->assertCount(1, $updatedConfig['rows']);
+
+		$row = reset($updatedConfig['rows']);
+		$this->assertEquals('main-1-1', $row['id']);
+
+		$configuration = $components->getConfiguration($config->getComponentId(), $config->getConfigurationId());
+
+		$this->assertEquals($newName, $configuration['name'], 'Name should not be changed after description update');
+		$this->assertEquals('neco', $configuration['description']);
+		$this->assertEquals($configurationData, $configuration['configuration']);
+		$this->assertEquals($state, $configuration['state']);
+
+		$config = (new \Keboola\StorageApi\Options\Components\Configuration())
+				->setComponentId('gooddata-writer')
+				->setConfigurationId('main-1')
+				->setDescription('');
+
+		$components->updateConfiguration($config);
+		$configuration = $components->getConfiguration($config->getComponentId(), $config->getConfigurationId());
+		$this->assertEquals('', $configuration['description'], 'Description can be set empty');
+
+		$this->assertArrayHasKey('rows', $configuration);
+		$this->assertCount(1, $configuration['rows']);
+
+		$row = reset($configuration['rows']);
+		$this->assertEquals('main-1-1', $row['id']);
+	}
+
 	public function testComponentConfigUpdateVersioning()
 	{
 		$config = (new \Keboola\StorageApi\Options\Components\Configuration())
@@ -656,8 +737,14 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$row = reset($rows);
 		$this->assertEquals('main-1-1', $row['id']);
 
-		$component = $components->getConfiguration('gooddata-writer', 'main-1');
-		$this->assertEquals(2, $component['version']);
+		$configuration = $components->getConfiguration('gooddata-writer', 'main-1');
+		$this->assertEquals(2, $configuration['version']);
+
+		$this->assertArrayHasKey('rows', $configuration);
+		$this->assertCount(1, $configuration['rows']);
+
+		$row = reset($configuration['rows']);
+		$this->assertEquals('main-1-1', $row['id']);
 	}
 
 	public function testComponentConfigRowUpdate()
