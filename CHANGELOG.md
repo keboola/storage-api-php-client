@@ -1,3 +1,6 @@
+## 2.14.6 (2015-10-26)
+  * [Feat] Configuration Rows support added
+
 ## 2.14.5 (2015-10-13)
   * [Feat] `getLogData` contains token admin
 
