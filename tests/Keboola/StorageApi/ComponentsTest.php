@@ -522,8 +522,25 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config);
         $configurationRow->setConfiguration(['first' => 'dd']);
         try {
-
             $components->updateConfigurationRow($configurationRow);
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertEquals(400, $e->getCode(), 'User error should be thrown');
+        }
+    }
+
+    public function testUpdateConfigWithoutIdShouldNotBeAllowed()
+    {
+        $config = (new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId('gooddata-writer')
+            ->setConfigurationId('main-1')
+            ->setName('Main');
+        $components = new \Keboola\StorageApi\Components($this->_client);
+        $newConfiguration = $components->addConfiguration($config);
+
+        $config->setConfigurationId(null);
+
+        try {
+            $components->updateConfiguration($config);
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals(400, $e->getCode(), 'User error should be thrown');
         }
