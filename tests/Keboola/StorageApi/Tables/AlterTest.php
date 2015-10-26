@@ -250,54 +250,6 @@ class Keboola_StorageApi_Tables_AlterTest extends StorageApiTestCase
 		}
 	}
 
-	public function testPrimaryKeyAddRequiredParam()
-	{
-		$indexColumn = 'city';
-		$primaryKeyColumns = array();
-		$importFile = __DIR__ . '/../_data/users.csv';
-
-		$tableId = $this->_client->createTable(
-			$this->getTestBucketId(self::STAGE_IN),
-			'users',
-			new CsvFile($importFile),
-			array()
-		);
-
-		$this->_client->markTableColumnAsIndexed($tableId, $indexColumn);
-
-		$tables = array(
-			$this->_client->getTable($tableId),
-		);
-
-		foreach ($tables AS $tableDetail) {
-			$this->assertArrayHasKey('primaryKey', $tableDetail);
-			$this->assertEmpty($tableDetail['primaryKey']);
-
-			$this->assertArrayHasKey('indexedColumns', $tableDetail);
-			$this->assertEquals(array($indexColumn), $tableDetail['indexedColumns']);
-		}
-
-
-		try {
-			$this->_client->createTablePrimaryKey($tableId, $primaryKeyColumns);
-		} catch (\Keboola\StorageApi\ClientException $e) {
-			if ($e->getStringCode() !== 'storage.validation.primaryKey') {
-				throw $e;
-			}
-		}
-
-		$tables = array(
-			$this->_client->getTable($tableId),
-		);
-
-		foreach ($tables AS $tableDetail) {
-			$this->assertArrayHasKey('primaryKey', $tableDetail);
-			$this->assertEmpty($tableDetail['primaryKey']);
-
-			$this->assertArrayHasKey('indexedColumns', $tableDetail);
-			$this->assertEquals(array($indexColumn), $tableDetail['indexedColumns']);
-		}
-	}
 
 	public function testPrimaryKeyAdd()
 	{
