@@ -1076,4 +1076,30 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 			->setConfiguration(["key" => "value"]);
 		$components->addConfigurationRow($configurationRow);
     }
+
+	public function testComponentConfigDeletedRowId()
+	{
+		$configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+		$configuration
+			->setComponentId('transformation')
+			->setConfigurationId('main')
+			->setName("Main");
+		$components = new \Keboola\StorageApi\Components($this->_client);
+		$components->addConfiguration($configuration);
+
+		$configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+		$configurationRow
+			->setRowId("test")
+			->setConfiguration(["key" => "value"]);
+		$components->addConfigurationRow($configurationRow);
+		$components->deleteConfigurationRow("transformation", "main", "test");
+		$components->addConfigurationRow($configurationRow);
+
+		$listRowsOptions = new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions();
+		$listRowsOptions
+			->setComponentId("transformation")
+			->setConfigurationId("main");
+		$rows = $components->listConfigurationRows($listRowsOptions);
+		$this->assertCount(1, $rows);
+	}
 }
