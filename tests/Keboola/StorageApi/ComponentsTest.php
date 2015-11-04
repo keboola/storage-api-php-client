@@ -1041,4 +1041,39 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$component = $components->getConfiguration('gooddata-writer', 'main-1');
 		$this->assertEquals(4, $component['version']);
 	}
+
+    /**
+     * @expectedException \Keboola\StorageApi\ClientException
+     * @expectedExceptionMessage Row test already exists
+     */
+    public function testComponentConfigUniqueRowId()
+    {
+		$configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+		$configuration
+			->setComponentId('transformation')
+			->setConfigurationId('main')
+			->setName("Main");
+		$components = new \Keboola\StorageApi\Components($this->_client);
+		$components->addConfiguration($configuration);
+
+		$configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+		$configurationRow
+			->setRowId("test")
+			->setConfiguration(["key" => "value"]);
+		$components->addConfigurationRow($configurationRow);
+
+		$configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+		$configuration
+			->setComponentId('transformation')
+			->setConfigurationId('main2')
+			->setName("Main 2");
+		$components = new \Keboola\StorageApi\Components($this->_client);
+		$components->addConfiguration($configuration);
+
+		$configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+		$configurationRow
+			->setRowId("test")
+			->setConfiguration(["key" => "value"]);
+		$components->addConfigurationRow($configurationRow);
+    }
 }
