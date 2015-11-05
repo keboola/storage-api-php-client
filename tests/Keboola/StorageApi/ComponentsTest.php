@@ -83,6 +83,79 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		}
 	}
 
+    public function testComponentConfigurationJsonDataTypes()
+    {
+        // to check if params is object we have to convert received json to objects instead of assoc array
+        // so we have to use raw Http Client
+        $client = new \GuzzleHttp\Client([
+            'base_uri' => $this->_client->getApiUrl(),
+        ]);
+
+        $config = (object) [
+          'test' => 'neco',
+          'array' => [],
+          'object' => (object) [],
+        ];
+
+        $state =  (object) [
+            'test' => 'state',
+            'array' => [],
+            'object' => (object) [
+                'subobject' => (object) [],
+            ]
+        ];
+
+
+        $response = $client->post("/v2/storage/components/gooddata-writer/configs", [
+            'form_params' => [
+                'name' => 'test',
+                'configuration' => json_encode($config),
+                'state' => json_encode($state),
+            ],
+            'headers' => array(
+                'X-StorageApi-Token' => $this->_client->getTokenString(),
+            ),
+        ]);
+        $response = json_decode((string) $response->getBody());
+        $this->assertEquals($config, $response->configuration);
+        $this->assertEquals($state, $response->state);
+
+        $response = $client->get("/v2/storage/components/gooddata-writer/configs/{$response->id}", [
+            'headers' => array(
+                'X-StorageApi-Token' => $this->_client->getTokenString(),
+            ),
+        ]);
+        $response = json_decode((string) $response->getBody());
+        $this->assertEquals($config, $response->configuration);
+        $this->assertEquals($state, $response->state);
+
+        // update
+        $config = (object) [
+            'test' => 'neco',
+            'array' => ['2'],
+            'anotherArr' => [],
+            'object' => (object) [],
+        ];
+        $response = $client->put("/v2/storage/components/gooddata-writer/configs/{$response->id}", [
+            'form_params' => [
+                'configuration' => json_encode($config),
+            ],
+            'headers' => array(
+                'X-StorageApi-Token' => $this->_client->getTokenString(),
+            ),
+        ]);
+        $response = json_decode((string) $response->getBody());
+        $this->assertEquals($config, $response->configuration);
+
+        $response = $client->get("/v2/storage/components/gooddata-writer/configs/{$response->id}", [
+            'headers' => array(
+                'X-StorageApi-Token' => $this->_client->getTokenString(),
+            ),
+        ]);
+        $response = json_decode((string) $response->getBody());
+        $this->assertEquals($config, $response->configuration);
+    }
+
 	public function testComponentConfigCreateWithConfigurationJson()
 	{
 		$configuration = array(
@@ -90,9 +163,10 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 				array(
 					'id' => 1,
 					'query' => 'SELECT * from some_table',
-				)
+				),
 			),
 		);
+
 		$components = new \Keboola\StorageApi\Components($this->_client);
 		$components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
 				->setComponentId('gooddata-writer')
@@ -1058,7 +1132,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 			->setConfiguration(["key" => "value"]);
 		$components->addConfigurationRow($configurationRow);
 		$components->deleteConfigurationRow("transformation", "main", "test");
-		$components->addConfigurationRow($configurationRow);
+		$components->addConfigurationRow($configurationRow->setConfiguration(["key" => "newValue"]));
 
 		$listRowsOptions = new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions();
 		$listRowsOptions
@@ -1066,5 +1140,9 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 			->setConfigurationId("main");
 		$rows = $components->listConfigurationRows($listRowsOptions);
 		$this->assertCount(1, $rows);
+
+        $row = reset($rows);
+        $this->assertEquals(2, $row['version']);
+        $this->assertEquals(["key" => "newValue"], $row["configuration"]);
 	}
 }
