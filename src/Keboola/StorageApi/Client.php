@@ -25,7 +25,7 @@ class Client
 	const STAGE_OUT = "out";
 	const STAGE_SYS = "sys";
 
-	const VERSION = '2.14.6';
+	const VERSION = '2.14.7';
 
 	// Token string
 	public $token;
