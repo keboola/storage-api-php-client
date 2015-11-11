@@ -12,6 +12,7 @@
 namespace Keboola\StorageApi;
 
 use Aws\S3\S3Client;
+use GuzzleHttp\Client as HttpClient;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
@@ -83,7 +84,12 @@ class TableExporter
 			 */
 
 			// Download manifest with all sliced files
-			$manifest = json_decode(file_get_contents($fileInfo["url"]), true);
+			$client = new HttpClient([
+			   'handler' => HandlerStack::create([
+				   'backoffMaxTries' => 10,
+			   ]),
+			]);
+			$manifest = json_decode($client->get($fileInfo['url'])->getBody(), true);
 			$files = array();
 
 			// Download all sliced files

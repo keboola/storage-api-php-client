@@ -4,7 +4,6 @@ namespace Keboola\StorageApi;
 
 
 use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\HandlerStack;
 use GuzzleHttp\MessageFormatter;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
@@ -120,11 +119,9 @@ class Client
 
 	private function initClient()
 	{
-		$handlerStack = HandlerStack::create();
-		$handlerStack->push(Middleware::retry(
-			self::createDefaultDecider($this->backoffMaxTries),
-			self::createExponentialDelay()
-		));
+		$handlerStack = HandlerStack::create([
+			'backoffMaxTries' => $this->backoffMaxTries,
+		]);
 
 		if ($this->logger) {
 			$handlerStack->push(Middleware::log(
@@ -138,32 +135,6 @@ class Client
 		]);
 	}
 
-	private static function createDefaultDecider($maxRetries = 3)
-	{
-		return function (
-			$retries,
-			RequestInterface $request,
-			ResponseInterface $response = null,
-			$error = null
-		) use ($maxRetries) {
-			if ($retries >= $maxRetries) {
-				return false;
-			} elseif ($response && $response->getStatusCode() > 499) {
-				return true;
-			} elseif ($error) {
-				return true;
-			} else {
-				return false;
-			}
-		};
-	}
-
-	private static function createExponentialDelay()
-	{
-		return function($retries) {
-			return (int) pow(2, $retries - 1) * 1000;
-		};
-	}
 
 
 	/**

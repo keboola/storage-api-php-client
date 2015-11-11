@@ -1,3 +1,6 @@
+## 2.14.7 (2015-11-11)
+  * [Fix] `TableExporter` Manifest download backoff
+
 ## 2.14.6 (2015-10-26)
   * [Feat] Configuration Rows support added
 
