@@ -13,6 +13,7 @@ namespace Keboola\StorageApi;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions;
+use Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions;
 
@@ -158,4 +159,18 @@ class Components {
 			$data
 		);
 	}
+
+    public function listConfigurationRowVersions(ListConfigurationRowVersionsOptions $options = null)
+    {
+        if (!$options) {
+            $options = new ListConfigurationVersionsOptions();
+        }
+        return $this->client->apiGet(
+            "storage/components/%s/configs/%s/rows/%s/versions?%s",
+            $options->getComponentId(),
+            $options->getConfigurationId(),
+            $options->getRowId(),
+            http_build_query($options->toParamsArray())
+        );
+    }
 }
