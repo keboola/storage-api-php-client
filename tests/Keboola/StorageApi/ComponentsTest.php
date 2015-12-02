@@ -1387,4 +1387,83 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 
         $this->assertCount(3, $versions);
     }
+
+    public function testComponentConfigRowVersionCreate()
+    {
+        $components = new \Keboola\StorageApi\Components($this->_client);
+
+        $configurationData = array('my-value' => 666);
+
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration
+            ->setComponentId('gooddata-writer')
+            ->setConfigurationId('main-1')
+            ->setName('Main')
+            ->setDescription('some desc')
+        ;
+
+        $components->addConfiguration($configuration);
+
+        $configuration2 = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration2
+            ->setComponentId($configuration->getComponentId())
+            ->setConfigurationId('main-2')
+            ->setName('Main')
+            ->setDescription('some desc')
+        ;
+
+        $components->addConfiguration($configuration2);
+
+
+        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRow->setRowId('main-1-1');
+        $configurationRow->setConfiguration($configurationData);
+
+        $components->addConfigurationRow($configurationRow);
+
+        // copy to same first configuration
+        $row = $components->createConfigurationRowFromVersion(
+            $configuration->getComponentId(),
+            $configuration->getConfigurationId(),
+            'main-1-1',
+            1
+        );
+
+        $this->assertArrayHasKey('id', $row);
+        $this->assertArrayHasKey('version', $row);
+        $this->assertArrayHasKey('configuration', $row);
+
+        $this->assertEquals(1, $row['version']);
+        $this->assertEquals($configurationData, $row['configuration']);
+
+        $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
+            ->setComponentId($configuration->getComponentId())
+            ->setConfigurationId($configuration->getConfigurationId())
+        );
+
+        $this->assertCount(2, $rows);
+
+        // copy to same second configuration
+        $row = $components->createConfigurationRowFromVersion(
+            $configuration->getComponentId(),
+            $configuration->getConfigurationId(),
+            'main-1-1',
+            1,
+            $configuration2->getConfigurationId()
+        );
+
+        $this->assertArrayHasKey('id', $row);
+        $this->assertArrayHasKey('version', $row);
+        $this->assertArrayHasKey('configuration', $row);
+
+        $this->assertEquals(1, $row['version']);
+        $this->assertEquals($configurationData, $row['configuration']);
+
+        $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
+            ->setComponentId($configuration2->getComponentId())
+            ->setConfigurationId($configuration2->getConfigurationId())
+        );
+
+        $this->assertCount(1, $rows);
+    }
 }

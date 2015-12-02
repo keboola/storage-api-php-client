@@ -187,4 +187,12 @@ class Components {
         return $this->client->apiPost("storage/components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/versions/{$version}/rollback");
     }
 
+    public function createConfigurationRowFromVersion($componentId, $configurationId, $rowId, $version, $targetConfigurationId = null)
+    {
+        return $this->client->apiPost(
+            "storage/components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/versions/{$version}/create",
+            array('targetConfigId' => $targetConfigurationId)
+        );
+    }
+
 }
