@@ -181,4 +181,10 @@ class Components {
     {
         return $this->client->apiGet("storage/components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/versions/{$version}");
     }
+
+    public function rollbackConfigurationRow($componentId, $configurationId, $rowId, $version)
+    {
+        return $this->client->apiPost("storage/components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/versions/{$version}/rollback");
+    }
+
 }

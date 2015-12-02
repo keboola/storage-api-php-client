@@ -1282,4 +1282,109 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
             $this->assertArrayHasKey('creatorToken', $version);
         }
     }
+
+    public function testComponentConfigRowVersionRollback()
+    {
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration
+            ->setComponentId('gooddata-writer')
+            ->setConfigurationId('main-1')
+            ->setName('Main')
+            ->setDescription('some desc')
+        ;
+
+        $components = new \Keboola\StorageApi\Components($this->_client);
+
+        $components->addConfiguration($configuration);
+
+        $component = $components->getConfiguration('gooddata-writer', 'main-1');
+        $this->assertEquals('Main', $component['name']);
+        $this->assertEquals('some desc', $component['description']);
+        $this->assertEmpty($component['configuration']);
+        $this->assertEquals(1, $component['version']);
+        $this->assertInternalType('int', $component['version']);
+        $this->assertInternalType('int', $component['creatorToken']['id']);
+
+        $rowConfiguration = array('my-value' => 666);
+
+
+        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRow->setRowId('main-1-1');
+        $configurationRow->setConfiguration($rowConfiguration);
+
+        $components->addConfigurationRow($configurationRow);
+
+        $listOptions = new \Keboola\StorageApi\Options\Components\ListConfigurationsOptions();
+        $listOptions->setInclude(array('rows'));
+        $components = $components->listComponents($listOptions);
+
+        $this->assertCount(1, $components);
+
+        $component = reset($components);
+        $this->assertEquals('gooddata-writer', $component['id']);
+        $this->assertCount(1, $component['configurations']);
+
+        $configuration = reset($component['configurations']);
+        $this->assertEquals('main-1', $configuration['id']);
+        $this->assertEquals('Main', $configuration['name']);
+        $this->assertEquals('some desc', $configuration['description']);
+
+        $this->assertArrayHasKey('rows', $configuration);
+        $this->assertCount(1, $configuration['rows']);
+
+        $row = reset($configuration['rows']);
+        $this->assertEquals('main-1-1', $row['id']);
+
+        $components = new \Keboola\StorageApi\Components($this->_client);
+
+        $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
+            ->setComponentId($component['id'])
+            ->setConfigurationId($configuration['id'])
+        );
+
+        $row = reset($rows);
+        $this->assertEquals('main-1-1', $row['id']);
+
+        $component = $components->getConfiguration('gooddata-writer', 'main-1');
+        $this->assertEquals(2, $component['version']);
+
+        $row = $components->updateConfigurationRow($configurationRow);
+
+        $this->assertEquals(1, $row['version']);
+
+        $configurationData = array('test' => 1);
+
+        $configurationRow->setConfiguration($configurationData);
+
+        $row = $components->updateConfigurationRow($configurationRow);
+
+        $this->assertEquals(2, $row['version']);
+        $this->assertEquals($configurationData, $row['configuration']);
+
+
+        $rowVersion = $components->rollbackConfigurationRow(
+            'gooddata-writer',
+            'main-1',
+            $configurationRow->getRowId(),
+            1
+        );
+
+        $this->assertArrayHasKey('id', $rowVersion);
+        $this->assertArrayHasKey('version', $rowVersion);
+        $this->assertArrayHasKey('configuration', $rowVersion);
+
+        $this->assertEquals($configurationRow->getRowId(), $rowVersion['id']);
+        $this->assertEquals(3, $rowVersion['version']);
+        $this->assertEquals($rowConfiguration, $rowVersion['configuration']);
+
+
+        $versions = $components->listConfigurationRowVersions(
+            (new \Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions())
+                ->setComponentId('gooddata-writer')
+                ->setConfigurationId('main-1')
+                ->setRowId($configurationRow->getRowId())
+        );
+
+        $this->assertCount(3, $versions);
+    }
 }
