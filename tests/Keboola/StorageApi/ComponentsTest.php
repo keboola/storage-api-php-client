@@ -1146,7 +1146,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
         $this->assertEquals(["key" => "newValue"], $row["configuration"]);
 	}
 
-    public function testComponentConfigRowVersions()
+    public function testComponentConfigRowVersionsList()
     {
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
@@ -1224,11 +1224,62 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 
         $versions = $components->listConfigurationRowVersions(
             (new \Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions())
-                ->setComponentId($component['id'])
-                ->setConfigurationId($configuration['id'])
+                ->setComponentId('gooddata-writer')
+                ->setConfigurationId('main-1')
                 ->setRowId($configurationRow->getRowId())
         );
 
         $this->assertCount(2, $versions);
+
+        foreach ($versions AS $version) {
+            $this->assertArrayHasKey('version', $version);
+            $this->assertArrayHasKey('created', $version);
+            $this->assertArrayHasKey('creatorToken', $version);
+        }
+
+        $versions = $components->listConfigurationRowVersions(
+            (new \Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions())
+                ->setComponentId('gooddata-writer')
+                ->setConfigurationId('main-1')
+                ->setRowId($configurationRow->getRowId())
+                ->setInclude(array('configuration'))
+        );
+
+        $this->assertCount(2, $versions);
+
+        foreach ($versions AS $version) {
+            $this->assertArrayHasKey('version', $version);
+            $this->assertArrayHasKey('created', $version);
+            $this->assertArrayHasKey('creatorToken', $version);
+            $this->assertArrayHasKey('configuration', $version);
+
+            $rowVersion = $components->getConfigurationRowVersion(
+                'gooddata-writer',
+                'main-1',
+                $configurationRow->getRowId(),
+                $version['version']);
+
+            $this->assertArrayHasKey('version', $rowVersion);
+            $this->assertArrayHasKey('created', $rowVersion);
+            $this->assertArrayHasKey('creatorToken', $rowVersion);
+            $this->assertArrayHasKey('configuration', $rowVersion);
+        }
+
+        $versions = $components->listConfigurationRowVersions(
+            (new \Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions())
+                ->setComponentId('gooddata-writer')
+                ->setConfigurationId('main-1')
+                ->setRowId($configurationRow->getRowId())
+                ->setLimit(1)
+                ->setOffset(1)
+        );
+
+        $this->assertCount(1, $versions);
+
+        foreach ($versions AS $version) {
+            $this->assertArrayHasKey('version', $version);
+            $this->assertArrayHasKey('created', $version);
+            $this->assertArrayHasKey('creatorToken', $version);
+        }
     }
 }

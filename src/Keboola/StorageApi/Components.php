@@ -165,12 +165,20 @@ class Components {
         if (!$options) {
             $options = new ListConfigurationVersionsOptions();
         }
+
         return $this->client->apiGet(
-            "storage/components/%s/configs/%s/rows/%s/versions?%s",
-            $options->getComponentId(),
-            $options->getConfigurationId(),
-            $options->getRowId(),
-            http_build_query($options->toParamsArray())
+            sprintf(
+                "storage/components/%s/configs/%s/rows/%s/versions?%s",
+                $options->getComponentId(),
+                $options->getConfigurationId(),
+                $options->getRowId(),
+                http_build_query($options->toParamsArray())
+            )
         );
+    }
+
+    public function getConfigurationRowVersion($componentId, $configurationId, $rowId, $version)
+    {
+        return $this->client->apiGet("storage/components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/versions/{$version}");
     }
 }
