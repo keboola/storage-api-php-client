@@ -57,6 +57,16 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 		$this->assertInternalType('boolean', $owner['hasRedshift']);
 		$this->assertTrue($owner['hasRedshift']);
 
+		$this->assertArrayHasKey('limits', $owner);
+		$this->assertArrayHasKey('metrics', $owner);
+
+		$firstLimit = reset($owner['limits']);
+		$limitKeys = array_keys($owner['limits']);
+		$this->assertArrayHasKey('name', $firstLimit);
+		$this->assertArrayHasKey('value', $firstLimit);
+		$this->assertInternalType('int', $firstLimit['value']);
+		$this->assertEquals($firstLimit['name'], $limitKeys[0]);
+
 		$redshift=  $owner['redshift'];
 		$this->assertArrayHasKey('connectionId', $redshift);
 		$this->assertArrayHasKey('databaseName', $redshift);
@@ -77,6 +87,13 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 		}
 
 		$this->fail("Token $token[id] not present in list");
+	}
+
+	public function testKeenReadTokensRetrieve()
+	{
+		$keen = $this->_client->getKeenReadCredentials();
+		$this->assertArrayHasKey('keenToken', $keen);
+		$this->assertNotEmpty($keen['keenToken']);
 	}
 
 	public function testInvalidToken()
