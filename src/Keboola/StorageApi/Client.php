@@ -932,6 +932,11 @@ class Client
 		return $this->apiGet("storage/tokens/verify");
 	}
 
+	public function getKeenReadCredentials()
+	{
+		return $this->apiGet("storage/tokens/keen");
+	}
+
 	/**
 	 *
 	 * create a new token
