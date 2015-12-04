@@ -25,7 +25,7 @@ class Client
 	const STAGE_OUT = "out";
 	const STAGE_SYS = "sys";
 
-	const VERSION = '2.14.7';
+	const VERSION = '3.0.0';
 
 	// Token string
 	public $token;
@@ -930,6 +930,11 @@ class Client
 	public function verifyToken()
 	{
 		return $this->apiGet("storage/tokens/verify");
+	}
+
+	public function getKeenReadCredentials()
+	{
+		return $this->apiGet("storage/tokens/keen");
 	}
 
 	/**

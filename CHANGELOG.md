@@ -1,3 +1,8 @@
+## 3.0.0 (2015-12-03)
+  * [Feat] Retrieve Keen.io metrics read only token for project
+  * [Feat] Configuration rows versions listing and rollback/create
+  * http://semver.org/ versioning followed
+
 ## 2.14.7 (2015-11-11)
   * [Fix] `TableExporter` Manifest download backoff
 

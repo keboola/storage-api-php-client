@@ -87,6 +87,9 @@ Tests expects master token and performs all operations including bucket and tabl
 
 When the parameters are set you can run tests by **php vendor/bin/phpunit** command.
 
+## Versioning
+[semver.org](http://semver.org/) is followed.
+
 ## Release History
 See the [CHANGELOG](CHANGELOG.md).
 
