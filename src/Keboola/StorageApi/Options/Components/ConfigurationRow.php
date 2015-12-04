@@ -8,6 +8,8 @@ class ConfigurationRow
 
 	private $configuration;
 
+	private $changeDescription;
+
 	/**
 	 * @var Configuration
 	 */
@@ -59,6 +61,23 @@ class ConfigurationRow
 	public function setConfiguration($configuration)
 	{
 		$this->configuration = (array) $configuration;
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getChangeDescription()
+	{
+		return $this->changeDescription;
+	}
+
+	/**
+	 * @param mixed $changeDescription
+	 */
+	public function setChangeDescription($changeDescription)
+	{
+		$this->changeDescription = $changeDescription;
 		return $this;
 	}
 }

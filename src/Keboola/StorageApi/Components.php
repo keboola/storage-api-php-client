@@ -149,6 +149,10 @@ class Components {
 
 		$data['configuration'] = $options->getConfiguration() ? json_encode($options->getConfiguration()) : null;
 
+		if ($options->getChangeDescription()) {
+			$data['changeDescription'] = $options->getChangeDescription();
+		}
+
 		return $this->client->apiPut(
 			sprintf(
 				"storage/components/%s/configs/%s/rows/%s",

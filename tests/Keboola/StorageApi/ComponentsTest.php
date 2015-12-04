@@ -1017,13 +1017,25 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$this->assertEmpty($row['configuration']);
 
 		$configurationData = array('test' => 1);
+		$configurationChangeDescription = 'Change description test';
 
-		$configurationRow->setConfiguration($configurationData);
+		$configurationRow->setConfiguration($configurationData)
+			->setChangeDescription($configurationChangeDescription);
 
 		$row = $components->updateConfigurationRow($configurationRow);
 
 		$this->assertEquals(2, $row['version']);
 		$this->assertEquals($configurationData, $row['configuration']);
+
+		$version = $components->getConfigurationRowVersion(
+			$configurationRow->getComponentConfiguration()->getComponentId(),
+			$configurationRow->getComponentConfiguration()->getConfigurationId(),
+			$configurationRow->getRowId(),
+			2
+		);
+
+		$this->assertArrayHasKey('rows', $version);
+		$this->assertEquals($configurationChangeDescription, $version['changeDescription']);
 	}
 
 	public function testComponentConfigRowDelete()
