@@ -1,3 +1,6 @@
+## 3.1.0 (2015-12-04)
+  * [Feat] Configuration rows - `changeDescription`
+
 ## 3.0.0 (2015-12-03)
   * [Feat] Retrieve Keen.io metrics read only token for project
   * [Feat] Configuration rows versions listing and rollback/create
