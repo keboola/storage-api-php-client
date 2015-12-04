@@ -1034,7 +1034,8 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 			2
 		);
 
-		$this->assertArrayHasKey('rows', $version);
+
+		$this->assertArrayHasKey('changeDescription', $version);
 		$this->assertEquals($configurationChangeDescription, $version['changeDescription']);
 	}
 
