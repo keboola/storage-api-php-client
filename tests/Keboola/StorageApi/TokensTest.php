@@ -59,6 +59,7 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 
 		$this->assertArrayHasKey('limits', $owner);
 		$this->assertArrayHasKey('metrics', $owner);
+		$this->assertArrayHasKey('defaultBackend', $owner);
 
 		$firstLimit = reset($owner['limits']);
 		$limitKeys = array_keys($owner['limits']);
