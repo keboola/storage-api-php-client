@@ -1,3 +1,6 @@
+## 3.2.0 (2015-12-10)
+  * [Feat] Configurations publishing
+
 ## 3.1.0 (2015-12-04)
   * [Feat] Configuration rows - `changeDescription`
 
