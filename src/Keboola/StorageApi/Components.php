@@ -69,6 +69,16 @@ class Components {
 		);
 	}
 
+	public function publishConfiguration($componentId, $configurationId, $description)
+	{
+		return $this->client->apiPost(
+			"storage/components/{$componentId}/configs/{$configurationId}/publish",
+			[
+				'description' => $description,
+			]
+		);
+	}
+
 	public function getConfiguration($componentId, $configurationId)
 	{
 		return $this->client->apiGet("storage/components/{$componentId}/configs/{$configurationId}");

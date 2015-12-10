@@ -518,6 +518,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('gooddata-writer')
             ->setConfigurationId('main-1')
+			->setConfiguration(['a' => 'b'])
             ->setName('Main');
         $components = new \Keboola\StorageApi\Components($this->_client);
         $newConfiguration = $components->addConfiguration($config);
@@ -544,6 +545,9 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
         $configurationRow->setConfiguration($firstRowUpdatedConfig)->setRowId($firstRow['id']);
         $components->updateConfigurationRow($configurationRow);
 
+		// update config
+		$components->updateConfiguration($config->setConfiguration(['d' => 'b']));
+
         $expectedRows = [
             [
                 'id' => $firstRow['id'],
@@ -558,7 +562,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
         ];
 
         $currentConfiguration = $components->getConfiguration('gooddata-writer', $newConfiguration['id']);
-        $this->assertEquals(4, $currentConfiguration['version'], 'There were 2 rows insert and 1 row update -> version should be 4');
+        $this->assertEquals(5, $currentConfiguration['version'], 'There were 2 rows insert and 1 row update and 1 config update -> version should be 4');
         $this->assertEquals($expectedRows, $currentConfiguration['rows']);
 
         // rollback to version 2
@@ -573,8 +577,9 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
         $components->rollbackConfiguration('gooddata-writer', $newConfiguration['id'], 2);
 
         $currentConfiguration = $components->getConfiguration('gooddata-writer', $newConfiguration['id']);
-        $this->assertEquals(5, $currentConfiguration['version'], 'Rollback was one new operation');
+        $this->assertEquals(6, $currentConfiguration['version'], 'Rollback was one new operation');
         $this->assertEquals($expectedRows, $currentConfiguration['rows']);
+		$this->assertEquals(['a' => 'b'], $currentConfiguration['configuration']);
     }
 
     public function testUpdateRowWithoutIdShouldNotBeAllowed()
