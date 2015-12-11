@@ -270,4 +270,29 @@ class Keboola_StorageApi_ComponentsPublishTest extends StorageApiTestCase
 		$this->assertCount(4, $versions);
 	}
 
+
+	public function testLastWorkingVersionIsReturnedIfNotPublishedYet()
+	{
+		$initialConfig = ['dfs' => 'hov'];
+		$componentId = 'gooddata-writer';
+		$configurationId = 'main-1';
+		$configOptions = (new \Keboola\StorageApi\Options\Components\Configuration())
+			->setComponentId($componentId)
+			->setConfigurationId($configurationId)
+			->setConfiguration($initialConfig)
+			->setName('Main')
+			->setDescription('some desc');
+		$components = new \Keboola\StorageApi\Components($this->_client);
+		$components->addConfiguration($configOptions);
+
+		$components->updateConfiguration($configOptions->setDescription('test 2'));
+
+
+		$config = $components->getConfiguration($componentId, $configurationId);
+		$this->assertEquals(2, $config['version']);
+
+		$config = $components->getConfigurationVersion($componentId, $configurationId, \Keboola\StorageApi\Options\Components\Configuration::LATEST_PUBLISHED_VERSION);
+		$this->assertEquals(2, $config['version']);
+	}
+
 }
