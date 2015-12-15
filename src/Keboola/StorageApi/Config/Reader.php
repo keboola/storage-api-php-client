@@ -1,6 +1,12 @@
 <?php
 namespace Keboola\StorageApi\Config;
 use \Keboola\StorageApi;
+
+/**
+ * Class Reader
+ * @package Keboola\StorageApi\Config
+ * @deprecated
+ */
 class Reader
 {
 

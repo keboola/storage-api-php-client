@@ -13,6 +13,11 @@ namespace Keboola\StorageApi;
 
 use Keboola\Csv\CsvFile;
 
+/**
+ * Class Table
+ * @package Keboola\StorageApi
+ * @deprecated
+ */
 class Table
 {
 	/**

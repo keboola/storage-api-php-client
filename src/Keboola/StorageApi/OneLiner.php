@@ -2,6 +2,7 @@
 namespace Keboola\StorageApi;
 
 use Keboola\Csv\CsvFile;
+
 /**
  *
  * Data model for One Line CSV file
@@ -15,6 +16,7 @@ use Keboola\Csv\CsvFile;
  * $model->property = "value";
  * $model–>save();
  *
+ * @deprecated
  */
 class OneLiner
 {
