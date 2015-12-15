@@ -1668,6 +1668,7 @@ class Client
 	 *
 	 * Prepare data for logs - to avoid having token string directly in logs
 	 *
+	 * @deprecated
 	 * @return array
 	 */
 	public function getLogData()
