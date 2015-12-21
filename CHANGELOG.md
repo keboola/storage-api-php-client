@@ -1,3 +1,6 @@
+## 3.3.0 (2015-12-21)
+  * Helper classes and `getLogData` method DEPRECATED
+
 ## 3.2.0 (2015-12-10)
   * [Feat] Configurations publishing
 
