@@ -88,6 +88,25 @@ class Keboola_StorageApi_EventsTest extends StorageApiTestCase
 		$this->assertEquals($event->getComponentType(), $savedEvent['component']);
 	}
 
+	/**
+	 * http://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-test.txt
+	 */
+	public function testCreateInvalidUTF8()
+	{
+		$message = "SQLSTATE[XX000]: " . chr(0x00000080);
+		$event = new Event();
+		$event->setComponent('ex-sfdc')
+			->setType('info')
+			->setMessage($message);
+
+		try {
+			$this->createAndWaitForEvent($event);
+			$this->fail('event should not be created');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('malformedRequest', $e->getStringCode());
+		}
+	}
+
 	public function testEventList()
 	{
 		// at least one event should be generated
