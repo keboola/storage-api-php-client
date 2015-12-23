@@ -208,6 +208,7 @@ class Keboola_StorageApi_Tables_ListingTest extends StorageApiTestCase
 		}
 	}
 
+
 	public function invalidAttributes()
 	{
 		return array(
@@ -225,6 +226,44 @@ class Keboola_StorageApi_Tables_ListingTest extends StorageApiTestCase
 	}
 
 
+	public function testNullAtributesReplace()
+	{
+		$tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+		$this->_client->replaceTableAttributes($tableId, [
+			[
+				'name' => 'neco',
+				'value' => 'val',
+			],
+			[
+				'name' => 'empty',
+				'value' => null,
+			],
+		]);
+		$table = $this->_client->getTable($tableId);
 
+		$expected = [
+			[
+				'name' => 'neco',
+				'value' => 'val',
+				'protected' => false,
+			],
+			[
+				'name' => 'empty',
+				'value' => '',
+				'protected' => false,
+			]
+		];
+		$this->assertEquals($expected, $table['attributes']);
+	}
+
+	public function testNullAttributeValueSet()
+	{
+		$tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+
+		$this->_client->setTableAttribute($tableId, 'test', null);
+		$table = $this->_client->getTable($tableId);
+
+		$this->assertEquals([['name' => 'test', 'value' => '', 'protected' => false]], $table['attributes']);
+	}
 
 }
