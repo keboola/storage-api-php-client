@@ -15,8 +15,8 @@ class Keboola_StorageApi_Buckets_TokensShareTest extends StorageApiTestCase
 	public function testMasterTokenShouldNotBeShareable()
 	{
 		try {
-			$logData = $this->_client->getLogData();
-			$this->_client->shareToken($logData['id'], 'test@devel.keboola.com', 'Hi');
+			$token = $this->_client->verifyToken();
+			$this->_client->shareToken($token['id'], 'test@devel.keboola.com', 'Hi');
 			$this->fail('Master token should not be shareable');
 		} catch (\Keboola\StorageApi\ClientException $e) {
 			$this->assertEquals('storage.token.cannotShareMasterToken', $e->getStringCode());

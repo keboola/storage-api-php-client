@@ -160,7 +160,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		sort($fileTags);
 		$this->assertEquals($tags, $fileTags);
 
-		$info = $this->_client->getLogData();
+		$info = $this->_client->verifyToken();
 		$this->assertEquals($file['creatorToken']['id'], (int) $info['id']);
 		$this->assertEquals($file['creatorToken']['description'], $info['description']);
 		$this->assertEquals($file['isEncrypted'], $options->getIsEncrypted());

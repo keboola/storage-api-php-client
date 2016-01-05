@@ -1,3 +1,6 @@
+## 4.0.0 (2016-01-05)
+  * [BC break] `getLogData` method removed
+
 ## 3.3.0 (2015-12-21)
   * Helper classes and `getLogData` method DEPRECATED
 

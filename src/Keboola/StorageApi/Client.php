@@ -25,13 +25,10 @@ class Client
 	const STAGE_OUT = "out";
 	const STAGE_SYS = "sys";
 
-	const VERSION = '3.3.0';
+	const VERSION = '4.0.0';
 
 	// Token string
 	public $token;
-
-	// Token object
-	private $tokenObj = null;
 
 	// current run id sent with all request
 	private $runId = null;
@@ -45,12 +42,6 @@ class Client
 
 	// User agent header send with each API request
 	private $userAgent = 'Keboola Storage API PHP Client';
-
-	/**
-	 * Log callback
-	 * @var callable
-	 */
-	private $log;
 
 	/**
 	 * @var LoggerInterface
@@ -1025,7 +1016,7 @@ class Client
 	 * @param string $tokenId If not set, defaults to self
 	 * @return string new token
 	 */
-	public function refreshToken($tokenId=null)
+	public function refreshToken($tokenId = null)
 	{
 		$currentToken = $this->verifyToken();
 		if ($tokenId == null) {
@@ -1036,7 +1027,6 @@ class Client
 
 		if ($currentToken["id"] == $result["id"]) {
 			$this->token = $result['token'];
-			$this->tokenObj = $result;
 		}
 
 		$this->log("Token {$tokenId} refreshed", array("token" => $result));
@@ -1661,34 +1651,6 @@ class Client
 		if ($this->logger) {
 			$this->logger->info($message, $context);
 		}
-	}
-
-
-	/**
-	 *
-	 * Prepare data for logs - to avoid having token string directly in logs
-	 *
-	 * @deprecated
-	 * @return array
-	 */
-	public function getLogData()
-	{
-		if (!$this->tokenObj) {
-			$this->tokenObj = $this->verifyToken();
-		}
-
-		$logData = array();
-		$logData["token"] = substr($this->tokenObj["token"], 0, 6);
-		$logData["owner"] = $this->tokenObj["owner"];
-		$logData["id"] = $this->tokenObj["id"];
-		$logData["description"] = $this->tokenObj["description"];
-		$logData["url"] = $this->apiUrl;
-
-		if (isset($this->tokenObj["admin"])) {
-			$logData["admin"] = $this->tokenObj["admin"];
-		}
-
-		return $logData;
 	}
 
 	/**
