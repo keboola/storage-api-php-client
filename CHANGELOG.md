@@ -1,3 +1,6 @@
+## 4.0.1 (2016-01-05)
+  * [BC break] unused depreacted exception classes removed
+
 ## 4.0.0 (2016-01-05)
   * [BC break] `getLogData` method removed
 
