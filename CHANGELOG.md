@@ -1,3 +1,6 @@
+## 4.0.2 (2016-01-07)
+  * [Fix] Use AWS S3 Client with federation token for table import
+
 ## 4.0.1 (2016-01-05)
   * [BC break] unused depreacted exception classes removed
 
