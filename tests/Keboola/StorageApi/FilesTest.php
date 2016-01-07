@@ -503,7 +503,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		return array(
 			array(
 				$path,
-				(new FileUploadOptions())
+				(new FileUploadOptions())->setIsPublic(true)
 			),
 			array(
 				$path,

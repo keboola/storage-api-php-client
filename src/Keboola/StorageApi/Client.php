@@ -1190,68 +1190,44 @@ class Client
 		}
 		$newOptions
 			->setFileName(basename($filePath))
-			->setSizeBytes(filesize($filePath));
+			->setSizeBytes(filesize($filePath))
+			->setFederationToken(true);
 
 		// 1. prepare resource
 		$result = $this->prepareFileUpload($newOptions);
 
 		// 2. upload directly do S3 using returned credentials
+		// using federation token
 		$uploadParams = $result['uploadParams'];
-		$client = new \GuzzleHttp\Client();
-//		$client->getEmitter()->attach($this->createExponentialBackoffSubsriber());
 
-		$fh = @fopen($filePath, 'r');
+		$s3Client = new \Aws\S3\S3Client([
+			'version' => '2006-03-01',
+			'retries' => 40,
+			'region'      => $result['region'],
+			'credentials' => [
+				'key' => $uploadParams['credentials']['AccessKeyId'],
+				'secret' => $uploadParams['credentials']['SecretAccessKey'],
+				'token' => $uploadParams['credentials']['SessionToken'],
+			],
+		]);
+
+		$fh = @fopen($filePath, 'r+');
 		if ($fh === false) {
 			throw new ClientException("Error on file upload to S3: " . $filePath, null, null, 'fileNotReadable');
 		}
-		try {
-			$multipart = [
-				[
-					'name' => 'key',
-					'contents' => $uploadParams['key'],
-				],
-				[
-					'name' => 'acl',
-					'contents' => $uploadParams['acl'],
-				],
-				[
-					'name' => 'signature',
-					'contents' => $uploadParams['signature'],
-				],
-				[
-					'name' => 'policy',
-					'contents' => $uploadParams['policy'],
-				],
-				[
-					'name' => 'AWSAccessKeyId',
-					'contents' => $uploadParams['AWSAccessKeyId'],
-				],
-			];
 
-			if ($options->getIsEncrypted()) {
-				$multipart[] = [
-					'name' => 'x-amz-server-side-encryption',
-					'contents' =>  $uploadParams['x-amz-server-side-encryption']
-				];
-			}
+		$putParams = array(
+			'Bucket' => $uploadParams['bucket'],
+			'Key'    => $uploadParams['key'],
+			'ACL'	=> $uploadParams['acl'],
+			'Body'   => $fh,
+		);
 
-			$multipart[] = [
-				'name' => 'file',
-				'contents' => $fh,
-			];
-
-			$client->post($uploadParams['url'], [
-				'multipart' => $multipart,
-			]);
-
-		} catch (RequestException $e) {
-			$response = $e->getResponse();
-			$message = "Error on file upload to S3: " . $e->getMessage();
-			if ($response) {
-				$message .= ' ' . (string) $response->getBody();
-			}
-			throw new ClientException($message, $e->getCode(), $e);
+		if ($newOptions->getIsEncrypted()) {
+			$putParams['ServerSideEncryption'] = $uploadParams['x-amz-server-side-encryption'];
 		}
+
+		$s3Client->putObject($putParams);
 
 		if (is_resource($fh)) {
 			fclose($fh);
