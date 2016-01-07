@@ -1,5 +1,5 @@
 ## 4.0.3 (2016-01-07)
-  *[Fix] AWS S3 retries set to 10
+ * [Fix] AWS S3 retries set to 10
 
 ## 4.0.2 (2016-01-07)
   * [Fix] Use AWS S3 Client with federation token for table import
