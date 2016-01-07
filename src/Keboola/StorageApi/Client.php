@@ -1202,7 +1202,7 @@ class Client
 
 		$s3Client = new \Aws\S3\S3Client([
 			'version' => '2006-03-01',
-			'retries' => 40,
+			'retries' => 10,
 			'region'      => $result['region'],
 			'credentials' => [
 				'key' => $uploadParams['credentials']['AccessKeyId'],
