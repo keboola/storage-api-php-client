@@ -81,11 +81,10 @@ class Keboola_StorageApi_ComponentsPublishTest extends StorageApiTestCase
 			->setComponentId($componentId)
 			->setConfigurationId($configurationId)
 		);
-		$this->assertCount(4, $versions);
+		$this->assertCount(3, $versions, 'one version between published versions should be removed');
 		$this->assertArrayNotHasKey('published', $versions[0]);
 		$this->assertArrayHasKey('published', $versions[1]);
-		$this->assertArrayNotHasKey('published', $versions[2]);
-		$this->assertArrayHasKey('published', $versions[3]);
+		$this->assertArrayHasKey('published', $versions[2]);
 
 		// get latest published version
 		$configuration = $components->getConfigurationVersion($componentId, $configurationId, \Keboola\StorageApi\Options\Components\Configuration::LATEST_PUBLISHED_VERSION);
