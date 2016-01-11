@@ -129,6 +129,20 @@ class Keboola_StorageApi_Tables_ImportExportCommonTest extends StorageApiTestCas
 		);
 	}
 
+
+	public function testImportWithWarnings()
+	{
+		$importFile = new CsvFile(__DIR__ . '/../_data/languages.csv');
+		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, self::BACKEND_MYSQL), 'languages', $importFile);
+
+		$warningsFile = new CsvFile(__DIR__ . '/../_data/warnings.languages.csv');
+		$result = $this->_client->writeTable($tableId, $warningsFile);
+
+		$this->assertCount(2, reset($result['warnings']));
+
+		$this->assertLinesEqualsSorted(file_get_contents(__DIR__ . '/../_data/warnings.languages-export.csv'), $this->_client->exportTable($tableId), 'imported data comparsion');
+	}
+
 	/**
 	 * @dataProvider backends
 	 * @param $backend
