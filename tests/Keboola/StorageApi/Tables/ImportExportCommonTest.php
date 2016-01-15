@@ -27,7 +27,7 @@ class Keboola_StorageApi_Tables_ImportExportCommonTest extends StorageApiTestCas
 	public function testTableImportExport($backend, CsvFile $importFile, $expectationsFileName, $colNames, $format = 'rfc')
 	{
 		$expectationsFile = __DIR__ . '/../_data/' . $expectationsFileName;
-		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, $backend), 'languages', $importFile);
+		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, $backend), 'languages-2', $importFile);
 
 		$result = $this->_client->writeTable($tableId, $importFile);
 		$table = $this->_client->getTable($tableId);
@@ -57,7 +57,7 @@ class Keboola_StorageApi_Tables_ImportExportCommonTest extends StorageApiTestCas
 	public function testTableAsyncImportExport($backend, CsvFile $importFile, $expectationsFileName, $colNames, $format = 'rfc', $createTableOptions = array())
 	{
 		$expectationsFile = __DIR__ . '/../_data/' . $expectationsFileName;
-		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, $backend), 'languages', $importFile, $createTableOptions);
+		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, $backend), 'languages-3', $importFile, $createTableOptions);
 
 		$result = $this->_client->writeTableAsync($tableId, $importFile);
 		$table = $this->_client->getTable($tableId);
