@@ -143,6 +143,34 @@ class Keboola_StorageApi_Tables_AlterTest extends StorageApiTestCase
 		}
 	}
 
+	/**
+	 * Tests: https://github.com/keboola/connection/issues/246
+	 */
+	public function testPrimaryKeyAddWithSameColumnsInDifferentBuckets()
+	{
+		$importFile = __DIR__ . '/../_data/users.csv';
+
+		$table1Id = $this->_client->createTable(
+			$this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT),
+			'users',
+			new CsvFile($importFile)
+		);
+
+		$this->_client->addTableColumn($table1Id, 'new-column');
+
+		$table2Id = $this->_client->createTable(
+			$this->getTestBucketId(self::STAGE_OUT, self::BACKEND_REDSHIFT),
+			'users',
+			new CsvFile($importFile)
+		);
+
+		$this->_client->createTablePrimaryKey($table2Id, ['id']);
+
+		$table = $this->_client->getTable($table2Id);
+
+		$this->assertEquals(['id'], $table['primaryKey']);
+	}
+
 	public function testPrimaryKeyAddWithDuplicty()
 	{
 		$primaryKeyColumns = array('id');
