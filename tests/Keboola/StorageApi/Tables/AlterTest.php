@@ -144,6 +144,31 @@ class Keboola_StorageApi_Tables_AlterTest extends StorageApiTestCase
 	}
 
 	/**
+	 * Tests: https://github.com/keboola/connection/issues/202
+	 */
+	public function testPrimaryKeyAddTooLong()
+	{
+		$importFile = __DIR__ . '/../_data/multiple-columns-pk.csv';
+
+		$primaryKeyColumns = array(
+			"Paid_Search_Engine_Account","Advertiser_ID","Date","Paid_Search_Campaign","Paid_Search_Ad_ID","Site__DFA"
+		);
+		$tableId = $this->_client->createTable(
+			$this->getTestBucketId(self::STAGE_IN),
+			'longPK',
+			new CsvFile($importFile),
+			array()
+		);
+
+		try  {
+			$this->_client->createTablePrimaryKey($tableId, $primaryKeyColumns);
+			$this->fail('create should fail as key will be too long');
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.tables.primaryKeyTooLong', $e->getStringCode());
+		}
+	}
+
+	/**
 	 * Tests: https://github.com/keboola/connection/issues/246
 	 */
 	public function testPrimaryKeyAddWithSameColumnsInDifferentBuckets()
@@ -396,7 +421,7 @@ class Keboola_StorageApi_Tables_AlterTest extends StorageApiTestCase
 			$this->assertEquals('storage.tables.primaryKeyAlreadyExists', $e->getStringCode());
 		}
 	}
-
+	
 	public function testRedshiftPrimaryKeyAdd()
 	{
 		$primaryKeyColumns = array('id');
