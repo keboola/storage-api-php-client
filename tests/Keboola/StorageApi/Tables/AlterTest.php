@@ -169,6 +169,26 @@ class Keboola_StorageApi_Tables_AlterTest extends StorageApiTestCase
 	}
 
 	/**
+	 * Tests: https://github.com/keboola/connection/issues/218
+	 */
+	public function testTooManyColumns()
+	{
+		$importFile = __DIR__ . '/../_data/many-more-columns.csv';
+
+		try  {
+			$tableId = $this->_client->createTable(
+				$this->getTestBucketId(self::STAGE_IN),
+				'tooManyColumns',
+				new CsvFile($importFile),
+				array()
+			);
+			$this->fail("There were 5000 columns man. fail.");
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('storage.tables.creation.', $e->getStringCode());
+		}
+	}
+
+	/**
 	 * Tests: https://github.com/keboola/connection/issues/246
 	 */
 	public function testPrimaryKeyAddWithSameColumnsInDifferentBuckets()
@@ -421,7 +441,7 @@ class Keboola_StorageApi_Tables_AlterTest extends StorageApiTestCase
 			$this->assertEquals('storage.tables.primaryKeyAlreadyExists', $e->getStringCode());
 		}
 	}
-	
+
 	public function testRedshiftPrimaryKeyAdd()
 	{
 		$primaryKeyColumns = array('id');
