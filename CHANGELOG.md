@@ -1,3 +1,6 @@
+## 4.1.0 (2016-01-25)
+ * [Feat] AWS client retries count can be set in client constructor
+
 ## 4.0.3 (2016-01-07)
  * [Fix] AWS S3 retries set to 10
 
