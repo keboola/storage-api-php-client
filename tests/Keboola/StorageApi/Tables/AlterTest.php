@@ -170,21 +170,23 @@ class Keboola_StorageApi_Tables_AlterTest extends StorageApiTestCase
 
 	/**
 	 * Tests: https://github.com/keboola/connection/issues/218
+	 * @dataProvider backends
+	 * @param $backend
 	 */
-	public function testTooManyColumns()
+	public function testTooManyColumns($backend)
 	{
 		$importFile = __DIR__ . '/../_data/many-more-columns.csv';
 
 		try  {
 			$tableId = $this->_client->createTable(
-				$this->getTestBucketId(self::STAGE_IN),
+				$this->getTestBucketId(self::STAGE_IN, $backend),
 				'tooManyColumns',
 				new CsvFile($importFile),
 				array()
 			);
 			$this->fail("There were 5000 columns man. fail.");
 		} catch (\Keboola\StorageApi\ClientException $e) {
-			$this->assertEquals('storage.tables.creation.', $e->getStringCode());
+			$this->assertEquals('storage.tables.validation.tooManyColumns', $e->getStringCode());
 		}
 	}
 
