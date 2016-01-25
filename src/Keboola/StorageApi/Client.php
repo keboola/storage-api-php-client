@@ -40,7 +40,7 @@ class Client
 
 	private $backoffMaxTries = 11;
 
-	private $awsRetries = 10;
+	private $awsRetries = 15;
 
 	// User agent header send with each API request
 	private $userAgent = 'Keboola Storage API PHP Client';
