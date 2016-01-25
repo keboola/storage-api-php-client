@@ -1,3 +1,6 @@
+##4.2.0 (2016-01-25)
+ * [Feat] Job added to exception context params on async task error
+
 ## 4.1.0 (2016-01-25)
  * [Feat] AWS client retries count can be set in client constructor
 
