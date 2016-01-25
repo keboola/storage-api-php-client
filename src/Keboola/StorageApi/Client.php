@@ -1590,7 +1590,9 @@ class Client
 				null,
 				null,
 				$job['error']['code'],
-				$job['error']
+				array_merge($job['error'], [
+					'job' => $job,
+				])
 			);
 		}
 
