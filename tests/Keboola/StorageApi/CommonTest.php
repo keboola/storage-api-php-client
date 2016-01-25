@@ -48,4 +48,16 @@ class Keboola_StorageApi_CommonTest extends StorageApiTestCase
 		$this->assertEquals($expectedHashmap, $data, "Csv parse to associative array");
 	}
 
+	public function testAwsRetries()
+	{
+		$retriesCount = 234;
+		$client = new Keboola\StorageApi\Client(array(
+			'token' => STORAGE_API_TOKEN,
+			'url' => STORAGE_API_URL,
+			'backoffMaxTries' => 1,
+			'awsRetries' => $retriesCount,
+		));
+		$this->assertEquals($retriesCount, $client->getAwsRetries());
+	}
+
 }
