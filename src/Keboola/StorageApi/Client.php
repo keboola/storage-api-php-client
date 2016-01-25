@@ -40,6 +40,8 @@ class Client
 
 	private $backoffMaxTries = 11;
 
+	private $awsRetries = 10;
+
 	// User agent header send with each API request
 	private $userAgent = 'Keboola Storage API PHP Client';
 
@@ -1202,7 +1204,7 @@ class Client
 
 		$s3Client = new \Aws\S3\S3Client([
 			'version' => '2006-03-01',
-			'retries' => 10,
+			'retries' => $this->getAwsRetries(),
 			'region'      => $result['region'],
 			'credentials' => [
 				'key' => $uploadParams['credentials']['AccessKeyId'],
@@ -1792,5 +1794,23 @@ class Client
 			'columns' => $columns,
 		);
 		$this->apiPost("storage/tables/$tableId/primary-key", $data);
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getAwsRetries()
+	{
+		return $this->awsRetries;
+	}
+
+	/**
+	 * @param int $awsRetries
+	 * @return $this
+	 */
+	public function setAwsRetries($awsRetries)
+	{
+		$this->awsRetries = $awsRetries;
+		return $this;
 	}
 }

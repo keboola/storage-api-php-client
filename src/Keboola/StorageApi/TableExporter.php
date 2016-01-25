@@ -55,7 +55,7 @@ class TableExporter
 		$s3Client = new S3Client([
 			'version' => '2006-03-01',
 			'region' => $fileInfo['region'],
-			'retries' => 10,
+			'retries' => $this->client->getAwsRetries(),
 			'credentials' => [
 				'key' => $fileInfo["credentials"]["AccessKeyId"],
 				'secret' => $fileInfo["credentials"]["SecretAccessKey"],
