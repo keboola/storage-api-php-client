@@ -81,6 +81,7 @@ class Client
 	 *     - url: (optional) Storage API URL
 	 *     - userAgent: custom user agent
 	 *     - backoffMaxTries: backoff maximum number of attempts
+	 *     - awsRetries: number of aws client retries
 	 *     - logger: instance of Psr\Log\LoggerInterface
 	 */
 	public function __construct(array $config = array())
@@ -101,6 +102,10 @@ class Client
 
 		if (isset($config['backoffMaxTries'])) {
 			$this->backoffMaxTries = (int) $config['backoffMaxTries'];
+		}
+
+		if (isset($config['awsRetries'])) {
+			$this->awsRetries = (int) $config['awsRetries'];
 		}
 
 		if (isset($config['logger'])) {
@@ -1804,13 +1809,4 @@ class Client
 		return $this->awsRetries;
 	}
 
-	/**
-	 * @param int $awsRetries
-	 * @return $this
-	 */
-	public function setAwsRetries($awsRetries)
-	{
-		$this->awsRetries = $awsRetries;
-		return $this;
-	}
 }
