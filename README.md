@@ -81,7 +81,29 @@ You can set these by copying file config.template.php into config.php and fillin
     export=STORAGE_API_URL=http://connection.keboola.com
     export=STORAGE_API_TOKEN=YOUR_TOKEN
 
-Tests expects master token and performs all operations including bucket and table deletes on project storage associated to token. 
+Tests expects master token and performs all operations including bucket and table deletes on project storage associated to token.
+ 
+### Redshift tests
+
+Reshift tests require a cluster connected to Storage API and credentials. When you have a project with enabled Redshift, create 2 Redshift buckets:
+ 
+   - in.c-api-tests-redshift
+   - out.c-api-tests-redshift
+
+Then you can create your Redshift user:
+
+    CREATE USER test_user PASSWORD '***';
+    GRANT ALL PRIVILEGES ON DATABASE sapi_YOURPROJECTID TO test_user;
+    GRANT ALL PRIVILEGES ON SCHEMA "in.c-api-tests-redshift" TO test_user;
+    GRANT ALL PRIVILEGES ON SCHEMA "out.c-api-tests-redshift" TO test_user;
+    GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA "in.c-api-tests-redshift" TO test_user;
+    GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA "out.c-api-tests-redshift" TO test_user;
+    
+And then assign Redshift related env variables
+
+    export REDSHIFT_HOSTNAME=sapi-06-default.cmizbsfmzc6w.us-east-1.redshift.amazonaws.com
+    export REDSHIFT_USER=test_user 
+    export REDSHIFT_PASSWORD=***
 
 **Never run this tests on production project with real data, always create project for testing purposes!!!**
 
