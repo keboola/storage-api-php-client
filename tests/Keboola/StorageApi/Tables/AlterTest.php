@@ -191,6 +191,25 @@ class Keboola_StorageApi_Tables_AlterTest extends StorageApiTestCase
 	}
 
 	/**
+	 * Tests: https://github.com/keboola/connection/issues/231
+	 */
+	public function testRowTooBig() {
+		$importFile = __DIR__ . '/../_data/very-long-row.csv';
+
+		try {
+			$tableId = $this->_client->createTable(
+				$this->getTestBucketId(self::STAGE_IN),
+				'rowTooLong',
+				new CsvFile($importFile),
+				array()
+			);
+			$this->fail("There was too long an item in the row.");
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('rowTooLarge', $e->getStringCode());
+		}
+	}
+
+	/**
 	 * Tests: https://github.com/keboola/connection/issues/246
 	 */
 	public function testPrimaryKeyAddWithSameColumnsInDifferentBuckets()
