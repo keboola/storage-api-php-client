@@ -862,12 +862,8 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		}
 
 	}
-
+	
 	public function testTokenWithComponentAccess()
-	{
-
-	}
-	public function testTokenWithManageAllBucketsShouldHaveAccessToComponents()
 	{
 		$accessibleComponents = array("provisioning");
 		$tokenId = $this->_client->createToken('manage', 'test components', null, false, $accessibleComponents);
