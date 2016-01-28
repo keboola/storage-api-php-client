@@ -862,7 +862,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		}
 
 	}
-	
+
 	public function testTokenWithComponentAccess()
 	{
 		$accessibleComponents = array("provisioning");
@@ -894,7 +894,6 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		} catch (\Keboola\StorageApi\ClientException $e) {
 			$this->assertEquals('accessDenied', $e->getStringCode());
 		}
-
 		$this->_client->dropToken($tokenId);
 	}
 
