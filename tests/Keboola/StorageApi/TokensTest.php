@@ -15,7 +15,6 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 	protected $_inBucketId;
 	protected $_outBucketId;
 
-
 	public function setUp()
 	{
 		parent::setUp();
@@ -33,6 +32,15 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 				continue;
 			}
 			$this->_client->dropToken($token['id']);
+		}
+	}
+
+	protected function _clearComponents() {
+		$components = new \Keboola\StorageApi\Components($this->_client);
+		foreach ($components->listComponents() as $component) {
+			foreach ($component['configurations'] as $configuration) {
+				$components->deleteConfiguration($component['id'], $configuration['id']);
+			}
 		}
 	}
 
@@ -190,6 +198,136 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 		$tokenAfterRefresh = $this->_client->getToken($tokenId);
 
 		$this->assertNotEquals($token['token'], $tokenAfterRefresh['token']);
+	}
+
+	public function testTokenComponentAccess() {
+
+		$this->_clearComponents();
+
+		$description = "Component Access Test Token";
+		$componentAccess = array("gooddata-writer");
+		$bucketPermissions = array("in.c-api-tests" => "write");
+
+		$componentAccessTokenId = $this->_client->createToken($bucketPermissions, $description, null, false, $componentAccess);
+		$componentAccessToken = $this->_client->getToken($componentAccessTokenId);
+
+		$componentFailTokenId = $this->_client->createToken($bucketPermissions, $description);
+		$componentFailToken = $this->_client->getToken($componentFailTokenId);
+
+		$accessClient = new Keboola\StorageApi\Client(array(
+			'token' => $componentAccessToken['token'],
+			'url' => STORAGE_API_URL
+		));
+
+		$failClient = new Keboola\StorageApi\Client(array(
+			'token' => $componentFailToken['token'],
+			'url' => STORAGE_API_URL
+		));
+
+		// we'll test 3 scenarios, using an admin token, a token with some component access, and a token with no access
+		$adminComponentClient = new Keboola\StorageApi\Components($this->_client);
+		$accessComponentClient = new Keboola\StorageApi\Components($accessClient);
+		$failComponentClient = new Keboola\StorageApi\Components($failClient);
+
+		// we should have no components at the start
+		$allComponents = $adminComponentClient->listComponents();
+		$this->assertCount(0, $allComponents);
+
+		// we'll create some initial test configuration
+		$adminComponentClient->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
+			->setComponentId('gooddata-writer')
+			->setConfigurationId('main-1')
+			->setName('Main1')
+		);
+		$adminComponentClient->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
+			->setComponentId('gooddata-writer')
+			->setConfigurationId('main-2')
+			->setConfiguration(array('x' => 'y'))
+			->setName('Main2')
+		);
+		$provisioningConfig = (new \Keboola\StorageApi\Options\Components\Configuration())
+			->setComponentId('provisioning')
+			->setConfigurationId('main-1')
+			->setName('Main1');
+		$adminComponentClient->addConfiguration($provisioningConfig);
+
+		// make sure our admin token sees all
+		$allComponents = $adminComponentClient->listComponents();
+		$this->assertCount(2, $allComponents);
+
+		$accessibleComponents = $accessComponentClient->listComponents();
+		$this->assertCount(1, $accessibleComponents);
+		$this->assertEquals($componentAccess[0], $accessibleComponents[0]['id']);
+
+		try {
+			$failComponents = $failComponentClient->listComponents();
+			$this->fail("This token should not be allowed to access components API");
+		} catch (Keboola\StorageApi\ClientException  $e) {}
+
+		// we should be able to read a config from our accessible component
+		$config = $accessComponentClient->getConfiguration("gooddata-writer", "main-1");
+		$this->assertEquals($config["name"], "Main1");
+
+		// we should be able to add a configuration for our accessible component
+		$config = (new \Keboola\StorageApi\Options\Components\Configuration())
+			->setComponentId('gooddata-writer')
+			->setConfigurationId('main-3')
+			->setName('Main3');
+		$accessComponentClient->addConfiguration($config);
+
+		// check that we can update our configuration
+		$newName = "MAIN-3";
+		$newConfigData = array("foo" => "bar");
+		$config->setName($newName);
+		$config->setConfiguration($newConfigData);
+		$accessComponentClient->updateConfiguration($config);
+		$updatedConfig = $accessComponentClient->getConfiguration($config->getComponentId(), $config->getConfigurationId());
+		$this->assertEquals($updatedConfig['name'], $newName);
+		$this->assertEquals($updatedConfig['configuration'], $newConfigData);
+
+		// we should be able to delete this configuration too
+		$accessComponentClient->deleteConfiguration($config->getComponentId(), $config->getConfigurationId());
+		try {
+			// it should be gone now, and throw a 404
+			$deletedConfig = $accessComponentClient->getConfiguration($config->getComponentId(), $config->getConfigurationId());
+			$this->fail("Configuration should no longer exist, throw a 404");
+		} catch (Keboola\StorageApi\ClientException  $e) {
+			$this->assertEquals(404, $e->getCode());
+		}
+
+		// we should not be able to add a configuration for any other components
+		try {
+			$accessComponentClient->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
+				->setComponentId('provisioning')
+				->setConfigurationId('main-2')
+				->setConfiguration(array('foo' => 'bar'))
+				->setName('Main2')
+			);
+			$this->fail("Token was not granted access to this component, should throw an exception");
+		} catch (Keboola\StorageApi\ClientException  $e) {}
+
+		// tokens should not be able to add configuration rows to configs of components that are inaccessible
+		$configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($provisioningConfig);
+		$configurationRow->setRowId('main-1-1');
+		try {
+			$accessComponentClient->addConfigurationRow($configurationRow);
+			$this->fail("Token was not granted access to this component, should throw an exception");
+		} catch (Keboola\StorageApi\ClientException  $e) {}
+
+		// the token with no component access should not be able to add configurations
+		try {
+			$failComponentClient->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
+				->setComponentId('provisioning')
+				->setConfigurationId('main-2')
+				->setConfiguration(array('foo' => 'bar'))
+				->setName('Main2')
+			);
+			$this->fail("Token was not granted access to this component, should throw an exception");
+		} catch (Keboola\StorageApi\ClientException  $e) {}
+
+
+		// cleanup
+		$this->_clearComponents();
 	}
 
 	public function testTokenPermissions()

@@ -947,7 +947,7 @@ class Client
 	 * @param bool $canReadAllFileUploads
 	 * @return integer token id
 	 */
-	public function createToken($permissions, $description=null, $expiresIn = null, $canReadAllFileUploads = false)
+	public function createToken($permissions, $description=null, $expiresIn = null, $canReadAllFileUploads = false, $componentAccess = null)
 	{
 		$options = array();
 
@@ -967,6 +967,11 @@ class Client
 		}
 		$options['canReadAllFileUploads'] = (bool) $canReadAllFileUploads;
 
+		if ($componentAccess) {
+			foreach((array) $componentAccess as $index => $component) {
+				$options['componentAccess[{$index}]'] = $component;
+			}
+		}
 		$result = $this->apiPost("storage/tokens", $options);
 
 		$this->log("Token {$result["id"]} created", array("options" => $options, "result" => $result));

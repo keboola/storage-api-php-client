@@ -863,26 +863,41 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 
 	}
 
+	public function testTokenWithComponentAccess()
+	{
+
+	}
 	public function testTokenWithManageAllBucketsShouldHaveAccessToComponents()
 	{
-		$tokenId = $this->_client->createToken('manage', 'test components');
+		$accessibleComponents = array("provisioning");
+		$tokenId = $this->_client->createToken('manage', 'test components', null, false, $accessibleComponents);
 		$token = $this->_client->getToken($tokenId);
 
 		$client = new Keboola\StorageApi\Client(array(
 			'token' => $token['token'],
 			'url' => STORAGE_API_URL,
 		));
+
 		$components = new \Keboola\StorageApi\Components($client);
 		$componentsList = $components->listComponents();
 		$this->assertEmpty($componentsList);
 
 		$config = $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
-			->setComponentId('gooddata-writer')
+			->setComponentId('provisioning')
 			->setName('Main'));
 
 		$componentsList = $components->listComponents();
 		$this->assertCount(1, $componentsList);
 		$this->assertEquals($config['id'], $componentsList[0]['configurations'][0]['id']);
+
+		try {
+			$config = $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
+				->setComponentId('gooddata-writer')
+				->setName('Main'));
+			$this->fail("Have not been granted permission to access this component, should throw exception");
+		} catch (\Keboola\StorageApi\ClientException $e) {
+			$this->assertEquals('accessDenied', $e->getStringCode());
+		}
 
 		$this->_client->dropToken($tokenId);
 	}
