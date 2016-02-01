@@ -1,4 +1,7 @@
-##4.2.0 (2016-01-25)
+## 4.3.0 (2016-02-01)
+ * [Feat] Create token - component access permissions
+
+## 4.2.0 (2016-01-25)
  * [Feat] Job added to exception context params on async task error
 
 ## 4.1.0 (2016-01-25)
