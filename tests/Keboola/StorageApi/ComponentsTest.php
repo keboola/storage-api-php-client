@@ -865,8 +865,9 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 
 	public function testTokenWithComponentAccess()
 	{
+		$this->_initEmptyBucketsForAllBackends();
 		$accessibleComponents = array("provisioning");
-		$tokenId = $this->_client->createToken(array("in.c-api-tests" => "write"), 'test components', null, false, $accessibleComponents);
+		$tokenId = $this->_client->createToken(array($this->getTestBucketId(self::STAGE_IN) => "write"), 'test components', null, false, $accessibleComponents);
 		$token = $this->_client->getToken($tokenId);
 
 		$client = new Keboola\StorageApi\Client(array(
