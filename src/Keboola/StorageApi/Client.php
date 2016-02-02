@@ -988,7 +988,7 @@ class Client
 	 * @param string null $description
 	 * @return int token id
 	 */
-	public function updateToken($tokenId, $permissions, $description = null, $canReadAllFileUploads = null)
+	public function updateToken($tokenId, $permissions, $description = null, $canReadAllFileUploads = null, $componentAccess = null)
 	{
 		$options = array();
 		foreach($permissions as $tableId => $permission) {
@@ -1001,6 +1001,12 @@ class Client
 
 		if (!is_null($canReadAllFileUploads)) {
 			$options["canReadAllFileUploads"] = (bool) $canReadAllFileUploads;
+		}
+
+		if ($componentAccess) {
+			foreach((array) $componentAccess as $index => $component) {
+				$options['componentAccess[{$index}]'] = $component;
+			}
 		}
 
 		$result = $this->apiPut("storage/tokens/" . $tokenId, $options);

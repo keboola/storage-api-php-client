@@ -200,6 +200,7 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 		$this->assertNotEquals($token['token'], $tokenAfterRefresh['token']);
 	}
 
+
 	public function testTokenComponentAccess() {
 
 		$this->_clearComponents();
@@ -325,6 +326,13 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 			$this->fail("Token was not granted access to this component, should throw an exception");
 		} catch (Keboola\StorageApi\ClientException  $e) {}
 
+		// let's grant the fail token access to the provisioning component
+		$newFailTokenId = $this->_client->updateToken($componentFailTokenId,$bucketPermissions,$description,null,["provisioning"]);
+		$this->assertEquals($newFailTokenId, $componentFailTokenId);
+		// the fail client should be able to see this component now
+		$nonFailComponents = $failComponentClient->listComponents();
+		$this->assertCount(1, $nonFailComponents);
+		$this->assertEquals("provisioning", $nonFailComponents[0]["id"]);
 
 		// cleanup
 		$this->_clearComponents();
