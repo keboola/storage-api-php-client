@@ -1,3 +1,6 @@
+## 4.4.0 (2016-02-03)
+ * [Feat] Update token - component access permissions
+
 ## 4.3.0 (2016-02-01)
  * [Feat] Create token - component access permissions
 
