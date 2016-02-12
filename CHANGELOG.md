@@ -1,3 +1,6 @@
+## 4.4.1 (2016-02-12)
+ * [Fix] file upload mode changed to read
+
 ## 4.4.0 (2016-02-03)
  * [Feat] Update token - component access permissions
 
