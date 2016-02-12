@@ -1229,7 +1229,7 @@ class Client
 			],
 		]);
 
-		$fh = @fopen($filePath, 'r+');
+		$fh = @fopen($filePath, 'r');
 		if ($fh === false) {
 			throw new ClientException("Error on file upload to S3: " . $filePath, null, null, 'fileNotReadable');
 		}
