@@ -1,3 +1,6 @@
+## 4.5.0 (2016-02-16)
+ * [Feat] `awsDebug` debug logging of AWS client can be enabled
+
 ## 4.4.1 (2016-02-12)
  * [Fix] file upload mode changed to read
 
