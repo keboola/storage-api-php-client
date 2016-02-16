@@ -41,6 +41,8 @@ class Client
 
 	private $awsRetries = 15;
 
+	private $awsDebug = false;
+
 	// User agent header send with each API request
 	private $userAgent = 'Keboola Storage API PHP Client';
 
@@ -106,6 +108,11 @@ class Client
 		if (isset($config['awsRetries'])) {
 			$this->awsRetries = (int) $config['awsRetries'];
 		}
+
+		if (isset($config['awsDebug'])) {
+			$this->awsDebug = (bool) $config['awsDebug'];
+		}
+
 
 		if (isset($config['logger'])) {
 			$this->setLogger($config['logger']);
@@ -1223,16 +1230,35 @@ class Client
 		// using federation token
 		$uploadParams = $result['uploadParams'];
 
-		$s3Client = new \Aws\S3\S3Client([
+
+
+		$options = [
 			'version' => '2006-03-01',
 			'retries' => $this->getAwsRetries(),
-			'region'      => $result['region'],
+			'region' => $result['region'],
+			'debug' => false,
 			'credentials' => [
 				'key' => $uploadParams['credentials']['AccessKeyId'],
 				'secret' => $uploadParams['credentials']['SecretAccessKey'],
 				'token' => $uploadParams['credentials']['SessionToken'],
-			],
-		]);
+			]
+		];
+
+		if ($this->isAwsDebug()) {
+			$logfn = function($message) {
+				$this->log($message, ['source' => 'AWS SDK PHP debug']);
+			};
+			$options['debug'] = [
+				'logfn' => function($message) use ($logfn) {
+					call_user_func($logfn, $message);
+				},
+				'stream_size' => 0,
+				'scrub_auth' => true,
+				'http' => true
+			];
+		}
+
+		$s3Client = new \Aws\S3\S3Client($options);
 
 		$fh = @fopen($filePath, 'r');
 		if ($fh === false) {
@@ -1826,4 +1852,11 @@ class Client
 		return $this->awsRetries;
 	}
 
+	/**
+	 * @return boolean
+	 */
+	public function isAwsDebug()
+	{
+		return $this->awsDebug;
+	}
 }
