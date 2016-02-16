@@ -10,7 +10,6 @@ use GuzzleHttp\Psr7\Response;
 use Keboola\StorageApi\Options\GetFileOptions;
 use Keboola\StorageApi\Options\ListFilesOptions;
 use Keboola\StorageApi\Options\StatsOptions;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -273,7 +272,7 @@ class Client
 	}
 
 	/**
-	 * @param $tableId
+	 * @param $bucketId
 	 * @param array $attributes array of objects with `name`, `value`, `protected` keys
 	 */
 	public function replaceBucketAttributes($bucketId, $attributes = array())
@@ -307,6 +306,8 @@ class Client
 	 *
 	 * @param string $bucketId
 	 * @return bool
+	 * @throws ClientException
+	 * @throws \Exception
 	 */
 	public function bucketExists($bucketId)
 	{
@@ -618,6 +619,7 @@ class Client
 	 *  - incremental
 	 *  - partial
 	 * @return mixed|string
+	 * @throws ClientException
 	 */
 	public function writeTable($tableId, CsvFile $csvFile,  $options = array())
 	{
@@ -862,6 +864,8 @@ class Client
 	 *
 	 * @param string $tableId
 	 * @return bool
+	 * @throws ClientException
+	 * @throws \Exception
 	 */
 	public function tableExists($tableId)
 	{
@@ -1170,6 +1174,7 @@ class Client
 	 * @param string $filePath
 	 * @param FileUploadOptions $options
 	 * @return int - created file id
+	 * @throws ClientException
 	 */
 	public function uploadFile($filePath, FileUploadOptions $options)
 	{
@@ -1362,8 +1367,7 @@ class Client
 	}
 
 	/**
-	 * @param int $limit
-	 * @param int $offset
+	 * @param array $params
 	 * @return array
 	 */
 	public function listEvents($params = array())
