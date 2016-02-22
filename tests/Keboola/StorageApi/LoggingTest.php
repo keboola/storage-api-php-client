@@ -36,7 +36,13 @@ class Keboola_StorageApi_LoggingTest extends StorageApiTestCase
 			->method('log');
 
 		$logger->expects($this->atLeastOnce())
-			->method('info');
+			->method('info')
+			->with($this->callback(function($message) {
+				if (trim($message) == '') {
+					return false;
+				}
+				return true;
+			}));
 
 		$client = new \Keboola\StorageApi\Client(array(
 			'token' => STORAGE_API_TOKEN,

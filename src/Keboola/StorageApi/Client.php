@@ -1246,7 +1246,9 @@ class Client
 
 		if ($this->isAwsDebug()) {
 			$logfn = function($message) {
-				$this->log($message, ['source' => 'AWS SDK PHP debug']);
+				if (trim($message) != '') {
+					$this->log($message, ['source' => 'AWS SDK PHP debug']);
+				}
 			};
 			$options['debug'] = [
 				'logfn' => function($message) use ($logfn) {
