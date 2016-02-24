@@ -224,7 +224,7 @@ class Keboola_StorageApi_BucketsTest extends StorageApiTestCase
 		$tableId = $this->_client->createTable(
 			$bucketId,
 			'languages',
-			new CsvFile(__DIR__ . 'git/_data/languages.csv'),
+			new CsvFile(__DIR__ . '/_data/languages.csv'),
 			array(
 				'primaryKey' => 'id',
 			)
