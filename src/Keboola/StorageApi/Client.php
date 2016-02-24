@@ -251,11 +251,22 @@ class Client
 	 * Delete a bucket. Only empty buckets can be deleted
 	 *
 	 * @param string $bucketId
+	 * @param array $options - (bool) force
 	 * @return mixed|string
 	 */
-	public function dropBucket($bucketId)
+	public function dropBucket($bucketId, $options = array())
 	{
-		return $this->apiDelete("storage/buckets/" . $bucketId);
+		$url = "storage/buckets/" . $bucketId;
+
+		$allowedOptions = array(
+			'force',
+		);
+
+		$filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
+
+		$url .= '?' . http_build_query($filteredOptions);
+
+		return $this->apiDelete($url);
 	}
 
 	/**
