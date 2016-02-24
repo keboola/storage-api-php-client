@@ -6,6 +6,7 @@
  * Time: 11:46
  *
  */
+use Keboola\Csv\CsvFile;
 
 class Keboola_StorageApi_BucketsTest extends StorageApiTestCase
 {
@@ -214,6 +215,26 @@ class Keboola_StorageApi_BucketsTest extends StorageApiTestCase
 		} catch (\Keboola\StorageApi\ClientException $e) {
 			$this->assertEquals('storage.attributes.validation', $e->getStringCode());
 		}
+	}
+
+	public function testBucketDropForce()
+	{
+		$bucketId = $this->getTestBucketId();
+
+		$tableId = $this->_client->createTable(
+			$bucketId,
+			'languages',
+			new CsvFile(__DIR__ . 'git/_data/languages.csv'),
+			array(
+				'primaryKey' => 'id',
+			)
+		);
+
+		$table = $this->_client->getTable($tableId);
+		$this->assertEquals(array('id'), $table['primaryKey']);
+		$this->assertEquals(array('id'), $table['indexedColumns']);
+
+		$this->_client->dropBucket($bucketId, array('force' => true));
 	}
 
 	public function invalidAttributes()
