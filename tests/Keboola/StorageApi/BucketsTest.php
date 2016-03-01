@@ -19,6 +19,7 @@ class Keboola_StorageApi_BucketsTest extends StorageApiTestCase
 	public function testBucketsList()
 	{
 		$buckets = $this->_client->listBuckets();
+
 		$this->assertTrue(count($buckets) >= 2);
 
 		$inBucketFound = false;
@@ -217,12 +218,16 @@ class Keboola_StorageApi_BucketsTest extends StorageApiTestCase
 		}
 	}
 
-	public function testBucketDropForce()
+	/**
+	 * @dataProvider backends
+	 */
+	public function testBucketDropError($backend)
 	{
-		$bucketId = $this->getTestBucketId();
+		$inBucketId = $this->getTestBucketId(self::STAGE_IN, $backend);
+		$outBucketId = $this->getTestBucketId(self::STAGE_OUT, $backend);
 
 		$tableId = $this->_client->createTable(
-			$bucketId,
+			$inBucketId,
 			'languages',
 			new CsvFile(__DIR__ . '/_data/languages.csv'),
 			array(
@@ -234,7 +239,164 @@ class Keboola_StorageApi_BucketsTest extends StorageApiTestCase
 		$this->assertEquals(array('id'), $table['primaryKey']);
 		$this->assertEquals(array('id'), $table['indexedColumns']);
 
-		$this->_client->dropBucket($bucketId, array('force' => true));
+		try {
+			$this->_client->dropBucket($inBucketId);
+			$this->fail('Exception should be thrown');
+		} catch (\Keboola\StorageApi\ClientException $e){
+			$this->assertEquals('buckets.deleteNotEmpty', $e->getStringCode());
+		}
+
+		if ($backend == self::BACKEND_REDSHIFT) {
+			$sql = 'SELECT * FROM "' . $inBucketId . '".languages WHERE id > 20';
+			$this->_client->createRedshiftAliasTable($outBucketId, $sql, 'languages-alias');
+		} else {
+			$this->_client->createAliasTable(
+				$outBucketId,
+				$tableId,
+				'languages-alias'
+			);
+		}
+
+		try {
+			$this->_client->dropBucket($outBucketId);
+			$this->fail('Exception should be thrown');
+		} catch (\Keboola\StorageApi\ClientException $e){
+			$this->assertEquals('buckets.deleteNotEmpty', $e->getStringCode());
+		}
+	}
+
+	/**
+	 * @dataProvider backends
+	 */
+	public function testBucketDropAliasError($backend)
+	{
+		$inBucketId = $this->getTestBucketId(self::STAGE_IN, $backend);
+		$outBucketId = $this->getTestBucketId(self::STAGE_OUT, $backend);
+
+		$tables = $this->_client->listTables($inBucketId);
+		$this->assertCount(0, $tables);
+
+		$tables = $this->_client->listTables($outBucketId);
+		$this->assertCount(0, $tables);
+
+		$tableId = $this->_client->createTable(
+			$inBucketId,
+			'languages',
+			new CsvFile(__DIR__ . '/_data/languages.csv'),
+			array(
+				'primaryKey' => 'id',
+			)
+		);
+
+		$table = $this->_client->getTable($tableId);
+		$this->assertEquals(array('id'), $table['primaryKey']);
+		$this->assertEquals(array('id'), $table['indexedColumns']);
+
+		$tableId = $this->_client->createTable(
+			$inBucketId,
+			'languages_copy',
+			new CsvFile(__DIR__ . '/_data/languages.csv'),
+			array(
+				'primaryKey' => 'id',
+			)
+		);
+
+		$table = $this->_client->getTable($tableId);
+		$this->assertEquals(array('id'), $table['primaryKey']);
+		$this->assertEquals(array('id'), $table['indexedColumns']);
+
+		if ($backend == self::BACKEND_REDSHIFT) {
+			$sql = 'SELECT * FROM "' . $inBucketId . '".languages_copy WHERE id > 20';
+			$this->_client->createRedshiftAliasTable($outBucketId, $sql, 'languages-alias');
+		} else {
+			$this->_client->createAliasTable(
+				$outBucketId,
+				$tableId,
+				'languages-alias'
+			);
+		}
+
+		try {
+			$this->_client->dropBucket($inBucketId, array('force' => true));
+			$this->fail('Exception should be thrown');
+		} catch (\Keboola\StorageApi\ClientException $e){
+			$this->assertEquals('storage.dependentObjects', $e->getStringCode());
+		}
+
+		$tables = $this->_client->listTables($inBucketId);
+		$this->assertCount(2, $tables);
+
+		$tables = $this->_client->listTables($outBucketId);
+		$this->assertCount(1, $tables);
+	}
+
+	/**
+	 * @dataProvider backends
+	 */
+	public function testBucketDrop($backend)
+	{
+		$inBucketId = $this->getTestBucketId(self::STAGE_IN, $backend);
+		$outBucketId = $this->getTestBucketId(self::STAGE_OUT, $backend);
+
+		$tableId = $this->_client->createTable(
+			$inBucketId,
+			'languages',
+			new CsvFile(__DIR__ . '/_data/languages.csv'),
+			array(
+				'primaryKey' => 'id',
+			)
+		);
+
+		$table = $this->_client->getTable($tableId);
+		$this->assertEquals(array('id'), $table['primaryKey']);
+		$this->assertEquals(array('id'), $table['indexedColumns']);
+
+		$tableId = $this->_client->createTable(
+			$inBucketId,
+			'languages_copy',
+			new CsvFile(__DIR__ . '/_data/languages.csv'),
+			array(
+				'primaryKey' => 'id',
+			)
+		);
+
+		$table = $this->_client->getTable($tableId);
+		$this->assertEquals(array('id'), $table['primaryKey']);
+		$this->assertEquals(array('id'), $table['indexedColumns']);
+
+		$tableId = $this->_client->createTable(
+			$outBucketId,
+			'languages',
+			new CsvFile(__DIR__ . '/_data/languages.csv'),
+			array(
+				'primaryKey' => 'id',
+			)
+		);
+
+		$table = $this->_client->getTable($tableId);
+		$this->assertEquals(array('id'), $table['primaryKey']);
+		$this->assertEquals(array('id'), $table['indexedColumns']);
+
+		if ($backend == self::BACKEND_REDSHIFT) {
+			$sql = 'SELECT * FROM "' . $outBucketId . '".languages WHERE id > 20';
+			$this->_client->createRedshiftAliasTable($inBucketId, $sql, 'languages-alias');
+		} else {
+			$this->_client->createAliasTable(
+				$inBucketId,
+				$tableId,
+				'languages-alias'
+			);
+		}
+
+		$tables = $this->_client->listTables($inBucketId);
+		$this->assertCount(3, $tables);
+
+		$this->_client->dropBucket($inBucketId, array('force' => true));
+
+		$this->assertFalse($this->_client->bucketExists($inBucketId));
+
+		$tables = $this->_client->listTables($outBucketId);
+		$this->assertCount(1, $tables);
 	}
 
 	public function invalidAttributes()
