@@ -87,6 +87,8 @@ class Keboola_StorageApi_Tables_ListingTest extends StorageApiTestCase
 			'include' => 'columns',
 		));
 
+		$this->assertCount(1, $tables);
+
 		$firstTable = reset($tables);
 		$this->assertArrayHasKey('columns', $firstTable);
 		$this->assertEquals(array('id', 'name'), $firstTable['columns']);
