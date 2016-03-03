@@ -1,3 +1,6 @@
+## 4.6.0 (2016-03-03)
+ * [Feat] `dropBucket` - bucket with tables can be deleted using `force` parameter (http://docs.keboola.apiary.io/#reference/buckets/manage-bucket/drop-bucket)
+
 ## 4.5.0 (2016-02-16)
  * [Feat] `awsDebug` debug logging of AWS client can be enabled
 
