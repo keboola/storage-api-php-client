@@ -81,7 +81,7 @@ class Keboola_StorageApi_Tables_ListingTest extends StorageApiTestCase
 
 	public function testListTablesWithColumns()
 	{
-		$this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+		$tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
 
 		$tables = $this->_client->listTables($this->getTestBucketId(), array(
 			'include' => 'columns',
@@ -90,6 +90,7 @@ class Keboola_StorageApi_Tables_ListingTest extends StorageApiTestCase
 		$this->assertCount(1, $tables);
 
 		$firstTable = reset($tables);
+		$this->assertEquals($tableId, $firstTable['id']);
 		$this->assertArrayHasKey('columns', $firstTable);
 		$this->assertEquals(array('id', 'name'), $firstTable['columns']);
 
@@ -98,6 +99,7 @@ class Keboola_StorageApi_Tables_ListingTest extends StorageApiTestCase
 		));
 
 		$firstTable = reset($tables);
+		$this->assertEquals($tableId, $firstTable['id']);
 		$this->assertArrayHasKey('columns', $firstTable);
 		$this->assertEquals(array('id', 'name'), $firstTable['columns']);
 	}
