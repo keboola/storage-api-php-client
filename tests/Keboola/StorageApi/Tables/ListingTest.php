@@ -97,6 +97,7 @@ class Keboola_StorageApi_Tables_ListingTest extends StorageApiTestCase
 		$tables = $this->_client->listTables(null, array(
 			'include' => 'columns',
 		));
+		$this->assertCount(1, $tables);
 
 		$firstTable = reset($tables);
 		$this->assertEquals($tableId, $firstTable['id']);

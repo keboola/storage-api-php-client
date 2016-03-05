@@ -1013,6 +1013,10 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 		} catch (\Keboola\StorageApi\ClientException $e) {
 			$this->assertEquals('storage.buckets.invalidAliasStages', $e->getStringCode());
 		}
+
+		$this->_client->dropBucket($sysBucketId, [
+			'force' => true,
+		]);
 	}
 
 	public function testAliasingFromSysStageShouldNotBeEnabled()
@@ -1030,6 +1034,10 @@ class Keboola_StorageApi_Tables_AliasesTest extends StorageApiTestCase
 		} catch (\Keboola\StorageApi\ClientException $e) {
 			$this->assertEquals('storage.buckets.invalidAliasStages', $e->getStringCode());
 		}
+
+		$this->_client->dropBucket($sysBucketId, [
+			'force' => true,
+		]);
 	}
 
 	public function testAliasingBetweenInAndOutShouldBeAllowed()
