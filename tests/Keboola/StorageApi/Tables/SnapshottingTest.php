@@ -53,6 +53,42 @@ class Keboola_StorageApi_Tables_SnapshottingTest extends StorageApiTestCase
 	}
 
 	/**
+	 * @dataProvider backends
+	 * @param $backend
+	 */
+	public function testTableSnapshotDelete($backend)
+	{
+		$tableId = $this->_client->createTable(
+			$this->getTestBucketId(self::STAGE_IN, $backend),
+			'languages',
+			new CsvFile(__DIR__ . '/../_data/languages.csv'),
+			array(
+				'primaryKey' => 'id',
+			)
+		);
+
+		$this->_client->setTableAttribute($tableId, 'first', 'some value');
+		$this->_client->setTableAttribute($tableId, 'second', 'other value');
+		$table = $this->_client->getTable($tableId);
+
+		$description = 'Test snapshot';
+		$snapshotId = $this->_client->createTableSnapshot($tableId, $description);
+		$this->assertNotEmpty($snapshotId);
+
+		$snapshot = $this->_client->getSnapshot($snapshotId);
+
+		$this->assertEquals($description, $snapshot['description']);
+		$this->assertEquals($table['primaryKey'], $snapshot['table']['primaryKey']);
+		$this->assertEquals($table['columns'], $snapshot['table']['columns']);
+		$this->assertEquals($table['indexedColumns'], $snapshot['table']['indexedColumns']);
+		$this->assertEquals($table['attributes'], $snapshot['table']['attributes']);
+		$this->assertArrayHasKey('creatorToken', $snapshot);
+		$this->assertNotEmpty($snapshot['dataFileId']);
+
+		$this->_client->deleteSnapshot($snapshotId);
+	}
+
+	/**
 	 * @dataProvider inOutBackends
 	 * @param $backend
 	 */

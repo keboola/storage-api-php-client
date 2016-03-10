@@ -1457,6 +1457,15 @@ class Client
 	}
 
 	/**
+	 * @param $id
+	 */
+	public function deleteSnapshot($id)
+	{
+		$result = $this->apiDelete("storage/snapshots/$id");
+		$this->log("Snapshot $id deleted");
+	}
+
+	/**
 	 * Unique 64bit sequence generator
 	 * @return int generated id
 	 */
