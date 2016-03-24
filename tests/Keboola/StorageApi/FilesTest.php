@@ -194,7 +194,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 
 		$s3Client = new \Aws\S3\S3Client([
 			'version'     => 'latest',
-			'region'      => 'us-east-1',
+			'region'      => $result['region'],
 			'credentials' => [
 				'key' => $uploadParams['credentials']['AccessKeyId'],
 				'secret' => $uploadParams['credentials']['SecretAccessKey'],
@@ -253,7 +253,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 
 		$s3Client = new \Aws\S3\S3Client([
 			'version'     => 'latest',
-			'region'      => 'us-east-1',
+			'region'      => $slicedFile['region'],
 			'credentials' => [
 				'key' => $uploadParams['credentials']['AccessKeyId'],
 				'secret' => $uploadParams['credentials']['SecretAccessKey'],
@@ -335,7 +335,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 
 		$s3Client = new \Aws\S3\S3Client([
 			'version'     => 'latest',
-			'region'      => 'us-east-1',
+			'region'      => $result['region'],
 			'credentials' => [
 				'key' => $uploadParams['credentials']['AccessKeyId'],
 				'secret' => $uploadParams['credentials']['SecretAccessKey'],
@@ -376,7 +376,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 
 		$s3Client = new \Aws\S3\S3Client([
 			'version'     => 'latest',
-			'region'      => 'us-east-1',
+			'region'      => $preparedFile['region'],
 			'credentials' => [
 				'key' => $uploadParams['credentials']['AccessKeyId'],
 				'secret' => $uploadParams['credentials']['SecretAccessKey'],
@@ -420,7 +420,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 
 		$s3Client = new \Aws\S3\S3Client([
 			'version'     => 'latest',
-			'region'      => 'us-east-1',
+			'region'      => $file['region'],
 			'credentials' => [
 				'key' => $file['credentials']['AccessKeyId'],
 				'secret' => $file['credentials']['SecretAccessKey'],
@@ -632,7 +632,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 
 		$s3Client = new \Aws\S3\S3Client([
 			'version'     => 'latest',
-			'region'      => 'us-east-1',
+			'region'      => $file['region'],
 			'credentials' => [
 				'key' => $file['credentials']['AccessKeyId'],
 				'secret' => $file['credentials']['SecretAccessKey'],

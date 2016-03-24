@@ -43,7 +43,8 @@ class Keboola_StorageApi_Tables_SlicedImportsTest extends StorageApiTestCase
 				'token' => $uploadParams['credentials']['SessionToken'],
 			],
 			'version' => 'latest',
-			'region' => 'us-east-1'
+			'region' => $slicedFile['region'],
+
 		]);
 		$s3Client->putObject(array(
 			'Bucket' => $uploadParams['bucket'],
@@ -106,7 +107,7 @@ class Keboola_StorageApi_Tables_SlicedImportsTest extends StorageApiTestCase
 				'token' => $uploadParams['credentials']['SessionToken'],
 			],
 			'version' => 'latest',
-			'region' => 'us-east-1'
+			'region' => $slicedFile['region'],
 		]);
 		$part1URL = $s3Client->putObject(array(
 			'Bucket' => $uploadParams['bucket'],
@@ -208,7 +209,7 @@ class Keboola_StorageApi_Tables_SlicedImportsTest extends StorageApiTestCase
 				'token' => $uploadParams['credentials']['SessionToken'],
 			],
 			'version' => 'latest',
-			'region' => 'us-east-1'
+			'region' => $slicedFile['region'],
 		]);
 		$part1URL = $s3Client->putObject(array(
 			'Bucket' => $uploadParams['bucket'],
@@ -268,7 +269,7 @@ class Keboola_StorageApi_Tables_SlicedImportsTest extends StorageApiTestCase
 				'token' => $uploadParams['credentials']['SessionToken'],
 			],
 			'version' => 'latest',
-			'region' => 'us-east-1'
+			'region' => $slicedFile['region'],
 		]);
 		$part1URL = $s3Client->putObject(array(
 			'Bucket' => $uploadParams['bucket'],
@@ -287,7 +288,7 @@ class Keboola_StorageApi_Tables_SlicedImportsTest extends StorageApiTestCase
 				'token' => $uploadParams['credentials']['SessionToken'],
 			],
 			'version' => 'latest',
-			'region' => 'us-east-1'
+			'region' => $slicedFile['region'],
 		]);
 
 		$s3Client->putObject(array(
