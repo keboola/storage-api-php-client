@@ -27,7 +27,7 @@ class Keboola_StorageApi_ComponentsPublishTest extends StorageApiTestCase
 
 	public function testConfigurationPublish()
 	{
-		$componentId = 'gooddata-writer';
+		$componentId = 'wr-db';
 		$configurationId = 'main-1';
 		$configOptions = (new \Keboola\StorageApi\Options\Components\Configuration())
 			->setComponentId($componentId)
@@ -94,7 +94,7 @@ class Keboola_StorageApi_ComponentsPublishTest extends StorageApiTestCase
 	public function testPublishAndRows()
 	{
 		$initialConfig = ['dfs' => 'hov'];
-		$componentId = 'gooddata-writer';
+		$componentId = 'wr-db';
 		$configurationId = 'main-1';
 
 		$configOptions = (new \Keboola\StorageApi\Options\Components\Configuration())
@@ -131,7 +131,7 @@ class Keboola_StorageApi_ComponentsPublishTest extends StorageApiTestCase
 	public function testPublishAndRollback()
 	{
 		$initialConfig = ['dfs' => 'hov'];
-		$componentId = 'gooddata-writer';
+		$componentId = 'wr-db';
 		$configurationId = 'main-1';
 		$configOptions = (new \Keboola\StorageApi\Options\Components\Configuration())
 			->setComponentId($componentId)
@@ -180,7 +180,7 @@ class Keboola_StorageApi_ComponentsPublishTest extends StorageApiTestCase
 	public function testWorkingVersionsAutoDelete()
 	{
 		$initialConfig = ['dfs' => 'hov'];
-		$componentId = 'gooddata-writer';
+		$componentId = 'wr-db';
 		$configurationId = 'main-1';
 		$configOptions = (new \Keboola\StorageApi\Options\Components\Configuration())
 			->setComponentId($componentId)
@@ -273,7 +273,7 @@ class Keboola_StorageApi_ComponentsPublishTest extends StorageApiTestCase
 	public function testLastWorkingVersionIsReturnedIfNotPublishedYet()
 	{
 		$initialConfig = ['dfs' => 'hov'];
-		$componentId = 'gooddata-writer';
+		$componentId = 'wr-db';
 		$configurationId = 'main-1';
 		$configOptions = (new \Keboola\StorageApi\Options\Components\Configuration())
 			->setComponentId($componentId)

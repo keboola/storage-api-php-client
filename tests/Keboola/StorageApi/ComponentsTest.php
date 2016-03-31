@@ -29,13 +29,13 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 	{
 		$components = new \Keboola\StorageApi\Components($this->_client);
 		$components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
-			->setComponentId('gooddata-writer')
+			->setComponentId('wr-db')
 			->setConfigurationId('main-1')
 			->setName('Main')
 			->setDescription('some desc')
 		);
 
-		$component = $components->getConfiguration('gooddata-writer', 'main-1');
+		$component = $components->getConfiguration('wr-db', 'main-1');
 		$this->assertEquals('Main', $component['name']);
 		$this->assertEquals('some desc', $component['description']);
 		$this->assertEmpty($component['configuration']);
@@ -47,7 +47,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$this->assertCount(1, $components);
 
 		$component = reset($components);
-		$this->assertEquals('gooddata-writer', $component['id']);
+		$this->assertEquals('wr-db', $component['id']);
 		$this->assertCount(1, $component['configurations']);
 
 		$configuration = reset($component['configurations']);
@@ -59,7 +59,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 	public function testConfigurationNameShouldBeRequired()
 	{
 		try {
-			$this->_client->apiPost('storage/components/gooddata-writer/configs', [
+			$this->_client->apiPost('storage/components/wr-db/configs', [
 			]);
 			$this->fail('Params should be invalid');
 		} catch (\Keboola\StorageApi\ClientException $e) {
@@ -71,7 +71,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 	public function testNonJsonConfigurationShouldNotBeAllowed()
 	{
 		try {
-			$this->_client->apiPost('storage/components/gooddata-writer/configs', array(
+			$this->_client->apiPost('storage/components/wr-db/configs', array(
 				'name' => 'neco',
 				'description' => 'some',
 				'configuration' => '{sdf}',
@@ -106,7 +106,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
         ];
 
 
-        $response = $client->post("/v2/storage/components/gooddata-writer/configs", [
+        $response = $client->post("/v2/storage/components/wr-db/configs", [
             'form_params' => [
                 'name' => 'test',
                 'configuration' => json_encode($config),
@@ -120,7 +120,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
         $this->assertEquals($config, $response->configuration);
         $this->assertEquals($state, $response->state);
 
-        $response = $client->get("/v2/storage/components/gooddata-writer/configs/{$response->id}", [
+        $response = $client->get("/v2/storage/components/wr-db/configs/{$response->id}", [
             'headers' => array(
                 'X-StorageApi-Token' => $this->_client->getTokenString(),
             ),
@@ -136,7 +136,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
             'anotherArr' => [],
             'object' => (object) [],
         ];
-        $response = $client->put("/v2/storage/components/gooddata-writer/configs/{$response->id}", [
+        $response = $client->put("/v2/storage/components/wr-db/configs/{$response->id}", [
             'form_params' => [
                 'configuration' => json_encode($config),
             ],
@@ -147,7 +147,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
         $response = json_decode((string) $response->getBody());
         $this->assertEquals($config, $response->configuration);
 
-        $response = $client->get("/v2/storage/components/gooddata-writer/configs/{$response->id}", [
+        $response = $client->get("/v2/storage/components/wr-db/configs/{$response->id}", [
             'headers' => array(
                 'X-StorageApi-Token' => $this->_client->getTokenString(),
             ),
@@ -169,14 +169,14 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 
 		$components = new \Keboola\StorageApi\Components($this->_client);
 		$components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
-				->setComponentId('gooddata-writer')
+				->setComponentId('wr-db')
 				->setConfigurationId('main-1')
 				->setName('Main')
 				->setDescription('some desc')
 				->setConfiguration($configuration)
 		);
 
-		$config = $components->getConfiguration('gooddata-writer', 'main-1');
+		$config = $components->getConfiguration('wr-db', 'main-1');
 
 		$this->assertEquals($configuration, $config['configuration']);
 		$this->assertEquals(1, $config['version']);
@@ -194,14 +194,14 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		);
 		$components = new \Keboola\StorageApi\Components($this->_client);
 		$components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
-				->setComponentId('gooddata-writer')
+				->setComponentId('wr-db')
 				->setConfigurationId('main-1')
 				->setName('Main')
 				->setDescription('some desc')
 				->setState($state)
 		);
 
-		$config = $components->getConfiguration('gooddata-writer', 'main-1');
+		$config = $components->getConfiguration('wr-db', 'main-1');
 
 		$this->assertEquals($state, $config['state']);
 		$this->assertEquals(1, $config['version']);
@@ -211,13 +211,13 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 	{
 		$components = new \Keboola\StorageApi\Components($this->_client);
 		$component = $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
-				->setComponentId('gooddata-writer')
+				->setComponentId('wr-db')
 				->setName('Main')
 				->setDescription('some desc')
 		);
 		$this->assertNotEmpty($component['id']);
 		$component = $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
-				->setComponentId('gooddata-writer')
+				->setComponentId('wr-db')
 				->setName('Main')
 				->setDescription('some desc')
 		);
@@ -227,7 +227,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 	public function testComponentConfigUpdate()
 	{
 		$config = (new \Keboola\StorageApi\Options\Components\Configuration())
-				->setComponentId('gooddata-writer')
+				->setComponentId('wr-db')
 				->setConfigurationId('main-1')
 				->setName('Main');
 		$components = new \Keboola\StorageApi\Components($this->_client);
@@ -254,7 +254,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 				'cache' => true,
 		];
 		$config = (new \Keboola\StorageApi\Options\Components\Configuration())
-				->setComponentId('gooddata-writer')
+				->setComponentId('wr-db')
 				->setConfigurationId('main-1')
 				->setDescription('neco')
 				->setState($state);
@@ -273,7 +273,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$this->assertEquals($state, $configuration['state']);
 
 		$config = (new \Keboola\StorageApi\Options\Components\Configuration())
-				->setComponentId('gooddata-writer')
+				->setComponentId('wr-db')
 				->setConfigurationId('main-1')
 				->setDescription('');
 
@@ -285,7 +285,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 	public function testComponentConfigUpdateWithRows()
 	{
 		$config = (new \Keboola\StorageApi\Options\Components\Configuration())
-				->setComponentId('gooddata-writer')
+				->setComponentId('wr-db')
 				->setConfigurationId('main-1')
 				->setName('Main');
 		$components = new \Keboola\StorageApi\Components($this->_client);
@@ -323,7 +323,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 				'cache' => true,
 		];
 		$config = (new \Keboola\StorageApi\Options\Components\Configuration())
-				->setComponentId('gooddata-writer')
+				->setComponentId('wr-db')
 				->setConfigurationId('main-1')
 				->setDescription('neco')
 				->setState($state);
@@ -348,7 +348,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$this->assertEquals($state, $configuration['state']);
 
 		$config = (new \Keboola\StorageApi\Options\Components\Configuration())
-				->setComponentId('gooddata-writer')
+				->setComponentId('wr-db')
 				->setConfigurationId('main-1')
 				->setDescription('');
 
@@ -366,7 +366,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 	public function testComponentConfigUpdateVersioning()
 	{
 		$config = (new \Keboola\StorageApi\Options\Components\Configuration())
-			->setComponentId('gooddata-writer')
+			->setComponentId('wr-db')
 			->setConfigurationId('main-1')
 			->setName('Main');
 		$components = new \Keboola\StorageApi\Components($this->_client);
@@ -411,7 +411,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 	public function testComponentConfigUpdateChangeDescription()
 	{
 		$config = (new \Keboola\StorageApi\Options\Components\Configuration())
-			->setComponentId('gooddata-writer')
+			->setComponentId('wr-db')
 			->setConfigurationId('main-1')
 			->setName('Main');
 		$components = new \Keboola\StorageApi\Components($this->_client);
@@ -429,7 +429,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 			->setChangeDescription($changeDesc);
 		$components->updateConfiguration($config);
 
-		$componentConfig = $components->getConfiguration('gooddata-writer', 'main-1');
+		$componentConfig = $components->getConfiguration('wr-db', 'main-1');
 		$this->assertArrayHasKey('changeDescription', $componentConfig);
 		$this->assertEquals($changeDesc, $componentConfig['changeDescription']);
 
@@ -445,7 +445,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 	public function testComponentConfigsVersionsList()
 	{
 		$config = (new \Keboola\StorageApi\Options\Components\Configuration())
-			->setComponentId('gooddata-writer')
+			->setComponentId('wr-db')
 			->setConfigurationId('main-1')
 			->setName('Main');
 		$components = new \Keboola\StorageApi\Components($this->_client);
@@ -516,7 +516,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
     public function testConfigurationRollback()
     {
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
-            ->setComponentId('gooddata-writer')
+            ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
 			->setConfiguration(['a' => 'b'])
             ->setName('Main');
@@ -529,7 +529,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
         $configurationRow->setConfiguration($firstRowConfig);
         $firstRow = $components->addConfigurationRow($configurationRow);
 
-        $secondVersion = $components->getConfiguration('gooddata-writer', $newConfiguration['id']);
+        $secondVersion = $components->getConfiguration('wr-db', $newConfiguration['id']);
         $this->assertEquals(2, $secondVersion['version']);
         $this->assertEquals($firstRowConfig, $secondVersion['rows'][0]['configuration']);
 
@@ -544,6 +544,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
         $firstRowUpdatedConfig = array('first' => 22);
         $configurationRow->setConfiguration($firstRowUpdatedConfig)->setRowId($firstRow['id']);
         $components->updateConfigurationRow($configurationRow);
+
 
 		// update config
 		$components->updateConfiguration($config->setConfiguration(['d' => 'b']));
@@ -561,7 +562,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
             ]
         ];
 
-        $currentConfiguration = $components->getConfiguration('gooddata-writer', $newConfiguration['id']);
+        $currentConfiguration = $components->getConfiguration('wr-db', $newConfiguration['id']);
         $this->assertEquals(5, $currentConfiguration['version'], 'There were 2 rows insert and 1 row update and 1 config update -> version should be 4');
         $this->assertEquals($expectedRows, $currentConfiguration['rows']);
 
@@ -574,9 +575,9 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
                 'configuration' => $firstRowConfig,
             ],
         ];
-        $components->rollbackConfiguration('gooddata-writer', $newConfiguration['id'], 2);
+        $components->rollbackConfiguration('wr-db', $newConfiguration['id'], 2);
 
-        $currentConfiguration = $components->getConfiguration('gooddata-writer', $newConfiguration['id']);
+        $currentConfiguration = $components->getConfiguration('wr-db', $newConfiguration['id']);
         $this->assertEquals(6, $currentConfiguration['version'], 'Rollback was one new operation');
         $this->assertEquals($expectedRows, $currentConfiguration['rows']);
 		$this->assertEquals(['a' => 'b'], $currentConfiguration['configuration']);
@@ -585,7 +586,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
     public function testUpdateRowWithoutIdShouldNotBeAllowed()
     {
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
-            ->setComponentId('gooddata-writer')
+            ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
             ->setName('Main');
         $components = new \Keboola\StorageApi\Components($this->_client);
@@ -610,7 +611,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
     public function testUpdateConfigWithoutIdShouldNotBeAllowed()
     {
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
-            ->setComponentId('gooddata-writer')
+            ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
             ->setName('Main');
         $components = new \Keboola\StorageApi\Components($this->_client);
@@ -629,7 +630,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
     public function testComponentConfigsVersionsRollback()
 	{
 		$config = (new \Keboola\StorageApi\Options\Components\Configuration())
-			->setComponentId('gooddata-writer')
+			->setComponentId('wr-db')
 			->setConfigurationId('main-1')
 			->setName('Main');
 		$components = new \Keboola\StorageApi\Components($this->_client);
@@ -704,7 +705,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 	public function testComponentConfigsVersionsCreate()
 	{
 		$config = (new \Keboola\StorageApi\Options\Components\Configuration())
-			->setComponentId('gooddata-writer')
+			->setComponentId('wr-db')
 			->setConfigurationId('main-1')
 			->setName('Main');
 		$components = new \Keboola\StorageApi\Components($this->_client);
@@ -766,7 +767,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 	public function testComponentConfigsListShouldNotBeImplemented()
 	{
 		try {
-			$this->_client->apiGet('storage/components/gooddata-writer/configs');
+			$this->_client->apiGet('storage/components/wr-db/configs');
 			$this->fail('Method should not be implemented');
 		} catch (\Keboola\StorageApi\ClientException $e) {
 			$this->assertEquals(501, $e->getCode());
@@ -783,12 +784,12 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 
 
 		$components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
-				->setComponentId('gooddata-writer')
+				->setComponentId('wr-db')
 				->setConfigurationId('main-1')
 				->setName('Main')
 		);
 		$components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
-				->setComponentId('gooddata-writer')
+				->setComponentId('wr-db')
 				->setConfigurationId('main-2')
 				->setConfiguration(array('x' => 'y'))
 				->setName('Main')
@@ -827,7 +828,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 	public function testDuplicateConfigShouldNotBeCreated()
 	{
 		$options = (new \Keboola\StorageApi\Options\Components\Configuration())
-			->setComponentId('gooddata-writer')
+			->setComponentId('wr-db')
 			->setConfigurationId('main-1')
 			->setName('Main');
 
@@ -889,7 +890,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 
 		try {
 			$config = $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
-				->setComponentId('gooddata-writer')
+				->setComponentId('wr-db')
 				->setName('Main'));
 			$this->fail("Have not been granted permission to access this component, should throw exception");
 		} catch (\Keboola\StorageApi\ClientException $e) {
@@ -910,7 +911,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$componentsList = $components->listComponents();
 		$this->assertEmpty($componentsList);
 		$config = $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
-			->setComponentId('gooddata-writer')
+			->setComponentId('wr-db')
 			->setName('Main'));
 		$componentsList = $components->listComponents();
 		$this->assertCount(1, $componentsList);
@@ -922,7 +923,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 	{
 		$configuration = new \Keboola\StorageApi\Options\Components\Configuration();
 		$configuration
-			->setComponentId('gooddata-writer')
+			->setComponentId('wr-db')
 			->setConfigurationId('main-1')
 			->setName('Main')
 			->setDescription('some desc')
@@ -932,7 +933,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 
 		$components->addConfiguration($configuration);
 
-		$component = $components->getConfiguration('gooddata-writer', 'main-1');
+		$component = $components->getConfiguration('wr-db', 'main-1');
 		$this->assertEquals('Main', $component['name']);
 		$this->assertEquals('some desc', $component['description']);
 		$this->assertEmpty($component['configuration']);
@@ -952,7 +953,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$this->assertCount(1, $components);
 
 		$component = reset($components);
-		$this->assertEquals('gooddata-writer', $component['id']);
+		$this->assertEquals('wr-db', $component['id']);
 		$this->assertCount(1, $component['configurations']);
 
 		$configuration = reset($component['configurations']);
@@ -976,7 +977,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$row = reset($rows);
 		$this->assertEquals('main-1-1', $row['id']);
 
-		$configuration = $components->getConfiguration('gooddata-writer', 'main-1');
+		$configuration = $components->getConfiguration('wr-db', 'main-1');
 		$this->assertEquals(2, $configuration['version']);
 
 		$this->assertArrayHasKey('rows', $configuration);
@@ -990,7 +991,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 	{
 		$configuration = new \Keboola\StorageApi\Options\Components\Configuration();
 		$configuration
-			->setComponentId('gooddata-writer')
+			->setComponentId('wr-db')
 			->setConfigurationId('main-1')
 			->setName('Main')
 			->setDescription('some desc')
@@ -1000,7 +1001,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 
 		$components->addConfiguration($configuration);
 
-		$component = $components->getConfiguration('gooddata-writer', 'main-1');
+		$component = $components->getConfiguration('wr-db', 'main-1');
 		$this->assertEquals('Main', $component['name']);
 		$this->assertEquals('some desc', $component['description']);
 		$this->assertEmpty($component['configuration']);
@@ -1020,7 +1021,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$this->assertCount(1, $components);
 
 		$component = reset($components);
-		$this->assertEquals('gooddata-writer', $component['id']);
+		$this->assertEquals('wr-db', $component['id']);
 		$this->assertCount(1, $component['configurations']);
 
 		$configuration = reset($component['configurations']);
@@ -1044,7 +1045,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$row = reset($rows);
 		$this->assertEquals('main-1-1', $row['id']);
 
-		$component = $components->getConfiguration('gooddata-writer', 'main-1');
+		$component = $components->getConfiguration('wr-db', 'main-1');
 		$this->assertEquals(2, $component['version']);
 
 		$row = $components->updateConfigurationRow($configurationRow);
@@ -1079,7 +1080,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 	{
 		$configuration = new \Keboola\StorageApi\Options\Components\Configuration();
 		$configuration
-			->setComponentId('gooddata-writer')
+			->setComponentId('wr-db')
 			->setConfigurationId('main-1')
 			->setName('Main')
 			->setDescription('some desc')
@@ -1089,7 +1090,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 
 		$components->addConfiguration($configuration);
 
-		$component = $components->getConfiguration('gooddata-writer', 'main-1');
+		$component = $components->getConfiguration('wr-db', 'main-1');
 		$this->assertEquals('Main', $component['name']);
 		$this->assertEquals('some desc', $component['description']);
 		$this->assertEmpty($component['configuration']);
@@ -1114,7 +1115,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$this->assertCount(1, $components);
 
 		$component = reset($components);
-		$this->assertEquals('gooddata-writer', $component['id']);
+		$this->assertEquals('wr-db', $component['id']);
 		$this->assertCount(1, $component['configurations']);
 
 		$configuration = reset($component['configurations']);
@@ -1140,7 +1141,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$row = reset($rows);
 		$this->assertEquals('main-1-1', $row['id']);
 
-		$component = $components->getConfiguration('gooddata-writer', 'main-1');
+		$component = $components->getConfiguration('wr-db', 'main-1');
 		$this->assertEquals(3, $component['version']);
 
 		$components->deleteConfigurationRow(
@@ -1161,7 +1162,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$row = reset($rows);
 		$this->assertEquals('main-1-1', $row['id']);
 
-		$component = $components->getConfiguration('gooddata-writer', 'main-1');
+		$component = $components->getConfiguration('wr-db', 'main-1');
 		$this->assertEquals(4, $component['version']);
 	}
 
@@ -1199,7 +1200,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
     {
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
-            ->setComponentId('gooddata-writer')
+            ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
             ->setName('Main')
             ->setDescription('some desc')
@@ -1209,7 +1210,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 
         $components->addConfiguration($configuration);
 
-        $component = $components->getConfiguration('gooddata-writer', 'main-1');
+        $component = $components->getConfiguration('wr-db', 'main-1');
         $this->assertEquals('Main', $component['name']);
         $this->assertEquals('some desc', $component['description']);
         $this->assertEmpty($component['configuration']);
@@ -1229,7 +1230,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
         $this->assertCount(1, $components);
 
         $component = reset($components);
-        $this->assertEquals('gooddata-writer', $component['id']);
+        $this->assertEquals('wr-db', $component['id']);
         $this->assertCount(1, $component['configurations']);
 
         $configuration = reset($component['configurations']);
@@ -1253,7 +1254,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
         $row = reset($rows);
         $this->assertEquals('main-1-1', $row['id']);
 
-        $component = $components->getConfiguration('gooddata-writer', 'main-1');
+        $component = $components->getConfiguration('wr-db', 'main-1');
         $this->assertEquals(2, $component['version']);
 
         $row = $components->updateConfigurationRow($configurationRow);
@@ -1273,7 +1274,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 
         $versions = $components->listConfigurationRowVersions(
             (new \Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions())
-                ->setComponentId('gooddata-writer')
+                ->setComponentId('wr-db')
                 ->setConfigurationId('main-1')
                 ->setRowId($configurationRow->getRowId())
         );
@@ -1288,7 +1289,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 
         $versions = $components->listConfigurationRowVersions(
             (new \Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions())
-                ->setComponentId('gooddata-writer')
+                ->setComponentId('wr-db')
                 ->setConfigurationId('main-1')
                 ->setRowId($configurationRow->getRowId())
                 ->setInclude(array('configuration'))
@@ -1303,7 +1304,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
             $this->assertArrayHasKey('configuration', $version);
 
             $rowVersion = $components->getConfigurationRowVersion(
-                'gooddata-writer',
+                'wr-db',
                 'main-1',
                 $configurationRow->getRowId(),
                 $version['version']);
@@ -1316,7 +1317,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 
         $versions = $components->listConfigurationRowVersions(
             (new \Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions())
-                ->setComponentId('gooddata-writer')
+                ->setComponentId('wr-db')
                 ->setConfigurationId('main-1')
                 ->setRowId($configurationRow->getRowId())
                 ->setLimit(1)
@@ -1336,7 +1337,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
     {
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
-            ->setComponentId('gooddata-writer')
+            ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
             ->setName('Main')
             ->setDescription('some desc')
@@ -1346,7 +1347,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 
         $components->addConfiguration($configuration);
 
-        $component = $components->getConfiguration('gooddata-writer', 'main-1');
+        $component = $components->getConfiguration('wr-db', 'main-1');
         $this->assertEquals('Main', $component['name']);
         $this->assertEquals('some desc', $component['description']);
         $this->assertEmpty($component['configuration']);
@@ -1370,7 +1371,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
         $this->assertCount(1, $components);
 
         $component = reset($components);
-        $this->assertEquals('gooddata-writer', $component['id']);
+        $this->assertEquals('wr-db', $component['id']);
         $this->assertCount(1, $component['configurations']);
 
         $configuration = reset($component['configurations']);
@@ -1394,7 +1395,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
         $row = reset($rows);
         $this->assertEquals('main-1-1', $row['id']);
 
-        $component = $components->getConfiguration('gooddata-writer', 'main-1');
+        $component = $components->getConfiguration('wr-db', 'main-1');
         $this->assertEquals(2, $component['version']);
 
         $row = $components->updateConfigurationRow($configurationRow);
@@ -1412,7 +1413,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 
 
         $rowVersion = $components->rollbackConfigurationRow(
-            'gooddata-writer',
+            'wr-db',
             'main-1',
             $configurationRow->getRowId(),
             1
@@ -1429,7 +1430,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 
         $versions = $components->listConfigurationRowVersions(
             (new \Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions())
-                ->setComponentId('gooddata-writer')
+                ->setComponentId('wr-db')
                 ->setConfigurationId('main-1')
                 ->setRowId($configurationRow->getRowId())
         );
@@ -1445,7 +1446,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
-            ->setComponentId('gooddata-writer')
+            ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
             ->setName('Main')
             ->setDescription('some desc')

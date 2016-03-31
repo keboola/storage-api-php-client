@@ -206,7 +206,7 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 		$this->_clearComponents();
 
 		$description = "Component Access Test Token";
-		$componentAccess = array("gooddata-writer");
+		$componentAccess = array("wr-db");
 		$bucketPermissions = array("in.c-api-tests" => "write");
 
 		$componentAccessTokenId = $this->_client->createToken($bucketPermissions, $description, null, false, $componentAccess);
@@ -236,12 +236,12 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 
 		// we'll create some initial test configuration
 		$adminComponentClient->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
-			->setComponentId('gooddata-writer')
+			->setComponentId('wr-db')
 			->setConfigurationId('main-1')
 			->setName('Main1')
 		);
 		$adminComponentClient->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
-			->setComponentId('gooddata-writer')
+			->setComponentId('wr-db')
 			->setConfigurationId('main-2')
 			->setConfiguration(array('x' => 'y'))
 			->setName('Main2')
@@ -266,12 +266,12 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 		} catch (Keboola\StorageApi\ClientException  $e) {}
 
 		// we should be able to read a config from our accessible component
-		$config = $accessComponentClient->getConfiguration("gooddata-writer", "main-1");
+		$config = $accessComponentClient->getConfiguration("wr-db", "main-1");
 		$this->assertEquals($config["name"], "Main1");
 
 		// we should be able to add a configuration for our accessible component
 		$config = (new \Keboola\StorageApi\Options\Components\Configuration())
-			->setComponentId('gooddata-writer')
+			->setComponentId('wr-db')
 			->setConfigurationId('main-3')
 			->setName('Main3');
 		$accessComponentClient->addConfiguration($config);
