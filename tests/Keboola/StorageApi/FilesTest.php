@@ -68,6 +68,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 	{
 		$file = $this->_client->prepareFileUpload((new FileUploadOptions())
 			->setFileName('test.json')
+			->setFederationToken(true)
 			->setTags([
 				0 => 'neco',
 				12 => 'another',
@@ -127,7 +128,8 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 	public function testFileListFilterByRunId()
 	{
 		$options = new FileUploadOptions();
-		$options->setFileName('upload.txt');
+		$options->setFileName('upload.txt')
+			->setFederationToken(true);
 
 		$runId = $this->_client->generateRunId();
 		$this->_client->setRunId($runId);
@@ -275,8 +277,72 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		}
 	}
 
+	public function testFormUpload()
+	{
+		$token = $this->_client->verifyToken();
+		if (in_array($token['owner']['region'], ['eu-central-1', 'ap-northeast-2'])) {
+			$this->markTestSkipped('Form upload is not supported in ' . $token['owner']['region'] . ' region.');
+			return;
+		}
+
+		$path  = __DIR__ . '/_data/files.upload.txt';
+		$options = new FileUploadOptions();
+		$options->setIsEncrypted(false)
+			->setFileName('neco');
+
+		// using presigned form
+		$result = $this->_client->prepareFileUpload($options);
+		$uploadParams = $result['uploadParams'];
+		$client = new \GuzzleHttp\Client();
+
+		$fh = @fopen($path, 'r');
+
+		$multipart = [
+			[
+				'name' => 'key',
+				'contents' => $uploadParams['key'],
+			],
+			[
+				'name' => 'acl',
+				'contents' => $uploadParams['acl'],
+			],
+			[
+				'name' => 'signature',
+				'contents' => $uploadParams['signature'],
+			],
+			[
+				'name' => 'policy',
+				'contents' => $uploadParams['policy'],
+			],
+			[
+				'name' => 'AWSAccessKeyId',
+				'contents' => $uploadParams['AWSAccessKeyId'],
+			],
+			[
+				'name' => 'file',
+				'contents' => $fh,
+			]
+		];
+
+		$client->post($uploadParams['url'], array(
+			'multipart' => $multipart,
+		));
+
+		$file = $this->_client->getFile($result['id']);
+
+		$this->assertEquals($options->getIsPublic(), $file['isPublic']);
+		$this->assertEquals('neco', $file['name']);
+		$this->assertEquals(file_get_contents($path), file_get_contents($file['url']));
+	}
+
 	public function testEncryptionMustBeSetWhenEnabled()
 	{
+		$token = $this->_client->verifyToken();
+		if (in_array($token['owner']['region'], ['eu-central-1', 'ap-northeast-2'])) {
+			$this->markTestSkipped('Form upload is not supported in ' . $token['owner']['region'] . ' region.');
+			return;
+		}
+
 		$path  = __DIR__ . '/_data/files.upload.txt';
 		$options = new FileUploadOptions();
 		$options->setIsEncrypted(true)
@@ -289,7 +355,6 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$client = new \GuzzleHttp\Client();
 
 		$fh = @fopen($path, 'r');
-
 
 		$multipart = [
 			[
@@ -575,7 +640,8 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 	public function testFilesPermissionsCanReadAllFiles()
 	{
 		$uploadOptions = new FileUploadOptions();
-		$uploadOptions->setFileName('test.txt');
+		$uploadOptions->setFileName('test.txt')
+			->setFederationToken(true);
 		$file = $this->_client->prepareFileUpload($uploadOptions);
 
 
@@ -613,6 +679,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$uploadOptions = new FileUploadOptions();
 		$uploadOptions
 			->setFileName('test.txt')
+			->setFederationToken(true)
 			->setTags(['first', 'first', 'second']);
 		$file = $this->_client->prepareFileUpload($uploadOptions);
 		$file = $this->_client->getFile($file['id']);
@@ -622,7 +689,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 	public function testGetFileFederationToken()
 	{
 		$filePath = __DIR__ . '/_data/files.upload.txt';
-		$fileId = $this->_client->uploadFile($filePath, (new FileUploadOptions())->setNotify(false)->setIsPublic(false));
+		$fileId = $this->_client->uploadFile($filePath, (new FileUploadOptions())->setNotify(false)->setFederationToken(true)->setIsPublic(false));
 
 		$file = $this->_client->getFile($fileId, (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
 
@@ -679,7 +746,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 	{
 		$filePath = __DIR__ . '/_data/files.upload.txt';
 		$initialTags = array('gooddata', 'image');
-		$fileId = $this->_client->uploadFile($filePath, (new FileUploadOptions())->setTags($initialTags));
+		$fileId = $this->_client->uploadFile($filePath, (new FileUploadOptions())->setFederationToken(true)->setTags($initialTags));
 
 		$file = $this->_client->getFile($fileId);
 		$this->assertEquals($initialTags, $file['tags']);
