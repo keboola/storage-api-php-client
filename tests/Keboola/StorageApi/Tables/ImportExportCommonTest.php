@@ -633,5 +633,22 @@ class Keboola_StorageApi_Tables_ImportExportCommonTest extends StorageApiTestCas
 		$this->assertTrue($oldFileInfo["id"] === $fileInfo["id"]);
 	}
 
+	/**
+	 * @dataProvider backends
+	 * @param $backend
+	 */
+	public function testExtraColumnsImport($backend)
+	{
+		$bucketId = $this->getTestBucketId(self::STAGE_IN, $backend);
+		if (!$this->_client->bucketExists($this->getTestBucketId())) {
+			$this->_client->createBucket($this->getTestBucketId());
+		}
+		$tableId = $this->_client->createTable($bucketId, 'languages', new CsvFile(__DIR__ . '/../_data/languages-headers-incomplete.csv'));
 
+		$fileId = $this->_client->uploadFile(__DIR__ . '/../_data/languages.csv', (new \Keboola\StorageApi\Options\FileUploadOptions())->setFileName('test.csv'));
+		$this->_client->writeTableAsyncDirect($tableId, array(
+			'dataFileId' => $fileId,
+			'columns' => ['id']
+		));
+	}
 }
