@@ -85,14 +85,12 @@ Tests expects master token and performs all operations including bucket and tabl
  
 ### Redshift tests
 
-Reshift tests require a cluster connected to Storage API and credentials. When you have a project with enabled Redshift, create 2 Redshift buckets:
+Reshift tests require a cluster connected to Storage API and credentials. When you have a project with enabled Redshift, create 2 Redshift buckets (using Storage API Console):
  
    - in.c-api-tests-redshift
    - out.c-api-tests-redshift
 
-Then you can create your Redshift user:
-
- - Connect to your Redshift database `sapi_YOURPROJECTID` and run queries:
+Then you can create your Redshift user. Connect to your Redshift database `sapi_YOURPROJECTID` and run queries:
 
 	    CREATE USER test_user PASSWORD '***';
 	    GRANT ALL PRIVILEGES ON DATABASE sapi_YOURPROJECTID TO test_user;
