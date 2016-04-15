@@ -92,12 +92,14 @@ Reshift tests require a cluster connected to Storage API and credentials. When y
 
 Then you can create your Redshift user:
 
-    CREATE USER test_user PASSWORD '***';
-    GRANT ALL PRIVILEGES ON DATABASE sapi_YOURPROJECTID TO test_user;
-    GRANT ALL PRIVILEGES ON SCHEMA "in.c-api-tests-redshift" TO test_user;
-    GRANT ALL PRIVILEGES ON SCHEMA "out.c-api-tests-redshift" TO test_user;
-    GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA "in.c-api-tests-redshift" TO test_user;
-    GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA "out.c-api-tests-redshift" TO test_user;
+ - Connect to your Redshift database `sapi_YOURPROJECTID` and run queries:
+
+	    CREATE USER test_user PASSWORD '***';
+	    GRANT ALL PRIVILEGES ON DATABASE sapi_YOURPROJECTID TO test_user;
+	    GRANT ALL PRIVILEGES ON SCHEMA "in.c-api-tests-redshift" TO test_user;
+	    GRANT ALL PRIVILEGES ON SCHEMA "out.c-api-tests-redshift" TO test_user;
+	    GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA "in.c-api-tests-redshift" TO test_user;
+	    GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA "out.c-api-tests-redshift" TO test_user;
     
 And then assign Redshift related env variables
 
