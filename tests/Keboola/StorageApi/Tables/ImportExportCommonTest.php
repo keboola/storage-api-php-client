@@ -304,6 +304,12 @@ class Keboola_StorageApi_Tables_ImportExportCommonTest extends StorageApiTestCas
 
 	public function testTableAsyncImportMissingFile()
 	{
+		$token = $this->_client->verifyToken();
+		if (in_array($token['owner']['region'], ['eu-central-1', 'ap-northeast-2'])) {
+			$this->markTestSkipped('Form upload is not supported for ' . $token['owner']['region'] . ' region.');
+			return;
+		}
+
 		$filePath = __DIR__ . '/../_data/languages.csv';
 		$importFile = new CsvFile($filePath);
 		$tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', $importFile);
