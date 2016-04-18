@@ -281,7 +281,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 	{
 		$token = $this->_client->verifyToken();
 		if (in_array($token['owner']['region'], ['eu-central-1', 'ap-northeast-2'])) {
-			$this->markTestSkipped('Form upload is not supported in ' . $token['owner']['region'] . ' region.');
+			$this->markTestSkipped('Form upload is not supported for ' . $token['owner']['region'] . ' region.');
 			return;
 		}
 
