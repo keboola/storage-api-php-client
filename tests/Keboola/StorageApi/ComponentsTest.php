@@ -522,6 +522,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
             ->setName('Main');
         $components = new \Keboola\StorageApi\Components($this->_client);
         $newConfiguration = $components->addConfiguration($config);
+		
 
         // add first row
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config);
@@ -583,6 +584,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
         $row = reset($currentConfiguration['rows']);
         $this->assertEquals($firstRow['id'], $row['id']);
         $this->assertEquals(3, $row['version']);
+		$this->assertEquals($newConfiguration['created'], $currentConfiguration['created']);
         $this->assertEquals($firstRowConfig, $row['configuration']);
 		$this->assertEquals(['a' => 'b'], $currentConfiguration['configuration']);
 		$this->assertEquals("Rollback from version 2", $currentConfiguration['changeDescription']);
