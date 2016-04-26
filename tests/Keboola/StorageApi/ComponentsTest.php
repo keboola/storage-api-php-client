@@ -1004,6 +1004,8 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 			->setDescription('some desc')
 		;
 
+		$originalToken = $this->_client->verifyToken();
+
 		$components = new \Keboola\StorageApi\Components($this->_client);
 
 		$components->addConfiguration($configuration);
@@ -1041,6 +1043,8 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 
 		$row = reset($configuration['rows']);
 		$this->assertEquals('main-1-1', $row['id']);
+		$this->assertEquals($originalToken['id'], $row['creatorToken']['id']);
+		$this->assertEquals($originalToken['description'], $row['creatorToken']['description']);
 
 		$components = new \Keboola\StorageApi\Components($this->_client);
 
@@ -1049,8 +1053,8 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 			->setConfigurationId($configuration['id'])
 		);
 
-		$row = reset($rows);
-		$this->assertEquals('main-1-1', $row['id']);
+		$originalRow = reset($rows);
+		$this->assertEquals('main-1-1', $originalRow['id']);
 
 		$component = $components->getConfiguration('wr-db', 'main-1');
 		$this->assertEquals(2, $component['version']);
@@ -1066,10 +1070,19 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$configurationRow->setConfiguration($configurationData)
 			->setChangeDescription($configurationChangeDescription);
 
-		$row = $components->updateConfigurationRow($configurationRow);
+		$newTokenId = $this->_client->createToken([], 'tests', 60, false, ['wr-db']);
+		$newToken = $this->_client->getToken($newTokenId);
+		$newClient = new \Keboola\StorageApi\Client([
+			'token' => $newToken['token'],
+			'url' => STORAGE_API_URL,
+		]);
+
+		$newComponents = new \Keboola\StorageApi\Components($newClient);
+		$row = $newComponents->updateConfigurationRow($configurationRow);
 
 		$this->assertEquals(2, $row['version']);
 		$this->assertEquals($configurationData, $row['configuration']);
+		$this->assertEquals($originalRow['created'], $row['created'], 'row created data should not be changed');
 
 		$version = $components->getConfigurationRowVersion(
 			$configurationRow->getComponentConfiguration()->getComponentId(),
@@ -1078,9 +1091,11 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 			2
 		);
 
-
 		$this->assertArrayHasKey('changeDescription', $version);
 		$this->assertEquals($configurationChangeDescription, $version['changeDescription']);
+		$this->assertNotEmpty($version['created']);
+		$this->assertEquals($newToken['id'], $version['creatorToken']['id']);
+		$this->assertEquals($newToken['description'], $version['creatorToken']['description']);
 	}
 
 	public function testComponentConfigRowDelete()
@@ -1389,8 +1404,8 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
         $this->assertArrayHasKey('rows', $configuration);
         $this->assertCount(1, $configuration['rows']);
 
-        $row = reset($configuration['rows']);
-        $this->assertEquals('main-1-1', $row['id']);
+        $originalRow = reset($configuration['rows']);
+        $this->assertEquals('main-1-1', $originalRow['id']);
 
         $components = new \Keboola\StorageApi\Components($this->_client);
 
@@ -1445,6 +1460,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
         $this->assertArrayHasKey('version', $rowVersion);
         $this->assertArrayHasKey('configuration', $rowVersion);
         $this->assertEquals("Rollback from version 2", $rowVersion['changeDescription']);
+		$this->assertEquals($originalRow['created'], $rowVersion['created']);
 
         $this->assertEquals($configurationRow->getRowId(), $rowVersion['id']);
         $this->assertEquals(4, $rowVersion['version']);
