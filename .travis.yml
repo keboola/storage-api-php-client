@@ -5,4 +5,5 @@ php:
 install:
  - composer install
 script:
- - php ./vendor/bin/phpunit
+ - php ./vendor/bin/phpunit --testsuite common
+ - php ./vendor/bin/phpunit --testsuite backend-mysql
