@@ -20,7 +20,6 @@ class BucketsTest extends StorageApiTestCase
 
 	public function testBucketsList()
 	{
-		$this->markTestSkipped('Rewrite - main bucket are not present in new projects');
 		$buckets = $this->_client->listBuckets();
 
 		$this->assertTrue(count($buckets) >= 2);
@@ -28,14 +27,21 @@ class BucketsTest extends StorageApiTestCase
 		$inBucketFound = false;
 		$outBucketFound = false;
 		foreach ($buckets as $bucket) {
-			if ($bucket['id'] == 'in.c-main') $inBucketFound = true;
-			if ($bucket['id'] == 'out.c-main') $outBucketFound = true;
+			if ($bucket['id'] == $this->getTestBucketId(self::STAGE_IN)) $inBucketFound = true;
+			if ($bucket['id'] == $this->getTestBucketId(self::STAGE_OUT)) $outBucketFound = true;
 		}
 		$this->assertTrue($inBucketFound);
 		$this->assertTrue($outBucketFound);
 
 		$firstBucket = reset($buckets);
 		$this->assertArrayHasKey('attributes', $firstBucket);
+	}
+
+	public function testBucketDetail()
+	{
+		$tokenData = $this->_client->verifyToken();
+		$bucket = $this->_client->getBucket($this->getTestBucketId());
+		$this->assertEquals($tokenData['owner']['defaultBackend'], $bucket['backend']);
 	}
 
 	public function testBucketsListWithIncludeParameter()
@@ -48,11 +54,6 @@ class BucketsTest extends StorageApiTestCase
 		$this->assertArrayNotHasKey('attributes', $firstBucket);
 	}
 
-	public function testBucketDetail()
-	{
-		$bucket = $this->_client->getBucket('in.c-main');
-		$this->assertEquals('mysql', $bucket['backend']);
-	}
 
 	public function testBucketCreateWithInvalidBackend()
 	{
@@ -64,29 +65,25 @@ class BucketsTest extends StorageApiTestCase
 		}
 	}
 
-	/**
-	 * @dataProvider backends
-	 */
-	public function testBucketManipulation($backend)
+	public function testBucketManipulation()
 	{
+		$tokenData = $this->_client->verifyToken();
 		$bucketData = array(
 			'name' => 'test',
 			'stage' => 'in',
 			'description' => 'this is just a test',
-			'backend' => $backend,
 		);
 		$newBucketId = $this->_client->createBucket(
 			$bucketData['name'],
 			$bucketData['stage'],
-			$bucketData['description'],
-			$bucketData['backend']
+			$bucketData['description']
 		);
 
 		$newBucket = $this->_client->getBucket($newBucketId);
 		$this->assertEquals('c-' . $bucketData['name'], $newBucket['name'], 'bucket name');
 		$this->assertEquals($bucketData['stage'], $newBucket['stage'], 'bucket stage');
 		$this->assertEquals($bucketData['description'], $newBucket['description'], 'bucket description');
-		$this->assertEquals($bucketData['backend'], $newBucket['backend'], 'backend');
+		$this->assertEquals($tokenData['owner']['defaultBackend'], $newBucket['backend'], 'backend');
 
 		// check if bucket is in list
 		$buckets = $this->_client->listBuckets();
@@ -107,7 +104,7 @@ class BucketsTest extends StorageApiTestCase
 
 	public function testBucketAttributes()
 	{
-		$bucketId = 'in.c-main';
+		$bucketId = $this->getTestBucketId();
 
 		$bucket = $this->_client->getBucket($bucketId);
 		$this->assertEmpty($bucket['attributes'], 'empty attributes');
@@ -162,7 +159,7 @@ class BucketsTest extends StorageApiTestCase
 
 	public function testBucketExists()
 	{
-		$this->assertTrue($this->_client->bucketExists('in.c-main'));
+		$this->assertTrue($this->_client->bucketExists($this->getTestBucketId()));
 		$this->assertFalse($this->_client->bucketExists('in.ukulele'));
 	}
 
@@ -221,18 +218,16 @@ class BucketsTest extends StorageApiTestCase
 		}
 	}
 
-	/**
-	 * @dataProvider backends
-	 */
-	public function testBucketDropError($backend)
+	public function testBucketDropError()
 	{
-		$inBucketId = $this->getTestBucketId(self::STAGE_IN, $backend);
-		$outBucketId = $this->getTestBucketId(self::STAGE_OUT, $backend);
+		$inBucketId = $this->getTestBucketId(self::STAGE_IN);
+		$outBucketId = $this->getTestBucketId(self::STAGE_OUT);
+		$tokenData = $this->_client->verifyToken();
 
 		$tableId = $this->_client->createTable(
 			$inBucketId,
 			'languages',
-			new CsvFile(__DIR__ . '/_data/languages.csv'),
+			new CsvFile(__DIR__ . '/../../_data/languages.csv'),
 			array(
 				'primaryKey' => 'id',
 			)
@@ -249,7 +244,7 @@ class BucketsTest extends StorageApiTestCase
 			$this->assertEquals('buckets.deleteNotEmpty', $e->getStringCode());
 		}
 
-		if ($backend == self::BACKEND_REDSHIFT) {
+		if ($tokenData['owner']['defaultBackend'] == self::BACKEND_REDSHIFT) {
 			$sql = 'SELECT * FROM "' . $inBucketId . '".languages WHERE id > 20';
 			$this->_client->createRedshiftAliasTable($outBucketId, $sql, 'languages-alias');
 		} else {
@@ -268,13 +263,11 @@ class BucketsTest extends StorageApiTestCase
 		}
 	}
 
-	/**
-	 * @dataProvider backends
-	 */
-	public function testBucketDropAliasError($backend)
+	public function testBucketDropAliasError()
 	{
-		$inBucketId = $this->getTestBucketId(self::STAGE_IN, $backend);
-		$outBucketId = $this->getTestBucketId(self::STAGE_OUT, $backend);
+		$inBucketId = $this->getTestBucketId(self::STAGE_IN);
+		$outBucketId = $this->getTestBucketId(self::STAGE_OUT);
+		$tokenData = $this->_client->verifyToken();
 
 		$tables = $this->_client->listTables($inBucketId);
 		$this->assertCount(0, $tables);
@@ -285,7 +278,7 @@ class BucketsTest extends StorageApiTestCase
 		$tableId = $this->_client->createTable(
 			$inBucketId,
 			'languages',
-			new CsvFile(__DIR__ . '/_data/languages.csv'),
+			new CsvFile(__DIR__ . '/../../_data/languages.csv'),
 			array(
 				'primaryKey' => 'id',
 			)
@@ -298,7 +291,7 @@ class BucketsTest extends StorageApiTestCase
 		$tableId = $this->_client->createTable(
 			$inBucketId,
 			'languages_copy',
-			new CsvFile(__DIR__ . '/_data/languages.csv'),
+			new CsvFile(__DIR__ . '/../../_data/languages.csv'),
 			array(
 				'primaryKey' => 'id',
 			)
@@ -308,7 +301,7 @@ class BucketsTest extends StorageApiTestCase
 		$this->assertEquals(array('id'), $table['primaryKey']);
 		$this->assertEquals(array('id'), $table['indexedColumns']);
 
-		if ($backend == self::BACKEND_REDSHIFT) {
+		if ($tokenData['owner']['defaultBackend'] == self::BACKEND_REDSHIFT) {
 			$sql = 'SELECT * FROM "' . $inBucketId . '".languages_copy WHERE id > 20';
 			$this->_client->createRedshiftAliasTable($outBucketId, $sql, 'languages-alias');
 		} else {
@@ -333,18 +326,16 @@ class BucketsTest extends StorageApiTestCase
 		$this->assertCount(1, $tables);
 	}
 
-	/**
-	 * @dataProvider backends
-	 */
-	public function testBucketDrop($backend)
+	public function testBucketDrop()
 	{
-		$inBucketId = $this->getTestBucketId(self::STAGE_IN, $backend);
-		$outBucketId = $this->getTestBucketId(self::STAGE_OUT, $backend);
+		$inBucketId = $this->getTestBucketId(self::STAGE_IN);
+		$outBucketId = $this->getTestBucketId(self::STAGE_OUT);
+		$tokenData = $this->_client->verifyToken();
 
 		$tableId = $this->_client->createTable(
 			$inBucketId,
 			'languages',
-			new CsvFile(__DIR__ . '/_data/languages.csv'),
+			new CsvFile(__DIR__ . '/../../_data/languages.csv'),
 			array(
 				'primaryKey' => 'id',
 			)
@@ -357,7 +348,7 @@ class BucketsTest extends StorageApiTestCase
 		$tableId = $this->_client->createTable(
 			$inBucketId,
 			'languages_copy',
-			new CsvFile(__DIR__ . '/_data/languages.csv'),
+			new CsvFile(__DIR__ . '/../../_data/languages.csv'),
 			array(
 				'primaryKey' => 'id',
 			)
@@ -370,7 +361,7 @@ class BucketsTest extends StorageApiTestCase
 		$tableId = $this->_client->createTable(
 			$outBucketId,
 			'languages',
-			new CsvFile(__DIR__ . '/_data/languages.csv'),
+			new CsvFile(__DIR__ . '/../../_data/languages.csv'),
 			array(
 				'primaryKey' => 'id',
 			)
@@ -380,7 +371,7 @@ class BucketsTest extends StorageApiTestCase
 		$this->assertEquals(array('id'), $table['primaryKey']);
 		$this->assertEquals(array('id'), $table['indexedColumns']);
 
-		if ($backend == self::BACKEND_REDSHIFT) {
+		if ($tokenData['owner']['defaultBackend'] == self::BACKEND_REDSHIFT) {
 			$sql = 'SELECT * FROM "' . $outBucketId . '".languages WHERE id > 20';
 			$this->_client->createRedshiftAliasTable($inBucketId, $sql, 'languages-alias');
 		} else {
@@ -402,36 +393,7 @@ class BucketsTest extends StorageApiTestCase
 		$this->assertCount(1, $tables);
 	}
 
-	public function testBucketUpdateOnTableTruncate()
-	{
-		$inBucketId = $this->getTestBucketId(self::STAGE_IN, "redshift");
-		$inBucket = $this->_client->getBucket($inBucketId);
-
-		$this->assertEquals(0, $inBucket['rowsCount']);
-		$this->assertEquals(0, $inBucket['dataSizeBytes']);
-
-
-		$tableId = $this->_client->createTable(
-			$inBucketId,
-			'rates',
-			new CsvFile(__DIR__ . '/_data/rates.csv')
-		);
-
-		$inBucket = $this->_client->getBucket($inBucketId);
-
-		$this->assertEquals(200, $inBucket['rowsCount']);
-		$this->assertEquals(98566144, $inBucket['dataSizeBytes']);
-
-		// Truncate the new table
-		$this->_client->deleteTableRows($tableId);
-
-		// Get a fresh bucket response, it should have the new stats
-		$inBucket = $this->_client->getBucket($inBucketId);
-
-		$this->assertEquals(0, $inBucket['rowsCount']);
-		$this->assertEquals(0, $inBucket['dataSizeBytes']);
-
-	}
+	
 
 	public function invalidAttributes()
 	{

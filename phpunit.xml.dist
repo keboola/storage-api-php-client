@@ -15,4 +15,9 @@
 		<directory>tests/Common</directory>
 	</testsuite>
 
+	<testsuite name="backend-mysql">
+		<directory>tests/Backend/Common</directory>
+		<directory>tests/Backend/Mysql</directory>
+	</testsuite>
+
 </phpunit>
