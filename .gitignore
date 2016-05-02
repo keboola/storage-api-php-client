@@ -5,5 +5,7 @@ config.php
 composer.lock
 composer.phar
 vendor
+set-env.sh
+set-env.redshift.sh
 *.kdev4
 .kdev4

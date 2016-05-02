@@ -9,7 +9,7 @@
          stopOnFailure="true"
          stopOnError="true"
          syntaxCheck="false"
-         bootstrap="bootstrap.php">
+         bootstrap="tests/bootstrap.php">
 
 	<testsuite name="common">
 		<directory>tests/Common</directory>
@@ -18,6 +18,11 @@
 	<testsuite name="backend-mysql">
 		<directory>tests/Backend/Common</directory>
 		<directory>tests/Backend/Mysql</directory>
+	</testsuite>
+
+	<testsuite name="backend-redshift">
+		<directory>tests/Backend/Common</directory>
+		<directory>tests/Backend/Redshift</directory>
 	</testsuite>
 
 </phpunit>
