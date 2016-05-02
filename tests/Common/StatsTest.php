@@ -7,15 +7,17 @@
  *
  */
 
+namespace Keboola\Test\Common;
+use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 
-class Keboola_StorageApi_StatsTest extends StorageApiTestCase
+class StatsTest extends StorageApiTestCase
 {
 
 	public function setUp()
 	{
 		parent::setUp();
-		$this->_initEmptyBucketsForAllBackends();
+		$this->_initEmptyTestBuckets();
 	}
 
 	public function testRunIdStats()
@@ -23,7 +25,7 @@ class Keboola_StorageApi_StatsTest extends StorageApiTestCase
 		$runId = $this->_client->generateRunId();
 		$this->_client->setRunId($runId);
 
-		$importFile =  __DIR__ . '/_data/languages.csv';
+		$importFile =  __DIR__ . '/../_data/languages.csv';
 		$table1Id = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile($importFile));
 		$this->_client->writeTableAsync($table1Id, new CsvFile($importFile));
 

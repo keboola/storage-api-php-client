@@ -7,12 +7,10 @@
  *
  */
 
+namespace Keboola\Test\Common;
+use Keboola\Test\StorageApiTestCase;
 
-use Keboola\StorageApi\Client;
-
-use Keboola\Csv\CsvFile;
-
-class Keboola_StorageApi_IndexTest extends StorageApiTestCase
+class IndexTest extends StorageApiTestCase
 {
 
 	public function testIndex()

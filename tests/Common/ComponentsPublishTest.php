@@ -7,9 +7,10 @@
  * To change this template use File | Settings | File Templates.
  */
 
-use Keboola\Csv\CsvFile;
+namespace Keboola\Test\Common;
+use Keboola\Test\StorageApiTestCase;
 
-class Keboola_StorageApi_ComponentsPublishTest extends StorageApiTestCase
+class ComponentsPublishTest extends StorageApiTestCase
 {
 
 

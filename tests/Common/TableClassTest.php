@@ -1,4 +1,7 @@
 <?php
+
+namespace Keboola\Test\Common;
+use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\TableException;
 
 /**
@@ -8,19 +11,16 @@ use Keboola\StorageApi\TableException;
  * Time: 14:20
  */
 
-class Keboola_StorageApi_TableClassTest extends StorageApiTestCase
+class TableClassTest extends StorageApiTestCase
 {
-	protected $_inBucketId;
-	protected $_outBucketId;
-	protected $_tableId = 'in.c-api-tests.table';
+	protected $_tableId;
 
 
 	public function setUp()
 	{
 		parent::setUp();
-
-		$this->_outBucketId = $this->_initEmptyBucket('api-tests', 'out');
-		$this->_inBucketId = $this->_initEmptyBucket('api-tests', 'in');
+		$this->_initEmptyTestBuckets();
+		$this->_tableId = $this->getTestBucketId() . '.table';
 	}
 
 	public function testSetFromArray()
@@ -45,7 +45,7 @@ class Keboola_StorageApi_TableClassTest extends StorageApiTestCase
 
 		$this->assertEquals($this->_tableId, $table->getId());
 		$this->assertEquals('table', $table->getName());
-		$this->assertEquals('in.c-api-tests', $table->getBucketId());
+		$this->assertEquals($this->getTestBucketId(), $table->getBucketId());
 
 		$table->setHeader($header);
 		$table->setFromArray($data);

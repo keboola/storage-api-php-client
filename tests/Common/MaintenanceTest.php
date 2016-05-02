@@ -7,9 +7,11 @@
  * To change this template use File | Settings | File Templates.
  */
 
-class Keboola_StorageApi_MaintenanceTest extends StorageApiTestCase
-{
+namespace Keboola\Test\Common;
+use Keboola\Test\StorageApiTestCase;
 
+class MaintenanceTest extends StorageApiTestCase
+{
 
 	public function testMaintenance()
 	{

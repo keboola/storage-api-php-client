@@ -6,10 +6,11 @@
  * Time: 11:46
  *
  */
+namespace Keboola\Test\Common;
+use Keboola\Test\StorageApiTestCase;
 
-class Keboola_StorageApi_LoggingTest extends StorageApiTestCase
+class LoggingTest extends StorageApiTestCase
 {
-
 
 	public function testLogger()
 	{
@@ -51,7 +52,7 @@ class Keboola_StorageApi_LoggingTest extends StorageApiTestCase
 			'awsDebug' => true
 		));
 		$options = new \Keboola\StorageApi\Options\FileUploadOptions();
-		$client->uploadFile(__DIR__ . '/_data/files.upload.txt', $options);
+		$client->uploadFile(__DIR__ . '/../_data/files.upload.txt', $options);
 	}
 
 }

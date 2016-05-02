@@ -7,7 +7,10 @@
  * To change this template use File | Settings | File Templates.
  */
 
-class Keboola_StorageApi_CommonTest extends StorageApiTestCase
+namespace Keboola\Test\Common;
+use Keboola\Test\StorageApiTestCase;
+
+class Common extends StorageApiTestCase
 {
 
 	public function testParseCsv()
@@ -51,7 +54,7 @@ class Keboola_StorageApi_CommonTest extends StorageApiTestCase
 	public function testAwsRetries()
 	{
 		$retriesCount = 234;
-		$client = new Keboola\StorageApi\Client(array(
+		$client = new \Keboola\StorageApi\Client(array(
 			'token' => STORAGE_API_TOKEN,
 			'url' => STORAGE_API_URL,
 			'backoffMaxTries' => 1,

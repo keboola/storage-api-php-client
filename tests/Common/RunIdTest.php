@@ -7,9 +7,11 @@
  *
  */
 
+namespace Keboola\Test\Common;
+use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\Event;
 
-class Keboola_StorageApi_RunIdTest extends StorageApiTestCase
+class RunIdTest extends StorageApiTestCase
 {
 
 

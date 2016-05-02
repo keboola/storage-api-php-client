@@ -6,18 +6,21 @@
  * Time: 11:46
  *
  */
+namespace Keboola\Test\Backend\Common;
+use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 
-class Keboola_StorageApi_BucketsTest extends StorageApiTestCase
+class BucketsTest extends StorageApiTestCase
 {
 	public function setUp()
 	{
 		parent::setUp();
-		$this->_initEmptyBucketsForAllBackends();
+		$this->_initEmptyTestBuckets();
 	}
 
 	public function testBucketsList()
 	{
+		$this->markTestSkipped('Rewrite - main bucket are not present in new projects');
 		$buckets = $this->_client->listBuckets();
 
 		$this->assertTrue(count($buckets) >= 2);

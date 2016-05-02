@@ -8,11 +8,13 @@
  * Time: 17:22 PST
  *
  */
+namespace Keboola\Test\Common;
+use Keboola\Test\StorageApiTestCase;
 
-class Keboola_StorageApi_ExceptionsTest extends StorageApiTestCase
+class ExceptionsTest extends StorageApiTestCase
 {
 	/**
-	 *  @expectedException Keboola\StorageApi\ClientException
+	 *  @expectedException \Keboola\StorageApi\ClientException
 	 */
 	public function testException()
 	{

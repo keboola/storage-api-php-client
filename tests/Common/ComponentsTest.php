@@ -7,11 +7,11 @@
  * To change this template use File | Settings | File Templates.
  */
 
-use Keboola\Csv\CsvFile;
+namespace Keboola\Test\Common;
+use Keboola\Test\StorageApiTestCase;
 
-class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
+class ComponentsTest extends StorageApiTestCase
 {
-
 
 	public function setUp()
 	{
@@ -856,7 +856,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 		$tokenId = $this->_client->createToken(array(), 'test');
 		$token = $this->_client->getToken($tokenId);
 
-		$client = new Keboola\StorageApi\Client(array(
+		$client = new \Keboola\StorageApi\Client(array(
 			'token' => $token['token'],
 			'url' => STORAGE_API_URL,
 		));
@@ -873,12 +873,12 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 
 	public function testTokenWithComponentAccess()
 	{
-		$this->_initEmptyBucketsForAllBackends();
+		$this->_initEmptyTestBuckets();
 		$accessibleComponents = array("provisioning");
 		$tokenId = $this->_client->createToken(array($this->getTestBucketId(self::STAGE_IN) => "write"), 'test components', null, false, $accessibleComponents);
 		$token = $this->_client->getToken($tokenId);
 
-		$client = new Keboola\StorageApi\Client(array(
+		$client = new \Keboola\StorageApi\Client(array(
 			'token' => $token['token'],
 			'url' => STORAGE_API_URL,
 		));
@@ -910,7 +910,7 @@ class Keboola_StorageApi_ComponentsTest extends StorageApiTestCase
 	{
 		$tokenId = $this->_client->createToken('manage', 'test components');
 		$token = $this->_client->getToken($tokenId);
-		$client = new Keboola\StorageApi\Client(array(
+		$client = new \Keboola\StorageApi\Client(array(
 			'token' => $token['token'],
 			'url' => STORAGE_API_URL,
 		));

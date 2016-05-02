@@ -7,9 +7,11 @@
  *
  */
 
+namespace Keboola\Test\Common;
+use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 
-class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
+class TokensTest extends StorageApiTestCase
 {
 
 	protected $_inBucketId;
@@ -18,9 +20,10 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 	public function setUp()
 	{
 		parent::setUp();
+		$this->_initEmptyTestBuckets();
 
-		$this->_outBucketId = $this->_initEmptyBucket('api-tests', 'out');
-		$this->_inBucketId = $this->_initEmptyBucket('api-tests', 'in');
+		$this->_outBucketId = $this->getTestBucketId(self::STAGE_OUT);
+		$this->_inBucketId = $this->getTestBucketId(self::STAGE_IN);
 
 		$this->_initTokens();
 	}
@@ -46,6 +49,7 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 
 	public function testTokenProperties()
 	{
+		$this->markTestSkipped('Move some parts to redshift tests');
 		$token = $this->_client->verifyToken();
 		$this->arrayHasKey('created', $token);
 		$this->arrayHasKey('description', $token);
@@ -189,7 +193,7 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 	{
 		$description = 'Out read token';
 		$bucketPermissions = array(
-			'out.c-api-tests' => 'read'
+			$this->_inBucketId => 'read'
 		);
 		$tokenId = $this->_client->createToken($bucketPermissions, $description);
 		$token = $this->_client->getToken($tokenId);
@@ -207,7 +211,7 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 
 		$description = "Component Access Test Token";
 		$componentAccess = array("wr-db");
-		$bucketPermissions = array("in.c-api-tests" => "write");
+		$bucketPermissions = array($this->_inBucketId => "write");
 
 		$componentAccessTokenId = $this->_client->createToken($bucketPermissions, $description, null, false, $componentAccess);
 		$componentAccessToken = $this->_client->getToken($componentAccessTokenId);
@@ -215,20 +219,20 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 		$componentFailTokenId = $this->_client->createToken($bucketPermissions, $description);
 		$componentFailToken = $this->_client->getToken($componentFailTokenId);
 
-		$accessClient = new Keboola\StorageApi\Client(array(
+		$accessClient = new \Keboola\StorageApi\Client(array(
 			'token' => $componentAccessToken['token'],
 			'url' => STORAGE_API_URL
 		));
 
-		$failClient = new Keboola\StorageApi\Client(array(
+		$failClient = new \Keboola\StorageApi\Client(array(
 			'token' => $componentFailToken['token'],
 			'url' => STORAGE_API_URL
 		));
 
 		// we'll test 3 scenarios, using an admin token, a token with some component access, and a token with no access
-		$adminComponentClient = new Keboola\StorageApi\Components($this->_client);
-		$accessComponentClient = new Keboola\StorageApi\Components($accessClient);
-		$failComponentClient = new Keboola\StorageApi\Components($failClient);
+		$adminComponentClient = new \Keboola\StorageApi\Components($this->_client);
+		$accessComponentClient = new \Keboola\StorageApi\Components($accessClient);
+		$failComponentClient = new \Keboola\StorageApi\Components($failClient);
 
 		// we should have no components at the start
 		$allComponents = $adminComponentClient->listComponents();
@@ -263,7 +267,7 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 		try {
 			$failComponents = $failComponentClient->listComponents();
 			$this->fail("This token should not be allowed to access components API");
-		} catch (Keboola\StorageApi\ClientException  $e) {}
+		} catch (\Keboola\StorageApi\ClientException  $e) {}
 
 		// we should be able to read a config from our accessible component
 		$config = $accessComponentClient->getConfiguration("wr-db", "main-1");
@@ -292,7 +296,7 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 			// it should be gone now, and throw a 404
 			$deletedConfig = $accessComponentClient->getConfiguration($config->getComponentId(), $config->getConfigurationId());
 			$this->fail("Configuration should no longer exist, throw a 404");
-		} catch (Keboola\StorageApi\ClientException  $e) {
+		} catch (\Keboola\StorageApi\ClientException  $e) {
 			$this->assertEquals(404, $e->getCode());
 		}
 
@@ -305,7 +309,7 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 				->setName('Main2')
 			);
 			$this->fail("Token was not granted access to this component, should throw an exception");
-		} catch (Keboola\StorageApi\ClientException  $e) {}
+		} catch (\Keboola\StorageApi\ClientException  $e) {}
 
 		// tokens should not be able to add configuration rows to configs of components that are inaccessible
 		$configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($provisioningConfig);
@@ -313,7 +317,7 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 		try {
 			$accessComponentClient->addConfigurationRow($configurationRow);
 			$this->fail("Token was not granted access to this component, should throw an exception");
-		} catch (Keboola\StorageApi\ClientException  $e) {}
+		} catch (\Keboola\StorageApi\ClientException  $e) {}
 
 		// the token with no component access should not be able to add configurations
 		try {
@@ -324,7 +328,7 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 				->setName('Main2')
 			);
 			$this->fail("Token was not granted access to this component, should throw an exception");
-		} catch (Keboola\StorageApi\ClientException  $e) {}
+		} catch (\Keboola\StorageApi\ClientException  $e) {}
 
 		// let's grant the fail token access to the provisioning component
 		$newFailTokenId = $this->_client->updateToken($componentFailTokenId,$bucketPermissions,$description,null,["provisioning"]);
@@ -341,17 +345,17 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 	public function testTokenPermissions()
 	{
 		// prepare token and test tables
-		$inTableId = $this->_client->createTable($this->_inBucketId, 'languages', new CsvFile(__DIR__ . '/_data/languages.csv'));
-		$outTableId = $this->_client->createTable($this->_outBucketId, 'languages', new CsvFile(__DIR__ . '/_data/languages.csv'));
+		$inTableId = $this->_client->createTable($this->_inBucketId, 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+		$outTableId = $this->_client->createTable($this->_outBucketId, 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
 
 		$description = 'Out read token';
 		$bucketPermissions = array(
-			'out.c-api-tests' => 'read'
+			$this->_outBucketId => 'read'
 		);
 		$tokenId = $this->_client->createToken($bucketPermissions, $description);
 		$token = $this->_client->getToken($tokenId);
 
-		$client = new Keboola\StorageApi\Client(array(
+		$client = new \Keboola\StorageApi\Client(array(
 			'token' => $token['token'],
 			'url' => STORAGE_API_URL,
 		));
@@ -365,7 +369,7 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 		$buckets = $client->listBuckets();
 		$this->assertCount(1, $buckets);
 		$bucket = reset($buckets);
-		$this->assertEquals('out.c-api-tests', $bucket['id']);
+		$this->assertEquals($this->_outBucketId, $bucket['id']);
 
 		// check assigned tables
 		$tables = $client->listTables();
@@ -380,13 +384,13 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 		try {
 			$client->exportTable($inTableId);
 			$this->fail('Table exported with no permissions');
-		} catch (Keboola\StorageApi\ClientException $e) {}
+		} catch (\Keboola\StorageApi\ClientException $e) {}
 
 		// write into table
 		try {
-			$client->writeTable($outTableId, new CsvFile(__DIR__ . '/_data/languages.csv'));
+			$client->writeTable($outTableId, new CsvFile(__DIR__ . '/../_data/languages.csv'));
 			$this->fail('Table imported with read token');
-		} catch (Keboola\StorageApi\ClientException  $e) {}
+		} catch (\Keboola\StorageApi\ClientException  $e) {}
 
 		// table attribute
 		try {
@@ -395,9 +399,9 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 		} catch(\Keboola\StorageApi\ClientException $e) {}
 
 		try {
-			$client->writeTable($inTableId, new CsvFile(__DIR__ . '/_data/languages.csv'));
+			$client->writeTable($inTableId, new CsvFile(__DIR__ . '/../_data/languages.csv'));
 			$this->fail('Table imported with no permissions');
-		} catch (Keboola\StorageApi\ClientException  $e) {}
+		} catch (\Keboola\StorageApi\ClientException  $e) {}
 
 	}
 
@@ -423,7 +427,7 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 		$tokenId = $this->_client->createToken('manage', $description);
 		$token = $this->_client->getToken($tokenId);
 
-		$client = new Keboola\StorageApi\Client(array(
+		$client = new \Keboola\StorageApi\Client(array(
 			'token' => $token['token'],
 			'url' => STORAGE_API_URL,
 		));
@@ -453,13 +457,13 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 	{
 		$description = 'Out read token with expiration';
 		$bucketPermissions = array(
-			'out.c-api-tests' => 'read'
+			$this->_outBucketId => 'read'
 		);
 		$twoMinutesExpiration = 2 * 60;
 		$tokenId = $this->_client->createToken($bucketPermissions, $description, $twoMinutesExpiration);
 		$token = $this->_client->getToken($tokenId);
 
-		$client = new Keboola\StorageApi\Client(array(
+		$client = new \Keboola\StorageApi\Client(array(
 			'token' => $token['token'],
 			'url' => STORAGE_API_URL,
 		));
@@ -472,7 +476,7 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 	{
 		$description = 'Out read token with expiration';
 		$bucketPermissions = array(
-			'out.c-api-tests' => 'read'
+			$this->_outBucketId => 'read'
 		);
 		$oneSecondExpiration = 1;
 		$tokenId = $this->_client->createToken($bucketPermissions, $description, $oneSecondExpiration);
@@ -482,7 +486,7 @@ class Keboola_StorageApi_Buckets_TokensTest extends StorageApiTestCase
 		$client = null;
 		try {
 			while ($tries < 7) {
-				$client = new Keboola\StorageApi\Client(array(
+				$client = new \Keboola\StorageApi\Client(array(
 					'token' => $token['token'],
 					'url' => STORAGE_API_URL,
 				));

@@ -9,7 +9,7 @@
 
 namespace  Keboola\Test;
 
-class StorageApiTestCase extends \PHPUnit_Framework_TestCase
+abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
 {
 	const BACKEND_MYSQL = 'mysql';
 	const BACKEND_REDSHIFT = 'redshift';
@@ -21,17 +21,25 @@ class StorageApiTestCase extends \PHPUnit_Framework_TestCase
 	protected $_bucketIds = array();
 
 	/**
-	 * @var Keboola\StorageApi\Client
+	 * @var \Keboola\StorageApi\Client
 	 */
 	protected $_client;
 
 	public function setUp()
 	{
-		$this->_client = new Keboola\StorageApi\Client(array(
+		$this->_client = new \Keboola\StorageApi\Client(array(
 			'token' => STORAGE_API_TOKEN,
 			'url' => STORAGE_API_URL,
 			'backoffMaxTries' => 1,
 		));
+	}
+
+
+	protected function _initEmptyTestBuckets()
+	{
+		foreach (array(self::STAGE_OUT, self::STAGE_IN) as $stage) {
+			$this->_bucketIds[$stage] = $this->initEmptyBucket('API-tests', $stage);
+		}
 	}
 
 	/**
@@ -40,7 +48,7 @@ class StorageApiTestCase extends \PHPUnit_Framework_TestCase
 	 * @param $stage
 	 * @return bool|string
 	 */
-	protected function _initEmptyBucket($name, $stage, $backend = 'mysql')
+	private function initEmptyBucket($name, $stage)
 	{
 		try {
 			$bucket = $this->_client->getBucket("$stage.c-$name");
@@ -49,22 +57,9 @@ class StorageApiTestCase extends \PHPUnit_Framework_TestCase
 				$this->_client->dropTable($table['id']);
 			}
 
-			if ($bucket['backend'] != $backend) {
-				$this->_client->dropBucket($bucket['id']);
-				return $this->_client->createBucket($name, $stage, 'Api tests', $backend);
-			}
 			return $bucket['id'];
 		} catch (\Keboola\StorageApi\ClientException $e) {
-			return $this->_client->createBucket($name, $stage, 'Api tests', $backend);
-		}
-	}
-
-	protected function _initEmptyBucketsForAllBackends()
-	{
-		foreach ($this->backends() as $backend) {
-			foreach (array(self::STAGE_OUT, self::STAGE_IN) as $stage) {
-				$this->_bucketIds[$stage . '-' . $backend[0]] = $this->_initEmptyBucket('API-tests-' . $backend[0], $stage, $backend[0]);
-			}
+			return $this->_client->createBucket($name, $stage, 'Api tests');
 		}
 	}
 
@@ -290,9 +285,9 @@ class StorageApiTestCase extends \PHPUnit_Framework_TestCase
 		);
 	}
 
-	protected function getTestBucketId($stage = self::STAGE_IN, $backend = self::BACKEND_MYSQL)
+	protected function getTestBucketId($stage = self::STAGE_IN)
 	{
-		return $this->_bucketIds[$stage . '-' . $backend];
+		return $this->_bucketIds[$stage];
 	}
 
 	/**

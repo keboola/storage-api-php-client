@@ -10,7 +10,7 @@
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"Aws\\Test\\": "tests/"
+			"Keboola\\Test\\": "tests/"
 		}
 	},
 	"require": {

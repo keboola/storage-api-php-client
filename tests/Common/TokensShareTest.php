@@ -7,9 +7,10 @@
  *
  */
 
-use Keboola\Csv\CsvFile;
+namespace Keboola\Test\Common;
+use Keboola\Test\StorageApiTestCase;
 
-class Keboola_StorageApi_Buckets_TokensShareTest extends StorageApiTestCase
+class TokensShareTest extends StorageApiTestCase
 {
 
 	public function testMasterTokenShouldNotBeShareable()

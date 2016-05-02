@@ -11,55 +11,8 @@
          syntaxCheck="false"
          bootstrap="bootstrap.php">
 
-	<testsuite name="API Test Suite">
-		<directory>tests</directory>
+	<testsuite name="common">
+		<directory>tests/Common</directory>
 	</testsuite>
-
-    <testsuite name="part-1">
-        <file>tests/Keboola/StorageApi/BucketsTest.php</file>
-        <file>tests/Keboola/StorageApi/CommonTest.php</file>
-        <file>tests/Keboola/StorageApi/ConfigsTest.php</file>
-        <file>tests/Keboola/StorageApi/EventsTest.php</file>
-        <file>tests/Keboola/StorageApi/ExceptionsTest.php</file>
-        <file>tests/Keboola/StorageApi/FilesTest.php</file>
-        <file>tests/Keboola/StorageApi/IndexTest.php</file>
-        <file>tests/Keboola/StorageApi/LoggingTest.php</file>
-        <file>tests/Keboola/StorageApi/MaintenanceTest.php</file>
-        <file>tests/Keboola/StorageApi/OneLinersTest.php</file>
-        <file>tests/Keboola/StorageApi/TableClassTest.php</file>
-        <file>tests/Keboola/StorageApi/TicketsTest.php</file>
-        <file>tests/Keboola/StorageApi/TokensShareTest.php</file>
-        <file>tests/Keboola/StorageApi/TokensTest.php</file>
-
-
-        <file>tests/Keboola/StorageApi/Tables/AliasesTest.php</file>
-        <file>tests/Keboola/StorageApi/Tables/AlterTest.php</file>
-        <file>tests/Keboola/StorageApi/Tables/DeleteRowsTest.php</file>
-        <file>tests/Keboola/StorageApi/Tables/DeleteTest.php</file>
-        <file>tests/Keboola/StorageApi/Tables/ListingTest.php</file>
-        <file>tests/Keboola/StorageApi/Tables/SnapshottingTest.php</file>
-
-        <file>tests/Keboola/StorageApi/BucketCredentialsTest.php</file>
-        <file>tests/Keboola/StorageApi/RunIdTest.php</file>
-    </testsuite>
-
-    <testsuite name="part-2">
-        <file>tests/Keboola/StorageApi/Tables/CreateTest.php</file>
-        <file>tests/Keboola/StorageApi/Tables/SlicedImportsTest.php</file>
-        <file>tests/Keboola/StorageApi/Tables/ExportParamsTest.php</file>
-	    <file>tests/Keboola/StorageApi/Tables/TableExporterTest.php</file>
-        <file>tests/Keboola/StorageApi/Tables/RedshiftCopyImportTest.php</file>
-    </testsuite>
-
-    <testsuite name="part-3">
-        <file>tests/Keboola/StorageApi/Tables/ImportExportCommonTest.php</file>
-        <file>tests/Keboola/StorageApi/RedshiftUnloadToFilesTest.php</file>
-        <file>tests/Keboola/StorageApi/StatsTest.php</file>
-        <file>tests/Keboola/StorageApi/Tables/MetricsTest.php</file>
-        <file>tests/Keboola/StorageApi/Tables/SystemColumnsTest.php</file>
-
-        <file>tests/Keboola/StorageApi/ComponentsTest.php</file>
-        <file>tests/Keboola/StorageApi/ComponentsPublishTest.php</file>
-    </testsuite>
 
 </phpunit>

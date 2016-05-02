@@ -7,9 +7,14 @@
  *
  */
 
+
+
+namespace Keboola\Test\Common;
+use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\Event;
 
-class Keboola_StorageApi_EventsTest extends StorageApiTestCase
+
+class EventsTest extends StorageApiTestCase
 {
 
 	public function testEventCreate()
@@ -66,7 +71,7 @@ class Keboola_StorageApi_EventsTest extends StorageApiTestCase
 	}
 
 	/**
-	 * @expectedException Keboola\StorageApi\Exception
+	 * @expectedException \Keboola\StorageApi\Exception
 	 */
 	public function testInvalidType()
 	{

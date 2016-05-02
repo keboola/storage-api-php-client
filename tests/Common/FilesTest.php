@@ -7,18 +7,19 @@
  *
  */
 
+namespace Keboola\Test\Common;
+use Keboola\Test\StorageApiTestCase;
+
 use \Keboola\StorageApi\Options\FileUploadOptions,
 	\Keboola\StorageApi\Options\ListFilesOptions;
 
-class Keboola_StorageApi_FilesTest extends StorageApiTestCase
+class FilesTest extends StorageApiTestCase
 {
-
-
 
 	public function testFileList()
 	{
 		$options = new FileUploadOptions();
-		$fileId = $this->_client->uploadFile(__DIR__ . '/_data/files.upload.txt', $options);
+		$fileId = $this->_client->uploadFile(__DIR__ . '/../_data/files.upload.txt', $options);
 		$files = $this->_client->listFiles(new ListFilesOptions());
 		$this->assertNotEmpty($files);
 
@@ -29,7 +30,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 
 	public function testFilesListFilterByTags()
 	{
-		$filePath = __DIR__ . '/_data/files.upload.txt';
+		$filePath = __DIR__ . '/../_data/files.upload.txt';
 
 		$this->_client->uploadFile($filePath, new FileUploadOptions());
 		$tag = uniqid('tag-test');
@@ -80,8 +81,8 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 	public function testFileListSearch()
 	{
 
-		$fileId = $this->_client->uploadFile(__DIR__ . '/_data/users.csv', new FileUploadOptions());
-		$this->_client->uploadFile(__DIR__ . '/_data/files.upload.txt', new FileUploadOptions());
+		$fileId = $this->_client->uploadFile(__DIR__ . '/../_data/users.csv', new FileUploadOptions());
+		$this->_client->uploadFile(__DIR__ . '/../_data/files.upload.txt', new FileUploadOptions());
 
 		$files = $this->_client->listFiles((new ListFilesOptions())->setQuery('users')->setLimit(1));
 
@@ -111,8 +112,8 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$lastFile = reset($files);
 		$lastFileId = $lastFile['id'];
 
-		$firstFileId = $this->_client->uploadFile(__DIR__ . '/_data/users.csv', new FileUploadOptions());
-		$secondFileId = $this->_client->uploadFile(__DIR__ . '/_data/users.csv', new FileUploadOptions());
+		$firstFileId = $this->_client->uploadFile(__DIR__ . '/../_data/users.csv', new FileUploadOptions());
+		$secondFileId = $this->_client->uploadFile(__DIR__ . '/../_data/users.csv', new FileUploadOptions());
 
 		$files = $this->_client->listFiles((new ListFilesOptions())->setSinceId($lastFileId));
 		$this->assertCount(2, $files);
@@ -182,7 +183,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 	 */
 	public function testFileUploadUsingFederationToken($encrypted)
 	{
-		$pathToFile = __DIR__ . '/_data/files.upload.txt';
+		$pathToFile = __DIR__ . '/../_data/files.upload.txt';
 		$options = new FileUploadOptions();
 		$options
 			->setFileName('upload.txt')
@@ -268,7 +269,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 			$s3Client->putObject(array(
 				'Bucket' => $uploadParams['bucket'],
 				'Key'    => $uploadParams['key'] . 'part001.gz',
-				'Body'   => fopen(__DIR__ . '/_data/sliced/neco_0000_part_00.gz', 'r+'),
+				'Body'   => fopen(__DIR__ . '/../_data/sliced/neco_0000_part_00.gz', 'r+'),
 			))->get('ObjectURL');
 			$this->fail('Write should not be allowed');
 		} catch (\Aws\S3\Exception\S3Exception $e) {
@@ -285,7 +286,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 			return;
 		}
 
-		$path  = __DIR__ . '/_data/files.upload.txt';
+		$path  = __DIR__ . '/../_data/files.upload.txt';
 		$options = new FileUploadOptions();
 		$options->setIsEncrypted(false)
 			->setFileName('neco');
@@ -343,7 +344,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 			return;
 		}
 
-		$path  = __DIR__ . '/_data/files.upload.txt';
+		$path  = __DIR__ . '/../_data/files.upload.txt';
 		$options = new FileUploadOptions();
 		$options->setIsEncrypted(true)
 			->setFileName('neco');
@@ -425,7 +426,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 
 	public function testSlicedFileUpload()
 	{
-		$pathToFile = __DIR__ . '/_data/files.upload.txt';
+		$pathToFile = __DIR__ . '/../_data/files.upload.txt';
 		$options = new FileUploadOptions();
 		$options
 			->setIsSliced(true)
@@ -525,7 +526,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 	 */
 	public function testFileUploadCompress()
 	{
-		$filePath = __DIR__ . '/_data/files.upload.txt';
+		$filePath = __DIR__ . '/../_data/files.upload.txt';
 		$fileId = $this->_client->uploadFile($filePath, (new FileUploadOptions())->setCompress(true));
 		$file = $this->_client->getFile($fileId);
 
@@ -537,7 +538,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 
 	public function testFileDelete()
 	{
-		$filePath  = __DIR__ . '/_data/files.upload.txt';;
+		$filePath  = __DIR__ . '/../_data/files.upload.txt';;
 		$options = new FileUploadOptions();
 
 		$fileId = $this->_client->uploadFile($filePath, $options);
@@ -564,7 +565,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 
 	public function uploadData()
 	{
-		$path  = __DIR__ . '/_data/files.upload.txt';;
+		$path  = __DIR__ . '/../_data/files.upload.txt';;
 		return array(
 			array(
 				$path,
@@ -601,7 +602,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 
 	public function testFilesPermissions()
 	{
-		$filePath = __DIR__ . '/_data/files.upload.txt';
+		$filePath = __DIR__ . '/../_data/files.upload.txt';
 		$uploadOptions = new FileUploadOptions();
 
 		$newTokenId = $this->_client->createToken(array(), 'Files test');
@@ -612,7 +613,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$this->assertNotEmpty($totalFilesCount);
 
 		// new token should not have access to any files
-		$newTokenClient = new Keboola\StorageApi\Client(array(
+		$newTokenClient = new \Keboola\StorageApi\Client(array(
 			'token' => $newToken['token'],
 			'url' => STORAGE_API_URL
 		));
@@ -649,7 +650,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 		$newToken = $this->_client->getToken($newTokenId);
 
 		// new token should not have access to any files
-		$newTokenClient = new Keboola\StorageApi\Client(array(
+		$newTokenClient = new \Keboola\StorageApi\Client(array(
 			'token' => $newToken['token'],
 			'url' => STORAGE_API_URL
 		));
@@ -688,7 +689,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 
 	public function testGetFileFederationToken()
 	{
-		$filePath = __DIR__ . '/_data/files.upload.txt';
+		$filePath = __DIR__ . '/../_data/files.upload.txt';
 		$fileId = $this->_client->uploadFile($filePath, (new FileUploadOptions())->setNotify(false)->setFederationToken(true)->setIsPublic(false));
 
 		$file = $this->_client->getFile($fileId, (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
@@ -744,7 +745,7 @@ class Keboola_StorageApi_FilesTest extends StorageApiTestCase
 
 	public function testTagging()
 	{
-		$filePath = __DIR__ . '/_data/files.upload.txt';
+		$filePath = __DIR__ . '/../_data/files.upload.txt';
 		$initialTags = array('gooddata', 'image');
 		$fileId = $this->_client->uploadFile($filePath, (new FileUploadOptions())->setFederationToken(true)->setTags($initialTags));
 

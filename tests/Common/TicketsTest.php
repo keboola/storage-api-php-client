@@ -7,9 +7,11 @@
  *
  */
 
+namespace Keboola\Test\Common;
+use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\Event;
 
-class Keboola_StorageApi_TicketsTest extends StorageApiTestCase
+class TicketsTest extends StorageApiTestCase
 {
 
 	public function testGenerator()
