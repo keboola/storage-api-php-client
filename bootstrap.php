@@ -36,5 +36,4 @@ defined('REDSHIFT_PASSWORD')
 || define('REDSHIFT_PASSWORD', getenv('REDSHIFT_PASSWORD') ? getenv('REDSHIFT_PASSWORD') : '');
 
 
-require_once 'tests/Test/StorageApiTestCase.php';
 require_once ROOT_PATH . '/vendor/autoload.php';

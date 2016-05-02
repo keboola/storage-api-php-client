@@ -7,6 +7,8 @@
  *
  */
 
+namespace  Keboola\Test;
+
 class StorageApiTestCase extends \PHPUnit_Framework_TestCase
 {
 	const BACKEND_MYSQL = 'mysql';
