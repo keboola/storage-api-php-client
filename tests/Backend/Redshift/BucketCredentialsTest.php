@@ -6,9 +6,11 @@
  * Time: 11:46
  *
  */
+namespace Keboola\Test\Backend\Redshift;
+use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 
-class Keboola_StorageApi_BucketCredentialsTest extends StorageApiTestCase
+class BucketCredentialsTest extends StorageApiTestCase
 {
 
 	/**
@@ -19,7 +21,7 @@ class Keboola_StorageApi_BucketCredentialsTest extends StorageApiTestCase
 	public function setUp()
 	{
 		parent::setUp();
-		$this->_initEmptyBucketsForAllBackends();
+		$this->_initEmptyTestBuckets();
 
 		$this->bucketCredentials = new \Keboola\StorageApi\BucketCredentials($this->_client);
 		$this->clearCredentials();
@@ -32,29 +34,13 @@ class Keboola_StorageApi_BucketCredentialsTest extends StorageApiTestCase
 		}
 	}
 
-	public function testItShouldNotBeAllowedCreateCredentialsForMysqlBucket()
-	{
-		try {
-			$this->bucketCredentials->createCredentials(
-				(new \Keboola\StorageApi\Options\BucketCredentials\CredentialsCreateOptions())
-					->setBucketId($this->getTestBucketId(self::STAGE_IN, self::BACKEND_MYSQL))
-					->setName('testing')
-			);
-			$this->fail('Exception should be thrown');
-		} catch (\Keboola\StorageApi\ClientException $e) {
-			$this->assertEquals(501, $e->getCode());
-			$this->assertEquals('notImplemented', $e->getStringCode());
-		}
-
-	}
-
 	public function testCredentialsManipulation()
 	{
 		$name = 'testing';
-		$inBucketId = $this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT);
-		$outBucketId = $this->getTestBucketId(self::STAGE_OUT, self::BACKEND_REDSHIFT);
-		$this->_client->createTable($inBucketId, 'languages', new CsvFile(__DIR__ . '/_data/languages.csv'));
-		$this->_client->createTable($outBucketId, 'languages', new CsvFile(__DIR__ . '/_data/languages.csv'));
+		$inBucketId = $this->getTestBucketId(self::STAGE_IN);
+		$outBucketId = $this->getTestBucketId(self::STAGE_OUT);
+		$this->_client->createTable($inBucketId, 'languages', new CsvFile(__DIR__ . '/../../_data/languages.csv'));
+		$this->_client->createTable($outBucketId, 'languages', new CsvFile(__DIR__ . '/../../_data/languages.csv'));
 
 		$credentials = $this->bucketCredentials->createCredentials(
 			(new \Keboola\StorageApi\Options\BucketCredentials\CredentialsCreateOptions())
@@ -92,7 +78,7 @@ class Keboola_StorageApi_BucketCredentialsTest extends StorageApiTestCase
 
 	public function testCredentialsGet()
 	{
-		$bucketId = $this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT);
+		$bucketId = $this->getTestBucketId(self::STAGE_IN);
 		$newCredentials = $this->bucketCredentials->createCredentials(
 			(new \Keboola\StorageApi\Options\BucketCredentials\CredentialsCreateOptions())
 				->setBucketId($bucketId)
@@ -117,8 +103,8 @@ class Keboola_StorageApi_BucketCredentialsTest extends StorageApiTestCase
 
 	public function testListCredentials()
 	{
-		$inBucketId = $this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT);
-		$outBucketId = $this->getTestBucketId(self::STAGE_OUT, self::BACKEND_REDSHIFT);
+		$inBucketId = $this->getTestBucketId(self::STAGE_IN);
+		$outBucketId = $this->getTestBucketId(self::STAGE_OUT);
 
 		$this->assertCount(0, $this->bucketCredentials->listCredentials());
 		$this->assertCount(0, $this->bucketCredentials->listCredentials(
@@ -172,7 +158,7 @@ class Keboola_StorageApi_BucketCredentialsTest extends StorageApiTestCase
 		$tokenId = $this->_client->createToken(array(), 'test');
 		$token = $this->_client->getToken($tokenId);
 
-		$client = new Keboola\StorageApi\Client(array(
+		$client = new \Keboola\StorageApi\Client(array(
 			'token' => $token['token'],
 			'url' => STORAGE_API_URL,
 		));
@@ -187,28 +173,27 @@ class Keboola_StorageApi_BucketCredentialsTest extends StorageApiTestCase
 
 		try {
 			$bucketCredentials->createCredentials((new \Keboola\StorageApi\Options\BucketCredentials\CredentialsCreateOptions())
-				->setBucketId($this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT))
+				->setBucketId($this->getTestBucketId(self::STAGE_IN))
 				->setName('credentials 01')
 			);
 			$this->fail('Create credentials should not be allowed');
 		} catch (\Keboola\StorageApi\ClientException $e){
 			$this->assertEquals('accessDenied', $e->getStringCode());
 		}
-
 	}
 
 	/**
 	 * @param $credentials
-	 * @return PDO
+	 * @return \PDO
 	 */
 	private function createDbConnection($credentials)
 	{
-		$pdo = new PDO(
+		$pdo = new \PDO(
 			"pgsql:dbname={$credentials['databaseName']};port={$credentials['port']};host=" . $credentials['host'],
 			$credentials['userName'],
 			$credentials['password']
 		);
-		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		$pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 		return $pdo;
 	}
 

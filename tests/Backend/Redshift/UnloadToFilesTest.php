@@ -7,18 +7,14 @@
  *
  */
 
-
+namespace Keboola\Test\Backend\Redshift;
+use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\Client;
 
 use Keboola\Csv\CsvFile;
 
-class Keboola_StorageApi_RedshiftUnloadToFilesTest extends StorageApiTestCase
+class UnloadToFilesTest extends StorageApiTestCase
 {
-
-	public function setUp()
-	{
-		parent::setUp();
-	}
 
 	public function encryptedData()
 	{
@@ -59,13 +55,13 @@ class Keboola_StorageApi_RedshiftUnloadToFilesTest extends StorageApiTestCase
 	}
 
 	/**
-	 * @return PDO
+	 * @return \PDO
 	 */
 	private function initDb()
 	{
 		$token = $this->_client->verifyToken();
 		$dbh = $this->getDb($token);
-		$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		$dbh->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
 		$workingSchemaName = sprintf('tapi_%d_tran', $token['id']);
 		$stmt = $dbh->prepare("SELECT * FROM pg_catalog.pg_namespace WHERE nspname = ?");
@@ -94,11 +90,11 @@ class Keboola_StorageApi_RedshiftUnloadToFilesTest extends StorageApiTestCase
 	}
 
 	/**
-	 * @return PDO
+	 * @return \PDO
 	 */
 	private function getDb($token)
 	{
-		return new PDO(
+		return new \PDO(
 			"pgsql:dbname={$token['owner']['redshift']['databaseName']};port=5439;host=" . REDSHIFT_HOSTNAME,
 			REDSHIFT_USER,
 			REDSHIFT_PASSWORD

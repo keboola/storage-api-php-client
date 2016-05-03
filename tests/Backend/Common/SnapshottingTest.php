@@ -6,28 +6,25 @@
  * Time: 1:50 PM
  */
 
+namespace Keboola\Test\Backend\Common;
+use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 
-class Keboola_StorageApi_Tables_SnapshottingTest extends StorageApiTestCase
+class SnapshottingTest extends StorageApiTestCase
 {
 
 	public function setUp()
 	{
 		parent::setUp();
-		$this->_initEmptyBucketsForAllBackends();
+		$this->_initEmptyTestBuckets();
 	}
 
-
-	/**
-	 * @dataProvider backends
-	 * @param $backend
-	 */
-	public function testTableSnapshotCreate($backend)
+	public function testTableSnapshotCreate()
 	{
 		$tableId = $this->_client->createTable(
-			$this->getTestBucketId(self::STAGE_IN, $backend),
+			$this->getTestBucketId(self::STAGE_IN),
 			'languages',
-			new CsvFile(__DIR__ . '/../_data/languages.csv'),
+			new CsvFile(__DIR__ . '/../../_data/languages.csv'),
 			array(
 				'primaryKey' => 'id',
 			)
@@ -52,16 +49,12 @@ class Keboola_StorageApi_Tables_SnapshottingTest extends StorageApiTestCase
 		$this->assertNotEmpty($snapshot['dataFileId']);
 	}
 
-	/**
-	 * @dataProvider backends
-	 * @param $backend
-	 */
-	public function testTableSnapshotDelete($backend)
+	public function testTableSnapshotDelete()
 	{
 		$tableId = $this->_client->createTable(
-			$this->getTestBucketId(self::STAGE_IN, $backend),
+			$this->getTestBucketId(self::STAGE_IN),
 			'languages',
-			new CsvFile(__DIR__ . '/../_data/languages.csv'),
+			new CsvFile(__DIR__ . '/../../_data/languages.csv'),
 			array(
 				'primaryKey' => 'id',
 			)
@@ -88,57 +81,12 @@ class Keboola_StorageApi_Tables_SnapshottingTest extends StorageApiTestCase
 		$this->_client->deleteSnapshot($snapshotId);
 	}
 
-	/**
-	 * @dataProvider inOutBackends
-	 * @param $backend
-	 */
-	public function testCreateTableFromSnapshot($inBackend, $outBackend)
-	{
-		$sourceTableId = $this->_client->createTable(
-			$this->getTestBucketId(self::STAGE_IN, $inBackend),
-			'languages',
-			new CsvFile(__DIR__ . '/../_data/escaping.csv'),
-			array(
-				'primaryKey' => 'col1',
-			)
-		);
-
-		$this->_client->setTableAttribute($sourceTableId, 'first', 'some value');
-		$this->_client->setTableAttribute($sourceTableId, 'second', 'other value');
-		$this->_client->markTableColumnAsIndexed($sourceTableId, 'col2_with_space');
-		$sourceTable = $this->_client->getTable($sourceTableId);
-
-		$snapshotId = $this->_client->createTableSnapshot($sourceTableId);
-		$newTableId = $this->_client->createTableFromSnapshot($this->getTestBucketId(self::STAGE_OUT, $outBackend), $snapshotId);
-		$newTable = $this->_client->getTable($newTableId);
-
-		$this->assertEquals($sourceTable['name'], $newTable['name']);
-		$this->assertEquals($sourceTable['primaryKey'], $newTable['primaryKey']);
-		$this->assertEquals($sourceTable['columns'], $newTable['columns']);
-		$this->assertEquals($sourceTable['indexedColumns'], $newTable['indexedColumns']);
-		$this->assertEquals($sourceTable['transactional'], $newTable['transactional']);
-		$this->assertEquals($sourceTable['attributes'], $newTable['attributes']);
-
-		$this->assertLinesEqualsSorted($this->_client->exportTable($sourceTableId), $this->_client->exportTable($newTableId));
-	}
-
-	public function inOutBackends()
-	{
-		return array(
-			array('mysql', 'mysql'),
-			array('mysql', 'redshift'),
-			array('redshift', 'mysql'),
-			array('redshift', 'redshift'),
-		);
-	}
-
-
 	public function testCreateTableFromSnapshotWithDifferentName()
 	{
 		$sourceTableId = $this->_client->createTable(
 			$this->getTestBucketId(),
 			'languages',
-			new CsvFile(__DIR__ . '/../_data/languages.csv'),
+			new CsvFile(__DIR__ . '/../../_data/languages.csv'),
 			array(
 				'primaryKey' => 'id',
 			)
@@ -157,7 +105,7 @@ class Keboola_StorageApi_Tables_SnapshottingTest extends StorageApiTestCase
 		$sourceTableId = $this->_client->createTable(
 			$this->getTestBucketId(self::STAGE_IN),
 			'languages',
-			new CsvFile(__DIR__ . '/../_data/languages.csv'),
+			new CsvFile(__DIR__ . '/../../_data/languages.csv'),
 			array(
 				'primaryKey' => 'id',
 			)
@@ -178,7 +126,7 @@ class Keboola_StorageApi_Tables_SnapshottingTest extends StorageApiTestCase
 		$sourceTableId = $this->_client->createTable(
 			$this->getTestBucketId(),
 			'languages',
-			new CsvFile(__DIR__ . '/../_data/languages.csv'),
+			new CsvFile(__DIR__ . '/../../_data/languages.csv'),
 			array(
 				'primaryKey' => 'id',
 			)
@@ -199,16 +147,13 @@ class Keboola_StorageApi_Tables_SnapshottingTest extends StorageApiTestCase
 	}
 
 
-	/**
-	 * @param $backend
-	 */
 	public function testTableRollbackFromSnapshot()
 	{
 		$backend = self::BACKEND_MYSQL;
 		$sourceTableId = $this->_client->createTable(
-			$this->getTestBucketId(self::STAGE_IN, $backend),
+			$this->getTestBucketId(self::STAGE_IN),
 			'languages',
-			new CsvFile(__DIR__ . '/../_data/escaping.csv')
+			new CsvFile(__DIR__ . '/../../_data/escaping.csv')
 		);
 
 		$this->_client->markTableColumnAsIndexed($sourceTableId, 'col1');
@@ -225,14 +170,14 @@ class Keboola_StorageApi_Tables_SnapshottingTest extends StorageApiTestCase
 		$this->_client->deleteTableAttribute($sourceTableId, 'first');
 		$this->_client->removeTableColumnFromIndexed($sourceTableId, 'col1');
 		$this->_client->setTableAttribute($sourceTableId, 'third', 'my value');
-		$this->_client->writeTable($sourceTableId, new CsvFile(__DIR__ . '/../_data/escaping.csv'), array(
+		$this->_client->writeTable($sourceTableId, new CsvFile(__DIR__ . '/../../_data/escaping.csv'), array(
 			'incremental' => true,
 		));
 		$this->_client->addTableColumn($sourceTableId, 'new_column');
 
 		$aliasTableId = null;
 		if ($backend == self::BACKEND_MYSQL) {
-			$aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT, $backend), $sourceTableId);
+			$aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId);
 		}
 
 		// and rollback to snapshot
@@ -269,7 +214,7 @@ class Keboola_StorageApi_Tables_SnapshottingTest extends StorageApiTestCase
 		$sourceTableId = $this->_client->createTable(
 			$this->getTestBucketId(self::STAGE_IN),
 			'languages',
-			new CsvFile(__DIR__ . '/../_data/languages.csv')
+			new CsvFile(__DIR__ . '/../../_data/languages.csv')
 		);
 
 		$snapshotId = $this->_client->createTableSnapshot($sourceTableId);
@@ -296,7 +241,7 @@ class Keboola_StorageApi_Tables_SnapshottingTest extends StorageApiTestCase
 		$sourceTableId = $this->_client->createTable(
 			$this->getTestBucketId(self::STAGE_IN),
 			'languages',
-			new CsvFile(__DIR__ . '/../_data/languages.csv')
+			new CsvFile(__DIR__ . '/../../_data/languages.csv')
 		);
 
 		$snapshotId = $this->_client->createTableSnapshot($sourceTableId);
@@ -324,7 +269,7 @@ class Keboola_StorageApi_Tables_SnapshottingTest extends StorageApiTestCase
 		$sourceTableId = $this->_client->createTable(
 			$this->getTestBucketId(self::STAGE_IN),
 			'languages',
-			new CsvFile(__DIR__ . '/../_data/languages.csv')
+			new CsvFile(__DIR__ . '/../../_data/languages.csv')
 		);
 
 		$snapshotId = $this->_client->createTableSnapshot($sourceTableId);

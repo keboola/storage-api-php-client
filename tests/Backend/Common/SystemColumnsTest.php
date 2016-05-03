@@ -6,19 +6,18 @@
  * Time: 15:39
  */
 
-class Keboola_StorageApi_TablesSystemColumnsTest extends StorageApiTestCase
+namespace Keboola\Test\Backend\Common;
+use Keboola\Test\StorageApiTestCase;
+
+class SystemColumnsTest extends StorageApiTestCase
 {
 	public function setUp()
 	{
 		parent::setUp();
-		$this->_initEmptyBucketsForAllBackends();
+		$this->_initEmptyTestBuckets();
 	}
 
-	/**
-	 * @dataProvider backends
-	 * @param $backend
-	 */
-	public function testSystemColumnsConversionOnTableCreate($backend)
+	public function testSystemColumnsConversionOnTableCreate()
 	{
 		$excpectedColumns = [
 			'id',
@@ -31,28 +30,24 @@ class Keboola_StorageApi_TablesSystemColumnsTest extends StorageApiTestCase
 			'ctid_',
 		];
 
-		$csvFile = new \Keboola\Csv\CsvFile(__DIR__ . '/../_data/system-columns.csv');
+		$csvFile = new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/system-columns.csv');
 
 		// sync
-		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, $backend), 'system', $csvFile);
+		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'system', $csvFile);
 		$table = $this->_client->getTable($tableId);
 		$this->assertEquals($excpectedColumns, $table['columns']);
 
 		// async
-		$tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN, $backend), 'system-async', $csvFile);
+		$tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'system-async', $csvFile);
 		$table = $this->_client->getTable($tableId);
 		$this->assertEquals($excpectedColumns, $table['columns']);
 	}
 
-	/**
-	 * @dataProvider backends
-	 * @param $backend
-	 */
-	public function testSystemColumnAdd($backend)
+	public function testSystemColumnAdd()
 	{
-		$csvFile = new \Keboola\Csv\CsvFile(__DIR__ . '/../_data/languages.csv');
+		$csvFile = new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/languages.csv');
 
-		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, $backend), 'system', $csvFile);
+		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'system', $csvFile);
 		$this->_client->addTableColumn($tableId, 'oid');
 		$this->_client->addTableColumn($tableId, 'CTID');
 		$table = $this->_client->getTable($tableId);
@@ -66,16 +61,12 @@ class Keboola_StorageApi_TablesSystemColumnsTest extends StorageApiTestCase
 		$this->assertEquals($expectedColumns, $table['columns']);
 	}
 
-	/**
-	 * @dataProvider backends
-	 * @param $backend
-	 */
-	public function testSystemColumnImport($backend)
+	public function testSystemColumnImport()
 	{
-		$csvFile = new \Keboola\Csv\CsvFile(__DIR__ . '/../_data/system-columns.csv');
-		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, $backend), 'system', $csvFile);
+		$csvFile = new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/system-columns.csv');
+		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'system', $csvFile);
 
-		$csvImportFile = new \Keboola\Csv\CsvFile(__DIR__ . '/../_data/system-columns-sanitized.csv');
+		$csvImportFile = new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/system-columns-sanitized.csv');
 
 		$result = $this->_client->writeTable($tableId, $csvImportFile);
 		$excpectedColumns = [
@@ -93,10 +84,10 @@ class Keboola_StorageApi_TablesSystemColumnsTest extends StorageApiTestCase
 
 	public function testImportWithNewSystemColumn()
 	{
-		$csvFile = new \Keboola\Csv\CsvFile(__DIR__ . '/../_data/languages.csv');
+		$csvFile = new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/languages.csv');
 		$tableId = $this->_client->createTable($this->getTestBucketId(), 'system', $csvFile);
 
-		$importCsvFile = new \Keboola\Csv\CsvFile(__DIR__ . '/../_data/system-column-added.csv');
+		$importCsvFile = new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/system-column-added.csv');
 		$this->_client->writeTable($tableId, $importCsvFile);
 
 		$table = $this->_client->getTable($tableId);

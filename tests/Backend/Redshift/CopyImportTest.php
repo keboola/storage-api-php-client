@@ -7,24 +7,22 @@
  *
  */
 
+namespace Keboola\Test\Backend\Redshift;
+use Keboola\Test\StorageApiTestCase;
 
-use Keboola\StorageApi\Client;
-
-use Keboola\Csv\CsvFile;
-
-class Keboola_StorageApi_Tables_RedshiftCopyImportTest extends StorageApiTestCase
+class CopyImportTest extends StorageApiTestCase
 {
 
 	public function setUp()
 	{
 		parent::setUp();
-		$this->_initEmptyBucketsForAllBackends();
+		$this->_initEmptyTestBuckets();
 	}
 
 	public function testCopyCreate()
 	{
 		$this->initDb();
-		$tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT), array(
+		$tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), array(
 			'name' => 'languages',
 			'dataTableName' => 'out.languages',
 		));
@@ -43,7 +41,7 @@ class Keboola_StorageApi_Tables_RedshiftCopyImportTest extends StorageApiTestCas
 	public function testCopyImport()
 	{
 		$this->initDb();
-		$table = $this->_client->apiPost("storage/buckets/" . $this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT) . "/tables", array(
+		$table = $this->_client->apiPost("storage/buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(
 			'dataString' => 'Id,Name,update',
 			'name' => 'languages',
 			'primaryKey' => 'Id',
@@ -110,7 +108,7 @@ class Keboola_StorageApi_Tables_RedshiftCopyImportTest extends StorageApiTestCas
 	public function testCopyImportFromNotExistingTableShouldReturnError()
 	{
 		$this->initDb();
-		$table = $this->_client->apiPost("storage/buckets/" . $this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT) . "/tables", array(
+		$table = $this->_client->apiPost("storage/buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(
 			"dataString" => 'Id,Name',
 			'name' => 'languages',
 		));
@@ -169,11 +167,11 @@ class Keboola_StorageApi_Tables_RedshiftCopyImportTest extends StorageApiTestCas
 	}
 
 	/**
-	 * @return PDO
+	 * @return \PDO
 	 */
 	private function getDb($token)
 	{
-		return new PDO(
+		return new \PDO(
 			"pgsql:dbname={$token['owner']['redshift']['databaseName']};port=5439;host=" . REDSHIFT_HOSTNAME,
 			REDSHIFT_USER,
 			REDSHIFT_PASSWORD
