@@ -94,7 +94,9 @@ This test suite expects following environment variables set:
 
 
 You can export variables manually or you can create and fill file `set-env.sh` as copy of attached `set-env.template.sh`.
+
 Than  you can run tests:
+
 `source ./set-env.sh && php ./vendor/bin/phpunit --testsuite common`
 
 ### Mysql backend test suite
@@ -103,7 +105,9 @@ This test suite expects following environment variables set:
 - `STORAGE_API_TOKEN` - Storage API token associated to user (Admin master token) with all permissions. **Project must have `mysql` set as default backend.**
 
 You can export variables manually or you can create and fill file `set-env.mysql.sh` as copy of attached `set-env.mysql.template.sh`.
+
 Than  you can run tests:
+
 `source ./set-env.mysql.sh && php ./vendor/bin/phpunit --testsuite backend-mysql`
 
  
@@ -132,7 +136,9 @@ This test suite expects following environment variables set:
 - `REDSHIFT_PASSWORD` - previously created passowrd
 
 You can export variables manually or you can create and fill file `set-env.mysql.sh` as copy of attached `set-env.mysql.template.sh`.
+
 Than  you can run tests:
+
 `source ./set-env.redshift.sh && php ./vendor/bin/phpunit --testsuite backend-redshift`
 
 
