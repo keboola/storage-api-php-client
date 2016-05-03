@@ -61,6 +61,47 @@ class AlterTableTest extends StorageApiTestCase
         }
     }
 
+    public function testIndexedColumnsChanges()
+    {
+        $importFile = __DIR__ . '/../../_data/users.csv';
+
+        // create and import data into source table
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(),
+            'users',
+            new CsvFile($importFile),
+            array(
+                'primaryKey' => 'id'
+            )
+        );
+        $aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $tableId);
+
+        $this->_client->markTableColumnAsIndexed($tableId, 'city');
+
+        $detail = $this->_client->getTable($tableId);
+        $aliasDetail = $this->_client->getTable($aliasTableId);
+
+        $this->assertEquals(array("id", "city"), $detail['indexedColumns'], "Primary key is indexed with city column");
+        $this->assertEquals(array("id", "city"), $aliasDetail['indexedColumns'], "Primary key is indexed with city column in alias Table");
+
+        $this->_client->removeTableColumnFromIndexed($tableId, 'city');
+        $detail = $this->_client->getTable($tableId);
+        $aliasDetail = $this->_client->getTable($aliasTableId);
+
+        $this->assertEquals(array("id"), $detail['indexedColumns']);
+        $this->assertEquals(array("id"), $aliasDetail['indexedColumns']);
+
+        try {
+            $this->_client->removeTableColumnFromIndexed($tableId, 'id');
+            $this->fail('Primary key should not be able to remove from indexed columns');
+        } catch (\Keboola\StorageApi\ClientException $e) {
+
+        }
+
+        $this->_client->dropTable($aliasTableId);
+        $this->_client->dropTable($tableId);
+    }
+
     public function testPrimaryKeyAdd()
     {
         $indexColumn = 'city';

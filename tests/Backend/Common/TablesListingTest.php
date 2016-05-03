@@ -7,15 +7,17 @@
  * To change this template use File | Settings | File Templates.
  */
 
+namespace Keboola\Test\Backend\Common;
+use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 
-class Keboola_StorageApi_Tables_ListingTest extends StorageApiTestCase
+class TablesListingTest extends StorageApiTestCase
 {
 
 	public function setUp()
 	{
 		parent::setUp();
-		$this->_initEmptyBucketsForAllBackends();
+		$this->_initEmptyTestBuckets();
 	}
 
 	public function testTableExists()
@@ -25,14 +27,14 @@ class Keboola_StorageApi_Tables_ListingTest extends StorageApiTestCase
 		$tableId = $this->_client->createTable(
 			$this->getTestBucketId(),
 			'languages',
-			new CsvFile(__DIR__ . '/../_data/languages.csv')
+			new CsvFile(__DIR__ . '/../../_data/languages.csv')
 		);
 		$this->assertTrue($this->_client->tableExists($tableId));
 	}
 
 	public function testListTables()
 	{
-		$tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+		$tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../../_data/languages.csv'));
 		$this->_client->setTableAttribute($tableId, 'test', 'something');
 		$tables = $this->_client->listTables($this->getTestBucketId());
 
@@ -60,7 +62,7 @@ class Keboola_StorageApi_Tables_ListingTest extends StorageApiTestCase
 
 	public function testListTablesWithIncludeParam()
 	{
-		$this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+		$this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../../_data/languages.csv'));
 		$tables = $this->_client->listTables($this->getTestBucketId(), array(
 			'include' => '', // don't include anything
 		));
@@ -81,7 +83,7 @@ class Keboola_StorageApi_Tables_ListingTest extends StorageApiTestCase
 
 	public function testListTablesWithColumns()
 	{
-		$tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+		$tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../../_data/languages.csv'));
 
 		$tables = $this->_client->listTables($this->getTestBucketId(), array(
 			'include' => 'columns',
@@ -107,7 +109,7 @@ class Keboola_StorageApi_Tables_ListingTest extends StorageApiTestCase
 
 	public function testTableAttributes()
 	{
-		$tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+		$tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../../_data/languages.csv'));
 
 		$table = $this->_client->getTable($tableId);
 		$this->assertEmpty($table['attributes'], 'empty attributes after table create');
@@ -163,7 +165,7 @@ class Keboola_StorageApi_Tables_ListingTest extends StorageApiTestCase
 
 	public function testTableAttributesReplace()
 	{
-		$tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+		$tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../../_data/languages.csv'));
 		$this->_client->setTableAttribute($tableId, 'first', 'something');
 
 		$newAttributes = array(
@@ -189,7 +191,7 @@ class Keboola_StorageApi_Tables_ListingTest extends StorageApiTestCase
 
 	public function testTableAttributesClear()
 	{
-		$tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+		$tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../../_data/languages.csv'));
 		$this->_client->setTableAttribute($tableId, 'first', 'something');
 
 		$this->_client->replaceTableAttributes($tableId);
@@ -204,7 +206,7 @@ class Keboola_StorageApi_Tables_ListingTest extends StorageApiTestCase
 	 */
 	public function testTableAttributesReplaceValidation($attributes)
 	{
-		$tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+		$tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../../_data/languages.csv'));
 		try {
 			$this->_client->replaceTableAttributes($tableId, $attributes);
 			$this->fail('Attributes should be invalid');
@@ -233,7 +235,7 @@ class Keboola_StorageApi_Tables_ListingTest extends StorageApiTestCase
 
 	public function testNullAtributesReplace()
 	{
-		$tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+		$tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../../_data/languages.csv'));
 		$this->_client->replaceTableAttributes($tableId, [
 			[
 				'name' => 'neco',
@@ -263,7 +265,7 @@ class Keboola_StorageApi_Tables_ListingTest extends StorageApiTestCase
 
 	public function testNullAttributeValueSet()
 	{
-		$tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+		$tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../../_data/languages.csv'));
 
 		$this->_client->setTableAttribute($tableId, 'test', null);
 		$table = $this->_client->getTable($tableId);
