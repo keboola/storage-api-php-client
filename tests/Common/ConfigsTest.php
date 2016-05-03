@@ -41,5 +41,7 @@ class ConfigsTest extends StorageApiTestCase
 		$this->assertEquals($config["items"]["config2"]["nestedProperty2"]["level2"]["property"], "value3", "another nested table attribute");
 		$this->assertEquals($config["items"]["config1"]["items"][0]["query"], "SELECT * FROM table", "table content");
 
+		$this->_client->deleteBucketAttribute($inIdBucket, "property1");
 	}
+
 }
