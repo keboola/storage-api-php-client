@@ -49,7 +49,6 @@ class TokensTest extends StorageApiTestCase
 
 	public function testTokenProperties()
 	{
-		$this->markTestSkipped('Move some parts to redshift tests');
 		$token = $this->_client->verifyToken();
 		$this->arrayHasKey('created', $token);
 		$this->arrayHasKey('description', $token);
@@ -63,11 +62,9 @@ class TokensTest extends StorageApiTestCase
 		$this->arrayHasKey('admin', $token);
 
 		$owner = $token['owner'];
-		$this->assertArrayHasKey('redshift', $owner);
 		$this->assertInternalType('integer', $owner['dataSizeBytes']);
 		$this->assertInternalType('integer', $owner['rowsCount']);
 		$this->assertInternalType('boolean', $owner['hasRedshift']);
-		$this->assertTrue($owner['hasRedshift']);
 
 		$this->assertArrayHasKey('limits', $owner);
 		$this->assertArrayHasKey('metrics', $owner);
@@ -79,10 +76,6 @@ class TokensTest extends StorageApiTestCase
 		$this->assertArrayHasKey('value', $firstLimit);
 		$this->assertInternalType('int', $firstLimit['value']);
 		$this->assertEquals($firstLimit['name'], $limitKeys[0]);
-
-		$redshift=  $owner['redshift'];
-		$this->assertArrayHasKey('connectionId', $redshift);
-		$this->assertArrayHasKey('databaseName', $redshift);
 
 		$tokens = $this->_client->listTokens();
 		foreach ($tokens as $currentToken) {

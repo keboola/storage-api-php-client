@@ -17,6 +17,22 @@ class CommonTest extends StorageApiTestCase
         $this->_initEmptyTestBuckets();
     }
 
+    public function testTokenProperties()
+    {
+        $token = $this->_client->verifyToken();
+
+        $owner = $token['owner'];
+        $this->assertArrayHasKey('redshift', $owner);
+        $this->assertTrue($owner['hasRedshift']);
+
+        $redshift=  $owner['redshift'];
+        $this->assertArrayHasKey('connectionId', $redshift);
+        $this->assertArrayHasKey('databaseName', $redshift);
+
+        $this->assertArrayHasKey('defaultBackend', $owner);
+        $this->assertEquals(self::BACKEND_REDSHIFT, $owner['defaultBackend']);
+    }
+
     public function testBucketUpdateOnTableTruncate()
     {
         $inBucketId = $this->getTestBucketId(self::STAGE_IN);
