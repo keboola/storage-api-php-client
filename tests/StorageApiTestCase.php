@@ -101,14 +101,6 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
 		return $this->assertEquals($expected, $actual, $message);
 	}
 
-	public function backends()
-	{
-		return array(
-			array('mysql'),
-			array('redshift'),
-		);
-	}
-
 	public function tableExportFiltersData()
 	{
 		return array(
@@ -288,23 +280,6 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
 	protected function getTestBucketId($stage = self::STAGE_IN)
 	{
 		return $this->_bucketIds[$stage];
-	}
-
-	/**
-	 * Prepends backend for each testing data
-	 * @param $data
-	 * @return array
-	 */
-	protected function dataWithBackendPrepended($data)
-	{
-		$backends = $this->backends();
-		$return = array();
-		foreach ($data as $row) {
-			foreach ($backends as $backend) {
-				$return[] = array_merge(array($backend[0]), $row);
-			}
-		}
-		return $return;
 	}
 
 	protected function createAndWaitForEvent(\Keboola\StorageApi\Event $event)
