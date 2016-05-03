@@ -7,17 +7,19 @@
  * To change this template use File | Settings | File Templates.
  */
 
+namespace Keboola\Test\Backend\Common;
+use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\Client,
 	Keboola\Csv\CsvFile;
 
-class Keboola_StorageApi_Tables_ExportParamsTest extends StorageApiTestCase
+class ExportParamsTest extends StorageApiTestCase
 {
 
 
 	public function setUp()
 	{
 		parent::setUp();
-		$this->_initEmptyBucketsForAllBackends();
+		$this->_initEmptyTestBuckets();
 	}
 
 	public function testInvalidExportFormat()
@@ -59,14 +61,10 @@ class Keboola_StorageApi_Tables_ExportParamsTest extends StorageApiTestCase
 		unlink($outputFile);
 	}
 
-	/**
-	 * @param $backend
-	 * @dataProvider backends
-	 */
-	public function testTableExportParams($backend)
+	public function testTableExportParams()
 	{
 		$importFile =  __DIR__ . '/../_data/languages.csv';
-		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, $backend), 'languages', new CsvFile($importFile));
+		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile($importFile));
 
 		$originalFileLinesCount = exec("wc -l <" . escapeshellarg($importFile));
 
@@ -134,14 +132,10 @@ class Keboola_StorageApi_Tables_ExportParamsTest extends StorageApiTestCase
 		}
 	}
 
-	/**
-	 * @dataProvider backends
-	 * @param $backend
-	 */
-	public function testTableExportShouldFailOnNonExistingColumn($backend)
+	public function testTableExportShouldFailOnNonExistingColumn()
 	{
 		$importFile =  __DIR__ . '/../_data/users.csv';
-		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, $backend), 'users', new CsvFile($importFile));
+		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
 		try {
 			$this->_client->exportTable($tableId, null, array(

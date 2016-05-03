@@ -17,6 +17,50 @@ class AlterTableTest extends StorageApiTestCase
         $this->_initEmptyTestBuckets();
     }
 
+    /**
+     * Tests: https://github.com/keboola/connection/issues/202
+     */
+    public function testPrimaryKeyAddTooLong()
+    {
+        $importFile = __DIR__ . '/../../_data/multiple-columns-pk.csv';
+
+        $primaryKeyColumns = array(
+            "Paid_Search_Engine_Account","Advertiser_ID","Date","Paid_Search_Campaign","Paid_Search_Ad_ID","Site__DFA"
+        );
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'longPK',
+            new CsvFile($importFile),
+            array()
+        );
+
+        try  {
+            $this->_client->createTablePrimaryKey($tableId, $primaryKeyColumns);
+            $this->fail('create should fail as key will be too long');
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertEquals('storage.tables.primaryKeyTooLong', $e->getStringCode());
+        }
+    }
+
+    /**
+     * Tests: https://github.com/keboola/connection/issues/231
+     */
+    public function testRowTooBig() {
+        $importFile = __DIR__ . '/../../_data/very-long-row.csv';
+
+        try {
+            $tableId = $this->_client->createTable(
+                $this->getTestBucketId(self::STAGE_IN),
+                'rowTooLong',
+                new CsvFile($importFile),
+                array()
+            );
+            $this->fail("There was too long an item in the row.");
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertEquals('rowTooLarge', $e->getStringCode());
+        }
+    }
+
     public function testPrimaryKeyAdd()
     {
         $indexColumn = 'city';
