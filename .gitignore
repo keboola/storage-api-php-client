@@ -7,5 +7,6 @@ composer.phar
 vendor
 set-env.sh
 set-env.redshift.sh
+set-env.mysql.sh
 *.kdev4
 .kdev4
