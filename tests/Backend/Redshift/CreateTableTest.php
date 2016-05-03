@@ -11,6 +11,12 @@ use Keboola\Csv\CsvFile;
 
 class CreateTableTest extends StorageApiTestCase
 {
+    public function setUp()
+    {
+        parent::setUp();
+        $this->_initEmptyTestBuckets();
+    }
+
     /**
      * @param $async
      * @dataProvider syncAsyncData

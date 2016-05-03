@@ -1,4 +1,4 @@
-	<?php
+<?php
 /**
  * Created by JetBrains PhpStorm.
  * User: martinhalamicek
@@ -7,29 +7,29 @@
  * To change this template use File | Settings | File Templates.
  */
 
+namespace Keboola\Test\Backend\Common;
+use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile,
 	Keboola\StorageApi\Client;
 
-class Keboola_StorageApi_Tables_DeleteRowsTest extends StorageApiTestCase
+class DeleteRowsTest extends StorageApiTestCase
 {
-
 
 	public function setUp()
 	{
 		parent::setUp();
-		$this->_initEmptyBucketsForAllBackends();
+		$this->_initEmptyTestBuckets();
 	}
-
 
 	/**
 	 * @param $filterParams
 	 * @param $expectedTableContent
 	 * @dataProvider tableDeleteRowsByFiltersData
 	 */
-	public function testTableDeleteRowsByFilter($backend, $filterParams, $expectedTableContent)
+	public function testTableDeleteRowsByFilter($filterParams, $expectedTableContent)
 	{
-		$importFile =  __DIR__ . '/../_data/users.csv';
-		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN, $backend), 'users', new CsvFile($importFile));
+		$importFile =  __DIR__ . '/../../_data/users.csv';
+		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 		$this->_client->markTableColumnAsIndexed($tableId, 'city');
 
 		$this->_client->deleteTableRows($tableId, $filterParams);
@@ -45,7 +45,7 @@ class Keboola_StorageApi_Tables_DeleteRowsTest extends StorageApiTestCase
 
 	public function testTableDeleteRowsAliasShouldBeUpdated()
 	{
-		$importFile =  __DIR__ . '/../_data/users.csv';
+		$importFile =  __DIR__ . '/../../_data/users.csv';
 		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 		$this->_client->markTableColumnAsIndexed($tableId, 'city');
 
@@ -61,10 +61,9 @@ class Keboola_StorageApi_Tables_DeleteRowsTest extends StorageApiTestCase
 
 	}
 
-
 	public function testDeleteRowsFromAliasShouldNotBeAllowed()
 	{
-		$importFile =  __DIR__ . '/../_data/users.csv';
+		$importFile =  __DIR__ . '/../../_data/users.csv';
 		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
 		$aliasId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $tableId);
@@ -79,7 +78,7 @@ class Keboola_StorageApi_Tables_DeleteRowsTest extends StorageApiTestCase
 
 	public function  testDeleteRowsMissingValuesShouldReturnUserError()
 	{
-		$importFile =  __DIR__ . '/../_data/users.csv';
+		$importFile =  __DIR__ . '/../../_data/users.csv';
 		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 		$this->_client->markTableColumnAsIndexed($tableId, 'city');
 
@@ -102,7 +101,6 @@ class Keboola_StorageApi_Tables_DeleteRowsTest extends StorageApiTestCase
 		return array(
 			// 1st test
 			array(
-				self::BACKEND_MYSQL,
 				array(
 					'whereColumn' => 'city',
 					'whereValues' => array('PRG')
@@ -130,7 +128,6 @@ class Keboola_StorageApi_Tables_DeleteRowsTest extends StorageApiTestCase
 			),
 			// 2nd test
 			array(
-				self::BACKEND_MYSQL,
 				array(
 					'changedSince' => $yesterday->getTimestamp(),
 				),
@@ -139,7 +136,6 @@ class Keboola_StorageApi_Tables_DeleteRowsTest extends StorageApiTestCase
 			),
 			// 3rd test
 			array(
-				self::BACKEND_MYSQL,
 				array(
 				),
 				array(
@@ -147,7 +143,6 @@ class Keboola_StorageApi_Tables_DeleteRowsTest extends StorageApiTestCase
 			),
 			// 4th test
 			array(
-				self::BACKEND_MYSQL,
 				array(
 					'whereOperator' => 'ne',
 					'whereColumn' => 'city',
@@ -170,7 +165,6 @@ class Keboola_StorageApi_Tables_DeleteRowsTest extends StorageApiTestCase
 			),
 			// 5th test
 			array(
-				self::BACKEND_MYSQL,
 				array(
 					'whereOperator' => 'ne',
 					'whereColumn' => 'city',
@@ -199,7 +193,6 @@ class Keboola_StorageApi_Tables_DeleteRowsTest extends StorageApiTestCase
 			),
 			// 6th test
 			array(
-				self::BACKEND_MYSQL,
 				array(
 					'changedSince' => $tomorrow->getTimestamp(),
 				),
@@ -236,43 +229,7 @@ class Keboola_StorageApi_Tables_DeleteRowsTest extends StorageApiTestCase
 					),
 				),
 			),
-			// 7th test
-			array(
-				self::BACKEND_REDSHIFT,
-				array(),
-				array(),
-			),
-			// 8th test
-			array(
-				self::BACKEND_REDSHIFT,
-				array(
-					'whereOperator' => 'ne',
-					'whereColumn' => 'city',
-					'whereValues' => array('PRG', 'BRA')
-				),
-				array(
-					array(
-						"1",
-						"martin",
-						"PRG",
-						"male"
-					),
-					array(
-						"2",
-						"klara",
-						"PRG",
-						"female",
-					),
-					array(
-						"4",
-						"miro",
-						"BRA",
-						"male",
-					),
-				),
-			),
 		);
 	}
-
 
 }
