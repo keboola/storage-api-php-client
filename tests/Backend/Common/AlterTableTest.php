@@ -70,6 +70,11 @@ class AlterTableTest extends StorageApiTestCase
 
 	public function testTablePkColumnDelete()
 	{
+		$tokenData = $this->_client->verifyToken();
+		if ($tokenData['owner']['defaultBackend'] == self::BACKEND_REDSHIFT) {
+			$this->markTestSkipped('Bug on Redshift backend');
+			return;
+		}
 		$importFile =  __DIR__ . '/../../_data/languages.csv';
 		$tableId = $this->_client->createTable(
 			$this->getTestBucketId(),
