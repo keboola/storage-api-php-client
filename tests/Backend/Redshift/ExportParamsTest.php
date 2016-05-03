@@ -8,6 +8,7 @@
 namespace Keboola\Test\Backend\Redshift;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
+use Keboola\StorageApi\Client;
 
 class ExportParamsTest extends StorageApiTestCase
 {
@@ -26,7 +27,7 @@ class ExportParamsTest extends StorageApiTestCase
     {
         $importFile =  __DIR__ . '/../../_data/users.csv';
         $csvFile = new CsvFile($importFile);
-        $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT), 'users', $csvFile, array(
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', $csvFile, array(
             'columns' => $csvFile->getHeader(),
         ));
 
