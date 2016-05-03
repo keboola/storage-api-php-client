@@ -5,5 +5,6 @@ php:
 install:
  - composer install
 script:
- - php ./vendor/bin/phpunit --testsuite common
- - php ./vendor/bin/phpunit --testsuite backend-mysql
+ - export STORAGE_API_TOKEN=$STORAGE_API_TOKEN_MYSQL && php ./vendor/bin/phpunit --testsuite common
+ - export STORAGE_API_TOKEN=$STORAGE_API_TOKEN_MYSQL && php ./vendor/bin/phpunit --testsuite backend-mysql
+ - export STORAGE_API_TOKEN=$STORAGE_API_TOKEN_REDSHIFT && php ./vendor/bin/phpunit --testsuite backend-redshift
