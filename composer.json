@@ -8,6 +8,11 @@
 			"Keboola\\StorageApi": "src/"
 		}
 	},
+	"autoload-dev": {
+		"psr-4": {
+			"Keboola\\Test\\": "tests/"
+		}
+	},
 	"require": {
 		"keboola/csv": "~1.1.3",
 		"guzzlehttp/guzzle": "~6.0",

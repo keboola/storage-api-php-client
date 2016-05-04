@@ -1,0 +1,172 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: martinhalamicek
+ * Date: 22/05/14
+ * Time: 16:38
+ * To change this template use File | Settings | File Templates.
+ */
+
+
+namespace Keboola\Test\Backend\Common;
+use Keboola\Test\StorageApiTestCase;
+use Keboola\StorageApi\Client,
+	Keboola\Csv\CsvFile,
+	Keboola\StorageApi\TableExporter;
+
+class TableExporterTest extends StorageApiTestCase
+{
+
+
+	private $downloadPath;
+	private $downloadPathGZip;
+
+	public function setUp()
+	{
+		parent::setUp();
+		$this->_initEmptyTestBuckets();
+		$this->downloadPath = __DIR__ . '/../../_tmp/languages.sliced.csv';
+		$this->downloadPathGZip = __DIR__ . '/../../_tmp/languages.sliced.csv.gz';
+	}
+
+	/**
+	 * @dataProvider tableImportData
+	 * @param $importFileName
+	 */
+	public function testTableAsyncExportRepeatedly(array $supportedBackends, CsvFile $importFile, $expectationsFileName, $exportOptions=array())
+	{
+		$oldRunId = $this->_client->generateRunId();
+		$this->_client->setRunId($oldRunId);
+
+		if (!isset($exportOptions['gzip']) ) {
+			$exportOptions['gzip'] = false;
+		}
+
+		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', $importFile);
+		$result = $this->_client->writeTable($tableId, $importFile);
+
+		$this->assertEmpty($result['warnings']);
+
+		// First export validation
+		$fileId = $this->_client->exportTableAsync($tableId, $exportOptions);
+		$fileInfo = $this->_client->getFile($fileId["file"]["id"], (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
+
+		$this->assertArrayHasKey('runId', $fileInfo);
+		$this->assertEquals($oldRunId, $fileInfo['runId']);
+
+		$this->assertArrayHasKey('runIds', $fileInfo);
+		$this->assertCount(1, $fileInfo['runIds']);
+
+		$runIdExists = false;
+		foreach ($fileInfo['runIds'] AS $runId) {
+			if ($oldRunId == $runId) {
+				$runIdExists = true;
+			}
+		}
+
+		$this->assertTrue($runIdExists);
+
+		// Second export validation (cached)
+		$oldFileInfo = $fileInfo;
+		$newRunId = $this->_client->generateRunId();
+		$this->_client->setRunId($newRunId);
+
+		$fileId = $this->_client->exportTableAsync($tableId, $exportOptions);
+		$fileInfo = $this->_client->getFile($fileId["file"]["id"], (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
+
+		$this->assertArrayHasKey('runId', $fileInfo);
+		$this->assertEquals($oldRunId, $fileInfo['runId']);
+
+		$this->assertArrayHasKey('runIds', $fileInfo);
+		$this->assertCount(2, $fileInfo['runIds']);
+
+		$runIdExists = false;
+		foreach ($fileInfo['runIds'] AS $runId) {
+			if ($newRunId == $runId) {
+				$runIdExists = true;
+			}
+		}
+
+		$this->assertTrue($runIdExists);
+
+
+		$this->assertTrue($oldFileInfo["id"] === $fileInfo["id"]);
+	}
+
+	/**
+	 * @dataProvider tableImportData
+	 * @param $importFileName
+	 */
+	public function testTableAsyncExport(array $supportedBackends, CsvFile $importFile, $expectationsFileName, $exportOptions=array())
+	{
+		$expectationsFile = __DIR__ . '/../../_data/' . $expectationsFileName;
+		$tokenData = $this->_client->verifyToken();
+		if (!in_array($tokenData['owner']['defaultBackend'], $supportedBackends)) {
+			return;
+		}
+
+		if (!isset($exportOptions['gzip']) ) {
+			$exportOptions['gzip'] = false;
+		}
+
+		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', $importFile);
+		$result = $this->_client->writeTable($tableId, $importFile);
+
+		$this->assertEmpty($result['warnings']);
+		$exporter = new TableExporter($this->_client);
+
+		if ($exportOptions['gzip'] === true) {
+			$exporter->exportTable($tableId, $this->downloadPathGZip, $exportOptions);
+			if (file_exists($this->downloadPath)) {
+				unlink($this->downloadPath);
+			}
+			$process = new \Symfony\Component\Process\Process("gunzip " . escapeshellarg($this->downloadPathGZip));
+			if (0 !== $process->run()) {
+				throw new \Symfony\Component\Process\Exception\ProcessFailedException($process);
+			}
+		} else {
+			$exporter->exportTable($tableId, $this->downloadPath, $exportOptions);
+		}
+
+
+		// compare data
+		$this->assertTrue(file_exists($this->downloadPath));
+		$this->assertLinesEqualsSorted(file_get_contents($expectationsFile), file_get_contents($this->downloadPath), 'imported data comparsion');
+	}
+
+	public function testLimitParameter()
+	{
+		$importFile = new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.csv');
+		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', $importFile);
+		$this->_client->writeTable($tableId, $importFile);
+
+		$exportOptions = array(
+			'limit' => 2,
+		);
+		$exporter = new TableExporter($this->_client);
+		$exporter->exportTable($tableId, $this->downloadPath, $exportOptions);
+		$this->assertTrue(file_exists($this->downloadPath));
+		$parsed = Client::parseCsv(file_get_contents($this->downloadPath));
+		$this->assertCount($exportOptions['limit'], $parsed);
+	}
+
+	public function tableImportData()
+	{
+		return array(
+			array([self::BACKEND_MYSQL, self::BACKEND_REDSHIFT], new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.csv.gz'), 'languages.csv'),
+			array([self::BACKEND_MYSQL, self::BACKEND_REDSHIFT], new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.csv.gz'), 'languages.csv', array('gzip' => true)),
+			array([self::BACKEND_MYSQL, self::BACKEND_REDSHIFT], new CsvFile('https://s3.amazonaws.com/keboola-tests/numbers.csv'), 'numbers.csv'),
+			array([self::BACKEND_MYSQL, self::BACKEND_REDSHIFT], new CsvFile('https://s3.amazonaws.com/keboola-tests/numbers.csv'), 'numbers.two-cols.csv', array('columns' => array('0', '45'))),
+
+			array([self::BACKEND_REDSHIFT], new CsvFile('https://s3.amazonaws.com/keboola-tests/escaping.csv'), 'escaping.backslash.redshift.out.csv', array('format' => 'escaped')),
+			array([self::BACKEND_REDSHIFT], new CsvFile('https://s3.amazonaws.com/keboola-tests/escaping.csv'), 'escaping.backslash.redshift.out.csv', array('format' => 'escaped')),
+			array([self::BACKEND_REDSHIFT], new CsvFile('https://s3.amazonaws.com/keboola-tests/escaping.csv'), 'escaping.raw.redshift.out.csv', array('format' => 'raw')),
+			array([self::BACKEND_REDSHIFT], new CsvFile('https://s3.amazonaws.com/keboola-tests/escaping.csv'), 'escaping.raw.redshift.out.csv', array('gzip' => true, 'format' => 'raw')),
+			array([self::BACKEND_REDSHIFT], new CsvFile('https://s3.amazonaws.com/keboola-tests/escaping.csv'), 'escaping.standard.out.csv', array('gzip' => true)),
+			array([self::BACKEND_MYSQL, self::BACKEND_REDSHIFT], new CsvFile('https://s3.amazonaws.com/keboola-tests/numbers.csv'), 'numbers.csv', array('gzip' => true)),
+			array([self::BACKEND_MYSQL, self::BACKEND_REDSHIFT], new CsvFile('https://s3.amazonaws.com/keboola-tests/numbers.csv'), 'numbers.two-cols.csv', array('gzip' => true, 'columns' => array('0', '45'))),
+		);
+	}
+
+
+}
