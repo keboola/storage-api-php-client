@@ -19,12 +19,17 @@ class CopyImportTest extends StorageApiTestCase
 		$this->_initEmptyTestBuckets();
 	}
 
-	public function testCopyCreate()
+	/**
+	 * @param $schemaType
+	 * @dataProvider schemaTyper
+	 */
+	public function testCopyCreate($schemaType)
 	{
-		$this->initDb();
+		$this->initDb($schemaType);
 		$tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), array(
 			'name' => 'languages',
 			'dataTableName' => 'out.languages',
+			'schemaType' => $schemaType,
 		));
 
 		$expected = array(
@@ -38,17 +43,24 @@ class CopyImportTest extends StorageApiTestCase
 		)), 'imported data comparsion');
 	}
 
-	public function testCopyImport()
+	/**
+	 * @param $schemaType
+	 * @dataProvider schemaTyper
+	 */
+	public function testCopyImport($schemaType)
 	{
-		$this->initDb();
+		$this->initDb($schemaType);
+		
 		$table = $this->_client->apiPost("storage/buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(
 			'dataString' => 'Id,Name,update',
 			'name' => 'languages',
 			'primaryKey' => 'Id',
+			'schemaType' => $schemaType,
 		));
 
 		$this->_client->writeTableAsyncDirect($table['id'], array(
 			'dataTableName' => 'out.languages3',
+			'schemaType' => $schemaType,
 		));
 
 		$expected = array(
@@ -64,7 +76,7 @@ class CopyImportTest extends StorageApiTestCase
 		$token = $this->_client->verifyToken();
 		$db = $this->getDb($token);
 
-		$workingSchemaName = sprintf('tapi_%d_tran', $token['id']);
+		$workingSchemaName = sprintf('tapi_%d_%s', $token['id'], ($schemaType == "luckyguess") ? 'luck' : 'tran');
 
 		$db->query("truncate table $workingSchemaName.\"out.languages3\"");
 		$db->query("insert into $workingSchemaName.\"out.languages3\" values (1, 'cz', '1'), (3, 'sk', '1');");
@@ -72,6 +84,7 @@ class CopyImportTest extends StorageApiTestCase
 		$this->_client->writeTableAsyncDirect($table['id'], array(
 			'dataTableName' => 'out.languages3',
 			'incremental' => true,
+			'schemaType' => $schemaType,
 		));
 
 		$expected = array(
@@ -91,6 +104,7 @@ class CopyImportTest extends StorageApiTestCase
 		$this->_client->writeTableAsyncDirect($table['id'], array(
 			'dataTableName' => 'out.languages3',
 			'incremental' => true,
+			'schemaType' => $schemaType,
 		));
 
 		$expected = array(
@@ -104,18 +118,23 @@ class CopyImportTest extends StorageApiTestCase
 		)), 'new  column added');
 	}
 
-
-	public function testCopyImportFromNotExistingTableShouldReturnError()
+	/**
+	 * @param $schemaType
+	 * @dataProvider schemaTyper
+	 */
+	public function testCopyImportFromNotExistingTableShouldReturnError($schemaType)
 	{
-		$this->initDb();
+		$this->initDb($schemaType);
 		$table = $this->_client->apiPost("storage/buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(
-			"dataString" => 'Id,Name',
+			"dataString" => 'Id,Name,update',
 			'name' => 'languages',
+			'schemaType' => $schemaType,
 		));
 
 		try {
 			$this->_client->writeTableAsyncDirect($table['id'], array(
 				'dataTableName' => 'out.languagess',
+				'schemaType' => $schemaType,
 			));
 			$this->fail('exception should be thrown');
 		} catch (\Keboola\StorageApi\ClientException $e) {
@@ -124,12 +143,13 @@ class CopyImportTest extends StorageApiTestCase
 	}
 
 
-	private function initDb()
+	private function initDb($schemaType = "transformations")
 	{
 		$token = $this->_client->verifyToken();
 		$dbh = $this->getDb($token);
 
-		$workingSchemaName = sprintf('tapi_%d_tran', $token['id']);
+		$workingSchemaName = sprintf('tapi_%d_%s', $token['id'], $schemaType == "luckyguess" ? 'luck' : 'tran');
+
 		$stmt = $dbh->prepare("SELECT * FROM pg_catalog.pg_namespace WHERE nspname = ?");
 		$stmt->execute(array($workingSchemaName));
 		$schema = $stmt->fetch();
@@ -178,4 +198,10 @@ class CopyImportTest extends StorageApiTestCase
 		);
 	}
 
+	public function schemaTyper() {
+		return array(
+			array('transformations'),
+			array('luckyguess'),
+		);
+	}
 }

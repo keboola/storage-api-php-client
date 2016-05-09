@@ -717,6 +717,7 @@ class Client
 			'dataFileId',
 			'dataUrl',
 			'dataTableName',
+			'schemaType',
 			'data',
 			'withoutHeaders',
 			'columns',
