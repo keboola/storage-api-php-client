@@ -50,12 +50,11 @@ class CopyImportTest extends StorageApiTestCase
 	public function testCopyImport($schemaType)
 	{
 		$this->initDb($schemaType);
-		
+
 		$table = $this->_client->apiPost("storage/buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(
 			'dataString' => 'Id,Name,update',
 			'name' => 'languages',
 			'primaryKey' => 'Id',
-			'schemaType' => $schemaType,
 		));
 
 		$this->_client->writeTableAsyncDirect($table['id'], array(
@@ -128,7 +127,6 @@ class CopyImportTest extends StorageApiTestCase
 		$table = $this->_client->apiPost("storage/buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(
 			"dataString" => 'Id,Name,update',
 			'name' => 'languages',
-			'schemaType' => $schemaType,
 		));
 
 		try {
