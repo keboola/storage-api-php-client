@@ -58,7 +58,7 @@ class CreateTableTest extends StorageApiTestCase
 	{
 		return array(
 			array('Languages', __DIR__ . '/../../_data/languages.csv', __DIR__ . '/../../_data/languages.csv', false),
-			array('Languages', __DIR__ . '/../../_data/languages.csv', __DIR__ . '/../../_data/languages.csv', true, self::BACKEND_MYSQL),
+			array('Languages', __DIR__ . '/../../_data/languages.csv', __DIR__ . '/../../_data/languages.csv', true),
 
 			array('Languages', 'https://s3.amazonaws.com/keboola-tests/languages.csv', __DIR__ . '/../../_data/languages.csv', false),
 			array('Languages', 'https://s3.amazonaws.com/keboola-tests/languages.csv', __DIR__ . '/../../_data/languages.csv', true),

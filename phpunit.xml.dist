@@ -25,4 +25,8 @@
 		<directory>tests/Backend/Redshift</directory>
 	</testsuite>
 
+	<testsuite name="backend-snowflake">
+		<directory>tests/Backend/Common</directory>
+	</testsuite>
+
 </phpunit>
