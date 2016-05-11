@@ -97,6 +97,11 @@ class Components {
 		return $this->client->apiGet("storage/components?" . http_build_query($options->toParamsArray()));
 	}
 
+	public function getComponentConfigurations($componentId)
+	{
+		return $this->client->apiGet("storage/components/{$componentId}/configs");
+	}	
+	
 	public function listConfigurationVersions(ListConfigurationVersionsOptions $options = null)
 	{
 		if (!$options) {

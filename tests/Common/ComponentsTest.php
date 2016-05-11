@@ -1554,4 +1554,53 @@ class ComponentsTest extends StorageApiTestCase
 
         $this->assertCount(1, $rows);
     }
+
+	public function testGetComponentConfigurations()
+	{
+		$components = new \Keboola\StorageApi\Components($this->_client);
+
+		$configs = $components->getComponentConfigurations('transformation');
+		$this->assertEmpty($configs);
+
+		$components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
+				->setComponentId('transformation')
+				->setConfigurationId('main-1')
+				->setName('Main 1')
+		);
+		$components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
+				->setComponentId('transformation')
+				->setConfigurationId('main-2')
+				->setName('Main 2')
+		);
+
+		$configs = $components->getComponentConfigurations('transformation');
+		$this->assertCount(2, $configs);
+	}
+	
+	public function testGetComponentConfigurationsWithConfigAndRows()
+	{
+		$components = new \Keboola\StorageApi\Components($this->_client);
+
+		$configs = $components->getComponentConfigurations('transformation');
+		$this->assertEmpty($configs);
+
+		$configData1 = ['key1' => 'val1'];
+		$configData2 = ['key2' => 'val2'];
+
+		$configuration = (new \Keboola\StorageApi\Options\Components\Configuration())
+			->setComponentId('transformation')
+			->setConfigurationId('main-1')
+			->setName('Main 1')
+			->setConfiguration($configData1);
+
+		$components->addConfiguration($configuration);
+		$components->addConfigurationRow((new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration))
+			->setRowId('row1')
+			->setConfiguration($configData2)
+		);
+		$configs = $components->getComponentConfigurations('transformation');
+		$this->assertCount(1, $configs);
+		$this->assertEquals($configData1, $configs[0]['configuration']);
+		$this->assertEquals($configData2, $configs[0]['rows'][0]['configuration']);
+	}	
 }
