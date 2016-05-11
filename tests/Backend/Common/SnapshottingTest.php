@@ -86,9 +86,9 @@ class SnapshottingTest extends StorageApiTestCase
 		$sourceTableId = $this->_client->createTable(
 			$this->getTestBucketId(),
 			'languages',
-			new CsvFile(__DIR__ . '/../../_data/languages.csv'),
+			new CsvFile(__DIR__ . '/../../_data/languages.camel-case-columns.csv'),
 			array(
-				'primaryKey' => 'id',
+				'primaryKey' => 'Id',
 			)
 		);
 		$sourceTable = $this->_client->getTable($sourceTableId);
