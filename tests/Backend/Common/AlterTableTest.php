@@ -39,6 +39,13 @@ class AlterTableTest extends StorageApiTestCase
 		$this->assertArrayHasKey('columns', $detail);
 		$this->assertContains('State', $detail['columns']);
 		$this->assertEquals(array('id','name','State'), $detail['columns']);
+
+		$importFileWithNewCol = $importFile =  __DIR__ . '/../../_data/languages.with-state.csv';
+		$this->_client->writeTable($tableId, new CsvFile($importFileWithNewCol));
+		$this->assertLinesEqualsSorted(
+			file_get_contents($importFileWithNewCol),
+			$this->_client->exportTable($tableId), 'new column is imported'
+		);
 	}
 
 	/**
