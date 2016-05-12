@@ -771,17 +771,6 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertCount(0, $configuration['rows']);
 	}
 
-	public function testComponentConfigsListShouldNotBeImplemented()
-	{
-		try {
-			$this->_client->apiGet('storage/components/wr-db/configs');
-			$this->fail('Method should not be implemented');
-		} catch (\Keboola\StorageApi\ClientException $e) {
-			$this->assertEquals(501, $e->getCode());
-			$this->assertEquals('notImplemented', $e->getStringCode());
-		}
-	}
-
 	public function testListConfigs()
 	{
 		$components = new \Keboola\StorageApi\Components($this->_client);
