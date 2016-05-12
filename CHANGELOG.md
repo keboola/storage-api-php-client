@@ -1,3 +1,6 @@
+## 4.8.0 (2016-05-12)
+ * [Feat] `getComponentConfigurations` method added
+
 ## 4.7.0 (2016-03-11)
  * [Feat] Delete table snapshot
 
