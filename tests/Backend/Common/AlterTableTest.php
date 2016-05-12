@@ -256,61 +256,6 @@ class AlterTableTest extends StorageApiTestCase
 		}
 	}
 
-	public function testRedshiftPrimaryKeyAddWithDuplicty()
-	{
-		$primaryKeyColumns = array('id');
-		$importFile = __DIR__ . '/../../_data/users.csv';
-
-		$tableId = $this->_client->createTable(
-			$this->getTestBucketId(self::STAGE_IN),
-			'users',
-			new CsvFile($importFile),
-			array()
-		);
-
-		$this->_client->writeTableAsync(
-			$tableId,
-			new CsvFile($importFile),
-			array(
-				'incremental' => true,
-			)
-		);
-
-		try  {
-			$this->_client->createTablePrimaryKey($tableId, $primaryKeyColumns);
-			$this->fail('create primary key should not be allowed');
-		} catch (\Keboola\StorageApi\ClientException $e) {
-			$this->assertEquals('storage.tables.primaryKeyDuplicateValues', $e->getStringCode());
-		}
-
-		// composite primary key
-		$primaryKeyColumns = array('Id', 'Name');
-		$importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
-
-		$tableId = $this->_client->createTable(
-			$this->getTestBucketId(self::STAGE_IN),
-			'languages',
-			new CsvFile($importFile),
-			array()
-		);
-
-		$this->_client->writeTableAsync(
-			$tableId,
-			new CsvFile($importFile),
-			array(
-				'incremental' => true,
-			)
-		);
-
-		try  {
-			$this->_client->createTablePrimaryKey($tableId, $primaryKeyColumns);
-			$this->fail('create should not be allowed');
-		} catch (\Keboola\StorageApi\ClientException $e) {
-			$this->assertEquals('storage.tables.primaryKeyDuplicateValues', $e->getStringCode());
-		}
-	}
-
-
 	public function testIndexedColumnsCountShouldBeLimited()
 	{
 		$importFile = __DIR__ . '/../../_data/more-columns.csv';
