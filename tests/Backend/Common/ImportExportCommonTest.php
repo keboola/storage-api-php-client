@@ -105,22 +105,18 @@ class Keboola_StorageApi_Tables_ImportExportCommonTest extends StorageApiTestCas
 
 			array(new CsvFile(__DIR__ . '/../../_data/escaping.csv'), 'escaping.standard.out.csv', array('col1', 'col2_with_space')),
 
-//			array(self::BACKEND_MYSQL, new CsvFile(__DIR__ . '/../../_data/escaping.win.csv'), 'escaping.raw.win.csv', array('col1', 'col2_with_space'), 'raw'),
-
-//			array(self::BACKEND_MYSQL, new CsvFile(__DIR__ . '/../../_data/escaping.raw.win.csv', "\t", "", "\\"), 'escaping.win.csv', array('col1', 'col2_with_space'), 'rfc'),
-
 			array(new CsvFile(__DIR__ . '/../../_data/escaping.nl-last-row.csv'), 'escaping.standard.out.csv', array('col1', 'col2_with_space')),
 
-//			array(self::BACKEND_MYSQL, new CsvFile(__DIR__ . '/../../_data/escaping.csv'), 'escaping.backslash.out.csv', array('col1', 'col2_with_space'), 'escaped'),
-
-//			array(self::BACKEND_MYSQL, new CsvFile(__DIR__ . '/../../_data/escaping.csv'), 'escaping.raw.csv', array('col1', 'col2_with_space'), 'raw'),
-
-//			array(self::BACKEND_MYSQL, new CsvFile(__DIR__ . '/../../_data/escaping.raw.csv', "\t", "", "\\"), 'escaping.raw.csv', array('col1', 'col2_with_space'), 'raw'),
 		);
 	}
 
 	public function testTableImportColumnsCaseInsensitive()
 	{
+		$tokenData = $this->_client->verifyToken();
+		if ($tokenData['owner']['defaultBackend'] == self::BACKEND_SNOWFLAKE) {
+			return;
+		}
+
 		$importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
 		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', $importFile);
 
