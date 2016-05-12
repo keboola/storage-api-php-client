@@ -13,6 +13,7 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
 {
 	const BACKEND_MYSQL = 'mysql';
 	const BACKEND_REDSHIFT = 'redshift';
+	const BACKEND_SNOWFLAKE = 'snowflake';
 
 	const STAGE_IN = 'in';
 	const STAGE_OUT = 'out';

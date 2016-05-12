@@ -33,70 +33,6 @@ class TableExporterTest extends StorageApiTestCase
 	 * @dataProvider tableImportData
 	 * @param $importFileName
 	 */
-	public function testTableAsyncExportRepeatedly(array $supportedBackends, CsvFile $importFile, $expectationsFileName, $exportOptions=array())
-	{
-		$oldRunId = $this->_client->generateRunId();
-		$this->_client->setRunId($oldRunId);
-
-		if (!isset($exportOptions['gzip']) ) {
-			$exportOptions['gzip'] = false;
-		}
-
-		$tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', $importFile);
-		$result = $this->_client->writeTable($tableId, $importFile);
-
-		$this->assertEmpty($result['warnings']);
-
-		// First export validation
-		$fileId = $this->_client->exportTableAsync($tableId, $exportOptions);
-		$fileInfo = $this->_client->getFile($fileId["file"]["id"], (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
-
-		$this->assertArrayHasKey('runId', $fileInfo);
-		$this->assertEquals($oldRunId, $fileInfo['runId']);
-
-		$this->assertArrayHasKey('runIds', $fileInfo);
-		$this->assertCount(1, $fileInfo['runIds']);
-
-		$runIdExists = false;
-		foreach ($fileInfo['runIds'] AS $runId) {
-			if ($oldRunId == $runId) {
-				$runIdExists = true;
-			}
-		}
-
-		$this->assertTrue($runIdExists);
-
-		// Second export validation (cached)
-		$oldFileInfo = $fileInfo;
-		$newRunId = $this->_client->generateRunId();
-		$this->_client->setRunId($newRunId);
-
-		$fileId = $this->_client->exportTableAsync($tableId, $exportOptions);
-		$fileInfo = $this->_client->getFile($fileId["file"]["id"], (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
-
-		$this->assertArrayHasKey('runId', $fileInfo);
-		$this->assertEquals($oldRunId, $fileInfo['runId']);
-
-		$this->assertArrayHasKey('runIds', $fileInfo);
-		$this->assertCount(2, $fileInfo['runIds']);
-
-		$runIdExists = false;
-		foreach ($fileInfo['runIds'] AS $runId) {
-			if ($newRunId == $runId) {
-				$runIdExists = true;
-			}
-		}
-
-		$this->assertTrue($runIdExists);
-
-
-		$this->assertTrue($oldFileInfo["id"] === $fileInfo["id"]);
-	}
-
-	/**
-	 * @dataProvider tableImportData
-	 * @param $importFileName
-	 */
 	public function testTableAsyncExport(array $supportedBackends, CsvFile $importFile, $expectationsFileName, $exportOptions=array())
 	{
 		$expectationsFile = __DIR__ . '/../../_data/' . $expectationsFileName;
@@ -153,10 +89,10 @@ class TableExporterTest extends StorageApiTestCase
 	public function tableImportData()
 	{
 		return array(
-			array([self::BACKEND_MYSQL, self::BACKEND_REDSHIFT], new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.csv.gz'), 'languages.csv'),
-			array([self::BACKEND_MYSQL, self::BACKEND_REDSHIFT], new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.csv.gz'), 'languages.csv', array('gzip' => true)),
-			array([self::BACKEND_MYSQL, self::BACKEND_REDSHIFT], new CsvFile('https://s3.amazonaws.com/keboola-tests/numbers.csv'), 'numbers.csv'),
-			array([self::BACKEND_MYSQL, self::BACKEND_REDSHIFT], new CsvFile('https://s3.amazonaws.com/keboola-tests/numbers.csv'), 'numbers.two-cols.csv', array('columns' => array('0', '45'))),
+			array([self::BACKEND_MYSQL, self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.csv.gz'), 'languages.csv'),
+			array([self::BACKEND_MYSQL, self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.csv.gz'), 'languages.csv', array('gzip' => true)),
+			array([self::BACKEND_MYSQL, self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile('https://s3.amazonaws.com/keboola-tests/numbers.csv'), 'numbers.csv'),
+			array([self::BACKEND_MYSQL, self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile('https://s3.amazonaws.com/keboola-tests/numbers.csv'), 'numbers.two-cols.csv', array('columns' => array('0', '45'))),
 
 			array([self::BACKEND_REDSHIFT], new CsvFile('https://s3.amazonaws.com/keboola-tests/escaping.csv'), 'escaping.backslash.redshift.out.csv', array('format' => 'escaped')),
 			array([self::BACKEND_REDSHIFT], new CsvFile('https://s3.amazonaws.com/keboola-tests/escaping.csv'), 'escaping.backslash.redshift.out.csv', array('format' => 'escaped')),
