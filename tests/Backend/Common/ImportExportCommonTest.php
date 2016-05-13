@@ -242,8 +242,8 @@ class Keboola_StorageApi_Tables_ImportExportCommonTest extends StorageApiTestCas
 			return;
 		}
 
-		if ($token['owner']['defaultBackend'] == self::BACKEND_REDSHIFT) {
-			$this->markTestSkipped('TODO: fix issue on redshift backend.');
+		if (in_array($token['owner']['defaultBackend'], [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT])) {
+			$this->markTestSkipped('TODO: fix issue on redshift and snflk backend.');
 			return;
 		}
 
