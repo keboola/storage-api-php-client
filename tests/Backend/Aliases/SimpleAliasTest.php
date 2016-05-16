@@ -5,13 +5,14 @@
  * Date: 03/05/16
  * Time: 09:45
  */
-namespace Keboola\Test\Backend\Mysql;
+namespace Keboola\Test\Backend\Aliases;
+use Keboola\StorageApi\TableExporter;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 
-class AliasesTest extends StorageApiTestCase
+class SimpleAliasTest extends StorageApiTestCase
 {
     public function setUp()
     {
@@ -36,14 +37,12 @@ class AliasesTest extends StorageApiTestCase
         $sourceTable = $this->_client->getTable($sourceTableId);
 
         $expectedData = Client::parseCsv(file_get_contents($importFile));
-        usort($expectedData, function($a, $b) {
-            return $a['id'] > $b['id'];
-        });
-        $this->assertEquals($expectedData, Client::parseCsv($this->_client->exportTable($sourceTableId)), 'data are present in source table');
+        $this->assertArrayEqualsSorted($expectedData, Client::parseCsv($this->_client->exportTable($sourceTableId)), 'id', 'data are present in source table');
 
-        $results = $this->_client->exportTableAsync($sourceTableId);
-        $file = $this->_client->getFile($results['file']['id']);
-        $this->assertEquals($expectedData, Client::parseCsv(file_get_contents($file['url'])));
+        $exporter = new TableExporter($this->_client);
+        $downloadPath = __DIR__ . '/../../_tmp/languages.sliced.csv';
+        $exporter->exportTable($sourceTableId, $downloadPath, []);
+        $this->assertArrayEqualsSorted($expectedData, Client::parseCsv(file_get_contents($downloadPath)), 'id');
 
         // create alias table
         $aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'languages-alias');
@@ -63,11 +62,10 @@ class AliasesTest extends StorageApiTestCase
 
         $this->assertArrayHasKey('sourceTable', $aliasTable);
         $this->assertEquals($sourceTableId, $aliasTable['sourceTable']['id'], 'new table linked to source table');
-        $this->assertEquals($expectedData, Client::parseCsv($this->_client->exportTable($aliasTableId)), 'data are exported from source table');
+        $this->assertArrayEqualsSorted($expectedData, Client::parseCsv($this->_client->exportTable($aliasTableId)), 'id', 'data are exported from source table');
 
-        $results = $this->_client->exportTableAsync($aliasTableId);
-        $file = $this->_client->getFile($results['file']['id']);
-        $this->assertEquals($expectedData, Client::parseCsv(file_get_contents($file['url'])));
+        $exporter->exportTable($sourceTableId, $downloadPath, []);
+        $this->assertArrayEqualsSorted($expectedData, Client::parseCsv(file_get_contents($downloadPath)), 'id');
 
         // second import into source table
         $this->_client->writeTable($sourceTableId, new CsvFile(__DIR__ . '/../../_data/languages.csv'));
@@ -209,7 +207,7 @@ class AliasesTest extends StorageApiTestCase
 
     public function testAliasColumnWithoutAutoSyncShouldBeDeletable()
     {
-        $importFile =  __DIR__ . '/../../_data/users.csv';
+        $importFile = __DIR__ . '/../../_data/users.csv';
         $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
         $this->_client->markTableColumnAsIndexed($sourceTableId, 'city');
 
@@ -229,7 +227,7 @@ class AliasesTest extends StorageApiTestCase
 
     public function testAliasColumnWithoutAutoSyncCanBeAdded()
     {
-        $importFile =  __DIR__ . '/../../_data/users.csv';
+        $importFile = __DIR__ . '/../../_data/users.csv';
         $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
         $this->_client->markTableColumnAsIndexed($sourceTableId, 'city');
 
@@ -248,7 +246,7 @@ class AliasesTest extends StorageApiTestCase
 
     public function testAliasColumnsAutoSync()
     {
-        $importFile =  __DIR__ . '/../../_data/users.csv';
+        $importFile = __DIR__ . '/../../_data/users.csv';
         $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
         $this->_client->markTableColumnAsIndexed($sourceTableId, 'city');
 
@@ -288,7 +286,7 @@ class AliasesTest extends StorageApiTestCase
 
     public function testColumnUsedInFilteredAliasShouldNotBeDeletable()
     {
-        $importFile =  __DIR__ . '/../../_data/languages.csv';
+        $importFile = __DIR__ . '/../../_data/languages.csv';
         $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile($importFile));
         $this->_client->markTableColumnAsIndexed($sourceTableId, 'id');
 
@@ -309,7 +307,7 @@ class AliasesTest extends StorageApiTestCase
 
     public function testColumnAssignedToAliasWithoutAutoSyncShouldNotBeDeletable()
     {
-        $importFile =  __DIR__ . '/../../_data/users.csv';
+        $importFile = __DIR__ . '/../../_data/users.csv';
         $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
         $this->_client->markTableColumnAsIndexed($sourceTableId, 'city');
 
@@ -331,7 +329,7 @@ class AliasesTest extends StorageApiTestCase
 
     public function testColumnUsedInFilteredAliasShouldNotBeRemovedFromIndexed()
     {
-        $importFile =  __DIR__ . '/../../_data/languages.csv';
+        $importFile = __DIR__ . '/../../_data/languages.csv';
         $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile($importFile));
         $this->_client->markTableColumnAsIndexed($sourceTableId, 'id');
 
