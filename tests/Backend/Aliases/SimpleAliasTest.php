@@ -425,10 +425,12 @@ class SimpleAliasTest extends StorageApiTestCase
 
         $this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
 
-        $results = $this->_client->exportTableAsync($aliasTableId);
-        $file = $this->_client->getFile($results['file']['id']);
-        $parsedData = Client::parseCsv(file_get_contents($file['url']), false);
-        array_shift($parsedData);
+        // async export
+        $exporter = new TableExporter($this->_client);
+        $downloadPath = __DIR__ . '/../../_tmp/languages.sliced.csv';
+        $exporter->exportTable($aliasTableId, $downloadPath, []);
+        $parsedData = Client::parseCsv(file_get_contents($downloadPath), false);
+        array_shift($parsedData); // remove header
         $this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
     }
 
@@ -486,10 +488,12 @@ class SimpleAliasTest extends StorageApiTestCase
         array_shift($parsedData); // remove header
         $this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
 
-        $results = $this->_client->exportTableAsync($aliasTableId);
-        $file = $this->_client->getFile($results['file']['id']);
-        $parsedData = Client::parseCsv(file_get_contents($file['url']), false);
-        array_shift($parsedData);
+        // async export
+        $exporter = new TableExporter($this->_client);
+        $downloadPath = __DIR__ . '/../../_tmp/languages.sliced.csv';
+        $exporter->exportTable($aliasTableId, $downloadPath, []);
+        $parsedData = Client::parseCsv(file_get_contents($downloadPath), false);
+        array_shift($parsedData); // remove header
         $this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
     }
 
@@ -535,14 +539,16 @@ class SimpleAliasTest extends StorageApiTestCase
         array_shift($parsedData); // remove header
         $this->assertEquals($expectedResult, $parsedData);
 
-        $results = $this->_client->exportTableAsync($aliasTableId, array(
+        // async export
+        $exporter = new TableExporter($this->_client);
+        $downloadPath = __DIR__ . '/../../_tmp/languages.sliced.csv';
+        $exporter->exportTable($aliasTableId, $downloadPath, [
             'whereColumn' => 'sex',
             'whereValues' => array('male'),
-        ));
-        $file = $this->_client->getFile($results['file']['id']);
-        $parsedData = Client::parseCsv(file_get_contents($file['url']), false);
+        ]);
+        $parsedData = Client::parseCsv(file_get_contents($downloadPath), false);
         array_shift($parsedData); // remove header
-        $this->assertEquals($expectedResult, $parsedData);
+        $this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
 
         $data = $this->_client->exportTable($aliasTableId, null, array(
             'whereColumn' => 'city',
@@ -553,12 +559,14 @@ class SimpleAliasTest extends StorageApiTestCase
 
         $this->assertEmpty($parsedData, 'Export filter should not overload alias filter');
 
-        $results = $this->_client->exportTableAsync($aliasTableId, array(
+        // async export
+        $exporter = new TableExporter($this->_client);
+        $downloadPath = __DIR__ . '/../../_tmp/languages.sliced.csv';
+        $exporter->exportTable($aliasTableId, $downloadPath, [
             'whereColumn' => 'city',
             'whereValues'=> array('VAN'),
-        ));
-        $file = $this->_client->getFile($results['file']['id']);
-        $parsedData = Client::parseCsv(file_get_contents($file['url']), false);
+        ]);
+        $parsedData = Client::parseCsv(file_get_contents($downloadPath), false);
         array_shift($parsedData); // remove header
         $this->assertEmpty($parsedData);
     }
