@@ -20,6 +20,12 @@ class CustomSqlAliasTest extends StorageApiTestCase
 
     public function testRedshiftAliasAliasedTableDeleteShouldThrowUserError()
     {
+        $tokenData = $this->_client->verifyToken();
+        if ($tokenData['owner']['defaultBackend'] == self::BACKEND_SNOWFLAKE) {
+            $this->markTestSkipped('TODO - detect references in snowflake');
+            return;
+        }
+
         $testBucketId = $this->getTestBucketId(self::STAGE_IN);
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $sourceTableId = $this->_client->createTable(
@@ -31,7 +37,7 @@ class CustomSqlAliasTest extends StorageApiTestCase
             )
         );
 
-        $sql = 'SELECT name FROM "' . $testBucketId . '".languages LIMIT 2';
+        $sql = 'SELECT "name" FROM "' . $testBucketId . '"."languages" LIMIT 2';
         $aliasTableId = $this->_client->createRedshiftAliasTable($this->getTestBucketId(self::STAGE_OUT), $sql, 'test');
 
         try {
@@ -56,7 +62,7 @@ class CustomSqlAliasTest extends StorageApiTestCase
             )
         );
 
-        $sql = 'SELECT name FROM "' . $testBucketId . '".languages LIMIT 2';
+        $sql = 'SELECT "name" FROM "' . $testBucketId . '"."languages" LIMIT 2';
         $aliasTableId = $this->_client->createRedshiftAliasTable($this->getTestBucketId(self::STAGE_OUT), $sql, null, $sourceTableId);
 
         try {
@@ -104,7 +110,7 @@ class CustomSqlAliasTest extends StorageApiTestCase
 
         $aliasTableId = $this->_client->createRedshiftAliasTable(
             $aliasBucketId,
-            "SELECT name FROM \"$testBucketId\".languages",
+            "SELECT \"name\" FROM \"$testBucketId\".\"languages\"",
             null,
             $sourceTableId
         );
@@ -135,7 +141,7 @@ class CustomSqlAliasTest extends StorageApiTestCase
         $aliasBucketId = $this->getTestBucketId(self::STAGE_OUT);
         $aliasTableId = $this->_client->createRedshiftAliasTable(
             $aliasBucketId,
-            "SELECT id, _timestamp FROM \"$testBucketId\".languages",
+            "SELECT \"id\", \"_timestamp\" FROM \"$testBucketId\".\"languages\"",
             'languages-alias'
         );
 
@@ -159,7 +165,7 @@ class CustomSqlAliasTest extends StorageApiTestCase
         $aliasBucketId = $this->getTestBucketId(self::STAGE_OUT);
         $aliasTableId = $this->_client->createRedshiftAliasTable(
             $aliasBucketId,
-            "SELECT id FROM \"$testBucketId\".languages",
+            "SELECT \"id\" FROM \"$testBucketId\".\"languages\"",
             'languages-alias'
         );
 
@@ -225,7 +231,7 @@ class CustomSqlAliasTest extends StorageApiTestCase
         );
         $this->_client->deleteTableRows($sourceTableId);
         $aliasBucketId = $this->getTestBucketId(self::STAGE_OUT);
-        $aliasId = $this->_client->createRedshiftAliasTable($aliasBucketId, "SELECT name::DECIMAL(12,8) as n FROM \"$testBucketId\".languages", 'number');
+        $aliasId = $this->_client->createRedshiftAliasTable($aliasBucketId, "SELECT \"name\"::DECIMAL(12,8) as n FROM \"$testBucketId\".\"languages\"", 'number');
 
         $this->_client->writeTable($sourceTableId, new CsvFile($importFile));
 
@@ -263,7 +269,7 @@ class CustomSqlAliasTest extends StorageApiTestCase
         );
         $aliasBucketId = $this->getTestBucketId(self::STAGE_OUT);
 
-        $sql = "SELECT name FROM \"$testBucketId\".languages WHERE name='czech'";
+        $sql = "SELECT \"name\" FROM \"$testBucketId\".\"languages\" WHERE \"name\" = 'czech'";
         $aliasTableId = $this->_client->createRedshiftAliasTable($aliasBucketId, $sql, null, $sourceTableId);
 
         $aliasTable = $this->_client->getTable($aliasTableId);
@@ -278,7 +284,7 @@ class CustomSqlAliasTest extends StorageApiTestCase
         $this->assertEquals(2, count($parsedData));
         $this->assertEquals(array('czech'), $parsedData[1]);
 
-        $sql2 = "SELECT name FROM \"$testBucketId\".languages WHERE name='english'";
+        $sql2 = "SELECT \"name\" FROM \"$testBucketId\".\"languages\" WHERE \"name\"='english'";
         $this->_client->updateRedshiftAliasTable($aliasTableId, $sql2);
 
         $data = $this->_client->exportTable($aliasTableId);
@@ -299,7 +305,7 @@ class CustomSqlAliasTest extends StorageApiTestCase
                 'primaryKey' => 'id',
             )
         );
-        $sql = "SELECT l1.name AS name1, l2.name AS name2 FROM \"$testBucketId\".languages l1 LEFT JOIN \"$testBucketId\".languages l2 ON (l1.id=l2.id) WHERE l1.name LIKE 'f%'";
+        $sql = 'SELECT l1."name" AS "name1", l2."name" AS "name2" FROM "'. $testBucketId . '"."languages" l1 LEFT JOIN "' . $testBucketId . '"."languages" l2 ON (l1."id"=l2."id") WHERE l1."name" LIKE \'f%\'';
         $aliasTableId = $this->_client->createRedshiftAliasTable($aliasBucketId, $sql, 'test2');
 
         $aliasTable = $this->_client->getTable($aliasTableId);
@@ -329,7 +335,7 @@ class CustomSqlAliasTest extends StorageApiTestCase
         $aliasBucketId = $this->getTestBucketId(self::STAGE_OUT);
         $aliasTableId = $this->_client->createRedshiftAliasTable(
             $aliasBucketId,
-            "SELECT name FROM \"$testBucketId\".languages",
+            "SELECT \"name\" FROM \"$testBucketId\".\"languages\"",
             'languages',
             $sourceTableId
         );
@@ -357,7 +363,7 @@ class CustomSqlAliasTest extends StorageApiTestCase
         $aliasBucketId = $this->getTestBucketId(self::STAGE_OUT);
         $aliasTableId = $this->_client->createRedshiftAliasTable(
             $aliasBucketId,
-            "SELECT id, name FROM \"$testBucketId\".users",
+            "SELECT \"id\", \"name\" FROM \"$testBucketId\".\"users\"",
             'users'
         );
 
@@ -368,6 +374,11 @@ class CustomSqlAliasTest extends StorageApiTestCase
 
     public function testRedshiftColumnUsedInAliasShouldNotBeDeletable()
     {
+        $tokenData = $this->_client->verifyToken();
+        if ($tokenData['owner']['defaultBackend'] == self::BACKEND_SNOWFLAKE) {
+            $this->markTestSkipped('TODO - should be fixed on backend');
+            return;
+        }
         $testBucketId = $this->getTestBucketId(self::STAGE_IN);
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $sourceTableId = $this->_client->createTable(
@@ -379,7 +390,7 @@ class CustomSqlAliasTest extends StorageApiTestCase
             )
         );
 
-        $sql = 'SELECT name FROM "' . $testBucketId . '".languages LIMIT 2';
+        $sql = 'SELECT "name" FROM "' . $testBucketId . '"."languages" LIMIT 2';
         $aliasTableId = $this->_client->createRedshiftAliasTable($this->getTestBucketId(self::STAGE_OUT), $sql, 'test');
 
         try {
@@ -393,6 +404,11 @@ class CustomSqlAliasTest extends StorageApiTestCase
 
     public function testRedshiftAliasShouldNotBeUpdatableIfUsedInAnotherAlias()
     {
+        $tokenData = $this->_client->verifyToken();
+        if ($tokenData['owner']['defaultBackend'] == self::BACKEND_SNOWFLAKE) {
+            $this->markTestSkipped('TODO - should be fixed on backend');
+            return;
+        }
         $testBucketId = $this->getTestBucketId(self::STAGE_IN);
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $this->_client->createTable(
@@ -404,10 +420,10 @@ class CustomSqlAliasTest extends StorageApiTestCase
             )
         );
 
-        $sql1 = 'SELECT name FROM "' . $testBucketId . '".languages LIMIT 2';
+        $sql1 = 'SELECT "name" FROM "' . $testBucketId . '"."languages" LIMIT 2';
         $aliasBucketId = $this->getTestBucketId(self::STAGE_OUT);
         $aliasTable1Id = $this->_client->createRedshiftAliasTable($aliasBucketId, $sql1, 'test1');
-        $sql2 = 'SELECT name FROM "' . $aliasBucketId . '".test1';
+        $sql2 = 'SELECT "name" FROM "' . $aliasBucketId . '"."test1"';
         $aliasTable2Id = $this->_client->createRedshiftAliasTable($this->getTestBucketId(self::STAGE_OUT), $sql2, 'test2');
 
         try {
@@ -423,6 +439,11 @@ class CustomSqlAliasTest extends StorageApiTestCase
 
     public function testRedshiftAliasWithDependenciesShouldNotBeDeletable()
     {
+        $tokenData = $this->_client->verifyToken();
+        if ($tokenData['owner']['defaultBackend'] == self::BACKEND_SNOWFLAKE) {
+            $this->markTestSkipped('TODO - should be fixed on backend');
+            return;
+        }
         $testBucketId = $this->getTestBucketId(self::STAGE_IN);
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $this->_client->createTable(
@@ -434,10 +455,10 @@ class CustomSqlAliasTest extends StorageApiTestCase
             )
         );
 
-        $sql1 = 'SELECT name FROM "' . $testBucketId . '".languages LIMIT 2';
+        $sql1 = 'SELECT "name" FROM "' . $testBucketId . '"."languages" LIMIT 2';
         $aliasBucketId = $this->getTestBucketId(self::STAGE_OUT);
         $aliasTable1Id = $this->_client->createRedshiftAliasTable($aliasBucketId, $sql1, 'test1');
-        $sql2 = 'SELECT name FROM "' . $aliasBucketId . '".test1';
+        $sql2 = 'SELECT "name" FROM "' . $aliasBucketId . '"."test1"';
         $aliasTable2Id = $this->_client->createRedshiftAliasTable($this->getTestBucketId(self::STAGE_OUT), $sql2, 'test2');
 
         try {
