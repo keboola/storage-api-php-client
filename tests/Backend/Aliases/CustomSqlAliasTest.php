@@ -18,7 +18,7 @@ class CustomSqlAliasTest extends StorageApiTestCase
         $this->_initEmptyTestBuckets();
     }
 
-    public function testRedshiftAliasAliasedTableDeleteShouldThrowUserError()
+    public function testAliasedTableDeleteShouldThrowUserError()
     {
         $tokenData = $this->_client->verifyToken();
         if ($tokenData['owner']['defaultBackend'] == self::BACKEND_SNOWFLAKE) {
@@ -49,7 +49,7 @@ class CustomSqlAliasTest extends StorageApiTestCase
         }
     }
 
-    public function testRedshiftAliasUnsupportedMethods()
+    public function testAliasUnsupportedMethods()
     {
         $testBucketId = $this->getTestBucketId(self::STAGE_IN);
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -94,7 +94,7 @@ class CustomSqlAliasTest extends StorageApiTestCase
         }
     }
 
-    public function testRedshiftAliasColumnsShouldNotBeSyncedOnSourceTableColumnAdd()
+    public function testAliasColumnsShouldNotBeSyncedOnSourceTableColumnAdd()
     {
         $testBucketId = $this->getTestBucketId(self::STAGE_IN);
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -126,7 +126,7 @@ class CustomSqlAliasTest extends StorageApiTestCase
         $this->assertEquals(array('name'), $aliasTable['columns']);
     }
 
-    public function testRedshiftAliasTimestampColumnShouldBeAllowed()
+    public function testAliasTimestampColumnShouldBeAllowed()
     {
         $testBucketId = $this->getTestBucketId(self::STAGE_IN);
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -150,7 +150,7 @@ class CustomSqlAliasTest extends StorageApiTestCase
         $this->assertEquals(array('id'), $aliasTable['columns']);
     }
 
-    public function testRedshiftAliasCanBeCreatedWithoutTimestampColumn()
+    public function testAliasCanBeCreatedWithoutTimestampColumn()
     {
         $testBucketId = $this->getTestBucketId(self::STAGE_IN);
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -194,7 +194,7 @@ class CustomSqlAliasTest extends StorageApiTestCase
         }
     }
 
-    public function testRedshiftInvalidSqlAliases()
+    public function testInvalidSqlAliases()
     {
         $testBucketId = $this->getTestBucketId(self::STAGE_IN);
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -217,7 +217,7 @@ class CustomSqlAliasTest extends StorageApiTestCase
         $this->_testAliasWithWrongSql($aliasBucketId, "SELECT name FROM $testBucketId.languages LIMIT 2;DELETE FROM \"$testBucketId\".languages");
     }
 
-    public function testRedshiftErrorOnAliasExportWithInvalidSourceData()
+    public function testErrorOnAliasExportWithInvalidSourceData()
     {
         $testBucketId = $this->getTestBucketId(self::STAGE_IN);
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -255,7 +255,7 @@ class CustomSqlAliasTest extends StorageApiTestCase
         }
     }
 
-    public function testRedshiftAliases()
+    public function testAliases()
     {
         $testBucketId = $this->getTestBucketId(self::STAGE_IN);
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -319,7 +319,7 @@ class CustomSqlAliasTest extends StorageApiTestCase
         $this->_client->dropTable($aliasTableId);
     }
 
-    public function testRedshiftAliasLastImportDateOfAliasIsNotChangedAfterImportToSourceTable()
+    public function testLastImportDateOfAliasIsNotChangedAfterImportToSourceTable()
     {
         $testBucketId = $this->getTestBucketId(self::STAGE_IN);
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -351,7 +351,7 @@ class CustomSqlAliasTest extends StorageApiTestCase
         $this->assertEmpty($aliasTable['lastImportDate']);
     }
 
-    public function testRedshiftAliasAsyncExport()
+    public function testAliasAsyncExport()
     {
         $testBucketId = $this->getTestBucketId(self::STAGE_IN);
         $this->_client->createTable(
@@ -372,7 +372,7 @@ class CustomSqlAliasTest extends StorageApiTestCase
         $this->assertNotEmpty(file_get_contents($file['url']));
     }
 
-    public function testRedshiftColumnUsedInAliasShouldNotBeDeletable()
+    public function testColumnUsedInAliasShouldNotBeDeletable()
     {
         $tokenData = $this->_client->verifyToken();
         if ($tokenData['owner']['defaultBackend'] == self::BACKEND_SNOWFLAKE) {
@@ -402,7 +402,7 @@ class CustomSqlAliasTest extends StorageApiTestCase
         }
     }
 
-    public function testRedshiftAliasShouldNotBeUpdatableIfUsedInAnotherAlias()
+    public function testAliasShouldNotBeUpdatableIfUsedInAnotherAlias()
     {
         $tokenData = $this->_client->verifyToken();
         if ($tokenData['owner']['defaultBackend'] == self::BACKEND_SNOWFLAKE) {
@@ -437,7 +437,7 @@ class CustomSqlAliasTest extends StorageApiTestCase
         $this->_client->dropTable($aliasTable2Id);
     }
 
-    public function testRedshiftAliasWithDependenciesShouldNotBeDeletable()
+    public function testAliasWithDependenciesShouldNotBeDeletable()
     {
         $tokenData = $this->_client->verifyToken();
         if ($tokenData['owner']['defaultBackend'] == self::BACKEND_SNOWFLAKE) {
