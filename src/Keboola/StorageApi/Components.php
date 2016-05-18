@@ -37,6 +37,7 @@ class Components {
 			'configurationId' => $options->getConfigurationId(),
 			'configuration' => $options->getConfiguration() ? json_encode($options->getConfiguration()) : null,
 			'state' => $options->getState() ? json_encode($options->getState()) : null,
+			'changeDescription' => $options->getChangeDescription()
 		));
 	}
 
@@ -116,16 +117,19 @@ class Components {
 		return $this->client->apiGet("storage/components/{$componentId}/configs/{$configurationId}/versions/{$version}");
 	}
 
-	public function rollbackConfiguration($componentId, $configurationId, $version)
+	public function rollbackConfiguration($componentId, $configurationId, $version, $changeDescription = null)
 	{
-		return $this->client->apiPost("storage/components/{$componentId}/configs/{$configurationId}/versions/{$version}/rollback");
+		return $this->client->apiPost(
+			"storage/components/{$componentId}/configs/{$configurationId}/versions/{$version}/rollback",
+			array('changeDescription' => $changeDescription)
+		);
 	}
 
-	public function createConfigurationFromVersion($componentId, $configurationId, $version, $name, $description = null)
+	public function createConfigurationFromVersion($componentId, $configurationId, $version, $name, $description = null, $changeDescription = null)
 	{
 		return $this->client->apiPost(
 			"storage/components/{$componentId}/configs/{$configurationId}/versions/{$version}/create",
-			array('name' => $name, 'description' => $description)
+			array('name' => $name, 'description' => $description, 'changeDescription' => $changeDescription)
 		);
 	}
 
@@ -149,6 +153,7 @@ class Components {
 			array(
 				'rowId' => $options->getRowId(),
 				'configuration' => $options->getConfiguration() ? json_encode($options->getConfiguration()) : null,
+				'changeDescription' => $options->getChangeDescription(),
 			)
 		);
 	}
@@ -201,16 +206,19 @@ class Components {
         return $this->client->apiGet("storage/components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/versions/{$version}");
     }
 
-    public function rollbackConfigurationRow($componentId, $configurationId, $rowId, $version)
+    public function rollbackConfigurationRow($componentId, $configurationId, $rowId, $version, $changeDescription = null)
     {
-        return $this->client->apiPost("storage/components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/versions/{$version}/rollback");
+        return $this->client->apiPost(
+			"storage/components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/versions/{$version}/rollback",
+			array("changeDescription" => $changeDescription)
+		);
     }
 
-    public function createConfigurationRowFromVersion($componentId, $configurationId, $rowId, $version, $targetConfigurationId = null)
+    public function createConfigurationRowFromVersion($componentId, $configurationId, $rowId, $version, $targetConfigurationId = null, $changeDescription = null)
     {
         return $this->client->apiPost(
             "storage/components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/versions/{$version}/create",
-            array('targetConfigId' => $targetConfigurationId)
+            array('targetConfigId' => $targetConfigurationId, 'changeDescription' => $changeDescription)
         );
     }
 
