@@ -1,3 +1,6 @@
+## 4.10.0 (2016-05-18)
+ * [Feat] Change description for `deleteConfigurationRow`
+
 ## 4.9.0 (2016-05-18)
  * [Feat] Change descriptions for component configurations - `addConfiguration`, `rollbackConfiguration`, `createConfigurationFromVersion`, `addConfigurationRow`, `rollbackConfigurationRow`, `createConfigurationRowFromVersion`.
 
