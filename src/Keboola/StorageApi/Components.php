@@ -158,9 +158,14 @@ class Components {
 		);
 	}
 
-	public function deleteConfigurationRow($componentId, $configurationId, $rowId)
+	public function deleteConfigurationRow($componentId, $configurationId, $rowId, $changeDescription = null)
 	{
-		return $this->client->apiDelete("storage/components/{$componentId}/configs/{$configurationId}/rows/{$rowId}");
+		return $this->client->apiDeleteParams(
+			"storage/components/{$componentId}/configs/{$configurationId}/rows/{$rowId}",
+			array(
+				'changeDescription' => $changeDescription
+			)
+		);
 	}
 
 	public function updateConfigurationRow(ConfigurationRow $options)

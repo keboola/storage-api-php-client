@@ -1684,5 +1684,12 @@ class ComponentsTest extends StorageApiTestCase
 		$config = $components->getConfiguration('wr-db', 1);
 		$this->assertEquals($copyRowChangeDescription, $config['changeDescription']);
 		$this->assertEquals($copyRowChangeDescription, $config['rows'][1]['changeDescription']);
+
+		// test 9: delete row
+		$deleteRowChangeDescription = 'Delete a row, just like that!!!';
+		$components->deleteConfigurationRow('wr-db', $componentConfig->getConfigurationId(), 1, $deleteRowChangeDescription);
+		$config = $components->getConfiguration('wr-db', $componentConfig->getConfigurationId());
+		$this->assertEquals($deleteRowChangeDescription, $config['changeDescription']);
+
 	}
 }

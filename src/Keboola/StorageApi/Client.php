@@ -139,8 +139,6 @@ class Client
 		]);
 	}
 
-
-
 	/**
 	 * Get API Url
 	 *
@@ -1550,23 +1548,35 @@ class Client
 	{
 		return $this->request('delete', $this->versionUrl($url));
 	}
+	
+	public function apiDeleteParams($url, $data) {
+		$options = array();
+		$options['headers']['Content-Type'] = 'application/x-www-form-urlencoded';
+		$options['body'] = http_build_query($data, '', '&');
+		return $this->request('delete', $this->versionUrl($url), $options);
+	}
 
 	private function versionUrl($path)
 	{
 		return "{$this->apiVersion}/$path";
 	}
 
-
 	protected function request($method, $url, $options = array(), $responseFileName = null, $handleAsyncTask = true)
 	{
 		$requestOptions = array_merge($options, [
 			'timeout' => $this->getTimeout(),
-			'headers' => [
-				'X-StorageApi-Token' => $this->token,
-				'Accept-Encoding' => 'gzip',
-				'User-Agent' => $this->getUserAgent(),
-			]
 		]);
+
+		$defaultHeaders = [
+			'X-StorageApi-Token' => $this->token,
+			'Accept-Encoding' => 'gzip',
+			'User-Agent' => $this->getUserAgent(),
+		];
+		if (isset($options['headers'])) {
+			$requestOptions['headers'] = array_merge($options['headers'], $defaultHeaders);
+		} else {
+			$requestOptions['headers'] = $defaultHeaders;
+		}
 
 		if ($this->getRunId()) {
 			$requestOptions['headers']['X-KBC-RunId'] = $this->getRunId();
@@ -1576,7 +1586,7 @@ class Client
 			/**
 			 * @var ResponseInterface $response
 			 */
-			$response = $this->client->request($method, $url ,$requestOptions);
+			$response = $this->client->request($method, $url, $requestOptions);
 		} catch (RequestException $e) {
 			$response = $e->getResponse();
 			$body = $response ? json_decode((string) $response->getBody(), true) : array();
