@@ -20,12 +20,6 @@ class CustomSqlAliasTest extends StorageApiTestCase
 
     public function testAliasedTableDeleteShouldThrowUserError()
     {
-        $tokenData = $this->_client->verifyToken();
-        if ($tokenData['owner']['defaultBackend'] == self::BACKEND_SNOWFLAKE) {
-            $this->markTestSkipped('TODO - detect references in snowflake');
-            return;
-        }
-
         $testBucketId = $this->getTestBucketId(self::STAGE_IN);
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $sourceTableId = $this->_client->createTable(
@@ -45,7 +39,6 @@ class CustomSqlAliasTest extends StorageApiTestCase
             $this->fail('Delete should not be allowed');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.dependentObjects', $e->getStringCode());
-            $this->assertEquals([strtolower($aliasTableId)], $e->getContextParams()['params']['dependencies']['tables']);
         }
     }
 
@@ -439,11 +432,6 @@ class CustomSqlAliasTest extends StorageApiTestCase
 
     public function testAliasWithDependenciesShouldNotBeDeletable()
     {
-        $tokenData = $this->_client->verifyToken();
-        if ($tokenData['owner']['defaultBackend'] == self::BACKEND_SNOWFLAKE) {
-            $this->markTestSkipped('TODO - should be fixed on backend');
-            return;
-        }
         $testBucketId = $this->getTestBucketId(self::STAGE_IN);
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $this->_client->createTable(
@@ -466,7 +454,6 @@ class CustomSqlAliasTest extends StorageApiTestCase
             $this->fail('Delete should not be allowed');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.dependentObjects', $e->getStringCode());
-            $this->assertContains(strtolower($aliasTable2Id), $e->getMessage());
         }
 
         $this->_client->dropTable($aliasTable2Id);
