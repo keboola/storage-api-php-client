@@ -1,0 +1,12 @@
+tests:
+  build: .
+  tty: true
+  stdin_open: true
+  volumes:
+    - ./:/code
+  working_dir: /code
+  command: >
+     sh -c '
+     composer install
+     && ./vendor/bin/phpunit
+     '

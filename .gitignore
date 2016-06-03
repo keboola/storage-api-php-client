@@ -11,3 +11,4 @@ set-env.snowflake.sh
 set-env.mysql.sh
 *.kdev4
 .kdev4
+snowflake_linux_x8664_odbc.tgz
