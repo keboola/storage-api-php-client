@@ -26,11 +26,15 @@ class CopyImportTest extends StorageApiTestCase
 	public function testCopyCreate($schemaType)
 	{
 		$this->initDb($schemaType);
-		$tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), array(
+
+		$options = array(
 			'name' => 'languages',
 			'dataTableName' => 'out.languages',
-			'schemaType' => $schemaType,
-		));
+		);
+		if ($schemaType) {
+			$options["schemaType"] = $schemaType;
+		}
+		$tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), $options);
 
 		$expected = array(
 			'"id","name"',
@@ -57,10 +61,13 @@ class CopyImportTest extends StorageApiTestCase
 			'primaryKey' => 'Id',
 		));
 
-		$this->_client->writeTableAsyncDirect($table['id'], array(
+		$writeParams = array(
 			'dataTableName' => 'out.languages3',
-			'schemaType' => $schemaType,
-		));
+		);
+		if ($schemaType) {
+			$writeParams["schemaType"] = $schemaType;
+		}
+		$this->_client->writeTableAsyncDirect($table['id'], $writeParams);
 
 		$expected = array(
 			'"Id","Name","update"',
@@ -80,11 +87,8 @@ class CopyImportTest extends StorageApiTestCase
 		$db->query("truncate table $workingSchemaName.\"out.languages3\"");
 		$db->query("insert into $workingSchemaName.\"out.languages3\" values (1, 'cz', '1'), (3, 'sk', '1');");
 
-		$this->_client->writeTableAsyncDirect($table['id'], array(
-			'dataTableName' => 'out.languages3',
-			'incremental' => true,
-			'schemaType' => $schemaType,
-		));
+		$writeParams["incremental"] = true;
+		$this->_client->writeTableAsyncDirect($table['id'], $writeParams);
 
 		$expected = array(
 			'"Id","Name","update"',
@@ -100,11 +104,7 @@ class CopyImportTest extends StorageApiTestCase
 		$db->query("alter table $workingSchemaName.\"out.languages3\" ADD COLUMN new_col varchar");
 		$db->query("insert into $workingSchemaName.\"out.languages3\" values (1, 'cz', '1', null), (3, 'sk', '1', 'newValue');");
 
-		$this->_client->writeTableAsyncDirect($table['id'], array(
-			'dataTableName' => 'out.languages3',
-			'incremental' => true,
-			'schemaType' => $schemaType,
-		));
+		$this->_client->writeTableAsyncDirect($table['id'], $writeParams);
 
 		$expected = array(
 			'"Id","Name","update","new_col"',
@@ -116,6 +116,7 @@ class CopyImportTest extends StorageApiTestCase
 			'format' => 'rfc',
 		)), 'new  column added');
 	}
+
 
 	/**
 	 * @param $schemaType
@@ -130,10 +131,11 @@ class CopyImportTest extends StorageApiTestCase
 		));
 
 		try {
-			$this->_client->writeTableAsyncDirect($table['id'], array(
-				'dataTableName' => 'out.languagess',
-				'schemaType' => $schemaType,
-			));
+			$writeParams = array('dataTableName' => 'out.languagess');
+			if ($schemaType) {
+				$writeParams["schemaType"] = $schemaType;
+			}
+			$this->_client->writeTableAsyncDirect($table['id'], $writeParams);
 			$this->fail('exception should be thrown');
 		} catch (\Keboola\StorageApi\ClientException $e) {
 			$this->assertEquals('storage.tableNotFound', $e->getStringCode());
@@ -141,8 +143,10 @@ class CopyImportTest extends StorageApiTestCase
 	}
 
 
-	private function initDb($schemaType = "transformations")
+	private function initDb($schemaType)
 	{
+		if (!$schemaType) $schemaType = "transformations";
+
 		$token = $this->_client->verifyToken();
 		$dbh = $this->getDb($token);
 
@@ -200,6 +204,7 @@ class CopyImportTest extends StorageApiTestCase
 		return array(
 			array('transformations'),
 			array('luckyguess'),
+			array(false)
 		);
 	}
 }
