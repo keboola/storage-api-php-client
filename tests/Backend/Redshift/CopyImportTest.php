@@ -69,6 +69,7 @@ class CopyImportTest extends StorageApiTestCase
 		}
 		$this->_client->writeTableAsyncDirect($table['id'], $writeParams);
 
+
 		$expected = array(
 			'"Id","Name","update"',
 			'"1","cz",""',
@@ -104,6 +105,7 @@ class CopyImportTest extends StorageApiTestCase
 		$db->query("alter table $workingSchemaName.\"out.languages3\" ADD COLUMN new_col varchar");
 		$db->query("insert into $workingSchemaName.\"out.languages3\" values (1, 'cz', '1', null), (3, 'sk', '1', 'newValue');");
 
+
 		$this->_client->writeTableAsyncDirect($table['id'], $writeParams);
 
 		$expected = array(
@@ -116,7 +118,6 @@ class CopyImportTest extends StorageApiTestCase
 			'format' => 'rfc',
 		)), 'new  column added');
 	}
-
 
 	/**
 	 * @param $schemaType
