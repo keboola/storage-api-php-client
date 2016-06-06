@@ -19,13 +19,22 @@ class CopyImportTest extends StorageApiTestCase
 		$this->_initEmptyTestBuckets();
 	}
 
-	public function testCopyCreate()
+	/**
+	 * @param $schemaType
+	 * @dataProvider schemaTyper
+	 */
+	public function testCopyCreate($schemaType)
 	{
-		$this->initDb();
-		$tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), array(
+		$this->initDb($schemaType);
+
+		$options = array(
 			'name' => 'languages',
 			'dataTableName' => 'out.languages',
-		));
+		);
+		if ($schemaType) {
+			$options["schemaType"] = $schemaType;
+		}
+		$tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), $options);
 
 		$expected = array(
 			'"id","name"',
@@ -38,18 +47,28 @@ class CopyImportTest extends StorageApiTestCase
 		)), 'imported data comparsion');
 	}
 
-	public function testCopyImport()
+	/**
+	 * @param $schemaType
+	 * @dataProvider schemaTyper
+	 */
+	public function testCopyImport($schemaType)
 	{
-		$this->initDb();
+		$this->initDb($schemaType);
+
 		$table = $this->_client->apiPost("storage/buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(
 			'dataString' => 'Id,Name,update',
 			'name' => 'languages',
 			'primaryKey' => 'Id',
 		));
 
-		$this->_client->writeTableAsyncDirect($table['id'], array(
+		$writeParams = array(
 			'dataTableName' => 'out.languages3',
-		));
+		);
+		if ($schemaType) {
+			$writeParams["schemaType"] = $schemaType;
+		}
+		$this->_client->writeTableAsyncDirect($table['id'], $writeParams);
+
 
 		$expected = array(
 			'"Id","Name","update"',
@@ -64,15 +83,13 @@ class CopyImportTest extends StorageApiTestCase
 		$token = $this->_client->verifyToken();
 		$db = $this->getDb($token);
 
-		$workingSchemaName = sprintf('tapi_%d_tran', $token['id']);
+		$workingSchemaName = sprintf('tapi_%d_%s', $token['id'], ($schemaType == "luckyguess") ? 'luck' : 'tran');
 
 		$db->query("truncate table $workingSchemaName.\"out.languages3\"");
 		$db->query("insert into $workingSchemaName.\"out.languages3\" values (1, 'cz', '1'), (3, 'sk', '1');");
 
-		$this->_client->writeTableAsyncDirect($table['id'], array(
-			'dataTableName' => 'out.languages3',
-			'incremental' => true,
-		));
+		$writeParams["incremental"] = true;
+		$this->_client->writeTableAsyncDirect($table['id'], $writeParams);
 
 		$expected = array(
 			'"Id","Name","update"',
@@ -88,10 +105,8 @@ class CopyImportTest extends StorageApiTestCase
 		$db->query("alter table $workingSchemaName.\"out.languages3\" ADD COLUMN new_col varchar");
 		$db->query("insert into $workingSchemaName.\"out.languages3\" values (1, 'cz', '1', null), (3, 'sk', '1', 'newValue');");
 
-		$this->_client->writeTableAsyncDirect($table['id'], array(
-			'dataTableName' => 'out.languages3',
-			'incremental' => true,
-		));
+
+		$this->_client->writeTableAsyncDirect($table['id'], $writeParams);
 
 		$expected = array(
 			'"Id","Name","update","new_col"',
@@ -104,19 +119,24 @@ class CopyImportTest extends StorageApiTestCase
 		)), 'new  column added');
 	}
 
-
-	public function testCopyImportFromNotExistingTableShouldReturnError()
+	/**
+	 * @param $schemaType
+	 * @dataProvider schemaTyper
+	 */
+	public function testCopyImportFromNotExistingTableShouldReturnError($schemaType)
 	{
-		$this->initDb();
+		$this->initDb($schemaType);
 		$table = $this->_client->apiPost("storage/buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(
-			"dataString" => 'Id,Name',
+			"dataString" => 'Id,Name,update',
 			'name' => 'languages',
 		));
 
 		try {
-			$this->_client->writeTableAsyncDirect($table['id'], array(
-				'dataTableName' => 'out.languagess',
-			));
+			$writeParams = array('dataTableName' => 'out.languagess');
+			if ($schemaType) {
+				$writeParams["schemaType"] = $schemaType;
+			}
+			$this->_client->writeTableAsyncDirect($table['id'], $writeParams);
 			$this->fail('exception should be thrown');
 		} catch (\Keboola\StorageApi\ClientException $e) {
 			$this->assertEquals('storage.tableNotFound', $e->getStringCode());
@@ -124,12 +144,15 @@ class CopyImportTest extends StorageApiTestCase
 	}
 
 
-	private function initDb()
+	private function initDb($schemaType)
 	{
+		if (!$schemaType) $schemaType = "transformations";
+
 		$token = $this->_client->verifyToken();
 		$dbh = $this->getDb($token);
 
-		$workingSchemaName = sprintf('tapi_%d_tran', $token['id']);
+		$workingSchemaName = sprintf('tapi_%d_%s', $token['id'], $schemaType == "luckyguess" ? 'luck' : 'tran');
+
 		$stmt = $dbh->prepare("SELECT * FROM pg_catalog.pg_namespace WHERE nspname = ?");
 		$stmt->execute(array($workingSchemaName));
 		$schema = $stmt->fetch();
@@ -178,4 +201,11 @@ class CopyImportTest extends StorageApiTestCase
 		);
 	}
 
+	public function schemaTyper() {
+		return array(
+			array('transformations'),
+			array('luckyguess'),
+			array(false)
+		);
+	}
 }
