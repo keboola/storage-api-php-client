@@ -39,4 +39,20 @@ class Workspaces {
 		return $this->client->apiPost("storage/workspaces", $options);
 	}
 
+	public function listWorkspaces()
+	{
+		return $this->client->apiGet("storage/workspaces");
+	}
+
+	public function getWorkspace($id)
+	{
+		return $this->client->apiGet("storage/workspaces/{$id}");
+	}
+
+
+	public function deleteWorkspace($id)
+	{
+		$this->client->apiDelete("storage/workspaces/{$id}");
+	}
+
 }

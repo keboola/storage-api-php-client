@@ -3,8 +3,34 @@ MAINTAINER Martin Halamicek <martin@keboola.com>
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update \
-  && apt-get install unzip git -y
+  && apt-get install unzip git unixODBC-dev -y
+
+RUN echo "memory_limit = -1" >> /usr/local/etc/php/php.ini
+
+# snowflake odbc - https://github.com/docker-library/php/issues/103
+RUN set -x \
+&& cd /usr/src/php/ext/odbc \
+&& phpize \
+&& sed -ri 's@^ *test +"\$PHP_.*" *= *"no" *&& *PHP_.*=yes *$@#&@g' configure \
+&& ./configure --with-unixODBC=shared,/usr \
+&& docker-php-ext-install odbc
+
+## install snowflake drivers
+ADD ./snowflake_linux_x8664_odbc.tgz /usr/bin
+ADD ./docker/snowflake/simba.snowflake.ini /etc/simba.snowflake.ini
+ADD ./docker/snowflake/odbcinst.ini /etc/odbcinst.ini
+RUN mkdir -p  /usr/bin/snowflake_odbc/log
+
+ENV SIMBAINI /etc/simba.snowflake.ini
+ENV SSL_DIR /usr/bin/snowflake_odbc/SSLCertificates/nssdb
+ENV LD_LIBRARY_PATH /usr/bin/snowflake_odbc/lib
+
 
 RUN cd \
   && curl -sS https://getcomposer.org/installer | php \
   && ln -s /root/composer.phar /usr/local/bin/composer
+
+
+
+
+
