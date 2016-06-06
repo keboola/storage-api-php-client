@@ -110,6 +110,49 @@ class Keboola_StorageApi_Tables_ImportExportCommonTest extends StorageApiTestCas
 		);
 	}
 
+	/**
+	 * @dataProvider incrementalImportPkDedupeData
+	 * @param $createFile
+	 * @param $primaryKey
+	 * @param $expectationFileAfterCreate
+	 * @param $incrementFile
+	 * @param $expectationFinal
+	 */
+	public function testIncrementalImportPkDedupe($createFile, $primaryKey, $expectationFileAfterCreate, $incrementFile, $expectationFinal)
+	{
+
+		$tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'pk', $createFile, [
+			'primaryKey' => $primaryKey,
+		]);
+
+		$this->assertLinesEqualsSorted(file_get_contents($expectationFileAfterCreate), $this->_client->exportTable($tableId));
+
+		$this->_client->writeTableAsync($tableId, $incrementFile, [
+			'incremental' => true,
+		]);
+		$this->assertLinesEqualsSorted(file_get_contents($expectationFinal), $this->_client->exportTable($tableId));
+	}
+
+	public function incrementalImportPkDedupeData()
+	{
+		return [
+			[
+				new CsvFile(__DIR__ . '/../../_data/pk.simple.csv'),
+				'id',
+				new CsvFile(__DIR__ . '/../../_data/pk.simple.loaded.csv'),
+				new CsvFile(__DIR__ . '/../../_data/pk.simple.increment.csv'),
+				new CsvFile(__DIR__ . '/../../_data/pk.simple.increment.loaded.csv'),
+			],
+			[
+				new CsvFile(__DIR__ . '/../../_data/pk.multiple.csv'),
+				'id,sub_id',
+				new CsvFile(__DIR__ . '/../../_data/pk.multiple.loaded.csv'),
+				new CsvFile(__DIR__ . '/../../_data/pk.multiple.increment.csv'),
+				new CsvFile(__DIR__ . '/../../_data/pk.multiple.increment.loaded.csv'),
+			]
+		];
+	}
+
 	public function testTableImportColumnsCaseInsensitive()
 	{
 		$tokenData = $this->_client->verifyToken();
