@@ -3,9 +3,11 @@ MAINTAINER Martin Halamicek <martin@keboola.com>
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update \
-  && apt-get install unzip git unixODBC-dev -y
+  && apt-get install unzip git unixODBC-dev libpq-dev -y
 
 RUN echo "memory_limit = -1" >> /usr/local/etc/php/php.ini
+
+RUN docker-php-ext-install pdo_pgsql
 
 # snowflake odbc - https://github.com/docker-library/php/issues/103
 RUN set -x \
