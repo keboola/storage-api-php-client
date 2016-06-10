@@ -1,3 +1,6 @@
+## 4.11.0 (2016-06-10)
+ * [Feat] [Workspaces](http://docs.keboola.apiary.io/#reference/workspaces) supported
+
 ## 4.10.0 (2016-05-18)
  * [Feat] Change description for `deleteConfigurationRow`
 
