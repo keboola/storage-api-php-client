@@ -715,6 +715,7 @@ class Client
 			'dataFileId',
 			'dataUrl',
 			'dataTableName',
+			'dataWorkspaceId',
 			'data',
 			'withoutHeaders',
 			'columns',
