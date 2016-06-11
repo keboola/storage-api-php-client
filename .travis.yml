@@ -6,7 +6,14 @@ env:
  - TEST_SUITE=backend-mysql STORAGE_API_TOKEN=$STORAGE_API_TOKEN_MYSQL
  - TEST_SUITE=backend-redshift STORAGE_API_TOKEN=$STORAGE_API_TOKEN_REDSHIFT
  - TEST_SUITE=backend-snowflake STORAGE_API_TOKEN=$STORAGE_API_TOKEN_SNOWFLAKE
+before_install:
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/1.7.0/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
 install:
+ - docker -v
+ - docker-compose -v
  - docker-compose run odbc composer install -n --ignore-platform-reqs
  - docker-compose run -e AWS_ACCESS_KEY=$AWS_ODBC_KEY -e AWS_SECRET_KEY=$AWS_ODBC_SECRET odbc php docker/downloadOdbcDriver.php
 script:
