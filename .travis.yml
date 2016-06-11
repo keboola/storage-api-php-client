@@ -22,4 +22,4 @@ install:
  - docker-compose run odbc composer install -n --ignore-platform-reqs
  - docker-compose run -e AWS_ACCESS_KEY=$AWS_ODBC_KEY -e AWS_SECRET_KEY=$AWS_ODBC_SECRET odbc php docker/downloadOdbcDriver.php
 script:
- - docker-compose run --rm -e STORAGE_API_URL=$STORAGE_API_URL -e STORAGE_API_MAINTENANCE_URL=$STORAGE_API_MAINTENANCE_URL -e STORAGE_API_TOKEN=$STORAGE_API_TOKEN tests /bin/bash -c "composer install && php vendor/bin/phpunit --testsuite $TEST_SUITE"
+ - docker-compose run --rm -e STORAGE_API_URL=$STORAGE_API_URL -e STORAGE_API_MAINTENANCE_URL=$STORAGE_API_MAINTENANCE_URL -e STORAGE_API_TOKEN=$STORAGE_API_TOKEN -e REDSHIFT_USER=$REDSHIFT_USER -e REDSHIFT_PASSWORD=$REDSHIFT_PASSWORD -e REDSHIFT_HOSTNAME=$REDSHIFT_HOSTNAME tests /bin/bash -c "composer install && php vendor/bin/phpunit --testsuite $TEST_SUITE"
