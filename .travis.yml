@@ -1,13 +1,12 @@
-language: php
-sudo: false
+services:
+  - docker
+sudo: required
 env:
  - TEST_SUITE=common STORAGE_API_TOKEN=$STORAGE_API_TOKEN_MYSQL
  - TEST_SUITE=backend-mysql STORAGE_API_TOKEN=$STORAGE_API_TOKEN_MYSQL
  - TEST_SUITE=backend-redshift STORAGE_API_TOKEN=$STORAGE_API_TOKEN_REDSHIFT
  - TEST_SUITE=backend-snowflake STORAGE_API_TOKEN=$STORAGE_API_TOKEN_SNOWFLAKE
-php:
-- '5.6'
 install:
- - composer install
+ - docker-compose run -e AWS_ACCESS_KEY=$AWS_ODBC_KEY -e AWS_SECRET_KEY=$AWS_ODBC_SECRET tests php docker/downloadOdbcDriver.php
 script:
- - php ./vendor/bin/phpunit --testsuite $TEST_SUITE
+ - docker-compose run --rm -e STORAGE_API_URL=$STORAGE_API_URL -e STORAGE_API_TOKEN=$STORAGE_API_TOKEN tests /bin/bash -c "composer install && php vendor/bin/phpunit --testsuite $TEST_SUITE"
