@@ -10,4 +10,4 @@ php:
 install:
  - composer install
 script:
- - export STORAGE_API_TOKEN=$STORAGE_API_TOKEN && php ./vendor/bin/phpunit --testsuite $TEST_SUITE
+ - php ./vendor/bin/phpunit --testsuite $TEST_SUITE
