@@ -1,17 +1,21 @@
-tests:
-  build: .
-  tty: true
-  stdin_open: true
-  volumes:
-    - ./:/code
-  working_dir: /code
-  command: >
-     sh -c '
-     composer install
-     && ./vendor/bin/phpunit
-     '
-odbc:
-  image: php:5.6
-  volumes:
-      - .:/code
-  working_dir: /code
+version: '2'
+services:
+  tests:
+    build: .
+    tty: true
+    stdin_open: true
+    volumes:
+      - ./:/code
+    working_dir: /code
+    command: >
+       sh -c '
+       composer install
+       && ./vendor/bin/phpunit
+       '
+  odbc:
+    build:
+      context: .
+      dockerfile: DockerfileOdbcDownload
+    volumes:
+        - .:/code
+    working_dir: /code
