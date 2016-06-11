@@ -10,3 +10,8 @@ tests:
      composer install
      && ./vendor/bin/phpunit
      '
+odbc:
+  image: php:5.6
+  volumes:
+      - .:/code
+  working_dir: /code
