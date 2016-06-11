@@ -1,5 +1,3 @@
-services:
-  - docker
 sudo: required
 env:
  - TEST_SUITE=common STORAGE_API_TOKEN=$STORAGE_API_TOKEN_MYSQL
