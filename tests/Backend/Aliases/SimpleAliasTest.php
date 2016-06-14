@@ -156,14 +156,19 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->assertEquals('eq', $aliasTable['aliasFilter']['operator']);
 
 
-        try {
-            $this->_client->setAliasTableFilter($aliasTableId, array(
-                'column' => 'name',
-            ));
-            $this->fail('Filter cannot be applied on column without index');
-        } catch (\Keboola\StorageApi\ClientException $e) {
-            $this->assertEquals('storage.tables.columnNotIndexed', $e->getStringCode());
+        $tokenData = $this->_client->verifyToken();
+
+        if ($tokenData['owner']['defaultBackend'] === 'mysql') {
+            try {
+                $this->_client->setAliasTableFilter($aliasTableId, array(
+                    'column' => 'name',
+                ));
+                $this->fail('Filter cannot be applied on column without index');
+            } catch (\Keboola\StorageApi\ClientException $e) {
+                $this->assertEquals('storage.tables.columnNotIndexed', $e->getStringCode());
+            }
         }
+
 
         $this->_client->removeAliasTableFilter($aliasTableId);
         $aliasTable = $this->_client->getTable($aliasTableId);
