@@ -30,6 +30,48 @@ class CopyImportTest extends StorageApiTestCase
         }
     }
 
+    public function testCreateTableFromWorkspace()
+    {
+        // create workspace and source table in workspace
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+
+        $connection = $workspace['connection'];
+
+        $snowflakeConnection = new Connection([
+            'host' => $connection['host'],
+            'database' => $connection['database'],
+            'warehouse' => $connection['warehouse'],
+            'user' => $connection['user'],
+            'password' => $connection['password'],
+        ]);
+        $snowflakeConnection->query("USE SCHEMA " . $snowflakeConnection->quoteIdentifier($connection['schema']));
+
+        $snowflakeConnection->query("create table \"test.Languages3\" (
+			\"Id\" integer not null,
+			\"Name\" varchar not null
+		);");
+        $snowflakeConnection->query("insert into \"test.Languages3\" (\"Id\", \"Name\") values (1, 'cz'), (2, 'en');");
+
+
+        // create table from workspace
+        $tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), array(
+            'name' => 'languages',
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => 'test.Languages3',
+        ));
+
+        $expected = array(
+            '"Id","Name"',
+            '"1","cz"',
+            '"2","en"',
+        );
+
+        $this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->exportTable($tableId, null, array(
+            'format' => 'rfc',
+        )), 'imported data comparsion');
+    }
+
     public function testCopyImport()
     {
         $table = $this->_client->apiPost("storage/buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(
