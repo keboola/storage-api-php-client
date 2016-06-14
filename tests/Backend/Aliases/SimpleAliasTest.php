@@ -405,18 +405,24 @@ class SimpleAliasTest extends StorageApiTestCase
         );
         $this->_client->markTableColumnAsIndexed($sourceTableId, 'city');
 
+
+        $aliasParams = [
+            'aliasFilter' => [
+                'column' => $filterOptions['whereColumn'],
+                'operator' => isset($filterOptions['whereOperator']) ? $filterOptions['whereOperator'] : '',
+                'values' => $filterOptions['whereValues'],
+            ],
+        ];
+
+        if (isset($filterOptions['columns'])) {
+            $aliasParams['aliasColumns'] = $filterOptions['columns'];
+        }
         // alias table
         $aliasTableId = $this->_client->createAliasTable(
             $this->getTestBucketId(self::STAGE_OUT),
             $sourceTableId,
             'users',
-            array(
-                'aliasFilter' => array(
-                    'column' => $filterOptions['whereColumn'],
-                    'operator' => isset($filterOptions['whereOperator']) ? $filterOptions['whereOperator'] : '',
-                    'values' => $filterOptions['whereValues'],
-                ),
-            )
+            $aliasParams
         );
 
         $data = $this->_client->exportTable($aliasTableId);
