@@ -5,7 +5,7 @@
  * Date: 03/05/16
  * Time: 09:45
  */
-namespace Keboola\Test\Backend\Redshift;
+namespace Keboola\Test\Backend\Export;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
@@ -23,16 +23,16 @@ class ExportParamsTest extends StorageApiTestCase
      * @param $expectedResult
      * @dataProvider tableExportFiltersData
      */
-    public function testTableExportAsyncRedshift($exportOptions, $expectedResult)
+    public function testTableExportAsyncSliced($exportOptions, $expectedResult)
     {
-        $importFile =  __DIR__ . '/../../_data/users.csv';
+        $importFile = __DIR__ . '/../../_data/users.csv';
         $csvFile = new CsvFile($importFile);
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', $csvFile, array(
             'columns' => $csvFile->getHeader(),
         ));
 
         $results = $this->_client->exportTableAsync($tableId, array_merge($exportOptions, array(
-            'format' => 'raw',
+            'format' => 'rfc',
         )));
 
         $exportedFile = $this->_client->getFile($results['file']['id'], (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
@@ -58,7 +58,7 @@ class ExportParamsTest extends StorageApiTestCase
             $csv .= file_get_contents($filePart['url']);
         }
 
-        $parsedData = Client::parseCsv($csv, false, "\t", "");
+        $parsedData = Client::parseCsv($csv, false, ",", '"');
         $this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
 
         // Check S3 ACL and listing bucket
@@ -77,7 +77,6 @@ class ExportParamsTest extends StorageApiTestCase
             "Bucket" => $bucket,
             "Prefix" => $prefix
         ));
-        $this->assertEquals(3, count($objects["Contents"]));
         foreach($objects["Contents"] as $object) {
             $this->assertStringStartsWith($prefix, $object["Key"]);
         }

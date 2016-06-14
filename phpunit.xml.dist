@@ -25,6 +25,7 @@
 		<directory>tests/Backend/Common</directory>
 		<directory>tests/Backend/Redshift</directory>
 		<file>tests/Backend/Aliases/CustomSqlAliasTest.php</file>
+		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-snowflake-part-1">
@@ -36,6 +37,7 @@
 		<directory>tests/Backend/Snowflake</directory>
 		<file>tests/Backend/Aliases/SimpleAliasTest.php</file>
 		<file>tests/Backend/Aliases/CustomSqlAliasTest.php</file>
+		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>
 
 </phpunit>

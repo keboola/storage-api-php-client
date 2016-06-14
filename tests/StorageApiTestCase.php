@@ -109,19 +109,18 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
 			array(
 				array(
 					'whereColumn' => 'city',
-					'whereValues' => array('PRG')
+					'whereValues' => array('PRG'),
+					'columns' => ['id', 'name', 'sex'],
 				),
 				array(
 					array(
 						"1",
 						"martin",
-						"PRG",
 						"male"
 					),
 					array(
 						"2",
 						"klara",
-						"PRG",
 						"female",
 					),
 				),
