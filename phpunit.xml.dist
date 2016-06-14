@@ -33,6 +33,7 @@
 
 	<testsuite name="backend-snowflake-part-2">
 		<directory>tests/Backend/Workspaces</directory>
+		<directory>tests/Backend/Snowflake</directory>
 		<file>tests/Backend/Aliases/SimpleAliasTest.php</file>
 		<file>tests/Backend/Aliases/CustomSqlAliasTest.php</file>
 	</testsuite>
