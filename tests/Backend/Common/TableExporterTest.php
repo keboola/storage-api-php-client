@@ -89,6 +89,7 @@ class TableExporterTest extends StorageApiTestCase
 	public function tableImportData()
 	{
 		return array(
+			array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile('https://s3.amazonaws.com/keboola-tests/1200.csv'), '1200.csv'),
 			array([self::BACKEND_MYSQL, self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.csv.gz'), 'languages.csv'),
 			array([self::BACKEND_MYSQL, self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.csv.gz'), 'languages.csv', array('gzip' => true)),
 			array([self::BACKEND_MYSQL, self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile('https://s3.amazonaws.com/keboola-tests/numbers.csv'), 'numbers.csv'),
