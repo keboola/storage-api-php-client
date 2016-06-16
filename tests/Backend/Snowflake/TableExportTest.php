@@ -22,11 +22,11 @@ class TableExportTest extends StorageApiTestCase
     {
         $cols = implode(',', array_map(function($colNum) {
             return "col_{$colNum}";
-        }, range(1, 40)));
+        }, range(1, 130)));
 
         $table = $this->_client->apiPost("storage/buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(
             'dataString' => $cols,
-            'name' => 'languages',
+            'name' => 'langs',
         ));
 
         try {
@@ -36,6 +36,35 @@ class TableExportTest extends StorageApiTestCase
             $this->assertEquals(400, $e->getCode());
             $this->assertEquals('storage.maxNumberOfColumnsExceed', $e->getStringCode());
         }
+    }
+
+    public function testSyncExportMax120cols()
+    {
+        $cols = [];
+        $cols[] = implode(',', array_map(function($colNum) {
+            return "col_{$colNum}";
+        }, range(1, 110)));
+
+        $cols[] = implode(',', array_map(function($colNum) {
+            return "data_{$colNum}";
+        }, range(1, 110)));
+
+        $cols[] = implode(',', array_map(function($colNum) {
+            return "data_{$colNum}";
+        }, range(1, 110)));
+
+        $cols[] = implode(',', array_map(function($colNum) {
+            return "data_{$colNum}";
+        }, range(1, 110)));
+
+
+        $table = $this->_client->apiPost("storage/buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(
+            'dataString' => implode("\n", $cols),
+            'name' => 'langs',
+        ));
+
+        $data = $this->_client->exportTable($table['id']);
+        $this->assertEquals(4, count(explode("\n", trim($data))));
     }
 
 }
