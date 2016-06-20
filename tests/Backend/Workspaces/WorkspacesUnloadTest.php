@@ -9,6 +9,7 @@
 
 namespace Keboola\Test\Backend\Workspaces;
 use Keboola\Db\Import\Snowflake\Connection;
+use Keboola\StorageApi\Exception;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\StorageApiTestCase;
 
@@ -38,21 +39,29 @@ class CopyImportTest extends StorageApiTestCase
 
         $connection = $workspace['connection'];
 
-        $snowflakeConnection = new Connection([
-            'host' => $connection['host'],
-            'database' => $connection['database'],
-            'warehouse' => $connection['warehouse'],
-            'user' => $connection['user'],
-            'password' => $connection['password'],
-        ]);
-        $snowflakeConnection->query("USE SCHEMA " . $snowflakeConnection->quoteIdentifier($connection['schema']));
+        if ($connection['backend'] === parent::BACKEND_SNOWFLAKE) {
+            $db = new Connection([
+                'host' => $connection['host'],
+                'database' => $connection['database'],
+                'warehouse' => $connection['warehouse'],
+                'user' => $connection['user'],
+                'password' => $connection['password'],
+            ]);
+        } else if ($connection['backend'] == parent::BACKEND_REDSHIFT) {
+            $db = new \PDO(
+                "pgsql:dbname={$connection['database']};port=5439;host=" . $connection['host'],
+                $connection['user'],
+                $connection['password']
+            );
+        } else throw new Exception("Backend not supported for workspaces");
 
-        $snowflakeConnection->query("create table \"test.Languages3\" (
+        $db->query("USE SCHEMA " . $db->quoteIdentifier($connection['schema']));
+
+        $db->query("create table \"test.Languages3\" (
 			\"Id\" integer not null,
 			\"Name\" varchar not null
 		);");
-        $snowflakeConnection->query("insert into \"test.Languages3\" (\"Id\", \"Name\") values (1, 'cz'), (2, 'en');");
-
+        $db->query("insert into \"test.Languages3\" (\"Id\", \"Name\") values (1, 'cz'), (2, 'en');");
 
         // create table from workspace
         $tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), array(
@@ -86,22 +95,31 @@ class CopyImportTest extends StorageApiTestCase
 
         $connection = $workspace['connection'];
 
-        $snowflakeConnection = new Connection([
-            'host' => $connection['host'],
-            'database' => $connection['database'],
-            'warehouse' => $connection['warehouse'],
-            'user' => $connection['user'],
-            'password' => $connection['password'],
-        ]);
-        $snowflakeConnection->query("USE SCHEMA " . $snowflakeConnection->quoteIdentifier($connection['schema']));
+        if ($connection['backend'] === parent::BACKEND_SNOWFLAKE) {
+            $db = new Connection([
+                'host' => $connection['host'],
+                'database' => $connection['database'],
+                'warehouse' => $connection['warehouse'],
+                'user' => $connection['user'],
+                'password' => $connection['password'],
+            ]);
+        } else if ($connection['backend'] === parent::BACKEND_REDSHIFT) {
+            $db = new \PDO(
+                "pgsql:dbname={$connection['database']};port=5439;host=" . $connection['host'],
+                $connection['user'],
+                $connection['password']
+            );
+        } else throw new Exception("Unsupported backend for workspaces");
 
-        $snowflakeConnection->query("create table \"test.Languages3\" (
+        $db->query("USE SCHEMA " . $db->quoteIdentifier($connection['schema']));
+
+        $db->query("create table \"test.Languages3\" (
 			\"Id\" integer not null,
 			\"Name\" varchar not null,
 			\"update\" varchar
 		);");
 
-        $snowflakeConnection->query("insert into \"test.Languages3\" (\"Id\", \"Name\") values (1, 'cz'), (2, 'en');");
+        $db->query("insert into \"test.Languages3\" (\"Id\", \"Name\") values (1, 'cz'), (2, 'en');");
 
         $this->_client->writeTableAsyncDirect($table['id'], array(
             'dataWorkspaceId' => $workspace['id'],
@@ -119,8 +137,8 @@ class CopyImportTest extends StorageApiTestCase
         )), 'imported data comparsion');
 
 
-        $snowflakeConnection->query("truncate \"test.Languages3\"");
-        $snowflakeConnection->query("insert into \"test.Languages3\" values (1, 'cz', '1'), (3, 'sk', '1');");
+        $db->query("truncate \"test.Languages3\"");
+        $db->query("insert into \"test.Languages3\" values (1, 'cz', '1'), (3, 'sk', '1');");
 
         $this->_client->writeTableAsyncDirect($table['id'], array(
             'dataWorkspaceId' => $workspace['id'],
@@ -138,9 +156,9 @@ class CopyImportTest extends StorageApiTestCase
             'format' => 'rfc',
         )), 'previously null column updated');
 
-        $snowflakeConnection->query("truncate table \"test.Languages3\"");
-        $snowflakeConnection->query("alter table \"test.Languages3\" ADD COLUMN \"new_col\" varchar");
-        $snowflakeConnection->query("insert into \"test.Languages3\" values (1, 'cz', '1', null), (3, 'sk', '1', 'newValue');");
+        $db->query("truncate table \"test.Languages3\"");
+        $db->query("alter table \"test.Languages3\" ADD COLUMN \"new_col\" varchar");
+        $db->query("insert into \"test.Languages3\" values (1, 'cz', '1', null), (3, 'sk', '1', 'newValue');");
 
         $this->_client->writeTableAsyncDirect($table['id'], array(
             'dataWorkspaceId' => $workspace['id'],
