@@ -28,8 +28,7 @@ class WorkspacesTest extends StorageApiTestCase
 
         $workspace = $workspaces->createWorkspace();
         $connection = $workspace['connection'];
-
-
+        
         if ($connection['backend'] === parent::BACKEND_SNOWFLAKE) {
             $db = new Connection([
                 'host' => $connection['host'],
@@ -52,28 +51,14 @@ class WorkspacesTest extends StorageApiTestCase
 
         } else {
             //redshift connection
-            echo "attempting to connect to dbname " . $connection['database'] . " on host " . $connection['host'];
             $db = new \PDO(
                 "pgsql:dbname={$connection['database']};port=5439;host=" . $connection['host'],
                 $connection['user'],
                 $connection['password']
             );
 
-            /*
-            $db->query("USE SCHEMA " . $db->quoteIdentifier($connection['schema']));
-
-            $schemaNames = array_map(function($schema) {
-                return $schema['name'];
-            }, $db->fetchAll("SHOW SCHEMAS"));
-
-            $this->assertArrayHasKey($connection['schema'], array_flip($schemaNames));
-
-            */
             // try create a table in workspace
             $db->query("CREATE TABLE mytable (amount NUMBER);");
-
-            // insert something
-            $db->query("INSERT INTO mytable VALUES (19);");
 
         }
 
