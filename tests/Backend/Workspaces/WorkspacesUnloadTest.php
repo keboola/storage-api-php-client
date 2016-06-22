@@ -56,23 +56,22 @@ class CopyImportTest extends StorageApiTestCase
                 $connection['user'],
                 $connection['password']
             );
-            //Redshift workspace user is auto-set to use correct workspace schema
-
+            //Redshift workspace user is auto-set to use correct workspace schema 
         } else {
             throw new Exception("Backend not supported for workspaces");
         }
 
-        $db->query("create table \"test.languages3\" (
+        $db->query("create table \"test.Languages3\" (
 			\"Id\" integer not null,
 			\"Name\" varchar not null
 		);");
-        $db->query("insert into \"test.languages3\" (\"Id\", \"Name\") values (1, 'cz'), (2, 'en');");
+        $db->query("insert into \"test.Languages3\" (\"Id\", \"Name\") values (1, 'cz'), (2, 'en');");
 
         // create table from workspace
         $tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), array(
             'name' => 'languages3',
             'dataWorkspaceId' => $workspace['id'],
-            'dataTableName' => 'test.languages3',
+            'dataTableName' => 'test.Languages3',
         ));
 
         $expected = array(
@@ -91,7 +90,7 @@ class CopyImportTest extends StorageApiTestCase
     {
         $table = $this->_client->apiPost("storage/buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(
             'dataString' => 'Id,Name,update',
-            'name' => 'languages4',
+            'name' => 'languages',
             'primaryKey' => 'Id',
         ));
 
@@ -122,17 +121,17 @@ class CopyImportTest extends StorageApiTestCase
 
 
 
-        $db->query("create table \"languages3\" (
+        $db->query("create table \"test.Languages3\" (
 			\"Id\" integer not null,
 			\"Name\" varchar not null,
 			\"update\" varchar
 		);");
 
-        $db->query("insert into \"languages3\" (\"Id\", \"Name\") values (1, 'cz'), (2, 'en');");
+        $db->query("insert into \"test.Languages3\" (\"Id\", \"Name\") values (1, 'cz'), (2, 'en');");
 
         $this->_client->writeTableAsyncDirect($table['id'], array(
             'dataWorkspaceId' => $workspace['id'],
-            'dataTableName' => 'languages3',
+            'dataTableName' => 'test.Languages3',
         ));
 
         $expected = array(
@@ -146,12 +145,12 @@ class CopyImportTest extends StorageApiTestCase
         )), 'imported data comparsion');
 
 
-        $db->query("truncate \"languages3\"");
-        $db->query("insert into \"languages3\" values (1, 'cz', '1'), (3, 'sk', '1');");
+        $db->query("truncate \"test.Languages3\"");
+        $db->query("insert into \"test.Languages3\" values (1, 'cz', '1'), (3, 'sk', '1');");
 
         $this->_client->writeTableAsyncDirect($table['id'], array(
             'dataWorkspaceId' => $workspace['id'],
-            'dataTableName' => 'languages3',
+            'dataTableName' => 'test.Languages3',
             'incremental' => true,
         ));
 
@@ -165,13 +164,13 @@ class CopyImportTest extends StorageApiTestCase
             'format' => 'rfc',
         )), 'previously null column updated');
 
-        $db->query("truncate table \"languages3\"");
-        $db->query("alter table \"languages3\" ADD COLUMN \"new_col\" varchar");
-        $db->query("insert into \"languages3\" values (1, 'cz', '1', null), (3, 'sk', '1', 'newValue');");
+        $db->query("truncate table \"test.Languages3\"");
+        $db->query("alter table \"test.Languages3\" ADD COLUMN \"new_col\" varchar");
+        $db->query("insert into \"test.Languages3\" values (1, 'cz', '1', null), (3, 'sk', '1', 'newValue');");
 
         $this->_client->writeTableAsyncDirect($table['id'], array(
             'dataWorkspaceId' => $workspace['id'],
-            'dataTableName' => 'languages3',
+            'dataTableName' => 'test.Languages3',
             'incremental' => true,
         ));
 
