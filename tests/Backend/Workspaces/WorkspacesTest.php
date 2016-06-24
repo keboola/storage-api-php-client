@@ -90,7 +90,7 @@ class WorkspacesTest extends StorageApiTestCase
             }
         } else if ($connection['backend'] === parent::BACKEND_REDSHIFT) {
             try {
-                $db = new \PDO(
+                new \PDO(
                     "pgsql:dbname={$connection['database']};port=5439;host=" . $connection['host'],
                     $connection['user'],
                     $connection['password']
