@@ -123,10 +123,10 @@ Then you can create your Redshift user. Connect to your Redshift database `sapi_
 
 	CREATE USER test_user PASSWORD '***';
 	GRANT ALL PRIVILEGES ON DATABASE sapi_YOURPROJECTID TO test_user;
-	GRANT ALL PRIVILEGES ON SCHEMA "in.c-api-tests-redshift" TO test_user;
-	GRANT ALL PRIVILEGES ON SCHEMA "out.c-api-tests-redshift" TO test_user;
-	GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA "in.c-api-tests-redshift" TO test_user;
-	GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA "out.c-api-tests-redshift" TO test_user;
+	GRANT ALL PRIVILEGES ON SCHEMA "in.c-api-tests" TO test_user;
+	GRANT ALL PRIVILEGES ON SCHEMA "out.c-api-tests" TO test_user;
+	GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA "in.c-api-tests" TO test_user;
+	GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA "out.c-api-tests" TO test_user;
 
 This test suite expects following environment variables set:
 - `STORAGE_API_URL` - URL of Keboola Storage API (https://connection.keboola.com/)
