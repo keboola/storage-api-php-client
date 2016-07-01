@@ -1,3 +1,6 @@
+## 4.12.0 (2016-07-01)
+ * [Feat] Redshift [workspaces](http://docs.keboola.apiary.io/#reference/workspaces) supported
+
 ## 4.11.0 (2016-06-10)
  * [Feat] [Workspaces](http://docs.keboola.apiary.io/#reference/workspaces) supported
 
