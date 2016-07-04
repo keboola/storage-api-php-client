@@ -6,20 +6,45 @@
  * Time: 09:45
  */
 namespace Keboola\Test\Backend\Workspaces;
-use Keboola\Db\Import\Snowflake\Connection;
-use Keboola\StorageApi\Exception;
+
 use Keboola\StorageApi\Workspaces;
 use Keboola\Csv\CsvFile;
-use Keboola\Test\StorageApiTestCase;
 
-class WorkspacesTest extends StorageApiTestCase
+class WorkspacesTest extends WorkSpaceTestCase
 {
-    public function setUp()
+    public function testWorkspaceLoad()
     {
-        parent::setUp();
-        $this->_initEmptyTestBuckets();
-    }
+        $workspaces = new Workspaces($this->_client);
 
+        $workspace = $workspaces->createWorkspace();
+        $connection = $workspace['connection'];
+
+        //setup test bucket
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN), 'languagesTest',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+
+        $table = $this->_client->getTable($tableId);
+
+        $source = array(
+            "schema" => $table["bucket"]["id"],
+            "table" => $table['name']
+        );
+
+        $workspaces->loadWorkspaceData($workspace['id'],array("source"=>$source, "destination" => "happyTable"));
+
+        $db = $this->getDbConnection($connection);
+
+        $db->query("USE SCHEMA " . $db->quoteIdentifier($connection['schema']));
+
+        $tableNames = array_map(function($table) {
+            return $table['name'];
+        }, $db->fetchAll(sprintf("SHOW TABLES IN SCHEMA %s", $db->quoteIdentifier($connection["schema"]))));
+
+        $this->assertArrayHasKey("happyTable", array_flip($tableNames));
+
+    }
 
     public function testWorkspaceCreate()
     {
@@ -29,16 +54,9 @@ class WorkspacesTest extends StorageApiTestCase
         $workspace = $workspaces->createWorkspace();
         $connection = $workspace['connection'];
         
+        $db = $this->getDbConnection($connection);
+        
         if ($connection['backend'] === parent::BACKEND_SNOWFLAKE) {
-            $db = new Connection([
-                'host' => $connection['host'],
-                'database' => $connection['database'],
-                'warehouse' => $connection['warehouse'],
-                'user' => $connection['user'],
-                'password' => $connection['password'],
-            ]);
-
-            $db->query("USE SCHEMA " . $db->quoteIdentifier($connection['schema']));
 
             $schemaNames = array_map(function($schema) {
                 return $schema['name'];
@@ -46,16 +64,17 @@ class WorkspacesTest extends StorageApiTestCase
 
             $this->assertArrayHasKey($connection['schema'], array_flip($schemaNames));
 
-            // try create a table in workspace
-            $db->query("CREATE TABLE mytable (amount NUMBER);");
+            $db->query("USE SCHEMA " . $db->quoteIdentifier($connection['schema']));
 
+            // try create a table in the workspace
+            $db->query("CREATE TABLE \"mytable\" (amount NUMBER);");
+
+            $tableNames = array_map(function($table) {
+               return $table['name'];
+            }, $db->fetchAll(sprintf("SHOW TABLES IN SCHEMA %s", $db->quoteIdentifier($connection["schema"]))));
+            
+            $this->assertArrayHasKey("mytable", array_flip($tableNames));
         } else {
-            //redshift connection
-            $db = new \PDO(
-                "pgsql:dbname={$connection['database']};port=5439;host=" . $connection['host'],
-                $connection['user'],
-                $connection['password']
-            );
 
             // try create a table in workspace
             $db->query("CREATE TABLE mytable (amount NUMBER);");
@@ -76,30 +95,12 @@ class WorkspacesTest extends StorageApiTestCase
         $workspaces->deleteWorkspace($workspace['id']);
 
         // credentials should not work anymore
-        if ($connection['backend'] === parent::BACKEND_SNOWFLAKE) {
-            try {
-                new Connection([
-                    'host' => $connection['host'],
-                    'database' => $connection['database'],
-                    'warehouse' => $connection['warehouse'],
-                    'user' => $connection['user'],
-                    'password' => $connection['password'],
-                ]);
-                $this->fail('Credentials should be deleted');
-            } catch (\Exception $e) {
-            }
-        } else if ($connection['backend'] === parent::BACKEND_REDSHIFT) {
-            try {
-                new \PDO(
-                    "pgsql:dbname={$connection['database']};port=5439;host=" . $connection['host'],
-                    $connection['user'],
-                    $connection['password']
-                );
-                $this->fail('Credentials should be deleted');
-            } catch (\Exception $e) {
-            }
-        } else {
-            throw new Exception("Unsupported Backend for workspaces");
+        try {
+            $this->getDbConnection($connection);
+            $this->fail('Credentials should be deleted');
+        } catch (\Exception $e) {
         }
     }
+
+    
 }

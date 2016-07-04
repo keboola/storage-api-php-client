@@ -13,24 +13,8 @@ use Keboola\StorageApi\Exception;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\StorageApiTestCase;
 
-class CopyImportTest extends StorageApiTestCase
+class CopyImportTest extends WorkspaceTestCase
 {
-
-    public function setUp()
-    {
-        parent::setUp();
-        $this->_initEmptyTestBuckets();
-        $this->deleteAllWorkspaces();
-    }
-
-    private function deleteAllWorkspaces()
-    {
-        $workspaces  = new Workspaces($this->_client);
-        foreach ($workspaces->listWorkspaces() as $workspace) {
-            $workspaces->deleteWorkspace($workspace['id']);
-        }
-    }
-
     public function testCreateTableFromWorkspace()
     {
         // create workspace and source table in workspace
@@ -39,27 +23,7 @@ class CopyImportTest extends StorageApiTestCase
 
         $connection = $workspace['connection'];
 
-        if ($connection['backend'] === parent::BACKEND_SNOWFLAKE) {
-            $db = new Connection([
-                'host' => $connection['host'],
-                'database' => $connection['database'],
-                'warehouse' => $connection['warehouse'],
-                'user' => $connection['user'],
-                'password' => $connection['password'],
-            ]);
-            // Set the session to use the workspace schema
-            $db->query("USE SCHEMA " . $db->quoteIdentifier($connection['schema']));
-
-        } else if ($connection['backend'] == parent::BACKEND_REDSHIFT) {
-            $db = new \PDO(
-                "pgsql:dbname={$connection['database']};port=5439;host=" . $connection['host'],
-                $connection['user'],
-                $connection['password']
-            );
-            //Redshift workspace user is auto-set to use correct workspace schema 
-        } else {
-            throw new Exception("Backend not supported for workspaces");
-        }
+        $db = $this->getDbConnection($connection);
 
         $db->query("create table \"test.Languages3\" (
 			\"Id\" integer not null,
@@ -100,26 +64,7 @@ class CopyImportTest extends StorageApiTestCase
 
         $connection = $workspace['connection'];
 
-        if ($connection['backend'] === parent::BACKEND_SNOWFLAKE) {
-            $db = new Connection([
-                'host' => $connection['host'],
-                'database' => $connection['database'],
-                'warehouse' => $connection['warehouse'],
-                'user' => $connection['user'],
-                'password' => $connection['password'],
-            ]);
-            // Set the session to use the workspace schema
-            $db->query("USE SCHEMA " . $db->quoteIdentifier($connection['schema']));
-
-        } else if ($connection['backend'] === parent::BACKEND_REDSHIFT) {
-            $db = new \PDO(
-                "pgsql:dbname={$connection['database']};port=5439;host=" . $connection['host'],
-                $connection['user'],
-                $connection['password']
-            );
-        } else throw new Exception("Unsupported backend for workspaces");
-
-
+        $db = $this->getDbConnection($connection);
 
         $db->query("create table \"test.Languages3\" (
 			\"Id\" integer not null,
