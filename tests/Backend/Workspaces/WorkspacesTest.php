@@ -28,6 +28,9 @@ class WorkspacesTest extends StorageApiTestCase
 
         $workspace = $workspaces->createWorkspace();
         $connection = $workspace['connection'];
+
+        $tokenInfo = $this->_client->verifyToken();
+        $this->assertEquals($tokenInfo['owner']['defaultBackend'], $connection['backend']);
         
         if ($connection['backend'] === parent::BACKEND_SNOWFLAKE) {
             $db = new Connection([
