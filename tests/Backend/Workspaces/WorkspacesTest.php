@@ -24,13 +24,8 @@ class WorkspacesTest extends WorkSpaceTestCase
             $this->getTestBucketId(self::STAGE_IN), 'languagesTest',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
-
-        $table = $this->_client->getTable($tableId);
-
-        $source = array(
-            "schema" => $table["bucket"]["id"],
-            "table" => $table['name']
-        );
+        
+        $source = $tableId;
 
         $workspaces->loadWorkspaceData($workspace['id'],array("source"=>$source, "destination" => "happyTable"));
 
@@ -72,7 +67,7 @@ class WorkspacesTest extends WorkSpaceTestCase
             $tableNames = array_map(function($table) {
                return $table['name'];
             }, $db->fetchAll(sprintf("SHOW TABLES IN SCHEMA %s", $db->quoteIdentifier($connection["schema"]))));
-            
+
             $this->assertArrayHasKey("mytable", array_flip($tableNames));
         } else {
 
