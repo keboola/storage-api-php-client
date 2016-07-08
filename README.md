@@ -155,6 +155,23 @@ You can run these tests in docker with drivers installed:
 
 `source ./set-env.snowflake.sh && docker-compose run --rm -e STORAGE_API_URL="192.168.64.8:8700" -e STORAGE_API_TOKEN=$STORAGE_API_TOKEN  tests sh -c 'composer install && ./vendor/bin/phpunit --testsuite backend-snowflake-part-1'`
 
+### Mixed backend test suite
+Project can support multiple backends, this is useful for migrations from one backend to another.
+These tests require project with all backend assigned (mysql, redshift, snowflake).
+
+This test suite expects following environment variables set:
+ - `STORAGE_API_URL` - URL of Keboola Storage API (https://connection.keboola.com/)
+ - `STORAGE_API_TOKEN` - Storage API token associated to user (Admin master token) with all permissions. Project must have assigned `mysql`, `snowflake` and `redshift` backend.
+ - `STORAGE_API_MAINTENANCE_URL` - URL for maintenance testing (https://maintenance-testing.keboola.com/)
+
+
+You can export variables manually or you can create and fill file `set-env.mixed.sh` as copy of attached `set-env.mixed.template.sh`.
+
+Than  you can run tests:
+
+`source ./set-env.mixed.sh && php ./vendor/bin/phpunit --testsuite backend-mixed`
+
+
 
 ## Versioning
 [semver.org](http://semver.org/) is followed.

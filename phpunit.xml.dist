@@ -41,4 +41,8 @@
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>
 
+	<testsuite name="backend-mixed">
+		<directory>test/Backend/Mixed</directory>
+	</testsuite>
+
 </phpunit>
