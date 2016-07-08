@@ -42,7 +42,7 @@
 	</testsuite>
 
 	<testsuite name="backend-mixed">
-		<directory>test/Backend/Mixed</directory>
+		<directory>tests/Backend/Mixed</directory>
 	</testsuite>
 
 </phpunit>
