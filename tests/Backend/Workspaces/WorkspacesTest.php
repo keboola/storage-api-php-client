@@ -19,6 +19,9 @@ class WorkspacesTest extends WorkSpaceTestCase
 
         $workspace = $workspaces->createWorkspace();
         $connection = $workspace['connection'];
+
+        $tokenInfo = $this->_client->verifyToken();
+        $this->assertEquals($tokenInfo['owner']['defaultBackend'], $connection['backend']);
         
         $db = $this->getDbConnection($connection);
         
