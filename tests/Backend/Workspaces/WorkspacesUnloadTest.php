@@ -13,7 +13,7 @@ use Keboola\StorageApi\Exception;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\StorageApiTestCase;
 
-class CopyImportTest extends WorkspaceTestCase
+class CopyImportTest extends WorkspacesTestCase
 {
     public function testCreateTableFromWorkspace()
     {
@@ -24,7 +24,7 @@ class CopyImportTest extends WorkspaceTestCase
         $connection = $workspace['connection'];
 
         $db = $this->getDbConnection($connection);
-
+        
         $db->query("create table \"test.Languages3\" (
 			\"Id\" integer not null,
 			\"Name\" varchar not null

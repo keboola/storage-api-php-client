@@ -12,7 +12,7 @@ use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\StorageApiTestCase;
 
-class WorkspaceTestCase extends StorageApiTestCase
+abstract class WorkspacesTestCase extends StorageApiTestCase
 {
     public function setUp()
     {
@@ -44,7 +44,7 @@ class WorkspaceTestCase extends StorageApiTestCase
             $db->query(sprintf("USE SCHEMA %s;",$db->quoteIdentifier($connection['schema'])));
 
             return $db;
-            
+
         } else if ($connection['backend'] === parent::BACKEND_REDSHIFT) {
 
             return new \PDO(

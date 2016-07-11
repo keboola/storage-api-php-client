@@ -10,8 +10,9 @@ namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Workspaces;
+use Keboola\StorageApi\ClientException;
 
-class WorkspaceLoadTest extends WorkspaceTestCase
+class WorkspaceLoadTest extends WorkspacesTestCase
 {
     public function testWorkspaceLoad()
     {
@@ -33,7 +34,8 @@ class WorkspaceLoadTest extends WorkspaceTestCase
 
         $mapping1 = array("source" => $table1_id, "destination" => "languagesLoaded");
         $mapping2 = array("source" => $table2_id, "destination" => "numbersLoaded");
-        
+        $mapping3 = array("source" => $table2_id, "destination" => "languagesLoaded");
+
         $input = array($mapping1, $mapping2);
 
         $workspaces->loadWorkspaceData($workspace['id'],array("input" => $input, "preserve" => false));
@@ -50,5 +52,13 @@ class WorkspaceLoadTest extends WorkspaceTestCase
         $tables = array_flip($tableNames);
         $this->assertArrayHasKey("languagesLoaded", $tables);
         $this->assertArrayHasKey("numbersLoaded", $tables);
+
+        $inputDupFail = array($mapping1, $mapping3);
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], array("input" => $inputDupFail));
+            $this->fail('Attempt to write two sources to same destination should fail');
+        } catch (ClientException $e) {
+            $this->assertEquals('workspace.duplicateDestination', $e->getStringCode());
+        }
     }
 }

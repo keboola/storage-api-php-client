@@ -45,4 +45,7 @@
 		<directory>tests/Backend/Mixed</directory>
 	</testsuite>
 
+    <testsuite name="workspaces">
+        <directory>tests/Backend/Workspaces</directory>
+    </testsuite>
 </phpunit>
