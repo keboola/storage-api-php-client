@@ -33,14 +33,18 @@ class WorkspaceTestCase extends StorageApiTestCase
     {
         if ($connection['backend'] === parent::BACKEND_SNOWFLAKE) {
 
-            return new Connection([
+            $db = new Connection([
                 'host' => $connection['host'],
                 'database' => $connection['database'],
                 'warehouse' => $connection['warehouse'],
                 'user' => $connection['user'],
                 'password' => $connection['password'],
             ]);
+            // set connection to use workspace schema
+            $db->query(sprintf("USE SCHEMA %s;",$db->quoteIdentifier($connection['schema'])));
 
+            return $db;
+            
         } else if ($connection['backend'] === parent::BACKEND_REDSHIFT) {
 
             return new \PDO(
