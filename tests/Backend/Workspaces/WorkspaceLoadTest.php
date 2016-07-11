@@ -38,8 +38,6 @@ class WorkspaceLoadTest extends WorkspaceTestCase
 
         $workspaces->loadWorkspaceData($workspace['id'],array("input" => $input, "preserve" => false));
 
-        echo "workspace loaded without error";
-
         $db = $this->getDbConnection($connection);
 
         $db->query("USE SCHEMA " . $db->quoteIdentifier($connection['schema']));
