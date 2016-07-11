@@ -9,6 +9,7 @@
 namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\Csv\CsvFile;
+use Keboola\StorageApi\Workspaces;
 
 class WorkspaceLoadTest extends WorkspaceTestCase
 {
@@ -19,15 +20,25 @@ class WorkspaceLoadTest extends WorkspaceTestCase
         $workspace = $workspaces->createWorkspace();
         $connection = $workspace['connection'];
 
-        //setup test bucket
-        $tableId = $this->_client->createTable(
-            $this->getTestBucketId(self::STAGE_IN), 'languagesTest',
+        //setup test tables
+        $table1_id = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN), 'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
 
-        $source = $tableId;
+        $table2_id = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN), 'numbers',
+            new CsvFile(__DIR__ . '/../../_data/numbers.csv')
+        );
 
-        $workspaces->loadWorkspaceData($workspace['id'],array("source"=>$source, "destination" => "happyTable"));
+        $mapping1 = array("source" => $table1_id, "destination" => "languagesLoaded");
+        $mapping2 = array("source" => $table2_id, "destination" => "numbersLoaded");
+        
+        $input = array($mapping1, $mapping2);
+
+        $workspaces->loadWorkspaceData($workspace['id'],array("input" => $input, "preserve" => false));
+
+        echo "workspace loaded without error";
 
         $db = $this->getDbConnection($connection);
 
@@ -37,7 +48,9 @@ class WorkspaceLoadTest extends WorkspaceTestCase
             return $table['name'];
         }, $db->fetchAll(sprintf("SHOW TABLES IN SCHEMA %s", $db->quoteIdentifier($connection["schema"]))));
 
-        $this->assertArrayHasKey("happyTable", array_flip($tableNames));
-
+        // check that the tables are in the workspace
+        $tables = array_flip($tableNames);
+        $this->assertArrayHasKey("languagesLoaded", $tables);
+        $this->assertArrayHasKey("numbersLoaded", $tables);
     }
 }
