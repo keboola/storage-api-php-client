@@ -58,7 +58,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             $workspaces->loadWorkspaceData($workspace['id'], array("input" => $inputDupFail));
             $this->fail('Attempt to write two sources to same destination should fail');
         } catch (ClientException $e) {
-            $this->assertEquals('workspace.duplicateDestination', $e->getStringCode());
+
         }
     }
 }
