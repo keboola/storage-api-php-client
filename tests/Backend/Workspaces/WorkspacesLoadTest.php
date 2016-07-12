@@ -61,4 +61,41 @@ class WorkspaceLoadTest extends WorkspacesTestCase
 
         }
     }
+
+    public function testInvalidBucketPermissions()
+    {
+        // make a test table
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN), 'languages',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+
+        $bucketPermissions = array(
+            $this->getTestBucketId(self::STAGE_OUT) => 'read',
+        );
+        $token = $this->_client->createToken($bucketPermissions, 'workspaceLoadTest: Out read token');
+
+        $testClient = new \Keboola\StorageApi\Client(array(
+            'token' => $token,
+            'url' => STORAGE_API_URL
+        ));
+
+        // create the workspace with the limited permission client
+        $workspaces = new Workspaces($testClient);
+        $workspace = $workspaces->createWorkspace();
+
+        $input = array(
+            array(
+                "source" => $tableId,
+                "destination" => "irrelevant"
+            )
+        );
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], array("input" => $input));
+            $this->fail("This should fail due to insufficient permission");
+        } catch (ClientException $e) {
+
+        }
+
+    }
 }
