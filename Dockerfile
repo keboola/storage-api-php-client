@@ -1,4 +1,4 @@
-FROM php:5.6
+FROM php:5.6.21
 MAINTAINER Martin Halamicek <martin@keboola.com>
 ENV DEBIAN_FRONTEND noninteractive
 
