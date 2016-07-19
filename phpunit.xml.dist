@@ -22,7 +22,8 @@
 	</testsuite>
 
 	<testsuite name="backend-redshift">
-		<directory>tests/Backend/Workspaces</directory>
+		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
 		<directory>tests/Backend/Common</directory>
 		<directory>tests/Backend/Redshift</directory>
 		<file>tests/Backend/Aliases/CustomSqlAliasTest.php</file>
@@ -34,7 +35,9 @@
 	</testsuite>
 
 	<testsuite name="backend-snowflake-part-2">
-		<directory>tests/Backend/Workspaces</directory>
+		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
 		<directory>tests/Backend/Snowflake</directory>
 		<file>tests/Backend/Aliases/SimpleAliasTest.php</file>
 		<file>tests/Backend/Aliases/CustomSqlAliasTest.php</file>
@@ -44,5 +47,4 @@
 	<testsuite name="backend-mixed">
 		<directory>tests/Backend/Mixed</directory>
 	</testsuite>
-
 </phpunit>
