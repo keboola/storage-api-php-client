@@ -1,3 +1,6 @@
+## 4.13.0 (2016-07-19)
+ * [Feat] Workspaces - `loadWorkspaceData` action added
+
 ## 4.12.0 (2016-07-01)
  * [Feat] Redshift [workspaces](http://docs.keboola.apiary.io/#reference/workspaces) supported
 
