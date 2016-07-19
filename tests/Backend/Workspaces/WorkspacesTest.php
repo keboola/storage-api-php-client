@@ -9,7 +9,7 @@ namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\StorageApi\Workspaces;
 
-class WorkspacesTest extends WorkSpacesTestCase
+class WorkspacesTest extends WorkspacesTestCase
 {
     
     public function testWorkspaceCreate()
