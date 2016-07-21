@@ -9,16 +9,17 @@
  *
  */
 namespace Keboola\Test\Common;
+
 use Keboola\Test\StorageApiTestCase;
 
 class ExceptionsTest extends StorageApiTestCase
 {
-	/**
-	 *  @expectedException \Keboola\StorageApi\ClientException
-	 */
-	public function testException()
-	{
-		$t = $this->_client->getTable("nonexistingtable");
-	}
+    /**
+     * @expectedException \Keboola\StorageApi\ClientException
+     */
+    public function testException()
+    {
+        $t = $this->_client->getTable("nonexistingtable");
+    }
 
 }

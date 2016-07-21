@@ -48,7 +48,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
 
         $db = $this->getDbConnection($connection);
 
-        $tableNames = array_map(function($table) {
+        $tableNames = array_map(function ($table) {
             return $table['name'];
         }, $db->fetchAll(sprintf("SHOW TABLES IN SCHEMA %s", $db->quoteIdentifier($connection["schema"]))));
 
@@ -62,7 +62,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $mapping3 = array("source" => $table1_id, "destination" => "table3");
         $workspaces->loadWorkspaceData($workspace['id'], array("input" => array($mapping3), "preserve" => true));
 
-        $tableNames = array_map(function($table) {
+        $tableNames = array_map(function ($table) {
             return $table['name'];
         }, $db->fetchAll(sprintf("SHOW TABLES IN SCHEMA %s", $db->quoteIdentifier($connection["schema"]))));
 
@@ -74,7 +74,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
 
         // now we'll try the same load, but it should clear the workspace first (preserve is false by default)
         $workspaces->loadWorkspaceData($workspace['id'], array("input" => array($mapping3)));
-        $tableNames = array_map(function($table) {
+        $tableNames = array_map(function ($table) {
             return $table['name'];
         }, $db->fetchAll(sprintf("SHOW TABLES IN SCHEMA %s", $db->quoteIdentifier($connection["schema"]))));
         $tables = array_flip($tableNames);

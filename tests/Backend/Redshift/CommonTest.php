@@ -6,6 +6,7 @@
  * Time: 16:22
  */
 namespace Keboola\Test\Backend\Redshift;
+
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 
@@ -25,7 +26,7 @@ class CommonTest extends StorageApiTestCase
         $this->assertArrayHasKey('redshift', $owner);
         $this->assertTrue($owner['hasRedshift']);
 
-        $redshift=  $owner['redshift'];
+        $redshift = $owner['redshift'];
         $this->assertArrayHasKey('connectionId', $redshift);
         $this->assertArrayHasKey('databaseName', $redshift);
 

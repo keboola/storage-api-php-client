@@ -6,6 +6,7 @@
  * Time: 09:45
  */
 namespace Keboola\Test\Backend\Mysql;
+
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 
@@ -25,7 +26,7 @@ class AlterTableTest extends StorageApiTestCase
         $importFile = __DIR__ . '/../../_data/multiple-columns-pk.csv';
 
         $primaryKeyColumns = array(
-            "Paid_Search_Engine_Account","Advertiser_ID","Date","Paid_Search_Campaign","Paid_Search_Ad_ID","Site__DFA"
+            "Paid_Search_Engine_Account", "Advertiser_ID", "Date", "Paid_Search_Campaign", "Paid_Search_Ad_ID", "Site__DFA"
         );
         $tableId = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),
@@ -34,7 +35,7 @@ class AlterTableTest extends StorageApiTestCase
             array()
         );
 
-        try  {
+        try {
             $this->_client->createTablePrimaryKey($tableId, $primaryKeyColumns);
             $this->fail('create should fail as key will be too long');
         } catch (\Keboola\StorageApi\ClientException $e) {
@@ -45,7 +46,8 @@ class AlterTableTest extends StorageApiTestCase
     /**
      * Tests: https://github.com/keboola/connection/issues/231
      */
-    public function testRowTooBig() {
+    public function testRowTooBig()
+    {
         $importFile = __DIR__ . '/../../_data/very-long-row.csv';
 
         try {
@@ -270,7 +272,7 @@ class AlterTableTest extends StorageApiTestCase
 
         // composite primary key
         $indexColumn = 'iso';
-        $importFile =  __DIR__ . '/../../_data/languages-more-columns.csv';
+        $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
 
         $tableId = $this->_client->createTable(
             $this->getTestBucketId(),
@@ -283,7 +285,7 @@ class AlterTableTest extends StorageApiTestCase
 
         $this->_client->markTableColumnAsIndexed($tableId, $indexColumn);
 
-        $tableDetail =  $this->_client->getTable($tableId);
+        $tableDetail = $this->_client->getTable($tableId);
 
         $this->assertArrayHasKey('primaryKey', $tableDetail);
         $this->assertEquals(array('Id', 'Name'), $tableDetail['primaryKey']);

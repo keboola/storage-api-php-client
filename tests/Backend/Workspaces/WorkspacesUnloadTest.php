@@ -8,6 +8,7 @@
  */
 
 namespace Keboola\Test\Backend\Workspaces;
+
 use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\StorageApi\Exception;
 use Keboola\StorageApi\Workspaces;
@@ -24,7 +25,7 @@ class CopyImportTest extends WorkspacesTestCase
         $connection = $workspace['connection'];
 
         $db = $this->getDbConnection($connection);
-        
+
         $db->query("create table \"test.Languages3\" (
 			\"Id\" integer not null,
 			\"Name\" varchar not null

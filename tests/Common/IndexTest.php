@@ -8,28 +8,29 @@
  */
 
 namespace Keboola\Test\Common;
+
 use Keboola\Test\StorageApiTestCase;
 
 class IndexTest extends StorageApiTestCase
 {
 
-	public function testIndex()
-	{
-		$index = $this->_client->indexAction();
-		$this->assertEquals('storage', $index['api']);
-		$this->assertEquals('v2', $index['version']);
-		$this->assertArrayHasKey('revision', $index);
+    public function testIndex()
+    {
+        $index = $this->_client->indexAction();
+        $this->assertEquals('storage', $index['api']);
+        $this->assertEquals('v2', $index['version']);
+        $this->assertArrayHasKey('revision', $index);
 
-		$this->assertInternalType('array', $index['components']);
+        $this->assertInternalType('array', $index['components']);
 
-		$component = reset($index['components']);
-		$this->assertArrayHasKey('id', $component);
-		$this->assertArrayHasKey('uri', $component);
+        $component = reset($index['components']);
+        $this->assertArrayHasKey('id', $component);
+        $this->assertArrayHasKey('uri', $component);
 
-		$this->assertArrayHasKey('urlTemplates', $index);
+        $this->assertArrayHasKey('urlTemplates', $index);
 
-		$urlTemplates = $index['urlTemplates'];
-		$this->assertArrayHasKey('orchestrationJob', $urlTemplates);
-	}
+        $urlTemplates = $index['urlTemplates'];
+        $this->assertArrayHasKey('orchestrationJob', $urlTemplates);
+    }
 
 }

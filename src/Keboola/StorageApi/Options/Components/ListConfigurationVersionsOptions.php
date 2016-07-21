@@ -106,7 +106,7 @@ class ListConfigurationVersionsOptions
      */
     public function setInclude($include = array())
     {
-        $this->include = (array) $include;
+        $this->include = (array)$include;
         return $this;
     }
 

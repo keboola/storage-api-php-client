@@ -6,6 +6,7 @@
  * Time: 09:45
  */
 namespace Keboola\Test\Backend\Snowflake;
+
 use Keboola\StorageApi\ClientException;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
@@ -20,7 +21,7 @@ class TableExportTest extends StorageApiTestCase
 
     public function testSyncExportShouldReturnErrorForLargeNumberOfCols()
     {
-        $cols = implode(',', array_map(function($colNum) {
+        $cols = implode(',', array_map(function ($colNum) {
             return "col_{$colNum}";
         }, range(1, 130)));
 
@@ -41,19 +42,19 @@ class TableExportTest extends StorageApiTestCase
     public function testSyncExportMax120cols()
     {
         $cols = [];
-        $cols[] = implode(',', array_map(function($colNum) {
+        $cols[] = implode(',', array_map(function ($colNum) {
             return "col_{$colNum}";
         }, range(1, 110)));
 
-        $cols[] = implode(',', array_map(function($colNum) {
+        $cols[] = implode(',', array_map(function ($colNum) {
             return "data_{$colNum}";
         }, range(1, 110)));
 
-        $cols[] = implode(',', array_map(function($colNum) {
+        $cols[] = implode(',', array_map(function ($colNum) {
             return "data_{$colNum}";
         }, range(1, 110)));
 
-        $cols[] = implode(',', array_map(function($colNum) {
+        $cols[] = implode(',', array_map(function ($colNum) {
             return "data_{$colNum}";
         }, range(1, 110)));
 

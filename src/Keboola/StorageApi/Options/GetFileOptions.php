@@ -11,37 +11,37 @@ namespace Keboola\StorageApi\Options;
 
 class GetFileOptions
 {
-	/**
-	 * @var bool
-	 */
-	private $federationToken;
+    /**
+     * @var bool
+     */
+    private $federationToken;
 
-	/**
-	 * @return boolean
-	 */
-	public function getFederationToken()
-	{
-		return $this->federationToken;
-	}
+    /**
+     * @return boolean
+     */
+    public function getFederationToken()
+    {
+        return $this->federationToken;
+    }
 
-	/**
-	 * @param $federationToken
-	 * @return $this
-	 */
-	public function setFederationToken($federationToken)
-	{
-		$this->federationToken = (bool) $federationToken;
-		return $this;
-	}
+    /**
+     * @param $federationToken
+     * @return $this
+     */
+    public function setFederationToken($federationToken)
+    {
+        $this->federationToken = (bool)$federationToken;
+        return $this;
+    }
 
-	/**
-	 * @return array
-	 */
-	public function toArray()
-	{
-		return array(
-			'federationToken' => $this->getFederationToken(),
-		);
-	}
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        return array(
+            'federationToken' => $this->getFederationToken(),
+        );
+    }
 
 }

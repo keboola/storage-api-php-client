@@ -6,6 +6,7 @@
  * Time: 09:45
  */
 namespace Keboola\Test\Backend\Aliases;
+
 use Keboola\StorageApi\TableExporter;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
@@ -106,7 +107,8 @@ class SimpleAliasTest extends StorageApiTestCase
         try {
             $this->_client->dropTable($sourceTableId);
             $this->fail('Delete table with associated aliases should not been deleted');
-        } catch (\Keboola\StorageApi\ClientException $e) {}
+        } catch (\Keboola\StorageApi\ClientException $e) {
+        }
 
         // first delete alias, than source table
         $this->_client->dropTable($aliasTableId);
@@ -258,12 +260,12 @@ class SimpleAliasTest extends StorageApiTestCase
         $aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users');
 
         $aliasTable = $this->_client->getTable($aliasTableId);
-        $this->assertEquals(array("id","name","city","sex"), $aliasTable["columns"]);
+        $this->assertEquals(array("id", "name", "city", "sex"), $aliasTable["columns"]);
 
         $this->_client->addTableColumn($sourceTableId, 'age');
 
         $aliasTable = $this->_client->getTable($aliasTableId);
-        $expectedColumns = array("id","name","city","sex","age");
+        $expectedColumns = array("id", "name", "city", "sex", "age");
         $this->assertEquals($expectedColumns, $aliasTable["columns"]);
 
         $this->_client->disableAliasTableColumnsAutoSync($aliasTableId);
@@ -276,7 +278,7 @@ class SimpleAliasTest extends StorageApiTestCase
 
         $aliasTable = $this->_client->getTable($aliasTableId);
 
-        $expectedColumns = array("id","city","sex","age");
+        $expectedColumns = array("id", "city", "sex", "age");
         $this->assertEquals($expectedColumns, $aliasTable["columns"]);
 
         $data = $this->_client->parseCsv($this->_client->exportTable($aliasTableId));
@@ -286,7 +288,7 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->_client->enableAliasTableColumnsAutoSync($aliasTableId);
         $aliasTable = $this->_client->getTable($aliasTableId);
 
-        $this->assertEquals(array("id","name","city","sex","age","birthDate"), $aliasTable['columns']);
+        $this->assertEquals(array("id", "name", "city", "sex", "age", "birthDate"), $aliasTable['columns']);
     }
 
     public function testColumnUsedInFilteredAliasShouldNotBeDeletable()
@@ -352,7 +354,6 @@ class SimpleAliasTest extends StorageApiTestCase
             $this->assertEquals('storage.tables.cannotRemoveReferencedColumnFromIndexed', $e->getStringCode());
         }
     }
-
 
 
     public function testAliasColumns()
@@ -494,7 +495,7 @@ class SimpleAliasTest extends StorageApiTestCase
             )
         );
 
-        $data =$this->_client->exportTable($aliasTableId);
+        $data = $this->_client->exportTable($aliasTableId);
         $parsedData = Client::parseCsv($data, false);
         array_shift($parsedData); // remove header
         $this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
@@ -563,7 +564,7 @@ class SimpleAliasTest extends StorageApiTestCase
 
         $data = $this->_client->exportTable($aliasTableId, null, array(
             'whereColumn' => 'city',
-            'whereValues'=> array('VAN'),
+            'whereValues' => array('VAN'),
         ));
         $parsedData = Client::parseCsv($data, false);
         array_shift($parsedData); // remove header
@@ -575,7 +576,7 @@ class SimpleAliasTest extends StorageApiTestCase
         $downloadPath = __DIR__ . '/../../_tmp/languages.sliced.csv';
         $exporter->exportTable($aliasTableId, $downloadPath, [
             'whereColumn' => 'city',
-            'whereValues'=> array('VAN'),
+            'whereValues' => array('VAN'),
         ]);
         $parsedData = Client::parseCsv(file_get_contents($downloadPath), false);
         array_shift($parsedData); // remove header

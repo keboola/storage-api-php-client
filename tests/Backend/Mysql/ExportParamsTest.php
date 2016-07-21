@@ -6,6 +6,7 @@
  * Time: 09:45
  */
 namespace Keboola\Test\Backend\Mysql;
+
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
@@ -25,7 +26,7 @@ class ExportParamsTest extends StorageApiTestCase
      */
     public function testTableExportAsyncMysql($exportOptions, $expectedResult)
     {
-        $importFile =  __DIR__ . '/../../_data/users.csv';
+        $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));
         $this->_client->markTableColumnAsIndexed($tableId, 'city');
 
@@ -40,7 +41,7 @@ class ExportParamsTest extends StorageApiTestCase
 
     public function testTableExportAsyncColumnsParam()
     {
-        $importFile =  __DIR__ . '/../../_data/languages.csv';
+        $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile($importFile));
 
         $results = $this->_client->exportTableAsync($tableId, array(
@@ -57,7 +58,7 @@ class ExportParamsTest extends StorageApiTestCase
 
     public function testTableExportAsyncGzip()
     {
-        $importFile =  __DIR__ . '/../../_data/users.csv';
+        $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));
         $this->_client->markTableColumnAsIndexed($tableId, 'city');
 

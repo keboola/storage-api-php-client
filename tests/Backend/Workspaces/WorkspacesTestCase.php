@@ -23,7 +23,7 @@ abstract class WorkspacesTestCase extends StorageApiTestCase
 
     private function deleteAllWorkspaces()
     {
-        $workspaces  = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->_client);
         foreach ($workspaces->listWorkspaces() as $workspace) {
             $workspaces->deleteWorkspace($workspace['id']);
         }
@@ -41,7 +41,7 @@ abstract class WorkspacesTestCase extends StorageApiTestCase
                 'password' => $connection['password'],
             ]);
             // set connection to use workspace schema
-            $db->query(sprintf("USE SCHEMA %s;",$db->quoteIdentifier($connection['schema'])));
+            $db->query(sprintf("USE SCHEMA %s;", $db->quoteIdentifier($connection['schema'])));
 
             return $db;
 

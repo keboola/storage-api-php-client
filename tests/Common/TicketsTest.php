@@ -8,19 +8,20 @@
  */
 
 namespace Keboola\Test\Common;
+
 use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\Event;
 
 class TicketsTest extends StorageApiTestCase
 {
 
-	public function testGenerator()
-	{
-		$id1 = $this->_client->generateId();
-		$this->assertNotEmpty($id1);
+    public function testGenerator()
+    {
+        $id1 = $this->_client->generateId();
+        $this->assertNotEmpty($id1);
 
-		$id2 = $this->_client->generateId();
-		$this->assertGreaterThan($id1, $id2);
-	}
+        $id2 = $this->_client->generateId();
+        $this->assertGreaterThan($id1, $id2);
+    }
 
 }

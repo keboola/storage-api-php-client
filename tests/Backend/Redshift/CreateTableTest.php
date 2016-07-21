@@ -6,6 +6,7 @@
  * Time: 09:45
  */
 namespace Keboola\Test\Backend\Redshift;
+
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 

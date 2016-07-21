@@ -6,6 +6,7 @@
  * Time: 09:45
  */
 namespace Keboola\Test\Backend\Export;
+
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
@@ -77,7 +78,7 @@ class ExportParamsTest extends StorageApiTestCase
             "Bucket" => $bucket,
             "Prefix" => $prefix
         ));
-        foreach($objects["Contents"] as $object) {
+        foreach ($objects["Contents"] as $object) {
             $this->assertStringStartsWith($prefix, $object["Key"]);
         }
     }

@@ -12,31 +12,31 @@ namespace Keboola\StorageApi\Options;
 class StatsOptions
 {
 
-	private $runId;
+    private $runId;
 
-	/**
-	 * @return mixed
-	 */
-	public function getRunId()
-	{
-		return $this->runId;
-	}
+    /**
+     * @return mixed
+     */
+    public function getRunId()
+    {
+        return $this->runId;
+    }
 
-	/**
-	 * @param $runId
-	 * @return $this
-	 */
-	public function setRunId($runId)
-	{
-		$this->runId = $runId;
-		return $this;
-	}
+    /**
+     * @param $runId
+     * @return $this
+     */
+    public function setRunId($runId)
+    {
+        $this->runId = $runId;
+        return $this;
+    }
 
-	public function toArray()
-	{
-		return [
-			'runId' => $this->getRunId(),
-		];
-	}
+    public function toArray()
+    {
+        return [
+            'runId' => $this->getRunId(),
+        ];
+    }
 
 }

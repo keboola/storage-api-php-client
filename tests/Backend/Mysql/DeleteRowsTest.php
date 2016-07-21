@@ -6,6 +6,7 @@
  * Time: 09:45
  */
 namespace Keboola\Test\Backend\Mysql;
+
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 
@@ -19,7 +20,7 @@ class DeleteRowsTest extends StorageApiTestCase
 
     public function testTableDeleteRowsAliasShouldBeUpdated()
     {
-        $importFile =  __DIR__ . '/../../_data/users.csv';
+        $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
         $this->_client->markTableColumnAsIndexed($tableId, 'city');
 
@@ -37,7 +38,7 @@ class DeleteRowsTest extends StorageApiTestCase
 
     public function testDeleteRowsFromAliasShouldNotBeAllowed()
     {
-        $importFile =  __DIR__ . '/../../_data/users.csv';
+        $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
         $aliasId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $tableId);
@@ -45,7 +46,7 @@ class DeleteRowsTest extends StorageApiTestCase
         try {
             $this->_client->deleteTableRows($aliasId);
             $this->fail('Delete rows from alias should not be allowed');
-        } catch(\Keboola\StorageApi\ClientException $e) {
+        } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.tables.aliasRowsDeleteNotAllowed', $e->getStringCode());
         }
     }

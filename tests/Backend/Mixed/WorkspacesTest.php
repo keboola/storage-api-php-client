@@ -6,6 +6,7 @@
  * Time: 09:45
  */
 namespace Keboola\Test\Backend\Mixed;
+
 use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
@@ -67,7 +68,7 @@ class WorkspacesTest extends StorageApiTestCase
 
             $db->query("USE SCHEMA " . $db->quoteIdentifier($connection['schema']));
 
-            $schemaNames = array_map(function($schema) {
+            $schemaNames = array_map(function ($schema) {
                 return $schema['name'];
             }, $db->fetchAll("SHOW SCHEMAS"));
 

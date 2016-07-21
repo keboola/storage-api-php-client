@@ -6,6 +6,7 @@
  * Time: 09:45
  */
 namespace Keboola\Test\Backend\Redshift;
+
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 
@@ -147,7 +148,7 @@ class AlterTableTest extends StorageApiTestCase
     public function testRedshiftPrimaryKeyDelete()
     {
         $indexColumn = 'iso';
-        $importFile =  __DIR__ . '/../../_data/languages-more-columns.csv';
+        $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
 
         $tableId = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT),
@@ -160,7 +161,7 @@ class AlterTableTest extends StorageApiTestCase
 
         $this->_client->markTableColumnAsIndexed($tableId, $indexColumn);
 
-        $tableDetail =  $this->_client->getTable($tableId);
+        $tableDetail = $this->_client->getTable($tableId);
 
         $this->assertArrayHasKey('primaryKey', $tableDetail);
         $this->assertEquals(array('Id', 'Name'), $tableDetail['primaryKey']);
@@ -232,7 +233,7 @@ class AlterTableTest extends StorageApiTestCase
 
         // composite primary key
         $indexColumn = 'iso';
-        $importFile =  __DIR__ . '/../../_data/languages-more-columns.csv';
+        $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
 
         $tableId = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN, self::BACKEND_REDSHIFT),
@@ -245,7 +246,7 @@ class AlterTableTest extends StorageApiTestCase
 
         $this->_client->markTableColumnAsIndexed($tableId, $indexColumn);
 
-        $tableDetail =  $this->_client->getTable($tableId);
+        $tableDetail = $this->_client->getTable($tableId);
 
         $this->assertArrayHasKey('primaryKey', $tableDetail);
         $this->assertEquals(array('Id', 'Name'), $tableDetail['primaryKey']);

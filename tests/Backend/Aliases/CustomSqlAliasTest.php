@@ -6,6 +6,7 @@
  * Time: 09:45
  */
 namespace Keboola\Test\Backend\Aliases;
+
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
@@ -298,7 +299,7 @@ class CustomSqlAliasTest extends StorageApiTestCase
                 'primaryKey' => 'id',
             )
         );
-        $sql = 'SELECT l1."name" AS "name1", l2."name" AS "name2" FROM "'. $testBucketId . '"."languages" l1 LEFT JOIN "' . $testBucketId . '"."languages" l2 ON (l1."id"=l2."id") WHERE l1."name" LIKE \'f%\'';
+        $sql = 'SELECT l1."name" AS "name1", l2."name" AS "name2" FROM "' . $testBucketId . '"."languages" l1 LEFT JOIN "' . $testBucketId . '"."languages" l2 ON (l1."id"=l2."id") WHERE l1."name" LIKE \'f%\'';
         $aliasTableId = $this->_client->createRedshiftAliasTable($aliasBucketId, $sql, 'test2');
 
         $aliasTable = $this->_client->getTable($aliasTableId);

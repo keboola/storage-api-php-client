@@ -11,7 +11,7 @@ use Keboola\StorageApi\Workspaces;
 
 class WorkspacesTest extends WorkspacesTestCase
 {
-    
+
     public function testWorkspaceCreate()
     {
 
@@ -22,12 +22,12 @@ class WorkspacesTest extends WorkspacesTestCase
 
         $tokenInfo = $this->_client->verifyToken();
         $this->assertEquals($tokenInfo['owner']['defaultBackend'], $connection['backend']);
-        
+
         $db = $this->getDbConnection($connection);
-        
+
         if ($connection['backend'] === parent::BACKEND_SNOWFLAKE) {
 
-            $schemaNames = array_map(function($schema) {
+            $schemaNames = array_map(function ($schema) {
                 return $schema['name'];
             }, $db->fetchAll("SHOW SCHEMAS"));
 
@@ -38,8 +38,8 @@ class WorkspacesTest extends WorkspacesTestCase
             // try create a table in the workspace
             $db->query("CREATE TABLE \"mytable\" (amount NUMBER);");
 
-            $tableNames = array_map(function($table) {
-               return $table['name'];
+            $tableNames = array_map(function ($table) {
+                return $table['name'];
             }, $db->fetchAll(sprintf("SHOW TABLES IN SCHEMA %s", $db->quoteIdentifier($connection["schema"]))));
 
             $this->assertArrayHasKey("mytable", array_flip($tableNames));
@@ -52,12 +52,12 @@ class WorkspacesTest extends WorkspacesTestCase
 
         // get workspace
         $workspace = $workspaces->getWorkspace($workspace['id']);
-        $this->assertArrayNotHasKey('password',  $workspace['connection']);
-        
+        $this->assertArrayNotHasKey('password', $workspace['connection']);
+
         // list workspaces
-        $workspacesIds = array_map(function($workspace) {
+        $workspacesIds = array_map(function ($workspace) {
             return $workspace['id'];
-        },  $workspaces->listWorkspaces());
+        }, $workspaces->listWorkspaces());
 
         $this->assertArrayHasKey($workspace['id'], array_flip($workspacesIds));
 
@@ -71,5 +71,5 @@ class WorkspacesTest extends WorkspacesTestCase
         }
     }
 
-    
+
 }

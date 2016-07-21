@@ -6,6 +6,7 @@
  * Time: 09:45
  */
 namespace Keboola\Test\Backend\Mysql;
+
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
@@ -41,7 +42,7 @@ class BucketsTest extends StorageApiTestCase
         try {
             $this->_client->dropBucket($inBucketId);
             $this->fail('Exception should be thrown');
-        } catch (\Keboola\StorageApi\ClientException $e){
+        } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('buckets.deleteNotEmpty', $e->getStringCode());
         }
 
@@ -54,7 +55,7 @@ class BucketsTest extends StorageApiTestCase
         try {
             $this->_client->dropBucket($outBucketId);
             $this->fail('Exception should be thrown');
-        } catch (\Keboola\StorageApi\ClientException $e){
+        } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('buckets.deleteNotEmpty', $e->getStringCode());
         }
     }
@@ -106,7 +107,7 @@ class BucketsTest extends StorageApiTestCase
         try {
             $this->_client->dropBucket($inBucketId, array('force' => true));
             $this->fail('Exception should be thrown');
-        } catch (\Keboola\StorageApi\ClientException $e){
+        } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.dependentObjects', $e->getStringCode());
         }
 

@@ -12,142 +12,141 @@ namespace Keboola\StorageApi\Options\Components;
 
 class Configuration
 {
-	const LATEST_PUBLISHED_VERSION = 'latestPublished';
+    const LATEST_PUBLISHED_VERSION = 'latestPublished';
 
-	private $componentId;
+    private $componentId;
 
-	private $configurationId;
+    private $configurationId;
 
-	private $configuration;
+    private $configuration;
 
-	private $name;
+    private $name;
 
-	private $description;
+    private $description;
 
-	private $state;
+    private $state;
 
-	private $changeDescription;
+    private $changeDescription;
 
-	/**
-	 * @return mixed
-	 */
-	public function getComponentId()
-	{
-		return $this->componentId;
-	}
+    /**
+     * @return mixed
+     */
+    public function getComponentId()
+    {
+        return $this->componentId;
+    }
 
-	/**
-	 * @param mixed $componentId
-	 */
-	public function setComponentId($componentId)
-	{
-		$this->componentId = $componentId;
-		return $this;
-	}
+    /**
+     * @param mixed $componentId
+     */
+    public function setComponentId($componentId)
+    {
+        $this->componentId = $componentId;
+        return $this;
+    }
 
-	/**
-	 * @return mixed
-	 */
-	public function getConfigurationId()
-	{
-		return $this->configurationId;
-	}
+    /**
+     * @return mixed
+     */
+    public function getConfigurationId()
+    {
+        return $this->configurationId;
+    }
 
-	/**
-	 * @param mixed $configurationId
-	 */
-	public function setConfigurationId($configurationId)
-	{
-		$this->configurationId = $configurationId;
-		return $this;
-	}
+    /**
+     * @param mixed $configurationId
+     */
+    public function setConfigurationId($configurationId)
+    {
+        $this->configurationId = $configurationId;
+        return $this;
+    }
 
-	/**
-	 * @return mixed
-	 */
-	public function getName()
-	{
-		return $this->name;
-	}
+    /**
+     * @return mixed
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
 
-	/**
-	 * @param mixed $name
-	 */
-	public function setName($name)
-	{
-		$this->name = $name;
-		return $this;
-	}
+    /**
+     * @param mixed $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+        return $this;
+    }
 
-	/**
-	 * @return mixed
-	 */
-	public function getDescription()
-	{
-		return $this->description;
-	}
+    /**
+     * @return mixed
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
 
-	/**
-	 * @param mixed $description
-	 */
-	public function setDescription($description)
-	{
-		$this->description = $description;
-		return $this;
-	}
+    /**
+     * @param mixed $description
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+        return $this;
+    }
 
-	/**
-	 * @return mixed
-	 */
-	public function getConfiguration()
-	{
-		return $this->configuration;
-	}
+    /**
+     * @return mixed
+     */
+    public function getConfiguration()
+    {
+        return $this->configuration;
+    }
 
-	/**
-	 * @param $configuration
-	 * @return $this
-	 */
-	public function setConfiguration($configuration)
-	{
-		$this->configuration = (array) $configuration;
-		return $this;
-	}
+    /**
+     * @param $configuration
+     * @return $this
+     */
+    public function setConfiguration($configuration)
+    {
+        $this->configuration = (array)$configuration;
+        return $this;
+    }
 
-	/**
-	 * @return mixed
-	 */
-	public function getState()
-	{
-		return $this->state;
-	}
+    /**
+     * @return mixed
+     */
+    public function getState()
+    {
+        return $this->state;
+    }
 
-	/**
-	 * @param mixed $state
-	 */
-	public function setState($state)
-	{
-		$this->state = $state;
-		return $this;
-	}
+    /**
+     * @param mixed $state
+     */
+    public function setState($state)
+    {
+        $this->state = $state;
+        return $this;
+    }
 
-	/**
-	 * @return mixed
-	 */
-	public function getChangeDescription()
-	{
-		return $this->changeDescription;
-	}
+    /**
+     * @return mixed
+     */
+    public function getChangeDescription()
+    {
+        return $this->changeDescription;
+    }
 
-	/**
-	 * @param mixed $changeDescription
-	 */
-	public function setChangeDescription($changeDescription)
-	{
-		$this->changeDescription = $changeDescription;
-		return $this;
-	}
-
+    /**
+     * @param mixed $changeDescription
+     */
+    public function setChangeDescription($changeDescription)
+    {
+        $this->changeDescription = $changeDescription;
+        return $this;
+    }
 
 
 }

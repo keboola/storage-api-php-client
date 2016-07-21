@@ -23,7 +23,7 @@ final class HandlerStack
     {
         $handlerStack = HandlerStackBase::create();
         $handlerStack->push(Middleware::retry(
-            self::createDefaultDecider(isset($options['backoffMaxTries'])  ? $options['backoffMaxTries'] : 0),
+            self::createDefaultDecider(isset($options['backoffMaxTries']) ? $options['backoffMaxTries'] : 0),
             self::createExponentialDelay()
         ));
         return $handlerStack;
@@ -51,8 +51,8 @@ final class HandlerStack
 
     private static function createExponentialDelay()
     {
-        return function($retries) {
-            return (int) pow(2, $retries - 1) * 1000;
+        return function ($retries) {
+            return (int)pow(2, $retries - 1) * 1000;
         };
     }
 

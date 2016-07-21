@@ -10,26 +10,27 @@
 namespace Keboola\StorageApi\Options\BucketCredentials;
 
 
-class ListCredentialsOptions {
+class ListCredentialsOptions
+{
 
-	private $bucketId;
+    private $bucketId;
 
-	/**
-	 * @return mixed
-	 */
-	public function getBucketId()
-	{
-		return $this->bucketId;
-	}
+    /**
+     * @return mixed
+     */
+    public function getBucketId()
+    {
+        return $this->bucketId;
+    }
 
-	/**
-	 * @param $bucketId
-	 * @return $this
-	 */
-	public function setBucketId($bucketId)
-	{
-		$this->bucketId = $bucketId;
-		return $this;
-	}
+    /**
+     * @param $bucketId
+     * @return $this
+     */
+    public function setBucketId($bucketId)
+    {
+        $this->bucketId = $bucketId;
+        return $this;
+    }
 
 }
