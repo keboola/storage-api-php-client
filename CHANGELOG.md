@@ -1,3 +1,6 @@
+## 4.14.0 (2016-07-21)
+ * [Feat] `listJobs` method added
+
 ## 4.13.0 (2016-07-19)
  * [Feat] Workspaces - `loadWorkspaceData` action added
 
