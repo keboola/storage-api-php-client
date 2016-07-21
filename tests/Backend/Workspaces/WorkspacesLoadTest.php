@@ -38,7 +38,13 @@ class WorkspaceLoadTest extends WorkspacesTestCase
 
         $input = array($mapping1, $mapping2);
 
-        $workspaces->loadWorkspaceData($workspace['id'],array("input" => $input));
+        // test if job is created and listed
+        $initialJobs = $this->_client->listJobs();
+        $workspaces->loadWorkspaceData($workspace['id'], array("input" => $input));
+        $afterJobs = $this->_client->listJobs();
+
+        $this->assertEquals('workspaceLoad', $afterJobs[0]['operationName']);
+        $this->assertNotEquals($initialJobs[0]['id'], $afterJobs[0]['id']);
 
         $db = $this->getDbConnection($connection);
 
