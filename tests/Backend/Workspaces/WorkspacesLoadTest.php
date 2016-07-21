@@ -35,7 +35,6 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $mapping1 = array("source" => $table1_id, "destination" => "languagesLoaded");
         $mapping2 = array("source" => $table2_id, "destination" => "numbersLoaded");
 
-
         $input = array($mapping1, $mapping2);
 
         // test if job is created and listed
@@ -89,6 +88,48 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             $this->fail('Attempt to write two sources to same destination should fail');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.duplicateDestination', $e->getStringCode());
+        }
+
+        // let's try loading from a table that doesn't exist
+        $mappingInvalidSource = array("source" => "in.c-nonExistentBucket.fakeTable", "destination" => "whatever");
+        $input404 = array($mappingInvalidSource);
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], array("input" => $input404));
+            $this->fail('Source does not exist, this should fail');
+        } catch (ClientException $e) {
+            $this->assertEquals(404, $e->getCode());
+            $this->assertEquals('workspace.sourceNotFound', $e->getStringCode());
+        }
+
+        // test for invalid workspace id
+        $input = array($mapping1);
+        try {
+            $workspaces->loadWorkspaceData(0, array("input" => $input));
+            $this->fail('Should not be able to find a workspace with id 0');
+        } catch (ClientException $e) {
+            $this->assertEquals(404, $e->getCode());
+            $this->assertEquals('workspace.workspaceNotFound', $e->getStringCode());
+        }
+        
+        // test invalid input parameter requests
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], $input);
+            $this->fail('Should return bad request, input is required');
+        } catch (ClientException $e) {
+            $this->assertEquals('workspace.loadRequestInputRequired', $e->getStringCode());
+        }
+
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], array("input" => array(array("source" => $table1_id))));
+            $this->fail('Should return bad request, destination is required');
+        } catch (ClientException $e) {
+            $this->assertEquals('workspace.loadRequestBadInput', $e->getStringCode());
+        }
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], array("input" => array(array("destination" => "destination"))));
+            $this->fail('Should return bad request, destination is required');
+        } catch (ClientException $e) {
+            $this->assertEquals('workspace.loadRequestBadInput', $e->getStringCode());
         }
     }
 
