@@ -2,7 +2,6 @@
 namespace Keboola\StorageApi;
 
 
-
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\MessageFormatter;
 use GuzzleHttp\Middleware;
@@ -102,15 +101,15 @@ class Client
 		$this->token = $config['token'];
 
 		if (isset($config['backoffMaxTries'])) {
-			$this->backoffMaxTries = (int) $config['backoffMaxTries'];
+			$this->backoffMaxTries = (int)$config['backoffMaxTries'];
 		}
 
 		if (isset($config['awsRetries'])) {
-			$this->awsRetries = (int) $config['awsRetries'];
+			$this->awsRetries = (int)$config['awsRetries'];
 		}
 
 		if (isset($config['awsDebug'])) {
-			$this->awsDebug = (bool) $config['awsDebug'];
+			$this->awsDebug = (bool)$config['awsDebug'];
 		}
 
 
@@ -190,7 +189,7 @@ class Client
 	public function getBucketId($name, $stage)
 	{
 		$buckets = $this->listBuckets();
-		foreach($buckets as $bucket) {
+		foreach ($buckets as $bucket) {
 			if ($bucket["stage"] == $stage && $bucket["name"] == $name) {
 				return $bucket["id"];
 			}
@@ -220,7 +219,7 @@ class Client
 	 *
 	 * @return string bucket Id
 	 */
-	public function createBucket($name, $stage, $description =  "", $backend = null)
+	public function createBucket($name, $stage, $description = "", $backend = null)
 	{
 		$options = array(
 			"name" => $name,
@@ -282,7 +281,7 @@ class Client
 			'value' => $value,
 		);
 		if ($protected !== null) {
-			$data['protected'] = (bool) $protected;
+			$data['protected'] = (bool)$protected;
 		}
 		$this->apiPost("storage/buckets/$bucketId/attributes/$key", $data);
 	}
@@ -478,11 +477,11 @@ class Client
 		);
 
 		if (isset($options['aliasFilter'])) {
-			$filteredOptions['aliasFilter'] = (array) $options['aliasFilter'];
+			$filteredOptions['aliasFilter'] = (array)$options['aliasFilter'];
 		}
 
 		if (isset($options['aliasColumns'])) {
-			$filteredOptions['aliasColumns'] = (array) $options['aliasColumns'];
+			$filteredOptions['aliasColumns'] = (array)$options['aliasColumns'];
 		}
 
 		$result = $this->apiPost("storage/buckets/" . $bucketId . "/table-aliases", $filteredOptions);
@@ -600,7 +599,7 @@ class Client
 	 * @param array $options
 	 * @return array
 	 */
-	public function listTables($bucketId=null, $options = array())
+	public function listTables($bucketId = null, $options = array())
 	{
 		if ($bucketId) {
 			return $this->apiGet("storage/buckets/{$bucketId}/tables?" . http_build_query($options));
@@ -619,7 +618,7 @@ class Client
 	public function getTableId($name, $bucketId)
 	{
 		$tables = $this->listTables($bucketId);
-		foreach($tables as $table) {
+		foreach ($tables as $table) {
 			if ($table["name"] == $name) {
 				return $table["id"];
 			}
@@ -631,13 +630,13 @@ class Client
 	 * @param $tableId
 	 * @param CsvFile $csvFile
 	 * @param array $options
-	 * 	Available options:
+	 *    Available options:
 	 *  - incremental
 	 *  - partial
 	 * @return mixed|string
 	 * @throws ClientException
 	 */
-	public function writeTable($tableId, CsvFile $csvFile,  $options = array())
+	public function writeTable($tableId, CsvFile $csvFile, $options = array())
 	{
 		$optionsExtended = $this->writeTableOptionsPrepare(array_merge($options, array(
 			"delimiter" => $csvFile->getDelimiter(),
@@ -654,7 +653,7 @@ class Client
 			}
 		}
 
-		$result = $this->apiPostMultipart("storage/tables/{$tableId}/import" , $this->prepareMultipartData($optionsExtended));
+		$result = $this->apiPostMultipart("storage/tables/{$tableId}/import", $this->prepareMultipartData($optionsExtended));
 
 		$this->log("Data written to table {$tableId}", array("options" => $optionsExtended, "result" => $result));
 		return $result;
@@ -724,8 +723,8 @@ class Client
 		$filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
 
 		return array_merge($filteredOptions, array(
-			"incremental" => isset($options['incremental']) ? (bool) $options['incremental'] : false,
-			"partial" => isset($options['partial']) ? (bool) $options['partial'] : false,
+			"incremental" => isset($options['incremental']) ? (bool)$options['incremental'] : false,
+			"partial" => isset($options['partial']) ? (bool)$options['partial'] : false,
 		));
 	}
 
@@ -782,7 +781,7 @@ class Client
 			'value' => $value,
 		);
 		if ($protected !== null) {
-			$data['protected'] = (bool) $protected;
+			$data['protected'] = (bool)$protected;
 		}
 		$this->apiPost("storage/tables/$tableId/attributes/$key", $data);
 	}
@@ -906,6 +905,11 @@ class Client
 		return $this->apiGet("storage/jobs/" . $jobId);
 	}
 
+	public function listJobs($options = [])
+	{
+		return $this->apiGet("storage/jobs?" . http_build_query($options));
+	}
+
 	/**
 	 *
 	 * returns all tokens
@@ -968,14 +972,14 @@ class Client
 	 * @param bool $canReadAllFileUploads
 	 * @return integer token id
 	 */
-	public function createToken($permissions, $description=null, $expiresIn = null, $canReadAllFileUploads = false, $componentAccess = null)
+	public function createToken($permissions, $description = null, $expiresIn = null, $canReadAllFileUploads = false, $componentAccess = null)
 	{
 		$options = array();
 
 		if ($permissions == 'manage') {
 			$options['canManageBuckets'] = 1;
 		} else {
-			foreach((array) $permissions as $tableId => $permission) {
+			foreach ((array)$permissions as $tableId => $permission) {
 				$key = "bucketPermissions[{$tableId}]";
 				$options[$key] = $permission;
 			}
@@ -984,12 +988,12 @@ class Client
 			$options["description"] = $description;
 		}
 		if ($expiresIn) {
-			$options["expiresIn"] = (int) $expiresIn;
+			$options["expiresIn"] = (int)$expiresIn;
 		}
-		$options['canReadAllFileUploads'] = (bool) $canReadAllFileUploads;
+		$options['canReadAllFileUploads'] = (bool)$canReadAllFileUploads;
 
 		if ($componentAccess) {
-			foreach((array) $componentAccess as $index => $component) {
+			foreach ((array)$componentAccess as $index => $component) {
 				$options['componentAccess[{$index}]'] = $component;
 			}
 		}
@@ -1012,7 +1016,7 @@ class Client
 	public function updateToken($tokenId, $permissions, $description = null, $canReadAllFileUploads = null, $componentAccess = null)
 	{
 		$options = array();
-		foreach($permissions as $tableId => $permission) {
+		foreach ($permissions as $tableId => $permission) {
 			$key = "bucketPermissions[{$tableId}]";
 			$options[$key] = $permission;
 		}
@@ -1021,11 +1025,11 @@ class Client
 		}
 
 		if (!is_null($canReadAllFileUploads)) {
-			$options["canReadAllFileUploads"] = (bool) $canReadAllFileUploads;
+			$options["canReadAllFileUploads"] = (bool)$canReadAllFileUploads;
 		}
 
 		if ($componentAccess) {
-			foreach((array) $componentAccess as $index => $component) {
+			foreach ((array)$componentAccess as $index => $component) {
 				$options['componentAccess[{$index}]'] = $component;
 			}
 		}
@@ -1093,7 +1097,7 @@ class Client
 	 * @param string $tableId
 	 * @param string null $fileName export to file if specified, instead table content is returned
 	 * @param array $options all options are optional
-	 * 	- (int) limit,
+	 *    - (int) limit,
 	 *  - (timestamp | strtotime format) changedSince
 	 *  - (timestamp | strtotime format) changedUntil
 	 *  - (bool) escape
@@ -1116,7 +1120,7 @@ class Client
 	 *
 	 * @param $tableId
 	 * @param array $options
-	 * 	- (int) limit,
+	 *    - (int) limit,
 	 *  - (timestamp | strtotime format) changedSince
 	 *  - (timestamp | strtotime format) changedUntil
 	 *  - (bool) escape
@@ -1148,11 +1152,11 @@ class Client
 		$filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
 
 		if (isset($options['columns'])) {
-			$filteredOptions['columns'] = implode(',', (array) $options['columns']);
+			$filteredOptions['columns'] = implode(',', (array)$options['columns']);
 		}
 
 		if (isset($options['whereValues'])) {
-			$filteredOptions['whereValues'] = (array) $options['whereValues'];
+			$filteredOptions['whereValues'] = (array)$options['whereValues'];
 		}
 
 		return $filteredOptions;
@@ -1177,7 +1181,7 @@ class Client
 		$filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
 
 		if (isset($options['whereValues'])) {
-			$filteredOptions['whereValues'] = (array) $options['whereValues'];
+			$filteredOptions['whereValues'] = (array)$options['whereValues'];
 		}
 
 		$url .= '?' . http_build_query($filteredOptions);
@@ -1218,7 +1222,7 @@ class Client
 			$process = new Process($command);
 			$process->setTimeout(null);
 			if (0 !== $process->run()) {
-				$error = sprintf('The command "%s" failed.'."\nExit Code: %s(%s)",
+				$error = sprintf('The command "%s" failed.' . "\nExit Code: %s(%s)",
 					$process->getCommandLine(),
 					$process->getExitCode(),
 					$process->getExitCodeText()
@@ -1241,7 +1245,6 @@ class Client
 		$uploadParams = $result['uploadParams'];
 
 
-
 		$options = [
 			'version' => '2006-03-01',
 			'retries' => $this->getAwsRetries(),
@@ -1255,13 +1258,13 @@ class Client
 		];
 
 		if ($this->isAwsDebug()) {
-			$logfn = function($message) {
+			$logfn = function ($message) {
 				if (trim($message) != '') {
 					$this->log($message, ['source' => 'AWS SDK PHP debug']);
 				}
 			};
 			$options['debug'] = [
-				'logfn' => function($message) use ($logfn) {
+				'logfn' => function ($message) use ($logfn) {
 					call_user_func($logfn, $message);
 				},
 				'stream_size' => 0,
@@ -1279,9 +1282,9 @@ class Client
 
 		$putParams = array(
 			'Bucket' => $uploadParams['bucket'],
-			'Key'    => $uploadParams['key'],
-			'ACL'	=> $uploadParams['acl'],
-			'Body'   => $fh,
+			'Key' => $uploadParams['key'],
+			'ACL' => $uploadParams['acl'],
+			'Body' => $fh,
 		);
 
 		if ($newOptions->getIsEncrypted()) {
@@ -1341,7 +1344,7 @@ class Client
 	 */
 	public function getFile($fileId, GetFileOptions $options = null)
 	{
-		return $this->apiGet("storage/files/$fileId?". http_build_query($options ? $options->toArray() : array()));
+		return $this->apiGet("storage/files/$fileId?" . http_build_query($options ? $options->toArray() : array()));
 	}
 
 	/**
@@ -1531,7 +1534,7 @@ class Client
 	 * @param array $postData
 	 * @return mixed|stringgit d
 	 */
-	public function apiPut($url, $postData=null)
+	public function apiPut($url, $postData = null)
 	{
 		return $this->request('put', $this->versionUrl($url), [
 			'form_params' => $postData,
@@ -1549,8 +1552,9 @@ class Client
 	{
 		return $this->request('delete', $this->versionUrl($url));
 	}
-	
-	public function apiDeleteParams($url, $data) {
+
+	public function apiDeleteParams($url, $data)
+	{
 		$options = array();
 		$options['headers']['Content-Type'] = 'application/x-www-form-urlencoded';
 		$options['body'] = http_build_query($data, '', '&');
@@ -1590,10 +1594,10 @@ class Client
 			$response = $this->client->request($method, $url, $requestOptions);
 		} catch (RequestException $e) {
 			$response = $e->getResponse();
-			$body = $response ? json_decode((string) $response->getBody(), true) : array();
+			$body = $response ? json_decode((string)$response->getBody(), true) : array();
 
 			if ($response && $response->getStatusCode() == 503) {
-				throw new MaintenanceException(isset($body["reason"]) ? $body['reason'] : 'Maintenance', $response && $response->hasHeader('Retry-After') ? (string) $response->getHeader('Retry-After')[0] : null, $body);
+				throw new MaintenanceException(isset($body["reason"]) ? $body['reason'] : 'Maintenance', $response && $response->hasHeader('Retry-After') ? (string)$response->getHeader('Retry-After')[0] : null, $body);
 			}
 
 			throw new ClientException(
@@ -1626,10 +1630,10 @@ class Client
 		}
 
 		if ($response->hasHeader('Content-Type') && $response->getHeader('Content-Type')[0] == 'application/json') {
-			return json_decode((string) $response->getBody(), true);
+			return json_decode((string)$response->getBody(), true);
 		}
 
-		return (string) $response->getBody();
+		return (string)$response->getBody();
 	}
 
 	private function fixRequestBody(array $body)
@@ -1655,7 +1659,7 @@ class Client
 	 */
 	private function handleAsyncTask(Response $jobCreatedResponse)
 	{
-		$job = json_decode((string) $jobCreatedResponse->getBody(), true);
+		$job = json_decode((string)$jobCreatedResponse->getBody(), true);
 		$job = $this->waitForJob($job['id']);
 
 		if ($job['status'] == 'error') {
@@ -1694,7 +1698,7 @@ class Client
 
 			$job = $this->getJob($jobId);
 			$jobId = $job['id'];
-		} while(!in_array($job['status'], array('success', 'error')));
+		} while (!in_array($job['status'], array('success', 'error')));
 
 		return $job;
 	}
@@ -1732,7 +1736,7 @@ class Client
 	 * @param string $enclosure CSV field enclosure (should remain '"' with new CSV handling)
 	 * @return array
 	 */
-	public static function parseCsv($csvString, $header=true, $delimiter=",", $enclosure='"')
+	public static function parseCsv($csvString, $header = true, $delimiter = ",", $enclosure = '"')
 	{
 		$data = array();
 		$headers = array();
@@ -1755,7 +1759,7 @@ class Client
 					$headers = $parsedLine;
 				} else {
 					$lineData = array();
-					foreach($headers as $i => $headerName) {
+					foreach ($headers as $i => $headerName) {
 						$lineData[$headerName] = $parsedLine[$i];
 					}
 					$data[] = $lineData;
@@ -1829,7 +1833,7 @@ class Client
 		if (!isset($data["components"])) {
 			return $components;
 		}
-		foreach($data["components"] as $component) {
+		foreach ($data["components"] as $component) {
 			$components[$component["id"]] = $component["uri"];
 		}
 		return $components;
@@ -1846,7 +1850,7 @@ class Client
 		foreach ($data as $key => $value) {
 			$multipart[] = [
 				'name' => $key,
-				'contents' => in_array(gettype($value), ['object', 'resource', 'NULL']) ? $value : (string) $value,
+				'contents' => in_array(gettype($value), ['object', 'resource', 'NULL']) ? $value : (string)$value,
 			];
 		}
 		return $multipart;
