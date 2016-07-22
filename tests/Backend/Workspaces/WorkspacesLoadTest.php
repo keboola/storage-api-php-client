@@ -114,16 +114,40 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $tables = array_flip($tableNames);
         $this->assertCount(1, array_keys($tables));
         $this->assertArrayHasKey("table3", $tables);
+    }
+
+    public function testDuplicateDestination()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+
+        //setup test tables
+        $table1_id = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN), 'languages',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+        $table2_id = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN), 'numbers',
+            new CsvFile(__DIR__ . '/../../_data/numbers.csv')
+        );
 
         // now let's try and load 2 different sources to the same destination, this request should be rejected
-        $mapping4 = array("source" => $table2_id, "destination" => "languagesLoaded");
-        $inputDupFail = array($mapping1, $mapping4);
+        $mapping1 = array("source" => $table1_id, "destination" => "languagesLoaded");
+        $mapping2 = array("source" => $table2_id, "destination" => "languagesLoaded");
+        $inputDupFail = array($mapping1, $mapping2);
+
         try {
             $workspaces->loadWorkspaceData($workspace['id'], array("input" => $inputDupFail));
             $this->fail('Attempt to write two sources to same destination should fail');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.duplicateDestination', $e->getStringCode());
         }
+    }
+
+    public function testSourceTableNotFound()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
 
         // let's try loading from a table that doesn't exist
         $mappingInvalidSource = array("source" => "in.c-nonExistentBucket.fakeTable", "destination" => "whatever");
@@ -135,9 +159,24 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             $this->assertEquals(404, $e->getCode());
             $this->assertEquals('workspace.sourceNotFound', $e->getStringCode());
         }
+    }
+
+    public function testInvalidInputs()
+    {
+        $workspaces = new Workspaces($this->_client);
+
+        $workspace = $workspaces->createWorkspace();
+
+        //setup test tables
+        $table1_id = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN), 'languages',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+
+        $mapping1 = array("source" => $table1_id, "destination" => "languagesLoaded");
+        $input = array($mapping1);
 
         // test for invalid workspace id
-        $input = array($mapping1);
         try {
             $workspaces->loadWorkspaceData(0, array("input" => $input));
             $this->fail('Should not be able to find a workspace with id 0');
@@ -145,8 +184,8 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             $this->assertEquals(404, $e->getCode());
             $this->assertEquals('workspace.workspaceNotFound', $e->getStringCode());
         }
-        
-        // test invalid input parameter requests
+
+        // test invalid input parameter
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $input);
             $this->fail('Should return bad request, input is required');
