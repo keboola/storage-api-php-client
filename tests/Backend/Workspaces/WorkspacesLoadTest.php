@@ -14,6 +14,41 @@ use Keboola\StorageApi\ClientException;
 
 class WorkspaceLoadTest extends WorkspacesTestCase
 {
+
+    public function testWorkspaceTablesPermissions()
+    {
+        $workspaces = new Workspaces($this->_client);
+
+        $workspace = $workspaces->createWorkspace();
+
+        //setup test tables
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN), 'languages',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+
+        $workspaces->loadWorkspaceData($workspace['id'], [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                ],
+                [
+                    'source' => $tableId,
+                    'destination' => 'langs',
+                ]
+            ],
+        ]);
+
+        $db = $this->getDbConnection($workspace['connection']);
+
+        $db->query('DROP TABLE ' . $db->quoteIdentifier('languages'));
+
+        $tables = $db->fetchAll("SHOW TABLES");
+        $this->assertCount(1, $tables);
+        $this->assertEquals('langs', reset($tables)['name']);
+    }
+
     public function testWorkspaceLoad()
     {
         $workspaces = new Workspaces($this->_client);
