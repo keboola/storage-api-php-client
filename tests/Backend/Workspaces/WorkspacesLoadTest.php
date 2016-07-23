@@ -9,6 +9,7 @@
 namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\Csv\CsvFile;
+use Keboola\StorageApi\Client;
 use Keboola\StorageApi\Workspaces;
 use Keboola\StorageApi\ClientException;
 
@@ -91,6 +92,15 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $this->assertCount(2, array_keys($tables));
         $this->assertArrayHasKey("languagesLoaded", $tables);
         $this->assertArrayHasKey("numbersLoaded", $tables);
+
+
+
+        // check table structure and data
+        $data = $db->fetchAll("SELECT * FROM \"languagesLoaded\"");
+        $this->assertCount(2, $data[0], 'there should be two columns');
+        $this->assertArrayHasKey('id', $data[0]);
+        $this->assertArrayHasKey('name', $data[0]);
+        $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ",", '"'), $data, 'id');
 
         // now we'll load another table and use the preserve parameters to check that all tables are present
         $mapping3 = array("source" => $table1_id, "destination" => "table3");
