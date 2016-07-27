@@ -10,7 +10,7 @@ class SnowflakeWorkspaceBackend implements WorkspaceBackend {
 
     private $schema;
 
-    private function getDBConnection($connection)
+    private function getDbConnection($connection)
     {
         $db = new Connection([
             'host' => $connection['host'],
@@ -27,7 +27,7 @@ class SnowflakeWorkspaceBackend implements WorkspaceBackend {
     
     public function __construct($workspace)
     {
-        $this->db = $this->getDBConnection($workspace['connection']);
+        $this->db = $this->getDbConnection($workspace['connection']);
         $this->schema = $workspace['connection']['schema'];
     }
 
