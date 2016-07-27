@@ -56,6 +56,11 @@ class Workspaces
         $this->client->apiDelete("storage/workspaces/{$id}");
     }
 
+    /**
+     * @param $id
+     * @param array $options -- required input[mappings], optional preserve
+     * @return mixed|string
+     */
     public function loadWorkspaceData($id, array $options = [])
     {
         return $this->client->apiPost("storage/workspaces/{$id}/load", $options);

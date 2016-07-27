@@ -20,7 +20,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $workspaces = new Workspaces($this->_client);
 
         $workspace = $workspaces->createWorkspace();
-
+        
         //setup test tables
         $tableId = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN), 'languages',
@@ -40,13 +40,13 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             ],
         ]);
 
-        $db = $this->getDbConnection($workspace['connection']);
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-        $db->query('DROP TABLE ' . $db->quoteIdentifier('languages'));
+        $backend->dropTable('languages');
 
-        $tables = $db->fetchAll("SHOW TABLES");
+        $tables = $backend->getTables();
         $this->assertCount(1, $tables);
-        $this->assertEquals('langs', reset($tables)['name']);
+        $this->assertEquals('langs', reset($tables)[0]);
     }
 
     public function testWorkspaceLoad()
@@ -80,42 +80,74 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $this->assertEquals('workspaceLoad', $afterJobs[0]['operationName']);
         $this->assertNotEquals($initialJobs[0]['id'], $afterJobs[0]['id']);
 
-        $db = $this->getDbConnection($connection);
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-        $tableNames = array_map(function ($table) {
-            return $table['name'];
-        }, $db->fetchAll(sprintf("SHOW TABLES IN SCHEMA %s", $db->quoteIdentifier($connection["schema"]))));
+        $tables = $backend->getTables();
 
         // check that the tables are in the workspace
-        $tables = array_flip($tableNames);
-        $this->assertCount(2, array_keys($tables));
-        $this->assertArrayHasKey("languagesLoaded", $tables);
-        $this->assertArrayHasKey("numbersLoaded", $tables);
+        $this->assertCount(2, $tables);
+        $this->assertContains("languagesLoaded", $tables);
+        $this->assertContains("numbersLoaded", $tables);
 
         // now we'll load another table and use the preserve parameters to check that all tables are present
         $mapping3 = array("source" => $table1_id, "destination" => "table3");
         $workspaces->loadWorkspaceData($workspace['id'], array("input" => array($mapping3), "preserve" => true));
 
-        $tableNames = array_map(function ($table) {
-            return $table['name'];
-        }, $db->fetchAll(sprintf("SHOW TABLES IN SCHEMA %s", $db->quoteIdentifier($connection["schema"]))));
+        $tables = $backend->getTables();
 
-        $tables = array_flip($tableNames);
-        $this->assertCount(3, array_keys($tables));
-        $this->assertArrayHasKey("table3", $tables);
-        $this->assertArrayHasKey("languagesLoaded", $tables);
-        $this->assertArrayHasKey("numbersLoaded", $tables);
+        $this->assertCount(3, $tables);
+        $this->assertContains("table3", $tables);
+        $this->assertContains("languagesLoaded", $tables);
+        $this->assertContains("numbersLoaded", $tables);
 
         // now we'll try the same load, but it should clear the workspace first (preserve is false by default)
         $workspaces->loadWorkspaceData($workspace['id'], array("input" => array($mapping3)));
-        $tableNames = array_map(function ($table) {
-            return $table['name'];
-        }, $db->fetchAll(sprintf("SHOW TABLES IN SCHEMA %s", $db->quoteIdentifier($connection["schema"]))));
-        $tables = array_flip($tableNames);
-        $this->assertCount(1, array_keys($tables));
-        $this->assertArrayHasKey("table3", $tables);
+
+        $tables = $backend->getTables();
+        $this->assertCount(1, $tables);
+        $this->assertContains("table3", $tables);
     }
 
+    public function testWorkspaceLoadColumns()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        //setup test tables
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN), 'languagesColumns',
+            new CsvFile(__DIR__ . '/../../_data/languages-more-columns.csv')
+        );
+
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languagesIso',
+                    'columns' => ["Id","iso"]
+                ],
+                [
+                    'source' => $tableId,
+                    'destination' => 'languagesSomething',
+                    'columns' => ["Name","Something"]
+                ]
+            ]
+        ];
+
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+
+        // check that the tables have the appropriate columns
+        $columns = $backend->getTableColumns("languagesIso");
+        $this->assertEquals(count($columns),2);
+        $this->assertLinesEqualsSorted($columns, $options['input'][0]['columns']);
+
+        $columns = $backend->getTableColumns("languagesSomething");
+        $this->assertEquals(count($columns),2);
+        $this->assertLinesEqualsSorted($columns, $options['input'][1]['columns']);
+    }
+    
     public function testDuplicateDestination()
     {
         $workspaces = new Workspaces($this->_client);
