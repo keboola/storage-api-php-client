@@ -28,13 +28,12 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend {
     
     public function getTableColumns($table)
     {
-        $stmt = $this->db->prepare("select column_name from information_schema.columns WHERE table_schema = \"{$this->schema}\" AND table_name = ?;");
+        $stmt = $this->db->prepare("SELECT \"column\" FROM PG_TABLE_DEF WHERE tablename = ?;");
         $stmt->execute(array($table));
-        return array_map(function ($column) {
-                return $column['column_name'];
+        return array_map(function ($row) {
+                return $row['column'];
             },  $stmt->fetchAll()
         );
-
     }
 
     public function getTables()

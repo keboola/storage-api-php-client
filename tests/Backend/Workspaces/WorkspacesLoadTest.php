@@ -11,10 +11,10 @@ namespace Keboola\Test\Backend\Workspaces;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Workspaces;
 use Keboola\StorageApi\ClientException;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class WorkspaceLoadTest extends WorkspacesTestCase
 {
-
     public function testWorkspaceTablesPermissions()
     {
         $workspaces = new Workspaces($this->_client);
@@ -46,7 +46,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
 
         $tables = $backend->getTables();
         $this->assertCount(1, $tables);
-        $this->assertEquals('langs', reset($tables)[0]);
+        $this->assertEquals('langs', $tables[0]);
     }
 
     public function testWorkspaceLoad()
@@ -54,7 +54,6 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $workspaces = new Workspaces($this->_client);
 
         $workspace = $workspaces->createWorkspace();
-        $connection = $workspace['connection'];
 
         //setup test tables
         $table1_id = $this->_client->createTable(
@@ -83,11 +82,11 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $tables = $backend->getTables();
-
+        
         // check that the tables are in the workspace
         $this->assertCount(2, $tables);
-        $this->assertContains("languagesLoaded", $tables);
-        $this->assertContains("numbersLoaded", $tables);
+        $this->assertContains($backend->toIdentifier("languagesLoaded"), $tables);
+        $this->assertContains($backend->toIdentifier("numbersLoaded"), $tables);
 
         // now we'll load another table and use the preserve parameters to check that all tables are present
         $mapping3 = array("source" => $table1_id, "destination" => "table3");
@@ -96,16 +95,16 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $tables = $backend->getTables();
 
         $this->assertCount(3, $tables);
-        $this->assertContains("table3", $tables);
-        $this->assertContains("languagesLoaded", $tables);
-        $this->assertContains("numbersLoaded", $tables);
+        $this->assertContains($backend->toIdentifier("table3"), $tables);
+        $this->assertContains($backend->toIdentifier("languagesLoaded"), $tables);
+        $this->assertContains($backend->toIdentifier("numbersLoaded"), $tables);
 
         // now we'll try the same load, but it should clear the workspace first (preserve is false by default)
         $workspaces->loadWorkspaceData($workspace['id'], array("input" => array($mapping3)));
 
         $tables = $backend->getTables();
         $this->assertCount(1, $tables);
-        $this->assertContains("table3", $tables);
+        $this->assertContains($backend->toIdentifier("table3"), $tables);
     }
 
     public function testWorkspaceLoadColumns()
@@ -139,13 +138,13 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
         // check that the tables have the appropriate columns
-        $columns = $backend->getTableColumns("languagesIso");
-        $this->assertEquals(count($columns),2);
-        $this->assertLinesEqualsSorted($columns, $options['input'][0]['columns']);
+        $columns = $backend->getTableColumns($backend->toIdentifier("languagesIso"));
+        $this->assertEquals(2, count($columns));
+        $this->assertEquals(0, count(array_diff($columns, $backend->toIdentifier($options['input'][0]['columns']))));
 
-        $columns = $backend->getTableColumns("languagesSomething");
-        $this->assertEquals(count($columns),2);
-        $this->assertLinesEqualsSorted($columns, $options['input'][1]['columns']);
+        $columns = $backend->getTableColumns($backend->toIdentifier("languagesSomething"));
+        $this->assertEquals(2, count($columns));
+        $this->assertEquals(0, count(array_diff($columns, $backend->toIdentifier($options['input'][1]['columns']))));
     }
     
     public function testDuplicateDestination()
