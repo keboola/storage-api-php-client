@@ -57,6 +57,13 @@ class SnowflakeWorkspaceBackend implements WorkspaceBackend {
         $this->db->query(sprintf("DROP TABLE %s;", $this->db->quoteIdentifier($table)));
     }
 
+    public function countRows($table)
+    {
+        $count = $this->db->fetchAll(sprintf("SELECT count(*) FROM %s;", $this->db->quoteIdentifier($table)));
+        var_dump($count);
+        return $count[0]['COUNT(*)'];
+    }
+
     public function toIdentifier($item) {
         return $item;
     }

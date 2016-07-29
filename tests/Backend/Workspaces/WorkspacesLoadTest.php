@@ -81,6 +81,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
+        $backend->select("languagesloaded");
         $tables = $backend->getTables();
         
         // check that the tables are in the workspace
@@ -164,7 +165,43 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             $this->assertEquals("storage.tables.nonExistingColumns", $e->getStringCode());
         }
     }
-    
+
+    public function testLoadDaysFilter()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN), 'languages',
+            new CsvFile($importFile)
+        );
+        $originalFileLinesCount = exec("wc -l <" . escapeshellarg($importFile));
+        sleep(5);
+        $startTime = time();
+        $importCsv = new \Keboola\Csv\CsvFile($importFile);
+        $this->_client->writeTable($tableId, $importCsv, array(
+            'incremental' => true,
+        ));
+        $this->_client->writeTable($tableId, $importCsv, array(
+            'incremental' => true,
+        ));
+
+        $options = array('input' => [
+            [
+                'source' => $tableId,
+                'destination' => 'languages',
+                'days' => (time() - $startTime + 5)/86400
+            ]
+        ]);
+
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+        // ok, the table should only have rows from the 2 most recent loads
+        $numRows = $backend->countRows("languages");
+        $this->assertEquals(2 * ($originalFileLinesCount - 1), $numRows, "days parameter");
+    }
+
     public function testDuplicateDestination()
     {
         $workspaces = new Workspaces($this->_client);

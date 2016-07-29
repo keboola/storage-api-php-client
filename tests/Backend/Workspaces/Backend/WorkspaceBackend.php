@@ -17,6 +17,8 @@ interface WorkspaceBackend
     
     public function dropTable($table);
 
+    public function countRows($table);
+    
     // This will return the item as it would be returned by the backend.
     // Required because bloody redshift does -- Standard and delimited identifiers are case-insensitive and are folded to lower case
     public function toIdentifier($item);
