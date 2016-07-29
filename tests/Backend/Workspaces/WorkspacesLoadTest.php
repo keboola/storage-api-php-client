@@ -145,6 +145,24 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $columns = $backend->getTableColumns($backend->toIdentifier("languagesSomething"));
         $this->assertEquals(2, count($columns));
         $this->assertEquals(0, count(array_diff($columns, $backend->toIdentifier($options['input'][1]['columns']))));
+
+        // test for invalid columns
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languagesIso',
+                    'columns' => ["Id","iso","not-a-column"]
+                ]
+            ]
+        ];
+
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], $options);
+            $this->fail("Trying to select a non existent column should fail");
+        } catch (ClientException $e) {
+            $this->assertEquals("storage.tables.nonExistingColumns", $e->getStringCode());
+        }
     }
     
     public function testDuplicateDestination()
