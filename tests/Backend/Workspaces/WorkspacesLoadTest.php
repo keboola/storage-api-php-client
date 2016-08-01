@@ -228,6 +228,37 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $this->assertEquals(2, $numrows, 'rows parameter');
     }
 
+    /**
+     * @param $exportOptions
+     * @param $expectedResult
+     * @dataProvider tableExportFiltersData
+     */
+    public function testWorkspaceExportFilters($exportOptions, $expectedResult)
+    {
+        $importFile = __DIR__ . '/../../_data/users.csv';
+        $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));
+        $this->_client->markTableColumnAsIndexed($tableId, 'city');
+
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $options = array(
+            "input" => [
+                array_merge([
+                    "source" => $tableId,
+                    "destination" => 'filter-test'
+                ], $exportOptions)
+            ]
+        );
+
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+
+        $data = $backend->fetchAll('filter-test');
+
+        $this->assertArrayEqualsSorted($expectedResult, $data, 0);
+    }
+
     public function testDuplicateDestination()
     {
         $workspaces = new Workspaces($this->_client);

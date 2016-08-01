@@ -53,10 +53,17 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend {
 
     public function countRows($table)
     {
-        $stmt = $this->db->prepare(sprintf("select count(*) as count from \"{$this->schema}\".%s", $table));
+        $stmt = $this->db->prepare(sprintf("select count(*) as count from \"{$this->schema}\".%s", $this->db->quote($table)));
         $stmt->execute();
         $count = $stmt->fetch();
         return $count['count'];
+    }
+
+    public function fetchAll($table)
+    {
+        $stmt = $this->db->prepare(sprintf("SELECT * FROM \"{$this->schema}\".\"%s\"", $table));
+        $stmt->execute();
+        return $stmt->fetchAll(\PDO::FETCH_NUM);
     }
 
     public function toIdentifier($item)
