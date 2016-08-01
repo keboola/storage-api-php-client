@@ -166,7 +166,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         }
     }
 
-    public function testLoadDaysFilter()
+    public function testSecondsFilter()
     {
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
@@ -178,7 +178,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             new CsvFile($importFile)
         );
         $originalFileLinesCount = exec("wc -l <" . escapeshellarg($importFile));
-        sleep(5);
+        sleep(10);
         $startTime = time();
         $importCsv = new \Keboola\Csv\CsvFile($importFile);
         $this->_client->writeTable($tableId, $importCsv, array(
@@ -192,7 +192,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             [
                 'source' => $tableId,
                 'destination' => 'languages',
-                'days' => (time() - $startTime + 5)/86400
+                'seconds' => ceil(time() - $startTime) + 5
             ]
         ]);
 
@@ -200,6 +200,32 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         // ok, the table should only have rows from the 2 most recent loads
         $numRows = $backend->countRows("languages");
         $this->assertEquals(2 * ($originalFileLinesCount - 1), $numRows, "days parameter");
+    }
+
+    public function testRowsParameter()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN), 'languages',
+            new CsvFile($importFile)
+        );
+
+        $options = array('input' => [
+            [
+                'source' => $tableId,
+                'destination' => 'languages',
+                'rows' => 2
+            ]
+        ]);
+
+        $workspaces->loadWorkspaceData($workspace['id'],$options);
+
+        $numrows = $backend->countRows('languages');
+        $this->assertEquals(2, $numrows, 'rows parameter');
     }
 
     public function testDuplicateDestination()
