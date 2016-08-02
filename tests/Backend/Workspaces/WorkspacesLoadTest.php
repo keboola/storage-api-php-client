@@ -81,7 +81,6 @@ class WorkspaceLoadTest extends WorkspacesTestCase
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-        $backend->select("languagesloaded");
         $tables = $backend->getTables();
         
         // check that the tables are in the workspace
@@ -255,7 +254,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
         $data = $backend->fetchAll('filter-test');
-
+        
         $this->assertArrayEqualsSorted($expectedResult, $data, 0);
     }
 
