@@ -198,7 +198,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $workspaces->loadWorkspaceData($workspace['id'], $options);
         // ok, the table should only have rows from the 2 most recent loads
         $numRows = $backend->countRows("languages");
-        $this->assertEquals(2 * ($originalFileLinesCount - 1), $numRows, "days parameter");
+        $this->assertEquals(2 * ($originalFileLinesCount - 1), $numRows, "seconds parameter");
     }
 
     public function testRowsParameter()
@@ -254,7 +254,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
         $data = $backend->fetchAll('filter-test');
-        
+
         $this->assertArrayEqualsSorted($expectedResult, $data, 0);
     }
 
