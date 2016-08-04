@@ -48,12 +48,12 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend {
 
     public function dropTable($table)
     {
-        $this->db->query(sprintf("DROP TABLE \"{$this->schema}\".%s;", $this->db->quote($table)));
+        $this->db->query(sprintf("DROP TABLE \"{$this->schema}\".\"%s\";", $table));
     }
 
     public function countRows($table)
     {
-        $stmt = $this->db->prepare(sprintf("select count(*) as count from \"{$this->schema}\".%s", $this->db->quote($table)));
+        $stmt = $this->db->prepare(sprintf("select count(*) as count from \"{$this->schema}\".\"%s\"", $table));
         $stmt->execute();
         $count = $stmt->fetch();
         return $count['count'];

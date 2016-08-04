@@ -49,7 +49,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $this->assertEquals('langs', $tables[0]);
     }
 
-    public function testWorkspaceLoad()
+    public function testWorkspaceLoadData()
     {
         $workspaces = new Workspaces($this->_client);
 
