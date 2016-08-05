@@ -89,10 +89,8 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $this->assertContains($backend->toIdentifier("languagesLoaded"), $tables);
         $this->assertContains($backend->toIdentifier("numbersLoaded"), $tables);
 
-
-
         // check table structure and data
-        $data = $db->fetchAll("SELECT * FROM \"languagesLoaded\"");
+        $data = $backend->fetchAll("languagesLoaded", \PDO::FETCH_ASSOC);
         $this->assertCount(2, $data[0], 'there should be two columns');
         $this->assertArrayHasKey('id', $data[0]);
         $this->assertArrayHasKey('name', $data[0]);

@@ -59,11 +59,11 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend {
         return $count['count'];
     }
 
-    public function fetchAll($table)
+    public function fetchAll($table, $style = \PDO::FETCH_NUM)
     {
         $stmt = $this->db->prepare(sprintf("SELECT * FROM \"{$this->schema}\".\"%s\"", $table));
         $stmt->execute();
-        return $stmt->fetchAll(\PDO::FETCH_NUM);
+        return $stmt->fetchAll($style);
     }
 
     public function toIdentifier($item)

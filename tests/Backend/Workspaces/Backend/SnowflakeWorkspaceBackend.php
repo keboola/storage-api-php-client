@@ -65,14 +65,24 @@ class SnowflakeWorkspaceBackend implements WorkspaceBackend {
         return (int) $tables[0]['rows'];
     }
 
-    public function fetchAll($table)
+    public function fetchAll($table, $style = \PDO::FETCH_NUM)
     {
+        $data = array();
         $res = $this->db->fetchAll(sprintf("SELECT * FROM %s.%s;",
             $this->db->quoteIdentifier($this->schema),
             $this->db->quoteIdentifier($table)));
-        $data = array();
-        foreach ($res as $row) {
-            $data[] = array_values($row);
+        switch ($style) {
+            case \PDO::FETCH_NUM:
+                foreach ($res as $row) {
+                    $data[] = array_values($row);
+                }
+                break;
+            case \PDO::FETCH_ASSOC:
+                $data = $res;
+                break;
+            default:
+                throw new \Exception("Unknown fetch style $style");
+                break;
         }
         return $data;
     }
