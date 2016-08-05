@@ -12,16 +12,16 @@ use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\Workspaces;
 use Keboola\StorageApi\ClientException;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class WorkspaceLoadTest extends WorkspacesTestCase
 {
-
     public function testWorkspaceTablesPermissions()
     {
         $workspaces = new Workspaces($this->_client);
 
         $workspace = $workspaces->createWorkspace();
-
+        
         //setup test tables
         $tableId = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN), 'languages',
@@ -41,21 +41,20 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             ],
         ]);
 
-        $db = $this->getDbConnection($workspace['connection']);
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-        $db->query('DROP TABLE ' . $db->quoteIdentifier('languages'));
+        $backend->dropTable('languages');
 
-        $tables = $db->fetchAll("SHOW TABLES");
+        $tables = $backend->getTables();
         $this->assertCount(1, $tables);
-        $this->assertEquals('langs', reset($tables)['name']);
+        $this->assertEquals('langs', $tables[0]);
     }
 
-    public function testWorkspaceLoad()
+    public function testWorkspaceLoadData()
     {
         $workspaces = new Workspaces($this->_client);
 
         $workspace = $workspaces->createWorkspace();
-        $connection = $workspace['connection'];
 
         //setup test tables
         $table1_id = $this->_client->createTable(
@@ -81,17 +80,14 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $this->assertEquals('workspaceLoad', $afterJobs[0]['operationName']);
         $this->assertNotEquals($initialJobs[0]['id'], $afterJobs[0]['id']);
 
-        $db = $this->getDbConnection($connection);
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-        $tableNames = array_map(function ($table) {
-            return $table['name'];
-        }, $db->fetchAll(sprintf("SHOW TABLES IN SCHEMA %s", $db->quoteIdentifier($connection["schema"]))));
-
+        $tables = $backend->getTables();
+        
         // check that the tables are in the workspace
-        $tables = array_flip($tableNames);
-        $this->assertCount(2, array_keys($tables));
-        $this->assertArrayHasKey("languagesLoaded", $tables);
-        $this->assertArrayHasKey("numbersLoaded", $tables);
+        $this->assertCount(2, $tables);
+        $this->assertContains($backend->toIdentifier("languagesLoaded"), $tables);
+        $this->assertContains($backend->toIdentifier("numbersLoaded"), $tables);
 
 
 
@@ -106,34 +102,204 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $mapping3 = array("source" => $table1_id, "destination" => "table3");
         $workspaces->loadWorkspaceData($workspace['id'], array("input" => array($mapping3), "preserve" => true));
 
-        $tableNames = array_map(function ($table) {
-            return $table['name'];
-        }, $db->fetchAll(sprintf("SHOW TABLES IN SCHEMA %s", $db->quoteIdentifier($connection["schema"]))));
+        $tables = $backend->getTables();
 
-        $tables = array_flip($tableNames);
-        $this->assertCount(3, array_keys($tables));
-        $this->assertArrayHasKey("table3", $tables);
-        $this->assertArrayHasKey("languagesLoaded", $tables);
-        $this->assertArrayHasKey("numbersLoaded", $tables);
+        $this->assertCount(3, $tables);
+        $this->assertContains($backend->toIdentifier("table3"), $tables);
+        $this->assertContains($backend->toIdentifier("languagesLoaded"), $tables);
+        $this->assertContains($backend->toIdentifier("numbersLoaded"), $tables);
 
         // now we'll try the same load, but it should clear the workspace first (preserve is false by default)
         $workspaces->loadWorkspaceData($workspace['id'], array("input" => array($mapping3)));
-        $tableNames = array_map(function ($table) {
-            return $table['name'];
-        }, $db->fetchAll(sprintf("SHOW TABLES IN SCHEMA %s", $db->quoteIdentifier($connection["schema"]))));
-        $tables = array_flip($tableNames);
-        $this->assertCount(1, array_keys($tables));
-        $this->assertArrayHasKey("table3", $tables);
+
+        $tables = $backend->getTables();
+        $this->assertCount(1, $tables);
+        $this->assertContains($backend->toIdentifier("table3"), $tables);
+    }
+
+    public function testWorkspaceLoadColumns()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        //setup test tables
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN), 'languagesColumns',
+            new CsvFile(__DIR__ . '/../../_data/languages-more-columns.csv')
+        );
+
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languagesIso',
+                    'columns' => ["Id","iso"]
+                ],
+                [
+                    'source' => $tableId,
+                    'destination' => 'languagesSomething',
+                    'columns' => ["Name","Something"]
+                ]
+            ]
+        ];
+
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+
+        // check that the tables have the appropriate columns
+        $columns = $backend->getTableColumns($backend->toIdentifier("languagesIso"));
+        $this->assertEquals(2, count($columns));
+        $this->assertEquals(0, count(array_diff($columns, $backend->toIdentifier($options['input'][0]['columns']))));
+
+        $columns = $backend->getTableColumns($backend->toIdentifier("languagesSomething"));
+        $this->assertEquals(2, count($columns));
+        $this->assertEquals(0, count(array_diff($columns, $backend->toIdentifier($options['input'][1]['columns']))));
+
+        // test for invalid columns
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languagesIso',
+                    'columns' => ["Id","iso","not-a-column"]
+                ]
+            ]
+        ];
+
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], $options);
+            $this->fail("Trying to select a non existent column should fail");
+        } catch (ClientException $e) {
+            $this->assertEquals("storage.tables.nonExistingColumns", $e->getStringCode());
+        }
+    }
+
+    public function testSecondsFilter()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN), 'languages',
+            new CsvFile($importFile)
+        );
+        $originalFileLinesCount = exec("wc -l <" . escapeshellarg($importFile));
+        sleep(10);
+        $startTime = time();
+        $importCsv = new \Keboola\Csv\CsvFile($importFile);
+        $this->_client->writeTable($tableId, $importCsv, array(
+            'incremental' => true,
+        ));
+        $this->_client->writeTable($tableId, $importCsv, array(
+            'incremental' => true,
+        ));
+
+        $options = array('input' => [
+            [
+                'source' => $tableId,
+                'destination' => 'languages',
+                'seconds' => ceil(time() - $startTime) + 5
+            ]
+        ]);
+
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+        // ok, the table should only have rows from the 2 most recent loads
+        $numRows = $backend->countRows("languages");
+        $this->assertEquals(2 * ($originalFileLinesCount - 1), $numRows, "seconds parameter");
+    }
+
+    public function testRowsParameter()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN), 'languages',
+            new CsvFile($importFile)
+        );
+
+        $options = array('input' => [
+            [
+                'source' => $tableId,
+                'destination' => 'languages',
+                'rows' => 2
+            ]
+        ]);
+
+        $workspaces->loadWorkspaceData($workspace['id'],$options);
+
+        $numrows = $backend->countRows('languages');
+        $this->assertEquals(2, $numrows, 'rows parameter');
+    }
+
+    /**
+     * @param $exportOptions
+     * @param $expectedResult
+     * @dataProvider tableExportFiltersData
+     */
+    public function testWorkspaceExportFilters($exportOptions, $expectedResult)
+    {
+        $importFile = __DIR__ . '/../../_data/users.csv';
+        $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));
+        $this->_client->markTableColumnAsIndexed($tableId, 'city');
+
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $options = array(
+            "input" => [
+                array_merge([
+                    "source" => $tableId,
+                    "destination" => 'filter-test'
+                ], $exportOptions)
+            ]
+        );
+
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+
+        $data = $backend->fetchAll('filter-test');
+
+        $this->assertArrayEqualsSorted($expectedResult, $data, 0);
+    }
+
+    public function testDuplicateDestination()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+
+        //setup test tables
+        $table1_id = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN), 'languages',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+        $table2_id = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN), 'numbers',
+            new CsvFile(__DIR__ . '/../../_data/numbers.csv')
+        );
 
         // now let's try and load 2 different sources to the same destination, this request should be rejected
-        $mapping4 = array("source" => $table2_id, "destination" => "languagesLoaded");
-        $inputDupFail = array($mapping1, $mapping4);
+        $mapping1 = array("source" => $table1_id, "destination" => "languagesLoaded");
+        $mapping2 = array("source" => $table2_id, "destination" => "languagesLoaded");
+        $inputDupFail = array($mapping1, $mapping2);
+
         try {
             $workspaces->loadWorkspaceData($workspace['id'], array("input" => $inputDupFail));
             $this->fail('Attempt to write two sources to same destination should fail');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.duplicateDestination', $e->getStringCode());
         }
+    }
+
+    public function testSourceTableNotFound()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
 
         // let's try loading from a table that doesn't exist
         $mappingInvalidSource = array("source" => "in.c-nonExistentBucket.fakeTable", "destination" => "whatever");
@@ -145,9 +311,24 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             $this->assertEquals(404, $e->getCode());
             $this->assertEquals('workspace.sourceNotFound', $e->getStringCode());
         }
+    }
+
+    public function testInvalidInputs()
+    {
+        $workspaces = new Workspaces($this->_client);
+
+        $workspace = $workspaces->createWorkspace();
+
+        //setup test tables
+        $table1_id = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN), 'languages',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+
+        $mapping1 = array("source" => $table1_id, "destination" => "languagesLoaded");
+        $input = array($mapping1);
 
         // test for invalid workspace id
-        $input = array($mapping1);
         try {
             $workspaces->loadWorkspaceData(0, array("input" => $input));
             $this->fail('Should not be able to find a workspace with id 0');
@@ -155,8 +336,8 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             $this->assertEquals(404, $e->getCode());
             $this->assertEquals('workspace.workspaceNotFound', $e->getStringCode());
         }
-        
-        // test invalid input parameter requests
+
+        // test invalid input parameter
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $input);
             $this->fail('Should return bad request, input is required');
