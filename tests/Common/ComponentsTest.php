@@ -445,6 +445,16 @@ class ComponentsTest extends StorageApiTestCase
         $versions = $components->listConfigurationVersions($listConfig);
         $this->assertArrayHasKey('changeDescription', $versions[0]);
         $this->assertEquals($changeDesc, $versions[0]['changeDescription']);
+
+        // change name without providing changeDescription param
+        $secondConfigToPut = (new \Keboola\StorageApi\Options\Components\Configuration());
+        $secondConfigToPut->setComponentId('wr-db');
+        $secondConfigToPut->setConfigurationId('main-1');
+        $secondConfigToPut->setName('new name');
+        $components->updateConfiguration($secondConfigToPut);
+
+        $secondConfigLoaded = $components->getConfiguration('wr-db', 'main-1');
+        $this->assertEquals('', $secondConfigLoaded['changeDescription']);
     }
 
     public function testComponentConfigsVersionsList()
