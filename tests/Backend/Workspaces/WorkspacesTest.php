@@ -8,6 +8,7 @@
 namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\StorageApi\Workspaces;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class WorkspacesTest extends WorkspacesTestCase
 {
@@ -23,32 +24,13 @@ class WorkspacesTest extends WorkspacesTestCase
         $tokenInfo = $this->_client->verifyToken();
         $this->assertEquals($tokenInfo['owner']['defaultBackend'], $connection['backend']);
 
-        $db = $this->getDbConnection($connection);
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-        if ($connection['backend'] === parent::BACKEND_SNOWFLAKE) {
+        $backend->createTable("mytable", ["amount" => "NUMBER"]);
 
-            $schemaNames = array_map(function ($schema) {
-                return $schema['name'];
-            }, $db->fetchAll("SHOW SCHEMAS"));
+        $tableNames = $backend->getTables();
 
-            $this->assertArrayHasKey($connection['schema'], array_flip($schemaNames));
-
-            $db->query("USE SCHEMA " . $db->quoteIdentifier($connection['schema']));
-
-            // try create a table in the workspace
-            $db->query("CREATE TABLE \"mytable\" (amount NUMBER);");
-
-            $tableNames = array_map(function ($table) {
-                return $table['name'];
-            }, $db->fetchAll(sprintf("SHOW TABLES IN SCHEMA %s", $db->quoteIdentifier($connection["schema"]))));
-
-            $this->assertArrayHasKey("mytable", array_flip($tableNames));
-        } else {
-
-            // try create a table in workspace
-            $db->query("CREATE TABLE mytable (amount NUMBER);");
-
-        }
+        $this->assertArrayHasKey("mytable", array_flip($tableNames));
 
         // get workspace
         $workspace = $workspaces->getWorkspace($workspace['id']);
