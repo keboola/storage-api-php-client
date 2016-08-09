@@ -11,6 +11,7 @@ use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\StorageApiTestCase;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class WorkspacesTest extends StorageApiTestCase
 {
@@ -56,45 +57,50 @@ class WorkspacesTest extends StorageApiTestCase
         ]);
         $this->assertEquals($backend, $workspace['connection']['backend']);
 
-        $connection = $workspace['connection'];
-        if ($backend === self::BACKEND_SNOWFLAKE) {
-            $db = new Connection([
-                'host' => $connection['host'],
-                'database' => $connection['database'],
-                'warehouse' => $connection['warehouse'],
-                'user' => $connection['user'],
-                'password' => $connection['password'],
-            ]);
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-            $db->query("USE SCHEMA " . $db->quoteIdentifier($connection['schema']));
+        $backend->createTable("mytable", ["amount" => "NUMBER"]);
 
-            $schemaNames = array_map(function ($schema) {
-                return $schema['name'];
-            }, $db->fetchAll("SHOW SCHEMAS"));
+    }
 
-            $this->assertArrayHasKey($connection['schema'], array_flip($schemaNames));
-
-            // try create a table in workspace
-            $db->query("CREATE TABLE mytable (amount NUMBER);");
-
-        } else {
-            //redshift connection
-            $db = new \PDO(
-                "pgsql:dbname={$connection['database']};port=5439;host=" . $connection['host'],
-                $connection['user'],
-                $connection['password']
-            );
-
-            // try create a table in workspace
-            $db->query("CREATE TABLE mytable (amount NUMBER);");
+    /**
+     * @dataProvider  workspaceBackendsData
+     * @param $backend
+     */
+    public function testMixedBackendWorkspaceLoad($backend, $bucketBackend)
+    {
+        if ($this->_client->bucketExists("in.c-mixed-test-mysql")) {
+            $this->_client->dropBucket("in.c-mixed-test-mysql");
         }
+        if ($this->_client->bucketExists("in.c-mixed-test-redshift")) {
+            $this->_client->dropBucket("in.c-mixed-test-redshift");
+        }
+        if ($this->_client->bucketExists("in.c-mixed-test-snowflake")) {
+            $this->_client->dropBucket("in.c-mixed-test-snowflake");
+        }
+        $this->_client->createBucket("mixed-test-mysql","in","",self::BACKEND_MYSQL);
+        $this->_client->createBucket("mixed-test-redshift","in","",self::BACKEND_REDSHIFT);
+        $this->_client->createBucket("mixed-test-snowflake","in","",self::BACKEND_SNOWFLAKE);
+
+
+
+        $workspaces = new Workspaces($this->_client);
+
+        $workspace = $workspaces->createWorkspace([
+            'backend' => $backend,
+        ]);
+
+        if ($backend === self::BACKEND_REDSHIFT) {
+
+        }
+
     }
 
     public function workspaceBackendsData()
     {
         return [
-            [self::BACKEND_REDSHIFT],
-            [self::BACKEND_SNOWFLAKE]
+            [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE],
+            [self::BACKEND_SNOWFLAKE, self::BACKEND_MYSQL]
         ];
     }
 
