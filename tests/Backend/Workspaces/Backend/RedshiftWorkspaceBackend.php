@@ -66,6 +66,18 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend {
         return $stmt->fetchAll($style);
     }
 
+    public function createTable($tableName, $columns) {
+        $cols = [];
+        foreach($columns as $column => $datatype) {
+            $cols[] = "\"{$column}\" {$datatype}";
+        }
+        $definition = join(",\n", $cols);
+
+        $this->db->query(
+            sprintf("CREATE TABLE %s (%s)", $tableName, $definition)
+        );
+    }
+
     public function toIdentifier($item)
     {
         if (is_array($item)) {

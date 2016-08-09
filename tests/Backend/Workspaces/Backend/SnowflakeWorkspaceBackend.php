@@ -65,6 +65,16 @@ class SnowflakeWorkspaceBackend implements WorkspaceBackend {
         return (int) $tables[0]['rows'];
     }
 
+    public function createTable($tableName, $columns)
+    {
+        $cols = [];
+        foreach ($columns as $column => $dataType) {
+            $cols[] = $this->db->quoteIdentifier($column) . " " . $dataType;
+        }
+        $qry = sprintf("CREATE TABLE %s (%s)", $this->db->quoteIdentifier($tableName), implode(", ", $cols));
+        $this->db->query($qry);
+    }
+
     public function fetchAll($table, $style = \PDO::FETCH_NUM)
     {
         $data = array();
