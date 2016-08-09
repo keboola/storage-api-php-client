@@ -25,6 +25,7 @@
 	<testsuite name="backend-redshift">
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
 		<directory>tests/Backend/Common</directory>
 		<directory>tests/Backend/Redshift</directory>
 		<file>tests/Backend/Aliases/CustomSqlAliasTest.php</file>
