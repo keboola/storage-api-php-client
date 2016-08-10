@@ -26,7 +26,7 @@ class WorkspacesTest extends WorkspacesTestCase
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-        $backend->createTable("mytable", ["amount" => "NUMBER"]);
+        $backend->createTable("mytable", ["amount" => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? "NUMBER" : "VARCHAR"]);
 
         $tableNames = $backend->getTables();
 

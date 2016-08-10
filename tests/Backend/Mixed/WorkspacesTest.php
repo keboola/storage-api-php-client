@@ -11,26 +11,11 @@ use Keboola\StorageApi\ClientException;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\Workspaces;
-use Keboola\Test\StorageApiTestCase;
+use Keboola\Test\Backend\Workspaces\WorkspacesTestCase;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
-class WorkspacesTest extends StorageApiTestCase
+class WorkspacesTest extends WorkspacesTestCase
 {
-    public function setUp()
-    {
-        parent::setUp();
-        $this->_initEmptyTestBuckets();
-        $this->clearWorkspaces();
-    }
-
-    private function clearWorkspaces()
-    {
-        $workspaces = new Workspaces($this->_client);
-        foreach ($workspaces->listWorkspaces() as $workspace) {
-            $workspaces->deleteWorkspace($workspace['id']);
-        }
-    }
-
     public function testCreateWorkspaceForMysqlBackendShouldNotBeAllowed()
     {
         $workspaces = new Workspaces($this->_client);
@@ -60,7 +45,7 @@ class WorkspacesTest extends StorageApiTestCase
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-        $backend->createTable("mytable", ["amount" => "NUMBER"]);
+        $backend->createTable("mytable", ["amount" => ($workspace['connection']['backend'] === self::BACKEND_SNOWFLAKE) ? "NUMBER" : "INT"]);
 
     }
 
@@ -71,12 +56,21 @@ class WorkspacesTest extends StorageApiTestCase
     public function testMixedBackendWorkspaceLoad($backend)
     {
         if ($this->_client->bucketExists("in.c-mixed-test-mysql")) {
+            if ($this->_client->tableExists("in.c-mixed-test-mysql.languages")) {
+                $this->_client->dropTable("in.c-mixed-test-mysql.languages");
+            }
             $this->_client->dropBucket("in.c-mixed-test-mysql");
         }
         if ($this->_client->bucketExists("in.c-mixed-test-redshift")) {
+            if ($this->_client->tableExists("in.c-mixed-test-redshift.languages")) {
+                $this->_client->dropTable("in.c-mixed-test-redshift.languages");
+            }
             $this->_client->dropBucket("in.c-mixed-test-redshift");
         }
         if ($this->_client->bucketExists("in.c-mixed-test-snowflake")) {
+            if ($this->_client->tableExists("in.c-mixed-test-snowflake.languages")) {
+                $this->_client->dropTable("in.c-mixed-test-snowflake.languages");
+            }
             $this->_client->dropBucket("in.c-mixed-test-snowflake");
         }
         $mysqlBucketId = $this->_client->createBucket("mixed-test-mysql","in","",self::BACKEND_MYSQL);
@@ -91,7 +85,7 @@ class WorkspacesTest extends StorageApiTestCase
 
         //setup test tables
         $redshiftTableId = $this->_client->createTable(
-            $redshiftBucketId(self::STAGE_IN), 'languages',
+            $redshiftBucketId, 'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
 
@@ -164,8 +158,8 @@ class WorkspacesTest extends StorageApiTestCase
     public function workspaceBackendsData()
     {
         return [
-            [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE],
-            [self::BACKEND_SNOWFLAKE, self::BACKEND_MYSQL]
+            [self::BACKEND_REDSHIFT],
+            [self::BACKEND_SNOWFLAKE]
         ];
     }
 
