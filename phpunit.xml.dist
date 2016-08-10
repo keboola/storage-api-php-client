@@ -23,6 +23,7 @@
 	</testsuite>
 
 	<testsuite name="backend-redshift">
+		<file>tests/Backend/Workspaces/WorkspacesRedshiftTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
 		<directory>tests/Backend/Common</directory>
