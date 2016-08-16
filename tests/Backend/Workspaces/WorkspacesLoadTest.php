@@ -74,11 +74,23 @@ class WorkspaceLoadTest extends WorkspacesTestCase
 
         // test if job is created and listed
         $initialJobs = $this->_client->listJobs();
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
         $workspaces->loadWorkspaceData($workspace['id'], array("input" => $input));
         $afterJobs = $this->_client->listJobs();
 
+
         $this->assertEquals('workspaceLoad', $afterJobs[0]['operationName']);
         $this->assertNotEquals($initialJobs[0]['id'], $afterJobs[0]['id']);
+
+        // block until async events are processed, processing in order is not guaranteed but it should work most of time
+        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
+
+        $stats = $this->_client->getStats((new \Keboola\StorageApi\Options\StatsOptions())->setRunId($runId));
+
+        $export = $stats['tables']['export'];
+        $this->assertEquals(2, $export['totalCount']);
+        $this->assertCount(2, $export['tables']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
