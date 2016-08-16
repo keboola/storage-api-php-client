@@ -153,7 +153,7 @@ You can download odbc driver from [Snowflake Console](https://keboola.snowflakec
 
 You can run these tests in docker with drivers installed:
 
-`source ./set-env.snowflake.sh && docker-compose run --rm -e STORAGE_API_URL="192.168.64.8:8700" -e STORAGE_API_TOKEN=$STORAGE_API_TOKEN  tests sh -c 'composer install && ./vendor/bin/phpunit --testsuite backend-snowflake-part-1'`
+`source ./set-env.snowflake.sh && docker-compose run --rm tests sh -c 'composer install && ./vendor/bin/phpunit --testsuite backend-snowflake-part-1'`
 
 ### Mixed backend test suite
 Project can support multiple backends, this is useful for migrations from one backend to another.

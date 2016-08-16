@@ -12,6 +12,13 @@ services:
        composer install
        && ./vendor/bin/phpunit
        '
+    environment:
+      - STORAGE_API_URL
+      - STORAGE_API_TOKEN
+      - STORAGE_API_MAINTENANCE_URL
+      - REDSHIFT_HOSTNAME
+      - REDSHIFT_USER
+      - REDSHIFT_PASSWORD
   odbc:
     build:
       context: .
