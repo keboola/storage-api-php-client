@@ -31,7 +31,7 @@ class WorkspacesTest extends WorkspacesTestCase
     }
 
     /**
-     * @dataProvider  workspaceBackendsData
+     * @dataProvider  workspaceBackendData
      * @param $backend
      */
     public function testCreateWorkspaceParam($backend)
@@ -50,48 +50,22 @@ class WorkspacesTest extends WorkspacesTestCase
     }
 
     /**
-     * @dataProvider  workspaceBackendsData
+     * @dataProvider  workspaceMixedBackendData
      * @param $backend
      */
-    public function testMixedBackendWorkspaceLoad($backend)
+    public function testMixedBackendWorkspaceLoad($backend, $bucketBackend)
     {
-        if ($this->_client->bucketExists("in.c-mixed-test-mysql")) {
-            if ($this->_client->tableExists("in.c-mixed-test-mysql.languages")) {
-                $this->_client->dropTable("in.c-mixed-test-mysql.languages");
+        if ($this->_client->bucketExists("in.c-mixed-test-" . $bucketBackend)) {
+            if ($this->_client->tableExists("in.c-mixed-test-{$bucketBackend}.languages")) {
+                $this->_client->dropTable("in.c-mixed-test-{$bucketBackend}.languages");
             }
-            $this->_client->dropBucket("in.c-mixed-test-mysql");
+            $this->_client->dropBucket("in.c-mixed-test-{$bucketBackend}");
         }
-        if ($this->_client->bucketExists("in.c-mixed-test-redshift")) {
-            if ($this->_client->tableExists("in.c-mixed-test-redshift.languages")) {
-                $this->_client->dropTable("in.c-mixed-test-redshift.languages");
-            }
-            $this->_client->dropBucket("in.c-mixed-test-redshift");
-        }
-        if ($this->_client->bucketExists("in.c-mixed-test-snowflake")) {
-            if ($this->_client->tableExists("in.c-mixed-test-snowflake.languages")) {
-                $this->_client->dropTable("in.c-mixed-test-snowflake.languages");
-            }
-            $this->_client->dropBucket("in.c-mixed-test-snowflake");
-        }
-        $mysqlBucketId = $this->_client->createBucket("mixed-test-mysql","in","",self::BACKEND_MYSQL);
-        $redshiftBucketId = $this->_client->createBucket("mixed-test-redshift","in","",self::BACKEND_REDSHIFT);
-        $snowflakeBucketId = $this->_client->createBucket("mixed-test-snowflake","in","",self::BACKEND_SNOWFLAKE);
+        $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}","in","",$bucketBackend);
 
-        //setup test tables
-        $mysqlTableId = $this->_client->createTable(
-            $mysqlBucketId, 'languages',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
-        );
-
-        //setup test tables
-        $redshiftTableId = $this->_client->createTable(
-            $redshiftBucketId, 'languages',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
-        );
-
-        //setup test tables
-        $snowflakeTableId = $this->_client->createTable(
-            $snowflakeBucketId, 'languages',
+        //setup test table
+        $this->_client->createTable(
+            $bucketId, 'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
 
@@ -100,66 +74,40 @@ class WorkspacesTest extends WorkspacesTestCase
         $workspace = $workspaces->createWorkspace([
             'backend' => $backend,
         ]);
-        try {
-            $workspaces->loadWorkspaceData($workspace['id'], [
-                "input" => [
-                    [
-                        "source" => $mysqlTableId,
-                        "destination" => "languages"
-                    ]
-                ]
-            ]);
-            $this->fail("Loading data from mysql not yet supported");
-        } catch (ClientException $e) {
-            $this->assertEquals("workspaces.invalidBackendSource", $e->getStringCode());
-        }
 
-        try {
-            $workspaces->loadWorkspaceData($workspace['id'], [
-                "input" => [
-                    [
-                        "source" => $redshiftTableId,
-                        "destination" => "languages"
-                    ]
+        $options = [
+            "input" => [
+                [
+                    "source" => "in.c-mixed-test-{$bucketBackend}.languages",
+                    "destination" => "languages"
                 ]
-            ]);
-            if ($backend === self::BACKEND_REDSHIFT) {
-                $wsBackend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-                $data = $wsBackend->fetchAll("languages", \PDO::FETCH_ASSOC);
-                $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ",", '"'), $data, 'id');
-            }
-        } catch (ClientException $e) {
-            if ($backend === self::BACKEND_SNOWFLAKE) {
-                $this->assertEquals("workspaces.invalidBackendSource", $e->getStringCode());
-            }
-        }
+            ]
+        ];
 
-        try {
-            $workspaces->loadWorkspaceData($workspace['id'], [
-                "input" => [
-                    [
-                        "source" => $snowflakeTableId,
-                        "destination" => "languages"
-                    ]
-                ]
-            ]);
-            if ($backend === self::BACKEND_SNOWFLAKE) {
-                $wsBackend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-                $data = $wsBackend->fetchAll("languages", \PDO::FETCH_ASSOC);
-                $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ",", '"'), $data, 'id');
-            }
-        } catch (ClientException $e) {
-            if ($backend === self::BACKEND_REDSHIFT) {
-                $this->assertEquals("workspaces.invalidBackendSource", $e->getStringCode());
-            }
-        }
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+
+        $wsBackend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $data = $wsBackend->fetchAll("languages", \PDO::FETCH_ASSOC);
+
+        $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ",", '"'), $data, 'id');
     }
 
-    public function workspaceBackendsData()
+    public function workspaceBackendData()
     {
         return [
+            [self::BACKEND_SNOWFLAKE],
             [self::BACKEND_REDSHIFT],
-            [self::BACKEND_SNOWFLAKE]
+        ];
+    }
+
+    public function workspaceMixedBackendData()
+    {
+        return [
+            [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT],
+            [self::BACKEND_SNOWFLAKE, self::BACKEND_MYSQL],
+            [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE],
+            [self::BACKEND_REDSHIFT, self::BACKEND_MYSQL],
         ];
     }
 
