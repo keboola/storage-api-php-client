@@ -1,6 +1,7 @@
 services:
   - docker
 sudo: required
+language: bash
 env:
  - TEST_SUITE=common STORAGE_API_TOKEN=$STORAGE_API_TOKEN_COMMON
  - TEST_SUITE=backend-mysql STORAGE_API_TOKEN=$STORAGE_API_TOKEN_MYSQL
