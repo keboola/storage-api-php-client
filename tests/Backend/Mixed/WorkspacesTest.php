@@ -79,7 +79,7 @@ class WorkspacesTest extends WorkspacesTestCase
             "input" => [
                 [
                     "source" => "in.c-mixed-test-{$bucketBackend}.languages",
-                    "destination" => "languages"
+                    "destination" => "{$bucketBackend}_Languages"
                 ]
             ]
         ];
@@ -88,7 +88,7 @@ class WorkspacesTest extends WorkspacesTestCase
 
         $wsBackend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-        $data = $wsBackend->fetchAll("languages", \PDO::FETCH_ASSOC);
+        $data = $wsBackend->fetchAll("{$bucketBackend}_Languages", \PDO::FETCH_ASSOC);
 
         $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ",", '"'), $data, 'id');
     }
