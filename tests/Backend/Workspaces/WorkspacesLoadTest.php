@@ -306,6 +306,49 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         }
     }
 
+    public function testTableAlreadyExistsShouldThrowUserError()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN), 'Languages',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+
+        // first load
+        $workspaces->loadWorkspaceData(
+            $workspace['id'],
+            [
+                'input' => [
+                    [
+                        'source' => $tableId,
+                        'destination' => 'Langs',
+                    ]
+                ]
+            ]
+        );
+
+        // second load of same table with preserve
+        try {
+            $workspaces->loadWorkspaceData(
+                $workspace['id'],
+                [
+                    'input' => [
+                        [
+                            'source' => $tableId,
+                            'destination' => 'Langs',
+                        ]
+                    ],
+                    'preserve' => true,
+                ]
+            );
+            $this->fail('table should not be created');
+        } catch (ClientException $e) {
+            $this->assertEquals('workspace.duplicateTable', $e->getStringCode());
+        }
+    }
+
     public function testSourceTableNotFound()
     {
         $workspaces = new Workspaces($this->_client);
