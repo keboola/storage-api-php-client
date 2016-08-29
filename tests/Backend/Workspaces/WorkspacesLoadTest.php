@@ -278,6 +278,34 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $this->assertArrayEqualsSorted($expectedResult, $data, 0);
     }
 
+    public function testDatatypes()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN), 'languages',
+            new CsvFile($importFile)
+        );
+
+        $options = array('input' => [
+            [
+                'source' => $tableId,
+                'destination' => 'languages',
+                'datatypes' => [
+                    "id" => "INTEGER",
+                    "name" => "VARCHAR(50)"
+                ]
+            ]
+        ]);
+
+        $workspaces->loadWorkspaceData($workspace['id'],$options);
+
+        //check to make sure the columns have the right types
+    }
+
     public function testDuplicateDestination()
     {
         $workspaces = new Workspaces($this->_client);
