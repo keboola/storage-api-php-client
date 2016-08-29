@@ -433,6 +433,14 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $mapping1 = array("source" => $table1_id, "destination" => "languagesLoaded");
         $input = array($mapping1);
 
+        //  test for non-array input
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], array("input" => $mapping1));
+            $this->fail("input should be an array of mappings.");
+        } catch (ClientException $e) {
+            $this->assertEquals('workspace.loadRequestBadInput', $e->getStringCode());
+        }
+
         // test for invalid workspace id
         try {
             $workspaces->loadWorkspaceData(0, array("input" => $input));
