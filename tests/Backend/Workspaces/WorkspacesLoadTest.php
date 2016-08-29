@@ -278,7 +278,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $this->assertArrayEqualsSorted($expectedResult, $data, 0);
     }
 
-    public function testDatatypes()
+    public function testDataTypes()
     {
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
@@ -293,7 +293,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $options = array('input' => [
             [
                 'source' => $tableId,
-                'destination' => 'languages',
+                'destination' => 'datatype_test',
                 'datatypes' => [
                     "id" => "INTEGER",
                     "name" => "VARCHAR(50)"
@@ -304,6 +304,30 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $workspaces->loadWorkspaceData($workspace['id'],$options);
 
         //check to make sure the columns have the right types
+        $columnInfo = $backend->describeTable('datatype_test');
+
+        foreach ($columnInfo as $colInfo) {
+            switch ($colInfo['name']) {
+                case 'id':
+                    if ($workspace['connection']['backend'] === $this::BACKEND_SNOWFLAKE) {
+                        $this->assertEquals("NUMBER(38,0)",$colInfo['type']);
+                    }
+                    if ($workspace['connection']['backend'] === $this::BACKEND_REDSHIFT) {
+                        $this->assertEquals("int4",$colInfo['DATA_TYPE']);
+                    }
+                    break;
+                case 'name':
+                    if ($workspace['connection']['backend'] === $this::BACKEND_SNOWFLAKE) {
+                        $this->assertEquals("VARCHAR(50)",$colInfo['type']);
+                    }
+                    if ($workspace['connection']['backend'] === $this::BACKEND_REDSHIFT) {
+                        $this->assertEquals("varchar",$colInfo['DATA_TYPE']);
+                    }
+                    break;
+                default:
+                    $this->fail("Unknown column " . $colInfo['name']);
+            }
+        }
     }
 
     public function testDuplicateDestination()
