@@ -100,4 +100,9 @@ class SnowflakeWorkspaceBackend implements WorkspaceBackend {
     public function toIdentifier($item) {
         return $item;
     }
+
+    public function describeTable($tableName)
+    {
+        return $this->db->fetchAll(sprintf('DESC TABLE %s.%s', $this->db->quoteIdentifier($this->schema), $this->db->quoteIdentifier($tableName)));
+    }
 }

@@ -278,6 +278,58 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $this->assertArrayEqualsSorted($expectedResult, $data, 0);
     }
 
+    public function testDataTypes()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN), 'languages',
+            new CsvFile($importFile)
+        );
+
+        $options = array('input' => [
+            [
+                'source' => $tableId,
+                'destination' => 'datatype_test',
+                'datatypes' => [
+                    "id" => "INTEGER",
+                    "name" => "VARCHAR(50)"
+                ]
+            ]
+        ]);
+
+        $workspaces->loadWorkspaceData($workspace['id'],$options);
+
+        //check to make sure the columns have the right types
+        $columnInfo = $backend->describeTable('datatype_test');
+
+        foreach ($columnInfo as $colInfo) {
+            switch ($colInfo['name']) {
+                case 'id':
+                    if ($workspace['connection']['backend'] === $this::BACKEND_SNOWFLAKE) {
+                        $this->assertEquals("NUMBER(38,0)",$colInfo['type']);
+                    }
+                    if ($workspace['connection']['backend'] === $this::BACKEND_REDSHIFT) {
+                        $this->assertEquals("int4",$colInfo['DATA_TYPE']);
+                    }
+                    break;
+                case 'name':
+                    if ($workspace['connection']['backend'] === $this::BACKEND_SNOWFLAKE) {
+                        $this->assertEquals("VARCHAR(50)",$colInfo['type']);
+                    }
+                    if ($workspace['connection']['backend'] === $this::BACKEND_REDSHIFT) {
+                        $this->assertEquals("varchar",$colInfo['DATA_TYPE']);
+                    }
+                    break;
+                default:
+                    $this->fail("Unknown column " . $colInfo['name']);
+            }
+        }
+    }
+
     public function testDuplicateDestination()
     {
         $workspaces = new Workspaces($this->_client);
@@ -380,6 +432,14 @@ class WorkspaceLoadTest extends WorkspacesTestCase
 
         $mapping1 = array("source" => $table1_id, "destination" => "languagesLoaded");
         $input = array($mapping1);
+
+        //  test for non-array input
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], array("input" => $mapping1));
+            $this->fail("input should be an array of mappings.");
+        } catch (ClientException $e) {
+            $this->assertEquals('workspace.loadRequestBadInput', $e->getStringCode());
+        }
 
         // test for invalid workspace id
         try {
