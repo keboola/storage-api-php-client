@@ -12,6 +12,7 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase {
     public function testColumnCompression() {
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
+        $db = $this->getDbConnection($workspace['connection']);
 
         // Create a table of sample data
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -41,6 +42,21 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase {
 
         $this->assertEquals("varchar", $table['name']['DATA_TYPE']);
         $this->assertEquals(255, $table['name']['LENGTH']);
+
+        $stmt = $db->prepare("SELECT * FROM PG_TABLE_DEF WHERE tablename = ?;");
+        $stmt->execute(array('languages-rs'));
+        $info = $stmt->fetchAll();
+
+        foreach ($info as $colinfo) {
+            switch ($colinfo['column']) {
+                case "id":
+                    $this->assertEquals('none', $colinfo['encoding']);
+                    break;
+                case "name":
+                    $this->assertEquals('lzo', $colinfo['encoding']);
+                    break;
+            }
+        }
     }
 
     public function testLoadedSortKey() {
