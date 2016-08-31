@@ -4,13 +4,14 @@ namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\StorageApi\Workspaces;
 use Keboola\Csv\CsvFile;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
+
 
 class WorkspacesRedshiftTest extends WorkspacesTestCase {
 
     public function testColumnCompression() {
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
-        $db = $this->getDbConnection($workspace['connection']);
 
         // Create a table of sample data
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -32,7 +33,14 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase {
             ]
         ]);
 
-        
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $table = $backend->describeTable('languages-rs');
+
+        $this->assertEquals("varchar", $table['id']['DATA_TYPE']);
+        $this->assertEquals(50, $table['id']['LENGTH']);
+
+        $this->assertEquals("varchar", $table['name']['DATA_TYPE']);
+        $this->assertEquals(255, $table['name']['LENGTH']);
     }
 
     public function testLoadedSortKey() {
