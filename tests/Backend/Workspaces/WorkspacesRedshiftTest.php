@@ -4,8 +4,60 @@ namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\StorageApi\Workspaces;
 use Keboola\Csv\CsvFile;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
+
 
 class WorkspacesRedshiftTest extends WorkspacesTestCase {
+
+    public function testColumnCompression() {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+        $db = $this->getDbConnection($workspace['connection']);
+
+        // Create a table of sample data
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN), 'languages-rs',
+            new CsvFile($importFile)
+        );
+
+        $workspaces->loadWorkspaceData($workspace['id'], [
+            "input" => [
+                [
+                    "source" => $tableId,
+                    "destination" => "languages-rs",
+                    "datatypes" => [
+                        'id' => "VARCHAR(50)",
+                        "name" => "VARCHAR(255) ENCODE LZO"
+                    ]
+                ]
+            ]
+        ]);
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $table = $backend->describeTable('languages-rs');
+
+        $this->assertEquals("varchar", $table['id']['DATA_TYPE']);
+        $this->assertEquals(50, $table['id']['LENGTH']);
+
+        $this->assertEquals("varchar", $table['name']['DATA_TYPE']);
+        $this->assertEquals(255, $table['name']['LENGTH']);
+
+        $stmt = $db->prepare("SELECT * FROM PG_TABLE_DEF WHERE tablename = ?;");
+        $stmt->execute(array('languages-rs'));
+        $info = $stmt->fetchAll();
+
+        foreach ($info as $colinfo) {
+            switch ($colinfo['column']) {
+                case "id":
+                    $this->assertEquals('none', $colinfo['encoding']);
+                    break;
+                case "name":
+                    $this->assertEquals('lzo', $colinfo['encoding']);
+                    break;
+            }
+        }
+    }
 
     public function testLoadedSortKey() {
         $workspaces = new Workspaces($this->_client);
