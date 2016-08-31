@@ -7,6 +7,34 @@ use Keboola\Csv\CsvFile;
 
 class WorkspacesRedshiftTest extends WorkspacesTestCase {
 
+    public function testColumnCompression() {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+        $db = $this->getDbConnection($workspace['connection']);
+
+        // Create a table of sample data
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN), 'languages-rs',
+            new CsvFile($importFile)
+        );
+
+        $workspaces->loadWorkspaceData($workspace['id'], [
+            "input" => [
+                [
+                    "source" => $tableId,
+                    "destination" => "languages-rs",
+                    "datatypes" => [
+                        'id' => "VARCHAR(50)",
+                        "name" => "VARCHAR(255) ENCODE LZO"
+                    ]
+                ]
+            ]
+        ]);
+
+        
+    }
+
     public function testLoadedSortKey() {
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
