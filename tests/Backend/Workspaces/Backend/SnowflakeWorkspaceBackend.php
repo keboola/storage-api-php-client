@@ -57,6 +57,16 @@ class SnowflakeWorkspaceBackend implements WorkspaceBackend {
         $this->db->query(sprintf("DROP TABLE %s;", $this->db->quoteIdentifier($table)));
     }
 
+    public function dropTableColumn($table, $column)
+    {
+
+        $this->db->query(sprintf(
+            "ALTER TABLE %s DROP COLUMN %s;",
+            $this->db->quoteIdentifier($table),
+            $this->db->quoteIdentifier($column)
+        ));
+    }
+
     public function countRows($table)
     {
         $tables = $this->db->fetchAll(

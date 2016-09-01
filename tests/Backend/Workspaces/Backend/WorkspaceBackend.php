@@ -19,6 +19,8 @@ interface WorkspaceBackend
     
     public function dropTable($table);
 
+    public function dropTableColumn($table, $column);
+
     public function countRows($table);
 
     public function fetchAll($table);

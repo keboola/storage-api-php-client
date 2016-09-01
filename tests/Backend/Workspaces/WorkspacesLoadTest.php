@@ -42,6 +42,10 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         ]);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        
+        
+        // let's try to delete some columns
+        $backend->dropTableColumn('languages', 'id');
 
         $backend->dropTable('languages');
 
