@@ -93,6 +93,49 @@ class WorkspacesTest extends WorkspacesTestCase
         $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ",", '"'), $data, 'id');
     }
 
+    public function testDataTypesLoadToRedshift()
+    {
+        $bucketBackend = self::BACKEND_MYSQL;
+        if ($this->_client->bucketExists("in.c-mixed-test-" . $bucketBackend)) {
+            $this->_client->dropBucket("in.c-mixed-test-{$bucketBackend}", [
+                'force' => true,
+            ]);
+        }
+        $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}","in","",$bucketBackend);
+
+        //setup test table
+        $this->_client->createTable(
+            $bucketId, 'dates',
+            new CsvFile(__DIR__ . '/../../_data/dates.csv')
+        );
+
+        $workspaces = new Workspaces($this->_client);
+
+        $workspace = $workspaces->createWorkspace([
+            'backend' => self::BACKEND_REDSHIFT,
+        ]);
+
+        $options = [
+            "input" => [
+                [
+                    "source" => "in.c-mixed-test-{$bucketBackend}.dates",
+                    "destination" => "dates",
+                    "datatypes" => [
+                        'valid_from' => "DATETIME",
+                    ]
+                ]
+            ]
+        ];
+
+        // exception should not be thrown, date conversion should be applied
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+
+        $wsBackend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $data = $wsBackend->fetchAll("dates", \PDO::FETCH_ASSOC);
+        $this->assertCount(3, $data);
+    }
+
     public function workspaceBackendData()
     {
         return [
