@@ -56,10 +56,9 @@ class WorkspacesTest extends WorkspacesTestCase
     public function testMixedBackendWorkspaceLoad($backend, $bucketBackend)
     {
         if ($this->_client->bucketExists("in.c-mixed-test-" . $bucketBackend)) {
-            if ($this->_client->tableExists("in.c-mixed-test-{$bucketBackend}.languages")) {
-                $this->_client->dropTable("in.c-mixed-test-{$bucketBackend}.languages");
-            }
-            $this->_client->dropBucket("in.c-mixed-test-{$bucketBackend}");
+            $this->_client->dropBucket("in.c-mixed-test-{$bucketBackend}", [
+                'force' => true,
+            ]);
         }
         $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}","in","",$bucketBackend);
 
