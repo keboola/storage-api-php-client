@@ -49,9 +49,35 @@ class WorkspacesTest extends WorkspacesTestCase
         try {
             $this->getDbConnection($connection);
             $this->fail('Credentials should be deleted');
+        } catch (\PDOException $e) {
+            $this->assertEquals(7, $e->getCode());
         } catch (\Exception $e) {
+            $this->assertEquals(2, $e->getCode());
         }
     }
 
+    function testDropWorkspace()
+    {
+        $workspaces = new Workspaces($this->_client);
 
+        $workspace = $workspaces->createWorkspace();
+        $connection = $workspace['connection'];
+
+        $dbConn = $this->getDbConnection($connection);
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->createTable("mytable", ["amount" => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? "NUMBER" : "VARCHAR"]);
+
+        $workspaces->deleteWorkspace($workspace['id']);
+
+        try {
+            $rows = $backend->countRows("mytable");
+            $this->fail("workspace no longer exists. connection should be dead.");
+        } catch (\PDOException $e) { // catch redshift connection exception
+            $this->assertEquals("57P01",$e->getCode());
+        } catch (\Exception $e) {
+            // check that exception not caused by the above fail()
+            $this->assertEquals(2, $e->getCode(), $e->getMessage());
+        }
+    }
 }

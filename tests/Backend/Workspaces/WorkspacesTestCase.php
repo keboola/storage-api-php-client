@@ -47,14 +47,17 @@ abstract class WorkspacesTestCase extends StorageApiTestCase
 
         } else if ($connection['backend'] === parent::BACKEND_REDSHIFT) {
 
-            return new \PDO(
+            $pdo = new \PDO(
                 "pgsql:dbname={$connection['database']};port=5439;host=" . $connection['host'],
                 $connection['user'],
                 $connection['password']
             );
+            $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+
+            return $pdo;
 
         } else {
-            throw new Exception("Unsupported Backend for workspaces");
+            throw new \Exception("Unsupported Backend for workspaces");
         }
     }
 }
