@@ -496,5 +496,27 @@ class Keboola_StorageApi_Tables_ImportExportCommonTest extends StorageApiTestCas
         $this->assertTrue($oldFileInfo["id"] === $fileInfo["id"]);
     }
 
+    public function testRowsCountAndSize()
+    {
+        $tokenData = $this->_client->verifyToken();
+        if ($tokenData['owner']['defaultBackend'] === self::BACKEND_MYSQL) {
+            $this->markTestSkipped('Mysql sizes are approximates');
+            return;
+        }
+
+        $importFileIn = new CsvFile(__DIR__ . '/../../_data/languages.csv');
+        $importFileOut = new CsvFile(__DIR__ . '/../../_data/languages.more-rows.csv');
+
+        // create tables with same name in different buckets (schemas)
+        $inTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', $importFileIn);
+        $outTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_OUT), 'languages', $importFileOut);
+
+        $inTable = $this->_client->getTable($inTableId);
+        $outTable = $this->_client->getTable($outTableId);
+
+        $this->assertEquals(5, $inTable['rowsCount']);
+        $this->assertEquals(7, $outTable['rowsCount']);
+    }
+
 
 }
