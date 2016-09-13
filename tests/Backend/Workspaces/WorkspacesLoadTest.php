@@ -308,7 +308,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $workspaces->loadWorkspaceData($workspace['id'],$options);
 
         //check to make sure the columns have the right types
-        $columnInfo = $backend->describeTable('datatype_test');
+        $columnInfo = $backend->describeTableColumns('datatype_test');
 
         foreach ($columnInfo as $colInfo) {
             switch ($colInfo['name']) {

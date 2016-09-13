@@ -35,7 +35,7 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase {
         ]);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-        $table = $backend->describeTable('languages-rs');
+        $table = $backend->describeTableColumns('languages-rs');
 
         $this->assertEquals("varchar", $table['id']['DATA_TYPE']);
         $this->assertEquals(50, $table['id']['LENGTH']);

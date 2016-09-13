@@ -98,7 +98,7 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend {
         }
     }
 
-    public function describeTable($tableName)
+    public function describeTableColumns($tableName)
     {
         $sql = "SELECT
                 a.attnum,

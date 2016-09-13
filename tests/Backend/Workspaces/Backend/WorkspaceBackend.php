@@ -28,5 +28,5 @@ interface WorkspaceBackend
     // This will return the identifier as it would be returned by the backend.
     public function toIdentifier($item);
 
-    public function describeTable($tableName);
+    public function describeTableColumns($tableName);
 }

@@ -23,7 +23,7 @@
 	"require-dev": {
 		"phpunit/phpunit": "3.7.*",
 		"apigen/apigen": "4.0.0-RC4",
-		"keboola/php-csv-db-import": "~1.4",
+		"keboola/php-csv-db-import": "^2.2",
         "psr/log": "~1.0",
 		"ext-pdo_pgsql": "*"
 	}
