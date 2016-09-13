@@ -39,6 +39,7 @@
 	</testsuite>
 
 	<testsuite name="backend-snowflake-part-2">
+        <file>tests/Backend/Workspaces/WorkspacesSnowflakeTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
