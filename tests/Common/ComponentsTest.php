@@ -548,7 +548,8 @@ class ComponentsTest extends StorageApiTestCase
         $secondVersion = $components->getConfiguration('wr-db', $newConfiguration['id']);
         $this->assertEquals(2, $secondVersion['version']);
         $this->assertEquals($firstRowConfig, $secondVersion['rows'][0]['configuration']);
-        $this->assertEquals('Row 1 added', $secondVersion['changeDescription']);
+        $this->assertEquals(sprintf('Row %s added', $firstRow['id']), $secondVersion['changeDescription']);
+
 
         // add another row
         $secondRowConfig = array('second' => 1);
@@ -1675,7 +1676,7 @@ class ComponentsTest extends StorageApiTestCase
 
         // test 7: rollback row
         $rollbackRowChangeDescription = 'Rollback some other version';
-        $rollbackRow = $components->rollbackConfigurationRow('wr-db', $componentConfig->getConfigurationId(), 1, 3, $rollbackRowChangeDescription);
+        $rollbackRow = $components->rollbackConfigurationRow('wr-db', $componentConfig->getConfigurationId(), $createdRow['id'], 3, $rollbackRowChangeDescription);
         $this->assertEquals($rollbackRowChangeDescription, $rollbackRow['changeDescription']);
         $config = $components->getConfiguration('wr-db', $newConfiguration['id']);
         $this->assertEquals($rollbackRowChangeDescription, $config['changeDescription']);
@@ -1683,15 +1684,15 @@ class ComponentsTest extends StorageApiTestCase
 
         // test 8: copy row
         $copyRowChangeDescription = 'Copy a row to a config';
-        $copyRow = $components->createConfigurationRowFromVersion('wr-db', $componentConfig->getConfigurationId(), 1, 4, '1', $copyRowChangeDescription);
+        $copyRow = $components->createConfigurationRowFromVersion('wr-db', $componentConfig->getConfigurationId(), $createdRow['id'], 4, $copyConfig['id'], $copyRowChangeDescription);
         $this->assertEquals($copyRowChangeDescription, $copyRow['changeDescription']);
-        $config = $components->getConfiguration('wr-db', 1);
+        $config = $components->getConfiguration('wr-db', $copyConfig['id']);
         $this->assertEquals($copyRowChangeDescription, $config['changeDescription']);
         $this->assertEquals($copyRowChangeDescription, $config['rows'][1]['changeDescription']);
 
         // test 9: delete row
         $deleteRowChangeDescription = 'Delete a row, just like that!!!';
-        $components->deleteConfigurationRow('wr-db', $componentConfig->getConfigurationId(), 1, $deleteRowChangeDescription);
+        $components->deleteConfigurationRow('wr-db', $componentConfig->getConfigurationId(), $createdRow['id'], $deleteRowChangeDescription);
         $config = $components->getConfiguration('wr-db', $componentConfig->getConfigurationId());
         $this->assertEquals($deleteRowChangeDescription, $config['changeDescription']);
 
