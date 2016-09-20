@@ -7,19 +7,31 @@
  */
 namespace Keboola\Test\Backend\Workspaces;
 
+use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class WorkspacesTest extends WorkspacesTestCase
 {
-
     public function testWorkspaceCreate()
     {
 
         $workspaces = new Workspaces($this->_client);
 
-        $workspace = $workspaces->createWorkspace();
+        // test invalid name parameter
+        try {
+            $workspace = $workspaces->createWorkspace(['name' => 'test_WorkspaceCreate']);
+            $this->fail("Invalid name parameter should throw error");
+        } catch (ClientException $e) {
+            $this->assertEquals("workspace.badName",$e->getStringCode());
+        }
+        
+        $workspace = $workspaces->createWorkspace(['name' => 'testWorkspaceCreate']);
         $connection = $workspace['connection'];
+        // check names are set properly
+        $this->assertEquals('testWorkspaceCreate', $workspace['name']);
+        $this->assertEquals($workspace['name'], explode("_",$connection['schema'])[0]);
+        $this->assertEquals($workspace['name'], explode("_",$connection['user'])[1]);
 
         $tokenInfo = $this->_client->verifyToken();
         $this->assertEquals($tokenInfo['owner']['defaultBackend'], $connection['backend']);
