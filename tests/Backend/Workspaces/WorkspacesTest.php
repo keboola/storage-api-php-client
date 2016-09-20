@@ -20,16 +20,16 @@ class WorkspacesTest extends WorkspacesTestCase
 
         // test invalid name parameter
         try {
-            $workspace = $workspaces->createWorkspace(['name' => 'test_WorkspaceCreate']);
+            $workspace = $workspaces->createWorkspace(['name' => 'testWorkspaceCreate']);
             $this->fail("Invalid name parameter should throw error");
         } catch (ClientException $e) {
             $this->assertEquals("workspace.badName",$e->getStringCode());
         }
         
-        $workspace = $workspaces->createWorkspace(['name' => 'testWorkspaceCreate']);
+        $workspace = $workspaces->createWorkspace(['name' => 'test-workspace-create']);
         $connection = $workspace['connection'];
         // check names are set properly
-        $this->assertEquals('testWorkspaceCreate', $workspace['name']);
+        $this->assertEquals('test-workspace-create', $workspace['name']);
         $this->assertEquals($workspace['name'], explode("_",$connection['schema'])[0]);
         $this->assertEquals($workspace['name'], explode("_",$connection['user'])[1]);
 
@@ -41,7 +41,6 @@ class WorkspacesTest extends WorkspacesTestCase
         $backend->createTable("mytable", ["amount" => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? "NUMBER" : "VARCHAR"]);
 
         $tableNames = $backend->getTables();
-
         $this->assertArrayHasKey("mytable", array_flip($tableNames));
 
         // get workspace
