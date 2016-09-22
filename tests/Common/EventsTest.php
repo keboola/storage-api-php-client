@@ -172,4 +172,31 @@ class EventsTest extends StorageApiTestCase
         $this->assertCount(3, $events);
     }
 
+    public function testEventsSearch()
+    {
+        $searchString = 'search-' . $this->_client->generateId();
+
+        $event = new Event();
+        $event
+            ->setComponent('transformation')
+            ->setType('info')
+            ->setMessage('test - ' . $searchString)
+            ->setConfigurationId('myConfig');
+        $searchEventId  = $this->createAndWaitForEvent($event);
+
+        $event
+            ->setComponent('transformation')
+            ->setType('info')
+            ->setMessage('test -')
+            ->setConfigurationId('myConfig');
+        $this->createAndWaitForEvent($event);
+
+        $events = $this->_client->listEvents([
+            'q' => $searchString,
+        ]);
+
+        $this->assertCount(1, $events);
+        $this->assertEquals($searchEventId, $events[0]['id']);
+    }
+
 }
