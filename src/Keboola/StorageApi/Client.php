@@ -1438,7 +1438,7 @@ class Client
      * @param array $params
      * @return array
      */
-    public function listTableEvents($tableId, $params = array())
+    public function listTableEvents($tableId, $params = [])
     {
         $defaultParams = array(
             'limit' => 100,
@@ -1447,6 +1447,22 @@ class Client
 
         $queryParams = array_merge($defaultParams, $params);
         return $this->apiGet("storage/tables/{$tableId}/events?" . http_build_query($queryParams));
+    }
+
+    /**
+     * @param $bucketId
+     * @param array $params
+     * @return mixed|string
+     */
+    public function listBucketEvents($bucketId, $params = [])
+    {
+        $defaultParams = array(
+            'limit' => 100,
+            'offset' => 0,
+        );
+
+        $queryParams = array_merge($defaultParams, $params);
+        return $this->apiGet("storage/buckets/{$bucketId}/events?" . http_build_query($queryParams));
     }
 
     /**

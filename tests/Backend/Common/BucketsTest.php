@@ -45,6 +45,12 @@ class BucketsTest extends StorageApiTestCase
         $this->assertEquals($tokenData['owner']['defaultBackend'], $bucket['backend']);
     }
 
+    public function testBucketEvents()
+    {
+        $events = $this->_client->listBucketEvents($this->getTestBucketId());
+        $this->assertNotEmpty($events);
+    }
+
     public function testBucketsListWithIncludeParameter()
     {
         $buckets = $this->_client->listBuckets(array(
