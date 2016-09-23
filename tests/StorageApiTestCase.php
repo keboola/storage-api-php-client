@@ -9,6 +9,9 @@
 
 namespace Keboola\Test;
 
+use Keboola\StorageApi\Options\FileUploadOptions;
+use Keboola\StorageApi\Options\ListFilesOptions;
+
 abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
 {
     const BACKEND_MYSQL = 'mysql';
@@ -105,6 +108,14 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
     public function tableExportFiltersData()
     {
         return array(
+            // test empty filter with quotes in filter
+            array(
+                array(
+                  'whereColumn' => 'city',
+                  'whereValues' => array("'ACCEPTED'"),
+                ),
+                array(),
+            ),
             // first test
             array(
                 array(
@@ -294,6 +305,33 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
                 return $id;
             } catch (\Keboola\StorageApi\ClientException $e) {
                 echo 'Event not found: ' . $id . PHP_EOL;
+            }
+            if ($tries > 4) {
+                throw new \Exception('Max tries exceeded.');
+            }
+            $tries++;
+            sleep(pow(2, $tries));
+        }
+    }
+
+    protected function createAndWaitForFile($path, FileUploadOptions $options, $sapiClient = null)
+    {
+        $client = $sapiClient ? $sapiClient : $this->_client;
+
+        $fileId = $client->uploadFile($path, $options);
+        $fileSearchOptions = new ListFilesOptions();
+        $fileSearchOptions = $fileSearchOptions->setQuery(sprintf("id:%s", $fileId));
+
+        sleep(2); // wait for ES refresh
+        $tries = 0;
+        while (true) {
+            try {
+                $files = $client->listFiles($fileSearchOptions);
+                if (count($files) && $files[0]['id'] === $fileId) {
+                    return $fileId;
+                }
+            } catch (\Keboola\StorageApi\ClientException $e) {
+                echo 'File not found: ' . $fileId . PHP_EOL;
             }
             if ($tries > 4) {
                 throw new \Exception('Max tries exceeded.');

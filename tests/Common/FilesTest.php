@@ -20,7 +20,7 @@ class FilesTest extends StorageApiTestCase
     public function testFileList()
     {
         $options = new FileUploadOptions();
-        $fileId = $this->_client->uploadFile(__DIR__ . '/../_data/files.upload.txt', $options);
+        $fileId = $this->createAndWaitForFile(__DIR__ . '/../_data/files.upload.txt', $options);
         $files = $this->_client->listFiles(new ListFilesOptions());
         $this->assertNotEmpty($files);
 
@@ -33,9 +33,9 @@ class FilesTest extends StorageApiTestCase
     {
         $filePath = __DIR__ . '/../_data/files.upload.txt';
 
-        $this->_client->uploadFile($filePath, new FileUploadOptions());
+        $this->createAndWaitForFile($filePath, new FileUploadOptions());
         $tag = uniqid('tag-test');
-        $fileId = $this->_client->uploadFile($filePath, (new FileUploadOptions())->setTags(array($tag)));
+        $fileId = $this->createAndWaitForFile($filePath, (new FileUploadOptions())->setTags(array($tag)));
 
         $files = $this->_client->listFiles((new ListFilesOptions())->setTags(array($tag)));
 
@@ -44,7 +44,7 @@ class FilesTest extends StorageApiTestCase
         $this->assertEquals($fileId, $file['id']);
 
         $tag2 = uniqid('tag-test-2');
-        $fileId2 = $this->_client->uploadFile($filePath, (new FileUploadOptions())->setTags(array($tag, $tag2)));
+        $fileId2 = $this->createAndWaitForFile($filePath, (new FileUploadOptions())->setTags(array($tag, $tag2)));
 
         $files = $files = $this->_client->listFiles((new ListFilesOptions())->setTags(array($tag, $tag2)));
         $this->assertCount(2, $files, 'files with one or more matching tags are returned');
@@ -83,7 +83,7 @@ class FilesTest extends StorageApiTestCase
     {
 
         $fileId = $this->_client->uploadFile(__DIR__ . '/../_data/users.csv', new FileUploadOptions());
-        $this->_client->uploadFile(__DIR__ . '/../_data/files.upload.txt', new FileUploadOptions());
+        $this->createAndWaitForFile(__DIR__ . '/../_data/files.upload.txt', new FileUploadOptions());
 
         $files = $this->_client->listFiles((new ListFilesOptions())->setQuery('users')->setLimit(1));
 
@@ -113,8 +113,8 @@ class FilesTest extends StorageApiTestCase
         $lastFile = reset($files);
         $lastFileId = $lastFile['id'];
 
-        $firstFileId = $this->_client->uploadFile(__DIR__ . '/../_data/users.csv', new FileUploadOptions());
-        $secondFileId = $this->_client->uploadFile(__DIR__ . '/../_data/users.csv', new FileUploadOptions());
+        $firstFileId = $this->createAndWaitForFile(__DIR__ . '/../_data/users.csv', new FileUploadOptions());
+        $secondFileId = $this->createAndWaitForFile(__DIR__ . '/../_data/users.csv', new FileUploadOptions());
 
         $files = $this->_client->listFiles((new ListFilesOptions())->setSinceId($lastFileId));
         $this->assertCount(2, $files);
@@ -136,7 +136,8 @@ class FilesTest extends StorageApiTestCase
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
 
-        $file = $this->_client->prepareFileUpload($options);
+        $fileId = $this->createAndWaitForFile(__DIR__ . '/../_data/users.csv',$options);
+        $file = $this->_client->getFile($fileId);
         $this->assertEquals($runId, $file['runId']);
 
         $files = $this->_client->listFiles((new ListFilesOptions())->setRunId($runId));
@@ -607,7 +608,7 @@ class FilesTest extends StorageApiTestCase
 
         $newTokenId = $this->_client->createToken(array(), 'Files test');
         $newToken = $this->_client->getToken($newTokenId);
-        $firstFileId = $this->_client->uploadFile($filePath, $uploadOptions);
+        $firstFileId = $this->createAndWaitForFile($filePath, $uploadOptions);
 
         $totalFilesCount = count($this->_client->listFiles());
         $this->assertNotEmpty($totalFilesCount);
@@ -619,7 +620,7 @@ class FilesTest extends StorageApiTestCase
         ));
         $this->assertEmpty($newTokenClient->listFiles());
 
-        $newFileId = $newTokenClient->uploadFile($filePath, $uploadOptions);
+        $newFileId = $this->createAndWaitForFile($filePath, $uploadOptions, $newTokenClient);
         $files = $newTokenClient->listFiles();
         $this->assertCount(1, $files);
         $this->assertEquals($newFileId, reset($files)['id']);
