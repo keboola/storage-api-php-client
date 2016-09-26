@@ -82,7 +82,7 @@ class TableClassTest extends StorageApiTestCase
 
         $result = \Keboola\StorageApi\Table::csvStringToArray($this->_client->exportTable($this->_tableId));
 
-        $this->assertEquals($data, $result, 'data saving to Storage API');
+        $this->assertArrayEqualsSorted($data, $result, 0, 'data saving to Storage API');
         $this->assertEquals($table->getAttribute('testAttribute'), 'test', 'saving attributes to Storage API');
 
         $tableInfo = $this->_client->getTable($this->_tableId);
@@ -110,7 +110,7 @@ class TableClassTest extends StorageApiTestCase
         $table->save(false, true);
 
         $result = \Keboola\StorageApi\Table::csvStringToArray($this->_client->exportTable($this->_tableId));
-        $this->assertEquals($data, $result, 'data saving to Storage API');
+        $this->assertArrayEqualsSorted($data, $result, 0, 'data saving to Storage API');
     }
 
     public function testSaveAsync()
@@ -134,7 +134,7 @@ class TableClassTest extends StorageApiTestCase
 
         $result = \Keboola\StorageApi\Table::csvStringToArray($this->_client->exportTable($this->_tableId));
 
-        $this->assertEquals($data, $result, 'data saving to Storage API');
+        $this->assertArrayEqualsSorted($data, $result, 0, 'data saving to Storage API');
         $this->assertEquals($table->getAttribute('testAttribute'), 'test', 'saving attributes to Storage API');
 
         $tableInfo = $this->_client->getTable($this->_tableId);
