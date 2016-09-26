@@ -544,4 +544,32 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         }
 
     }
+
+    public function testDottedDestination()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+
+        // Create a table of sample data
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN), 'languages_dotted',
+            new CsvFile($importFile)
+        );
+
+        $workspaces->loadWorkspaceData($workspace['id'], [
+            "input" => [
+                [
+                    "source" => $tableId,
+                    "destination" => "dotted.destination",
+                ]
+            ]
+        ]);
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        // let's try to delete some columns
+        $tables = $backend->getTables();
+        $this->assertCount(1, $tables);
+        $this->assertEquals('dotted.destination', $tables[0]);
+    }
 }
