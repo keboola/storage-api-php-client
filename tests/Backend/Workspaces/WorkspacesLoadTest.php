@@ -313,6 +313,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         foreach ($columnInfo as $colInfo) {
             switch ($colInfo['name']) {
                 case 'id':
+                case 'Id':
                     if ($workspace['connection']['backend'] === $this::BACKEND_SNOWFLAKE) {
                         $this->assertEquals("NUMBER(38,0)",$colInfo['type']);
                     }
@@ -321,6 +322,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                     }
                     break;
                 case 'name':
+                case 'Name':
                     if ($workspace['connection']['backend'] === $this::BACKEND_SNOWFLAKE) {
                         $this->assertEquals("VARCHAR(50)",$colInfo['type']);
                     }
@@ -361,6 +363,36 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             $workspaces->loadWorkspaceData($workspace['id'],$options);
         } catch (ClientException $e) {
             $this->assertEquals('workspace.tableLoad', $e->getStringCode());
+        }
+    }
+
+    public function testDataTypeForNotExistingColumnUserError()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+
+        $importFile = __DIR__ . '/../../_data/languages.camel-case-columns.csv';
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN), 'languages',
+            new CsvFile($importFile)
+        );
+
+        $options = array('input' => [
+            [
+                'source' => $tableId,
+                'destination' => 'datatype_Test',
+                'datatypes' => [
+                    "id" => "INTEGER", // lower case instead camel case should be resolved likne non-existing column
+                    "Name" => "VARCHAR(50)"
+                ]
+            ]
+        ]);
+
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], $options);
+            $this->fail('workspace should not be loaded');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.tables.datatypesForNonExistingColumns', $e->getStringCode());
         }
     }
 
