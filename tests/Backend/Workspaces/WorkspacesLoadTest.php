@@ -288,7 +288,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $importFile = __DIR__ . '/../../_data/languages.camel-case-columns.csv';
         $tableId = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN), 'languages',
             new CsvFile($importFile)
@@ -297,10 +297,10 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $options = array('input' => [
             [
                 'source' => $tableId,
-                'destination' => 'datatype_test',
+                'destination' => 'datatype_Test',
                 'datatypes' => [
-                    "id" => "INTEGER",
-                    "name" => "VARCHAR(50)"
+                    "Id" => "INTEGER",
+                    "Name" => "VARCHAR(50)"
                 ]
             ]
         ]);
@@ -308,7 +308,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $workspaces->loadWorkspaceData($workspace['id'],$options);
 
         //check to make sure the columns have the right types
-        $columnInfo = $backend->describeTableColumns('datatype_test');
+        $columnInfo = $backend->describeTableColumns('datatype_Test');
 
         foreach ($columnInfo as $colInfo) {
             switch ($colInfo['name']) {
