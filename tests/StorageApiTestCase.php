@@ -109,13 +109,13 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
     {
         return array(
             // test empty filter with quotes in filter
-//            array(
-//                array(
-//                  'whereColumn' => 'city',
-//                  'whereValues' => array("'ACCEPTED'"),
-//                ),
-//                array(),
-//            ),
+            array(
+                array(
+                  'whereColumn' => 'city',
+                  'whereValues' => array("'ACCEPTED'"),
+                ),
+                array(),
+            ),
             // first test
             array(
                 array(
