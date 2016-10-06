@@ -2,6 +2,7 @@ version: '2'
 services:
   tests:
     build: .
+    image: keboola/storage-api-tests
     tty: true
     stdin_open: true
     volumes:

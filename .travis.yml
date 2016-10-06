@@ -1,27 +1,20 @@
+sudo: required
+
+language: bash
+
 services:
   - docker
-sudo: required
-language: bash
-env:
- - TEST_SUITE=common STORAGE_API_TOKEN=$STORAGE_API_TOKEN_COMMON
- - TEST_SUITE=backend-mysql STORAGE_API_TOKEN=$STORAGE_API_TOKEN_MYSQL
- - TEST_SUITE=backend-redshift STORAGE_API_TOKEN=$STORAGE_API_TOKEN_REDSHIFT
- - TEST_SUITE=backend-snowflake-part-1 STORAGE_API_TOKEN=$STORAGE_API_TOKEN_SNOWFLAKE
- - TEST_SUITE=backend-snowflake-part-2 STORAGE_API_TOKEN=$STORAGE_API_TOKEN_SNOWFLAKE_PART_2
-before_install:
- - sudo sh -c 'echo "deb https://apt.dockerproject.org/repo ubuntu-precise main" > /etc/apt/sources.list.d/docker.list'
- - sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
- - sudo apt-get update
- - sudo apt-key update
- - sudo apt-get -qqy -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install docker-engine=1.11.1-0~precise
- - sudo rm /usr/local/bin/docker-compose
- - curl -L https://github.com/docker/compose/releases/download/1.7.0/docker-compose-`uname -s`-`uname -m` > docker-compose
- - chmod +x docker-compose
- - sudo mv docker-compose /usr/local/bin
- - docker-compose -v
- - docker -v
+
 install:
  - docker-compose run odbc composer install -n --ignore-platform-reqs
  - docker-compose run -e AWS_ACCESS_KEY=$AWS_ODBC_KEY -e AWS_SECRET_KEY=$AWS_ODBC_SECRET odbc php docker/downloadOdbcDriver.php
+
 script:
- - docker-compose run --rm -e STORAGE_API_URL=$STORAGE_API_URL -e STORAGE_API_MAINTENANCE_URL=$STORAGE_API_MAINTENANCE_URL -e STORAGE_API_TOKEN=$STORAGE_API_TOKEN -e REDSHIFT_USER=$REDSHIFT_USER -e REDSHIFT_PASSWORD=$REDSHIFT_PASSWORD -e REDSHIFT_HOSTNAME=$REDSHIFT_HOSTNAME tests /bin/bash -c "composer install && php vendor/bin/phpunit --testsuite $TEST_SUITE"
+ - docker-compose build tests
+
+deploy:
+  provider: script
+  skip_cleanup: true
+  script: ./deploy.sh
+  on:
+    branch: master
