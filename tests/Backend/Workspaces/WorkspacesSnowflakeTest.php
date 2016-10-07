@@ -9,6 +9,18 @@ use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class WorkspacesSnowflakeTest extends WorkspacesTestCase {
 
+    public function testStatementTimeout() {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+
+        $this->assertGreaterThan(0, $workspace['statementTimeoutSeconds']);
+
+        $db = $this->getDbConnection($workspace['connection']);
+
+        $timeout = $db->fetchAll('SHOW PARAMETERS LIKE \'STATEMENT_TIMEOUT_IN_SECONDS\'')[0]['value'];
+        $this->assertEquals($workspace['statementTimeoutSeconds'], $timeout);
+    }
+
     public function testTransientTAbles() {
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
