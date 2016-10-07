@@ -108,14 +108,6 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
     public function tableExportFiltersData()
     {
         return array(
-            // test empty filter with quotes in filter
-            array(
-                array(
-                  'whereColumn' => 'city',
-                  'whereValues' => array("'ACCEPTED'"),
-                ),
-                array(),
-            ),
             // first test
             array(
                 array(
