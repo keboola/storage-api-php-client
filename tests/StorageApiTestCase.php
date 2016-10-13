@@ -311,10 +311,15 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
         $client = $sapiClient ? $sapiClient : $this->_client;
 
         $fileId = $client->uploadFile($path, $options);
+        return $this->waitForFile($fileId, $client);
+    }
+
+    protected function waitForFile($fileId,  $sapiClient = null)
+    {
+        $client = $sapiClient ? $sapiClient : $this->_client;
         $fileSearchOptions = new ListFilesOptions();
         $fileSearchOptions = $fileSearchOptions->setQuery(sprintf("id:%s", $fileId));
 
-        sleep(2); // wait for ES refresh
         $tries = 0;
         while (true) {
             try {
@@ -331,7 +336,6 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
             $tries++;
             sleep(pow(2, $tries));
         }
-
     }
 
 }

@@ -468,6 +468,7 @@ class Keboola_StorageApi_Tables_ImportExportCommonTest extends StorageApiTestCas
         }
 
         $this->assertTrue($runIdExists);
+        $this->waitForFile($fileId['file']['id']);
 
         // Second export validation (cached)
         $oldFileInfo = $fileInfo;
@@ -491,8 +492,6 @@ class Keboola_StorageApi_Tables_ImportExportCommonTest extends StorageApiTestCas
         }
 
         $this->assertTrue($runIdExists);
-
-
         $this->assertTrue($oldFileInfo["id"] === $fileInfo["id"]);
     }
 

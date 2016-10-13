@@ -175,6 +175,9 @@ class ExportParamsTest extends StorageApiTestCase
         $fileId = $results['file']['id'];
         $this->assertFalse($results['cacheHit']);
 
+        // file have to available for search for caching (Elasticsearch refresh interval)
+        $this->waitForFile($fileId);
+
         $results = $this->_client->exportTableAsync($tableId);
         $this->assertTrue($results['cacheHit']);
         $this->assertEquals($fileId, $results['file']['id']);
@@ -184,6 +187,8 @@ class ExportParamsTest extends StorageApiTestCase
         ));
 
         $gzippedFileId = $results['file']['id'];
+
+        $this->waitForFile($gzippedFileId);
         $this->assertFalse($results['cacheHit']);
         $this->assertNotEquals($fileId, $gzippedFileId);
         $results = $this->_client->exportTableAsync($tableId, array(
