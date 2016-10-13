@@ -201,7 +201,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             new CsvFile($importFile)
         );
         $originalFileLinesCount = exec("wc -l <" . escapeshellarg($importFile));
-        sleep(10);
+        sleep(15);
         $startTime = time();
         $importCsv = new \Keboola\Csv\CsvFile($importFile);
         $this->_client->writeTable($tableId, $importCsv, array(
@@ -211,13 +211,15 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             'incremental' => true,
         ));
 
-        $options = array('input' => [
-            [
-                'source' => $tableId,
-                'destination' => 'languages',
-                'seconds' => ceil(time() - $startTime) + 5
-            ]
-        ]);
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                    'seconds' => floor(time() - $startTime) + 10,
+                ],
+            ],
+        ];
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
         // ok, the table should only have rows from the 2 most recent loads
