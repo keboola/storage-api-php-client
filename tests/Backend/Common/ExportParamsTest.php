@@ -230,6 +230,7 @@ class ExportParamsTest extends StorageApiTestCase
         $results = $this->_client->exportTableAsync($tableId);
         $fileId = $results['file']['id'];
         $this->assertFalse($results['cacheHit']);
+        $this->waitForFile($fileId);
 
         $newTokenId = $this->_client->createToken(array(
             $this->getTestBucketId() => 'read',
@@ -243,7 +244,6 @@ class ExportParamsTest extends StorageApiTestCase
         $results = $client->exportTableAsync($tableId);
         $this->assertTrue($results['cacheHit']);
         $this->assertEquals($fileId, $results['file']['id']);
-
 
         $file = $client->getFile($results['file']['id']);
         Client::parseCsv(file_get_contents($file['url']), false);
