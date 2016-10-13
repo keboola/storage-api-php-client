@@ -46,7 +46,7 @@ class FilesTest extends StorageApiTestCase
         $tag2 = uniqid('tag-test-2');
         $fileId2 = $this->createAndWaitForFile($filePath, (new FileUploadOptions())->setTags(array($tag, $tag2)));
 
-        $files = $files = $this->_client->listFiles((new ListFilesOptions())->setTags(array($tag, $tag2)));
+        $files = $this->_client->listFiles((new ListFilesOptions())->setTags(array($tag, $tag2)));
         $this->assertCount(2, $files, 'files with one or more matching tags are returned');
         $file2 = array_shift($files);
         $file = array_shift($files);

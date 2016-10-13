@@ -321,6 +321,7 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
         $fileSearchOptions = $fileSearchOptions->setQuery(sprintf("id:%s", $fileId));
 
         $tries = 0;
+        sleep(2);
         while (true) {
             try {
                 $files = $client->listFiles($fileSearchOptions);
