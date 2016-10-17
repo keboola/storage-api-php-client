@@ -363,9 +363,16 @@ class WorkspaceLoadTest extends WorkspacesTestCase
 
         try {
             $workspaces->loadWorkspaceData($workspace['id'],$options);
+            $this->fail('Workspace should not be loaded');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.tableLoad', $e->getStringCode());
         }
+
+        // table should be created but we should be able to delete it
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $this->assertNotEmpty($backend->describeTableColumns('datatype_test'));
+        $backend->dropTable('datatype_test');
     }
 
     public function testDataTypeForNotExistingColumnUserError()
