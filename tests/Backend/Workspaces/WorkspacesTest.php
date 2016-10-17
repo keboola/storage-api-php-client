@@ -7,6 +7,7 @@
  */
 namespace Keboola\Test\Backend\Workspaces;
 
+use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
@@ -56,7 +57,11 @@ class WorkspacesTest extends WorkspacesTestCase
         }
     }
 
-    function testDropWorkspace()
+    /**
+     * @dataProvider  dropOptions
+     * @param $dropOptions
+     */
+    function testDropWorkspace($dropOptions)
     {
         $workspaces = new Workspaces($this->_client);
 
@@ -68,7 +73,8 @@ class WorkspacesTest extends WorkspacesTestCase
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $backend->createTable("mytable", ["amount" => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? "NUMBER" : "VARCHAR"]);
 
-        $workspaces->deleteWorkspace($workspace['id']);
+        // sync delete
+        $workspaces->deleteWorkspace($workspace['id'], $dropOptions);
 
         try {
             $rows = $backend->countRows("mytable");
@@ -79,5 +85,42 @@ class WorkspacesTest extends WorkspacesTestCase
             // check that exception not caused by the above fail()
             $this->assertEquals(2, $e->getCode(), $e->getMessage());
         }
+
+        if (!empty($dropOptions['async'])) {
+            $job = $this->_client->listJobs()[0];
+            $this->assertEquals('workspaceDrop', $job['operationName']);
+            $this->assertEquals($workspace['id'], $job['operationParams']['workspaceId']);
+        }
     }
+
+    /**
+     * @dataProvider dropOptions
+     * @param $dropOptions
+     */
+    function testDropNonExistingWorkspace($dropOptions)
+    {
+        $workspaces = new Workspaces($this->_client);
+
+        try {
+            $workspaces->deleteWorkspace('fake', $dropOptions);
+            $this->fail('exception should be thrown');
+        } catch (ClientException $e) {
+            $this->assertEquals('workspace.workspaceNotFound', $e->getStringCode());
+        }
+    }
+
+    public function dropOptions()
+    {
+        return [
+            [
+                []
+            ],
+            [
+                [
+                    'async' => true,
+                ]
+            ]
+        ];
+    }
+
 }

@@ -51,9 +51,9 @@ class Workspaces
     }
 
 
-    public function deleteWorkspace($id)
+    public function deleteWorkspace($id, array $options = [])
     {
-        $this->client->apiDelete("storage/workspaces/{$id}");
+        $this->client->apiDelete("storage/workspaces/{$id}?" . http_build_query($options));
     }
 
     /**
