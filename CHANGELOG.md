@@ -1,3 +1,6 @@
+## 4.15.0 (2016-10-18)
+ * [Feat] Workspaces - `deleteWorkspace` options parameter added accepting `async` option.
+
 ## 4.14.0 (2016-07-21)
  * [Feat] `listJobs` method added
 
