@@ -1,3 +1,6 @@
+## 4.16.0 (2016-10-22)
+ * [Fix] Rollback Symfony dependencies back to 2.*.
+
 ## 4.15.0 (2016-10-18)
  * [Feat] Workspaces - `deleteWorkspace` options parameter added accepting `async` option.
 
