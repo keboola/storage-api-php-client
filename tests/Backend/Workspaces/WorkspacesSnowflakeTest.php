@@ -2,12 +2,24 @@
 
 namespace Keboola\Test\Backend\Workspaces;
 
+use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Csv\CsvFile;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 
 class WorkspacesSnowflakeTest extends WorkspacesTestCase {
+
+    public function testCreateNotSupportedBackend()
+    {
+        $workspaces = new Workspaces($this->_client);
+        try {
+            $workspaces->createWorkspace(["backend" => "redshift"]);
+            $this->fail("should not be able to create WS for unsupported backend");
+        } catch (ClientException $e) {
+            $this->assertEquals($e->getStringCode(),"workspace.backendNotSupported");
+        }
+    }
 
     public function testStatementTimeout() {
         $workspaces = new Workspaces($this->_client);
