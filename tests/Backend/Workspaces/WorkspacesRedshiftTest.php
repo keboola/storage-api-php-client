@@ -63,7 +63,7 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase {
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
         $db = $this->getDbConnection($workspace['connection']);
-        
+
         // Create a table of sample data
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable(
@@ -135,6 +135,55 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase {
             $this->assertEquals(0, (int) $row['reldiststyle'], "even diststyle doesn't check out.");
         } else if ($dist === "all") {
             $this->assertEquals(8, (int) $row['reldiststyle'], "all diststyle doesn't check out.");
+        }
+    }
+
+    public function testLoadedPrimaryKeys() {
+        $primaries = ['Paid_Search_Engine_Account','Date','Paid_Search_Campaign','Paid_Search_Ad_ID','Site__DFA'];
+        $pkTableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages-pk',
+            new CsvFile(__DIR__ . '/../../_data/multiple-columns-pk.csv'),
+            array(
+                'primaryKey' => implode(",",$primaries),
+            )
+        );
+
+        $mapping = [
+            "source" => $pkTableId,
+            "destination" => "languages-pk"
+        ];
+
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping]]);
+
+        $cols = $backend->describeTableColumns("languages-pk");
+
+        foreach($cols as $colname => $coldata) {
+            if (in_array($colname, array_map("strtolower",$primaries))) {
+                $this->assertTrue($coldata['PRIMARY']);
+                $this->assertEquals("255", $coldata['LENGTH']);
+            }
+        }
+
+        // Check that PK is NOT set if not all PK columns are present
+        $mapping2 = [
+            "source" => $pkTableId,
+            "destination" => "languages-pk-skipped",
+            "columns" => ['Paid_Search_Engine_Account','Date'] // missing PK columns
+        ];
+        $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping2]]);
+
+        $cols = $backend->describeTableColumns("languages-pk-skipped");
+
+        foreach($cols as $colname => $coldata) {
+            if (in_array($colname, array_map("strtolower",$primaries))) {
+                $this->assertFalse($coldata['PRIMARY']); // should not set as PK column
+                $this->assertEquals("255", $coldata['LENGTH']); // will still be of PK column length
+            }
         }
     }
 
