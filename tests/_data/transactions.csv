@@ -1,0 +1,4 @@
+"id", "transid", "item", "price", "quantity"
+1,12,"beef",12.23,1
+2,12,"bread",2.87,
+3,12,"candlestick", 3.54,4

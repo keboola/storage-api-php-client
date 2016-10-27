@@ -135,6 +135,50 @@ class WorkspacesTest extends WorkspacesTestCase
         $this->assertCount(3, $data);
     }
 
+    public function testDataTypesLoadToSnowflake()
+    {
+        $bucketBackend = self::BACKEND_REDSHIFT;
+        if ($this->_client->bucketExists("in.c-mixed-test-" . $bucketBackend)) {
+            $this->_client->dropBucket("in.c-mixed-test-{$bucketBackend}", [
+                'force' => true,
+            ]);
+        }
+        $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}","in","",$bucketBackend);
+
+        //setup test table
+        $this->_client->createTable(
+            $bucketId, 'transactions',
+            new CsvFile(__DIR__ . '/../../_data/transactions.csv')
+        );
+
+        $workspaces = new Workspaces($this->_client);
+
+        $workspace = $workspaces->createWorkspace([
+            'backend' => self::BACKEND_SNOWFLAKE,
+        ]);
+
+        $options = [
+            "input" => [
+                [
+                    "source" => "in.c-mixed-test-{$bucketBackend}.transactions",
+                    "destination" => "transactions",
+                    "datatypes" => [
+                        'price' => "NUMBER",
+                        'quantity' => "NUMBER",
+                    ]
+                ]
+            ]
+        ];
+
+        // exception should be thrown, as quantity has empty value '' and snflk will complain.
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], $options);
+        } catch (ClientException $e) {
+            $this->assertEquals($e->getStringCode(), "workspace.tableImportError");
+        }
+
+    }
+
     public function workspaceBackendData()
     {
         return [
