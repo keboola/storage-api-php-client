@@ -41,6 +41,9 @@ class DeepCopyTest extends StorageApiTestCase
             'incremental' => true,
         ]);
         $this->assertLinesEqualsSorted(file_get_contents(__DIR__ . '/../../_data/pk.simple.increment.loaded.csv'), $this->_client->exportTable($tableId));
+
+        // test that primary key can be deleted
+        $this->_client->removeTablePrimaryKey($tableId);
     }
 
 }
