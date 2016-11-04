@@ -113,10 +113,7 @@ Than  you can run tests:
  
 ### Redshift backend test suite
 
-Reshift tests require a cluster connected to Storage API and credentials. When you have a project with enabled Redshift, create 2 Redshift buckets (using Storage API Console):
- 
-   - in.c-api-tests
-   - out.c-api-tests
+Reshift tests require a cluster connected to Storage API and credentials.
 
 These credentials are used in tests to simulate "copy from table" transformations behaviour.
 Then you can create your Redshift user. Connect to your Redshift database `sapi_YOURPROJECTID` and run queries:
