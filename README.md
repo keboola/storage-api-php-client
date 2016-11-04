@@ -135,7 +135,8 @@ This test suite expects following environment variables set:
 - `REDSHIFT_USER` - previously created user
 - `REDSHIFT_PASSWORD` - previously created passowrd
 
-You can export variables manually or you can create and fill file `set-env.mysql.sh` as copy of attached `set-env.mysql.template.sh`.
+You can export variables manually or you can create and fill file `set-env.redshift.sh`
+as copy of attached `set-env.redshift.template.sh`.
 
 Than  you can run tests:
 
