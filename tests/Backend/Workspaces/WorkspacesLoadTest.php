@@ -228,9 +228,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $this->assertCount(1, $data[0], 'there should be one column');
         $this->assertArrayHasKey('id', $data[0]);
 
-        var_dump($data);
-        $this->assertCount(2, $data);
-        $this->assertEquals('1', $data[1]['id']);
+        $this->assertEquals('1', $data[0]['id']);
 
     }
 
