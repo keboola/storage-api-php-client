@@ -180,7 +180,18 @@ class WorkspacesTest extends WorkspacesTestCase
 
     public function testDataTypesLoadToRedshift()
     {
+
         $bucketBackend = self::BACKEND_MYSQL;
+
+        if ($this->_client->bucketExists("out.c-mixed-test-" . $bucketBackend)) {
+            $this->_client->dropBucket(
+                "out.c-mixed-test-{$bucketBackend}",
+                [
+                    'force' => true,
+                ]
+            );
+        }
+
         if ($this->_client->bucketExists("in.c-mixed-test-" . $bucketBackend)) {
             $this->_client->dropBucket("in.c-mixed-test-{$bucketBackend}", [
                 'force' => true,
@@ -224,6 +235,16 @@ class WorkspacesTest extends WorkspacesTestCase
     public function testDataTypesLoadToSnowflake()
     {
         $bucketBackend = self::BACKEND_REDSHIFT;
+
+        if ($this->_client->bucketExists("out.c-mixed-test-" . $bucketBackend)) {
+            $this->_client->dropBucket(
+                "out.c-mixed-test-{$bucketBackend}",
+                [
+                    'force' => true,
+                ]
+            );
+        }
+
         if ($this->_client->bucketExists("in.c-mixed-test-" . $bucketBackend)) {
             $this->_client->dropBucket("in.c-mixed-test-{$bucketBackend}", [
                 'force' => true,
