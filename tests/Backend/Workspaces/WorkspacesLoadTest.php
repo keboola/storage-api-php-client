@@ -131,6 +131,107 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $this->assertContains($backend->toIdentifier("table3"), $tables);
     }
 
+    public function testWorkspaceLoadAliasTable()
+    {
+        $workspaces = new Workspaces($this->_client);
+
+        $workspace = $workspaces->createWorkspace();
+
+        //setup test tables
+        $table1Id = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN), 'languages',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
+            [
+                'primaryKey' => 'id',
+            ]
+        );
+
+        $table2Id = $this->_client->createAliasTable(
+            $this->getTestBucketId(self::STAGE_OUT),
+            $table1Id,
+            'Languages'
+        );
+
+        $table3Id = $this->_client->createAliasTable(
+            $this->getTestBucketId(self::STAGE_OUT),
+            $table1Id,
+            'LanguagesOneColumn',
+            [
+                'aliasColumns' => [
+                    'id',
+                ],
+            ]
+        );
+
+        $table4Id = $this->_client->createAliasTable(
+            $this->getTestBucketId(self::STAGE_OUT),
+            $table1Id,
+            'LanguagesFiltered',
+            [
+                'aliasColumns' => [
+                    'id',
+                ],
+                'aliasFilter' => [
+                    'column' => 'id',
+                    'values' => ['1']
+                ]
+            ]
+        );
+
+        $mapping1 = ["source" => $table1Id, "destination" => "languagesLoaded"];
+        $mapping2 = ["source" => $table2Id, "destination" => "languagesAlias"];
+        $mapping3 = ["source" => $table3Id, "destination" => "languagesOneColumn"];
+        $mapping4 = ["source" => $table4Id, "destination" => "languagesFiltered"];
+
+
+        $input = [$mapping1, $mapping2, $mapping3, $mapping4];
+        $workspaces->loadWorkspaceData($workspace['id'], ["input" => $input]);
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $tables = $backend->getTables();
+
+        // check that the tables are in the workspace
+        $this->assertCount(4, $tables);
+        $this->assertContains($backend->toIdentifier("languagesLoaded"), $tables);
+        $this->assertContains($backend->toIdentifier("languagesAlias"), $tables);
+        $this->assertContains($backend->toIdentifier("languagesOneColumn"), $tables);
+        $this->assertContains($backend->toIdentifier("languagesFiltered"), $tables);
+
+        // check table structure and data
+        // first table
+        $data = $backend->fetchAll("languagesLoaded", \PDO::FETCH_ASSOC);
+        $this->assertCount(2, $data[0], 'there should be two columns');
+        $this->assertArrayHasKey('id', $data[0]);
+        $this->assertArrayHasKey('name', $data[0]);
+        $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ",", '"'), $data, 'id');
+
+        // second table
+        $data = $backend->fetchAll("languagesAlias", \PDO::FETCH_ASSOC);
+        $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ",", '"'), $data, 'id');
+
+        // third table
+        $data = $backend->fetchAll("languagesOneColumn", \PDO::FETCH_ASSOC);
+
+        $this->assertCount(1, $data[0], 'there should be one column');
+        $this->assertArrayHasKey('id', $data[0]);
+        $expected = Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ",", '"');
+        $expected = array_map(function($row) {
+            return [
+                'id' => $row['id'],
+            ];
+        }, $expected);
+        $this->assertArrayEqualsSorted($expected, $data, 'id');
+
+        // fourth table
+        $data = $backend->fetchAll("languagesFiltered", \PDO::FETCH_ASSOC);
+        $this->assertCount(1, $data[0], 'there should be one column');
+        $this->assertArrayHasKey('id', $data[0]);
+
+        $this->assertEquals('1', $data[0]['id']);
+
+    }
+
     public function testWorkspaceLoadColumns()
     {
         $workspaces = new Workspaces($this->_client);
