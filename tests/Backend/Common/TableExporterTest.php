@@ -90,11 +90,16 @@ class TableExporterTest extends StorageApiTestCase
     public function tableImportData()
     {
         return array(
+
             array([self::BACKEND_SNOWFLAKE], new CsvFile('https://s3.amazonaws.com/keboola-tests/1200.csv'), '1200.csv'),
             array([self::BACKEND_MYSQL, self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.csv.gz'), 'languages.csv'),
             array([self::BACKEND_MYSQL, self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.csv.gz'), 'languages.csv', array('gzip' => true)),
             array([self::BACKEND_MYSQL, self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile('https://s3.amazonaws.com/keboola-tests/numbers.csv'), 'numbers.csv'),
             array([self::BACKEND_MYSQL, self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile('https://s3.amazonaws.com/keboola-tests/numbers.csv'), 'numbers.two-cols.csv', array('columns' => array('0', '45'))),
+
+            // tests the redshift data too long bug https://github.com/keboola/connection/issues/412
+            array([self::BACKEND_MYSQL, self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.64k.csv'), 'languages.64k.csv'),
+            array([self::BACKEND_MYSQL, self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.64k.csv'), 'languages.64k.csv',  array('gzip' => true)),
 
             array([self::BACKEND_REDSHIFT], new CsvFile('https://s3.amazonaws.com/keboola-tests/escaping.csv'), 'escaping.backslash.redshift.out.csv', array('format' => 'escaped')),
             array([self::BACKEND_REDSHIFT], new CsvFile('https://s3.amazonaws.com/keboola-tests/escaping.csv'), 'escaping.backslash.redshift.out.csv', array('format' => 'escaped')),
