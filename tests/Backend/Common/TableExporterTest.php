@@ -101,7 +101,7 @@ class TableExporterTest extends StorageApiTestCase
             array([self::BACKEND_MYSQL, self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.64k.csv'), 'languages.64k.csv'),
             array([self::BACKEND_MYSQL, self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.64k.csv'), 'languages.64k.csv',  array('gzip' => true)),
             array([self::BACKEND_MYSQL, self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile('https://s3.amazonaws.com/keboola-tests/64K.csv'), '64K.csv'),
-            array([self::BACKEND_MYSQL, self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile('https://s3.amazonaws.com/keboola-tests/64K.csv'), '64k.csv',  array('gzip' => true)),
+            array([self::BACKEND_MYSQL, self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile('https://s3.amazonaws.com/keboola-tests/64K.csv'), '64K.csv',  array('gzip' => true)),
 
             array([self::BACKEND_REDSHIFT], new CsvFile('https://s3.amazonaws.com/keboola-tests/escaping.csv'), 'escaping.backslash.redshift.out.csv', array('format' => 'escaped')),
             array([self::BACKEND_REDSHIFT], new CsvFile('https://s3.amazonaws.com/keboola-tests/escaping.csv'), 'escaping.backslash.redshift.out.csv', array('format' => 'escaped')),
