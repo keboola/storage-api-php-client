@@ -11,7 +11,7 @@ install:
 
 script:
  - docker-compose build tests
- - docker-compose run --rm php ./vendor/bin/phpcs --standard=psr2 --ignore=vendor -n .
+ - docker-compose run --rm tests ./vendor/bin/phpcs --standard=psr2 --ignore=vendor -n .
 
 deploy:
   provider: script
