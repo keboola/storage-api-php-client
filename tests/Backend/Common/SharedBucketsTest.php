@@ -94,11 +94,13 @@ class SharedBucketsTest extends StorageApiTestCase
         }
     }
 
-    public function testSharing()
+    public function testLink()
     {
         $bucketId = reset($this->_bucketIds);
+        $sourceBucket = $this->_client->getBucket($bucketId);
 
         $this->_client->shareBucket($bucketId);
+
         $this->assertTrue($this->_client->isSharedBucket($bucketId));
 
         $response = $this->_client2->listSharedBuckets();
@@ -106,6 +108,17 @@ class SharedBucketsTest extends StorageApiTestCase
 
         $sharedBucket = reset($response);
 
-        $this->_client2->linkBucket("Linked bucket", $sharedBucket['project']['id'], $sharedBucket['id']);
+        $id = $this->_client2->linkBucket("linked-" . time(), $sharedBucket['project']['id'], $sharedBucket['id']);
+
+        $bucket = $this->_client2->getBucket($id);
+        $this->assertArrayHasKey('id', $bucket);
+        $this->assertArrayHasKey('stage', $bucket);
+        $this->assertArrayHasKey('backend', $bucket);
+        $this->assertArrayHasKey('description', $bucket);
+
+        $this->assertEquals($id, $bucket['id']);
+        $this->assertEquals('in', $bucket['stage']);
+        $this->assertEquals($sourceBucket['backend'], $bucket['backend']);
+        $this->assertEquals($sourceBucket['description'], $bucket['description']);
     }
 }
