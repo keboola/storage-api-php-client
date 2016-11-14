@@ -61,7 +61,7 @@ class WorkspacesTest extends WorkspacesTestCase
      * @dataProvider  dropOptions
      * @param $dropOptions
      */
-    function testDropWorkspace($dropOptions)
+    public function testDropWorkspace($dropOptions)
     {
         $workspaces = new Workspaces($this->_client);
 
@@ -97,7 +97,7 @@ class WorkspacesTest extends WorkspacesTestCase
      * @dataProvider dropOptions
      * @param $dropOptions
      */
-    function testDropNonExistingWorkspace($dropOptions)
+    public function testDropNonExistingWorkspace($dropOptions)
     {
         $workspaces = new Workspaces($this->_client);
 
