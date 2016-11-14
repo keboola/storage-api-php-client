@@ -45,5 +45,4 @@ class DeepCopyTest extends StorageApiTestCase
         // test that primary key can be deleted
         $this->_client->removeTablePrimaryKey($tableId);
     }
-
 }

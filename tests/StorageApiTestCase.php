@@ -75,7 +75,7 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
     {
         $fh = fopen($path, 'r');
         $lines = array();
-        while (($data = fgetcsv($fh, 1000, $delimiter, $enclosure, $escape)) !== FALSE) {
+        while (($data = fgetcsv($fh, 1000, $delimiter, $enclosure, $escape)) !== false) {
             $lines[] = $data;
         }
         fclose($fh);
@@ -314,7 +314,7 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
         return $this->waitForFile($fileId, $client);
     }
 
-    protected function waitForFile($fileId,  $sapiClient = null)
+    protected function waitForFile($fileId, $sapiClient = null)
     {
         $client = $sapiClient ? $sapiClient : $this->_client;
         $fileSearchOptions = new ListFilesOptions();
@@ -338,5 +338,4 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
             sleep(pow(2, $tries));
         }
     }
-
 }

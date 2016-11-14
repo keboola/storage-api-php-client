@@ -21,5 +21,4 @@ class ExceptionsTest extends StorageApiTestCase
     {
         $t = $this->_client->getTable("nonexistingtable");
     }
-
 }

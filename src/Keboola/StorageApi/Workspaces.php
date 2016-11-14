@@ -9,7 +9,6 @@
 
 namespace Keboola\StorageApi;
 
-
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions;
@@ -65,5 +64,4 @@ class Workspaces
     {
         return $this->client->apiPost("storage/workspaces/{$id}/load", $options);
     }
-
 }

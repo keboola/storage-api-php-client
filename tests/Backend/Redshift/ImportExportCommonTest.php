@@ -22,7 +22,8 @@ class ImportExportCommonTest extends StorageApiTestCase
     public function testRedshiftErrorInCsv()
     {
         $tableId = $this->_client->createTable(
-            $this->getTestBucketId(self::STAGE_IN), 'languages',
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
 
@@ -40,7 +41,8 @@ class ImportExportCommonTest extends StorageApiTestCase
     public function testRedshiftUnsupportedCsvParams()
     {
         $tableId = $this->_client->createTable(
-            $this->getTestBucketId(self::STAGE_IN), 'languages',
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
 
@@ -54,12 +56,12 @@ class ImportExportCommonTest extends StorageApiTestCase
 
         try {
             $this->_client->createTable(
-                $this->getTestBucketId(self::STAGE_IN), 'languages-2',
+                $this->getTestBucketId(self::STAGE_IN),
+                'languages-2',
                 $csv
             );
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('csvImport.invalidCsvParams', $e->getStringCode());
         }
     }
-
 }

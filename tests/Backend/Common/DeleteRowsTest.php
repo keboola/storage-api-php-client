@@ -10,8 +10,8 @@
 namespace Keboola\Test\Backend\Common;
 
 use Keboola\Test\StorageApiTestCase;
-use Keboola\Csv\CsvFile,
-    Keboola\StorageApi\Client;
+use Keboola\Csv\CsvFile;
+use Keboola\StorageApi\Client;
 
 class DeleteRowsTest extends StorageApiTestCase
 {
@@ -57,7 +57,6 @@ class DeleteRowsTest extends StorageApiTestCase
             $this->fail('Exception should be thrown');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.tables.validation.invalidFilterValues', $e->getStringCode());
-
         }
     }
 
@@ -196,5 +195,4 @@ class DeleteRowsTest extends StorageApiTestCase
             ),
         );
     }
-
 }

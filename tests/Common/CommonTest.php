@@ -62,5 +62,4 @@ class Common extends StorageApiTestCase
         ));
         $this->assertEquals($retriesCount, $client->getAwsRetries());
     }
-
 }

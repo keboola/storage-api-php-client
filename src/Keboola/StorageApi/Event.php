@@ -9,7 +9,6 @@
 
 namespace Keboola\StorageApi;
 
-
 class Event
 {
 
@@ -262,5 +261,4 @@ class Event
         $this->description = $description;
         return $this;
     }
-
 }

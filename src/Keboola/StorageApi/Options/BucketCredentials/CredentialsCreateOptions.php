@@ -9,7 +9,6 @@
 
 namespace Keboola\StorageApi\Options\BucketCredentials;
 
-
 class CredentialsCreateOptions
 {
 
@@ -50,6 +49,4 @@ class CredentialsCreateOptions
         $this->name = $name;
         return $this;
     }
-
-
 }

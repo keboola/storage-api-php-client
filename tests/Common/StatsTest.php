@@ -65,7 +65,6 @@ class StatsTest extends StorageApiTestCase
         $this->assertEquals(4, $files['total']['count']); // 3 imports + 1 export
 
         $this->assertCount(2, $files['tags']['tags']);
-
     }
 
     public function testEmptyStatsResults()
@@ -88,5 +87,4 @@ class StatsTest extends StorageApiTestCase
             $this->assertEquals('storage.validation', $e->getStringCode());
         }
     }
-
 }

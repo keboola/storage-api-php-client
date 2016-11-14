@@ -43,6 +43,4 @@ class CreateTableTest extends StorageApiTestCase
             array(true),
         );
     }
-
-
 }

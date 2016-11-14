@@ -51,7 +51,8 @@ class CreateTableTest extends StorageApiTestCase
 
         $this->assertLinesEqualsSorted(
             file_get_contents($expectationFile),
-            $this->_client->exportTable($tableId), 'initial data imported into table'
+            $this->_client->exportTable($tableId),
+            'initial data imported into table'
         );
     }
 
@@ -120,8 +121,7 @@ class CreateTableTest extends StorageApiTestCase
         try {
             $fileId = $this->_client->uploadFile(__DIR__ . '/../../_data/empty.csv', (new \Keboola\StorageApi\Options\FileUploadOptions())
                 ->setFileName('languages')
-                ->setCompress(false)
-            );
+                ->setCompress(false));
 
             $this->_client->createTableAsyncDirect(
                 $this->getTestBucketId(self::STAGE_IN),
@@ -242,5 +242,4 @@ class CreateTableTest extends StorageApiTestCase
             array('idus'),
         );
     }
-
 }

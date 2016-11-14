@@ -176,7 +176,6 @@ class SimpleAliasTest extends StorageApiTestCase
         $aliasTable = $this->_client->getTable($aliasTableId);
 
         $this->assertArrayNotHasKey('aliasFilter', $aliasTable);
-
     }
 
     public function testTableAliasUnlink()
@@ -209,7 +208,6 @@ class SimpleAliasTest extends StorageApiTestCase
             $this->fail('Real table should not be unlinked');
         } catch (ClientException $e) {
         }
-
     }
 
     public function testAliasColumnWithoutAutoSyncShouldBeDeletable()
@@ -613,5 +611,4 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->assertNotEmpty($aliasId, 'out -> in');
         $this->_client->dropTable($aliasId);
     }
-
 }

@@ -10,8 +10,8 @@
 namespace Keboola\Test\Backend\Common;
 
 use Keboola\Test\StorageApiTestCase;
-use Keboola\StorageApi\Client,
-    Keboola\Csv\CsvFile;
+use Keboola\StorageApi\Client;
+use Keboola\Csv\CsvFile;
 
 class Keboola_StorageApi_Tables_ImportExportCommonTest extends StorageApiTestCase
 {
@@ -425,8 +425,7 @@ class Keboola_StorageApi_Tables_ImportExportCommonTest extends StorageApiTestCas
         try {
             $fileId = $this->_client->uploadFile(__DIR__ . '/../../_data/empty.csv', (new \Keboola\StorageApi\Options\FileUploadOptions())
                 ->setFileName('languages')
-                ->setCompress(false)
-            );
+                ->setCompress(false));
             $this->_client->writeTableAsyncDirect(
                 $tableId,
                 [
@@ -461,7 +460,7 @@ class Keboola_StorageApi_Tables_ImportExportCommonTest extends StorageApiTestCas
         $this->assertCount(1, $fileInfo['runIds']);
 
         $runIdExists = false;
-        foreach ($fileInfo['runIds'] AS $runId) {
+        foreach ($fileInfo['runIds'] as $runId) {
             if ($oldRunId == $runId) {
                 $runIdExists = true;
             }
@@ -485,7 +484,7 @@ class Keboola_StorageApi_Tables_ImportExportCommonTest extends StorageApiTestCas
         $this->assertCount(2, $fileInfo['runIds']);
 
         $runIdExists = false;
-        foreach ($fileInfo['runIds'] AS $runId) {
+        foreach ($fileInfo['runIds'] as $runId) {
             if ($newRunId == $runId) {
                 $runIdExists = true;
             }
@@ -516,6 +515,4 @@ class Keboola_StorageApi_Tables_ImportExportCommonTest extends StorageApiTestCas
         $this->assertEquals(5, $inTable['rowsCount']);
         $this->assertEquals(7, $outTable['rowsCount']);
     }
-
-
 }

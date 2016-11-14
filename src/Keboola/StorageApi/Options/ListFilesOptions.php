@@ -160,5 +160,4 @@ class ListFilesOptions
         $this->runId = $runId;
         return $this;
     }
-
 }

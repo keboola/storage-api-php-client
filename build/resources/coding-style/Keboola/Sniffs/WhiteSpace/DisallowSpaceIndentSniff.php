@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 class Keboola_Sniffs_WhiteSpace_DisallowSpaceIndentSniff implements PHP_CodeSniffer_Sniff
 {
@@ -23,7 +23,6 @@ class Keboola_Sniffs_WhiteSpace_DisallowSpaceIndentSniff implements PHP_CodeSnif
     public function register()
     {
         return array(T_WHITESPACE);
-
     }//end register()
 
 
@@ -50,7 +49,5 @@ class Keboola_Sniffs_WhiteSpace_DisallowSpaceIndentSniff implements PHP_CodeSnif
             $error = 'Tabs must be used to indent lines; spaces are not allowed';
             $phpcsFile->addError($error, $stackPtr, 'SpacesUsed');
         }
-
     }//end process()
-
 }

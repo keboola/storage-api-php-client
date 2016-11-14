@@ -103,10 +103,18 @@ class Table
      * @param bool $partial
      * @throws TableException
      */
-    public function __construct(Client $client, $id, $filename = '', $primaryKey = null,
-                                $transactional = false, $delimiter = ',', $enclosure = '"', $incremental = false, $partial = false
-    )
-    {
+    public function __construct(
+        Client $client,
+        $id,
+        $filename = '',
+        $primaryKey = null,
+        $transactional = false,
+        $delimiter = ',',
+        $enclosure = '"',
+        $incremental = false,
+        $partial = false
+    ) {
+    
         $this->client = $client;
         $this->_id = $id;
         $this->filename = $filename;

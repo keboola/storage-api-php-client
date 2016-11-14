@@ -79,7 +79,6 @@ class TablesListingTest extends StorageApiTestCase
         $firstTable = reset($tables);
         $this->assertArrayNotHasKey('attributes', $firstTable);
         $this->assertArrayNotHasKey('bucket', $firstTable);
-
     }
 
     public function testListTablesWithColumns()
@@ -273,5 +272,4 @@ class TablesListingTest extends StorageApiTestCase
 
         $this->assertEquals([['name' => 'test', 'value' => '', 'protected' => false]], $table['attributes']);
     }
-
 }

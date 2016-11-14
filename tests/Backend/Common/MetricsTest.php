@@ -9,8 +9,8 @@
 namespace Keboola\Test\Backend\Common;
 
 use Keboola\Test\StorageApiTestCase;
-use Keboola\StorageApi\Client,
-    Keboola\Csv\CsvFile;
+use Keboola\StorageApi\Client;
+use Keboola\Csv\CsvFile;
 
 class MetricsTest extends StorageApiTestCase
 {
@@ -146,5 +146,4 @@ class MetricsTest extends StorageApiTestCase
             ]],
         ];
     }
-
 }

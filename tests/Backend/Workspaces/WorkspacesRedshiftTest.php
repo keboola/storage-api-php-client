@@ -7,8 +7,8 @@ use Keboola\StorageApi\Workspaces;
 use Keboola\Csv\CsvFile;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
-
-class WorkspacesRedshiftTest extends WorkspacesTestCase {
+class WorkspacesRedshiftTest extends WorkspacesTestCase
+{
 
 
     public function testCreateNotSupportedBackend()
@@ -18,11 +18,12 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase {
             $workspaces->createWorkspace(["backend" => "snowflake"]);
             $this->fail("should not be able to create WS for unsupported backend");
         } catch (ClientException $e) {
-            $this->assertEquals($e->getStringCode(),"workspace.backendNotSupported");
+            $this->assertEquals($e->getStringCode(), "workspace.backendNotSupported");
         }
     }
 
-    public function testColumnCompression() {
+    public function testColumnCompression()
+    {
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
         $db = $this->getDbConnection($workspace['connection']);
@@ -30,7 +31,8 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase {
         // Create a table of sample data
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable(
-            $this->getTestBucketId(self::STAGE_IN), 'languages-rs',
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages-rs',
             new CsvFile($importFile)
         );
 
@@ -72,7 +74,8 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase {
         }
     }
 
-    public function testLoadedSortKey() {
+    public function testLoadedSortKey()
+    {
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
         $db = $this->getDbConnection($workspace['connection']);
@@ -80,7 +83,8 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase {
         // Create a table of sample data
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable(
-            $this->getTestBucketId(self::STAGE_IN), 'languages-rs',
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages-rs',
             new CsvFile($importFile)
         );
 
@@ -99,21 +103,23 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase {
 
         $row = $statement->fetch();
 
-        $this->assertEquals(1,(int)$row['sortkey']);
+        $this->assertEquals(1, (int)$row['sortkey']);
     }
 
     /**
      * @dataProvider  distTypeData
      * @param $dist
      */
-    public function testLoadedDist($dist) {
+    public function testLoadedDist($dist)
+    {
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
         $db = $this->getDbConnection($workspace['connection']);
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable(
-            $this->getTestBucketId(self::STAGE_IN), 'languages-rs',
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages-rs',
             new CsvFile($importFile)
         );
         $mapping = [
@@ -136,7 +142,7 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase {
             $statement = $db->prepare("SELECT \"column\", distkey FROM pg_table_def WHERE schemaname = ? AND tablename = ? AND \"column\" = ?;");
             $statement->execute([$workspace['connection']['schema'], "languages", "id"]);
             $row = $statement->fetch();
-            $this->assertEquals(1,(int)$row['distkey']);
+            $this->assertEquals(1, (int)$row['distkey']);
         }
 
         $statement = $db->prepare("select relname, reldiststyle from pg_class where relname = 'languages';");
@@ -151,14 +157,15 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase {
         }
     }
 
-    public function testLoadedPrimaryKeys() {
+    public function testLoadedPrimaryKeys()
+    {
         $primaries = ['Paid_Search_Engine_Account','Date','Paid_Search_Campaign','Paid_Search_Ad_ID','Site__DFA'];
         $pkTableId = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),
             'languages-pk',
             new CsvFile(__DIR__ . '/../../_data/multiple-columns-pk.csv'),
             array(
-                'primaryKey' => implode(",",$primaries),
+                'primaryKey' => implode(",", $primaries),
             )
         );
 
@@ -175,8 +182,8 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase {
 
         $cols = $backend->describeTableColumns("languages-pk");
 
-        foreach($cols as $colname => $coldata) {
-            if (in_array($colname, array_map("strtolower",$primaries))) {
+        foreach ($cols as $colname => $coldata) {
+            if (in_array($colname, array_map("strtolower", $primaries))) {
                 $this->assertTrue($coldata['PRIMARY']);
                 $this->assertEquals("255", $coldata['LENGTH']);
             }
@@ -192,20 +199,20 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase {
 
         $cols = $backend->describeTableColumns("languages-pk-skipped");
 
-        foreach($cols as $colname => $coldata) {
-            if (in_array($colname, array_map("strtolower",$primaries))) {
+        foreach ($cols as $colname => $coldata) {
+            if (in_array($colname, array_map("strtolower", $primaries))) {
                 $this->assertFalse($coldata['PRIMARY']); // should not set as PK column
                 $this->assertEquals("255", $coldata['LENGTH']); // will still be of PK column length
             }
         }
     }
 
-    public function distTypeData() {
+    public function distTypeData()
+    {
         return [
             ["all"],
             ["even"],
             [["key" => "id"]]
         ];
     }
-
 }

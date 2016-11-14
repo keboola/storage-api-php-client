@@ -41,7 +41,7 @@ class AlterTableTest extends StorageApiTestCase
             $this->_client->getTable($aliasTableId),
         );
 
-        foreach ($tables AS $tableDetail) {
+        foreach ($tables as $tableDetail) {
             if (!$tableDetail['isAlias']) {
                 $this->assertArrayHasKey('primaryKey', $tableDetail);
                 $this->assertEmpty($tableDetail['primaryKey']);
@@ -58,7 +58,7 @@ class AlterTableTest extends StorageApiTestCase
             $this->_client->getTable($aliasTableId),
         );
 
-        foreach ($tables AS $tableDetail) {
+        foreach ($tables as $tableDetail) {
             if (!$tableDetail['isAlias']) {
                 $this->assertArrayHasKey('primaryKey', $tableDetail);
                 $this->assertEquals($primaryKeyColumns, $tableDetail['primaryKey']);
@@ -89,7 +89,7 @@ class AlterTableTest extends StorageApiTestCase
             $this->_client->getTable($aliasTableId),
         );
 
-        foreach ($tables AS $tableDetail) {
+        foreach ($tables as $tableDetail) {
             if (!$tableDetail['isAlias']) {
                 $this->assertArrayHasKey('primaryKey', $tableDetail);
                 $this->assertEmpty($tableDetail['primaryKey']);
@@ -106,7 +106,7 @@ class AlterTableTest extends StorageApiTestCase
             $this->_client->getTable($aliasTableId),
         );
 
-        foreach ($tables AS $tableDetail) {
+        foreach ($tables as $tableDetail) {
             if (!$tableDetail['isAlias']) {
                 $this->assertArrayHasKey('primaryKey', $tableDetail);
                 $this->assertEquals($primaryKeyColumns, $tableDetail['primaryKey']);
@@ -144,5 +144,4 @@ class AlterTableTest extends StorageApiTestCase
             $this->assertEquals('storage.tables.primaryKeyAlreadyExists', $e->getStringCode());
         }
     }
-
 }

@@ -13,7 +13,6 @@ namespace Keboola\Test\Common;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\Event;
 
-
 class EventsTest extends StorageApiTestCase
 {
 
@@ -198,5 +197,4 @@ class EventsTest extends StorageApiTestCase
         $this->assertCount(1, $events);
         $this->assertEquals($searchEventId, $events[0]['id']);
     }
-
 }

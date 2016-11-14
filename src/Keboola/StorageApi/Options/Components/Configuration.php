@@ -9,7 +9,6 @@
 
 namespace Keboola\StorageApi\Options\Components;
 
-
 class Configuration
 {
     const LATEST_PUBLISHED_VERSION = 'latestPublished';
@@ -147,6 +146,4 @@ class Configuration
         $this->changeDescription = $changeDescription;
         return $this;
     }
-
-
 }

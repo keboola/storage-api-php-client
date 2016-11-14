@@ -38,7 +38,6 @@ class CreateTableTest extends StorageApiTestCase
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.tables.validation.primaryKeyTooLong', $e->getStringCode());
         }
-
     }
 
     public function syncAsyncData()

@@ -82,5 +82,4 @@ class ExportParamsTest extends StorageApiTestCase
             $this->assertStringStartsWith($prefix, $object["Key"]);
         }
     }
-
 }

@@ -9,7 +9,6 @@
 
 namespace Keboola\StorageApi\Options\Components;
 
-
 class ListConfigurationsOptions
 {
     private $componentType;
@@ -55,5 +54,4 @@ class ListConfigurationsOptions
     {
         return $this->include;
     }
-
 }

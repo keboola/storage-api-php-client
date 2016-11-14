@@ -171,5 +171,4 @@ class SnapshottingTest extends StorageApiTestCase
             $this->assertEquals('storage.tables.missingColumnsInSnapshot', $e->getStringCode());
         }
     }
-
 }

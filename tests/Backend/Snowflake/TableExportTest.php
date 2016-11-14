@@ -67,5 +67,4 @@ class TableExportTest extends StorageApiTestCase
         $data = $this->_client->exportTable($table['id']);
         $this->assertEquals(4, count(explode("\n", trim($data))));
     }
-
 }

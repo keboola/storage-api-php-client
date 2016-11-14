@@ -21,7 +21,6 @@ class ConfigsTest extends StorageApiTestCase
     {
         parent::setUp();
         $this->_initEmptyTestBuckets();
-
     }
 
     public function testConfig()
@@ -44,5 +43,4 @@ class ConfigsTest extends StorageApiTestCase
 
         $this->_client->deleteBucketAttribute($inIdBucket, "property1");
     }
-
 }

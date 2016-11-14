@@ -46,7 +46,6 @@ class WorkspacesTest extends WorkspacesTestCase
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $backend->createTable("mytable", ["amount" => ($workspace['connection']['backend'] === self::BACKEND_SNOWFLAKE) ? "NUMBER" : "INT"]);
-
     }
 
     /**
@@ -73,12 +72,13 @@ class WorkspacesTest extends WorkspacesTestCase
             );
         }
 
-        $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}","in","",$bucketBackend);
-        $outBucketId =  $this->_client->createBucket("mixed-test-{$bucketBackend}","out","",$bucketBackend);
+        $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", "in", "", $bucketBackend);
+        $outBucketId =  $this->_client->createBucket("mixed-test-{$bucketBackend}", "out", "", $bucketBackend);
 
         //setup test table
         $table1Id = $this->_client->createTable(
-            $bucketId, 'languages',
+            $bucketId,
+            'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),
             [
                 'primaryKey' => 'id',
@@ -163,7 +163,7 @@ class WorkspacesTest extends WorkspacesTestCase
         $this->assertCount(1, $data[0], 'there should be one column');
         $this->assertArrayHasKey('id', $data[0]);
         $expected = Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ",", '"');
-        $expected = array_map(function($row) {
+        $expected = array_map(function ($row) {
             return [
                 'id' => $row['id'],
             ];
@@ -197,11 +197,12 @@ class WorkspacesTest extends WorkspacesTestCase
                 'force' => true,
             ]);
         }
-        $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}","in","",$bucketBackend);
+        $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", "in", "", $bucketBackend);
 
         //setup test table
         $this->_client->createTable(
-            $bucketId, 'dates',
+            $bucketId,
+            'dates',
             new CsvFile(__DIR__ . '/../../_data/dates.csv')
         );
 
@@ -250,11 +251,12 @@ class WorkspacesTest extends WorkspacesTestCase
                 'force' => true,
             ]);
         }
-        $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}","in","",$bucketBackend);
+        $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", "in", "", $bucketBackend);
 
         //setup test table
         $this->_client->createTable(
-            $bucketId, 'transactions',
+            $bucketId,
+            'transactions',
             new CsvFile(__DIR__ . '/../../_data/transactions.csv')
         );
 
@@ -283,7 +285,6 @@ class WorkspacesTest extends WorkspacesTestCase
         } catch (ClientException $e) {
             $this->assertEquals($e->getStringCode(), "workspace.tableImportError");
         }
-
     }
 
     public function workspaceBackendData()
@@ -303,5 +304,4 @@ class WorkspacesTest extends WorkspacesTestCase
             [self::BACKEND_REDSHIFT, self::BACKEND_MYSQL],
         ];
     }
-
 }

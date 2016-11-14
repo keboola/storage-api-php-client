@@ -97,7 +97,6 @@ class AlterTableTest extends StorageApiTestCase
             $this->_client->removeTableColumnFromIndexed($tableId, 'id');
             $this->fail('Primary key should not be able to remove from indexed columns');
         } catch (\Keboola\StorageApi\ClientException $e) {
-
         }
 
         $this->_client->dropTable($aliasTableId);
@@ -126,7 +125,7 @@ class AlterTableTest extends StorageApiTestCase
             $this->_client->getTable($aliasTableId),
         );
 
-        foreach ($tables AS $tableDetail) {
+        foreach ($tables as $tableDetail) {
             $this->assertArrayHasKey('primaryKey', $tableDetail);
             $this->assertEmpty($tableDetail['primaryKey']);
 
@@ -141,7 +140,7 @@ class AlterTableTest extends StorageApiTestCase
             $this->_client->getTable($aliasTableId),
         );
 
-        foreach ($tables AS $tableDetail) {
+        foreach ($tables as $tableDetail) {
             $this->assertArrayHasKey('primaryKey', $tableDetail);
             $this->assertEquals($primaryKeyColumns, $tableDetail['primaryKey']);
 
@@ -170,7 +169,7 @@ class AlterTableTest extends StorageApiTestCase
             $this->_client->getTable($aliasTableId),
         );
 
-        foreach ($tables AS $tableDetail) {
+        foreach ($tables as $tableDetail) {
             $this->assertArrayHasKey('primaryKey', $tableDetail);
             $this->assertEmpty($tableDetail['primaryKey']);
 
@@ -185,7 +184,7 @@ class AlterTableTest extends StorageApiTestCase
             $this->_client->getTable($aliasTableId),
         );
 
-        foreach ($tables AS $tableDetail) {
+        foreach ($tables as $tableDetail) {
             $this->assertArrayHasKey('primaryKey', $tableDetail);
             $this->assertEquals($primaryKeyColumns, $tableDetail['primaryKey']);
 
@@ -221,5 +220,4 @@ class AlterTableTest extends StorageApiTestCase
             $this->assertEquals('storage.tables.primaryKeyAlreadyExists', $e->getStringCode());
         }
     }
-
 }

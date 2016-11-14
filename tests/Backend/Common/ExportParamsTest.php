@@ -10,8 +10,8 @@
 namespace Keboola\Test\Backend\Common;
 
 use Keboola\Test\StorageApiTestCase;
-use Keboola\StorageApi\Client,
-    Keboola\Csv\CsvFile;
+use Keboola\StorageApi\Client;
+use Keboola\Csv\CsvFile;
 
 class ExportParamsTest extends StorageApiTestCase
 {
@@ -146,7 +146,6 @@ class ExportParamsTest extends StorageApiTestCase
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.tables.validation.columnNotExists', $e->getStringCode());
         }
-
     }
 
     public function testTableExportColumnsParam()
@@ -248,5 +247,4 @@ class ExportParamsTest extends StorageApiTestCase
         $file = $client->getFile($results['file']['id']);
         Client::parseCsv(file_get_contents($file['url']), false);
     }
-
 }

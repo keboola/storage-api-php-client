@@ -22,5 +22,4 @@ class MaintenanceException extends ClientException
     {
         return $this->retryAfter;
     }
-
 }

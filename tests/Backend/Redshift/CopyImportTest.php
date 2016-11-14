@@ -178,5 +178,4 @@ class CopyImportTest extends StorageApiTestCase
             REDSHIFT_PASSWORD
         );
     }
-
 }

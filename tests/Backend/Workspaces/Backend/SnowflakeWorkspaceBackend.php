@@ -4,7 +4,8 @@ namespace Keboola\Test\Backend\Workspaces\Backend;
 
 use Keboola\Db\Import\Snowflake\Connection;
 
-class SnowflakeWorkspaceBackend implements WorkspaceBackend {
+class SnowflakeWorkspaceBackend implements WorkspaceBackend
+{
 
     private $db;
 
@@ -88,9 +89,11 @@ class SnowflakeWorkspaceBackend implements WorkspaceBackend {
     public function fetchAll($table, $style = \PDO::FETCH_NUM)
     {
         $data = array();
-        $res = $this->db->fetchAll(sprintf("SELECT * FROM %s.%s;",
+        $res = $this->db->fetchAll(sprintf(
+            "SELECT * FROM %s.%s;",
             $this->db->quoteIdentifier($this->schema),
-            $this->db->quoteIdentifier($table)));
+            $this->db->quoteIdentifier($table)
+        ));
         switch ($style) {
             case \PDO::FETCH_NUM:
                 foreach ($res as $row) {
@@ -107,7 +110,8 @@ class SnowflakeWorkspaceBackend implements WorkspaceBackend {
         return $data;
     }
 
-    public function toIdentifier($item) {
+    public function toIdentifier($item)
+    {
         return $item;
     }
 

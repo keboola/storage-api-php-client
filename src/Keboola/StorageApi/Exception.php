@@ -22,7 +22,7 @@ class Exception extends \Exception
      * @param  mixed|array $params
      * @return \Keboola\StorageApi\Exception
      */
-    public function __construct($message = NULL, $code = NULL, $previous = NULL, $stringCode = NULL, $params = NULL)
+    public function __construct($message = null, $code = null, $previous = null, $stringCode = null, $params = null)
     {
         $this->setStringCode($stringCode);
         $this->setContextParams($params);
@@ -68,5 +68,4 @@ class Exception extends \Exception
         $this->contextParams = (array)$contextParams;
         return $this;
     }
-
 }

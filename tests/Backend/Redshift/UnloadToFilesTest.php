@@ -101,5 +101,4 @@ class UnloadToFilesTest extends StorageApiTestCase
             REDSHIFT_PASSWORD
         );
     }
-
 }

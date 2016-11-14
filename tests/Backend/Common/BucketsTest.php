@@ -28,8 +28,12 @@ class BucketsTest extends StorageApiTestCase
         $inBucketFound = false;
         $outBucketFound = false;
         foreach ($buckets as $bucket) {
-            if ($bucket['id'] == $this->getTestBucketId(self::STAGE_IN)) $inBucketFound = true;
-            if ($bucket['id'] == $this->getTestBucketId(self::STAGE_OUT)) $outBucketFound = true;
+            if ($bucket['id'] == $this->getTestBucketId(self::STAGE_IN)) {
+                $inBucketFound = true;
+            }
+            if ($bucket['id'] == $this->getTestBucketId(self::STAGE_OUT)) {
+                $outBucketFound = true;
+            }
         }
         $this->assertTrue($inBucketFound);
         $this->assertTrue($outBucketFound);

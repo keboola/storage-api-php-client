@@ -1,7 +1,6 @@
 <?php
 namespace Keboola\StorageApi;
 
-
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\MessageFormatter;
 use GuzzleHttp\Middleware;
@@ -12,8 +11,8 @@ use Keboola\StorageApi\Options\StatsOptions;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
-use Keboola\Csv\CsvFile,
-    Keboola\StorageApi\Options\FileUploadOptions;
+use Keboola\Csv\CsvFile;
+use Keboola\StorageApi\Options\FileUploadOptions;
 use Symfony\Component\Process\Process;
 
 class Client
@@ -469,7 +468,7 @@ class Client
      *  - (array) aliasColumns (optional)
      * @return string  - created table id
      */
-    public function createAliasTable($bucketId, $sourceTableId, $name = NULL, $options = array())
+    public function createAliasTable($bucketId, $sourceTableId, $name = null, $options = array())
     {
         $filteredOptions = array(
             'sourceTable' => $sourceTableId,
@@ -497,7 +496,7 @@ class Client
      * @return string - created table id
      * @throws ClientException
      */
-    public function createRedshiftAliasTable($bucketId, $sql, $name = NULL, $sourceTableId = NULL)
+    public function createRedshiftAliasTable($bucketId, $sql, $name = null, $sourceTableId = null)
     {
         $filteredOptions = array(
             'selectSql' => $sql,
@@ -1222,7 +1221,8 @@ class Client
             $process = new Process($command);
             $process->setTimeout(null);
             if (0 !== $process->run()) {
-                $error = sprintf('The command "%s" failed.' . "\nExit Code: %s(%s)",
+                $error = sprintf(
+                    'The command "%s" failed.' . "\nExit Code: %s(%s)",
                     $process->getCommandLine(),
                     $process->getExitCode(),
                     $process->getExitCodeText()
@@ -1631,7 +1631,6 @@ class Client
         }
 
         if ($responseFileName) {
-
             $responseFile = fopen($responseFileName, "w");
             if (!$responseFile) {
                 throw new ClientException("Cannot open file {$responseFileName}");
@@ -1705,7 +1704,6 @@ class Client
 
         // poll for status
         do {
-
             if ($retries > 0) {
                 $waitSeconds = min(pow(2, $retries), $maxWaitPeriod);
                 sleep($waitSeconds);
@@ -1767,7 +1765,6 @@ class Client
         }
 
         while ($parsedLine = fgetcsv($tmpFile, null, $delimiter, $enclosure, '"')) {
-
             if (!$header) {
                 $data[] = $parsedLine;
             } else {

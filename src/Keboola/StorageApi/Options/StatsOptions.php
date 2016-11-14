@@ -38,5 +38,4 @@ class StatsOptions
             'runId' => $this->getRunId(),
         ];
     }
-
 }

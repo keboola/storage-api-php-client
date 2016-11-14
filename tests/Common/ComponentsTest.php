@@ -33,8 +33,7 @@ class ComponentsTest extends StorageApiTestCase
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
             ->setName('Main')
-            ->setDescription('some desc')
-        );
+            ->setDescription('some desc'));
 
         $component = $components->getConfiguration('wr-db', 'main-1');
         $this->assertEquals('Main', $component['name']);
@@ -175,8 +174,7 @@ class ComponentsTest extends StorageApiTestCase
             ->setConfigurationId('main-1')
             ->setName('Main')
             ->setDescription('some desc')
-            ->setConfiguration($configuration)
-        );
+            ->setConfiguration($configuration));
 
         $config = $components->getConfiguration('wr-db', 'main-1');
 
@@ -200,8 +198,7 @@ class ComponentsTest extends StorageApiTestCase
             ->setConfigurationId('main-1')
             ->setName('Main')
             ->setDescription('some desc')
-            ->setState($state)
-        );
+            ->setState($state));
 
         $config = $components->getConfiguration('wr-db', 'main-1');
 
@@ -215,14 +212,12 @@ class ComponentsTest extends StorageApiTestCase
         $component = $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setName('Main')
-            ->setDescription('some desc')
-        );
+            ->setDescription('some desc'));
         $this->assertNotEmpty($component['id']);
         $component = $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setName('Main')
-            ->setDescription('some desc')
-        );
+            ->setDescription('some desc'));
         $this->assertNotEmpty($component['id']);
     }
 
@@ -798,19 +793,16 @@ class ComponentsTest extends StorageApiTestCase
         $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
-            ->setName('Main')
-        );
+            ->setName('Main'));
         $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-2')
             ->setConfiguration(array('x' => 'y'))
-            ->setName('Main')
-        );
+            ->setName('Main'));
         $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('provisioning')
             ->setConfigurationId('main-1')
-            ->setName('Main')
-        );
+            ->setName('Main'));
 
         $configs = $components->listComponents();
         $this->assertCount(2, $configs);
@@ -827,8 +819,7 @@ class ComponentsTest extends StorageApiTestCase
         // list with configuration body
         $configs = $components->listComponents((new \Keboola\StorageApi\Options\Components\ListConfigurationsOptions())
             ->setComponentType('writer')
-            ->setInclude(array('configuration'))
-        );
+            ->setInclude(array('configuration')));
 
         $this->assertCount(2, $configs[0]['configurations']);
         $this->assertCount(1, $configs);
@@ -853,7 +844,6 @@ class ComponentsTest extends StorageApiTestCase
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('configurationAlreadyExists', $e->getStringCode());
         }
-
     }
 
     public function testPermissions()
@@ -873,7 +863,6 @@ class ComponentsTest extends StorageApiTestCase
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('accessDenied', $e->getStringCode());
         }
-
     }
 
     public function testTokenWithComponentAccess()
@@ -982,8 +971,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
             ->setComponentId($component['id'])
-            ->setConfigurationId($configuration['id'])
-        );
+            ->setConfigurationId($configuration['id']));
 
         $row = reset($rows);
         $this->assertEquals('main-1-1', $row['id']);
@@ -1053,8 +1041,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
             ->setComponentId($component['id'])
-            ->setConfigurationId($configuration['id'])
-        );
+            ->setConfigurationId($configuration['id']));
 
         $originalRow = reset($rows);
         $this->assertEquals('main-1-1', $originalRow['id']);
@@ -1157,8 +1144,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
             ->setComponentId($component['id'])
-            ->setConfigurationId($configuration['id'])
-        );
+            ->setConfigurationId($configuration['id']));
 
         $this->assertCount(2, $rows);
 
@@ -1178,8 +1164,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
             ->setComponentId($configurationRow->getComponentConfiguration()->getComponentId())
-            ->setConfigurationId($configurationRow->getComponentConfiguration()->getConfigurationId())
-        );
+            ->setConfigurationId($configurationRow->getComponentConfiguration()->getConfigurationId()));
 
         $this->assertCount(1, $rows);
 
@@ -1271,8 +1256,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
             ->setComponentId($component['id'])
-            ->setConfigurationId($configuration['id'])
-        );
+            ->setConfigurationId($configuration['id']));
 
         $row = reset($rows);
         $this->assertEquals('main-1-1', $row['id']);
@@ -1304,7 +1288,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $this->assertCount(2, $versions);
 
-        foreach ($versions AS $version) {
+        foreach ($versions as $version) {
             $this->assertArrayHasKey('version', $version);
             $this->assertArrayHasKey('created', $version);
             $this->assertArrayHasKey('creatorToken', $version);
@@ -1320,7 +1304,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $this->assertCount(2, $versions);
 
-        foreach ($versions AS $version) {
+        foreach ($versions as $version) {
             $this->assertArrayHasKey('version', $version);
             $this->assertArrayHasKey('created', $version);
             $this->assertArrayHasKey('creatorToken', $version);
@@ -1330,7 +1314,8 @@ class ComponentsTest extends StorageApiTestCase
                 'wr-db',
                 'main-1',
                 $configurationRow->getRowId(),
-                $version['version']);
+                $version['version']
+            );
 
             $this->assertArrayHasKey('version', $rowVersion);
             $this->assertArrayHasKey('created', $rowVersion);
@@ -1349,7 +1334,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $this->assertCount(1, $versions);
 
-        foreach ($versions AS $version) {
+        foreach ($versions as $version) {
             $this->assertArrayHasKey('version', $version);
             $this->assertArrayHasKey('created', $version);
             $this->assertArrayHasKey('creatorToken', $version);
@@ -1411,8 +1396,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
             ->setComponentId($component['id'])
-            ->setConfigurationId($configuration['id'])
-        );
+            ->setConfigurationId($configuration['id']));
 
         $row = reset($rows);
         $this->assertEquals('main-1-1', $row['id']);
@@ -1524,8 +1508,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
             ->setComponentId($configuration->getComponentId())
-            ->setConfigurationId($configuration->getConfigurationId())
-        );
+            ->setConfigurationId($configuration->getConfigurationId()));
 
         $this->assertCount(2, $rows);
 
@@ -1547,8 +1530,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
             ->setComponentId($configuration2->getComponentId())
-            ->setConfigurationId($configuration2->getConfigurationId())
-        );
+            ->setConfigurationId($configuration2->getConfigurationId()));
 
         $this->assertCount(1, $rows);
     }
@@ -1563,13 +1545,11 @@ class ComponentsTest extends StorageApiTestCase
         $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('transformation')
             ->setConfigurationId('main-1')
-            ->setName('Main 1')
-        );
+            ->setName('Main 1'));
         $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('transformation')
             ->setConfigurationId('main-2')
-            ->setName('Main 2')
-        );
+            ->setName('Main 2'));
 
         $configs = $components->getComponentConfigurations('transformation');
         $this->assertCount(2, $configs);
@@ -1594,8 +1574,7 @@ class ComponentsTest extends StorageApiTestCase
         $components->addConfiguration($configuration);
         $components->addConfigurationRow((new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration))
             ->setRowId('row1')
-            ->setConfiguration($configData2)
-        );
+            ->setConfiguration($configData2));
         $configs = $components->getComponentConfigurations('transformation');
         $this->assertCount(1, $configs);
         $this->assertEquals($configData1, $configs[0]['configuration']);
@@ -1695,6 +1674,5 @@ class ComponentsTest extends StorageApiTestCase
         $components->deleteConfigurationRow('wr-db', $componentConfig->getConfigurationId(), $createdRow['id'], $deleteRowChangeDescription);
         $config = $components->getConfiguration('wr-db', $componentConfig->getConfigurationId());
         $this->assertEquals($deleteRowChangeDescription, $config['changeDescription']);
-
     }
 }

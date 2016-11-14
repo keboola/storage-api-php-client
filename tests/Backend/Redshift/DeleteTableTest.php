@@ -72,5 +72,4 @@ class DeleteTableTest extends StorageApiTestCase
             REDSHIFT_PASSWORD
         );
     }
-
 }

@@ -13,7 +13,8 @@ use Keboola\Test\StorageApiTestCase;
 
 class WorkspaceBackendFactory
 {
-    public static function createWorkspaceBackend($workspace) {
+    public static function createWorkspaceBackend($workspace)
+    {
         
         switch ($workspace['connection']['backend']) {
             case StorageApiTestCase::BACKEND_REDSHIFT:

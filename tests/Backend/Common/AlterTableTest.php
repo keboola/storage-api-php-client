@@ -45,7 +45,8 @@ class AlterTableTest extends StorageApiTestCase
         $this->_client->writeTable($tableId, new CsvFile($importFileWithNewCol));
         $this->assertLinesEqualsSorted(
             file_get_contents($importFileWithNewCol),
-            $this->_client->exportTable($tableId), 'new column is imported'
+            $this->_client->exportTable($tableId),
+            'new column is imported'
         );
     }
 
@@ -126,7 +127,7 @@ class AlterTableTest extends StorageApiTestCase
             $this->_client->getTable($tableId),
         );
 
-        foreach ($tables AS $tableDetail) {
+        foreach ($tables as $tableDetail) {
             $this->assertArrayHasKey('primaryKey', $tableDetail);
             $this->assertEmpty($tableDetail['primaryKey']);
 
@@ -147,7 +148,7 @@ class AlterTableTest extends StorageApiTestCase
             $this->_client->getTable($tableId),
         );
 
-        foreach ($tables AS $tableDetail) {
+        foreach ($tables as $tableDetail) {
             $this->assertArrayHasKey('primaryKey', $tableDetail);
             $this->assertEmpty($tableDetail['primaryKey']);
 
@@ -300,7 +301,7 @@ class AlterTableTest extends StorageApiTestCase
             $this->_client->getTable($aliasTableId),
         );
 
-        foreach ($tables AS $tableDetail) {
+        foreach ($tables as $tableDetail) {
             $this->assertArrayHasKey('primaryKey', $tableDetail);
             $this->assertEquals(array('id'), $tableDetail['primaryKey']);
 
@@ -315,7 +316,7 @@ class AlterTableTest extends StorageApiTestCase
             $this->_client->getTable($aliasTableId),
         );
 
-        foreach ($tables AS $tableDetail) {
+        foreach ($tables as $tableDetail) {
             $this->assertArrayHasKey('primaryKey', $tableDetail);
             $this->assertEmpty($tableDetail['primaryKey']);
 
@@ -389,7 +390,7 @@ class AlterTableTest extends StorageApiTestCase
             $this->_client->getTable($aliasTableId),
         );
 
-        foreach ($tables AS $tableDetail) {
+        foreach ($tables as $tableDetail) {
             $this->assertArrayHasKey('primaryKey', $tableDetail);
             $this->assertEquals(array('id'), $tableDetail['primaryKey']);
 
@@ -440,6 +441,4 @@ class AlterTableTest extends StorageApiTestCase
         $this->assertArrayHasKey('indexedColumns', $tableDetail);
         $this->assertEquals(array('id', $indexColumn), $tableDetail['indexedColumns']);
     }
-
-
 }

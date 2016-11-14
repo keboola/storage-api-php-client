@@ -7,8 +7,8 @@ use Keboola\StorageApi\Workspaces;
 use Keboola\Csv\CsvFile;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
-
-class WorkspacesSnowflakeTest extends WorkspacesTestCase {
+class WorkspacesSnowflakeTest extends WorkspacesTestCase
+{
 
     public function testCreateNotSupportedBackend()
     {
@@ -17,11 +17,12 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase {
             $workspaces->createWorkspace(["backend" => "redshift"]);
             $this->fail("should not be able to create WS for unsupported backend");
         } catch (ClientException $e) {
-            $this->assertEquals($e->getStringCode(),"workspace.backendNotSupported");
+            $this->assertEquals($e->getStringCode(), "workspace.backendNotSupported");
         }
     }
 
-    public function testStatementTimeout() {
+    public function testStatementTimeout()
+    {
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
 
@@ -33,14 +34,16 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase {
         $this->assertEquals($workspace['statementTimeoutSeconds'], $timeout);
     }
 
-    public function testTransientTAbles() {
+    public function testTransientTAbles()
+    {
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
 
         // Create a table of sample data
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable(
-            $this->getTestBucketId(self::STAGE_IN), 'languages-rs',
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages-rs',
             new CsvFile($importFile)
         );
 
@@ -76,5 +79,4 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase {
         $this->assertEquals('languages', $table['name']);
         $this->assertEquals('TRANSIENT', $table['kind']);
     }
-
 }

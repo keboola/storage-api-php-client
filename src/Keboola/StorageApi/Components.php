@@ -9,7 +9,6 @@
 
 namespace Keboola\StorageApi;
 
-
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions;
@@ -227,5 +226,4 @@ class Components
             array('targetConfigId' => $targetConfigurationId, 'changeDescription' => $changeDescription)
         );
     }
-
 }

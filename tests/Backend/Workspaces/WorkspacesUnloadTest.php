@@ -48,7 +48,6 @@ class CopyImportTest extends WorkspacesTestCase
         $this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->exportTable($tableId, null, array(
             'format' => 'rfc',
         )), 'imported data comparsion');
-
     }
 
     public function testCopyImport()
@@ -130,6 +129,4 @@ class CopyImportTest extends WorkspacesTestCase
             'format' => 'rfc',
         )), 'new  column added');
     }
-
-
 }

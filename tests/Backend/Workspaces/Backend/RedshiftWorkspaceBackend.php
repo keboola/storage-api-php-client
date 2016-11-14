@@ -2,13 +2,14 @@
 
 namespace Keboola\Test\Backend\Workspaces\Backend;
 
-class RedshiftWorkspaceBackend implements WorkspaceBackend {
+class RedshiftWorkspaceBackend implements WorkspaceBackend
+{
 
     private $db;
     
     private $schema;
 
-    private function getDbConnection($connection) 
+    private function getDbConnection($connection)
     {
         $pdo = new \PDO(
             "pgsql:dbname={$connection['database']};port=5439;host=" . $connection['host'],
@@ -20,7 +21,7 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend {
         return $pdo;
     }
     
-    public function __construct($workspace) 
+    public function __construct($workspace)
     {
         $this->db = $this->getDbConnection($workspace['connection']);
         $this->schema = $workspace['connection']['schema'];
@@ -32,8 +33,7 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend {
         $stmt->execute(array($table));
         return array_map(function ($row) {
                 return $row['column'];
-            },  $stmt->fetchAll()
-        );
+        }, $stmt->fetchAll());
     }
 
     public function getTables()
@@ -42,8 +42,7 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend {
         $stmt->execute(array($this->schema));
         return array_map(function ($table) {
                 return $table['tablename'];
-            },  $stmt->fetchAll()
-        );
+        }, $stmt->fetchAll());
     }
 
     public function dropTable($table)
@@ -75,9 +74,10 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend {
         return $stmt->fetchAll($style);
     }
 
-    public function createTable($tableName, $columns) {
+    public function createTable($tableName, $columns)
+    {
         $cols = [];
-        foreach($columns as $column => $datatype) {
+        foreach ($columns as $column => $datatype) {
             $cols[] = "\"{$column}\" {$datatype}";
         }
         $definition = join(",\n", $cols);

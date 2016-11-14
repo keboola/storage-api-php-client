@@ -75,5 +75,4 @@ class ExportParamsTest extends StorageApiTestCase
 
         $this->assertArrayEqualsSorted($expected, $parsedData, 0);
     }
-
 }

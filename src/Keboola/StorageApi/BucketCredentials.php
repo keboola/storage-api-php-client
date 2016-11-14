@@ -9,7 +9,6 @@
 
 namespace Keboola\StorageApi;
 
-
 use Keboola\StorageApi\Options\BucketCredentials\CredentialsCreateOptions;
 use Keboola\StorageApi\Options\BucketCredentials\ListCredentialsOptions;
 
@@ -55,5 +54,4 @@ class BucketCredentials
             return $this->client->apiGet("storage/credentials");
         }
     }
-
 }

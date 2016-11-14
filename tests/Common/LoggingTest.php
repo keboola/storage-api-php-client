@@ -55,5 +55,4 @@ class LoggingTest extends StorageApiTestCase
         $options = new \Keboola\StorageApi\Options\FileUploadOptions();
         $client->uploadFile(__DIR__ . '/../_data/files.upload.txt', $options);
     }
-
 }

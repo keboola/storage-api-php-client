@@ -9,7 +9,6 @@
 
 namespace Keboola\StorageApi\Options;
 
-
 class FileUploadOptions
 {
 
@@ -203,5 +202,4 @@ class FileUploadOptions
         $this->isEncrypted = (bool)$encrypted;
         return $this;
     }
-
 }

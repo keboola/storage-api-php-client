@@ -9,7 +9,6 @@
 
 namespace Keboola\StorageApi\Options\BucketCredentials;
 
-
 class ListCredentialsOptions
 {
 
@@ -32,5 +31,4 @@ class ListCredentialsOptions
         $this->bucketId = $bucketId;
         return $this;
     }
-
 }

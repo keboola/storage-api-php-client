@@ -459,5 +459,4 @@ class CustomSqlAliasTest extends StorageApiTestCase
 
         $this->_client->dropTable($aliasTable2Id);
     }
-
 }

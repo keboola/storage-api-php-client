@@ -166,5 +166,4 @@ class OneLiner
     {
         self::$client = $client;
     }
-
 }

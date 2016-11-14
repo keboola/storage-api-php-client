@@ -33,7 +33,6 @@ class DeleteRowsTest extends StorageApiTestCase
 
         $this->assertEquals(0, $tableInfo['rowsCount']);
         $this->assertEquals(0, $aliasInfo['rowsCount']);
-
     }
 
     public function testDeleteRowsFromAliasShouldNotBeAllowed()

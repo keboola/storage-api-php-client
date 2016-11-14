@@ -55,5 +55,4 @@ final class HandlerStack
             return (int)pow(2, $retries - 1) * 1000;
         };
     }
-
 }

@@ -76,6 +76,4 @@ class RunIdTest extends StorageApiTestCase
             ->setMessage('test');
         return $this->createAndWaitForEvent($event);
     }
-
-
 }

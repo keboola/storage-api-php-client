@@ -23,5 +23,4 @@ class TicketsTest extends StorageApiTestCase
         $id2 = $this->_client->generateId();
         $this->assertGreaterThan($id1, $id2);
     }
-
 }

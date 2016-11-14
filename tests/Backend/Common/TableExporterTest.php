@@ -11,9 +11,9 @@
 namespace Keboola\Test\Backend\Common;
 
 use Keboola\Test\StorageApiTestCase;
-use Keboola\StorageApi\Client,
-    Keboola\Csv\CsvFile,
-    Keboola\StorageApi\TableExporter;
+use Keboola\StorageApi\Client;
+use Keboola\Csv\CsvFile;
+use Keboola\StorageApi\TableExporter;
 
 class TableExporterTest extends StorageApiTestCase
 {
@@ -112,6 +112,4 @@ class TableExporterTest extends StorageApiTestCase
             array([self::BACKEND_MYSQL, self::BACKEND_REDSHIFT], new CsvFile('https://s3.amazonaws.com/keboola-tests/numbers.csv'), 'numbers.two-cols.csv', array('gzip' => true, 'columns' => array('0', '45'))),
         );
     }
-
-
 }

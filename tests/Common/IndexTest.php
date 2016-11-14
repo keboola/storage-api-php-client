@@ -32,5 +32,4 @@ class IndexTest extends StorageApiTestCase
         $urlTemplates = $index['urlTemplates'];
         $this->assertArrayHasKey('orchestrationJob', $urlTemplates);
     }
-
 }

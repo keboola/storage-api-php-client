@@ -179,5 +179,4 @@ class BucketsTest extends StorageApiTestCase
         $tables = $this->_client->listTables($outBucketId);
         $this->assertCount(1, $tables);
     }
-
 }

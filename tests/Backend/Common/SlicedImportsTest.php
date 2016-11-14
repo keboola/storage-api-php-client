@@ -307,5 +307,4 @@ class SlicedImportsTest extends StorageApiTestCase
             $this->assertEquals('storage.unauthorizedAccess', $e->getStringCode());
         }
     }
-
 }

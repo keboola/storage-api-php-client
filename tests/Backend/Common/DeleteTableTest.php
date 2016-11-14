@@ -36,5 +36,4 @@ class DeleteTableTest extends StorageApiTestCase
         $table = reset($tables);
         $this->assertEquals($table2Id, $table['id']);
     }
-
 }

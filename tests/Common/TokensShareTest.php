@@ -30,5 +30,4 @@ class TokensShareTest extends StorageApiTestCase
         $newTokenId = $this->_client->createToken(array());
         $this->_client->shareToken($newTokenId, 'test@devel.keboola.com', 'Hi');
     }
-
 }

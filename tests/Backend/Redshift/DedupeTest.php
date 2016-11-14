@@ -41,5 +41,4 @@ class DedupeTest extends StorageApiTestCase
         $this->_client->apiPost("storage/tables/{$tableId}/dedupe");
         $this->assertLinesEqualsSorted(file_get_contents(__DIR__ . '/../../_data/languages.duplicates.deduped.csv'), $this->_client->exportTable($tableId));
     }
-
 }

@@ -11,8 +11,8 @@ namespace Keboola\Test\Common;
 
 use Keboola\Test\StorageApiTestCase;
 
-use \Keboola\StorageApi\Options\FileUploadOptions,
-    \Keboola\StorageApi\Options\ListFilesOptions;
+use \Keboola\StorageApi\Options\FileUploadOptions;
+use \Keboola\StorageApi\Options\ListFilesOptions;
 
 class FilesTest extends StorageApiTestCase
 {
@@ -74,8 +74,7 @@ class FilesTest extends StorageApiTestCase
             ->setTags([
                 0 => 'neco',
                 12 => 'another',
-            ])
-        );
+            ]));
         $this->assertEquals(['neco', 'another'], $file['tags']);
     }
 
@@ -107,8 +106,7 @@ class FilesTest extends StorageApiTestCase
     {
         $files = $this->_client->listFiles((new ListFilesOptions())
             ->setLimit(1)
-            ->setOffset(0)
-        );
+            ->setOffset(0));
 
         $lastFile = reset($files);
         $lastFileId = $lastFile['id'];
@@ -136,7 +134,7 @@ class FilesTest extends StorageApiTestCase
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
 
-        $fileId = $this->createAndWaitForFile(__DIR__ . '/../_data/users.csv',$options);
+        $fileId = $this->createAndWaitForFile(__DIR__ . '/../_data/users.csv', $options);
         $file = $this->_client->getFile($fileId);
         $this->assertEquals($runId, $file['runId']);
 
@@ -540,7 +538,8 @@ class FilesTest extends StorageApiTestCase
 
     public function testFileDelete()
     {
-        $filePath = __DIR__ . '/../_data/files.upload.txt';;
+        $filePath = __DIR__ . '/../_data/files.upload.txt';
+        ;
         $options = new FileUploadOptions();
 
         $fileId = $this->_client->uploadFile($filePath, $options);
@@ -567,7 +566,8 @@ class FilesTest extends StorageApiTestCase
 
     public function uploadData()
     {
-        $path = __DIR__ . '/../_data/files.upload.txt';;
+        $path = __DIR__ . '/../_data/files.upload.txt';
+        ;
         return array(
             array(
                 $path,
@@ -741,7 +741,6 @@ class FilesTest extends StorageApiTestCase
         } catch (\Aws\S3\Exception\S3Exception $e) {
             $this->assertEquals(403, $e->getStatusCode());
         }
-
     }
 
     public function testTagging()
@@ -766,5 +765,4 @@ class FilesTest extends StorageApiTestCase
         $file = $this->_client->getFile($fileId);
         $this->assertEquals(array('image', 'new'), $file['tags'], 'duplicate tag add is ignored');
     }
-
 }

@@ -32,7 +32,6 @@ abstract class WorkspacesTestCase extends StorageApiTestCase
     protected function getDbConnection($connection)
     {
         if ($connection['backend'] === parent::BACKEND_SNOWFLAKE) {
-
             $db = new Connection([
                 'host' => $connection['host'],
                 'database' => $connection['database'],
@@ -44,9 +43,7 @@ abstract class WorkspacesTestCase extends StorageApiTestCase
             $db->query(sprintf("USE SCHEMA %s;", $db->quoteIdentifier($connection['schema'])));
 
             return $db;
-
         } else if ($connection['backend'] === parent::BACKEND_REDSHIFT) {
-
             $pdo = new \PDO(
                 "pgsql:dbname={$connection['database']};port=5439;host=" . $connection['host'],
                 $connection['user'],
@@ -55,7 +52,6 @@ abstract class WorkspacesTestCase extends StorageApiTestCase
             $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
             return $pdo;
-
         } else {
             throw new \Exception("Unsupported Backend for workspaces");
         }

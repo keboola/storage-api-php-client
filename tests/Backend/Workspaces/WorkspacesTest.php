@@ -80,7 +80,7 @@ class WorkspacesTest extends WorkspacesTestCase
             $rows = $backend->countRows("mytable");
             $this->fail("workspace no longer exists. connection should be dead.");
         } catch (\PDOException $e) { // catch redshift connection exception
-            $this->assertEquals("57P01",$e->getCode());
+            $this->assertEquals("57P01", $e->getCode());
         } catch (\Exception $e) {
             // check that exception not caused by the above fail()
             $this->assertEquals(2, $e->getCode(), $e->getMessage());
@@ -122,5 +122,4 @@ class WorkspacesTest extends WorkspacesTestCase
             ]
         ];
     }
-
 }

@@ -163,7 +163,6 @@ class TableExporter
                 }
                 $fs->rename($destination . '.tmp.gz', $destination);
             }
-
         } else {
             /**
              * NonSliced file, just move from temp to destination file

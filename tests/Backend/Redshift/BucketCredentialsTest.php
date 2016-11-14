@@ -74,7 +74,6 @@ class BucketCredentialsTest extends StorageApiTestCase
         } catch (\Exception $e) {
             $this->assertRegExp('/password authentication failed/', $e->getMessage());
         }
-
     }
 
     public function testCredentialsGet()
@@ -175,8 +174,7 @@ class BucketCredentialsTest extends StorageApiTestCase
         try {
             $bucketCredentials->createCredentials((new \Keboola\StorageApi\Options\BucketCredentials\CredentialsCreateOptions())
                 ->setBucketId($this->getTestBucketId(self::STAGE_IN))
-                ->setName('credentials 01')
-            );
+                ->setName('credentials 01'));
             $this->fail('Create credentials should not be allowed');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('accessDenied', $e->getStringCode());
@@ -197,5 +195,4 @@ class BucketCredentialsTest extends StorageApiTestCase
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         return $pdo;
     }
-
 }

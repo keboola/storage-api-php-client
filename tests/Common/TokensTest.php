@@ -117,7 +117,6 @@ class TokensTest extends StorageApiTestCase
             $this->fail('Exception should be thrown on invalid token');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertNotContains($invalidToken, $e->getMessage(), "Token value should not be returned back");
-
         }
     }
 
@@ -239,14 +238,12 @@ class TokensTest extends StorageApiTestCase
         $adminComponentClient->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
-            ->setName('Main1')
-        );
+            ->setName('Main1'));
         $adminComponentClient->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-2')
             ->setConfiguration(array('x' => 'y'))
-            ->setName('Main2')
-        );
+            ->setName('Main2'));
         $provisioningConfig = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('provisioning')
             ->setConfigurationId('main-1')
@@ -304,8 +301,7 @@ class TokensTest extends StorageApiTestCase
                 ->setComponentId('provisioning')
                 ->setConfigurationId('main-2')
                 ->setConfiguration(array('foo' => 'bar'))
-                ->setName('Main2')
-            );
+                ->setName('Main2'));
             $this->fail("Token was not granted access to this component, should throw an exception");
         } catch (\Keboola\StorageApi\ClientException  $e) {
         }
@@ -325,8 +321,7 @@ class TokensTest extends StorageApiTestCase
                 ->setComponentId('provisioning')
                 ->setConfigurationId('main-2')
                 ->setConfiguration(array('foo' => 'bar'))
-                ->setName('Main2')
-            );
+                ->setName('Main2'));
             $this->fail("Token was not granted access to this component, should throw an exception");
         } catch (\Keboola\StorageApi\ClientException  $e) {
         }
@@ -407,7 +402,6 @@ class TokensTest extends StorageApiTestCase
             $this->fail('Table imported with no permissions');
         } catch (\Keboola\StorageApi\ClientException  $e) {
         }
-
     }
 
     public function testAssignNonExistingBucketShouldFail()
@@ -422,7 +416,6 @@ class TokensTest extends StorageApiTestCase
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.tokens.invalidPermissions', $e->getStringCode());
         }
-
     }
 
     public function testAllBucketsTokenPermissions()
@@ -455,7 +448,6 @@ class TokensTest extends StorageApiTestCase
 
         $bucket = $client->getBucket($newBucketId);
         $client->dropBucket($newBucketId);
-
     }
 
     public function testTokenWithExpiration()
@@ -505,5 +497,4 @@ class TokensTest extends StorageApiTestCase
             }
         }
     }
-
 }

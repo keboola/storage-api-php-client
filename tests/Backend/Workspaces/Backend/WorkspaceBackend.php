@@ -8,7 +8,6 @@
 
 namespace Keboola\Test\Backend\Workspaces\Backend;
 
-
 interface WorkspaceBackend
 {
     public function getTables();

@@ -125,5 +125,4 @@ class SnapshottingTest extends StorageApiTestCase
         $this->assertEquals($snapshotId, $newestSnapshot['id']);
         $this->assertEquals('second', $newestSnapshot['description']);
     }
-
 }

@@ -99,5 +99,4 @@ class SystemColumnsTest extends StorageApiTestCase
         ];
         $this->assertEquals($expectedColumns, $table['columns']);
     }
-
 }

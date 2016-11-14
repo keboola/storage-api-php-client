@@ -40,7 +40,5 @@ class BucketCredentialsTest extends StorageApiTestCase
             $this->assertEquals(501, $e->getCode());
             $this->assertEquals('notImplemented', $e->getStringCode());
         }
-
     }
-
 }

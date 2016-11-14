@@ -24,7 +24,8 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         
         //setup test tables
         $tableId = $this->_client->createTable(
-            $this->getTestBucketId(self::STAGE_IN), 'languages',
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
 
@@ -62,12 +63,14 @@ class WorkspaceLoadTest extends WorkspacesTestCase
 
         //setup test tables
         $table1_id = $this->_client->createTable(
-            $this->getTestBucketId(self::STAGE_IN), 'languages',
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
 
         $table2_id = $this->_client->createTable(
-            $this->getTestBucketId(self::STAGE_IN), 'numbers',
+            $this->getTestBucketId(self::STAGE_IN),
+            'numbers',
             new CsvFile(__DIR__ . '/../../_data/numbers.csv')
         );
 
@@ -139,7 +142,8 @@ class WorkspaceLoadTest extends WorkspacesTestCase
 
         //setup test tables
         $table1Id = $this->_client->createTable(
-            $this->getTestBucketId(self::STAGE_IN), 'languages',
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),
             [
                 'primaryKey' => 'id',
@@ -216,7 +220,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $this->assertCount(1, $data[0], 'there should be one column');
         $this->assertArrayHasKey('id', $data[0]);
         $expected = Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ",", '"');
-        $expected = array_map(function($row) {
+        $expected = array_map(function ($row) {
             return [
                 'id' => $row['id'],
             ];
@@ -229,7 +233,6 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $this->assertArrayHasKey('id', $data[0]);
 
         $this->assertEquals('1', $data[0]['id']);
-
     }
 
     public function testWorkspaceLoadColumns()
@@ -241,7 +244,8 @@ class WorkspaceLoadTest extends WorkspacesTestCase
 
         //setup test tables
         $tableId = $this->_client->createTable(
-            $this->getTestBucketId(self::STAGE_IN), 'languagesColumns',
+            $this->getTestBucketId(self::STAGE_IN),
+            'languagesColumns',
             new CsvFile(__DIR__ . '/../../_data/languages-more-columns.csv')
         );
 
@@ -298,7 +302,8 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable(
-            $this->getTestBucketId(self::STAGE_IN), 'languages',
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages',
             new CsvFile($importFile)
         );
         $originalFileLinesCount = exec("wc -l <" . escapeshellarg($importFile));
@@ -336,7 +341,8 @@ class WorkspaceLoadTest extends WorkspacesTestCase
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable(
-            $this->getTestBucketId(self::STAGE_IN), 'languages',
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages',
             new CsvFile($importFile)
         );
 
@@ -348,7 +354,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             ]
         ]);
 
-        $workspaces->loadWorkspaceData($workspace['id'],$options);
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
 
         $numrows = $backend->countRows('languages');
         $this->assertEquals(2, $numrows, 'rows parameter');
@@ -393,7 +399,8 @@ class WorkspaceLoadTest extends WorkspacesTestCase
 
         $importFile = __DIR__ . '/../../_data/languages.camel-case-columns.csv';
         $tableId = $this->_client->createTable(
-            $this->getTestBucketId(self::STAGE_IN), 'languages',
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages',
             new CsvFile($importFile)
         );
 
@@ -408,7 +415,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             ]
         ]);
 
-        $workspaces->loadWorkspaceData($workspace['id'],$options);
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
 
         //check to make sure the columns have the right types
         $columnInfo = $backend->describeTableColumns('datatype_Test');
@@ -418,19 +425,19 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                 case 'id':
                 case 'Id':
                     if ($workspace['connection']['backend'] === $this::BACKEND_SNOWFLAKE) {
-                        $this->assertEquals("NUMBER(38,0)",$colInfo['type']);
+                        $this->assertEquals("NUMBER(38,0)", $colInfo['type']);
                     }
                     if ($workspace['connection']['backend'] === $this::BACKEND_REDSHIFT) {
-                        $this->assertEquals("int4",$colInfo['DATA_TYPE']);
+                        $this->assertEquals("int4", $colInfo['DATA_TYPE']);
                     }
                     break;
                 case 'name':
                 case 'Name':
                     if ($workspace['connection']['backend'] === $this::BACKEND_SNOWFLAKE) {
-                        $this->assertEquals("VARCHAR(50)",$colInfo['type']);
+                        $this->assertEquals("VARCHAR(50)", $colInfo['type']);
                     }
                     if ($workspace['connection']['backend'] === $this::BACKEND_REDSHIFT) {
-                        $this->assertEquals("varchar",$colInfo['DATA_TYPE']);
+                        $this->assertEquals("varchar", $colInfo['DATA_TYPE']);
                     }
                     break;
                 default:
@@ -463,7 +470,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         ]);
 
         try {
-            $workspaces->loadWorkspaceData($workspace['id'],$options);
+            $workspaces->loadWorkspaceData($workspace['id'], $options);
             $this->fail('Workspace should not be loaded');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.tableLoad', $e->getStringCode());
@@ -483,7 +490,8 @@ class WorkspaceLoadTest extends WorkspacesTestCase
 
         $importFile = __DIR__ . '/../../_data/languages.camel-case-columns.csv';
         $tableId = $this->_client->createTable(
-            $this->getTestBucketId(self::STAGE_IN), 'languages',
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages',
             new CsvFile($importFile)
         );
 
@@ -513,11 +521,13 @@ class WorkspaceLoadTest extends WorkspacesTestCase
 
         //setup test tables
         $table1_id = $this->_client->createTable(
-            $this->getTestBucketId(self::STAGE_IN), 'languages',
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
         $table2_id = $this->_client->createTable(
-            $this->getTestBucketId(self::STAGE_IN), 'numbers',
+            $this->getTestBucketId(self::STAGE_IN),
+            'numbers',
             new CsvFile(__DIR__ . '/../../_data/numbers.csv')
         );
 
@@ -540,7 +550,8 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $workspace = $workspaces->createWorkspace();
 
         $tableId = $this->_client->createTable(
-            $this->getTestBucketId(self::STAGE_IN), 'Languages',
+            $this->getTestBucketId(self::STAGE_IN),
+            'Languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
 
@@ -602,7 +613,8 @@ class WorkspaceLoadTest extends WorkspacesTestCase
 
         //setup test tables
         $table1_id = $this->_client->createTable(
-            $this->getTestBucketId(self::STAGE_IN), 'languages',
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
 
@@ -652,7 +664,8 @@ class WorkspaceLoadTest extends WorkspacesTestCase
     {
         // make a test table
         $tableId = $this->_client->createTable(
-            $this->getTestBucketId(self::STAGE_IN), 'languages',
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
 
@@ -684,7 +697,6 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             $this->assertEquals(403, $e->getCode());
             $this->assertEquals('workspace.tableAccessDenied', $e->getStringCode());
         }
-
     }
 
     public function testDottedDestination()
@@ -695,7 +707,8 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         // Create a table of sample data
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable(
-            $this->getTestBucketId(self::STAGE_IN), 'languages_dotted',
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages_dotted',
             new CsvFile($importFile)
         );
 

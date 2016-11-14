@@ -295,5 +295,4 @@ class ComponentsPublishTest extends StorageApiTestCase
         $config = $components->getConfigurationVersion($componentId, $configurationId, \Keboola\StorageApi\Options\Components\Configuration::LATEST_PUBLISHED_VERSION);
         $this->assertEquals(2, $config['version']);
     }
-
 }

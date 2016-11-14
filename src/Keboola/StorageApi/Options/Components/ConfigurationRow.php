@@ -1,7 +1,6 @@
 <?php
 namespace Keboola\StorageApi\Options\Components;
 
-
 class ConfigurationRow
 {
     private $rowId;
