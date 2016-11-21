@@ -6,6 +6,7 @@
  */
 namespace Keboola\Test\Backend\Common;
 
+use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\Test\StorageApiTestCase;
@@ -20,24 +21,34 @@ class SharedBucketsTest extends StorageApiTestCase
     public function setUp()
     {
         parent::setUp();
-        $this->_initEmptyTestBuckets();
 
         $this->_client2 = new \Keboola\StorageApi\Client(array(
             'token' => STORAGE_API_OTHER_TOKEN,
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
         ));
+
+        $this->_initEmptyTestBuckets();
     }
 
     protected function _initEmptyTestBuckets()
     {
-        parent::_initEmptyTestBuckets();
-
-        foreach ($this->_bucketIds AS $bucketId) {
-            if ($this->_client->isSharedBucket($bucketId)) {
-                $this->_client->unshareBucket($bucketId);
+        // unlink buckets
+        foreach ($this->_client2->listBuckets() as $bucket) {
+            if ($bucket['isReadOnly']) {
+                //@FIXME better linked validation
+                $this->_client2->dropBucket($bucket['id']);
             }
         }
+
+        // unshare buckets
+        foreach ($this->_client->listBuckets() as $bucket) {
+            if ($this->_client->isSharedBucket($bucket['id'])) {
+                $this->_client->unshareBucket($bucket['id']);
+            }
+        }
+
+        parent::_initEmptyTestBuckets();
     }
 
     public function testShareBucket()
@@ -59,7 +70,7 @@ class SharedBucketsTest extends StorageApiTestCase
             $this->fail("sharing twice should fail");
         } catch (ClientException $e) {
             $this->assertEquals(400, $e->getCode());
-            $this->assertRegExp('/is already shared to organization/ui', $e->getMessage());
+            $this->assertEquals('storage.buckets.shareTwice', $e->getStringCode());
         }
     }
 
@@ -94,7 +105,7 @@ class SharedBucketsTest extends StorageApiTestCase
         }
     }
 
-    public function testLink()
+    public function testLinkBucket()
     {
         $bucketId = reset($this->_bucketIds);
         $sourceBucket = $this->_client->getBucket($bucketId);
@@ -115,10 +126,84 @@ class SharedBucketsTest extends StorageApiTestCase
         $this->assertArrayHasKey('stage', $bucket);
         $this->assertArrayHasKey('backend', $bucket);
         $this->assertArrayHasKey('description', $bucket);
+        $this->assertArrayHasKey('isReadonly', $bucket);
 
         $this->assertEquals($id, $bucket['id']);
         $this->assertEquals('in', $bucket['stage']);
+        $this->assertTrue($bucket['isReadonly']);
         $this->assertEquals($sourceBucket['backend'], $bucket['backend']);
         $this->assertEquals($sourceBucket['description'], $bucket['description']);
+    }
+
+    public function testLinkedBucket()
+    {
+        $bucketId = reset($this->_bucketIds);
+
+        // prepare bucket tables
+        $tableId = $this->_client->createTableAsync(
+            $bucketId,
+            'first',
+            new CsvFile(__DIR__ . '/../../_data/pk.simple.csv'),
+            [
+                'primaryKey' => 'id',
+            ]
+        );
+
+        $this->_client->markTableColumnAsIndexed($tableId, 'name');
+
+        $this->_client->shareBucket($bucketId);
+
+        // link
+        $response = $this->_client2->listSharedBuckets();
+        $this->assertCount(1, $response);
+
+        $sharedBucket = reset($response);
+
+        $linkedBucketId = $this->_client2->linkBucket(
+            "linked-" . time(),
+            $sharedBucket['project']['id'],
+            $sharedBucket['id']
+        );
+
+
+        // validate bucket
+        $bucket = $this->_client->getBucket($bucketId);
+        $linkedBucket = $this->_client2->getBucket($linkedBucketId);
+
+        $this->assertEquals($linkedBucketId, $linkedBucket['id']);
+        $this->assertEquals('in', $linkedBucket['stage']);
+        $this->assertEquals($bucket['backend'], $linkedBucket['backend']);
+        $this->assertEquals($bucket['description'], $linkedBucket['description']);
+
+        // validate tables
+        $fieldNames = [
+            'name', 'columns', 'isAlias',
+            'primaryKey', 'indexedColumns',
+            'name', 'dataSizeBytes', 'rowsCount', //@TODO validate dates too?
+        ];
+
+        $tables = $this->_client->listTables($bucketId, ['include' => 'columns']);
+        $linkedTables = $this->_client2->listTables($linkedBucketId, ['include' => 'columns']);
+
+        foreach ($tables as $i => $table) {
+            foreach ($fieldNames as $fieldName) {
+                $this->assertEquals($table[$fieldName], $linkedTables[$i][$fieldName]);
+            }
+
+            $data = $this->_client->exportTable($table['id']);
+            $linkedData = $this->_client2->exportTable($linkedTables[$i]['id']);
+
+            $this->assertEquals($data, $linkedData);
+        }
+    }
+
+    public function testUnshareAlreadyLinkedBucket()
+    {
+        $this->fail();
+    }
+
+    public function testLinkedBucketDrop()
+    {
+        $this->fail();
     }
 }
