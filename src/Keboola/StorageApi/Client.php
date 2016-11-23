@@ -1958,7 +1958,7 @@ class Client
      * Create table primary key
      *
      * @param string $tableId
-     * @param string $columns
+     * @param array $columns
      */
     public function createTablePrimaryKey($tableId, $columns)
     {
