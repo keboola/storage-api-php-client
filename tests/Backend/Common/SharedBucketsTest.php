@@ -9,7 +9,6 @@ namespace Keboola\Test\Backend\Common;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
-use Keboola\StorageApi\Table;
 use Keboola\Test\StorageApiTestCase;
 
 class SharedBucketsTest extends StorageApiTestCase
@@ -123,15 +122,16 @@ class SharedBucketsTest extends StorageApiTestCase
         $id = $this->_client2->linkBucket("linked-" . time(), $sharedBucket['project']['id'], $sharedBucket['id']);
 
         $bucket = $this->_client2->getBucket($id);
+
         $this->assertArrayHasKey('id', $bucket);
         $this->assertArrayHasKey('stage', $bucket);
         $this->assertArrayHasKey('backend', $bucket);
         $this->assertArrayHasKey('description', $bucket);
-        $this->assertArrayHasKey('isReadonly', $bucket);
+        $this->assertArrayHasKey('isReadOnly', $bucket);
 
         $this->assertEquals($id, $bucket['id']);
         $this->assertEquals('in', $bucket['stage']);
-        $this->assertTrue($bucket['isReadonly']);
+        $this->assertTrue($bucket['isReadOnly']);
         $this->assertEquals($sourceBucket['backend'], $bucket['backend']);
         $this->assertEquals($sourceBucket['description'], $bucket['description']);
     }
@@ -237,10 +237,6 @@ class SharedBucketsTest extends StorageApiTestCase
         $this->_client->addTableColumn($tableId, 'fake');
         $this->validateTablesMetadata($bucketId, $linkedBucketId);
 
-        // remove column
-        $this->_client->deleteTableColumn($tableId, 'fake');
-        $this->validateTablesMetadata($bucketId, $linkedBucketId);
-
         // delete rows
         $this->_client->deleteTableRows($tableId, [
             'whereColumn' => 'id',
@@ -262,13 +258,62 @@ class SharedBucketsTest extends StorageApiTestCase
         //@FIXME lastChangeDate validation problem (different seconds)
     }
 
-    public function atestUnshareAlreadyLinkedBucket()
+    public function testRestrictedDrop()
     {
-//        $this->fail();
-    }
+        $bucketId = reset($this->_bucketIds);
 
-    public function atestLinkedBucketDrop()
-    {
-//        $this->fail();
+        // prepare bucket tables
+        $tableId = $this->_client->createTableAsync(
+            $bucketId,
+            'first',
+            new CsvFile(__DIR__ . '/../../_data/pk.simple.csv'),
+            [
+                'primaryKey' => 'id',
+            ]
+        );
+
+        $this->_client->shareBucket($bucketId);
+
+        // link
+        $response = $this->_client2->listSharedBuckets();
+        $this->assertCount(1, $response);
+
+        $sharedBucket = reset($response);
+
+        $linkedBucketId = $this->_client2->linkBucket(
+            "linked-" . time(),
+            $sharedBucket['project']['id'],
+            $sharedBucket['id']
+        );
+
+        $tables = $this->_client->listTables($bucketId);
+        $this->assertCount(1, $tables);
+
+        // table drop
+        foreach ($this->_client->listTables($bucketId) as $table) {
+            try {
+                $this->_client->dropTable($table['id']);
+                $this->fail('Shared table delete should fail');
+            } catch (ClientException $e) {
+                $this->assertEquals('tables.cannotDeleteTableWithLinks', $e->getStringCode());
+            }
+
+            try {
+                $this->_client->deleteTableColumn($table['id'], 'name');
+                $this->fail('Shared table column delete should fail');
+            } catch (ClientException $e) {
+                $this->assertEquals('tables.cannotDeleteRowWithLinks', $e->getStringCode());
+            }
+        }
+
+        // bucket drop
+        try {
+            $this->_client->dropBucket($bucketId);
+            $this->fail('Shared bucket delete should fail');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.buckets.alreadyLinked', $e->getStringCode());
+        }
+
+        $this->validateTablesMetadata($bucketId, $linkedBucketId);
     }
 }
