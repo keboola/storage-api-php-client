@@ -1433,9 +1433,8 @@ class Client
                     $manifest['entries'][] = [
                         "url" => "s3://" . $uploadParams['bucket'] . "/" . $uploadParams['key'] . basename($filePath)
                     ];
-
                 }
-                $results = \GuzzleHttp\Promise\unwrap($promises);
+                \GuzzleHttp\Promise\unwrap($promises);
                 $finished = true;
                 foreach ($fileHandles as $fh) {
                     fclose($fh);
@@ -1450,7 +1449,6 @@ class Client
                     $manifestUploadOptions['ServerSideEncryption'] = $uploadParams['x-amz-server-side-encryption'];
                 }
                 $s3Client->putObject($manifestUploadOptions);
-
             } catch (\Aws\Exception\MultipartUploadException $e) {
                 // TODO retry, log?
             }
