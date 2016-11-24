@@ -43,7 +43,7 @@ class SlicedFilesUploadTest extends StorageApiTestCase
             ]
         ]);
 
-        foreach($slices as $filePath) {
+        foreach ($slices as $filePath) {
             $object = $s3Client->getObject([
                 'Bucket' => $file['s3Path']['bucket'],
                 'Key' => $file["s3Path"]["key"] . basename($filePath)
