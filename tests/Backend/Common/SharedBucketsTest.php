@@ -248,6 +248,17 @@ class SharedBucketsTest extends StorageApiTestCase
         ]);
         $this->validateTablesMetadata($bucketId, $linkedBucketId);
 
+        // aditional table
+        $tableId = $this->_client->createTableAsync(
+            $bucketId,
+            'second',
+            new CsvFile(__DIR__ . '/../../_data/pk.simple.csv'),
+            [
+                'primaryKey' => 'id',
+            ]
+        );
+        $this->validateTablesMetadata($bucketId, $linkedBucketId);
+
         //@FIXME lastChangeDate validation problem (different seconds)
     }
 
