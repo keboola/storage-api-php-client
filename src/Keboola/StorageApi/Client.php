@@ -1307,7 +1307,7 @@ class Client
     /**
      * Upload a sliced file to file uploads
      *
-     * @param array $slices
+     * @param array $slices list of slices that make the file
      * @param FileUploadOptions $options
      * @return int - created file id
      * @throws ClientException
