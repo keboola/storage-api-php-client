@@ -1410,6 +1410,11 @@ class Client
             $asyncUploadOptions['ServerSideEncryption'] = $uploadParams['x-amz-server-side-encryption'];
         }
 
+        /*
+         * In case of an upload failure (\Aws\Exception\MultipartUploadException) there is no sane way of figuring out
+         * which part of which slice failed and partially restart upload for only that part.
+         * So the whole circus has to start over again.
+         */
         do {
             try {
                 $manifest = [
