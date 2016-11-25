@@ -1,3 +1,6 @@
+## 4.17.0 (2016-11-25)
+ * [Feat] `uploadSlicedFile` method added
+
 ## 4.16.0 (2016-10-22)
  * [Fix] Rollback Symfony dependencies back to 2.*.
 
