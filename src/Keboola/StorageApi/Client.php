@@ -1369,7 +1369,6 @@ class Client
 
         // 1. prepare resource
         $preparedFileResult = $this->prepareFileUpload($newOptions);
-        // print(json_encode($result)) . "\n";
 
         // 2. upload directly do S3 using returned credentials
         // using federation token
