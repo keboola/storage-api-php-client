@@ -1454,7 +1454,7 @@ class Client
                 }
                 $s3Client->putObject($manifestUploadOptions);
             } catch (\Aws\Exception\MultipartUploadException $e) {
-                // TODO retry, log?
+                $this->log('multipart-upload-exception: ' . $e->getMessage());
             }
         } while (!isset($finished));
 
