@@ -60,7 +60,6 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
             foreach ($tables as $table) {
                 $this->_client->dropTable($table['id']);
             }
-
             return $bucket['id'];
         } catch (\Keboola\StorageApi\ClientException $e) {
             return $this->_client->createBucket($name, $stage, 'Api tests');

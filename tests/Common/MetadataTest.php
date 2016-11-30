@@ -1,37 +1,38 @@
 <?php
 
-class MetadataTest extends \Keboola\Test\StorageApiTestCase
+namespace Keboola\Test\Common;
+
+use Keboola\Test\StorageApiTestCase;
+use Keboola\Csv\CsvFile;
+use Keboola\StorageApi\Metadata;
+
+class MetadataTest extends StorageApiTestCase
 {
-
-
 	public function setUp()
 	{
 		parent::setUp();
 		$this->_initEmptyTestBuckets();
-		$this->_client->createTable($this->getTestBucketId(), "table", new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/users.csv'));
+		$this->_client->createTable($this->getTestBucketId(), "table", new CsvFile(__DIR__ . '/../_data/users.csv'));
 	}
 
 	public function testBucketMetadata()
 	{
 		$bucketId = $this->getTestBucketId();
-		$metadataApi = new \Keboola\StorageApi\Metadata($this->_client);
-		
-		$md = new \Keboola\StorageApi\Options\Metadata\Metadatum();
-		$md->setFromArray(array(
+		$metadataApi = new Metadata($this->_client);
+
+		$md = array(
 			"key" => "test_metadata_key1",
-			"value" => "testval",
-			"provider" => "keboola.storage-api-php-client_test-runner"
-		));
-		$md2 = new \Keboola\StorageApi\Options\Metadata\Metadatum();
-		$md2->setFromArray(array(
+			"value" => "testval"
+		);
+		$md2 = array(
 			"key" => "test_metadata_key2",
-			"value" => "testval",
-			"provider" => "keboola.storage-api-php-client_test-runner"
-		));
+			"value" => "testval"
+		);
 		$testMetadata = array($md, $md2);
-		
-		$metadatas = $metadataApi->postBucketMetadata($bucketId, $testMetadata);
-		
+
+		$provider = "keboola.storage-api-php-client_test-runner";
+		$metadatas = $metadataApi->postBucketMetadata($bucketId, $provider, $testMetadata);
+
 		$this->assertEquals(2, count($metadatas));
 		$this->assertArrayHasKey("key", $metadatas[0]);
 		$this->assertArrayHasKey("value", $metadatas[0]);
@@ -40,14 +41,18 @@ class MetadataTest extends \Keboola\Test\StorageApiTestCase
 		$this->assertEquals("keboola.storage-api-php-client_test-runner", $metadatas[0]['provider']);
 
 		$origValue = $metadatas[0]['value'];
-		$mdCopy = new \Keboola\StorageApi\Options\Metadata\Metadatum();
-		$mdCopy->setFromArray($metadatas[0]);
-		$mdCopy->setValue("newValue");
-		
-		$newMetadata = $metadataApi->putBucketMetadata($bucketId, $mdCopy);
-		$this->assertEquals($newMetadata['id'], $metadatas[0]['id']);
-		$this->assertEquals("newValue", $newMetadata['value']);
-		$this->assertGreaterThanOrEqual($newMetadata['timestamp'], $metadatas[0]['timestamp']);
+		$mdCopy = $metadatas[0];
+		$mdCopy['value'] = "newValue";
+
+		$newMetadata = $metadataApi->postBucketMetadata($bucketId, $provider, array($mdCopy));
+
+		foreach ($newMetadata as $metadata) {
+			if ($metadata['id'] == $metadatas[0]['id']) {
+				$this->assertEquals("newValue", $metadata['value']);
+			} else {
+				$this->assertEquals("testval", $metadata['value']);
+			}
+		}
 
 		$metadataApi->deleteBucketMetadata($bucketId, $mdCopy['id']);
 
@@ -64,23 +69,21 @@ class MetadataTest extends \Keboola\Test\StorageApiTestCase
 	public function testTableMetadata()
 	{
 		$tableId = $this->getTestBucketId() . '.table';
-		$metadataApi = new \Keboola\StorageApi\Metadata($this->_client);
+		$metadataApi = new Metadata($this->_client);
 
-		$md = new \Keboola\StorageApi\Options\Metadata\Metadatum();
-		$md->setFromArray(array(
+		$md = array(
 			"key" => "test_metadata_key1",
 			"value" => "testval",
-			"provider" => "keboola.storage-api-php-client_test-runner"
-		));
-		$md2 = new \Keboola\StorageApi\Options\Metadata\Metadatum();
-		$md2->setFromArray(array(
+		);
+		$md2 = array(
 			"key" => "test_metadata_key2",
 			"value" => "testval",
-			"provider" => "keboola.storage-api-php-client_test-runner"
-		));
+		);
 		$testMetadata = array($md, $md2);
 
-		$metadatas = $metadataApi->postTableMetadata($tableId, $testMetadata);
+		$provider = "keboola.storage-api-php-client_test-runner";
+
+		$metadatas = $metadataApi->postTableMetadata($tableId, $provider, $testMetadata);
 
 		$this->assertEquals(2, count($metadatas));
 		$this->assertArrayHasKey("key", $metadatas[0]);
@@ -89,14 +92,19 @@ class MetadataTest extends \Keboola\Test\StorageApiTestCase
 		$this->assertArrayHasKey("timestamp", $metadatas[0]);
 		$this->assertEquals("keboola.storage-api-php-client_test-runner", $metadatas[0]['provider']);
 
-		$mdCopy = new \Keboola\StorageApi\Options\Metadata\Metadatum();
-		$mdCopy->setFromArray($metadatas[0]);
-		$mdCopy->setValue("newValue");
+		$mdCopy = $metadatas[0];
+		$mdCopy['value'] = "newValue";
 
-		$newMetadata = $metadataApi->putTableMetadata($tableId, $mdCopy);
-		$this->assertEquals($newMetadata['id'], $metadatas[0]['id']);
-		$this->assertEquals("newValue", $newMetadata['value']);
-		$this->assertGreaterThanOrEqual($newMetadata['timestamp'], $metadatas[0]['timestamp']);
+		$newMetadata = $metadataApi->postTableMetadata($tableId, $provider, array($mdCopy));
+
+		foreach ($newMetadata as $metadata) {
+			if ($metadata['id'] == $metadatas[0]['id']) {
+				$this->assertEquals("newValue", $metadata['value']);
+				$this->assertGreaterThanOrEqual($metadata['timestamp'], $metadatas[0]['timestamp']);
+			} else {
+				$this->assertEquals("testval", $metadata['value']);
+			}
+		}
 
 		$metadataApi->deleteTableMetadata($tableId, $mdCopy['id']);
 
@@ -110,26 +118,25 @@ class MetadataTest extends \Keboola\Test\StorageApiTestCase
 		$this->assertEquals($metadatas[1]['timestamp'], $mdList[0]['timestamp']);
 	}
 
+
 	public function testColumnMetadata()
 	{
 		$columnId = $this->getTestBucketId() . '.table.id';
-		$metadataApi = new \Keboola\StorageApi\Metadata($this->_client);
+		$metadataApi = new Metadata($this->_client);
 
-		$md = new \Keboola\StorageApi\Options\Metadata\Metadatum();
-		$md->setFromArray(array(
+		$md = array(
 			"key" => "test_metadata_key1",
 			"value" => "testval",
-			"provider" => "keboola.storage-api-php-client_test-runner"
-		));
-		$md2 = new \Keboola\StorageApi\Options\Metadata\Metadatum();
-		$md2->setFromArray(array(
+		);
+		$md2 = array(
 			"key" => "test_metadata_key2",
 			"value" => "testval",
-			"provider" => "keboola.storage-api-php-client_test-runner"
-		));
+		);
 		$testMetadata = array($md, $md2);
 
-		$metadatas = $metadataApi->postColumnMetadata($columnId, $testMetadata);
+		$provider = "keboola.storage-api-php-client_test-runner";
+
+		$metadatas = $metadataApi->postColumnMetadata($columnId, $provider, $testMetadata);
 
 		$this->assertEquals(2, count($metadatas));
 		$this->assertArrayHasKey("key", $metadatas[0]);
@@ -138,14 +145,18 @@ class MetadataTest extends \Keboola\Test\StorageApiTestCase
 		$this->assertArrayHasKey("timestamp", $metadatas[0]);
 		$this->assertEquals("keboola.storage-api-php-client_test-runner", $metadatas[0]['provider']);
 
-		$mdCopy = new \Keboola\StorageApi\Options\Metadata\Metadatum();
-		$mdCopy->setFromArray($metadatas[0]);
-		$mdCopy->setValue("newValue");
+		$mdCopy = $metadatas[0];
+		$mdCopy['value'] = "newValue";
 
-		$newMetadata = $metadataApi->putColumnMetadata($columnId, $mdCopy);
-		$this->assertEquals($newMetadata['id'], $metadatas[0]['id']);
-		$this->assertEquals("newValue", $newMetadata['value']);
-		$this->assertGreaterThanOrEqual($newMetadata['timestamp'], $metadatas[0]['timestamp']);
+		$newMetadata = $metadataApi->postColumnMetadata($columnId, $provider, array($mdCopy));
+		foreach ($newMetadata as $metadata) {
+			if ($metadata['id'] == $metadatas[0]['id']) {
+				$this->assertEquals("newValue", $metadata['value']);
+				$this->assertGreaterThanOrEqual($metadata['timestamp'], $metadatas[0]['timestamp']);
+			} else {
+				$this->assertEquals("testval", $metadata['value']);
+			}
+		}
 
 		$metadataApi->deleteColumnMetadata($columnId, $mdCopy['id']);
 
