@@ -31,12 +31,32 @@ class SharedBucketsTest extends StorageApiTestCase
         $this->_initEmptyTestBuckets();
     }
 
+    /**
+     * Init empty bucket test helper
+     * @param $name
+     * @param $stage
+     * @return bool|string
+     */
+    private function initEmptyBucket($name, $stage)
+    {
+        try {
+            $bucket = $this->_client->getBucket("$stage.c-$name");
+            $tables = $this->_client->listTables($bucket['id']);
+            foreach ($tables as $table) {
+                $this->_client->dropTable($table['id']);
+            }
+
+            return $bucket['id'];
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            return $this->_client->createBucket($name, $stage, 'Api tests');
+        }
+    }
+
     protected function _initEmptyTestBuckets()
     {
         // unlink buckets
         foreach ($this->_client2->listBuckets() as $bucket) {
-            if ($bucket['isReadOnly']) {
-                //@FIXME better linked validation
+            if (!empty($bucket['sourceBucket'])) {
                 $this->_client2->dropBucket($bucket['id']);
             }
         }
@@ -48,7 +68,10 @@ class SharedBucketsTest extends StorageApiTestCase
             }
         }
 
-        parent::_initEmptyTestBuckets();
+        // init empty buckets
+        foreach (array(self::STAGE_OUT, self::STAGE_IN) as $stage) {
+            $this->_bucketIds[$stage] = $this->initEmptyBucket('API-sharing-tests', $stage);
+        }
     }
 
     public function testShareBucket()
