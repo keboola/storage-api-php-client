@@ -4,14 +4,14 @@
  * User: Erik Zigo
  *
  */
-namespace Keboola\Test\Backend\Common;
+namespace Keboola\Test\Backend\Sharing;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\Test\StorageApiTestCase;
 
-class SharedBucketsTest extends StorageApiTestCase
+class BucketsTest extends StorageApiTestCase
 {
     /**
      * @var Client
@@ -195,7 +195,7 @@ class SharedBucketsTest extends StorageApiTestCase
         $tableId = $this->_client->createTableAsync(
             $bucketId,
             'first',
-            new CsvFile(__DIR__ . '/../../_data/pk.simple.csv'),
+            new CsvFile(__DIR__ . '/../_data/pk.simple.csv'),
             [
                 'primaryKey' => 'id',
             ]
@@ -231,7 +231,7 @@ class SharedBucketsTest extends StorageApiTestCase
         // new import
         $this->_client->writeTable(
             $tableId,
-            new CsvFile(__DIR__ . '/../../_data/pk.simple.increment.csv'),
+            new CsvFile(__DIR__ . '/../_data/pk.simple.increment.csv'),
             [
                 'primaryKey' => 'id',
                 'incremental' => true,
@@ -271,7 +271,7 @@ class SharedBucketsTest extends StorageApiTestCase
         $tableId = $this->_client->createTableAsync(
             $bucketId,
             'second',
-            new CsvFile(__DIR__ . '/../../_data/pk.simple.csv'),
+            new CsvFile(__DIR__ . '/../_data/pk.simple.csv'),
             [
                 'primaryKey' => 'id',
             ]
@@ -289,7 +289,7 @@ class SharedBucketsTest extends StorageApiTestCase
         $tableId = $this->_client->createTableAsync(
             $bucketId,
             'first',
-            new CsvFile(__DIR__ . '/../../_data/pk.simple.csv'),
+            new CsvFile(__DIR__ . '/../_data/pk.simple.csv'),
             [
                 'primaryKey' => 'id',
             ]
