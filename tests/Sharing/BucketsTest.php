@@ -23,7 +23,7 @@ class BucketsTest extends StorageApiTestCase
         parent::setUp();
 
         $this->_client2 = new \Keboola\StorageApi\Client(array(
-            'token' => STORAGE_API_OTHER_TOKEN,
+            'token' => STORAGE_API_LINKING_TOKEN,
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
         ));
