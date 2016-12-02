@@ -9,6 +9,7 @@
 
 namespace Keboola\Test\Backend\Common;
 
+use Keboola\StorageApi\Metadata;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 
@@ -71,6 +72,8 @@ class TablesListingTest extends StorageApiTestCase
         $firstTable = reset($tables);
         $this->assertArrayNotHasKey('attributes', $firstTable);
         $this->assertArrayNotHasKey('bucket', $firstTable);
+        $this->assertArrayNotHasKey('metadata', $firstTable);
+        $this->assertArrayNotHasKey('columnMetadata', $firstTable);
 
         $tables = $this->_client->listTables(null, array(
             'include' => '', // don't include anything
@@ -79,6 +82,50 @@ class TablesListingTest extends StorageApiTestCase
         $firstTable = reset($tables);
         $this->assertArrayNotHasKey('attributes', $firstTable);
         $this->assertArrayNotHasKey('bucket', $firstTable);
+        $this->assertArrayNotHasKey('metadata', $firstTable);
+        $this->assertArrayNotHasKey('columnMetadata', $firstTable);
+    }
+
+    public function testListTablesIncludeMetadata()
+    {
+        $metadataApi = new Metadata($this->_client);
+        $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../../_data/languages.csv'));
+
+        $tables = $this->_client->listTables($this->getTestBucketId(), array(
+            'include' => 'metadata',
+        ));
+
+        $firstTable = reset($tables);
+        $this->assertArrayHasKey('metadata', $tables);
+        $this->assertEmpty($firstTable['metadata']);
+
+        $metadataApi->postTableMetadata(
+            $tableId,
+            "keboola.sapi_client_tests",
+            [[
+                "key" => "testkey",
+                "value" => "testValue"
+            ],[
+                "key" => "testkey2",
+                "value" => "testValue2"
+            ]]
+        );
+
+        $tables = $this->_client->listTables($this->getTestBucketId(), array(
+            'include' => 'metadata',
+        ));
+        $this->assertCount(1, $tables);
+
+        $firstTable = reset($tables);
+        $this->assertCount(2, $firstTable['metadata']);
+        $firstMeta = reset($firstTable['metadata']);
+        $this->assertArrayHasKey('timestamp', $firstMeta);
+        $this->assertArrayHasKey('provider', $firstMeta);
+        $this->assertEquals("keboola.sapi_client_tests", $firstMeta['provider']);
+        $this->assertArrayHasKey('key', $firstMeta);
+        $this->assertNotEmpty($firstMeta['key']);
+        $this->assertArrayHasKey('value', $firstMeta);
+        $this->assertNotEmpty($firstMeta['value']);
     }
 
     public function testListTablesWithColumns()
@@ -105,6 +152,57 @@ class TablesListingTest extends StorageApiTestCase
         $this->assertEquals($tableId, $firstTable['id']);
         $this->assertArrayHasKey('columns', $firstTable);
         $this->assertEquals(array('id', 'name'), $firstTable['columns']);
+    }
+
+    public function testListTablesIncludeColumnMetadata()
+    {
+        $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../../_data/languages.csv'));
+
+        $tables = $this->_client->listTables($this->getTestBucketId(), array(
+            'include' => 'columnMetadata',
+        ));
+
+        $firstTable = reset($tables);
+        $this->assertEquals($tableId, $firstTable['id']);
+        $this->assertArrayHasKey('columnMetadata', $firstTable);
+        $this->assertEmpty($firstTable['columnMetadata']);
+
+        // let's post some column metadata to make sure it shows up correctly
+        $metadataApi = new Metadata($this->_client);
+        $metadataApi->postColumnMetadata(
+            $tableId . ".id",
+            "keboola.sapi_client_tests",
+            [[
+                "key" => "testkey",
+                "value" => "testValue"
+            ],[
+                "key" => "testkey2",
+                "value" => "testValue2"
+            ]]
+        );
+        $tables = $this->_client->listTables($this->getTestBucketId(), array(
+            'include' => 'columnMetadata',
+        ));
+
+        $firstTable = reset($tables);
+        $this->assertEquals($tableId, $firstTable['id']);
+        $this->assertArrayHasKey('columnMetadata', $firstTable);
+        $this->assertNotEmpty($firstTable['columnMetadata']);
+        $this->assertCount(1, $firstTable['columnMetadata']);
+        $this->assertArrayHasKey('id', $firstTable['columnMetadata']);
+        $this->assertCount(2, $firstTable['columnMetadata']['id']);
+        $this->assertArrayHasKey('timestamp', $firstTable['columnMetadata']['id'][0]);
+        $this->assertArrayHasKey('provider', $firstTable['columnMetadata']['id'][0]);
+        $this->assertEquals("keboola.sapi_client_tests", $firstTable['columnMetadata']['id'][0]['provider']);
+        $this->assertArrayHasKey('key', $firstTable['columnMetadata']['id'][0]);
+        $this->assertArrayHasKey('value', $firstTable['columnMetadata']['id'][0]);
+
+        $this->assertArrayHasKey('timestamp', $firstTable['columnMetadata']['id'][1]);
+        $this->assertArrayHasKey('provider', $firstTable['columnMetadata']['id'][1]);
+        $this->assertEquals("keboola.sapi_client_tests", $firstTable['columnMetadata']['id'][1]['provider']);
+        $this->assertArrayHasKey('key', $firstTable['columnMetadata']['id'][1]);
+        $this->assertArrayHasKey('value', $firstTable['columnMetadata']['id'][1]);
+
     }
 
     public function testTableAttributes()
