@@ -2,17 +2,62 @@
 
 namespace Keboola\Test\Common;
 
+use Keboola\StorageApi\ClientException;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Metadata;
 
 class MetadataTest extends StorageApiTestCase
 {
+	const TEST_PROVIDER = "keboola.sapi-client-tests";
+
 	public function setUp()
 	{
 		parent::setUp();
 		$this->_initEmptyTestBuckets();
 		$this->_client->createTable($this->getTestBucketId(), "table", new CsvFile(__DIR__ . '/../_data/users.csv'));
+	}
+
+	public function testInvalidMetadata()
+	{
+		$bucketId = $this->getTestBucketId();
+		$tableId = $bucketId . '.table';
+		$columnId = $tableId . '.id';
+
+		$metadataApi = new Metadata($this->_client);
+
+		$md = array(
+			"key" => "%invalidKey", // invalid char %
+			"value" => "testval"
+		);
+		try {
+			$res = $metadataApi->postBucketMetadata($bucketId, self::TEST_PROVIDER, [$md]);
+			$this->fail("Should throw invalid key exception");
+		} catch (ClientException $e) {
+			$this->assertEquals("storage.metadata.invalidKey", $e->getStringCode());
+		}
+
+		$md = array(
+			"key" => str_pad("validKey", 260, "+"), // length > 255
+			"value" => "testval"
+		);
+		try {
+			$res = $metadataApi->postTableMetadata($tableId, self::TEST_PROVIDER, [$md]);
+			$this->fail("Should throw invalid key exception");
+		} catch (ClientException $e) {
+			$this->assertEquals("storage.metadata.invalidKey", $e->getStringCode());
+		}
+
+		$md = array(
+			"key" => "", // empty key
+			"value" => "testval"
+		);
+		try {
+			$res = $metadataApi->postColumnMetadata($columnId, self::TEST_PROVIDER, [$md]);
+			$this->fail("Should throw invalid key exception");
+		} catch (ClientException $e) {
+			$this->assertEquals("storage.metadata.invalidKey", $e->getStringCode());
+		}
 	}
 
 	public function testBucketMetadata()
