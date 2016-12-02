@@ -18,48 +18,6 @@ class MetadataTest extends StorageApiTestCase
 		$this->_client->createTable($this->getTestBucketId(), "table", new CsvFile(__DIR__ . '/../_data/users.csv'));
 	}
 
-	public function testInvalidMetadata()
-	{
-		$bucketId = $this->getTestBucketId();
-		$tableId = $bucketId . '.table';
-		$columnId = $tableId . '.id';
-
-		$metadataApi = new Metadata($this->_client);
-
-		$md = array(
-			"key" => "%invalidKey", // invalid char %
-			"value" => "testval"
-		);
-		try {
-			$res = $metadataApi->postBucketMetadata($bucketId, self::TEST_PROVIDER, [$md]);
-			$this->fail("Should throw invalid key exception");
-		} catch (ClientException $e) {
-			$this->assertEquals("storage.metadata.invalidKey", $e->getStringCode());
-		}
-
-		$md = array(
-			"key" => str_pad("validKey", 260, "+"), // length > 255
-			"value" => "testval"
-		);
-		try {
-			$res = $metadataApi->postTableMetadata($tableId, self::TEST_PROVIDER, [$md]);
-			$this->fail("Should throw invalid key exception");
-		} catch (ClientException $e) {
-			$this->assertEquals("storage.metadata.invalidKey", $e->getStringCode());
-		}
-
-		$md = array(
-			"key" => "", // empty key
-			"value" => "testval"
-		);
-		try {
-			$res = $metadataApi->postColumnMetadata($columnId, self::TEST_PROVIDER, [$md]);
-			$this->fail("Should throw invalid key exception");
-		} catch (ClientException $e) {
-			$this->assertEquals("storage.metadata.invalidKey", $e->getStringCode());
-		}
-	}
-
 	public function testBucketMetadata()
 	{
 		$bucketId = $this->getTestBucketId();
@@ -213,5 +171,84 @@ class MetadataTest extends StorageApiTestCase
 		$this->assertEquals($metadatas[1]['value'], $mdList[0]['value']);
 		$this->assertEquals($metadatas[1]['provider'], $mdList[0]['provider']);
 		$this->assertEquals($metadatas[1]['timestamp'], $mdList[0]['timestamp']);
+	}
+
+	/**
+	 * @dataProvider apiEndpoints
+	 * @param $apiEndpoint
+	 */
+	public function testInvalidMetadata($apiEndpoint, $object)
+	{
+		$bucketId = self::getTestBucketId();
+		$object = ($apiEndpoint === "bucket") ? $bucketId : $bucketId . $object;
+		
+		$md = array(
+			"key" => "%invalidKey", // invalid char %
+			"value" => "testval"
+		);
+		try {
+			$this->postMetadata($apiEndpoint, $object, [$md]);
+			$this->fail("Should throw invalid key exception");
+		} catch (ClientException $e) {
+			$this->assertEquals("storage.metadata.invalidKey", $e->getStringCode());
+		}
+
+		$md = array(
+			"key" => str_pad("validKey", 260, "+"), // length > 255
+			"value" => "testval"
+		);
+		try {
+			$this->postMetadata($apiEndpoint, $object, [$md]);
+			$this->fail("Should throw invalid key exception");
+		} catch (ClientException $e) {
+			$this->assertEquals("storage.metadata.invalidKey", $e->getStringCode());
+		}
+
+		$md = array(
+			"key" => "", // empty key
+			"value" => "testval"
+		);
+		try {
+			$this->postMetadata($apiEndpoint, $object, [$md]);
+			$this->fail("Should throw invalid key exception");
+		} catch (ClientException $e) {
+			$this->assertEquals("storage.metadata.invalidKey", $e->getStringCode());
+		}
+
+		// try the api straight to test missing provider for each
+		try {
+			$this->_client->apiPost("storage/{$apiEndpoint}s/{$object}/metadata",[
+				"metadata" => [$md]
+			]);
+			$this->fail("provider is required.");
+		} catch (ClientException $e) {
+			$this->assertEquals("storage.metadata.missingParameter", $e->getStringCode());
+		}
+	}
+
+	public function apiEndpoints()
+	{
+		$tableId = '.table';
+		$columnId = $tableId . '.id';
+		return [
+			["column", $columnId],
+			["table", $tableId],
+			["bucket", ""]
+		];
+	}
+
+	private function postMetadata($apiEndpoint, $objId, $metadata) {
+		$metadataApi = new Metadata($this->_client);
+		switch ($apiEndpoint) {
+			case "column":
+				$res = $metadataApi->postColumnMetadata($objId, self::TEST_PROVIDER, $metadata);
+				break;
+			case "table":
+				$res = $metadataApi->postTableMetadata($objId, self::TEST_PROVIDER, $metadata);
+				break;
+			case "bucket":
+				$res = $metadataApi->postBucketMetadata($objId, self::TEST_PROVIDER, $metadata);
+				break;
+		}
 	}
 }
