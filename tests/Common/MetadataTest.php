@@ -181,7 +181,7 @@ class MetadataTest extends StorageApiTestCase
 	{
 		$bucketId = self::getTestBucketId();
 		$object = ($apiEndpoint === "bucket") ? $bucketId : $bucketId . $object;
-		
+
 		$md = array(
 			"key" => "%invalidKey", // invalid char %
 			"value" => "testval"
@@ -226,6 +226,28 @@ class MetadataTest extends StorageApiTestCase
 		}
 	}
 
+	/**
+	 * @dataProvider apiEndpoints
+	 * @param $apiEndpoint
+	 */
+	public function testMetadata404s($apiEndpoint, $object)
+	{
+		$bucketId = self::getTestBucketId();
+		$object = ($apiEndpoint === "bucket") ? $bucketId : $bucketId . $object;
+
+		$md = array(
+			"key" => "validKey", // invalid char %
+			"value" => "testval"
+		);
+
+		try {
+			$this->deleteMetadata($apiEndpoint, $object, 9999999);
+			$this->fail("Invalid metadataId");
+		} catch (ClientException $e) {
+			$this->assertEquals(404, $e->getCode());
+		}
+	}
+
 	public function apiEndpoints()
 	{
 		$tableId = '.table';
@@ -251,4 +273,20 @@ class MetadataTest extends StorageApiTestCase
 				break;
 		}
 	}
+
+	private function deleteMetadata($apiEndpoint, $objId, $metadataId) {
+		$metadataApi = new Metadata($this->_client);
+		switch ($apiEndpoint) {
+			case "column":
+				$res = $metadataApi->deleteColumnMetadata($objId, $metadataId);
+				break;
+			case "table":
+				$res = $metadataApi->deleteTableMetadata($objId, $metadataId);
+				break;
+			case "bucket":
+				$res = $metadataApi->deleteBucketMetadata($objId, $metadataId);
+				break;
+		}
+	}
+
 }
