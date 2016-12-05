@@ -5,6 +5,7 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\MessageFormatter;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
+use Keboola\StorageApi\Options\FileUploadTransferOptions;
 use Keboola\StorageApi\Options\GetFileOptions;
 use Keboola\StorageApi\Options\ListFilesOptions;
 use Keboola\StorageApi\Options\StatsOptions;
@@ -1307,12 +1308,13 @@ class Client
     /**
      * Upload a sliced file to file uploads
      *
-     * @param array $slices list of slices that make the file
+     * @param array $slices
      * @param FileUploadOptions $options
-     * @return int - created file id
+     * @param FileUploadTransferOptions $transferOptions
+     * @return mixed
      * @throws ClientException
      */
-    public function uploadSlicedFile(array $slices, FileUploadOptions $options)
+    public function uploadSlicedFile(array $slices, FileUploadOptions $options, FileUploadTransferOptions $transferOptions)
     {
         if (!$options->getIsSliced()) {
             throw new ClientException("File is not sliced.");
@@ -1356,7 +1358,6 @@ class Client
                         );
                         throw new ClientException("Failed to gzip file. " . $error);
                     }
-
                     $slices[$key] = $gzFilePath;
                 }
             }
@@ -1409,54 +1410,61 @@ class Client
             $asyncUploadOptions['ServerSideEncryption'] = $uploadParams['x-amz-server-side-encryption'];
         }
 
-        /*
-         * In case of an upload failure (\Aws\Exception\MultipartUploadException) there is no sane way of figuring out
-         * which part of which slice failed and partially restart upload for only that part.
-         * So the whole circus has to start over again.
-         */
-        do {
-            try {
-                $manifest = [
-                    'entries' => []
-                ];
-                $promises = [];
-                $fileHandles = [];
-                foreach ($slices as $filePath) {
-                    $fh = @fopen($filePath, 'r');
-                    $fileHandles[] = $fh;
-                    if ($fh === false) {
-                        throw new ClientException("Error on file upload to S3: " . $filePath, null, null, 'fileNotReadable');
+        // prepare manifest object
+        $manifest = [
+            'entries' => []
+        ];
+        // split all slices into batch chunks and upload them separately
+        $chunks = ceil(count($slices) / $transferOptions->getChunkSize());
+        for ($i = 0; $i < $chunks; $i++) {
+            $slicesChunk = array_slice($slices, $i * $transferOptions->getChunkSize(), $transferOptions->getChunkSize());
+            $finished = false;
+            /*
+             * In case of an upload failure (\Aws\Exception\MultipartUploadException) there is no sane way of figuring out
+             * which part of which slice failed and partially restart upload for only that part.
+             * So the whole circus has to start over again.
+             */
+            do {
+                try {
+                    $promises = [];
+                    $fileHandles = [];
+                    foreach ($slicesChunk as $filePath) {
+                        $fh = @fopen($filePath, 'r');
+                        $fileHandles[] = $fh;
+                        if ($fh === false) {
+                            throw new ClientException("Error on file upload to S3: " . $filePath, null, null, 'fileNotReadable');
+                        }
+                        $promises[] = $s3Client->uploadAsync(
+                            $uploadParams['bucket'],
+                            $uploadParams['key'] . basename($filePath),
+                            $fh,
+                            $uploadParams['acl'],
+                            ["params" => $asyncUploadOptions]
+                        );
+                        $manifest['entries'][] = [
+                            "url" => "s3://" . $uploadParams['bucket'] . "/" . $uploadParams['key'] . basename($filePath)
+                        ];
                     }
-                    $promises[] = $s3Client->uploadAsync(
-                        $uploadParams['bucket'],
-                        $uploadParams['key'] . basename($filePath),
-                        $fh,
-                        $uploadParams['acl'],
-                        ["params" => $asyncUploadOptions]
-                    );
-                    $manifest['entries'][] = [
-                        "url" => "s3://" . $uploadParams['bucket'] . "/" . $uploadParams['key'] . basename($filePath)
-                    ];
+                    \GuzzleHttp\Promise\unwrap($promises);
+                    $finished = true;
+                    foreach ($fileHandles as $fh) {
+                        fclose($fh);
+                    }
+                } catch (\Aws\Exception\MultipartUploadException $e) {
+                    $this->log('multipart-upload-exception: ' . $e->getMessage());
                 }
-                \GuzzleHttp\Promise\unwrap($promises);
-                $finished = true;
-                foreach ($fileHandles as $fh) {
-                    fclose($fh);
-                }
+            } while (!isset($finished));
+        }
 
-                $manifestUploadOptions = [
-                    'Bucket' => $uploadParams['bucket'],
-                    'Key' => $uploadParams['key'] . 'manifest',
-                    'Body' => json_encode($manifest)
-                ];
-                if ($newOptions->getIsEncrypted()) {
-                    $manifestUploadOptions['ServerSideEncryption'] = $uploadParams['x-amz-server-side-encryption'];
-                }
-                $s3Client->putObject($manifestUploadOptions);
-            } catch (\Aws\Exception\MultipartUploadException $e) {
-                $this->log('multipart-upload-exception: ' . $e->getMessage());
-            }
-        } while (!isset($finished));
+        $manifestUploadOptions = [
+            'Bucket' => $uploadParams['bucket'],
+            'Key' => $uploadParams['key'] . 'manifest',
+            'Body' => json_encode($manifest)
+        ];
+        if ($newOptions->getIsEncrypted()) {
+            $manifestUploadOptions['ServerSideEncryption'] = $uploadParams['x-amz-server-side-encryption'];
+        }
+        $s3Client->putObject($manifestUploadOptions);
 
         if ($fs) {
             $fs->remove($currentUploadDir);

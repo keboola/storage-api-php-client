@@ -14,6 +14,7 @@
 
 	<testsuite name="common">
 		<directory>tests/Common</directory>
+		<directory>tests/Options</directory>
 	</testsuite>
 
 	<testsuite name="backend-mysql">
