@@ -1314,13 +1314,16 @@ class Client
      * @return mixed
      * @throws ClientException
      */
-    public function uploadSlicedFile(array $slices, FileUploadOptions $options, FileUploadTransferOptions $transferOptions)
+    public function uploadSlicedFile(array $slices, FileUploadOptions $options, FileUploadTransferOptions $transferOptions = null)
     {
         if (!$options->getIsSliced()) {
             throw new ClientException("File is not sliced.");
         }
         if (!$options->getFileName()) {
             throw new ClientException("File name for sliced file upload not set.");
+        }
+        if (!$transferOptions) {
+            $transferOptions = new FileUploadTransferOptions();
         }
 
         $fileSize = 0;
