@@ -1,3 +1,6 @@
+## 4.18.0 (2016-12-05)
+ [Feat] `uploadSlicedFile` upload in chunks, chunk size is parametrized
+
 ## 4.17.0 (2016-11-25)
  * [Feat] `uploadSlicedFile` method added
 
