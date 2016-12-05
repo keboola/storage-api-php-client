@@ -242,10 +242,20 @@ class Client
         return $result["id"];
     }
 
-    public function linkBucket($name, $sourceProjectId, $sourceBucketId)
+    /**
+     * Link shared bucket to project
+     *
+     * @param string $name new bucket name
+     * @param string $stage bucket stage
+     * @param int $sourceProjectId
+     * @param int $sourceBucketId
+     * @return mixed
+     */
+    public function linkBucket($name, $stage, $sourceProjectId, $sourceBucketId)
     {
         $options = array(
             "name" => $name,
+            "stage" => $stage,
             "sourceProjectId" => $sourceProjectId,
             "sourceBucketId" => $sourceBucketId,
         );

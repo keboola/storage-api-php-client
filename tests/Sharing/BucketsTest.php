@@ -142,7 +142,7 @@ class BucketsTest extends StorageApiTestCase
 
         $sharedBucket = reset($response);
 
-        $id = $this->_client2->linkBucket("linked-" . time(), $sharedBucket['project']['id'], $sharedBucket['id']);
+        $id = $this->_client2->linkBucket("linked-" . time(), 'out', $sharedBucket['project']['id'], $sharedBucket['id']);
 
         $bucket = $this->_client2->getBucket($id);
 
@@ -153,7 +153,7 @@ class BucketsTest extends StorageApiTestCase
         $this->assertArrayHasKey('isReadOnly', $bucket);
 
         $this->assertEquals($id, $bucket['id']);
-        $this->assertEquals('in', $bucket['stage']);
+        $this->assertEquals('out', $bucket['stage']);
         $this->assertTrue($bucket['isReadOnly']);
         $this->assertEquals($sourceBucket['backend'], $bucket['backend']);
         $this->assertEquals($sourceBucket['description'], $bucket['description']);
@@ -211,6 +211,7 @@ class BucketsTest extends StorageApiTestCase
 
         $linkedBucketId = $this->_client2->linkBucket(
             "linked-" . time(),
+            'in',
             $sharedBucket['project']['id'],
             $sharedBucket['id']
         );
@@ -305,6 +306,7 @@ class BucketsTest extends StorageApiTestCase
 
         $linkedBucketId = $this->_client2->linkBucket(
             "linked-" . time(),
+            'in',
             $sharedBucket['project']['id'],
             $sharedBucket['id']
         );
