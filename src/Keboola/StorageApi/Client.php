@@ -1308,10 +1308,10 @@ class Client
     /**
      * Upload a sliced file to file uploads
      *
-     * @param array $slices
+     * @param array $slices list of slices that make the file
      * @param FileUploadOptions $options
      * @param FileUploadTransferOptions $transferOptions
-     * @return mixed
+     * @return int created file id
      * @throws ClientException
      */
     public function uploadSlicedFile(array $slices, FileUploadOptions $options, FileUploadTransferOptions $transferOptions = null)
