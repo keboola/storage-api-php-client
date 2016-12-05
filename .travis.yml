@@ -8,9 +8,9 @@ services:
 install:
  - docker-compose run odbc composer install -n --ignore-platform-reqs
  - docker-compose run -e AWS_ACCESS_KEY=$AWS_ODBC_KEY -e AWS_SECRET_KEY=$AWS_ODBC_SECRET odbc php docker/downloadOdbcDriver.php
+ - docker-compose build tests
 
 script:
- - docker-compose build tests
  - docker-compose run --rm tests ./vendor/bin/phpcs --standard=psr2 --ignore=vendor -n .
 
 deploy:
