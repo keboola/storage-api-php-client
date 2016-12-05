@@ -7,11 +7,10 @@
 
 namespace Keboola\Test\Common;
 
+use Keboola\StorageApi\Options\FileUploadTransferOptions;
 use Keboola\StorageApi\Options\GetFileOptions;
 use Keboola\Test\StorageApiTestCase;
-
 use \Keboola\StorageApi\Options\FileUploadOptions;
-use \Keboola\StorageApi\Options\ListFilesOptions;
 
 class SlicedFilesUploadTest extends StorageApiTestCase
 {
@@ -67,6 +66,51 @@ class SlicedFilesUploadTest extends StorageApiTestCase
         } else {
             $this->assertInternalType('integer', $file['maxAgeDays']);
             $this->assertEquals(180, $file['maxAgeDays']);
+        }
+    }
+
+    public function testUploadSlicedFileChunks()
+    {
+        $parts = 50;
+        $slices = [];
+        for ($i = 0; $i < $parts; $i++) {
+            $tempfile = tempnam(__DIR__ . "/tmp/", 'sapi-client-test-slice-' . $i);
+            $file = new \Keboola\Csv\CsvFile($tempfile);
+            $file->writeRow(["row" . $i, "value" . $i]);
+            $slices[] = $tempfile;
+        }
+        $fileUploadOptions = (new FileUploadOptions())
+            ->setIsSliced(true)
+            ->setFileName("manyparts.csv");
+        $fileUploadTransferOptions = (new FileUploadTransferOptions())
+            ->setChunkSize(20);
+        $fileId = $this->_client->uploadSlicedFile($slices, $fileUploadOptions, $fileUploadTransferOptions);
+        $file = $this->_client->getFile($fileId, (new GetFileOptions())->setFederationToken(true));
+
+        $fileSize = 0;
+        foreach ($slices as $filePath) {
+            $fileSize += filesize($filePath);
+        }
+        $this->assertEquals($fileSize, $file['sizeBytes']);
+        $manifest = json_decode(file_get_contents($file['url']), true);
+        $this->assertCount(count($slices), $manifest["entries"]);
+
+        $s3Client = new \Aws\S3\S3Client([
+            'version' => '2006-03-01',
+            'region' => $file['region'],
+            'credentials' => [
+                'key' => $file['credentials']['AccessKeyId'],
+                'secret' => $file['credentials']['SecretAccessKey'],
+                'token' => $file['credentials']['SessionToken'],
+            ]
+        ]);
+
+        foreach ($slices as $filePath) {
+            $object = $s3Client->getObject([
+                'Bucket' => $file['s3Path']['bucket'],
+                'Key' => $file["s3Path"]["key"] . basename($filePath)
+            ]);
+            $this->assertEquals(file_get_contents($filePath), $object['Body']);
         }
     }
 
