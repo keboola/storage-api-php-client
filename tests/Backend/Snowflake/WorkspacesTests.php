@@ -57,5 +57,4 @@ class WorkspacesTest extends StorageApiTestCase
         $timeoutParam = reset($params);
         $this->assertEquals($timeoutValue, (int) $timeoutParam['value']);
     }
-
 }
