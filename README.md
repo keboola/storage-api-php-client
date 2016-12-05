@@ -99,6 +99,19 @@ Than  you can run tests:
 
 `source ./set-env.sh && php ./vendor/bin/phpunit --testsuite common`
 
+### Buckets sharing test suite
+This test suite expects following environment variables set:
+ - `STORAGE_API_URL` - URL of Keboola Storage API (https://connection.keboola.com/)
+ - `STORAGE_API_TOKEN` and `STORAGE_API_LINKING_TOKEN` - Storage API tokens associated to users (Admin master token) with all permissions. STORAGE_API_TOKEN and STORAGE_API_LINKING_TOKEN have to be tokens to different project in same organization.
+ - `STORAGE_API_MAINTENANCE_URL` - URL for maintenance testing (https://maintenance-testing.keboola.com/)
+
+
+You can export variables manually or you can create and fill file `set-env.sharing.sh` as copy of attached `set-env.sharing.template.sh`.
+
+Than  you can run tests:
+
+`source ./set-env.sharing.sh && php ./vendor/bin/phpunit --testsuite sharing`
+
 ### Mysql backend test suite
 This test suite expects following environment variables set:
 - `STORAGE_API_URL` - URL of Keboola Storage API (https://connection.keboola.com/)
