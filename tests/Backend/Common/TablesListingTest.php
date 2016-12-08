@@ -96,7 +96,7 @@ class TablesListingTest extends StorageApiTestCase
         ));
 
         $firstTable = reset($tables);
-        $this->assertArrayHasKey('metadata', $tables);
+        $this->assertArrayHasKey('metadata', $firstTable);
         $this->assertEmpty($firstTable['metadata']);
 
         $metadataApi->postTableMetadata(
