@@ -202,7 +202,6 @@ class TablesListingTest extends StorageApiTestCase
         $this->assertEquals("keboola.sapi_client_tests", $firstTable['columnMetadata']['id'][1]['provider']);
         $this->assertArrayHasKey('key', $firstTable['columnMetadata']['id'][1]);
         $this->assertArrayHasKey('value', $firstTable['columnMetadata']['id'][1]);
-
     }
 
     public function testTableAttributes()
