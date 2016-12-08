@@ -360,7 +360,7 @@ class Table
         } else {
             $this->preSave();
 
-            $tempfile = tempnam(__DIR__ . "/tmp/", 'sapi-client-' . $this->_id . '-');
+            $tempfile = tempnam(sys_get_temp_dir(), 'sapi-client-' . $this->_id . '-');
             $file = new CsvFile($tempfile, $this->delimiter, $this->enclosure);
             $file->writeRow($this->header);
             foreach ($this->data as $row) {

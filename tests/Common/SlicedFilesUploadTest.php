@@ -74,7 +74,7 @@ class SlicedFilesUploadTest extends StorageApiTestCase
         $parts = 50;
         $slices = [];
         for ($i = 0; $i < $parts; $i++) {
-            $tempfile = tempnam(__DIR__ . "/tmp/", 'sapi-client-test-slice-' . $i);
+            $tempfile = tempnam(sys_get_temp_dir(), 'sapi-client-test-slice-' . $i);
             $file = new \Keboola\Csv\CsvFile($tempfile);
             $file->writeRow(["row" . $i, "value" . $i]);
             $slices[] = $tempfile;

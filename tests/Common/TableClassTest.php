@@ -99,7 +99,7 @@ class TableClassTest extends StorageApiTestCase
             array('4', 'nop', 'qrs', 'tuv', 'wxyz')
         );
 
-        $tempfile = tempnam(__DIR__ . "/tmp/", 'sapi-client-test-table-');
+        $tempfile = tempnam(sys_get_temp_dir(), 'sapi-client-test-table-');
         $file = new \Keboola\Csv\CsvFile($tempfile);
         foreach ($data as $row) {
             $file->writeRow($row);
