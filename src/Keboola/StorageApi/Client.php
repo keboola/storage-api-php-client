@@ -1408,57 +1408,78 @@ class Client
 
         $s3Client = new \Aws\S3\S3Client($options);
 
-        $asyncUploadOptions = [];
-        if ($newOptions->getIsEncrypted()) {
-            $asyncUploadOptions['ServerSideEncryption'] = $uploadParams['x-amz-server-side-encryption'];
-        }
-
         // prepare manifest object
         $manifest = [
             'entries' => []
         ];
         // split all slices into batch chunks and upload them separately
         $chunks = ceil(count($slices) / $transferOptions->getChunkSize());
+
+        /**
+         *
+         * MultipartUploaderFactory - create a MultipartUploader instance for the given file
+         *
+         * @param $filePath
+         * @return \Aws\S3\MultipartUploader
+         */
+        $multipartUploaderFactory = function ($filePath) use ($s3Client, $newOptions, $uploadParams) {
+            $uploaderOptions = [
+                'Bucket' => $uploadParams['bucket'],
+                'Key' => $uploadParams['key'] . baseName($filePath),
+                'ACL' => $uploadParams['acl']
+            ];
+            if ($newOptions->getIsEncrypted()) {
+                $uploaderOptions['before_initiate'] = function ($command) use ($uploadParams) {
+                    $command['ServerSideEncryption'] = $uploadParams['x-amz-server-side-encryption'];
+                };
+            }
+            return new \Aws\S3\MultipartUploader($s3Client, $filePath, $uploaderOptions);
+        };
+
         for ($i = 0; $i < $chunks; $i++) {
             $slicesChunk = array_slice($slices, $i * $transferOptions->getChunkSize(), $transferOptions->getChunkSize());
-            $finished = false;
+
+            // Initialize promises
+            $promises = [];
+            foreach ($slicesChunk as $filePath) {
+                $manifest['entries'][] = [
+                    "url" => "s3://" . $uploadParams['bucket'] . "/" . $uploadParams['key'] . basename($filePath)
+                ];
+                $uploader = $multipartUploaderFactory($filePath);
+                $promises[$filePath] = $uploader->promise();
+            }
+
             /*
-             * In case of an upload failure (\Aws\Exception\MultipartUploadException) there is no sane way of figuring out
-             * which part of which slice failed and partially restart upload for only that part.
-             * So the whole circus has to start over again.
+             * In case of an upload failure (\Aws\Exception\MultipartUploadException) there is no sane way of resuming
+             * failed uploads, the exception returns state for a single failed upload and I don't know which one it is
+             * So I need to iterate over all promises and retry all rejected promises from scratch
+             *
+             * TODO Retry counter? So it does not loop infinitely.
+             * Currently it stops on too many open files if looping for too long
+             *
              */
+            $finished = false;
             do {
                 try {
-                    $promises = [];
-                    $fileHandles = [];
-                    foreach ($slicesChunk as $filePath) {
-                        $fh = @fopen($filePath, 'r');
-                        $fileHandles[] = $fh;
-                        if ($fh === false) {
-                            throw new ClientException("Error on file upload to S3: " . $filePath, null, null, 'fileNotReadable');
-                        }
-                        $promises[] = $s3Client->uploadAsync(
-                            $uploadParams['bucket'],
-                            $uploadParams['key'] . basename($filePath),
-                            $fh,
-                            $uploadParams['acl'],
-                            ["params" => $asyncUploadOptions]
-                        );
-                        $manifest['entries'][] = [
-                            "url" => "s3://" . $uploadParams['bucket'] . "/" . $uploadParams['key'] . basename($filePath)
-                        ];
-                    }
                     \GuzzleHttp\Promise\unwrap($promises);
                     $finished = true;
-                    foreach ($fileHandles as $fh) {
-                        fclose($fh);
-                    }
                 } catch (\Aws\Exception\MultipartUploadException $e) {
-                    $this->log('multipart-upload-exception: ' . $e->getMessage());
+                    $unwrappedPromises = $promises;
+                    $promises = [];
+                    /**
+                     * @var $promise \GuzzleHttp\Promise\Promise
+                     */
+                    foreach ($unwrappedPromises as $filePath => $promise) {
+                        if ($promise->getState() == 'rejected') {
+                            $uploader = $multipartUploaderFactory($filePath);
+                            $promises[$filePath] = $uploader->promise();
+                        }
+                    }
                 }
-            } while (!isset($finished));
+            } while (!$finished);
         }
 
+        // Upload manifest
         $manifestUploadOptions = [
             'Bucket' => $uploadParams['bucket'],
             'Key' => $uploadParams['key'] . 'manifest',
@@ -1469,6 +1490,7 @@ class Client
         }
         $s3Client->putObject($manifestUploadOptions);
 
+        // Cleanup
         if ($fs) {
             $fs->remove($currentUploadDir);
         }
