@@ -260,8 +260,6 @@ class Client
             "sourceBucketId" => $sourceBucketId,
         );
 
-        //@FIXME list if bucket is allready shared
-
         $result = $this->apiPost("storage/buckets", $options);
 
         $this->log("Shared bucket {$result["id"]} linked to the project", array("options" => $options, "result" => $result));
@@ -292,22 +290,13 @@ class Client
         return $this->apiDelete($url);
     }
 
-    public function shareBucket($bucketId, $options = array())
+    public function shareBucket($bucketId)
     {
         $url = "storage/buckets/" . $bucketId . "/share";
 
-//        $allowedOptions = array(
-//            'name',
-//            'stage',
-//            'description',
-//        );
-//
-//        $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
-        $filteredOptions = [];
+        $result = $this->apiPost($url);
 
-        $result = $this->apiPost($url, $options);
-
-        $this->log("Bucket {$result["id"]} shared", array("options" => $options, "result" => $result));
+        $this->log("Bucket {$result["id"]} shared", array("result" => $result));
 
         return $result["id"];
     }
