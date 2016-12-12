@@ -321,19 +321,14 @@ class BucketsTest extends StorageApiTestCase
                 $this->fail('Shared table delete should fail');
             } catch (ClientException $e) {
                 $this->assertEquals('tables.cannotDeletedTableWithAliases', $e->getStringCode());
-            //    $this->assertEquals('tables.cannotDeleteTableWithLinks', $e->getStringCode());
             }
 
-            //@FIXME
-            /*
             try {
                 $this->_client->deleteTableColumn($table['id'], 'name');
                 $this->fail('Shared table column delete should fail');
             } catch (ClientException $e) {
-                $this->assertEquals('tables.cannotDeleteRowWithLinks', $e->getStringCode());
-                $this->assertEquals('tables.cannotDeleteRowWithLinks', $e->getStringCode());
+                $this->assertEquals('storage.buckets.alreadyLinked', $e->getStringCode());
             }
-            */
         }
 
         // bucket drop
