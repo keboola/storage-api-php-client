@@ -16,10 +16,6 @@
 		<directory>tests/Common</directory>
 	</testsuite>
 
-	<testsuite name="sharing">
-		<directory>tests/Sharing</directory>
-	</testsuite>
-
 	<testsuite name="backend-mysql">
 		<directory>tests/Backend/Common</directory>
 		<file>tests/Backend/Aliases/SimpleAliasTest.php</file>
