@@ -167,7 +167,7 @@ You can export variables manually or you can create and fill file `set-env.mixed
 
 Than  you can run tests:
 
-`source ./set-env.mixed.sh && php ./vendor/bin/phpunit --testsuite backend-mixed`
+`source ./set-env.mixed.sh && docker-compose run --rm tests sh -c 'composer install && ./vendor/bin/phpunit --testsuite backend-mixed'`
 
 
 
