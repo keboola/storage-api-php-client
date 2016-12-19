@@ -481,7 +481,7 @@ class SharingTest extends StorageApiTestCase
 
 
         $this->assertEquals('workspaceLoad', $afterJobs[0]['operationName']);
-        $this->assertNotEquals($initialJobs[0]['id'], $afterJobs[0]['id']);
+        $this->assertNotEquals(empty($initialJobs) ? 0 : $initialJobs[0]['id'], $afterJobs[0]['id']);
 
         // block until async events are processed, processing in order is not guaranteed but it should work most of time
         $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
