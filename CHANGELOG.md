@@ -1,9 +1,12 @@
+## 4.20.0 (2016-12-19)
+ * [Feat] Buckets linking between projects
+
 ## 4.19.0 (2016-12-05)
- [Feat] [Metadata](http://docs.keboola.apiary.io/#reference/metadata) supported
- [Fix] `uploadSlicedFile` use MultipartUploader
+ * [Feat] [Metadata](http://docs.keboola.apiary.io/#reference/metadata) supported
+ * [Fix] `uploadSlicedFile` use MultipartUploader
 
 ## 4.18.0 (2016-12-05)
- [Feat] `uploadSlicedFile` upload in chunks, chunk size is parametrized
+ * [Feat] `uploadSlicedFile` upload in chunks, chunk size is parametrized
 
 ## 4.17.0 (2016-11-25)
  * [Feat] `uploadSlicedFile` method added
