@@ -244,6 +244,31 @@ class Client
     }
 
     /**
+     * Link shared bucket to project
+     *
+     * @param string $name new bucket name
+     * @param string $stage bucket stage
+     * @param int $sourceProjectId
+     * @param int $sourceBucketId
+     * @return mixed
+     */
+    public function linkBucket($name, $stage, $sourceProjectId, $sourceBucketId)
+    {
+        $options = array(
+            "name" => $name,
+            "stage" => $stage,
+            "sourceProjectId" => $sourceProjectId,
+            "sourceBucketId" => $sourceBucketId,
+        );
+
+        $result = $this->apiPost("storage/buckets", $options);
+
+        $this->log("Shared bucket {$result["id"]} linked to the project", array("options" => $options, "result" => $result));
+
+        return $result["id"];
+    }
+
+    /**
      *
      * Delete a bucket. Only empty buckets can be deleted
      *
@@ -265,6 +290,51 @@ class Client
 
         return $this->apiDelete($url);
     }
+
+    public function shareBucket($bucketId)
+    {
+        $url = "storage/buckets/" . $bucketId . "/share";
+
+        $result = $this->apiPost($url);
+
+        $this->log("Bucket {$result["id"]} shared", array("result" => $result));
+
+        return $result["id"];
+    }
+
+    public function unshareBucket($bucketId)
+    {
+        $url = "storage/buckets/" . $bucketId . "/share";
+
+        return $this->apiDelete($url);
+    }
+
+    public function isSharedBucket($bucketId)
+    {
+        try {
+            $url = "storage/buckets/" . $bucketId . "/share";
+            $result = $this->apiGet($url);
+
+            if (!empty($result['sharing'])) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (ClientException $e) {
+            if ($e->getCode() == 404) {
+                return false;
+            }
+            throw $e;
+        }
+    }
+
+    public function listSharedBuckets()
+    {
+        $url = "storage/shared-buckets";
+
+        return $this->apiGet($url);
+    }
+
 
     /**
      *
@@ -2078,7 +2148,7 @@ class Client
      * Create table primary key
      *
      * @param string $tableId
-     * @param string $columns
+     * @param array $columns
      */
     public function createTablePrimaryKey($tableId, $columns)
     {

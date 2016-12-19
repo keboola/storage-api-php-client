@@ -159,7 +159,7 @@ These tests require project with all backend assigned (mysql, redshift, snowflak
 
 This test suite expects following environment variables set:
  - `STORAGE_API_URL` - URL of Keboola Storage API (https://connection.keboola.com/)
- - `STORAGE_API_TOKEN` - Storage API token associated to user (Admin master token) with all permissions. Project must have assigned `mysql`, `snowflake` and `redshift` backend.
+ - `STORAGE_API_TOKEN` and `STORAGE_API_LINKING_TOKEN` - Storage API token associated to user (Admin master token) with all permissions. Project must have assigned `mysql`, `snowflake` and `redshift` backend. STORAGE_API_TOKEN and STORAGE_API_LINKING_TOKEN have to be tokens to different project in same organization.
  - `STORAGE_API_MAINTENANCE_URL` - URL for maintenance testing (https://maintenance-testing.keboola.com/)
 
 
@@ -167,7 +167,7 @@ You can export variables manually or you can create and fill file `set-env.mixed
 
 Than  you can run tests:
 
-`source ./set-env.mixed.sh && php ./vendor/bin/phpunit --testsuite backend-mixed`
+`source ./set-env.mixed.sh && docker-compose run --rm tests sh -c 'composer install && ./vendor/bin/phpunit --testsuite backend-mixed'`
 
 
 
