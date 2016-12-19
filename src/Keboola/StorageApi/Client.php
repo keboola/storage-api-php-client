@@ -314,12 +314,7 @@ class Client
         try {
             $url = "storage/buckets/" . $bucketId . "/share";
             $result = $this->apiGet($url);
-
-            if (!empty($result['sharing'])) {
-                return true;
-            } else {
-                return false;
-            }
+            return !empty($result['sharing']);
         } catch (ClientException $e) {
             if ($e->getCode() == 404) {
                 return false;
