@@ -294,11 +294,11 @@ class Client
     {
         $url = "storage/buckets/" . $bucketId . "/share";
 
-        $result = $this->apiPost($url);
+        $result = $this->apiPost($url, [], false);
 
-        $this->log("Bucket {$result["id"]} shared", array("result" => $result));
+        $this->log("Bucket {$bucketId} shared", array("result" => $result));
 
-        return $result["id"];
+        return $result;
     }
 
     public function unshareBucket($bucketId)
