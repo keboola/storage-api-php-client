@@ -311,16 +311,11 @@ class Client
 
     public function isSharedBucket($bucketId)
     {
-        try {
-            $url = "storage/buckets/" . $bucketId . "/share";
-            $result = $this->apiGet($url);
-            return !empty($result['sharing']);
-        } catch (ClientException $e) {
-            if ($e->getCode() == 404) {
-                return false;
-            }
-            throw $e;
-        }
+        $url = "storage/buckets/" . $bucketId;
+
+        $result = $this->apiGet($url);
+
+        return !empty($result['sharing']);
     }
 
     public function listSharedBuckets()
