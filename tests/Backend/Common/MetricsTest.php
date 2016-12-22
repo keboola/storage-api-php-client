@@ -98,9 +98,8 @@ class MetricsTest extends StorageApiTestCase
         $this->assertFalse($metrics['inCompressed']);
 
         $this->assertFalse($metrics['outCompressed']);
-        $this->assertGreaterThan(0, $metrics['outBytes']);
+        $this->assertEquals(0, $metrics['outBytes']);
         $this->assertGreaterThan(0, $metrics['outBytesUncompressed']);
-        $this->assertEquals($metrics['outBytes'], $metrics['outBytesUncompressed']);
 
         $previousMetrics = $metrics;
 
