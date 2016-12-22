@@ -1,3 +1,7 @@
+## 4.20.1 (2016-12-22)
+ * [Fix] bucket sharing fixes
+ * [Fix] both symfony 2 and 3 supported
+
 ## 4.20.0 (2016-12-19)
  * [Feat] Buckets linking between projects
 
