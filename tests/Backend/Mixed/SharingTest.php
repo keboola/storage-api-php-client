@@ -120,6 +120,12 @@ class SharingTest extends StorageApiTestCase
         return $this->_bucketIds;
     }
 
+    public function testOrganizationAdminInTokenVerify()
+    {
+        $token = $this->_client->verifyToken();
+        $this->assertTrue($token['admin']['isOrganizationMember']);
+    }
+
     /**
      * @dataProvider sharingBackendData
      * @throws ClientException
