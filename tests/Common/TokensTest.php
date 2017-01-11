@@ -102,6 +102,7 @@ class TokensTest extends StorageApiTestCase
         $keen = $this->_client->getKeenReadCredentials();
         $this->assertArrayHasKey('keenToken', $keen);
         $this->assertNotEmpty($keen['keenToken']);
+        $this->assertNotEmpty($keen['projectId']);
     }
 
     public function testInvalidToken()
