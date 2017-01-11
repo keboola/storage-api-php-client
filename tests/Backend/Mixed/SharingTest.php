@@ -597,7 +597,14 @@ class SharingTest extends StorageApiTestCase
         );
 
         // now we'll load another table and use the preserve parameters to check that all tables are present
-        $mapping3 = array("source" => $mapping1['source'], "destination" => "table3");
+        // lets create it now to see if the table permissions are correctly propagated
+        $table3Id = $this->_client->createTable(
+            $bucketId,
+            'numbersLater',
+            new CsvFile(__DIR__ . '/../../_data/numbers.csv')
+        );
+
+        $mapping3 = array("source" => str_replace($bucketId, $linkedId, $table3Id), "destination" => "table3");
         $workspaces->loadWorkspaceData($workspace['id'], array("input" => array($mapping3), "preserve" => true));
 
         $tables = $backend->getTables();
