@@ -3339,6 +3339,7 @@ List all configs for a component including all config rows.
 #### Parameters
 
 * **component_id** - component id
+* **isDeleted** - Default filter will return only active configurations. If you want to list deleted configurations, set this parameter to `1`.
 
 + Parameters
     + component_id: id of the component
@@ -3367,6 +3368,7 @@ List all configs for a component including all config rows.
                 },
                 "version": 2,
                 "changeDescription": "Row row1 added",
+                "isDeleted": false,
                 "configuration": {
                   "key1": "val1"
                 },
@@ -3462,13 +3464,20 @@ Get component configuration
           "id": "main-1",
           "name": "My first db config",
           "description": "",
+          "isDeleted": false,
           "configuration": {},
           "state": {},
           "rows": {}
         }
 
 ### Delete config [DELETE]
-Delete configuration configuration
+Delete configuration.
+
+Configuration remains still available in system.
+You can [list deleted](#reference/component-configurations/component-configs/list-configs) configurations or [restore](#reference/component-configurations/manage-configs/restore-deleted-config) configuration.
+Other operations with configuration are restricted.
+
+Calling `delete` API call again will delete configuration permanently.
 
 + Request
     + Headers
@@ -3476,6 +3485,27 @@ Delete configuration configuration
             X-StorageApi-Token: your_token
 
 + Response 204
+
+### Restore deleted config [POST]
+
+Removes `isDeleted` flag of deleted configuration
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+
+        {
+          "id": "main-1",
+          "name": "My first db config",
+          "description": "",
+          "isDeleted": false,
+          "configuration": {},
+          "state": {},
+          "rows": {}
+        }
 
 ### Update config [PUT]
 Update configuration
