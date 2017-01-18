@@ -1860,10 +1860,10 @@ Examples: `-2 days`, `1360138863`, `2013-02-12T15:19:21+00:00`
             }
 
 
-# Group Table Simple Aliases
+# Group Table  Aliases
 
 
-Simple alias table behaves like a Database View as it does not contain any data. It is simply a link to already existing data.
+Alias table behaves like a Database View as it does not contain any data. It is simply a link to already existing data.
 When you requests data from alias table, you will receive data from source table.
 It is not  allowed to write data into alias table. In all other cases alias table behaves in same manner as any other table.
 Simple aliases are supported in `MySQL` backend projects.
@@ -1993,69 +1993,6 @@ All columns from source table will be immediately synchronized into alias table
 
 + Response 204
 
-
-
-# Group Table Custom SQL Aliases
-
-Alias table behaves like a Database View as it does not contain any data. It is simply a link to already existing data.
-Alias table is defined by SQL select like `SELECT * FROM "in.c-main"."my-demo"`. You can access all your tables in buckets, select can also join data from multiple tables.
-These aliases are supported only in `Redshift` backend.
-
-
-## Manage Tables and Aliases [/v2/storage/tables/{table_id}]
-
-### Update alias select [PUT]
-
-#### Parameters
-
-* **selectSql** (required) SQL which will be used for the view
-
-+ Request
-    + Headers
-
-            X-StorageApi-Token: your_token
-
-    + Body
-
-            ------WebKitFormBoundaryqPuY88H6m4oIp6zq
-            Content-Disposition: form-data; name="name"
-            leads
-            Content-Disposition: form-data; name="selectSql"
-            SELECT u.id, u.name, a.address FROM "out.c-main".users u LEFT JOIN "out.c-main".addresses a ON (u.id=a.idUser) WHERE a.city LIKE 'Prague'
-            ------WebKitFormBoundaryqPuY88H6m4oIp6zq--
-
-+ Response 201
-    + Headers
-
-            Content-type: application/json
-
-    + Body
-
-            {
-              "uri": "https:\/\/connection.keboola.com\/v2/storage\/tables\/out.c-main.leads",
-              "id": "out.c-main.leads",
-              "name": "leads",
-              "gdName": "leads",
-              "created": "2012-08-07 14:53:27",
-              "primaryKey": [
-              ],
-              "lastImportDate": null,
-              "columns": [
-                "id",
-                "name",
-                "address"
-              ],
-              "selectSql": "SELECT u.id, u.name, a.address FROM "out.c-main".users u LEFT JOIN "out.c-main".addresses a ON (u.id=a.idUser) WHERE a.city LIKE 'Prague'",
-              "bucket": {
-                "uri": "https:\/\/connection.keboola.com\/v2\/storage\/buckets\/out.c-main",
-                "id": "out.c-main",
-                "name": "c-main",
-                "stage": "out",
-                "description": "Main out",
-                "tables": "https:\/\/connection.keboola.com\/v2\/storage\/buckets\/out.c-main\/tables",
-                "created": "2012-08-07 13:49:22"
-              }
-            }
 
 
 # Group Table Snapshotting
