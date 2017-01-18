@@ -5,7 +5,7 @@
  * Date: 03/05/16
  * Time: 09:45
  */
-namespace Keboola\Test\Backend\Aliases;
+namespace Keboola\Test\Backend\Common;
 
 use Keboola\StorageApi\TableExporter;
 use Keboola\Test\StorageApiTestCase;
