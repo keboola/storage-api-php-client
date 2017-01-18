@@ -30,7 +30,6 @@
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
 		<directory>tests/Backend/Common</directory>
 		<directory>tests/Backend/Redshift</directory>
-		<file>tests/Backend/Aliases/CustomSqlAliasTest.php</file>
 		<file>tests/Backend/Aliases/SimpleAliasTest.php</file>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>
@@ -46,7 +45,6 @@
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
 		<directory>tests/Backend/Snowflake</directory>
 		<file>tests/Backend/Aliases/SimpleAliasTest.php</file>
-		<file>tests/Backend/Aliases/CustomSqlAliasTest.php</file>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>
 
