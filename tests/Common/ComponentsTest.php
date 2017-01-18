@@ -10,6 +10,7 @@
 namespace Keboola\Test\Common;
 
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
 use Keboola\Test\StorageApiTestCase;
 
 class ComponentsTest extends StorageApiTestCase
@@ -26,178 +27,214 @@ class ComponentsTest extends StorageApiTestCase
         }
 
         // erase all deleted configurations
-		$index = $this->_client->indexAction();
-		foreach ($index['components'] as $component) {
-			foreach ($components->listComponentConfigurations($component['id'], ['isDeleted' => 1]) as $configuration) {
-				$components->deleteConfiguration($component['id'], $configuration['id']);
-			}
-		}
+        $index = $this->_client->indexAction();
+        foreach ($index['components'] as $component) {
+            $listOptions = new ListComponentConfigurationsOptions();
+            $listOptions->setComponentId($component['id']);
+            $listOptions->setIsDeleted(true);
+
+            foreach ($components->listComponentConfigurations($listOptions) as $configuration) {
+                $components->deleteConfiguration($component['id'], $configuration['id']);
+            }
+        }
     }
 
-	public function testComponentConfigIdValidation()
-	{
-		$componentId = 'wr-db';
-		$configurationId = 'main-1';
-		$components = new \Keboola\StorageApi\Components($this->_client);
+    public function testComponentConfigIdValidation()
+    {
+        $componentId = 'wr-db';
+        $configurationId = 'main-1';
+        $components = new \Keboola\StorageApi\Components($this->_client);
 
-		$this->assertCount(0, $components->listComponentConfigurations($componentId));
-		$this->assertCount(0, $components->listComponentConfigurations($componentId, ['isDeleted' => 1]));
+        $this->assertCount(0, $components->listComponentConfigurations(
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
+        ));
+        $this->assertCount(0, $components->listComponentConfigurations(
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId)->setIsDeleted(true)
+        ));
 
-		$components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
-			->setComponentId($componentId)
-			->setConfigurationId($configurationId)
-			->setName('Main')
-			->setDescription('some desc'));
+        $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setName('Main')
+            ->setDescription('some desc'));
 
-		$component = $components->getConfiguration($componentId, $configurationId);
-		$this->assertEquals('Main', $component['name']);
-		$this->assertEquals('some desc', $component['description']);
-		$this->assertEmpty($component['configuration']);
-		$this->assertEmpty($component['changeDescription']);
-		$this->assertFalse($component['isDeleted']);
-		$this->assertEquals(1, $component['version']);
-		$this->assertInternalType('int', $component['version']);
-		$this->assertInternalType('int', $component['creatorToken']['id']);
+        $component = $components->getConfiguration($componentId, $configurationId);
+        $this->assertEquals('Main', $component['name']);
+        $this->assertEquals('some desc', $component['description']);
+        $this->assertEmpty($component['configuration']);
+        $this->assertEmpty($component['changeDescription']);
+        $this->assertFalse($component['isDeleted']);
+        $this->assertEquals(1, $component['version']);
+        $this->assertInternalType('int', $component['version']);
+        $this->assertInternalType('int', $component['creatorToken']['id']);
 
-		$components->deleteConfiguration($componentId, $configurationId);
+        $components->deleteConfiguration($componentId, $configurationId);
 
-		$this->assertCount(0, $components->listComponentConfigurations($componentId));
+        $this->assertCount(0, $components->listComponentConfigurations(
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
+        ));
 
-		$componentList = $components->listComponentConfigurations($componentId, ['isDeleted' => 1]);
-		$this->assertCount(1, $componentList);
+        $componentList = $components->listComponentConfigurations(
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId)->setIsDeleted(true)
+        );
+        $this->assertCount(1, $componentList);
 
-		$component = reset($componentList);
-		$this->assertEquals($configurationId, $component['id']);
-		$this->assertEquals('Main', $component['name']);
-		$this->assertEquals('some desc', $component['description']);
-		$this->assertNotEmpty($component['changeDescription']);
-		$this->assertTrue($component['isDeleted']);
-		$this->assertEquals(2, $component['version']);
-		$this->assertInternalType('int', $component['version']);
-		$this->assertInternalType('int', $component['creatorToken']['id']);
+        $component = reset($componentList);
+        $this->assertEquals($configurationId, $component['id']);
+        $this->assertEquals('Main', $component['name']);
+        $this->assertEquals('some desc', $component['description']);
+        $this->assertNotEmpty($component['changeDescription']);
+        $this->assertTrue($component['isDeleted']);
+        $this->assertEquals(2, $component['version']);
+        $this->assertInternalType('int', $component['version']);
+        $this->assertInternalType('int', $component['creatorToken']['id']);
 
-		try {
-			$components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
-				->setComponentId($componentId)
-				->setConfigurationId($configurationId)
-				->setName('Main')
-				->setDescription('some desc'));
+        try {
+            $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
+                ->setComponentId($componentId)
+                ->setConfigurationId($configurationId)
+                ->setName('Main')
+                ->setDescription('some desc'));
 
-			$this->fail("Creating config with existing id should fail");
-		} catch (ClientException $e) {
-			if ($e->getStringCode() !== 'configurationAlreadyExists' || $e->getCode() !== 400) {
-				throw $e;
-			}
-		}
-	}
+            $this->fail("Creating config with existing id should fail");
+        } catch (ClientException $e) {
+            if ($e->getStringCode() !== 'configurationAlreadyExists' || $e->getCode() !== 400) {
+                throw $e;
+            }
+        }
+    }
 
-	public function testComponentConfigDelete()
-	{
-		$componentId = 'wr-db';
-		$configurationId = 'main-1';
-		$components = new \Keboola\StorageApi\Components($this->_client);
+    public function testComponentConfigDelete()
+    {
+        $componentId = 'wr-db';
+        $configurationId = 'main-1';
+        $components = new \Keboola\StorageApi\Components($this->_client);
 
-		$this->assertCount(0, $components->listComponentConfigurations($componentId));
-		$this->assertCount(0, $components->listComponentConfigurations($componentId, ['isDeleted' => 1]));
+        $this->assertCount(0, $components->listComponentConfigurations(
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
+        ));
+        $this->assertCount(0, $components->listComponentConfigurations(
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId)->setIsDeleted(true)
+        ));
 
-		$components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
-			->setComponentId($componentId)
-			->setConfigurationId($configurationId)
-			->setName('Main')
-			->setDescription('some desc'));
+        $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setName('Main')
+            ->setDescription('some desc'));
 
-		$component = $components->getConfiguration($componentId, $configurationId);
-		$this->assertEquals('Main', $component['name']);
-		$this->assertEquals('some desc', $component['description']);
-		$this->assertEmpty($component['configuration']);
-		$this->assertEmpty($component['changeDescription']);
-		$this->assertFalse($component['isDeleted']);
-		$this->assertEquals(1, $component['version']);
-		$this->assertInternalType('int', $component['version']);
-		$this->assertInternalType('int', $component['creatorToken']['id']);
+        $component = $components->getConfiguration($componentId, $configurationId);
+        $this->assertEquals('Main', $component['name']);
+        $this->assertEquals('some desc', $component['description']);
+        $this->assertEmpty($component['configuration']);
+        $this->assertEmpty($component['changeDescription']);
+        $this->assertFalse($component['isDeleted']);
+        $this->assertEquals(1, $component['version']);
+        $this->assertInternalType('int', $component['version']);
+        $this->assertInternalType('int', $component['creatorToken']['id']);
 
-		$components->deleteConfiguration($componentId, $configurationId);
+        $components->deleteConfiguration($componentId, $configurationId);
 
-		$this->assertCount(0, $components->listComponentConfigurations($componentId));
+        $this->assertCount(0, $components->listComponentConfigurations(
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
+        ));
 
-		$componentList = $components->listComponentConfigurations($componentId, ['isDeleted' => 1]);
-		$this->assertCount(1, $componentList);
+        $componentList = $components->listComponentConfigurations(
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId)->setIsDeleted(true)
+        );
+        $this->assertCount(1, $componentList);
 
-		$component = reset($componentList);
-		$this->assertEquals($configurationId, $component['id']);
-		$this->assertEquals('Main', $component['name']);
-		$this->assertEquals('some desc', $component['description']);
-		$this->assertNotEmpty($component['changeDescription']);
-		$this->assertTrue($component['isDeleted']);
-		$this->assertEquals(2, $component['version']);
-		$this->assertInternalType('int', $component['version']);
-		$this->assertInternalType('int', $component['creatorToken']['id']);
+        $component = reset($componentList);
+        $this->assertEquals($configurationId, $component['id']);
+        $this->assertEquals('Main', $component['name']);
+        $this->assertEquals('some desc', $component['description']);
+        $this->assertNotEmpty($component['changeDescription']);
+        $this->assertTrue($component['isDeleted']);
+        $this->assertEquals(2, $component['version']);
+        $this->assertInternalType('int', $component['version']);
+        $this->assertInternalType('int', $component['creatorToken']['id']);
 
-		$components->deleteConfiguration($componentId, $configurationId);
+        $components->deleteConfiguration($componentId, $configurationId);
 
-		$this->assertCount(0, $components->listComponentConfigurations($componentId));
-		$this->assertCount(0, $components->listComponentConfigurations($componentId, ['isDeleted' => 1]));
-	}
+        $this->assertCount(0, $components->listComponentConfigurations(
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
+        ));
+        $this->assertCount(0, $components->listComponentConfigurations(
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId)->setIsDeleted(true)
+        ));
+    }
 
     public function testComponentConfigRestore()
-	{
-		$componentId = 'wr-db';
-		$configurationId = 'main-1';
-		$components = new \Keboola\StorageApi\Components($this->_client);
+    {
+        $componentId = 'wr-db';
+        $configurationId = 'main-1';
+        $components = new \Keboola\StorageApi\Components($this->_client);
 
-		$this->assertCount(0, $components->listComponentConfigurations($componentId));
-		$this->assertCount(0, $components->listComponentConfigurations($componentId, ['isDeleted' => 1]));
+        $this->assertCount(0, $components->listComponentConfigurations(
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
+        ));
+        $this->assertCount(0, $components->listComponentConfigurations(
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId)->setIsDeleted(true)
+        ));
 
-		$components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
-			->setComponentId($componentId)
-			->setConfigurationId($configurationId)
-			->setName('Main')
-			->setDescription('some desc'));
+        $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setName('Main')
+            ->setDescription('some desc'));
 
-		$component = $components->getConfiguration($componentId, $configurationId);
-		$this->assertEquals('Main', $component['name']);
-		$this->assertEquals('some desc', $component['description']);
-		$this->assertEmpty($component['configuration']);
-		$this->assertEmpty($component['changeDescription']);
-		$this->assertFalse($component['isDeleted']);
-		$this->assertEquals(1, $component['version']);
-		$this->assertInternalType('int', $component['version']);
-		$this->assertInternalType('int', $component['creatorToken']['id']);
+        $component = $components->getConfiguration($componentId, $configurationId);
+        $this->assertEquals('Main', $component['name']);
+        $this->assertEquals('some desc', $component['description']);
+        $this->assertEmpty($component['configuration']);
+        $this->assertEmpty($component['changeDescription']);
+        $this->assertFalse($component['isDeleted']);
+        $this->assertEquals(1, $component['version']);
+        $this->assertInternalType('int', $component['version']);
+        $this->assertInternalType('int', $component['creatorToken']['id']);
 
-		$components->deleteConfiguration($componentId, $configurationId);
+        $components->deleteConfiguration($componentId, $configurationId);
 
-		$this->assertCount(0, $components->listComponentConfigurations($componentId));
+        $this->assertCount(0, $components->listComponentConfigurations(
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
+        ));
 
-		$componentList = $components->listComponentConfigurations($componentId, ['isDeleted' => 1]);
-		$this->assertCount(1, $componentList);
+        $componentList = $components->listComponentConfigurations(
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId)->setIsDeleted(true)
+        );
+        $this->assertCount(1, $componentList);
 
-		$component = reset($componentList);
-		$this->assertEquals($configurationId, $component['id']);
-		$this->assertEquals('Main', $component['name']);
-		$this->assertEquals('some desc', $component['description']);
-		$this->assertNotEmpty('Configuration deleted');
-		$this->assertTrue($component['isDeleted']);
-		$this->assertEquals(2, $component['version']);
-		$this->assertInternalType('int', $component['version']);
-		$this->assertInternalType('int', $component['creatorToken']['id']);
+        $component = reset($componentList);
+        $this->assertEquals($configurationId, $component['id']);
+        $this->assertEquals('Main', $component['name']);
+        $this->assertEquals('some desc', $component['description']);
+        $this->assertNotEmpty('Configuration deleted');
+        $this->assertTrue($component['isDeleted']);
+        $this->assertEquals(2, $component['version']);
+        $this->assertInternalType('int', $component['version']);
+        $this->assertInternalType('int', $component['creatorToken']['id']);
 
-		$components->restoreComponentConfiguration($componentId, $configurationId);
+        $components->restoreComponentConfiguration($componentId, $configurationId);
 
-		$this->assertCount(0, $components->listComponentConfigurations($componentId, ['isDeleted' => 1]));
+        $this->assertCount(0, $components->listComponentConfigurations(
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId)->setIsDeleted(true)
+        ));
 
-		$componentList = $components->listComponentConfigurations($componentId);
-		$this->assertCount(1, $componentList);
+        $componentList = $components->listComponentConfigurations(
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
+        );
+        $this->assertCount(1, $componentList);
 
-		$component = reset($componentList);
-		$this->assertEquals($configurationId, $component['id']);
-		$this->assertEquals('Main', $component['name']);
-		$this->assertEquals('some desc', $component['description']);
-		$this->assertNotEmpty('Configuration restored');
-		$this->assertFalse($component['isDeleted']);
-		$this->assertEquals(3, $component['version']);
-		$this->assertInternalType('int', $component['version']);
-		$this->assertInternalType('int', $component['creatorToken']['id']);
-	}
+        $component = reset($componentList);
+        $this->assertEquals($configurationId, $component['id']);
+        $this->assertEquals('Main', $component['name']);
+        $this->assertEquals('some desc', $component['description']);
+        $this->assertNotEmpty('Configuration restored');
+        $this->assertFalse($component['isDeleted']);
+        $this->assertEquals(3, $component['version']);
+        $this->assertInternalType('int', $component['version']);
+        $this->assertInternalType('int', $component['creatorToken']['id']);
+    }
 
     public function testComponentConfigCreate()
     {
@@ -1693,11 +1730,11 @@ class ComponentsTest extends StorageApiTestCase
             $configuration2->getConfigurationId()
         );
 
-		$rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
-			->setComponentId($configuration->getComponentId())
-			->setConfigurationId($configuration->getConfigurationId()));
+        $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
+            ->setComponentId($configuration->getComponentId())
+            ->setConfigurationId($configuration->getConfigurationId()));
 
-		$this->assertCount(2, $rows);
+        $this->assertCount(2, $rows);
 
         $this->assertArrayHasKey('id', $row);
         $this->assertArrayHasKey('version', $row);
@@ -1717,7 +1754,9 @@ class ComponentsTest extends StorageApiTestCase
     {
         $components = new \Keboola\StorageApi\Components($this->_client);
 
-        $configs = $components->listComponentConfigurations('transformation');
+        $configs = $components->listComponentConfigurations(
+            (new ListComponentConfigurationsOptions())->setComponentId('transformation')
+        );
         $this->assertEmpty($configs);
 
         $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
@@ -1729,7 +1768,9 @@ class ComponentsTest extends StorageApiTestCase
             ->setConfigurationId('main-2')
             ->setName('Main 2'));
 
-        $configs = $components->listComponentConfigurations('transformation');
+        $configs = $components->listComponentConfigurations(
+            (new ListComponentConfigurationsOptions())->setComponentId('transformation')
+        );
         $this->assertCount(2, $configs);
     }
 
@@ -1737,7 +1778,9 @@ class ComponentsTest extends StorageApiTestCase
     {
         $components = new \Keboola\StorageApi\Components($this->_client);
 
-        $configs = $components->listComponentConfigurations('transformation');
+        $configs = $components->listComponentConfigurations(
+            (new ListComponentConfigurationsOptions())->setComponentId('transformation')
+        );
         $this->assertEmpty($configs);
 
         $configData1 = ['key1' => 'val1'];
@@ -1753,7 +1796,9 @@ class ComponentsTest extends StorageApiTestCase
         $components->addConfigurationRow((new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration))
             ->setRowId('row1')
             ->setConfiguration($configData2));
-        $configs = $components->listComponentConfigurations('transformation');
+        $configs = $components->listComponentConfigurations(
+            (new ListComponentConfigurationsOptions())->setComponentId('transformation')
+        );
         $this->assertCount(1, $configs);
         $this->assertEquals($configData1, $configs[0]['configuration']);
         $this->assertEquals($configData2, $configs[0]['rows'][0]['configuration']);

@@ -11,6 +11,7 @@ namespace Keboola\StorageApi;
 
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
+use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
@@ -98,12 +99,20 @@ class Components
         return $this->client->apiGet("storage/components?" . http_build_query($options->toParamsArray()));
     }
 
-    public function listComponentConfigurations($componentId)
+    public function listComponentConfigurations(ListComponentConfigurationsOptions $options = null)
     {
-        return $this->client->apiGet("storage/components/{$componentId}/configs");
+        if (!$options) {
+            $options = new ListConfigurationVersionsOptions();
+        }
+        return $this->client->apiGet("storage/components/{$options->getComponentId()}/configs?" . http_build_query($options->toParamsArray()));
     }
 
-	public function listConfigurationVersions(ListConfigurationVersionsOptions $options = null)
+    public function restoreComponentConfiguration($componentId, $configurationId)
+    {
+        return $this->client->apiPost("storage/components/{$componentId}/configs/{$configurationId}/restore");
+    }
+
+    public function listConfigurationVersions(ListConfigurationVersionsOptions $options = null)
     {
         if (!$options) {
             $options = new ListConfigurationVersionsOptions();
