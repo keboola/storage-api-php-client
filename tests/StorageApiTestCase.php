@@ -292,8 +292,7 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
         $tries = 0;
         while (true) {
             try {
-                $this->_client->getEvent($id);
-                return $id;
+                return $this->_client->getEvent($id);
             } catch (\Keboola\StorageApi\ClientException $e) {
                 echo 'Event not found: ' . $id . PHP_EOL;
             }

@@ -31,8 +31,7 @@ class EventsTest extends StorageApiTestCase
                 'configuration' => 'sys.c-sfdc.sfdc-01',
             ));
 
-        $id = $this->createAndWaitForEvent($event);
-        $savedEvent = $this->_client->getEvent($id);
+        $savedEvent = $this->createAndWaitForEvent($event);
 
         $this->assertEquals($event->getComponent(), $savedEvent['component']);
         $this->assertEquals($event->getConfigurationId(), $savedEvent['configurationId']);
@@ -48,7 +47,7 @@ class EventsTest extends StorageApiTestCase
             ->setType('info')
             ->setMessage('Table Opportunity fetched.');
 
-        $id = $this->createAndWaitForEvent($event);
+        $event = $this->createAndWaitForEvent($event);
 
         // to check if params is object we have to convert received json to objects instead of assoc array
         // so we have to use raw Http Client
@@ -56,7 +55,7 @@ class EventsTest extends StorageApiTestCase
             'base_uri' => $this->_client->getApiUrl(),
         ]);
 
-        $response = $client->get('/v2/storage/events/' . $id, array(
+        $response = $client->get('/v2/storage/events/' . $event['id'], array(
             'headers' => array(
                 'X-StorageApi-Token' => $this->_client->getTokenString(),
             ),
@@ -86,8 +85,7 @@ class EventsTest extends StorageApiTestCase
             ->setMessage('test');
 
 
-        $id = $this->createAndWaitForEvent($event);
-        $savedEvent = $this->_client->getEvent($id);
+        $savedEvent = $this->createAndWaitForEvent($event);
         $this->assertEquals($event->getComponentName(), $savedEvent['configurationId']);
         $this->assertEquals($event->getComponentType(), $savedEvent['component']);
     }
@@ -181,7 +179,7 @@ class EventsTest extends StorageApiTestCase
             ->setType('info')
             ->setMessage('test - ' . $searchString)
             ->setConfigurationId('myConfig');
-        $searchEventId  = $this->createAndWaitForEvent($event);
+        $searchEvent  = $this->createAndWaitForEvent($event);
 
         $event
             ->setComponent('transformation')
@@ -195,6 +193,6 @@ class EventsTest extends StorageApiTestCase
         ]);
 
         $this->assertCount(1, $events);
-        $this->assertEquals($searchEventId, $events[0]['id']);
+        $this->assertEquals($searchEvent['id'], $events[0]['id']);
     }
 }
