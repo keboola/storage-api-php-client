@@ -9,7 +9,7 @@
 
 namespace Keboola\StorageApi\Options\Components;
 
-class ListConfigurationsOptions
+class ListComponentsOptions
 {
     private $componentType;
 

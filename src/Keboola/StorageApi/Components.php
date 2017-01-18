@@ -13,7 +13,7 @@ use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions;
-use Keboola\StorageApi\Options\Components\ListConfigurationsOptions;
+use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions;
 
 class Components
@@ -90,10 +90,10 @@ class Components
         return $this->client->apiDelete("storage/components/{$componentId}/configs/{$configurationId}");
     }
 
-    public function listComponents(ListConfigurationsOptions $options = null)
+    public function listComponents(ListComponentsOptions $options = null)
     {
         if (!$options) {
-            $options = new ListConfigurationsOptions();
+            $options = new ListComponentsOptions();
         }
         return $this->client->apiGet("storage/components?" . http_build_query($options->toParamsArray()));
     }

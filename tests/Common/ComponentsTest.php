@@ -841,7 +841,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $components->addConfigurationRow($configurationRow);
 
-        $listOptions = new \Keboola\StorageApi\Options\Components\ListConfigurationsOptions();
+        $listOptions = new \Keboola\StorageApi\Options\Components\ListComponentsOptions();
         $listOptions->setInclude(array('rows'));
         $components = $components->listComponents($listOptions);
 
@@ -875,7 +875,7 @@ class ComponentsTest extends StorageApiTestCase
         $result = $components->listConfigurationVersions($config);
         $this->assertCount(5, $result);
 
-        $listOptions = new \Keboola\StorageApi\Options\Components\ListConfigurationsOptions();
+        $listOptions = new \Keboola\StorageApi\Options\Components\ListComponentsOptions();
         $listOptions->setInclude(array('rows'));
         $components = $components->listComponents($listOptions);
 
@@ -979,7 +979,7 @@ class ComponentsTest extends StorageApiTestCase
         $configs = $components->listComponents();
         $this->assertCount(2, $configs);
 
-        $configs = $components->listComponents((new \Keboola\StorageApi\Options\Components\ListConfigurationsOptions())
+        $configs = $components->listComponents((new \Keboola\StorageApi\Options\Components\ListComponentsOptions())
             ->setComponentType('writer'));
 
         $this->assertCount(2, $configs[0]['configurations']);
@@ -989,7 +989,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertArrayNotHasKey('configuration', $configuration);
 
         // list with configuration body
-        $configs = $components->listComponents((new \Keboola\StorageApi\Options\Components\ListConfigurationsOptions())
+        $configs = $components->listComponents((new \Keboola\StorageApi\Options\Components\ListComponentsOptions())
             ->setComponentType('writer')
             ->setInclude(array('configuration')));
 
@@ -1118,7 +1118,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $components->addConfigurationRow($configurationRow);
 
-        $listOptions = new \Keboola\StorageApi\Options\Components\ListConfigurationsOptions();
+        $listOptions = new \Keboola\StorageApi\Options\Components\ListComponentsOptions();
         $listOptions->setInclude(array('rows'));
         $components = $components->listComponents($listOptions);
 
@@ -1186,7 +1186,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $components->addConfigurationRow($configurationRow);
 
-        $listOptions = new \Keboola\StorageApi\Options\Components\ListConfigurationsOptions();
+        $listOptions = new \Keboola\StorageApi\Options\Components\ListComponentsOptions();
         $listOptions->setInclude(array('rows'));
         $components = $components->listComponents($listOptions);
 
@@ -1291,7 +1291,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $components->addConfigurationRow($configurationRow);
 
-        $listOptions = new \Keboola\StorageApi\Options\Components\ListConfigurationsOptions();
+        $listOptions = new \Keboola\StorageApi\Options\Components\ListComponentsOptions();
         $listOptions->setInclude(array('rows'));
         $components = $components->listComponents($listOptions);
 
@@ -1403,7 +1403,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $components->addConfigurationRow($configurationRow);
 
-        $listOptions = new \Keboola\StorageApi\Options\Components\ListConfigurationsOptions();
+        $listOptions = new \Keboola\StorageApi\Options\Components\ListComponentsOptions();
         $listOptions->setInclude(array('rows'));
         $components = $components->listComponents($listOptions);
 
@@ -1543,7 +1543,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $components->addConfigurationRow($configurationRow);
 
-        $listOptions = new \Keboola\StorageApi\Options\Components\ListConfigurationsOptions();
+        $listOptions = new \Keboola\StorageApi\Options\Components\ListComponentsOptions();
         $listOptions->setInclude(array('rows'));
         $components = $components->listComponents($listOptions);
 
