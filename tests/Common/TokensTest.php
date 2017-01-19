@@ -11,6 +11,7 @@ namespace Keboola\Test\Common;
 
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
+use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
 
 class TokensTest extends StorageApiTestCase
 {
@@ -44,6 +45,18 @@ class TokensTest extends StorageApiTestCase
         $components = new \Keboola\StorageApi\Components($this->_client);
         foreach ($components->listComponents() as $component) {
             foreach ($component['configurations'] as $configuration) {
+                $components->deleteConfiguration($component['id'], $configuration['id']);
+            }
+        }
+
+        // erase all deleted configurations
+        $index = $this->_client->indexAction();
+        foreach ($index['components'] as $component) {
+            $listOptions = new ListComponentConfigurationsOptions();
+            $listOptions->setComponentId($component['id']);
+            $listOptions->setIsDeleted(true);
+
+            foreach ($components->listComponentConfigurations($listOptions) as $configuration) {
                 $components->deleteConfiguration($component['id'], $configuration['id']);
             }
         }
