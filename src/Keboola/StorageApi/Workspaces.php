@@ -9,12 +9,6 @@
 
 namespace Keboola\StorageApi;
 
-use Keboola\StorageApi\Options\Components\Configuration;
-use Keboola\StorageApi\Options\Components\ConfigurationRow;
-use Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions;
-use Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions;
-use Keboola\StorageApi\Options\Components\ListComponentsOptions;
-use Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions;
 
 class Workspaces
 {
