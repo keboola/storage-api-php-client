@@ -10,6 +10,7 @@
 namespace Keboola\Test\Common;
 
 use Keboola\Test\StorageApiTestCase;
+use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
 
 class ComponentsPublishTest extends StorageApiTestCase
 {
