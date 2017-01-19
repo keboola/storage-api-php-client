@@ -12,6 +12,7 @@ namespace Keboola\Test\Common;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
+use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\Test\StorageApiTestCase;
 
 class ComponentsTest extends StorageApiTestCase
@@ -28,13 +29,8 @@ class ComponentsTest extends StorageApiTestCase
         }
 
         // erase all deleted configurations
-        $index = $this->_client->indexAction();
-        foreach ($index['components'] as $component) {
-            $listOptions = new ListComponentConfigurationsOptions();
-            $listOptions->setComponentId($component['id']);
-            $listOptions->setIsDeleted(true);
-
-            foreach ($components->listComponentConfigurations($listOptions) as $configuration) {
+        foreach ($components->listComponents((new ListComponentsOptions())->setIsDeleted(true)) as $component) {
+            foreach ($component['configurations'] as $configuration) {
                 $components->deleteConfiguration($component['id'], $configuration['id']);
             }
         }
@@ -163,6 +159,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertCount(0, $components->listComponentConfigurations(
             (new ListComponentConfigurationsOptions())->setComponentId($componentId)
         ));
+        $this->assertCount(0, $components->listComponents());
 
         $componentList = $components->listComponentConfigurations(
             (new ListComponentConfigurationsOptions())->setComponentId($componentId)->setIsDeleted(true)
@@ -178,6 +175,14 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(2, $component['version']);
         $this->assertInternalType('int', $component['version']);
         $this->assertInternalType('int', $component['creatorToken']['id']);
+
+        $componentsIndex = $components->listComponents((new ListComponentsOptions())->setIsDeleted(true));
+
+        $this->assertCount(1, $componentsIndex);
+        $this->assertArrayHasKey('id', $componentsIndex[0]);
+        $this->assertArrayHasKey('configurations', $componentsIndex[0]);
+        $this->assertEquals($componentId, $componentsIndex[0]['id']);
+        $this->assertCount(1, $componentsIndex[0]['configurations']);
 
         $components->deleteConfiguration($componentId, $configurationId);
 
