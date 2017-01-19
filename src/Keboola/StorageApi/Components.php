@@ -99,11 +99,8 @@ class Components
         return $this->client->apiGet("storage/components?" . http_build_query($options->toParamsArray()));
     }
 
-    public function listComponentConfigurations(ListComponentConfigurationsOptions $options = null)
+    public function listComponentConfigurations(ListComponentConfigurationsOptions $options)
     {
-        if (!$options) {
-            $options = new ListConfigurationVersionsOptions();
-        }
         return $this->client->apiGet("storage/components/{$options->getComponentId()}/configs?" . http_build_query($options->toParamsArray()));
     }
 
@@ -112,11 +109,8 @@ class Components
         return $this->client->apiPost("storage/components/{$componentId}/configs/{$configurationId}/restore");
     }
 
-    public function listConfigurationVersions(ListConfigurationVersionsOptions $options = null)
+    public function listConfigurationVersions(ListConfigurationVersionsOptions $options)
     {
-        if (!$options) {
-            $options = new ListConfigurationVersionsOptions();
-        }
         return $this->client->apiGet("storage/components/{$options->getComponentId()}/configs/"
             . "{$options->getConfigurationId()}/versions?" . http_build_query($options->toParamsArray()));
     }
@@ -198,12 +192,8 @@ class Components
         );
     }
 
-    public function listConfigurationRowVersions(ListConfigurationRowVersionsOptions $options = null)
+    public function listConfigurationRowVersions(ListConfigurationRowVersionsOptions $options)
     {
-        if (!$options) {
-            $options = new ListConfigurationVersionsOptions();
-        }
-
         return $this->client->apiGet(
             sprintf(
                 "storage/components/%s/configs/%s/rows/%s/versions?%s",
