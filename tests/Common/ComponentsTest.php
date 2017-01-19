@@ -40,94 +40,94 @@ class ComponentsTest extends StorageApiTestCase
         }
     }
 
-	public function testComponentConfigRenew()
-	{
-		$componentId = 'wr-db';
-		$configurationId = 'main-1';
-		$components = new \Keboola\StorageApi\Components($this->_client);
+    public function testComponentConfigRenew()
+    {
+        $componentId = 'wr-db';
+        $configurationId = 'main-1';
+        $components = new \Keboola\StorageApi\Components($this->_client);
 
-		// create and delete configuration
-		$this->assertCount(0, $components->listComponentConfigurations(
-			(new ListComponentConfigurationsOptions())->setComponentId($componentId)
-		));
-		$this->assertCount(0, $components->listComponentConfigurations(
-			(new ListComponentConfigurationsOptions())->setComponentId($componentId)->setIsDeleted(true)
-		));
+        // create and delete configuration
+        $this->assertCount(0, $components->listComponentConfigurations(
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
+        ));
+        $this->assertCount(0, $components->listComponentConfigurations(
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId)->setIsDeleted(true)
+        ));
 
-		$configuration = (new \Keboola\StorageApi\Options\Components\Configuration())
-			->setComponentId($componentId)
-			->setConfigurationId($configurationId)
-			->setName('Main')
-			->setDescription('some desc');
+        $configuration = (new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setName('Main')
+            ->setDescription('some desc');
 
-		$components->addConfiguration($configuration);
+        $components->addConfiguration($configuration);
 
-		$component = $components->getConfiguration($componentId, $configurationId);
-		$this->assertEquals('Main', $component['name']);
-		$this->assertEquals('some desc', $component['description']);
-		$this->assertEmpty($component['configuration']);
-		$this->assertEmpty($component['changeDescription']);
-		$this->assertFalse($component['isDeleted']);
-		$this->assertEquals(1, $component['version']);
-		$this->assertInternalType('int', $component['version']);
-		$this->assertInternalType('int', $component['creatorToken']['id']);
-		$this->assertCount(0, $component['rows']);
+        $component = $components->getConfiguration($componentId, $configurationId);
+        $this->assertEquals('Main', $component['name']);
+        $this->assertEquals('some desc', $component['description']);
+        $this->assertEmpty($component['configuration']);
+        $this->assertEmpty($component['changeDescription']);
+        $this->assertFalse($component['isDeleted']);
+        $this->assertEquals(1, $component['version']);
+        $this->assertInternalType('int', $component['version']);
+        $this->assertInternalType('int', $component['creatorToken']['id']);
+        $this->assertCount(0, $component['rows']);
 
-		$components->addConfigurationRow((new ConfigurationRow($configuration))
-			->setRowId('firstRow')
-			->setConfiguration(['value' => 1]));
+        $components->addConfigurationRow((new ConfigurationRow($configuration))
+            ->setRowId('firstRow')
+            ->setConfiguration(['value' => 1]));
 
-		$components->deleteConfiguration($componentId, $configurationId);
+        $components->deleteConfiguration($componentId, $configurationId);
 
-		$this->assertCount(0, $components->listComponentConfigurations(
-			(new ListComponentConfigurationsOptions())->setComponentId($componentId)
-		));
+        $this->assertCount(0, $components->listComponentConfigurations(
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
+        ));
 
-		$componentList = $components->listComponentConfigurations(
-			(new ListComponentConfigurationsOptions())->setComponentId($componentId)->setIsDeleted(true)
-		);
-		$this->assertCount(1, $componentList);
+        $componentList = $components->listComponentConfigurations(
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId)->setIsDeleted(true)
+        );
+        $this->assertCount(1, $componentList);
 
-		$component = reset($componentList);
-		$this->assertEquals($configurationId, $component['id']);
-		$this->assertEquals('Main', $component['name']);
-		$this->assertEquals('some desc', $component['description']);
-		$this->assertNotEmpty($component['changeDescription']);
-		$this->assertTrue($component['isDeleted']);
-		$this->assertEquals(3, $component['version']);
-		$this->assertInternalType('int', $component['version']);
-		$this->assertInternalType('int', $component['creatorToken']['id']);
-		$this->assertCount(1, $component['rows']);
+        $component = reset($componentList);
+        $this->assertEquals($configurationId, $component['id']);
+        $this->assertEquals('Main', $component['name']);
+        $this->assertEquals('some desc', $component['description']);
+        $this->assertNotEmpty($component['changeDescription']);
+        $this->assertTrue($component['isDeleted']);
+        $this->assertEquals(3, $component['version']);
+        $this->assertInternalType('int', $component['version']);
+        $this->assertInternalType('int', $component['creatorToken']['id']);
+        $this->assertCount(1, $component['rows']);
 
-		// create configuration with same id as deleted
-		$components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
-			->setComponentId($componentId)
-			->setConfigurationId($configurationId)
-			->setConfiguration(["test" => false])
-			->setName('Main renewed')
-			->setDescription('some desc for renew'));
+        // create configuration with same id as deleted
+        $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setConfiguration(["test" => false])
+            ->setName('Main renewed')
+            ->setDescription('some desc for renew'));
 
-		$this->assertCount(0, $components->listComponentConfigurations(
-			(new ListComponentConfigurationsOptions())->setComponentId($componentId)->setIsDeleted(true)
-		));
+        $this->assertCount(0, $components->listComponentConfigurations(
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId)->setIsDeleted(true)
+        ));
 
-		$componentList = $components->listComponentConfigurations(
-			(new ListComponentConfigurationsOptions())->setComponentId($componentId)
-		);
-		$this->assertCount(1, $componentList);
+        $componentList = $components->listComponentConfigurations(
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
+        );
+        $this->assertCount(1, $componentList);
 
-		$component = reset($componentList);
-		$this->assertEquals($configurationId, $component['id']);
-		$this->assertEquals('Main renewed', $component['name']);
-		$this->assertEquals('some desc for renew', $component['description']);
-		$this->assertEquals(["test" => false], $component['configuration']);
-		$this->assertEmpty($component['changeDescription']);
-		$this->assertFalse($component['isDeleted']);
-		$this->assertEquals(4, $component['version']);
-		$this->assertInternalType('int', $component['version']);
-		$this->assertInternalType('int', $component['creatorToken']['id']);
-		$this->assertCount(0, $component['rows']);
-	}
+        $component = reset($componentList);
+        $this->assertEquals($configurationId, $component['id']);
+        $this->assertEquals('Main renewed', $component['name']);
+        $this->assertEquals('some desc for renew', $component['description']);
+        $this->assertEquals(["test" => false], $component['configuration']);
+        $this->assertEmpty($component['changeDescription']);
+        $this->assertFalse($component['isDeleted']);
+        $this->assertEquals(4, $component['version']);
+        $this->assertInternalType('int', $component['version']);
+        $this->assertInternalType('int', $component['creatorToken']['id']);
+        $this->assertCount(0, $component['rows']);
+    }
 
     public function testComponentConfigDelete()
     {
