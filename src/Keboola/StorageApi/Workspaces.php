@@ -9,7 +9,6 @@
 
 namespace Keboola\StorageApi;
 
-
 class Workspaces
 {
 
