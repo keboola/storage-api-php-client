@@ -7,7 +7,7 @@
  * To change this template use File | Settings | File Templates.
  */
 
-namespace Keboola\Test\Backend\CommonPart2;
+namespace Keboola\Test\Backend\CommonPart1;
 
 use Keboola\StorageApi\Metadata;
 use Keboola\Test\StorageApiTestCase;
