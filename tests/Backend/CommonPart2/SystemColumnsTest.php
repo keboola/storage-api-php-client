@@ -6,7 +6,7 @@
  * Time: 15:39
  */
 
-namespace Keboola\Test\Backend\Common;
+namespace Keboola\Test\Backend\CommonPart2;
 
 use Keboola\Test\StorageApiTestCase;
 
