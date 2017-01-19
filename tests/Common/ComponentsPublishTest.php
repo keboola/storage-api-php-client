@@ -25,6 +25,18 @@ class ComponentsPublishTest extends StorageApiTestCase
                 $components->deleteConfiguration($component['id'], $configuration['id']);
             }
         }
+
+        // erase all deleted configurations
+        $index = $this->_client->indexAction();
+        foreach ($index['components'] as $component) {
+            $listOptions = new ListComponentConfigurationsOptions();
+            $listOptions->setComponentId($component['id']);
+            $listOptions->setIsDeleted(true);
+
+            foreach ($components->listComponentConfigurations($listOptions) as $configuration) {
+                $components->deleteConfiguration($component['id'], $configuration['id']);
+            }
+        }
     }
 
     public function testConfigurationPublish()
