@@ -10,4 +10,10 @@ define('REDSHIFT_HOSTNAME', getenv('REDSHIFT_HOSTNAME'));
 define('REDSHIFT_USER', getenv('REDSHIFT_USER'));
 define('REDSHIFT_PASSWORD', getenv('REDSHIFT_PASSWORD'));
 
+$revisionFilePath = realpath(__DIR__ . '/../REVISION');
+
+if (file_exists($revisionFilePath)) {
+    echo sprintf("Running tests revision: %s\n", file_get_contents($revisionFilePath));
+}
+
 require __DIR__ . '/../vendor/autoload.php';
