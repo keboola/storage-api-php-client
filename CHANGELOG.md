@@ -1,3 +1,6 @@
+## 6.1.0 (2017-01-20)
+ * [Feat] - List components with deleted configurations
+
 ## 6.0.0 (2017-01-19)
  * [Feat]  Deleted configurations can be listed `Components::listComponentConfigurations` and restored `Components::restoreComponentConfiguration`
  * [BC break] `ListConfigurationsOptions` class renamed to `ListComponentsOptions`
