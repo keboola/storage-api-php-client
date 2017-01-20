@@ -23,13 +23,16 @@
 		<directory>tests/Backend/Mysql</directory>
 	</testsuite>
 
-	<testsuite name="backend-redshift">
+	<testsuite name="backend-redshift-part-1">
+		<directory>tests/Backend/CommonPart1</directory>
+	</testsuite>
+
+	<testsuite name="backend-redshift-part-2">
+		<directory>tests/Backend/CommonPart2</directory>
 		<file>tests/Backend/Workspaces/WorkspacesRedshiftTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
-		<directory>tests/Backend/CommonPart1</directory>
-		<directory>tests/Backend/CommonPart2</directory>
 		<directory>tests/Backend/Redshift</directory>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>

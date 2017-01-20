@@ -122,7 +122,8 @@ as copy of attached `set-env.redshift.template.sh`.
 
 Than  you can run tests:
 
-`source ./set-env.redshift.sh && php ./vendor/bin/phpunit --testsuite backend-redshift`
+`source ./set-env.redshift.sh && php ./vendor/bin/phpunit --testsuite backend-redshift-part-1`
+`source ./set-env.redshift.sh && php ./vendor/bin/phpunit --testsuite backend-redshift-part-2`
 
 ### Snowflake backend test suite
 This test suite expects following environment variables set:
@@ -136,6 +137,7 @@ You can download odbc driver from [Snowflake Console](https://keboola.snowflakec
 You can run these tests in docker with drivers installed:
 
 `source ./set-env.snowflake.sh && docker-compose run --rm tests sh -c 'composer install && ./vendor/bin/phpunit --testsuite backend-snowflake-part-1'`
+`source ./set-env.snowflake.sh && docker-compose run --rm tests sh -c 'composer install && ./vendor/bin/phpunit --testsuite backend-snowflake-part-2'`
 
 ### Mixed backend test suite
 Project can support multiple backends, this is useful for migrations from one backend to another.
