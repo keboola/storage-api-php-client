@@ -3470,6 +3470,49 @@ Get component configuration
           "rows": {}
         }
 
+### Update config [PUT]
+Update configuration
+
+`name`, `description`, `configuration`, `state` can be updated.
+
+The update can be described using parameter `changeDescription`.
+
+The `configuration` must be urlencoded json string.
+
+New snapshot is created after each update.
+
++ Request (multipart/form-data; boundary=----WebKitFormBoundaryfIBRqd05C6Na2Lvl)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl
+            Content-Disposition: form-data; name="id"
+            main-1
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl--
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl
+            Content-Disposition: form-data; name="name"
+            Main
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl--
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl
+            Content-Disposition: form-data; name="changeDescription"
+            change description
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl--
+
+
++ Response 200
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            {
+                "id": "main-1"
+            }
+
 ### Delete config [DELETE]
 Delete configuration.
 
@@ -3509,47 +3552,6 @@ Removes `isDeleted` flag of deleted configuration
           "state": {},
           "rows": {}
         }
-
-### Update config [PUT]
-Update configuration
-
-`name`, `description`, `configuration`, `state` can be updated.
-
-The update can be described using parameter `changeDescription`.
-
-New snapshot is created after each update.
-
-+ Request (multipart/form-data; boundary=----WebKitFormBoundaryfIBRqd05C6Na2Lvl)
-    + Headers
-
-            X-StorageApi-Token: your_token
-
-    + Body
-
-            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl
-            Content-Disposition: form-data; name="id"
-            main-1
-            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl--
-            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl
-            Content-Disposition: form-data; name="name"
-            Main
-            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl--
-            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl
-            Content-Disposition: form-data; name="changeDescription"
-            change description
-            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl--
-
-
-+ Response 200
-    + Headers
-
-            Content-type: application/json
-
-    + Body
-
-            {
-                "id": "main-1"
-            }
 
 
 ## Publishing [/v2/storage/components/{component_id}/configs/{config_id}/publish]
