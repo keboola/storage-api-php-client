@@ -219,6 +219,15 @@ class MetadataTest extends StorageApiTestCase
             "key" => "%invalidKey", // invalid char %
             "value" => "testval"
         );
+
+        try {
+            // this should fail because metadata objects must be provided in an array
+            $this->postMetadata($apiEndpoint, $object, $md);
+            $this->fail("metadata must be an array of key-value objects.");
+        } catch (ClientException $e) {
+            $this->assertEquals("storage.metadata.invalidStructure", $e->getStringCode());
+        }
+
         try {
             $this->postMetadata($apiEndpoint, $object, [$md]);
             $this->fail("Should throw invalid key exception");
