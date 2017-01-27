@@ -23,7 +23,7 @@ class Client
     const STAGE_OUT = "out";
     const STAGE_SYS = "sys";
 
-    const VERSION = '4.20.1';
+    const VERSION = '6.1.0';
 
     // Token string
     public $token;
@@ -547,43 +547,6 @@ class Client
         $result = $this->apiPost("storage/buckets/" . $bucketId . "/table-aliases", $filteredOptions);
         $this->log("Table alias {$result["id"]}  created", array("options" => $filteredOptions, "result" => $result));
         return $result["id"];
-    }
-
-    /**
-     * @param $bucketId
-     * @param $sql
-     * @param null $name
-     * @param null $sourceTableId
-     * @return string - created table id
-     * @throws ClientException
-     */
-    public function createRedshiftAliasTable($bucketId, $sql, $name = null, $sourceTableId = null)
-    {
-        $filteredOptions = array(
-            'selectSql' => $sql,
-        );
-
-        if (!$name && !$sourceTableId) {
-            throw new ClientException("Either parameter name or parameter sourceTableId must be used");
-        }
-
-        if ($name) {
-            $filteredOptions['name'] = $name;
-        }
-
-        if (isset($sourceTableId)) {
-            $filteredOptions['sourceTable'] = $sourceTableId;
-        }
-
-        $result = $this->apiPost("storage/buckets/" . $bucketId . "/table-aliases", $filteredOptions);
-        $this->log("Table alias {$result["id"]}  created", array("options" => $filteredOptions, "result" => $result));
-        return $result["id"];
-    }
-
-    public function updateRedshiftAliasTable($tableId, $sql)
-    {
-        $result = $this->apiPut("storage/tables/" . $tableId, array('selectSql' => $sql));
-        return $result;
     }
 
     /**

@@ -11,6 +11,7 @@ namespace Keboola\Test\Common;
 
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
+use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 
 class TokensTest extends StorageApiTestCase
 {
@@ -43,6 +44,13 @@ class TokensTest extends StorageApiTestCase
     {
         $components = new \Keboola\StorageApi\Components($this->_client);
         foreach ($components->listComponents() as $component) {
+            foreach ($component['configurations'] as $configuration) {
+                $components->deleteConfiguration($component['id'], $configuration['id']);
+            }
+        }
+
+        // erase all deleted configurations
+        foreach ($components->listComponents((new ListComponentsOptions())->setIsDeleted(true)) as $component) {
             foreach ($component['configurations'] as $configuration) {
                 $components->deleteConfiguration($component['id'], $configuration['id']);
             }
@@ -102,6 +110,7 @@ class TokensTest extends StorageApiTestCase
         $keen = $this->_client->getKeenReadCredentials();
         $this->assertArrayHasKey('keenToken', $keen);
         $this->assertNotEmpty($keen['keenToken']);
+        $this->assertNotEmpty($keen['projectId']);
     }
 
     public function testInvalidToken()

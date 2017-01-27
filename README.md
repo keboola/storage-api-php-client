@@ -113,37 +113,22 @@ Than  you can run tests:
  
 ### Redshift backend test suite
 
-Reshift tests require a cluster connected to Storage API and credentials.
-
-These credentials are used in tests to simulate "copy from table" transformations behaviour.
-Then you can create your Redshift user. Connect to your Redshift database `sapi_YOURPROJECTID` and run queries:
-
-	CREATE USER test_user PASSWORD '***';
-	GRANT ALL PRIVILEGES ON DATABASE sapi_YOURPROJECTID TO test_user;
-	GRANT ALL PRIVILEGES ON SCHEMA "in.c-api-tests" TO test_user;
-	GRANT ALL PRIVILEGES ON SCHEMA "out.c-api-tests" TO test_user;
-	GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA "in.c-api-tests" TO test_user;
-	GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA "out.c-api-tests" TO test_user;
-
 This test suite expects following environment variables set:
 - `STORAGE_API_URL` - URL of Keboola Storage API (https://connection.keboola.com/)
 - `STORAGE_API_TOKEN` - Storage API token associated to user (Admin master token) with all permissions. **Project must have `Redshift` set as default backend.**
-- `REDSHIFT_HOSTNAME`  - hostname of storage backend Redshift cluster
-- `REDSHIFT_USER` - previously created user
-- `REDSHIFT_PASSWORD` - previously created passowrd
 
 You can export variables manually or you can create and fill file `set-env.redshift.sh`
 as copy of attached `set-env.redshift.template.sh`.
 
 Than  you can run tests:
 
-`source ./set-env.redshift.sh && php ./vendor/bin/phpunit --testsuite backend-redshift`
+`source ./set-env.redshift.sh && php ./vendor/bin/phpunit --testsuite backend-redshift-part-1`
+`source ./set-env.redshift.sh && php ./vendor/bin/phpunit --testsuite backend-redshift-part-2`
 
 ### Snowflake backend test suite
 This test suite expects following environment variables set:
 - `STORAGE_API_URL` - URL of Keboola Storage API (https://connection.keboola.com/)
 - `STORAGE_API_TOKEN` - Storage API token associated to user (Admin master token) with all permissions. **Project must have `snowflake` set as default backend.**
-
 
 
 Tests are also testing provisioning of workspaces and direct connection to snowflake so it requires snowflake odbc driver.
@@ -152,6 +137,7 @@ You can download odbc driver from [Snowflake Console](https://keboola.snowflakec
 You can run these tests in docker with drivers installed:
 
 `source ./set-env.snowflake.sh && docker-compose run --rm tests sh -c 'composer install && ./vendor/bin/phpunit --testsuite backend-snowflake-part-1'`
+`source ./set-env.snowflake.sh && docker-compose run --rm tests sh -c 'composer install && ./vendor/bin/phpunit --testsuite backend-snowflake-part-2'`
 
 ### Mixed backend test suite
 Project can support multiple backends, this is useful for migrations from one backend to another.

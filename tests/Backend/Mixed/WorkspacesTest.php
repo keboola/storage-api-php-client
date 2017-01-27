@@ -141,6 +141,10 @@ class WorkspacesTest extends WorkspacesTestCase
                     "source" => $table4Id,
                     "destination" => "languagesFiltered",
                 ],
+                [
+                    "source" => $table4Id,
+                    "destination" => "languagesFilteredRenamed",
+                ]
             ]
         ];
 
@@ -174,7 +178,12 @@ class WorkspacesTest extends WorkspacesTestCase
         $data = $workspaceBackend->fetchAll("languagesFiltered", \PDO::FETCH_ASSOC);
         $this->assertCount(1, $data[0], 'there should be one column');
         $this->assertArrayHasKey('id', $data[0]);
+        $this->assertEquals('1', $data[0]['id']);
 
+        // fifth table
+        $data = $workspaceBackend->fetchAll("languagesFilteredRenamed", \PDO::FETCH_ASSOC);
+        $this->assertCount(1, $data[0], 'there should be one column');
+        $this->assertArrayHasKey('id', $data[0]);
         $this->assertEquals('1', $data[0]['id']);
     }
 

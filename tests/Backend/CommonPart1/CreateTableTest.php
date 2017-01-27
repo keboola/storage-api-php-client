@@ -7,7 +7,7 @@
  * To change this template use File | Settings | File Templates.
  */
 
-namespace Keboola\Test\Backend\Common;
+namespace Keboola\Test\Backend\CommonPart1;
 
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;

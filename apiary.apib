@@ -1,0 +1,4141 @@
+FORMAT: 1A
+HOST: https://connection.keboola.com
+
+# Keboola Storage API
+API for sending data to Keboola. CSV database table dumps import. Files upload.
+
+## HTTP Response Codes
+
+The response from Storage API will have an HTTP status code that will help you determine if the request was successful.
+In case of error HTTP status code will help you determine the cause of the error.
+
+### Success responses
+
+<table>
+    <tr>
+        <td>200 <code>OK</code></td>
+        <td>The request was successful.</td>
+    </tr>
+    <tr>
+        <td>201 <code>Created</code></td>
+        <td>The request was successful and a new resource was created.</td>
+    </tr>
+    <tr>
+        <td>202 <code>Accepted</code></td>
+        <td>Asynchronous task. Job resource is returned.</td>
+    </tr>
+    <tr>
+        <td>204 <code>No Content</code></td>
+        <td>The request was successful but there is nothing to return. Usually response of DELETE requests.</td>
+    </tr>
+</table>
+
+### Error responses
+<table>
+    <tr>
+        <td>400 <code>Bad Request</code></td>
+        <td>The request was invalid. Usually caused by invalid input data (missing arguments, invalid arguments values, etc.).  Cause of error is described in response.</td>
+    </tr>
+    <tr>
+        <td>401 <code>Unauthorized</code></td>
+        <td>Authentication failed.</td>
+    </tr>
+    <tr>
+        <td>403 <code>Forbidden</code></td>
+        <td>You don't have access to resource.</td>
+    </tr>
+    <tr>
+        <td>404 <code>Not Found</code></td>
+        <td>You're asking for something that doesn't exist.</td>
+    </tr>
+    <tr>
+        <td>500 <code>Internal Server Error</code></td>
+        <td>Something went wrong. We are sorry, it is our fault and we will make our best to fix it!</td>
+    </tr>
+    <tr>
+        <td>503 <code>Temporary Unavailable</code></td>
+        <td>This response is typically returned when system is under maintenance.
+            Maintenance reason and expected maintenance ent time are also returned in response.
+        </td>
+    </tr>
+</table>
+
+
+## Authentication
+Storage API token provided to you by Keboola has to be sent in "X-StorageApi-Token" HTTP header with each api call.
+
+## Synchronous vs. Asynchronous Tasks
+
+Tasks that are all potentially long-running actions such as loading table data, snapshotting, table structure alters are performed asynchronously.
+All asynchronous tasks returns HTTP Response code `202` and [Job Resource](#reference/jobs). You can monitor job status by polling job Resource URL.
+
+## Partial response
+Some listing API calls are returning related resources by default. e.q. table list is returning parent bucket and associated attributes.
+Returned resources can be limited by `include` parameter listing required resources to be returned in response.
+
+# Group Maintenance
+
+## Maintenance response example [/v2/storage/]
+
+
+### Example [GET]
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 503
+    + Headers
+
+            Content-type: application/json
+            Retry-After: 559
+
+    + Body
+
+            {
+                "status":"maintenance",
+                "estimatedEndTime":"2013-05-25T10:30:44+02:00",
+                "reason":"Thesystemisdownformaintenance",
+            }
+
+# Group Csv files formats
+
+Storage API accepts data in CSV files according to these conditions:
+
+
+* CSV file format: [http://tools.ietf.org/html/rfc4180]
+    * Compatible with CSV exports from OpenOffice Calc, MS Excel, Google Drive
+    * Delimiter and enclosure can be specified by parameter, defaults are comma and double quote
+    * Enclosure is escaped  by preceding it with another enclosure character
+    * Header row is required
+    * Optionally escape character can be specified for escaping new lines, tabs and other special character. By default no escape character is set. If you specify an escape character, `enclosure` parameter is disabled and cannot be used.
+* Supported line breaks
+    * Windows (\r\n)
+    * Unix (\n)
+* Uncompressed, gzipped or zipped
+* File encoding: **UTF-8**
+
+
+### Example of source data
+<table>
+<tr>
+<td>col1</td>
+<td>col2</td>
+</tr>
+
+<tr>
+<td>line without enclosure</td>
+<td>    second column</td>
+</tr>
+
+<tr>
+<td>column with enclosure ", and comma inside text</td>
+<td>second column enclosure in text "</td>
+</tr>
+
+<tr>
+<td>columns with<br/>new line</td>
+<td>columns with&nbsp;&nbsp;&nbsp;&nbsp;tab</td>
+</tr>
+
+<tr>
+<td>column with backslash \ inside</td>
+<td>column with backslash and enclosure \"</td>
+</tr>
+
+<tr>
+<td>column with \n \t \\<td>second col</td>
+</tr>
+</table>
+
+
+### Example of source data saved into CSV file
+
+    col1,col2
+    line without enclosure,second column
+    line with enclosure,second column
+    "column with enclosure "", and comma inside text","second column enclosure in text """
+    "columns with
+    new line",columns with    tab
+    column with backslash \ inside,"column with backslash and enclosure \"""
+    column with \n \t \\,second col
+
+# Group Tokens and permissions
+Each user has assigned master token after API initialization.
+Token must be attached to each API call.
+Master token enables you create to another tokens with limited privileges for buckets and components.
+
+## Tokens Collection [/v2/storage/tokens]
+### List all tokens [GET]
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            [
+                {
+                    "id": "38",
+                    "token": "9eabdd51eaab4040f952e0e6ae6eff03",
+                    "description": "",
+                    "uri": "https://connection.keboola.com/v2/storage/tokens/38",
+                    "isMasterToken": true,
+                    "canManageBuckets": true,
+                    "canManageTokens": false,
+                    "bucketPermissions": {
+                        "in.c-main": "manage",
+                        "out.c-main": "manage",
+                        "in.c-ga": "manage"
+                    }
+                },
+                {
+                    "id": "40",
+                  "token": "68ab920b621f159f72dcce4ae39a9a0d",
+                "description": "",
+                "uri": "https://connection-devel.keboola.com/v2/storage/tokens/40",
+                "isMasterToken": false,
+                "canManageBuckets": false,
+                "canManageTokens": false,
+                "bucketPermissions": {
+                  "in.c-main": "read"
+                },
+                "componentAccess": [
+                  "componentA"
+                ]
+              }
+            ]
+
+### Create token [POST]
+
+##### Parameters
+
+* **description** Token description
+* **bucketPermissions[{id_bucket}]** Permissions for a bucket. Available permissions: read, write.
+* **componentAccess[{id_component}]** Grant access for component configurations.
+* **canManageBuckets** (optional) Allow full access to all buckets including newly created buckets. Overrides bucketPermissions settings.
+* **canReadAllFileUploads** Allow access to all file uploads. By default only files uploaded by current token are accessible.
+* **expiresIn** (optional) Number of seconds until token expires.
+
+
+
+#### cURL api call example
+    curl  -F bucketPermissions[in.c-twitter]="read" -F bucketPermissions[in.c-main]="read" -F componentAccess[]="componentA" -F description="Twitter writer" -F token="9eabdd51baab4040f952e0e6ae6eff03" --insecure https://connection-devel.keboola.com/v2/storage/tokens/
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            ------WebKitFormBoundarygFXww0r77GsMfezA
+            Content-Disposition: form-data; name="description"
+            martin
+            ------WebKitFormBoundarygFXww0r77GsMfezA
+            Content-Disposition: form-data; name="bucketPermissions[in.c-main]"
+            read
+            ------WebKitFormBoundarygFXww0r77GsMfezA
+            Content-Disposition: form-data; name="expiresIn"
+            60
+            ------WebKitFormBoundarygFXww0r77GsMfezA--
+
++ Response 201
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            {
+                "id": "484",
+                "token": "75-12d4bfa4995694a1c956e7bb1eea0df5cc53acdb",
+                "created": "2012-11-13T16:48:28+0100",
+                "description": "martin",
+                "uri": "https://connection.keboola.com/v2/storage/tokens/484",
+                "isMasterToken": false,
+                "canManageBuckets": false,
+                "canManageTokens": false,
+                "bucketPermissions": {
+                    "in.c-main": "read"
+                },
+                "componentAccess": [
+                    "componentA"
+                ],
+                "expires": "2012-11-13T16:49:28+0100",
+                "isExpired": false,
+                "isDisabled": false,
+                "dailyCapacity": 5
+            }
+
+## Token [/v2/storage/tokens/{id_token}]
+### Token detail [GET]
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            {
+                "id": "44",
+                "token": "bdc4ce6a0ea85a2f4313b5b0b1800df3",
+                "description": "",
+                "uri": "https://connection-devel.keboola.com/v2/storage/tokens/44",
+                "isMasterToken": false,
+                "bucketPermissions": [],
+                "owner": {
+                    "name": "Buckets 5",
+                    "id": "58"
+                }
+            }
+
+### Update token [PUT]
+Beware that all permissions are replaced. If you want to add new permission, dont forgot to specify previous permissions.
+
+##### Parameters
+
+* **description** (optional) Token description
+* **bucketPermissions[{id_bucket}]** Permissions for a bucket. Available permissions: read, write.
+* **componentAccess[{id_component}]** Grant access rights for component configurations.
+* **canReadAllFileUploads** (optional) Allow access to all file uploads. By default only files uploaded by current token are accessible.
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            ------WebKitFormBoundaryCVygIRrvC3MTJPWM
+            Content-Disposition: form-data; name="description"
+            Twitter writer
+            ------WebKitFormBoundaryCVygIRrvC3MTJPWM
+            Content-Disposition: form-data; name="bucketPermissions[in.c-twitter]"
+            write
+            ------WebKitFormBoundaryCVygIRrvC3MTJPWM--
+
+## Token Verification [/v2/storage/tokens/verify]
+### Token verification [GET]
+
+Check your token privileges and owner.
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            {
+                "id": "44",
+                "token": "your_token",
+                "description": "",
+                "uri": "https://connection-devel.keboola.com/v2/storage/tokens/44",
+                "isMasterToken": false,
+                "bucketPermissions": [],
+                "componentPermissions": [],
+                "owner": {
+                    "name": "Buckets 5",
+                    "id": "58",
+                    "limits": {
+                            "components.jobsParallelism": {
+                                "name": "components.jobsParallelism",
+                                "value": 10
+                            },
+                            "goodData.dataSizeBytes": {
+                                "name": "goodData.dataSizeBytes",
+                                "value": 1000000000
+                            },
+                            "goodData.demoTokenEnabled": {
+                                "name": "goodData.demoTokenEnabled",
+                                "value": 1
+                            },
+                            "goodData.prodTokenEnabled": {
+                                "name": "goodData.prodTokenEnabled",
+                                "value": 1
+                            },
+                            "goodData.usersCount": {
+                                "name": "goodData.usersCount",
+                                "value": 30
+                            },
+                            "kbc.adminsCount": {
+                                "name": "kbc.adminsCount",
+                                "value": 10
+                            },
+                            "kbc.extractorsCount": {
+                                "name": "kbc.extractorsCount",
+                                "value": 0
+                            },
+                            "kbc.writersCount": {
+                                "name": "kbc.writersCount",
+                                "value": 0
+                            },
+                            "orchestrations.count": {
+                                "name": "orchestrations.count",
+                                "value": 10
+                            },
+                            "storage.dataSizeBytes": {
+                                "name": "storage.dataSizeBytes",
+                                "value": 50000000000
+                            },
+                            "storage.jobsParallelism": {
+                                "name": "storage.jobsParallelism",
+                                "value": 10
+                            }
+                        },
+                        "metrics": {
+                            "goodData.dataSizeBytes": {
+                                "name": "goodData.dataSizeBytes",
+                                "value": 3589276
+                            },
+                            "goodData.rowsCount": {
+                                "name": "goodData.rowsCount",
+                                "value": 23898
+                            },
+                            "goodData.usersCount": {
+                                "name": "goodData.usersCount",
+                                "value": 0
+                            },
+                            "storage.dataSizeBytes": {
+                                "name": "storage.dataSizeBytes",
+                                "value": 3019882496
+                            },
+                            "storage.rowsCount": {
+                                "name": "storage.rowsCount",
+                                "value": 3316230
+                            }
+                        }
+                }
+            }
+
+## Share Token [/v2/storage/tokens/{token_id}/share]
+### Share  Token [POST]
+Whenever you want to securely deliver token to someone use this feature.
+Link to token retrieval page will be sent to provided email address.
+Link will expire in 2 hours.
+
+
+#### Parameters
+
+* **recipientEmail** - recipient email
+* **message** - message for token recipient
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+            Content-type: application/x-www-form-urlencoded
+
+    + Body
+
+            recipientEmail=martin@halamicek.cz&message=Hi
+
++ Response 204
+
+## Token Refresh [/v2/storage/tokens/{id_token}/refresh]
+### Refresh Token [POST]
+This method can be executed by all tokens.
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Parameters
+    + id_token - A valid token id. You can get from Token verification request. 
+
++ Response 200
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            {
+                "id": "48",
+                "token": "new_token",
+                "description": "Master Token",
+                "uri": "https://connection-devel.keboola.com/v2/storage/tokens/id_token",
+                "isMasterToken": false,
+                "bucketPermissions": {
+                    "in.c-main": "manage",
+                    "out.c-main": "manage",
+                    "in.c-twitter": "manage"
+                }
+            }
+
+# Group Miscellaneous
+## API Index [/v2/storage]
+### GET
+API index with available components list
+
++ Response 200
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            {
+              "api": "storage",
+              "documentation": "http://docs.keboola.apiary.io/",
+              "version": "v2",
+              "components": [
+                {
+                    "id": "orchestrator-2",
+                    "uri": "https://orchestrator-2.keboola.com/"
+                },
+                {
+                    "id": "transformation",
+                    "uri": "https://transformation.keboola.com/"
+                }
+              ]
+            }
+
+# Group Buckets
+Bucket encapsulates one or more data tables.
+Access to buckets can be limited by access tokens.
+
+Two backend types are available:
+
+ * Mysql - default backend
+ * Redshift
+
+## Create or List Buckets [/v2/storage/buckets]
+### List all buckets [GET]
+
+All buckets with it's attributes are returned.
+
+#### Parameters
+* **include** - (optional) Comma separated list of resources to include for each table. By default (attributes) are returned. Available resources: attributes'
+
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            [
+              {
+                "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-main",
+                "id": "in.c-main",
+                "name": "c-main",
+                "stage": "in",
+                "description": "Main user storage",
+                "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-main/tables",
+                "backend": "mysql"
+              },
+              {
+                "uri": "https://connection-devel.keboola.com/v2/storage/buckets/out.c-main",
+                "id": "out.c-main",
+                "name": "c-main",
+                "stage": "out",
+                "description": "Main user storage",
+                "tables": "https://connection.keboola.com/v2/storage/buckets/out.c-main/tables",
+                "backend": "mysql"
+              },
+              {
+                "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-ga",
+                "id": "in.c-ga",
+                "name": "c-ga",
+                "stage": "in",
+                "description": "Google Analytics",
+                "tables": "https://connection-devel.keboola.com/v2/storage/buckets/in.c-ga/tables",
+                "backend": "mysql"
+              },
+              {
+                "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-organizationData",
+                "id": "in.c-organizationData",
+                "name": "c-organizationData",
+                "stage": "in",
+                "description": "Source bucket description",
+                "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-organizationData/tables",
+                "backend": "mysql",
+                "isReadonly": true,
+                "sourceBucket": {
+                  "id": "in.c-main",
+                  "name": "c-main",
+                  "description": "Organization shared data"
+                  "project": {
+                    "id": 123,
+                    "name": "Project name"
+                  }
+                }
+              }
+            ]
+
+### Create bucket or Link shared bucket [POST]
+
+##### Parameters for bucket create
+
+* **name** (required) New bucket name (Only characters, numbers are allowed)
+* **stage** (required) Assign bucket to one of stages: `in`, `out`.
+* **description** (optional) Description of bucket.
+* **backend** (optional) bucket backend type, possible values `mysql`, `redshift`. `mysql` is default.
+
+##### Parameters for bucket link
+
+This operations is available only for admins of organization
+
+* **name** (required) Linked bucket name (Only characters, numbers are allowed)
+* **stage** (optional) Assign bucket to one of stages: `in`, `out`. `in` is default
+* **sourceProjectId** (required) source bucket project ID
+* **sourceBucketId** (required) string ID of shared bucket (eg. `in.c-main`)
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            ------WebKitFormBoundaryWTGn7IQH5jc4A6AY
+            Content-Disposition: form-data; name="token"
+            9eabdd51baab4040f952e0e6ae6eff03
+            ------WebKitFormBoundaryWTGn7IQH5jc4A6AY
+            Content-Disposition: form-data; name="name"
+            ga
+            ------WebKitFormBoundaryWTGn7IQH5jc4A6AY
+            Content-Disposition: form-data; name="stage"
+            in
+            ------WebKitFormBoundaryWTGn7IQH5jc4A6AY
+            Content-Disposition: form-data; name="description"
+            Google Analytics
+            ------WebKitFormBoundaryWTGn7IQH5jc4A6AY--
+
++ Response 201
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            {
+                "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-ga",
+                "id": "in.c-ga",
+                "name": "c-ga",
+                "stage": "in",
+                "description": "Google Analytics",
+                "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-ga/tables",
+                "backend": "mysql"
+                "sharing": null
+            }
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            ------WebKitFormBoundaryWTGn7IQH5jc4A6AY
+            Content-Disposition: form-data; name="token"
+            9eabdd51baab4040f952e0e6ae6eff03
+            ------WebKitFormBoundaryWTGn7IQH5jc4A6AY
+            Content-Disposition: form-data; name="name"
+            organizationData
+            ------WebKitFormBoundaryWTGn7IQH5jc4A6AY
+            Content-Disposition: form-data; name="stage"
+            in
+            ------WebKitFormBoundaryWTGn7IQH5jc4A6AY
+            Content-Disposition: form-data; name="sourceProjectId"
+            123
+            ------WebKitFormBoundaryWTGn7IQH5jc4A6AY
+            Content-Disposition: form-data; name="sourceBucketId"
+            in.c-shared-bucket
+            ------WebKitFormBoundaryWTGn7IQH5jc4A6AY--
+
++ Response 201
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            {
+                "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-organizationData",
+                "id": "in.c-organizationData",
+                "name": "c-organizationData",
+                "stage": "in",
+                "description": "Source bucket description",
+                "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-organizationData/tables",
+                "backend": "mysql",
+                "isReadonly": true,
+                "sourceBucket": {
+                    "id": "in.c-main",
+                    "name": "c-main",
+                    "description": "Organization shared data"
+                    "project": {
+                        "id": 123,
+                        "name": "Project name"
+                    }
+                }
+            }
+
+## Manage Bucket [/v2/storage/buckets/{bucket_id}]
+### Bucket detail [GET]
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            {
+                "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-ga",
+                "id": "in.c-ga",
+                "name": "c-ga",
+                "stage": "in",
+                "description": "Google Analytics",
+                "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-ga/tables",
+                "backend": "mysql"
+            }
+
+
+### Drop bucket [DELETE]
+
+In default mode, only empty buckets can be deleted.
+
+Use optional **force** param to delete all bucket's content too.
+
+#### Parameters
+
+* **force** (optional) - Drop all tables and aliases. Tables must have any dependencies (aliases, etc).
+
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 204
+
+## Bucket Sharing [/v2/storage/buckets/{bucket_id}/share]
+
+This operations is available only for admins of organization
+
+### Share bucket [POST]
+
+Bucket will be shared to organization.
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 202
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            {
+                "sharing": "organization"
+            }
+
+
+### Stop bucket sharing [DELETE]
+
+Disable sharing of bucket. Bucket had not to be linked to other projects.
+For unshare already linked buckets, delete their links first.
+
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 204
+
+## List Shared Buckets [/v2/storage/shared-buckets]
+
+This operations is available only for admins of organization
+
+### Shared buckets list [GET]
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+            [
+                {
+                    "id": "in.c-main",
+                    "name": "c-main",
+                    "description": "Organization shared data"
+                    "project": {
+                        "id": 123,
+                        "name": "Project name"
+                    }
+                }
+            ]
+
+# Group Buckets Credentials
+Each bucket have it's data stored in Mysql or Redshift database.
+All Redshift buckets in one project are stored on one redshift cluster.
+
+Read-only credentials for each Redshift bucket can be provided by API.
+
+This resource is accessible only with admin token.
+
+## Create Credentials [/v2/storage/buckets/{bucket_id}/credentials]
+### Create Credentials [POST]
+
+Creates new credentials for Redshift bucket.
+Password is returned only once and cannot be retrieved later!
+
+##### Parameters
+
+* **name** (required) Credentials name
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            name=something
+
++ Response 201
+
+        {
+            "id": 5039,
+            "name": "Tableau",
+            "redshift": {
+                "userName": "mh_ro_5039",
+                "host": "tapi-01.cmizbsfmzc6w.us-east-1.redshift.amazonaws.com",
+                "port": 5439,
+                "databaseName": "mh_3",
+                "schemaName": "in.c-redshift",
+                "password": "password"
+            },
+            "bucket": {
+                "id": "in.c-redshift"
+            },
+            "creatorToken": {
+                "id": 2,
+                "description": "martin@keboola.com"
+            }
+        }
+
+## List Credentials [/v2/storage/credentials]
+### List credentials [GET]
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+
+        [
+           {
+               "id": 5039,
+               "name": "Tableau",
+               "redshift": {
+                   "userName": "martin",
+                   "host": "tapi-01.cmizbsfmzc6w.us-east-1.redshift.amazonaws.com",
+                   "port": 5439,
+                   "databaseName": "dev",
+                   "schemaName": "in.c-redshift"
+               },
+               "bucket": {
+                   "id": "in.c-redshift"
+               },
+               "creatorToken": {
+                   "id": 2,
+                   "description": "martin@keboola.com"
+               }
+           }
+        ]
+
+## Manage Credentials [/v2/storage/credentials/{id}]
+### Get credentials [GET]
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+
+        {
+            "id": 5039,
+            "name": "Tableau",
+            "redshift": {
+                "userName": "martin",
+                "host": "tapi-01.cmizbsfmzc6w.us-east-1.redshift.amazonaws.com",
+                "port": 5439,
+                "databaseName": "dev",
+                "schemaName": "in.c-redshift"
+            },
+            "bucket": {
+                "id": "in.c-redshift"
+            },
+            "creatorToken": {
+                "id": 2,
+                "description": "martin@keboola.com"
+            }
+        }
+
+
+### Delete credentials [DELETE]
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 204
+
+# Group Tables
+API provides you possibility to import your data into tables prepared for you based on your data model.
+
+## Create or List Tables [/v2/storage/buckets/{bucket_id}/tables]
+
+### Create new table from CSV file [POST]
+
+Creates table in bucket. [Read more](#reference/csv-files-formats) about required CSV format.
+Column names are extracted from CSV file header, spaces and any other special characters in column names are
+replaced with underscore.
+
+##### Parameters
+
+* **name** (required) New table name
+* **data** (required) CSV file containing data for import. CSV file data have to be encoded in **UTF-8**. Zip files are also accepted, zip archive must contain file called table_name.csv in it´s root.
+* **delimiter** (optional) Field delimiter used in CSV file. Default value is ','.  Use '\t' or type the tab char for tabulator
+* **enclosure** (optional) Field enclosure used in CSV file. Default value is '"'. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both)
+* **escapedBy** (optional) Escape character used in CSV file. Default value is empty value - no escape character is used. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both)
+* **primaryKey** (optional) Primary key of table. If primary key is set, updates can be done on table. See CSV incremental import. Primary key can be also composed by multiple columns, columns must be separated by comma. For table on MySQL backend maximum number of primary key columns is 4.
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            ------WebKitFormBoundaryqPuY88H6m4oIp6zq
+            Content-Disposition: form-data; name="name"
+            languages
+            ------WebKitFormBoundaryqPuY88H6m4oIp6zq
+            Content-Disposition: form-data; name="data"; filename="f_tw_languages.csv"
+            Content-Type: application/octet-stream
+            file_content
+            ------WebKitFormBoundaryqPuY88H6m4oIp6zq
+            Content-Disposition: form-data; name="delimiter"
+            ,
+            ------WebKitFormBoundaryqPuY88H6m4oIp6zq
+            Content-Disposition: form-data; name="enclosure"
+            "
+            ------WebKitFormBoundaryqPuY88H6m4oIp6zq--
+
++ Response 201
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            {
+                "uri": "https://connection.keboola.com/v2/storage/tables/in.c-main.languages",
+                "id": "in.c-main.languages",
+                "name": "languages",
+                "gdName": "languages",
+                "created": "2012-07-23 09:51:45",
+                "lastImportDate": null,
+                "columns": [
+                    "id",
+                    "name_id",
+                    "nm_id"
+                ],
+                "indexedColumns": [
+                    "id"
+                ],
+                "bucket": {
+                    "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-main",
+                    "id": "in.c-main",
+                    "name": "c-main",
+                    "stage": "in",
+                    "description": "Main user storage",
+                    "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-main/tables"
+                }
+            }
+
+### Tables in bucket [GET]
+
+#### Parameters
+* **include** - (optional) Comma separated list of resources to include for each table. By default `attributes` are returned.
+  Supported resources are: `attributes`, `columns`
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            [
+              {
+                "uri": "https://connection.keboola.com/v2/storage/tables/in.c-main.tweets",
+                "id": "in.c-main.tweets",
+                "name": "tweets",
+                "gdName": "",
+                "created": "2012-07-13 09:58:47",
+                "lastImportDate": "2012-07-13 10:00:42",
+                "backend": "mysql"
+              }
+            ]
+
+
+## Create Table asynchronously [/v2/storage/buckets/{bucket_id}/tables-async]
+
+### Create new table from CSV file asynchronously [POST]
+
+Asynchronous version of table create, this method should be used for larger imports (Everything with 100 lines and more).
+Create request is created and added to queue, job resource url for status polling is returned.
+
+##### Allowed create table sources
+Use one of these:
+
+* dataUrl: Publicly accessible url with CSV file to import
+* dataFileId: Id of file stored in [File Uploads](#reference/files)
+* snapshotId: Id of table snapshot - table will be created from snapshot
+* **dataWorkspaceId** and **dataTableName** - load from table in [workspace](#reference/workspaces)
+
+
+##### Parameters
+Parameters are same as [synchronous version](#reference/tables/create-or-list-tables/create-new-table-from-csv-file) except of data sources
+
++ Request (multipart/form-data; boundary=----WebKitFormBoundaryU2xN082HVaIRptvd)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            ------WebKitFormBoundaryU2xN082HVaIRptvd
+            Content-Disposition: form-data; name="name"
+            table_name
+            ------WebKitFormBoundaryU2xN082HVaIRptvd
+            Content-Disposition: form-data; name="dataFileId"
+            234
+            ------WebKitFormBoundaryU2xN082HVaIRptvd
+            Content-Disposition: form-data; name="delimiter"
+            ,
+            ------WebKitFormBoundaryU2xN082HVaIRptvd
+            Content-Disposition: form-data; name="enclosure"
+            "
+            ------WebKitFormBoundaryU2xN082HVaIRptvd
+
++ Response 202
+
+        {
+            "id": 11,
+            "status": "waiting",
+            "url": "https://connection.keboola.com/v2/storage/jobs/11",
+            "operationName": "tableCreate",
+            "operationParams": {
+                "params": {
+                    "enclosure": "\"",
+                    "delimiter": ",",
+                    "escapedBy": "",
+                },
+                "source": {
+                    "fileId": "234",
+                    "type": "file"
+                }
+            },
+            "createdTime": "2013-05-31T16:11:05+0200",
+            "crea
+            "startTime": null,
+            "endTime": null
+        }
+
+
+## Load Data [/v2/storage/tables/{table_id}/import]
+
+### Load data from csv file to prepared table [POST]
+
+ **This method of import is DEPRECATED**, please use [asynchronous import](#reference/tables/load-data-asynchronously).
+
+ CSV table should contain header with column names, all columns present in table must be also present in CSV file, new columns not present in table are created.
+
+ [Read more](#reference/csv-files-formats) about required CSV format.
+
+
+
+##### Parameters
+
+* **token** (required) Your API access token provided to you by Keboola
+* **incremental**(optional) If incremental is set to 0 target table is truncated before each import. Default is 0.
+* **delimiter** (optional) Field delimiter used in CSV file. Default value is ','.  Use '\t' or type the tab char for tabulator.
+* **enclosure** (optional) Field enclosure used in CSV file. Default value is '"'.
+* **partial** (optional) **DEPRECATED - this parameter will be removed in future version** If partial is set to 1 only some of table columns can be imported. Useful for column updates. Supported only by mysql backend.
+* **columns[]** (optional) List of columns present in CSV file, first line of CSV will not be treated as header!
+* **withoutHeaders** (optional) CSV file doesn't contain headers, columns are matched by order
+
+**Data source**
+
+Use one of these parameters to specify data source
+
+* **data** multipart CSV file  upload
+* **dataString** CSV as string in request body
+* **dataUrl**  URL with CSV files
+
+CSV file can be raw or gzipped. Gzipped file must have extension .gz.
+
++ Request (multipart/form-data; boundary=----WebKitFormBoundaryU2xN082HVaIRptvd)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            ------WebKitFormBoundaryU2xN082HVaIRptvd
+            Content-Disposition: form-data; name="table"
+            table_name
+            ------WebKitFormBoundaryU2xN082HVaIRptvd
+            Content-Disposition: form-data; name="incremental"
+            0
+            ------WebKitFormBoundaryU2xN082HVaIRptvd
+            Content-Disposition: form-data; name="data"; filename="tw_accounts.csv"
+            Content-Type: application/octet-stream
+            file_content
+            ------WebKitFormBoundaryU2xN082HVaIRptvd
+            Content-Disposition: form-data; name="delimiter"
+            ,
+            ------WebKitFormBoundaryU2xN082HVaIRptvd
+            Content-Disposition: form-data; name="enclosure"
+            "
+            ------WebKitFormBoundaryU2xN082HVaIRptvd
+
++ Response 200
+
+        {"status":"ok","warnings":[]}
+
+## Load data asynchronously [/v2/storage/tables/{table_id}/import-async]
+
+### Imports data [POST]
+Asynchronous version of import, this method should be used for larger imports (Everything with 100 lines and more).
+Import request is created and added to queue, job resource url for status polling is returned.
+Asynchronous imports requested on same table will be serialized.
+
+##### Allowed import sources
+Use one of these:
+
+* dataUrl: Publicly accessible url with CSV file to import
+* dataFileId: Id of file stored in [File Uploads](#reference/files)
+
+### Sliced files support
+Imported file can be sliced into multiple chunks, conditions described in  [File Uploads](#reference/files) must be satisfied.
+
+
+##### Typical async import negotiation
+
+1. Upload CSV file using [file upload](#reference/files)
+2. Submit [async import request](#reference/tables/load-data-asynchronously/imports-data) with `dataFileId` set to id returned in previous step
+3. Poll job resource returned in previous step until status is `success` or `error`
+
+##### Parameters
+Parameters are same as [synchronous version](#reference/tables/load-data/imports-data-from-csv-file-to-prepared-table) except of data sources
+
+
+**Data Sources**
+
+* **dataUrl**  URL with CSV file
+* **dataFileId** id of file upload to Storage API file uploads. Gzipped and sliced files are supported.
+* **dataWorkspaceId** and **dataTableName** - load from table in [workspace](#reference/workspaces)
+
+CSV file can be raw or gzipped. Gzipped file must have extension .gz.
+
++ Request (multipart/form-data; boundary=----WebKitFormBoundaryU2xN082HVaIRptvd)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            ------WebKitFormBoundaryU2xN082HVaIRptvd
+            Content-Disposition: form-data; name="table"
+            table_name
+            ------WebKitFormBoundaryU2xN082HVaIRptvd
+            Content-Disposition: form-data; name="incremental"
+            0
+            ------WebKitFormBoundaryU2xN082HVaIRptvd
+            Content-Disposition: form-data; name="data"; filename="tw_accounts.csv"
+            Content-Type: application/octet-stream
+            file_content
+            ------WebKitFormBoundaryU2xN082HVaIRptvd
+            Content-Disposition: form-data; name="delimiter"
+            ,
+            ------WebKitFormBoundaryU2xN082HVaIRptvd
+            Content-Disposition: form-data; name="enclosure"
+            "
+            ------WebKitFormBoundaryU2xN082HVaIRptvd
+
++ Response 202
+
+        {
+            "id": 11,
+            "status": "waiting",
+            "url": "https://connection.keboola.com/v2/storage/jobs/11",
+            "operationName": "tableImport",
+            "operationParams": {
+                "params": {
+                    "enclosure": "\"",
+                    "delimiter": ",",
+                    "escapedBy": "",
+                    "incremental": false,
+                    "partial": false
+                },
+                "source": {
+                    "fileId": "155464",
+                    "type": "file"
+                }
+            },
+            "createdTime": "2013-05-31T16:11:05+0200",
+            "startTime": null,
+            "endTime": null
+        }
+
+
+
+
+
+## Unload Data [/v2/storage/tables/{table_id}/export]
+### Exports table into csv [GET]
+
+This method is **DEPRECATED**, please use asynchronous version of this method.
+
+##### HTTP Compression
+
+To enable compression of API response traffic, please include the following HTTP header with API request:
+    Accept-encoding: gzip
+
+#### Error Handling
+
+At the moment when the streaming connection is established HTTP 200 response code is returned and data are streamed row by row.
+When some error occurs and data cannot be streamed anymore special row is returned to stream `KBC_INTERNAL_ERROR`.
+When you receive this message please run export again, these errors should be very rare.
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+            Accept-encoding: gzip
+
++ Response 200 (text/csv)
+    + Headers
+
+            Content-Encoding: gzip
+
+    + Body
+
+            "id","name"
+            "26","czech"
+            "1","english"
+            "11","finnish"
+            "24","french"
+
+## Unload Data Asynchronously [/v2/storage/tables/{table_id}/export-async]
+
+### Asynchronous export [POST]
+
+Exports data into files storage, id of created file is returned.
+This task is asynchronous, id of created file is stored in `results` of created job when the job is finished.
+
+##### Parameters
+
+* **limit** (optional) Limit the number of returned rows
+* **days** (optional) `DEPRECATED will be removed in future` Return rows created or updated in last X days
+* **format** (optional)
+  * `rfc` according to [RFC](http://www.ietf.org/rfc/rfc4180.txt). Default format if parameter is not set.
+  * `escaped` Delimited by comma, enclosed by double quote, special characters (e.q new line, tab) escaped by backslash. Each row in CSV file is equal to one row in storage.
+  * `raw` Delimited by tab, without enclosure, special characters (e.q new line, tab)  escaped by backslash. Each row in CSV file is equal to one row in storage.
+* **changedSince**, **changedUntil** - (optional) filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp or any date accepted by [strtotime](http://www.php.net/manual/en/function.strtotime.php).
+Examples: `-2 days`, `1360138863`, `2013-02-12T15:19:21+00:00`
+* **columns** (optional) comma separated list of columns to export, by default all columns are exported
+* **whereColumn, whereValues, whereOperator** (optional) rows filtering, see more in rows filtering section.
+* **gzip** (boolean) response will be gzipped if set
+
+##### Rows filtering
+Results can be filtered by single filter.
+Example of filtering by userId column:
+
+* `whereColumn=UserId&whereValues[]=23423` - Filter by single values of one column
+* `whereColumn=UserId&whereValues[]=23423&whereValues[]=123` - Filter by multiple values of one column
+* `whereColumn=UserId&whereValues[]=23423&whereOperator=ne` - Use a different comparison operator
+
+Only [Indexed columns](#reference/tables/create-column-index/mark-column-as-indexed) can be used in `whereColumn` parameter!
+
+###### Comparison operators
+
+These comparison operators are available:
+
+* **eq** Equals (can be used with multiple values)
+* **ne** Not equals (can be used with multiple values)
+
+
+### Caching
+
+Asynchronous exports support caching, when the file for certain parameters was already created and there were no changes
+in table data between, existing file is returned.
+
+### Job results
+
+Job results contains information about created file and caching
+
+  {
+    "file": {
+      "id": 234
+    },
+    "cacheHit": false
+  }
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+            Accept-encoding: gzip
+
++ Response 202
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            {
+               "id":1190,
+               "status":"waiting",
+               "url":"https:\/\/connection.keboola.com\/v2\/storage\/jobs\/1190",
+               "tableId":"in.c-main.another",
+               "operationName":"tableExport",
+               "operationParams":{
+                  "whereColumn":"id",
+                  "whereValues": [12344],
+                  "whereOperator": "eq"
+               },
+               "createdTime":"2013-07-08T10:01:03+0200",
+               "startTime":null,
+               "endTime":null,
+               "runId":null,
+               "runIds":[],
+               "results":null,
+               "creatorToken":{
+                  "id":"221",
+                  "name":"Master Token"
+               }
+            }
+
+
+## Manage Tables [/v2/storage/tables/{table_id}]
+
+### Table detail [GET]
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+
+        {
+            "uri": "https://connection.keboola.com/v2/storage/tables/in.c-main.tweets",
+            "id": "in.c-main.tweets",
+            "name": "tweets",
+            "gdName": "",
+            "created": "2012-07-13 09:58:47",
+            "lastImportDate": "2012-07-13 10:00:42",
+            "backend": "mysql",
+            "columns": [
+                "id",
+                "idAccount",
+                "idTwitter",
+                "idAuthor",
+                "text",
+                "idLanguage",
+                "date",
+                "retweets",
+                "idSentimentType",
+                "sentimentScore",
+                "potentialImpressions",
+                "source",
+                "type",
+                "basicType",
+                "age",
+                "idSourceTweet",
+                "idSourceUser",
+                "hasRetweetsImportedByRestApi",
+                "timestamp"
+            ],
+            "bucket": {
+                "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-main",
+                "id": "in.c-main",
+                "name": "c-main",
+                "stage": "in",
+                "description": "Main user storage",
+                "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-main/tables"
+            },
+            "isAlias": 0
+        }
+
+### Drop table [DELETE]
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 204
+
+## Table Optimize [/v2/storage/tables/{table_id}/optimize]
+
+### Optimize table [POST]
+This is utility command implemented only for projects with Redshift backend.
+Redshift tables with lot of small increment loads bloats on its size and optimize command is automatically scheduled to fix this issue.
+
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+
+        {
+          "id": 245,
+          "status": "waiting",
+          "url": "/v2/storage/jobs/245",
+          "tableId": "in.c-API-tests.MyLanguages_test",
+          "operationName": "tableOptimize",
+          "operationParams": {
+            "queue": "main_fast"
+          },
+          "createdTime": "2016-10-17T10:31:52+0200",
+          "startTime": null,
+          "endTime": null,
+          "runId": null,
+          "results": null,
+          "creatorToken": {
+            "id": "31",
+            "description": "dev@keboola.com"
+          },
+          "metrics": {
+            "inCompressed": false,
+            "inBytes": 0,
+            "inBytesUncompressed": 0,
+            "outCompressed": false,
+            "outBytes": 0,
+            "outBytesUncompressed": 0
+            }
+        }
+
+
+## List all Tables [/v2/storage/tables]
+
+### List all tables of user identified by token [GET]
+
+By default all tables are returned with all attributes and parent bucket.
+
+#### Parameters
+* **include** - (optional) Comma separated list of resources to include for each table. By default (`attributes`, `buckets`) are returned.
+  Supported resources are: `attributes`, `buckets`, `columns`
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            [
+              {
+                "uri": "https://connection.keboola.com/v2/storage/tables/in.c-main.tweets",
+                "id": "in.c-main.tweets",
+                "name": "tweets",
+                "gdName": "",
+                "created": "2012-07-13 09:58:47",
+                "lastImportDate": "2012-07-13 10:00:42",
+                "bucket": {
+                  "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-main",
+                  "id": "in.c-main",
+                  "name": "c-main",
+                  "stage": "in",
+                  "description": "Main user storage",
+                  "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-main/tables",
+                  "backend": "mysql"
+                }
+              },
+              {
+                "uri": "https://connection.keboola.com/v2/storage/tables/in.c-main.tweets_2",
+                "id": "in.c-main.tweets_2",
+                "name": "tweets_2",
+                "gdName": "",
+                "created": "2012-07-13 15:04:27",
+                "lastImportDate": null,
+                "bucket": {
+                  "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-main",
+                  "id": "in.c-main",
+                  "name": "c-main",
+                  "stage": "in",
+                  "description": "Main user storage",
+                  "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-main/tables",
+                  "backend": "mysql"
+                }
+              },
+              {
+                "uri": "https://connection.keboola.com/v2/storage/tables/out.c-main.tweets",
+                "id": "out.c-main.tweets",
+                "name": "tweets",
+                "gdName": "",
+                "created": "2012-07-13 10:17:25",
+                "lastImportDate": null,
+                "bucket": {
+                  "uri": "https://connection.keboola.com/v2/storage/buckets/out.c-main",
+                  "id": "out.c-main",
+                  "name": "c-main",
+                  "stage": "out",
+                  "description": "Main user storage",
+                  "tables": "https://connection.keboola.com/v2/storage/buckets/out.c-main/tables",
+                  "backend": "mysql"
+                }
+              }
+            ]
+
+
+## Create Table Columns [/v2/storage/buckets/{table_id}/columns/]
+
+### Add column to table [POST]
+
+Asynchronous request.
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+            Content-type: application/x-www-form-urlencoded
+
+    + Body
+
+            name=new-column
+
++ Response 202
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            {
+               "id":1189,
+               "status":"waiting",
+               "url":"https:\/\/connection.keboola.com\/v2\/storage\/jobs\/1189",
+               "tableId":"in.c-main.another",
+               "operationName":"tableColumnAdd",
+               "operationParams":{
+                  "name":"new-column"
+               },
+               "createdTime":"2013-07-08T10:01:03+0200",
+               "startTime":null,
+               "endTime":null,
+               "runId":null,
+               "results":null,
+               "creatorToken":{
+                  "id":"221",
+                  "name":"Master Token"
+               }
+            }
+
+## Manage Table Columns [/v2/storage/tables/{table_id}/columns/{column_name}]
+
+### Delete column from table [DELETE]
+
+Asynchronous request.
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 202
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            {
+               "id":1189,
+               "status":"waiting",
+               "url":"https:\/\/connection.keboola.com\/v2\/storage\/jobs\/1189",
+               "tableId":"in.c-main.another",
+               "operationName":"tableColumnDelete",
+               "operationParams":{
+                  "name":"new-column"
+               },
+               "createdTime":"2013-07-08T10:01:03+0200",
+               "startTime":null,
+               "endTime":null,
+               "runId":null,
+               "results":null,
+               "creatorToken":{
+                  "id":"221",
+                  "name":"Master Token"
+               }
+            }
+
+## Primary Keys [/v2/storage/tables/{table_id}/primary-key/]
+### Create primary key [POST]
+
+If primary key is set, updates can be done on table. See CSV incremental import. Primary key can be also composed by multiple columns. For table on MySQL backend maximum number of primary key columns is 4.
+
+Asynchronous request.
+
+#### Parameters
+
+* **columns** - Array of columns used as primary key
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+            Content-type: application/x-www-form-urlencoded
+
+    + Body
+
+            columns[]=id
+
++ Response 202
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            {
+               "id":1189,
+               "status":"waiting",
+               "url":"https:\/\/connection.keboola.com\/v2\/storage\/jobs\/1189",
+               "tableId":"in.c-main.another",
+               "operationName":"tablePrimaryKeyAdd",
+               "operationParams":{
+                  "columns":["id"]
+               },
+               "createdTime":"2013-07-08T10:01:03+0200",
+               "startTime":null,
+               "endTime":null,
+               "runId":null,
+               "results":null,
+               "creatorToken":{
+                  "id":"221",
+                  "name":"Master Token"
+               }
+            }
+
+### Remove primary key [DELETE]
+
+Asynchronous request.
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 202
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            {
+               "id":1189,
+               "status":"waiting",
+               "url":"https:\/\/connection.keboola.com\/v2\/storage\/jobs\/1189",
+               "tableId":"in.c-main.another",
+               "operationName":"tablePrimaryKeyDelete",
+               "operationParams":{
+               },
+               "createdTime":"2013-07-08T10:01:03+0200",
+               "startTime":null,
+               "endTime":null,
+               "runId":null,
+               "results":null,
+               "creatorToken":{
+                  "id":"221",
+                  "name":"Master Token"
+               }
+            }
+
+## Create Column Index [/v2/storage/buckets/{table_id}/indexed-columns/]
+
+### Mark column as indexed [POST]
+
+Data can be filtered by indexed columns - see more in table export method.
+Primary key is automatically indexed.
+Number of indexed columns is limited to 4 including primary key.
+
+Asynchronous request.
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+            Content-type: application/x-www-form-urlencoded
+
+    + Body
+
+            name=authorName
+
++ Response 202
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            {
+               "id":1189,
+               "status":"waiting",
+               "url":"https:\/\/connection.keboola.com\/v2\/storage\/jobs\/1189",
+               "tableId":"in.c-main.another",
+               "operationName":"tableIndexedColumnAdd",
+               "operationParams":{
+                  "name":"new-column"
+               },
+               "createdTime":"2013-07-08T10:01:03+0200",
+               "startTime":null,
+               "endTime":null,
+               "runId":null,
+               "results":null,
+               "creatorToken":{
+                  "id":"221",
+                  "name":"Master Token"
+               }
+            }
+
+## Manage Column Indexes [/v2/storage/tables/{table_id}/indexed-columns/{column_name}]
+
+### Remove column index [DELETE]
+
+Asynchronous request.
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 202
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            {
+               "id":1189,
+               "status":"waiting",
+               "url":"https:\/\/connection.keboola.com\/v2\/storage\/jobs\/1189",
+               "tableId":"in.c-main.another",
+               "operationName":"tableIndexedColumnDelete",
+               "operationParams":{
+                  "name":"new-column"
+               },
+               "createdTime":"2013-07-08T10:01:03+0200",
+               "startTime":null,
+               "endTime":null,
+               "runId":null,
+               "results":null,
+               "creatorToken":{
+                  "id":"221",
+                  "name":"Master Token"
+               }
+            }
+
+
+## Manage Table Rows [/v2/storage/tables/{table_id}/rows]
+
+### Delete table rows by filter [DELETE]
+
+Asynchronous task.
+
+Deletes all rows matching the filter, number of deleted rows is returned.
+
+#### Filter parameters
+
+* **whereColumn, whereValues, whereOperator** (optional) rows filtering, see more in table export resources section.
+* **changedSince**, **changedUntil** - (optional) filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp or any date accepted by [strtotime](http://www.php.net/manual/en/function.strtotime.php).
+Examples: `-2 days`, `1360138863`, `2013-02-12T15:19:21+00:00`
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+            Accept-encoding: gzip
+
++ Response 202
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            {
+               "id":1190,
+               "status":"waiting",
+               "url":"https:\/\/connection.keboola.com\/v2\/storage\/jobs\/1190",
+               "tableId":"in.c-main.another",
+               "operationName":"tableRowsDelete",
+               "operationParams":{
+                  "whereColumn":"id",
+                  "whereValues": [12344],
+                  "whereOperator": "eq"
+               },
+               "createdTime":"2013-07-08T10:01:03+0200",
+               "startTime":null,
+               "endTime":null,
+               "runId":null,
+               "results":null,
+               "creatorToken":{
+                  "id":"221",
+                  "name":"Master Token"
+               }
+            }
+
+
+# Group Table  Aliases
+
+
+Alias table behaves like a Database View as it does not contain any data. It is simply a link to already existing data.
+When you requests data from alias table, you will receive data from source table.
+It is not  allowed to write data into alias table. In all other cases alias table behaves in same manner as any other table.
+Simple aliases are supported in `MySQL` backend projects.
+
+Aliasing is allowed in these directions:
+
+* *in* -> *in*
+* *in* -> *out*
+* *out* -> *out*
+
+Aliases cannot be chained and can be applied only between buckets with same backend.
+
+#### Filtered Alias
+
+Rows present in alias table can be filtered by simple condition similar to table export filtering.
+Filter parameters `aliasFilter` must be set during alias table creation or later to enable filtering:
+
+* **column** - Filtered by column name
+* **operator** - Filter operator: `eq`, `ne`
+* **values[]** - One or more filter values
+
+There are some limitations:
+* Filtering is enabled only on indexed tables
+* Index on filtered column of source table cannot be removed
+
+#### Alias table columns
+By default alias columns are automatically synced with source table.
+You can disable this behaviour by setting up `aliasColumnsAutosync` to `false` and setting up list of columns by `aliasColumns` parameter.
+Later you can modify alias columns by table columns methods.
+When turning `aliasColumnsAutoSync` back on, columns will be immediately synced with source table.
+
+## Create Table Alias [/v2/storage/buckets/{bucket_id}/table-aliases]
+
+### Create new alias table [POST]
+
+#### Parameters
+
+* **sourceTable** (required) ID of source table. Source table has to be in "in" stage bucket.
+* **aliasFilter** (optional) Rows filtering
+ * **column**, **operator**, **values**
+* **aliasColumns** (optional) List of alias columns, this disables columns auto sync with source table
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            ------WebKitFormBoundaryqPuY88H6m4oIp6zq
+            Content-Disposition: form-data; name="sourceTable"
+            in.c-main.leads
+            Content-Disposition: form-data; name="name"
+            leads
+            ------WebKitFormBoundaryqPuY88H6m4oIp6zq--
+
++ Response 201
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            {
+              "uri": "https:\/\/connection.keboola.com\/v2/storage\/tables\/out.c-main.leads",
+              "id": "out.c-main.leads",
+              "name": "leads",
+              "gdName": "leads",
+              "created": "2012-08-07 14:53:27",
+              "primaryKey": [
+              ],
+              "lastImportDate": null,
+              "sourceTable": {
+                "id": "in.c-main.leads",
+                "uri": "https:\/\/connection.keboola.com\/v2\/storage\/tables\/in.c-main.leads"
+              },
+              "columns": [
+                "lead_state_id",
+                "lead_state",
+                "lead_state_order"
+              ],
+              "aliasColumnsAutoSync": false,
+              "bucket": {
+                "uri": "https:\/\/connection.keboola.com\/v2\/storage\/buckets\/out.c-main",
+                "id": "out.c-main",
+                "name": "c-main",
+                "stage": "out",
+                "description": "Main out",
+                "tables": "https:\/\/connection.keboola.com\/v2\/storage\/buckets\/out.c-main\/tables",
+                "created": "2012-08-07 13:49:22"
+              }
+            }
+
+
+## Manage Alias Filters [/v2/storage/tables/{table_id}/alias-filter]
+
+### Update or set alias filter [POST]
+
+#### Parameters
+* **column**
+* **operator**
+* **values**
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+
+
+### Remove alias filter [DELETE]
+
++ Response 204
+
+
+## Alias Columns Sync [/v2/storage/tables/{table_id}/alias-columns-auto-sync]
+
+### Enable alias columns auto sync [POST]
+
+All columns from source table will be immediately synchronized into alias table
+
++ Response 204
+
+
+### Disable alias columns auto sync [DELETE]
+
++ Response 204
+
+
+
+# Group Table Snapshotting
+
+
+Bucket or table data and metadata (attributes, columns settings) can be persisted by creating snapshot. When snapshot is created you can whenever restore back to snapshotted state.
+Restore can be applied to original table/bucket or can be restored into new  table/bucket.
+
+## Create or List Snapshots [/v2/storage/tables/{table_id}/snapshots]
+
+### Create table snapshot [POST]
+
+Asynchronous request.
+
+Table snapshot will contain:
+
+* Table data
+* Table attributes
+* Table properties (Primary key, indexed columns, etc.)
+
+Alias table snapshots contains only alias settings, data aren't stored with snapshot.
+
+#### Parameters
+
+* **description** Snapshot description
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            description=My first snapshot
+
++ Response 202
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            { "createdTime" : "2013-08-12T12:33:04+0200",
+              "creatorToken" : { "description" : "Master Token",
+                  "id" : "221"
+                },
+              "endTime" : null,
+              "id" : 2927,
+              "operationName" : "tableSnapshotCreate",
+              "operationParams" : { "description" : "My first snapshot" },
+              "results" : null,
+              "runId" : null,
+              "startTime" : null,
+              "status" : "waiting",
+              "tableId" : "in.c-dalsi.alias",
+              "url" : "https://connection.keboola.com/v2/storage/jobs/2927"
+            }
+
+
+### List table snapshots [GET]
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            [
+              { "createdTime" : "2013-08-12T12:33:04+0200",
+                "creatorToken" : { "description" : "Master Token",
+                    "id" : 221
+                  },
+                "dataFileId" : "161757",
+                "description" : "My first snapshot",
+                "id" : "20",
+                "type" : "table"
+              }
+             ]
+
+## Manage snapshots [/v2/storage/snapshots/{snapshot_id}]
+
+### Snapshot detail [GET]
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            {
+                "id": "20",
+                "description": "",
+                "createdTime": "2013-08-12T12:33:04+0200",
+                "type": "table",
+                "creatorToken": {
+                    "id": 221,
+                    "description": "Master Token"
+                },
+                "dataFileId": "161757",
+                "table": {
+                    "id": "in.c-dalsi.alias",
+                    "primaryKey": [],
+                    "indexedColumns": [],
+                    "attributes": [
+                        {
+                            "name": "afd",
+                            "value": "sdfa",
+                            "protected": false
+                        },
+                        {
+                            "name": "pokus",
+                            "value": "neco",
+                            "protected": false
+                        },
+                        {
+                            "name": "test",
+                            "value": "adsf",
+                            "protected": false
+                        },
+                        {
+                            "name": "sadf",
+                            "value": "",
+                            "protected": false
+                        },
+                        {
+                            "name": "asd",
+                            "value": "",
+                            "protected": false
+                        }
+                    ],
+                    "columns": [
+                        "id",
+                        "name"
+                    ]
+                }
+            }
+
+
+### Delete table snapshot [DELETE]
+
+Asynchronous task.
+
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 202
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            {
+               "id":1189,
+               "status":"waiting",
+               "url":"https:\/\/connection.keboola.com\/v2\/storage\/jobs\/1189",
+               "tableId":"in.c-main.another",
+               "operationName":"tableSnapshotDelete",
+               "operationParams":{
+                  "snapshotId":"80954"
+               },
+               "createdTime":"2013-07-08T10:01:03+0200",
+               "startTime":null,
+               "endTime":null,
+               "runId":null,
+               "results":null,
+               "creatorToken":{
+                  "id":"221",
+                  "name":"Master Token"
+               }
+            }
+
+## Rollback Snapshot [/v2/storage/tables/{table_id}/rollback]
+
+### Rollback table from snapshot [POST]
+
+Asynchronous request.
+
+
+Table **data**, **medatadata** and **attributes** are returned into state stored in specified snapshot.
+
+Rollback is disabled if there are some table aliasing rollbacked table and columns which are not present in snapshot are referenced either in alias columns or in alias filter.
+
+####
+
+* **snapshotId** - snapshot to be rolled back
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            snapshotId=333
+
++ Response 200
+
+
+# Group Workspaces
+
+Workspaces provide playground for your data. You can load data from your storage, explore or modify them
+and than optionally load it back to storage tables.
+Workspace is represented by access credentials to storage backend with permissions to write
+to workspace specific schema.
+
+## Workspaces Collection [/v2/storage/workspaces]
+
+### Create new workspace [POST]
+
+
+**Parameters**
+
++ backend: snowflake (optional, string) - Workspace backend (redshift or snowflake), by default project default backend is used
++ statementTimeoutSeconds: (optional) - Time, in seconds, after which a running SQL statement is canceled by the system. Supported only for Snowflake workspaces.
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            name=martin&backend=snowflake
+
++ Response 201 (application/json)
+
+   + Attributes (WorkspaceCreated)
+
+
+### List workspaces [GET]
+
++ Response 200 (application/json)
+
+   + Attributes (array[Workspace])
+
+## Manage Workspace [/v2/storage/workspaces/{workspace_id}]
+
++ Parameters
+
+    + workspace_id (number)
+
+### Workspace detail [GET]
+
++ Response 200 (application/json)
+
+    + Attributes (Workspace)
+
+### Delete workspace [DELETE]
+
+Optional parameters:
+
+ - `async` - workspace will be delete asynchronously. Job will be created and enqueued
+
++ Response 204
+
+## Workspace Operations [/v2/storage/workspaces/{workspace_id}/load]
+
++ Parameters
+
+    + workspace_id (number)
+
+### Load data into workspace [POST]
+
+**Parameters**
+
++ **input[mappings]**: (required, array) - Mappings of source tables with destinations to be loaded into the workspace
+    * mapping:
+        * **source** (required) Full table identifier of source table (eg: in.c-bucket.mytable)
+        * **destination** (required) Destination table name
+        * **rows** (optional) Limit the number of returned rows
+        * **days** (optional) `DEPRECATED will be removed in future` Return rows created or updated in last X days
+        * **seconds** (optional) Return rows created or updated in the last X seconds.
+        * **columns** (optional) comma separated list of columns to export, by default all columns are exported
+        * **whereColumn, whereValues, whereOperator** (optional) rows filtering, see more in rows filtering section.
+        * **datatypes** (optional) key/value array of column name / type to be applied
+        * **sortKey** (optional - Redshift only) Column(s) to be used as sort key
+        * **distStyle** (optional - Redshift only) Distribution style (even, all, or key)
+        * **distKey** (optional - Redshift only) Column(s) to use for key distribution style
++ **preserve**: (optional, boolean, default false) - if true, the workspace will not be altered before loading.  Default false clears the workspace before loading.
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            ----WebKitFormBoundary7MA4YWxkTrZu0gW
+            Content-Disposition: form-data; name="input[0][source]"
+            in.c-bucket.sampletable
+            ----WebKitFormBoundary7MA4YWxkTrZu0gW
+            Content-Disposition: form-data; name="input[0][destination]"
+            develtable
+            ----WebKitFormBoundary7MA4YWxkTrZu0gW
+
++ Response 201 (application/json)
+
+
+## Data Structures
+
+### Workspace
+
++ id: 234 (number)
++ name: boring_wozniak (string) - working schema name
++ created 2016-05-17T11:11:20+0200 (date)
++ connection
+    + backend: snowflake (string)
+    + host: keboola.snowflakecomputing.com (string)
+    + database: keboola_123 (string)
+    + schema:  boring_wozniak (string)
+    + warehouse: SAPI_PROD (string)
+    + user: xzy (string)
++ creatorToken
+    + id: 234 (number)
+    + description: martin@keboola.com (string)
++ creatorUser
+    + id: 234 (number)
+    + name: Martin  (string)
+
+### WorkspaceCreated (Workspace)
+
++ connection
+    + backend: snowflake (string)
+    + host: keboola.snowflakecomputing.com (string)
+    + database: keboola_123 (string)
+    + schema:  boring_wozniak (string)
+    + warehouse: SAPI_PROD (string)
+    + user: xzy (string)
+    + password: abc (string) - password is not stored and is returned only after workspace creation
+
+# Group Events
+You can access all events created on an account. Every interaction on clients account such as API call creates event.
+External events can be also logged an accessed by events API. Events are available for 6 months from the creation.
+
+
+All API calls below returns list of Event structure.
+
+### Event structure
+* *uri* - event uri
+* *event* - event identifier such as storage.tableImportDone or storage.tableDetail
+* *message* - human readable description of event
+* *description* - additional description of event such as detailed error description
+* *type* - type of event, possible types: info, error
+* *published* - datetime when the event was published
+* *objectId* - id of target object of event. e.g. *id* of table for storage.tableImportDone event
+* *objectType* - type of target object type of event. e.g. *table* for  storage.tableImportDone event
+* *objectName* - name of target object type of event. e.g. *table name* for  storage.tableImportDone event
+* *component* - name of component that logged event, events can be logged into SAPI by external components. Examples of component names: transformation, wr-gooddata, ex-sfdc, ex-paymo
+* *configurationId* - id of configuration used by external component. e.q. transformation configuration bucket id for transformation component.
+* *runId* - id of task run
+* *context* - context of event such as caller IP address
+* *params* - parameters associated to event. e.g. csv file settings for table import
+* *performance* - performance metrics associated to event
+* *token* - creator of event
+* *attachments* - list of attached files. e.q. backups for table import events
+
+### Events filtering
+
+Events can be filtered by various filters:
+
+* *sinceId*, *maxId* - newer or older events than passed id
+* *component* - component name
+* *configurationId* - configuration id
+* *runId* - run id
+* *q* - advanced search using query string. [Query string syntax](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax)
+
+### Events pagination
+
+* *limit* - number of returned events. Default value: 100
+* *offset* - pagination offset
+
+## Create Events [/v3/storage/events]
+
+### Create event [POST]
+
+Create new event.
+
+##### Parameters
+
+* *message* - event message
+* *component* - name of component. e.q. transformation, ex-sfdc, ...
+* *description* - (optional) event description
+* *type* - (optional) type of event, must be one of (`info`, `success`, `error`, `warn`). Default value is `info`
+* *configurationId* - (optional) id of configuration executed by component e.q. sys.c-transformation
+* *params* - (optional) JSON object of custom data
+* *results* - (optional) JSON object of custom data
+* *duration* - (optional) duration of task in seconds
+* *runId* - (optional) id of task run. Events belonging into one business task such as transformation run belongs to one runId.
+
+
+Maximum allowed size of event is 200KB otherwise 400 response code is returned.
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            ------WebKitFormBoundarySNyHIBlvak3AgQvJ
+            Content-Disposition: form-data; name="component"
+            ex-sfdc
+            ------WebKitFormBoundarySNyHIBlvak3AgQvJ
+            Content-Disposition: form-data; name="runId"
+            2344543265426
+            ------WebKitFormBoundarySNyHIBlvak3AgQvJ
+            Content-Disposition: form-data; name="message"
+            Account 23 fetched
+            ------WebKitFormBoundarySNyHIBlvak3AgQvJ
+            Content-Disposition: form-data; name="description"
+            some description
+            ------WebKitFormBoundarySNyHIBlvak3AgQvJ
+            Content-Disposition: form-data; name="type"
+            info
+            ------WebKitFormBoundarySNyHIBlvak3AgQvJ
+            Content-Disposition: form-data; name="configurationId"
+            sys.c-sfdc-01
+            ------WebKitFormBoundarySNyHIBlvak3AgQvJ--
+
++ Response 201
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            {"id":"13008826"}
+
+## List Events [/v2/storage/events]
+
+### Events list [GET]
+
+Lists all events associated to client.
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            [
+              {
+                "id": 13000582,
+                "uri": "https:\/\/kbc-api-03.keboola.com\/\/v2\/storage\/events\/13000582",
+                "event": "storage.tableExported",
+                "component": "storage",
+                "message": "Table in.c-main.2cols exported to CSV file.",
+                "description": "",
+                "type": "info",
+                "runId": null,
+                "created": "2012-12-12T15:43:37+0100",
+                "published": "2012-12-12T15:43:37+0100",
+                "configurationId": null,
+                "objectId": "in.c-main.2cols",
+                "objectName": "2cols",
+                "objectType": "table",
+                "context": {
+                  "remoteAddr": "89.176.112.21",
+                  "httpReferer": "https:\/\/storage-api-console-rc.keboola.com\/tables\/in.c-main.2cols",
+                  "httpUserAgent": "Keboola Storage API Console",
+                  "httpUserAgentOriginal": "Mozilla\/5.0 (Windows NT 6.1; WOW64) AppleWebKit\/537.11 (KHTML, like Gecko) Chrome\/23.0.1271.95 Safari\/537.11",
+                  "apiVersion": "v2"
+                },
+                "params": {
+                  "limit": "100",
+                  "days": null
+                },
+                "results": [
+                ],
+                "performance": {
+                  "exportDuration": 0.072233915328979
+                },
+                "token": {
+                  "name": "Master token",
+                  "id": "47"
+                },
+                "attachments": [
+                ]
+              },
+              {
+                "id": 13000581,
+                "uri": "https:\/\/kbc-api-03.keboola.com\/\/v2\/storage\/events\/13000581",
+                "event": "storage.tableImportDone",
+                "component": "storage",
+                "message": "Table in.c-main.2cols was successfully imported.",
+                "description": "",
+                "type": "success",
+                "runId": null,
+                "created": "2012-12-12T15:43:37+0100",
+                "published": "2012-12-12T15:43:37+0100",
+                "configurationId": null,
+                "objectId": "in.c-main.2cols",
+                "objectName": "2cols",
+                "objectType": "table",
+                "context": {
+                  "remoteAddr": "89.176.112.21",
+                  "httpReferer": "https:\/\/storage-api-console-rc.keboola.com\/tables\/in.c-main.2cols",
+                  "httpUserAgent": "Keboola Storage API Console",
+                  "httpUserAgentOriginal": "Mozilla\/5.0 (Windows NT 6.1; WOW64) AppleWebKit\/537.11 (KHTML, like Gecko) Chrome\/23.0.1271.95 Safari\/537.11",
+                  "apiVersion": "v2"
+                },
+                "params": {
+                  "csv": {
+                    "file": "upload.csv",
+                    "delimiter": "",
+                    "enclosure": null,
+                    "lineBreak": "\\n"
+                  },
+                  "incremental": false,
+                  "partial": false
+                },
+                "results": {
+                  "backupPath": "http:\/\/s3.amazonaws.com\/keboola-clients\/67\/tables\/in.c-main.2cols.50c8a628672d9.zip",
+                  "rowsCount": "7",
+                  "warnings": [
+                  ],
+                  "importedColumns": [
+                    "col1",
+                    "col2"
+                  ]
+                },
+                "performance": {
+                  "unpackDuration": 0.024708032608032,
+                  "bomRemoveDuration": 0.0212562084198,
+                  "importDuration": 0.21714282035828,
+                  "packDuration": 0.00066399574279785,
+                  "s3StorageDuration": 0.33707690238953
+                },
+                "token": {
+                  "name": "Master token",
+                  "id": "47"
+                },
+                "attachments": [
+                  {
+                    "id": 41826,
+                    "uploadType": "importBackup",
+                    "created": "2012-12-12T16:43:37+0100",
+                    "name": "keboola-clients\/67\/tables\/in.c-main.2cols.50c8a628672d9.zip",
+                    "url": "https:\/\/s3.amazonaws.com\/keboola-clients\/67\/tables\/in.c-main.2cols.50c8a628672d9.zip?AWSAccessKeyId=AKIAIWV4CERAKGFDUZDA&Expires=1355330618&Signature=v755mIz9hnska9vs%2BcWZiX661%2FA%3D",
+                    "sizeBytes": 336
+                  }
+                ]
+              }
+            ]
+
+## List Buckets Events [/v2/storage/buckets/{bucket_id}/events]
+
+### Bucket events list [GET]
+
+Lists all events associated to particular bucket
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            [
+                {
+                    "uri": "https://connection.keboola.com/v2/storage/events/2534",
+                    "event": "storage.bucketDetail",
+                    "message": "Bucket in.c-main detail fetched.",
+                    "description": "",
+                    "type": "info",
+                    "published": "2012-07-31 13:48:56",
+                    "objectId": "in.c-main",
+                    "objectName": "c-main",
+                    "objectType": "bucket",
+                    "context": {
+                        "remoteAddr": "80.250.0.154",
+                        "httpUserAgent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.11 (KHTML, like Gecko) Chrome/20.0.1132.57 Safari/536.11",
+                        "httpReferer": null
+                    },
+                    "params": [],
+                    "results": [],
+                    "performance": [],
+                    "token": {
+                        "name": "Master Token",
+                        "id": "48"
+                    }
+                },
+                {
+                    "uri": "https://connection.keboola.com/v2/storage/events/2531",
+                    "event": "storage.tableImportStarted",
+                    "message": "Table in.c-main.languages import started.",
+                    "description": "",
+                    "type": "info",
+                    "published": "2012-07-31 13:34:19",
+                    "objectId": "in.c-main.languages",
+                    "objectName": "languages",
+                    "objectType": "metadataTable",
+                    "context": {
+                        "remoteAddr": "80.250.0.154",
+                        "httpUserAgent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.11 (KHTML, like Gecko) Chrome/20.0.1132.57 Safari/536.11",
+                        "httpReferer": null
+                    },
+                    "params": [],
+                    "results": [],
+                    "performance": [],
+                    "token": {
+                        "name": "Master Token",
+                        "id": "48"
+                    }
+                }
+            ]
+
+## List Table Events [/v2/storage/tables/{table_id}/events]
+
+### Table events list [GET]
+
+Lists all events associated to particular table.
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            [
+                {
+                    "uri": "https://connection.keboola.com/v2/storage/events/2536",
+                    "event": "storage.tableDetail",
+                    "message": "Table detail out.c-main.hugo fetched.",
+                    "description": "",
+                    "type": "info",
+                    "published": "2012-07-31 13:53:23",
+                    "objectId": "out.c-main.hugo",
+                    "objectName": "hugo",
+                    "objectType": "metadataTable",
+                    "context": {
+                        "remoteAddr": "80.250.0.154",
+                        "httpUserAgent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.11 (KHTML, like Gecko) Chrome/20.0.1132.57 Safari/536.11",
+                        "httpReferer": null
+                    },
+                    "params": [],
+                    "results": [],
+                    "performance": [],
+                    "token": {
+                        "name": "",
+                        "id": "38"
+                    }
+                }
+            ]
+
+# Group Attributes
+You can associate custom attributes to buckets or tables.
+Attributes are key-value pairs, attributes lets you assign your custom metadata to the resources.
+
+Bucket attributes methods are described below, you can work with table attributes in same manner.
+
+## Create or Manage Bucket Attributes [/v2/storage/buckets/{bucket_id}/attributes/{attribute_key}]
+
+###  Set Bucket attribute [POST]
+
+Update or create attribute. All attributes associated to bucket are returned in response.
+
+#### Parameters
+
+* **value** Attribute value
+* **protected** (optional) Attribute will be stored encrypted
+
+#### Method call example by cURL
+     curl  -F value="my attribute value" https://connection.keboola.com/v2/storage/buckets/in.c-main/attributes/my-attribute
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+            Content-type: application/x-www-form-urlencoded
+
+    + Body
+
+            value=2012-06-05
+
++ Response 201
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            [
+                {
+                    "name": "other-attribute",
+                    "value": "something",
+                    "protected": false
+                },
+                {
+                    "name": "test",
+                    "value": "2012-06-05",
+                    "protected": false
+                }
+            ]
+
+
+###  Delete Bucket attribute [DELETE]
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 204
+
+## Replace or List Bucket Attributes [/v2/storage/buckets/{bucket_id}/attributes]
+
+### Replace Attributes [POST]
+Set all attributes by one call
+
+#### Parameters
+Array of objects with keys:
+
+* `name` - attribute name
+* `value` - attribute value
+* `protected` - if attribute is protected
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+            Content-type: application/x-www-form-urlencoded
+
+    + Body
+
+            attributes[][value]=something&attributes[][name]=first
+
++ Response 201
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            [
+                {
+                    "name": "first",
+                    "value": "something",
+                    "protected": false
+                }
+            ]
+
+###  Bucket Attributes list [GET]
+
+Bucket attributes are also listed by bucket attribute method.
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            [
+                {
+                    "name": "other-attribute",
+                    "value": "something",
+                    "protected": false
+                },
+                {
+                    "name": "test",
+                    "value": "2012-06-05",
+                    "protected": false
+                }
+            ]
+
+# Group Metadata
+You can associate custom metadata to buckets, tables or columns.
+Metadata are timestamped key-value pairs separated by provider, where provider is the originating component.  Metadata allows you assign your custom information to your resources.
+
+Bucket attributes methods are described below, you can work with table and column metadata in same manner, simply replace table or column for bucket in the url.
+
+## Create/Update/List Bucket Metadata [/v2/storage/buckets/{bucket_id}/metadata]
+
+### Create or update [POST]
+Set multiple metadata with one call. If the given key and provider combination already exist for the object, the data will be updated with the new value and timestamp. All metadata associated to the object are returned in response.
+
+#### Parameters
+
+* **provider** (required) the creating component (should be componentId)
+* **metadata** (required) Array of metadata objects with 'key' and 'value' members:
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+            Content-type: application/x-www-form-urlencoded
+
+    + Body
+
+            ----WebKitFormBoundary7MA4YWxkTrZu0gW
+            Content-Disposition: form-data; name="provider"
+            keboola.sample_component
+            ----WebKitFormBoundary7MA4YWxkTrZu0gW
+            Content-Disposition: form-data; name="metadata[0][key]"
+            some_key
+            ----WebKitFormBoundary7MA4YWxkTrZu0gW
+     Content-Disposition: form-data; name="metadata[0][value]"
+            my value is a long bit of text
+            ----WebKitFormBoundary7MA4YWxkTrZu0gW
+            Content-Disposition: form-data; name="metadata[1][key]"
+            another_key
+            ----WebKitFormBoundary7MA4YWxkTrZu0gW
+     Content-Disposition: form-data; name="metadata[1][value]"
+            some more text
+            ----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+
++ Response 201
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            [
+                {
+                    "id": 12345,
+                    "key": "some_key",
+                    "value": "my value is a long bit of text",
+                    "provider": "keboola.sample-component",
+                    "timestamp": "2016-09-19 13:02:11",
+                },
+                {
+                    "id": 12346,
+                    "key": "another_key",
+                    "value": "some more text",
+                    "provider": "keboola.sample-component",
+                 "timestamp": "2016-09-19 13:02:11",
+                }
+            ]
+
+
+###  Metadata List for Object [GET]
+
+Metadata can be listed for your bucket/table or column.
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            [
+                {
+                        "id": "123"
+                     "provider": "keboola.some-komponent",
+                     "timestamp": "2016-09-19 13:02:11",
+                     "key": "attribute_key",
+                     "value": "attribute_value"
+                 },
+                {
+                        "id": "124"
+                     "provider": "keboola.some-komponent",
+                     "timestamp": "2016-09-19 13:02:11",
+                     "key": "another_attribute_key",
+                     "value": "attribute_value"
+                }
+            ]
+
+
+###  Delete metadata [DELETE]
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 204
+
+
+# Group Jobs
+Jobs are objects that manage asynchronous tasks, these are all potentially long-running actions such as loading table data, snapshotting, table structure alters.
+Jobs are created by actions on target resources eq. import-table-async request creates table import job id and url of new job is returned.
+
+Statuses:
+ * `waiting` job is in queue and waiting for execution
+ * `processing` job is processed by worker
+ * `success` job is done with success
+ * `success` job is done with error
+
+ Jobs handling:
+
+  1. **Start the job** - Job resource is created and url for polling is returned
+  2. **Poll job status** - Poll job url until job status is set to `success` or `error`
+  3. **Check the results**
+
+## List Jobs [/v2/storage/jobs]
+### Jobs list [GET]
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            [
+             {
+                "id": 123324,
+                "status": "waiting",
+                "operation": {
+                    "name": "tableImport",
+                    "tableId": "in.c-main.users",
+                    "params": {
+                        "sourceFile": "https://....",
+                        "delimiter": ",",
+                        "enclosure": "\"",
+                        "incremental": true
+                        "partial": false
+                    }
+                },
+                "results": {}
+             }
+            ]
+
+## Manage Jobs [/v2/storage/jobs/{jobId}]
+### Job detail [GET]
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            {
+                "id": 123324,
+                "status": "waiting",
+                "operation": {
+                    "name": "tableImport",
+                    "tableId": "in.c-main.users",
+                    "params": {
+                        "sourceFile": "https://....",
+                        "delimiter": ",",
+                        "enclosure": "\"",
+                        "incremental": true
+                        "partial": false
+                    }
+                },
+                "results": {}
+             }
+
+# Group Files
+Simple file storage for all data related to user (project).
+Useful for data backup and exchange between project participants.
+Files can be used for Storage API tables asynchronous imports.
+
+By default all files are private. URL with one hour expiration is generated when files are listed from API.
+If permanent URL is required. e.g. for image embed into GoodData project, you can set file as public.
+
+Files can be tagged, tags enable you to categorize file uploads.
+When the `runId` is provided by the `X-KBC-RunId` it is stored with the file.
+
+## Upload File [/v2/storage/files/prepare]
+### Upload arbitrary file to Keboola [POST]
+
+This method allows direct upload to backend S3 storage.
+Upload should be done in two steps:
+
+#### 1. Create new file resource
+File resource will be created and credentials form upload directly to S3 (File storage) will be returned in response.
+This type of form upload is not supported for eu-central-1 and ap-northeast-2 regions. FederationToken parameter described below should be used for these regions.
+
+    {
+    "id": 155201,
+    "created": "2013-05-31T10:00:00+0200",
+    "isPublic": false,
+    "name": "martin.jpg",
+    "url": "https://s3.amazonaws.com/keboola-clients-devel/75/files/20130531-100000.martin.jpg?AWSAccessKeyId=AKIAIWNZWEN7ZPYOVPUQ&Expires=1369990800&Signature=lfsEwplvPYCF7tNwgFiRll2hOTY%3D",
+    "sizeBytes": 234,
+    "uploadParams": {
+        "url": "http://keboola-clients-devel.s3.amazonaws.com",
+        "key": "keboola-clients-devel/75/files/20130531-100000.martin.jpg",
+        "acl": "private",
+        "policy": "eyJleHBpcmF0aW9uIjoiMjAxMy0wNS0zMVQwOTowMDowMFoiLCJjb25kaXRpb25zIjpbeyJhY2wiOiJwcml2YXRlIn0seyJrZXkiOiJrZWJvb2xhLWNsaWVudHMtZGV2ZWxcLzc1XC9maWxlc1wvMjAxMzA1MzEtMTAwMDAwLm1hcnRpbi5qcGcifSx7ImJ1Y2tldCI6ImtlYm9vbGEtY2xpZW50cy1kZXZlbCJ9XX0=",
+        "signature": "bLuyVp4hjtRuqyMZAERw+hsz9JA=",
+        "AWSAccessKeyId": "AKIAIWNZWEN7ZPYOVPUQ"
+    }
+}
+
+#### 2. Upload file to S3
+Now that you have created the download resource, you can use the information in the response to upload your file to s3.
+All necessary information is stored in `uploadParams` response property.
+This can be done with a POST to the `url` you got in the create response.
+Here is a brief example using curl:
+
+    curl -F "key=keboola-clients-devel/75/files/20130531-100000.martin.jpg"  \
+    -F "acl=private" \
+    -F "policy=eyJleHBpcmF0aW9uIjoiMjAxMy0wNS0zMVQwOTowMDowMFoiLCJjb25kaXRpb25zIjpbeyJhY2wiOiJwcml2YXRlIn0seyJrZXkiOiJrZWJvb2xhLWNsaWVudHMtZGV2ZWxcLzc1XC9maWxlc1wvMjAxMzA1MzEtMTAwMDAwLm1hcnRpbi5qcGcifSx7ImJ1Y2tldCI6ImtlYm9vbGEtY2xpZW50cy1kZXZlbCJ9XX0=" \
+    -F "signature=bLuyVp4hjtRuqyMZAERw+hsz9JA="  \
+    -F "AWSAccessKeyId=AKIAIWNZWEN7ZPYOVPUQ" \
+    -F "file=@out.c-bucket.martinova34.csv" \
+    http://keboola-clients-devel.s3.amazonaws.com
+
+Use all properties of `uploadParams` as `--form` parameters of curl call. `file` must be last one just before `url`.
+
+
+#### Federation token
+File prepare method can also returns standard AWS credentials instead of form submission parameters.
+With these credential you can use standard libraries provided by Amazon such as http://docs.aws.amazon.com/aws-sdk-php/guide/latest/service-s3.html
+This is recommended way to upload files to Keboola Connection.
+Set parameter `federationToken` to `true` and you'll receive AWS credentials for upload to S3:
+
+    {
+    "id": 6410,
+    "created": "2014-02-11T16:33:21+0100",
+    "isPublic": false,
+    "name": "neco",
+    "url": "https://s3.amazonaws.com/keboola-clients-devel/11/files/2014/02/11/6409.neco?AWSAccessKeyId=AKIAIWNZWEN7ZPYOVPUQ&Expires=1392136401&Signature=%2BgZ8E6%2Fs07LV4DKaRoJyy59DNNo%3D",
+    "sizeBytes": null,
+    "tags": [],
+    "creatorToken": {
+        "id": 22,
+        "description": "martin@keboola.com"
+    },
+    "uploadParams": {
+        "key": "11/files/2014/02/11/6409.neco",
+        "bucket": "keboola-clients-devel",
+        "credentials": {
+            "SessionToken": "AQoDYXdzEBka0AL361G1+Pj4NR97HJQUfJWoZXWKLYXP69Q6XybTXNzKCLz3RpQBbrpxJcsoZyl21ZBSm2If4yB733bZFmduiUFxHA8ehfm3zrgvzTIgxCVZCv1/iK4fTzjJT6xV8sl/KzWc8SbwnOEaGN6Db2c3CalP3/RYs8GvZj2zZvrV5m4jU6sUZCA34hsjeqmiVQd3qy4VIJ7wdB2osWCZLRlY7cniIucW3r8aD/Xhmnj+zX9BBnrtr0eZWfCg1tzMu2mSvxIOzznpWKsiWZqTy/EXuzTcwldEzliCelTGIZQFhuCbQY1Kf9RN9clV/ypo+CoBAw4Bc6UNmgE3wXmhDwHGF9c+i/+1cNLR4P63ZYjwyoAGhr/Aiu9L2pvtRrFip4FBrRCgN2jpUf7pGQVT+jXqFhAimU0CEe/7Q30OvUeYWOyLnn/uHwzFiaQFUklOCinrWjggwYXplwU=",
+            "SecretAccessKey": "SGjI6Hkj/5wfDtHF6vE2NpN/Ui/zK1FT4CMwWm9M",
+            "Expiration": "2014-02-12T03:33:21Z",
+            "AccessKeyId": "ASIAJYLIICHH4YMKSSWQ"
+        }
+    }
+}
+
+
+#### Lifecycle
+File Uploads are heavily used for data exchange between Storage API and other components, import backups, etc.
+These kind of data may not be kept forever. By default all files are stored for **6 months**. File can stored permanently by using `isPermanent` parameter.
+
+#### Encryption
+Files are not encrypted by default on server. Encryption can be enabled by `isEncrypted` parameter. Files are encrypted on write and decrypted on read. As long as you authenticate your request with token and you have access permissions, there is no difference in the way you access encrypted or unencrypted files.
+Encryption header have to be than sent with S3 upload request according to http://docs.aws.amazon.com/AmazonS3/latest/dev/SSEUsingRESTAPI.html
+Encryption algorithm which has to be passed as `x-amz-server-side​-encryption` header value is returned in file prepare response.
+
+#### Sliced file upload
+Files sliced into chunks can be uploaded. Certain criteria must be met.
+When `sliced` parameter is set to `true` multiple files under returned S3 key, S3 key must be used as prefix.
+Also manifest file containing list of uploaded chunks must be uploaded.
+
+**Example:**
+
+Prepare method returns following key "exp-180/11/files/2014/02/25/11085.import" these files can be uploaded
+
+ * exp-180/11/files/2014/02/25/11085.import_001
+ * exp-180/11/files/2014/02/25/11085.import_002
+ * exp-180/11/files/2014/02/25/11085.import_003
+ * exp-180/11/files/2014/02/25/11085.import_manifest
+
+Manifest file should contain:
+
+    {
+      "entries": [
+        {"url":"s3://kbc-sapi-files-devel/exp-180/11/files/2014/02/25/11085.import_001"},
+        {"url":"s3://kbc-sapi-files-devel/exp-180/11/files/2014/02/25/11085.import_002"},
+        {"url":"s3://kbc-sapi-files-devel/exp-180/11/files/2014/02/25/11085.import_003"}
+      ]
+    }
+
+These sliced files can be imported into Storage API tables. It is prepared specially for CSV files unloaded from Redshift.
+
+
+#### Params
+
+* **name** - File name
+* **sizeBytes** - (optional) File size in bytes
+* **contentType** - (optional) default is `application/octet-stream`
+* **isPublic** - (optional) File URL will be permanent and public accessible. Default false.
+* **isPermanent** - (optinal) boolean - keep file forever otherwise **file will be deleted after 6 months**
+* **notify** - (optional) notify project admins. Default false.
+* **tags[]** - (optional) assign one or more tags to file
+* **federationToken** - (optional) bool value - returns AWS credentials instead of form submission parameters
+* **sliced** - (optional) bool value - multiple chunks of file is allowed to upload. Must be used with federation token. Usage - Redshift UNLOAD output
+* **isEncrypted** - (optional) bool value - file content will be encrypted in S3 storage. default is not encrypted
+
++ Request (multipart/form-data; boundary=----WebKitFormBoundaryfIBRqd05C6Na2Lvl)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl
+            Content-Disposition: form-data; name="name"
+            martin.jpg
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl
+            Content-Disposition: form-data; name="sizeBytes"
+            234
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl
+            Content-Disposition: form-data; name="notify"
+            false
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl--
+
++ Response 201
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            {
+                "id": 155201,
+                "created": "2013-05-31T10:00:00+0200",
+                "isPublic": false,
+                "name": "martin.jpg",
+                "url": "https://s3.amazonaws.com/keboola-clients-devel/75/files/20130531-100000.martin.jpg?AWSAccessKeyId=AKIAIWNZWEN7ZPYOVPUQ&Expires=1369990800&Signature=lfsEwplvPYCF7tNwgFiRll2hOTY%3D",
+                "sizeBytes": 234,
+                "uploadParams": {
+                    "url": "http://keboola-clients-devel.s3.amazonaws.com",
+                    "key": "keboola-clients-devel/75/files/20130531-100000.martin.jpg",
+                    "acl": "private",
+                    "policy": "eyJleHBpcmF0aW9uIjoiMjAxMy0wNS0zMVQwOTowMDowMFoiLCJjb25kaXRpb25zIjpbeyJhY2wiOiJwcml2YXRlIn0seyJrZXkiOiJrZWJvb2xhLWNsaWVudHMtZGV2ZWxcLzc1XC9maWxlc1wvMjAxMzA1MzEtMTAwMDAwLm1hcnRpbi5qcGcifSx7ImJ1Y2tldCI6ImtlYm9vbGEtY2xpZW50cy1kZXZlbCJ9XX0=",
+                    "signature": "bLuyVp4hjtRuqyMZAERw+hsz9JA=",
+                    "AWSAccessKeyId": "AKIAIWNZWEN7ZPYOVPUQ"
+                },
+                "creatorToken":{
+                 "id": 221,
+                  "name":"Master Token"
+                 },
+                 "isEncrypted": false,
+                 "tags": [],
+                 "sliced": false
+            }
+
+## List Files [/v2/storage/files]
+
+### List files [GET]
+
+List all files uploaded by your token.
+If canReadAllFileUploads permission is set for your token, all file uploads for project will be returned.
+
+##### Parameters
+* *sinceId*, *maxId* - newer or older events than passed id
+* **limit**, **offset** - pagination
+* **q** - (optional) - full text search
+* **tags[]** - (optional) - filter by one or more tags, documents with one or more of specified tags are returned
+* **runId** - (optional) get all files with provided runId
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            [
+                {
+                    "id": 695,
+                    "created": "2012-11-23T14:59:02+0100",
+                    "isPublic": true,
+                    "name": "dailyStats.csv",
+                    "url": "https://s3.amazonaws.com/keboola-clients-devel/75/files/20121123-145902.sample.csv",
+                    "region": "us-east-1",
+                    "sizeBytes": 240,
+                    "tags": [],
+                     "creatorToken": {
+                         "id": 221,
+                          "name":"Master Token"
+                         }
+                },
+                {
+                    "id": 694,
+                    "created": "2012-11-23T14:58:57+0100",
+                    "isPublic": true,
+                    "name": "dailyStats.csv",
+                    "url": "https://s3.amazonaws.com/keboola-clients-devel/75/files/20121123-145857.sample2.csv",
+                    "region": "us-east-1",
+                    "sizeBytes": 240,
+                    "tags":[],
+                     "creatorToken":{
+                         "id": 221,
+                          "name":"Master Token"
+                         }
+                }
+            ]
+
+
+## Manage Files [/v2/storage/files/{file_id}]
+
+### File detail [GET]
+
+File detail
+
+##### Parameters
+* **federationToken** (optional) boolean - returns AWS credentials with permissions for file download from S3 valid for 12 hours
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            {
+                "id": 695,
+                "created": "2012-11-23T14:59:02+0100",
+                "isPublic": true,
+                "name": "dailyStats.csv",
+                "url": "https://s3.amazonaws.com/keboola-clients-devel/75/files/20121123-145902.sample.csv",
+                "region": "us-east-1",
+                "sizeBytes": 240,
+                "tags": [],
+                "maxAgeDays": null,
+                "creatorToken":{
+                "id": 221,
+                "name":"Master Token"
+              }
+            }
+
+### Delete single file [DELETE]
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 204
+
+
+## Create Tag [/v2/storage/files/{file_id}/tags]
+### Add one or more tags to file [POST]
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+            Content-type: application/x-www-form-urlencoded
+
+    + Body
+
+            tag=image
+
++ Response 201
+
+## Manage Tags [/v2/storage/files/{file_id}/tags/{tag_name}]
+### Delete tag from file [DELETE]
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 204
+
+# Group Tickets
+Ticketing service to generate unique sequential 64 bit IDs.
+Useful for generation unique run identifiers for all components using Keboola Connection.
+
+## Generate Unique ID [/v2/storage/tickets/]
+### Generate new id [POST]
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 201
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            {
+                "id": 123454352345
+            }
+
+# Group Component Configurations
+Evidence of components and it's configurations present in projects.
+This is utility resource available only for Admin tokens and tokens with `canManageBuckets` permissions.
+Configurations are automatically snapshotted.
+
+## Component Configs [/v2/storage/components/{component_id}/configs]
+
+### List configs [GET]
+
+List all configs for a component including all config rows.
+
+#### Parameters
+
+* **component_id** - component id
+* **isDeleted** - Default filter will return only active configurations. If you want to list deleted configurations, set this parameter to `1`.
+
++ Parameters
+    + component_id: id of the component
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            [
+              {
+                "id": "main-1",
+                "name": "Main 1",
+                "description": "",
+                "created": "2016-05-11T14:33:50+0200",
+                "creatorToken": {
+                  "id": 67,
+                  "description": "dev@keboola.com"
+                },
+                "version": 2,
+                "changeDescription": "Row row1 added",
+                "isDeleted": false,
+                "configuration": {
+                  "key1": "val1"
+                },
+                "rows": [
+                  {
+                    "id": "row1",
+                    "configuration": {
+                      "key2": "val2"
+                    },
+                    "version": 1,
+                    "created": "2016-05-11T14:33:50+0200",
+                    "creatorToken": {
+                      "id": 67,
+                      "description": "dev@keboola.com"
+                    },
+                    "changeDescription": null
+                  }
+                ],
+                "state": {}
+              }
+            ]
+
+### Create config [POST]
+Create new component configuration
+
+#### Parameters
+
+* **component_id** - component id (e.q. ex-db, gooddata-writer, ...)
+* **configurationId** - (optional) configuration id (must be unique for component type), if not set it is generated as integer
+* **name** - configuration name
+* **description*** - (optional)
+* **configuration** - (optional) configuration JSON. maximum size is 4MB
+* **state** - (optional) configuration state JSON. maximum size is 4MB
+* **changeDescription** - (optional) version change description
+
++ Request (multipart/form-data; boundary=----WebKitFormBoundaryfIBRqd05C6Na2Lvl)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl
+            Content-Disposition: form-data; name="configurationId"
+            main-1
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl
+            Content-Disposition: form-data; name="name"
+            Main
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl--
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl
+            Content-Disposition: form-data; name="configuration"
+            {"queries":[{"id":1,"query": "SELECT * FROM table"}]}
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl--
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl
+            Content-Disposition: form-data; name="changeDescription"
+            change description
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl--
+
++ Response 201
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            {
+                "id": "main-1",
+                "name": "Main",
+                "description": null,
+                "configuration": {
+                 "queries":[
+                  {
+                     "id":1,
+                     "query":"SELECT * FROM table"
+                  }
+                 ]
+                }
+            }
+
+## Manage Configs [/v2/storage/components/{component_id}/configs/{config_id}]
+
+### Config detail [GET]
+Get component configuration
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+
+        {
+          "id": "main-1",
+          "name": "My first db config",
+          "description": "",
+          "isDeleted": false,
+          "configuration": {},
+          "state": {},
+          "rows": {}
+        }
+
+### Update config [PUT]
+Update configuration
+
+`name`, `description`, `configuration`, `state` can be updated.
+
+The update can be described using parameter `changeDescription`.
+
+The `configuration` must be urlencoded json string.
+
+New snapshot is created after each update.
+
++ Request (multipart/form-data; boundary=----WebKitFormBoundaryfIBRqd05C6Na2Lvl)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl
+            Content-Disposition: form-data; name="id"
+            main-1
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl--
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl
+            Content-Disposition: form-data; name="name"
+            Main
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl--
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl
+            Content-Disposition: form-data; name="changeDescription"
+            change description
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl--
+
+
++ Response 200
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            {
+                "id": "main-1"
+            }
+
+### Delete config [DELETE]
+Delete configuration.
+
+Configuration remains still available in system.
+You can [list deleted](#reference/component-configurations/component-configs/list-configs) configurations or [restore](#reference/component-configurations/manage-configs/restore-deleted-config) configuration.
+Other operations with configuration are restricted.
+
+Calling `delete` API call again will delete configuration permanently.
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 204
+
+
+## Configuration Restore [/v2/storage/components/{component_id}/configs/{config_id}/restore]
+
+### Restore deleted config [POST]
+
+Removes `isDeleted` flag of deleted configuration
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+
+        {
+          "id": "main-1",
+          "name": "My first db config",
+          "description": "",
+          "isDeleted": false,
+          "configuration": {},
+          "state": {},
+          "rows": {}
+        }
+
+
+## Publishing [/v2/storage/components/{component_id}/configs/{config_id}/publish]
+Configuration can run in publish/draft mode.
+Configuration detail API call is returning latest version of configuration.
+Latest published version can be retrieved by get configuration version api call with version `latestPublished`
+
+
+### Publish Config [POST]
+Mark latest version of configuration as published.
+
+Parameters:
+
+* description: Version description
+
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            description=First version
+
++ Response 200
+
+    ```json
+
+    ```
+
+
+
+## List Components [/v2/storage/components]
+### Get components [GET]
+
+#### Parameters
+
+* **componentType** - (e.q. extractor, writer, other)
+* **include** - Comma separated list of resources to include, options `configuration` and `rows`
+* **isDeleted** - For list components with deleted configurations, set this parameter to `1`.
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            [
+             {
+              "id":"ex-db",
+              "uri":"https:\/\/syrup.keboola.com\/ex-db",
+              "name": "Database extractor",
+              "description": "Fetch data from MySQL or MSSQL",
+              "hasUI": true,
+              "ico64": "s3://images/cloud-services/Google-Drive-icon-64.png",
+              "ico32": "s3://images/cloud-services/Google-Drive-icon-32.png",
+              "type": "extractor",
+              "data:" "{\"var\": \"val\"}",
+              "configurations": [
+                 {
+                  "id": 1,
+                  "name": "My first db config",
+                  "description": "",
+                  "rows": [
+                      {
+                          "id": "database",
+                          "configuration": {
+                              "host": "localhost",
+                              "port": 4406
+                          },
+                          "version": 1
+                      },
+                      {
+                          "id": "queries",
+                          "configuration": {},
+                          "version": 1
+                      }
+                  ]
+                 },
+                 {
+                  "id": 2,
+                  "name": "My second db config",
+                  "description": "",
+                  "rows": []
+                 }
+              ]
+             },
+             {
+              "id":"ex-elasticsearch",
+              "uri":"https:\/\/syrup.keboola.com\/ex-elasticsearch",
+              "name": "Elasticsearch",
+              "description": "End-to-end search and analytics platform",
+              "hasUI": true,
+              "ico64": "s3://images/cloud-services/Google-Drive-icon-64.png",
+              "ico32": "s3://images/cloud-services/Google-Drive-icon-32.png",
+              "data": "{\"var\": \"val\"}",
+              "type": "extractor",
+              "configurations": [
+                 {
+                  "id": 1,
+                  "name": "My first elastic config",
+                  "description": "",
+                  "rows": []
+                 },
+                 {
+                  "id": 2,
+                  "name": "My second elastic config",
+                  "description": "",
+                  "rows": []
+                 }
+              ]
+             }
+            ]
+
+## List Configs Versions [/v2/storage/components/{component_id}/configs/{config_id}/versions]
+### Versions list [GET]
+
+#### Parameters
+
+* **include** - list of information to retrieve separated by comma, may contain: `name,description,configuration,state` (default is `name,description`)
+* **limit** - pagination limit, default value: 100
+* **offset** - pagination offset
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            [
+                {
+                  "version": 2,
+                  "created": "2015-08-12T12:33:04+0200",
+                  "creatorToken": {
+                    "id": 1392,
+                    "description": "martin@keboola.com"
+                  },
+                  "changeDescription": "Cause of the change",
+                  "name": "Configuration name",
+                  "description": "Configuration description"
+                },
+              {
+                  "version": 1,
+                  "created": "2015-08-10T22:00:55+0200",
+                  "creatorToken": {
+                    "id": 1392,
+                    "description": "martin@keboola.com"
+                  },
+                  "changeDescription": "Some other cause of the change",
+                  "name": "Configuration name",
+                  "description": "First configuration description"
+                }
+            ]
+
+## Manage Configs Versions [/v2/storage/components/{component_id}/configs/{config_id}/versions/{version_id}]
+### Version detail [GET]
+Get configuration version.
+
++ Parameters
+ + component_id (string) - id of component e.g. `gooddata-writer`
+ + config_id (string) - id of configuration
+ + version (number/string) - version number. `latestPublished` can be used to fetch latest published version.
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            {
+              "version": 2,
+              "created": "2015-08-12T12:33:04+0200",
+              "creatorToken": {
+                "id": 1392,
+                "description": "martin@keboola.com"
+              },
+              "changeDescription": "Cause of the change",
+              "name": "Configuration name",
+              "description": "Configuration description",
+              "configuration": {},
+              "state": {},
+              "row": []
+            }
+
+## Rollback Configs Versions [/v2/storage/components/{component_id}/configs/{config_id}/versions/{version_id}/rollback]
+### Rollback version [POST]
+Rollback configuration version
+
+#### Parameters
+
+* **changeDescription** - (optional) version change description
+
++ Request (multipart/form-data; boundary=----WebKitFormBoundaryfIBRqd05C6Na2Lvl)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl
+            Content-Disposition: form-data; name="changeDescription"
+            change description
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl--
+
++ Response 201
+
+        {
+            "version": 3
+        }
+
+## Copy Configs [/v2/storage/components/{component_id}/configs/{config_id}/versions/{version_id}/create]
+### Create Config copy [POST]
+Create new configuration from configuration version
+
+#### Parameters
+
+* **name** - optional
+* **description** - optional
+* **changeDescription** - (optional) version change description
+
++ Request (multipart/form-data; boundary=----WebKitFormBoundaryfIBRqd05C6Na2Lvl)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl
+            Content-Disposition: form-data; name="name"
+            Main
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl--
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl
+            Content-Disposition: form-data; name="description"
+            my description
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl--
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl
+            Content-Disposition: form-data; name="changeDescription"
+            change description
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl--
+
++ Response 201
+
+        {
+            "id": 4
+        }
+
+
+## Create or List Configs Rows [/v2/storage/components/{component_id}/configs/{config_id}/rows]
+
+### Create configuration row [POST]
+
+#### Parameters
+
+* **rowId** - (optional) row id (must be unique for component type), if not set it is generated as integer
+* **configuration** - (optional) configuration JSON. maximum size is 4MB
+* **changeDescription** - (optional) version change description
+
++ Request (multipart/form-data; boundary=----WebKitFormBoundaryfIBRqd05C6Na2Lvl)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl
+            Content-Disposition: form-data; name="database"
+            main-1
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl--
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl
+            Content-Disposition: form-data; name="configuration"
+            {"host": "localhost", "port": 4406}
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl--
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl
+            Content-Disposition: form-data; name="changeDescription"
+            change description
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl--
+
++ Response 201
+
+            {
+              "id": "database",
+              "configuration": {
+                  "host": "localhost",
+                  "port": 4406
+              },
+              "version": 1
+            }
+
+
+### Row list [GET]
+
+Get configuration rows
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+
++ Response 200
+
+            [
+              {
+                  "id": "database",
+                  "configuration": {
+                      "host": "localhost",
+                      "port": 4406
+                  },
+                  "version": 1
+              },
+              {
+                  "id": "queries",
+                  "configuration": {},
+                  "version": 1
+              }
+            ]
+
+
+## Manage Configs Rows [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}]
+
+### Update row [PUT]
+
+#### Parameters
+
+* **configuration** - configuration JSON. maximum size is 4MB
+* **changeDescription** - (optional) version change description
+
+New configuration snapshot is created after each update.
+
++ Request (multipart/form-data; boundary=----WebKitFormBoundaryfIBRqd05C6Na2Lvl)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl
+            Content-Disposition: form-data; name="configuration"
+            {"host": "localhost", "port": null}
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl--
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl
+            Content-Disposition: form-data; name="changeDescription"
+            change description
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl--
+
++ Response 200
+
+            {
+              "id": "database",
+              "configuration": {
+                  "host": "localhost",
+                  "port": null
+              },
+              "version": 2
+            }
+
+
+### Delete row [DELETE]
+
+#### Parameters
+
+* **changeDescription** - (optional) version change description
+
++ Request (multipart/form-data; boundary=----WebKitFormBoundaryfIBRqd05C6Na2Lvl)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl
+            Content-Disposition: form-data; name="changeDescription"
+            change description
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl--
+
++ Response 204
+
+
+## List Configs Rows Versions [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/versions]
+
+### Versions list [GET]
+
+#### Parameters
+
+* **include** - list of information to retrieve separated by comma, may contain: `configuration`
+* **limit** - pagination limit, default value: 100
+* **offset** - pagination offset
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            [
+                {
+                    "version": 2,
+                    "created": "2015-08-12T12:33:04+0200",
+                    "creatorToken": {
+                        "id": 1392,
+                        "description": "martin@keboola.com"
+                    },
+                    "changeDescription": "Cause of the change"
+                },
+                {
+                    "version": 1,
+                    "created": "2015-08-10T22:00:55+0200",
+                    "creatorToken": {
+                        "id": 1392,
+                        "description": "martin@keboola.com"
+                    },
+                    "changeDescription": "Some other cause of the change"
+                }
+            ]
+
+## Manage Configs Rows Versions [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/versions/{version_id}]
+### Version detail [GET]
+Get configuration version
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            {
+                "version": 1,
+                "created": "2015-08-10T22:00:55+0200",
+                "creatorToken": {
+                    "id": 1392,
+                    "description": "martin@keboola.com"
+                },
+                "changeDescription": "Some other cause of the change"
+                "configuration": {}
+            }
+
+
+## Rollback Configs Rows Versions [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/versions/{version_id}/rollback]
+### Rollback version [POST]
+Rollback row version
+
+#### Parameters
+
+* **changeDescription** - (optional) version change description
+
+
++ Request (multipart/form-data; boundary=----WebKitFormBoundaryfIBRqd05C6Na2Lvl)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl
+            Content-Disposition: form-data; name="changeDescription"
+            change description
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl--
+
++ Response 201
+
+            {
+                "id": "database",
+                "configuration": {
+                    "host": "localhost",
+                    "port": null
+                },
+                "version": 3
+            }
+
+
+
+## Copy Configs Rows [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/versions/{version_id}/create]
+### Create Config Row copy [POST]
+Create new configuration row from row version
+
+#### Parameters
+
+* **targetConfigId** - (optional) copy row to other existing configuration
+* **changeDescription** - (optional) version change description
+
++ Request (multipart/form-data; boundary=----WebKitFormBoundaryfIBRqd05C6Na2Lvl)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl
+            Content-Disposition: form-data; name="targetConfigId"
+            myconfig
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl--
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl
+            Content-Disposition: form-data; name="changeDescription"
+            change description
+            ------WebKitFormBoundaryfIBRqd05C6Na2Lvl--
+
++ Response 201
+
+            {
+                "id": "copy",
+                "configuration": {
+                    "host": "localhost",
+                    "port": null
+                },
+                "version": 1
+            }
+
+
+
+# Group Stats
+## RunId [/v2/storage/stats?runId={runId}]
+### Stats detail [GET]
+Get stats for RunId. Provides tables imported/exported in specified run with durations.
+Also returns stats about files generated.
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+
+        {
+          "tables": {
+            "import": {
+              "other": 0,
+              "tables": [
+                {
+                  "id": "out.c-futurelytics.order_lines",
+                  "count": 1,
+                  "durationTotalSecs": 103.53275680542
+                }
+              ]
+            },
+            "export": {
+              "other": 0,
+              "tables": []
+            }
+          },
+          "files": {
+            "total": {
+              "count": 5,
+              "dataSizeBytes": {
+                "total": 4916667019,
+                "mean": 983333403.8,
+                "max": 4552728847,
+                "min": 51
+              }
+            },
+            "tags": {
+              "other": 0,
+              "tags": [
+              ]
+            }
+          }
+        }

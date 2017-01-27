@@ -126,6 +126,84 @@ class SharingTest extends StorageApiTestCase
         $this->assertTrue($token['admin']['isOrganizationMember']);
     }
 
+    public function testNonOrganizationAdminInToken()
+    {
+        $this->initTestBuckets(self::BACKEND_MYSQL);
+        $bucketId = reset($this->_bucketIds);
+
+        $this->_client->shareBucket($bucketId);
+
+        $this->assertTrue($this->_client->isSharedBucket($bucketId));
+
+        $response = $this->_client->listSharedBuckets();
+        $this->assertCount(1, $response);
+
+        $sharedBucket = reset($response);
+        $linkedId = $this->_client->linkBucket(
+            "linked-" . time(),
+            'out',
+            $sharedBucket['project']['id'],
+            $sharedBucket['id']
+        );
+
+        // new token creation
+        $tokenId = $this->_client->createToken('manage', 'Test Token', 3600);
+        $token = $this->_client->getToken($tokenId);
+
+        $client = new \Keboola\StorageApi\Client(array(
+            'token' => $token['token'],
+            'url' => STORAGE_API_URL,
+        ));
+
+        $client->verifyToken();
+
+        // validation sharing manipulations with new token
+        try {
+            $client->listSharedBuckets();
+            $this->fail('`listSharedBuckets` should fail with `accessDenied` error');
+        } catch (ClientException $e) {
+            $this->assertEquals(403, $e->getCode());
+            $this->assertEquals('accessDenied', $e->getStringCode());
+        }
+
+        try {
+            $client->shareBucket($bucketId);
+            $this->fail('`shareBucket` should fail with `accessDenied` error');
+        } catch (ClientException $e) {
+            $this->assertEquals(403, $e->getCode());
+            $this->assertEquals('accessDenied', $e->getStringCode());
+        }
+
+        try {
+            $client->unshareBucket($bucketId);
+            $this->fail('`unshareBucket` should fail with `accessDenied` error');
+        } catch (ClientException $e) {
+            $this->assertEquals(403, $e->getCode());
+            $this->assertEquals('accessDenied', $e->getStringCode());
+        }
+
+        try {
+            $client->linkBucket(
+                "linked-" . time(),
+                'out',
+                $sharedBucket['project']['id'],
+                $sharedBucket['id']
+            );
+            $this->fail('`linkBucket` should fail with `accessDenied` error');
+        } catch (ClientException $e) {
+            $this->assertEquals(403, $e->getCode());
+            $this->assertEquals('accessDenied', $e->getStringCode());
+        }
+
+        try {
+            $client->dropBucket($linkedId);
+            $this->fail('`dropBucket` should fail with `accessDenied` error');
+        } catch (ClientException $e) {
+            $this->assertEquals(403, $e->getCode());
+            $this->assertEquals('accessDenied', $e->getStringCode());
+        }
+    }
+
     /**
      * @dataProvider sharingBackendData
      * @throws ClientException
@@ -519,7 +597,14 @@ class SharingTest extends StorageApiTestCase
         );
 
         // now we'll load another table and use the preserve parameters to check that all tables are present
-        $mapping3 = array("source" => $mapping1['source'], "destination" => "table3");
+        // lets create it now to see if the table permissions are correctly propagated
+        $table3Id = $this->_client->createTable(
+            $bucketId,
+            'numbersLater',
+            new CsvFile(__DIR__ . '/../../_data/numbers.csv')
+        );
+
+        $mapping3 = array("source" => str_replace($bucketId, $linkedId, $table3Id), "destination" => "table3");
         $workspaces->loadWorkspaceData($workspace['id'], array("input" => array($mapping3), "preserve" => true));
 
         $tables = $backend->getTables();

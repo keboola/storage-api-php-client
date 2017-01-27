@@ -9,11 +9,13 @@
 
 namespace Keboola\StorageApi\Options\Components;
 
-class ListConfigurationsOptions
+class ListComponentsOptions
 {
     private $componentType;
 
     private $include = array();
+
+    private $isDeleted;
 
     /**
      * @return mixed
@@ -37,6 +39,7 @@ class ListConfigurationsOptions
         return array(
             'componentType' => $this->getComponentType(),
             'include' => implode(',', $this->getInclude()),
+            'isDeleted' => $this->getIsDeleted(),
         );
     }
 
@@ -53,5 +56,23 @@ class ListConfigurationsOptions
     public function getInclude()
     {
         return $this->include;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIsDeleted()
+    {
+        return $this->isDeleted;
+    }
+
+    /**
+     * @param mixed $isDeleted
+     * @return $this
+     */
+    public function setIsDeleted($isDeleted)
+    {
+        $this->isDeleted = $isDeleted;
+        return $this;
     }
 }

@@ -10,6 +10,7 @@
 namespace Keboola\Test\Common;
 
 use Keboola\Test\StorageApiTestCase;
+use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 
 class ComponentsPublishTest extends StorageApiTestCase
 {
@@ -21,6 +22,13 @@ class ComponentsPublishTest extends StorageApiTestCase
 
         $components = new \Keboola\StorageApi\Components($this->_client);
         foreach ($components->listComponents() as $component) {
+            foreach ($component['configurations'] as $configuration) {
+                $components->deleteConfiguration($component['id'], $configuration['id']);
+            }
+        }
+
+        // erase all deleted configurations
+        foreach ($components->listComponents((new ListComponentsOptions())->setIsDeleted(true)) as $component) {
             foreach ($component['configurations'] as $configuration) {
                 $components->deleteConfiguration($component['id'], $configuration['id']);
             }

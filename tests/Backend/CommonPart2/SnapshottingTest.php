@@ -6,7 +6,7 @@
  * Time: 1:50 PM
  */
 
-namespace Keboola\Test\Backend\Common;
+namespace Keboola\Test\Backend\CommonPart2;
 
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;

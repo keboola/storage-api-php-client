@@ -1,3 +1,14 @@
+## 6.1.0 (2017-01-20)
+ * [Feat] - List components with deleted configurations
+
+## 6.0.0 (2017-01-19)
+ * [Feat]  Deleted configurations can be listed `Components::listComponentConfigurations` and restored `Components::restoreComponentConfiguration`
+ * [BC break] `ListConfigurationsOptions` class renamed to `ListComponentsOptions`
+ * [BC break] `Components::getComponentConfigurations` method renamed to `Components::listComponentConfigurations` and accept only one param (object of `ListComponentConfigurationsOptions`)
+ 
+## 5.0.0 (2017-01-18)
+ * [BC break] `createRedshiftAliasTable` and `updateRedshiftAliasTable` methods removed
+
 ## 4.20.1 (2016-12-22)
  * [Fix] bucket sharing fixes
  * [Fix] both symfony 2 and 3 supported

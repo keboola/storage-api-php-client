@@ -11,9 +11,10 @@ namespace Keboola\StorageApi;
 
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
+use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions;
-use Keboola\StorageApi\Options\Components\ListConfigurationsOptions;
+use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions;
 
 class Components
@@ -90,24 +91,26 @@ class Components
         return $this->client->apiDelete("storage/components/{$componentId}/configs/{$configurationId}");
     }
 
-    public function listComponents(ListConfigurationsOptions $options = null)
+    public function listComponents(ListComponentsOptions $options = null)
     {
         if (!$options) {
-            $options = new ListConfigurationsOptions();
+            $options = new ListComponentsOptions();
         }
         return $this->client->apiGet("storage/components?" . http_build_query($options->toParamsArray()));
     }
 
-    public function getComponentConfigurations($componentId)
+    public function listComponentConfigurations(ListComponentConfigurationsOptions $options)
     {
-        return $this->client->apiGet("storage/components/{$componentId}/configs");
+        return $this->client->apiGet("storage/components/{$options->getComponentId()}/configs?" . http_build_query($options->toParamsArray()));
     }
 
-    public function listConfigurationVersions(ListConfigurationVersionsOptions $options = null)
+    public function restoreComponentConfiguration($componentId, $configurationId)
     {
-        if (!$options) {
-            $options = new ListConfigurationVersionsOptions();
-        }
+        return $this->client->apiPost("storage/components/{$componentId}/configs/{$configurationId}/restore");
+    }
+
+    public function listConfigurationVersions(ListConfigurationVersionsOptions $options)
+    {
         return $this->client->apiGet("storage/components/{$options->getComponentId()}/configs/"
             . "{$options->getConfigurationId()}/versions?" . http_build_query($options->toParamsArray()));
     }
@@ -189,12 +192,8 @@ class Components
         );
     }
 
-    public function listConfigurationRowVersions(ListConfigurationRowVersionsOptions $options = null)
+    public function listConfigurationRowVersions(ListConfigurationRowVersionsOptions $options)
     {
-        if (!$options) {
-            $options = new ListConfigurationVersionsOptions();
-        }
-
         return $this->client->apiGet(
             sprintf(
                 "storage/components/%s/configs/%s/rows/%s/versions?%s",
