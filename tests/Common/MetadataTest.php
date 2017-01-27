@@ -15,6 +15,11 @@ class MetadataTest extends StorageApiTestCase
     {
         parent::setUp();
         $this->_initEmptyTestBuckets();
+        $metadataApi = new Metadata($this->_client);
+        $metadatas = $metadataApi->listBucketMetadata($this->getTestBucketId());
+        foreach ($metadatas as $md) {
+            $metadataApi->deleteBucketMetadata($this->getTestBucketId(), $md['id']);
+        }
         $this->_client->createTable($this->getTestBucketId(), "table", new CsvFile(__DIR__ . '/../_data/users.csv'));
     }
 
@@ -103,7 +108,10 @@ class MetadataTest extends StorageApiTestCase
         foreach ($newMetadata as $metadata) {
             if ($metadata['id'] == $metadatas[0]['id']) {
                 $this->assertEquals("newValue", $metadata['value']);
-                $this->assertGreaterThanOrEqual($metadata['timestamp'], $metadatas[0]['timestamp']);
+                $this->assertGreaterThanOrEqual(
+                    strtotime($metadatas[0]['timestamp']),
+                    strtotime($metadata['timestamp'])
+                );
             } else {
                 $this->assertEquals("testval", $metadata['value']);
             }
@@ -155,7 +163,10 @@ class MetadataTest extends StorageApiTestCase
         foreach ($newMetadata as $metadata) {
             if ($metadata['id'] == $metadatas[0]['id']) {
                 $this->assertEquals("newValue", $metadata['value']);
-                $this->assertGreaterThanOrEqual($metadata['timestamp'], $metadatas[0]['timestamp']);
+                $this->assertGreaterThanOrEqual(
+                    strtotime($metadatas[0]['timestamp']),
+                    strtotime($metadata['timestamp'])
+                );
             } else {
                 $this->assertEquals("testval", $metadata['value']);
             }
@@ -173,6 +184,39 @@ class MetadataTest extends StorageApiTestCase
         $this->assertEquals($metadatas[1]['timestamp'], $mdList[0]['timestamp']);
     }
 
+    public function testUpdateTimestamp()
+    {
+        $bucketId = $this->getTestBucketId();
+        $metadataApi = new Metadata($this->_client);
+
+        $md = array(
+            "key" => "test_metadata_key1",
+            "value" => "testval"
+        );
+        $md2 = array(
+            "key" => "test_metadata_key1",
+            "value" => "new testval"
+        );
+        $testMetadata = array($md);
+
+        $provider = "keboola.storage-api-php-client_test-runner";
+        $metadatas = $metadataApi->postBucketMetadata($bucketId, $provider, $testMetadata);
+
+        $this->assertCount(1, $metadatas);
+        $this->assertArrayHasKey('timestamp', $metadatas[0]);
+        $timestamp1 = $metadatas[0]['timestamp'];
+
+        // just to ensure that the updated timestamp will be a few seconds greater
+        sleep(5);
+
+        $newMetadatas = $metadataApi->postBucketMetadata($bucketId, $provider, [$md2]);
+        $this->assertCount(1, $newMetadatas);
+        $this->assertArrayHasKey('timestamp', $newMetadatas[0]);
+        $timestamp2 = $newMetadatas[0]['timestamp'];
+
+        $this->assertGreaterThan(strtotime($timestamp1), strtotime($timestamp2));
+    }
+    
     /**
      * @dataProvider apiEndpoints
      * @param $apiEndpoint
@@ -186,6 +230,15 @@ class MetadataTest extends StorageApiTestCase
             "key" => "%invalidKey", // invalid char %
             "value" => "testval"
         );
+
+        try {
+            // this should fail because metadata objects must be provided in an array
+            $this->postMetadata($apiEndpoint, $object, $md);
+            $this->fail("metadata must be an array of key-value objects.");
+        } catch (ClientException $e) {
+            $this->assertEquals("storage.metadata.invalidStructure", $e->getStringCode());
+        }
+
         try {
             $this->postMetadata($apiEndpoint, $object, [$md]);
             $this->fail("Should throw invalid key exception");
