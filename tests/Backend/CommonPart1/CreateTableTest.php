@@ -235,6 +235,22 @@ class CreateTableTest extends StorageApiTestCase
         }
     }
 
+    public function testRowNumberAmbiguity()
+    {
+        $importFile = __DIR__ . '/../../_data/column-name-row-number.csv';
+
+        // create and import data into source table
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(),
+            'column-name-row-number',
+            new CsvFile($importFile)
+        );
+
+        // this used to fail because of the column named row_number
+        $this->_client->createTablePrimaryKey($tableId, ['id']);
+        $this->assertNotEmpty($tableId);
+    }
+    
     public function invalidPrimaryKeys()
     {
         return array(
