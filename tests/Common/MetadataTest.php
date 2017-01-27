@@ -18,7 +18,7 @@ class MetadataTest extends StorageApiTestCase
         $metadataApi = new Metadata($this->_client);
         $metadatas = $metadataApi->listBucketMetadata($this->getTestBucketId());
         foreach ($metadatas as $md) {
-            $metadataApi->deleteBucketMetadata($this->getTestBucketId(),$md['id']);
+            $metadataApi->deleteBucketMetadata($this->getTestBucketId(), $md['id']);
         }
         $this->_client->createTable($this->getTestBucketId(), "table", new CsvFile(__DIR__ . '/../_data/users.csv'));
     }
