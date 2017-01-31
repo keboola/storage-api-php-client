@@ -514,6 +514,37 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         }
     }
 
+    public function testInvalidDataTypeUserError()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages',
+            new CsvFile($importFile)
+        );
+
+        $options = array('input' => [
+            [
+                'source' => $tableId,
+                'destination' => 'datatype_test',
+                'datatypes' => [
+                    "id" => "CISLO",
+                    "name" => "CISLO"
+                ]
+            ]
+        ]);
+
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], $options);
+            $this->fail('Workspace should not be loaded');
+        } catch (ClientException $e) {
+            $this->assertEquals('workspace.tableCreate', $e->getStringCode());
+        }
+    }
+
     public function testDuplicateDestination()
     {
         $workspaces = new Workspaces($this->_client);
