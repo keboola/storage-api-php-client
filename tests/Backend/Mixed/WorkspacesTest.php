@@ -242,28 +242,20 @@ class WorkspacesTest extends WorkspacesTestCase
         $this->assertCount(3, $data);
     }
 
-    public function testDataTypesLoadToSnowflake()
+    /**
+     * @dataProvider workspaceMixedAndSameBackendData
+     * @param $workspaceBackend
+     * @param $sourceBackend
+     */
+    public function testLoadUserError($workspaceBackend, $sourceBackend)
     {
-        $bucketBackend = self::BACKEND_REDSHIFT;
-
-        if ($this->_client->bucketExists("out.c-mixed-test-" . $bucketBackend)) {
-            $this->_client->dropBucket(
-                "out.c-mixed-test-{$bucketBackend}",
-                [
-                    'force' => true,
-                ]
-            );
-        }
-
-        if ($this->_client->bucketExists("in.c-mixed-test-" . $bucketBackend)) {
-            $this->_client->dropBucket("in.c-mixed-test-{$bucketBackend}", [
+        if ($this->_client->bucketExists("in.c-mixed-test-" . $sourceBackend)) {
+            $this->_client->dropBucket("in.c-mixed-test-{$sourceBackend}", [
                 'force' => true,
             ]);
         }
-        $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", "in", "", $bucketBackend);
-
-        //setup test table
-        $this->_client->createTable(
+        $bucketId = $this->_client->createBucket("mixed-test-{$sourceBackend}", "in", "", $sourceBackend);
+        $sourceTableId = $this->_client->createTable(
             $bucketId,
             'transactions',
             new CsvFile(__DIR__ . '/../../_data/transactions.csv')
@@ -272,27 +264,28 @@ class WorkspacesTest extends WorkspacesTestCase
         $workspaces = new Workspaces($this->_client);
 
         $workspace = $workspaces->createWorkspace([
-            'backend' => self::BACKEND_SNOWFLAKE,
+            'backend' => $workspaceBackend,
         ]);
 
+        $dataType = $workspaceBackend === self::BACKEND_SNOWFLAKE ? 'NUMBER' : 'INTEGER';
         $options = [
             "input" => [
                 [
-                    "source" => "in.c-mixed-test-{$bucketBackend}.transactions",
+                    "source" => $sourceTableId,
                     "destination" => "transactions",
                     "datatypes" => [
-                        'price' => "NUMBER",
-                        'quantity' => "NUMBER",
-                    ]
-                ]
-            ]
+                        'price' => $dataType,
+                        'quantity' => $dataType,
+                    ],
+                ],
+            ],
         ];
 
         // exception should be thrown, as quantity has empty value '' and snflk will complain.
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
         } catch (ClientException $e) {
-            $this->assertEquals($e->getStringCode(), "workspace.tableImportError");
+            $this->assertEquals($e->getStringCode(), "workspace.tableLoad");
         }
     }
 
@@ -301,6 +294,16 @@ class WorkspacesTest extends WorkspacesTestCase
         return [
             [self::BACKEND_SNOWFLAKE],
             [self::BACKEND_REDSHIFT],
+        ];
+    }
+
+    public function workspaceMixedAndSameBackendData()
+    {
+        return [
+            [self::BACKEND_SNOWFLAKE, self::BACKEND_SNOWFLAKE],
+            [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT],
+            [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE],
+            [self::BACKEND_REDSHIFT, self::BACKEND_REDSHIFT],
         ];
     }
 
