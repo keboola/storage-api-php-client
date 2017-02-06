@@ -702,6 +702,8 @@ class ComponentsTest extends StorageApiTestCase
         $newConfiguration = $components->addConfiguration($config);
         $this->assertEquals(1, $newConfiguration['version']);
         $this->assertEmpty($newConfiguration['state']);
+        $this->assertEquals($newConfiguration['changeDescription'], $newConfiguration['currentVersion']['changeDescription']);
+        $this->assertEquals($newConfiguration['creatorToken'], $newConfiguration['currentVersion']['creatorToken']);
 
         $newName = 'neco';
         $newDesc = 'some desc';
@@ -730,6 +732,9 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(1, $result[1]['version']);
         $this->assertArrayHasKey('name', $result[1]);
         $this->assertEquals('Main', $result[1]['name']);
+        $this->assertEquals($result[0]['changeDescription'], $configuration['currentVersion']['changeDescription']);
+        $this->assertEquals($result[0]['creatorToken'], $configuration['currentVersion']['creatorToken']);
+        $this->assertEquals($result[0]['created'], $configuration['currentVersion']['created']);
 
         $config = (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
             ->setComponentId($config->getComponentId())
