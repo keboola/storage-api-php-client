@@ -176,6 +176,12 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertInternalType('int', $component['version']);
         $this->assertInternalType('int', $component['creatorToken']['id']);
 
+        $currentVersion = $component['currentVersion'];
+        $this->assertEquals('Configuration deleted', $currentVersion['changeDescription']);
+        $tokenInfo = $this->_client->verifyToken();
+        $this->assertEquals($tokenInfo['id'], $currentVersion['creatorToken']['id']);
+        $this->assertEquals($tokenInfo['description'], $currentVersion['creatorToken']['description']);
+
         $componentsIndex = $components->listComponents((new ListComponentsOptions())->setIsDeleted(true));
 
         $this->assertCount(1, $componentsIndex);
