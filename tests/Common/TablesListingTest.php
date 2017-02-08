@@ -222,11 +222,11 @@ class TablesListingTest extends StorageApiTestCase
             ]]
         );
 
-        $tables = $this->_client->listTables($this->getTestBucketId(),[
+        $tables = $this->_client->listTables($this->getTestBucketId(), [
             'include' => 'columnMetadata,metadata'
         ]);
 
-        $this->assertCount(2,$tables);
+        $this->assertCount(2, $tables);
         foreach ($tables as $table) {
             $this->assertArrayHasKey('columnMetadata', $table);
             $this->assertArrayHasKey('metadata', $table);
