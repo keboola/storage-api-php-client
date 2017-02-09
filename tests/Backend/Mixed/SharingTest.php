@@ -304,6 +304,25 @@ class SharingTest extends StorageApiTestCase
         $this->assertEquals($sourceBucket['description'], $bucket['description']);
     }
 
+    public function testBucketCannotBeLinkedMoreTimes()
+    {
+        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
+        $bucketId = reset($this->_bucketIds);
+
+        $this->_client->shareBucket($bucketId);
+
+        $response = $this->_client2->listSharedBuckets();
+        $sharedBucket = reset($response);
+
+        $id = $this->_client2->linkBucket("linked-" . time(), 'out', $sharedBucket['project']['id'], $sharedBucket['id']);
+        try {
+            $this->_client2->linkBucket("linked-" . time(), 'out', $sharedBucket['project']['id'], $sharedBucket['id']);
+            $this->fail('bucket should not be linked');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.buckets.alreadyLinked', $e->getStringCode());
+        }
+    }
+
     private function validateTablesMetadata($sharedBucketId, $linkedBucketId)
     {
         $fieldNames = [
@@ -508,7 +527,8 @@ class SharingTest extends StorageApiTestCase
         //setup test tables
         $this->deleteAllWorkspaces();
         $this->initTestBuckets($sharingBackend);
-        $bucketId = reset($this->_bucketIds);
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $secondBucketId = $this->getTestBucketId(self::STAGE_OUT);
 
         $table1Id = $this->_client->createTable(
             $bucketId,
@@ -536,6 +556,17 @@ class SharingTest extends StorageApiTestCase
             $sharedBucket['project']['id'],
             $sharedBucket['id']
         );
+
+        // share and unshare second bucket - test that it doesn't break permissions of first linked bucket
+        $this->_client->shareBucket($secondBucketId);
+        $sharedBucket2 = $this->_client->listSharedBuckets()[0];
+        $linked2Id = $this->_client2->linkBucket(
+            "linked-" . time(),
+            'out',
+            $sharedBucket2['project']['id'],
+            $sharedBucket2['id']
+        );
+        $this->_client2->dropBucket($linked2Id);
 
 
         $mapping1 = array(
