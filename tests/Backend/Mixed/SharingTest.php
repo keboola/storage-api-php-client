@@ -559,7 +559,9 @@ class SharingTest extends StorageApiTestCase
 
         // share and unshare second bucket - test that it doesn't break permissions of first linked bucket
         $this->_client->shareBucket($secondBucketId);
-        $sharedBucket2 = $this->_client->listSharedBuckets()[0];
+        $sharedBucket2 = array_values(array_filter($this->_client->listSharedBuckets(), function($bucket) use ($secondBucketId) {
+            return $bucket['id'] === $secondBucketId;
+        }))[0];
         $linked2Id = $this->_client2->linkBucket(
             "linked-" . time(),
             'out',
