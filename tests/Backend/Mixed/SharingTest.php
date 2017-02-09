@@ -563,7 +563,7 @@ class SharingTest extends StorageApiTestCase
             return $bucket['id'] === $secondBucketId;
         }))[0];
         $linked2Id = $this->_client2->linkBucket(
-            "linked-" . time(),
+            "linked-2-" . time(),
             'out',
             $sharedBucket2['project']['id'],
             $sharedBucket2['id']
