@@ -43,7 +43,7 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
                     "destination" => "languages-rs",
                     "datatypes" => [
                         'id' => "VARCHAR(50)",
-                        "name" => "VARCHAR(255) ENCODE LZO"
+                        "name" => "VARCHAR(255) ENCODE BYTEDICT"
                     ]
                 ]
             ]
@@ -65,10 +65,10 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
         foreach ($info as $colinfo) {
             switch ($colinfo['column']) {
                 case "id":
-                    $this->assertEquals('none', $colinfo['encoding']);
+                    $this->assertEquals('lzo', $colinfo['encoding']);
                     break;
                 case "name":
-                    $this->assertEquals('lzo', $colinfo['encoding']);
+                    $this->assertEquals('bytedict', $colinfo['encoding']);
                     break;
             }
         }
