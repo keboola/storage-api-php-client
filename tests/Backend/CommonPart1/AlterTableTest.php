@@ -16,6 +16,7 @@
  */
 namespace Keboola\Test\Backend\CommonPart1;
 
+use Keboola\StorageApi\ClientException;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 
@@ -58,6 +59,17 @@ class AlterTableTest extends StorageApiTestCase
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile($importFile));
         $this->_client->addTableColumn($tableId, 'id');
+    }
+
+    public function testsTableExistingColumnAddWithDifferentCaseShouldThrowError()
+    {
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile($importFile));
+        try {
+            $this->_client->addTableColumn($tableId, 'ID');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.tables.columnAlreadyExists', $e->getStringCode());
+        }
     }
 
     public function testTableColumnDelete()
