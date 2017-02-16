@@ -12,7 +12,7 @@ important features of the API are:
 - managing component configurations.
 
 The CSV files interchanged with Storage must adhere to the 
-[RFC4180 Specification](http://tools.ietf.org/html/rfc4180) and must use `UTF-8` encoding.
+[RFC4180 Specification](http://tools.ietf.org/html/rfc4180) and must use the `UTF-8` encoding.
 The files can be sent uncompressed or gzipped. You can find more information about working 
 with these files in [our manual](https://help.keboola.com/storage/tables/csv-files/).
 
@@ -20,7 +20,7 @@ For a list of available clients and their features, see the
 [Developers Documentation](https://developers.keboola.com/integrate/storage/).
 The documentation also describes more complex examples of 
 [working with the API](https://developers.keboola.com/integrate/storage/api/).
-This documentation assumes that you are already familiar with 
+This documentation assumes that you are already familiar with the
 [Keboola Connection Storage component](https://help.keboola.com/storage/). 
 
 ## HTTP Response Codes
@@ -47,7 +47,7 @@ listed in the below tables.
     </tr>
     <tr>
         <td>204 <code>No Content</code></td>
-        <td>The request was successful but there is nothing to return. Usually used a response of DELETE requests.</td>
+        <td>The request was successful but there is nothing to return. Usually used as a response of DELETE requests.</td>
     </tr>
 </table>
 
@@ -55,7 +55,7 @@ listed in the below tables.
 <table>
     <tr>
         <td>400 <code>Bad Request</code></td>
-        <td>The request was invalid. Usually caused by invalid input data (missing arguments, invalid arguments values, etc.). The cause of the error is described in response.</td>
+        <td>The request was invalid. Usually caused by invalid input data (missing arguments, invalid arguments values, etc.). The cause of the error is described in the response.</td>
     </tr>
     <tr>
         <td>401 <code>Unauthorized</code></td>
@@ -63,7 +63,7 @@ listed in the below tables.
     </tr>
     <tr>
         <td>403 <code>Forbidden</code></td>
-        <td>You don't have access to resource.</td>
+        <td>You don't have access to the resource.</td>
     </tr>
     <tr>
         <td>404 <code>Not Found</code></td>
@@ -71,12 +71,12 @@ listed in the below tables.
     </tr>
     <tr>
         <td>500 <code>Internal Server Error</code></td>
-        <td>Something went wrong. We are sorry, it is our fault and we will make our best to fix it!. Feel free to <a href='mailto:suppor@keboola.com'>send us a ticket</a></td>
+        <td>Something went wrong. We are sorry, it is our fault and we will make our best to fix it! Feel free to <a href='mailto:suppor@keboola.com'>send us a ticket,</a></td>
     </tr>
     <tr>
         <td>503 <code>Temporary Unavailable</code></td>
-        <td>This response is typically returned when system is under maintenance.
-            Maintenance reason and expected maintenance end time are also returned in response.
+        <td>This response is typically returned when the system is under maintenance.
+            The maintenance reason and expected maintenance end time are also returned in the response.
         </td>
     </tr>
 </table>
@@ -85,7 +85,7 @@ listed in the below tables.
 ## Authentication
 Authentication is done via Storage API **Token**. There are multiple options
 for [obtaining a Storage API Token](https://help.keboola.com/storage/tokens/). 
-The token must be sent as a value of `X-StorageApi-Token` HTTP header with each API call.
+The token must be sent as a value of the `X-StorageApi-Token` HTTP header with each API call.
 
 Most API calls work within a *KBC Project*. The project is always derived from the token used for the API call.
 So the token includes both authentication and authorization to a single project.
@@ -93,14 +93,14 @@ So the token includes both authentication and authorization to a single project.
 ## Synchronous and Asynchronous Calls
 Calls that represent potentially long-running actions are performed asynchronously. 
 These are for example: loading table data, snapshotting, exporting table data, table structure modifications, etc.
-All asynchronous calls return HTTP Response code `202` and a [Job Resource](#reference/jobs). 
+All asynchronous calls return the HTTP Response code `202` and a [Job Resource](#reference/jobs). 
 To obtain the actual result of the call, you have to monitor the job status by 
 [polling the Job Resource URL](https://developers.keboola.com/integrate/storage/api/import-export/#python-example).
 
 ## Partial Response
 Some API calls that list objects are returning related resources by default. For example, 
 the [table list](#reference/tables/create-or-list-tables/tables-in-bucket) also returns
-table bucket properties and table attributes. You can use the `include` parameter 
+the table bucket properties and table attributes. You can use the `include` parameter 
 to return only the required resources in the response.
 
 # Group Maintenance
@@ -108,7 +108,7 @@ to return only the required resources in the response.
 ## Maintenance Response Example [/v2/storage/]
 
 ### Example [GET]
-In case the system, or project is under maintenance, you will receive a response similar to the below one. 
+In case the system, or a project is under maintenance, you will receive a response similar to the below one. 
 Maintenance typically applies to a single project, for example due to migration. Be sure to use the `Retry-After` header 
 when accessing the API programatically.
 
@@ -132,9 +132,9 @@ when accessing the API programatically.
             }
 
 
-# Group Tokens and permissions
-When joining a project, each project administrator is assigned a [*master* token](https://help.keboola.com/storage/tokens/).
-Master token enables you create to other tokens with limited privileges for buckets and components.
+# Group Tokens and Permissions
+When joining a project, each project administrator is assigned a [*master* token](https://help.keboola.com/storage/tokens/),
+which enables them to create other tokens with limited privileges for buckets and components.
 
 ## Tokens Collection [/v2/storage/tokens]
 ### List all tokens [GET]
@@ -231,7 +231,7 @@ Create a new token in the project. Note that it is not possible to create a new 
 
 ## Token [/v2/storage/tokens/{id_token}]
 ### Token detail [GET]
-Return all properties of a token. You can obtain the Token Id for example using 
+Return all properties of a token. You can obtain the Token Id, for example, using 
 the [Verify call](#reference/tokens-and-permissions/token/token-verification).
 
 + Parameters
@@ -405,7 +405,7 @@ and the associated administrator (`admin`). This call can be executed by all tok
 
 ## Share Token [/v2/storage/tokens/{token_id}/share]
 ### Share Token [POST]
-Use this call whenever you want to securely deliver token to someone. Link to token retrieval page will be sent to the 
+Use this call whenever you want to securely deliver a token to someone. The link to the token retrieval page will be sent to the 
 provided email address. The link will expire in 2 hours.
 
 + Parameters
@@ -428,11 +428,11 @@ provided email address. The link will expire in 2 hours.
 
 ## Token Refresh [/v2/storage/tokens/{id_token}/refresh]
 ### Refresh Token [POST]
-Use this method to generate a new token value, the old token value will become immediately invalid. 
+Use this method to generate a new token value; the old token value will become immediately invalid. 
 This method can be executed by all tokens.
 
 + Parameters
-    + id_token - A valid token id. You can get from [Verify call](#reference/tokens-and-permissions/token/token-verification) 
+    + id_token - A valid token id. You can get it from [Verify call](#reference/tokens-and-permissions/token/token-verification) 
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -459,7 +459,7 @@ This method can be executed by all tokens.
 ## API Index [/v2/storage]
 ### Component List [GET]
 Use this API call to obtain definitions of all components available in KBC. For more information about
-KBC Component architecture, see the [Developers documentation](https://developers.keboola.com/overview/)
+the KBC Component architecture, see the [Developers documentation](https://developers.keboola.com/overview/).
 
 + Response 200 (application/json)
     + Body
@@ -490,7 +490,7 @@ Access to buckets can be limited by access tokens. Each bucket has a *backend* i
 ## Create or List Buckets [/v2/storage/buckets]
 ### List all buckets [GET /v2/storage/buckets?include={include}]
 
-All buckets with it's attributes are returned.
+All buckets with their attributes are returned.
 
 + Parameters
     + include (optional) - Comma separated list of resources to include for each table. Available resources: 'attributes'.
