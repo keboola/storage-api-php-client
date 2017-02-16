@@ -38,7 +38,7 @@ class MetadataTest extends StorageApiTestCase
         );
         $testMetadata = array($md, $md2);
 
-        $provider = "keboola.storage-api-php-client_test-runner";
+        $provider = self::TEST_PROVIDER;
         $metadatas = $metadataApi->postBucketMetadata($bucketId, $provider, $testMetadata);
 
         $this->assertEquals(2, count($metadatas));
@@ -46,7 +46,7 @@ class MetadataTest extends StorageApiTestCase
         $this->assertArrayHasKey("value", $metadatas[0]);
         $this->assertArrayHasKey("provider", $metadatas[0]);
         $this->assertArrayHasKey("timestamp", $metadatas[0]);
-        $this->assertEquals("keboola.storage-api-php-client_test-runner", $metadatas[0]['provider']);
+        $this->assertEquals(self::TEST_PROVIDER, $metadatas[0]['provider']);
 
         $origValue = $metadatas[0]['value'];
         $mdCopy = $metadatas[0];
@@ -89,7 +89,7 @@ class MetadataTest extends StorageApiTestCase
         );
         $testMetadata = array($md, $md2);
 
-        $provider = "keboola.storage-api-php-client_test-runner";
+        $provider = self::TEST_PROVIDER;
 
         $metadatas = $metadataApi->postTableMetadata($tableId, $provider, $testMetadata);
 
@@ -98,7 +98,7 @@ class MetadataTest extends StorageApiTestCase
         $this->assertArrayHasKey("value", $metadatas[0]);
         $this->assertArrayHasKey("provider", $metadatas[0]);
         $this->assertArrayHasKey("timestamp", $metadatas[0]);
-        $this->assertEquals("keboola.storage-api-php-client_test-runner", $metadatas[0]['provider']);
+        $this->assertEquals(self::TEST_PROVIDER, $metadatas[0]['provider']);
 
         $mdCopy = $metadatas[0];
         $mdCopy['value'] = "newValue";
@@ -145,7 +145,7 @@ class MetadataTest extends StorageApiTestCase
         );
         $testMetadata = array($md, $md2);
 
-        $provider = "keboola.storage-api-php-client_test-runner";
+        $provider = self::TEST_PROVIDER;
 
         $metadatas = $metadataApi->postColumnMetadata($columnId, $provider, $testMetadata);
 
@@ -154,7 +154,7 @@ class MetadataTest extends StorageApiTestCase
         $this->assertArrayHasKey("value", $metadatas[0]);
         $this->assertArrayHasKey("provider", $metadatas[0]);
         $this->assertArrayHasKey("timestamp", $metadatas[0]);
-        $this->assertEquals("keboola.storage-api-php-client_test-runner", $metadatas[0]['provider']);
+        $this->assertEquals(self::TEST_PROVIDER, $metadatas[0]['provider']);
 
         $mdCopy = $metadatas[0];
         $mdCopy['value'] = "newValue";
@@ -199,7 +199,7 @@ class MetadataTest extends StorageApiTestCase
         );
         $testMetadata = array($md);
 
-        $provider = "keboola.storage-api-php-client_test-runner";
+        $provider = self::TEST_PROVIDER;
         $metadatas = $metadataApi->postBucketMetadata($bucketId, $provider, $testMetadata);
 
         $this->assertCount(1, $metadatas);
