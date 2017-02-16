@@ -127,4 +127,33 @@ class Metadata
             "metadata" => $metadata
         ));
     }
+
+    public function getMetadata($key, $filterOptions = [])
+    {
+        $qry = http_build_query($this->prepareFilters($filterOptions));
+        return $this->client->apiGet("storage/metadata?" . $qry);
+    }
+
+    private function prepareFilters(array $options)
+    {
+        $allowedOptions = array(
+            'limit',
+            'changedSince',
+            'changedBefore'
+        );
+
+        $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
+
+        if (isset($options['filters'])) {
+            $requiredFilterKeys = array('operator', 'value');
+            foreach ($options['filters'] as $filter) {
+                if (!is_array($filter) || array_diff_key($requiredFilterKeys, $filter)) {
+                    throw new ClientException("Each filter must be an array and contain both 'operator' and 'value' fields");
+                }
+            }
+            $filteredOptions['filters'] = (array) $options['filters'];
+        }
+
+        return $filteredOptions;
+    }
 }
