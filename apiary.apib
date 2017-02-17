@@ -541,7 +541,7 @@ existing bucket from another project (see below).
 
 + Attributes
     + name (required) - New bucket name. Only alphanumeric characters and underscores are allowed.
-    + stage (optional, enum[string]) - Assign bucket to one of the stages.
+    + stage (optional, enum[string]) - Assign the bucket to one of the stages.
         + Members
             + in
             + out
@@ -591,10 +591,10 @@ Linking a bucket from another project is only possible if it has been
 only by *organization* administrators.
 
 + Attributes
-    + name (required) - New bucket name (Only alphanumerich characters and underscores are allowed)
+    + name (required) - New bucket name (Only alphanumeric characters and underscores are allowed)
     + sourceProjectId (required, number) - Id of the source project from which the bucket is being shared.
     + sourceBucketId (required) - Id of the bucket being shared.
-    + stage (optional, enum[string]) - Assign bucket to one of the stages.
+    + stage (optional, enum[string]) - Assign the bucket to one of the stages.
         + Members
             + in
             + out
@@ -659,12 +659,12 @@ Obtain information about a bucket.
 
 
 ### Drop Bucket [DELETE /v2/storage/buckets/{bucket_id}/?force={force}]
-Deletes a bucket from the project. In default mode, only empty buckets can be deleted.
+Deletes a bucket from the project. In the default mode, only empty buckets can be deleted.
 Use the optional `force` parameter to delete all bucket content too.
 
 + Parameters
     + bucket_id (required) - Bucket Id
-    + force (optional, boolean) - Drop all tables and aliases. Tables must not have any dependencies (aliases, etc).
+    + force (optional, boolean) - Drop all tables and aliases. Tables must not have any dependencies (aliases, etc.).
 
 + Request
     + Headers
@@ -698,7 +698,7 @@ to the entire organization to which the project belongs. It may then be shared t
 
 ### Stop Bucket Sharing [DELETE]
 Disable sharing of the bucket. Bucket must not be linked to other projects.
-To unshare already linked bucket, you have to delete the links first - use the
+To unshare an already linked bucket, you have to delete the links first - use the
 [Drop Bucket](#reference/buckets/manage-bucket/drop-bucket) in the linking project.
 
 + Parameters
@@ -712,7 +712,7 @@ To unshare already linked bucket, you have to delete the links first - use the
 + Response 204
 
 ## List Shared Buckets [/v2/storage/shared-buckets]
-List buckest which may be shared to the project. This operations is available only for organization administrators.
+List buckets which may be shared to the project. This operation is available only for organization administrators.
 
 ### Shared buckets list [GET]
 
@@ -737,9 +737,9 @@ List buckest which may be shared to the project. This operations is available on
             ]
 
 # Group Buckets Credentials
-This operation is available only for buckets with *Redshift backend*. All Redshift buckets in one 
+This operation is available only for buckets with the *Redshift backend*. All Redshift buckets in one 
 project are stored in a single Redshift cluster. This API call can provide read-only credentials 
-to that cluster and bucket. This resource is accessible only to project administratos (master token).
+to that cluster and bucket. This resource is accessible only to project administrators (master token).
 
 ## Create Credentials [/v2/storage/buckets/{bucket_id}/credentials]
 ### Create Credentials [POST]
@@ -818,7 +818,7 @@ List all Redshift bucket credentials available in the project.
 
 ## Manage Credentials [/v2/storage/credentials/{id}]
 ### Get credentials [GET]
-Obtain exising credential details. Note that the password is not returned, as it is available only once when the 
+Obtain existing credential details. Note that the password is not returned, as it is available only once when the 
 credentials are created.
 
 + Parameters
@@ -872,9 +872,9 @@ Delete the specified bucket credentials.
 ### Create new table from CSV file [POST]
 
 Creates a new table in a bucket. The CSV file must follow the [RFC 4180 Specification](https://tools.ietf.org/html/rfc4180).
-More information about the requiremens can be found in the [Manual](https://help.keboola.com/storage/tables/csv-files/). 
-Column names are extracted from CSV file header, spaces and any other special characters in column names are
-replaced with underscore. This API call should be used only tables which can be safely transfered in a single HTTP request, for large
+More information about the requirements can be found in the [Manual](https://help.keboola.com/storage/tables/csv-files/). 
+Column names are extracted from the CSV file header; spaces and any other special characters in column names are
+replaced with underscore. This API call should be used only for tables which can be safely transferred in a single HTTP request; for large
 tables use the [asynchronous call](#reference/tables/create-table-asynchronously/create-new-table-from-csv-file-asynchronously).
 
 + Parameters
@@ -882,11 +882,11 @@ tables use the [asynchronous call](#reference/tables/create-table-asynchronously
     
 + Attributes    
     + name (required) - New table name
-    + data (required) - CSV file containing data for import. CSV file data have to be encoded in **UTF-8**. CSV file can be raw or gzipped. Gzipped file must have extension `.gz`.
-    + delimiter (optional) - Field delimiter used in CSV file. Default value is ','.  Use '\t' or type the tab char for tabulator
-    + enclosure (optional) - Field enclosure used in CSV file. Default value is '"'. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both)
-    + escapedBy (optional) - Escape character used in CSV file. Default value is empty value - no escape character is used. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both)
-    + primaryKey (optional) - Primary key of table. If primary key is set, updates can be done on table. See CSV incremental import. Primary key can be also composed by multiple columns, columns must be separated by comma. For table on MySQL backend maximum number of primary key columns is 4.
+    + data (required) - CSV file containing data for import. CSV file data have to be encoded in **UTF-8**. CSV files can be raw or gzipped. Gzipped files must have the extension `.gz`.
+    + delimiter (optional) - Field delimiter used in a CSV file. The default value is ','.  Use '\t' or type the char for the tabulator.
+    + enclosure (optional) - Field enclosure used in a CSV file. The default value is '"'. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both.)
+    + escapedBy (optional) - Escape character used in a CSV file. The default value is an empty value - no escape character is used. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both.)
+    + primaryKey (optional) - Primary key of a table. If the primary key is set, updates can be done on the table. See the CSV incremental import. The primary key can be also composed by multiple columns; the columns must be separated by a comma. For a table on the MySQL backend the maximum number of the primary key columns is 4.
 
 + Request (multipart/form-data)
     + Headers
@@ -976,7 +976,7 @@ Lists tables in a given bucket.
 
 Asynchronous version of table create, this method should be used for larger imports (Everything with 100 lines and more).
 Create request is created and added to queue, job resource url for status polling is returned.
-The actual data must must be provided in one of the following attributes: 
+The actual data must be provided in one of the following attributes: 
 
 - `dataUrl`,
 - `dataFileId`,
