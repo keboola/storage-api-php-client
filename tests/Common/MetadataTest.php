@@ -288,11 +288,6 @@ class MetadataTest extends StorageApiTestCase
         $bucketId = self::getTestBucketId();
         $object = ($apiEndpoint === "bucket") ? $bucketId : $bucketId . $object;
 
-        $md = array(
-            "key" => "validKey", // invalid char %
-            "value" => "testval"
-        );
-
         try {
             $this->deleteMetadata($apiEndpoint, $object, 9999999);
             $this->fail("Invalid metadataId");
@@ -301,6 +296,31 @@ class MetadataTest extends StorageApiTestCase
         }
     }
 
+    public function testNullProvider()
+    {
+        $metadataApi = new Metadata($this->_client);
+        $tableId = $this->getTestBucketId() . '.table';
+        $md = array(
+            "key" => "validKey", // invalid char %
+            "value" => "testval"
+        );
+        $metadataApi->postBucketMetadata($this->getTestBucketId(), null, [$md]);
+        $metadataApi->postTableMetadata($tableId, null, [$md]);
+        $metadataApi->postColumnMetadata($tableId . ".id", null, [$md]);
+
+        $bucketMd = $metadataApi->listBucketMetadata($this->getTestBucketId());
+        $tableMd = $metadataApi->listTableMetadata($tableId);
+        $columnMd = $metadataApi->listColumnMetadata($tableId . ".id");
+        
+        $this->assertCount(1, $bucketMd);
+        $this->assertCount(1, $tableMd);
+        $this->assertCount(1, $columnMd);
+
+        $this->assertNull($bucketMd[0]['provider']);
+        $this->assertNull($tableMd[0]['provider']);
+        $this->assertNull($columnMd[0]['provider']);
+    }
+    
     public function apiEndpoints()
     {
         $tableId = '.table';
