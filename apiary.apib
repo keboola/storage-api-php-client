@@ -975,7 +975,7 @@ Lists tables in a given bucket.
 ### Create new table from CSV file asynchronously [POST]
 
 The method of creating a table asynchronously should be used for larger imports (everything with 100 lines and more).
-Create request is created and added to a queue, the job resource url for status polling is returned.
+The create request is created and added to a queue, the job resource url for status polling is returned.
 The actual data must be provided in one of the following attributes: 
 
 - `dataUrl`,
@@ -1038,19 +1038,19 @@ The actual data must be provided in one of the following attributes:
 
  **This method of import is DEPRECATED**, please use [asynchronous import](#reference/tables/load-data-asynchronously).
 
- Each CSV table should contain a header with column names; all columns present in the table must be also present in the CSV file, new columns not present in table are created. One of the `data`, `dataString` and `dataUrl` attributes must be provided.
- CSV files can be raw or gzipped. The gzipped file must have the extension .gz.
+ Each CSV table should contain a header with column names; all columns present in the table must be also present in the CSV file, new columns not present in the table are created. One of the `data`, `dataString` and `dataUrl` attributes must be provided.
+ CSV files can be raw or gzipped. The gzipped files must have the extension .gz.
 
 + Attributes
     + data (optional) - Multipart CSV file upload.
-    + dataString (optional) - CSV as string in request body.
-    + dataUrl (optional) - URL with CSV file 
-    + incremetal (optional) If incremental is set to 0 target table is truncated before each import. Default is 0.
-    + delimiter (optional) Field delimiter used in CSV file. Default value is ','.  Use '\t' or type the tab char for tabulator.
-    + enclosure (optional) Field enclosure used in CSV file. Default value is '"'.
-    + partial (optional, boolean) **DEPRECATED - this parameter will be removed in future version** If partial is set to 1 only some of table columns can be imported. Useful for column updates. Supported only by mysql backend.
-    + columns[] (optional) List of columns present in CSV file, first line of CSV will not be treated as header!
-    + withoutHeaders (optional, boolean) CSV file doesn't contain headers, columns are matched by order
+    + dataString (optional) - CSV as a string in the request body.
+    + dataUrl (optional) - URL with a CSV file 
+    + incremental (optional) - If incremental is set to 0, the target table is truncated before each import. Default is 0.
+    + delimiter (optional) - Field delimiter used in a CSV file. Default value is ','.  Use '\t' or type the tab char for the tabulator.
+    + enclosure (optional) - Field enclosure used in a CSV file. Default value is '"'.
+    + partial (optional, boolean) **DEPRECATED - this parameter will be removed in the future version.** If partial is set to 1, only some of the table columns can be imported. Useful for column updates. Supported only by the MySQL backend.
+    + columns[] (optional) - List of columns present in a CSV file; the first line of CSV will not be treated as a header!
+    + withoutHeaders (optional, boolean) - CSV file doesn't contain headers, columns are matched by order.
 
 
 + Request (multipart/form-data; boundary=----WebKitFormBoundaryU2xN082HVaIRptvd)
@@ -1086,23 +1086,23 @@ The actual data must be provided in one of the following attributes:
 ## Load data asynchronously [/v2/storage/tables/{table_id}/import-async]
 
 ### Import data [POST]
-Asynchronous version of import, this method should be used for larger imports (Everything with 100 lines and more).
-Import request is created and added to queue, job resource url for status polling is returned.
-Asynchronous imports requested on same table will be serialized.
+The method of asynchronous importing should be used for larger imports (everything with 100 lines and more).
+The import request is created and added to a queue; the job resource url for status polling is returned.
+Asynchronous imports requested on the same table will be serialized.
 
-The actual data must must be provided in one of the following attributes: 
+The actual data must be provided in one of the following attributes: 
 
 - **dataUrl**, 
 - **dataFileId**,
 - **snapshotId**, 
 - **dataWorkspaceId** and **dataTableName**
 
-Imported file can be sliced into multiple chunks, conditions described in [File Uploads](#reference/files) must be satisfied.
-CSV file can be raw or gzipped. Gzipped file must have extension `.gz`. Typical asynchronous import negotiation consists of these steps:
+An imported file can be sliced into multiple chunks; the conditions described in [File Uploads](#reference/files) must be satisfied.
+CSV files can be raw or gzipped. The gzipped files must have the extension `.gz`. A typical asynchronous import negotiation consists of these steps:
 
-1. Upload CSV file using [File Upload](#reference/files).
-2. Submit [asynchronous import request](#reference/tables/load-data-asynchronously/imports-data) with `dataFileId` set to the File Id returned in previous step.
-3. Poll job resource returned in previous step until the `status` is `success` or `error`.
+1. Upload a CSV file using [File Upload](#reference/files).
+2. Submit an [asynchronous import request](#reference/tables/load-data-asynchronously/imports-data) with `dataFileId` set to the File Id returned in the previous step.
+3. Poll job resource returned in the previous step until the `status` is `success` or `error`.
 
 Further information can be found in the [Developers Documentation](https://developers.keboola.com/integrate/storage/api/import-export/).
 
@@ -1110,18 +1110,18 @@ Further information can be found in the [Developers Documentation](https://devel
     + table_id (required) - Table Id
     
 + Attributes    
-    + dataUrl (optional) - Publicly accessible url with CSV file to import.
-    + dataFileId (optional) - Id of file stored in [File Uploads](#reference/files). Gzipped and sliced files are supported.
-    + snapshotId (optional) - Id of table snapshot - table will be created from snapshot.
-    + dataWorkspaceId (optional) - Load from table [workspace](#reference/workspaces). Use with **dataTableName** attribute.
-    + dataTableName (optional) - Load from table in [workspace](#reference/workspaces).
-    + incremental (optional, number) - If incremental is set to 0 target table is truncated before each import.
+    + dataUrl (optional) - Publicly accessible url with a CSV file to import.
+    + dataFileId (optional) - Id of the file stored in [File Uploads](#reference/files). All gzipped and sliced files are supported.
+    + snapshotId (optional) - Id of a table snapshot - a table will be created from the snapshot.
+    + dataWorkspaceId (optional) - Load from the table [workspace](#reference/workspaces). Use with the **dataTableName** attribute.
+    + dataTableName (optional) - Load from the table in [workspace](#reference/workspaces).
+    + incremental (optional, number) - If incremental is set to 0, the target table is truncated before each import.
         Default: 0
-    + delimiter (optional) - Field delimiter used in CSV file. Default value is ','.  Use '\t' or type the tab char for tabulator
-    + enclosure (optional) - Field enclosure used in CSV file. Default value is '"'. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both)
-    + escapedBy (optional) - Escape character used in CSV file. Default value is empty value - no escape character is used. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both)
-    + columns[] (optional) - List of columns present in CSV file, first line of CSV will not be treated as header!
-    + withoutHeaders (optional) - CSV file doesn't contain headers, columns are matched by order
+    + delimiter (optional) - Field delimiter used in a CSV file. The default value is ','.  Use '\t' or type the tab char for tabulator.
+    + enclosure (optional) - Field enclosure used in a CSV file. The default value is '"'. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both.)
+    + escapedBy (optional) - Escape character used in a CSV file. The default value is an empty value - no escape character is used. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both.)
+    + columns[] (optional) - List of columns present in a CSV file, the first line of CSV will not be treated as a header!
+    + withoutHeaders (optional) - CSV file doesn't contain headers, columns are matched by order.
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -1180,17 +1180,17 @@ Further information can be found in the [Developers Documentation](https://devel
 ## Unload Data [/v2/storage/tables/{table_id}/export]
 ### Export table into CSV [GET]
 
-This method is **DEPRECATED**, please use [asynchronous version](#reference/tables/unload-data-asynchronously) of this method.
+This method is **DEPRECATED**, please use the [asynchronous version](#reference/tables/unload-data-asynchronously) of this method.
 
 #### HTTP Compression
 
-To enable compression of API response traffic, please include the following HTTP header with API request: `Accept-encoding: gzip`
+To enable compression of API response traffic, please include the following HTTP header with the API request: `Accept-encoding: gzip`
 
 #### Error Handling
 
-At the moment when the streaming connection is established HTTP 200 response code is returned and data are streamed row by row.
-When some error occurs and data cannot be streamed anymore, a special row is returned to stream `KBC_INTERNAL_ERROR`.
-When you receive this message please run export again, these errors should be very rare.
+At the moment when the streaming connection is established, the HTTP 200 response code is returned and data are streamed row by row.
+When an error occurs and data cannot be streamed any more, a special row is returned to stream `KBC_INTERNAL_ERROR`.
+When you receive this message, please run the export again; these errors are very rare.
 
 + Request
     + Headers
@@ -1214,29 +1214,29 @@ When you receive this message please run export again, these errors should be ve
 ## Unload Data Asynchronously [/v2/storage/tables/{table_id}/export-async]
 
 ### Asynchronous Export [POST]
-Exports data into the File Storage. The Id of the created file is returned.
-This task is asynchronous, Id of the created file is stored in the `results` of created job when the job is finished.
+Exports data into File Storage. The Id of the created file is returned.
+This task is asynchronous; Id of the created file is stored in the `results` of the created job when the job is finished.
 
 #### Rows filtering
-Exported rows can be filtered by single filter. Examples of filtering by `userId` column:
+Exported rows can be filtered by a single filter. Examples of filtering by `userId` column:
 
 - `whereColumn=UserId&whereValues[]=23423` - Filter by single values of one column.
 - `whereColumn=UserId&whereValues[]=23423&whereValues[]=123` - Filter by multiple values of one column.
 - `whereColumn=UserId&whereValues[]=23423&whereOperator=ne` - Use a different comparison operator.
 
 Only [Indexed columns](#reference/tables/create-column-index/mark-column-as-indexed) can be used in the `whereColumn` parameter.
-The comparison operator essential behaves like [SQL IN](http://www.w3schools.com/sql/sql_in.asp) (and NOT IN) operator. That is, the 
-`eq` value matches if any `whereValues` match and the `new` value matches if none `whereValues` match.
+The comparison operator essential behaves like the [SQL IN](http://www.w3schools.com/sql/sql_in.asp) (and NOT IN) operator. That is, the 
+`eq` value matches if any `whereValues` match, and the `new` value matches if none `whereValues` match.
 
 #### Caching
-Asynchronous exports support internal caching. When the export file for certain table 
+Asynchronous exports support internal caching. When the export file for a certain table 
 export parameters was created and there were no changes in the table data since, the
 previous cached file will be returned.
 
 #### Job results
 
-The response contains link to Job results. Once the job is finished, the job result
-contains information about the created file and caching:
+The response contains a link to job results. Once the job is finished, the job result
+will show information about the created file and caching:
 
 ```
     {
@@ -1252,19 +1252,19 @@ contains information about the created file and caching:
 
 + Attributes
     + limit (optional, number) - Limit the number of returned rows
-    + days (optional, number) - **DEPRECATED will be removed in future** Return rows created or updated in last X days
+    + days (optional, number) - **DEPRECATED will be removed in the future.** Return rows created or updated in last X days
     + format (optional, enum[string]) - File format
         + Members
             + rfc - according to [RFC](http://www.ietf.org/rfc/rfc4180.txt).
-            + escaped - Delimited by comma, enclosed by double quote, special characters (e.q new line, tab) escaped by backslash. Each row in CSV file is equal to one row in storage.
-            + raw - Delimited by tab, without enclosure, special characters (e.q new line, tab)  escaped by backslash. Each row in CSV file is equal to one row in storage.
+            + escaped - Delimited by a comma, enclosed by a double quote, special characters (e.q new line, tab) escaped by a backslash. Each row in a CSV file is equal to one row in Storage.
+            + raw - Delimited by tab, without an enclosure, special characters (e.q new line, tab)  escaped by a backslash. Each row in a CSV file is equal to one row in Storage.
         + Default: rfc
     + changedSince (optional) - Filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp or any date accepted by [strtotime](http://www.php.net/manual/en/function.strtotime.php).
     + changedUntil (optional) - Filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp or any date accepted by [strtotime](http://www.php.net/manual/en/function.strtotime.php).
         Examples: `-2 days`, `1360138863`, `2013-02-12T15:19:21+00:00`
-    + columns (optional) - Comma separated list of columns to export, by default all columns are exported.
-    + whereColumn (optional) - Column for exporting only matching rows, see more in rows filtering section.
-    + whereValues[] (optional) - Values for exporting only matching rows, see more in rows filtering section.
+    + columns (optional) - Comma separated list of columns to export; by default all columns are exported.
+    + whereColumn (optional) - Column for exporting only matching rows; see more in the rows filtering section.
+    + whereValues[] (optional) - Values for exporting only matching rows; see more in the rows filtering section.
     + whereOperator (optional, enum[string]) - Operator for value comparison.
         + Members
             + eq - Equals - can be used with multiple values.
@@ -1393,9 +1393,9 @@ Delete a table from Storage.
 ## Table Optimize [/v2/storage/tables/{table_id}/optimize]
 
 ### Optimize table [POST]
-This is utility command implemented only for projects with Redshift backend.
-Redshift tables with lot of small-increment loads bloats its size. An optimize command is automatically scheduled to fix 
-this issue. This API call can be used trigger immediate optimization of a table.
+This is a utility command implemented only for projects with the Redshift backend.
+Redshift tables with a lot of small-increment loads bloat in size. An optimize command is automatically scheduled to fix 
+this issue. This API call can be used to trigger immediate optimization of a table.
 
 + Parameters
     + table_id (required) - Table Id
@@ -1439,8 +1439,8 @@ this issue. This API call can be used trigger immediate optimization of a table.
 ## List Tables [/v2/storage/tables?include={include}]
 
 ### List All Tables [GET]
-Lists all tables accessible by the token. By default all tables are returned with their 
-attributes and informaton about the containing bucket.
+Lists all tables accessible by the token. By default, all tables are returned with their 
+attributes and information about the containing bucket.
 
 + Parameters
     + include (optional) - Comma separated list of resources to include for each table. 
@@ -1563,8 +1563,8 @@ Adds a new column to an existing table. This request is [asynchronous](#introduc
 
 ## Manage Table Columns [/v2/storage/tables/{table_id}/columns/{column_name}]
 
-### Delete Column rom Table [DELETE]
-Deletes an existing column from an existing Table. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
+### Delete Column from Table [DELETE]
+Deletes an existing column from an existing table. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 
 + Parameters
     + table_id (required) - Table Id
@@ -1600,8 +1600,8 @@ Deletes an existing column from an existing Table. This request is [asynchronous
 
 ## Primary Keys [/v2/storage/tables/{table_id}/primary-key/]
 ### Create Primary Key [POST]
-If a primary key is set, updates can be done on table. Primary key can be composed of multiple columns. 
-For table with MySQL backend, the maximum number of primary key columns is 4. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
+If a primary key is set, updates can be done on the table. A primary key can be composed of multiple columns. 
+For a table with the MySQL backend, the maximum number of primary key columns is 4. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 
 + Parameters
     + table_id (required) - Table Id
@@ -1642,7 +1642,7 @@ For table with MySQL backend, the maximum number of primary key columns is 4. Th
             }
 
 ### Remove Primary Key [DELETE]
-Removes primary key from a table. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
+Removes the primary key from a table. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 
 + Parameters
     + table_id (required) - Table Id
@@ -1678,7 +1678,7 @@ Removes primary key from a table. This request is [asynchronous](#introduction/s
 
 ### Mark column as indexed [POST]
 Indexed columns can be used to filter data when [exporting](#reference/tables/unload-data-asynchronously/asynchronous-export).
-Columns in primary key are automatically indexed. Number of indexed columns is limited to 4 including the primary key.
+Columns in a primary key are automatically indexed. The number of indexed columns is limited to 4 including the primary key.
 This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 
 + Parameters
@@ -1757,15 +1757,15 @@ Remove a column from index. This request is [asynchronous](#introduction/synchro
 ## Manage Table Rows [/v2/storage/tables/{table_id}/rows]
 
 ### Delete Table Rows [DELETE]
-Deletes all rows matching the specifid filter. The number of deleted rows is returned.
+Deletes all rows matching the specified filter. The number of deleted rows is returned.
 This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 
 + Parameters
     + table_id (required) - Table Id
 
 + Attributes
-    + whereColumn (optional) - Column for exporting only matching rows, see more in [rows filtering section](#reference/tables/unload-data-asynchronously/asynchronous-export).
-    + whereValues[] (optional) - Values for exporting only matching rows, see more in [rows filtering section](#reference/tables/unload-data-asynchronously/asynchronous-export).
+    + whereColumn (optional) - Column for exporting only matching rows, see more in the [rows filtering section](#reference/tables/unload-data-asynchronously/asynchronous-export).
+    + whereValues[] (optional) - Values for exporting only matching rows, see more in the [rows filtering section](#reference/tables/unload-data-asynchronously/asynchronous-export).
     + whereOperator (optional, enum[string]) - Operator for value comparison.
         + Members
             + eq - Equals - can be used with multiple values.
@@ -1807,11 +1807,11 @@ This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls)
 
 # Group Table Aliases
 [Aliases](https://help.keboola.com/storage/tables/) behave like database Views. Alias tables are read-only. 
-Aliases cannot be chained and can be applied only between buckets with same backend.
+Aliases cannot be chained and can be applied only between buckets with the same backend.
 
-Rows present in alias table can be filtered by simple condition similar to 
+Rows present in an alias table can be filtered by a simple condition similar to 
 [table export filtering](#reference/tables/unload-data-asynchronously/asynchronous-export).
-Filter parameter `aliasFilter` must be set during alias table creation or later to enable filtering:
+The filter parameter `aliasFilter` must be set during an alias table creation or later to enable filtering:
 
 * **column** - Filtered by column name
 * **operator** - Filter operator: `eq`, `ne`
@@ -1819,20 +1819,20 @@ Filter parameter `aliasFilter` must be set during alias table creation or later 
 
 There are some limitations:
 * Filtering is enabled only on indexed tables
-* Index on filtered column of source table cannot be removed
+* Index on a filtered column of the source table cannot be removed
 
 #### Alias table columns
 By default the alias columns are automatically synced with the source table. You can disable this behaviour
 by setting up `aliasColumnsAutosync` to `false` and setting up list of columns by `aliasColumns` parameter.
-Later you can modify alias columns by table columns methods.
-When turning `aliasColumnsAutoSync` back on, columns will be immediately synced with source table.
+Later you can modify the alias columns by the table columns methods.
+When turning `aliasColumnsAutoSync` back on, the columns will be immediately synced with the source table.
 
 ## Create Table Alias [/v2/storage/buckets/{bucket_id}/table-aliases]
 
 ### Create new alias table [POST]
 
 + Parameters
-    + bucket_id (required) - Id of bucket in which the alias table will be created.
+    + bucket_id (required) - Id of a bucket in which the alias table will be created.
 
 + Attributes
     + name (required) - Name of the new table alias.
@@ -1846,7 +1846,7 @@ When turning `aliasColumnsAutoSync` back on, columns will be immediately synced 
     + aliasFilter[values][] (optional) - Values for the filter.
     + aliasColumnsAutosync (optional, boolean) - Disable column synchronization with the source table.
         Default: false
-    + aliasColumns[] (optional) - List of alias columns, this disables column syncronization with the source table.
+    + aliasColumns[] (optional) - List of alias columns, this disables column synchronization with the source table.
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -1917,7 +1917,7 @@ When turning `aliasColumnsAutoSync` back on, columns will be immediately synced 
 
 ### Update Alias Filter [POST]
 Using this API call, you can update an existing filter. You can also set a new filter, but the 
-alias must have been created with the `aliasFilter` parameter. 
+alias must be created with the `aliasFilter` parameter. 
 
 + Parameters
     + table_id (required) - Id of the alias table.
