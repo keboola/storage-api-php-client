@@ -71,7 +71,7 @@ listed in the below tables.
     </tr>
     <tr>
         <td>500 <code>Internal Server Error</code></td>
-        <td>Something went wrong. We are sorry, it is our fault and we will make our best to fix it! Feel free to <a href='mailto:suppor@keboola.com'>send us a ticket,</a></td>
+        <td>Something went wrong. We are sorry, it is our fault and we will make our best to fix it! Feel free to <a href='mailto:suppor@keboola.com'>send us a ticket.</a></td>
     </tr>
     <tr>
         <td>503 <code>Temporary Unavailable</code></td>
@@ -432,7 +432,7 @@ Use this method to generate a new token value; the old token value will become i
 This method can be executed by all tokens.
 
 + Parameters
-    + id_token - A valid token id. You can get it from [Verify call](#reference/tokens-and-permissions/token/token-verification) 
+    + id_token - A valid token id. You can get it from [Verify call](#reference/tokens-and-permissions/token/token-verification). 
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -547,7 +547,7 @@ existing bucket from another project (see below).
             + out
         + Default: in
     + description (optional) - Description of bucket.
-    + backend (optional, enum[string]) - Bucket backend type. Default value is determined by the project settings.
+    + backend (optional, enum[string]) - Bucket backend type. The default value is determined by the project settings.
         + Members
             + snowflake
             + redshift
@@ -882,11 +882,11 @@ tables use the [asynchronous call](#reference/tables/create-table-asynchronously
     
 + Attributes    
     + name (required) - New table name
-    + data (required) - CSV file containing data for import. CSV file data have to be encoded in **UTF-8**. CSV files can be raw or gzipped. Gzipped files must have the extension `.gz`.
+    + data (required) - CSV file containing data for import. The data have to be encoded in **UTF-8**. The file can be raw or gzipped. Gzipped files must have the extension `.gz`.
     + delimiter (optional) - Field delimiter used in a CSV file. The default value is ','.  Use '\t' or type the char for the tabulator.
     + enclosure (optional) - Field enclosure used in a CSV file. The default value is '"'. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both.)
     + escapedBy (optional) - Escape character used in a CSV file. The default value is an empty value - no escape character is used. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both.)
-    + primaryKey (optional) - Primary key of a table. If the primary key is set, updates can be done on the table. See the CSV incremental import. The primary key can be also composed by multiple columns; the columns must be separated by a comma. For a table on the MySQL backend the maximum number of the primary key columns is 4.
+    + primaryKey (optional) - Primary key of a table. If the primary key is set, updates can be done on the table. See the CSV incremental import. The primary key can be also composed by multiple columns; the columns must be separated by a comma. For a table on the MySQL backend, the maximum number of the primary key columns is 4.
 
 + Request (multipart/form-data)
     + Headers
@@ -996,7 +996,7 @@ The actual data must be provided in one of the following attributes:
     + delimiter (optional) - Field delimiter used in the CSV file. The default value is ','.  Use '\t' or type the tab char for the tabulator.
     + enclosure (optional) - Field enclosure used in a CSV file. The default value is '"'. (Note: you can specify either the `enclosure` or `escapedBy` parameter, not both.).
     + escapedBy (optional) - Escape character used in a CSV file. The default value is an empty value - no escape character is used. (Note: you can specify either the `enclosure` or `escapedBy` parameter, not both.)
-    + primaryKey (optional) - Primary key of a table. If the primary key is set, updates can be done on the table. See CSV incremental import. A primary key can be also composed by multiple columns; the columns must be separated by a comma. For a table on the MySQL backend, the maximum number of primary key columns is 4.
+    + primaryKey (optional) - Primary key of a table. If the primary key is set, updates can be done on the table. See CSV incremental import. The primary key can be also composed by multiple columns; the columns must be separated by a comma. For a table on the MySQL backend, the maximum number of primary key columns is 4.
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -1039,18 +1039,18 @@ The actual data must be provided in one of the following attributes:
  **This method of import is DEPRECATED**, please use [asynchronous import](#reference/tables/load-data-asynchronously).
 
  Each CSV table should contain a header with column names; all columns present in the table must be also present in the CSV file, new columns not present in the table are created. One of the `data`, `dataString` and `dataUrl` attributes must be provided.
- CSV files can be raw or gzipped. The gzipped files must have the extension .gz.
+ The CSV file can be raw or gzipped. Gzipped files must have the extension .gz.
 
 + Attributes
     + data (optional) - Multipart CSV file upload.
     + dataString (optional) - CSV as a string in the request body.
     + dataUrl (optional) - URL with a CSV file 
     + incremental (optional) - If incremental is set to 0, the target table is truncated before each import. Default is 0.
-    + delimiter (optional) - Field delimiter used in a CSV file. Default value is ','.  Use '\t' or type the tab char for the tabulator.
-    + enclosure (optional) - Field enclosure used in a CSV file. Default value is '"'.
-    + partial (optional, boolean) **DEPRECATED - this parameter will be removed in the future version.** If partial is set to 1, only some of the table columns can be imported. Useful for column updates. Supported only by the MySQL backend.
-    + columns[] (optional) - List of columns present in a CSV file; the first line of CSV will not be treated as a header!
-    + withoutHeaders (optional, boolean) - CSV file doesn't contain headers, columns are matched by order.
+    + delimiter (optional) - Field delimiter used in the CSV file. Default value is ','.  Use '\t' or type the tab char for the tabulator.
+    + enclosure (optional) - Field enclosure used in the CSV file. Default value is '"'.
+    + partial (optional, boolean) **DEPRECATED - this parameter will be removed in the future version.** If partial is set to 1, only some of the table columns can be imported. It is useful for column updates. Supported only by the MySQL backend.
+    + columns[] (optional) - List of columns present in the CSV file; the first line of the file will not be treated as a header!
+    + withoutHeaders (optional, boolean) - The CSV file doesn't contain headers, columns are matched by order.
 
 
 + Request (multipart/form-data; boundary=----WebKitFormBoundaryU2xN082HVaIRptvd)
@@ -1098,7 +1098,7 @@ The actual data must be provided in one of the following attributes:
 - **dataWorkspaceId** and **dataTableName**
 
 An imported file can be sliced into multiple chunks; the conditions described in [File Uploads](#reference/files) must be satisfied.
-CSV files can be raw or gzipped. The gzipped files must have the extension `.gz`. A typical asynchronous import negotiation consists of these steps:
+The CSV file can be raw or gzipped. Gzipped files must have the extension `.gz`. A typical asynchronous import negotiation consists of these steps:
 
 1. Upload a CSV file using [File Upload](#reference/files).
 2. Submit an [asynchronous import request](#reference/tables/load-data-asynchronously/imports-data) with `dataFileId` set to the File Id returned in the previous step.
@@ -1114,14 +1114,14 @@ Further information can be found in the [Developers Documentation](https://devel
     + dataFileId (optional) - Id of the file stored in [File Uploads](#reference/files). All gzipped and sliced files are supported.
     + snapshotId (optional) - Id of a table snapshot - a table will be created from the snapshot.
     + dataWorkspaceId (optional) - Load from the table [workspace](#reference/workspaces). Use with the **dataTableName** attribute.
-    + dataTableName (optional) - Load from the table in [workspace](#reference/workspaces).
+    + dataTableName (optional) - Load from the table in the [workspace](#reference/workspaces).
     + incremental (optional, number) - If incremental is set to 0, the target table is truncated before each import.
         Default: 0
-    + delimiter (optional) - Field delimiter used in a CSV file. The default value is ','.  Use '\t' or type the tab char for tabulator.
-    + enclosure (optional) - Field enclosure used in a CSV file. The default value is '"'. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both.)
-    + escapedBy (optional) - Escape character used in a CSV file. The default value is an empty value - no escape character is used. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both.)
-    + columns[] (optional) - List of columns present in a CSV file, the first line of CSV will not be treated as a header!
-    + withoutHeaders (optional) - CSV file doesn't contain headers, columns are matched by order.
+    + delimiter (optional) - Field delimiter used in the CSV file. The default value is ','.  Use '\t' or type the tab char for tabulator.
+    + enclosure (optional) - Field enclosure used in the CSV file. The default value is '"'. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both.)
+    + escapedBy (optional) - Escape character used in the CSV file. The default value is an empty value - no escape character is used. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both.)
+    + columns[] (optional) - List of columns present in the CSV file; the first line of the file will not be treated as a header!
+    + withoutHeaders (optional) - The CSV file doesn't contain headers, columns are matched by order.
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -1225,7 +1225,7 @@ Exported rows can be filtered by a single filter. Examples of filtering by `user
 - `whereColumn=UserId&whereValues[]=23423&whereOperator=ne` - Use a different comparison operator.
 
 Only [Indexed columns](#reference/tables/create-column-index/mark-column-as-indexed) can be used in the `whereColumn` parameter.
-The comparison operator essential behaves like the [SQL IN](http://www.w3schools.com/sql/sql_in.asp) (and NOT IN) operator. That is, the 
+The comparison operator essentially behaves like the [SQL IN](http://www.w3schools.com/sql/sql_in.asp) (and NOT IN) operator. That is, the 
 `eq` value matches if any `whereValues` match, and the `new` value matches if none `whereValues` match.
 
 #### Caching
@@ -1256,8 +1256,8 @@ will show information about the created file and caching:
     + format (optional, enum[string]) - File format
         + Members
             + rfc - according to [RFC](http://www.ietf.org/rfc/rfc4180.txt).
-            + escaped - Delimited by a comma, enclosed by a double quote, special characters (e.q new line, tab) escaped by a backslash. Each row in a CSV file is equal to one row in Storage.
-            + raw - Delimited by tab, without an enclosure, special characters (e.q new line, tab)  escaped by a backslash. Each row in a CSV file is equal to one row in Storage.
+            + escaped - Delimited by a comma, enclosed by a double quote, special characters (e.g. new line, tab) escaped by a backslash. Each row in the CSV file is equal to one row in Storage.
+            + raw - Delimited by tab, without an enclosure, special characters (e.g. new line, tab)  escaped by a backslash. Each row in the CSV file is equal to one row in Storage.
         + Default: rfc
     + changedSince (optional) - Filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp or any date accepted by [strtotime](http://www.php.net/manual/en/function.strtotime.php).
     + changedUntil (optional) - Filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp or any date accepted by [strtotime](http://www.php.net/manual/en/function.strtotime.php).
@@ -1719,7 +1719,7 @@ This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls)
 ## Manage Column Indexes [/v2/storage/tables/{table_id}/indexed-columns/{column_name}]
 
 ### Remove Column Index [DELETE]
-Remove a column from index. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
+Remove a column from an index. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 
 + Parameters
     + table_id (required) - Table Id
@@ -1975,7 +1975,7 @@ alias must be created with the `aliasFilter` parameter.
             }
 
 ### Remove Alias Filter [DELETE]
-Delete filter from alias. The alias table will contain all rows from the source table.
+Delete a filter from an alias. The alias table will contain all rows from the source table.
 
 + Parameters
     + table_id (required) - Id of the alias table.
@@ -2022,20 +2022,21 @@ will not propagate to the alias.
 
 
 # Group Table Snapshotting
-Table data and metadata (attributes, column settings) can be persisted by creating snapshot. 
+Table data and metadata (attributes, column settings) can be persisted by creating a snapshot. 
 When a snapshot is created you can use it to restore the table back to the snapshotted state.
-During restore, the data can be applied to original table or they can be restored into a new table.
+During the restoration process, the data can be applied to the original table or they can be restored
+into a new table.
 
 ## Create or List Snapshots [/v2/storage/tables/{table_id}/snapshots]
 
 ### Create Table Snapshot [POST]
 Create a snapshot of the current state of the table. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
-Table snapshot will contain:
+A table snapshot will contain:
 - Table data,
 - Table properties (primary key, indexed columns, etc.),
 - Table attributes.
 
-Snapshots of alias table contains only alias settings, actual data are not stored with the snapshot.
+Snapshots of an alias table contain only alias settings, actual data are not stored with the snapshot.
 
 + Parameters
     + table_id (required) - Id of a table
@@ -2185,7 +2186,7 @@ Retrieve information about a single table snapshot.
 
 
 ### Delete Table Snapshot [DELETE]
-Remove a table snapshot. Current table data is not modified. This request 
+Remove a table snapshot. The current table data is not modified. This request 
 is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 
 + Parameters
@@ -2223,7 +2224,7 @@ is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 ## Rollback Snapshot [/v2/storage/tables/{table_id}/rollback]
 
 ### Rollback Table From Snapshot [POST]
-This operation allows reverting table to a state stored in the snapshot. Table `data`, `medatadata` and `attributes` are 
+This operation allows reverting a table to a state stored in the snapshot. Table `data`, `medatadata` and `attributes` are 
 returned into a state stored in the specified snapshot. Rollback is disabled if there is an alias on the table and 
 that alias (or the alias filter) contains columns which are not present in the snapshot. This request 
 is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
@@ -2275,9 +2276,9 @@ is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
         }
 
 # Group Workspaces
-Workspaces provide playground for your data. You can load data from your storage, explore or modify them
-and than optionally load it back to storage tables. Workspace is represented by access credentials to a storage 
-backend with permissions to write to workspace specific database schema.
+Workspaces provide a playground for your data. You can load data from your storage, explore or modify it
+and then, optionally, load it back to storage tables. A workspace is represented by access credentials to a storage 
+backend with permissions to write to the workspace specific database schema.
 
 ## Workspaces Collection [/v2/storage/workspaces]
 
@@ -2285,11 +2286,11 @@ backend with permissions to write to workspace specific database schema.
 Create a new workspace and return its credentials.
 
 + Attributes 
-    + backend: snowflake (optional, enum[string]) - Workspace backend. When ommitted, the default backend is used.
+    + backend: snowflake (optional, enum[string]) - Workspace backend. When omitted, the default backend is used.
         + Members
             + redshift
             + snowflake
-    + statementTimeoutSeconds (optional, number) - Time, in seconds, after which a running SQL statement is canceled by 
+    + statementTimeoutSeconds (optional, number) - Time, in seconds, after which a running SQL statement is cancelled by 
     the system. Supported only for Snowflake workspaces.
 
 + Request (application/x-www-form-urlencoded)
@@ -2335,7 +2336,7 @@ Retrieve information about a given workspace. Note that the password to the work
     + Attributes (Workspace)
 
 ### Delete workspace [DELETE /v2/storage/workspaces/{workspace_id}/?async={async}]
-Deletes a workspace, this also irreversibly removes the workspace content.
+Deletes a workspace. This also irreversibly removes the workspace content.
 
 + Parameters
     + workspace_id (required, number)
@@ -2355,19 +2356,19 @@ Deletes a workspace, this also irreversibly removes the workspace content.
     + workspace_id (required, number)
 
 ### Load Data [POST]
-Load tables from Storage into a Workspace. 
+Loads tables from Storage into a Workspace. 
 
 + Attributes
     + input[] (required, array) - Mappings of source tables with destinations to be loaded into the workspace
         + Items
             + (object)
                 + Properties
-                    + source (required) - Full table identifier of source table (e.g.: in.c-bucket.mytable).
+                    + source (required) - Full table identifier of the source table (e.g.: in.c-bucket.mytable).
                     + destination (required) - Destination table name.
                     + rows (optional, number) - Limit the number of returned rows.
-                    + days (optional, number) - `DEPRECATED will be removed in future` Return rows created or updated in last X days.
+                    + days (optional, number) - `DEPRECATED will be removed in the future.` Return rows created or updated in the last X days.
                     + seconds (optional, number) - Return rows created or updated in the last X seconds.
-                    + columns (optional) - Comma separated list of column names to export, by default all columns are exported.
+                    + columns (optional) - Comma separated list of column names to export; by default all columns are exported.
                     + whereColumn (optional) - Column for [filtering](#reference/tables/unload-data-asynchronously/asynchronous-export).
                     + whereValues[] (optional) - Values for filtering.
                     + whereOperator (optional, enum[string]) - Comparison operator.
@@ -2375,10 +2376,10 @@ Load tables from Storage into a Workspace.
                             + eq - Equal to
                             + neq - Not equal to
                         + Default: eq
-                    + datatypes[] (optional) - Key/value array of column name / type to be applied
-                    + sortKey[] (optional) - Redshift only - Column(s) to be used as sort key
+                    + datatypes[] (optional) - Key/value array of column names/types to be applied
+                    + sortKey[] (optional) - Redshift only - Column(s) to be used as a sort key
                     + distStyle (optional) - Redshift only - Distribution style (even, all, or key)
-                    + distKey[] (optional) - Redshift only - Column(s) to use for key distribution style
+                    + distKey[] (optional) - Redshift only - Column(s) to use for the key distribution style
     + preserve (optional, boolean) - If true, the workspace will not be altered before loading. When false, clears the workspace before loading.
         Default: false
 
@@ -2460,40 +2461,41 @@ Load tables from Storage into a Workspace.
     + schema:  boring_wozniak (string)
     + warehouse: SAPI_PROD (string)
     + user: xzy (string)
-    + password: abc (string) - password is not stored and is returned only after workspace creation
+    + password: abc (string) - Password is not stored and is returned only after workspace creation
 
 # Group Events
-Virually every interaction of the client (an API call) creates an Event. Apart from that, external events may
+Virtually every interaction of the client (an API call) creates an Event. Apart from that, external events may
 also be added via an API. Events are available for 6 months from their creation.
 You can access all events created on an account. 
 
 Events can be filtered by various filters:
-- `sinceId`, `maxId` - Newer or older events than passed id
-- `component` - component name
-- `configurationId` - configuration id
-- `runId` - run id
-- `q` - advanced search using query string. [Query string syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax)
+- `sinceId`, `maxId` - Events newer or older than the passed id
+- `component` - Component name
+- `configurationId` - Configuration id
+- `runId` - Run id
+- `q` - Advanced search using a query string. [Query string syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax)
 
-Events pagination uses two parameters:
-- `limit` - number of returned events. Default value: 100
-- `offset` - pagination offset
+The events pagination uses two parameters:
+- `limit` - Number of returned events. Default value: 100
+- `offset` - Pagination offset
 
 ## Events [/v2/storage/events]
 ### Create Event [POST]
-Create a new external event. Maximum allowed size of an event is 200KB. If this is exceeded HTTP 400 response code is returned.
+Create a new external event. The maximum allowed size of an event is 200KB. If this is exceeded,
+the HTTP 400 response code is returned.
 
 + Attributes
-    + message (required) - Event message.
-    + component (required) - Name of a [registered component](#reference/miscellaneous/api-index/component-list).
-    + description (optional) - Event description.
-    + type (optional, enum[string]) - Type of the event.
+    + message (required) - Event message
+    + component (required) - Name of a [registered component](#reference/miscellaneous/api-index/component-list)
+    + description (optional) - Event description
+    + type (optional, enum[string]) - Type of the event
         + Members
             + info
             + success
             + warn
             + error
         + Default: info
-    + configurationId (optional) - Id of the configuration executed by component.
+    + configurationId (optional) - Id of a configuration executed by the component.
     + params (optional, string) - Serialized JSON object with custom data.
     + results (optional, string) - Serialized JSON object with custom data.
     + duration (optional, number) - Duration of the associated task in seconds.
@@ -2523,7 +2525,7 @@ Lists all events in the project.
     + maxId (optional) - Show only events before the passed Id.
     + component (optional) - Show only events emitted by the specified component.
     + configurationId (optional) - Show only events related to given configuration Id.
-    + runId (optional) - Show only evnets with the specified run Id.
+    + runId (optional) - Show only events with the specified run Id.
     + q (optional) - Search events using advanced [Query string syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax)
     + limit (optional, number) - Pagination limit.
         + Default: 100
@@ -2547,7 +2549,7 @@ Lists all events associated to a particular bucket.
     + maxId (optional) - Show only events before the passed Id.
     + component (optional) - Show only events emitted by the specified component.
     + configurationId (optional) - Show only events related to given configuration Id.
-    + runId (optional) - Show only evnets with the specified run Id.
+    + runId (optional) - Show only events with the specified run Id.
     + q (optional) - Search events using advanced [Query string syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax)
     + limit (optional, number) - Pagination limit.
         + Default: 100
@@ -2570,8 +2572,8 @@ Lists all events associated to a particular table.
     + sinceId (optional) - Show only events after the specified Id.
     + maxId (optional) - Show only events before the passed Id.
     + component (optional) - Show only events emitted by the specified component.
-    + configurationId (optional) - Show only events related to given configuration Id.
-    + runId (optional) - Show only evnets with the specified run Id.
+    + configurationId (optional) - Show only events related to the given configuration Id.
+    + runId (optional) - Show only events with the specified run Id.
     + q (optional) - Search events using advanced [Query string syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax)
     + limit (optional, number) - Pagination limit.
         + Default: 100
@@ -2591,11 +2593,11 @@ Lists all events associated to a particular table.
 ### Event
 + id: 498839405 - Event Id.
 + event: storage.workspaceLoaded - Event identifier such as `storage.tableImportDone` or `storage.tableDetail`.
-+ component: storage - Name of component that logged the event. Events can be logged by `storage` component or any other 
++ component: storage - Name of the component that logged the event. Events can be logged by the `storage` component or any other 
 [registered component](#reference/miscellaneous/api-index/component-list)
-+ message: `Table in.c-application-testing.cashier-data was loaded to workspace workspace_78423 as my-table.` - Human readable description of the event.
-+ description: `` - Additional description of the event such as detailed error description.
-+ type: `info` (enum[string]) - Type of event.
++ message: `Table in.c-application-testing.cashier-data was loaded to the workspace workspace_78423 as my-table.` - Human readable description of the event.
++ description: `` - Additional description of the event, such as a detailed error description.
++ type: `info` (enum[string]) - Type of an event.
     + Members
         + info
         + success
@@ -2605,8 +2607,8 @@ Lists all events associated to a particular table.
 + created: `2017-02-13T16:42:00+0100` - Datetime when the event was created.
 + configurationId: null - Id of a [configuration](#reference/component-configurations/component-list) used by an external component. 
 + objectId: `in.c-application-testing.cashier-data` - Id of the target object of the event - e.g. *id* of table for `storage.tableImportDone event`.
-+ objectName: `cashier-data` - Name of the target object type of event - e.g. *table name* for `storage.tableImportDone` event.
-+ objectType: table - Type of target object type of event - e.g. *table* for `storage.tableImportDone` event.
++ objectName: `cashier-data` - Name of the target object type of the event - e.g. a *table name* for a `storage.tableImportDone` event.
++ objectType: table - Type of the target object type of event - e.g. *table* for `storage.tableImportDone` event.
 + context (object) - Details about the origin of the API call that triggered the event.
     + remoteAddr
     + httpReferer
@@ -2614,25 +2616,25 @@ Lists all events associated to a particular table.
     + apiVersion
     + userAgent
     + async (boolean)
-+ params (object) - Arbitrary parameters associated to event - e.g. CSV file settings for table import.
-+ results (object) - Arbirary results of the event. 
-+ performance (object) - Arbitrary performance metrics associated to event.
-+ token (object) - Creator of event
++ params (object) - Arbitrary parameters associated with the event - e.g. CSV file settings for table import.
++ results (object) - Arbitrary results of the event. 
++ performance (object) - Arbitrary performance metrics associated with the event.
++ token (object) - Creator of the event
     + id: 1234 - Id of the token
     + name: support@keboola.com - Token owner
 + uri: 498839405 - Event URI.
 + attachments (object) - Arbitrary list of attached files - e.g. backups for table import events.
 
 # Group Attributes
-Attributes are key-value pairs, attributes let you assign custom metadata to resources.
-You can associate custom attributes to buckets or tables. Bucket attributes methods are described 
-below, you can work with table attributes in same manner.
+Attributes are key-value pairs and let you assign custom metadata to resources.
+You can associate custom attributes with buckets or tables. Bucket attributes methods are described 
+below, you can work with table attributes in the same manner.
 
 ## Create or Manage Bucket Attributes [/v2/storage/buckets/{bucket_id}/attributes/{attribute_key}]
 
 ### Set Bucket Attribute [POST]
-Update or create an attribute. If the attribute exists, it will be updated. If the key does not 
-exist, a new key will be created. All attributes associated to a bucket are returned in response.
+Update or create an attribute. If the attribute exists, it will be updated. If it does not 
+exist, a new one will be created. All attributes associated with a bucket are returned in the response.
 
 + Parameters
     + bucket_id (required) - Id of the bucket.
@@ -2691,7 +2693,7 @@ Set all attributes by one call.
         + (object)
             + name - attribute name
             + value - attribute value
-            + protected (boolean) - True if attribute will be stored encrypted.
+            + protected (boolean) - True if the attribute will be stored encrypted.
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -2739,16 +2741,16 @@ Shows all attributes assigned to a bucket.
 
 # Group Metadata
 You can associate custom metadata to buckets, tables or columns.
-Metadata are timestamped key-value pairs separated by provider, where provider is the originating component. 
+Metadata are timestamped key-value pairs separated by the provider, where the provider is the originating component. 
 Metadata allows you to assign custom information to your resources. Bucket attributes methods are described 
-below, you can work with table and column metadata in same manner, simply replace table or column for bucket in the url.
+below. You can work with table and column metadata in the same manner; simply use a table or column instead of a bucket in the url.
 
 ## Bucket Metadata [/v2/storage/buckets/{bucket_id}/metadata]
 
 ### Create or Update [POST]
-Set multiple metadata with one call. If the given key and provider combination already exists 
+Set multiple metadata with one call. If the given key and provider combination already exist 
 for the bucket, the data will be updated with the new value and timestamp. All metadata associated 
-to the bucket are returned in response.
+to the bucket are returned in the response.
 
 + Parameters
     + bucket_id (required) - Id of the bucket
@@ -2830,9 +2832,9 @@ Delete all Metadata for the specified bucket.
 ## Table Metadata [/v2/storage/tables/{table_id}/metadata]
 
 ### Create or Update [POST]
-Set multiple metadata with one call. If the given key and provider combination already exists 
+Set multiple metadata with one call. If the given key and provider combination already exist
 for the table, the data will be updated with the new value and timestamp. All metadata associated 
-to the table are returned in response.
+with the table are returned in the response.
 
 + Parameters
     + table_id (required) - Id of the table.
@@ -2914,9 +2916,9 @@ Delete all Metadata for the specified table.
 ## Column Metadata [/v2/storage/columns/{column_id}/metadata]
 
 ### Create or Update [POST]
-Set multiple metadata with one call. If the given key and provider combination already exists 
+Set multiple metadata with one call. If the given key and provider combination already exist 
 for the column, the data will be updated with the new value and timestamp. All metadata associated 
-to the column are returned in response.
+with the column are returned in the response.
 
 + Parameters
     + column_id (required) - Id of the table.
@@ -2998,19 +3000,19 @@ Delete all Metadata for the specified column.
 # Group Jobs
 Jobs are objects that manage asynchronous tasks, these are all potentially long-running actions such as 
 loading table data, snapshotting, table structure modifications. Jobs are created by actions on target 
-resources e.g. [Asynchronous import request](#reference/tables/load-data-asynchronously/import-data) creates 
+resources, e.g., an [Asynchronous import request](#reference/tables/load-data-asynchronously/import-data) creates 
 a table import job. For each new job, the Id and URL of the job is returned. 
 
-When working with jobs, you should follow these steps:
-1. **Start the job** - Job resource is created and URL for polling is returned.
-2. **Poll job status** - Poll job URL in a loop until the job `status` is set to `success` or `error`.
+When working with jobs, follow these steps:
+1. **Start the job** - Job resource is created and a URL for polling is returned.
+2. **Poll job status** - Poll the job URL in a loop until the job `status` is set to `success` or `error`.
 3. **Check the results** - When the job is finished, the `results` field will contain the actual result of the original request.
 
 Available Statuses:
 - `waiting` - Job is in the queue and is waiting for execution.
 - `processing` - Job is being processed by a worker.
 - `success` - Job is done with success.
-- `error` Job is done with error.
+- `error` - Job is done with error.
 
 ## List Jobs [/v2/storage/jobs]
 ### Jobs list [GET]
@@ -3114,31 +3116,31 @@ Retrieve information about a single job.
 
 # Group Files
 File Storage is used for storing arbitrary files. This is used for data imported into tables and data exported
-from tables. Additionally the File storage can be used for data backup and exchange between project participants.
+from tables. Additionally, the File storage can be used for data backup and exchange between project participants.
 
 File Storage is heavily used for data exchange between Storage API and other components, import backups, etc.
-This kind of data is not kept forever. By default all files are stored for **6 months**. File can stored permanently by 
-using `isPermanent` parameter. Files can also be tagged to categorize file uploads. When the `X-KBC-RunId` header is 
+This kind of data is not kept forever. By default, all files are stored for **6 months**. They can be stored permanently by 
+using the `isPermanent` parameter. Files can also be tagged to categorize file uploads. When the `X-KBC-RunId` header is 
 provided, it is stored as the file `runId`.
 
 Internally, all files are stored encrypted on [Amazon S3](http://docs.aws.amazon.com/AmazonS3/latest/dev/Welcome.html) 
-and are private. When you access the file through the API, an URL with one hour expiration is generated. If you require 
+and are private. When you access the file through the API, a URL with one hour expiration is generated. If you require 
 a permanent URL, you can set the file as `public`.  
 
 Large files may be split into slices (chunks). A sliced file must have the `sliced` parameter set to `true`. In that case 
-the S3 key points to a **manifest file**. The manifest file contains actual list of uploaded chunks. When uploading a sliced
+the S3 key points to a **manifest file**. The manifest file contains the actual list of uploaded chunks. When uploading a sliced
 file, you have to use the provided key as a prefix for chunks and generate the manifest file with the list of uploaded chunks.
 When a CSV file into Storage Tables, there is no difference between a normal and a sliced file.
 
 **Example:**
 
-Assume that the [upload method](#reference/files/upload-file/) returns following S3 key `exp-180/11/files/2014/02/25/11085.import`. 
+Assume that the [upload method](#reference/files/upload-file/) returns the following S3 key `exp-180/11/files/2014/02/25/11085.import`. 
 Then you can upload e.g. these files:
 - exp-180/11/files/2014/02/25/11085.import_001
 - exp-180/11/files/2014/02/25/11085.import_002
 - exp-180/11/files/2014/02/25/11085.import_003
 
-Then you must create the following manifest file:
+Then create the following manifest file:
 ```
 {
   "entries": [
@@ -3149,20 +3151,20 @@ Then you must create the following manifest file:
 }
 ```
 
-And then you have to upload that manifest file to key `exp-180/11/files/2014/02/25/11085.import_manifest`. See our 
+And then, upload that manifest file to the key `exp-180/11/files/2014/02/25/11085.import_manifest`. See our 
 [Developers documentation](https://developers.keboola.com/integrate/storage/api/import-export/#working-with-sliced-files)
-for more detailed guide.
+for a more detailed guide.
 
 ## Upload File [/v2/storage/files/prepare]
 ### Create File Resource [POST]
 This method allows you to upload a file to KBC File Storage. The upload should be done in two steps:
 1. Create a new file resource (use this API call).
-2. Use the provided credentials to actually upload the file data to Amazon S3 storage.
+2. Use the provided credentials to actually upload the file data to the Amazon S3 storage.
 
-The credentials are generated either as standard *AWS credentials* (`federationToken` set to true) or for a HTTP *form submission* 
+The credentials are generated either as standard *AWS credentials* (`federationToken` set to true) or for an HTTP *form submission* 
 (`federationToken` set to false). We recommend using the federation token and any of the many S3 clients or libraries to 
 upload the files. The *form submission* method is less reliable and does not work in all regions (e.g. eu-central-1, ap-northeast-2).
-For a more detailed guide on the file upload, see the correspoding part of the 
+For a more detailed guide on the file upload, see the corresponding part of the 
 [Developers documentation](https://developers.keboola.com/integrate/storage/api/import-export/#manually-uploading-a-file).
 
 + Attributes
@@ -3172,14 +3174,14 @@ For a more detailed guide on the file upload, see the correspoding part of the
         Default: `application/octet-stream`
     + isPublic (optional, boolean) - When true the file URL will be permanent and publicly accessible.
         Default: false
-    + isPermanent (optional, boolean) - Keep file forever. If false, the file will be **deleted after 6 months**.
+    + isPermanent (optional, boolean) - Keep a file forever. If false, the file will be **deleted after 6 months**.
         Default: false
     + notify (optional, boolean) - Notify project administrators that a file was uploaded.
         Default: false
     + tags[] (optional) - Assign one or more tags to the file.
-    + federationToken (optional, boolean) - When true, returns AWS credentials instead of form submission parameters.
+    + federationToken (optional, boolean) - When true, it returns AWS credentials instead of form submission parameters.
         Default: false
-    + sliced (optional, boolean) - If true, multiple chunks of file are allowed to be uploaded. Must be used with `federationToken`.
+    + sliced (optional, boolean) - If true, multiple chunks of a file are allowed to be uploaded. Must be used with `federationToken`.
         Default: false
     + isEncrypted (optional, boolean) - If true, the file content will be encrypted in the S3 storage.
         Default: true
@@ -3232,7 +3234,7 @@ For a more detailed guide on the file upload, see the correspoding part of the
 
 ## List Files [/v2/storage/files?sinceId={sinceId}&maxId={maxId}&tags={tags}&q={q}&runId={runId}&limit={limit}&offset={offset}]
 ### List Files [GET]
-List all files uploaded by your token. If `canReadAllFileUploads` permission is set for your token, 
+List all files uploaded by your token. If the `canReadAllFileUploads` permission is set for your token, 
 all file uploads for project will be returned.
 
 + Parameters
@@ -3283,7 +3285,7 @@ Return detailed information about a single file.
 
 + Parameters
     + file_id (required, number) - File Id.
-    + federationToken (optional, boolean) - Return AWS credentials with permissions for direct file download from S3. The credentials are valid for 12 hours.    
+    + federationToken (optional, boolean) - Return AWS credentials with permissions for a direct file download from S3. The credentials are valid for 12 hours.    
 
 + Request
     + Headers
@@ -3374,7 +3376,7 @@ Delete a single tag from the specified file.
 + Response 204
 
 # Group Tickets
-Ticketing are unique sequential 64 bit IDs. Tickets are used to generate unique run identifiers for 
+Tickets are unique sequential 64 bit IDs. Tickets are used to generate unique run identifiers for 
 all components using Keboola Connection.
 
 ## Generate Unique ID [/v2/storage/tickets/]
@@ -3395,16 +3397,16 @@ all components using Keboola Connection.
 # Group Component Configurations
 Component Configuration represents specific settings of a 
 [registered Component](http://docs.test12301.apiary.io/#reference/miscellaneous/api-index/component-list) 
-in a project. This is utility resource available only for master tokens and tokens with the `canManageBuckets` permission.
+in a project. This is a utility resource available only for master tokens and tokens with the `canManageBuckets` permission.
 Configurations may include *Configuration Rows* if they are composed of multiple objects. Configuration rows are 
 used in case parts of the configuration are supposed to be updated independently.
 Configurations are automatically versioned. Configuration Rows are versioned separately. The `configuration` and 
-`rows.configuration` fields can container arbitrary objects. The content and interpretation of those fileds is fully 
+`rows.configuration` fields can contain arbitrary objects. The content and interpretation of those fields is fully 
 defined by the component.
 
 ## List Components [/v2/storage/components?include={include}&componentType={componentType}&isDeleted={isDeleted}]
 ### Get components [GET]
-Use this API call to obtain definitions of all components available in KBC. For more information about
+Use this API call to obtain the definitions of all components available in KBC. For more information about the
 KBC Component architecture, see the [Developers documentation](https://developers.keboola.com/overview/)
 
 + Parameters
@@ -3431,7 +3433,7 @@ KBC Component architecture, see the [Developers documentation](https://developer
                     "type": "application",
                     "name": "Tree depth",
                     "description": "Application which computes a tree depth",
-                    "longDescription": "This application computes levels in a table representing a tree (e.g. product categories). The tree data must be stored in a child-parent relationship. A column named **levels** will be added to the table (root nodes will have number 1). Additionally a column named **root** will be added, containing the ID of the root item.",
+                    "longDescription": "This application computes levels in a table representing a tree (e.g. product categories). The tree data must be stored in a child-parent relationship. A column named **levels** will be added to the table (root nodes will have number 1). Additionally, a column named **root** will be added, containing the ID of the root item.",
                     "hasUI": false,
                     "hasRun": false,
                     "ico32": "https://d3iz2gfan5zufq.cloudfront.net/images/cloud-services/keboola.app-tree-32-1.png",
@@ -3463,13 +3465,13 @@ KBC Component architecture, see the [Developers documentation](https://developer
                             "idColumn": {
                                 "type": "string",
                                 "title": "ID Column",
-                                "description": "Name of column containing row identifier",
+                                "description": "Name of the column containing row identifier",
                                 "default": "categoryId"
                             },
                             "parentColumn": {
                                 "type": "string",
                                 "title": "Parent Column",
-                                "description": "Name of column containing parent identifier",
+                                "description": "Name of the column containing parent identifier",
                                 "default": "categoryParentId"
                             }
                         },
@@ -3480,7 +3482,7 @@ KBC Component architecture, see the [Developers documentation](https://developer
                     },
                     "emptyConfiguration": {},
                     "uiOptions": {},
-                    "configurationDescription": "The tree data must be stored in a child-parent relationship. A column named **levels** will be added to the table (root nodes will have number 1). Additionally a column named **root** will be added, containing the ID of the root item.\n\nSample input \n-------------------\n\ncategoryId | categoryParentId\t| title\n--- | --- | --- \n1 |\t0 | foo\n2 | 1 | bar\n3 | 1 | baz\n4 | 2 | buzz\n\n\nSample output\n-------------------\n\ncategoryId | categoryParentId | title | levels | root\n--- | --- | --- | --- | --- |\n1 |\t0 | foo | 1 | 1 |\n2 | 1 | bar | 2 | 1 |\n3 | 1 | baz | 2 | 1 |\n4 | 2 | buzz | 3 | 1 |",
+                    "configurationDescription": "The tree data must be stored in a child-parent relationship. A column named **levels** will be added to the table (root nodes will have number 1). Additionally, a column named **root** will be added, containing the ID of the root item.\n\nSample input \n-------------------\n\ncategoryId | categoryParentId\t| title\n--- | --- | --- \n1 |\t0 | foo\n2 | 1 | bar\n3 | 1 | baz\n4 | 2 | buzz\n\n\nSample output\n-------------------\n\ncategoryId | categoryParentId | title | levels | root\n--- | --- | --- | --- | --- |\n1 |\t0 | foo | 1 | 1 |\n2 | 1 | bar | 2 | 1 |\n3 | 1 | baz | 2 | 1 |\n4 | 2 | buzz | 3 | 1 |",
                     "uri": "https://syrup.keboola.com/docker/keboola.app-tree",
                     "configurations": [
                         {
@@ -3576,10 +3578,10 @@ Create a new Component configuration.
 
 + Attributes
     + name (required) - Configuration name.
-    + configurationId (optional) - Configuration Id (must be unique for component type). If not set, it will be auto-generated.
+    + configurationId (optional) - Configuration Id (must be unique for each component type). If not set, it will be auto-generated.
     + description (optional) - Configuration description.
-    + configuration (optional) - Serialized configuration JSON. Maximum allowed size is 4MB.
-    + state (optional) - Serialized state configuration JSON. Maximum allowed size is 4MB.
+    + configuration (optional) - Serialized configuration JSON. The maximum allowed size is 4MB.
+    + state (optional) - Serialized state configuration JSON. The maximum allowed size is 4MB.
     + changeDescription (optional) - Description of the configuration modification.
 
 + Request (application/x-www-form-urlencoded)
@@ -3623,7 +3625,7 @@ Create a new Component configuration.
 
 ## Manage Configurations [/v2/storage/components/{component_id}/configs/{config_id}]
 ### Configuration Detail [GET]
-Get component configuration detail.
+Get the component configuration detail.
 
 + Parameters
     + component_id (required) - Id of the component.
@@ -3675,8 +3677,8 @@ marked as `currentVersion`.
 + Attributes
     + name (required) - Configuration name.
     + description (optional) - Configuration description.
-    + configuration (optional) - Serialized configuration JSON. Maximum allowed size is 4MB.
-    + state (optional) - Serialized state configuration JSON. Maximum allowed size is 4MB.
+    + configuration (optional) - Serialized configuration JSON. The maximum allowed size is 4MB.
+    + state (optional) - Serialized state configuration JSON. The maximum allowed size is 4MB.
     + changeDescription (optional) - Description of the configuration modification.
 
 + Request (application/x-www-form-urlencoded)
@@ -3723,8 +3725,8 @@ marked as `currentVersion`.
 
 
 ### Delete Configuration [DELETE]
-Delete configuration. When a configuration is deleted, it is only marked as deleted and remains still available in system.
-You can [list deleted](#reference/component-configurations/component-configs/list-configs) configurations or 
+Delete a configuration. When a configuration is deleted, it is only marked as deleted and remains still available in the system.
+You can [list deleted](#reference/component-configurations/component-configs/list-configs) configurations, or 
 [restore deleted](#reference/component-configurations/manage-configs/restore-deleted-config) configurations.
 Other operations with deleted configurations are restricted.
 
@@ -3783,14 +3785,14 @@ and the configuration becomes available for other API calls.
 
 
 ## Publishing [/v2/storage/components/{component_id}/configs/{config_id}/publish]
-Configuration can be in `published` or `draft` mode. The 
+Configuration can be in the `published` or `draft` mode. The 
 [configuration detail API call](#reference/component-configurations/manage-configs/config-detail) returns
 the latest version of a configuration. The latest published version can be retrieved by the 
 [Configuration version API call](#reference/component-configurations/manage-configs-versions/version-detail) with 
 the version `latestPublished`.
 
 ### Publish Configuration [POST]
-Mark the latest version of configuration as published.
+Mark the latest version of a configuration as published.
 
 + Parameters
     + component_id (required) - Component Id.
@@ -3932,7 +3934,7 @@ one you specified.
     + version_id (required, number) - Version number to rollback to.
 
 + Attributes
-    + changeDescription (optional) - Description of version change.
+    + changeDescription (optional) - Description of a version change.
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -3988,7 +3990,7 @@ Create a new row (item) of an existing configuration.
     + config_id (required) - Id of the configuration.
 
 + Attributes
-    + rowId (optional) - Row id (must be unique for configuration). If not set it will be generated.
+    + rowId (optional) - Row id (must be unique for each configuration). If not set, it will be generated.
     + configuration (optional) - Serialized configuration JSON. The maximum allowed size is 4MB.
     + changeDescription (optional) - Version change description.
 
@@ -4166,7 +4168,7 @@ List versions of a given configuration Row of a given Configuration.
 
 ## Manage Configuration Row Versions [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/versions/{version_id}]
 ### Version detail [GET]
-Get details about Configuration Row version.
+Get details about the Configuration Row version.
 
 + Parameters
     + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`.
@@ -4197,7 +4199,7 @@ Get details about Configuration Row version.
 ## Rollback Configuration Row Version [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/versions/{version_id}/rollback]
 ### Rollback Version [POST]
 Rollback row to a previous version. This operation actually creates a new Row version with identical
-content to the rollbacked to.
+content to be rollbacked to.
 
 + Parameters
     + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`.
@@ -4206,7 +4208,7 @@ content to the rollbacked to.
     + version_id (required) - Id of the configuration row version to rollback to.
 
 + Attributes
-    + changeDescription (optional) - Vrsion change description.
+    + changeDescription (optional) - Version change description.
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -4246,7 +4248,7 @@ Create a new configuration row from an existing row version.
     + version_id (required) - Id of the configuration row version to rollback to.
 
 + Attributes
-    + targetConfigId (optional) - Copy row to another existing configuration. If not provided the row will be copied 
+    + targetConfigId (optional) - Copy the row to another existing configuration. If not provided, the row will be copied 
     to the original configuration.
     + changeDescription (optional) - Version change description.
 
