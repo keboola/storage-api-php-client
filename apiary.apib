@@ -18,7 +18,7 @@ with these files in [our manual](https://help.keboola.com/storage/tables/csv-fil
 
 For a list of available clients and their features, see the 
 [Developers Documentation](https://developers.keboola.com/integrate/storage/).
-The documentation also describes more complex examples of 
+In it you will also find more complex examples of 
 [working with the API](https://developers.keboola.com/integrate/storage/api/).
 This documentation assumes that you are already familiar with the
 [Keboola Connection Storage component](https://help.keboola.com/storage/). 
@@ -43,7 +43,7 @@ listed in the below tables.
     </tr>
     <tr>
         <td>202 <code>Accepted</code></td>
-        <td>Used for <a href='#introduction/synchronous-and-asynchronous-calls'>Asynchronous tasks</a>. A job resource is returned. The actual result must be obtained in an another API call.</td>
+        <td>Used for <a href='#introduction/synchronous-and-asynchronous-calls'>Asynchronous tasks</a>. A job resource is returned. The actual result must be obtained in another API call.</td>
     </tr>
     <tr>
         <td>204 <code>No Content</code></td>
@@ -412,8 +412,8 @@ provided email address. The link will expire in 2 hours.
     + token_id (required, number) - Token Id
 
 + Attributes
-    + recipientEmail (required) - Recipient email address.
-    + message (required) - A message for the token recipient.
+    + recipientEmail (required) - Recipient email address
+    + message (required) - A message for the token recipient
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -591,9 +591,9 @@ Linking a bucket from another project is only possible if it has been
 only by *organization* administrators.
 
 + Attributes
-    + name (required) - New bucket name (Only alphanumeric characters and underscores are allowed)
+    + name (required) - New bucket name (Only alphanumeric characters and underscores are allowed.)
     + sourceProjectId (required, number) - Id of the source project from which the bucket is being shared.
-    + sourceBucketId (required) - Id of the bucket being shared.
+    + sourceBucketId (required) - Id of the bucket being shared
     + stage (optional, enum[string]) - Assign the bucket to one of the stages.
         + Members
             + in
@@ -697,7 +697,7 @@ to the entire organization to which the project belongs. It may then be shared t
 
 
 ### Stop Bucket Sharing [DELETE]
-Disable sharing of the bucket. Bucket must not be linked to other projects.
+Disable sharing of a bucket. A bucket must not be linked to other projects.
 To unshare an already linked bucket, you have to delete the links first - use the
 [Drop Bucket](#reference/buckets/manage-bucket/drop-bucket) in the linking project.
 
@@ -746,10 +746,10 @@ to that cluster and bucket. This resource is accessible only to project administ
 Create new credentials for a Redshift bucket. The password is returned only once and cannot be retrieved later.
 
 + Parameters
-    + bucket_id (required) - Id of the bucket.
+    + bucket_id (required) - Id of the bucket
 
 + Attributes
-    + name (required) - Credentials name.
+    + name (required) - Credentials name
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -818,7 +818,7 @@ List all Redshift bucket credentials available in the project.
 
 ## Manage Credentials [/v2/storage/credentials/{id}]
 ### Get credentials [GET]
-Obtain existing credential details. Note that the password is not returned, as it is available only once when the 
+Obtain existing credential details. Note that the password is not returned as it is available only once when the 
 credentials are created.
 
 + Parameters
@@ -874,7 +874,7 @@ Delete the specified bucket credentials.
 Creates a new table in a bucket. The CSV file must follow the [RFC 4180 Specification](https://tools.ietf.org/html/rfc4180).
 More information about the requirements can be found in the [Manual](https://help.keboola.com/storage/tables/csv-files/). 
 Column names are extracted from the CSV file header; spaces and any other special characters in column names are
-replaced with underscore. This API call should be used only for tables which can be safely transferred in a single HTTP request; for large
+replaced with an underscore. This API call should be used only for tables which can be safely transferred in a single HTTP request; for large
 tables use the [asynchronous call](#reference/tables/create-table-asynchronously/create-new-table-from-csv-file-asynchronously).
 
 + Parameters
@@ -943,7 +943,7 @@ Lists tables in a given bucket.
 
 + Parameters
     + bucket_id (required) - Bucket Id.
-    + include (optional, enum[string]) - Comma separated list of resources to include for each table.
+    + include (optional, enum[string]) - Comma separated list of resources to include for each table
         + Members
             + attributes
             + columns
@@ -989,13 +989,13 @@ The actual data must be provided in one of the following attributes:
 + Attributes    
     + name (required) - New table name
     + dataUrl (optional) - Publicly accessible url with a CSV file to import
-    + dataFileId (optional) - Id of a file stored in [File Uploads](#reference/files)
-    + snapshotId (optional) - Id of a table snapshot - table will be created from the snapshot
+    + dataFileId (optional) - Id of the file stored in [File Uploads](#reference/files)
+    + snapshotId (optional) - Id of a table snapshot - a table will be created from the snapshot.
     + dataWorkspaceId (optional) - Load from the table [workspace](#reference/workspaces). Use with the **dataTableName** attribute.
     + dataTableName (optional) - Load from a table in [workspace](#reference/workspaces).
     + delimiter (optional) - Field delimiter used in the CSV file. The default value is ','.  Use '\t' or type the tab char for the tabulator.
-    + enclosure (optional) - Field enclosure used in a CSV file. The default value is '"'. (Note: you can specify either the `enclosure` or `escapedBy` parameter, not both.).
-    + escapedBy (optional) - Escape character used in a CSV file. The default value is an empty value - no escape character is used. (Note: you can specify either the `enclosure` or `escapedBy` parameter, not both.)
+    + enclosure (optional) - Field enclosure used in the CSV file. The default value is '"'. (Note: you can specify either the `enclosure` or `escapedBy` parameter, not both.)
+    + escapedBy (optional) - Escape character used in the CSV file. The default value is an empty value - no escape character is used. (Note: you can specify either the `enclosure` or `escapedBy` parameter, not both.)
     + primaryKey (optional) - Primary key of a table. If the primary key is set, updates can be done on the table. See CSV incremental import. The primary key can be also composed by multiple columns; the columns must be separated by a comma. For a table on the MySQL backend, the maximum number of primary key columns is 4.
 
 + Request (application/x-www-form-urlencoded)
@@ -1042,15 +1042,15 @@ The actual data must be provided in one of the following attributes:
  The CSV file can be raw or gzipped. Gzipped files must have the extension .gz.
 
 + Attributes
-    + data (optional) - Multipart CSV file upload.
-    + dataString (optional) - CSV as a string in the request body.
+    + data (optional) - Multipart CSV file upload
+    + dataString (optional) - CSV as a string in the request body
     + dataUrl (optional) - URL with a CSV file 
     + incremental (optional) - If incremental is set to 0, the target table is truncated before each import. Default is 0.
-    + delimiter (optional) - Field delimiter used in the CSV file. Default value is ','.  Use '\t' or type the tab char for the tabulator.
-    + enclosure (optional) - Field enclosure used in the CSV file. Default value is '"'.
-    + partial (optional, boolean) **DEPRECATED - this parameter will be removed in the future version.** If partial is set to 1, only some of the table columns can be imported. It is useful for column updates. Supported only by the MySQL backend.
+    + delimiter (optional) - Field delimiter used in the CSV file. The default value is ','.  Use '\t' or type the tab char for the tabulator.
+    + enclosure (optional) - Field enclosure used in the CSV file. The default value is '"'.
+    + partial (optional, boolean) **DEPRECATED - This parameter will be removed in the future version.** If partial is set to 1, only some of the table columns can be imported. It is useful for column updates. Supported only by the MySQL backend.
     + columns[] (optional) - List of columns present in the CSV file; the first line of the file will not be treated as a header!
-    + withoutHeaders (optional, boolean) - The CSV file doesn't contain headers, columns are matched by order.
+    + withoutHeaders (optional, boolean) - The CSV file doesn't contain headers, columns are matched by their order.
 
 
 + Request (multipart/form-data; boundary=----WebKitFormBoundaryU2xN082HVaIRptvd)
@@ -1110,7 +1110,7 @@ Further information can be found in the [Developers Documentation](https://devel
     + table_id (required) - Table Id
     
 + Attributes    
-    + dataUrl (optional) - Publicly accessible url with a CSV file to import.
+    + dataUrl (optional) - Publicly accessible url with a CSV file to import
     + dataFileId (optional) - Id of the file stored in [File Uploads](#reference/files). All gzipped and sliced files are supported.
     + snapshotId (optional) - Id of a table snapshot - a table will be created from the snapshot.
     + dataWorkspaceId (optional) - Load from the table [workspace](#reference/workspaces). Use with the **dataTableName** attribute.
@@ -1121,7 +1121,7 @@ Further information can be found in the [Developers Documentation](https://devel
     + enclosure (optional) - Field enclosure used in the CSV file. The default value is '"'. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both.)
     + escapedBy (optional) - Escape character used in the CSV file. The default value is an empty value - no escape character is used. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both.)
     + columns[] (optional) - List of columns present in the CSV file; the first line of the file will not be treated as a header!
-    + withoutHeaders (optional) - The CSV file doesn't contain headers, columns are matched by order.
+    + withoutHeaders (optional) - The CSV file doesn't contain headers, columns are matched by their order.
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -1184,7 +1184,7 @@ This method is **DEPRECATED**, please use the [asynchronous version](#reference/
 
 #### HTTP Compression
 
-To enable compression of API response traffic, please include the following HTTP header with the API request: `Accept-encoding: gzip`
+To enable compression of API response traffic, please include the following HTTP header with the API request: `Accept-encoding: gzip`.
 
 #### Error Handling
 
@@ -1251,11 +1251,11 @@ will show information about the created file and caching:
     + table_id (required) - Table Id
 
 + Attributes
-    + limit (optional, number) - Limit the number of returned rows
-    + days (optional, number) - **DEPRECATED will be removed in the future.** Return rows created or updated in last X days
+    + limit (optional, number) - Limit the number of returned rows.
+    + days (optional, number) - **DEPRECATED will be removed in the future.** Return rows created or updated in last X days.
     + format (optional, enum[string]) - File format
         + Members
-            + rfc - according to [RFC](http://www.ietf.org/rfc/rfc4180.txt).
+            + rfc - According to [RFC](http://www.ietf.org/rfc/rfc4180.txt).
             + escaped - Delimited by a comma, enclosed by a double quote, special characters (e.g. new line, tab) escaped by a backslash. Each row in the CSV file is equal to one row in Storage.
             + raw - Delimited by tab, without an enclosure, special characters (e.g. new line, tab)  escaped by a backslash. Each row in the CSV file is equal to one row in Storage.
         + Default: rfc
@@ -1835,15 +1835,15 @@ When turning `aliasColumnsAutoSync` back on, the columns will be immediately syn
     + bucket_id (required) - Id of a bucket in which the alias table will be created.
 
 + Attributes
-    + name (required) - Name of the new table alias.
-    + sourceTable (required) - Id of the source table. 
-    + aliasFilter[column] (optional) - Name of the column for filtering.
-    + aliasFilter[operator] (optional, enum[string]) - Comparison operator.
+    + name (required) - Name of the new table alias
+    + sourceTable (required) - Id of the source table 
+    + aliasFilter[column] (optional) - Name of the column for filtering
+    + aliasFilter[operator] (optional, enum[string]) - Comparison operator
         + Members
             + eq - Equal to
             + neq - Not equal to
         + Default: eq
-    + aliasFilter[values][] (optional) - Values for the filter.
+    + aliasFilter[values][] (optional) - Values for the filter
     + aliasColumnsAutosync (optional, boolean) - Disable column synchronization with the source table.
         Default: false
     + aliasColumns[] (optional) - List of alias columns, this disables column synchronization with the source table.
@@ -1920,12 +1920,12 @@ Using this API call, you can update an existing filter. You can also set a new f
 alias must be created with the `aliasFilter` parameter. 
 
 + Parameters
-    + table_id (required) - Id of the alias table.
+    + table_id (required) - Id of the alias table
 
 + Attributes
-    + column (optional) - Column name.
-    + values[] (optional) - Column filter values.
-    + operator (optional, enum[string]) - Comparison operator.
+    + column (optional) - Column name
+    + values[] (optional) - Column filter values
+    + operator (optional, enum[string]) - Comparison operator
         + Members
             + eq - Equal to
             + neq - Not equal to
@@ -1978,7 +1978,7 @@ alias must be created with the `aliasFilter` parameter.
 Delete a filter from an alias. The alias table will contain all rows from the source table.
 
 + Parameters
-    + table_id (required) - Id of the alias table.
+    + table_id (required) - Id of the alias table
 
 + Request
     + Headers
@@ -1995,7 +1995,7 @@ Enable automatic column synchronization between the alias and source table. All 
 will be immediately synchronized into the alias table. 
 
 + Parameters
-    + table_id (required) - Id of the alias table.
+    + table_id (required) - Id of the alias table
 
 + Request
     + Headers
@@ -2011,7 +2011,7 @@ will not be synchronized with the alias table any more. When you add new columns
 will not propagate to the alias.
 
 + Parameters
-    + table_id (required) - Id of the alias table.
+    + table_id (required) - Id of the alias table
 
 + Request
     + Headers
@@ -2230,10 +2230,10 @@ that alias (or the alias filter) contains columns which are not present in the s
 is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 
 + Parameters
-    + table_id (required) - Id of the table whose content will be overwritten.
+    + table_id (required) - Id of the table whose content will be overwritten
 
 + Attributes
-    + snapshotId (required, number) - Id of the snapshot.
+    + snapshotId (required, number) - Id of the snapshot
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -2340,7 +2340,7 @@ Deletes a workspace. This also irreversibly removes the workspace content.
 
 + Parameters
     + workspace_id (required, number)
-    + async (optional, boolean) - Workspace will be deleted [asynchronously](#introduction/synchronous-and-asynchronous-calls). Job will be created and enqueued.
+    + async (optional, boolean) - Workspace will be deleted [asynchronously](#introduction/synchronous-and-asynchronous-calls). A job will be created and enqueued.
 
 + Request
     + Headers
@@ -2363,15 +2363,15 @@ Loads tables from Storage into a Workspace.
         + Items
             + (object)
                 + Properties
-                    + source (required) - Full table identifier of the source table (e.g.: in.c-bucket.mytable).
-                    + destination (required) - Destination table name.
-                    + rows (optional, number) - Limit the number of returned rows.
+                    + source (required) - Full table identifier of the source table (e.g.: in.c-bucket.mytable)
+                    + destination (required) - Destination table name
+                    + rows (optional, number) - Limit the number of returned rows
                     + days (optional, number) - `DEPRECATED will be removed in the future.` Return rows created or updated in the last X days.
                     + seconds (optional, number) - Return rows created or updated in the last X seconds.
                     + columns (optional) - Comma separated list of column names to export; by default all columns are exported.
-                    + whereColumn (optional) - Column for [filtering](#reference/tables/unload-data-asynchronously/asynchronous-export).
-                    + whereValues[] (optional) - Values for filtering.
-                    + whereOperator (optional, enum[string]) - Comparison operator.
+                    + whereColumn (optional) - Column for [filtering](#reference/tables/unload-data-asynchronously/asynchronous-export)
+                    + whereValues[] (optional) - Values for filtering
+                    + whereOperator (optional, enum[string]) - Comparison operator
                         + Members
                             + eq - Equal to
                             + neq - Not equal to
@@ -2476,7 +2476,7 @@ Events can be filtered by various filters:
 - `q` - Advanced search using a query string. [Query string syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax)
 
 The events pagination uses two parameters:
-- `limit` - Number of returned events. Default value: 100
+- `limit` - Number of returned events. The default value: 100
 - `offset` - Pagination offset
 
 ## Events [/v2/storage/events]
@@ -2495,11 +2495,11 @@ the HTTP 400 response code is returned.
             + warn
             + error
         + Default: info
-    + configurationId (optional) - Id of a configuration executed by the component.
-    + params (optional, string) - Serialized JSON object with custom data.
-    + results (optional, string) - Serialized JSON object with custom data.
-    + duration (optional, number) - Duration of the associated task in seconds.
-    + runId (optional) - Id of the associated component job.
+    + configurationId (optional) - Id of a configuration executed by the component
+    + params (optional, string) - Serialized JSON object with custom data
+    + results (optional, string) - Serialized JSON object with custom data
+    + duration (optional, number) - Duration of the associated task in seconds
+    + runId (optional) - Id of the associated component job
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -2526,10 +2526,10 @@ Lists all events in the project.
     + component (optional) - Show only events emitted by the specified component.
     + configurationId (optional) - Show only events related to given configuration Id.
     + runId (optional) - Show only events with the specified run Id.
-    + q (optional) - Search events using advanced [Query string syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax)
-    + limit (optional, number) - Pagination limit.
+    + q (optional) - Search events using advanced [Query string syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax).
+    + limit (optional, number) - Pagination limit
         + Default: 100
-    + offset (optional, number) - Pagination offset.
+    + offset (optional, number) - Pagination offset
         + Default: 0
 
 + Request
@@ -2550,10 +2550,10 @@ Lists all events associated to a particular bucket.
     + component (optional) - Show only events emitted by the specified component.
     + configurationId (optional) - Show only events related to given configuration Id.
     + runId (optional) - Show only events with the specified run Id.
-    + q (optional) - Search events using advanced [Query string syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax)
-    + limit (optional, number) - Pagination limit.
+    + q (optional) - Search events using advanced [Query string syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax).
+    + limit (optional, number) - Pagination limit
         + Default: 100
-    + offset (optional, number) - Pagination offset.
+    + offset (optional, number) - Pagination offset
         + Default: 0
 
 + Request
@@ -2574,10 +2574,10 @@ Lists all events associated to a particular table.
     + component (optional) - Show only events emitted by the specified component.
     + configurationId (optional) - Show only events related to the given configuration Id.
     + runId (optional) - Show only events with the specified run Id.
-    + q (optional) - Search events using advanced [Query string syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax)
-    + limit (optional, number) - Pagination limit.
+    + q (optional) - Search events using advanced [Query string syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax).
+    + limit (optional, number) - Pagination limit
         + Default: 100
-    + offset (optional, number) - Pagination offset.
+    + offset (optional, number) - Pagination offset
         + Default: 0
 
 + Request
@@ -2591,13 +2591,13 @@ Lists all events associated to a particular table.
 ## Data Structures
 
 ### Event
-+ id: 498839405 - Event Id.
-+ event: storage.workspaceLoaded - Event identifier such as `storage.tableImportDone` or `storage.tableDetail`.
++ id: 498839405 - Event Id
++ event: storage.workspaceLoaded - Event identifier such as `storage.tableImportDone` or `storage.tableDetail`
 + component: storage - Name of the component that logged the event. Events can be logged by the `storage` component or any other 
-[registered component](#reference/miscellaneous/api-index/component-list)
-+ message: `Table in.c-application-testing.cashier-data was loaded to the workspace workspace_78423 as my-table.` - Human readable description of the event.
-+ description: `` - Additional description of the event, such as a detailed error description.
-+ type: `info` (enum[string]) - Type of an event.
+[registered component](#reference/miscellaneous/api-index/component-list).
++ message: `Table in.c-application-testing.cashier-data was loaded to the workspace workspace_78423 as my-table.` - Human readable description of the event
++ description: `` - Additional description of the event, such as a detailed error description
++ type: `info` (enum[string]) - Type of an event
     + Members
         + info
         + success
@@ -2609,21 +2609,21 @@ Lists all events associated to a particular table.
 + objectId: `in.c-application-testing.cashier-data` - Id of the target object of the event - e.g. *id* of table for `storage.tableImportDone event`.
 + objectName: `cashier-data` - Name of the target object type of the event - e.g. a *table name* for a `storage.tableImportDone` event.
 + objectType: table - Type of the target object type of event - e.g. *table* for `storage.tableImportDone` event.
-+ context (object) - Details about the origin of the API call that triggered the event.
++ context (object) - Details about the origin of the API call that triggered the event
     + remoteAddr
     + httpReferer
     + httpUserAgent
     + apiVersion
     + userAgent
     + async (boolean)
-+ params (object) - Arbitrary parameters associated with the event - e.g. CSV file settings for table import.
-+ results (object) - Arbitrary results of the event. 
-+ performance (object) - Arbitrary performance metrics associated with the event.
++ params (object) - Arbitrary parameters associated with the event - e.g. CSV file settings for table import
++ results (object) - Arbitrary results of the event
++ performance (object) - Arbitrary performance metrics associated with the event
 + token (object) - Creator of the event
     + id: 1234 - Id of the token
     + name: support@keboola.com - Token owner
 + uri: 498839405 - Event URI.
-+ attachments (object) - Arbitrary list of attached files - e.g. backups for table import events.
++ attachments (object) - Arbitrary list of attached files - e.g. backups for table import events
 
 # Group Attributes
 Attributes are key-value pairs and let you assign custom metadata to resources.
@@ -2637,8 +2637,8 @@ Update or create an attribute. If the attribute exists, it will be updated. If i
 exist, a new one will be created. All attributes associated with a bucket are returned in the response.
 
 + Parameters
-    + bucket_id (required) - Id of the bucket.
-    + attribute_key (required) - Name of an attribute.
+    + bucket_id (required) - Id of the bucket
+    + attribute_key (required) - Name of an attribute
 
 + Attributes
     + value (required) - Attribute value.
@@ -2686,7 +2686,7 @@ Remove an attribute from a bucket.
 Set all attributes by one call.
 
 + Parameters
-    + bucket_id (required) - Id of the bucket.
+    + bucket_id (required) - Id of the bucket
 
 + Attributes
     + `attributes` (array)
@@ -2740,7 +2740,7 @@ Shows all attributes assigned to a bucket.
             ]
 
 # Group Metadata
-You can associate custom metadata to buckets, tables or columns.
+You can associate custom metadata with buckets, tables or columns.
 Metadata are timestamped key-value pairs separated by the provider, where the provider is the originating component. 
 Metadata allows you to assign custom information to your resources. Bucket attributes methods are described 
 below. You can work with table and column metadata in the same manner; simply use a table or column instead of a bucket in the url.
@@ -2750,14 +2750,14 @@ below. You can work with table and column metadata in the same manner; simply us
 ### Create or Update [POST]
 Set multiple metadata with one call. If the given key and provider combination already exist 
 for the bucket, the data will be updated with the new value and timestamp. All metadata associated 
-to the bucket are returned in the response.
+with the bucket are returned in the response.
 
 + Parameters
     + bucket_id (required) - Id of the bucket
 
 + Attributes
-    + provider (required) - Id of the creating [component](#reference/miscellaneous/api-index/component-list).
-    + metadata (required) - Array of metadata objects.
+    + provider (required) - Id of the creating [component](#reference/miscellaneous/api-index/component-list)
+    + metadata (required) - Array of metadata objects
         + Metadata (object)
             + key (required)
             + value (required)
@@ -2820,7 +2820,7 @@ Metadata can be listed for your bucket column.
 Delete all Metadata for the specified bucket.
 
 + Parameters
-    + bucket_id (required) - Id of the bucket.
+    + bucket_id (required) - Id of the bucket
 
 + Request
     + Headers
@@ -2837,11 +2837,11 @@ for the table, the data will be updated with the new value and timestamp. All me
 with the table are returned in the response.
 
 + Parameters
-    + table_id (required) - Id of the table.
+    + table_id (required) - Id of the table
 
 + Attributes
     + provider (required) - Id of the creating [component](#reference/miscellaneous/api-index/component-list).
-    + metadata (required) - Array of metadata objects.
+    + metadata (required) - Array of metadata objects
         + Metadata (object)
             + key (required)
             + value (required)
@@ -2873,7 +2873,7 @@ with the table are returned in the response.
 Show all metadata associated with the specified table.
 
 + Parameters
-    + table_id (required) - Id of the table.
+    + table_id (required) - Id of the table
 
 + Request
     + Headers
@@ -2904,7 +2904,7 @@ Show all metadata associated with the specified table.
 Delete all Metadata for the specified table.
 
 + Parameters
-    + table_id (required) - Id of the table.
+    + table_id (required) - Id of the table
 
 + Request
     + Headers
@@ -2921,11 +2921,11 @@ for the column, the data will be updated with the new value and timestamp. All m
 with the column are returned in the response.
 
 + Parameters
-    + column_id (required) - Id of the table.
+    + column_id (required) - Id of the table
 
 + Attributes
-    + provider (required) - Id of the creating [component](#reference/miscellaneous/api-index/component-list).
-    + metadata (required) - Array of metadata objects.
+    + provider (required) - Id of the creating [component](#reference/miscellaneous/api-index/component-list)
+    + metadata (required) - Array of metadata objects
         + Metadata (object)
             + key (required)
             + value (required)
@@ -2957,7 +2957,7 @@ with the column are returned in the response.
 Show all metadata associated with the specified column.
 
 + Parameters
-    + column_id (required) - Id of the column.
+    + column_id (required) - Id of the column
 
 + Request
     + Headers
@@ -2988,7 +2988,7 @@ Show all metadata associated with the specified column.
 Delete all Metadata for the specified column.
 
 + Parameters
-    + column_id (required) - Id of the column.
+    + column_id (required) - Id of the column
 
 + Request
     + Headers
@@ -3011,8 +3011,8 @@ When working with jobs, follow these steps:
 Available Statuses:
 - `waiting` - Job is in the queue and is waiting for execution.
 - `processing` - Job is being processed by a worker.
-- `success` - Job is done with success.
-- `error` - Job is done with error.
+- `success` - Job is done with a success.
+- `error` - Job is done with an error.
 
 ## List Jobs [/v2/storage/jobs]
 ### Jobs list [GET]
@@ -3067,7 +3067,7 @@ Available Statuses:
 Retrieve information about a single job.
 
 + Parameters
-    + jobId - Id of the job.
+    + jobId - Id of the job
 
 + Request
     + Headers
@@ -3168,11 +3168,11 @@ For a more detailed guide on the file upload, see the corresponding part of the
 [Developers documentation](https://developers.keboola.com/integrate/storage/api/import-export/#manually-uploading-a-file).
 
 + Attributes
-    + name (required) - File name.
-    + sizeBytes (optional, number) - File size in bytes.
+    + name (required) - File name
+    + sizeBytes (optional, number) - File size in bytes
     + contentType (optional) - File [MIME Type](https://en.wikipedia.org/wiki/Media_type)
         Default: `application/octet-stream`
-    + isPublic (optional, boolean) - When true the file URL will be permanent and publicly accessible.
+    + isPublic (optional, boolean) - When true, the file URL will be permanent and publicly accessible.
         Default: false
     + isPermanent (optional, boolean) - Keep a file forever. If false, the file will be **deleted after 6 months**.
         Default: false
@@ -3243,9 +3243,9 @@ all file uploads for project will be returned.
     + tags (optional) - Show only files with one or more of the specified tags.
     + q (optional) - Search events using advanced [Query string syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax)
     + runId (optional) - Show only files with the given run Id.
-    + limit (optional, number) - Pagination limit.
+    + limit (optional, number) - Pagination limit
         + Default: 100
-    + offset (optional, number) - Pagination offset.
+    + offset (optional, number) - Pagination offset
         + Default: 0
 
 + Request
@@ -3284,7 +3284,7 @@ all file uploads for project will be returned.
 Return detailed information about a single file.
 
 + Parameters
-    + file_id (required, number) - File Id.
+    + file_id (required, number) - File Id
     + federationToken (optional, boolean) - Return AWS credentials with permissions for a direct file download from S3. The credentials are valid for 12 hours.    
 
 + Request
@@ -3329,7 +3329,7 @@ Return detailed information about a single file.
 Delete a file from storage.
 
 + Parameters
-    + file_id (required, number) - File Id.
+    + file_id (required, number) - File Id
 
 + Request
     + Headers
@@ -3344,7 +3344,7 @@ Delete a file from storage.
 Adds a new tag to a file.
 
 + Parameters
-    + file_id (required, number) - File id.
+    + file_id (required, number) - File id
 
 + Attributes
     + tag (required) - Tag name
@@ -3365,8 +3365,8 @@ Adds a new tag to a file.
 Delete a single tag from the specified file.
 
 + Parameters
-    + file_id (required, number) - File id.
-    + tag_name (required) - Tag name.
+    + file_id (required, number) - File id
+    + tag_name (required) - Tag name
 
 + Request
     + Headers
@@ -3432,7 +3432,7 @@ KBC Component architecture, see the [Developers documentation](https://developer
                     "id": "keboola.app-tree",
                     "type": "application",
                     "name": "Tree depth",
-                    "description": "Application which computes a tree depth",
+                    "description": "Application which computes a tree depth.",
                     "longDescription": "This application computes levels in a table representing a tree (e.g. product categories). The tree data must be stored in a child-parent relationship. A column named **levels** will be added to the table (root nodes will have number 1). Additionally, a column named **root** will be added, containing the ID of the root item.",
                     "hasUI": false,
                     "hasRun": false,
@@ -3515,7 +3515,7 @@ KBC Component architecture, see the [Developers documentation](https://developer
 List all configurations for a component including all config rows.
 
 + Parameters
-    + component_id (required) - Id of a component.
+    + component_id (required) - Id of a component
     + isDeleted (optional, boolean) - When true, only deleted configurations will be returned. When false, only current configurations will be returned.
         + Default: false
 
@@ -3574,15 +3574,15 @@ List all configurations for a component including all config rows.
 Create a new Component configuration.
 
 + Parameters
-    + component_id (required) - Id of a Component.
+    + component_id (required) - Id of a Component
 
 + Attributes
-    + name (required) - Configuration name.
+    + name (required) - Configuration name
     + configurationId (optional) - Configuration Id (must be unique for each component type). If not set, it will be auto-generated.
-    + description (optional) - Configuration description.
-    + configuration (optional) - Serialized configuration JSON. The maximum allowed size is 4MB.
-    + state (optional) - Serialized state configuration JSON. The maximum allowed size is 4MB.
-    + changeDescription (optional) - Description of the configuration modification.
+    + description (optional) - Configuration description
+    + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB.
+    + state (optional) - Serialized state configuration JSON; the maximum allowed size is 4MB.
+    + changeDescription (optional) - Description of the configuration modification
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -3628,8 +3628,8 @@ Create a new Component configuration.
 Get the component configuration detail.
 
 + Parameters
-    + component_id (required) - Id of the component.
-    + config_id (required) - Id of the configuration.
+    + component_id (required) - Id of the component
+    + config_id (required) - Id of the configuration
 
 + Request
     + Headers
@@ -3671,15 +3671,15 @@ Update an existing configuration. When the configuration is updated, a new versi
 marked as `currentVersion`. 
 
 + Parameters
-    + component_id (required) - Id of the component.
-    + config_id (required) - Id of the configuration.
+    + component_id (required) - Id of the component
+    + config_id (required) - Id of the configuration
 
 + Attributes
-    + name (required) - Configuration name.
-    + description (optional) - Configuration description.
-    + configuration (optional) - Serialized configuration JSON. The maximum allowed size is 4MB.
-    + state (optional) - Serialized state configuration JSON. The maximum allowed size is 4MB.
-    + changeDescription (optional) - Description of the configuration modification.
+    + name (required) - Configuration name
+    + description (optional) - Configuration description
+    + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB.
+    + state (optional) - Serialized state configuration JSON; the maximum allowed size is 4MB.
+    + changeDescription (optional) - Description of the configuration modification
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -3734,8 +3734,8 @@ Calling this API call on a deleted configuration will remove it permanently. I.e
 you have to delete it twice (call twice this API resource).
 
 + Parameters
-    + component_id (required) - Id of the component.
-    + config_id (required) - Id of the configuration.
+    + component_id (required) - Id of the component
+    + config_id (required) - Id of the configuration
 
 + Request
     + Headers
@@ -3751,8 +3751,8 @@ Removes the `isDeleted` flag of a deleted configuration. This makes a new versio
 and the configuration becomes available for other API calls.
 
 + Parameters
-    + component_id (required) - Id of the component.
-    + config_id (required) - Id of the configuration.
+    + component_id (required) - Id of the component
+    + config_id (required) - Id of the configuration
 
 + Request
     + Headers
@@ -3795,11 +3795,11 @@ the version `latestPublished`.
 Mark the latest version of a configuration as published.
 
 + Parameters
-    + component_id (required) - Component Id.
-    + config_id (required) - Configuration Id.
+    + component_id (required) - Component Id
+    + config_id (required) - Configuration Id
 
 + Attributes
-    + description (required) - Version description.
+    + description (required) - Version description
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -3850,9 +3850,9 @@ List all versions of a component configuration.
 + Parameters
     + include (optional) - Comma separated list of information to be retrieved. Possible fields: `name`, `description`, `configuration`, `state`.
         Default: `name,description`
-    + limit (optional, number) - Pagination limit.
+    + limit (optional, number) - Pagination limit
         Default: 100
-    + offset (optional, number) - Pagination offset.
+    + offset (optional, number) - Pagination offset
         Default: 0
 
 + Request
@@ -3895,9 +3895,9 @@ List all versions of a component configuration.
 Get configuration version.
 
 + Parameters
-    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`.
-    + config_id (required) - Id of the configuration.
-    + version_id (required, string) - Version number or `latestPublished` to retrieve the latest published version.
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration
+    + version_id (required, string) - Version number or `latestPublished` to retrieve the latest published version
 
 + Request
     + Headers
@@ -3929,12 +3929,12 @@ Rollbacking a configuration version actually creates a new configuration version
 one you specified.
 
 + Parameters
-    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`.
-    + config_id (required) - Id of the configuration.
-    + version_id (required, number) - Version number to rollback to.
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration
+    + version_id (required, number) - Version number to rollback to
 
 + Attributes
-    + changeDescription (optional) - Description of a version change.
+    + changeDescription (optional) - Description of a version change
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -3956,14 +3956,14 @@ one you specified.
 Create a new configuration from the specified configuration version.
 
 + Parameters
-    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`.
-    + config_id (required) - Id of the configuration to copy.
-    + version_id (required, number) - Version number to copy.
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration to copy
+    + version_id (required, number) - Version number to copy
 
 + Attributes
-    + name (required) - Name of the new configuration.
-    + description (optional) - Description of the new configuration.
-    + changeDescription (optional) - Version change description.
+    + name (required) - Name of the new configuration
+    + description (optional) - Description of the new configuration
+    + changeDescription (optional) - Version change description
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -3986,13 +3986,13 @@ Create a new configuration from the specified configuration version.
 Create a new row (item) of an existing configuration.
 
 + Parameters
-    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`.
-    + config_id (required) - Id of the configuration.
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration
 
 + Attributes
     + rowId (optional) - Row id (must be unique for each configuration). If not set, it will be generated.
-    + configuration (optional) - Serialized configuration JSON. The maximum allowed size is 4MB.
-    + changeDescription (optional) - Version change description.
+    + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB.
+    + changeDescription (optional) - Version change description
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -4067,13 +4067,13 @@ Modify the content of a single row in a configuration. Note that configuration r
 independently on the configurations.
 
 + Parameters
-    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`.
-    + config_id (required) - Id of the configuration.
-    + row_id (required) - Id of the configuration row.
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration
+    + row_id (required) - Id of the configuration row
 
 + Attributes
-    + configuration (optional) - Serialized configuration JSON. The maximum allowed size is 4MB.
-    + changeDescription (optional) - Version change description.
+    + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB.
+    + changeDescription (optional) - Version change description
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -4106,9 +4106,9 @@ independently on the configurations.
 Delete a configuration row. A configuration row is deleted permanently and cannot be restored.
 
 + Parameters
-    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`.
-    + config_id (required) - Id of the configuration.
-    + row_id (required) - Id of the configuration row.
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration
+    + row_id (required) - Id of the configuration row
 
 + Request
     + Headers
@@ -4123,14 +4123,14 @@ Delete a configuration row. A configuration row is deleted permanently and canno
 List versions of a given configuration Row of a given Configuration.
 
 + Parameters
-    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`.
-    + config_id (required) - Id of the configuration.
-    + row_id (required) - Id of the configuration row.
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration
+    + row_id (required) - Id of the configuration row
     + include (optional) - Comma separated list of information to retrieve. May contain: `configuration`
         Default: `configuration`
-    + limit (optional, number) - Pagination limit.
+    + limit (optional, number) - Pagination limit
         Default: 100
-    + offset (optional, number) - Pagination offset.
+    + offset (optional, number) - Pagination offset
         Default: 0
 
 + Request
@@ -4171,10 +4171,10 @@ List versions of a given configuration Row of a given Configuration.
 Get details about the Configuration Row version.
 
 + Parameters
-    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`.
-    + config_id (required) - Id of the configuration.
-    + row_id (required) - Id of the configuration row.
-    + version_id (required) - Id of the configuration row version.
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration
+    + row_id (required) - Id of the configuration row
+    + version_id (required) - Id of the configuration row version
 
 + Request
     + Headers
@@ -4202,13 +4202,13 @@ Rollback row to a previous version. This operation actually creates a new Row ve
 content to be rollbacked to.
 
 + Parameters
-    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`.
-    + config_id (required) - Id of the configuration.
-    + row_id (required) - Id of the configuration row.
-    + version_id (required) - Id of the configuration row version to rollback to.
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration
+    + row_id (required) - Id of the configuration row
+    + version_id (required) - Id of the configuration row version to rollback to
 
 + Attributes
-    + changeDescription (optional) - Version change description.
+    + changeDescription (optional) - Version change description
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -4242,15 +4242,15 @@ content to be rollbacked to.
 Create a new configuration row from an existing row version.
 
 + Parameters
-    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`.
-    + config_id (required) - Id of the configuration.
-    + row_id (required) - Id of the configuration row.
-    + version_id (required) - Id of the configuration row version to rollback to.
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration
+    + row_id (required) - Id of the configuration row
+    + version_id (required) - Id of the configuration row version to rollback to
 
 + Attributes
     + targetConfigId (optional) - Copy the row to another existing configuration. If not provided, the row will be copied 
     to the original configuration.
-    + changeDescription (optional) - Version change description.
+    + changeDescription (optional) - Version change description
 
 + Request (application/x-www-form-urlencoded)
     + Headers
