@@ -474,6 +474,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             $this->fail('Workspace should not be loaded');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.tableLoad', $e->getStringCode());
+            $this::assertContains($tableId, $e->getMessage());
         }
 
         // table should be created but we should be able to delete it
