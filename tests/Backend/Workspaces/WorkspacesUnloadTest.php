@@ -15,7 +15,7 @@ use Keboola\StorageApi\Exception;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\StorageApiTestCase;
 
-class CopyImportTest extends WorkspacesTestCase
+class WorkspaceUnloadTest extends WorkspacesTestCase
 {
     public function testCreateTableFromWorkspace()
     {
@@ -76,7 +76,7 @@ class CopyImportTest extends WorkspacesTestCase
             $this->fail('Table should not be created');
         } catch (ClientException $e) {
             $this->assertEquals('storage.invalidColumns', $e->getStringCode());
-            $this->assertContains('_Id', $e->getMessage());
+            $this->assertContains('_Id', $e->getMessage(), '', true);
         }
     }
 
