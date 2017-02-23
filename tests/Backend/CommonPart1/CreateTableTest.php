@@ -9,6 +9,7 @@
 
 namespace Keboola\Test\Backend\CommonPart1;
 
+use Keboola\StorageApi\ClientException;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 
@@ -232,6 +233,39 @@ class CreateTableTest extends StorageApiTestCase
             $this->fail('exception should be thrown');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.tables.validation.invalidPrimaryKeyColumns', $e->getStringCode());
+        }
+    }
+
+    public function testTableCreateInvalidPkType()
+    {
+        // sync
+        try {
+            $this->_client->apiPost(
+                sprintf('storage/buckets/%s/tables', $this->getTestBucketId(self::STAGE_IN)),
+                [
+                    'name' => 'languages',
+                    'dataString' => 'id,name',
+                    'primaryKey' => ['id', 'name'],
+                ]
+            );
+            $this->fail('table should not be created');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.validation.primaryKey', $e->getStringCode());
+        }
+
+        // async
+        try {
+            $this->_client->apiPost(
+                sprintf('storage/buckets/%s/tables-async', $this->getTestBucketId(self::STAGE_IN)),
+                [
+                    'name' => 'languages',
+                    'dataString' => 'id,name',
+                    'primaryKey' => ['id', 'name'],
+                ]
+            );
+            $this->fail('table should not be created');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.validation.primaryKey', $e->getStringCode());
         }
     }
 
