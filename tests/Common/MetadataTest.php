@@ -9,7 +9,7 @@ use Keboola\StorageApi\Metadata;
 
 class MetadataTest extends StorageApiTestCase
 {
-    const TEST_PROVIDER = "keboola.sapi-client-tests";
+    const TEST_PROVIDER = "storage-client-tests";
 
     public function setUp()
     {
@@ -296,7 +296,7 @@ class MetadataTest extends StorageApiTestCase
         }
     }
 
-    public function testNullProvider()
+    public function testInvalidProvider()
     {
         $metadataApi = new Metadata($this->_client);
         $tableId = $this->getTestBucketId() . '.table';
@@ -304,21 +304,25 @@ class MetadataTest extends StorageApiTestCase
             "key" => "validKey", // invalid char %
             "value" => "testval"
         );
-        $metadataApi->postBucketMetadata($this->getTestBucketId(), null, [$md]);
-        $metadataApi->postTableMetadata($tableId, null, [$md]);
-        $metadataApi->postColumnMetadata($tableId . ".id", null, [$md]);
+        try {
+            $metadataApi->postBucketMetadata($this->getTestBucketId(), "deez-nuts", [$md]);
+            $this->fail("Invalid metadata provider");
+        } catch (ClientException $e) {
+            $this->assertEquals("storage.metadata.invalidProvider", $e->getStringCode());
+        }
 
-        $bucketMd = $metadataApi->listBucketMetadata($this->getTestBucketId());
-        $tableMd = $metadataApi->listTableMetadata($tableId);
-        $columnMd = $metadataApi->listColumnMetadata($tableId . ".id");
-        
-        $this->assertCount(1, $bucketMd);
-        $this->assertCount(1, $tableMd);
-        $this->assertCount(1, $columnMd);
-
-        $this->assertNull($bucketMd[0]['provider']);
-        $this->assertNull($tableMd[0]['provider']);
-        $this->assertNull($columnMd[0]['provider']);
+        try {
+            $metadataApi->postTableMetadata($tableId, "deez-nuts", [$md]);
+            $this->fail("Invalid metadata provider");
+        } catch (ClientException $e) {
+            $this->assertEquals("storage.metadata.invalidProvider", $e->getStringCode());
+        }
+        try {
+            $metadataApi->postColumnMetadata($tableId . ".id", "deez-nuts", [$md]);
+            $this->fail("Invalid metadata provider");
+        } catch (ClientException $e) {
+            $this->assertEquals("storage.metadata.invalidProvider", $e->getStringCode());
+        }
     }
     
     public function apiEndpoints()
