@@ -2,14 +2,14 @@ FORMAT: 1A
 HOST: https://connection.keboola.com
 
 # Storage API
-Storage API provides an interface for sending data to Keboola Connection (KBC). The most 
-important features of the API are:
-- importing CSV data into Table Storage,
-- exporting CSV data from Table Storage,
-- loading arbitrary files into File Storage,
-- managing tables including keys and indexes,
-- managing buckets including sharing,
-- managing component configurations.
+Storage API provides an interface for sending data to Keboola Connection (KBC). The following are the most 
+important features of the API:
+- Importing CSV data into Table Storage
+- Exporting CSV data from Table Storage
+- Loading arbitrary files into File Storage
+- Managing tables including keys and indexes
+- Managing buckets including sharing
+- Managing component configurations
 
 The CSV files interchanged with Storage must adhere to the 
 [RFC4180 Specification](http://tools.ietf.org/html/rfc4180) and must use the `UTF-8` encoding.
@@ -138,7 +138,7 @@ which enables them to create other tokens with limited privileges for buckets an
 
 ## Tokens Collection [/v2/storage/tokens]
 ### List all tokens [GET]
-List all tokens in the project.
+Lists all tokens in the project.
 
 + Request
     + Headers
@@ -181,17 +181,17 @@ List all tokens in the project.
             ]
 
 ### Create token [POST]
-Create a new token in the project. Note that it is not possible to create a new master token.
+Creates a new token in the project. Note that it is not possible to create a new master token.
 
 + Attributes
     + description (required) - Token description
     + bucketPermissions[{id_bucket}] (optional) - Permissions for a bucket. Available permissions: `read`, `write`.
-    + componentAccess[] (optional) - Grant access for component configurations. Allowed 
+    + componentAccess[] (optional) - Grants access for component configurations. Allowed 
     values are [valid component IDs](#reference/miscellaneous/api-index/get).
-    + canManageBuckets (optional, boolean) - Allow full access to all buckets including newly created buckets. 
+    + canManageBuckets (optional, boolean) - Allows full access to all buckets including newly created buckets. 
     Overrides `bucketPermissions` settings.
         + Default: false
-    + canReadAllFileUploads (optional, boolean) - Allow access to all file uploads. When set to false, 
+    + canReadAllFileUploads (optional, boolean) - Allows access to all file uploads. When set to false, 
     only files uploaded by the current token are accessible.
         + Default: false
     + expiresIn (optional, number) - Number of seconds until the token expires. If not provided, the token never expires.
@@ -231,7 +231,7 @@ Create a new token in the project. Note that it is not possible to create a new 
 
 ## Token [/v2/storage/tokens/{id_token}]
 ### Token detail [GET]
-Return all properties of a token. You can obtain the Token Id, for example, using 
+Returns all properties of a token. You can obtain the Token Id, for example, using 
 the [Verify call](#reference/tokens-and-permissions/token/token-verification).
 
 + Parameters
@@ -260,15 +260,15 @@ the [Verify call](#reference/tokens-and-permissions/token/token-verification).
 
 
 ### Update Token [PUT]
-Update Token properties. Beware that all current bucket permissions are replaced. If you want to add new 
+Updates Token properties. Beware that all current bucket permissions are replaced. If you want to add new 
 bucket permissions, don't forget to specify the previous permissions.
 
 + Attributes
     + description (required) - Token description
-    + bucketPermissions[{id_bucket}] (optional) - Permissions for a bucket. Available permissions: `read`, `write`.
-    + componentAccess[] (optional) - Grant access for component configurations. Allowed 
+    + bucketPermissions[{id_bucket}] (optional) - Permissions for the bucket. Available permissions: `read`, `write`.
+    + componentAccess[] (optional) - Grants access for component configurations. Allowed 
     values are [valid component IDs](#reference/miscellaneous/api-index/get).
-    + canReadAllFileUploads (optional, boolean) - Allow access to all file uploads. When set to false, 
+    + canReadAllFileUploads (optional, boolean) - Allows access to all file uploads. When set to false, 
     only files uploaded by the current token are accessible.
         + Default: false
 
@@ -310,7 +310,7 @@ bucket permissions, don't forget to specify the previous permissions.
 
 ## Token Verification [/v2/storage/tokens/verify]
 ### Token verification [GET]
-Check the token privileges and return information about the project to which the token belongs (`owner`) 
+Checks the token privileges and returns information about the project to which the token belongs (`owner`) 
 and the associated administrator (`admin`). This call can be executed by all tokens.
 
 + Request
@@ -412,8 +412,8 @@ provided email address. The link will expire in 2 hours.
     + token_id (required, number) - Token Id
 
 + Attributes
-    + recipientEmail (required) - Recipient email address
-    + message (required) - A message for the token recipient
+    + recipientEmail (required) - Recipient's email address
+    + message (required) - Message for the token recipient
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -493,7 +493,7 @@ Access to buckets can be limited by access tokens. Each bucket has a *backend* i
 All buckets with their attributes are returned.
 
 + Parameters
-    + include (optional) - Comma separated list of resources to include for each table. Available resources: 'attributes'.
+    + include (optional) - Comma-separated list of resources to include for each table. Available resources: 'attributes'.
         + Default: 'attributes'
 
 + Request
@@ -540,14 +540,14 @@ Using this API call, you can either create a new bucket in the project, or you c
 existing bucket from another project (see below). 
 
 + Attributes
-    + name (required) - New bucket name. Only alphanumeric characters and underscores are allowed.
-    + stage (optional, enum[string]) - Assign the bucket to one of the stages.
+    + name (required) - New bucket name; only alphanumeric characters and underscores are allowed.
+    + stage (optional, enum[string]) - Assigns the bucket to one of the stages.
         + Members
             + in
             + out
         + Default: in
-    + description (optional) - Description of bucket.
-    + backend (optional, enum[string]) - Bucket backend type. The default value is determined by the project settings.
+    + description (optional) - Bucket description.
+    + backend (optional, enum[string]) - Bucket backend type; the default value is determined by the project settings.
         + Members
             + snowflake
             + redshift
@@ -591,10 +591,10 @@ Linking a bucket from another project is only possible if it has been
 only by *organization* administrators.
 
 + Attributes
-    + name (required) - New bucket name (Only alphanumeric characters and underscores are allowed.)
-    + sourceProjectId (required, number) - Id of the source project from which the bucket is being shared.
+    + name (required) - New bucket name; only alphanumeric characters and underscores are allowed.
+    + sourceProjectId (required, number) - Id of the source project from which the bucket is being shared
     + sourceBucketId (required) - Id of the bucket being shared
-    + stage (optional, enum[string]) - Assign the bucket to one of the stages.
+    + stage (optional, enum[string]) - Assigns the bucket to one of the stages.
         + Members
             + in
             + out
@@ -634,7 +634,7 @@ only by *organization* administrators.
 
 ## Manage Bucket [/v2/storage/buckets/{bucket_id}]
 ### Bucket Detail [GET]
-Obtain information about a bucket.
+Obtains information about a bucket.
 
 + Parameters
     + bucket_id (required) - Bucket Id
@@ -664,7 +664,7 @@ Use the optional `force` parameter to delete all bucket content too.
 
 + Parameters
     + bucket_id (required) - Bucket Id
-    + force (optional, boolean) - Drop all tables and aliases. Tables must not have any dependencies (aliases, etc.).
+    + force (optional, boolean) - Drops all tables and aliases. Tables must not have any dependencies (aliases, etc.).
 
 + Request
     + Headers
@@ -677,7 +677,7 @@ Use the optional `force` parameter to delete all bucket content too.
 This operations is available only for organization administrators.
 
 ### Share Bucket [POST]
-[Enable sharing](https://help.keboola.com/storage/buckets/sharing/) of a bucket. The bucket will be shared 
+[Enables sharing](https://help.keboola.com/storage/buckets/sharing/) of a bucket. The bucket will be shared 
 to the entire organization to which the project belongs. It may then be shared to any project of that organization.
 
 + Parameters
@@ -697,7 +697,7 @@ to the entire organization to which the project belongs. It may then be shared t
 
 
 ### Stop Bucket Sharing [DELETE]
-Disable sharing of a bucket. A bucket must not be linked to other projects.
+Disables sharing of a bucket. A bucket must not be linked to other projects.
 To unshare an already linked bucket, you have to delete the links first - use the
 [Drop Bucket](#reference/buckets/manage-bucket/drop-bucket) in the linking project.
 
@@ -712,7 +712,7 @@ To unshare an already linked bucket, you have to delete the links first - use th
 + Response 204
 
 ## List Shared Buckets [/v2/storage/shared-buckets]
-List buckets which may be shared to the project. This operation is available only for organization administrators.
+Lists buckets which may be shared to the project. This operation is available only for organization administrators.
 
 ### Shared buckets list [GET]
 
@@ -743,7 +743,7 @@ to that cluster and bucket. This resource is accessible only to project administ
 
 ## Create Credentials [/v2/storage/buckets/{bucket_id}/credentials]
 ### Create Credentials [POST]
-Create new credentials for a Redshift bucket. The password is returned only once and cannot be retrieved later.
+Creates new credentials for a Redshift bucket. The password is returned only once and cannot be retrieved later.
 
 + Parameters
     + bucket_id (required) - Id of the bucket
@@ -785,7 +785,7 @@ Create new credentials for a Redshift bucket. The password is returned only once
 
 ## List Credentials [/v2/storage/credentials]
 ### List credentials [GET]
-List all Redshift bucket credentials available in the project.
+Lists all Redshift bucket credentials available in the project.
 
 + Request
     + Headers
@@ -818,7 +818,7 @@ List all Redshift bucket credentials available in the project.
 
 ## Manage Credentials [/v2/storage/credentials/{id}]
 ### Get credentials [GET]
-Obtain existing credential details. Note that the password is not returned as it is available only once when the 
+Obtains existing credential details. Note that the password is not returned as it is available only once when the 
 credentials are created.
 
 + Parameters
@@ -853,7 +853,7 @@ credentials are created.
 
 
 ### Delete credentials [DELETE]
-Delete the specified bucket credentials.
+Deletes the specified bucket credentials.
 
 + Parameters
     + id (required, number) - Credentials Id
@@ -883,10 +883,10 @@ tables use the [asynchronous call](#reference/tables/create-table-asynchronously
 + Attributes    
     + name (required) - New table name
     + data (required) - CSV file containing data for import. The data have to be encoded in **UTF-8**. The file can be raw or gzipped. Gzipped files must have the extension `.gz`.
-    + delimiter (optional) - Field delimiter used in a CSV file. The default value is ','.  Use '\t' or type the char for the tabulator.
-    + enclosure (optional) - Field enclosure used in a CSV file. The default value is '"'. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both.)
-    + escapedBy (optional) - Escape character used in a CSV file. The default value is an empty value - no escape character is used. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both.)
-    + primaryKey (optional) - Primary key of a table. If the primary key is set, updates can be done on the table. See the CSV incremental import. The primary key can be also composed by multiple columns; the columns must be separated by a comma. For a table on the MySQL backend, the maximum number of the primary key columns is 4.
+    + delimiter (optional) - Field delimiter used in the CSV file. The default value is ','.  Use '\t' or type the char for the tabulator.
+    + enclosure (optional) - Field enclosure used in the CSV file. The default value is '"'. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both.)
+    + escapedBy (optional) - Escape character used in the CSV file. The default value is an empty value - no escape character is used. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both.)
+    + primaryKey (optional) - Primary key of the table. If the primary key is set, updates can be done on the table. See the CSV incremental import. The primary key can be also composed by multiple columns; the columns must be separated by a comma. For a table on the MySQL backend, the maximum number of the primary key columns is 4.
 
 + Request (multipart/form-data)
     + Headers
@@ -942,8 +942,8 @@ tables use the [asynchronous call](#reference/tables/create-table-asynchronously
 Lists tables in a given bucket.
 
 + Parameters
-    + bucket_id (required) - Bucket Id.
-    + include (optional, enum[string]) - Comma separated list of resources to include for each table
+    + bucket_id (required) - Bucket Id
+    + include (optional, enum[string]) - Comma-separated list of resources to include for each table
         + Members
             + attributes
             + columns
@@ -984,7 +984,7 @@ The actual data must be provided in one of the following attributes:
 - `dataWorkspaceId` and `dataTableName`
 
 + Parameters
-    + bucket_id (required) - Bucket Id
+    + bucket_id (required) - The bucket Id
     
 + Attributes    
     + name (required) - New table name
@@ -1111,7 +1111,7 @@ Further information can be found in the [Developers Documentation](https://devel
     
 + Attributes    
     + dataUrl (optional) - Publicly accessible url with a CSV file to import
-    + dataFileId (optional) - Id of the file stored in [File Uploads](#reference/files). All gzipped and sliced files are supported.
+    + dataFileId (optional) - Id of the file stored in [File Uploads](#reference/files); all gzipped and sliced files are supported.
     + snapshotId (optional) - Id of a table snapshot - a table will be created from the snapshot.
     + dataWorkspaceId (optional) - Load from the table [workspace](#reference/workspaces). Use with the **dataTableName** attribute.
     + dataTableName (optional) - Load from the table in the [workspace](#reference/workspaces).
@@ -1188,7 +1188,7 @@ To enable compression of API response traffic, please include the following HTTP
 
 #### Error Handling
 
-At the moment when the streaming connection is established, the HTTP 200 response code is returned and data are streamed row by row.
+The moment the streaming connection is established, the HTTP 200 response code is returned and data are streamed row by row.
 When an error occurs and data cannot be streamed any more, a special row is returned to stream `KBC_INTERNAL_ERROR`.
 When you receive this message, please run the export again; these errors are very rare.
 
@@ -1220,9 +1220,9 @@ This task is asynchronous; Id of the created file is stored in the `results` of 
 #### Rows filtering
 Exported rows can be filtered by a single filter. Examples of filtering by `userId` column:
 
-- `whereColumn=UserId&whereValues[]=23423` - Filter by single values of one column.
-- `whereColumn=UserId&whereValues[]=23423&whereValues[]=123` - Filter by multiple values of one column.
-- `whereColumn=UserId&whereValues[]=23423&whereOperator=ne` - Use a different comparison operator.
+- `whereColumn=UserId&whereValues[]=23423` - Filters by single values of one column.
+- `whereColumn=UserId&whereValues[]=23423&whereValues[]=123` - Filters by multiple values of one column.
+- `whereColumn=UserId&whereValues[]=23423&whereOperator=ne` - Uses a different comparison operator.
 
 Only [Indexed columns](#reference/tables/create-column-index/mark-column-as-indexed) can be used in the `whereColumn` parameter.
 The comparison operator essentially behaves like the [SQL IN](http://www.w3schools.com/sql/sql_in.asp) (and NOT IN) operator. That is, the 
@@ -1252,7 +1252,7 @@ will show information about the created file and caching:
 
 + Attributes
     + limit (optional, number) - Limit the number of returned rows.
-    + days (optional, number) - **DEPRECATED will be removed in the future.** Return rows created or updated in last X days.
+    + days (optional, number) - **DEPRECATED will be removed in the future.** It returns rows created or updated in the last X days.
     + format (optional, enum[string]) - File format
         + Members
             + rfc - According to [RFC](http://www.ietf.org/rfc/rfc4180.txt).
@@ -1270,7 +1270,7 @@ will show information about the created file and caching:
             + eq - Equals - can be used with multiple values.
             + ne - Not equals - can be used with multiple values.
         + Default: eq
-    + gzip (optional, boolean) The response will be gzipped if set to true.
+    + gzip (optional, boolean) - The response will be gzipped if set to true.
 
 + Request
     + Headers
@@ -1324,7 +1324,7 @@ will show information about the created file and caching:
 ## Manage Tables [/v2/storage/tables/{table_id}]
 
 ### Table detail [GET]
-Obtain information about a table.
+Obtains information about a table.
 
 + Parameters
     + table_id (required) - Table Id
@@ -1381,7 +1381,7 @@ Obtain information about a table.
             }
 
 ### Drop table [DELETE]
-Delete a table from Storage.
+Deletes a table from Storage.
 
 + Request
     + Headers
@@ -1607,7 +1607,7 @@ For a table with the MySQL backend, the maximum number of primary key columns is
     + table_id (required) - Table Id
 
 + Attributes
-    + columns[] (required) - Array of columns used as primary key
+    + columns[] (required) - Array of columns used as the primary key
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -1719,7 +1719,7 @@ This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls)
 ## Manage Column Indexes [/v2/storage/tables/{table_id}/indexed-columns/{column_name}]
 
 ### Remove Column Index [DELETE]
-Remove a column from an index. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
+Removes a column from an index. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 
 + Parameters
     + table_id (required) - Table Id
@@ -1822,7 +1822,7 @@ There are some limitations:
 * Index on a filtered column of the source table cannot be removed
 
 #### Alias table columns
-By default the alias columns are automatically synced with the source table. You can disable this behaviour
+By default, the alias columns are automatically synced with the source table. You can disable this behaviour
 by setting up `aliasColumnsAutosync` to `false` and setting up list of columns by `aliasColumns` parameter.
 Later you can modify the alias columns by the table columns methods.
 When turning `aliasColumnsAutoSync` back on, the columns will be immediately synced with the source table.
@@ -1844,9 +1844,9 @@ When turning `aliasColumnsAutoSync` back on, the columns will be immediately syn
             + neq - Not equal to
         + Default: eq
     + aliasFilter[values][] (optional) - Values for the filter
-    + aliasColumnsAutosync (optional, boolean) - Disable column synchronization with the source table.
+    + aliasColumnsAutosync (optional, boolean) - Disables column synchronization with the source table.
         Default: false
-    + aliasColumns[] (optional) - List of alias columns, this disables column synchronization with the source table.
+    + aliasColumns[] (optional) - List of alias columns; this disables column synchronization with the source table.
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -1975,7 +1975,7 @@ alias must be created with the `aliasFilter` parameter.
             }
 
 ### Remove Alias Filter [DELETE]
-Delete a filter from an alias. The alias table will contain all rows from the source table.
+Deletes a filter from an alias. The alias table will contain all rows from the source table.
 
 + Parameters
     + table_id (required) - Id of the alias table
@@ -1991,7 +1991,7 @@ Delete a filter from an alias. The alias table will contain all rows from the so
 ## Alias Column Synchronization [/v2/storage/tables/{table_id}/alias-columns-auto-sync]
 
 ### Enable Column Synchronization [POST]
-Enable automatic column synchronization between the alias and source table. All columns from the source table 
+Enables automatic column synchronization between the alias and source table. All columns from the source table 
 will be immediately synchronized into the alias table. 
 
 + Parameters
@@ -2006,7 +2006,7 @@ will be immediately synchronized into the alias table.
 
 
 ### Disable Column Synchronization [DELETE]
-Disable automatic column synchronization between the alias and source table. Columns from the source table
+Disables automatic column synchronization between the alias and source table. Columns from the source table
 will not be synchronized with the alias table any more. When you add new columns into the source table, they
 will not propagate to the alias.
 
@@ -2030,7 +2030,7 @@ into a new table.
 ## Create or List Snapshots [/v2/storage/tables/{table_id}/snapshots]
 
 ### Create Table Snapshot [POST]
-Create a snapshot of the current state of the table. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
+Creates a snapshot of the current state of the table. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 A table snapshot will contain:
 - Table data,
 - Table properties (primary key, indexed columns, etc.),
@@ -2087,7 +2087,7 @@ Snapshots of an alias table contain only alias settings, actual data are not sto
 
 
 ### List Table Snapshots [GET]
-Retrieve a list of all snapshots of a table.
+Retrieves a list of all snapshots of a table.
 
 + Parameters
     + table_id (required) - Id of a table
@@ -2122,10 +2122,10 @@ Retrieve a list of all snapshots of a table.
 ## Manage Snapshots [/v2/storage/snapshots/{snapshot_id}]
 
 ### Snapshot Detail [GET]
-Retrieve information about a single table snapshot.
+Retrieves information about a single table snapshot.
 
 + Parameters
-    + snapshot_id - Id of the snapshot. Use the 
+    + snapshot_id - Id of the snapshot; use the 
     [List Snapshots Call](#reference/table-snapshotting/create-or-list-snapshots/list-table-snapshots) to find snapshot Id.
 
 + Request
@@ -2186,7 +2186,7 @@ Retrieve information about a single table snapshot.
 
 
 ### Delete Table Snapshot [DELETE]
-Remove a table snapshot. The current table data is not modified. This request 
+Removes a table snapshot. The current table data is not modified. This request 
 is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 
 + Parameters
@@ -2283,7 +2283,7 @@ backend with permissions to write to the workspace specific database schema.
 ## Workspaces Collection [/v2/storage/workspaces]
 
 ### Create new workspace [POST]
-Create a new workspace and return its credentials.
+Creates a new workspace and return its credentials.
 
 + Attributes 
     + backend: snowflake (optional, enum[string]) - Workspace backend. When omitted, the default backend is used.
@@ -2308,7 +2308,7 @@ Create a new workspace and return its credentials.
 
 
 ### List workspaces [GET]
-Return all workspaces for the project.
+Returns all workspaces for the project.
 
 + Request
     + Headers
@@ -2321,7 +2321,7 @@ Return all workspaces for the project.
 
 ## Manage Workspace [/v2/storage/workspaces/{workspace_id}]
 ### Workspace detail [GET]
-Retrieve information about a given workspace. Note that the password to the workspace can be retrieved only when the workspace is created.
+Retrieves information about a given workspace. Note that the password to the workspace can be retrieved only when the workspace is created.
 
 + Parameters
     + workspace_id (number)
@@ -2365,9 +2365,9 @@ Loads tables from Storage into a Workspace.
                 + Properties
                     + source (required) - Full table identifier of the source table (e.g.: in.c-bucket.mytable)
                     + destination (required) - Destination table name
-                    + rows (optional, number) - Limit the number of returned rows
+                    + rows (optional, number) - Limits the number of returned rows
                     + days (optional, number) - `DEPRECATED will be removed in the future.` Return rows created or updated in the last X days.
-                    + seconds (optional, number) - Return rows created or updated in the last X seconds.
+                    + seconds (optional, number) - Returns rows created or updated in the last X seconds.
                     + columns (optional) - Comma separated list of column names to export; by default all columns are exported.
                     + whereColumn (optional) - Column for [filtering](#reference/tables/unload-data-asynchronously/asynchronous-export)
                     + whereValues[] (optional) - Values for filtering
@@ -2481,7 +2481,7 @@ The events pagination uses two parameters:
 
 ## Events [/v2/storage/events]
 ### Create Event [POST]
-Create a new external event. The maximum allowed size of an event is 200KB. If this is exceeded,
+Creates a new external event. The maximum allowed size of an event is 200KB. If this is exceeded,
 the HTTP 400 response code is returned.
 
 + Attributes
@@ -2521,12 +2521,12 @@ the HTTP 400 response code is returned.
 Lists all events in the project.
 
 + Parameters
-    + sinceId (optional) - Show only events after the specified Id.
-    + maxId (optional) - Show only events before the passed Id.
-    + component (optional) - Show only events emitted by the specified component.
+    + sinceId (optional) - Shows only events after the specified Id.
+    + maxId (optional) - Shows only events before the passed Id.
+    + component (optional) - Shows only events emitted by the specified component.
     + configurationId (optional) - Show only events related to given configuration Id.
-    + runId (optional) - Show only events with the specified run Id.
-    + q (optional) - Search events using advanced [Query string syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax).
+    + runId (optional) - Shows only events with the specified run Id.
+    + q (optional) - Searches events using advanced [Query string syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax).
     + limit (optional, number) - Pagination limit
         + Default: 100
     + offset (optional, number) - Pagination offset
@@ -2542,15 +2542,15 @@ Lists all events in the project.
 
 ## List Bucket Events [/v2/storage/buckets/{bucket_id}/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}]
 ### Bucket events list [GET]
-Lists all events associated to a particular bucket.
+Lists all events associated with a particular bucket.
 
 + Parameters
-    + sinceId (optional) - Show only events after the specified Id.
-    + maxId (optional) - Show only events before the passed Id.
-    + component (optional) - Show only events emitted by the specified component.
-    + configurationId (optional) - Show only events related to given configuration Id.
-    + runId (optional) - Show only events with the specified run Id.
-    + q (optional) - Search events using advanced [Query string syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax).
+    + sinceId (optional) - Shows only events after the specified Id.
+    + maxId (optional) - Shows only events before the passed Id.
+    + component (optional) - Shows only events emitted by the specified component.
+    + configurationId (optional) - Shows only events related to given configuration Id.
+    + runId (optional) - Shows only events with the specified run Id.
+    + q (optional) - Searches events using advanced [Query string syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax).
     + limit (optional, number) - Pagination limit
         + Default: 100
     + offset (optional, number) - Pagination offset
@@ -2566,15 +2566,15 @@ Lists all events associated to a particular bucket.
 
 ## List Table Events [/v2/storage/tables/{table_id}/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}]
 ### Table events list [GET]
-Lists all events associated to a particular table.
+Lists all events associated with a particular table.
 
 + Parameters
-    + sinceId (optional) - Show only events after the specified Id.
-    + maxId (optional) - Show only events before the passed Id.
-    + component (optional) - Show only events emitted by the specified component.
-    + configurationId (optional) - Show only events related to the given configuration Id.
-    + runId (optional) - Show only events with the specified run Id.
-    + q (optional) - Search events using advanced [Query string syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax).
+    + sinceId (optional) - Shows only events after the specified Id.
+    + maxId (optional) - Shows only events before the passed Id.
+    + component (optional) - Shows only events emitted by the specified component.
+    + configurationId (optional) - Shows only events related to the given configuration Id.
+    + runId (optional) - Shows only events with the specified run Id.
+    + q (optional) - Searches events using advanced [Query string syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax).
     + limit (optional, number) - Pagination limit
         + Default: 100
     + offset (optional, number) - Pagination offset
@@ -2607,8 +2607,8 @@ Lists all events associated to a particular table.
 + created: `2017-02-13T16:42:00+0100` - Datetime when the event was created.
 + configurationId: null - Id of a [configuration](#reference/component-configurations/component-list) used by an external component. 
 + objectId: `in.c-application-testing.cashier-data` - Id of the target object of the event - e.g. *id* of table for `storage.tableImportDone event`.
-+ objectName: `cashier-data` - Name of the target object type of the event - e.g. a *table name* for a `storage.tableImportDone` event.
-+ objectType: table - Type of the target object type of event - e.g. *table* for `storage.tableImportDone` event.
++ objectName: `cashier-data` - Name of the target object - e.g. a *table name* for a `storage.tableImportDone` event.
++ objectType: table - Type of the target object - e.g. *table* for the `storage.tableImportDone` event.
 + context (object) - Details about the origin of the API call that triggered the event
     + remoteAddr
     + httpReferer
@@ -2633,12 +2633,12 @@ below, you can work with table attributes in the same manner.
 ## Create or Manage Bucket Attributes [/v2/storage/buckets/{bucket_id}/attributes/{attribute_key}]
 
 ### Set Bucket Attribute [POST]
-Update or create an attribute. If the attribute exists, it will be updated. If it does not 
+Updates or creates an attribute. If the attribute exists, it will be updated. If it does not 
 exist, a new one will be created. All attributes associated with a bucket are returned in the response.
 
 + Parameters
     + bucket_id (required) - Id of the bucket
-    + attribute_key (required) - Name of an attribute
+    + attribute_key (required) - Name of the attribute
 
 + Attributes
     + value (required) - Attribute value.
@@ -2671,7 +2671,7 @@ exist, a new one will be created. All attributes associated with a bucket are re
             ]
 
 ### Delete Bucket Attribute [DELETE]
-Remove an attribute from a bucket.
+Removes an attribute from a bucket.
 
 + Request
     + Headers
@@ -2683,7 +2683,7 @@ Remove an attribute from a bucket.
 ## Replace or List Bucket Attributes [/v2/storage/buckets/{bucket_id}/attributes]
 
 ### Replace Attributes [POST]
-Set all attributes by one call.
+Sets all attributes by one call.
 
 + Parameters
     + bucket_id (required) - Id of the bucket
@@ -2743,12 +2743,12 @@ Shows all attributes assigned to a bucket.
 You can associate custom metadata with buckets, tables or columns.
 Metadata are timestamped key-value pairs separated by the provider, where the provider is the originating component. 
 Metadata allows you to assign custom information to your resources. Bucket attributes methods are described 
-below. You can work with table and column metadata in the same manner; simply use a table or column instead of a bucket in the url.
+below. Work with table and column metadata in the same manner; simply use a table or column instead of a bucket in the url.
 
 ## Bucket Metadata [/v2/storage/buckets/{bucket_id}/metadata]
 
 ### Create or Update [POST]
-Set multiple metadata with one call. If the given key and provider combination already exist 
+Sets multiple metadata with one call. If the given key and provider combination already exist 
 for the bucket, the data will be updated with the new value and timestamp. All metadata associated 
 with the bucket are returned in the response.
 
@@ -2817,7 +2817,7 @@ Metadata can be listed for your bucket column.
             ]
 
 ### Delete [DELETE]
-Delete all Metadata for the specified bucket.
+Deletes all Metadata for the specified bucket.
 
 + Parameters
     + bucket_id (required) - Id of the bucket
@@ -2832,7 +2832,7 @@ Delete all Metadata for the specified bucket.
 ## Table Metadata [/v2/storage/tables/{table_id}/metadata]
 
 ### Create or Update [POST]
-Set multiple metadata with one call. If the given key and provider combination already exist
+Sets multiple metadata with one call. If the given key and provider combination already exist
 for the table, the data will be updated with the new value and timestamp. All metadata associated 
 with the table are returned in the response.
 
@@ -2870,7 +2870,7 @@ with the table are returned in the response.
             ]
 
 ### List [GET]
-Show all metadata associated with the specified table.
+Shows all metadata associated with the specified table.
 
 + Parameters
     + table_id (required) - Id of the table
@@ -2901,7 +2901,7 @@ Show all metadata associated with the specified table.
             ]
 
 ### Delete [DELETE]
-Delete all Metadata for the specified table.
+Deletes all Metadata for the specified table.
 
 + Parameters
     + table_id (required) - Id of the table
@@ -2916,7 +2916,7 @@ Delete all Metadata for the specified table.
 ## Column Metadata [/v2/storage/columns/{column_id}/metadata]
 
 ### Create or Update [POST]
-Set multiple metadata with one call. If the given key and provider combination already exist 
+Sets multiple metadata with one call. If the given key and provider combination already exist 
 for the column, the data will be updated with the new value and timestamp. All metadata associated 
 with the column are returned in the response.
 
@@ -2954,7 +2954,7 @@ with the column are returned in the response.
             ]
 
 ### List [GET]
-Show all metadata associated with the specified column.
+Shows all metadata associated with the specified column.
 
 + Parameters
     + column_id (required) - Id of the column
@@ -2985,7 +2985,7 @@ Show all metadata associated with the specified column.
             ]
 
 ### Delete [DELETE]
-Delete all Metadata for the specified column.
+Deletes all Metadata for the specified column.
 
 + Parameters
     + column_id (required) - Id of the column
@@ -3009,10 +3009,10 @@ When working with jobs, follow these steps:
 3. **Check the results** - When the job is finished, the `results` field will contain the actual result of the original request.
 
 Available Statuses:
-- `waiting` - Job is in the queue and is waiting for execution.
-- `processing` - Job is being processed by a worker.
-- `success` - Job is done with a success.
-- `error` - Job is done with an error.
+- `waiting` - The job is in the queue and is waiting for execution.
+- `processing` - The job is being processed by a worker.
+- `success` - The job is done with a success.
+- `error` - The job is done with an error.
 
 ## List Jobs [/v2/storage/jobs]
 ### Jobs list [GET]
@@ -3064,7 +3064,7 @@ Available Statuses:
 
 ## Manage Jobs [/v2/storage/jobs/{jobId}]
 ### Job detail [GET]
-Retrieve information about a single job.
+Retrieves information about a single job.
 
 + Parameters
     + jobId - Id of the job
@@ -3130,7 +3130,7 @@ a permanent URL, you can set the file as `public`.
 Large files may be split into slices (chunks). A sliced file must have the `sliced` parameter set to `true`. In that case 
 the S3 key points to a **manifest file**. The manifest file contains the actual list of uploaded chunks. When uploading a sliced
 file, you have to use the provided key as a prefix for chunks and generate the manifest file with the list of uploaded chunks.
-When a CSV file into Storage Tables, there is no difference between a normal and a sliced file.
+When a CSV file is imported into Storage Tables, there is no difference between a normal and a sliced file.
 
 **Example:**
 
@@ -3174,11 +3174,11 @@ For a more detailed guide on the file upload, see the corresponding part of the
         Default: `application/octet-stream`
     + isPublic (optional, boolean) - When true, the file URL will be permanent and publicly accessible.
         Default: false
-    + isPermanent (optional, boolean) - Keep a file forever. If false, the file will be **deleted after 6 months**.
+    + isPermanent (optional, boolean) - Keeps a file forever. If false, the file will be **deleted after 6 months**.
         Default: false
-    + notify (optional, boolean) - Notify project administrators that a file was uploaded.
+    + notify (optional, boolean) - Notifies project administrators that a file was uploaded.
         Default: false
-    + tags[] (optional) - Assign one or more tags to the file.
+    + tags[] (optional) - Assigns one or more tags to the file.
     + federationToken (optional, boolean) - When true, it returns AWS credentials instead of form submission parameters.
         Default: false
     + sliced (optional, boolean) - If true, multiple chunks of a file are allowed to be uploaded. Must be used with `federationToken`.
@@ -3234,15 +3234,15 @@ For a more detailed guide on the file upload, see the corresponding part of the
 
 ## List Files [/v2/storage/files?sinceId={sinceId}&maxId={maxId}&tags={tags}&q={q}&runId={runId}&limit={limit}&offset={offset}]
 ### List Files [GET]
-List all files uploaded by your token. If the `canReadAllFileUploads` permission is set for your token, 
+Lists all files uploaded by your token. If the `canReadAllFileUploads` permission is set for your token, 
 all file uploads for project will be returned.
 
 + Parameters
-    + sinceId (optional) - Show only files after the specified Id.
-    + maxId (optional) - Show only files before the passed Id.
-    + tags (optional) - Show only files with one or more of the specified tags.
-    + q (optional) - Search events using advanced [Query string syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax)
-    + runId (optional) - Show only files with the given run Id.
+    + sinceId (optional) - Shows only files after the specified Id.
+    + maxId (optional) - Shows only files before the passed Id.
+    + tags (optional) - Shows only files with one or more of the specified tags.
+    + q (optional) - Searches events using advanced [Query string syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax).
+    + runId (optional) - Shows only files with the given run Id.
     + limit (optional, number) - Pagination limit
         + Default: 100
     + offset (optional, number) - Pagination offset
@@ -3281,7 +3281,7 @@ all file uploads for project will be returned.
 
 ## Manage Files [/v2/storage/files/{file_id}]
 ### File detail [GET /v2/storage/files/{file_id}?federationToken={federationToken}]
-Return detailed information about a single file.
+Returns detailed information about a single file.
 
 + Parameters
     + file_id (required, number) - File Id
@@ -3326,7 +3326,7 @@ Return detailed information about a single file.
             }
 
 ### Delete File [DELETE]
-Delete a file from storage.
+Deletes a file from storage.
 
 + Parameters
     + file_id (required, number) - File Id
@@ -3362,7 +3362,7 @@ Adds a new tag to a file.
 
 ## Manage Tags [/v2/storage/files/{file_id}/tags/{tag_name}]
 ### Delete Tag [DELETE]
-Delete a single tag from the specified file.
+Deletes a single tag from the specified file.
 
 + Parameters
     + file_id (required, number) - File id
@@ -3410,9 +3410,9 @@ Use this API call to obtain the definitions of all components available in KBC. 
 KBC Component architecture, see the [Developers documentation](https://developers.keboola.com/overview/)
 
 + Parameters
-    + componentType (optional) - Component type - `extractor`, `writer`, `application`, ...
+    + componentType (optional) - Component type - `extractor`, `writer`, `application`, etc.
     + include (optional) - Comma separated list of resources to include. Available resources: `configuration` and `rows`.
-    + isDeleted (optional, boolean) - If true, return only components with deleted configurations.
+    + isDeleted (optional, boolean) - If true, it returns only components with deleted configurations.
         Default: false
 
 + Request
@@ -3512,10 +3512,10 @@ KBC Component architecture, see the [Developers documentation](https://developer
 
 ## Component Configurations [/v2/storage/components/{component_id}/configs]
 ### List configurations [GET /v2/storage/components/{component_id}/configs?isDeleted={isDeleted}]
-List all configurations for a component including all config rows.
+Lists all configurations for a component including all config rows.
 
 + Parameters
-    + component_id (required) - Id of a component
+    + component_id (required) - Id of the component
     + isDeleted (optional, boolean) - When true, only deleted configurations will be returned. When false, only current configurations will be returned.
         + Default: false
 
@@ -3571,10 +3571,10 @@ List all configurations for a component including all config rows.
             ]
 
 ### Create Configuration [POST]
-Create a new Component configuration.
+Creates a new component configuration.
 
 + Parameters
-    + component_id (required) - Id of a Component
+    + component_id (required) - Id of the Component
 
 + Attributes
     + name (required) - Configuration name
@@ -3625,7 +3625,7 @@ Create a new Component configuration.
 
 ## Manage Configurations [/v2/storage/components/{component_id}/configs/{config_id}]
 ### Configuration Detail [GET]
-Get the component configuration detail.
+Gets the component configuration detail.
 
 + Parameters
     + component_id (required) - Id of the component
@@ -3667,7 +3667,7 @@ Get the component configuration detail.
             }
 
 ### Update Configuration [PUT]
-Update an existing configuration. When the configuration is updated, a new version is automatically created and
+Updates an existing configuration. When the configuration is updated, a new version is automatically created and
 marked as `currentVersion`. 
 
 + Parameters
@@ -3725,7 +3725,7 @@ marked as `currentVersion`.
 
 
 ### Delete Configuration [DELETE]
-Delete a configuration. When a configuration is deleted, it is only marked as deleted and remains still available in the system.
+Deletes a configuration. When a configuration is deleted, it is only marked as deleted and remains still available in the system.
 You can [list deleted](#reference/component-configurations/component-configs/list-configs) configurations, or 
 [restore deleted](#reference/component-configurations/manage-configs/restore-deleted-config) configurations.
 Other operations with deleted configurations are restricted.
@@ -3785,14 +3785,14 @@ and the configuration becomes available for other API calls.
 
 
 ## Publishing [/v2/storage/components/{component_id}/configs/{config_id}/publish]
-Configuration can be in the `published` or `draft` mode. The 
+A configuration can be in the `published` or `draft` mode. The 
 [configuration detail API call](#reference/component-configurations/manage-configs/config-detail) returns
 the latest version of a configuration. The latest published version can be retrieved by the 
 [Configuration version API call](#reference/component-configurations/manage-configs-versions/version-detail) with 
 the version `latestPublished`.
 
 ### Publish Configuration [POST]
-Mark the latest version of a configuration as published.
+Marks the latest version of a configuration as published.
 
 + Parameters
     + component_id (required) - Component Id
@@ -3845,10 +3845,10 @@ Mark the latest version of a configuration as published.
 
 ## List Configuration Versions [/v2/storage/components/{component_id}/configs/{config_id}/versions]
 ### Versions list [GET /v2/storage/components/{component_id}/configs/{config_id}/versions?include={include}&limit={limit}&offset={offset}]
-List all versions of a component configuration.
+Lists all versions of a component configuration.
 
 + Parameters
-    + include (optional) - Comma separated list of information to be retrieved. Possible fields: `name`, `description`, `configuration`, `state`.
+    + include (optional) - Comma separated list of information to be retrieved; possible fields are `name`, `description`, `configuration`, and `state`.
         Default: `name,description`
     + limit (optional, number) - Pagination limit
         Default: 100
@@ -3892,7 +3892,7 @@ List all versions of a component configuration.
 
 ## Manage Configuration Versions [/v2/storage/components/{component_id}/configs/{config_id}/versions/{version_id}]
 ### Version Detail [GET]
-Get configuration version.
+Gets configuration version.
 
 + Parameters
     + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
@@ -3953,7 +3953,7 @@ one you specified.
 
 ## Copy Configurations [/v2/storage/components/{component_id}/configs/{config_id}/versions/{version_id}/create]
 ### Create Configuration Copy [POST]
-Create a new configuration from the specified configuration version.
+Creates a new configuration from the specified configuration version.
 
 + Parameters
     + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
@@ -3983,7 +3983,7 @@ Create a new configuration from the specified configuration version.
 
 ## Create or List Configuration Rows [/v2/storage/components/{component_id}/configs/{config_id}/rows]
 ### Create Configuration Row [POST]
-Create a new row (item) of an existing configuration.
+Creates a new row (item) of an existing configuration.
 
 + Parameters
     + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
@@ -4022,7 +4022,7 @@ Create a new row (item) of an existing configuration.
 
 
 ### Row List [GET]
-Get configuration rows.
+Gets configuration rows.
 
 + Request
     + Headers
@@ -4063,7 +4063,7 @@ Get configuration rows.
 
 ## Manage Configuration Rows [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}]
 ### Update Row [PUT]
-Modify the content of a single row in a configuration. Note that configuration rows are versioned 
+Modifies the content of a single row in a configuration. Note that configuration rows are versioned 
 independently on the configurations.
 
 + Parameters
@@ -4103,7 +4103,7 @@ independently on the configurations.
 
 
 ### Delete Row [DELETE]
-Delete a configuration row. A configuration row is deleted permanently and cannot be restored.
+Deletes a configuration row. A configuration row is deleted permanently and cannot be restored.
 
 + Parameters
     + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
@@ -4126,7 +4126,7 @@ List versions of a given configuration Row of a given Configuration.
     + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
     + config_id (required) - Id of the configuration
     + row_id (required) - Id of the configuration row
-    + include (optional) - Comma separated list of information to retrieve. May contain: `configuration`
+    + include (optional) - Comma separated list of information to retrieve; it may contain: `configuration`
         Default: `configuration`
     + limit (optional, number) - Pagination limit
         Default: 100
@@ -4168,7 +4168,7 @@ List versions of a given configuration Row of a given Configuration.
 
 ## Manage Configuration Row Versions [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/versions/{version_id}]
 ### Version detail [GET]
-Get details about the Configuration Row version.
+Gets details about the Configuration Row version.
 
 + Parameters
     + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
@@ -4198,7 +4198,7 @@ Get details about the Configuration Row version.
 
 ## Rollback Configuration Row Version [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/versions/{version_id}/rollback]
 ### Rollback Version [POST]
-Rollback row to a previous version. This operation actually creates a new Row version with identical
+Rollbacks row to a previous version. This operation actually creates a new Row version with identical
 content to be rollbacked to.
 
 + Parameters
@@ -4239,7 +4239,7 @@ content to be rollbacked to.
 
 ## Copy Configuration Rows [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/versions/{version_id}/create]
 ### Create Configuration Row copy [POST]
-Create a new configuration row from an existing row version.
+Creates a new configuration row from an existing row version.
 
 + Parameters
     + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
@@ -4282,7 +4282,7 @@ Create a new configuration row from an existing row version.
 # Group Stats
 ## RunId [/v2/storage/stats?runId={runId}]
 ### Stats detail [GET]
-Get stats for a given Run Id. Provides the count of imported/exported tables and files in a specified run with durations.
+Gets stats for a given Run Id. Provides the count of imported/exported tables and files in a specified run with durations.
 
 + Request
     + Headers
