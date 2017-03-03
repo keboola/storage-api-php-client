@@ -10,6 +10,7 @@
 namespace Keboola\Test\Backend\CommonPart1;
 
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 
@@ -134,6 +135,24 @@ class CreateTableTest extends StorageApiTestCase
             $this->fail('Table should not be created');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.tables.validation.noColumns', $e->getStringCode());
+        }
+    }
+
+    public function testTableCreateFromNotUploadedFileShouldThrowError()
+    {
+        $file = $this->_client->prepareFileUpload((new FileUploadOptions())->setFileName('missing'));
+        try {
+
+            $this->_client->createTableAsyncDirect(
+                $this->getTestBucketId(self::STAGE_IN),
+                [
+                    'name' => 'languages',
+                    'dataFileId' => $file['id'],
+                ]
+            );
+            $this->fail('Table should not be created');
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertEquals('storage.fileNotUploaded', $e->getStringCode());
         }
     }
 
