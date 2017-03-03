@@ -453,4 +453,17 @@ class AlterTableTest extends StorageApiTestCase
         $this->assertArrayHasKey('indexedColumns', $tableDetail);
         $this->assertEquals(array('id', $indexColumn), $tableDetail['indexedColumns']);
     }
+
+    public function testEmptyPrimaryKeyDelete()
+    {
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(),
+            'users',
+            new CsvFile(__DIR__ . '/../../_data/users.csv')
+        );
+
+        $this->_client->removeTablePrimaryKey($tableId);
+        $table = $this->_client->getTable($tableId);
+        $this->assertEmpty($table['primaryKey']);
+    }
 }
