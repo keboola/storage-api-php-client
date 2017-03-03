@@ -250,6 +250,7 @@ class CreateTableTest extends StorageApiTestCase
             );
             $this->fail('table should not be created');
         } catch (ClientException $e) {
+            $this->assertEquals(400, $e->getCode());
             $this->assertEquals('storage.validation.primaryKey', $e->getStringCode());
         }
 
@@ -265,6 +266,7 @@ class CreateTableTest extends StorageApiTestCase
             );
             $this->fail('table should not be created');
         } catch (ClientException $e) {
+            $this->assertEquals(400, $e->getCode());
             $this->assertEquals('storage.validation.primaryKey', $e->getStringCode());
         }
     }
