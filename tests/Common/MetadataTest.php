@@ -9,7 +9,7 @@ use Keboola\StorageApi\Metadata;
 
 class MetadataTest extends StorageApiTestCase
 {
-    const TEST_PROVIDER = "storage-client-tests";
+    const TEST_PROVIDER = "test";
 
     public function setUp()
     {
@@ -216,7 +216,7 @@ class MetadataTest extends StorageApiTestCase
 
         $this->assertGreaterThan(strtotime($timestamp1), strtotime($timestamp2));
     }
-    
+
     /**
      * @dataProvider apiEndpoints
      * @param $apiEndpoint
@@ -268,14 +268,14 @@ class MetadataTest extends StorageApiTestCase
             $this->assertEquals("storage.metadata.invalidKey", $e->getStringCode());
         }
 
-        // try the api straight to test missing provider for each
+        // try the api straight to test missing provider for each endpoint
         try {
             $this->_client->apiPost("storage/{$apiEndpoint}s/{$object}/metadata", [
                 "metadata" => [$md]
             ]);
             $this->fail("provider is required.");
         } catch (ClientException $e) {
-            $this->assertEquals("storage.metadata.missingParameter", $e->getStringCode());
+            $this->assertEquals("storage.metadata.invalidProvider", $e->getStringCode());
         }
     }
 
@@ -301,9 +301,17 @@ class MetadataTest extends StorageApiTestCase
         $metadataApi = new Metadata($this->_client);
         $tableId = $this->getTestBucketId() . '.table';
         $md = array(
-            "key" => "validKey", // invalid char %
+            "key" => "validKey",
             "value" => "testval"
         );
+
+        try {
+            // provider null should be rejected
+            $metadataApi->postBucketMetadata($this->getTestBucketId(), null, [$md]);
+            $this->fail("Null metadata provider not allowed");
+        } catch (ClientException $e) {
+            $this->assertEquals("storage.metadata.invalidProvider", $e->getStringCode());
+        }
         try {
             $metadataApi->postBucketMetadata($this->getTestBucketId(), "deez-nuts", [$md]);
             $this->fail("Invalid metadata provider");
