@@ -267,16 +267,6 @@ class MetadataTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertEquals("storage.metadata.invalidKey", $e->getStringCode());
         }
-
-        // try the api straight to test missing provider for each endpoint
-        try {
-            $this->_client->apiPost("storage/{$apiEndpoint}s/{$object}/metadata", [
-                "metadata" => [$md]
-            ]);
-            $this->fail("provider is required.");
-        } catch (ClientException $e) {
-            $this->assertEquals("storage.metadata.invalidProvider", $e->getStringCode());
-        }
     }
 
     /**
@@ -308,25 +298,12 @@ class MetadataTest extends StorageApiTestCase
         try {
             // provider null should be rejected
             $metadataApi->postBucketMetadata($this->getTestBucketId(), null, [$md]);
-            $this->fail("Null metadata provider not allowed");
+            $this->fail("provider is required");
         } catch (ClientException $e) {
             $this->assertEquals("storage.metadata.invalidProvider", $e->getStringCode());
         }
         try {
-            $metadataApi->postBucketMetadata($this->getTestBucketId(), "deez-nuts", [$md]);
-            $this->fail("Invalid metadata provider");
-        } catch (ClientException $e) {
-            $this->assertEquals("storage.metadata.invalidProvider", $e->getStringCode());
-        }
-
-        try {
-            $metadataApi->postTableMetadata($tableId, "deez-nuts", [$md]);
-            $this->fail("Invalid metadata provider");
-        } catch (ClientException $e) {
-            $this->assertEquals("storage.metadata.invalidProvider", $e->getStringCode());
-        }
-        try {
-            $metadataApi->postColumnMetadata($tableId . ".id", "deez-nuts", [$md]);
+            $metadataApi->postBucketMetadata($this->getTestBucketId(), "%invalidCharacter$", [$md]);
             $this->fail("Invalid metadata provider");
         } catch (ClientException $e) {
             $this->assertEquals("storage.metadata.invalidProvider", $e->getStringCode());
