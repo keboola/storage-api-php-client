@@ -142,7 +142,6 @@ class CreateTableTest extends StorageApiTestCase
     {
         $file = $this->_client->prepareFileUpload((new FileUploadOptions())->setFileName('missing'));
         try {
-
             $this->_client->createTableAsyncDirect(
                 $this->getTestBucketId(self::STAGE_IN),
                 [
