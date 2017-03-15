@@ -466,4 +466,26 @@ class AlterTableTest extends StorageApiTestCase
         $table = $this->_client->getTable($tableId);
         $this->assertEmpty($table['primaryKey']);
     }
+
+    public function testAddInvalidPrimaryKey()
+    {
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(),
+            'users',
+            new CsvFile(__DIR__ . '/../../_data/users.csv')
+        );
+        try {
+            $this->_client->createTablePrimaryKey($tableId, ["fakeColumn"]);
+            $this->fail("Adding invalid primary key should result in an error");
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertEquals("storage.validation.primaryKey", $e->getStringCode());
+        }
+
+        try {
+            $this->_client->createTablePrimaryKey($tableId, ["id", "fakeColumn"]);
+            $this->fail("Adding invalid primary key should result in an error");
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertEquals("storage.validation.primaryKey", $e->getStringCode());
+        }
+    }
 }
