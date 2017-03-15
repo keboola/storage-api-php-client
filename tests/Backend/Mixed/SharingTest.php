@@ -126,6 +126,60 @@ class SharingTest extends StorageApiTestCase
         $this->assertTrue($token['admin']['isOrganizationMember']);
     }
 
+    public function testInvalidSharingType()
+    {
+        $this->initTestBuckets(self::BACKEND_MYSQL);
+        $bucketId = reset($this->_bucketIds);
+
+        try {
+            $this->_client->shareBucket($bucketId, [
+                'sharing' => 'global',
+            ]);
+            $this->fail('Bucket should not be shared');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.buckets.invalidSharingType', $e->getStringCode());
+            $this->assertEquals(400, $e->getCode());
+        }
+    }
+
+    public function testOrganizationPublicSharing()
+    {
+        $this->initTestBuckets(self::BACKEND_MYSQL);
+        $bucketId = reset($this->_bucketIds);
+
+        $this->_client->shareBucket($bucketId, [
+            'sharing' => 'organization-project',
+        ]);
+
+        $tokenId = $this->_client2->createToken('manage', 'Test Token', 3600);
+        $token = $this->_client2->getToken($tokenId);
+        $client = new \Keboola\StorageApi\Client(array(
+            'token' => $token['token'],
+            'url' => STORAGE_API_URL,
+        ));
+
+        $client->verifyToken();
+
+        // bucket can be listed with non-admin sapi token
+        $sharedBuckets = $client->listSharedBuckets();
+        $this->assertCount(1, $sharedBuckets);
+
+        $this->assertEquals($bucketId, $sharedBuckets[0]['id']);
+        $this->assertEquals('organization-project', $sharedBuckets[0]['sharing']);
+
+        // bucket can be linked
+        $linkedBucketId = $client->linkBucket(
+            'organization-project-test',
+            self::STAGE_IN,
+            $sharedBuckets[0]['project']['id'],
+            $sharedBuckets[0]['id']
+        );
+
+        $bucket = $client->getBucket($linkedBucketId);
+        $this->assertEquals($sharedBuckets[0]['id'], $bucket['sourceBucket']['id']);
+        $this->assertEquals($sharedBuckets[0]['project']['id'], $bucket['sourceBucket']['project']['id']);
+    }
+
     public function testNonOrganizationAdminInToken()
     {
         $this->initTestBuckets(self::BACKEND_MYSQL);
@@ -157,14 +211,7 @@ class SharingTest extends StorageApiTestCase
 
         $client->verifyToken();
 
-        // validation sharing manipulations with new token
-        try {
-            $client->listSharedBuckets();
-            $this->fail('`listSharedBuckets` should fail with `accessDenied` error');
-        } catch (ClientException $e) {
-            $this->assertEquals(403, $e->getCode());
-            $this->assertEquals('accessDenied', $e->getStringCode());
-        }
+        $this->assertEmpty($client->listSharedBuckets());
 
         try {
             $client->shareBucket($bucketId);

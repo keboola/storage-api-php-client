@@ -291,9 +291,10 @@ class Client
         return $this->apiDelete($url);
     }
 
-    public function shareBucket($bucketId)
+    public function shareBucket($bucketId, $options = [])
     {
         $url = "storage/buckets/" . $bucketId . "/share";
+        $url .= '?' . http_build_query($options);
 
         $result = $this->apiPost($url, [], false);
 

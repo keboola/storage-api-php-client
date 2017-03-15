@@ -587,8 +587,7 @@ existing bucket from another project (see below).
 Use this API call to create a new bucket which contains contents of a 
 [shared bucket](https://help.keboola.com/storage/buckets/sharing/) in a source project. 
 Linking a bucket from another project is only possible if it has been
-[enabled](#reference/buckets/bucket-sharing/share-bucket) in the source project. Also linking can by done
-only by *organization* administrators.
+[enabled](#reference/buckets/bucket-sharing/share-bucket) in the source project.
 
 + Attributes
     + name (required) - New bucket name; only alphanumeric characters and underscores are allowed.
@@ -680,8 +679,16 @@ This operations is available only for organization administrators.
 [Enables sharing](https://help.keboola.com/storage/buckets/sharing/) of a bucket. The bucket will be shared 
 to the entire organization to which the project belongs. It may then be shared to any project of that organization.
 
+
 + Parameters
     + bucket_id (required) - Bucket Id
+
++ Attributes
+    + sharing (optional, enum[string]) - Sharing type
+        + Members
+            + organization - Bucket is shared to organization. Any organization member can link bucket to project in organization.
+            + organization-project - Bucket is shared to organization. Any organization or organization's project member can link bucket to project.
+        + Default: organization
 
 + Request
     + Headers
