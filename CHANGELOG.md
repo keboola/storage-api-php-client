@@ -1,3 +1,6 @@
+## 6.2.0 (2017-03-15)
+ * [Feat] - Bucket share options
+
 ## 6.1.0 (2017-01-20)
  * [Feat] - List components with deleted configurations
 
