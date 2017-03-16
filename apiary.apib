@@ -673,11 +673,12 @@ Use the optional `force` parameter to delete all bucket content too.
 + Response 204
 
 ## Bucket Sharing [/v2/storage/buckets/{bucket_id}/share]
-This operations is available only for organization administrators.
+
 
 ### Share Bucket [POST]
 [Enables sharing](https://help.keboola.com/storage/buckets/sharing/) of a bucket. The bucket will be shared 
 to the entire organization to which the project belongs. It may then be shared to any project of that organization.
+This operations is available only for organization administrators.
 
 
 + Parameters
@@ -707,6 +708,7 @@ to the entire organization to which the project belongs. It may then be shared t
 Disables sharing of a bucket. A bucket must not be linked to other projects.
 To unshare an already linked bucket, you have to delete the links first - use the
 [Drop Bucket](#reference/buckets/manage-bucket/drop-bucket) in the linking project.
+This operations is available only for organization administrators.
 
 + Parameters
     + bucket_id (required) - Bucket Id
@@ -719,7 +721,7 @@ To unshare an already linked bucket, you have to delete the links first - use th
 + Response 204
 
 ## List Shared Buckets [/v2/storage/shared-buckets]
-Lists buckets which may be shared to the project. This operation is available only for organization administrators.
+Lists buckets which may be shared to the project.
 
 ### Shared buckets list [GET]
 
