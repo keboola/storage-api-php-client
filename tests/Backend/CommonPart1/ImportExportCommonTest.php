@@ -88,6 +88,7 @@ class ImportExportCommonTest extends StorageApiTestCase
     {
         return array(
             array(new CsvFile(__DIR__ . '/../../_data/languages.csv'), 'languages.csv', array('id', 'name')),
+            array(new CsvFile(__DIR__ . '/../../_data/languages.encoding.csv'), 'languages.encoding.csv', array('id', 'name')),
             array(new CsvFile(__DIR__ . '/../../_data/languages.csv'), 'languages.csv', array('id', 'name'), 'rfc', array(
                 'primaryKey' => 'id,name',
             )),
