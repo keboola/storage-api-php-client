@@ -351,6 +351,50 @@ class TablesListingTest extends StorageApiTestCase
         }
     }
 
+    public function testTableListingIncludeAll()
+    {
+        $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+
+        $metadataApi = new Metadata($this->_client);
+        $metadataApi->postColumnMetadata(
+            $tableId . ".id",
+            "keboola.sapi_client_tests",
+            [[
+                "key" => "testkey",
+                "value" => "testValue"
+            ],[
+                "key" => "testkey2",
+                "value" => "testValue2"
+            ]]
+        );
+
+
+        $tables = $this->_client->listTables($this->getTestBucketId(), [
+            'include' => 'buckets,attributes,columns,metadata,columnMetadata'
+        ]);
+
+        // check the columns
+        $firstTable = reset($tables);
+        $this->assertEquals($tableId, $firstTable['id']);
+        $this->assertArrayHasKey('columns', $firstTable);
+        $this->assertEquals(array('id', 'name'), $firstTable['columns']);
+
+        // check the bucket
+        $this->assertArrayHasKey('bucket', $firstTable);
+        $this->assertEquals($this->getTestBucketId(), $firstTable['bucket']['id']);
+
+        // check metadata
+        $this->assertArrayHasKey('columnMetadata', $firstTable);
+        $this->assertArrayHasKey('metadata', $firstTable);
+        $this->assertEmpty($firstTable['metadata']);
+        $this->assertEquals($tableId, $firstTable['id']);
+        $this->assertCount(1, $firstTable['columnMetadata']);
+        $this->assertArrayHasKey('id', $firstTable['columnMetadata']);
+        $this->assertCount(2, $firstTable['columnMetadata']['id']);
+
+        // check attributes
+        $this->assertArrayHasKey('attributes', $firstTable);
+    }
 
     public function invalidAttributes()
     {
