@@ -1,3 +1,6 @@
+## 6.3.0 (2017-04-06)
+ * [Feat] - File upload ContentDisposition - attachment - friendly download names
+
 ## 6.2.0 (2017-03-15)
  * [Feat] - Bucket share options
 
