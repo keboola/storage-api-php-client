@@ -9,6 +9,7 @@
 
 namespace Keboola\Test\Common;
 
+use GuzzleHttp\Client;
 use Keboola\Test\StorageApiTestCase;
 
 use \Keboola\StorageApi\Options\FileUploadOptions;
@@ -174,8 +175,12 @@ class FilesTest extends StorageApiTestCase
             $this->assertInternalType('integer', $file['maxAgeDays']);
             $this->assertEquals(180, $file['maxAgeDays']);
         }
-    }
 
+        // check attachment, download
+        $client = new Client();
+        $response = $client->get($file['url']);
+        $this->assertStringStartsWith('attachment;', (string) $response->getHeader('Content-Disposition')[0]);
+    }
 
     /**
      * @dataProvider encryptedData
