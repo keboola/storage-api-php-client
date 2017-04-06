@@ -1310,6 +1310,7 @@ class Client
             'Key' => $uploadParams['key'],
             'ACL' => $uploadParams['acl'],
             'Body' => $fh,
+            'ContentDisposition' => sprintf('attachment; filename=%s;', $result['name']),
         );
 
         if ($newOptions->getIsEncrypted()) {
