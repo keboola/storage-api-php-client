@@ -418,7 +418,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
         //check to make sure the columns have the right types
-        $columnInfo = $backend->describeTableColumns('datatype_Test');
+        $columnInfo = $backend->describeTableColumns($backend->toIdentifier('datatype_Test'));
         $this->assertCount(2, $columnInfo);
         if ($workspace['connection']['backend'] === $this::BACKEND_SNOWFLAKE) {
             $this->assertEquals("Id", $columnInfo[0]['name']);
