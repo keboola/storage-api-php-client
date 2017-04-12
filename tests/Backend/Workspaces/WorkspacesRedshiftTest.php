@@ -22,11 +22,14 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
         }
     }
 
-    public function testColumnCompression()
+    /**
+     * @dataProvider columnCompressionDataTypesDefinitions
+     * @param $dataTypesDefinition
+     */
+    public function testColumnCompression($dataTypesDefinition)
     {
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
-        $db = $this->getDbConnection($workspace['connection']);
 
         // Create a table of sample data
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -41,10 +44,7 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
                 [
                     "source" => $tableId,
                     "destination" => "languages-rs",
-                    "datatypes" => [
-                        'id' => "VARCHAR(50)",
-                        "name" => "VARCHAR(255) ENCODE BYTEDICT"
-                    ]
+                    "datatypes" => $dataTypesDefinition
                 ]
             ]
         ]);
@@ -76,13 +76,13 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
         );
 
         $workspaces->loadWorkspaceData($workspace['id'], [
-           "input" => [
+            "input" => [
                 [
                     "source" => $tableId,
                     "destination" => "languages-rs",
                     "sortKey" => "name"
                 ]
-           ]
+            ]
         ]);
 
         $statement = $db->prepare("SELECT \"column\", sortkey FROM pg_table_def WHERE schemaname = ? AND tablename = ? AND \"column\" = ?;");
@@ -136,17 +136,17 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
         $statement->execute();
         $row = $statement->fetch();
         if (is_array($dist)) {
-            $this->assertEquals(1, (int) $row['reldiststyle'], "key diststyle doesn't check out.");
+            $this->assertEquals(1, (int)$row['reldiststyle'], "key diststyle doesn't check out.");
         } else if ($dist === 'even') {
-            $this->assertEquals(0, (int) $row['reldiststyle'], "even diststyle doesn't check out.");
+            $this->assertEquals(0, (int)$row['reldiststyle'], "even diststyle doesn't check out.");
         } else if ($dist === "all") {
-            $this->assertEquals(8, (int) $row['reldiststyle'], "all diststyle doesn't check out.");
+            $this->assertEquals(8, (int)$row['reldiststyle'], "all diststyle doesn't check out.");
         }
     }
 
     public function testLoadedPrimaryKeys()
     {
-        $primaries = ['Paid_Search_Engine_Account','Date','Paid_Search_Campaign','Paid_Search_Ad_ID','Site__DFA'];
+        $primaries = ['Paid_Search_Engine_Account', 'Date', 'Paid_Search_Campaign', 'Paid_Search_Ad_ID', 'Site__DFA'];
         $pkTableId = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),
             'languages-pk',
@@ -186,7 +186,7 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
         $mapping2 = [
             "source" => $pkTableId,
             "destination" => "languages-pk-skipped",
-            "columns" => ['Paid_Search_Engine_Account','Date'] // missing PK columns
+            "columns" => ['Paid_Search_Engine_Account', 'Date'] // missing PK columns
         ];
         $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping2]]);
 
@@ -204,6 +204,33 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
             ["all"],
             ["even"],
             [["key" => "id"]]
+        ];
+    }
+
+    public function columnCompressionDataTypesDefinitions()
+    {
+        return [
+            [
+                [
+                    'id' => "VARCHAR(50)",
+                    "name" => "VARCHAR(255) ENCODE BYTEDICT"
+                ]
+            ],
+            [
+                [
+                    [
+                        'column' => 'id',
+                        'type' => 'VARCHAR',
+                        'size' => '50'
+                    ],
+                    [
+                        'column' => 'name',
+                        'type' => 'VARCHAR',
+                        'size' => '255',
+                        'compression' => 'BYTEDICT'
+                    ]
+                ]
+            ]
         ];
     }
 }

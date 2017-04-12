@@ -33,8 +33,9 @@ class WorkspacesTest extends WorkspacesTestCase
     /**
      * @dataProvider  workspaceBackendData
      * @param $backend
+     * @param $dataTypesDefinition
      */
-    public function testCreateWorkspaceParam($backend)
+    public function testCreateWorkspaceParam($backend, $dataTypesDefinition)
     {
         $workspaces = new Workspaces($this->_client);
 
@@ -45,11 +46,11 @@ class WorkspacesTest extends WorkspacesTestCase
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-        $backend->createTable("mytable", ["amount" => ($workspace['connection']['backend'] === self::BACKEND_SNOWFLAKE) ? "NUMBER" : "INT"]);
+        $backend->createTable("mytable", $dataTypesDefinition);
     }
 
     /**
-     * @dataProvider  workspaceMixedBackendData
+     * @dataProvider workspaceMixedBackendData
      * @param $backend
      */
     public function testMixedBackendWorkspaceLoad($backend, $bucketBackend)
@@ -187,7 +188,12 @@ class WorkspacesTest extends WorkspacesTestCase
         $this->assertEquals('1', $data[0]['id']);
     }
 
-    public function testDataTypesLoadToRedshift()
+
+    /**
+     * @dataProvider loadToRedshiftDataTypes
+     * @param $dataTypesDefinition
+     */
+    public function testDataTypesLoadToRedshift($dataTypesDefinition)
     {
 
         $bucketBackend = self::BACKEND_MYSQL;
@@ -226,9 +232,7 @@ class WorkspacesTest extends WorkspacesTestCase
                 [
                     "source" => "in.c-mixed-test-{$bucketBackend}.dates",
                     "destination" => "dates",
-                    "datatypes" => [
-                        'valid_from' => "DATETIME",
-                    ]
+                    "datatypes" => $dataTypesDefinition
                 ]
             ]
         ];
@@ -243,11 +247,55 @@ class WorkspacesTest extends WorkspacesTestCase
     }
 
     /**
+     * @dataProvider workspaceMixedAndSameBackendDataWithDataTypes
+     * @param $workspaceBackend
+     * @param $sourceBackend
+     * @param $dataTypesDefinition
+     */
+    public function testLoadUserError($workspaceBackend, $sourceBackend, $dataTypesDefinition)
+    {
+        if ($this->_client->bucketExists("in.c-mixed-test-" . $sourceBackend)) {
+            $this->_client->dropBucket("in.c-mixed-test-{$sourceBackend}", [
+                'force' => true,
+            ]);
+        }
+        $bucketId = $this->_client->createBucket("mixed-test-{$sourceBackend}", "in", "", $sourceBackend);
+        $sourceTableId = $this->_client->createTable(
+            $bucketId,
+            'transactions',
+            new CsvFile(__DIR__ . '/../../_data/transactions.csv')
+        );
+
+        $workspaces = new Workspaces($this->_client);
+
+        $workspace = $workspaces->createWorkspace([
+            'backend' => $workspaceBackend,
+        ]);
+
+        $options = [
+            "input" => [
+                [
+                    "source" => $sourceTableId,
+                    "destination" => "transactions",
+                    "datatypes" => $dataTypesDefinition,
+                ],
+            ],
+        ];
+
+        // exception should be thrown, as quantity has empty value '' and snflk will complain.
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], $options);
+        } catch (ClientException $e) {
+            $this->assertEquals($e->getStringCode(), "workspace.tableLoad");
+        }
+    }
+
+    /**
      * @dataProvider workspaceMixedAndSameBackendData
      * @param $workspaceBackend
      * @param $sourceBackend
      */
-    public function testLoadUserError($workspaceBackend, $sourceBackend)
+    public function testLoadWorkspaceExtendedDataTypesNullable($workspaceBackend, $sourceBackend)
     {
         if ($this->_client->bucketExists("in.c-mixed-test-" . $sourceBackend)) {
             $this->_client->dropBucket("in.c-mixed-test-{$sourceBackend}", [
@@ -274,26 +322,53 @@ class WorkspacesTest extends WorkspacesTestCase
                     "source" => $sourceTableId,
                     "destination" => "transactions",
                     "datatypes" => [
-                        'price' => $dataType,
-                        'quantity' => $dataType,
+                        [
+                            'column' => 'price',
+                            'type' => $dataType
+                        ],
+                        [
+                            'column' => 'quantity',
+                            'type' => $dataType,
+                            'nullable' => true
+                        ]
                     ],
                 ],
             ],
         ];
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
 
-        // exception should be thrown, as quantity has empty value '' and snflk will complain.
-        try {
-            $workspaces->loadWorkspaceData($workspace['id'], $options);
-        } catch (ClientException $e) {
-            $this->assertEquals($e->getStringCode(), "workspace.tableLoad");
-        }
+        $workspaceBackendConnection = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $data = $workspaceBackendConnection->fetchAll("transactions", \PDO::FETCH_ASSOC);
+        $this->assertCount(2, $data[0], 'there should be one column');
+        $this->assertArrayHasKey('quantity', $data[1]);
+        $this->assertEquals(null, $data[1]['quantity']);
+
     }
 
     public function workspaceBackendData()
     {
         return [
-            [self::BACKEND_SNOWFLAKE],
-            [self::BACKEND_REDSHIFT],
+            [self::BACKEND_SNOWFLAKE, ["amount" => "NUMBER"]],
+            [self::BACKEND_REDSHIFT, ["amount" => "INT"]],
+        ];
+    }
+
+    public function workspaceMixedAndSameBackendDataWithDataTypes()
+    {
+        $simpleDataTypesDefinitionSnowflake = ["price" => "NUMBER", "quantity" => "NUMBER"];
+        $simpleDataTypesDefinitionRedshift = ["price" => "INTEGER", "quantity" => "INTEGER"];
+        $extendedDataTypesDefinitionSnowflake = [["column" => "price", "type" => "NUMBER"], ["column" => "quantity", "type" => "NUMBER"]];
+        $extendedDataTypesDefinitionRedshift = [["column" => "price", "type" => "INTEGER"], ["column" => "quantity", "type" => "INTEGER"]];
+        return [
+            [self::BACKEND_SNOWFLAKE, self::BACKEND_SNOWFLAKE, $simpleDataTypesDefinitionSnowflake],
+            [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT, $simpleDataTypesDefinitionSnowflake],
+            [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, $simpleDataTypesDefinitionRedshift],
+            [self::BACKEND_REDSHIFT, self::BACKEND_REDSHIFT, $simpleDataTypesDefinitionRedshift],
+            [self::BACKEND_SNOWFLAKE, self::BACKEND_SNOWFLAKE, $extendedDataTypesDefinitionSnowflake],
+            [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT, $extendedDataTypesDefinitionSnowflake],
+            [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, $extendedDataTypesDefinitionRedshift],
+            [self::BACKEND_REDSHIFT, self::BACKEND_REDSHIFT, $extendedDataTypesDefinitionRedshift],
+
         ];
     }
 
@@ -316,4 +391,13 @@ class WorkspacesTest extends WorkspacesTestCase
             [self::BACKEND_REDSHIFT, self::BACKEND_MYSQL],
         ];
     }
+
+    public function loadToRedshiftDataTypes()
+    {
+        return [
+            [['valid_from' => "DATETIME"]],
+            [[['column' => 'valid_from', 'type' => "DATETIME"]]]
+        ];
+    }
+
 }
