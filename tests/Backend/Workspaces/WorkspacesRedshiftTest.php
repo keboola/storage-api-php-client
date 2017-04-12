@@ -54,24 +54,11 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
 
         $this->assertEquals("varchar", $table['id']['DATA_TYPE']);
         $this->assertEquals(50, $table['id']['LENGTH']);
+        $this->assertEquals("lzo", $table['id']['COMPRESSION']);
 
         $this->assertEquals("varchar", $table['name']['DATA_TYPE']);
         $this->assertEquals(255, $table['name']['LENGTH']);
-
-        $stmt = $db->prepare("SELECT * FROM PG_TABLE_DEF WHERE tablename = ?;");
-        $stmt->execute(array('languages-rs'));
-        $info = $stmt->fetchAll();
-
-        foreach ($info as $colinfo) {
-            switch ($colinfo['column']) {
-                case "id":
-                    $this->assertEquals('lzo', $colinfo['encoding']);
-                    break;
-                case "name":
-                    $this->assertEquals('bytedict', $colinfo['encoding']);
-                    break;
-            }
-        }
+        $this->assertEquals("bytedict", $table['name']['COMPRESSION']);
     }
 
     public function testLoadedSortKey()
