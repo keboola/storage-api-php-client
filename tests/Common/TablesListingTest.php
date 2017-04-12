@@ -131,27 +131,56 @@ class TablesListingTest extends StorageApiTestCase
     public function testListTablesWithColumns()
     {
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+        $table2Id = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile(__DIR__ . '/../_data/users.csv'));
+        $table3Id = $this->_client->createTable($this->getTestBucketId(self::STAGE_OUT), 'dates', new CsvFile(__DIR__ . '/../_data/dates.csv'));
+
 
         $tables = $this->_client->listTables($this->getTestBucketId(), array(
             'include' => 'columns',
         ));
 
-        $this->assertCount(1, $tables);
+        $this->assertCount(2, $tables);
 
-        $firstTable = reset($tables);
-        $this->assertEquals($tableId, $firstTable['id']);
-        $this->assertArrayHasKey('columns', $firstTable);
-        $this->assertEquals(array('id', 'name'), $firstTable['columns']);
+        function findTable($tables, $tableId) {
+            $found = array_filter($tables, function($table)  use ($tableId) {
+                return $table['id'] === $tableId;
+            });
+            if (count($found) === 0) {
+                throw  new \Exception("Table $tableId not found");
+            }
+            return reset($found);
+        }
+
+        $languagesTables = findTable($tables, $tableId);
+        $this->assertEquals($tableId, $languagesTables['id']);
+        $this->assertArrayHasKey('columns', $languagesTables);
+        $this->assertEquals(array('id', 'name'), $languagesTables['columns']);
+
+        $usersTables = findTable($tables, $table2Id);
+        $this->assertEquals($table2Id, $usersTables['id']);
+        $this->assertArrayHasKey('columns', $usersTables);
+        $this->assertEquals(array('id', 'name', 'city', 'sex'), $usersTables['columns']);
+
 
         $tables = $this->_client->listTables(null, array(
             'include' => 'columns',
         ));
-        $this->assertCount(1, $tables);
+        $this->assertCount(3, $tables);
 
-        $firstTable = reset($tables);
-        $this->assertEquals($tableId, $firstTable['id']);
-        $this->assertArrayHasKey('columns', $firstTable);
-        $this->assertEquals(array('id', 'name'), $firstTable['columns']);
+        $languagesTables = findTable($tables, $tableId);
+        $this->assertEquals($tableId, $languagesTables['id']);
+        $this->assertArrayHasKey('columns', $languagesTables);
+        $this->assertEquals(array('id', 'name'), $languagesTables['columns']);
+
+        $usersTables = findTable($tables, $table2Id);
+        $this->assertEquals($table2Id, $usersTables['id']);
+        $this->assertArrayHasKey('columns', $usersTables);
+        $this->assertEquals(array('id', 'name', 'city', 'sex'), $usersTables['columns']);
+
+        $datesTables = findTable($tables, $table3Id);
+        $this->assertEquals($table3Id, $datesTables['id']);
+        $this->assertArrayHasKey('columns', $usersTables);
+        $this->assertEquals(array('valid_from'), $datesTables['columns']);
     }
 
     public function testListTablesIncludeColumnMetadata()
