@@ -134,5 +134,4 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
         $this->assertEquals("Date", $cols[1]['name']);
         $this->assertEquals("VARCHAR(16777216)", $cols[1]['type']);
     }
-
 }
