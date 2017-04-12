@@ -181,13 +181,19 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
         $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping]]);
 
         $cols = $backend->describeTableColumns("languages-pk");
-
-        foreach ($cols as $colname => $coldata) {
-            if (in_array($colname, array_map("strtolower", $primaries))) {
-                $this->assertTrue($coldata['PRIMARY']);
-                $this->assertEquals("255", $coldata['LENGTH']);
-            }
-        }
+        $this->assertCount(6, $cols);
+        $this->assertEquals("varchar", $cols['paid_search_engine_account']['DATA_TYPE']);
+        $this->assertEquals(255, $cols['paid_search_engine_account']['LENGTH']);
+        $this->assertEquals("varchar", $cols['date']['DATA_TYPE']);
+        $this->assertEquals(255, $cols['date']['LENGTH']);
+        $this->assertEquals("varchar", $cols['paid_search_campaign']['DATA_TYPE']);
+        $this->assertEquals(255, $cols['paid_search_campaign']['LENGTH']);
+        $this->assertEquals("varchar", $cols['paid_search_ad_id']['DATA_TYPE']);
+        $this->assertEquals(255, $cols['paid_search_ad_id']['LENGTH']);
+        $this->assertEquals("varchar", $cols['site__dfa']['DATA_TYPE']);
+        $this->assertEquals(255, $cols['site__dfa']['LENGTH']);
+        $this->assertEquals("varchar", $cols['advertiser_id']['DATA_TYPE']);
+        $this->assertEquals(65535, $cols['advertiser_id']['LENGTH']);
 
         // Check that PK is NOT set if not all PK columns are present
         $mapping2 = [
@@ -198,13 +204,11 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
         $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping2]]);
 
         $cols = $backend->describeTableColumns("languages-pk-skipped");
-
-        foreach ($cols as $colname => $coldata) {
-            if (in_array($colname, array_map("strtolower", $primaries))) {
-                $this->assertFalse($coldata['PRIMARY']); // should not set as PK column
-                $this->assertEquals("255", $coldata['LENGTH']); // will still be of PK column length
-            }
-        }
+        $this->assertCount(2, $cols);
+        $this->assertEquals("varchar", $cols['paid_search_engine_account']['DATA_TYPE']);
+        $this->assertEquals(255, $cols['paid_search_engine_account']['LENGTH']);
+        $this->assertEquals("varchar", $cols['date']['DATA_TYPE']);
+        $this->assertEquals(255, $cols['date']['LENGTH']);
     }
 
     public function distTypeData()

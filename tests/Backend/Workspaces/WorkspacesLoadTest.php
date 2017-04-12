@@ -419,30 +419,17 @@ class WorkspaceLoadTest extends WorkspacesTestCase
 
         //check to make sure the columns have the right types
         $columnInfo = $backend->describeTableColumns('datatype_Test');
-
-        foreach ($columnInfo as $colInfo) {
-            switch ($colInfo['name']) {
-                case 'id':
-                case 'Id':
-                    if ($workspace['connection']['backend'] === $this::BACKEND_SNOWFLAKE) {
-                        $this->assertEquals("NUMBER(38,0)", $colInfo['type']);
-                    }
-                    if ($workspace['connection']['backend'] === $this::BACKEND_REDSHIFT) {
-                        $this->assertEquals("int4", $colInfo['DATA_TYPE']);
-                    }
-                    break;
-                case 'name':
-                case 'Name':
-                    if ($workspace['connection']['backend'] === $this::BACKEND_SNOWFLAKE) {
-                        $this->assertEquals("VARCHAR(50)", $colInfo['type']);
-                    }
-                    if ($workspace['connection']['backend'] === $this::BACKEND_REDSHIFT) {
-                        $this->assertEquals("varchar", $colInfo['DATA_TYPE']);
-                    }
-                    break;
-                default:
-                    $this->fail("Unknown column " . $colInfo['name']);
-            }
+        $this->assertCount(2, $columnInfo);
+        if ($workspace['connection']['backend'] === $this::BACKEND_SNOWFLAKE) {
+            $this->assertEquals("Id", $columnInfo[0]['name']);
+            $this->assertEquals("NUMBER(38,0)", $columnInfo[0]['type']);
+            $this->assertEquals("Name", $columnInfo[1]['name']);
+            $this->assertEquals("VARCHAR(50)", $columnInfo[1]['type']);
+        }
+        if ($workspace['connection']['backend'] === $this::BACKEND_REDSHIFT) {
+            $this->assertEquals("int4", $columnInfo['id']['DATA_TYPE']);
+            $this->assertEquals("varchar", $columnInfo['name']['DATA_TYPE']);
+            $this->assertEquals(50, $columnInfo['name']['LENGTH']);
         }
     }
 

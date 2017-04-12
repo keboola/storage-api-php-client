@@ -34,7 +34,7 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
         $this->assertEquals($workspace['statementTimeoutSeconds'], $timeout);
     }
 
-    public function testTransientTAbles()
+    public function testTransientTables()
     {
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
@@ -79,4 +79,60 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
         $this->assertEquals('languages', $table['name']);
         $this->assertEquals('TRANSIENT', $table['kind']);
     }
+
+
+    public function testLoadedPrimaryKeys()
+    {
+        $primaries = ['Paid_Search_Engine_Account','Date','Paid_Search_Campaign','Paid_Search_Ad_ID','Site__DFA'];
+        $pkTableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages-pk',
+            new CsvFile(__DIR__ . '/../../_data/multiple-columns-pk.csv'),
+            array(
+                'primaryKey' => implode(",", $primaries),
+            )
+        );
+
+        $mapping = [
+            "source" => $pkTableId,
+            "destination" => "languages-pk"
+        ];
+
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping]]);
+
+        $cols = $backend->describeTableColumns("languages-pk");
+        $this->assertCount(6, $cols);
+        $this->assertEquals("Paid_Search_Engine_Account", $cols[0]['name']);
+        $this->assertEquals("VARCHAR(16777216)", $cols[0]['type']);
+        $this->assertEquals("Advertiser_ID", $cols[1]['name']);
+        $this->assertEquals("VARCHAR(16777216)", $cols[1]['type']);
+        $this->assertEquals("Date", $cols[2]['name']);
+        $this->assertEquals("VARCHAR(16777216)", $cols[2]['type']);
+        $this->assertEquals("Paid_Search_Campaign", $cols[3]['name']);
+        $this->assertEquals("VARCHAR(16777216)", $cols[3]['type']);
+        $this->assertEquals("Paid_Search_Ad_ID", $cols[4]['name']);
+        $this->assertEquals("VARCHAR(16777216)", $cols[4]['type']);
+        $this->assertEquals("Site__DFA", $cols[5]['name']);
+        $this->assertEquals("VARCHAR(16777216)", $cols[5]['type']);
+
+        // Check that PK is NOT set if not all PK columns are present
+        $mapping2 = [
+            "source" => $pkTableId,
+            "destination" => "languages-pk-skipped",
+            "columns" => ['Paid_Search_Engine_Account','Date'] // missing PK columns
+        ];
+        $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping2]]);
+
+        $cols = $backend->describeTableColumns("languages-pk-skipped");
+        $this->assertCount(2, $cols);
+        $this->assertEquals("Paid_Search_Engine_Account", $cols[0]['name']);
+        $this->assertEquals("VARCHAR(16777216)", $cols[0]['type']);
+        $this->assertEquals("Date", $cols[1]['name']);
+        $this->assertEquals("VARCHAR(16777216)", $cols[1]['type']);
+    }
+
 }
