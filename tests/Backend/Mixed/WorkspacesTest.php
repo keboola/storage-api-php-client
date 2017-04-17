@@ -342,7 +342,6 @@ class WorkspacesTest extends WorkspacesTestCase
         $this->assertCount(2, $data[0], 'there should be one column');
         $this->assertArrayHasKey('quantity', $data[1]);
         $this->assertEquals(null, $data[1]['quantity']);
-
     }
 
     public function workspaceBackendData()
@@ -399,5 +398,4 @@ class WorkspacesTest extends WorkspacesTestCase
             [[['column' => 'valid_from', 'type' => "DATETIME"]]]
         ];
     }
-
 }
