@@ -510,11 +510,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         }
     }
 
-    /**
-     * @dataProvider invalidDataTypeUserErrorDataTypesDefinitions
-     * @param $dataTypesDefintions
-     */
-    public function testInvalidDataTypeUserError($dataTypesDefintions)
+    public function testInvalidDataTypeUserError()
     {
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
@@ -530,7 +526,10 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             [
                 'source' => $tableId,
                 'destination' => 'datatype_test',
-                'datatypes' => $dataTypesDefintions
+                'datatypes' =>  [
+                    "id" => "UNKNOWN",
+                    "name" => "UNKNOWN"
+                ]
             ]
         ]);
 
@@ -539,6 +538,43 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             $this->fail('Workspace should not be loaded');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.tableCreate', $e->getStringCode());
+        }
+    }
+
+    public function testInvalidExtendedDataTypeUserError()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages',
+            new CsvFile($importFile)
+        );
+
+        $options = array('input' => [
+            [
+                'source' => $tableId,
+                'destination' => 'datatype_test',
+                'datatypes' => [
+                    [
+                        'column' => 'id',
+                        'type' => 'UNKNOWN'
+                    ],
+                    [
+                        'column' => 'name',
+                        'type' => 'UNKNOWN'
+                    ]
+                ]
+            ]
+        ]);
+
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], $options);
+            $this->fail('Workspace should not be loaded');
+        } catch (ClientException $e) {
+            $this->assertEquals('workspace.inputMapping', $e->getStringCode());
         }
     }
 
@@ -771,7 +807,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                     "Name" => [
                         'column' => 'Name',
                         'type' => 'VARCHAR',
-                        'size' => '50'
+                        'length' => '50'
                     ]
                 ]
             ],
@@ -784,7 +820,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                     [
                         'column' => 'Name',
                         'type' => 'VARCHAR',
-                        'size' => '50'
+                        'length' => '50'
                     ]
                 ]
             ]
@@ -824,35 +860,15 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             ],
             [
                 [
-                    'column' => 'id',
-                    'type' => 'INTEGER'
-                ],
-                [
-                    'column' => 'Name',
-                    'type' => 'VARCHAR',
-                    'size' => '50'
-                ]
-            ]
-        ];
-    }
-
-    public function invalidDataTypeUserErrorDataTypesDefinitions()
-    {
-        return [
-            [
-                [
-                    "id" => "UNKNOWN",
-                    "name" => "UNKNOWN"
-                ]
-            ],
-            [
-                [
-                    'column' => 'id',
-                    'type' => 'UNKNOWN'
-                ],
-                [
-                    'column' => 'name',
-                    'type' => 'UNKNOWN'
+                    [
+                        'column' => 'id',
+                        'type' => 'INTEGER'
+                    ],
+                    [
+                        'column' => 'Name',
+                        'type' => 'VARCHAR',
+                        'length' => '50'
+                    ]
                 ]
             ]
         ];

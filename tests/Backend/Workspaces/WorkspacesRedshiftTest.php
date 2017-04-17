@@ -221,12 +221,12 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
                     [
                         'column' => 'id',
                         'type' => 'VARCHAR',
-                        'size' => '50'
+                        'length' => '50'
                     ],
                     [
                         'column' => 'name',
                         'type' => 'VARCHAR',
-                        'size' => '255',
+                        'length' => '255',
                         'compression' => 'BYTEDICT'
                     ]
                 ]
