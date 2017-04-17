@@ -141,8 +141,9 @@ class TablesListingTest extends StorageApiTestCase
 
         $this->assertCount(2, $tables);
 
-        function findTable($tables, $tableId) {
-            $found = array_filter($tables, function($table)  use ($tableId) {
+        function findTable($tables, $tableId)
+        {
+            $found = array_filter($tables, function ($table) use ($tableId) {
                 return $table['id'] === $tableId;
             });
             if (count($found) === 0) {
