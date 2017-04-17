@@ -339,7 +339,6 @@ class WorkspacesTest extends WorkspacesTestCase
 
         $workspaceBackendConnection = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $data = $workspaceBackendConnection->fetchAll("transactions", \PDO::FETCH_ASSOC);
-        $this->assertCount(2, $data[0], 'there should be one column');
         $this->assertArrayHasKey('quantity', $data[1]);
         $this->assertEquals(null, $data[1]['quantity']);
     }
