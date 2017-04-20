@@ -13,14 +13,25 @@ use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class WorkspacesTest extends WorkspacesTestCase
 {
-
     public function testWorkspaceCreate()
     {
 
         $workspaces = new Workspaces($this->_client);
 
-        $workspace = $workspaces->createWorkspace();
+        // test invalid name parameter
+        try {
+            $workspace = $workspaces->createWorkspace(['name' => 'testWorkspaceCreate']);
+            $this->fail("Invalid name parameter should throw error");
+        } catch (ClientException $e) {
+            $this->assertEquals("workspace.badName",$e->getStringCode());
+        }
+        
+        $workspace = $workspaces->createWorkspace(['name' => 'test-workspace-create']);
         $connection = $workspace['connection'];
+        // check names are set properly
+        $this->assertEquals('test-workspace-create', $workspace['name']);
+        $this->assertEquals($workspace['name'], explode("_",$connection['schema'])[0]);
+        $this->assertEquals($workspace['name'], explode("_",$connection['user'])[1]);
 
         $tokenInfo = $this->_client->verifyToken();
         $this->assertEquals($tokenInfo['owner']['defaultBackend'], $connection['backend']);
@@ -30,7 +41,6 @@ class WorkspacesTest extends WorkspacesTestCase
         $backend->createTable("mytable", ["amount" => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? "NUMBER" : "VARCHAR"]);
 
         $tableNames = $backend->getTables();
-
         $this->assertArrayHasKey("mytable", array_flip($tableNames));
 
         // get workspace
