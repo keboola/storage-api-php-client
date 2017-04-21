@@ -295,7 +295,7 @@ class WorkspacesTest extends WorkspacesTestCase
      * @param $workspaceBackend
      * @param $sourceBackend
      */
-    public function testLoadWorkspaceExtendedDataTypesNullable($workspaceBackend, $sourceBackend)
+    public function testLoadWorkspaceExtendedDataTypesNullify($workspaceBackend, $sourceBackend)
     {
         if ($this->_client->bucketExists("in.c-mixed-test-" . $sourceBackend)) {
             $this->_client->dropBucket("in.c-mixed-test-{$sourceBackend}", [
@@ -306,7 +306,7 @@ class WorkspacesTest extends WorkspacesTestCase
         $sourceTableId = $this->_client->createTable(
             $bucketId,
             'transactions',
-            new CsvFile(__DIR__ . '/../../_data/transactions.csv')
+            new CsvFile(__DIR__ . '/../../_data/transactions-nullify.csv')
         );
 
         $workspaces = new Workspaces($this->_client);
@@ -323,13 +323,14 @@ class WorkspacesTest extends WorkspacesTestCase
                     "destination" => "transactions",
                     "datatypes" => [
                         [
-                            'column' => 'price',
-                            'type' => $dataType
+                            'column' => 'item',
+                            'type' => 'VARCHAR',
+                            'convertEmptyValuesToNull' => true
                         ],
                         [
                             'column' => 'quantity',
                             'type' => $dataType,
-                            'nullable' => true
+                            'convertEmptyValuesToNull' => true
                         ]
                     ],
                 ],
@@ -339,8 +340,10 @@ class WorkspacesTest extends WorkspacesTestCase
 
         $workspaceBackendConnection = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $data = $workspaceBackendConnection->fetchAll("transactions", \PDO::FETCH_ASSOC);
-        $this->assertArrayHasKey('quantity', $data[1]);
-        $this->assertEquals(null, $data[1]['quantity']);
+        $this->assertArrayHasKey('quantity', $data[0]);
+        $this->assertArrayHasKey('item', $data[0]);
+        $this->assertEquals(null, $data[0]['quantity']);
+        $this->assertEquals(null, $data[0]['item']);
     }
 
     public function workspaceBackendData()
@@ -353,10 +356,10 @@ class WorkspacesTest extends WorkspacesTestCase
 
     public function workspaceMixedAndSameBackendDataWithDataTypes()
     {
-        $simpleDataTypesDefinitionSnowflake = ["price" => "NUMBER", "quantity" => "NUMBER"];
-        $simpleDataTypesDefinitionRedshift = ["price" => "INTEGER", "quantity" => "INTEGER"];
-        $extendedDataTypesDefinitionSnowflake = [["column" => "price", "type" => "NUMBER"], ["column" => "quantity", "type" => "NUMBER"]];
-        $extendedDataTypesDefinitionRedshift = [["column" => "price", "type" => "INTEGER"], ["column" => "quantity", "type" => "INTEGER"]];
+        $simpleDataTypesDefinitionSnowflake = ["price" => "VARCHAR", "quantity" => "NUMBER"];
+        $simpleDataTypesDefinitionRedshift = ["price" => "VARCHAR", "quantity" => "INTEGER"];
+        $extendedDataTypesDefinitionSnowflake = [["column" => "price", "type" => "VARCHAR"], ["column" => "quantity", "type" => "NUMBER"]];
+        $extendedDataTypesDefinitionRedshift = [["column" => "price", "type" => "VARCHAR"], ["column" => "quantity", "type" => "INTEGER"]];
         return [
             [self::BACKEND_SNOWFLAKE, self::BACKEND_SNOWFLAKE, $simpleDataTypesDefinitionSnowflake],
             [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT, $simpleDataTypesDefinitionSnowflake],
@@ -373,8 +376,8 @@ class WorkspacesTest extends WorkspacesTestCase
     public function workspaceMixedAndSameBackendData()
     {
         return [
-            [self::BACKEND_SNOWFLAKE, self::BACKEND_SNOWFLAKE],
-            [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT],
+//            [self::BACKEND_SNOWFLAKE, self::BACKEND_SNOWFLAKE],
+//            [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT],
             [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE],
             [self::BACKEND_REDSHIFT, self::BACKEND_REDSHIFT],
         ];
