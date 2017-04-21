@@ -15,6 +15,8 @@ use Symfony\Component\Filesystem\Filesystem;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Symfony\Component\Process\Process;
+use GuzzleHttp\Exception\ClientException;
+
 
 class Client
 {
