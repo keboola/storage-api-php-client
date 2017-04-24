@@ -396,8 +396,8 @@ class WorkspacesTest extends WorkspacesTestCase
     public function loadToRedshiftDataTypes()
     {
         return [
-            [['valid_from' => "DATETIME"]],
-            [[['column' => 'valid_from', 'type' => "DATETIME"]]]
+            [['valid_from' => "TIMESTAMP"]],
+            [[['column' => 'valid_from', 'type' => "TIMESTAMP"]]]
         ];
     }
 }
