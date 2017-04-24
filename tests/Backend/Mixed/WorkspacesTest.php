@@ -376,8 +376,8 @@ class WorkspacesTest extends WorkspacesTestCase
     public function workspaceMixedAndSameBackendData()
     {
         return [
-//            [self::BACKEND_SNOWFLAKE, self::BACKEND_SNOWFLAKE],
-//            [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT],
+            [self::BACKEND_SNOWFLAKE, self::BACKEND_SNOWFLAKE],
+            [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT],
             [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE],
             [self::BACKEND_REDSHIFT, self::BACKEND_REDSHIFT],
         ];
