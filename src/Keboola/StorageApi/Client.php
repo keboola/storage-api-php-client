@@ -1508,7 +1508,14 @@ class Client
                      */
                     foreach ($unwrappedPromises as $filePath => $promise) {
                         if ($promise->getState() == 'rejected') {
-                            $uploader = $multipartUploaderFactory($filePath);
+                            $uploader = $this->multipartUploaderFactory(
+                                $s3Client,
+                                $filePath,
+                                $uploadParams['bucket'],
+                                $uploadParams['key'] . baseName($filePath),
+                                $uploadParams['acl'],
+                                !empty($uploadParams['x-amz-server-side-encryption']) ? $uploadParams['x-amz-server-side-encryption'] : null
+                            );
                             $promises[$filePath] = $uploader->promise();
                         }
                     }
