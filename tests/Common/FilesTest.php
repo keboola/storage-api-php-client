@@ -525,20 +525,40 @@ class FilesTest extends StorageApiTestCase
         $this->assertEquals(file_get_contents($pathToFile), $object['Body']);
     }
 
-
     /**
-     * @dataProvider uploadData with compress = true
+     * with compress = true
+     * @dataProvider multipartUploadThreshold
+     * @param $multipartUploadThresholdValue
      */
-    public function testFileUploadCompress()
+    public function testFileUploadCompress($multipartUploadThresholdValue)
     {
         $filePath = __DIR__ . '/../_data/files.upload.txt';
-        $fileId = $this->_client->uploadFile($filePath, (new FileUploadOptions())->setCompress(true));
+        $fileId = $this->_client->uploadFile($filePath, (new FileUploadOptions())->setCompress(true)->setMultipartUploadThreshold($multipartUploadThresholdValue));
         $file = $this->_client->getFile($fileId);
 
         $this->assertEquals(basename($filePath) . ".gz", $file['name']);
 
         $gzFile = gzopen($file['url'], "r");
         $this->assertEquals(file_get_contents($filePath), gzread($gzFile, 524288));
+    }
+
+    /**
+     * @dataProvider multipartUploadThreshold
+     * @param $multipartUploadThresholdValue
+     */
+    public function testFileUploadLargeFile($multipartUploadThresholdValue = 0)
+    {
+        $filePath = __DIR__ . '/../_tmp/files.upload.large.csv';
+        $fileHandle = fopen($filePath, "w+");
+        for ($i = 0; $i < 5000000; $i++) {
+            fputs($fileHandle, "01234567890123456789012345678901234567890123456789");
+        }
+        fclose($fileHandle);
+        $fileId = $this->_client->uploadFile($filePath, (new FileUploadOptions())->setMultipartUploadThreshold($multipartUploadThresholdValue));
+        $file = $this->_client->getFile($fileId);
+
+        $this->assertEquals(basename($filePath), $file['name']);
+        $this->assertEquals(hash_file('md5', $filePath), hash_file('md5', $file['url']));
     }
 
     public function testFileDelete()
@@ -572,11 +592,16 @@ class FilesTest extends StorageApiTestCase
     public function uploadData()
     {
         $path = __DIR__ . '/../_data/files.upload.txt';
-        ;
         return array(
             array(
                 $path,
                 (new FileUploadOptions())->setIsPublic(true)
+            ),
+            array(
+                $path,
+                (new FileUploadOptions())
+                    ->setIsPublic(true)
+                    ->setMultipartUploadThreshold(0)
             ),
             array(
                 $path,
@@ -586,7 +611,19 @@ class FilesTest extends StorageApiTestCase
             array(
                 $path,
                 (new FileUploadOptions())
+                    ->setIsEncrypted(false)
+                    ->setMultipartUploadThreshold(0)
+            ),
+            array(
+                $path,
+                (new FileUploadOptions())
                     ->setIsEncrypted(true)
+            ),
+            array(
+                $path,
+                (new FileUploadOptions())
+                    ->setIsEncrypted(true)
+                    ->setMultipartUploadThreshold(0)
             ),
             array(
                 $path,
@@ -598,9 +635,25 @@ class FilesTest extends StorageApiTestCase
             array(
                 $path,
                 (new FileUploadOptions())
+                    ->setNotify(false)
+                    ->setCompress(false)
+                    ->setIsPublic(false)
+                    ->setMultipartUploadThreshold(0)
+            ),
+            array(
+                $path,
+                (new FileUploadOptions())
                     ->setIsPublic(true)
                     ->setIsPermanent(true)
                     ->setTags(array('sapi-import', 'martin'))
+            ),
+            array(
+                $path,
+                (new FileUploadOptions())
+                    ->setIsPublic(true)
+                    ->setIsPermanent(true)
+                    ->setTags(array('sapi-import', 'martin'))
+                    ->setMultipartUploadThreshold(0)
             ),
         );
     }
@@ -769,5 +822,13 @@ class FilesTest extends StorageApiTestCase
         $this->_client->addFileTag($fileId, 'new');
         $file = $this->_client->getFile($fileId);
         $this->assertEquals(array('image', 'new'), $file['tags'], 'duplicate tag add is ignored');
+    }
+
+    public function multipartUploadThreshold()
+    {
+        return array(
+            array(104857600),
+            array(0)
+        );
     }
 }

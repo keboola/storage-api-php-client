@@ -1,6 +1,7 @@
 <?php
 namespace Keboola\StorageApi;
 
+use Aws\Exception\MultipartUploadException;
 use Aws\S3\S3Client;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\MessageFormatter;
@@ -1271,7 +1272,7 @@ class Client
         $uploadParams = $result['uploadParams'];
 
 
-        $options = [
+        $s3options = [
             'version' => '2006-03-01',
             'retries' => $this->getAwsRetries(),
             'region' => $result['region'],
@@ -1299,26 +1300,57 @@ class Client
             ];
         }
 
-        $s3Client = new \Aws\S3\S3Client($options);
+        $s3Client = new \Aws\S3\S3Client($s3options);
 
         $fh = @fopen($filePath, 'r');
         if ($fh === false) {
             throw new ClientException("Error on file upload to S3: " . $filePath, null, null, 'fileNotReadable');
         }
 
-        $putParams = array(
-            'Bucket' => $uploadParams['bucket'],
-            'Key' => $uploadParams['key'],
-            'ACL' => $uploadParams['acl'],
-            'Body' => $fh,
-            'ContentDisposition' => sprintf('attachment; filename=%s;', $result['name']),
-        );
+        // Use MultipartUpload if file size great than threshold
+        if (filesize($filePath) > $newOptions->getMultipartUploadThreshold()) {
+            $uploader = $this->multipartUploaderFactory(
+                $s3Client,
+                $filePath,
+                $uploadParams['bucket'],
+                $uploadParams['key'],
+                $uploadParams['acl'],
+                $newOptions->getIsEncrypted() ? $uploadParams['x-amz-server-side-encryption'] : null,
+                $result['name']
+            );
 
-        if ($newOptions->getIsEncrypted()) {
-            $putParams['ServerSideEncryption'] = $uploadParams['x-amz-server-side-encryption'];
+            do {
+                try {
+                    $s3result = $uploader->upload();
+                } catch (MultipartUploadException $e) {
+                    $uploader = $this->multipartUploaderFactory(
+                        $s3Client,
+                        $filePath,
+                        $uploadParams['bucket'],
+                        $uploadParams['key'],
+                        $uploadParams['acl'],
+                        $newOptions->getIsEncrypted() ? $uploadParams['x-amz-server-side-encryption'] : null,
+                        $result['name'],
+                        $e->getState()
+                    );
+                }
+            } while (!isset($s3result));
+        } else {
+
+            $putParams = array(
+                'Bucket' => $uploadParams['bucket'],
+                'Key' => $uploadParams['key'],
+                'ACL' => $uploadParams['acl'],
+                'Body' => $fh,
+                'ContentDisposition' => sprintf('attachment; filename=%s;', $result['name']),
+            );
+
+            if ($newOptions->getIsEncrypted()) {
+                $putParams['ServerSideEncryption'] = $uploadParams['x-amz-server-side-encryption'];
+            }
+
+            $s3Client->putObject($putParams);
         }
-
-        $s3Client->putObject($putParams);
 
         if (is_resource($fh)) {
             fclose($fh);
@@ -1338,25 +1370,38 @@ class Client
      * @param string $key
      * @param string $acl
      * @param string|null $encryption
+     * @param string|null $friendlyName
      * @return \Aws\S3\MultipartUploader
      */
-    private function multipartUploaderFactory($s3Client, $filePath, $bucket, $key, $acl, $encryption = null)
+    private function multipartUploaderFactory($s3Client, $filePath, $bucket, $key, $acl, $encryption = null, $friendlyName = null, $state = null)
     {
         $uploaderOptions = [
             'Bucket' => $bucket,
             'Key' => $key,
             'ACL' => $acl
         ];
+        if (!empty($state)) {
+            $uploaderOptions['state'] = $state;
+        }
+        $beforeInitiateCommands = [];
+        if (!empty($friendlyName)) {
+            $beforeInitiateCommands['ContentDisposition'] = sprintf('attachment; filename=%s;', $friendlyName);
+        }
         if (!empty($encryption)) {
-            $uploaderOptions['before_initiate'] = function ($command) use ($encryption) {
-                $command['ServerSideEncryption'] = $encryption;
+            $beforeInitiateCommands['ServerSideEncryption'] = $encryption;
+        }
+        if (count($beforeInitiateCommands)) {
+            $uploaderOptions['before_initiate'] = function ($command) use ($beforeInitiateCommands) {
+                foreach($beforeInitiateCommands as $key => $value) {
+                    $command[$key] = $value;
+                }
             };
         }
         return new \Aws\S3\MultipartUploader($s3Client, $filePath, $uploaderOptions);
     }
 
     /**
-     * Upload a sliced file to file uploads
+     * Upload a sliced file to file uploads. This method ignores FileUploadOption->getMultipartThreshold().
      *
      * @param array $slices list of slices that make the file
      * @param FileUploadOptions $options
