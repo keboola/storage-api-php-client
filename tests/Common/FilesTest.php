@@ -551,7 +551,7 @@ class FilesTest extends StorageApiTestCase
         $filePath = __DIR__ . '/../_tmp/files.upload.large.csv';
         $fileHandle = fopen($filePath, "w+");
         for ($i = 0; $i < 5000000; $i++) {
-            fputs($fileHandle, "01234567890123456789012345678901234567890123456789");
+            fputs($fileHandle, "0123456789");
         }
         fclose($fileHandle);
         $fileId = $this->_client->uploadFile($filePath, (new FileUploadOptions())->setMultipartUploadThreshold($multipartUploadThresholdValue));
