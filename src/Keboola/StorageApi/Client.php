@@ -1336,7 +1336,6 @@ class Client
                 }
             } while (!isset($s3result));
         } else {
-
             $putParams = array(
                 'Bucket' => $uploadParams['bucket'],
                 'Key' => $uploadParams['key'],
@@ -1392,7 +1391,7 @@ class Client
         }
         if (count($beforeInitiateCommands)) {
             $uploaderOptions['before_initiate'] = function ($command) use ($beforeInitiateCommands) {
-                foreach($beforeInitiateCommands as $key => $value) {
+                foreach ($beforeInitiateCommands as $key => $value) {
                     $command[$key] = $value;
                 }
             };
