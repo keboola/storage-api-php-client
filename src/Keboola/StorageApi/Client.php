@@ -1480,7 +1480,7 @@ class Client
                     $uploadParams['bucket'],
                     $uploadParams['key'] . baseName($filePath),
                     $uploadParams['acl'],
-                    !empty($uploadParams['x-amz-server-side-encryption']) ? $uploadParams['x-amz-server-side-encryption'] : null
+                    $newOptions->getIsEncrypted() ?  $uploadParams['x-amz-server-side-encryption'] : null
                 );
                 // $uploader = $multipartUploaderFactory($filePath);
                 $promises[$filePath] = $uploader->promise();
@@ -1514,7 +1514,7 @@ class Client
                                 $uploadParams['bucket'],
                                 $uploadParams['key'] . baseName($filePath),
                                 $uploadParams['acl'],
-                                !empty($uploadParams['x-amz-server-side-encryption']) ? $uploadParams['x-amz-server-side-encryption'] : null
+                                $newOptions->getIsEncrypted() ?  $uploadParams['x-amz-server-side-encryption'] : null
                             );
                             $promises[$filePath] = $uploader->promise();
                         }
