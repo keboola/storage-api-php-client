@@ -1,6 +1,7 @@
 <?php
 namespace Keboola\StorageApi;
 
+use Aws\S3\S3Client;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\MessageFormatter;
 use GuzzleHttp\Middleware;
@@ -1331,6 +1332,30 @@ class Client
     }
 
     /**
+     * @param S3Client $s3Client
+     * @param string $filePath
+     * @param string $bucket
+     * @param string $key
+     * @param string $acl
+     * @param string|null $encryption
+     * @return \Aws\S3\MultipartUploader
+     */
+    private function multipartUploaderFactory($s3Client, $filePath, $bucket, $key, $acl, $encryption = null)
+    {
+        $uploaderOptions = [
+            'Bucket' => $bucket,
+            'Key' => $key,
+            'ACL' => $acl
+        ];
+        if (!empty($encryption)) {
+            $uploaderOptions['before_initiate'] = function ($command) use ($encryption) {
+                $command['ServerSideEncryption'] = $encryption;
+            };
+        }
+        return new \Aws\S3\MultipartUploader($s3Client, $filePath, $uploaderOptions);
+    }
+
+    /**
      * Upload a sliced file to file uploads
      *
      * @param array $slices list of slices that make the file
@@ -1440,27 +1465,6 @@ class Client
         // split all slices into batch chunks and upload them separately
         $chunks = ceil(count($slices) / $transferOptions->getChunkSize());
 
-        /**
-         *
-         * MultipartUploaderFactory - create a MultipartUploader instance for the given file
-         *
-         * @param $filePath
-         * @return \Aws\S3\MultipartUploader
-         */
-        $multipartUploaderFactory = function ($filePath) use ($s3Client, $newOptions, $uploadParams) {
-            $uploaderOptions = [
-                'Bucket' => $uploadParams['bucket'],
-                'Key' => $uploadParams['key'] . baseName($filePath),
-                'ACL' => $uploadParams['acl']
-            ];
-            if ($newOptions->getIsEncrypted()) {
-                $uploaderOptions['before_initiate'] = function ($command) use ($uploadParams) {
-                    $command['ServerSideEncryption'] = $uploadParams['x-amz-server-side-encryption'];
-                };
-            }
-            return new \Aws\S3\MultipartUploader($s3Client, $filePath, $uploaderOptions);
-        };
-
         for ($i = 0; $i < $chunks; $i++) {
             $slicesChunk = array_slice($slices, $i * $transferOptions->getChunkSize(), $transferOptions->getChunkSize());
 
@@ -1470,7 +1474,15 @@ class Client
                 $manifest['entries'][] = [
                     "url" => "s3://" . $uploadParams['bucket'] . "/" . $uploadParams['key'] . basename($filePath)
                 ];
-                $uploader = $multipartUploaderFactory($filePath);
+                $uploader = $this->multipartUploaderFactory(
+                    $s3Client,
+                    $filePath,
+                    $uploadParams['bucket'],
+                    $uploadParams['key'] . baseName($filePath),
+                    $uploadParams['acl'],
+                    !empty($uploadParams['x-amz-server-side-encryption']) ? $uploadParams['x-amz-server-side-encryption'] : null
+                );
+                // $uploader = $multipartUploaderFactory($filePath);
                 $promises[$filePath] = $uploader->promise();
             }
 
