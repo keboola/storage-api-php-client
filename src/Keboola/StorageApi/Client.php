@@ -2,6 +2,7 @@
 namespace Keboola\StorageApi;
 
 use Aws\Exception\MultipartUploadException;
+use Aws\Multipart\UploadState;
 use Aws\S3\S3Client;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\MessageFormatter;
@@ -1370,9 +1371,10 @@ class Client
      * @param string $acl
      * @param string|null $encryption
      * @param string|null $friendlyName
+     * @param UploadState|null $state
      * @return \Aws\S3\MultipartUploader
      */
-    private function multipartUploaderFactory($s3Client, $filePath, $bucket, $key, $acl, $encryption = null, $friendlyName = null, $state = null)
+    private function multipartUploaderFactory($s3Client, $filePath, $bucket, $key, $acl, $encryption = null, $friendlyName = null, UploadState $state = null)
     {
         $uploaderOptions = [
             'Bucket' => $bucket,
