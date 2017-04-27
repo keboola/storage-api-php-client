@@ -22,7 +22,7 @@ class FileUploadOptions
     private $isPermanent = false;
     private $isSliced = false;
     private $isEncrypted = true;
-
+    private $multipartUploadThreshold = 104857600;
     /**
      * @return mixed
      */
@@ -200,6 +200,24 @@ class FileUploadOptions
     public function setIsEncrypted($encrypted)
     {
         $this->isEncrypted = (bool)$encrypted;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMultipartUploadThreshold()
+    {
+        return $this->multipartUploadThreshold;
+    }
+
+    /**
+     * @param int $multipartUploadThreshold
+     * @return $this
+     */
+    public function setMultipartUploadThreshold($multipartUploadThreshold)
+    {
+        $this->multipartUploadThreshold = $multipartUploadThreshold;
         return $this;
     }
 }
