@@ -1,3 +1,6 @@
+## 6.4.0 (2017-05-27)
+ * [Feat] - Use S3 multipart upload for files larger than 100MB
+
 ## 6.3.0 (2017-04-06)
  * [Feat] - File upload ContentDisposition - attachment - friendly download names
 
