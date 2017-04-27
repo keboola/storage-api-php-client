@@ -1,3 +1,6 @@
+## 6.4.1 (2017-05-27)
+ * [Fix] debug mode of S3 client
+
 ## 6.4.0 (2017-05-27)
  * [Feat] - Use S3 multipart upload for files larger than 100MB
 
