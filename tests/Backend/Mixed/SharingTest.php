@@ -178,6 +178,9 @@ class SharingTest extends StorageApiTestCase
         $bucket = $client->getBucket($linkedBucketId);
         $this->assertEquals($sharedBuckets[0]['id'], $bucket['sourceBucket']['id']);
         $this->assertEquals($sharedBuckets[0]['project']['id'], $bucket['sourceBucket']['project']['id']);
+
+        // user should be also able to delete the created bucket
+        $client->dropBucket($linkedBucketId);
     }
 
     public function testNonOrganizationAdminInToken()
@@ -349,6 +352,42 @@ class SharingTest extends StorageApiTestCase
         $this->assertTrue($bucket['isReadOnly']);
         $this->assertEquals($sourceBucket['backend'], $bucket['backend']);
         $this->assertEquals($sourceBucket['description'], $bucket['description']);
+    }
+
+    /**
+     * @dataProvider sharingBackendData
+     * @throws ClientException
+     */
+    public function testLinkBucketToOrganizationDeletePermissions($backend)
+    {
+        $this->initTestBuckets($backend);
+        $bucketId = reset($this->_bucketIds);
+        $this->_client->shareBucket($bucketId);
+
+        $response = $this->_client2->listSharedBuckets();
+        $this->assertCount(1, $response);
+
+        $sharedBucket = reset($response);
+
+        $linkedBucketId = $this->_client2->linkBucket("linked-" . time(), 'out', $sharedBucket['project']['id'], $sharedBucket['id']);
+
+        $tokenId = $this->_client2->createToken('manage', 'Test Token', 3600);
+        $token = $this->_client2->getToken($tokenId);
+        $client = new \Keboola\StorageApi\Client(array(
+            'token' => $token['token'],
+            'url' => STORAGE_API_URL,
+        ));
+
+        try {
+            $client->dropBucket($linkedBucketId);
+            $this->fail('non-organization member should not be able to delete bucket');
+        } catch (ClientException $e) {
+            $this->assertEquals('accessDenied', $e->getStringCode());
+            $this->assertEquals(403, $e->getCode());
+        }
+
+        // organization member should be able to delete linked bucket
+        $this->_client2->dropBucket($linkedBucketId);
     }
 
     public function testBucketCannotBeLinkedMoreTimes()
