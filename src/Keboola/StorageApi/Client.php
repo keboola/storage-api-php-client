@@ -1291,7 +1291,7 @@ class Client
                     $this->log($message, ['source' => 'AWS SDK PHP debug']);
                 }
             };
-            $options['debug'] = [
+            $s3options['debug'] = [
                 'logfn' => function ($message) use ($logfn) {
                     call_user_func($logfn, $message);
                 },
