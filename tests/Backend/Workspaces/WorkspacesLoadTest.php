@@ -21,7 +21,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $workspaces = new Workspaces($this->_client);
 
         $workspace = $workspaces->createWorkspace();
-        
+
         //setup test tables
         $tableId = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),
@@ -43,8 +43,8 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         ]);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-        
-        
+
+
         // let's try to delete some columns
         $backend->dropTableColumn('languages', 'id');
 
@@ -102,7 +102,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $tables = $backend->getTables();
-        
+
         // check that the tables are in the workspace
         $this->assertCount(2, $tables);
         $this->assertContains($backend->toIdentifier("languagesLoaded"), $tables);
@@ -254,12 +254,12 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                 [
                     'source' => $tableId,
                     'destination' => 'languagesIso',
-                    'columns' => ["Id","iso"]
+                    'columns' => ["Id", "iso"]
                 ],
                 [
                     'source' => $tableId,
                     'destination' => 'languagesSomething',
-                    'columns' => ["Name","Something"]
+                    'columns' => ["Name", "Something"]
                 ]
             ]
         ];
@@ -281,7 +281,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                 [
                     'source' => $tableId,
                     'destination' => 'languagesIso',
-                    'columns' => ["Id","iso","not-a-column"]
+                    'columns' => ["Id", "iso", "not-a-column"]
                 ]
             ]
         ];
@@ -299,7 +299,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-        
+
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),
@@ -391,7 +391,11 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $this->assertArrayEqualsSorted($expectedResult, $data, 0);
     }
 
-    public function testDataTypes()
+    /**
+     * @dataProvider validDataTypesDefinitions
+     * @param $dataTypesDefinition
+     */
+    public function testDataTypes($dataTypesDefinition)
     {
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
@@ -408,10 +412,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             [
                 'source' => $tableId,
                 'destination' => 'datatype_Test',
-                'datatypes' => [
-                    "Id" => "INTEGER",
-                    "Name" => "VARCHAR(50)"
-                ]
+                'datatypes' => $dataTypesDefinition
             ]
         ]);
 
@@ -428,12 +429,18 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         }
         if ($workspace['connection']['backend'] === $this::BACKEND_REDSHIFT) {
             $this->assertEquals("int4", $columnInfo['id']['DATA_TYPE']);
+            $this->assertEquals("lzo", $columnInfo['id']['COMPRESSION']);
             $this->assertEquals("varchar", $columnInfo['name']['DATA_TYPE']);
             $this->assertEquals(50, $columnInfo['name']['LENGTH']);
+            $this->assertEquals("lzo", $columnInfo['name']['COMPRESSION']);
         }
     }
 
-    public function testDataTypeConversionUserError()
+    /**
+     * @dataProvider conversionUserErrorDataTypesDefinitions
+     * @param $dataTypesDefinition
+     */
+    public function testDataTypeConversionUserError($dataTypesDefinition)
     {
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
@@ -449,10 +456,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             [
                 'source' => $tableId,
                 'destination' => 'datatype_test',
-                'datatypes' => [
-                    "id" => "INTEGER",
-                    "name" => "INTEGER"
-                ]
+                'datatypes' => $dataTypesDefinition
             ]
         ]);
 
@@ -471,7 +475,11 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $backend->dropTable('datatype_test');
     }
 
-    public function testDataTypeForNotExistingColumnUserError()
+    /**
+     * @dataProvider notExistingColumnUserErrorDataTypesDefinitions
+     * @param $dataTypesDefinition
+     */
+    public function testDataTypeForNotExistingColumnUserError($dataTypesDefinition)
     {
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
@@ -488,7 +496,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                 'source' => $tableId,
                 'destination' => 'datatype_Test',
                 'datatypes' => [
-                    "id" => "INTEGER", // lower case instead camel case should be resolved likne non-existing column
+                    "id" => "INTEGER", // lower case instead camel case should be resolved like non-existing column
                     "Name" => "VARCHAR(50)"
                 ]
             ]
@@ -518,9 +526,9 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             [
                 'source' => $tableId,
                 'destination' => 'datatype_test',
-                'datatypes' => [
-                    "id" => "CISLO",
-                    "name" => "CISLO"
+                'datatypes' =>  [
+                    "id" => "UNKNOWN",
+                    "name" => "UNKNOWN"
                 ]
             ]
         ]);
@@ -530,6 +538,43 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             $this->fail('Workspace should not be loaded');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.tableCreate', $e->getStringCode());
+        }
+    }
+
+    public function testInvalidExtendedDataTypeUserError()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages',
+            new CsvFile($importFile)
+        );
+
+        $options = array('input' => [
+            [
+                'source' => $tableId,
+                'destination' => 'datatype_test',
+                'datatypes' => [
+                    [
+                        'column' => 'id',
+                        'type' => 'UNKNOWN'
+                    ],
+                    [
+                        'column' => 'name',
+                        'type' => 'UNKNOWN'
+                    ]
+                ]
+            ]
+        ]);
+
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], $options);
+            $this->fail('Workspace should not be loaded');
+        } catch (ClientException $e) {
+            $this->assertEquals('workspace.inputMapping', $e->getStringCode());
         }
     }
 
@@ -745,5 +790,87 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $tables = $backend->getTables();
         $this->assertCount(1, $tables);
         $this->assertEquals('dotted.destination', $tables[0]);
+    }
+
+    public function validDataTypesDefinitions()
+    {
+        return [
+            [
+                [
+                    "Id" => "INTEGER",
+                    "Name" => "VARCHAR(50)"
+                ]
+            ],
+            [
+                [
+                    "Id" => "INTEGER",
+                    "Name" => [
+                        'column' => 'Name',
+                        'type' => 'VARCHAR',
+                        'length' => '50'
+                    ]
+                ]
+            ],
+            [
+                [
+                    [
+                        'column' => 'Id',
+                        'type' => 'INTEGER'
+                    ],
+                    [
+                        'column' => 'Name',
+                        'type' => 'VARCHAR',
+                        'length' => '50'
+                    ]
+                ]
+            ]
+        ];
+    }
+
+    public function conversionUserErrorDataTypesDefinitions()
+    {
+        return [
+            [
+                [
+                    "id" => "INTEGER",
+                    "name" => "INTEGER"
+                ]
+            ],
+            [
+                [
+                    [
+                        'column' => 'id',
+                        'type' => 'INTEGER'
+                    ],
+                    [
+                        'column' => 'name',
+                        'type' => 'INTEGER'
+                    ]
+                ]
+            ]
+        ];
+    }
+
+    public function notExistingColumnUserErrorDataTypesDefinitions()
+    {
+        return [
+            [
+                "id" => "INTEGER", // lower case instead camel case should be resolved like non-existing column
+                "Name" => "VARCHAR(50)"
+            ],
+            [
+                [
+                    [
+                        'column' => 'id',
+                        'type' => 'INTEGER'
+                    ],
+                    [
+                        'column' => 'Name',
+                        'type' => 'VARCHAR',
+                        'length' => '50'
+                    ]
+                ]
+            ]
+        ];
     }
 }

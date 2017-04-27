@@ -112,7 +112,8 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
                 a.attnotnull AS notnull,
                 a.attlen AS length,
                 co.contype,
-                ARRAY_TO_STRING(co.conkey, ',') AS conkey
+                ARRAY_TO_STRING(co.conkey, ',') AS conkey,
+                format_encoding(a.attencodingtype::integer) AS encoding                
             FROM pg_attribute AS a
                 JOIN pg_class AS c ON a.attrelid = c.oid
                 JOIN pg_namespace AS n ON c.relnamespace = n.oid
@@ -144,6 +145,7 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
         $length = 9;
         $contype = 10;
         $conkey = 11;
+        $encoding = 12;
 
         $desc = [];
         foreach ($result as $key => $row) {
@@ -180,7 +182,8 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
                 'UNSIGNED' => null, // @todo
                 'PRIMARY' => $primary,
                 'PRIMARY_POSITION' => $primaryPosition,
-                'IDENTITY' => $identity
+                'IDENTITY' => $identity,
+                'COMPRESSION' => $row[$encoding]
             ];
         }
         return $desc;
