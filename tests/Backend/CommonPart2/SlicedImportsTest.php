@@ -74,7 +74,9 @@ class SlicedImportsTest extends StorageApiTestCase
         ))->get('ObjectURL');
 
         $headerFile = new CsvFile(__DIR__ . '/../../_data/sliced/header.csv');
-        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'entries', $headerFile);
+        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'entries', $headerFile, [
+            'primaryKey' => 'id',
+        ]);
         $this->_client->writeTableAsyncDirect($tableId, array(
             'dataFileId' => $slicedFile['id'],
             'columns' => $headerFile->getHeader(),
