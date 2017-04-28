@@ -26,10 +26,10 @@ class ImportExportCommonTest extends StorageApiTestCase
      * @dataProvider tableImportData
      * @param $importFileName
      */
-    public function testTableImportExport(CsvFile $importFile, $expectationsFileName, $colNames, $format = 'rfc')
+    public function testTableImportExport(CsvFile $importFile, $expectationsFileName, $colNames, $format = 'rfc', $createTableOptions = array())
     {
         $expectationsFile = __DIR__ . '/../../_data/' . $expectationsFileName;
-        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages-2', $importFile);
+        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages-2', $importFile, $createTableOptions);
 
         $result = $this->_client->writeTable($tableId, $importFile);
         $table = $this->_client->getTable($tableId);
