@@ -2386,29 +2386,29 @@ Loads tables from Storage into a Workspace.
                             + neq - Not equal to
                         + Default: eq
                     + datatypes{} (optional) - Key/value array of column names/type definitions to be applied
-					+ datatypes[] (optional) - Array of column datatype definitions
+                    + datatypes[] (optional) - Array of column datatype definitions
                         + Items
                             + (object)
                                 + Properties
-									+ column (required, string) - column name
-									+ type (required, string) - data type, eg. VARCHAR
-									+ size (optional, number) - data type size, where applicable, eg. 255
-									+ compression (optional, enum[string]) - for Redshift only
-										+ Members
-											+ RAW
-											+ BYTEDICT
-											+ DELTA
-											+ DELTA32K
-											+ LZO
-											+ MOSTLY8
-											+ MOSTLY16
-											+ MOSTLY32
-											+ RUNLENGTH
-											+ TEXT255
-											+ TEXT32K
-											+ ZSTD
-									+ convertEmptyValuesToNull (optional, boolean) - empty values replaced by NULL
-									    Default: false
+                                    + column (required, string) - column name
+                                    + type (required, string) - data type, eg. VARCHAR
+                                    + size (optional, number) - data type size, where applicable, eg. 255
+                                    + compression (optional, enum[string]) - for Redshift only
+                                        + Members
+                                            + RAW
+                                            + BYTEDICT
+                                            + DELTA
+                                            + DELTA32K
+                                            + LZO
+                                            + MOSTLY8
+                                            + MOSTLY16
+                                            + MOSTLY32
+                                            + RUNLENGTH
+                                            + TEXT255
+                                            + TEXT32K
+                                            + ZSTD
+                                    + convertEmptyValuesToNull (optional, boolean) - empty values replaced by NULL
+                                        Default: false
                     + sortKey[] (optional) - Redshift only - Column(s) to be used as a sort key
                     + distStyle (optional) - Redshift only - Distribution style (even, all, or key)
                     + distKey[] (optional) - Redshift only - Column(s) to use for the key distribution style
