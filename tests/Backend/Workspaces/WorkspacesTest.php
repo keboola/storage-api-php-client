@@ -30,6 +30,7 @@ class WorkspacesTest extends WorkspacesTestCase
         $backend->createTable("mytable", ["amount" => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? "NUMBER" : "VARCHAR"]);
 
         $tableNames = $backend->getTables();
+        $backend = null; // force odbc disconnect
 
         $this->assertArrayHasKey("mytable", array_flip($tableNames));
 
@@ -52,8 +53,8 @@ class WorkspacesTest extends WorkspacesTestCase
             $this->fail('Credentials should be deleted');
         } catch (\PDOException $e) {
             $this->assertEquals(7, $e->getCode());
-        } catch (\Exception $e) {
-            $this->assertEquals(2, $e->getCode());
+        } catch (\Keboola\Db\Import\Exception $e) {
+            $this->assertContains('Incorrect username or password was specified', $e->getMessage());
         }
     }
 
@@ -67,9 +68,7 @@ class WorkspacesTest extends WorkspacesTestCase
 
         $workspace = $workspaces->createWorkspace();
         $connection = $workspace['connection'];
-
-        $dbConn = $this->getDbConnection($connection);
-
+        
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $backend->createTable("mytable", ["amount" => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? "NUMBER" : "VARCHAR"]);
 
@@ -77,7 +76,7 @@ class WorkspacesTest extends WorkspacesTestCase
         $workspaces->deleteWorkspace($workspace['id'], $dropOptions);
 
         try {
-            $rows = $backend->countRows("mytable");
+            $backend->countRows("mytable");
             $this->fail("workspace no longer exists. connection should be dead.");
         } catch (\PDOException $e) { // catch redshift connection exception
             $this->assertEquals("57P01", $e->getCode());

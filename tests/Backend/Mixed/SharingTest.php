@@ -741,9 +741,11 @@ class SharingTest extends StorageApiTestCase
         $this->assertContains($backend->toIdentifier("table3"), $tables);
 
 
+
         // unload validation
         $connection = $workspace['connection'];
 
+        $backend = null; // force disconnect of same SNFLK connection
         $db = $this->getDbConnection($connection);
 
         $db->query("create table \"test.Languages3\" (
