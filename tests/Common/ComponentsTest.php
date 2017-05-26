@@ -452,6 +452,39 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(1, $config['version']);
     }
 
+    public function testComponentConfigUpdateEmptyStateJson()
+    {
+        $state = array(
+            'queries' => array(
+                array(
+                    'id' => 1,
+                    'query' => 'SELECT * from some_table',
+                )
+            ),
+        );
+        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main')
+            ->setDescription('some desc')
+            ->setState($state));
+
+        $config = $components->getConfiguration('wr-db', 'main-1');
+        $this->assertEquals($state, $config['state']);
+        $this->assertEquals(1, $config['version']);
+        $components->updateConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main')
+            ->setDescription('some desc')
+            ->setState([]));
+
+        $config = $components->getConfiguration('wr-db', 'main-1');
+        $this->assertEquals([], $config['state']);
+        $this->assertEquals(1, $config['version']);
+    }
+
     public function testComponentConfigCreateIdAutoCreate()
     {
         $components = new \Keboola\StorageApi\Components($this->_client);
