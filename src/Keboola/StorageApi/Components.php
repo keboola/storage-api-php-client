@@ -57,7 +57,7 @@ class Components
             $data['configuration'] = json_encode($options->getConfiguration());
         }
 
-        if ($options->getState()) {
+        if (!is_null($options->getState())) {
             $data['state'] = json_encode($options->getState());
         }
 
