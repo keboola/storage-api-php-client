@@ -125,4 +125,31 @@ class SnapshottingTest extends StorageApiTestCase
         $this->assertEquals($snapshotId, $newestSnapshot['id']);
         $this->assertEquals('second', $newestSnapshot['description']);
     }
+
+    /**
+     * https://github.com/keboola/connection/issues/850
+     */
+    public function testSnapshotPermissions()
+    {
+        $sourceTableId = $this->_client->createTable(
+            $this->getTestBucketId(),
+            'languages',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
+            array(
+                'primaryKey' => 'id',
+            )
+        );
+
+        $snapshotId = $this->_client->createTableSnapshot($sourceTableId, 'my snapshot');
+        $this->_client->dropBucket(
+            $this->getTestBucketId(),
+            [
+                'force' => true,
+            ]
+        );
+
+        $newTableId = $this->_client->createTableFromSnapshot($this->getTestBucketId(self::STAGE_OUT), $snapshotId, 'restored');
+        $newTable = $this->_client->getTable($newTableId);
+        $this->assertEquals('restored', $newTable['name']);
+    }
 }
