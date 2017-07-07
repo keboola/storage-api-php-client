@@ -58,7 +58,7 @@ class WorkspacesTest extends WorkspacesTestCase
         }
     }
 
-    public function testWorkspaceResetPassword()
+    public function testWorkspacePasswordReset()
     {
         $workspaces = new Workspaces($this->_client);
 
