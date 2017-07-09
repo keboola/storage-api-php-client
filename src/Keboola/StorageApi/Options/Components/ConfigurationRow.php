@@ -9,6 +9,12 @@ class ConfigurationRow
 
     private $changeDescription;
 
+    private $name;
+
+    private $description;
+
+    private $isDisabled;
+
     /**
      * @var Configuration
      */
@@ -77,6 +83,60 @@ class ConfigurationRow
     public function setChangeDescription($changeDescription)
     {
         $this->changeDescription = $changeDescription;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param mixed $name
+     * @return $this
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    /**
+     * @param mixed $description
+     * @return $this
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIsDisabled()
+    {
+        return $this->isDisabled;
+    }
+
+    /**
+     * @param mixed $isDisabled
+     * @return $this
+     */
+    public function setIsDisabled($isDisabled)
+    {
+        $this->isDisabled = $isDisabled;
         return $this;
     }
 }
