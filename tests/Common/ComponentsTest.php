@@ -1355,7 +1355,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $row = reset($rows);
         $this->assertEquals('main-1-1', $row['id']);
-        $this->assertEquals(true, $row['disabled']);
+        $this->assertEquals(true, $row['isDisabled']);
     }
 
 
