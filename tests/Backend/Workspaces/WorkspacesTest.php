@@ -74,12 +74,21 @@ class WorkspacesTest extends WorkspacesTestCase
         $backend->createTable("mytable", ["amount" => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? "NUMBER" : "VARCHAR"]);
 
         $tableNames = $backend->getTables();
-        $backend = null; // force odbc disconnect
 
         $this->assertArrayHasKey("mytable", array_flip($tableNames));
 
         $newCredentials = $workspaces->resetWorkspacePassword($workspace['id']);
         $this->assertArrayHasKey("password", $newCredentials);
+
+        try {
+            $backend->getTables();
+            $this->fail('Connection session should be terminated by server');
+        } catch (\PDOException $e) {
+            $this->assertEquals('57P01', $e->getCode());
+        }
+        //@FIXME handle for snowflake
+
+        $backend = null; // force odbc disconnect
 
         // credentials should not work anymore
         try {
