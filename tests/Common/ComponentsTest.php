@@ -1430,7 +1430,7 @@ class ComponentsTest extends StorageApiTestCase
         );
 
         $row = reset($rows);
-        $this->assertEquals('altered row description', $row['name']);
+        $this->assertEquals('altered row description', $row['description']);
 
         $configuration = $components->getConfiguration('wr-db', 'main-1');
         $this->assertEquals(2, $configuration['version']);
