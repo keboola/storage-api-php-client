@@ -1752,6 +1752,9 @@ class ComponentsTest extends StorageApiTestCase
 
         $row = reset($configuration['rows']);
         $this->assertEquals('main-1-1', $row['id']);
+        $this->assertEquals('', $row['name']);
+        $this->assertEquals('', $row['description']);
+        $this->assertEquals(false, $row['isDisabled']);
 
         $components = new \Keboola\StorageApi\Components($this->_client);
 
@@ -1909,6 +1912,10 @@ class ComponentsTest extends StorageApiTestCase
         $row = $components->updateConfigurationRow($configurationRow);
 
         $this->assertEquals(1, $row['version']);
+        $this->assertEquals('', $row['name']);
+        $this->assertEquals('', $row['description']);
+        $this->assertEquals(false, $row['isDisabled']);
+
 
         $configurationData = array('test' => 1);
 
@@ -1921,6 +1928,10 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(2, $row['version']);
         $this->assertEquals($configurationData, $row['configuration']);
         $this->assertEquals('some change', $row['changeDescription']);
+        $this->assertEquals('', $row['name']);
+        $this->assertEquals('', $row['description']);
+        $this->assertEquals(false, $row['isDisabled']);
+
 
         // update row 3rd
         $configurationData = array('test' => 2);
@@ -1944,6 +1955,9 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertArrayHasKey('id', $rowVersion);
         $this->assertArrayHasKey('version', $rowVersion);
         $this->assertArrayHasKey('configuration', $rowVersion);
+        $this->assertArrayHasKey('isDisabled', $rowVersion);
+        $this->assertArrayHasKey('name', $rowVersion);
+        $this->assertArrayHasKey('description', $rowVersion);
         $this->assertEquals("Rollback from version 2", $rowVersion['changeDescription']);
         $this->assertEquals($originalRow['created'], $rowVersion['created']);
 
@@ -2006,6 +2020,9 @@ class ComponentsTest extends StorageApiTestCase
 
         $this->assertEquals(1, $row['version']);
         $this->assertEquals($configurationData, $row['configuration']);
+        $this->assertEquals('', $row['name']);
+        $this->assertEquals('', $row['description']);
+        $this->assertEquals(false, $row['isDisabled']);
 
         $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
             ->setComponentId($configuration->getComponentId())
@@ -2031,6 +2048,10 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertArrayHasKey('id', $row);
         $this->assertArrayHasKey('version', $row);
         $this->assertArrayHasKey('configuration', $row);
+        $this->assertArrayHasKey('isDisabled', $rowVersion);
+        $this->assertArrayHasKey('name', $rowVersion);
+        $this->assertArrayHasKey('description', $rowVersion);
+
 
         $this->assertEquals(1, $row['version']);
         $this->assertEquals($configurationData, $row['configuration']);
