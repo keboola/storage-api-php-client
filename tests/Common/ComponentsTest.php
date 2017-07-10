@@ -1249,6 +1249,9 @@ class ComponentsTest extends StorageApiTestCase
 
         $row = reset($configuration['rows']);
         $this->assertEquals('main-1-1', $row['id']);
+        $this->assertEquals('', $row['name']);
+        $this->assertEquals('', $row['description']);
+        $this->assertEquals(false, $row['isDisabled']);
 
         $components = new \Keboola\StorageApi\Components($this->_client);
 
