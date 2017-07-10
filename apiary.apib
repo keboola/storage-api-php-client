@@ -4024,6 +4024,9 @@ Creates a new row (item) of an existing configuration.
 + Attributes
     + rowId (optional) - Row id (must be unique for each configuration). If not set, it will be generated.
     + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB.
+    + name (optional, string) - Row name
+    + description (optional, string) - Row description
+    + isDisabled (optional, boolean) - Disabled flag
     + changeDescription (optional) - Version change description
 
 + Request (application/x-www-form-urlencoded)
@@ -4043,6 +4046,9 @@ Creates a new row (item) of an existing configuration.
                     "host": "localhost",
                     "port": 4406
                 },
+                "name": "",
+                "description": "",
+                "isDisabled": false,
                 "version": 1,
                 "created": "2017-02-15T00:05:32+0100",
                 "creatorToken": {
@@ -4068,6 +4074,9 @@ Gets configuration rows.
                 {
                     "id": "236781529",
                     "configuration": {},
+                    "name": "",
+                    "description": "",
+                    "isDisabled": false,
                     "version": 1,
                     "created": "2017-02-15T00:04:42+0100",
                     "creatorToken": {
@@ -4082,6 +4091,9 @@ Gets configuration rows.
                         "host": "localhost",
                         "port": 4406
                     },
+                    "name": "",
+                    "description": "",
+                    "isDisabled": false,
                     "version": 1,
                     "created": "2017-02-15T00:05:29+0100",
                     "creatorToken": {
@@ -4105,6 +4117,9 @@ independently on the configurations.
 
 + Attributes
     + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB.
+    + name (optional, string) - Row name
+    + description (optional, string) - Row description
+    + isDisabled (optional, boolean) - Disabled flag
     + changeDescription (optional) - Version change description
 
 + Request (application/x-www-form-urlencoded)
@@ -4124,6 +4139,9 @@ independently on the configurations.
                     "host": "localhost",
                     "port": null
                 },
+                "name": "",
+                "description": "",
+                "isDisabled": false,
                 "version": 2,
                 "created": "2017-02-15T00:04:42+0100",
                 "creatorToken": {
@@ -4180,6 +4198,9 @@ List versions of a given configuration Row of a given Configuration.
             [
                 {
                     "version": 2,
+                    "name": "",
+                    "description": "",
+                    "isDisabled": false,
                     "created": "2015-08-12T12:33:04+0200",
                     "creatorToken": {
                         "id": 1392,
@@ -4189,6 +4210,9 @@ List versions of a given configuration Row of a given Configuration.
                 },
                 {
                     "version": 1,
+                    "name": "",
+                    "description": "",
+                    "isDisabled": false,
                     "created": "2015-08-10T22:00:55+0200",
                     "creatorToken": {
                         "id": 1392,
@@ -4217,6 +4241,9 @@ Gets details about the Configuration Row version.
     + Body
 
             {
+                "name": "",
+                "description": "",
+                "isDisabled": false,
                 "version": 1,
                 "created": "2015-08-10T22:00:55+0200",
                 "creatorToken": {
@@ -4259,6 +4286,9 @@ content to be rollbacked to.
                     "host": "localhost",
                     "port": 4406
                 },
+                "name": "",
+                "description": "",
+                "isDisabled": false,
                 "version": 2,
                 "created": "2017-02-15T00:05:32+0100",
                 "creatorToken": {
@@ -4301,6 +4331,9 @@ Creates a new configuration row from an existing row version.
                     "host": "localhost",
                     "port": 4406
                 },
+                "name": "",
+                "description": "",
+                "isDisabled": false,
                 "version": 1,
                 "created": "2017-02-15T00:38:58+0100",
                 "creatorToken": {
