@@ -157,6 +157,9 @@ class Components
                 'rowId' => $options->getRowId(),
                 'configuration' => $options->getConfiguration() ? json_encode($options->getConfiguration()) : null,
                 'changeDescription' => $options->getChangeDescription(),
+                'name' => $options->getName(),
+                'description' => $options->getDescription(),
+                'isDisabled' => (bool) $options->getIsDisabled(),
             )
         );
     }
@@ -174,8 +177,21 @@ class Components
     public function updateConfigurationRow(ConfigurationRow $options)
     {
         $data = array();
+        if ($options->getName() !== null) {
+            $data['name'] = $options->getName();
+        }
 
-        $data['configuration'] = $options->getConfiguration() ? json_encode($options->getConfiguration()) : null;
+        if ($options->getDescription() !== null) {
+            $data['description'] = $options->getDescription();
+        }
+
+        if ($options->getConfiguration()) {
+            $data['configuration'] = json_encode($options->getConfiguration());
+        }
+
+        if ($options->getIsDisabled() !== null) {
+            $data['isDisabled'] = $options->getIsDisabled();
+        }
 
         if ($options->getChangeDescription()) {
             $data['changeDescription'] = $options->getChangeDescription();
