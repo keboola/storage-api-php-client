@@ -859,7 +859,7 @@ class ComponentsTest extends StorageApiTestCase
         ];
 
         $currentConfiguration = $components->getConfiguration('wr-db', $newConfiguration['id']);
-        $this->assertEquals(5, $currentConfiguration['version'], 'There were 2 rows insert and 1 row update and 1 config update -> version should be 4');
+        $this->assertEquals(5, $currentConfiguration['version'], 'There were 2 rows insert and 1 row update and 1 config update -> version should be 5');
         foreach ($expectedRows as $i => $expectedRow) {
             $this->assertEquals($expectedRow['id'], $currentConfiguration['rows'][$i]['id']);
             $this->assertEquals($expectedRow['version'], $currentConfiguration['rows'][$i]['version']);
