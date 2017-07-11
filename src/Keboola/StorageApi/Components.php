@@ -53,8 +53,12 @@ class Components
             $data['description'] = $options->getDescription();
         }
 
-        if ($options->getConfiguration()) {
-            $data['configuration'] = json_encode($options->getConfiguration());
+        if ($options->getConfiguration() !== null) {
+            if ($options->getConfiguration() === []) {
+                $data['configuration'] = '{}';
+            } else {
+                $data['configuration'] = json_encode($options->getConfiguration());
+            }
         }
 
         if (!is_null($options->getState())) {
@@ -185,8 +189,12 @@ class Components
             $data['description'] = $options->getDescription();
         }
 
-        if ($options->getConfiguration()) {
-            $data['configuration'] = json_encode($options->getConfiguration());
+        if ($options->getConfiguration() !== null) {
+            if ($options->getConfiguration() === []) {
+                $data['configuration'] = '{}';
+            } else {
+                $data['configuration'] = json_encode($options->getConfiguration());
+            }
         }
 
         if ($options->getIsDisabled() !== null) {
