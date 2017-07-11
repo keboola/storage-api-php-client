@@ -1397,7 +1397,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals('altered row name', $row['name']);
 
         $configuration = $components->getConfiguration('wr-db', 'main-1');
-        $this->assertEquals(2, $configuration['version']);
+        $this->assertEquals(3, $configuration['version']);
     }
 
 
@@ -1436,7 +1436,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals('altered row description', $row['description']);
 
         $configuration = $components->getConfiguration('wr-db', 'main-1');
-        $this->assertEquals(2, $configuration['version']);
+        $this->assertEquals(3, $configuration['version']);
     }
 
 
@@ -1483,7 +1483,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(true, $row['isDisabled']);
 
         $configuration = $components->getConfiguration('wr-db', 'main-1');
-        $this->assertEquals(2, $configuration['version']);
+        $this->assertEquals(3, $configuration['version']);
     }
 
 
