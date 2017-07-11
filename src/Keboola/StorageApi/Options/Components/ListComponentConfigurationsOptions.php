@@ -33,7 +33,7 @@ class ListComponentConfigurationsOptions
     }
 
     /**
-     * @return mixed
+     * @return bool|null
      */
     public function getIsDeleted()
     {
@@ -41,12 +41,12 @@ class ListComponentConfigurationsOptions
     }
 
     /**
-     * @param mixed $isDeleted
+     * @param bool $isDeleted
      * @return $this
      */
     public function setIsDeleted($isDeleted)
     {
-        $this->isDeleted = $isDeleted;
+        $this->isDeleted = (bool)$isDeleted;
         return $this;
     }
 }
