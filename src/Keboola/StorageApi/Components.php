@@ -163,7 +163,7 @@ class Components
                 'changeDescription' => $options->getChangeDescription(),
                 'name' => $options->getName(),
                 'description' => $options->getDescription(),
-                'isDisabled' => (bool) $options->getIsDisabled(),
+                'isDisabled' => $options->getIsDisabled()
             )
         );
     }

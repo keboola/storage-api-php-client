@@ -123,7 +123,7 @@ class ConfigurationRow
     }
 
     /**
-     * @return mixed
+     * @return bool|null
      */
     public function getIsDisabled()
     {
@@ -131,12 +131,12 @@ class ConfigurationRow
     }
 
     /**
-     * @param mixed $isDisabled
+     * @param bool $isDisabled
      * @return $this
      */
     public function setIsDisabled($isDisabled)
     {
-        $this->isDisabled = $isDisabled;
+        $this->isDisabled = (bool)$isDisabled;
         return $this;
     }
 }
