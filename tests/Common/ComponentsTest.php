@@ -2048,9 +2048,9 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertArrayHasKey('id', $row);
         $this->assertArrayHasKey('version', $row);
         $this->assertArrayHasKey('configuration', $row);
-        $this->assertArrayHasKey('isDisabled', $rowVersion);
-        $this->assertArrayHasKey('name', $rowVersion);
-        $this->assertArrayHasKey('description', $rowVersion);
+        $this->assertArrayHasKey('isDisabled', $row);
+        $this->assertArrayHasKey('name', $row);
+        $this->assertArrayHasKey('description', $row);
 
 
         $this->assertEquals(1, $row['version']);
