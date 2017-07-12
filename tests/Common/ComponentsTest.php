@@ -1405,10 +1405,16 @@ class ComponentsTest extends StorageApiTestCase
         $components = new \Keboola\StorageApi\Components($this->_client);
         $components->addConfiguration($configuration);
 
+        $rowConfigurationData = [
+            'some' => 'configuration'
+        ];
+        $rowDescription = 'some description';
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
         $configurationRow
             ->setRowId('main-1-1')
             ->setName('row name')
+            ->setConfiguration($rowConfigurationData)
+            ->setDescription($rowDescription);
         ;
 
         $components->addConfigurationRow($configurationRow);
@@ -1426,6 +1432,8 @@ class ComponentsTest extends StorageApiTestCase
 
         $row = reset($rows);
         $this->assertEquals('altered row name', $row['name']);
+        $this->assertEquals($rowConfigurationData, $row['configuration']);
+        $this->assertEquals($rowDescription, $row['description']);
 
         $configuration = $components->getConfiguration('wr-db', 'main-1');
         $this->assertEquals(3, $configuration['version']);
