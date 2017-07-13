@@ -307,7 +307,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             new CsvFile($importFile)
         );
         $originalFileLinesCount = exec("wc -l <" . escapeshellarg($importFile));
-        sleep(15);
+        sleep(35);
         $startTime = time();
         $importCsv = new \Keboola\Csv\CsvFile($importFile);
         $this->_client->writeTable($tableId, $importCsv, array(
@@ -322,7 +322,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                 [
                     'source' => $tableId,
                     'destination' => 'languages',
-                    'seconds' => floor(time() - $startTime) + 10,
+                    'seconds' => floor(time() - $startTime) + 30,
                 ],
             ],
         ];
