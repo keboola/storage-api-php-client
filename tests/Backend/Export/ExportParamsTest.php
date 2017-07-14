@@ -79,6 +79,12 @@ class ExportParamsTest extends StorageApiTestCase
             "Prefix" => $prefix
         ));
         foreach ($objects["Contents"] as $object) {
+            $objectDetail = $s3Client->headObject([
+                'Bucket' => $bucket,
+                'Key' => $object['Key'],
+            ]);
+
+            $this->assertEquals('AES256', $objectDetail['ServerSideEncryption']);
             $this->assertStringStartsWith($prefix, $object["Key"]);
         }
     }
