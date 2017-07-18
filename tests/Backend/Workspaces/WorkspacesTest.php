@@ -81,13 +81,13 @@ class WorkspacesTest extends WorkspacesTestCase
         $this->assertArrayHasKey("password", $newCredentials);
 
         if ($connection['backend'] === self::BACKEND_REDSHIFT) {
-			try {
-				$backend->getTables();
-				$this->fail('Connection session should be terminated by server');
-			} catch (\PDOException $e) {
-				$this->assertEquals('57P01', $e->getCode());
-			}
-		}
+            try {
+                $backend->getTables();
+                $this->fail('Connection session should be terminated by server');
+            } catch (\PDOException $e) {
+                $this->assertEquals('57P01', $e->getCode());
+            }
+        }
 
         $backend = null; // force odbc disconnect
 
