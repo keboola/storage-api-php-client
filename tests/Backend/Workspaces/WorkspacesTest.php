@@ -58,6 +58,58 @@ class WorkspacesTest extends WorkspacesTestCase
         }
     }
 
+    public function testWorkspacePasswordReset()
+    {
+        $workspaces = new Workspaces($this->_client);
+
+        $workspace = $workspaces->createWorkspace();
+
+        $connection = $workspace['connection'];
+
+        $tokenInfo = $this->_client->verifyToken();
+        $this->assertEquals($tokenInfo['owner']['defaultBackend'], $connection['backend']);
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $backend->createTable("mytable", ["amount" => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? "NUMBER" : "VARCHAR"]);
+
+        $tableNames = $backend->getTables();
+
+        $this->assertArrayHasKey("mytable", array_flip($tableNames));
+
+        $newCredentials = $workspaces->resetWorkspacePassword($workspace['id']);
+        $this->assertArrayHasKey("password", $newCredentials);
+
+        if ($connection['backend'] === self::BACKEND_REDSHIFT) {
+            try {
+                $backend->getTables();
+                $this->fail('Connection session should be terminated by server');
+            } catch (\PDOException $e) {
+                $this->assertEquals('57P01', $e->getCode());
+            }
+        }
+
+        $backend = null; // force odbc disconnect
+
+        // credentials should not work anymore
+        try {
+            $this->getDbConnection($connection);
+            $this->fail('Credentials should be invalid');
+        } catch (\PDOException $e) {
+            $this->assertEquals(7, $e->getCode());
+        } catch (\Keboola\Db\Import\Exception $e) {
+            $this->assertContains('Incorrect username or password was specified', $e->getMessage());
+        }
+
+        $workspace['connection']['password'] = $newCredentials['password'];
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $tableNames = $backend->getTables();
+        $backend = null; // force odbc disconnect
+
+        $this->assertArrayHasKey("mytable", array_flip($tableNames));
+    }
+
     /**
      * @dataProvider  dropOptions
      * @param $dropOptions

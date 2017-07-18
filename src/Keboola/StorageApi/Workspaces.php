@@ -42,7 +42,6 @@ class Workspaces
         return $this->client->apiGet("storage/workspaces/{$id}");
     }
 
-
     public function deleteWorkspace($id, array $options = [])
     {
         $this->client->apiDelete("storage/workspaces/{$id}?" . http_build_query($options));
@@ -56,5 +55,10 @@ class Workspaces
     public function loadWorkspaceData($id, array $options = [])
     {
         return $this->client->apiPost("storage/workspaces/{$id}/load", $options);
+    }
+
+    public function resetWorkspacePassword($id)
+    {
+        return $this->client->apiPost("storage/workspaces/{$id}/password");
     }
 }
