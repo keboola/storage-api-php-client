@@ -80,13 +80,14 @@ class WorkspacesTest extends WorkspacesTestCase
         $newCredentials = $workspaces->resetWorkspacePassword($workspace['id']);
         $this->assertArrayHasKey("password", $newCredentials);
 
-        try {
-            $backend->getTables();
-            $this->fail('Connection session should be terminated by server');
-        } catch (\PDOException $e) {
-            $this->assertEquals('57P01', $e->getCode());
-        }
-        //@FIXME handle for snowflake
+        if ($connection['backend'] === self::BACKEND_REDSHIFT) {
+			try {
+				$backend->getTables();
+				$this->fail('Connection session should be terminated by server');
+			} catch (\PDOException $e) {
+				$this->assertEquals('57P01', $e->getCode());
+			}
+		}
 
         $backend = null; // force odbc disconnect
 
