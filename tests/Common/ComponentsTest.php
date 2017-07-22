@@ -306,8 +306,7 @@ class ComponentsTest extends StorageApiTestCase
     public function testConfigurationNameShouldBeRequired()
     {
         try {
-            $this->_client->apiPost('storage/components/wr-db/configs', [
-            ]);
+            $this->_client->apiPost('storage/components/wr-db/configs', []);
             $this->fail('Params should be invalid');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.components.validation', $e->getStringCode());
@@ -2290,5 +2289,55 @@ class ComponentsTest extends StorageApiTestCase
         $components->deleteConfigurationRow('wr-db', $componentConfig->getConfigurationId(), $createdRow['id'], $deleteRowChangeDescription);
         $config = $components->getConfiguration('wr-db', $componentConfig->getConfigurationId());
         $this->assertEquals($deleteRowChangeDescription, $config['changeDescription']);
+    }
+    
+    public function testConfigurationNameAndDescriptionShouldNotBeTrimmed()
+    {
+        $components = new \Keboola\StorageApi\Components($this->_client);
+        $config = $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName("name\n")
+            ->setDescription("description\n"));
+
+        $this->assertEquals("name\n", $config["name"]);
+        $this->assertEquals("description\n", $config["description"]);
+
+        $config = $components->updateConfiguration((new  \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName("name2\n")
+            ->setDescription("description2\n"));
+
+        $this->assertEquals("name2\n", $config["name"]);
+        $this->assertEquals("description2\n", $config["description"]);
+
+    }
+
+    public function testConfigurationRowNameAndDescriptionShouldNotBeTrimmed()
+    {
+        $components = new \Keboola\StorageApi\Components($this->_client);
+        $config = (new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName("name")
+            ->setDescription("description");
+        $components->addConfiguration($config);
+
+        $rowConfig = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config);
+        $rowConfig->setName("name\n");
+        $rowConfig->setDescription("description\n");
+        $createdRow = $components->addConfigurationRow($rowConfig);
+        $this->assertEquals("name\n", $createdRow["name"]);
+        $this->assertEquals("description\n", $createdRow["description"]);
+
+        $rowConfig = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config);
+        $rowConfig->setRowId($createdRow["id"]);
+        $rowConfig->setName("name2\n");
+        $rowConfig->setDescription("description2\n");
+
+        $updatedRow = $components->updateConfigurationRow($rowConfig);
+        $this->assertEquals("name2\n", $updatedRow["name"]);
+        $this->assertEquals("description2\n", $updatedRow["description"]);
     }
 }
