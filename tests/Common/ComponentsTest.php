@@ -2311,7 +2311,6 @@ class ComponentsTest extends StorageApiTestCase
 
         $this->assertEquals("name2\n", $config["name"]);
         $this->assertEquals("description2\n", $config["description"]);
-
     }
 
     public function testConfigurationRowNameAndDescriptionShouldNotBeTrimmed()
