@@ -294,6 +294,54 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         }
     }
 
+    public function testIncremental()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages',
+            new CsvFile($importFile)
+        );
+
+        // first load
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                    'whereColumn' => 'name',
+                    'whereValues' => ['czech'],
+                ],
+            ],
+        ];
+
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+
+        // second load
+        $options = [
+            'preserve' => true,
+            'incremental' => true,
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                    'whereColumn' => 'name',
+                    'whereValues' => ['english'],
+                ],
+            ],
+        ];
+
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+
+
+        $this->assertEquals(2, $backend->countRows("languages"));
+    }
+
     public function testSecondsFilter()
     {
         $workspaces = new Workspaces($this->_client);
