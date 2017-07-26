@@ -65,6 +65,16 @@ class BucketsTest extends StorageApiTestCase
         $this->assertArrayNotHasKey('attributes', $firstBucket);
     }
 
+    public function testBucketsListWithIncludeMetadata()
+    {
+        $buckets = $this->_client->listBuckets(array(
+            'include' => 'metadata',
+        ));
+
+        $firstBucket = reset($buckets);
+        $this->assertArrayNotHasKey('attributes', $firstBucket);
+        $this->assertArrayHasKey('metadata', $firstBucket);
+    }
 
     public function testBucketCreateWithInvalidBackend()
     {
