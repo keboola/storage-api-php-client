@@ -383,11 +383,11 @@ class TokensTest extends StorageApiTestCase
         $this->assertEquals($outTableId, $table['id']);
 
         // read from table
-        $tableData = $client->exportTable($outTableId);
+        $tableData = $client->getTableDataPreview($outTableId);
         $this->assertNotEmpty($tableData);
 
         try {
-            $client->exportTable($inTableId);
+            $client->getTableDataPreview($inTableId);
             $this->fail('Table exported with no permissions');
         } catch (\Keboola\StorageApi\ClientException $e) {
         }

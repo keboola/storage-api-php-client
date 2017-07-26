@@ -29,37 +29,13 @@ class ExportParamsTest extends StorageApiTestCase
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile($importFile));
 
         try {
-            $this->_client->exportTable($tableId, null, array(
+            $this->_client->getTableDataPreview($tableId, array(
                 'format' => 'csv',
             ));
             $this->fail('Should throw exception');
         } catch (\Keboola\StorageApi\Exception $e) {
             $this->assertEquals('storage.tables.validation.invalidFormat', $e->getStringCode());
         }
-    }
-
-    public function testTableFileExport()
-    {
-        $importFile = __DIR__ . '/../../_data/languages.csv';
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile($importFile));
-
-        $outputFile = __DIR__ . '/../../_tmp/languagesExport.csv';
-        if (file_exists($outputFile)) {
-            unlink($outputFile);
-        }
-
-        // Full download
-        $this->_client->exportTable($tableId, $outputFile);
-        $this->assertLinesEqualsSorted(file_get_contents($importFile), file_get_contents($outputFile));
-        unlink($outputFile);
-
-        // Download with limit
-        $this->_client->exportTable($tableId, $outputFile, array(
-            'limit' => 1,
-        ));
-
-        $this->assertEquals(exec("wc -l < " . escapeshellarg($outputFile)), "2");
-        unlink($outputFile);
     }
 
     public function testTableExportParams()
@@ -69,10 +45,10 @@ class ExportParamsTest extends StorageApiTestCase
 
         $originalFileLinesCount = exec("wc -l <" . escapeshellarg($importFile));
 
-        $data = $this->_client->exportTable($tableId);
+        $data = $this->_client->getTableDataPreview($tableId);
         $this->assertEquals($originalFileLinesCount, count(Client::parseCsv($data, false)));
 
-        $data = $this->_client->exportTable($tableId, null, array(
+        $data = $this->_client->getTableDataPreview($tableId, array(
             'limit' => 2,
         ));
         $this->assertEquals(3, count(Client::parseCsv($data, false)), "limit parameter");
@@ -86,15 +62,15 @@ class ExportParamsTest extends StorageApiTestCase
         $this->_client->writeTable($tableId, $importCsv, array(
             'incremental' => true,
         ));
-        $data = $this->_client->exportTable($tableId);
+        $data = $this->_client->getTableDataPreview($tableId);
         $this->assertEquals((3 * ($originalFileLinesCount - 1)) + 1, count(Client::parseCsv($data, false)), "lines count after incremental load");
 
-        $data = $this->_client->exportTable($tableId, null, array(
+        $data = $this->_client->getTableDataPreview($tableId, array(
             'changedSince' => sprintf('-%d second', ceil(time() - $startTime) + 5),
         ));
         $this->assertEquals((2 * ($originalFileLinesCount - 1)) + 1, count(Client::parseCsv($data, false)), "changedSince parameter");
 
-        $data = $this->_client->exportTable($tableId, null, array(
+        $data = $this->_client->getTableDataPreview($tableId, array(
             'changedUntil' => sprintf('-%d second', ceil(time() - $startTime) + 5),
         ));
         $this->assertEquals($originalFileLinesCount, count(Client::parseCsv($data, false)), "changedUntil parameter");
@@ -111,7 +87,7 @@ class ExportParamsTest extends StorageApiTestCase
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));
         $this->_client->markTableColumnAsIndexed($tableId, 'city');
 
-        $data = $this->_client->exportTable($tableId, null, $exportOptions);
+        $data = $this->_client->getTableDataPreview($tableId, $exportOptions);
         $parsedData = Client::parseCsv($data, false);
         array_shift($parsedData); // remove header
 
@@ -124,7 +100,7 @@ class ExportParamsTest extends StorageApiTestCase
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));
 
         try {
-            $this->_client->exportTable($tableId, null, array(
+            $this->_client->getTableDataPreview($tableId, array(
                 'whereColumn' => 'city',
                 'whereValues' => array('PRG'),
             ));
@@ -139,7 +115,7 @@ class ExportParamsTest extends StorageApiTestCase
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
         try {
-            $this->_client->exportTable($tableId, null, array(
+            $this->_client->getTableDataPreview($tableId, array(
                 'whereColumn' => 'mesto',
                 'whereValues' => array('PRG'),
             ));
@@ -153,7 +129,7 @@ class ExportParamsTest extends StorageApiTestCase
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile($importFile));
 
-        $data = $this->_client->exportTable($tableId, null, array(
+        $data = $this->_client->getTableDataPreview($tableId, array(
             'columns' => array('id'),
         ));
         $parsed = Client::parseCsv($data, false);

@@ -1119,10 +1119,9 @@ class Client
 
 
     /**
-     * Exports table http://docs.keboola.apiary.io/#get-%2Fv2%2Fstorage%2Ftables%2F%7Btable_id%7D%2Fexport
+     * Table data preview
      *
      * @param string $tableId
-     * @param string null $fileName export to file if specified, instead table content is returned
      * @param array $options all options are optional
      *    - (int) limit,
      *  - (timestamp | strtotime format) changedSince
@@ -1131,14 +1130,14 @@ class Client
      *  - (array) columns
      *  - (string) format - one of rfc, raw, escaped. rfc is default
      *
-     * @return mixed|string
+     * @return string
      */
-    public function exportTable($tableId, $fileName = null, $options = array())
+    public function getTableDataPreview($tableId, $options = array())
     {
-        $url = "storage/tables/{$tableId}/export";
+        $url = "storage/tables/{$tableId}/data-preview";
         $url .= '?' . http_build_query($this->prepareExportOptions($options));
 
-        return $this->apiGet($url, $fileName);
+        return $this->apiGet($url);
     }
 
     /**

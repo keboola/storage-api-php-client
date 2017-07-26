@@ -31,7 +31,7 @@ class TableExportTest extends StorageApiTestCase
         ));
 
         try {
-            $this->_client->exportTable($table['id']);
+            $this->_client->getTableDataPreview($table['id']);
             $this->fail('Table should not be exported');
         } catch (ClientException $e) {
             $this->assertEquals(400, $e->getCode());
@@ -64,7 +64,7 @@ class TableExportTest extends StorageApiTestCase
             'name' => 'langs',
         ));
 
-        $data = $this->_client->exportTable($table['id']);
+        $data = $this->_client->getTableDataPreview($table['id']);
         $this->assertEquals(4, count(explode("\n", trim($data))));
     }
 }

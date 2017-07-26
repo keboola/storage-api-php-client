@@ -53,7 +53,7 @@ class CreateTableTest extends StorageApiTestCase
 
         $this->assertLinesEqualsSorted(
             file_get_contents($expectationFile),
-            $this->_client->exportTable($tableId),
+            $this->_client->getTableDataPreview($tableId),
             'initial data imported into table'
         );
     }

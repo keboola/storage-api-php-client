@@ -32,13 +32,13 @@ class DedupeTest extends StorageApiTestCase
             )
         );
 
-        $this->assertLinesEqualsSorted(file_get_contents(__DIR__ . '/../../_data/languages.duplicates.deduped.csv'), $this->_client->exportTable($tableId));
+        $this->assertLinesEqualsSorted(file_get_contents(__DIR__ . '/../../_data/languages.duplicates.deduped.csv'), $this->_client->getTableDataPreview($tableId));
 
         $duplicityResponse = $this->_client->apiGet("storage/tables/{$tableId}/duplicity");
         $this->assertEquals(1, $duplicityResponse['maxDuplicity']);
 
         // it still should be same
         $this->_client->apiPost("storage/tables/{$tableId}/dedupe");
-        $this->assertLinesEqualsSorted(file_get_contents(__DIR__ . '/../../_data/languages.duplicates.deduped.csv'), $this->_client->exportTable($tableId));
+        $this->assertLinesEqualsSorted(file_get_contents(__DIR__ . '/../../_data/languages.duplicates.deduped.csv'), $this->_client->getTableDataPreview($tableId));
     }
 }

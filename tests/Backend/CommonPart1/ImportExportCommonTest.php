@@ -41,7 +41,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         $this->assertNotEmpty($result['totalDataSizeBytes']);
 
         // compare data
-        $this->assertLinesEqualsSorted(file_get_contents($expectationsFile), $this->_client->exportTable($tableId, null, array(
+        $this->assertLinesEqualsSorted(file_get_contents($expectationsFile), $this->_client->getTableDataPreview($tableId, array(
             'format' => $format,
         )), 'imported data comparsion');
 
@@ -71,7 +71,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         $this->assertNotEmpty($result['totalDataSizeBytes']);
 
         // compare data
-        $this->assertLinesEqualsSorted(file_get_contents($expectationsFile), $this->_client->exportTable($tableId, null, array(
+        $this->assertLinesEqualsSorted(file_get_contents($expectationsFile), $this->_client->getTableDataPreview($tableId, array(
             'format' => $format,
         )), 'imported data comparsion');
 
@@ -127,12 +127,12 @@ class ImportExportCommonTest extends StorageApiTestCase
             'primaryKey' => $primaryKey,
         ]);
 
-        $this->assertLinesEqualsSorted(file_get_contents($expectationFileAfterCreate), $this->_client->exportTable($tableId));
+        $this->assertLinesEqualsSorted(file_get_contents($expectationFileAfterCreate), $this->_client->getTableDataPreview($tableId));
 
         $this->_client->writeTableAsync($tableId, $incrementFile, [
             'incremental' => true,
         ]);
-        $this->assertLinesEqualsSorted(file_get_contents($expectationFinal), $this->_client->exportTable($tableId));
+        $this->assertLinesEqualsSorted(file_get_contents($expectationFinal), $this->_client->getTableDataPreview($tableId));
     }
 
     public function incrementalImportPkDedupeData()
@@ -272,7 +272,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         $this->assertNotEmpty($result['totalDataSizeBytes']);
 
         // compare data
-        $this->assertLinesEqualsSorted(file_get_contents($extendedFile), $this->_client->exportTable($tableId, null, array(
+        $this->assertLinesEqualsSorted(file_get_contents($extendedFile), $this->_client->getTableDataPreview($tableId, array(
             'format' => 'rfc',
         )), 'imported data comparsion');
     }
@@ -351,7 +351,7 @@ class ImportExportCommonTest extends StorageApiTestCase
             'dataString' => $lines,
         ));
 
-        $this->assertEquals($lines, $this->_client->exportTable($tableId, null, array(
+        $this->assertEquals($lines, $this->_client->getTableDataPreview($tableId, array(
             'format' => 'rfc',
         )));
     }
