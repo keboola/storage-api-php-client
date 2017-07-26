@@ -1,3 +1,6 @@
+## 6.5.0 (2017-07-26)
+ * [Feat] - Component configuration workspaces supported `listConfigurationWorkspaces`, `createConfigurationWorkspace`
+
 ## 6.4.1 (2017-05-27)
  * [Fix] debug mode of S3 client
 
