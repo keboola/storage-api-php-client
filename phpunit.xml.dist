@@ -25,6 +25,7 @@
 
 	<testsuite name="backend-redshift-part-1">
 		<directory>tests/Backend/CommonPart1</directory>
+		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-redshift-part-2">
@@ -33,13 +34,13 @@
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
-		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
 		<directory>tests/Backend/Redshift</directory>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-snowflake-part-1">
 		<directory>tests/Backend/CommonPart1</directory>
+		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-snowflake-part-2">
@@ -48,7 +49,6 @@
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
-		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
 		<directory>tests/Backend/Snowflake</directory>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>
