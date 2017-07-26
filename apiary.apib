@@ -1186,10 +1186,11 @@ Further information can be found in the [Developers Documentation](https://devel
             }
 
 
-## Unload Data [/v2/storage/tables/{table_id}/export]
-### Export table into CSV [GET]
+## Data Preview [/v2/storage/tables/{table_id}/data-preview]
+### Data preview [GET]
 
-This method is **DEPRECATED**, please use the [asynchronous version](#reference/tables/unload-data-asynchronously) of this method.
+Returns up to 1000 rows from table in CSV format. Rows can be filtered by various filters described below.
+For full table download please read more in [Asynchronous Unload documentation](#reference/tables/unload-data-asynchronously)
 
 #### HTTP Compression
 
@@ -1200,6 +1201,31 @@ To enable compression of API response traffic, please include the following HTTP
 The moment the streaming connection is established, the HTTP 200 response code is returned and data are streamed row by row.
 When an error occurs and data cannot be streamed any more, a special row is returned to stream `KBC_INTERNAL_ERROR`.
 When you receive this message, please run the export again; these errors are very rare.
+
++ Parameters
+    + table_id (required) - Table Id
+
++ Attributes
+    + limit (optional, number) - Limit the number of returned rows. Maximum allowed value is `1000`
+        + Default: 100
+    + format (optional, enum[string]) - File format
+        + Members
+            + rfc - According to [RFC](http://www.ietf.org/rfc/rfc4180.txt).
+            + escaped - Delimited by a comma, enclosed by a double quote, special characters (e.g. new line, tab) escaped by a backslash. Each row in the CSV file is equal to one row in Storage.
+            + raw - Delimited by tab, without an enclosure, special characters (e.g. new line, tab)  escaped by a backslash. Each row in the CSV file is equal to one row in Storage.
+        + Default: rfc
+    + changedSince (optional) - Filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp or any date accepted by [strtotime](http://www.php.net/manual/en/function.strtotime.php).
+    + changedUntil (optional) - Filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp or any date accepted by [strtotime](http://www.php.net/manual/en/function.strtotime.php).
+        Examples: `-2 days`, `1360138863`, `2013-02-12T15:19:21+00:00`
+    + columns (optional) - Comma separated list of columns to export; by default all columns are exported.
+    + whereColumn (optional) - Column for exporting only matching rows; see more in the rows filtering section.
+    + whereValues[] (optional) - Values for exporting only matching rows; see more in the rows filtering section.
+    + whereOperator (optional, enum[string]) - Operator for value comparison.
+        + Members
+            + eq - Equals - can be used with multiple values.
+            + ne - Not equals - can be used with multiple values.
+        + Default: eq
+
 
 + Request
     + Headers
