@@ -151,7 +151,7 @@ class WorkspaceUnloadTest extends WorkspacesTestCase
             '"2","en",""',
         );
 
-        $this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->getTableDataPreview($table['id'], null, array(
+        $this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->getTableDataPreview($table['id'], array(
             'format' => 'rfc',
         )), 'imported data comparsion');
 
@@ -171,7 +171,7 @@ class WorkspaceUnloadTest extends WorkspacesTestCase
             '"2","en",""',
             '"3","sk","1"',
         );
-        $this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->getTableDataPreview($table['id'], null, array(
+        $this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->getTableDataPreview($table['id'], array(
             'format' => 'rfc',
         )), 'previously null column updated');
 
@@ -191,7 +191,7 @@ class WorkspaceUnloadTest extends WorkspacesTestCase
             '"2","en","",""',
             '"3","sk","1","newValue"',
         );
-        $this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->getTableDataPreview($table['id'], null, array(
+        $this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->getTableDataPreview($table['id'], array(
             'format' => 'rfc',
         )), 'new  column added');
     }
