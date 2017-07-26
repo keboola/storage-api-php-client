@@ -26,7 +26,7 @@ class WorkspacesTest extends WorkspacesTestCase
             ]);
             $this->fail('Mysql workspace should not be created');
         } catch (ClientException $e) {
-            $this->assertEquals('backend.notSupported', $e->getStringCode());
+            $this->assertEquals('workspace.backendNotSupported', $e->getStringCode());
         }
     }
 

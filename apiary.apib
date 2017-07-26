@@ -2489,6 +2489,8 @@ Generates new password for the given workspace
 
 + id: 234 (number)
 + name: `boring_wozniak` (string) - working schema name
++ component: `wr-db` (string) - name of the [registered component](#reference/miscellaneous/api-index/component-list) that created the workspace
++ configurationId: `aws-1` (string) - id of a [configuration](#reference/component-configurations/component-list) used to create workspace
 + created: `2016-05-17T11:11:20+0200` (string)
 + connection
     + backend: `snowflake` (string)
@@ -4362,6 +4364,46 @@ Creates a new configuration row from an existing row version.
                 },
                 "changeDescription": "Copy to another row"
             }
+
+## Create or List Configuration Workspaces [/v2/storage/components/{component_id}/configs/{config_id}/workspaces]
+### Create Configuration Workspaces [POST]
+Creates a new workspace for an existing configuration.
+
++ Parameters
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration
+
++ Attributes
+    + backend: snowflake (optional, enum[string]) - Workspace backend. When omitted, the default backend is used.
+        + Members
+            + redshift
+            + snowflake
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            backend=snowflake
+
++ Response 201 (application/json)
+
+   + Attributes (WorkspaceCreated)
+
+
+### Workspace List [GET]
+Returns all workspaces for the component configuration.
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+
+   + Attributes (array[Workspace])
 
 
 # Group Stats

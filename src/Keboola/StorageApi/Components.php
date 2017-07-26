@@ -16,6 +16,7 @@ use Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions;
+use Keboola\StorageApi\Options\Components\ListConfigurationWorkspacesOptions;
 
 class Components
 {
@@ -149,6 +150,15 @@ class Components
             . "{$options->getConfigurationId()}/rows");
     }
 
+    public function listConfigurationWorkspaces(ListConfigurationWorkspacesOptions $options = null)
+    {
+        if (!$options) {
+            $options = new ListConfigurationWorkspacesOptions();
+        }
+        return $this->client->apiGet("storage/components/{$options->getComponentId()}/configs/"
+            . "{$options->getConfigurationId()}/workspaces");
+    }
+
     public function addConfigurationRow(ConfigurationRow $options)
     {
         return $this->client->apiPost(
@@ -247,6 +257,14 @@ class Components
         return $this->client->apiPost(
             "storage/components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/versions/{$version}/create",
             array('targetConfigId' => $targetConfigurationId, 'changeDescription' => $changeDescription)
+        );
+    }
+
+    public function createConfigurationWorkspace($componentId, $configurationId, array $options = [])
+    {
+        return $this->client->apiPost(
+            "storage/components/{$componentId}/configs/{$configurationId}/workspaces",
+            $options
         );
     }
 }
