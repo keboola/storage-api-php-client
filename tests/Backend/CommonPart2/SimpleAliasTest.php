@@ -38,7 +38,7 @@ class SimpleAliasTest extends StorageApiTestCase
         $sourceTable = $this->_client->getTable($sourceTableId);
 
         $expectedData = Client::parseCsv(file_get_contents($importFile));
-        $this->assertArrayEqualsSorted($expectedData, Client::parseCsv($this->_client->exportTable($sourceTableId)), 'id', 'data are present in source table');
+        $this->assertArrayEqualsSorted($expectedData, Client::parseCsv($this->_client->getTableDataPreview($sourceTableId)), 'id', 'data are present in source table');
 
         $exporter = new TableExporter($this->_client);
         $downloadPath = __DIR__ . '/../../_tmp/languages.sliced.csv';
@@ -63,7 +63,7 @@ class SimpleAliasTest extends StorageApiTestCase
 
         $this->assertArrayHasKey('sourceTable', $aliasTable);
         $this->assertEquals($sourceTableId, $aliasTable['sourceTable']['id'], 'new table linked to source table');
-        $this->assertArrayEqualsSorted($expectedData, Client::parseCsv($this->_client->exportTable($aliasTableId)), 'id', 'data are exported from source table');
+        $this->assertArrayEqualsSorted($expectedData, Client::parseCsv($this->_client->getTableDataPreview($aliasTableId)), 'id', 'data are exported from source table');
 
         $exporter->exportTable($sourceTableId, $downloadPath, []);
         $this->assertArrayEqualsSorted($expectedData, Client::parseCsv(file_get_contents($downloadPath)), 'id');
@@ -279,7 +279,7 @@ class SimpleAliasTest extends StorageApiTestCase
         $expectedColumns = array("id", "city", "sex", "age");
         $this->assertEquals($expectedColumns, $aliasTable["columns"]);
 
-        $data = $this->_client->parseCsv($this->_client->exportTable($aliasTableId));
+        $data = $this->_client->parseCsv($this->_client->getTableDataPreview($aliasTableId));
         $this->assertEquals($expectedColumns, array_keys(reset($data)));
 
 
@@ -429,7 +429,7 @@ class SimpleAliasTest extends StorageApiTestCase
             $aliasParams
         );
 
-        $data = $this->_client->exportTable($aliasTableId);
+        $data = $this->_client->getTableDataPreview($aliasTableId);
         $parsedData = Client::parseCsv($data, false);
         array_shift($parsedData); // remove header
 
@@ -493,7 +493,7 @@ class SimpleAliasTest extends StorageApiTestCase
             )
         );
 
-        $data = $this->_client->exportTable($aliasTableId);
+        $data = $this->_client->getTableDataPreview($aliasTableId);
         $parsedData = Client::parseCsv($data, false);
         array_shift($parsedData); // remove header
         $this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
@@ -541,7 +541,7 @@ class SimpleAliasTest extends StorageApiTestCase
             )
         );
 
-        $data = $this->_client->exportTable($aliasTableId, null, array(
+        $data = $this->_client->getTableDataPreview($aliasTableId, array(
             'whereColumn' => 'sex',
             'whereValues' => array('male'),
         ));
@@ -560,7 +560,7 @@ class SimpleAliasTest extends StorageApiTestCase
         array_shift($parsedData); // remove header
         $this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
 
-        $data = $this->_client->exportTable($aliasTableId, null, array(
+        $data = $this->_client->getTableDataPreview($aliasTableId, array(
             'whereColumn' => 'city',
             'whereValues' => array('VAN'),
         ));

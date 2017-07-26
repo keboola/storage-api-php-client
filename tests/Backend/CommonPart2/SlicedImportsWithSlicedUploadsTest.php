@@ -66,7 +66,7 @@ class SlicedImportsWithSlicedUploadsTest extends StorageApiTestCase
             'columns' => array('id', 'name'),
         ));
 
-        $this->assertLinesEqualsSorted(file_get_contents(__DIR__ . '/../../_data/languages.csv'), $this->_client->exportTable($tableId, null, array(
+        $this->assertLinesEqualsSorted(file_get_contents(__DIR__ . '/../../_data/languages.csv'), $this->_client->getTableDataPreview($tableId, array(
             'format' => 'rfc',
         )), 'imported data comparsion');
 
@@ -85,7 +85,7 @@ class SlicedImportsWithSlicedUploadsTest extends StorageApiTestCase
         array_shift($lines);
         $data = $data . implode("\n", $lines);
 
-        $this->assertLinesEqualsSorted($data, $this->_client->exportTable($tableId, null, array(
+        $this->assertLinesEqualsSorted($data, $this->_client->getTableDataPreview($tableId, array(
             'format' => 'rfc',
         )), 'imported data comparsion');
     }

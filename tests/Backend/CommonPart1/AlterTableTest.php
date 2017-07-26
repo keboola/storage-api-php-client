@@ -46,7 +46,7 @@ class AlterTableTest extends StorageApiTestCase
         $this->_client->writeTable($tableId, new CsvFile($importFileWithNewCol));
         $this->assertLinesEqualsSorted(
             file_get_contents($importFileWithNewCol),
-            $this->_client->exportTable($tableId),
+            $this->_client->getTableDataPreview($tableId),
             'new column is imported'
         );
     }

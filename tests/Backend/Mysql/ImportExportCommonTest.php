@@ -37,7 +37,7 @@ class ImportExportTest extends StorageApiTestCase
 
         $this->assertCount(2, reset($result['warnings']));
 
-        $this->assertLinesEqualsSorted(file_get_contents(__DIR__ . '/../../_data/warnings.languages-export.csv'), $this->_client->exportTable($tableId), 'imported data comparsion');
+        $this->assertLinesEqualsSorted(file_get_contents(__DIR__ . '/../../_data/warnings.languages-export.csv'), $this->_client->getTableDataPreview($tableId), 'imported data comparsion');
     }
 
     public function testTableImportInvalidLineBreaks()

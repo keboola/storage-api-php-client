@@ -36,7 +36,7 @@ class DeleteRowsTest extends StorageApiTestCase
         $this->_client->deleteTableRows($tableId, $filterParams);
         $tableInfo = $this->_client->getTable($tableId);
 
-        $data = $this->_client->exportTable($tableId);
+        $data = $this->_client->getTableDataPreview($tableId);
 
         $parsedData = Client::parseCsv($data, false);
         array_shift($parsedData); // remove header

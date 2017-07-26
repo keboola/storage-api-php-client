@@ -430,8 +430,8 @@ class SharingTest extends StorageApiTestCase
                 );
             }
 
-            $data = $this->_client->exportTable($table['id']);
-            $linkedData = $this->_client2->exportTable($linkedTables[$i]['id']);
+            $data = $this->_client->getTableDataPreview($table['id']);
+            $linkedData = $this->_client2->getTableDataPreview($linkedTables[$i]['id']);
 
             $this->assertLinesEqualsSorted($data, $linkedData);
         }

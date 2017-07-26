@@ -52,7 +52,7 @@ class SnapshottingTest extends StorageApiTestCase
         $this->_client->setTableAttribute($sourceTableId, 'second', 'another');
 
         $tableInfo = $this->_client->getTable($sourceTableId);
-        $tableData = $this->_client->exportTable($sourceTableId);
+        $tableData = $this->_client->getTableDataPreview($sourceTableId);
 
         // create snapshot
         $snapshotId = $this->_client->createTableSnapshot($sourceTableId);
@@ -86,11 +86,11 @@ class SnapshottingTest extends StorageApiTestCase
         $this->assertNotEquals($tableInfoBeforeRollback['lastChangeDate'], $tableInfoAfterRollback['lastChangeDate']);
         $this->assertNotEquals($tableInfoBeforeRollback['lastImportDate'], $tableInfoAfterRollback['lastImportDate']);
 
-        $this->assertEquals($tableData, $this->_client->exportTable($sourceTableId));
+        $this->assertEquals($tableData, $this->_client->getTableDataPreview($sourceTableId));
 
         $this->assertEmpty($aliasInfo['attributes']);
         $this->assertEquals($tableInfo['columns'], $aliasInfo['columns']);
-        $this->assertEquals($tableData, $this->_client->exportTable($aliasTableId));
+        $this->assertEquals($tableData, $this->_client->getTableDataPreview($aliasTableId));
     }
 
     public function testRollbackShouldBeDeniedWhenThereAreFilteredAliasesOnColumnsNotIndexedInSnapshot()
