@@ -1,3 +1,18 @@
+## 7.0.0 (2017-07-27)
+
+### BC Breaks
+
+- Removed deprecated classes:
+    - `Keboola\StorageApi\Config\Reader`
+    - `Keboola\StorageApi\OneLiner`
+    - `Keboola\StorageApi\Table`
+- Removed synchronous table export method `exportTable`
+
+### Features
+
+- New method `getTableDataPreview` added for table data preview fetch
+
+
 ## 6.5.0 (2017-07-26)
  * [Feat] - Component configuration workspaces supported `listConfigurationWorkspaces`, `createConfigurationWorkspace`
 
