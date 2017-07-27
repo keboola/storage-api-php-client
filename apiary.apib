@@ -1189,7 +1189,7 @@ Further information can be found in the [Developers Documentation](https://devel
 ## Data Preview [/v2/storage/tables/{table_id}/data-preview]
 ### Data preview [GET]
 
-Returns up to 1000 rows from table in CSV format. Rows can be filtered by various filters described below.
+Returns up to 1000 rows from table in CSV (RFC) format. Rows can be filtered by various filters described below.
 For full table download please read more in [Asynchronous Unload documentation](#reference/tables/unload-data-asynchronously)
 
 #### HTTP Compression
@@ -1208,12 +1208,6 @@ When you receive this message, please run the export again; these errors are ver
 + Attributes
     + limit (optional, number) - Limit the number of returned rows. Maximum allowed value is `1000`
         + Default: 100
-    + format (optional, enum[string]) - File format
-        + Members
-            + rfc - According to [RFC](http://www.ietf.org/rfc/rfc4180.txt).
-            + escaped - Delimited by a comma, enclosed by a double quote, special characters (e.g. new line, tab) escaped by a backslash. Each row in the CSV file is equal to one row in Storage.
-            + raw - Delimited by tab, without an enclosure, special characters (e.g. new line, tab)  escaped by a backslash. Each row in the CSV file is equal to one row in Storage.
-        + Default: rfc
     + changedSince (optional) - Filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp or any date accepted by [strtotime](http://www.php.net/manual/en/function.strtotime.php).
     + changedUntil (optional) - Filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp or any date accepted by [strtotime](http://www.php.net/manual/en/function.strtotime.php).
         Examples: `-2 days`, `1360138863`, `2013-02-12T15:19:21+00:00`
