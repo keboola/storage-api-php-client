@@ -294,6 +294,104 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         }
     }
 
+    public function testIncrementalAdditionalColumns()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages',
+            new CsvFile($importFile)
+        );
+
+        // first load
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                ],
+            ],
+        ];
+
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+        $this->assertEquals(5, $backend->countRows("languages"));
+
+        $this->_client->addTableColumn($tableId, 'test');
+
+        // second load with additional columns
+        $options = [
+            'preserve' => true,
+            'incremental' => true,
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                ],
+            ],
+        ];
+
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], $options);
+            $this->fail('Workspace should not be loaded');
+        } catch (ClientException $e) {
+            $this->assertEquals('workspace.columnsNotMatch', $e->getStringCode());
+            $this::assertContains($tableId, $e->getMessage());
+        }
+    }
+
+    public function testIncrementalMissingColumns()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages',
+            new CsvFile($importFile)
+        );
+
+        // first load
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                ],
+            ],
+        ];
+
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+        $this->assertEquals(5, $backend->countRows("languages"));
+
+        $this->_client->deleteTableColumn($tableId, 'name');
+
+        // second load with additional columns
+        $options = [
+            'preserve' => true,
+            'incremental' => true,
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                ],
+            ],
+        ];
+
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], $options);
+            $this->fail('Workspace should not be loaded');
+        } catch (ClientException $e) {
+            $this->assertEquals('workspace.columnsNotMatch', $e->getStringCode());
+            $this::assertContains($tableId, $e->getMessage());
+        }
+    }
+
     public function testIncremental()
     {
         $workspaces = new Workspaces($this->_client);
