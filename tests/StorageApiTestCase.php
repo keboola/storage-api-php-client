@@ -9,6 +9,7 @@
 
 namespace Keboola\Test;
 
+use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Options\ListFilesOptions;
 
@@ -59,6 +60,11 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
             $tables = $this->_client->listTables($bucket['id']);
             foreach ($tables as $table) {
                 $this->_client->dropTable($table['id']);
+            }
+            $metadataApi = new Metadata($this->_client);
+            $metadata = $metadataApi->listBucketMetadata($bucket['id']);
+            foreach ($metadata as $md) {
+                $metadataApi->deleteBucketMetadata($bucket['id'], $md['id']);
             }
             return $bucket['id'];
         } catch (\Keboola\StorageApi\ClientException $e) {
