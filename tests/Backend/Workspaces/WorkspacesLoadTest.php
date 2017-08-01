@@ -339,7 +339,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             $this->fail('Workspace should not be loaded');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.columnsNotMatch', $e->getStringCode());
-            $this::assertContains($tableId, $e->getMessage());
+            $this::assertContains('languages', $e->getMessage());
         }
     }
 
