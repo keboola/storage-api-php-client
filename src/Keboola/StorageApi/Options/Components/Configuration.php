@@ -133,7 +133,7 @@ class Configuration
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getChangeDescription()
     {
@@ -141,7 +141,7 @@ class Configuration
     }
 
     /**
-     * @param mixed $changeDescription
+     * @param string $changeDescription
      */
     public function setChangeDescription($changeDescription)
     {
