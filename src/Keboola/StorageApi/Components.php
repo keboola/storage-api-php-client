@@ -70,6 +70,10 @@ class Components
             $data['changeDescription'] = $options->getChangeDescription();
         }
 
+        if (count($options->getRowsSortOrder()) > 0) {
+            $data['rowsSortOrder'] = $options->getRowsSortOrder();
+        }
+
         return $this->client->apiPut(
             "storage/components/{$options->getComponentId()}/configs/{$options->getConfigurationId()}",
             $data
