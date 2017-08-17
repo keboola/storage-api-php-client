@@ -93,7 +93,7 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
         $configurationResponse = $components->getConfiguration('wr-db', 'main-1');
         $this->arrayHasKey('rowsSortOrder', $configurationResponse);
         $this->assertCount(2, $configurationResponse['rowsSortOrder']);
-        $this->assertEquals(['main-1-1', 'main-2-2'], $configurationResponse['rowsSortOrder']);
+        $this->assertEquals(['main-1-1', 'main-1-2'], $configurationResponse['rowsSortOrder']);
         $this->assertEquals('main-1-1', $configurationResponse['rows'][0]['id']);
         $this->assertEquals('main-1-2', $configurationResponse['rows'][1]['id']);
     }
@@ -188,11 +188,11 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
         } catch (\Keboola\StorageApi\ClientException $e) {
             // nebo 400?
             $this->assertEquals(400, $e->getCode());
-            $this->assertEquals('validation.missingRowId', $e->getStringCode());
+            $this->assertEquals('validation.invalidRowSortOrder', $e->getStringCode());
         }
     }
 
-    public function testReorderVersions()
+    public function testReorderVersionIncrease()
     {
         $components = new \Keboola\StorageApi\Components($this->_client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
@@ -285,9 +285,9 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
             ->setRowsSortOrder(['main-1-2', 'main-1-1']);
         $components->updateConfiguration($updateConfig);
 
-        $components->createConfigurationFromVersion('wr-db', 'main-1', 4, 'main-2');
+        $newConfig = $components->createConfigurationFromVersion('wr-db', 'main-1', 4, 'main-2');
 
-        $configurationResponse = $components->getConfiguration('wr-db', 'main-2');
+        $configurationResponse = $components->getConfiguration('wr-db', $newConfig["id"]);
         $this->assertEquals(['main-1-2', 'main-1-1'], $configurationResponse['rowsSortOrder']);
         $this->assertEquals('main-1-2', $configurationResponse['rows'][0]['id']);
         $this->assertEquals('main-1-1', $configurationResponse['rows'][1]['id']);
@@ -320,5 +320,85 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
         $this->assertEquals(['main-1-2', 'main-1-3'], $configurationResponse['rowsSortOrder']);
         $this->assertEquals('main-1-2', $configurationResponse['rows'][0]['id']);
         $this->assertEquals('main-1-3', $configurationResponse['rows'][1]['id']);
+    }
+
+    public function testVersionsAttributeExists()
+    {
+        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main')
+        );
+
+        $configurationResponse = $components->getConfigurationVersion('wr-db', 'main-1', 1);
+        $this->arrayHasKey('rowsSortOrder', $configurationResponse);
+        $this->assertEmpty($configurationResponse['rowsSortOrder']);
+        $this->assertInternalType('array', $configurationResponse['rowsSortOrder']);
+    }
+
+    public function testVersionsAttributeValue()
+    {
+        $components = new \Keboola\StorageApi\Components($this->_client);
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main');
+        $components->addConfiguration($configuration);
+
+        $configurationResponse = $components->getConfigurationVersion('wr-db', 'main-1', 1);
+        $this->assertEquals([], $configurationResponse['rowsSortOrder']);
+
+        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRow->setRowId('main-1-1');
+        $components->addConfigurationRow($configurationRow);
+
+        $configurationResponse = $components->getConfigurationVersion('wr-db', 'main-1', 2);
+        $this->assertEquals(['main-1-1'], $configurationResponse['rowsSortOrder']);
+
+        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRow->setRowId('main-1-2');
+        $components->addConfigurationRow($configurationRow);
+
+        $configurationResponse = $components->getConfigurationVersion('wr-db', 'main-1', 3);
+        $this->assertEquals(['main-1-1', 'main-1-2'], $configurationResponse['rowsSortOrder']);
+        $this->assertEquals('main-1-1', $configurationResponse['rows'][0]['id']);
+        $this->assertEquals('main-1-2', $configurationResponse['rows'][1]['id']);
+
+        $updateConfig = new Configuration();
+        $updateConfig
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setRowsSortOrder(['main-1-2', 'main-1-1']);
+        $components->updateConfiguration($updateConfig);
+
+        $configurationResponse = $components->getConfigurationVersion('wr-db', 'main-1', 4);
+        $this->assertEquals(['main-1-2', 'main-1-1'], $configurationResponse['rowsSortOrder']);
+        $this->assertEquals('main-1-2', $configurationResponse['rows'][0]['id']);
+        $this->assertEquals('main-1-1', $configurationResponse['rows'][1]['id']);
+
+        $components->deleteConfigurationRow('wr-db', 'main-1', 'main-1-2');
+
+        $configurationResponse = $components->getConfigurationVersion('wr-db', 'main-1', 5);
+        $this->assertEquals(['main-1-1'], $configurationResponse['rowsSortOrder']);
+        $this->assertEquals('main-1-1', $configurationResponse['rows'][0]['id']);
+
+        $configurationResponse = $components->getConfigurationVersion('wr-db', 'main-1', 4);
+        $this->assertEquals(['main-1-2', 'main-1-1'], $configurationResponse['rowsSortOrder']);
+        $this->assertEquals('main-1-2', $configurationResponse['rows'][0]['id']);
+        $this->assertEquals('main-1-1', $configurationResponse['rows'][1]['id']);
+
+        $configurationResponse = $components->getConfigurationVersion('wr-db', 'main-1', 3);
+        $this->assertEquals(['main-1-1', 'main-1-2'], $configurationResponse['rowsSortOrder']);
+        $this->assertEquals('main-1-1', $configurationResponse['rows'][0]['id']);
+        $this->assertEquals('main-1-2', $configurationResponse['rows'][1]['id']);
+
+        $configurationResponse = $components->getConfigurationVersion('wr-db', 'main-1', 2);
+        $this->assertEquals(['main-1-1'], $configurationResponse['rowsSortOrder']);
+
+        $configurationResponse = $components->getConfigurationVersion('wr-db', 'main-1', 1);
+        $this->assertEquals([], $configurationResponse['rowsSortOrder']);
+
     }
 }
