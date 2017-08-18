@@ -3675,6 +3675,7 @@ Lists all configurations for a component including all config rows.
                         },
                         "changeDescription": "Row row1 added"
                     },
+                    "rowsSortOrder": [],
                     "rows": [
                         {
                             "id": "row1",
@@ -3778,6 +3779,7 @@ Gets the component configuration detail.
                     "key": "value",
                     "key2": "value2"
                 },
+                "rowsSortOrder": [],
                 "rows": [],
                 "state": {},
                 "currentVersion": {
@@ -3804,7 +3806,7 @@ marked as `currentVersion`.
     + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB.
     + state (optional) - Serialized state configuration JSON; the maximum allowed size is 4MB.
     + changeDescription (optional) - Description of the configuration modification
-    + rowsSortOrder (optional) - Array of row ids in new order, you have to specify all row ids
+    + rowsSortOrder (optional) - Array of row ids in desired order, you have to specify all row ids
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -3836,6 +3838,7 @@ marked as `currentVersion`.
                     "key2": "value2",
                     "key3": "value3"
                 },
+                "rowsSortOrder": [],
                 "rows": [],
                 "state": {},
                 "currentVersion": {
@@ -4045,6 +4048,7 @@ Gets configuration version.
                 "description": "",
                 "configuration": {},
                 "state": {},
+                "rowsSortOrder": [],
                 "rows": []
             }
 
