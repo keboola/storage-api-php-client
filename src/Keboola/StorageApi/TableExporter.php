@@ -101,7 +101,10 @@ class TableExporter
                 $s3Client->getObject(array(
                     'Bucket' => $fileInfo["s3Path"]["bucket"],
                     'Key' => $fileKey,
-                    'SaveAs' => $filePath
+                    'SaveAs' => $filePath,
+                    'http' => [
+                        'decode_content' => false,
+                    ],
                 ));
             }
 
@@ -170,7 +173,11 @@ class TableExporter
             $s3Client->getObject(array(
                 'Bucket' => $fileInfo["s3Path"]["bucket"],
                 'Key' => $fileInfo["s3Path"]["key"],
-                'SaveAs' => $tmpFilePath
+                'SaveAs' => $tmpFilePath,
+                'http' => [
+                    'decode_content' => false,
+                ],
+
             ));
             $fs->rename($tmpFilePath, $destination);
         }
