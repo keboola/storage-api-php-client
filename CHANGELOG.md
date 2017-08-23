@@ -1,3 +1,7 @@
+## 7.0.1 (2017-08-23)
+
+- [Fix] Table Async Export - don't automatically decode S3 file during download (Fixes http://status.keboola.com/mysql-transformation-failures)
+
 ## 7.0.0 (2017-07-27)
 
 ### BC Breaks
@@ -10,7 +14,7 @@
 
 ### Features
 
-- New method `getTableDataPreview` added for table data preview fetch
+- New method `getTableDataPreview` added for table data preview fetch****
 
 
 ## 6.5.0 (2017-07-26)
