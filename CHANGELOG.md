@@ -1,3 +1,7 @@
+## 7.0.2 (2017-08-23)
+
+- [Fix] Table Async Export - decode S3  content
+
 ## 7.0.1 (2017-08-23)
 
 - [Fix] Table Async Export - don't automatically decode S3 file during download (Fixes http://status.keboola.com/mysql-transformation-failures)
