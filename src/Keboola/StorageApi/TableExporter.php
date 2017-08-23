@@ -62,6 +62,9 @@ class TableExporter
                 'secret' => $fileInfo["credentials"]["SecretAccessKey"],
                 'token' => $fileInfo["credentials"]["SessionToken"],
             ],
+            'http' => [
+                'decode_content' => false,
+            ],
         ]);
 
         // Temporary folder to save downloaded files from S3
@@ -102,9 +105,6 @@ class TableExporter
                     'Bucket' => $fileInfo["s3Path"]["bucket"],
                     'Key' => $fileKey,
                     'SaveAs' => $filePath,
-                    'http' => [
-                        'decode_content' => false,
-                    ],
                 ));
             }
 
@@ -174,10 +174,6 @@ class TableExporter
                 'Bucket' => $fileInfo["s3Path"]["bucket"],
                 'Key' => $fileInfo["s3Path"]["key"],
                 'SaveAs' => $tmpFilePath,
-                'http' => [
-                    'decode_content' => false,
-                ],
-
             ));
             $fs->rename($tmpFilePath, $destination);
         }
