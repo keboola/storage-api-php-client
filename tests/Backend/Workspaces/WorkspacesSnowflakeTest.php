@@ -134,4 +134,241 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
         $this->assertEquals("Date", $cols[1]['name']);
         $this->assertEquals("VARCHAR(16777216)", $cols[1]['type']);
     }
+
+    public function testLoadIncremental()
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $tableId = $this->_client->createTable(
+            $bucketId,
+            'languages',
+            new CsvFile($importFile),
+            ['primaryKey' => 'id']
+        );
+
+        // first load
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                    'whereColumn' => 'name',
+                    'whereValues' => ['czech'],
+                ],
+            ],
+        ];
+
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+        $this->assertEquals(1, $backend->countRows("languages"));
+
+        // second load
+        $options = [
+            'incremental' => true,
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                    'whereColumn' => 'name',
+                    'whereValues' => ['english', 'czech'],
+                ],
+            ],
+        ];
+
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+        $this->assertEquals(2, $backend->countRows("languages"));
+    }
+
+    public function testLoadIncrementalNullable()
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+
+        $importFile = __DIR__ . '/../../_data/languages.with-state.csv';
+        $tableId = $this->_client->createTable(
+            $bucketId,
+            'languages',
+            new CsvFile($importFile),
+            ['primaryKey' => 'id']
+        );
+
+        // first load
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                    'whereColumn' => 'id',
+                    'whereValues' => [0, 26, 1],
+                    'datatypes' => [
+                        'id' => [
+                            'column' =>  'id',
+                            'type' => 'SMALLINT',
+                            'nullable' => false,
+                        ],
+                        'name' => [
+                            'column' =>  'name',
+                            'type' => 'VARCHAR',
+                            'length' => '50',
+                            'nullable' => false,
+                        ],
+                        'State' => [
+                            'column' =>  'State',
+                            'type' => 'VARCHAR',
+                            'convertEmptyValuesToNull' => true,
+                            'nullable' => true,
+                        ],
+                    ]
+                ],
+            ],
+        ];
+
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+        $this->assertEquals(3, $backend->countRows('languages'));
+
+        // second load
+        $options = [
+            'incremental' => true,
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                    'whereColumn' => 'id',
+                    'whereValues' => [11, 26, 24],
+                    'datatypes' => [
+                        'id' => [
+                            'column' =>  'id',
+                            'type' => 'SMALLINT',
+                            'nullable' => false,
+                        ],
+                        'name' => [
+                            'column' =>  'name',
+                            'type' => 'VARCHAR',
+                            'length' => '50',
+                            'nullable' => false,
+                        ],
+                        'State' => [
+                            'column' =>  'State',
+                            'type' => 'VARCHAR',
+                            'convertEmptyValuesToNull' => true,
+                            'nullable' => true,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+        $this->assertEquals(5, $backend->countRows('languages'));
+
+        $rows = $backend->fetchAll('languages', \PDO::FETCH_ASSOC);
+        foreach ($rows as $row) {
+            $this->assertArrayHasKey('State', $row);
+            $this->assertArrayHasKey('id', $row);
+
+            if (in_array($row['id'], ["0", "11", "24"])) {
+                $this->assertNull($row['State']);
+            }
+        }
+    }
+
+    public function testLoadIncrementalNotNullable()
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+
+        $importFile = __DIR__ . '/../../_data/languages.with-state.csv';
+        $tableId = $this->_client->createTable(
+            $bucketId,
+            'languages',
+            new CsvFile($importFile),
+            ['primaryKey' => 'id']
+        );
+
+        // first load
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                    'whereColumn' => 'id',
+                    'whereValues' => [26, 1],
+                    'datatypes' => [
+                        'id' => [
+                            'column' =>  'id',
+                            'type' => 'SMALLINT',
+                            'nullable' => false,
+                        ],
+                        'name' => [
+                            'column' =>  'name',
+                            'type' => 'VARCHAR',
+                            'length' => '50',
+                            'nullable' => false,
+                        ],
+                        'State' => [
+                            'column' =>  'State',
+                            'type' => 'VARCHAR',
+                            'convertEmptyValuesToNull' => true,
+                            'nullable' => false,
+                        ],
+                    ]
+                ],
+            ],
+        ];
+
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+        $this->assertEquals(2, $backend->countRows('languages'));
+
+        // second load
+        $options = [
+            'incremental' => true,
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                    'whereColumn' => 'id',
+                    'whereValues' => [11, 26, 24],
+                    'datatypes' => [
+                        'id' => [
+                            'column' =>  'id',
+                            'type' => 'SMALLINT',
+                            'nullable' => false,
+                        ],
+                        'name' => [
+                            'column' =>  'name',
+                            'type' => 'VARCHAR',
+                            'length' => '50',
+                            'nullable' => false,
+                        ],
+                        'State' => [
+                            'column' =>  'State',
+                            'type' => 'VARCHAR',
+                            'convertEmptyValuesToNull' => true,
+                            'nullable' => false,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], $options);
+            $this->fail('Load columns wit NULL should fail');
+        } catch (ClientException $e) {
+            $this->assertEquals('workspace.tableLoad', $e->getStringCode());
+        }
+    }
 }
