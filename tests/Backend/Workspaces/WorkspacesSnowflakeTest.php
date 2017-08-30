@@ -371,4 +371,133 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
             $this->assertEquals('workspace.tableLoad', $e->getStringCode());
         }
     }
+
+    /**
+     * @dataProvider dataTypesDiffDefinitions
+     */
+    public function testsIncrementalDataTypesDiff($table, $firstLoadDataTypes, $secondLoadDataTypes, $shouldFail)
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+
+        $importFile = __DIR__ . "/../../_data/$table.csv";
+
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            $table,
+            new CsvFile($importFile)
+        );
+
+        // first load
+        $options = [
+            'incremental' => false,
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => $table,
+                    'datatypes' => $firstLoadDataTypes,
+                ],
+            ],
+        ];
+
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+
+        // second load - incremental
+        $options = [
+            'incremental' => true,
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => $table,
+                    'datatypes' => $secondLoadDataTypes,
+                ],
+            ],
+        ];
+
+        if ($shouldFail) {
+            try {
+                $workspaces->loadWorkspaceData($workspace['id'], $options);
+                $this->fail('Incremental load with different datatypes should fail');
+            } catch (ClientException $e) {
+                $this->assertEquals('workspace.columnsTypesNotMatch', $e->getStringCode());
+                $this->assertContains('Different mapping between', $e->getMessage());
+            }
+        } else {
+            $workspaces->loadWorkspaceData($workspace['id'], $options);
+        }
+    }
+
+    public function dataTypesDiffDefinitions()
+    {
+        return [
+            [
+                'rates',
+                [
+                    'Date' => [
+                        'column' =>  'Date',
+                        'type' => 'DATETIME',
+                        'length' => '0',
+                    ],
+                ],
+                [
+                    'Date' => [
+                        'column' =>  'Date',
+                        'type' => 'DATETIME',
+                        'length' => '9',
+                    ],
+                ],
+                true,
+            ],
+            [
+                'rates',
+                [
+                    'Date' => [
+                        'column' =>  'Date',
+                        'type' => 'DATETIME',
+                        'length' => '3',
+                    ],
+                ],
+                [
+                    'Date' => [
+                        'column' =>  'Date',
+                        'type' => 'TIMESTAMP_NTZ',
+                        'length' => '3',
+                    ],
+                ],
+                false,
+            ],
+            [
+                'languages',
+                [
+                    'id' => [
+                        'column' =>  'id',
+                        'type' => 'SMALLINT',
+                    ],
+                ],
+                [
+                    'id' => [
+                        'column' =>  'id',
+                        'type' => 'NUMBER',
+                    ],
+                ],
+                false,
+            ],
+            [
+                'languages',
+                [
+                    'id' => [
+                        'column' =>  'id',
+                        'type' => 'DOUBLE',
+                    ],
+                ],
+                [
+                    'id' => [
+                        'column' =>  'id',
+                        'type' => 'REAL',
+                    ],
+                ],
+                false,
+            ],
+        ];
+    }
 }
