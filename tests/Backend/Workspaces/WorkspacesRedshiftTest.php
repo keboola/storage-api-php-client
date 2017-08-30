@@ -371,11 +371,11 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
 
         $rows = $backend->fetchAll('languages', \PDO::FETCH_ASSOC);
         foreach ($rows as $row) {
-            $this->assertArrayHasKey('State', $row);
+            $this->assertArrayHasKey('state', $row);
             $this->assertArrayHasKey('id', $row);
 
             if (in_array($row['id'], ["0", "11", "24"])) {
-                $this->assertNull($row['State']);
+                $this->assertNull($row['state']);
             }
         }
     }
