@@ -100,7 +100,7 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
         $this->assertEquals(['main-1-1'], $configurationResponse['rowsSortOrder']);
     }
 
-    public function testAddRowToUnsorted()
+    public function testAddRowToSorted()
     {
         $components = new \Keboola\StorageApi\Components($this->_client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
@@ -122,19 +122,19 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
         $components->updateConfiguration($updateConfig);
 
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
-        $configurationRow->setRowId('main-1-2');
+        $configurationRow->setRowId('abcd');
         $components->addConfigurationRow($configurationRow);
 
         $configurationResponse = $components->getConfiguration('wr-db', 'main-1');
         $this->arrayHasKey('rowsSortOrder', $configurationResponse);
         $this->assertCount(2, $configurationResponse['rowsSortOrder']);
-        $this->assertEquals(['main-1-1', 'main-1-2'], $configurationResponse['rowsSortOrder']);
+        $this->assertEquals(['main-1-1', 'abcd'], $configurationResponse['rowsSortOrder']);
         $this->assertEquals('main-1-1', $configurationResponse['rows'][0]['id']);
-        $this->assertEquals('main-1-2', $configurationResponse['rows'][1]['id']);
+        $this->assertEquals('abcd', $configurationResponse['rows'][1]['id']);
     }
 
 
-    public function testAddRowToSorted()
+    public function testAddRowToUnsorted()
     {
         $components = new \Keboola\StorageApi\Components($this->_client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
@@ -149,14 +149,14 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
         $components->addConfigurationRow($configurationRow);
 
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
-        $configurationRow->setRowId('main-1-2');
+        $configurationRow->setRowId('abcd');
         $components->addConfigurationRow($configurationRow);
 
         $configurationResponse = $components->getConfiguration('wr-db', 'main-1');
         $this->arrayHasKey('rowsSortOrder', $configurationResponse);
         $this->assertCount(0, $configurationResponse['rowsSortOrder']);
-        $this->assertEquals('main-1-1', $configurationResponse['rows'][0]['id']);
-        $this->assertEquals('main-1-2', $configurationResponse['rows'][1]['id']);
+        $this->assertEquals('abcd', $configurationResponse['rows'][0]['id']);
+        $this->assertEquals('main-1-1', $configurationResponse['rows'][1]['id']);
     }
 
     public function testReorder()
