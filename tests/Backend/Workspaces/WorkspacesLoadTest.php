@@ -443,7 +443,6 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             $this->assertEquals('workspace.columnsTypesNotMatch', $e->getStringCode());
             $this->assertContains('Different mapping between', $e->getMessage());
         }
-
     }
 
     public function testSecondsFilter()
