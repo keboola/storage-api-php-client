@@ -251,6 +251,14 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
             ['primaryKey' => 'id']
         );
 
+        $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
+        $table2Id = $this->_client->createTable(
+            $bucketId,
+            'languagesDetails',
+            new CsvFile($importFile),
+            ['primaryKey' => 'Id']
+        );
+
         // first load
         $options = [
             'input' => [
@@ -260,11 +268,16 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
                     'whereColumn' => 'name',
                     'whereValues' => ['czech', 'french'],
                 ],
+                [
+                    'source' => $table2Id,
+                    'destination' => 'languagesDetails',
+                ],
             ],
         ];
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
         $this->assertEquals(2, $backend->countRows("languages"));
+        $this->assertEquals(5, $backend->countRows("languagesDetails"));
 
         // second load
         $options = [
@@ -276,11 +289,91 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
                     'whereColumn' => 'name',
                     'whereValues' => ['english', 'czech'],
                 ],
+                [
+                    'source' => $table2Id,
+                    'destination' => 'languagesDetails',
+                    'whereColumn' => 'iso',
+                    'whereValues' => ['ff'],
+                ],
             ],
         ];
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
         $this->assertEquals(3, $backend->countRows("languages"));
+        $this->assertEquals(3, $backend->countRows("languagesDetails"));
+    }
+
+    public function testLoadIncrementalAndPreserve()
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $tableId = $this->_client->createTable(
+            $bucketId,
+            'languages',
+            new CsvFile($importFile),
+            ['primaryKey' => 'id']
+        );
+
+        $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
+        $table2Id = $this->_client->createTable(
+            $bucketId,
+            'languagesDetails',
+            new CsvFile($importFile),
+            ['primaryKey' => 'Id']
+        );
+
+        // first load
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                    'whereColumn' => 'name',
+                    'whereValues' => ['czech', 'french'],
+                ],
+                [
+                    'source' => $table2Id,
+                    'destination' => 'languagesDetails',
+                ],
+            ],
+        ];
+
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+        $this->assertEquals(2, $backend->countRows("languages"));
+        $this->assertEquals(5, $backend->countRows("languagesDetails"));
+
+        // second load
+        $options = [
+            'preserve' => true,
+            'input' => [
+                [
+                    'incremental' => true,
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                    'whereColumn' => 'name',
+                    'whereValues' => ['english', 'czech'],
+                ],
+                [
+                    'source' => $table2Id,
+                    'destination' => 'languagesDetails',
+                    'whereColumn' => 'iso',
+                    'whereValues' => ['ff'],
+                ],
+            ],
+        ];
+
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], $options);
+            $this->fail('Non incremental load to existing table should fail');
+        } catch (ClientException $e) {
+            $this->assertEquals('workspace.duplicateTable', $e->getStringCode());
+        }
     }
 
     public function testLoadIncrementalNullable()
