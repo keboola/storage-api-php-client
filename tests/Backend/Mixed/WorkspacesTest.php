@@ -383,13 +383,13 @@ class WorkspacesTest extends WorkspacesTestCase
                     'source' => $tableId,
                     'destination' => 'languages',
                     'whereColumn' => 'name',
-                    'whereValues' => ['czech'],
+                    'whereValues' => ['czech', 'french'],
                 ],
             ],
         ];
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
-        $this->assertEquals(1, $backend->countRows("languages"));
+        $this->assertEquals(2, $backend->countRows("languages"));
 
         // second load
         $options = [
@@ -405,7 +405,7 @@ class WorkspacesTest extends WorkspacesTestCase
         ];
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
-        $this->assertEquals(2, $backend->countRows("languages"));
+        $this->assertEquals(3, $backend->countRows("languages"));
     }
 
     /**
