@@ -268,9 +268,9 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
 
         // second load
         $options = [
-            'incremental' => true,
             'input' => [
                 [
+                    'incremental' => true,
                     'source' => $tableId,
                     'destination' => 'languages',
                     'whereColumn' => 'name',
@@ -289,6 +289,7 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
 
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
+
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
 
@@ -336,9 +337,9 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
 
         // second load
         $options = [
-            'incremental' => true,
             'input' => [
                 [
+                    'incremental' => true,
                     'source' => $tableId,
                     'destination' => 'languages',
                     'whereColumn' => 'id',
@@ -433,9 +434,9 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
 
         // second load
         $options = [
-            'incremental' => true,
             'input' => [
                 [
+                    'incremental' => true,
                     'source' => $tableId,
                     'destination' => 'languages',
                     'whereColumn' => 'id',

@@ -169,9 +169,9 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
 
         // second load
         $options = [
-            'incremental' => true,
             'input' => [
                 [
+                    'incremental' => true,
                     'source' => $tableId,
                     'destination' => 'languages',
                     'whereColumn' => 'name',
@@ -237,9 +237,9 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
 
         // second load
         $options = [
-            'incremental' => true,
             'input' => [
                 [
+                    'incremental' => true,
                     'source' => $tableId,
                     'destination' => 'languages',
                     'whereColumn' => 'id',
@@ -334,9 +334,9 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
 
         // second load
         $options = [
-            'incremental' => true,
             'input' => [
                 [
+                    'incremental' => true,
                     'source' => $tableId,
                     'destination' => 'languages',
                     'whereColumn' => 'id',
@@ -390,7 +390,6 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
 
         // first load
         $options = [
-            'incremental' => false,
             'input' => [
                 [
                     'source' => $tableId,
@@ -404,9 +403,9 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
 
         // second load - incremental
         $options = [
-            'incremental' => true,
             'input' => [
                 [
+                    'incremental' => true,
                     'source' => $tableId,
                     'destination' => $table,
                     'datatypes' => $secondLoadDataTypes,

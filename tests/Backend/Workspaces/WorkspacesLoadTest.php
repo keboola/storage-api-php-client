@@ -324,10 +324,9 @@ class WorkspaceLoadTest extends WorkspacesTestCase
 
         // second load with additional columns
         $options = [
-            'preserve' => true,
-            'incremental' => true,
             'input' => [
                 [
+                    'incremental' => true,
                     'source' => $tableId,
                     'destination' => 'languages',
                 ],
@@ -374,10 +373,9 @@ class WorkspaceLoadTest extends WorkspacesTestCase
 
         // second load with additional columns
         $options = [
-            'preserve' => true,
-            'incremental' => true,
             'input' => [
                 [
+                    'incremental' => true,
                     'source' => $tableId,
                     'destination' => 'languages',
                 ],
@@ -412,7 +410,6 @@ class WorkspaceLoadTest extends WorkspacesTestCase
 
         // first load
         $options = [
-            'incremental' => false,
             'input' => [
                 [
                     'source' => $tableId,
@@ -426,9 +423,9 @@ class WorkspaceLoadTest extends WorkspacesTestCase
 
         // second load - incremental
         $options = [
-            'incremental' => true,
             'input' => [
                 [
+                    'incremental' => true,
                     'source' => $tableId,
                     'destination' => $table,
                     'datatypes' => $secondLoadDataTypes,

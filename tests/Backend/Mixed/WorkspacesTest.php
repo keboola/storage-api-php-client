@@ -393,9 +393,9 @@ class WorkspacesTest extends WorkspacesTestCase
 
         // second load
         $options = [
-            'incremental' => true,
             'input' => [
                 [
+                    'incremental' => true,
                     'source' => $tableId,
                     'destination' => 'languages',
                     'whereColumn' => 'name',
@@ -474,9 +474,9 @@ class WorkspacesTest extends WorkspacesTestCase
 
         // second load
         $options = [
-            'incremental' => true,
             'input' => [
                 [
+                    'incremental' => true,
                     'source' => $tableId,
                     'destination' => 'languages',
                     'whereColumn' => 'id',
@@ -584,9 +584,9 @@ class WorkspacesTest extends WorkspacesTestCase
 
         // second load
         $options = [
-            'incremental' => true,
             'input' => [
                 [
+                    'incremental' => true,
                     'source' => $tableId,
                     'destination' => 'languages',
                     'whereColumn' => 'id',
