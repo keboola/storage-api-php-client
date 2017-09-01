@@ -1,3 +1,7 @@
+## 7.1.0 (2017-09-01)
+
+- [Feat] Component configurations - rows sort order
+
 ## 7.0.2 (2017-08-23)
 
 - [Fix] Table Async Export - decode S3  content
