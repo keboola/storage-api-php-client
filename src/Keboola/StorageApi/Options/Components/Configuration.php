@@ -27,6 +27,8 @@ class Configuration
 
     private $changeDescription;
 
+    private $rowsSortOrder;
+
     /**
      * @return mixed
      */
@@ -131,7 +133,7 @@ class Configuration
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getChangeDescription()
     {
@@ -139,11 +141,29 @@ class Configuration
     }
 
     /**
-     * @param mixed $changeDescription
+     * @param string $changeDescription
      */
     public function setChangeDescription($changeDescription)
     {
         $this->changeDescription = $changeDescription;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRowsSortOrder()
+    {
+        return $this->rowsSortOrder;
+    }
+
+    /**
+     * @param array $rowsSortOrder
+     * @return $this
+     */
+    public function setRowsSortOrder(array $rowsSortOrder)
+    {
+        $this->rowsSortOrder = $rowsSortOrder;
         return $this;
     }
 }
