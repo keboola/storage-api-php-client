@@ -453,7 +453,7 @@ class WorkspacesTest extends WorkspacesTestCase
                             'nullable' => false,
                         ],
                         'name' => [
-                            'column' =>  'name',
+                            'column' => 'name',
                             'type' => 'VARCHAR',
                             'length' => '50',
                             'nullable' => false,
@@ -507,13 +507,19 @@ class WorkspacesTest extends WorkspacesTestCase
         $workspaces->loadWorkspaceData($workspace['id'], $options);
         $this->assertEquals(5, $backend->countRows('languages'));
 
+
         $rows = $backend->fetchAll('languages', \PDO::FETCH_ASSOC);
+        // lower case keys - Redshift issue
+        $rows = array_map(function ($row) {
+            return array_change_key_case($row, CASE_LOWER);
+        }, $rows);
+
         foreach ($rows as $row) {
-            $this->assertArrayHasKey('State', $row);
+            $this->assertArrayHasKey('state', $row);
             $this->assertArrayHasKey('id', $row);
 
             if (in_array($row['id'], ["0", "11", "24"])) {
-                $this->assertNull($row['State']);
+                $this->assertNull($row['state']);
             }
         }
     }
