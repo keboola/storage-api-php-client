@@ -294,6 +294,154 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         }
     }
 
+    public function testIncrementalAdditionalColumns()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages',
+            new CsvFile($importFile)
+        );
+
+        // first load
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                ],
+            ],
+        ];
+
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+        $this->assertEquals(5, $backend->countRows("languages"));
+
+        $this->_client->addTableColumn($tableId, 'test');
+
+        // second load with additional columns
+        $options = [
+            'input' => [
+                [
+                    'incremental' => true,
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                ],
+            ],
+        ];
+
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], $options);
+            $this->fail('Workspace should not be loaded');
+        } catch (ClientException $e) {
+            $this->assertEquals('workspace.columnsNotMatch', $e->getStringCode());
+            $this->assertContains('columns are missing in workspace table', $e->getMessage());
+            $this->assertContains('languages', $e->getMessage());
+        }
+    }
+
+    public function testIncrementalMissingColumns()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages',
+            new CsvFile($importFile)
+        );
+
+        // first load
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                ],
+            ],
+        ];
+
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+        $this->assertEquals(5, $backend->countRows("languages"));
+
+        $this->_client->deleteTableColumn($tableId, 'name');
+
+        // second load with additional columns
+        $options = [
+            'input' => [
+                [
+                    'incremental' => true,
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                ],
+            ],
+        ];
+
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], $options);
+            $this->fail('Workspace should not be loaded');
+        } catch (ClientException $e) {
+            $this->assertEquals('workspace.columnsNotMatch', $e->getStringCode());
+            $this->assertContains('columns are missing in source table', $e->getMessage());
+            $this->assertContains($tableId, $e->getMessage());
+        }
+    }
+
+    /**
+     * @dataProvider dataTypesErrorDefinitions
+     */
+    public function testIncrementalDataTypesDiff($table, $firstLoadDataTypes, $secondLoadDataTypes)
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+
+        $importFile = __DIR__ . "/../../_data/$table.csv";
+
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            $table,
+            new CsvFile($importFile)
+        );
+
+        // first load
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => $table,
+                    'datatypes' => $firstLoadDataTypes,
+                ],
+            ],
+        ];
+
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+
+        // second load - incremental
+        $options = [
+            'input' => [
+                [
+                    'incremental' => true,
+                    'source' => $tableId,
+                    'destination' => $table,
+                    'datatypes' => $secondLoadDataTypes,
+                ],
+            ],
+        ];
+
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], $options);
+            $this->fail('Incremental load with different datatypes should fail');
+        } catch (ClientException $e) {
+            $this->assertEquals('workspace.columnsTypesNotMatch', $e->getStringCode());
+            $this->assertContains('Different mapping between', $e->getMessage());
+        }
+    }
+
     public function testSecondsFilter()
     {
         $workspaces = new Workspaces($this->_client);
@@ -465,7 +613,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             $this->fail('Workspace should not be loaded');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.tableLoad', $e->getStringCode());
-            $this::assertContains($tableId, $e->getMessage());
+            $this->assertContains($tableId, $e->getMessage());
         }
 
         // table should be created but we should be able to delete it
@@ -871,6 +1019,97 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                     ]
                 ]
             ]
+        ];
+    }
+
+    public function dataTypesErrorDefinitions()
+    {
+        return [
+            [
+                'languages',
+                [
+                    'name' => [
+                        'column' =>  'name',
+                        'type' => 'VARCHAR',
+                    ],
+                ],
+                [
+                    'id' => [
+                        'column' =>  'name',
+                        'type' => 'CHARACTER',
+                    ],
+                ],
+            ],
+            [
+                'languages',
+                [
+                    'name' => [
+                        'column' =>  'name',
+                        'type' => 'VARCHAR',
+                    ],
+                ],
+                [
+                    'id' => [
+                        'column' =>  'name',
+                        'type' => 'VARCHAR',
+                        'length' => 30,
+                    ],
+                ],
+            ],
+            [
+                'languages',
+                [
+                    'name' => [
+                        'column' =>  'name',
+                        'type' => 'VARCHAR',
+                        'length' => 50,
+                    ],
+                ],
+                [
+                    'id' => [
+                        'column' =>  'name',
+                        'type' => 'VARCHAR',
+                        'length' => 30,
+                    ],
+                ],
+            ],
+            [
+                'languages',
+                [
+                    'name' => [
+                        'column' =>  'name',
+                        'type' => 'VARCHAR',
+                        'length' => 50,
+                        'nullable' => false,
+                    ],
+                ],
+                [
+                    'id' => [
+                        'column' =>  'name',
+                        'type' => 'VARCHAR',
+                        'length' => 50,
+                    ],
+                ],
+            ],
+            [
+                'languages',
+                [
+                    'name' => [
+                        'column' =>  'name',
+                        'type' => 'VARCHAR',
+                        'length' => 50,
+                        'nullable' => false,
+                    ],
+                ],
+                [
+                    'id' => [
+                        'column' =>  'name',
+                        'type' => 'VARCHAR',
+                        'length' => 50,
+                        'nullable' => true,
+                    ],
+                ],
+            ],
         ];
     }
 }
