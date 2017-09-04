@@ -447,18 +447,18 @@ class WorkspacesTest extends WorkspacesTestCase
                     'whereColumn' => 'id',
                     'whereValues' => [0, 26, 1],
                     'datatypes' => [
-                        'id' => [
+                        [
                             'column' =>  'id',
                             'type' => 'SMALLINT',
                             'nullable' => false,
                         ],
-                        'name' => [
+                        [
                             'column' => 'name',
                             'type' => 'VARCHAR',
                             'length' => '50',
                             'nullable' => false,
                         ],
-                        'State' => [
+                        [
                             'column' =>  'State',
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
@@ -482,18 +482,18 @@ class WorkspacesTest extends WorkspacesTestCase
                     'whereColumn' => 'id',
                     'whereValues' => [11, 26, 24],
                     'datatypes' => [
-                        'id' => [
+                        [
                             'column' =>  'id',
                             'type' => 'SMALLINT',
                             'nullable' => false,
                         ],
-                        'name' => [
+                        [
                             'column' =>  'name',
                             'type' => 'VARCHAR',
                             'length' => '50',
                             'nullable' => false,
                         ],
-                        'State' => [
+                        [
                             'column' =>  'State',
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
@@ -563,18 +563,18 @@ class WorkspacesTest extends WorkspacesTestCase
                     'whereColumn' => 'id',
                     'whereValues' => [26, 1],
                     'datatypes' => [
-                        'id' => [
+                        [
                             'column' =>  'id',
                             'type' => 'SMALLINT',
                             'nullable' => false,
                         ],
-                        'name' => [
+                        [
                             'column' =>  'name',
                             'type' => 'VARCHAR',
                             'length' => '50',
                             'nullable' => false,
                         ],
-                        'State' => [
+                        [
                             'column' =>  'State',
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
@@ -598,18 +598,18 @@ class WorkspacesTest extends WorkspacesTestCase
                     'whereColumn' => 'id',
                     'whereValues' => [11, 26, 24],
                     'datatypes' => [
-                        'id' => [
+                        [
                             'column' =>  'id',
                             'type' => 'SMALLINT',
                             'nullable' => false,
                         ],
-                        'name' => [
+                        [
                             'column' =>  'name',
                             'type' => 'VARCHAR',
                             'length' => '50',
                             'nullable' => false,
                         ],
-                        'State' => [
+                        [
                             'column' =>  'State',
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
