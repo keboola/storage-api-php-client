@@ -2499,9 +2499,9 @@ class ComponentsTest extends StorageApiTestCase
         $createdRow2 = $components->createConfigurationRowFromVersion('wr-db', $config->getConfigurationId(), $createdRow["id"], 1);
         $response = $components->getConfiguration('wr-db', $config->getConfigurationId());
         $this->assertEquals($createdRow["id"], $response["rows"][0]["id"]);
-        $this->assertEquals("", $response["rows"][0]["name"]);
-        $this->assertEquals("", $response["rows"][0]["description"]);
-        $this->assertEquals(false, $response["rows"][0]["isDisabled"]);
+        $this->assertEquals("name", $response["rows"][0]["name"]);
+        $this->assertEquals("description", $response["rows"][0]["description"]);
+        $this->assertEquals(true, $response["rows"][0]["isDisabled"]);
         $this->assertEquals($createdRow2["id"], $response["rows"][1]["id"]);
         $this->assertEquals("", $response["rows"][1]["name"]);
         $this->assertEquals("", $response["rows"][1]["description"]);
@@ -2511,9 +2511,9 @@ class ComponentsTest extends StorageApiTestCase
         $createdRow3 = $components->createConfigurationRowFromVersion('wr-db', $config->getConfigurationId(), $createdRow["id"], 2);
         $response = $components->getConfiguration('wr-db', $config->getConfigurationId());
         $this->assertEquals($createdRow["id"], $response["rows"][0]["id"]);
-        $this->assertEquals("", $response["rows"][0]["name"]);
-        $this->assertEquals("", $response["rows"][0]["description"]);
-        $this->assertEquals(false, $response["rows"][0]["isDisabled"]);
+        $this->assertEquals("name", $response["rows"][0]["name"]);
+        $this->assertEquals("description", $response["rows"][0]["description"]);
+        $this->assertEquals(true, $response["rows"][0]["isDisabled"]);
         $this->assertEquals($createdRow2["id"], $response["rows"][1]["id"]);
         $this->assertEquals("", $response["rows"][1]["name"]);
         $this->assertEquals("", $response["rows"][1]["description"]);
