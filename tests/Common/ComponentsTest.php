@@ -2339,4 +2339,88 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals("name2\n", $updatedRow["name"]);
         $this->assertEquals("description2\n", $updatedRow["description"]);
     }
+
+    /**
+     * tests for https://github.com/keboola/connection/issues/977
+     */
+    public function testRowChangesAfterConfigurationRollback()
+    {
+        $components = new \Keboola\StorageApi\Components($this->_client);
+
+        // version 1
+        $config = (new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName("name")
+            ->setDescription("description");
+        $components->addConfiguration($config);
+
+        // version 2
+        $rowConfig = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config);
+        $createdRow = $components->addConfigurationRow($rowConfig);
+
+        // version 3
+        $rowConfig = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config);
+        $rowConfig->setRowId($createdRow["id"]);
+        $rowConfig->setName("name");
+        $rowConfig->setDescription("description");
+        $rowConfig->setIsDisabled(true);
+        $components->updateConfigurationRow($rowConfig);
+
+        // rollback version 2
+        $components->rollbackConfiguration('wr-db', $config->getConfigurationId(), 2);
+        $response = $components->getConfiguration('wr-db', $config->getConfigurationId());
+        $this->assertEquals("", $response["rows"][0]["name"]);
+        $this->assertEquals("", $response["rows"][0]["description"]);
+        $this->assertEquals(false, $response["rows"][0]["isDisabled"]);
+
+        // rollback version 3
+        $components->rollbackConfiguration('wr-db', $config->getConfigurationId(), 3);
+        $response = $components->getConfiguration('wr-db', $config->getConfigurationId());
+        $this->assertEquals("name", $response["rows"][0]["name"]);
+        $this->assertEquals("description", $response["rows"][0]["description"]);
+        $this->assertEquals(true, $response["rows"][0]["isDisabled"]);
+    }
+
+    /**
+     * tests for https://github.com/keboola/connection/issues/977
+     */
+    public function testRowChangesAfterRowRollback()
+    {
+        $components = new \Keboola\StorageApi\Components($this->_client);
+
+        // version 1
+        $config = (new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName("name")
+            ->setDescription("description");
+        $components->addConfiguration($config);
+
+        // version 2
+        $rowConfig = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config);
+        $createdRow = $components->addConfigurationRow($rowConfig);
+
+        // version 3
+        $rowConfig = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config);
+        $rowConfig->setRowId($createdRow["id"]);
+        $rowConfig->setName("name");
+        $rowConfig->setDescription("description");
+        $rowConfig->setIsDisabled(true);
+        $components->updateConfigurationRow($rowConfig);
+
+        // rollback version 2
+        $components->rollbackConfigurationRow('wr-db', $config->getConfigurationId(), $createdRow["id"], 2);
+        $response = $components->getConfiguration('wr-db', $config->getConfigurationId());
+        $this->assertEquals("", $response["rows"][0]["name"]);
+        $this->assertEquals("", $response["rows"][0]["description"]);
+        $this->assertEquals(false, $response["rows"][0]["isDisabled"]);
+
+        // rollback version 3
+        $components->rollbackConfigurationRow('wr-db', $config->getConfigurationId(), $createdRow["id"], 3);
+        $response = $components->getConfiguration('wr-db', $config->getConfigurationId());
+        $this->assertEquals("name", $response["rows"][0]["name"]);
+        $this->assertEquals("description", $response["rows"][0]["description"]);
+        $this->assertEquals(true, $response["rows"][0]["isDisabled"]);
+    }
 }
