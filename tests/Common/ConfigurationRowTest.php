@@ -69,7 +69,7 @@ class ConfigurationRowTest extends StorageApiTestCase
         ];
 
 
-        $response = $client->post("/v2/storage/components/wr-db/configs/main-1/rows", [
+        $response = $client->post('/v2/storage/components/wr-db/configs/main-1/rows', [
             'form_params' => [
                 'name' => 'test',
                 'configuration' => json_encode($config),
@@ -83,7 +83,7 @@ class ConfigurationRowTest extends StorageApiTestCase
         $this->assertEquals($config, $response->configuration);
         $this->assertEquals($state, $response->state);
 
-        $response = $client->get("/v2/storage/components/wr-db/configs/main-1/rows/{$response->id}", [
+        $response = $client->get('/v2/storage/components/wr-db/configs/main-1/rows/{$response->id}', [
             'headers' => array(
                 'X-StorageApi-Token' => $this->_client->getTokenString(),
             ),
@@ -108,7 +108,7 @@ class ConfigurationRowTest extends StorageApiTestCase
         ];
 
 
-        $response = $client->put("/v2/storage/components/wr-db/configs/main-1/rows/{$response->id}", [
+        $response = $client->put('/v2/storage/components/wr-db/configs/main-1/rows/{$response->id}', [
             'form_params' => [
                 'configuration' => json_encode($config),
                 'state' => json_encode($state),
@@ -121,7 +121,7 @@ class ConfigurationRowTest extends StorageApiTestCase
         $this->assertEquals($config, $response->configuration);
         $this->assertEquals($state, $response->state);
 
-        $response = $client->get("/v2/storage/components/wr-db/configs/main-1/rows/{$response->id}", [
+        $response = $client->get('/v2/storage/components/wr-db/configs/main-1/rows/{$response->id}', [
             'headers' => array(
                 'X-StorageApi-Token' => $this->_client->getTokenString(),
             ),
