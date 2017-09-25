@@ -174,6 +174,7 @@ class Components
             array(
                 'rowId' => $options->getRowId(),
                 'configuration' => $options->getConfiguration() ? json_encode($options->getConfiguration()) : null,
+                'state' => $options->getState() ? json_encode($options->getState()) : null,
                 'changeDescription' => $options->getChangeDescription(),
                 'name' => $options->getName(),
                 'description' => $options->getDescription(),
@@ -210,6 +211,15 @@ class Components
                 $data['configuration'] = json_encode($options->getConfiguration());
             }
         }
+
+        if ($options->getState() !== null) {
+            if ($options->getState() === []) {
+                $data['state'] = '{}';
+            } else {
+                $data['state'] = json_encode($options->getState());
+            }
+        }
+
 
         if ($options->getIsDisabled() !== null) {
             $data['isDisabled'] = $options->getIsDisabled();
