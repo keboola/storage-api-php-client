@@ -10,6 +10,7 @@
 
 namespace Keboola\Test\Common;
 
+use Keboola\StorageApi\ClientException;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\Event;
 
@@ -194,5 +195,40 @@ class EventsTest extends StorageApiTestCase
 
         $this->assertCount(1, $events);
         $this->assertEquals($searchEvent['id'], $events[0]['id']);
+    }
+
+    /**
+     * @dataProvider invalidQueries
+     * @param $query
+     */
+    public function testInvalidSearchSyntaxUserError($query)
+    {
+        try {
+            $this->_client->listEvents([
+                'q' => $query,
+            ]);
+            $this->fail('Query should not be parsed');
+        } catch (ClientException $e) {
+            $this->assertEquals(400, $e->getCode());
+            $this->assertStringStartsWith('Failed to parse query', $e->getMessage());
+        }
+    }
+
+    public function invalidQueries()
+    {
+        return [
+            [
+                ': success',
+            ],
+            [
+                'success:',
+            ],
+            [
+                "/GET",
+            ],
+            [
+                "*tables*",
+            ]
+        ];
     }
 }
