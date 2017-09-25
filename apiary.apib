@@ -3686,6 +3686,7 @@ Lists all configurations for a component including all config rows.
                             "configuration": {
                                 "key2": "val2"
                             },
+                            "state": {},
                             "version": 1,
                             "created": "2016-05-11T14:33:50+0200",
                             "creatorToken": {
@@ -3709,8 +3710,8 @@ Creates a new component configuration.
     + name (required) - Configuration name
     + configurationId (optional) - Configuration Id (must be unique for each component type). If not set, it will be auto-generated.
     + description (optional) - Configuration description
-    + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB.
-    + state (optional) - Serialized state configuration JSON; the maximum allowed size is 4MB.
+    + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB
+    + state (optional) - Serialized state configuration JSON; the maximum allowed size is 4MB
     + changeDescription (optional) - Description of the configuration modification
 
 + Request (application/x-www-form-urlencoded)
@@ -3807,8 +3808,8 @@ marked as `currentVersion`.
 + Attributes
     + name (required) - Configuration name
     + description (optional) - Configuration description
-    + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB.
-    + state (optional) - Serialized state configuration JSON; the maximum allowed size is 4MB.
+    + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB
+    + state (optional) - Serialized configuration state JSON; the maximum allowed size is 4MB
     + changeDescription (optional) - Description of the configuration modification
     + rowsSortOrder (optional) - Array of row ids in desired order, you have to specify all row ids
 
@@ -4123,8 +4124,9 @@ Creates a new row (item) of an existing configuration.
     + config_id (required) - Id of the configuration
 
 + Attributes
-    + rowId (optional) - Row id (must be unique for each configuration). If not set, it will be generated.
-    + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB.
+    + rowId (optional) - Row id (must be unique for each configuration); if not set, it will be generated
+    + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB
+    + state (optional) - Serialized configuration state JSON; the maximum allowed size is 4MB
     + name (optional, string) - Row name
     + description (optional, string) - Row description
     + isDisabled (optional, boolean) - Disabled flag
@@ -4147,6 +4149,7 @@ Creates a new row (item) of an existing configuration.
                     "host": "localhost",
                     "port": 4406
                 },
+                "state": {},
                 "name": "",
                 "description": "",
                 "isDisabled": false,
@@ -4175,6 +4178,7 @@ Gets configuration rows.
                 {
                     "id": "236781529",
                     "configuration": {},
+                    "state": {},
                     "name": "",
                     "description": "",
                     "isDisabled": false,
@@ -4192,6 +4196,7 @@ Gets configuration rows.
                         "host": "localhost",
                         "port": 4406
                     },
+                    "state": {},
                     "name": "",
                     "description": "",
                     "isDisabled": false,
@@ -4217,7 +4222,8 @@ independently on the configurations.
     + row_id (required) - Id of the configuration row
 
 + Attributes
-    + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB.
+    + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB
+    + state (optional) - Serialized configuration state JSON; the maximum allowed size is 4MB
     + name (optional, string) - Row name
     + description (optional, string) - Row description
     + isDisabled (optional, boolean) - Disabled flag
@@ -4240,6 +4246,7 @@ independently on the configurations.
                     "host": "localhost",
                     "port": null
                 },
+                "state": {},
                 "name": "",
                 "description": "",
                 "isDisabled": false,
@@ -4352,7 +4359,8 @@ Gets details about the Configuration Row version.
                     "description": "martin@keboola.com"
                 },
                 "changeDescription": "Some other cause of the change"
-                "configuration": {}
+                "configuration": {},
+                "state": {}
             }
 
 
@@ -4387,6 +4395,7 @@ content to be rollbacked to.
                     "host": "localhost",
                     "port": 4406
                 },
+                "state": {},
                 "name": "",
                 "description": "",
                 "isDisabled": false,
@@ -4432,6 +4441,7 @@ Creates a new configuration row from an existing row version.
                     "host": "localhost",
                     "port": 4406
                 },
+                "state": {},
                 "name": "",
                 "description": "",
                 "isDisabled": false,
