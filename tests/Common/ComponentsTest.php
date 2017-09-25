@@ -2524,6 +2524,19 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(true, $response["rows"][2]["isDisabled"]);
     }
 
+    public function testStateAttributeNotPresentInVersions()
+    {
+        $components = new \Keboola\StorageApi\Components($this->_client);
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main');
+        $components->addConfiguration($configuration);
+
+        $this->assertArrayNotHasKey('state', $components->getConfigurationVersion('wr-db', 'main-1', 1));
+    }
+
     public function testRollbackPreservesState()
     {
         $components = new \Keboola\StorageApi\Components($this->_client);

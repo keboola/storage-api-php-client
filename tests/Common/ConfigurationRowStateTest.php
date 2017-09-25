@@ -148,8 +148,10 @@ class ConfigurationRowStateTest extends StorageApiTestCase
             ->setName('Main');
         $components->addConfiguration($configuration);
 
+        $state = ['key' => 'val'];
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
-        $configurationRow->setRowId('main-1-1');
+        $configurationRow->setRowId('main-1-1')
+            ->setState($state);
         $components->addConfigurationRow($configurationRow);
 
         $this->assertArrayNotHasKey('state', $components->getConfigurationVersion('wr-db', 'main-1', 2)['rows'][0]);
@@ -295,26 +297,6 @@ class ConfigurationRowStateTest extends StorageApiTestCase
         $components->createConfigurationRowFromVersion('wr-db', 'main-1', 'main-1-1', 2, 'main-3');
         $configurationResponse = $components->getConfiguration('wr-db', 'main-3');
         $this->assertEquals($state, $configurationResponse['rows'][0]['state']);
-    }
-
-    public function testStateAttributeNotPresentInVersions()
-    {
-        $components = new \Keboola\StorageApi\Components($this->_client);
-        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
-        $configuration
-            ->setComponentId('wr-db')
-            ->setConfigurationId('main-1')
-            ->setName('Main');
-        $components->addConfiguration($configuration);
-
-        $state = ['key' => 'val'];
-        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
-        $configurationRow->setRowId('main-1-1')
-            ->setState($state);
-        $components->addConfigurationRow($configurationRow);
-
-        $this->assertArrayNotHasKey('state', $components->getConfigurationVersion('wr-db', 'main-1', 2)['rows'][0]);
-        $this->assertArrayNotHasKey('state', $components->getConfigurationRowVersion('wr-db', 'main-1', 'main-1-1', 1));
     }
 
     public function testDeletedRowRollbackPreservesState()
