@@ -801,7 +801,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(2, $result[0]['version']);
         $this->assertArrayHasKey('name', $result[0]);
         $this->assertEquals('neco', $result[0]['name']);
-        $this->assertArrayHasKey('state', $result[0]);
+        $this->assertArrayNotHasKey('state', $result[0]);
         $this->assertArrayNotHasKey('description', $result[0]);
         $this->assertArrayHasKey('version', $result[1]);
         $this->assertEquals(1, $result[1]['version']);
@@ -833,7 +833,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertInternalType('int', $result['version']);
         $this->assertEquals(2, $result['version']);
         $this->assertInternalType('int', $result['creatorToken']['id']);
-        $this->assertArrayHasKey('state', $result);
+        $this->assertArrayNotHasKey('state', $result);
         $this->assertArrayHasKey('configuration', $result);
         $this->assertEquals($configurationData, $result['configuration']);
         $result = $components->listConfigurationVersions($config);
