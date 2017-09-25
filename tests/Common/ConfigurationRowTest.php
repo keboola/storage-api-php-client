@@ -130,5 +130,4 @@ class ConfigurationRowTest extends StorageApiTestCase
         $this->assertEquals($config, $response->configuration);
         $this->assertEquals($state, $response->state);
     }
-
 }
