@@ -135,6 +135,6 @@ class ConfigurationRowStateTest extends StorageApiTestCase
         $components->updateConfigurationRow($updateConfig);
 
         $configurationResponse = $components->getConfiguration('wr-db', 'main-1');
-        $this->assertEquals(2, $configurationResponse["version"]);
+        $this->assertEquals(2, $configurationResponse['version']);
     }
 }
