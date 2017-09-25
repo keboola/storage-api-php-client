@@ -4052,7 +4052,6 @@ Gets configuration version.
                 "name": "test",
                 "description": "",
                 "configuration": {},
-                "state": {},
                 "rowsSortOrder": [],
                 "rows": []
             }
@@ -4060,7 +4059,7 @@ Gets configuration version.
 ## Rollback Configuration Version [/v2/storage/components/{component_id}/configs/{config_id}/versions/{version_id}/rollback]
 ### Rollback Version [POST]
 Rollbacking a configuration version actually creates a new configuration version identical to the
-one you specified.
+one you specified. `state` attributes of the config and rows is preserved, if any row is recreated, it will have the last existing state.
 
 + Parameters
     + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`

@@ -156,7 +156,7 @@ class ConfigurationRowStateTest extends StorageApiTestCase
         $this->assertArrayNotHasKey('state', $components->getConfigurationRowVersion('wr-db', 'main-1', 'main-1-1', 1));
     }
 
-    public function testRollbackRemovesState()
+    public function testRollbackPreservesState()
     {
         $components = new \Keboola\StorageApi\Components($this->_client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
@@ -186,10 +186,10 @@ class ConfigurationRowStateTest extends StorageApiTestCase
 
         $configurationResponse = $components->getConfiguration('wr-db', 'main-1');
         $this->assertEquals(4, $configurationResponse['version']);
-        $this->assertEquals([], $configurationResponse['rows'][0]['state']);
+        $this->assertEquals($state, $configurationResponse['rows'][0]['state']);
     }
 
-    public function testCopyRemovesState()
+    public function testCopyPreservesState()
     {
         $components = new \Keboola\StorageApi\Components($this->_client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
@@ -208,6 +208,184 @@ class ConfigurationRowStateTest extends StorageApiTestCase
         $newConfig = $components->createConfigurationFromVersion('wr-db', 'main-1', 2, 'main-2');
 
         $configurationResponse = $components->getConfiguration('wr-db', $newConfig['id']);
-        $this->assertEquals([], $configurationResponse['rows'][0]['state']);
+        $this->assertEquals($state, $configurationResponse['rows'][0]['state']);
     }
+
+
+    public function testRowRollbackPreservesState()
+    {
+        $components = new \Keboola\StorageApi\Components($this->_client);
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main');
+        $components->addConfiguration($configuration);
+
+        $state = ['key' => 'val'];
+        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRow->setRowId('main-1-1')
+            ->setState($state);
+        $components->addConfigurationRow($configurationRow);
+
+        $updateConfig = new ConfigurationRow($configuration);
+        $updateConfig
+            ->setRowId('main-1-1')
+            ->setName('changed name');
+        $components->updateConfigurationRow($updateConfig);
+
+        $configurationResponse = $components->getConfiguration('wr-db', 'main-1');
+        $this->assertCount(1, $configurationResponse['rows']);
+        $this->assertEquals(3, $configurationResponse['version']);
+        $this->assertEquals($state, $configurationResponse['rows'][0]['state']);
+
+        $components->rollbackConfigurationRow('wr-db', 'main-1', 'main-1-1', 1);
+        $configurationResponse = $components->getConfiguration('wr-db', 'main-1');
+        $this->assertCount(1, $configurationResponse['rows']);
+        $this->assertEquals(3, $configurationResponse['rows'][0]['version']);
+        $this->assertEquals($state, $configurationResponse['rows'][0]['state']);
+
+        $components->rollbackConfigurationRow('wr-db', 'main-1', 'main-1-1', 2);
+        $configurationResponse = $components->getConfiguration('wr-db', 'main-1');
+        $this->assertEquals(4, $configurationResponse['rows'][0]['version']);
+        $this->assertEquals($state, $configurationResponse['rows'][0]['state']);
+    }
+
+    public function testRowCopyPreservesState()
+    {
+        $components = new \Keboola\StorageApi\Components($this->_client);
+
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-2')
+            ->setName('Copy 1');
+        $components->addConfiguration($configuration);
+
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-3')
+            ->setName('Copy 2');
+        $components->addConfiguration($configuration);
+
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main');
+        $components->addConfiguration($configuration);
+
+        $state = ['key' => 'val'];
+        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRow->setRowId('main-1-1')
+            ->setState($state);
+        $components->addConfigurationRow($configurationRow);
+
+        $updateConfig = new ConfigurationRow($configuration);
+        $updateConfig
+            ->setRowId('main-1-1')
+            ->setName('changed name');
+        $components->updateConfigurationRow($updateConfig);
+
+        $components->createConfigurationRowFromVersion('wr-db', 'main-1', 'main-1-1', 1, 'main-2');
+        $configurationResponse = $components->getConfiguration('wr-db', 'main-2');
+        $this->assertEquals($state, $configurationResponse['rows'][0]['state']);
+
+        $components->createConfigurationRowFromVersion('wr-db', 'main-1', 'main-1-1', 2, 'main-3');
+        $configurationResponse = $components->getConfiguration('wr-db', 'main-3');
+        $this->assertEquals($state, $configurationResponse['rows'][0]['state']);
+    }
+
+    public function testStateAttributeNotPresentInVersions()
+    {
+        $components = new \Keboola\StorageApi\Components($this->_client);
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main');
+        $components->addConfiguration($configuration);
+
+        $state = ['key' => 'val'];
+        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRow->setRowId('main-1-1')
+            ->setState($state);
+        $components->addConfigurationRow($configurationRow);
+
+        $this->assertArrayNotHasKey('state', $components->getConfigurationVersion('wr-db', 'main-1', 2)['rows'][0]);
+        $this->assertArrayNotHasKey('state', $components->getConfigurationRowVersion('wr-db', 'main-1', 'main-1-1', 1));
+    }
+
+    public function testDeletedRowRollbackPreservesState()
+    {
+        $components = new \Keboola\StorageApi\Components($this->_client);
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main');
+        $components->addConfiguration($configuration);
+
+        $state1 = ['key' => 'val1'];
+        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRow->setRowId('main-1-1')
+            ->setState($state1);
+        $components->addConfigurationRow($configurationRow);
+
+        $state2 = ['key' => 'val2'];
+        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRow->setRowId('main-1-2')
+            ->setState($state2);
+        $components->addConfigurationRow($configurationRow);
+
+        $components->deleteConfigurationRow('wr-db', 'main-1', 'main-1-1');
+
+        $configurationResponse = $components->getConfiguration('wr-db', 'main-1');
+        $this->assertEquals(4, $configurationResponse['version']);
+
+        $components->rollbackConfiguration('wr-db', 'main-1', 3);
+
+        $configurationResponse = $components->getConfiguration('wr-db', 'main-1');
+        $this->assertEquals(5, $configurationResponse['version']);
+        $this->assertEquals($state1, $configurationResponse['rows'][0]['state']);
+        $this->assertEquals($state2, $configurationResponse['rows'][1]['state']);
+    }
+
+
+    public function testDeletedRowCopyPreservesState()
+    {
+        $components = new \Keboola\StorageApi\Components($this->_client);
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main');
+        $components->addConfiguration($configuration);
+
+        $state1 = ['key' => 'val'];
+        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRow->setRowId('main-1-1')
+            ->setState($state1);
+        $components->addConfigurationRow($configurationRow);
+
+        $state2 = ['key' => 'val2'];
+        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRow->setRowId('main-1-2')
+            ->setState($state2);
+        $components->addConfigurationRow($configurationRow);
+
+        $components->deleteConfigurationRow('wr-db', 'main-1', 'main-1-1');
+
+        $configurationResponse = $components->getConfiguration('wr-db', 'main-1');
+        $this->assertEquals(4, $configurationResponse['version']);
+
+        $newConfig = $components->createConfigurationFromVersion('wr-db', 'main-1', 3, 'New Config');
+
+        $configurationResponse = $components->getConfiguration('wr-db', $newConfig['id']);
+        $this->assertEquals(1, $configurationResponse['version']);
+        $this->assertEquals($state1, $configurationResponse['rows'][0]['state']);
+        $this->assertEquals($state2, $configurationResponse['rows'][1]['state']);
+    }
+
 }
