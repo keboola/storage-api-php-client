@@ -387,5 +387,4 @@ class ConfigurationRowStateTest extends StorageApiTestCase
         $this->assertEquals($state1, $configurationResponse['rows'][0]['state']);
         $this->assertEquals($state2, $configurationResponse['rows'][1]['state']);
     }
-
 }
