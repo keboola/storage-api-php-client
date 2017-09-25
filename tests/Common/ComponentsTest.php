@@ -2523,4 +2523,47 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals("description", $response["rows"][2]["description"]);
         $this->assertEquals(true, $response["rows"][2]["isDisabled"]);
     }
+
+    public function testRollbackPreservesState()
+    {
+        $components = new \Keboola\StorageApi\Components($this->_client);
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $state = ['key' => 'val'];
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main')
+            ->setState($state);
+        $components->addConfiguration($configuration);
+
+        $configuration->setName("Updated name");
+        $components->updateConfiguration($configuration);
+
+        $components->rollbackConfiguration('wr-db', 'main-1', 1);
+
+        $configurationResponse = $components->getConfiguration('wr-db', 'main-1');
+        $this->assertEquals(3, $configurationResponse['version']);
+        $this->assertEquals($state, $configurationResponse['state']);
+    }
+
+    public function testCopyPreservesState()
+    {
+        $components = new \Keboola\StorageApi\Components($this->_client);
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $state = ['key' => 'val'];
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main')
+            ->setState($state);
+        $components->addConfiguration($configuration);
+
+        $configuration->setName("Updated name");
+        $components->updateConfiguration($configuration);
+
+        $newConfig = $components->createConfigurationFromVersion('wr-db', 'main-1', 2, 'main-2');
+
+        $configurationResponse = $components->getConfiguration('wr-db', $newConfig['id']);
+        $this->assertEquals($state, $configurationResponse['state']);
+    }
 }
