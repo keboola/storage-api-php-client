@@ -231,4 +231,21 @@ class EventsTest extends StorageApiTestCase
             ]
         ];
     }
+
+    public function testEventListingMaxLimit()
+    {
+        $events = $this->_client->listEvents([
+            'limit' => 10000,
+        ]);
+        $this->assertNotEmpty($events);
+
+        try {
+            $this->_client->listEvents([
+                'limit' => 10001,
+            ]);
+            $this->fail('Limit should not be allowed');
+        } catch (ClientException $e) {
+            $this->assertEquals(400, $e->getCode());
+        }
+    }
 }
