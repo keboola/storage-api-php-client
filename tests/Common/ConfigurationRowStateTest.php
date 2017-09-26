@@ -344,6 +344,12 @@ class ConfigurationRowStateTest extends StorageApiTestCase
             ->setState(['unknown' => 'undefined']);
         $components->addConfigurationRow($configurationRow);
 
+        $state2 = ['key' => 'val2'];
+        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRow->setRowId('main-1-2')
+            ->setState($state2);
+        $components->addConfigurationRow($configurationRow);
+
         $updateConfig = new ConfigurationRow($configuration);
         $updateConfig
             ->setRowId('main-1-1')
@@ -356,12 +362,6 @@ class ConfigurationRowStateTest extends StorageApiTestCase
             ->setRowId('main-1-1')
             ->setState($state1);
         $components->updateConfigurationRow($updateConfig);
-
-        $state2 = ['key' => 'val2'];
-        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
-        $configurationRow->setRowId('main-1-2')
-            ->setState($state2);
-        $components->addConfigurationRow($configurationRow);
 
         $components->deleteConfigurationRow('wr-db', 'main-1', 'main-1-1');
 
@@ -376,7 +376,7 @@ class ConfigurationRowStateTest extends StorageApiTestCase
 
         $components->rollbackConfiguration('wr-db', 'main-1', 3);
         $configurationResponse = $components->getConfiguration('wr-db', 'main-1');
-        $this->assertEquals(6, $configurationResponse['version']);
+        $this->assertEquals(7, $configurationResponse['version']);
         $this->assertEquals($state1, $configurationResponse['rows'][0]['state']);
         $this->assertEquals($state2, $configurationResponse['rows'][1]['state']);
     }
@@ -397,6 +397,12 @@ class ConfigurationRowStateTest extends StorageApiTestCase
             ->setState(['unknown' => 'undefined']);
         $components->addConfigurationRow($configurationRow);
 
+        $state2 = ['key' => 'val2'];
+        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRow->setRowId('main-1-2')
+            ->setState($state2);
+        $components->addConfigurationRow($configurationRow);
+
         $updateConfig = new ConfigurationRow($configuration);
         $updateConfig
             ->setRowId('main-1-1')
@@ -409,12 +415,6 @@ class ConfigurationRowStateTest extends StorageApiTestCase
             ->setRowId('main-1-1')
             ->setState($state1);
         $components->updateConfigurationRow($updateConfig);
-
-        $state2 = ['key' => 'val2'];
-        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
-        $configurationRow->setRowId('main-1-2')
-            ->setState($state2);
-        $components->addConfigurationRow($configurationRow);
 
         $components->deleteConfigurationRow('wr-db', 'main-1', 'main-1-1');
 
