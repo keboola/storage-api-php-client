@@ -2546,10 +2546,17 @@ class ComponentsTest extends StorageApiTestCase
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
             ->setName('Main')
-            ->setState($state);
+            ->setState(['unknown' => 'undefined']);
         $components->addConfiguration($configuration);
 
         $configuration->setName("Updated name");
+        $components->updateConfiguration($configuration);
+
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setState($state);
         $components->updateConfiguration($configuration);
 
         $components->rollbackConfiguration('wr-db', 'main-1', 1);
@@ -2568,13 +2575,21 @@ class ComponentsTest extends StorageApiTestCase
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
             ->setName('Main')
-            ->setState($state);
+            ->setState(['unknown' => 'undefined']);
         $components->addConfiguration($configuration);
 
         $configuration->setName("Updated name");
         $components->updateConfiguration($configuration);
 
-        $newConfig = $components->createConfigurationFromVersion('wr-db', 'main-1', 2, 'main-2');
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setState($state);
+        $components->updateConfiguration($configuration);
+
+
+        $newConfig = $components->createConfigurationFromVersion('wr-db', 'main-1', 1, 'main-2');
 
         $configurationResponse = $components->getConfiguration('wr-db', $newConfig['id']);
         $this->assertEquals($state, $configurationResponse['state']);
