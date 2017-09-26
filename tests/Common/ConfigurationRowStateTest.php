@@ -160,10 +160,10 @@ class ConfigurationRowStateTest extends StorageApiTestCase
             ->setName('Main');
         $components->addConfiguration($configuration);
 
-        $state = ['key' => 'val'];
+
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
         $configurationRow->setRowId('main-1-1')
-            ->setState($state);
+            ->setState(['unknown' => 'undefined']);
         $components->addConfigurationRow($configurationRow);
         
         $updateConfig = new ConfigurationRow($configuration);
@@ -172,14 +172,25 @@ class ConfigurationRowStateTest extends StorageApiTestCase
             ->setName('changed name');
         $components->updateConfigurationRow($updateConfig);
 
+        $state = ['key' => 'val'];
+        $updateConfig = new ConfigurationRow($configuration);
+        $updateConfig
+            ->setRowId('main-1-1')
+            ->setState($state);
+        $components->updateConfigurationRow($updateConfig);
+
         $configurationResponse = $components->getConfiguration('wr-db', 'main-1');
         $this->assertEquals(3, $configurationResponse['version']);
         $this->assertEquals($state, $configurationResponse['rows'][0]['state']);
 
         $components->rollbackConfiguration('wr-db', 'main-1', 2);
-
         $configurationResponse = $components->getConfiguration('wr-db', 'main-1');
         $this->assertEquals(4, $configurationResponse['version']);
+        $this->assertEquals($state, $configurationResponse['rows'][0]['state']);
+
+        $components->rollbackConfiguration('wr-db', 'main-1', 3);
+        $configurationResponse = $components->getConfiguration('wr-db', 'main-1');
+        $this->assertEquals(5, $configurationResponse['version']);
         $this->assertEquals($state, $configurationResponse['rows'][0]['state']);
     }
 
@@ -193,18 +204,32 @@ class ConfigurationRowStateTest extends StorageApiTestCase
             ->setName('Main');
         $components->addConfiguration($configuration);
 
-        $state = ['key' => 'val'];
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
         $configurationRow->setRowId('main-1-1')
-            ->setState($state);
+            ->setState(['unknown' => 'undefined']);
         $components->addConfigurationRow($configurationRow);
 
-        $newConfig = $components->createConfigurationFromVersion('wr-db', 'main-1', 2, 'main-2');
+        $updateConfig = new ConfigurationRow($configuration);
+        $updateConfig
+            ->setRowId('main-1-1')
+            ->setName('changed name');
+        $components->updateConfigurationRow($updateConfig);
 
+        $state = ['key' => 'val'];
+        $updateConfig = new ConfigurationRow($configuration);
+        $updateConfig
+            ->setRowId('main-1-1')
+            ->setState($state);
+        $components->updateConfigurationRow($updateConfig);
+
+        $newConfig = $components->createConfigurationFromVersion('wr-db', 'main-1', 3, 'main-2');
+        $configurationResponse = $components->getConfiguration('wr-db', $newConfig['id']);
+        $this->assertEquals($state, $configurationResponse['rows'][0]['state']);
+
+        $newConfig = $components->createConfigurationFromVersion('wr-db', 'main-1', 2, 'main-2');
         $configurationResponse = $components->getConfiguration('wr-db', $newConfig['id']);
         $this->assertEquals($state, $configurationResponse['rows'][0]['state']);
     }
-
 
     public function testRowRollbackPreservesState()
     {
@@ -344,7 +369,12 @@ class ConfigurationRowStateTest extends StorageApiTestCase
         $this->assertEquals(5, $configurationResponse['version']);
 
         $components->rollbackConfiguration('wr-db', 'main-1', 4);
+        $configurationResponse = $components->getConfiguration('wr-db', 'main-1');
+        $this->assertEquals(6, $configurationResponse['version']);
+        $this->assertEquals($state1, $configurationResponse['rows'][0]['state']);
+        $this->assertEquals($state2, $configurationResponse['rows'][1]['state']);
 
+        $components->rollbackConfiguration('wr-db', 'main-1', 3);
         $configurationResponse = $components->getConfiguration('wr-db', 'main-1');
         $this->assertEquals(6, $configurationResponse['version']);
         $this->assertEquals($state1, $configurationResponse['rows'][0]['state']);
