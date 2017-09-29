@@ -15,6 +15,8 @@ class ConfigurationRow
 
     private $isDisabled;
 
+    private $state;
+
     /**
      * @var Configuration
      */
@@ -137,6 +139,24 @@ class ConfigurationRow
     public function setIsDisabled($isDisabled)
     {
         $this->isDisabled = (bool)$isDisabled;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getState()
+    {
+        return $this->state;
+    }
+
+    /**
+     * @param mixed $state
+     * @return $this
+     */
+    public function setState($state)
+    {
+        $this->state = $state;
         return $this;
     }
 }
