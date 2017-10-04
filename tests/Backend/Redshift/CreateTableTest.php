@@ -36,7 +36,8 @@ class CreateTableTest extends StorageApiTestCase
         $this->assertNotEmpty($id);
     }
 
-    public function testFfffff94() {
+    public function testFfffff94()
+    {
         $method = 'createTableAsync';
         $id = $this->_client->{$method}(
             $this->getTestBucketId(self::STAGE_IN),
