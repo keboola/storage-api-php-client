@@ -745,13 +745,17 @@ Lists buckets which may be shared to the project.
                 }
             ]
 
-# Group Buckets Credentials
+# Group Buckets Credentials - Deprecated
+
 This operation is available only for buckets with the *Redshift backend*. All Redshift buckets in one 
 project are stored in a single Redshift cluster. This API call can provide read-only credentials 
 to that cluster and bucket. This resource is accessible only to project administrators (master token).
 
 ## Create Credentials [/v2/storage/buckets/{bucket_id}/credentials]
 ### Create Credentials [POST]
+
+**Bucket credentials have been deprecated**. Use Redshift writer instead.
+
 Creates new credentials for a Redshift bucket. The password is returned only once and cannot be retrieved later.
 
 + Parameters
@@ -794,6 +798,9 @@ Creates new credentials for a Redshift bucket. The password is returned only onc
 
 ## List Credentials [/v2/storage/credentials]
 ### List credentials [GET]
+
+**Bucket credentials have been deprecated**. Use Redshift writer instead.
+
 Lists all Redshift bucket credentials available in the project.
 
 + Request
@@ -827,7 +834,10 @@ Lists all Redshift bucket credentials available in the project.
 
 ## Manage Credentials [/v2/storage/credentials/{id}]
 ### Get credentials [GET]
-Obtains existing credential details. Note that the password is not returned as it is available only once when the 
+
+**Bucket credentials have been deprecated**. Use Redshift writer instead.
+
+Obtains existing credential details. Note that the password is not returned as it is available only once when the
 credentials are created.
 
 + Parameters
@@ -862,6 +872,9 @@ credentials are created.
 
 
 ### Delete credentials [DELETE]
+
+**Bucket credentials have been deprecated**. Use Redshift writer instead.
+
 Deletes the specified bucket credentials.
 
 + Parameters
