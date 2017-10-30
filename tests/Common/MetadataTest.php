@@ -280,6 +280,9 @@ class MetadataTest extends StorageApiTestCase
      */
     public function testNullMetadataValue($sapiEndpoint, $object)
     {
+        $bucketId = self::getTestBucketId();
+        $object = ($sapiEndpoint === "bucket") ? $bucketId : $bucketId . $object;
+
         $md = array(
             "key" => "testkey",
             "value" => null // null values should be accepted
