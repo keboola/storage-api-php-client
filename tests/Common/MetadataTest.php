@@ -278,6 +278,19 @@ class MetadataTest extends StorageApiTestCase
      * @dataProvider apiEndpoints
      * @param $apiEndpoint
      */
+    public function testNullMetadataValue($sapiEndpoint, $object)
+    {
+        $md = array(
+            "key" => "testkey",
+            "value" => null // null values should be accepted
+        );
+        $this->postMetadata($sapiEndpoint, $object, [$md]);
+    }
+
+    /**
+     * @dataProvider apiEndpoints
+     * @param $apiEndpoint
+     */
     public function testMetadata404s($apiEndpoint, $object)
     {
         $bucketId = self::getTestBucketId();
