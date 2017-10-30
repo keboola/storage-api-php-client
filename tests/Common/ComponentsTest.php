@@ -316,6 +316,16 @@ class ComponentsTest extends StorageApiTestCase
         }
     }
 
+    public function testConfigurationDescriptionDefault()
+    {
+        $resp = $this->_client->apiPost('storage/components/wr-db/configs', [
+            'name' => 'neco'
+        ]);
+        $components = new \Keboola\StorageApi\Components($this->_client);
+        $configuration = $components->getConfiguration('wr-db', $resp['id']);
+        $this->assertNotNull($configuration['description']);
+    }
+
     public function testNonJsonConfigurationShouldNotBeAllowed()
     {
         try {
