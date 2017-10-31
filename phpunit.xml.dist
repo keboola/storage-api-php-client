@@ -32,6 +32,7 @@
 		<directory>tests/Backend/CommonPart2</directory>
 		<file>tests/Backend/Workspaces/WorkspacesRedshiftTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
+		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
 		<directory>tests/Backend/Redshift</directory>
@@ -47,6 +48,7 @@
 		<directory>tests/Backend/CommonPart2</directory>
         <file>tests/Backend/Workspaces/WorkspacesSnowflakeTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
+		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
 		<directory>tests/Backend/Snowflake</directory>
