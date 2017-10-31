@@ -1920,7 +1920,7 @@ When turning `aliasColumnsAutoSync` back on, the columns will be immediately syn
     + aliasFilter[operator] (optional, enum[string]) - Comparison operator
         + Members
             + eq - Equal to
-            + neq - Not equal to
+            + ne - Not equal to
         + Default: eq
     + aliasFilter[values][] (optional) - Values for the filter
     + aliasColumnsAutosync (optional, boolean) - Disables column synchronization with the source table.
@@ -2007,7 +2007,7 @@ alias must be created with the `aliasFilter` parameter.
     + operator (optional, enum[string]) - Comparison operator
         + Members
             + eq - Equal to
-            + neq - Not equal to
+            + ne - Not equal to
         + Default: eq
 
 + Request (application/x-www-form-urlencoded)
@@ -2453,7 +2453,7 @@ Loads tables from Storage into a Workspace.
                     + whereOperator (optional, enum[string]) - Comparison operator
                         + Members
                             + eq - Equal to
-                            + neq - Not equal to
+                            + ne - Not equal to
                         + Default: eq
                     + datatypes{} (optional) - Key/value array of column names/type definitions to be applied
                     + datatypes[] (optional, array) - Array of column datatype definitions
