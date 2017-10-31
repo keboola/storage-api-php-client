@@ -16,7 +16,6 @@ use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class WorkspaceLoadTest extends WorkspacesTestCase
 {
-    //@MIGRATED
     public function testWorkspaceTablesPermissions()
     {
         $workspaces = new Workspaces($this->_client);
@@ -256,7 +255,6 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $this->assertEquals('1', $data[0]['id']);
     }
 
-    //@MIGRATED
     public function testWorkspaceLoadColumns()
     {
         $workspaces = new Workspaces($this->_client);
@@ -362,7 +360,6 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         }
     }
 
-    //@MIGRATED
     public function testLoadIncrementalWithColumns()
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
@@ -432,7 +429,6 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $this->assertEquals(5, $backend->countRows("languagesDetails"));
     }
 
-    //@MIGRATED
     public function testIncrementalAdditionalColumns()
     {
         $workspaces = new Workspaces($this->_client);
@@ -506,7 +502,6 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         }
     }
 
-    //@MIGRATED
     public function testIncrementalMissingColumns()
     {
         $workspaces = new Workspaces($this->_client);
@@ -572,7 +567,6 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         }
     }
 
-    //@MIGRATED
     /**
      * @dataProvider columnsErrorDefinitions
      */
@@ -623,7 +617,6 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         }
     }
 
-    //@MIGRATED
     public function testSecondsFilter()
     {
         $workspaces = new Workspaces($this->_client);
@@ -673,7 +666,6 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $this->assertEquals(2 * ($originalFileLinesCount - 1), $numRows, "seconds parameter");
     }
 
-    //@MIGRATED
     public function testRowsParameter()
     {
         $workspaces = new Workspaces($this->_client);
@@ -711,7 +703,6 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $this->assertEquals(2, $numrows, 'rows parameter');
     }
 
-    //@MIGRATED
     /**
      * @param $exportOptions
      * @param $expectedResult
@@ -743,7 +734,6 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $this->assertArrayEqualsSorted($expectedResult, $data, 0);
     }
 
-    //@MIGRATED
     /**
      * @dataProvider validColumnsDefinitions
      * @param $columnsDefinition
@@ -789,7 +779,6 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         }
     }
 
-    //@MIGRATED
     /**
      * @dataProvider conversionUserErrorColumnsDefinitions
      * @param $columnsDefinition
@@ -829,7 +818,6 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $backend->dropTable('datatype_test');
     }
 
-    //@MIGRATED
     /**
      * @dataProvider notExistingColumnUserErrorColumnsDefinitions
      * @param $columnsDefinition
@@ -862,7 +850,6 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         }
     }
 
-    //@MIGRATED
     public function testInvalidExtendedColumnUserError()
     {
         $workspaces = new Workspaces($this->_client);
@@ -900,7 +887,6 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         }
     }
 
-    //@MIGRATED
     public function testDuplicateDestination()
     {
         $workspaces = new Workspaces($this->_client);
@@ -969,7 +955,6 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         }
     }
 
-    //@MIGRATED
     public function testTableAlreadyExistsShouldThrowUserError()
     {
         $workspaces = new Workspaces($this->_client);
@@ -1034,7 +1019,6 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         }
     }
 
-    //@MIGRATED
     public function testSourceTableNotFound()
     {
         $workspaces = new Workspaces($this->_client);
@@ -1061,7 +1045,6 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         }
     }
 
-    //@MIGRATED
     public function testInvalidInputs()
     {
         $workspaces = new Workspaces($this->_client);
@@ -1136,7 +1119,6 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         }
     }
 
-    //@MIGRATED
     public function testInvalidBucketPermissions()
     {
         // make a test table
@@ -1186,7 +1168,6 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         }
     }
 
-    //@MIGRATED
     public function testDottedDestination()
     {
         $workspaces = new Workspaces($this->_client);
