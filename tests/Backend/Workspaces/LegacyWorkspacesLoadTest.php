@@ -1029,4 +1029,210 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
         $this->assertCount(1, $tables);
         $this->assertEquals('dotted.destination', $tables[0]);
     }
+
+    /**
+     * @param $exportOptions
+     * @param $expectedResult
+     * @dataProvider tableExportFiltersData
+     */
+    public function testWorkspaceExportFilters($exportOptions, $expectedResult)
+    {
+        $importFile = __DIR__ . '/../../_data/users.csv';
+        $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));
+        $this->_client->markTableColumnAsIndexed($tableId, 'city');
+
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $options = array(
+            "input" => [
+                array_merge([
+                    "source" => $tableId,
+                    "destination" => 'filter-test'
+                ], $exportOptions)
+            ]
+        );
+
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+
+        $data = $backend->fetchAll('filter-test');
+
+        $this->assertArrayEqualsSorted($expectedResult, $data, 0);
+    }
+
+    public function tableExportFiltersData()
+    {
+        return array(
+            // first test
+            array(
+                array(
+                    'whereColumn' => 'city',
+                    'whereValues' => array('PRG'),
+                    'columns' => ['id', 'name', 'sex'],
+                ),
+                array(
+                    array(
+                        "1",
+                        "martin",
+                        "male"
+                    ),
+                    array(
+                        "2",
+                        "klara",
+                        "female",
+                    ),
+                ),
+            ),
+            // first test with defined operator
+            array(
+                array(
+                    'whereColumn' => 'city',
+                    'whereValues' => array('PRG'),
+                    'whereOperator' => 'eq',
+                ),
+                array(
+                    array(
+                        "1",
+                        "martin",
+                        "PRG",
+                        "male"
+                    ),
+                    array(
+                        "2",
+                        "klara",
+                        "PRG",
+                        "female",
+                    ),
+                ),
+            ),
+            // second test
+            array(
+                array(
+                    'whereColumn' => 'city',
+                    'whereValues' => array('PRG', 'VAN')
+                ),
+                array(
+                    array(
+                        "1",
+                        "martin",
+                        "PRG",
+                        "male"
+                    ),
+                    array(
+                        "2",
+                        "klara",
+                        "PRG",
+                        "female",
+                    ),
+                    array(
+                        "3",
+                        "ondra",
+                        "VAN",
+                        "male",
+                    ),
+                ),
+            ),
+            // third test
+            array(
+                array(
+                    'whereColumn' => 'city',
+                    'whereValues' => array('PRG'),
+                    'whereOperator' => 'ne'
+                ),
+                array(
+                    array(
+                        "5",
+                        "hidden",
+                        "",
+                        "male",
+                    ),
+                    array(
+                        "4",
+                        "miro",
+                        "BRA",
+                        "male",
+                    ),
+                    array(
+                        "3",
+                        "ondra",
+                        "VAN",
+                        "male",
+                    ),
+                ),
+            ),
+            // fourth test
+            array(
+                array(
+                    'whereColumn' => 'city',
+                    'whereValues' => array('PRG', 'VAN'),
+                    'whereOperator' => 'ne'
+                ),
+                array(
+                    array(
+                        "4",
+                        "miro",
+                        "BRA",
+                        "male",
+                    ),
+                    array(
+                        "5",
+                        "hidden",
+                        "",
+                        "male",
+                    ),
+                ),
+            ),
+            // fifth test
+            array(
+                array(
+                    'whereColumn' => 'city',
+                    'whereValues' => array(''),
+                    'whereOperator' => 'eq'
+                ),
+                array(
+                    array(
+                        "5",
+                        "hidden",
+                        "",
+                        "male",
+                    ),
+                ),
+            ),
+            // sixth test
+            array(
+                array(
+                    'whereColumn' => 'city',
+                    'whereValues' => array(''),
+                    'whereOperator' => 'ne'
+                ),
+                array(
+                    array(
+                        "4",
+                        "miro",
+                        "BRA",
+                        "male",
+                    ),
+                    array(
+                        "1",
+                        "martin",
+                        "PRG",
+                        "male"
+                    ),
+                    array(
+                        "2",
+                        "klara",
+                        "PRG",
+                        "female",
+                    ),
+                    array(
+                        "3",
+                        "ondra",
+                        "VAN",
+                        "male",
+                    ),
+                ),
+            ),
+        );
+    }
 }
