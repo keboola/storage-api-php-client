@@ -2447,22 +2447,17 @@ Loads tables from Storage into a Workspace.
                     + rows (optional, number) - Limits the number of returned rows
                     + days (optional, number) - `DEPRECATED will be removed in the future.` Return rows created or updated in the last X days.
                     + seconds (optional, number) - Returns rows created or updated in the last X seconds.
-                    + columns (optional) - Comma separated list of column names to export; by default all columns are exported.
-                    + whereColumn (optional) - Column for [filtering](#reference/tables/unload-data-asynchronously/asynchronous-export)
-                    + whereValues[] (optional) - Values for filtering
-                    + whereOperator (optional, enum[string]) - Comparison operator
-                        + Members
-                            + eq - Equal to
-                            + ne - Not equal to
-                        + Default: eq
-                    + datatypes{} (optional) - Key/value array of column names/type definitions to be applied
-                    + datatypes[] (optional, array) - Array of column datatype definitions
+                    + columns[] (optional, array) - Array of column definition; by default all columns are exported.
                         + Items
                             + (object)
                                 + Properties
-                                    + column (required, string) - column name
+                                    + sourceColumn (required, string) - column name
                                     + type (required, string) - data type, eg. VARCHAR
-                                    + size (optional, number) - data type size, where applicable, eg. 255
+                                    + length (optional, string) - data type size, where applicable, eg. 255 for VARCHAR or 10,2 for NUMBER
+                                    + nullable (optional, boolean) - allow NULL values in destination table
+                                        Default: true
+                                    + convertEmptyValuesToNull (optional, boolean) - empty values replaced by NULL
+                                        Default: false
                                     + compression (optional, enum[string]) - for Redshift only
                                         + Members
                                             + RAW
@@ -2477,8 +2472,13 @@ Loads tables from Storage into a Workspace.
                                             + TEXT255
                                             + TEXT32K
                                             + ZSTD
-                                    + convertEmptyValuesToNull (optional, boolean) - empty values replaced by NULL
-                                        Default: false
+                    + whereColumn (optional) - Column for [filtering](#reference/tables/unload-data-asynchronously/asynchronous-export)
+                    + whereValues[] (optional) - Values for filtering
+                    + whereOperator (optional, enum[string]) - Comparison operator
+                        + Members
+                            + eq - Equal to
+                            + ne - Not equal to
+                        + Default: eq
                     + sortKey[] (optional, array) - Redshift only - Column(s) to be used as a sort key
                     + distStyle (optional, enum[string]) - Redshift only - Distribution style (even, all, or key)
                         + Members
