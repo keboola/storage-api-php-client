@@ -1105,7 +1105,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
 
             $workspaces->loadWorkspaceData($workspace['id'], array("input" => array($testMapping)));
             $this->fail('Should return bad request, destination is required');
-        } catch (ClientException $e) {;
+        } catch (ClientException $e) {
             $this->assertEquals('workspace.loadRequestBadInput', $e->getStringCode());
         }
         try {
