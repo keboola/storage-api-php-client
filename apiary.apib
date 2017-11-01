@@ -2486,6 +2486,8 @@ Loads tables from Storage into a Workspace.
                             + all
                             + key
                     + distKey[] (optional, array) - Redshift only - Column(s) to use for the key distribution style
+                    + incremental (optional, boolean) - If incremental is set to true, the target table will be preserved and new data will be appended.
+                        Default: false
     + preserve (optional, boolean) - If true, the workspace will not be altered before loading. When false, clears the workspace before loading.
         Default: false
 
