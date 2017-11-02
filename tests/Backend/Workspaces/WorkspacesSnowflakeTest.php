@@ -21,6 +21,48 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
         }
     }
 
+    public function testLoadDataTypesDefaults()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+
+        // Create a table of sample data
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages',
+            new CsvFile($importFile)
+        );
+
+        $workspaces->loadWorkspaceData($workspace['id'], [
+            "input" => [
+                [
+                    "source" => $tableId,
+                    "destination" => "languages",
+                    "columns" => [
+                        [
+                            'source' => 'id',
+                            'type' => 'int',
+                        ],
+                        [
+                            'source' => 'name',
+                            'type' => 'varchar',
+                        ],
+                    ]
+                ]
+            ]
+        ]);
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $table = $backend->describeTableColumns('languages');
+
+        $this->assertEquals('id', $table[0]['name']);
+        $this->assertEquals("NUMBER(38,0)", $table[0]['type']);
+
+        $this->assertEquals('name', $table[1]['name']);
+        $this->assertEquals("VARCHAR(16777216)", $table[1]['type']);
+    }
+
     public function testStatementTimeout()
     {
         $workspaces = new Workspaces($this->_client);

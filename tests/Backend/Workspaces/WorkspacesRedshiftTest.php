@@ -144,6 +144,50 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
         }
     }
 
+    public function testLoadDataTypesDefaults()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+
+        // Create a table of sample data
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages-rs',
+            new CsvFile($importFile)
+        );
+
+        $workspaces->loadWorkspaceData($workspace['id'], [
+            "input" => [
+                [
+                    "source" => $tableId,
+                    "destination" => "languages-rs",
+                    "columns" => [
+                        [
+                            'source' => 'id',
+                            'type' => 'int',
+                        ],
+                        [
+                            'source' => 'name',
+                            'type' => 'varchar',
+                        ]
+                    ]
+                ]
+            ]
+        ]);
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $table = $backend->describeTableColumns('languages-rs');
+
+        $this->assertEquals("int4", $table['id']['DATA_TYPE']);
+        $this->assertEquals(4, $table['id']['LENGTH']);
+        $this->assertEquals("lzo", $table['id']['COMPRESSION']);
+
+        $this->assertEquals("varchar", $table['name']['DATA_TYPE']);
+        $this->assertEquals(256, $table['name']['LENGTH']);
+        $this->assertEquals("lzo", $table['name']['COMPRESSION']);
+    }
+
     public function testLoadedPrimaryKeys()
     {
         $primaries = ['Paid_Search_Engine_Account', 'Date', 'Paid_Search_Campaign', 'Paid_Search_Ad_ID', 'Site__DFA'];
