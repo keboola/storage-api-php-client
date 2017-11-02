@@ -744,7 +744,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                     'whereValues' => array('PRG'),
                     'columns' => [
                         [
-                            'sourceColumn' => 'id',
+                            'source' => 'id',
                             'type' => 'integer',
                         ],
                         [
