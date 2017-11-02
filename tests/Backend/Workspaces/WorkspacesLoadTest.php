@@ -36,11 +36,11 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                     'destination' => 'languages',
                     'columns' => [
                         [
-                            'sourceColumn' => 'id',
+                            'source' => 'id',
                             'type' => 'INTEGER',
                         ],
                         [
-                            'sourceColumn' => 'name',
+                            'source' => 'name',
                             'type' => 'VARCHAR',
                         ]
                     ]
@@ -50,11 +50,11 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                     'destination' => 'langs',
                     'columns' => [
                         [
-                            'sourceColumn' => 'id',
+                            'source' => 'id',
                             'type' => 'INTEGER',
                         ],
                         [
-                            'sourceColumn' => 'name',
+                            'source' => 'name',
                             'type' => 'VARCHAR',
                         ]
                     ]
@@ -276,11 +276,11 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                     'destination' => 'languagesIso',
                     'columns' => [
                         [
-                            'sourceColumn' => 'Id',
+                            'source' => 'Id',
                             'type' => 'integer'
                         ],
                         [
-                            'sourceColumn' => 'iso',
+                            'source' => 'iso',
                             'type' => 'varchar'
                         ]
                     ]
@@ -290,11 +290,11 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                     'destination' => 'languagesSomething',
                     'columns' => [
                         [
-                            'sourceColumn' => 'Name',
+                            'source' => 'Name',
                             'type' => 'varchar'
                         ],
                         [
-                            'sourceColumn' => 'Something',
+                            'source' => 'Something',
                             'type' => 'varchar'
                         ]
                     ]
@@ -305,13 +305,13 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $mappingColumns = [
             array_map(
                 function ($row) {
-                    return $row['sourceColumn'];
+                    return $row['source'];
                 },
                 $options['input'][0]['columns']
             ),
             array_map(
                 function ($row) {
-                    return $row['sourceColumn'];
+                    return $row['source'];
                 },
                 $options['input'][1]['columns']
             ),
@@ -336,15 +336,15 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                     'destination' => 'languagesIso',
                     'columns' => [
                         [
-                            'sourceColumn' => 'Id',
+                            'source' => 'Id',
                             'type' => 'integer',
                         ],
                         [
-                            'sourceColumn' => 'iso',
+                            'source' => 'iso',
                             'type' => 'varchar'
                         ],
                         [
-                            'sourceColumn' => 'not-a-column',
+                            'source' => 'not-a-column',
                             'type' => 'varchar'
                         ]
                     ]
@@ -387,11 +387,11 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                     'whereValues' => ['dd', 'xx'],
                     'columns' => [
                         [
-                            'sourceColumn' => 'Id',
+                            'source' => 'Id',
                             'type' => 'integer',
                         ],
                         [
-                            'sourceColumn' => 'Name',
+                            'source' => 'Name',
                             'type' => 'varchar',
                         ],
                     ],
@@ -413,11 +413,11 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                     'whereValues' => ['ff', 'xx'],
                     'columns' => [
                         [
-                            'sourceColumn' => 'Id',
+                            'source' => 'Id',
                             'type' => 'integer',
                         ],
                         [
-                            'sourceColumn' => 'Name',
+                            'source' => 'Name',
                             'type' => 'varchar',
                         ],
                     ],
@@ -450,11 +450,11 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                     'destination' => 'languages',
                     'columns' => [
                         [
-                            'sourceColumn' => 'id',
+                            'source' => 'id',
                             'type' => 'integer',
                         ],
                         [
-                            'sourceColumn' => 'name',
+                            'source' => 'name',
                             'type' => 'varchar',
                         ],
                     ],
@@ -476,15 +476,15 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                     'destination' => 'languages',
                     'columns' => [
                         [
-                            'sourceColumn' => 'id',
+                            'source' => 'id',
                             'type' => 'integer',
                         ],
                         [
-                            'sourceColumn' => 'name',
+                            'source' => 'name',
                             'type' => 'varchar',
                         ],
                         [
-                            'sourceColumn' => 'test',
+                            'source' => 'test',
                             'type' => 'varchar',
                         ],
                     ],
@@ -523,11 +523,11 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                     'destination' => 'languages',
                     'columns' => [
                         [
-                            'sourceColumn' => 'id',
+                            'source' => 'id',
                             'type' => 'integer',
                         ],
                         [
-                            'sourceColumn' => 'name',
+                            'source' => 'name',
                             'type' => 'varchar',
                         ],
                     ],
@@ -549,7 +549,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                     'destination' => 'languages',
                     'columns' => [
                         [
-                            'sourceColumn' => 'id',
+                            'source' => 'id',
                             'type' => 'integer',
                         ],
                     ],
@@ -648,11 +648,11 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                     'seconds' => floor(time() - $startTime) + 30,
                     'columns' => [
                         [
-                            'sourceColumn' => 'id',
+                            'source' => 'id',
                             'type' => 'integer',
                         ],
                         [
-                            'sourceColumn' => 'name',
+                            'source' => 'name',
                             'type' => 'varchar',
                         ],
                     ],
@@ -686,11 +686,11 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                 'rows' => 2,
                 'columns' => [
                     [
-                        'sourceColumn' => 'id',
+                        'source' => 'id',
                         'type' => 'integer',
                     ],
                     [
-                        'sourceColumn' => 'name',
+                        'source' => 'name',
                         'type' => 'varchar',
                     ],
                 ],
@@ -868,11 +868,11 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                 'destination' => 'datatype_test',
                 'columns' =>  [
                     [
-                        'sourceColumn' => 'id',
+                        'source' => 'id',
                         'type' => 'UNKNOWN',
                     ],
                     [
-                        'sourceColumn' => 'name',
+                        'source' => 'name',
                         'type' => 'UNKNOWN',
                     ]
                 ]
@@ -910,11 +910,11 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             "destination" => "languagesLoaded",
             "columns" => array(
                 array(
-                    "sourceColumn" => "id",
+                    "source" => "id",
                     "type" => "INTEGER",
                 ),
                 array(
-                    "sourceColumn" => "name",
+                    "source" => "name",
                     "type" => "VARCHAR",
                 )
             )
@@ -924,23 +924,23 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             "destination" => "languagesLoaded",
             "columns" => array(
                 array(
-                    "sourceColumn" => "0",
+                    "source" => "0",
                     "type" => "VARCHAR",
                 ),
                 array(
-                    "sourceColumn" => "1",
+                    "source" => "1",
                     "type" => "VARCHAR",
                 ),
                 array(
-                    "sourceColumn" => "2",
+                    "source" => "2",
                     "type" => "VARCHAR",
                 ),
                 array(
-                    "sourceColumn" => "3",
+                    "source" => "3",
                     "type" => "VARCHAR",
                 ),
                 array(
-                    "sourceColumn" => "45",
+                    "source" => "45",
                     "type" => "VARCHAR",
                 )
             )
@@ -976,11 +976,11 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                         'destination' => 'Langs',
                         "columns" => [
                             [
-                                "sourceColumn" => "id",
+                                "source" => "id",
                                 "type" => "INTEGER",
                             ],
                             [
-                                "sourceColumn" => "name",
+                                "source" => "name",
                                 "type" => "VARCHAR",
                             ]
                         ]
@@ -1000,11 +1000,11 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                             'destination' => 'Langs',
                             "columns" => [
                                 [
-                                    "sourceColumn" => "id",
+                                    "source" => "id",
                                     "type" => "INTEGER",
                                 ],
                                 [
-                                    "sourceColumn" => "name",
+                                    "source" => "name",
                                     "type" => "VARCHAR",
                                 ]
                             ]
@@ -1030,7 +1030,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             "destination" => "whatever",
             "columns" => array(
                 array(
-                    "sourceColumn" => "fake",
+                    "source" => "fake",
                     "type" => "fake"
                 )
             )
@@ -1063,11 +1063,11 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             "destination" => "languagesLoaded",
             "columns" => [
                 [
-                    "sourceColumn" => "id",
+                    "source" => "id",
                     "type" => "INTEGER",
                 ],
                 [
-                    "sourceColumn" => "name",
+                    "source" => "name",
                     "type" => "VARCHAR",
                 ]
             ]
@@ -1149,11 +1149,11 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                 "destination" => "irrelevant",
                 "columns" => [
                     [
-                        "sourceColumn" => "id",
+                        "source" => "id",
                         "type" => "INTEGER",
                     ],
                     [
-                        "sourceColumn" => "name",
+                        "source" => "name",
                         "type" => "VARCHAR",
                     ]
                 ]
@@ -1188,11 +1188,11 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                     "destination" => "dotted.destination",
                     "columns" => [
                         [
-                            "sourceColumn" => "id",
+                            "source" => "id",
                             "type" => "INTEGER",
                         ],
                         [
-                            "sourceColumn" => "name",
+                            "source" => "name",
                             "type" => "VARCHAR",
                         ]
                     ]
@@ -1213,11 +1213,11 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             [
                 [
                     [
-                        'sourceColumn' => 'Id',
+                        'source' => 'Id',
                         'type' => 'INTEGER',
                     ],
                     [
-                        'sourceColumn' => 'Name',
+                        'source' => 'Name',
                         'type' => 'VARCHAR',
                         'length' => '50',
                     ],
@@ -1232,11 +1232,11 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             [
                 [
                     [
-                        'sourceColumn' => 'id',
+                        'source' => 'id',
                         'type' => 'INTEGER',
                     ],
                     [
-                        'sourceColumn' => 'name',
+                        'source' => 'name',
                         'type' => 'INTEGER',
                     ]
                 ]
@@ -1249,11 +1249,11 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         return [
             [
                 [
-                    'sourceColumn' => 'id', // lower case instead camel case should be resolved like non-existing column
+                    'source' => 'id', // lower case instead camel case should be resolved like non-existing column
                     'type' => 'INTEGER',
                 ],
                 [
-                    'sourceColumn' => 'Name',
+                    'source' => 'Name',
                     'type' => 'VARCHAR',
                     'length' => '50',
                 ]
@@ -1268,14 +1268,14 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                 'languages',
                 [
                     [
-                        'sourceColumn' =>  'name',
+                        'source' =>  'name',
                         'type' => 'VARCHAR',
                         'convertEmptyValuesToNull' => false,
                     ],
                 ],
                 [
                     [
-                        'sourceColumn' =>  'name',
+                        'source' =>  'name',
                         'type' => 'CHARACTER',
                         'convertEmptyValuesToNull' => false,
                     ],
@@ -1285,30 +1285,13 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                 'languages',
                 [
                     [
-                        'sourceColumn' =>  'name',
+                        'source' =>  'name',
                         'type' => 'VARCHAR',
                     ],
                 ],
                 [
                     [
-                        'sourceColumn' =>  'name',
-                        'type' => 'VARCHAR',
-                        'length' => 30,
-                    ],
-                ],
-            ],
-            [
-                'languages',
-                [
-                    [
-                        'sourceColumn' =>  'name',
-                        'type' => 'VARCHAR',
-                        'length' => 50,
-                    ],
-                ],
-                [
-                    [
-                        'sourceColumn' =>  'name',
+                        'source' =>  'name',
                         'type' => 'VARCHAR',
                         'length' => 30,
                     ],
@@ -1318,7 +1301,24 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                 'languages',
                 [
                     [
-                        'sourceColumn' =>  'name',
+                        'source' =>  'name',
+                        'type' => 'VARCHAR',
+                        'length' => 50,
+                    ],
+                ],
+                [
+                    [
+                        'source' =>  'name',
+                        'type' => 'VARCHAR',
+                        'length' => 30,
+                    ],
+                ],
+            ],
+            [
+                'languages',
+                [
+                    [
+                        'source' =>  'name',
                         'type' => 'VARCHAR',
                         'length' => 50,
                         'nullable' => false,
@@ -1326,7 +1326,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                 ],
                 [
                     [
-                        'sourceColumn' =>  'name',
+                        'source' =>  'name',
                         'type' => 'VARCHAR',
                         'length' => 50,
                     ],
@@ -1336,7 +1336,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                 'languages',
                 [
                     [
-                        'sourceColumn' =>  'name',
+                        'source' =>  'name',
                         'type' => 'VARCHAR',
                         'length' => 50,
                         'nullable' => false,
@@ -1344,7 +1344,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                 ],
                 [
                     [
-                        'sourceColumn' =>  'name',
+                        'source' =>  'name',
                         'type' => 'VARCHAR',
                         'length' => 50,
                         'nullable' => true,
