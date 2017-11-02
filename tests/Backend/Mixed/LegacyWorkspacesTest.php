@@ -429,5 +429,4 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
 
         ];
     }
-
 }
