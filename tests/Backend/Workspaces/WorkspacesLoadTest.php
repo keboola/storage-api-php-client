@@ -706,7 +706,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
     /**
      * @param $exportOptions
      * @param $expectedResult
-     * @dataProvider tableExportFiltersData
+     * @dataProvider workspaceExportFiltersData
      */
     public function testWorkspaceExportFilters($exportOptions, $expectedResult)
     {
@@ -732,6 +732,302 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $data = $backend->fetchAll('filter-test');
 
         $this->assertArrayEqualsSorted($expectedResult, $data, 0);
+    }
+
+    public function workspaceExportFiltersData()
+    {
+        return array(
+            // first test
+            array(
+                array(
+                    'whereColumn' => 'city',
+                    'whereValues' => array('PRG'),
+                    'columns' => [
+                        [
+                            'sourceColumn' => 'id',
+                            'type' => 'integer',
+                        ],
+                        [
+                            'source' => 'name',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'sex',
+                            'type' => 'varchar',
+                        ],
+                    ],
+                ),
+                array(
+                    array(
+                        "1",
+                        "martin",
+                        "male"
+                    ),
+                    array(
+                        "2",
+                        "klara",
+                        "female",
+                    ),
+                ),
+            ),
+            // first test with defined operator
+            array(
+                array(
+                    'whereColumn' => 'city',
+                    'whereValues' => array('PRG'),
+                    'whereOperator' => 'eq',
+                    'columns' => [
+                        [
+                            'source' => 'id',
+                            'type' => 'integer',
+                        ],
+                        [
+                            'source' => 'name',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'city',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'sex',
+                            'type' => 'varchar',
+                        ],
+                    ],
+                ),
+                array(
+                    array(
+                        "1",
+                        "martin",
+                        "PRG",
+                        "male"
+                    ),
+                    array(
+                        "2",
+                        "klara",
+                        "PRG",
+                        "female",
+                    ),
+                ),
+            ),
+            // second test
+            array(
+                array(
+                    'whereColumn' => 'city',
+                    'whereValues' => array('PRG', 'VAN'),
+                    'columns' => [
+                        [
+                            'source' => 'id',
+                            'type' => 'integer',
+                        ],
+                        [
+                            'source' => 'name',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'city',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'sex',
+                            'type' => 'varchar',
+                        ],
+                    ],
+                ),
+                array(
+                    array(
+                        "1",
+                        "martin",
+                        "PRG",
+                        "male"
+                    ),
+                    array(
+                        "2",
+                        "klara",
+                        "PRG",
+                        "female",
+                    ),
+                    array(
+                        "3",
+                        "ondra",
+                        "VAN",
+                        "male",
+                    ),
+                ),
+            ),
+            // third test
+            array(
+                array(
+                    'whereColumn' => 'city',
+                    'whereValues' => array('PRG'),
+                    'whereOperator' => 'ne',
+                    'columns' => [
+                        [
+                            'source' => 'id',
+                            'type' => 'integer',
+                        ],
+                        [
+                            'source' => 'name',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'city',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'sex',
+                            'type' => 'varchar',
+                        ],
+                    ],
+                ),
+                array(
+                    array(
+                        "5",
+                        "hidden",
+                        "",
+                        "male",
+                    ),
+                    array(
+                        "4",
+                        "miro",
+                        "BRA",
+                        "male",
+                    ),
+                    array(
+                        "3",
+                        "ondra",
+                        "VAN",
+                        "male",
+                    ),
+                ),
+            ),
+            // fourth test
+            array(
+                array(
+                    'whereColumn' => 'city',
+                    'whereValues' => array('PRG', 'VAN'),
+                    'whereOperator' => 'ne',
+                    'columns' => [
+                        [
+                            'source' => 'id',
+                            'type' => 'integer',
+                        ],
+                        [
+                            'source' => 'name',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'city',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'sex',
+                            'type' => 'varchar',
+                        ],
+                    ],
+                ),
+                array(
+                    array(
+                        "4",
+                        "miro",
+                        "BRA",
+                        "male",
+                    ),
+                    array(
+                        "5",
+                        "hidden",
+                        "",
+                        "male",
+                    ),
+                ),
+            ),
+            // fifth test
+            array(
+                array(
+                    'whereColumn' => 'city',
+                    'whereValues' => array(''),
+                    'whereOperator' => 'eq',
+                    'columns' => [
+                        [
+                            'source' => 'id',
+                            'type' => 'integer',
+                        ],
+                        [
+                            'source' => 'name',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'city',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'sex',
+                            'type' => 'varchar',
+                        ],
+                    ],
+                ),
+                array(
+                    array(
+                        "5",
+                        "hidden",
+                        "",
+                        "male",
+                    ),
+                ),
+            ),
+            // sixth test
+            array(
+                array(
+                    'whereColumn' => 'city',
+                    'whereValues' => array(''),
+                    'whereOperator' => 'ne',
+                    'columns' => [
+                        [
+                            'source' => 'id',
+                            'type' => 'integer',
+                        ],
+                        [
+                            'source' => 'name',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'city',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'sex',
+                            'type' => 'varchar',
+                        ],
+                    ],
+                ),
+                array(
+                    array(
+                        "4",
+                        "miro",
+                        "BRA",
+                        "male",
+                    ),
+                    array(
+                        "1",
+                        "martin",
+                        "PRG",
+                        "male"
+                    ),
+                    array(
+                        "2",
+                        "klara",
+                        "PRG",
+                        "female",
+                    ),
+                    array(
+                        "3",
+                        "ondra",
+                        "VAN",
+                        "male",
+                    ),
+                ),
+            ),
+        );
     }
 
     /**

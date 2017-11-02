@@ -118,20 +118,7 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
                 array(
                     'whereColumn' => 'city',
                     'whereValues' => array('PRG'),
-                    'columns' => [
-                        [
-                            'sourceColumn' => 'id',
-                            'type' => 'integer',
-                        ],
-                        [
-                            'sourceColumn' => 'name',
-                            'type' => 'varchar',
-                        ],
-                        [
-                            'sourceColumn' => 'sex',
-                            'type' => 'varchar',
-                        ],
-                    ],
+                    'columns' => ['id', 'name', 'sex'],
                 ),
                 array(
                     array(
@@ -152,24 +139,6 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
                     'whereColumn' => 'city',
                     'whereValues' => array('PRG'),
                     'whereOperator' => 'eq',
-                    'columns' => [
-                        [
-                            'sourceColumn' => 'id',
-                            'type' => 'integer',
-                        ],
-                        [
-                            'sourceColumn' => 'name',
-                            'type' => 'varchar',
-                        ],
-                        [
-                            'sourceColumn' => 'city',
-                            'type' => 'varchar',
-                        ],
-                        [
-                            'sourceColumn' => 'sex',
-                            'type' => 'varchar',
-                        ],
-                    ],
                 ),
                 array(
                     array(
@@ -190,25 +159,7 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
             array(
                 array(
                     'whereColumn' => 'city',
-                    'whereValues' => array('PRG', 'VAN'),
-                    'columns' => [
-                        [
-                            'sourceColumn' => 'id',
-                            'type' => 'integer',
-                        ],
-                        [
-                            'sourceColumn' => 'name',
-                            'type' => 'varchar',
-                        ],
-                        [
-                            'sourceColumn' => 'city',
-                            'type' => 'varchar',
-                        ],
-                        [
-                            'sourceColumn' => 'sex',
-                            'type' => 'varchar',
-                        ],
-                    ],
+                    'whereValues' => array('PRG', 'VAN')
                 ),
                 array(
                     array(
@@ -236,25 +187,7 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
                 array(
                     'whereColumn' => 'city',
                     'whereValues' => array('PRG'),
-                    'whereOperator' => 'ne',
-                    'columns' => [
-                        [
-                            'sourceColumn' => 'id',
-                            'type' => 'integer',
-                        ],
-                        [
-                            'sourceColumn' => 'name',
-                            'type' => 'varchar',
-                        ],
-                        [
-                            'sourceColumn' => 'city',
-                            'type' => 'varchar',
-                        ],
-                        [
-                            'sourceColumn' => 'sex',
-                            'type' => 'varchar',
-                        ],
-                    ],
+                    'whereOperator' => 'ne'
                 ),
                 array(
                     array(
@@ -282,25 +215,7 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
                 array(
                     'whereColumn' => 'city',
                     'whereValues' => array('PRG', 'VAN'),
-                    'whereOperator' => 'ne',
-                    'columns' => [
-                        [
-                            'sourceColumn' => 'id',
-                            'type' => 'integer',
-                        ],
-                        [
-                            'sourceColumn' => 'name',
-                            'type' => 'varchar',
-                        ],
-                        [
-                            'sourceColumn' => 'city',
-                            'type' => 'varchar',
-                        ],
-                        [
-                            'sourceColumn' => 'sex',
-                            'type' => 'varchar',
-                        ],
-                    ],
+                    'whereOperator' => 'ne'
                 ),
                 array(
                     array(
@@ -322,25 +237,7 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
                 array(
                     'whereColumn' => 'city',
                     'whereValues' => array(''),
-                    'whereOperator' => 'eq',
-                    'columns' => [
-                        [
-                            'sourceColumn' => 'id',
-                            'type' => 'integer',
-                        ],
-                        [
-                            'sourceColumn' => 'name',
-                            'type' => 'varchar',
-                        ],
-                        [
-                            'sourceColumn' => 'city',
-                            'type' => 'varchar',
-                        ],
-                        [
-                            'sourceColumn' => 'sex',
-                            'type' => 'varchar',
-                        ],
-                    ],
+                    'whereOperator' => 'eq'
                 ),
                 array(
                     array(
@@ -356,25 +253,7 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
                 array(
                     'whereColumn' => 'city',
                     'whereValues' => array(''),
-                    'whereOperator' => 'ne',
-                    'columns' => [
-                        [
-                            'sourceColumn' => 'id',
-                            'type' => 'integer',
-                        ],
-                        [
-                            'sourceColumn' => 'name',
-                            'type' => 'varchar',
-                        ],
-                        [
-                            'sourceColumn' => 'city',
-                            'type' => 'varchar',
-                        ],
-                        [
-                            'sourceColumn' => 'sex',
-                            'type' => 'varchar',
-                        ],
-                    ],
+                    'whereOperator' => 'ne'
                 ),
                 array(
                     array(
