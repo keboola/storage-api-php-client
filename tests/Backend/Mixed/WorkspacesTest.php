@@ -189,11 +189,7 @@ class WorkspacesTest extends WorkspacesTestCase
     }
 
 
-    /**
-     * @dataProvider loadToRedshiftDataTypes
-     * @param $dataTypesDefinition
-     */
-    public function testDataTypesLoadToRedshift($dataTypesDefinition)
+    public function testDataTypesLoadToRedshift()
     {
 
         $bucketBackend = self::BACKEND_MYSQL;
@@ -232,9 +228,14 @@ class WorkspacesTest extends WorkspacesTestCase
                 [
                     "source" => "in.c-mixed-test-{$bucketBackend}.dates",
                     "destination" => "dates",
-                    "datatypes" => $dataTypesDefinition
-                ]
-            ]
+                    "columns" => [
+                        [
+                            'source' => 'valid_from',
+                            'type' => 'TIMESTAMP',
+                        ],
+                    ],
+                ],
+            ],
         ];
 
         // exception should not be thrown, date conversion should be applied
@@ -250,9 +251,9 @@ class WorkspacesTest extends WorkspacesTestCase
      * @dataProvider workspaceMixedAndSameBackendDataWithDataTypes
      * @param $workspaceBackend
      * @param $sourceBackend
-     * @param $dataTypesDefinition
+     * @param $columnsDefinition
      */
-    public function testLoadUserError($workspaceBackend, $sourceBackend, $dataTypesDefinition)
+    public function testLoadUserError($workspaceBackend, $sourceBackend, $columnsDefinition)
     {
         if ($this->_client->bucketExists("in.c-mixed-test-" . $sourceBackend)) {
             $this->_client->dropBucket("in.c-mixed-test-{$sourceBackend}", [
@@ -277,7 +278,7 @@ class WorkspacesTest extends WorkspacesTestCase
                 [
                     "source" => $sourceTableId,
                     "destination" => "transactions",
-                    "datatypes" => $dataTypesDefinition,
+                    "columns" => $columnsDefinition,
                 ],
             ],
         ];
@@ -321,14 +322,14 @@ class WorkspacesTest extends WorkspacesTestCase
                 [
                     "source" => $sourceTableId,
                     "destination" => "transactions",
-                    "datatypes" => [
+                    "columns" => [
                         [
-                            'column' => 'item',
+                            'source' => 'item',
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true
                         ],
                         [
-                            'column' => 'quantity',
+                            'source' => 'quantity',
                             'type' => $dataType,
                             'convertEmptyValuesToNull' => true
                         ]
@@ -446,20 +447,20 @@ class WorkspacesTest extends WorkspacesTestCase
                     'destination' => 'languages',
                     'whereColumn' => 'id',
                     'whereValues' => [0, 26, 1],
-                    'datatypes' => [
+                    'columns' => [
                         [
-                            'column' =>  'id',
+                            'source' =>  'id',
                             'type' => 'SMALLINT',
                             'nullable' => false,
                         ],
                         [
-                            'column' => 'name',
+                            'source' => 'name',
                             'type' => 'VARCHAR',
                             'length' => '50',
                             'nullable' => false,
                         ],
                         [
-                            'column' =>  'State',
+                            'source' =>  'State',
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
                             'nullable' => true,
@@ -481,20 +482,20 @@ class WorkspacesTest extends WorkspacesTestCase
                     'destination' => 'languages',
                     'whereColumn' => 'id',
                     'whereValues' => [11, 26, 24],
-                    'datatypes' => [
+                    'columns' => [
                         [
-                            'column' =>  'id',
+                            'source' =>  'id',
                             'type' => 'SMALLINT',
                             'nullable' => false,
                         ],
                         [
-                            'column' =>  'name',
+                            'source' =>  'name',
                             'type' => 'VARCHAR',
                             'length' => '50',
                             'nullable' => false,
                         ],
                         [
-                            'column' =>  'State',
+                            'source' =>  'State',
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
                             'nullable' => true,
@@ -562,20 +563,20 @@ class WorkspacesTest extends WorkspacesTestCase
                     'destination' => 'languages',
                     'whereColumn' => 'id',
                     'whereValues' => [26, 1],
-                    'datatypes' => [
+                    'columns' => [
                         [
-                            'column' =>  'id',
+                            'source' =>  'id',
                             'type' => 'SMALLINT',
                             'nullable' => false,
                         ],
                         [
-                            'column' =>  'name',
+                            'source' =>  'name',
                             'type' => 'VARCHAR',
                             'length' => '50',
                             'nullable' => false,
                         ],
                         [
-                            'column' =>  'State',
+                            'source' =>  'State',
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
                             'nullable' => false,
@@ -597,20 +598,20 @@ class WorkspacesTest extends WorkspacesTestCase
                     'destination' => 'languages',
                     'whereColumn' => 'id',
                     'whereValues' => [11, 26, 24],
-                    'datatypes' => [
+                    'columns' => [
                         [
-                            'column' =>  'id',
+                            'source' =>  'id',
                             'type' => 'SMALLINT',
                             'nullable' => false,
                         ],
                         [
-                            'column' =>  'name',
+                            'source' =>  'name',
                             'type' => 'VARCHAR',
                             'length' => '50',
                             'nullable' => false,
                         ],
                         [
-                            'column' =>  'State',
+                            'source' =>  'State',
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
                             'nullable' => false,
@@ -638,20 +639,31 @@ class WorkspacesTest extends WorkspacesTestCase
 
     public function workspaceMixedAndSameBackendDataWithDataTypes()
     {
-        $simpleDataTypesDefinitionSnowflake = ["price" => "VARCHAR", "quantity" => "NUMBER"];
-        $simpleDataTypesDefinitionRedshift = ["price" => "VARCHAR", "quantity" => "INTEGER"];
-        $extendedDataTypesDefinitionSnowflake = [["column" => "price", "type" => "VARCHAR"], ["column" => "quantity", "type" => "NUMBER"]];
-        $extendedDataTypesDefinitionRedshift = [["column" => "price", "type" => "VARCHAR"], ["column" => "quantity", "type" => "INTEGER"]];
+        $simpleDataTypesDefinitionSnowflake = [
+            [
+                'source' => 'price',
+                'type' => 'VARCHAR',
+            ],
+            [
+                'source' => 'quantity',
+                'type' =>'NUMBER',
+            ],
+        ];
+        $simpleDataTypesDefinitionRedshift = [
+            [
+                'source' => 'price',
+                'type' => 'VARCHAR',
+            ],
+            [
+                'source' => 'quantity',
+                'type' =>'INTEGER',
+            ],
+        ];
         return [
             [self::BACKEND_SNOWFLAKE, self::BACKEND_SNOWFLAKE, $simpleDataTypesDefinitionSnowflake],
             [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT, $simpleDataTypesDefinitionSnowflake],
             [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, $simpleDataTypesDefinitionRedshift],
             [self::BACKEND_REDSHIFT, self::BACKEND_REDSHIFT, $simpleDataTypesDefinitionRedshift],
-            [self::BACKEND_SNOWFLAKE, self::BACKEND_SNOWFLAKE, $extendedDataTypesDefinitionSnowflake],
-            [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT, $extendedDataTypesDefinitionSnowflake],
-            [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, $extendedDataTypesDefinitionRedshift],
-            [self::BACKEND_REDSHIFT, self::BACKEND_REDSHIFT, $extendedDataTypesDefinitionRedshift],
-
         ];
     }
 
@@ -672,14 +684,6 @@ class WorkspacesTest extends WorkspacesTestCase
             [self::BACKEND_SNOWFLAKE, self::BACKEND_MYSQL],
             [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE],
             [self::BACKEND_REDSHIFT, self::BACKEND_MYSQL],
-        ];
-    }
-
-    public function loadToRedshiftDataTypes()
-    {
-        return [
-            [['valid_from' => "TIMESTAMP"]],
-            [[['column' => 'valid_from', 'type' => "TIMESTAMP"]]]
         ];
     }
 }
