@@ -49,6 +49,7 @@
         <file>tests/Backend/Workspaces/WorkspacesSnowflakeTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
+		<file>tests/Backend/Workspaces/LegacyWorkspacesSnowflakeTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
 		<directory>tests/Backend/Snowflake</directory>

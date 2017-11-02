@@ -123,7 +123,16 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
         $mapping2 = [
             "source" => $pkTableId,
             "destination" => "languages-pk-skipped",
-            "columns" => ['Paid_Search_Engine_Account','Date'] // missing PK columns
+            "columns" => [
+                [
+                    "source" => "Paid_Search_Engine_Account",
+                    "type" => "varchar",
+                ],
+                [
+                    "source" => "Date",
+                    "type" => "varchar",
+                ],
+            ],
         ];
         $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping2]]);
 
@@ -302,25 +311,25 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
                     'destination' => 'languages',
                     'whereColumn' => 'id',
                     'whereValues' => [0, 26, 1],
-                    'datatypes' => [
-                        'id' => [
-                            'column' =>  'id',
+                    'columns' => [
+                        [
+                            'source' => 'id',
                             'type' => 'SMALLINT',
                             'nullable' => false,
                         ],
-                        'name' => [
-                            'column' =>  'name',
+                        [
+                            'source' => 'name',
                             'type' => 'VARCHAR',
                             'length' => '50',
                             'nullable' => false,
                         ],
-                        'State' => [
-                            'column' =>  'State',
+                        [
+                            'source' => 'State',
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
                             'nullable' => true,
-                        ],
-                    ]
+                        ]
+                    ],
                 ],
             ],
         ];
@@ -337,24 +346,24 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
                     'destination' => 'languages',
                     'whereColumn' => 'id',
                     'whereValues' => [11, 26, 24],
-                    'datatypes' => [
-                        'id' => [
-                            'column' =>  'id',
+                    'columns' => [
+                        [
+                            'source' => 'id',
                             'type' => 'SMALLINT',
                             'nullable' => false,
                         ],
-                        'name' => [
-                            'column' =>  'name',
+                        [
+                            'source' => 'name',
                             'type' => 'VARCHAR',
                             'length' => '50',
                             'nullable' => false,
                         ],
-                        'State' => [
-                            'column' =>  'State',
+                        [
+                            'source' => 'State',
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
                             'nullable' => true,
-                        ],
+                        ]
                     ],
                 ],
             ],
@@ -399,25 +408,25 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
                     'destination' => 'languages',
                     'whereColumn' => 'id',
                     'whereValues' => [26, 1],
-                    'datatypes' => [
-                        'id' => [
-                            'column' =>  'id',
+                    'columns' => [
+                        [
+                            'source' => 'id',
                             'type' => 'SMALLINT',
                             'nullable' => false,
                         ],
-                        'name' => [
-                            'column' =>  'name',
+                        [
+                            'source' => 'name',
                             'type' => 'VARCHAR',
                             'length' => '50',
                             'nullable' => false,
                         ],
-                        'State' => [
-                            'column' =>  'State',
+                        [
+                            'source' => 'State',
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
                             'nullable' => false,
-                        ],
-                    ]
+                        ]
+                    ],
                 ],
             ],
         ];
@@ -434,20 +443,20 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
                     'destination' => 'languages',
                     'whereColumn' => 'id',
                     'whereValues' => [11, 26, 24],
-                    'datatypes' => [
-                        'id' => [
-                            'column' =>  'id',
+                    'columns' => [
+                        [
+                            'source' => 'id',
                             'type' => 'SMALLINT',
                             'nullable' => false,
                         ],
-                        'name' => [
-                            'column' =>  'name',
+                        [
+                            'source' => 'name',
                             'type' => 'VARCHAR',
                             'length' => '50',
                             'nullable' => false,
                         ],
-                        'State' => [
-                            'column' =>  'State',
+                        [
+                            'source' => 'State',
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
                             'nullable' => false,
@@ -468,7 +477,7 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
     /**
      * @dataProvider dataTypesDiffDefinitions
      */
-    public function testsIncrementalDataTypesDiff($table, $firstLoadDataTypes, $secondLoadDataTypes, $shouldFail)
+    public function testsIncrementalDataTypesDiff($table, $firstLoadColumns, $secondLoadColumns, $shouldFail)
     {
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
@@ -487,7 +496,7 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
                 [
                     'source' => $tableId,
                     'destination' => $table,
-                    'datatypes' => $firstLoadDataTypes,
+                    'columns' => $firstLoadColumns,
                 ],
             ],
         ];
@@ -501,7 +510,7 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
                     'incremental' => true,
                     'source' => $tableId,
                     'destination' => $table,
-                    'datatypes' => $secondLoadDataTypes,
+                    'columns' => $secondLoadColumns,
                 ],
             ],
         ];
@@ -525,15 +534,15 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
             [
                 'rates',
                 [
-                    'Date' => [
-                        'column' =>  'Date',
+                    [
+                        'source' =>  'Date',
                         'type' => 'DATETIME',
                         'length' => '0',
                     ],
                 ],
                 [
-                    'Date' => [
-                        'column' =>  'Date',
+                    [
+                        'source' =>  'Date',
                         'type' => 'DATETIME',
                         'length' => '9',
                     ],
@@ -543,15 +552,15 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
             [
                 'rates',
                 [
-                    'Date' => [
-                        'column' =>  'Date',
+                    [
+                        'source' =>  'Date',
                         'type' => 'DATETIME',
                         'length' => '3',
                     ],
                 ],
                 [
-                    'Date' => [
-                        'column' =>  'Date',
+                    [
+                        'source' =>  'Date',
                         'type' => 'TIMESTAMP_NTZ',
                         'length' => '3',
                     ],
@@ -561,14 +570,14 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
             [
                 'languages',
                 [
-                    'id' => [
-                        'column' =>  'id',
+                    [
+                        'source' =>  'id',
                         'type' => 'SMALLINT',
                     ],
                 ],
                 [
-                    'id' => [
-                        'column' =>  'id',
+                    [
+                        'source' =>  'id',
                         'type' => 'NUMBER',
                     ],
                 ],
@@ -577,14 +586,14 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
             [
                 'languages',
                 [
-                    'id' => [
-                        'column' =>  'id',
+                    [
+                        'source' =>  'id',
                         'type' => 'DOUBLE',
                     ],
                 ],
                 [
-                    'id' => [
-                        'column' =>  'id',
+                    [
+                        'source' =>  'id',
                         'type' => 'REAL',
                     ],
                 ],
