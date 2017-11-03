@@ -1030,6 +1030,36 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
         $this->assertEquals('dotted.destination', $tables[0]);
     }
 
+    public function testInvalidColumnsStringIgnore()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+
+        // Create a table of sample data
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages',
+            new CsvFile($importFile)
+        );
+
+        $workspaces->loadWorkspaceData($workspace['id'], [
+            "input" => [
+                [
+                    "source" => $tableId,
+                    "destination" => "languages",
+                    "columns" => "",
+                ],
+            ]
+        ]);
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        // let's try to delete some columns
+        $tables = $backend->getTables();
+        $this->assertCount(1, $tables);
+        $this->assertEquals('languages', $tables[0]);
+    }
+
     /**
      * @param $exportOptions
      * @param $expectedResult
