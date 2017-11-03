@@ -24,9 +24,9 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
 
     /**
      * @dataProvider columnCompressionDataTypesDefinitions
-     * @param $dataTypesDefinition
+     * @param $columnsDefinition
      */
-    public function testColumnCompression($dataTypesDefinition)
+    public function testColumnCompression($columnsDefinition)
     {
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
@@ -44,7 +44,7 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
                 [
                     "source" => $tableId,
                     "destination" => "languages-rs",
-                    "datatypes" => $dataTypesDefinition
+                    "columns" => $columnsDefinition
                 ]
             ]
         ]);
@@ -144,6 +144,50 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
         }
     }
 
+    public function testLoadDataTypesDefaults()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+
+        // Create a table of sample data
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages-rs',
+            new CsvFile($importFile)
+        );
+
+        $workspaces->loadWorkspaceData($workspace['id'], [
+            "input" => [
+                [
+                    "source" => $tableId,
+                    "destination" => "languages-rs",
+                    "columns" => [
+                        [
+                            'source' => 'id',
+                            'type' => 'int',
+                        ],
+                        [
+                            'source' => 'name',
+                            'type' => 'varchar',
+                        ]
+                    ]
+                ]
+            ]
+        ]);
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $table = $backend->describeTableColumns('languages-rs');
+
+        $this->assertEquals("int4", $table['id']['DATA_TYPE']);
+        $this->assertEquals(4, $table['id']['LENGTH']);
+        $this->assertEquals("lzo", $table['id']['COMPRESSION']);
+
+        $this->assertEquals("varchar", $table['name']['DATA_TYPE']);
+        $this->assertEquals(256, $table['name']['LENGTH']);
+        $this->assertEquals("lzo", $table['name']['COMPRESSION']);
+    }
+
     public function testLoadedPrimaryKeys()
     {
         $primaries = ['Paid_Search_Engine_Account', 'Date', 'Paid_Search_Campaign', 'Paid_Search_Ad_ID', 'Site__DFA'];
@@ -186,16 +230,25 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
         $mapping2 = [
             "source" => $pkTableId,
             "destination" => "languages-pk-skipped",
-            "columns" => ['Paid_Search_Engine_Account', 'Date'] // missing PK columns
+            "columns" => [
+                [
+                    'source' => 'Paid_Search_Engine_Account',
+                    'type' => 'varchar',
+                ],
+                [
+                    'source' => 'Date',
+                    'type' => 'varchar',
+                ],
+            ] // missing PK columns
         ];
         $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping2]]);
 
         $cols = $backend->describeTableColumns("languages-pk-skipped");
         $this->assertCount(2, $cols);
         $this->assertEquals("varchar", $cols['paid_search_engine_account']['DATA_TYPE']);
-        $this->assertEquals(255, $cols['paid_search_engine_account']['LENGTH']);
+        $this->assertEquals(256, $cols['paid_search_engine_account']['LENGTH']);
         $this->assertEquals("varchar", $cols['date']['DATA_TYPE']);
-        $this->assertEquals(255, $cols['date']['LENGTH']);
+        $this->assertEquals(256, $cols['date']['LENGTH']);
     }
 
     public function distTypeData()
@@ -212,25 +265,19 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
         return [
             [
                 [
-                    'id' => "VARCHAR(50)",
-                    "name" => "VARCHAR(255) ENCODE BYTEDICT"
-                ]
-            ],
-            [
-                [
                     [
-                        'column' => 'id',
-                        'type' => 'VARCHAR',
-                        'length' => '50'
+                        'source' => 'id',
+                        'type' => 'varchar',
+                        'length' => 50,
                     ],
                     [
-                        'column' => 'name',
-                        'type' => 'VARCHAR',
-                        'length' => '255',
-                        'compression' => 'BYTEDICT'
-                    ]
+                        'source' => 'name',
+                        'type' => 'varchar',
+                        'length' => 255,
+                        'compression' => 'BYTEDICT',
+                    ],
                 ]
-            ]
+            ],
         ];
     }
 
@@ -402,25 +449,25 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
                     'destination' => 'languages',
                     'whereColumn' => 'id',
                     'whereValues' => [0, 26, 1],
-                    'datatypes' => [
-                        'id' => [
-                            'column' =>  'id',
-                            'type' => 'SMALLINT',
-                            'nullable' => false,
+                    'columns' => [
+                        [
+                          'source' => 'id',
+                          'type' => 'SMALLINT',
+                          'nullable' => false,
                         ],
-                        'name' => [
-                            'column' =>  'name',
+                        [
+                            'source' => 'name',
                             'type' => 'VARCHAR',
                             'length' => '50',
                             'nullable' => false,
                         ],
-                        'State' => [
-                            'column' =>  'State',
+                        [
+                            'source' => 'State',
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
                             'nullable' => true,
-                        ],
-                    ]
+                        ]
+                    ],
                 ],
             ],
         ];
@@ -437,24 +484,24 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
                     'destination' => 'languages',
                     'whereColumn' => 'id',
                     'whereValues' => [11, 26, 24],
-                    'datatypes' => [
-                        'id' => [
-                            'column' =>  'id',
+                    'columns' => [
+                        [
+                            'source' => 'id',
                             'type' => 'SMALLINT',
                             'nullable' => false,
                         ],
-                        'name' => [
-                            'column' =>  'name',
+                        [
+                            'source' => 'name',
                             'type' => 'VARCHAR',
                             'length' => '50',
                             'nullable' => false,
                         ],
-                        'State' => [
-                            'column' =>  'State',
+                        [
+                            'source' => 'State',
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
                             'nullable' => true,
-                        ],
+                        ]
                     ],
                 ],
             ],
@@ -499,25 +546,25 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
                     'destination' => 'languages',
                     'whereColumn' => 'id',
                     'whereValues' => [26, 1],
-                    'datatypes' => [
-                        'id' => [
-                            'column' =>  'id',
+                    'columns' => [
+                        [
+                            'source' => 'id',
                             'type' => 'SMALLINT',
                             'nullable' => false,
                         ],
-                        'name' => [
-                            'column' =>  'name',
+                        [
+                            'source' => 'name',
                             'type' => 'VARCHAR',
                             'length' => '50',
                             'nullable' => false,
                         ],
-                        'State' => [
-                            'column' =>  'State',
+                        [
+                            'source' => 'State',
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
                             'nullable' => false,
-                        ],
-                    ]
+                        ]
+                    ],
                 ],
             ],
         ];
@@ -534,24 +581,24 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
                     'destination' => 'languages',
                     'whereColumn' => 'id',
                     'whereValues' => [11, 26, 24],
-                    'datatypes' => [
-                        'id' => [
-                            'column' =>  'id',
+                    'columns' => [
+                        [
+                            'source' => 'id',
                             'type' => 'SMALLINT',
                             'nullable' => false,
                         ],
-                        'name' => [
-                            'column' =>  'name',
+                        [
+                            'source' => 'name',
                             'type' => 'VARCHAR',
                             'length' => '50',
                             'nullable' => false,
                         ],
-                        'State' => [
-                            'column' =>  'State',
+                        [
+                            'source' => 'State',
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
                             'nullable' => false,
-                        ],
+                        ]
                     ],
                 ],
             ],

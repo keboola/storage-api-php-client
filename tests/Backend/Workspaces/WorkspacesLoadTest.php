@@ -34,10 +34,30 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                 [
                     'source' => $tableId,
                     'destination' => 'languages',
+                    'columns' => [
+                        [
+                            'source' => 'id',
+                            'type' => 'INTEGER',
+                        ],
+                        [
+                            'source' => 'name',
+                            'type' => 'VARCHAR',
+                        ]
+                    ]
                 ],
                 [
                     'source' => $tableId,
                     'destination' => 'langs',
+                    'columns' => [
+                        [
+                            'source' => 'id',
+                            'type' => 'INTEGER',
+                        ],
+                        [
+                            'source' => 'name',
+                            'type' => 'VARCHAR',
+                        ]
+                    ]
                 ]
             ],
         ]);
@@ -254,14 +274,47 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                 [
                     'source' => $tableId,
                     'destination' => 'languagesIso',
-                    'columns' => ["Id", "iso"]
+                    'columns' => [
+                        [
+                            'source' => 'Id',
+                            'type' => 'integer'
+                        ],
+                        [
+                            'source' => 'iso',
+                            'type' => 'varchar'
+                        ]
+                    ]
                 ],
                 [
                     'source' => $tableId,
                     'destination' => 'languagesSomething',
-                    'columns' => ["Name", "Something"]
+                    'columns' => [
+                        [
+                            'source' => 'Name',
+                            'type' => 'varchar'
+                        ],
+                        [
+                            'source' => 'Something',
+                            'type' => 'varchar'
+                        ]
+                    ]
                 ]
             ]
+        ];
+
+        $mappingColumns = [
+            array_map(
+                function ($row) {
+                    return $row['source'];
+                },
+                $options['input'][0]['columns']
+            ),
+            array_map(
+                function ($row) {
+                    return $row['source'];
+                },
+                $options['input'][1]['columns']
+            ),
         ];
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
@@ -269,11 +322,11 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         // check that the tables have the appropriate columns
         $columns = $backend->getTableColumns($backend->toIdentifier("languagesIso"));
         $this->assertEquals(2, count($columns));
-        $this->assertEquals(0, count(array_diff($columns, $backend->toIdentifier($options['input'][0]['columns']))));
+        $this->assertEquals(0, count(array_diff($columns, $backend->toIdentifier($mappingColumns[0]))));
 
         $columns = $backend->getTableColumns($backend->toIdentifier("languagesSomething"));
         $this->assertEquals(2, count($columns));
-        $this->assertEquals(0, count(array_diff($columns, $backend->toIdentifier($options['input'][1]['columns']))));
+        $this->assertEquals(0, count(array_diff($columns, $backend->toIdentifier($mappingColumns[1]))));
 
         // test for invalid columns
         $options = [
@@ -281,7 +334,20 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                 [
                     'source' => $tableId,
                     'destination' => 'languagesIso',
-                    'columns' => ["Id", "iso", "not-a-column"]
+                    'columns' => [
+                        [
+                            'source' => 'Id',
+                            'type' => 'integer',
+                        ],
+                        [
+                            'source' => 'iso',
+                            'type' => 'varchar'
+                        ],
+                        [
+                            'source' => 'not-a-column',
+                            'type' => 'varchar'
+                        ]
+                    ]
                 ]
             ]
         ];
@@ -319,7 +385,16 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                     'destination' => 'languagesDetails',
                     'whereColumn' => 'iso',
                     'whereValues' => ['dd', 'xx'],
-                    'columns' => ['Id', 'Name'],
+                    'columns' => [
+                        [
+                            'source' => 'Id',
+                            'type' => 'integer',
+                        ],
+                        [
+                            'source' => 'Name',
+                            'type' => 'varchar',
+                        ],
+                    ],
                 ],
             ],
         ];
@@ -336,7 +411,16 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                     'destination' => 'languagesDetails',
                     'whereColumn' => 'iso',
                     'whereValues' => ['ff', 'xx'],
-                    'columns' => ['Id', 'Name'],
+                    'columns' => [
+                        [
+                            'source' => 'Id',
+                            'type' => 'integer',
+                        ],
+                        [
+                            'source' => 'Name',
+                            'type' => 'varchar',
+                        ],
+                    ],
                 ],
             ],
         ];
@@ -364,6 +448,16 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                 [
                     'source' => $tableId,
                     'destination' => 'languages',
+                    'columns' => [
+                        [
+                            'source' => 'id',
+                            'type' => 'integer',
+                        ],
+                        [
+                            'source' => 'name',
+                            'type' => 'varchar',
+                        ],
+                    ],
                 ],
             ],
         ];
@@ -380,6 +474,20 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                     'incremental' => true,
                     'source' => $tableId,
                     'destination' => 'languages',
+                    'columns' => [
+                        [
+                            'source' => 'id',
+                            'type' => 'integer',
+                        ],
+                        [
+                            'source' => 'name',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'test',
+                            'type' => 'varchar',
+                        ],
+                    ],
                 ],
             ],
         ];
@@ -413,6 +521,16 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                 [
                     'source' => $tableId,
                     'destination' => 'languages',
+                    'columns' => [
+                        [
+                            'source' => 'id',
+                            'type' => 'integer',
+                        ],
+                        [
+                            'source' => 'name',
+                            'type' => 'varchar',
+                        ],
+                    ],
                 ],
             ],
         ];
@@ -429,6 +547,12 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                     'incremental' => true,
                     'source' => $tableId,
                     'destination' => 'languages',
+                    'columns' => [
+                        [
+                            'source' => 'id',
+                            'type' => 'integer',
+                        ],
+                    ],
                 ],
             ],
         ];
@@ -444,9 +568,9 @@ class WorkspaceLoadTest extends WorkspacesTestCase
     }
 
     /**
-     * @dataProvider dataTypesErrorDefinitions
+     * @dataProvider columnsErrorDefinitions
      */
-    public function testIncrementalDataTypesDiff($table, $firstLoadDataTypes, $secondLoadDataTypes)
+    public function testIncrementalDataTypesDiff($table, $firstLoadDataColumns, $secondLoadDataColumns)
     {
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
@@ -465,7 +589,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                 [
                     'source' => $tableId,
                     'destination' => $table,
-                    'datatypes' => $firstLoadDataTypes,
+                    'columns' => $firstLoadDataColumns,
                 ],
             ],
         ];
@@ -479,7 +603,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                     'incremental' => true,
                     'source' => $tableId,
                     'destination' => $table,
-                    'datatypes' => $secondLoadDataTypes,
+                    'columns' => $secondLoadDataColumns,
                 ],
             ],
         ];
@@ -522,6 +646,16 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                     'source' => $tableId,
                     'destination' => 'languages',
                     'seconds' => floor(time() - $startTime) + 30,
+                    'columns' => [
+                        [
+                            'source' => 'id',
+                            'type' => 'integer',
+                        ],
+                        [
+                            'source' => 'name',
+                            'type' => 'varchar',
+                        ],
+                    ],
                 ],
             ],
         ];
@@ -549,7 +683,17 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             [
                 'source' => $tableId,
                 'destination' => 'languages',
-                'rows' => 2
+                'rows' => 2,
+                'columns' => [
+                    [
+                        'source' => 'id',
+                        'type' => 'integer',
+                    ],
+                    [
+                        'source' => 'name',
+                        'type' => 'varchar',
+                    ],
+                ],
             ]
         ]);
 
@@ -562,7 +706,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
     /**
      * @param $exportOptions
      * @param $expectedResult
-     * @dataProvider tableExportFiltersData
+     * @dataProvider workspaceExportFiltersData
      */
     public function testWorkspaceExportFilters($exportOptions, $expectedResult)
     {
@@ -590,11 +734,307 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $this->assertArrayEqualsSorted($expectedResult, $data, 0);
     }
 
+    public function workspaceExportFiltersData()
+    {
+        return array(
+            // first test
+            array(
+                array(
+                    'whereColumn' => 'city',
+                    'whereValues' => array('PRG'),
+                    'columns' => [
+                        [
+                            'source' => 'id',
+                            'type' => 'integer',
+                        ],
+                        [
+                            'source' => 'name',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'sex',
+                            'type' => 'varchar',
+                        ],
+                    ],
+                ),
+                array(
+                    array(
+                        "1",
+                        "martin",
+                        "male"
+                    ),
+                    array(
+                        "2",
+                        "klara",
+                        "female",
+                    ),
+                ),
+            ),
+            // first test with defined operator
+            array(
+                array(
+                    'whereColumn' => 'city',
+                    'whereValues' => array('PRG'),
+                    'whereOperator' => 'eq',
+                    'columns' => [
+                        [
+                            'source' => 'id',
+                            'type' => 'integer',
+                        ],
+                        [
+                            'source' => 'name',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'city',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'sex',
+                            'type' => 'varchar',
+                        ],
+                    ],
+                ),
+                array(
+                    array(
+                        "1",
+                        "martin",
+                        "PRG",
+                        "male"
+                    ),
+                    array(
+                        "2",
+                        "klara",
+                        "PRG",
+                        "female",
+                    ),
+                ),
+            ),
+            // second test
+            array(
+                array(
+                    'whereColumn' => 'city',
+                    'whereValues' => array('PRG', 'VAN'),
+                    'columns' => [
+                        [
+                            'source' => 'id',
+                            'type' => 'integer',
+                        ],
+                        [
+                            'source' => 'name',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'city',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'sex',
+                            'type' => 'varchar',
+                        ],
+                    ],
+                ),
+                array(
+                    array(
+                        "1",
+                        "martin",
+                        "PRG",
+                        "male"
+                    ),
+                    array(
+                        "2",
+                        "klara",
+                        "PRG",
+                        "female",
+                    ),
+                    array(
+                        "3",
+                        "ondra",
+                        "VAN",
+                        "male",
+                    ),
+                ),
+            ),
+            // third test
+            array(
+                array(
+                    'whereColumn' => 'city',
+                    'whereValues' => array('PRG'),
+                    'whereOperator' => 'ne',
+                    'columns' => [
+                        [
+                            'source' => 'id',
+                            'type' => 'integer',
+                        ],
+                        [
+                            'source' => 'name',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'city',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'sex',
+                            'type' => 'varchar',
+                        ],
+                    ],
+                ),
+                array(
+                    array(
+                        "5",
+                        "hidden",
+                        "",
+                        "male",
+                    ),
+                    array(
+                        "4",
+                        "miro",
+                        "BRA",
+                        "male",
+                    ),
+                    array(
+                        "3",
+                        "ondra",
+                        "VAN",
+                        "male",
+                    ),
+                ),
+            ),
+            // fourth test
+            array(
+                array(
+                    'whereColumn' => 'city',
+                    'whereValues' => array('PRG', 'VAN'),
+                    'whereOperator' => 'ne',
+                    'columns' => [
+                        [
+                            'source' => 'id',
+                            'type' => 'integer',
+                        ],
+                        [
+                            'source' => 'name',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'city',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'sex',
+                            'type' => 'varchar',
+                        ],
+                    ],
+                ),
+                array(
+                    array(
+                        "4",
+                        "miro",
+                        "BRA",
+                        "male",
+                    ),
+                    array(
+                        "5",
+                        "hidden",
+                        "",
+                        "male",
+                    ),
+                ),
+            ),
+            // fifth test
+            array(
+                array(
+                    'whereColumn' => 'city',
+                    'whereValues' => array(''),
+                    'whereOperator' => 'eq',
+                    'columns' => [
+                        [
+                            'source' => 'id',
+                            'type' => 'integer',
+                        ],
+                        [
+                            'source' => 'name',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'city',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'sex',
+                            'type' => 'varchar',
+                        ],
+                    ],
+                ),
+                array(
+                    array(
+                        "5",
+                        "hidden",
+                        "",
+                        "male",
+                    ),
+                ),
+            ),
+            // sixth test
+            array(
+                array(
+                    'whereColumn' => 'city',
+                    'whereValues' => array(''),
+                    'whereOperator' => 'ne',
+                    'columns' => [
+                        [
+                            'source' => 'id',
+                            'type' => 'integer',
+                        ],
+                        [
+                            'source' => 'name',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'city',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'sex',
+                            'type' => 'varchar',
+                        ],
+                    ],
+                ),
+                array(
+                    array(
+                        "4",
+                        "miro",
+                        "BRA",
+                        "male",
+                    ),
+                    array(
+                        "1",
+                        "martin",
+                        "PRG",
+                        "male"
+                    ),
+                    array(
+                        "2",
+                        "klara",
+                        "PRG",
+                        "female",
+                    ),
+                    array(
+                        "3",
+                        "ondra",
+                        "VAN",
+                        "male",
+                    ),
+                ),
+            ),
+        );
+    }
+
     /**
-     * @dataProvider validDataTypesDefinitions
-     * @param $dataTypesDefinition
+     * @dataProvider validColumnsDefinitions
+     * @param $columnsDefinition
      */
-    public function testDataTypes($dataTypesDefinition)
+    public function testDataTypes($columnsDefinition)
     {
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
@@ -611,7 +1051,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             [
                 'source' => $tableId,
                 'destination' => 'datatype_Test',
-                'datatypes' => $dataTypesDefinition
+                'columns' => $columnsDefinition
             ]
         ]);
 
@@ -636,10 +1076,10 @@ class WorkspaceLoadTest extends WorkspacesTestCase
     }
 
     /**
-     * @dataProvider conversionUserErrorDataTypesDefinitions
-     * @param $dataTypesDefinition
+     * @dataProvider conversionUserErrorColumnsDefinitions
+     * @param $columnsDefinition
      */
-    public function testDataTypeConversionUserError($dataTypesDefinition)
+    public function testDataTypeConversionUserError($columnsDefinition)
     {
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
@@ -655,7 +1095,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             [
                 'source' => $tableId,
                 'destination' => 'datatype_test',
-                'datatypes' => $dataTypesDefinition
+                'columns' => $columnsDefinition
             ]
         ]);
 
@@ -675,10 +1115,10 @@ class WorkspaceLoadTest extends WorkspacesTestCase
     }
 
     /**
-     * @dataProvider notExistingColumnUserErrorDataTypesDefinitions
-     * @param $dataTypesDefinition
+     * @dataProvider notExistingColumnUserErrorColumnsDefinitions
+     * @param $columnsDefinition
      */
-    public function testDataTypeForNotExistingColumnUserError($dataTypesDefinition)
+    public function testDataTypeForNotExistingColumnUserError($columnsDefinition)
     {
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
@@ -694,10 +1134,7 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             [
                 'source' => $tableId,
                 'destination' => 'datatype_Test',
-                'datatypes' => [
-                    "id" => "INTEGER", // lower case instead camel case should be resolved like non-existing column
-                    "Name" => "VARCHAR(50)"
-                ]
+                'columns' => $columnsDefinition,
             ]
         ]);
 
@@ -705,11 +1142,11 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             $workspaces->loadWorkspaceData($workspace['id'], $options);
             $this->fail('workspace should not be loaded');
         } catch (ClientException $e) {
-            $this->assertEquals('storage.tables.datatypesForNonExistingColumns', $e->getStringCode());
+            $this->assertEquals('storage.tables.nonExistingColumns', $e->getStringCode());
         }
     }
 
-    public function testInvalidDataTypeUserError()
+    public function testInvalidExtendedColumnUserError()
     {
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
@@ -725,45 +1162,14 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             [
                 'source' => $tableId,
                 'destination' => 'datatype_test',
-                'datatypes' =>  [
-                    "id" => "UNKNOWN",
-                    "name" => "UNKNOWN"
-                ]
-            ]
-        ]);
-
-        try {
-            $workspaces->loadWorkspaceData($workspace['id'], $options);
-            $this->fail('Workspace should not be loaded');
-        } catch (ClientException $e) {
-            $this->assertEquals('workspace.tableCreate', $e->getStringCode());
-        }
-    }
-
-    public function testInvalidExtendedDataTypeUserError()
-    {
-        $workspaces = new Workspaces($this->_client);
-        $workspace = $workspaces->createWorkspace();
-
-        $importFile = __DIR__ . '/../../_data/languages.csv';
-        $tableId = $this->_client->createTable(
-            $this->getTestBucketId(self::STAGE_IN),
-            'languages',
-            new CsvFile($importFile)
-        );
-
-        $options = array('input' => [
-            [
-                'source' => $tableId,
-                'destination' => 'datatype_test',
-                'datatypes' => [
+                'columns' =>  [
                     [
-                        'column' => 'id',
-                        'type' => 'UNKNOWN'
+                        'source' => 'id',
+                        'type' => 'UNKNOWN',
                     ],
                     [
-                        'column' => 'name',
-                        'type' => 'UNKNOWN'
+                        'source' => 'name',
+                        'type' => 'UNKNOWN',
                     ]
                 ]
             ]
@@ -795,8 +1201,46 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         );
 
         // now let's try and load 2 different sources to the same destination, this request should be rejected
-        $mapping1 = array("source" => $table1_id, "destination" => "languagesLoaded");
-        $mapping2 = array("source" => $table2_id, "destination" => "languagesLoaded");
+        $mapping1 = array(
+            "source" => $table1_id,
+            "destination" => "languagesLoaded",
+            "columns" => array(
+                array(
+                    "source" => "id",
+                    "type" => "INTEGER",
+                ),
+                array(
+                    "source" => "name",
+                    "type" => "VARCHAR",
+                )
+            )
+        );
+        $mapping2 = array(
+            "source" => $table2_id,
+            "destination" => "languagesLoaded",
+            "columns" => array(
+                array(
+                    "source" => "0",
+                    "type" => "VARCHAR",
+                ),
+                array(
+                    "source" => "1",
+                    "type" => "VARCHAR",
+                ),
+                array(
+                    "source" => "2",
+                    "type" => "VARCHAR",
+                ),
+                array(
+                    "source" => "3",
+                    "type" => "VARCHAR",
+                ),
+                array(
+                    "source" => "45",
+                    "type" => "VARCHAR",
+                )
+            )
+        );
         $inputDupFail = array($mapping1, $mapping2);
 
         try {
@@ -826,6 +1270,16 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                     [
                         'source' => $tableId,
                         'destination' => 'Langs',
+                        "columns" => [
+                            [
+                                "source" => "id",
+                                "type" => "INTEGER",
+                            ],
+                            [
+                                "source" => "name",
+                                "type" => "VARCHAR",
+                            ]
+                        ]
                     ]
                 ]
             ]
@@ -840,6 +1294,16 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                         [
                             'source' => $tableId,
                             'destination' => 'Langs',
+                            "columns" => [
+                                [
+                                    "source" => "id",
+                                    "type" => "INTEGER",
+                                ],
+                                [
+                                    "source" => "name",
+                                    "type" => "VARCHAR",
+                                ]
+                            ]
                         ]
                     ],
                     'preserve' => true,
@@ -857,7 +1321,16 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $workspace = $workspaces->createWorkspace();
 
         // let's try loading from a table that doesn't exist
-        $mappingInvalidSource = array("source" => "in.c-nonExistentBucket.fakeTable", "destination" => "whatever");
+        $mappingInvalidSource = array(
+            "source" => "in.c-nonExistentBucket.fakeTable",
+            "destination" => "whatever",
+            "columns" => array(
+                array(
+                    "source" => "fake",
+                    "type" => "fake"
+                )
+            )
+        );
         $input404 = array($mappingInvalidSource);
         try {
             $workspaces->loadWorkspaceData($workspace['id'], array("input" => $input404));
@@ -881,7 +1354,20 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
 
-        $mapping1 = array("source" => $table1_id, "destination" => "languagesLoaded");
+        $mapping1 = array(
+            "source" => $table1_id,
+            "destination" => "languagesLoaded",
+            "columns" => [
+                [
+                    "source" => "id",
+                    "type" => "INTEGER",
+                ],
+                [
+                    "source" => "name",
+                    "type" => "VARCHAR",
+                ]
+            ]
+        );
         $input = array($mapping1);
 
         //  test for non-array input
@@ -910,14 +1396,20 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         }
 
         try {
-            $workspaces->loadWorkspaceData($workspace['id'], array("input" => array(array("source" => $table1_id))));
+            $testMapping = $mapping1;
+            unset($testMapping["destination"]);
+
+            $workspaces->loadWorkspaceData($workspace['id'], array("input" => array($testMapping)));
             $this->fail('Should return bad request, destination is required');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.loadRequestBadInput', $e->getStringCode());
         }
         try {
-            $workspaces->loadWorkspaceData($workspace['id'], array("input" => array(array("destination" => "destination"))));
-            $this->fail('Should return bad request, destination is required');
+            $testMapping = $mapping1;
+            unset($testMapping["source"]);
+
+            $workspaces->loadWorkspaceData($workspace['id'], array("input" => array($testMapping)));
+            $this->fail('Should return bad request, source is required');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.loadRequestBadInput', $e->getStringCode());
         }
@@ -950,7 +1442,17 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $input = array(
             array(
                 "source" => $tableId,
-                "destination" => "irrelevant"
+                "destination" => "irrelevant",
+                "columns" => [
+                    [
+                        "source" => "id",
+                        "type" => "INTEGER",
+                    ],
+                    [
+                        "source" => "name",
+                        "type" => "VARCHAR",
+                    ]
+                ]
             )
         );
         try {
@@ -980,6 +1482,16 @@ class WorkspaceLoadTest extends WorkspacesTestCase
                 [
                     "source" => $tableId,
                     "destination" => "dotted.destination",
+                    "columns" => [
+                        [
+                            "source" => "id",
+                            "type" => "INTEGER",
+                        ],
+                        [
+                            "source" => "name",
+                            "type" => "VARCHAR",
+                        ]
+                    ]
                 ]
             ]
         ]);
@@ -991,117 +1503,91 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $this->assertEquals('dotted.destination', $tables[0]);
     }
 
-    public function validDataTypesDefinitions()
+    public function validColumnsDefinitions()
     {
         return [
             [
                 [
-                    "Id" => "INTEGER",
-                    "Name" => "VARCHAR(50)"
-                ]
-            ],
-            [
-                [
-                    "Id" => "INTEGER",
-                    "Name" => [
-                        'column' => 'Name',
-                        'type' => 'VARCHAR',
-                        'length' => '50'
-                    ]
-                ]
-            ],
-            [
-                [
                     [
-                        'column' => 'Id',
-                        'type' => 'INTEGER'
+                        'source' => 'Id',
+                        'type' => 'INTEGER',
                     ],
                     [
-                        'column' => 'Name',
+                        'source' => 'Name',
                         'type' => 'VARCHAR',
-                        'length' => '50'
+                        'length' => '50',
+                    ],
+                ]
+            ],
+        ];
+    }
+
+    public function conversionUserErrorColumnsDefinitions()
+    {
+        return [
+            [
+                [
+                    [
+                        'source' => 'id',
+                        'type' => 'INTEGER',
+                    ],
+                    [
+                        'source' => 'name',
+                        'type' => 'INTEGER',
                     ]
                 ]
             ]
         ];
     }
 
-    public function conversionUserErrorDataTypesDefinitions()
+    public function notExistingColumnUserErrorColumnsDefinitions()
     {
         return [
             [
                 [
-                    "id" => "INTEGER",
-                    "name" => "INTEGER"
-                ]
-            ],
-            [
+                    'source' => 'id', // lower case instead camel case should be resolved like non-existing column
+                    'type' => 'INTEGER',
+                ],
                 [
-                    [
-                        'column' => 'id',
-                        'type' => 'INTEGER'
-                    ],
-                    [
-                        'column' => 'name',
-                        'type' => 'INTEGER'
-                    ]
+                    'source' => 'Name',
+                    'type' => 'VARCHAR',
+                    'length' => '50',
                 ]
             ]
         ];
     }
 
-    public function notExistingColumnUserErrorDataTypesDefinitions()
-    {
-        return [
-            [
-                "id" => "INTEGER", // lower case instead camel case should be resolved like non-existing column
-                "Name" => "VARCHAR(50)"
-            ],
-            [
-                [
-                    [
-                        'column' => 'id',
-                        'type' => 'INTEGER'
-                    ],
-                    [
-                        'column' => 'Name',
-                        'type' => 'VARCHAR',
-                        'length' => '50'
-                    ]
-                ]
-            ]
-        ];
-    }
-
-    public function dataTypesErrorDefinitions()
+    public function columnsErrorDefinitions()
     {
         return [
             [
                 'languages',
                 [
-                    'name' => [
-                        'column' =>  'name',
+                    [
+                        'source' =>  'name',
                         'type' => 'VARCHAR',
+                        'convertEmptyValuesToNull' => false,
                     ],
                 ],
                 [
-                    'id' => [
-                        'column' =>  'name',
+                    [
+                        'source' =>  'name',
                         'type' => 'CHARACTER',
+                        'convertEmptyValuesToNull' => false,
                     ],
                 ],
             ],
             [
                 'languages',
                 [
-                    'name' => [
-                        'column' =>  'name',
+                    [
+                        'source' =>  'name',
                         'type' => 'VARCHAR',
                     ],
                 ],
                 [
-                    'id' => [
-                        'column' =>  'name',
+                    [
+                        'source' =>  'name',
                         'type' => 'VARCHAR',
                         'length' => 30,
                     ],
@@ -1110,15 +1596,15 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             [
                 'languages',
                 [
-                    'name' => [
-                        'column' =>  'name',
+                    [
+                        'source' =>  'name',
                         'type' => 'VARCHAR',
                         'length' => 50,
                     ],
                 ],
                 [
-                    'id' => [
-                        'column' =>  'name',
+                    [
+                        'source' =>  'name',
                         'type' => 'VARCHAR',
                         'length' => 30,
                     ],
@@ -1127,16 +1613,16 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             [
                 'languages',
                 [
-                    'name' => [
-                        'column' =>  'name',
+                    [
+                        'source' =>  'name',
                         'type' => 'VARCHAR',
                         'length' => 50,
                         'nullable' => false,
                     ],
                 ],
                 [
-                    'id' => [
-                        'column' =>  'name',
+                    [
+                        'source' =>  'name',
                         'type' => 'VARCHAR',
                         'length' => 50,
                     ],
@@ -1145,16 +1631,16 @@ class WorkspaceLoadTest extends WorkspacesTestCase
             [
                 'languages',
                 [
-                    'name' => [
-                        'column' =>  'name',
+                    [
+                        'source' =>  'name',
                         'type' => 'VARCHAR',
                         'length' => 50,
                         'nullable' => false,
                     ],
                 ],
                 [
-                    'id' => [
-                        'column' =>  'name',
+                    [
+                        'source' =>  'name',
                         'type' => 'VARCHAR',
                         'length' => 50,
                         'nullable' => true,
