@@ -1060,5 +1060,4 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
 
         $this->assertArrayEqualsSorted($expectedResult, $data, 0);
     }
-
 }
