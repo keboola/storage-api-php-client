@@ -524,13 +524,13 @@ class Client
     }
 
     /**
-     * @param $bucketId destination bucket
-     * @param $sourceTableId source snapshot
-     * @param $timestamp timestamp to use for table replication
-     * @param null $name table name (optional) otherwise created from source table name and timestamp
+     * @param $bucketId string destination bucket
+     * @param $sourceTableId string source snapshot
+     * @param $timestamp string timestamp to use for table replication
+     * @param $name string table name
      * @return string - created table id
      */
-    public function createTableFromSourceTableAtTimestamp($bucketId, $sourceTableId, $timestamp, $name = null)
+    public function createTableFromSourceTableAtTimestamp($bucketId, $sourceTableId, $timestamp, $name)
     {
         return $this->createTableAsyncDirect($bucketId, array(
             'sourceTableId' => $sourceTableId,
