@@ -396,19 +396,6 @@ class ImportExportCommonTest extends StorageApiTestCase
         }
     }
 
-    public function testEmptyTableAsyncExportShouldBeInFastQueue()
-    {
-        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile(__DIR__ . '/../../_data/languages.csv'));
-        $this->_client->deleteTableRows($tableId);
-
-        $job = $this->_client->apiPost(
-            "storage/tables/{$tableId}/export-async",
-            null,
-            $handleAsyncTask = false
-        );
-        $this->assertEquals('main_fast', $job['operationParams']['queue']);
-    }
-
     public function testTableImportFromEmptyFileShouldFail()
     {
         $tableId = $this->_client->createTable(
