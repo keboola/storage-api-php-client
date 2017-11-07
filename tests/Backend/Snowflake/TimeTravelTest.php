@@ -3,6 +3,7 @@
 namespace Keboola\Test\Backend\Snowflake;
 
 use Keboola\Test\StorageApiTestCase;
+use Keboola\Csv\CsvFile;
 
 class TimeTravelTest extends StorageApiTestCase
 {
@@ -22,7 +23,7 @@ class TimeTravelTest extends StorageApiTestCase
             $importFile
         );
         $originalTable = $this->_client->getTable($sourceTableId);
-        $timestamp = time();
+        $timestamp = date(DATE_ATOM);
         sleep(30);
 
         $this->_client->writeTable($sourceTableId, $importFile, ['incremental' => true]);
