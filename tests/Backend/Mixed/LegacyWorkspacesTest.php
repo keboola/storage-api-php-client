@@ -411,6 +411,16 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
         ];
     }
 
+    public function workspaceMixedAndSameBackendData()
+    {
+        return [
+            [self::BACKEND_SNOWFLAKE, self::BACKEND_SNOWFLAKE],
+            [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT],
+            [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE],
+            [self::BACKEND_REDSHIFT, self::BACKEND_REDSHIFT],
+        ];
+    }
+
     public function workspaceMixedAndSameBackendDataWithDataTypes()
     {
         $simpleDataTypesDefinitionSnowflake = ["price" => "VARCHAR", "quantity" => "NUMBER"];
