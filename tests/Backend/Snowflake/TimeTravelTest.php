@@ -7,28 +7,10 @@ use Keboola\Csv\CsvFile;
 
 class TimeTravelTest extends StorageApiTestCase
 {
-    private $destinationBucketId;
-
     public function setUp()
     {
         parent::setUp();
         $this->_initEmptyTestBuckets();
-        $bucketData = array(
-            'name' => 'timetravel-test',
-            'stage' => 'in',
-            'description' => 'time travel test bucket',
-        );
-        $this->destinationBucketId = $this->_client->createBucket(
-            $bucketData['name'],
-            $bucketData['stage'],
-            $bucketData['description']
-        );
-    }
-
-    public function tearDown()
-    {
-        $this->_client->dropBucket($this->destinationBucketId);
-        parent::tearDown();
     }
 
     public function testCreateTableFromTimestamp()
@@ -55,7 +37,7 @@ class TimeTravelTest extends StorageApiTestCase
         $newTableName = "new-table-name_" . date('Ymd_His', strtotime($timestamp));
 
         $replicaTableId = $this->_client->createTableFromSourceTableAtTimestamp(
-            $this->destinationBucketId,
+            $this->getTestBucketId(self::STAGE_OUT),
             $sourceTableId,
             $timestamp,
             $newTableName
@@ -70,8 +52,6 @@ class TimeTravelTest extends StorageApiTestCase
 
     public function testCreateTableFromTimestampOfAlteredTable()
     {
-
-
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
 
         $sourceTable = 'languages_' . date('Ymd_His');
@@ -94,7 +74,7 @@ class TimeTravelTest extends StorageApiTestCase
         $newTableName = "new-table-name_" . date('Ymd_His', strtotime($timestamp));
 
         $replicaTableId = $this->_client->createTableFromSourceTableAtTimestamp(
-            $this->destinationBucketId,
+            $this->getTestBucketId(self::STAGE_OUT),
             $sourceTableId,
             $timestamp,
             $newTableName
