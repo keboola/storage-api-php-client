@@ -197,6 +197,16 @@ class EventsTest extends StorageApiTestCase
         $this->assertEquals($searchEvent['id'], $events[0]['id']);
     }
 
+    public function testEmptyEventsSearch()
+    {
+        $searchString = 'search-' . $this->_client->generateId();
+        $events = $this->_client->listEvents([
+            'q' => $searchString,
+        ]);
+
+        $this->assertCount(0, $events);
+    }
+
     /**
      * @dataProvider invalidQueries
      * @param $query
