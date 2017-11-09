@@ -7,26 +7,32 @@ use Keboola\Csv\CsvFile;
 
 class TimeTravelTest extends StorageApiTestCase
 {
+    private $destinationBucketId;
 
     public function setUp()
     {
         parent::setUp();
         $this->_initEmptyTestBuckets();
-    }
-
-    public function testCreateTableFromTimestamp()
-    {
         $bucketData = array(
             'name' => 'timetravel-test',
             'stage' => 'in',
             'description' => 'time travel test bucket',
         );
-        $newBucketId = $this->_client->createBucket(
+        $this->destinationBucketId = $this->_client->createBucket(
             $bucketData['name'],
             $bucketData['stage'],
             $bucketData['description']
         );
+    }
 
+    public function tearDown()
+    {
+        $this->_client->dropBucket($this->destinationBucketId);
+        parent::tearDown();
+    }
+
+    public function testCreateTableFromTimestamp()
+    {
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
 
         $sourceTable = 'languages_' . date('Ymd_His');
@@ -49,7 +55,7 @@ class TimeTravelTest extends StorageApiTestCase
         $newTableName = "new-table-name_" . date('Ymd_His', strtotime($timestamp));
 
         $replicaTableId = $this->_client->createTableFromSourceTableAtTimestamp(
-            $newBucketId,
+            $this->destinationBucketId,
             $sourceTableId,
             $timestamp,
             $newTableName
@@ -64,16 +70,7 @@ class TimeTravelTest extends StorageApiTestCase
 
     public function testCreateTableFromTimestampOfAlteredTable()
     {
-        $bucketData = array(
-            'name' => 'timetravel-test',
-            'stage' => 'in',
-            'description' => 'time travel test bucket',
-        );
-        $newBucketId = $this->_client->createBucket(
-            $bucketData['name'],
-            $bucketData['stage'],
-            $bucketData['description']
-        );
+
 
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
 
@@ -97,7 +94,7 @@ class TimeTravelTest extends StorageApiTestCase
         $newTableName = "new-table-name_" . date('Ymd_His', strtotime($timestamp));
 
         $replicaTableId = $this->_client->createTableFromSourceTableAtTimestamp(
-            $newBucketId,
+            $this->destinationBucketId,
             $sourceTableId,
             $timestamp,
             $newTableName
