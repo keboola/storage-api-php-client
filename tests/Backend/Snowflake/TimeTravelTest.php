@@ -16,9 +16,20 @@ class TimeTravelTest extends StorageApiTestCase
 
     public function testCreateTableFromTimestamp()
     {
+        $bucketData = array(
+            'name' => 'timetravel-test',
+            'stage' => 'in',
+            'description' => 'time travel test bucket',
+        );
+        $newBucketId = $this->_client->createBucket(
+            $bucketData['name'],
+            $bucketData['stage'],
+            $bucketData['description']
+        );
+
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
 
-        $sourceTable = 'languages_' . date('yyyy-mm-dd_His');
+        $sourceTable = 'languages_' . date('Ymd_His');
 
         $sourceTableId = $this->_client->createTable(
             $this->getTestBucketId(),
@@ -35,10 +46,10 @@ class TimeTravelTest extends StorageApiTestCase
 
         $updatedTable = $this->_client->getTable($sourceTableId);
 
-        $newTableName = "new-table-name_" . date('yyyy-mm-dd_His', strtotime($timestamp));
+        $newTableName = "new-table-name_" . date('Ymd_His', strtotime($timestamp));
 
         $replicaTableId = $this->_client->createTableFromSourceTableAtTimestamp(
-            $this->getTestBucketId(),
+            $newBucketId,
             $sourceTableId,
             $timestamp,
             $newTableName
