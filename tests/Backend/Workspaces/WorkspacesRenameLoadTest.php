@@ -386,11 +386,11 @@ class WorkspaceRenameLoadTest extends WorkspacesTestCase
             $this->assertEquals("VARCHAR(50)", $columnInfo[1]['type']);
         }
         if ($workspace['connection']['backend'] === $this::BACKEND_REDSHIFT) {
-            $this->assertEquals("int4", $columnInfo['id']['DATA_TYPE']);
-            $this->assertEquals("lzo", $columnInfo['id']['COMPRESSION']);
-            $this->assertEquals("varchar", $columnInfo['name']['DATA_TYPE']);
-            $this->assertEquals(50, $columnInfo['name']['LENGTH']);
-            $this->assertEquals("lzo", $columnInfo['name']['COMPRESSION']);
+            $this->assertEquals("int4", $columnInfo['langid']['DATA_TYPE']);
+            $this->assertEquals("lzo", $columnInfo['langid']['COMPRESSION']);
+            $this->assertEquals("varchar", $columnInfo['langname']['DATA_TYPE']);
+            $this->assertEquals(50, $columnInfo['langname']['LENGTH']);
+            $this->assertEquals("lzo", $columnInfo['langname']['COMPRESSION']);
         }
     }
 
