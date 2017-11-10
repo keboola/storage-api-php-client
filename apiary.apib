@@ -2464,14 +2464,15 @@ Loads tables from Storage into a Workspace.
                         + Items
                             + (object)
                                 + Properties
-                                    + source (required, string) - column name
-                                    + type (required, string) - data type, eg. VARCHAR
-                                    + length (optional, string) - data type size, where applicable, eg. 255 for VARCHAR or 10,2 for NUMBER
-                                    + nullable (optional, boolean) - allow NULL values in destination table
+                                    + source (required, string) - Column name
+                                    + destination (optional, string) - Destination column name. If not set, source column name will be used.
+                                    + type (required, string) - Data type, eg. VARCHAR
+                                    + length (optional, string) - Data type size, where applicable, eg. 255 for VARCHAR or 10,2 for NUMBER
+                                    + nullable (optional, boolean) - Allow NULL values in destination table
                                         Default: true
-                                    + convertEmptyValuesToNull (optional, boolean) - empty values replaced by NULL
+                                    + convertEmptyValuesToNull (optional, boolean) - Empty values replaced by NULL
                                         Default: false
-                                    + compression (optional, enum[string]) - for Redshift only
+                                    + compression (optional, enum[string]) - For Redshift only
                                         + Members
                                             + RAW
                                             + BYTEDICT
