@@ -69,6 +69,8 @@ class WorkspacesRenameTest extends WorkspacesTestCase
         $this->assertEquals(2, $backend->countRows("languagesDetails"));
 
         foreach ($backend->fetchAll('languagesDetails', \PDO::FETCH_ASSOC) as $row) {
+            $this->assertCount(2, $row);
+
             $this->assertArrayHasKey('primary', $row);
             $this->assertArrayHasKey('title', $row);
 
@@ -105,6 +107,8 @@ class WorkspacesRenameTest extends WorkspacesTestCase
         $this->assertEquals(5, $backend->countRows("languagesDetails"));
 
         foreach ($backend->fetchAll('languagesDetails', \PDO::FETCH_ASSOC) as $row) {
+            $this->assertCount(2, $row);
+
             $this->assertArrayHasKey('primary', $row);
             $this->assertArrayHasKey('title', $row);
 
@@ -171,6 +175,8 @@ class WorkspacesRenameTest extends WorkspacesTestCase
         $this->assertEquals(2, $backend->countRows("languagesDetails"));
 
         foreach ($backend->fetchAll('languagesDetails', \PDO::FETCH_ASSOC) as $row) {
+            $this->assertCount(2, $row);
+
             $this->assertArrayHasKey('primary', $row);
             $this->assertArrayHasKey('title', $row);
 
@@ -207,6 +213,8 @@ class WorkspacesRenameTest extends WorkspacesTestCase
         $this->assertEquals(5, $backend->countRows("languagesDetails"));
 
         foreach ($backend->fetchAll('languagesDetails', \PDO::FETCH_ASSOC) as $row) {
+            $this->assertCount(2, $row);
+
             $this->assertArrayHasKey('primary', $row);
             $this->assertArrayHasKey('title', $row);
 
