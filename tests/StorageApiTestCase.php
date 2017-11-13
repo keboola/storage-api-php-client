@@ -41,9 +41,9 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
     }
 
 
-    protected function _initEmptyTestBuckets()
+    protected function _initEmptyTestBuckets($stages = [self::STAGE_OUT, self::STAGE_IN])
     {
-        foreach (array(self::STAGE_OUT, self::STAGE_IN) as $stage) {
+        foreach ($stages as $stage) {
             $this->_bucketIds[$stage] = $this->initEmptyBucket('API-tests', $stage);
         }
     }

@@ -1,34 +1,54 @@
 <?php
-/**
- * Created by JetBrains PhpStorm.
- * User: martinhalamicek
- * Date: 22/05/14
- * Time: 16:38
- * To change this template use File | Settings | File Templates.
- */
 
 namespace Keboola\Test\Backend\CommonPart1;
 
 use Keboola\StorageApi\ClientException;
-use Keboola\StorageApi\TableExporter;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\Client;
 use Keboola\Csv\CsvFile;
 
-class LegacySyncExportLimitsTest extends StorageApiTestCase
+class LegacySyncExportTest extends StorageApiTestCase
 {
 
     public function setUp()
     {
         parent::setUp();
-        $this->_initEmptyTestBuckets();
+        $this->_initEmptyTestBuckets([self::STAGE_SYS, self::STAGE_IN, self::STAGE_OUT]);
     }
 
+    /**
+     * @dataProvider notAllowedStages
+     * @param $stage
+     */
+    public function testIsNotAllowedForStages($stage)
+    {
+        $csvFile = $this->generateCsv(100);
+        $tableId = $this->_client->createTable($this->getTestBucketId($stage), 'users', $csvFile);
+
+        try {
+            $this->_client->apiGet("storage/tables/{$tableId}/export");
+            $this->fail('Export should not be allowed.');
+        } catch (ClientException $e) {
+            $this->assertEquals(501, $e->getCode());
+        }
+    }
+
+    public function notAllowedStages()
+    {
+        return [
+            [
+                self::STAGE_IN,
+            ],
+            [
+                self::STAGE_OUT,
+            ]
+        ];
+    }
 
     public function testThereisNoDefaultLimit()
     {
         $csvFile = $this->generateCsv(2000);
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', $csvFile);
+        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_SYS), 'users', $csvFile);
 
         $preview = $this->_client->apiGet("storage/tables/{$tableId}/export");
         $this->assertCount(2000, Client::parseCsv($preview), 'all rows should be returned');
@@ -37,7 +57,7 @@ class LegacySyncExportLimitsTest extends StorageApiTestCase
     public function testLegacySyncExportParametrizedLimit()
     {
         $csvFile = $this->generateCsv(2000);
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', $csvFile);
+        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_SYS), 'users', $csvFile);
 
         $preview = $this->_client->getTableDataPreview($tableId, [
             'limit' => 2,
