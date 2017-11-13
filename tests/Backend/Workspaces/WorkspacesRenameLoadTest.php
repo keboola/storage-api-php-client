@@ -38,14 +38,14 @@ class WorkspaceRenameLoadTest extends WorkspacesTestCase
                     'whereValues' => ['dd', 'xx'],
                     'columns' => [
                         [
-                            'source' => 'Id',
-                            'destination' => 'primary',
-                            'type' => 'integer',
-                        ],
-                        [
                             'source' => 'Name',
                             'destination' => 'title',
                             'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'Id',
+                            'destination' => 'primary',
+                            'type' => 'integer',
                         ],
                     ],
                 ],
@@ -54,16 +54,19 @@ class WorkspaceRenameLoadTest extends WorkspacesTestCase
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
         $this->assertEquals(2, $backend->countRows("languagesDetails"));
+        $workspaceData = $backend->fetchAll('languagesDetails', \PDO::FETCH_ASSOC, '"primary" ASC');
 
-        foreach ($backend->fetchAll('languagesDetails', \PDO::FETCH_ASSOC) as $row) {
-            $this->assertCount(2, $row);
-
-            $this->assertArrayHasKey('primary', $row);
-            $this->assertArrayHasKey('title', $row);
-
-            $this->assertTrue(is_numeric($row['primary']));
-            $this->assertFalse(is_numeric($row['title']));
-        }
+        $expectedData = [
+            [
+                'title' => '- unchecked -',
+                'primary' => '0',
+            ],
+            [
+                'title' => 'czech',
+                'primary' => '26',
+            ],
+        ];
+        $this->assertEquals($expectedData, $workspaceData);
 
         // second load
         $options = [
@@ -93,15 +96,32 @@ class WorkspaceRenameLoadTest extends WorkspacesTestCase
         $workspaces->loadWorkspaceData($workspace['id'], $options);
         $this->assertEquals(5, $backend->countRows("languagesDetails"));
 
-        foreach ($backend->fetchAll('languagesDetails', \PDO::FETCH_ASSOC) as $row) {
-            $this->assertCount(2, $row);
+        $workspaceData = $backend->fetchAll('languagesDetails', \PDO::FETCH_ASSOC, '"primary" ASC');
 
-            $this->assertArrayHasKey('primary', $row);
-            $this->assertArrayHasKey('title', $row);
+        $expectedData = [
+            [
+                'title' => '- unchecked -',
+                'primary' => '0',
+            ],
+            [
+                'title' => 'english',
+                'primary'=> '1',
+            ],
+            [
+                'title' => 'finnish',
+                'primary' => '11',
+            ],
+            [
+                'title' => 'french',
+                'primary' => '24',
+            ],
+            [
+                'title' => 'czech',
+                'primary' => '26',
+            ],
 
-            $this->assertTrue(is_numeric($row['primary']));
-            $this->assertFalse(is_numeric($row['title']));
-        }
+        ];
+        $this->assertEquals($expectedData, $workspaceData);
     }
 
     public function testDottedDestination()
