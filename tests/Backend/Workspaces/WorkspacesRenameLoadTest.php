@@ -56,6 +56,7 @@ class WorkspaceRenameLoadTest extends WorkspacesTestCase
         $this->assertEquals(2, $backend->countRows("languagesDetails"));
         $workspaceData = $backend->fetchAll('languagesDetails', \PDO::FETCH_ASSOC, '"primary" ASC');
 
+        $this->assertEquals(['title', 'primary'], array_keys($workspaceData[0]));
         $expectedData = [
             [
                 'title' => '- unchecked -',
@@ -98,6 +99,7 @@ class WorkspaceRenameLoadTest extends WorkspacesTestCase
 
         $workspaceData = $backend->fetchAll('languagesDetails', \PDO::FETCH_ASSOC, '"primary" ASC');
 
+        $this->assertEquals(['title', 'primary'], array_keys($workspaceData[0]));
         $expectedData = [
             [
                 'title' => '- unchecked -',
