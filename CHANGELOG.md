@@ -1,3 +1,7 @@
+## 7.2.1 (2017-11-13)
+- [Feat] New Client parameter `maxJobPollWaitPeriodSeconds` - maximum time period between job status check in `waitForJob` method. Default is `20` seconds.
+
+
 ## 7.2.0 (2017-09-27)
 - [Feat] Component configurations - configuration `state` support added
 
