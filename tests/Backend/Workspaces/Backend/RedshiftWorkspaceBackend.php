@@ -67,9 +67,13 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
         return $count['count'];
     }
 
-    public function fetchAll($table, $style = \PDO::FETCH_NUM)
+    public function fetchAll($table, $style = \PDO::FETCH_NUM, $orderBy = null)
     {
-        $stmt = $this->db->prepare(sprintf("SELECT * FROM \"{$this->schema}\".\"%s\"", $table));
+        $stmt = $this->db->prepare(sprintf(
+            "SELECT * FROM \"{$this->schema}\".\"%s\" %s",
+            $table,
+            $orderBy !== null ? "ORDER BY $orderBy" : null
+        ));
         $stmt->execute();
         return $stmt->fetchAll($style);
     }

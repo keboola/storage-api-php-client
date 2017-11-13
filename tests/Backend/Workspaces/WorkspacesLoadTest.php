@@ -1503,6 +1503,75 @@ class WorkspaceLoadTest extends WorkspacesTestCase
         $this->assertEquals('dotted.destination', $tables[0]);
     }
 
+    public function testLoadIncrementalWithColumnsReorder()
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
+        $tableId = $this->_client->createTable(
+            $bucketId,
+            'languagesDetails',
+            new CsvFile($importFile),
+            ['primaryKey' => 'Id']
+        );
+
+        // first load
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languagesDetails',
+                    'whereColumn' => 'iso',
+                    'whereValues' => ['dd', 'xx'],
+                    'columns' => [
+                        [
+                            'source' => 'Id',
+                            'type' => 'integer',
+                        ],
+                        [
+                            'source' => 'Name',
+                            'type' => 'varchar',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+        $this->assertEquals(2, $backend->countRows("languagesDetails"));
+
+        // second load
+        $options = [
+            'input' => [
+                [
+                    'incremental' => true,
+                    'source' => $tableId,
+                    'destination' => 'languagesDetails',
+                    'whereColumn' => 'iso',
+                    'whereValues' => ['ff', 'xx'],
+                    'columns' => [
+                        [
+                            'source' => 'Name',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'Id',
+                            'type' => 'integer',
+                        ]
+                    ],
+                ],
+            ],
+        ];
+
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+        $this->assertEquals(5, $backend->countRows("languagesDetails"));
+    }
+
     public function validColumnsDefinitions()
     {
         return [
