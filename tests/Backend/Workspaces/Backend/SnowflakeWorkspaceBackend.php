@@ -86,13 +86,14 @@ class SnowflakeWorkspaceBackend implements WorkspaceBackend
         $this->db->query($qry);
     }
 
-    public function fetchAll($table, $style = \PDO::FETCH_NUM)
+    public function fetchAll($table, $style = \PDO::FETCH_NUM, $orderBy = null)
     {
         $data = array();
         $res = $this->db->fetchAll(sprintf(
-            "SELECT * FROM %s.%s;",
+            "SELECT * FROM %s.%s %s;",
             $this->db->quoteIdentifier($this->schema),
-            $this->db->quoteIdentifier($table)
+            $this->db->quoteIdentifier($table),
+            $orderBy !== null ? "ORDER BY $orderBy" : null
         ));
         switch ($style) {
             case \PDO::FETCH_NUM:
