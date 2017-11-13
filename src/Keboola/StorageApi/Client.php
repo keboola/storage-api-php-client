@@ -43,6 +43,8 @@ class Client
 
     private $awsRetries = 15;
 
+    private $maxJobPollWaitPeriodSeconds = 20;
+
     private $awsDebug = false;
 
     // User agent header send with each API request
@@ -84,6 +86,7 @@ class Client
      *     - url: (optional) Storage API URL
      *     - userAgent: custom user agent
      *     - backoffMaxTries: backoff maximum number of attempts
+     *     - maxJobPollWaitPeriodSeconds: maximum time period between job status check in `waitForJob` method
      *     - awsRetries: number of aws client retries
      *     - logger: instance of Psr\Log\LoggerInterface
      */
@@ -115,9 +118,12 @@ class Client
             $this->awsDebug = (bool)$config['awsDebug'];
         }
 
-
         if (isset($config['logger'])) {
             $this->setLogger($config['logger']);
+        }
+
+        if (isset($config['maxJobPollWaitPeriodSeconds'])) {
+            $this->maxJobPollWaitPeriodSeconds = (int) $config['maxJobPollWaitPeriodSeconds'];
         }
 
         $this->initClient();
@@ -1980,14 +1986,13 @@ class Client
      */
     public function waitForJob($jobId)
     {
-        $maxWaitPeriod = 20;
         $retries = 0;
         $job = null;
 
         // poll for status
         do {
             if ($retries > 0) {
-                $waitSeconds = min(pow(2, $retries), $maxWaitPeriod);
+                $waitSeconds = min(pow(2, $retries), $this->maxJobPollWaitPeriodSeconds);
                 sleep($waitSeconds);
             }
             $retries++;
