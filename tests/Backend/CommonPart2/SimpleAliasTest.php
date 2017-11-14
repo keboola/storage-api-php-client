@@ -21,7 +21,7 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->_initEmptyTestBuckets();
     }
 
-    public function testTableAlias()
+    public function testTableAlias1()
     {
         $importFile = __DIR__ . '/../../_data/languages.csv';
 
