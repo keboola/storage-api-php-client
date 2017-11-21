@@ -36,6 +36,17 @@ class CreateTableTest extends StorageApiTestCase
         $this->assertNotEmpty($id);
     }
 
+    public function testFfffff94()
+    {
+        $method = 'createTableAsync';
+        $id = $this->_client->{$method}(
+            $this->getTestBucketId(self::STAGE_IN),
+            'ffffff94',
+            new CsvFile(__DIR__ . '/../../_data/ffffff94.csv')
+        );
+        $this->assertNotEmpty($id);
+    }
+
     public function syncAsyncData()
     {
         return array(
