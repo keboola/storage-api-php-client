@@ -83,8 +83,9 @@ class TimeTravelTest extends StorageApiTestCase
 
         // setting the value to less than the limit should be fine
         $dataRetentionTimeInDays = $timeTravelLimit - 1;
-        $table = $this->timeTravelClient->setTableDataRetentionPeriod($tableId, $dataRetentionTimeInDays);
-
+        $job = $this->timeTravelClient->setTableDataRetentionPeriod($tableId, $dataRetentionTimeInDays);
+        $this->timeTravelClient->waitForJob($job['id']);
+        $table = $this->timeTravelClient->getTable($tableId);
         $this->assertEquals($dataRetentionTimeInDays, $table['dataRetentionTimeInDays']);
 
         // setting the value to < 0 should throw an error
