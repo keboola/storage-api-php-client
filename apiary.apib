@@ -1951,6 +1951,51 @@ This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls)
             }
 
 
+## Set Data Retention Period [/v2/storage/tables/{table_id}/time-travel/]
+
+### Set data retention period for the table [POST]
+Snowflake tables have the option of setting a data retention period according to the limit set per project.
+Once activated users can create 'time travel' views of the table for up to the time specified.
+Note that data retention only begins when this is activated,
+so it is not possible to 'time travel' to any time prior to that.
+This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls
+
++ Parameters
+    + table_id (required) - Table Id
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            dataRetentionTimeInDays=15
+
++ Response 202 (application/json)
+    + Body
+
+            {
+               "id":1189,
+               "status":"waiting",
+               "url":"https:\/\/connection.keboola.com\/v2\/storage\/jobs\/1189",
+               "tableId":"in.c-main.another",
+               "operationName":"tableIndexedColumnAdd",
+               "operationParams":{
+                  "dataRetentionTimeInDays":"15"
+               },
+               "createdTime":"2013-07-08T10:01:03+0200",
+               "startTime":null,
+               "endTime":null,
+               "runId":null,
+               "results":null,
+               "creatorToken":{
+                  "id":"221",
+                  "name":"Master Token"
+               }
+            }
+
+
 # Group Table Aliases
 [Aliases](https://help.keboola.com/storage/tables/) behave like database Views. Alias tables are read-only. 
 Aliases cannot be chained and can be applied only between buckets with the same backend.
