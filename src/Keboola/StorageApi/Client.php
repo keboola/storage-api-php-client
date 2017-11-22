@@ -2218,6 +2218,18 @@ class Client
     }
 
     /**
+     * @param string $tableId
+     * @param integer $dataRetentionTimeInDays
+     */
+    public function setTableDataRetentionPeriod($tableId, $dataRetentionTimeInDays)
+    {
+        $data = array(
+            "dataRetentionTimeInDays" => $dataRetentionTimeInDays
+        );
+        return $this->apiPost("storage/tables/$tableId/time-travel", $data);
+    }
+
+    /**
      * @return int
      */
     public function getAwsRetries()
