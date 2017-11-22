@@ -7,6 +7,7 @@
  */
 namespace Keboola\Test\Backend\Redshift;
 
+use Keboola\StorageApi\ClientException;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 
@@ -34,6 +35,27 @@ class CreateTableTest extends StorageApiTestCase
             )
         );
         $this->assertNotEmpty($id);
+    }
+
+    public function testTimeTravelNotSupported()
+    {
+        $id = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+
+        try {
+            $id = $this->_client->createTableFromSourceTableAtTimestamp(
+                $this->getTestBucketId(self::STAGE_OUT),
+                $id,
+                date(DATE_ATOM),
+                'attempted-ts'
+            );
+            $this->fail('TimeTravel is not supprted in redshift');
+        } catch(ClientException $exception) {
+            $this->assertEquals('storage.validation.timeTravelNotSupported', $exception->getStringCode());
+        }
     }
 
     public function syncAsyncData()
