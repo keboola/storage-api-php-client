@@ -29,6 +29,7 @@ class TimeTravelTest extends StorageApiTestCase
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1
         ]);
+        $this->_initEmptyTestBuckets($this->timeTravelClient);
     }
 
     public function testSetDataRetentionPeriodNotEnabled()
@@ -72,29 +73,39 @@ class TimeTravelTest extends StorageApiTestCase
 
         $table = $this->timeTravelClient->getTable($tableId);
         $this->assertEquals($timeTravelLimit, $table['dataRetentionTimeInDays']);
+        $this->assertGreaterThanOrEqual($table['created'], $table['dataRetentionStartDate']);
 
         // verify that changing this value above the limit should result in an error
         try {
-            $this->timeTravelClient->setTableDataRetentionPeriod($tableId, $timeTravelLimit + 5);
+            $this->timeTravelClient->setTableDataRetentionPeriod($tableId, (integer) $timeTravelLimit + 5);
             $this->fail('The retention period cannot be set higher than the project limit');
         } catch (ClientException $exception) {
-            $this->assertEquals('storage.timeTravelLimitExceeded', $exception->getStringCode());
+            $this->assertEquals('storage.validation.timeTravelInvalidRetentionPeriod', $exception->getStringCode());
         }
 
         // setting the value to less than the limit should be fine
         $dataRetentionTimeInDays = $timeTravelLimit - 1;
+        $timestamp = date(DATE_ATOM);
         $job = $this->timeTravelClient->setTableDataRetentionPeriod($tableId, $dataRetentionTimeInDays);
         $this->timeTravelClient->waitForJob($job['id']);
         $table = $this->timeTravelClient->getTable($tableId);
         $this->assertEquals($dataRetentionTimeInDays, $table['dataRetentionTimeInDays']);
+        $this->assertGreaterThanOrEqual($timestamp, $table['dataRetentionStartDate']);
 
         // setting the value to < 0 should throw an error
         try {
             $table = $this->timeTravelClient->setTableDataRetentionPeriod($tableId, -10);
             $this->fail('time travel into the future has not been discovered yet.');
         } catch (ClientException $exception) {
-            $this->assertEquals('storage.timeTravelInvalidRetentionPeriod', $exception->getStringCode());
+            $this->assertEquals('storage.validation.timeTravelInvalidRetentionPeriod', $exception->getStringCode());
         }
+
+        // setting the value to 0 should turn off data retention
+        $job = $this->timeTravelClient->setTableDataRetentionPeriod($tableId, 0);
+        $this->timeTravelClient->waitForJob($job['id']);
+        $table = $this->timeTravelClient->getTable($tableId);
+        $this->assertEquals(0, $table['dataRetentionTimeInDays']);
+        $this->assertNull($table['dataRetentionStartDate']);
     }
 
     public function testCreateTableFromTimestamp()
