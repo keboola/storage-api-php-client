@@ -182,6 +182,42 @@ class FilesTest extends StorageApiTestCase
         $this->assertStringStartsWith('attachment;', (string) $response->getHeader('Content-Disposition')[0]);
     }
 
+    public function testEmptyFileUpload()
+    {
+        $options = new FileUploadOptions();
+        $filePath = __DIR__ . '/../_data/empty.csv';
+        $fileId = $this->_client->uploadFile($filePath, $options);
+        $file = $this->_client->getFile($fileId);
+
+        $this->assertEquals($options->getIsPublic(), $file['isPublic']);
+        $this->assertEquals(basename($filePath), $file['name']);
+        $this->assertEquals(filesize($filePath), $file['sizeBytes']);
+        $this->assertEquals(file_get_contents($filePath), file_get_contents($file['url']));
+
+        $tags = $options->getTags();
+        sort($tags);
+        $fileTags = $file['tags'];
+        sort($fileTags);
+        $this->assertEquals($tags, $fileTags);
+
+        $info = $this->_client->verifyToken();
+        $this->assertEquals($file['creatorToken']['id'], (int)$info['id']);
+        $this->assertEquals($file['creatorToken']['description'], $info['description']);
+        $this->assertEquals($file['isEncrypted'], $options->getIsEncrypted());
+
+        if ($options->getIsPermanent()) {
+            $this->assertNull($file['maxAgeDays']);
+        } else {
+            $this->assertInternalType('integer', $file['maxAgeDays']);
+            $this->assertEquals(180, $file['maxAgeDays']);
+        }
+
+        // check attachment, download
+        $client = new Client();
+        $response = $client->get($file['url']);
+        $this->assertStringStartsWith('attachment;', (string) $response->getHeader('Content-Disposition')[0]);
+    }
+
     /**
      * @dataProvider encryptedData
      * @param $encrypted
