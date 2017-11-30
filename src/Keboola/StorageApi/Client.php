@@ -1540,17 +1540,18 @@ class Client
              * In case of an upload failure (\Aws\Exception\MultipartUploadException) there is no sane way of resuming
              * failed uploads, the exception returns state for a single failed upload and I don't know which one it is
              * So I need to iterate over all promises and retry all rejected promises from scratch
-             *
-             * TODO Retry counter? So it does not loop infinitely.
-             * Currently it stops on too many open files if looping for too long
-             *
              */
             $finished = false;
+            $retries = 0;
             do {
                 try {
                     \GuzzleHttp\Promise\unwrap($promises);
                     $finished = true;
                 } catch (\Aws\Exception\MultipartUploadException $e) {
+                    $retries++;
+                    if ($retries >= $transferOptions->getMaxRetriesPerChunk()) {
+                        throw new ClientException('Exceeded maximum number of retries per chunk upload');
+                    }
                     $unwrappedPromises = $promises;
                     $promises = [];
                     /**

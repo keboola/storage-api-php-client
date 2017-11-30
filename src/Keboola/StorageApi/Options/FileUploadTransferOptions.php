@@ -16,6 +16,8 @@ class FileUploadTransferOptions
 
     private $chunkSize = 50;
 
+    private $maxRetriesPerChunk = 50;
+
     /**
      * @return int
      */
@@ -37,4 +39,31 @@ class FileUploadTransferOptions
         $this->chunkSize = (int) $chunkSize;
         return $this;
     }
+
+    /**
+     * @return int
+     */
+    public function getMaxRetriesPerChunk()
+    {
+        return $this->maxRetriesPerChunk;
+    }
+
+    /**
+     * @param $maxRetriesPerChunk
+     * @return $this
+     * @throws ClientException
+     */
+    public function setMaxRetriesPerChunk($maxRetriesPerChunk)
+    {
+        if ((int) $maxRetriesPerChunk <= 0) {
+            throw new ClientException("Invalid max retries per chunk size: '{$maxRetriesPerChunk}'");
+        }
+        $this->maxRetriesPerChunk = (int) $maxRetriesPerChunk;
+
+
+        $this->maxRetriesPerChunk = (int) $maxRetriesPerChunk;
+        return $this;
+    }
+
+
 }

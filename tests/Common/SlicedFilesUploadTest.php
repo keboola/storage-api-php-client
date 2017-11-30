@@ -69,7 +69,7 @@ class SlicedFilesUploadTest extends StorageApiTestCase
         }
     }
 
-    public function testUploadSlicedFileEmptySlices()
+    public function testUploadSlicedFileEmptyParts()
     {
         $part1 = __DIR__ . '/../_data/sliced/empty.1';
         $part2 = __DIR__ . '/../_data/sliced/empty.2';
@@ -127,6 +127,7 @@ class SlicedFilesUploadTest extends StorageApiTestCase
             $this->assertEquals(180, $file['maxAgeDays']);
         }
     }
+
 
     public function testUploadSlicedFileChunks()
     {
