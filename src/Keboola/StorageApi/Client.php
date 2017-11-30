@@ -1532,7 +1532,6 @@ class Client
                     $uploadParams['acl'],
                     $newOptions->getIsEncrypted() ?  $uploadParams['x-amz-server-side-encryption'] : null
                 );
-                // $uploader = $multipartUploaderFactory($filePath);
                 $promises[$filePath] = $uploader->promise();
             }
 
