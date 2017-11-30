@@ -1,3 +1,6 @@
+
+# Changelog moved to [Github Releases](https://github.com/keboola/storage-api-php-client/releases)
+
 ## 7.2.1 (2017-11-13)
 - [Feat] New Client parameter `maxJobPollWaitPeriodSeconds` - maximum time period between job status check in `waitForJob` method. Default is `20` seconds.
 
