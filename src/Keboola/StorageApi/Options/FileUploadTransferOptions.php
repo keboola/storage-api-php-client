@@ -14,8 +14,20 @@ use Keboola\StorageApi\ClientException;
 class FileUploadTransferOptions
 {
 
+    /**
+     *
+     * Files in a chunk (for parallel multipart upload)
+     *
+     * @var int
+     */
     private $chunkSize = 50;
 
+    /**
+     *
+     * Max retries of multipart uploads in a chunk
+     *
+     * @var int
+     */
     private $maxRetriesPerChunk = 50;
 
     /**
@@ -64,6 +76,4 @@ class FileUploadTransferOptions
         $this->maxRetriesPerChunk = (int) $maxRetriesPerChunk;
         return $this;
     }
-
-
 }
