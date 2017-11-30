@@ -1,12 +1,4 @@
-
 <?php
-/**
- *
- * User: Martin Halamíček
- * Date: 16.5.12
- * Time: 11:46
- *
- */
 
 namespace Keboola\Test\Options;
 
