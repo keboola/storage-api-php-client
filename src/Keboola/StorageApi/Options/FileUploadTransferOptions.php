@@ -68,7 +68,7 @@ class FileUploadTransferOptions
     public function setMaxRetriesPerChunk($maxRetriesPerChunk)
     {
         if ((int) $maxRetriesPerChunk <= 0) {
-            throw new ClientException("Invalid max retries per chunk size: '{$maxRetriesPerChunk}'");
+            throw new ClientException("Invalid max retries per chunk: '{$maxRetriesPerChunk}'");
         }
         $this->maxRetriesPerChunk = (int) $maxRetriesPerChunk;
 
