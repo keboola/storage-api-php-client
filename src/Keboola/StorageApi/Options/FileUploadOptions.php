@@ -9,6 +9,8 @@
 
 namespace Keboola\StorageApi\Options;
 
+use Keboola\StorageApi\ClientException;
+
 class FileUploadOptions
 {
 
@@ -214,9 +216,13 @@ class FileUploadOptions
     /**
      * @param int $multipartUploadThreshold
      * @return $this
+     * @throws ClientException
      */
     public function setMultipartUploadThreshold($multipartUploadThreshold)
     {
+        if ((int) $multipartUploadThreshold <= 0) {
+            throw new ClientException("Invalid multipart upload threshold size: '{$multipartUploadThreshold}'");
+        }
         $this->multipartUploadThreshold = $multipartUploadThreshold;
         return $this;
     }
