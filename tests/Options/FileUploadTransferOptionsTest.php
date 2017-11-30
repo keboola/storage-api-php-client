@@ -51,4 +51,40 @@ class FileUploadTransferOptionsTest extends StorageApiTestCase
             $this->assertEquals("Invalid chunk size: 'abcd'", $e->getMessage());
         }
     }
+
+    public function testSetMaxRetriesPerChunk()
+    {
+        $options = new FileUploadTransferOptions();
+        $options->setMaxRetriesPerChunk(10);
+        $this->assertEquals(10, $options->getMaxRetriesPerChunk());
+    }
+
+    public function testGetDefaultMaxRetriesPerChunk()
+    {
+        $options = new FileUploadTransferOptions();
+        $this->assertEquals(50, $options->getMaxRetriesPerChunk());
+    }
+
+    public function testSetInvalidMaxRetriesPerChunk()
+    {
+        $options = new FileUploadTransferOptions();
+        try {
+            $options->setMaxRetriesPerChunk(0);
+            $this->fail("Exception not caught.");
+        } catch (ClientException $e) {
+            $this->assertEquals("Invalid max retries per chunk: '0'", $e->getMessage());
+        }
+        try {
+            $options->setMaxRetriesPerChunk(-1);
+            $this->fail("Exception not caught.");
+        } catch (ClientException $e) {
+            $this->assertEquals("Invalid max retries per chunk: '-1'", $e->getMessage());
+        }
+        try {
+            $options->setMaxRetriesPerChunk("abcd");
+            $this->fail("Exception not caught.");
+        } catch (ClientException $e) {
+            $this->assertEquals("Invalid max retries per chunk: 'abcd'", $e->getMessage());
+        }
+    }
 }
