@@ -1524,6 +1524,26 @@ class Client
                 $manifest['entries'][] = [
                     "url" => "s3://" . $uploadParams['bucket'] . "/" . $uploadParams['key'] . basename($filePath)
                 ];
+                /*
+                 * Cannot upload empty files using multipart: https://github.com/aws/aws-sdk-php/issues/1429
+                 * Upload them directly immediately and continue to next part in the chunk.
+                 */
+                if (filesize($filePath) === 0) {
+                    $fh = fopen($filePath, 'r');
+                    $putParams = array(
+                        'Bucket' => $uploadParams['bucket'],
+                        'Key' => $uploadParams['key'] . baseName($filePath),
+                        'ACL' => $uploadParams['acl'],
+                        'Body' => $fh,
+                        'ContentDisposition' => sprintf('attachment; filename=%s;', basename($filePath)),
+                    );
+
+                    if ($newOptions->getIsEncrypted()) {
+                        $putParams['ServerSideEncryption'] = $uploadParams['x-amz-server-side-encryption'];
+                    }
+                    $s3Client->putObject($putParams);
+                    continue;
+                }
                 $uploader = $this->multipartUploaderFactory(
                     $s3Client,
                     $filePath,
