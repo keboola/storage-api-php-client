@@ -864,7 +864,7 @@ class FilesTest extends StorageApiTestCase
     {
         return array(
             array(104857600),
-            array(0)
+            array(10)
         );
     }
 }
