@@ -637,7 +637,7 @@ class FilesTest extends StorageApiTestCase
                 $path,
                 (new FileUploadOptions())
                     ->setIsPublic(true)
-                    ->setMultipartUploadThreshold(0)
+                    ->setMultipartUploadThreshold(1)
             ),
             array(
                 $path,
@@ -648,7 +648,7 @@ class FilesTest extends StorageApiTestCase
                 $path,
                 (new FileUploadOptions())
                     ->setIsEncrypted(false)
-                    ->setMultipartUploadThreshold(0)
+                    ->setMultipartUploadThreshold(1)
             ),
             array(
                 $path,
@@ -659,7 +659,7 @@ class FilesTest extends StorageApiTestCase
                 $path,
                 (new FileUploadOptions())
                     ->setIsEncrypted(true)
-                    ->setMultipartUploadThreshold(0)
+                    ->setMultipartUploadThreshold(1)
             ),
             array(
                 $path,
@@ -674,7 +674,7 @@ class FilesTest extends StorageApiTestCase
                     ->setNotify(false)
                     ->setCompress(false)
                     ->setIsPublic(false)
-                    ->setMultipartUploadThreshold(0)
+                    ->setMultipartUploadThreshold(1)
             ),
             array(
                 $path,
@@ -689,7 +689,7 @@ class FilesTest extends StorageApiTestCase
                     ->setIsPublic(true)
                     ->setIsPermanent(true)
                     ->setTags(array('sapi-import', 'martin'))
-                    ->setMultipartUploadThreshold(0)
+                    ->setMultipartUploadThreshold(1)
             ),
         );
     }
