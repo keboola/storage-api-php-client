@@ -7,6 +7,7 @@ use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\Test\StorageApiTestCase;
+use Symfony\Component\Process\Process;
 
 class ConfigurationRowTest extends StorageApiTestCase
 {
@@ -121,5 +122,65 @@ class ConfigurationRowTest extends StorageApiTestCase
         $response = json_decode((string)$response->getBody())[0];
         $this->assertEquals($config, $response->configuration);
         $this->assertEquals($state, $response->state);
+    }
+
+    public function testConfigurationRowIsDisabledBooleanValue()
+    {
+        $components = new \Keboola\StorageApi\Components($this->_client);
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main');
+        $components->addConfiguration($configuration);
+
+        $client = new \GuzzleHttp\Client([
+            'base_uri' => $this->_client->getApiUrl(),
+        ]);
+
+        $config = (object)[
+            'test' => 'neco',
+            'array' => [],
+            'object' => (object)[],
+        ];
+
+        $state = (object)[
+            'test' => 'state',
+            'array' => [],
+            'object' => (object)[
+                'subobject' => (object)[],
+            ]
+        ];
+
+        $response = $client->post('/v2/storage/components/wr-db/configs/main-1/rows', [
+            'form_params' => [
+                'configuration' => json_encode($config),
+                'state' => json_encode($state),
+            ],
+            'headers' => array(
+                'X-StorageApi-Token' => $this->_client->getTokenString(),
+            ),
+        ]);
+        $response = json_decode((string)$response->getBody());
+
+        $command = "curl '" . STORAGE_API_URL . "/v2/storage/components/wr-db/configs/main-1/rows/{$response->id}' \
+                    -X PUT \
+                    -H 'accept-encoding: gzip, deflate, br' \
+                    -H 'accept-language: en-US,en;q=0.9,de;q=0.8,sk;q=0.7' \
+                    -H 'content-type: application/x-www-form-urlencoded' \
+                    -H 'accept: */*' \
+                    -H 'x-storageapi-token: " . STORAGE_API_TOKEN . "' \
+                    --data 'isDisabled=true&changeDescription=Row%20ABCD%20disabled' \
+                    --compressed";
+
+        $process = new Process($command);
+        $process->run();
+        if (!$process->isSuccessful()) {
+            $this->fail("Config Row PUT request should not produce an error.");
+        }
+
+        $result = json_decode($process->getOutput());
+        $this->assertTrue($result->isDisabled);
+        $this->assertEquals("Row ABCD disabled", $result->changeDescription);
     }
 }
