@@ -16,6 +16,7 @@ use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions;
 use Keboola\Test\StorageApiTestCase;
+use Symfony\Component\Process\Process;
 
 class ComponentsTest extends StorageApiTestCase
 {
@@ -162,6 +163,34 @@ class ComponentsTest extends StorageApiTestCase
             (new ListComponentConfigurationsOptions())->setComponentId($componentId)
         ));
         $this->assertCount(0, $components->listComponents());
+
+        // test that sending string 'false' for isDeleted is supported https://github.com/keboola/connection/issues/1047
+        $command = "curl '" . STORAGE_API_URL . "/v2/storage/components/{$componentId}/configs?isDeleted=false' \
+                    -X GET \
+                    -H 'content-type: application/x-www-form-urlencoded' \
+                    -H 'accept: */*' \
+                    -H 'x-storageapi-token: " . STORAGE_API_TOKEN . "'";
+        $process = new Process($command);
+        $process->run();
+        if (!$process->isSuccessful()) {
+            $this->fail("Api request failure GET component configs");
+        }
+        $result = json_decode($process->getOutput(), true);
+        $this->assertCount(0, $result);
+
+        // test that sending string 'false' for isDeleted is supported https://github.com/keboola/connection/issues/1047
+        $command = "curl '" . STORAGE_API_URL . "/v2/storage/components?isDeleted=false' \
+                    -X GET \
+                    -H 'content-type: application/x-www-form-urlencoded' \
+                    -H 'accept: */*' \
+                    -H 'x-storageapi-token: " . STORAGE_API_TOKEN . "'";
+        $process = new Process($command);
+        $process->run();
+        if (!$process->isSuccessful()) {
+            $this->fail("Api request failure GET component list");
+        }
+        $result = json_decode($process->getOutput(), true);
+        $this->assertCount(0, $result);
 
         $componentList = $components->listComponentConfigurations(
             (new ListComponentConfigurationsOptions())->setComponentId($componentId)->setIsDeleted(true)
