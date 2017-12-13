@@ -31,83 +31,7 @@ class TimeTravelTest extends StorageApiTestCase
         ]);
         $this->_initEmptyTestBuckets($this->timeTravelClient);
     }
-
-    public function testSetDataRetentionPeriodNotEnabled()
-    {
-        // initial setting for dataRetentionTimeInDays should be the same as project limit
-        // the normal _client does not have time travel enabled so it should error
-        $token = $this->_client->verifyToken();
-        $this->assertNotContains('storage.dataRetentionTimeInDays', array_keys($token['owner']['limits']));
-
-        // newly created table for client without this limit should have this attribute set to 0
-        $tableId = $this->_client->createTable(
-            $this->getTestBucketId(),
-            'languages',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
-        );
-
-        $table = $this->_client->getTable($tableId);
-        $this->assertEquals(0, $table['dataRetentionTimeInDays']);
-
-        // verify that changing this value should result in an error
-        try {
-            $this->_client->setTableDataRetentionPeriod($tableId, 5);
-            $this->fail('The project does not have time travel set');
-        } catch (ClientException $exception) {
-            $this->assertEquals('storage.timeTravelNotEnabled', $exception->getStringCode());
-        }
-    }
-
-    public function testSetDataRetentionPeriod()
-    {
-        $token = $this->timeTravelClient->verifyToken();
-
-        $timeTravelLimit = $token['owner']['limits']['storage.dataRetentionTimeInDays']['value'];
-
-        // newly created table for client without this limit should have this attribute set to 0
-        $tableId = $this->timeTravelClient->createTable(
-            $this->getTestBucketId(),
-            'languages',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
-        );
-
-        $table = $this->timeTravelClient->getTable($tableId);
-        $this->assertEquals($timeTravelLimit, $table['dataRetentionTimeInDays']);
-        $this->assertGreaterThanOrEqual($table['created'], $table['dataRetentionStartDate']);
-
-        // verify that changing this value above the limit should result in an error
-        try {
-            $this->timeTravelClient->setTableDataRetentionPeriod($tableId, (integer) $timeTravelLimit + 5);
-            $this->fail('The retention period cannot be set higher than the project limit');
-        } catch (ClientException $exception) {
-            $this->assertEquals('storage.validation.timeTravelInvalidRetentionPeriod', $exception->getStringCode());
-        }
-
-        // setting the value to less than the limit should be fine
-        $dataRetentionTimeInDays = $timeTravelLimit - 1;
-        $timestamp = date(DATE_ATOM);
-        $job = $this->timeTravelClient->setTableDataRetentionPeriod($tableId, $dataRetentionTimeInDays);
-        $this->timeTravelClient->waitForJob($job['id']);
-        $table = $this->timeTravelClient->getTable($tableId);
-        $this->assertEquals($dataRetentionTimeInDays, $table['dataRetentionTimeInDays']);
-        $this->assertGreaterThanOrEqual($timestamp, $table['dataRetentionStartDate']);
-
-        // setting the value to < 0 should throw an error
-        try {
-            $table = $this->timeTravelClient->setTableDataRetentionPeriod($tableId, -10);
-            $this->fail('time travel into the future has not been discovered yet.');
-        } catch (ClientException $exception) {
-            $this->assertEquals('storage.validation.timeTravelInvalidRetentionPeriod', $exception->getStringCode());
-        }
-
-        // setting the value to 0 should turn off data retention
-        $job = $this->timeTravelClient->setTableDataRetentionPeriod($tableId, 0);
-        $this->timeTravelClient->waitForJob($job['id']);
-        $table = $this->timeTravelClient->getTable($tableId);
-        $this->assertEquals(0, $table['dataRetentionTimeInDays']);
-        $this->assertNull($table['dataRetentionStartDate']);
-    }
-
+    
     public function testCreateTableFromTimestamp()
     {
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
@@ -157,7 +81,7 @@ class TimeTravelTest extends StorageApiTestCase
         );
     }
 
-    public function testCreateafdfdsTableFromTimestampOfAlteredTable()
+    public function testCreateTableFromTimestampOfAlteredTable()
     {
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
 
