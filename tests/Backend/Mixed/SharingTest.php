@@ -179,7 +179,17 @@ class SharingTest extends StorageApiTestCase
         $this->assertEquals($sharedBuckets[0]['id'], $bucket['sourceBucket']['id']);
         $this->assertEquals($sharedBuckets[0]['project']['id'], $bucket['sourceBucket']['project']['id']);
 
-        // user should be also able to delete the created bucket
+        //shared bucket should now list the linked bucket in its details
+        $sharedBucket = $this->_client->getBucket($bucketId);
+        $this->assertArrayHasKey("linkedBy", $sharedBucket);
+        $this->assertCount(1, $sharedBucket['linkedBy']);
+        $this->assertArrayHasKey("project", $sharedBucket['linkedBy'][0]);
+        $this->assertArrayHasKey("created", $sharedBucket['linkedBy'][0]);
+        $this->assertEquals($bucket['created'], $sharedBucket['linkedBy'][0]['created']);
+        $this->assertArrayHasKey("id", $sharedBucket['linkedBy'][0]);
+        $this->assertEquals($linkedBucketId, $sharedBucket['linkedBy'][0]['id']);
+
+        // user should be also able to delete the linked bucket
         $client->dropBucket($linkedBucketId);
     }
 
