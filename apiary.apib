@@ -513,6 +513,23 @@ All buckets with their attributes are returned.
                     "description": "Main user storage",
                     "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-main/tables",
                     "backend": "snowflake"
+                    "linkedBy": [
+                        {
+                            "id": "in.c-linked-bucket",
+                            "created": "2017-02-13T12:01:05+0100",
+                            "project": {
+                                "id": 321,
+                                "name": "Some Project"
+                            }
+                        }, {
+                            "id": "in.c-another-linked-bucket",
+                            "created": "2017-02-13T12:01:05+0100",
+                            "project": {
+                                "id": 322,
+                                "name": "Some Other Project"
+                            }
+                        }
+                    ]
                 },
                 {
                     "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-organizationData",
@@ -653,7 +670,24 @@ Obtains information about a bucket.
                 "stage": "in",
                 "description": "Google Analytics",
                 "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-ga/tables",
-                "backend": "mysql"
+                "backend": "mysql",
+                "linkedBy": [
+                    {
+                        "id": "in.c-linked-bucket",
+                        "created": "2017-02-13T12:01:05+0100",
+                        "project": {
+                            "id": 321,
+                            "name": "Some Project"
+                        }
+                    }, {
+                        "id": "in.c-another-linked-bucket",
+                        "created": "2017-02-13T12:01:05+0100",
+                        "project": {
+                            "id": 322,
+                            "name": "Some Other Project"
+                        }
+                    }
+                ]
             }
 
 
