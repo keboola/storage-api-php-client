@@ -158,7 +158,11 @@ class SharingTest extends StorageApiTestCase
             'url' => STORAGE_API_URL,
         ));
 
-        $client->verifyToken();
+        $response = $client->verifyToken();
+        $this->assertArrayHasKey('owner', $response);
+        $this->assertArrayHasKey('id', $response['owner']);
+        $this->assertArrayHasKey('name', $response['owner']);
+        $linkedBucketProject = $response['owner'];
 
         // bucket can be listed with non-admin sapi token
         $sharedBuckets = $client->listSharedBuckets();
@@ -184,10 +188,28 @@ class SharingTest extends StorageApiTestCase
         $this->assertArrayHasKey("linkedBy", $sharedBucket);
         $this->assertCount(1, $sharedBucket['linkedBy']);
         $this->assertArrayHasKey("project", $sharedBucket['linkedBy'][0]);
+        $this->assertEquals($linkedBucketProject['id'], $sharedBucket['linkedBy'][0]['project']['id']);
+        $this->assertEquals($linkedBucketProject['name'], $sharedBucket['linkedBy'][0]['project']['name']);
         $this->assertArrayHasKey("created", $sharedBucket['linkedBy'][0]);
         $this->assertEquals($bucket['created'], $sharedBucket['linkedBy'][0]['created']);
         $this->assertArrayHasKey("id", $sharedBucket['linkedBy'][0]);
         $this->assertEquals($linkedBucketId, $sharedBucket['linkedBy'][0]['id']);
+
+        // buckets list should include linked buckets
+        $buckets = $this->_client->listBuckets(['include' => 'linkedBuckets']);
+        $listedSharedBucket = (array) array_filter($buckets, function($listBucket) use($bucketId) {
+            return ($listBucket['id'] === $bucketId);
+        })[0];
+
+        $this->assertArrayHasKey("linkedBy", $listedSharedBucket);
+        $this->assertCount(1, $listedSharedBucket['linkedBy']);
+        $this->assertArrayHasKey("project", $listedSharedBucket['linkedBy'][0]);
+        $this->assertEquals($linkedBucketProject['id'], $listedSharedBucket['linkedBy'][0]['project']['id']);
+        $this->assertEquals($linkedBucketProject['name'], $listedSharedBucket['linkedBy'][0]['project']['name']);
+        $this->assertArrayHasKey("created", $listedSharedBucket['linkedBy'][0]);
+        $this->assertEquals($bucket['created'], $listedSharedBucket['linkedBy'][0]['created']);
+        $this->assertArrayHasKey("id", $listedSharedBucket['linkedBy'][0]);
+        $this->assertEquals($linkedBucketId, $listedSharedBucket['linkedBy'][0]['id']);
 
         // user should be also able to delete the linked bucket
         $client->dropBucket($linkedBucketId);
@@ -332,7 +354,7 @@ class SharingTest extends StorageApiTestCase
      * @dataProvider sharingBackendData
      * @throws ClientException
      */
-    public function testLinkBucket($backend)
+    public function testLinkBucketDry($backend)
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
@@ -362,6 +384,17 @@ class SharingTest extends StorageApiTestCase
         $this->assertTrue($bucket['isReadOnly']);
         $this->assertEquals($sourceBucket['backend'], $bucket['backend']);
         $this->assertEquals($sourceBucket['description'], $bucket['description']);
+
+        // source bucket should list linked bucket in detail
+        $sharedBucket = $this->_client->getBucket($bucketId);
+        $this->assertArrayHasKey("linkedBy", $sharedBucket);
+        $this->assertCount(1, $sharedBucket['linkedBy']);
+        $this->assertArrayHasKey("project", $sharedBucket['linkedBy'][0]);
+        $this->assertArrayHasKey("created", $sharedBucket['linkedBy'][0]);
+        $this->assertEquals($bucket['created'], $sharedBucket['linkedBy'][0]['created']);
+        $this->assertArrayHasKey("id", $sharedBucket['linkedBy'][0]);
+        $this->assertEquals($id, $sharedBucket['linkedBy'][0]['id']);
+
     }
 
     /**
