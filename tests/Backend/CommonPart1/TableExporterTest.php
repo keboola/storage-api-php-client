@@ -46,10 +46,7 @@ class TableExporterTest extends StorageApiTestCase
             $exportOptions['gzip'] = false;
         }
 
-        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', $importFile);
-        $result = $this->_client->writeTable($tableId, $importFile);
-
-        $this->assertEmpty($result['warnings']);
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'languages', $importFile);
         $exporter = new TableExporter($this->_client);
 
         if ($exportOptions['gzip'] === true) {
