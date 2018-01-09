@@ -10,8 +10,6 @@ use Keboola\Test\StorageApiTestCase;
 
 class TimeTravelTest extends StorageApiTestCase
 {
-    const dataRetentionLimit = 'storage.dataRetentionTimeInDays';
-
     private $downloadPath;
 
     /**

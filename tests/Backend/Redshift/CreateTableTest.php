@@ -53,7 +53,7 @@ class CreateTableTest extends StorageApiTestCase
                 'attempted-ts'
             );
             $this->fail('TimeTravel is not supprted in redshift');
-        } catch(ClientException $exception) {
+        } catch (ClientException $exception) {
             $this->assertEquals('storage.validation.timeTravelNotSupported', $exception->getStringCode());
         }
     }
