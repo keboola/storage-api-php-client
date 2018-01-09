@@ -144,7 +144,7 @@ class SharingTest extends StorageApiTestCase
 
     public function testOrganizationPublicSharing()
     {
-        $this->initTestBuckets(self::BACKEND_MYSQL);
+        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
         $bucketId = reset($this->_bucketIds);
 
         $this->_client->shareBucket($bucketId, [
@@ -195,7 +195,7 @@ class SharingTest extends StorageApiTestCase
 
     public function testNonOrganizationAdminInToken()
     {
-        $this->initTestBuckets(self::BACKEND_MYSQL);
+        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
         $bucketId = reset($this->_bucketIds);
 
         $this->_client->shareBucket($bucketId);
