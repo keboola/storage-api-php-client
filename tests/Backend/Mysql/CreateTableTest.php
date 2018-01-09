@@ -56,7 +56,7 @@ class CreateTableTest extends StorageApiTestCase
                 'attempted-ts'
             );
             $this->fail('TimeTravel is not supprted in mysql');
-        } catch(\Keboola\StorageApi\ClientException $exception) {
+        } catch (\Keboola\StorageApi\ClientException $exception) {
             $this->assertEquals('storage.validation.timeTravelNotSupported', $exception->getStringCode());
         }
     }
