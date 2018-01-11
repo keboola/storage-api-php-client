@@ -144,7 +144,7 @@ class SharingTest extends StorageApiTestCase
 
     public function testOrganizationPublicSharing()
     {
-        $this->initTestBuckets(self::BACKEND_MYSQL);
+        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
         $bucketId = reset($this->_bucketIds);
 
         $this->_client->shareBucket($bucketId, [
@@ -158,7 +158,11 @@ class SharingTest extends StorageApiTestCase
             'url' => STORAGE_API_URL,
         ));
 
-        $client->verifyToken();
+        $response = $client->verifyToken();
+        $this->assertArrayHasKey('owner', $response);
+        $this->assertArrayHasKey('id', $response['owner']);
+        $this->assertArrayHasKey('name', $response['owner']);
+        $linkedBucketProject = $response['owner'];
 
         // bucket can be listed with non-admin sapi token
         $sharedBuckets = $client->listSharedBuckets();
@@ -167,25 +171,69 @@ class SharingTest extends StorageApiTestCase
         $this->assertEquals($bucketId, $sharedBuckets[0]['id']);
         $this->assertEquals('organization-project', $sharedBuckets[0]['sharing']);
 
-        // bucket can be linked
+        // bucket can be linked by another project
         $linkedBucketId = $client->linkBucket(
             'organization-project-test',
             self::STAGE_IN,
             $sharedBuckets[0]['project']['id'],
             $sharedBuckets[0]['id']
         );
+        $linkedBucket = $client->getBucket($linkedBucketId);
+        $this->assertEquals($sharedBuckets[0]['id'], $linkedBucket['sourceBucket']['id']);
+        $this->assertEquals($sharedBuckets[0]['project']['id'], $linkedBucket['sourceBucket']['project']['id']);
 
-        $bucket = $client->getBucket($linkedBucketId);
-        $this->assertEquals($sharedBuckets[0]['id'], $bucket['sourceBucket']['id']);
-        $this->assertEquals($sharedBuckets[0]['project']['id'], $bucket['sourceBucket']['project']['id']);
+        // bucket can be linked by the same project
+        $selfLinkedBucketId = $this->_client->linkBucket(
+            'same-project-link-test',
+            self::STAGE_IN,
+            $sharedBuckets[0]['project']['id'],
+            $sharedBuckets[0]['id']
+        );
+        $selfLinkedBucket = $this->_client->getBucket($selfLinkedBucketId);
+        $this->assertEquals($sharedBuckets[0]['id'], $selfLinkedBucket['sourceBucket']['id']);
+        $this->assertEquals($sharedBuckets[0]['project']['id'], $selfLinkedBucket['sourceBucket']['project']['id']);
 
-        // user should be also able to delete the created bucket
+        //shared bucket should now list the linked buckets in its details
+        $sharedBucket = $this->_client->getBucket($bucketId);
+        $this->assertArrayHasKey("linkedBy", $sharedBucket);
+        $this->assertCount(2, $sharedBucket['linkedBy']);
+
+        // verify that the listed linked buckets contains the linked bucket
+        $linkedBucketKey = array_search('in.c-organization-project-test', array_column($sharedBucket['linkedBy'], 'id'));
+        $this->assertNotFalse($linkedBucketKey);
+        $listedLinkedBucket = $sharedBucket['linkedBy'][$linkedBucketKey];
+        $this->assertArrayHasKey("project", $listedLinkedBucket);
+        $this->assertEquals($linkedBucketProject['id'], $listedLinkedBucket['project']['id']);
+        $this->assertEquals($linkedBucketProject['name'], $listedLinkedBucket['project']['name']);
+        $this->assertArrayHasKey("created", $listedLinkedBucket);
+        $this->assertEquals($linkedBucket['created'], $listedLinkedBucket['created']);
+
+        // verify the listed linked buckets includes the self-linked bucket
+        $selfLinkedBucketKey = array_search('in.c-same-project-link-test', array_column($sharedBucket['linkedBy'], 'id'));
+        $this->assertNotFalse($selfLinkedBucketKey);
+        $listedSelfLinkedBucket = $sharedBucket['linkedBy'][$selfLinkedBucketKey];
+        $this->assertArrayHasKey("project", $listedSelfLinkedBucket);
+        $this->assertEquals($sharedBuckets[0]['project']['id'], $listedSelfLinkedBucket['project']['id']);
+        $this->assertEquals($sharedBuckets[0]['project']['name'], $listedSelfLinkedBucket['project']['name']);
+        $this->assertArrayHasKey("created", $listedSelfLinkedBucket);
+        $this->assertEquals($selfLinkedBucket['created'], $listedSelfLinkedBucket['created']);
+
+        // buckets list should include linked buckets
+        $buckets = $this->_client->listBuckets(['include' => 'linkedBuckets']);
+        $listedSharedBucket = (array) array_filter($buckets, function ($listBucket) use ($bucketId) {
+            return ($listBucket['id'] === $bucketId);
+        })[0];
+
+        $this->assertArrayHasKey("linkedBy", $listedSharedBucket);
+        $this->assertCount(2, $listedSharedBucket['linkedBy']);
+
+        // user should be also able to delete the linked bucket
         $client->dropBucket($linkedBucketId);
     }
 
     public function testNonOrganizationAdminInToken()
     {
-        $this->initTestBuckets(self::BACKEND_MYSQL);
+        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
         $bucketId = reset($this->_bucketIds);
 
         $this->_client->shareBucket($bucketId);
@@ -322,7 +370,7 @@ class SharingTest extends StorageApiTestCase
      * @dataProvider sharingBackendData
      * @throws ClientException
      */
-    public function testLinkBucket($backend)
+    public function testLinkBucketDry($backend)
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
@@ -352,6 +400,16 @@ class SharingTest extends StorageApiTestCase
         $this->assertTrue($bucket['isReadOnly']);
         $this->assertEquals($sourceBucket['backend'], $bucket['backend']);
         $this->assertEquals($sourceBucket['description'], $bucket['description']);
+
+        // source bucket should list linked bucket in detail
+        $sharedBucket = $this->_client->getBucket($bucketId);
+        $this->assertArrayHasKey("linkedBy", $sharedBucket);
+        $this->assertCount(1, $sharedBucket['linkedBy']);
+        $this->assertArrayHasKey("project", $sharedBucket['linkedBy'][0]);
+        $this->assertArrayHasKey("created", $sharedBucket['linkedBy'][0]);
+        $this->assertEquals($bucket['created'], $sharedBucket['linkedBy'][0]['created']);
+        $this->assertArrayHasKey("id", $sharedBucket['linkedBy'][0]);
+        $this->assertEquals($id, $sharedBucket['linkedBy'][0]['id']);
     }
 
     /**
