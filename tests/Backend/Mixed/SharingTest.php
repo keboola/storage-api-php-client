@@ -220,9 +220,9 @@ class SharingTest extends StorageApiTestCase
 
         // buckets list should include linked buckets
         $buckets = $this->_client->listBuckets(['include' => 'linkedBuckets']);
-        $listedSharedBucket = (array) array_filter($buckets, function ($listBucket) use ($bucketId) {
+        $listedSharedBucket = (array) array_values(array_filter($buckets, function ($listBucket) use ($bucketId) {
             return ($listBucket['id'] === $bucketId);
-        })[0];
+        }))[0];
 
         $this->assertArrayHasKey("linkedBy", $listedSharedBucket);
         $this->assertCount(2, $listedSharedBucket['linkedBy']);
