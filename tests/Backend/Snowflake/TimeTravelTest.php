@@ -12,22 +12,11 @@ class TimeTravelTest extends StorageApiTestCase
 {
     private $downloadPath;
 
-    /**
-     * @var Client to project that has limit set for `storage.dataRetentionTimeInDays`
-     */
-    protected $timeTravelClient;
-
     public function setUp()
     {
         parent::setUp();
         $this->_initEmptyTestBuckets();
         $this->downloadPath = __DIR__ . '/../../_tmp/';
-        $this->timeTravelClient = new Client([
-            'token' => STORAGE_API_TIMETRAVEL_TOKEN,
-            'url' => STORAGE_API_URL,
-            'backoffMaxTries' => 1
-        ]);
-        $this->_initEmptyTestBuckets($this->timeTravelClient);
     }
     
     public function testCreateTableFromTimestamp()
@@ -35,31 +24,31 @@ class TimeTravelTest extends StorageApiTestCase
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
 
         $sourceTable = 'languages_' . date('Ymd_His');
-
-        $sourceTableId = $this->timeTravelClient->createTable(
+        
+        $sourceTableId = $this->_client->createTable(
             $this->getTestBucketId(),
             $sourceTable,
             $importFile
         );
-        $originalTable = $this->timeTravelClient->getTable($sourceTableId);
+        $originalTable = $this->_client->getTable($sourceTableId);
         // the timestamp must be at least 1 sec > creation time
         sleep(5);
         $timestamp = date(DATE_ATOM);
         sleep(25);
 
-        $this->timeTravelClient->writeTable($sourceTableId, $importFile, ['incremental' => true]);
+        $this->_client->writeTable($sourceTableId, $importFile, ['incremental' => true]);
 
-        $updatedTable = $this->timeTravelClient->getTable($sourceTableId);
+        $updatedTable = $this->_client->getTable($sourceTableId);
         $newTableName = "new-table-name_" . date('Ymd_His', strtotime($timestamp));
 
-        $replicaTableId = $this->timeTravelClient->createTableFromSourceTableAtTimestamp(
+        $replicaTableId = $this->_client->createTableFromSourceTableAtTimestamp(
             $this->getTestBucketId(self::STAGE_OUT),
             $sourceTableId,
             $timestamp,
             $newTableName
         );
 
-        $replicaTable = $this->timeTravelClient->getTable($replicaTableId);
+        $replicaTable = $this->_client->getTable($replicaTableId);
 
         $this->assertEquals($newTableName, $replicaTable['name']);
 
@@ -69,7 +58,7 @@ class TimeTravelTest extends StorageApiTestCase
         // $this->assertEquals($originalTable['rowsCount'], $replicaTable['rowsCount']);
 
         // test data export
-        $exporter = new TableExporter($this->timeTravelClient);
+        $exporter = new TableExporter($this->_client);
         $downloadFile = $this->downloadPath . 'timeTravelOutput.csv';
         $exporter->exportTable($replicaTableId, $downloadFile, []);
         $this->assertArrayEqualsSorted(
@@ -85,12 +74,12 @@ class TimeTravelTest extends StorageApiTestCase
 
         $sourceTable = 'languages_' . date('Ymd_His');
 
-        $sourceTableId = $this->timeTravelClient->createTable(
+        $sourceTableId = $this->_client->createTable(
             $this->getTestBucketId(),
             $sourceTable,
             $importFile
         );
-        $originalTable = $this->timeTravelClient->getTable($sourceTableId);
+        $originalTable = $this->_client->getTable($sourceTableId);
         // the timestamp must be at least 1 sec > creation time
         sleep(5);
         $timestamp = date(DATE_ATOM);
@@ -98,18 +87,18 @@ class TimeTravelTest extends StorageApiTestCase
 
         $this->_client->addTableColumn($sourceTableId, "new-column");
 
-        $updatedTable = $this->timeTravelClient->getTable($sourceTableId);
+        $updatedTable = $this->_client->getTable($sourceTableId);
 
         $newTableName = "new-table-name_" . date('Ymd_His', strtotime($timestamp));
 
-        $replicaTableId = $this->timeTravelClient->createTableFromSourceTableAtTimestamp(
+        $replicaTableId = $this->_client->createTableFromSourceTableAtTimestamp(
             $this->getTestBucketId(self::STAGE_OUT),
             $sourceTableId,
             $timestamp,
             $newTableName
         );
 
-        $replicaTable = $this->timeTravelClient->getTable($replicaTableId);
+        $replicaTable = $this->_client->getTable($replicaTableId);
 
         $this->assertEquals($newTableName, $replicaTable['name']);
         $this->assertEquals($originalTable['columns'], $replicaTable['columns']);
