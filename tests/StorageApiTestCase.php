@@ -40,18 +40,11 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
         ));
     }
 
-    /**
-     * @param string $stages -- optional array of stages to clear buckets
-     * @param \Keboola\StorageApi\Client $client -- optional use an alternate client
-     */
-    protected function _initEmptyTestBuckets($stages = [self::STAGE_OUT, self::STAGE_IN], $client = null)
+
+    protected function _initEmptyTestBuckets($stages = [self::STAGE_OUT, self::STAGE_IN])
     {
         foreach ($stages as $stage) {
-            $this->_bucketIds[$stage] = $this->initEmptyBucket(
-                'API-tests',
-                $stage,
-                ($client) ? $client : $this->_client
-            );
+            $this->_bucketIds[$stage] = $this->initEmptyBucket('API-tests', $stage);
         }
     }
 
@@ -59,25 +52,24 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
      * Init empty bucket test helper
      * @param $name
      * @param $stage
-     * @param \Keboola\StorageApi\Client $client
      * @return bool|string
      */
-    private function initEmptyBucket($name, $stage, $client)
+    private function initEmptyBucket($name, $stage)
     {
         try {
-            $bucket = $client->getBucket("$stage.c-$name");
-            $tables = $client->listTables($bucket['id']);
+            $bucket = $this->_client->getBucket("$stage.c-$name");
+            $tables = $this->_client->listTables($bucket['id']);
             foreach ($tables as $table) {
-                $client->dropTable($table['id']);
+                $this->_client->dropTable($table['id']);
             }
-            $metadataApi = new Metadata($client);
+            $metadataApi = new Metadata($this->_client);
             $metadata = $metadataApi->listBucketMetadata($bucket['id']);
             foreach ($metadata as $md) {
                 $metadataApi->deleteBucketMetadata($bucket['id'], $md['id']);
             }
             return $bucket['id'];
         } catch (\Keboola\StorageApi\ClientException $e) {
-            return $client->createBucket($name, $stage, 'Api tests');
+            return $this->_client->createBucket($name, $stage, 'Api tests');
         }
     }
 
