@@ -104,4 +104,31 @@ class TimeTravelTest extends StorageApiTestCase
         $this->assertEquals($originalTable['columns'], $replicaTable['columns']);
         $this->assertGreaterThan(count($replicaTable['columns']), count($updatedTable['columns']));
     }
+
+    public function testInvalidCreateTableFromTimestampRequests()
+    {
+        $beforeCreationTimestamp = date(DATE_ATOM);
+        $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
+
+        $sourceTable = 'languages_' . date('Ymd_His');
+
+        $sourceTableId = $this->_client->createTable(
+            $this->getTestBucketId(),
+            $sourceTable,
+            $importFile
+        );
+        $originalTable = $this->_client->getTable($sourceTableId);
+        sleep(20);
+        try {
+            $replicaTableId = $this->_client->createTableFromSourceTableAtTimestamp(
+                $this->getTestBucketId(self::STAGE_OUT),
+                $sourceTableId,
+                $beforeCreationTimestamp,
+                'table_should_never_be_created'
+            );
+            $this->fail('you should not be able to timeTravel to before table creation');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.timetravel.invalid', $e->getStringCode());
+        }
+    }
 }
