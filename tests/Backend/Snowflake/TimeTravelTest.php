@@ -186,8 +186,9 @@ class TimeTravelTest extends StorageApiTestCase
             $this->getTestBucketId(self::STAGE_OUT) => 'write',
         );
         $outputBucketTokenId = $this->_client->createToken($bucketPermissions, $description);
+        $outputBucketToken = $this->_client->getToken($outputBucketTokenId);
         $outputBucketClient = new Client([
-            'token' => $outputBucketTokenId,
+            'token' => $outputBucketToken['token'],
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
             'maxJobPollWaitPeriodSeconds' => 1,
@@ -198,8 +199,9 @@ class TimeTravelTest extends StorageApiTestCase
             $this->getTestBucketId() => 'read',
         );
         $inputBucketTokenId = $this->_client->createToken($bucketPermissions, $description);
+        $inputBucketToken = $this->_client->getToken($inputBucketTokenId);
         $inputBucketClient = new Client([
-            'token' => $inputBucketTokenId,
+            'token' => $inputBucketToken['token'],
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
             'maxJobPollWaitPeriodSeconds' => 1,
@@ -211,8 +213,9 @@ class TimeTravelTest extends StorageApiTestCase
             $this->getTestBucketId(self::STAGE_OUT) => 'write',
         );
         $minimalTokenId = $this->_client->createToken($bucketPermissions, $description);
+        $minimalToken = $this->_client->getToken($minimalTokenId);
         $minimalClient = new Client([
-            'token' => $minimalTokenId,
+            'token' => $minimalToken['token'],
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
             'maxJobPollWaitPeriodSeconds' => 1,
@@ -245,12 +248,13 @@ class TimeTravelTest extends StorageApiTestCase
         }
 
         // test that minimal permissions will pass
-        // test that only output bucket permissions will fail
         $repllicaTableId = $minimalClient->createTableFromSourceTableAtTimestamp(
             $this->getTestBucketId(self::STAGE_OUT),
             $originalTableId,
             $timestamp,
             'created-with-minimal-permission'
         );
+
+        $this->assertNotNull($repllicaTableId);
     }
 }
