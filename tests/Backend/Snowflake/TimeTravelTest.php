@@ -150,7 +150,7 @@ class TimeTravelTest extends StorageApiTestCase
             $this->getTestBucketId()
         );
         $timestamp = $timestamp = date(DATE_ATOM);
-        sleep(20);
+        sleep(10);
         // now, creating a timeTravel backup of the original_table and it should appear in the linked bucket also
         $replicaTableId = $this->_client->createTableFromSourceTableAtTimestamp(
             $this->getTestBucketId(),
@@ -166,5 +166,91 @@ class TimeTravelTest extends StorageApiTestCase
         $data = $this->_client->getTableDataPreview($replicaTableId);
         $linkedData = $this->_client->getTableDataPreview($linkedTsTable['id']);
         $this->assertLinesEqualsSorted($data, $linkedData);
+    }
+
+    public function testTimeTravelBucketPermissions()
+    {
+        // Create the source table
+        $originalTableId = $this->_client->createTableAsync(
+            $this->getTestBucketId(),
+            'original_table',
+            new CsvFile(__DIR__ . '/../../_data/pk.simple.csv')
+        );
+        sleep(10);
+        $timestamp = $timestamp = date(DATE_ATOM);
+        sleep(10);
+
+        // Setup our test clients
+        $description = 'Output bucket only write token';
+        $bucketPermissions = array(
+            $this->getTestBucketId(self::STAGE_OUT) => 'write',
+        );
+        $outputBucketTokenId = $this->_client->createToken($bucketPermissions, $description);
+        $outputBucketClient = new Client([
+            'token' => $outputBucketTokenId,
+            'url' => STORAGE_API_URL,
+            'backoffMaxTries' => 1,
+            'maxJobPollWaitPeriodSeconds' => 1,
+        ]);
+
+        $description = 'Input bucket only read token';
+        $bucketPermissions = array(
+            $this->getTestBucketId() => 'read',
+        );
+        $inputBucketTokenId = $this->_client->createToken($bucketPermissions, $description);
+        $inputBucketClient = new Client([
+            'token' => $inputBucketTokenId,
+            'url' => STORAGE_API_URL,
+            'backoffMaxTries' => 1,
+            'maxJobPollWaitPeriodSeconds' => 1,
+        ]);
+
+        $description = 'Minimal permissions token';
+        $bucketPermissions = array(
+            $this->getTestBucketId() => 'read',
+            $this->getTestBucketId(self::STAGE_OUT) => 'write',
+        );
+        $minimalTokenId = $this->_client->createToken($bucketPermissions, $description);
+        $minimalClient = new Client([
+            'token' => $minimalTokenId,
+            'url' => STORAGE_API_URL,
+            'backoffMaxTries' => 1,
+            'maxJobPollWaitPeriodSeconds' => 1,
+        ]);
+
+        // test that only output bucket permissions will fail
+        try {
+            $outputBucketClient->createTableFromSourceTableAtTimestamp(
+                $this->getTestBucketId(self::STAGE_OUT),
+                $originalTableId,
+                $timestamp,
+                'shouldFail'
+            );
+            $this->fail("No read permission on source bucket");
+        } catch (ClientException $e) {
+            $this->assertEquals(403, $e->getCode());
+        }
+
+        // test that only input bucket permissions will fail
+        try {
+            $inputBucketClient->createTableFromSourceTableAtTimestamp(
+                $this->getTestBucketId(self::STAGE_OUT),
+                $originalTableId,
+                $timestamp,
+                'shouldFail'
+            );
+            $this->fail("No write permission on destination bucket");
+        } catch (ClientException $e) {
+            $this->assertEquals(403, $e->getCode());
+        }
+
+        // test that minimal permissions will pass
+        // test that only output bucket permissions will fail
+        $repllicaTableId = $minimalClient->createTableFromSourceTableAtTimestamp(
+            $this->getTestBucketId(self::STAGE_OUT),
+            $originalTableId,
+            $timestamp,
+            'created-with-minimal-permission'
+        );
     }
 }
