@@ -131,4 +131,47 @@ class TimeTravelTest extends StorageApiTestCase
             $this->assertEquals('storage.timetravel.invalid', $e->getStringCode());
         }
     }
+
+    public function testTableCreationInLinkedBucket()
+    {
+        // make the source table
+        $originalTableId = $this->_client->createTableAsync(
+            $this->getTestBucketId(),
+            'original_table',
+            new CsvFile(__DIR__ . '/../../_data/pk.simple.csv')
+        );
+
+        // share the source bucket
+        $this->_client->shareBucket($this->getTestBucketId());
+        $token = $this->_client->verifyToken();
+
+        $sharedBuckets = $this->_client->listSharedBuckets();
+
+        // create a linked bucket in the same project
+        $selfLinkedBucketId = $this->_client->linkBucket(
+            'same-project-link-test',
+            self::STAGE_OUT,
+            $token['owner']['id'],
+            $this->getTestBucketId()
+        );
+        $timestamp = $timestamp = date(DATE_ATOM);
+        sleep(20);
+        // now, creating a timeTravel backup of the original_table and it should appear in the linked bucket also
+        $replicaTableId = $this->_client->createTableFromSourceTableAtTimestamp(
+            $this->getTestBucketId(),
+            $originalTableId,
+            $timestamp,
+            'timestampedBackup'
+        );
+
+        $linkedBucket = $this->_client->getBucket($selfLinkedBucketId);
+
+        $tables = $this->_client->listTables($selfLinkedBucketId);
+        $linkedTsTableKey = array_search('timestampedBackup', array_column($tables, 'name'));
+        $linkedTsTable = $tables[$linkedTsTableKey];
+        $this->assertNotNull($linkedTsTable);
+        $data = $this->_client->getTableDataPreview($replicaTableId);
+        $linkedData = $this->_client->getTableDataPreview($linkedTsTable['id']);
+        $this->assertLinesEqualsSorted($data, $linkedData);
+    }
 }
