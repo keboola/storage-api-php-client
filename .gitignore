@@ -10,6 +10,7 @@ set-env.redshift.sh
 set-env.snowflake.sh
 set-env.mysql.sh
 set-env.mixed.sh
+set-env.sharing.sh
 *.kdev4
 .kdev4
 snowflake_linux_x8664_odbc.tgz
