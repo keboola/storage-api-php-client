@@ -30,7 +30,6 @@ class TimeTravelTest extends StorageApiTestCase
             $sourceTable,
             $importFile
         );
-        $originalTable = $this->_client->getTable($sourceTableId);
         // the timestamp must be at least 1 sec > creation time
         sleep(10);
         $timestamp = date(DATE_ATOM);
@@ -38,7 +37,6 @@ class TimeTravelTest extends StorageApiTestCase
 
         $this->_client->writeTable($sourceTableId, $importFile, ['incremental' => true]);
 
-        $updatedTable = $this->_client->getTable($sourceTableId);
         $newTableName = "new-table-name_" . date('Ymd_His', strtotime($timestamp));
 
         $replicaTableId = $this->_client->createTableFromSourceTableAtTimestamp(
@@ -117,10 +115,9 @@ class TimeTravelTest extends StorageApiTestCase
             $sourceTable,
             $importFile
         );
-        $originalTable = $this->_client->getTable($sourceTableId);
         sleep(20);
         try {
-            $replicaTableId = $this->_client->createTableFromSourceTableAtTimestamp(
+            $this->_client->createTableFromSourceTableAtTimestamp(
                 $this->getTestBucketId(self::STAGE_OUT),
                 $sourceTableId,
                 $beforeCreationTimestamp,
@@ -145,8 +142,6 @@ class TimeTravelTest extends StorageApiTestCase
         $this->_client->shareBucket($this->getTestBucketId());
         $token = $this->_client->verifyToken();
 
-        $sharedBuckets = $this->_client->listSharedBuckets();
-
         // create a linked bucket in the same project
         $selfLinkedBucketId = $this->_client->linkBucket(
             'same-project-link-test',
@@ -163,8 +158,6 @@ class TimeTravelTest extends StorageApiTestCase
             $timestamp,
             'timestampedBackup'
         );
-
-        $linkedBucket = $this->_client->getBucket($selfLinkedBucketId);
 
         $tables = $this->_client->listTables($selfLinkedBucketId);
         $linkedTsTableKey = array_search('timestampedBackup', array_column($tables, 'name'));
