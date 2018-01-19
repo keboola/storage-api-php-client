@@ -166,6 +166,10 @@ class TimeTravelTest extends StorageApiTestCase
         $data = $this->_client->getTableDataPreview($replicaTableId);
         $linkedData = $this->_client->getTableDataPreview($linkedTsTable['id']);
         $this->assertLinesEqualsSorted($data, $linkedData);
+
+        // delete the linked bucket so that test cleanup will work
+        $this->_client->dropBucket($selfLinkedBucketId, ['force' => true]);
+        $this->_client->unshareBucket($this->getTestBucketId());
     }
 
     public function testTimeTravelBucketPermissions()
