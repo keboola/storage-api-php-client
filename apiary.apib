@@ -1068,7 +1068,7 @@ The actual data must be provided in one of the following attributes:
     + dataWorkspaceId (optional) - Load from the table [workspace](#reference/workspaces). Use with the **dataTableName** attribute.
     + dataTableName (optional) - Load from a table in [workspace](#reference/workspaces).
     + sourceTableId (optional) - Create time travel snapshot of this table.
-    + timestamp (optional) - Datetime string to be used for the time travel snapshot. Use with the **sourceTableId** attribute.
+    + timestamp (optional) - Datetime string to be used for the time travel snapshot. Use with the **sourceTableId** attribute. The preferred format is `YYYY-MM-DD hh:mm:ss Z`, other formats may also work, but time zone is required.
     + delimiter (optional) - Field delimiter used in the CSV file. The default value is ','.  Use '\t' or type the tab char for the tabulator.
     + enclosure (optional) - Field enclosure used in the CSV file. The default value is '"'. (Note: you can specify either the `enclosure` or `escapedBy` parameter, not both.)
     + escapedBy (optional) - Escape character used in the CSV file. The default value is an empty value - no escape character is used. (Note: you can specify either the `enclosure` or `escapedBy` parameter, not both.)
