@@ -14,17 +14,10 @@ use Keboola\Csv\CsvFile;
 class ImportExportTest extends StorageApiTestCase
 {
 
-    /**
-     * @var \Keboola\StorageApi\BucketCredentials
-     */
-    private $bucketCredentials;
-
     public function setUp()
     {
         parent::setUp();
         $this->_initEmptyTestBuckets();
-
-        $this->bucketCredentials = new \Keboola\StorageApi\BucketCredentials($this->_client);
     }
 
     public function testImportWithWarnings()
