@@ -30,7 +30,6 @@ class TimeTravelTest extends StorageApiTestCase
             $sourceTable,
             $importFile
         );
-        // the timestamp must be at least 1 sec > creation time
         sleep(10);
         $timestamp = date(DATE_ATOM);
         sleep(25);
@@ -81,7 +80,6 @@ class TimeTravelTest extends StorageApiTestCase
             ]
         );
         $originalTable = $this->_client->getTable($sourceTableId);
-        // the timestamp must be at least 1 sec > creation time
         sleep(5);
         $timestamp = date(DATE_ATOM);
         sleep(25);
