@@ -75,7 +75,10 @@ class TimeTravelTest extends StorageApiTestCase
         $sourceTableId = $this->_client->createTable(
             $this->getTestBucketId(),
             $sourceTable,
-            $importFile
+            $importFile,
+            [
+                'primaryKey' => 'id',
+            ]
         );
         $originalTable = $this->_client->getTable($sourceTableId);
         // the timestamp must be at least 1 sec > creation time
@@ -84,6 +87,8 @@ class TimeTravelTest extends StorageApiTestCase
         sleep(25);
 
         $this->_client->addTableColumn($sourceTableId, "new-column");
+        $this->_client->removeTablePrimaryKey($sourceTableId);
+        $this->_client->createTablePrimaryKey($sourceTableId, ['id', 'name']);
 
         $updatedTable = $this->_client->getTable($sourceTableId);
 
@@ -101,6 +106,7 @@ class TimeTravelTest extends StorageApiTestCase
         $this->assertEquals($newTableName, $replicaTable['name']);
         $this->assertEquals($originalTable['columns'], $replicaTable['columns']);
         $this->assertGreaterThan(count($replicaTable['columns']), count($updatedTable['columns']));
+        $this->assertEquals(['id'], $replicaTable['primaryKey']);
     }
 
     public function testInvalidCreateTableFromTimestampRequests()
