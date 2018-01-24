@@ -114,7 +114,7 @@ class TimeTravelTest extends StorageApiTestCase
 
     public function testInvalidCreateTableFromTimestampRequests()
     {
-        $beforeCreationTimestamp = date(DATE_ATOM);
+        $beforeCreationTimestamp = date(DATE_ATOM, strtotime('-10m'));
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
 
         $sourceTable = 'languages_' . date('Ymd_His');
@@ -124,7 +124,6 @@ class TimeTravelTest extends StorageApiTestCase
             $sourceTable,
             $importFile
         );
-        sleep(20);
         try {
             $this->_client->createTableFromSourceTableAtTimestamp(
                 $this->getTestBucketId(self::STAGE_OUT),
