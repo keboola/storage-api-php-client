@@ -9,6 +9,7 @@
 
 namespace Keboola\Test\Common;
 
+use Keboola\StorageApi\Client;
 use Keboola\Test\StorageApiTestCase;
 
 class Common extends StorageApiTestCase
@@ -49,6 +50,16 @@ class Common extends StorageApiTestCase
 
         $data = \Keboola\StorageApi\Client::parseCsv($csvData, true);
         $this->assertEquals($expectedHashmap, $data, "Csv parse to associative array");
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testUrlShouldBeRequired()
+    {
+        new Client([
+            'token' => STORAGE_API_TOKEN,
+        ]);
     }
 
     public function testAwsRetries()
