@@ -27,7 +27,7 @@ class Client
     const STAGE_SYS = "sys";
     const API_VERSION = "v2";
 
-    const VERSION = '7.3.0';
+    const VERSION = '8.0.0';
 
     // Token string
     public $token;
