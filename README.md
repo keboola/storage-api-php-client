@@ -22,8 +22,8 @@ mv ./composer.phar ~/bin/composer # or /usr/local/bin/composer
 ```json
 {
     "require": {
-        "php" : ">=5.4.0",
-        "keboola/storage-api-client": "2.12.*"
+        "php" : ">=5.6.0",
+        "keboola/storage-api-client": "^7.0"
     }
 }
 ```
@@ -54,6 +54,7 @@ use Keboola\StorageApi\Client,
 
 $client = new Client([
   'token' => 'YOUR_TOKEN',
+  'url' => 'https://connection.keboola.com'
 ]);
 $csvFile = new CsvFile(__DIR__ . '/my.csv', ',', '"');
 $client->writeTableAsync('in.c-main.my-table', $csvFile);
@@ -67,7 +68,10 @@ require 'vendor/autoload.php';
 use Keboola\StorageApi\Client,
   Keboola\StorageApi\TableExporter;
 
-$client = new Client(['token' => 'YOUR_TOKEN',]);
+$client = new Client([
+  'token' => 'YOUR_TOKEN',
+  'url' => 'https://connection.keboola.com'
+]);
 
 $exporter = new TableExporter($client);
 $exporter->exportTable('in.c-main.my-table', './in.c-main.my-table.csv', []);
