@@ -36,8 +36,17 @@ class TimeTravelTest extends StorageApiTestCase
         sleep(10);
         $timestamp = date(DATE_ATOM);
         sleep(25);
+        $originalTable = $this->_client->getTable($sourceTableId);
 
-        $this->_client->writeTable($sourceTableId, $importFile, ['incremental' => true]);
+        $this->_client->writeTable(
+            $sourceTableId,
+            new CsvFile(__DIR__ . '/../../_data/languages.increment.csv'),
+            [
+                'incremental' => true,
+            ]
+        );
+
+        $updatedTable = $this->_client->getTable($sourceTableId);
 
         $newTableName = "new-table-name_" . date('Ymd_His', strtotime($timestamp));
 
@@ -52,11 +61,8 @@ class TimeTravelTest extends StorageApiTestCase
 
         $this->assertEquals($newTableName, $replicaTable['name']);
         $this->assertEquals(['id'], $replicaTable['primaryKey']);
-
-        // Pending fix of timetravel metadata issue case 00022189
-        //
-        // $this->assertEquals($updatedTable['rowsCount'], $replicaTable['rowsCount'] * 2);
-        // $this->assertEquals($originalTable['rowsCount'], $replicaTable['rowsCount']);
+        $this->assertLessThan($updatedTable['rowsCount'], $originalTable['rowsCount']);
+        $this->assertEquals($originalTable['rowsCount'], $replicaTable['rowsCount']);
 
         // test data export
         $exporter = new TableExporter($this->_client);
