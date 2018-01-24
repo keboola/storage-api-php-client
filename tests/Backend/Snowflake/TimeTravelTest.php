@@ -28,7 +28,10 @@ class TimeTravelTest extends StorageApiTestCase
         $sourceTableId = $this->_client->createTable(
             $this->getTestBucketId(),
             $sourceTable,
-            $importFile
+            $importFile,
+            [
+                'primaryKey' => 'id',
+            ]
         );
         sleep(10);
         $timestamp = date(DATE_ATOM);
@@ -48,6 +51,7 @@ class TimeTravelTest extends StorageApiTestCase
         $replicaTable = $this->_client->getTable($replicaTableId);
 
         $this->assertEquals($newTableName, $replicaTable['name']);
+        $this->assertEquals(['id'], $replicaTable['primaryKey']);
 
         // Pending fix of timetravel metadata issue case 00022189
         //
