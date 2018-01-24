@@ -25,6 +25,7 @@ class Client
     const STAGE_IN = "in";
     const STAGE_OUT = "out";
     const STAGE_SYS = "sys";
+    const API_VERSION = "v2";
 
     const VERSION = '7.3.0';
 
@@ -36,8 +37,6 @@ class Client
 
     // API URL
     private $apiUrl;
-
-    private $apiVersion = "v2";
 
     private $backoffMaxTries = 11;
 
@@ -1904,7 +1903,7 @@ class Client
 
     private function versionUrl($path)
     {
-        return "{$this->apiVersion}/$path";
+        return sprintf("%s/$path", self::API_VERSION);
     }
 
     protected function request($method, $url, $options = array(), $responseFileName = null, $handleAsyncTask = true)
