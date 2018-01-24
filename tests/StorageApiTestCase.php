@@ -58,6 +58,15 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
     {
         try {
             $bucket = $this->_client->getBucket("$stage.c-$name");
+            // unlink and unshare buckets if they exist
+            if ($this->_client->isSharedBucket($bucket['id'])) {
+                if (array_key_exists('linkedBy', $bucket)) {
+                    foreach ($bucket['linkedBy'] as $linkedBucket) {
+                        $this->_client->dropBucket($linkedBucket['id'], ['force' => true]);
+                    }
+                }
+                $this->_client->unshareBucket($bucket['id']);
+            }
             $tables = $this->_client->listTables($bucket['id']);
             foreach ($tables as $table) {
                 $this->_client->dropTable($table['id']);

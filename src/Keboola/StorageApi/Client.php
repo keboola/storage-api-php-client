@@ -523,6 +523,22 @@ class Client
         ));
     }
 
+    /**
+     * @param $bucketId string destination bucket
+     * @param $sourceTableId string source snapshot
+     * @param $timestamp string timestamp to use for table replication
+     * @param $name string table name
+     * @return string - created table id
+     */
+    public function createTableFromSourceTableAtTimestamp($bucketId, $sourceTableId, $timestamp, $name)
+    {
+        return $this->createTableAsyncDirect($bucketId, array(
+            'sourceTableId' => $sourceTableId,
+            'timestamp' => $timestamp,
+            'name' => $name,
+        ));
+    }
+
     private function isUrl($path)
     {
         return preg_match('/^https?:\/\/.*$/', $path);
