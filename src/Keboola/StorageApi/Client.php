@@ -25,6 +25,7 @@ class Client
     const STAGE_IN = "in";
     const STAGE_OUT = "out";
     const STAGE_SYS = "sys";
+    const API_VERSION = "v2";
 
     const VERSION = '7.3.0';
 
@@ -35,9 +36,7 @@ class Client
     private $runId = null;
 
     // API URL
-    private $apiUrl = "https://connection.keboola.com";
-
-    private $apiVersion = "v2";
+    private $apiUrl;
 
     private $backoffMaxTries = 11;
 
@@ -83,7 +82,7 @@ class Client
      *
      * @param array $config Client configuration settings
      *     - token: (required) Storage API token
-     *     - url: (optional) Storage API URL
+     *     - url: (required) Storage API URL
      *     - userAgent: custom user agent
      *     - backoffMaxTries: backoff maximum number of attempts
      *     - maxJobPollWaitPeriodSeconds: maximum time period between job status check in `waitForJob` method
@@ -92,9 +91,10 @@ class Client
      */
     public function __construct(array $config = array())
     {
-        if (isset($config['url'])) {
-            $this->apiUrl = $config['url'];
+        if (!isset($config['url'])) {
+            throw new \InvalidArgumentException('url must be set');
         }
+        $this->apiUrl = $config['url'];
 
         $this->userAgent .= '/' . self::VERSION;
         if (isset($config['userAgent'])) {
@@ -1903,7 +1903,7 @@ class Client
 
     private function versionUrl($path)
     {
-        return "{$this->apiVersion}/$path";
+        return sprintf("%s/$path", self::API_VERSION);
     }
 
     protected function request($method, $url, $options = array(), $responseFileName = null, $handleAsyncTask = true)
