@@ -1903,7 +1903,7 @@ class Client
 
     private function versionUrl($path)
     {
-        return sprintf("%s/$path", self::API_VERSION);
+        return sprintf("%s/%s", self::API_VERSION, $path);
     }
 
     protected function request($method, $url, $options = array(), $responseFileName = null, $handleAsyncTask = true)
