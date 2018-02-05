@@ -24,7 +24,7 @@ final class HandlerStack
         $handlerStack = HandlerStackBase::create();
         $handlerStack->push(Middleware::retry(
             self::createDefaultDecider(isset($options['backoffMaxTries']) ? $options['backoffMaxTries'] : 0),
-            self::createExponentialDelay()
+            isset($options['retryDelay']) ? $options['retryDelay'] : self::createExponentialDelay()
         ));
         return $handlerStack;
     }

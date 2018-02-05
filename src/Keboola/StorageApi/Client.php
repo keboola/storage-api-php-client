@@ -56,6 +56,12 @@ class Client
     private $logger;
 
     /**
+     * The method that says how long to wait before trying the request again
+     * @var callable
+     */
+    private $retryDelay;
+
+    /**
      * @var \GuzzleHttp\Client
      */
     private $client;
@@ -88,6 +94,7 @@ class Client
      *     - maxJobPollWaitPeriodSeconds: maximum time period between job status check in `waitForJob` method
      *     - awsRetries: number of aws client retries
      *     - logger: instance of Psr\Log\LoggerInterface
+     *     - retryDelay: callable method which decides on how long to wait before retrying sig: (int $tries) : int
      */
     public function __construct(array $config = array())
     {
@@ -126,14 +133,19 @@ class Client
             $this->maxJobPollWaitPeriodSeconds = (int) $config['maxJobPollWaitPeriodSeconds'];
         }
 
+        if (isset($config['retryDelay'])) {
+            $this->retryDelay = $config['delayMethod'];
+        }
         $this->initClient();
     }
 
     private function initClient()
     {
-        $handlerStack = HandlerStack::create([
-            'backoffMaxTries' => $this->backoffMaxTries,
-        ]);
+        $stackOptions = ['backoffMaxTries' => $this->backoffMaxTries];
+        if ($this->retryDelay) {
+            $stackOptions['retryDely'] = $this->retryDelay;
+        }
+        $handlerStack = HandlerStack::create($stackOptions);
 
         if ($this->logger) {
             $handlerStack->push(Middleware::log(
@@ -141,6 +153,7 @@ class Client
                 new MessageFormatter("{hostname} {req_header_User-Agent} - [{ts}] \"{method} {resource} {protocol}/{version}\" {code} {res_header_Content-Length}")
             ));
         }
+
         $this->client = new \GuzzleHttp\Client([
             'base_uri' => $this->apiUrl,
             'handler' => $handlerStack,
