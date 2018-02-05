@@ -5,6 +5,7 @@ use Aws\Exception\MultipartUploadException;
 use Aws\Multipart\UploadState;
 use Aws\S3\S3Client;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\MessageFormatter;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
@@ -12,6 +13,7 @@ use Keboola\StorageApi\Options\FileUploadTransferOptions;
 use Keboola\StorageApi\Options\GetFileOptions;
 use Keboola\StorageApi\Options\ListFilesOptions;
 use Keboola\StorageApi\Options\StatsOptions;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -56,6 +58,18 @@ class Client
     private $logger;
 
     /**
+     * The method which decides wether or not to retry a request
+     * @var callable
+     */
+    private $retryDecider;
+
+    /**
+     * The method that says how long to wait before trying the request again
+     * @var callable
+     */
+    private $retryDelay;
+
+    /**
      * @var \GuzzleHttp\Client
      */
     private $client;
@@ -88,6 +102,9 @@ class Client
      *     - maxJobPollWaitPeriodSeconds: maximum time period between job status check in `waitForJob` method
      *     - awsRetries: number of aws client retries
      *     - logger: instance of Psr\Log\LoggerInterface
+     *     - retryDecider: callable method which decides to retry the request or not.
+     *       sig: function ($retries, RequestInterface $request, ResponseInterface $response = null, $error = null)
+     *     - retryDelay: callable method which decides on how long to wait before retrying.  sig:
      */
     public function __construct(array $config = array())
     {
@@ -126,6 +143,13 @@ class Client
             $this->maxJobPollWaitPeriodSeconds = (int) $config['maxJobPollWaitPeriodSeconds'];
         }
 
+        if (isset($config['retryDecider'])) {
+            $this->retryDecider = $config['retryDecider'];
+        }
+
+        if (isset($config['retryDelay'])) {
+            $this->retryDelay = $config['delayMethod'];
+        }
         $this->initClient();
     }
 
@@ -141,10 +165,53 @@ class Client
                 new MessageFormatter("{hostname} {req_header_User-Agent} - [{ts}] \"{method} {resource} {protocol}/{version}\" {code} {res_header_Content-Length}")
             ));
         }
+
+        if ($this->retryDecider || $this->retryDelay) {
+            // default delay (null) is exponential
+            $handlerStack->push(Middleware::retry(
+                $this->retryDecider ? $this->retryDecider : self::createDefaultDecider($this->backoffMaxTries),
+                $this->retryDelay ? $this->retryDelay : self::createDefaultDelay()
+            ));
+        }
+
         $this->client = new \GuzzleHttp\Client([
             'base_uri' => $this->apiUrl,
             'handler' => $handlerStack,
         ]);
+    }
+
+    /**
+     * @return callable
+     */
+    private static function createDefaultDelay()
+    {
+        return function (int $numRetries) {
+            return (int) pow(2, $numRetries - 1);
+        };
+    }
+
+    /**
+     * @param int $maxRetries
+     * return callable
+     */
+    private static function createDefaultDecider(int $maxRetries) : callable
+    {
+        return function (
+            $retries,
+            RequestInterface $request,
+            ResponseInterface $response = null,
+            $error = null
+        ) use ($maxRetries) {
+            if ($retries >= $maxRetries) {
+                return false;
+            } elseif ($response && $response->getStatusCode() > 499) {
+                return true;
+            } elseif ($error) {
+                return true;
+            } else {
+                return false;
+            }
+        };
     }
 
     /**
