@@ -7,6 +7,7 @@
  */
 namespace Keboola\StorageApi;
 
+use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack as HandlerStackBase;
 use GuzzleHttp\Middleware;
 use Psr\Http\Message\RequestInterface;
@@ -21,7 +22,11 @@ final class HandlerStack
 {
     public static function create($options = [])
     {
-        $handlerStack = HandlerStackBase::create();
+        $mockHandler = null;
+        if (isset($options['mockResponses'])) {
+            $mockHandler = new MockHandler($options['mockResponses']);
+        }
+        $handlerStack = HandlerStackBase::create($mockHandler);
         $handlerStack->push(Middleware::retry(
             self::createDefaultDecider(isset($options['backoffMaxTries']) ? $options['backoffMaxTries'] : 0),
             isset($options['retryDelay']) ? $options['retryDelay'] : self::createExponentialDelay()

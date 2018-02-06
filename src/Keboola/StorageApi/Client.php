@@ -62,6 +62,12 @@ class Client
     private $retryDelay;
 
     /**
+     * If provided the client will deliver these mock responses to requests
+     * @var mixed|null
+     */
+    private $mockResponses;
+
+    /**
      * @var \GuzzleHttp\Client
      */
     private $client;
@@ -136,15 +142,25 @@ class Client
         if (isset($config['retryDelay'])) {
             $this->retryDelay = $config['retryDelay'];
         }
+
+        if (isset($config['mockResponses'])) {
+            $this->mockResponses = $config['mockResponses'];
+        }
+
         $this->initClient();
     }
 
     private function initClient()
     {
         $stackOptions = ['backoffMaxTries' => $this->backoffMaxTries];
+
         if ($this->retryDelay) {
             $stackOptions['retryDelay'] = $this->retryDelay;
         }
+        if ($this->mockResponses) {
+            $stackOptions['mockResponses'] = $this->mockResponses;
+        }
+
         $handlerStack = HandlerStack::create($stackOptions);
 
         if ($this->logger) {
