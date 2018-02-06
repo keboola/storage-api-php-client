@@ -63,7 +63,7 @@ class Client
 
     /**
      * If provided the client will deliver these mock responses to requests
-     * @var mixed|null
+     * @var mixed[]|null
      */
     private $mockResponses;
 
@@ -2260,5 +2260,16 @@ class Client
     public function isAwsDebug()
     {
         return $this->awsDebug;
+    }
+
+    /**
+     * @return \GuzzleHttp\Client|null
+     */
+    public function getBaseMockClient()
+    {
+        if ($this->mockResponses) {
+            return $this->client;
+        }
+        return null;
     }
 }
