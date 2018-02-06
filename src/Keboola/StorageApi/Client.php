@@ -134,7 +134,7 @@ class Client
         }
 
         if (isset($config['retryDelay'])) {
-            $this->retryDelay = $config['delayMethod'];
+            $this->retryDelay = $config['retryDelay'];
         }
         $this->initClient();
     }
@@ -143,7 +143,7 @@ class Client
     {
         $stackOptions = ['backoffMaxTries' => $this->backoffMaxTries];
         if ($this->retryDelay) {
-            $stackOptions['retryDely'] = $this->retryDelay;
+            $stackOptions['retryDelay'] = $this->retryDelay;
         }
         $handlerStack = HandlerStack::create($stackOptions);
 
