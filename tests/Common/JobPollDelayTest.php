@@ -1,14 +1,12 @@
 <?php
 
-namespace Keboola\Test\Backend\CommonPart2;
+namespace Keboola\Test\Common;
 
 use Keboola\Csv\CsvFile;
 use Keboola\Test\StorageApiTestCase;
 
 class JobPollDelayTest extends StorageApiTestCase
 {
-
-    private $delayMethod;
 
     public function setUp()
     {
