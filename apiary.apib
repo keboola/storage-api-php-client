@@ -1228,8 +1228,7 @@ Exported rows can be filtered by a single filter. Examples of filtering by `user
 - `whereColumn=UserId&whereValues[]=23423&whereValues[]=123` - Filters by multiple values of one column.
 - `whereColumn=UserId&whereValues[]=23423&whereOperator=ne` - Uses a different comparison operator.
 
-Only [Indexed columns](#reference/tables/create-column-index/mark-column-as-indexed) can be used in the `whereColumn` parameter.
-The comparison operator essentially behaves like the [SQL IN](http://www.w3schools.com/sql/sql_in.asp) (and NOT IN) operator. That is, the 
+The comparison operator essentially behaves like the [SQL IN](http://www.w3schools.com/sql/sql_in.asp) (and NOT IN) operator. That is, the
 `eq` value matches if any `whereValues` match, and the `new` value matches if none `whereValues` match.
 
 #### Caching
@@ -1681,6 +1680,9 @@ Removes the primary key from a table. This request is [asynchronous](#introducti
 ## Create Column Index [/v2/storage/buckets/{table_id}/indexed-columns/]
 
 ### Mark column as indexed [POST]
+
+** Indexed columns are deprecated and no longer required, filtering is now allowed on all table columns.**
+
 Indexed columns can be used to filter data when [exporting](#reference/tables/unload-data-asynchronously/asynchronous-export).
 Columns in a primary key are automatically indexed. The number of indexed columns is limited to 4 including the primary key.
 This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
@@ -1723,6 +1725,9 @@ This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls)
 ## Manage Column Indexes [/v2/storage/tables/{table_id}/indexed-columns/{column_name}]
 
 ### Remove Column Index [DELETE]
+
+** Indexed columns are deprecated and no longer required, filtering is now allowed on all table columns.**
+
 Removes a column from an index. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 
 + Parameters
