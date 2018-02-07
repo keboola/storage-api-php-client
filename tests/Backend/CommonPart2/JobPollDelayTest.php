@@ -2,11 +2,11 @@
 
 namespace Keboola\Test\Backend\CommonPart2;
 
-
 use Keboola\Csv\CsvFile;
 use Keboola\Test\StorageApiTestCase;
 
-class JobPollDelayTest extends StorageApiTestCase {
+class JobPollDelayTest extends StorageApiTestCase
+{
 
     public function setUp()
     {
