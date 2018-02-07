@@ -169,6 +169,11 @@ class Client
         };
     }
 
+    public function setJobPollDelayMethoc(callable $jobPollDelay)
+    {
+        $this->retryDelay = $jobPollDelay;
+    }
+
     /**
      * Get API Url
      *
