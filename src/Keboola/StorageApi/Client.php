@@ -165,7 +165,7 @@ class Client
     private static function getDefaultJopPollDelay($maxJobPollWaitPeriodSeconds)
     {
         return function ($tries) use ($maxJobPollWaitPeriodSeconds) {
-            min(pow(2, $tries), $maxJobPollWaitPeriodSeconds);
+            return min(pow(2, $tries), $maxJobPollWaitPeriodSeconds);
         };
     }
 
