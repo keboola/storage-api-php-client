@@ -856,6 +856,9 @@ tables use the [asynchronous call](#reference/tables/create-table-asynchronously
                     "name_id",
                     "nm_id"
                 ],
+                "indexedColumns": [
+                    "id"
+                ],
                 "bucket": {
                     "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-main",
                     "id": "in.c-main",
@@ -1225,6 +1228,7 @@ Exported rows can be filtered by a single filter. Examples of filtering by `user
 - `whereColumn=UserId&whereValues[]=23423&whereValues[]=123` - Filters by multiple values of one column.
 - `whereColumn=UserId&whereValues[]=23423&whereOperator=ne` - Uses a different comparison operator.
 
+Only [Indexed columns](#reference/tables/create-column-index/mark-column-as-indexed) can be used in the `whereColumn` parameter.
 The comparison operator essentially behaves like the [SQL IN](http://www.w3schools.com/sql/sql_in.asp) (and NOT IN) operator. That is, the 
 `eq` value matches if any `whereValues` match, and the `new` value matches if none `whereValues` match.
 
@@ -1342,6 +1346,7 @@ Obtains information about a table.
                 "name": "cashier-data",
                 "transactional": false,
                 "primaryKey": [],
+                "indexedColumns": [],
                 "created": "2015-11-03T10:58:28+0100",
                 "lastImportDate": "2015-11-03T10:58:31+0100",
                 "lastChangeDate": "2015-11-03T10:58:32+0100",
@@ -1461,6 +1466,7 @@ attributes and information about the containing bucket.
                     "name": "data",
                     "transactional": false,
                     "primaryKey": [],
+                    "indexedColumns": [],
                     "created": "2016-06-23T20:41:07+0200",
                     "lastImportDate": "2016-07-07T11:25:32+0200",
                     "lastChangeDate": "2016-07-07T11:25:34+0200",
@@ -1491,6 +1497,7 @@ attributes and information about the containing bucket.
                     "name": "data_items",
                     "transactional": false,
                     "primaryKey": [],
+                    "indexedColumns": [],
                     "created": "2016-06-23T20:41:38+0200",
                     "lastImportDate": "2016-07-07T11:26:03+0200",
                     "lastChangeDate": "2016-07-07T11:26:05+0200",
@@ -1671,6 +1678,86 @@ Removes the primary key from a table. This request is [asynchronous](#introducti
                }
             }
 
+## Create Column Index [/v2/storage/buckets/{table_id}/indexed-columns/]
+
+### Mark column as indexed [POST]
+Indexed columns can be used to filter data when [exporting](#reference/tables/unload-data-asynchronously/asynchronous-export).
+Columns in a primary key are automatically indexed. The number of indexed columns is limited to 4 including the primary key.
+This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
+
++ Parameters
+    + table_id (required) - Table Id
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            name=authorName
+
++ Response 202 (application/json)
+    + Body
+
+            {
+               "id":1189,
+               "status":"waiting",
+               "url":"https:\/\/connection.keboola.com\/v2\/storage\/jobs\/1189",
+               "tableId":"in.c-main.another",
+               "operationName":"tableIndexedColumnAdd",
+               "operationParams":{
+                  "name":"new-column"
+               },
+               "createdTime":"2013-07-08T10:01:03+0200",
+               "startTime":null,
+               "endTime":null,
+               "runId":null,
+               "results":null,
+               "creatorToken":{
+                  "id":"221",
+                  "name":"Master Token"
+               }
+            }
+
+## Manage Column Indexes [/v2/storage/tables/{table_id}/indexed-columns/{column_name}]
+
+### Remove Column Index [DELETE]
+Removes a column from an index. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
+
++ Parameters
+    + table_id (required) - Table Id
+    + column_name (required) - Column name
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 202 (application/json)
+    + Body
+
+            {
+               "id":1189,
+               "status":"waiting",
+               "url":"https:\/\/connection.keboola.com\/v2\/storage\/jobs\/1189",
+               "tableId":"in.c-main.another",
+               "operationName":"tableIndexedColumnDelete",
+               "operationParams":{
+                  "name":"new-column"
+               },
+               "createdTime":"2013-07-08T10:01:03+0200",
+               "startTime":null,
+               "endTime":null,
+               "runId":null,
+               "results":null,
+               "creatorToken":{
+                  "id":"221",
+                  "name":"Master Token"
+               }
+            }
+
+
 ## Manage Table Rows [/v2/storage/tables/{table_id}/rows]
 
 ### Delete Table Rows [DELETE]
@@ -1735,6 +1822,10 @@ The filter parameter `aliasFilter` must be set during an alias table creation or
 * **operator** - Filter operator: `eq`, `ne`
 * **values[]** - One or more filter values
 
+There are some limitations:
+* Filtering is enabled only on indexed tables
+* Index on a filtered column of the source table cannot be removed
+
 #### Alias table columns
 By default, the alias columns are automatically synced with the source table. You can disable this behaviour
 by setting up `aliasColumnsAutosync` to `false` and setting up list of columns by `aliasColumns` parameter.
@@ -1780,6 +1871,7 @@ When turning `aliasColumnsAutoSync` back on, the columns will be immediately syn
                 "name": "test-alias2",
                 "transactional": false,
                 "primaryKey": [],
+                "indexedColumns": [],
                 "created": "2017-02-13T13:53:31+0100",
                 "lastImportDate": "2016-07-07T11:25:32+0200",
                 "lastChangeDate": "2016-07-07T11:25:34+0200",
@@ -1862,6 +1954,7 @@ alias must be created with the `aliasFilter` parameter.
                 "name": "test-alias2",
                 "transactional": false,
                 "primaryKey": [],
+                "indexedColumns": [],
                 "created": "2017-02-13T13:53:31+0100",
                 "lastImportDate": "2016-07-07T11:25:32+0200",
                 "lastChangeDate": "2016-07-07T11:25:34+0200",
@@ -1945,7 +2038,7 @@ into a new table.
 Creates a snapshot of the current state of the table. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 A table snapshot will contain:
 - Table data,
-- Table properties (primary key, description, etc.),
+- Table properties (primary key, indexed columns, etc.),
 - Table attributes.
 
 Snapshots of an alias table contain only alias settings, actual data are not stored with the snapshot.
@@ -2061,6 +2154,7 @@ Retrieves information about a single table snapshot.
                 "table": {
                     "id": "in.c-dalsi.alias",
                     "primaryKey": [],
+                    "indexedColumns": [],
                     "attributes": [
                         {
                             "name": "afd",
