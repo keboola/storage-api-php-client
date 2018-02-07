@@ -134,7 +134,7 @@ class Client
         if (isset($config['retryDelay'])) {
             $this->retryDelay = $config['retryDelay'];
         } else {
-            $this->retryDelay = self::getDefaultJopPollDelay($this->maxJobPollWaitPeriodSeconds);
+            $this->retryDelay = self::getDefaultJobPollDelay($this->maxJobPollWaitPeriodSeconds);
         }
 
         $this->initClient();
@@ -162,7 +162,7 @@ class Client
      * @param $maxJobPollWaitPeriodSeconds
      * @return callable
      */
-    private static function getDefaultJopPollDelay($maxJobPollWaitPeriodSeconds)
+    private static function getDefaultJobPollDelay($maxJobPollWaitPeriodSeconds)
     {
         return function ($tries) use ($maxJobPollWaitPeriodSeconds) {
             return min(pow(2, $tries), $maxJobPollWaitPeriodSeconds);
