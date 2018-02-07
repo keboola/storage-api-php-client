@@ -894,9 +894,7 @@ class Client
     }
 
     /**
-     *
-     * Add column to table
-     *
+     * @deprecated Indexed columns are no longer required for filtering and will be removed soon
      * @param string $tableId
      * @param string $columnName
      */
@@ -910,9 +908,7 @@ class Client
 
 
     /**
-     *
-     * Delete a table attribute
-     *
+     * @deprecated Indexed columns are no longer required for filtering and will be removed soon
      * @param string $tableId
      * @param string $columnName
      * @return mixed|string
