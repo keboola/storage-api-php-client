@@ -50,6 +50,11 @@ class Client
     private $userAgent = 'Keboola Storage API PHP Client';
 
     /**
+     * @var callable|null
+     */
+    private $retryDelay;
+
+    /**
      * @var LoggerInterface
      *
      */
@@ -126,6 +131,12 @@ class Client
             $this->maxJobPollWaitPeriodSeconds = (int) $config['maxJobPollWaitPeriodSeconds'];
         }
 
+        if (isset($config['retryDelay'])) {
+            $this->retryDelay = $config['retryDelay'];
+        } else {
+            $this->retryDelay = self::getDefaultJopPollDelay($this->maxJobPollWaitPeriodSeconds);
+        }
+
         $this->initClient();
     }
 
@@ -145,6 +156,17 @@ class Client
             'base_uri' => $this->apiUrl,
             'handler' => $handlerStack,
         ]);
+    }
+
+    /**
+     * @param $maxJobPollWaitPeriodSeconds
+     * @return callable
+     */
+    private static function getDefaultJopPollDelay($maxJobPollWaitPeriodSeconds)
+    {
+        return function ($tries) use ($maxJobPollWaitPeriodSeconds) {
+            min(pow(2, $tries), $maxJobPollWaitPeriodSeconds);
+        };
     }
 
     /**
@@ -2002,7 +2024,7 @@ class Client
         // poll for status
         do {
             if ($retries > 0) {
-                $waitSeconds = min(pow(2, $retries), $this->maxJobPollWaitPeriodSeconds);
+                $waitSeconds = call_user_func($this->retryDelay, $retries);
                 sleep($waitSeconds);
             }
             $retries++;
