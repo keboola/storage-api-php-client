@@ -26,20 +26,11 @@ class JobPollDelayTest extends StorageApiTestCase
         $this->_client->setJobPollDelayMethoc($linearDelay);
 
         $csvFile = new CsvFile(__DIR__ . '/../_data/languages.csv');
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', $csvFile);
-
-        $fileId = $this->_client->uploadFile(
-            $csvFile->getPathname(),
-            (new \Keboola\StorageApi\Options\FileUploadOptions())
-                ->setNotify(false)
-                ->setIsPublic(false)
-                ->setCompress(false)
-                ->setTags(array('table-import'))
+        $tableId = $this->_client->createTableAsync(
+            $this->getTestBucketId(),
+            'languages',
+            $csvFile
         );
-        $job = $this->_client->apiPost("storage/tables/{$tableId}/import-async", [
-            'dataFileId' => $fileId
-        ], false);
-        $job = $this->_client->waitForJob($job['id']);
 
         $this->assertTrue($methodUsed);
     }
@@ -61,20 +52,7 @@ class JobPollDelayTest extends StorageApiTestCase
         ));
 
         $csvFile = new CsvFile(__DIR__ . '/../_data/languages.csv');
-        $tableId = $client->createTable($this->getTestBucketId(), 'languages', $csvFile);
-
-        $fileId = $client->uploadFile(
-            $csvFile->getPathname(),
-            (new \Keboola\StorageApi\Options\FileUploadOptions())
-                ->setNotify(false)
-                ->setIsPublic(false)
-                ->setCompress(false)
-                ->setTags(array('table-import'))
-        );
-        $job = $client->apiPost("storage/tables/{$tableId}/import-async", [
-            'dataFileId' => $fileId
-        ], false);
-        $job = $client->waitForJob($job['id']);
+        $tableId = $client->createTableAsync($this->getTestBucketId(), 'languages', $csvFile);
 
         $this->assertTrue($methodUsed);
     }
