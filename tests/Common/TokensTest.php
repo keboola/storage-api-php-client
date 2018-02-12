@@ -211,7 +211,7 @@ class TokensTest extends StorageApiTestCase
         $tokenAfterRefresh = $this->_client->getToken($tokenId);
 
         $this->assertNotEquals($token['token'], $tokenAfterRefresh['token']);
-        $this->assertGreaterThan($created, strtotime($token['refreshed']));
+        $this->assertGreaterThan($created, strtotime($tokenAfterRefresh['refreshed']));
     }
 
 
