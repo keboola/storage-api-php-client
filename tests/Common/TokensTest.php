@@ -63,6 +63,7 @@ class TokensTest extends StorageApiTestCase
     {
         $token = $this->_client->verifyToken();
         $this->assertArrayHasKey('created', $token);
+        $this->assertArrayHasKey('refreshed', $token);
         $this->assertArrayHasKey('description', $token);
         $this->assertArrayHasKey('id', $token);
         $this->assertTrue($token['isMasterToken']);
@@ -203,11 +204,14 @@ class TokensTest extends StorageApiTestCase
         );
         $tokenId = $this->_client->createToken($bucketPermissions, $description);
         $token = $this->_client->getToken($tokenId);
+        $created = strtotime($token['created']);
+        sleep(1);
 
         $this->_client->refreshToken($tokenId);
         $tokenAfterRefresh = $this->_client->getToken($tokenId);
 
         $this->assertNotEquals($token['token'], $tokenAfterRefresh['token']);
+        $this->assertGreaterThan($created, strtotime($token['refreshed']));
     }
 
 
