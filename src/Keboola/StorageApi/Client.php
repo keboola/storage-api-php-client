@@ -169,7 +169,7 @@ class Client
         };
     }
 
-    public function setJobPollDelayMethoc(callable $jobPollDelay)
+    public function setJobPollDelayMethod(callable $jobPollDelay)
     {
         $this->retryDelay = $jobPollDelay;
     }
