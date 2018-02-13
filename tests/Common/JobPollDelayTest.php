@@ -23,7 +23,7 @@ class JobPollDelayTest extends StorageApiTestCase
             return (int) $tries;
         };
 
-        $this->_client->setJobPollDelayMethoc($linearDelay);
+        $this->_client->setJobPollDelayMethod($linearDelay);
 
         $csvFile = new CsvFile(__DIR__ . '/../_data/languages.csv');
         $tableId = $this->_client->createTableAsync(
