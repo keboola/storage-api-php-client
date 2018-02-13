@@ -14,27 +14,6 @@ class JobPollDelayTest extends StorageApiTestCase
         $this->_initEmptyTestBuckets();
     }
 
-    public function testSetJobPollDelay()
-    {
-        $methodUsed = false;
-
-        $linearDelay = function ($tries) use (&$methodUsed) {
-            $methodUsed = true;
-            return (int) $tries;
-        };
-
-        $this->_client->setJobPollDelayMethod($linearDelay);
-
-        $csvFile = new CsvFile(__DIR__ . '/../_data/languages.csv');
-        $tableId = $this->_client->createTableAsync(
-            $this->getTestBucketId(),
-            'languages',
-            $csvFile
-        );
-
-        $this->assertTrue($methodUsed);
-    }
-
     public function testAlternateJobPollDelay()
     {
         $methodUsed = false;
