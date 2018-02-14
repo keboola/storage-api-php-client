@@ -107,7 +107,6 @@ class WorkspacesTest extends StorageApiTestCase
         $this->assertArrayHasKey('name', $data[0]);
         $this->assertCount(5, $data); // there should only be the original
         $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ",", '"'), $data, 'id');
-
     }
 
     public function testLoadToWorkspaceAtTimestamp()
@@ -158,6 +157,5 @@ class WorkspacesTest extends StorageApiTestCase
         $this->assertArrayHasKey('name', $data[0]);
         $this->assertCount(5, $data); // there should only be the original
         $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ",", '"'), $data, 'id');
-
     }
 }

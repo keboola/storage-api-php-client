@@ -277,7 +277,7 @@ class TimeTravelTest extends StorageApiTestCase
 
         $this->assertNotNull($repllicaTableId);
     }
-    
+
     public function testExportAtOffset()
     {
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
