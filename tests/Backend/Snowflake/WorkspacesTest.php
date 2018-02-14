@@ -109,4 +109,55 @@ class WorkspacesTest extends StorageApiTestCase
         $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ",", '"'), $data, 'id');
 
     }
+
+    public function testLoadToWorkspaceAtTimestamp()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+
+        //setup test tables
+        $sourceTableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+        sleep(5);
+        $timestamp = date(DATE_ATOM);
+        sleep(20);
+
+        $this->_client->writeTable(
+            $sourceTableId,
+            new CsvFile(__DIR__ . '/../../_data/languages.increment.csv'),
+            [
+                'incremental' => true,
+            ]
+        );
+
+        $mapping = array(
+            "source" => $sourceTableId,
+            "destination" => "offsetTestLoaded",
+            "timestampOffset" => $timestamp
+        );
+
+        $input = array($mapping);
+
+        $workspaces->loadWorkspaceData($workspace['id'], array("input" => $input));
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $tables = $backend->getTables();
+
+        // check that the tables are in the workspace
+        $this->assertCount(1, $tables);
+        $this->assertContains($backend->toIdentifier("offsetTestLoaded"), $tables);
+
+        // check table structure and data
+        $data = $backend->fetchAll("offsetTestLoaded", \PDO::FETCH_ASSOC);
+        $this->assertCount(2, $data[0], 'there should be two columns');
+        $this->assertArrayHasKey('id', $data[0]);
+        $this->assertArrayHasKey('name', $data[0]);
+        $this->assertCount(5, $data); // there should only be the original
+        $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ",", '"'), $data, 'id');
+
+    }
 }
