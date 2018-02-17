@@ -1908,6 +1908,10 @@ class Client
             'timeout' => $this->getTimeout(),
         ]);
 
+        if ($responseFileName !== null) {
+            $requestOptions['stream'] = true;
+        }
+
         $defaultHeaders = [
             'X-StorageApi-Token' => $this->token,
             'Accept-Encoding' => 'gzip',
@@ -1956,7 +1960,6 @@ class Client
                 throw new ClientException("Cannot open file {$responseFileName}");
             }
             $body = $response->getBody();
-            $body->seek(0);
             while (!$body->eof()) {
                 fwrite($responseFile, $body->read(1024 * 10));
             }
