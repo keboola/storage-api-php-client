@@ -635,7 +635,7 @@ class ComponentsTest extends StorageApiTestCase
         $updatedConfig = $components->updateConfiguration($config);
         $this->assertEquals([], $updatedConfig['configuration']);
         $this->assertEmpty($updatedConfig['changeDescription']);
-        $this->assertEquals(3,$updatedConfig['version']);
+        $this->assertEquals(3, $updatedConfig['version']);
     }
 
     public function testComponentConfigUpdateEmptyWithEmpty()
