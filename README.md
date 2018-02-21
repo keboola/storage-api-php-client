@@ -84,11 +84,15 @@ $exporter->exportTable('in.c-main.my-table', './in.c-main.my-table.csv', []);
 
 The main purpose of these test is "black box" test driven development of Keboola Connection. These test guards the API implementation.
 
-Tests are divided into multiple test suites:
+Tests should be executed against local dockerized version of [Keboola Connection](https://github.com/keboola/connection/) (private repo).
+These tests and local KBC are configured to share docker network where the Storage and Manage API endpoints are provided. 
+These APIs are available at `http://connection-apache/` endpoint from clients tests.
 
-- `common` - tests all storage backend unrelated features like configurations, events, file uploads, tokens management
-- `backend-mysql` - tests project with `mysql` storage backend
-- `backend-redshift` - tests project with `redshift` storage backend
+Before executing tests please install dev dependencies:
+- `docker-compose build`
+- `docker-compose run --rm tests composer install`
+
+Tests are divided into multiple test suites.
 
 ### Common test suite
 This test suite expects following environment variables set:
@@ -101,7 +105,7 @@ You can export variables manually or you can create and fill file `set-env.sh` a
 
 Than  you can run tests:
 
-`source ./set-env.sh && php ./vendor/bin/phpunit --testsuite common`
+`source ./set-env.sh &&  docker-compose run --rm tests vendor/bin/phpunit --testsuite common`
 
 ### Mysql backend test suite
 This test suite expects following environment variables set:
@@ -112,7 +116,7 @@ You can export variables manually or you can create and fill file `set-env.mysql
 
 Than  you can run tests:
 
-`source ./set-env.mysql.sh && php ./vendor/bin/phpunit --testsuite backend-mysql`
+`source ./set-env.mysql.sh &&  docker-compose run --rm tests vendor/bin/phpunit --testsuite backend-mysql`
 
  
 ### Redshift backend test suite
@@ -126,8 +130,8 @@ as copy of attached `set-env.redshift.template.sh`.
 
 Than  you can run tests:
 
-`source ./set-env.redshift.sh && php ./vendor/bin/phpunit --testsuite backend-redshift-part-1`
-`source ./set-env.redshift.sh && php ./vendor/bin/phpunit --testsuite backend-redshift-part-2`
+`source ./set-env.redshift.sh && docker-compose run --rm tests vendor/bin/phpunit --testsuite backend-redshift-part-1`
+`source ./set-env.redshift.sh && docker-compose run --rm tests vendor/bin/phpunit --testsuite backend-redshift-part-2`
 
 ### Snowflake backend test suite
 This test suite expects following environment variables set:
@@ -140,8 +144,8 @@ You can download odbc driver from [Snowflake Console](https://keboola.snowflakec
 
 You can run these tests in docker with drivers installed:
 
-`source ./set-env.snowflake.sh && docker-compose run --rm tests sh -c 'composer install && ./vendor/bin/phpunit --testsuite backend-snowflake-part-1'`
-`source ./set-env.snowflake.sh && docker-compose run --rm tests sh -c 'composer install && ./vendor/bin/phpunit --testsuite backend-snowflake-part-2'`
+`source ./set-env.snowflake.sh && docker-compose run --rm tests vendor/bin/phpunit --testsuite backend-snowflake-part-1`
+`source ./set-env.snowflake.sh && docker-compose run --rm tests vendor/bin/phpunit --testsuite backend-snowflake-part-2`
 
 ### Mixed backend test suite
 Project can support multiple backends, this is useful for migrations from one backend to another.
@@ -157,7 +161,7 @@ You can export variables manually or you can create and fill file `set-env.mixed
 
 Than  you can run tests:
 
-`source ./set-env.mixed.sh && docker-compose run --rm tests sh -c 'composer install && ./vendor/bin/phpunit --testsuite backend-mixed'`
+`source ./set-env.mixed.sh && docker-compose run --rm tests vendor/bin/phpunit --testsuite backend-mixed'`
 
 
 
