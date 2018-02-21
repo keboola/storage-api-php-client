@@ -8,7 +8,7 @@ services:
 install:
  - echo $TRAVIS_COMMIT
  - echo $TRAVIS_COMMIT > REVISION
- - docker network create connection_storage-api-php-client
+ - docker network create connection_api-tests
  - docker-compose run odbc composer install -n --ignore-platform-reqs
  - docker-compose run -e AWS_ACCESS_KEY=$AWS_ODBC_KEY -e AWS_SECRET_KEY=$AWS_ODBC_SECRET odbc php docker/downloadOdbcDriver.php
  - docker-compose build tests
