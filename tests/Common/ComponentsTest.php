@@ -624,6 +624,7 @@ class ComponentsTest extends StorageApiTestCase
         $configuration = $components->getConfiguration($config->getComponentId(), $config->getConfigurationId());
 
         $this->assertEquals($config->getConfiguration(), $configuration['configuration']);
+        $this->assertEquals(2, $configuration['version']);
 
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
@@ -634,6 +635,29 @@ class ComponentsTest extends StorageApiTestCase
         $updatedConfig = $components->updateConfiguration($config);
         $this->assertEquals([], $updatedConfig['configuration']);
         $this->assertEmpty($updatedConfig['changeDescription']);
+        $this->assertEquals(3, $updatedConfig['version']);
+    }
+
+    public function testComponentConfigUpdateEmptyWithEmpty()
+    {
+        $config = (new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main');
+        $components = new \Keboola\StorageApi\Components($this->_client);
+        $newConfiguration = $components->addConfiguration($config);
+        $this->assertEquals(1, $newConfiguration['version']);
+        $this->assertEmpty($newConfiguration['configuration']);
+
+        $config->setConfiguration([]);
+        $components->updateConfiguration($config);
+
+        $updatedConfig = $components->getConfiguration($config->getComponentId(), $config->getConfigurationId());
+        $this->assertEquals(1, $updatedConfig['version'], 'there should not be any change');
+
+        $components->updateConfiguration($config);
+        $updatedConfig = $components->getConfiguration($config->getComponentId(), $config->getConfigurationId());
+        $this->assertEquals(1, $updatedConfig['version'], 'there should not be any change');
     }
 
     public function testComponentConfigUpdateWithRows()
@@ -1605,6 +1629,48 @@ class ComponentsTest extends StorageApiTestCase
 
         $configuration = $components->getConfiguration('wr-db', 'main-1');
         $this->assertEquals(3, $configuration['version']);
+    }
+
+    public function testComponentConfigRowUpdateConfigEmptyWithEmpty()
+    {
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('main')
+        ;
+
+        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components->addConfiguration($configuration);
+
+        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRow
+            ->setRowId('main-1-1');
+        ;
+        $components->addConfigurationRow($configurationRow);
+
+        $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1'));
+
+        $row = reset($rows);
+        $this->assertEmpty($row['configuration']);
+        $this->assertEquals(1, $row['version']);
+
+        $updateConfigurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $updateConfigurationRow
+            ->setRowId('main-1-1')
+            ->setConfiguration([])
+        ;
+        $components->updateConfigurationRow($updateConfigurationRow);
+
+        $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1'));
+
+        $row = reset($rows);
+        $this->assertEmpty($row['configuration']);
+        $this->assertEquals(1, $row['version']);
     }
 
     public function testComponentConfigRowUpdate()
