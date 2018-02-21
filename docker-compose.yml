@@ -32,4 +32,4 @@ services:
 networks:
   default:
     external:
-      name: connection_storage-api-php-client
+      name: connection_api-tests
