@@ -53,7 +53,6 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->assertEquals($sourceTable['lastImportDate'], $aliasTable['lastImportDate']);
         $this->assertEquals($sourceTable['lastChangeDate'], $aliasTable['lastChangeDate']);
         $this->assertEquals($sourceTable['columns'], $aliasTable['columns']);
-        $this->assertEquals($sourceTable['indexedColumns'], $aliasTable['indexedColumns']);
         $this->assertEquals($sourceTable['primaryKey'], $aliasTable['primaryKey']);
         $this->assertNotEmpty($aliasTable['created']);
         $this->assertNotEquals('0000-00-00 00:00:00', $aliasTable['created']);
@@ -124,7 +123,6 @@ class SimpleAliasTest extends StorageApiTestCase
             'users',
             new CsvFile(__DIR__ . '/../../_data/users.csv')
         );
-        $this->_client->markTableColumnAsIndexed($sourceTableId, 'city');
 
         // alias table
         $aliasTableId = $this->_client->createAliasTable(
@@ -156,20 +154,6 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->assertEquals('city', $aliasTable['aliasFilter']['column']);
         $this->assertEquals(array('VAN'), $aliasTable['aliasFilter']['values']);
         $this->assertEquals('eq', $aliasTable['aliasFilter']['operator']);
-
-
-        $tokenData = $this->_client->verifyToken();
-
-        if ($tokenData['owner']['defaultBackend'] === 'mysql') {
-            try {
-                $this->_client->setAliasTableFilter($aliasTableId, array(
-                    'column' => 'name',
-                ));
-                $this->fail('Filter cannot be applied on column without index');
-            } catch (\Keboola\StorageApi\ClientException $e) {
-                $this->assertEquals('storage.tables.columnNotIndexed', $e->getStringCode());
-            }
-        }
 
 
         $this->_client->removeAliasTableFilter($aliasTableId);
@@ -214,7 +198,6 @@ class SimpleAliasTest extends StorageApiTestCase
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
-        $this->_client->markTableColumnAsIndexed($sourceTableId, 'city');
 
         $aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users', array(
             'aliasColumns' => array(
@@ -234,7 +217,6 @@ class SimpleAliasTest extends StorageApiTestCase
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
-        $this->_client->markTableColumnAsIndexed($sourceTableId, 'city');
 
         $aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users', array(
             'aliasColumns' => array(
@@ -253,7 +235,6 @@ class SimpleAliasTest extends StorageApiTestCase
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
-        $this->_client->markTableColumnAsIndexed($sourceTableId, 'city');
 
         $aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users');
 
@@ -293,7 +274,6 @@ class SimpleAliasTest extends StorageApiTestCase
     {
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile($importFile));
-        $this->_client->markTableColumnAsIndexed($sourceTableId, 'id');
 
         $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'languages', array(
             'aliasFilter' => array(
@@ -314,7 +294,6 @@ class SimpleAliasTest extends StorageApiTestCase
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
-        $this->_client->markTableColumnAsIndexed($sourceTableId, 'city');
 
         $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users', array(
             'aliasColumns' => array(
@@ -332,28 +311,6 @@ class SimpleAliasTest extends StorageApiTestCase
         }
     }
 
-    public function testColumnUsedInFilteredAliasShouldNotBeRemovedFromIndexed()
-    {
-        $importFile = __DIR__ . '/../../_data/languages.csv';
-        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile($importFile));
-        $this->_client->markTableColumnAsIndexed($sourceTableId, 'id');
-
-        $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'languages', array(
-            'aliasFilter' => array(
-                'column' => 'id',
-                'values' => array('1'),
-            ),
-        ));
-
-        try {
-            $this->_client->removeTableColumnFromIndexed($sourceTableId, 'id');
-            $this->fail('Exception should be thrown when filtered column is deleted');
-        } catch (ClientException $e) {
-            $this->assertEquals('storage.tables.cannotRemoveReferencedColumnFromIndexed', $e->getStringCode());
-        }
-    }
-
-
     public function testAliasColumns()
     {
         // source table
@@ -362,8 +319,6 @@ class SimpleAliasTest extends StorageApiTestCase
             'users',
             new CsvFile(__DIR__ . '/../../_data/users.csv')
         );
-        $this->_client->markTableColumnAsIndexed($sourceTableId, 'city');
-        $this->_client->markTableColumnAsIndexed($sourceTableId, 'name');
 
         $aliasColumns = array(
             'id',
@@ -383,13 +338,10 @@ class SimpleAliasTest extends StorageApiTestCase
 
         $this->assertFalse($aliasTable['aliasColumnsAutoSync']);
         $this->assertEquals($aliasColumns, $aliasTable['columns']);
-        $this->assertEquals(array('city'), $aliasTable['indexedColumns']);
 
-        $this->_client->removeTableColumnFromIndexed($sourceTableId, 'city');
         $this->_client->addTableColumn($sourceTableId, 'another');
 
         $aliasTable = $this->_client->getTable($aliasTableId);
-        $this->assertEmpty($aliasTable['indexedColumns'], 'Index should be removed also from alias');
         $this->assertEquals($aliasTable['columns'], $aliasColumns, 'Column should not be added to alias with auto sync disabled');
     }
 
@@ -407,8 +359,6 @@ class SimpleAliasTest extends StorageApiTestCase
             'users',
             new CsvFile(__DIR__ . '/../../_data/users.csv')
         );
-        $this->_client->markTableColumnAsIndexed($sourceTableId, 'city');
-
 
         $aliasParams = [
             'aliasFilter' => [
@@ -455,7 +405,6 @@ class SimpleAliasTest extends StorageApiTestCase
             'users',
             new CsvFile(__DIR__ . '/../../_data/users.csv')
         );
-        $this->_client->markTableColumnAsIndexed($sourceTableId, 'sex');
 
         $aliasTableId = $this->_client->createAliasTable(
             $this->getTestBucketId(self::STAGE_OUT),
@@ -516,8 +465,6 @@ class SimpleAliasTest extends StorageApiTestCase
             'users',
             new CsvFile(__DIR__ . '/../../_data/users.csv')
         );
-        $this->_client->markTableColumnAsIndexed($sourceTableId, 'city');
-        $this->_client->markTableColumnAsIndexed($sourceTableId, 'sex');
 
         // alias table
         $aliasTableId = $this->_client->createAliasTable(

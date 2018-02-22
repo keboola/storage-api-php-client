@@ -109,7 +109,6 @@ class AlterTableTest extends StorageApiTestCase
         $detail = $this->_client->getTable($tableId);
 
         $this->assertEquals(array('id', 'name'), $detail['primaryKey']);
-        $this->assertEquals(array('id', 'name'), $detail['indexedColumns']);
 
         $this->_client->deleteTableColumn($tableId, 'name');
         $detail = $this->_client->getTable($tableId);
@@ -117,55 +116,27 @@ class AlterTableTest extends StorageApiTestCase
         $this->assertEquals(array('id'), $detail['columns']);
 
         $this->assertEquals(array('id'), $detail['primaryKey']);
-        $this->assertEquals(array('id'), $detail['indexedColumns']);
     }
 
     public function testPrimaryKeyAddRequiredParam()
     {
-        $indexColumn = 'city';
-        $primaryKeyColumns = array();
         $importFile = __DIR__ . '/../../_data/users.csv';
-
         $tableId = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),
             'users',
             new CsvFile($importFile),
-            array()
+            []
         );
 
-        $this->_client->markTableColumnAsIndexed($tableId, $indexColumn);
-
-        $tables = array(
-            $this->_client->getTable($tableId),
-        );
-
-        foreach ($tables as $tableDetail) {
-            $this->assertArrayHasKey('primaryKey', $tableDetail);
-            $this->assertEmpty($tableDetail['primaryKey']);
-
-            $this->assertArrayHasKey('indexedColumns', $tableDetail);
-            $this->assertEquals(array($indexColumn), $tableDetail['indexedColumns']);
-        }
-
+        $tableDetail = $this->_client->getTable($tableId);
+        $this->assertArrayHasKey('primaryKey', $tableDetail);
+        $this->assertEmpty($tableDetail['primaryKey']);
 
         try {
-            $this->_client->createTablePrimaryKey($tableId, $primaryKeyColumns);
+            $this->_client->createTablePrimaryKey($tableId, []);
+            $this->fail('primary key should not be created');
         } catch (\Keboola\StorageApi\ClientException $e) {
-            if ($e->getStringCode() !== 'storage.validation.primaryKey') {
-                throw $e;
-            }
-        }
-
-        $tables = array(
-            $this->_client->getTable($tableId),
-        );
-
-        foreach ($tables as $tableDetail) {
-            $this->assertArrayHasKey('primaryKey', $tableDetail);
-            $this->assertEmpty($tableDetail['primaryKey']);
-
-            $this->assertArrayHasKey('indexedColumns', $tableDetail);
-            $this->assertEquals(array($indexColumn), $tableDetail['indexedColumns']);
+            $this->assertEquals($e->getStringCode(),  'storage.validation.primaryKey');
         }
     }
 
@@ -270,29 +241,8 @@ class AlterTableTest extends StorageApiTestCase
         }
     }
 
-    public function testIndexedColumnsCountShouldBeLimited()
-    {
-        $importFile = __DIR__ . '/../../_data/more-columns.csv';
-
-        // create and import data into source table
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));
-
-        $this->_client->markTableColumnAsIndexed($tableId, 'col1');
-        $this->_client->markTableColumnAsIndexed($tableId, 'col2');
-        $this->_client->markTableColumnAsIndexed($tableId, 'col3');
-        $this->_client->markTableColumnAsIndexed($tableId, 'col4');
-
-        try {
-            $this->_client->markTableColumnAsIndexed($tableId, 'col5');
-            $this->fail('Exception should be thrown');
-        } catch (\Keboola\StorageApi\ClientException $e) {
-            $this->assertEquals('storage.tables.indexedColumnsCountExceed', $e->getStringCode());
-        }
-    }
-
     public function testPrimaryKeyDelete()
     {
-        $indexColumn = 'city';
         $importFile = __DIR__ . '/../../_data/users.csv';
 
         $tableId = $this->_client->createTable(
@@ -304,8 +254,6 @@ class AlterTableTest extends StorageApiTestCase
             )
         );
 
-        $this->_client->markTableColumnAsIndexed($tableId, $indexColumn);
-
         $aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $tableId);
 
         $tables = array(
@@ -316,9 +264,6 @@ class AlterTableTest extends StorageApiTestCase
         foreach ($tables as $tableDetail) {
             $this->assertArrayHasKey('primaryKey', $tableDetail);
             $this->assertEquals(array('id'), $tableDetail['primaryKey']);
-
-            $this->assertArrayHasKey('indexedColumns', $tableDetail);
-            $this->assertEquals(array('id', $indexColumn), $tableDetail['indexedColumns']);
         }
 
         $this->_client->removeTablePrimaryKey($tableId);
@@ -331,14 +276,10 @@ class AlterTableTest extends StorageApiTestCase
         foreach ($tables as $tableDetail) {
             $this->assertArrayHasKey('primaryKey', $tableDetail);
             $this->assertEmpty($tableDetail['primaryKey']);
-
-            $this->assertArrayHasKey('indexedColumns', $tableDetail);
-            $this->assertEquals(array($indexColumn), $tableDetail['indexedColumns']);
         }
 
 
         // composite primary key
-        $indexColumn = 'iso';
         $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
 
         $tableId = $this->_client->createTable(
@@ -350,14 +291,10 @@ class AlterTableTest extends StorageApiTestCase
             )
         );
 
-        $this->_client->markTableColumnAsIndexed($tableId, $indexColumn);
-
         $tableDetail = $this->_client->getTable($tableId);
 
         $this->assertArrayHasKey('primaryKey', $tableDetail);
         $this->assertEquals(array('Id', 'Name'), $tableDetail['primaryKey']);
-        $this->assertArrayHasKey('indexedColumns', $tableDetail);
-        $this->assertEquals(array('Id', 'Name', $indexColumn), $tableDetail['indexedColumns']);
 
         $this->_client->removeTablePrimaryKey($tableId);
 
@@ -365,10 +302,6 @@ class AlterTableTest extends StorageApiTestCase
 
         $this->assertArrayHasKey('primaryKey', $tableDetail);
         $this->assertEmpty($tableDetail['primaryKey']);
-
-        $this->assertArrayHasKey('indexedColumns', $tableDetail);
-        $this->assertEquals(array($indexColumn), $tableDetail['indexedColumns']);
-
 
         // delete primary key from table with filtered alias
         $indexColumn = 'name';
@@ -382,8 +315,6 @@ class AlterTableTest extends StorageApiTestCase
                 'primaryKey' => 'id'
             )
         );
-
-        $this->_client->markTableColumnAsIndexed($tableId, $indexColumn);
 
         $aliasTableId = $this->_client->createAliasTable(
             $this->getTestBucketId(self::STAGE_OUT),
@@ -405,9 +336,6 @@ class AlterTableTest extends StorageApiTestCase
         foreach ($tables as $tableDetail) {
             $this->assertArrayHasKey('primaryKey', $tableDetail);
             $this->assertEquals(array('id'), $tableDetail['primaryKey']);
-
-            $this->assertArrayHasKey('indexedColumns', $tableDetail);
-            $this->assertEquals(array('id', $indexColumn), $tableDetail['indexedColumns']);
         }
 
         $indexRemoved = true;
@@ -429,9 +357,6 @@ class AlterTableTest extends StorageApiTestCase
         $this->assertArrayHasKey('primaryKey', $tableDetail);
         $this->assertEquals(array('id'), $tableDetail['primaryKey']);
 
-        $this->assertArrayHasKey('indexedColumns', $tableDetail);
-        $this->assertEquals(array('id', $indexColumn), $tableDetail['indexedColumns']);
-
         $indexRemoved = true;
         try {
             $this->_client->removeTablePrimaryKey($aliasTableId);
@@ -449,9 +374,6 @@ class AlterTableTest extends StorageApiTestCase
 
         $this->assertArrayHasKey('primaryKey', $tableDetail);
         $this->assertEquals(array('id'), $tableDetail['primaryKey']);
-
-        $this->assertArrayHasKey('indexedColumns', $tableDetail);
-        $this->assertEquals(array('id', $indexColumn), $tableDetail['indexedColumns']);
     }
 
     public function testEmptyPrimaryKeyDelete()
