@@ -104,56 +104,74 @@ class SlicedImportsTest extends StorageApiTestCase
             'version' => 'latest',
             'region' => $slicedFile['region'],
         ]);
-        $part1URL = $s3Client->putObject(array(
+        $s3Client->putObject([
             'Bucket' => $uploadParams['bucket'],
             'Key' => $uploadParams['key'] . 'part001.csv',
             'Body' => fopen(__DIR__ . '/../../_data/languages.no-headers.csv', 'r+'),
-        ))->get('ObjectURL');
+        ])->get('ObjectURL');
 
-        $s3Client->putObject(array(
+        $s3Client->putObject([
             'Bucket' => $uploadParams['bucket'],
             'Key' => $uploadParams['key'] . 'manifest',
-            'Body' => json_encode(array(
-                'entries' => array(
-                    array(
+            'Body' => json_encode([
+                'entries' => [
+                    [
                         'url' => 's3://' . $uploadParams['bucket'] . '/' . $uploadParams['key'] . 'part001.csv',
-                    ),
-                ),
-            )),
-        ))->get('ObjectURL');
+                    ]
+                ],
+            ]),
+        ])->get('ObjectURL');
 
-        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'entries', new CsvFile(__DIR__ . '/../../_data/languages.csv'));
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'entries',
+            new CsvFile(__DIR__ . '/../../_data/languages.not-normalized-column-names.csv')
+        );
         $this->_client->deleteTableRows($tableId);
-        $this->_client->writeTableAsyncDirect($tableId, array(
+        $this->_client->writeTableAsyncDirect($tableId, [
             'dataFileId' => $slicedFile['id'],
             'delimiter' => ',',
             'enclosure' => '"',
             'escapedBy' => '',
-            'columns' => array('id', 'name'),
-        ));
+            'columns' => [
+                'language-id',
+                'language-name',
+            ]
+        ]);
 
-        $this->assertLinesEqualsSorted(file_get_contents(__DIR__ . '/../../_data/languages.csv'), $this->_client->getTableDataPreview($tableId, array(
-            'format' => 'rfc',
-        )), 'imported data comparsion');
+        $this->assertLinesEqualsSorted(
+            file_get_contents(__DIR__ . '/../../_data/languages.normalized-column-names.csv'),
+            $this->_client->getTableDataPreview($tableId, [
+                'format' => 'rfc',
+            ]),
+            'imported data comparsion'
+        );
 
         // incremental
-        $this->_client->writeTableAsyncDirect($tableId, array(
+        $this->_client->writeTableAsyncDirect($tableId, [
             'dataFileId' => $slicedFile['id'],
             'incremental' => true,
             'delimiter' => ',',
             'enclosure' => '"',
             'escapedBy' => '',
-            'columns' => array('id', 'name'),
-        ));
+            'columns' => [
+                'language-id',
+                'language-name',
+            ]
+        ]);
 
-        $data = file_get_contents(__DIR__ . '/../../_data/languages.csv');
+        $data = file_get_contents(__DIR__ . '/../../_data/languages.normalized-column-names.csv');
         $lines = explode("\n", $data);
         array_shift($lines);
         $data = $data . implode("\n", $lines);
 
-        $this->assertLinesEqualsSorted($data, $this->_client->getTableDataPreview($tableId, array(
-            'format' => 'rfc',
-        )), 'imported data comparsion');
+        $this->assertLinesEqualsSorted(
+            $data,
+            $this->_client->getTableDataPreview($tableId, [
+                'format' => 'rfc',
+            ]),
+            'imported data comparsion'
+        );
     }
 
     public function testSlicedImportMissingManifest()
