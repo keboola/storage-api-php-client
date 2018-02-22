@@ -17,12 +17,6 @@
 		<directory>tests/Options</directory>
 	</testsuite>
 
-	<testsuite name="backend-mysql">
-		<directory>tests/Backend/CommonPart1</directory>
-		<directory>tests/Backend/CommonPart2</directory>
-		<directory>tests/Backend/Mysql</directory>
-	</testsuite>
-
 	<testsuite name="backend-redshift-part-1">
 		<directory>tests/Backend/CommonPart1</directory>
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>

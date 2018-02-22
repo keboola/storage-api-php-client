@@ -23,7 +23,6 @@ class WorkspaceBackendFactory
             case StorageApiTestCase::BACKEND_SNOWFLAKE:
                 return new SnowflakeWorkspaceBackend($workspace);
                 break;
-            case StorageApiTestCase::BACKEND_MYSQL:
             default:
                 throw new Exception($workspace['connection']['backend'] . " workspaces are not supported.");
         }
