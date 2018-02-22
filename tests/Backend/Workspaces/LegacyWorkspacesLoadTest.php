@@ -1069,7 +1069,6 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));
-        $this->_client->markTableColumnAsIndexed($tableId, 'city');
 
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();

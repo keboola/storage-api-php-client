@@ -85,7 +85,6 @@ class ExportParamsTest extends StorageApiTestCase
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));
-        $this->_client->markTableColumnAsIndexed($tableId, 'city');
 
         $data = $this->_client->getTableDataPreview($tableId, $exportOptions);
         $parsedData = Client::parseCsv($data, false);
@@ -144,7 +143,6 @@ class ExportParamsTest extends StorageApiTestCase
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));
-        $this->_client->markTableColumnAsIndexed($tableId, 'city');
 
         $results = $this->_client->exportTableAsync($tableId);
         $fileId = $results['file']['id'];
@@ -200,7 +198,6 @@ class ExportParamsTest extends StorageApiTestCase
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));
-        $this->_client->markTableColumnAsIndexed($tableId, 'city');
 
         $results = $this->_client->exportTableAsync($tableId);
         $fileId = $results['file']['id'];
