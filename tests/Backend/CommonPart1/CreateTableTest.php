@@ -216,7 +216,6 @@ class CreateTableTest extends StorageApiTestCase
 
         $table = $this->_client->getTable($tableId);
         $this->assertEquals(array('id'), $table['primaryKey']);
-        $this->assertEquals(array('id'), $table['indexedColumns']);
     }
 
     /**
