@@ -107,17 +107,6 @@ Than  you can run tests:
 
 `source ./set-env.sh &&  docker-compose run --rm tests vendor/bin/phpunit --testsuite common`
 
-### Mysql backend test suite
-This test suite expects following environment variables set:
-- `STORAGE_API_URL` - URL of Keboola Storage API (https://connection.keboola.com/)
-- `STORAGE_API_TOKEN` - Storage API token associated to user (Admin master token) with all permissions. **Project must have `mysql` set as default backend.**
-
-You can export variables manually or you can create and fill file `set-env.mysql.sh` as copy of attached `set-env.mysql.template.sh`.
-
-Than  you can run tests:
-
-`source ./set-env.mysql.sh &&  docker-compose run --rm tests vendor/bin/phpunit --testsuite backend-mysql`
-
  
 ### Redshift backend test suite
 
@@ -149,11 +138,11 @@ You can run these tests in docker with drivers installed:
 
 ### Mixed backend test suite
 Project can support multiple backends, this is useful for migrations from one backend to another.
-These tests require project with all backend assigned (mysql, redshift, snowflake).
+These tests require project with all backend assigned (redshift, snowflake).
 
 This test suite expects following environment variables set:
  - `STORAGE_API_URL` - URL of Keboola Storage API (https://connection.keboola.com/)
- - `STORAGE_API_TOKEN` and `STORAGE_API_LINKING_TOKEN` - Storage API token associated to user (Admin master token) with all permissions. Project must have assigned `mysql`, `snowflake` and `redshift` backend. STORAGE_API_TOKEN and STORAGE_API_LINKING_TOKEN have to be tokens to different project in same organization.
+ - `STORAGE_API_TOKEN` and `STORAGE_API_LINKING_TOKEN` - Storage API token associated to user (Admin master token) with all permissions. Project must have assigned `snowflake` and `redshift` backend. STORAGE_API_TOKEN and STORAGE_API_LINKING_TOKEN have to be tokens to different project in same organization.
  - `STORAGE_API_MAINTENANCE_URL` - URL for maintenance testing (https://maintenance-testing.keboola.com/)
 
 

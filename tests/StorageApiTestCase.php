@@ -15,7 +15,6 @@ use Keboola\StorageApi\Options\ListFilesOptions;
 
 abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
 {
-    const BACKEND_MYSQL = 'mysql';
     const BACKEND_REDSHIFT = 'redshift';
     const BACKEND_SNOWFLAKE = 'snowflake';
 

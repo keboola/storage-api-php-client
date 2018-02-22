@@ -16,20 +16,6 @@ use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class WorkspacesTest extends WorkspacesTestCase
 {
-    public function testCreateWorkspaceForMysqlBackendShouldNotBeAllowed()
-    {
-        $workspaces = new Workspaces($this->_client);
-
-        try {
-            $workspaces->createWorkspace([
-                'backend' => self::BACKEND_MYSQL,
-            ]);
-            $this->fail('Mysql workspace should not be created');
-        } catch (ClientException $e) {
-            $this->assertEquals('backend.notSupported', $e->getStringCode());
-        }
-    }
-
     /**
      * @dataProvider  workspaceBackendData
      * @param $backend
@@ -192,7 +178,7 @@ class WorkspacesTest extends WorkspacesTestCase
     public function testDataTypesLoadToRedshift()
     {
 
-        $bucketBackend = self::BACKEND_MYSQL;
+        $bucketBackend = self::BACKEND_SNOWFLAKE;
 
         if ($this->_client->bucketExists("out.c-mixed-test-" . $bucketBackend)) {
             $this->_client->dropBucket(
@@ -681,9 +667,7 @@ class WorkspacesTest extends WorkspacesTestCase
     {
         return [
             [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT],
-            [self::BACKEND_SNOWFLAKE, self::BACKEND_MYSQL],
             [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE],
-            [self::BACKEND_REDSHIFT, self::BACKEND_MYSQL],
         ];
     }
 }
