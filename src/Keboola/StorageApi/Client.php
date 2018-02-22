@@ -894,32 +894,6 @@ class Client
     }
 
     /**
-     * @deprecated Indexed columns are no longer required for filtering and will be removed soon
-     * @param string $tableId
-     * @param string $columnName
-     */
-    public function markTableColumnAsIndexed($tableId, $columnName)
-    {
-        $data = array(
-            'name' => $columnName,
-        );
-        $this->apiPost("storage/tables/$tableId/indexed-columns", $data);
-    }
-
-
-    /**
-     * @deprecated Indexed columns are no longer required for filtering and will be removed soon
-     * @param string $tableId
-     * @param string $columnName
-     * @return mixed|string
-     */
-    public function removeTableColumnFromIndexed($tableId, $columnName)
-    {
-        $this->apiDelete("storage/tables/$tableId/indexed-columns/$columnName");
-        $this->log("Table $tableId indexed column $columnName deleted");
-    }
-
-    /**
      *
      * Checks if a table exists
      *
