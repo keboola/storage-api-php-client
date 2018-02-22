@@ -28,3 +28,8 @@ services:
     volumes:
         - .:/code
     working_dir: /code
+
+networks:
+  default:
+    external:
+      name: connection_api-tests
