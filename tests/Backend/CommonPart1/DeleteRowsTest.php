@@ -31,7 +31,6 @@ class DeleteRowsTest extends StorageApiTestCase
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
-        $this->_client->markTableColumnAsIndexed($tableId, 'city');
 
         $this->_client->deleteTableRows($tableId, $filterParams);
         $tableInfo = $this->_client->getTable($tableId);
@@ -48,7 +47,6 @@ class DeleteRowsTest extends StorageApiTestCase
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
-        $this->_client->markTableColumnAsIndexed($tableId, 'city');
 
         try {
             $this->_client->deleteTableRows($tableId, array(

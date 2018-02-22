@@ -470,9 +470,12 @@ class SharingTest extends StorageApiTestCase
     private function validateTablesMetadata($sharedBucketId, $linkedBucketId)
     {
         $fieldNames = [
-            'name', 'columns',
-            'primaryKey', 'indexedColumns',
-            'name', 'dataSizeBytes', 'rowsCount',
+            'name',
+            'columns',
+            'primaryKey',
+            'name',
+            'dataSizeBytes',
+            'rowsCount',
             'lastImportDate',
         ];
 
@@ -552,14 +555,6 @@ class SharingTest extends StorageApiTestCase
             ]
         );
 
-        $this->validateTablesMetadata($bucketId, $linkedBucketId);
-
-        // new index
-        $this->_client->markTableColumnAsIndexed($tableId, 'name');
-        $this->validateTablesMetadata($bucketId, $linkedBucketId);
-
-        // drop index
-        $this->_client->removeTableColumnFromIndexed($tableId, 'name');
         $this->validateTablesMetadata($bucketId, $linkedBucketId);
 
         // remove primary key
