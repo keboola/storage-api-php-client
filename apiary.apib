@@ -502,7 +502,6 @@ the KBC Component architecture, see the [Developers documentation](https://devel
 Access to buckets can be limited by access tokens. Each bucket has a *backend* in which all tables are created:
 - Snowlake (default)
 - Redshift
-- MySQL (deprecated)
 
 ## Create or List Buckets [/v2/storage/buckets]
 ### List all buckets [GET /v2/storage/buckets?include={include}]
@@ -585,7 +584,6 @@ existing bucket from another project (see below).
         + Members
             + snowflake
             + redshift
-            + mysql
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -652,7 +650,7 @@ Linking a bucket from another project is only possible if it has been
                 "stage": "in",
                 "description": "Source bucket description",
                 "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-organizationData/tables",
-                "backend": "mysql",
+                "backend": "snowflake",
                 "isReadonly": true,
                 "sourceBucket": {
                     "id": "in.c-shared-bucket",
@@ -687,7 +685,7 @@ Obtains information about a bucket.
                 "stage": "in",
                 "description": "Google Analytics",
                 "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-ga/tables",
-                "backend": "mysql",
+                "backend": "snowflake",
                 "linkedBy": [
                     {
                         "id": "in.c-linked-bucket",
@@ -817,7 +815,7 @@ tables use the [asynchronous call](#reference/tables/create-table-asynchronously
     + delimiter (optional) - Field delimiter used in the CSV file. The default value is ','.  Use '\t' or type the char for the tabulator.
     + enclosure (optional) - Field enclosure used in the CSV file. The default value is '"'. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both.)
     + escapedBy (optional) - Escape character used in the CSV file. The default value is an empty value - no escape character is used. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both.)
-    + primaryKey (optional) - Primary key of the table. If the primary key is set, updates can be done on the table. See the CSV incremental import. The primary key can be also composed by multiple columns; the columns must be separated by a comma. For a table on the MySQL backend, the maximum number of the primary key columns is 4.
+    + primaryKey (optional) - Primary key of the table. If the primary key is set, updates can be done on the table. See the CSV incremental import. The primary key can be also composed by multiple columns; the columns must be separated by a comma.
 
 + Request (multipart/form-data)
     + Headers
@@ -896,7 +894,7 @@ Lists tables in a given bucket.
                 "gdName": "",
                 "created": "2012-07-13 09:58:47",
                 "lastImportDate": "2012-07-13 10:00:42",
-                "backend": "mysql"
+                "backend": "snowflake"
               }
             ]
 
@@ -930,7 +928,7 @@ The actual data must be provided in one of the following attributes:
     + delimiter (optional) - Field delimiter used in the CSV file. The default value is ','.  Use '\t' or type the tab char for the tabulator.
     + enclosure (optional) - Field enclosure used in the CSV file. The default value is '"'. (Note: you can specify either the `enclosure` or `escapedBy` parameter, not both.)
     + escapedBy (optional) - Escape character used in the CSV file. The default value is an empty value - no escape character is used. (Note: you can specify either the `enclosure` or `escapedBy` parameter, not both.)
-    + primaryKey (optional) - Primary key of a table. If the primary key is set, updates can be done on the table. See CSV incremental import. The primary key can be also composed by multiple columns; the columns must be separated by a comma. For a table on the MySQL backend, the maximum number of primary key columns is 4.
+    + primaryKey (optional) - Primary key of a table. If the primary key is set, updates can be done on the table. See CSV incremental import. The primary key can be also composed by multiple columns; the columns must be separated by a comma.
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -982,7 +980,6 @@ The actual data must be provided in one of the following attributes:
     + incremental (optional) - If incremental is set to 0, the target table is truncated before each import. Default is 0.
     + delimiter (optional) - Field delimiter used in the CSV file. The default value is ','.  Use '\t' or type the tab char for the tabulator.
     + enclosure (optional) - Field enclosure used in the CSV file. The default value is '"'.
-    + partial (optional, boolean) **DEPRECATED - This parameter will be removed in the future version.** If partial is set to 1, only some of the table columns can be imported. It is useful for column updates. Supported only by the MySQL backend.
     + columns[] (optional) - List of columns present in the CSV file; the first line of the file will not be treated as a header!
     + withoutHeaders (optional, boolean) - The CSV file doesn't contain headers, columns are matched by their order. If this option is used, columns option is ignored.
 
@@ -1604,7 +1601,7 @@ Deletes an existing column from an existing table. This request is [asynchronous
 ## Primary Keys [/v2/storage/tables/{table_id}/primary-key/]
 ### Create Primary Key [POST]
 If a primary key is set, updates can be done on the table. A primary key can be composed of multiple columns. 
-For a table with the MySQL backend, the maximum number of primary key columns is 4. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
+This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 
 + Parameters
     + table_id (required) - Table Id

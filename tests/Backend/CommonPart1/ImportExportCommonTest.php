@@ -484,12 +484,6 @@ class ImportExportCommonTest extends StorageApiTestCase
 
     public function testRowsCountAndSize()
     {
-        $tokenData = $this->_client->verifyToken();
-        if ($tokenData['owner']['defaultBackend'] === self::BACKEND_MYSQL) {
-            $this->markTestSkipped('Mysql sizes are approximates');
-            return;
-        }
-
         $importFileIn = new CsvFile(__DIR__ . '/../../_data/languages.csv');
         $importFileOut = new CsvFile(__DIR__ . '/../../_data/languages.more-rows.csv');
 
