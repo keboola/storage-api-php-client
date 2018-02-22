@@ -131,6 +131,16 @@ class MetadataTest extends StorageApiTestCase
         $this->assertEquals($metadatas[1]['value'], $mdList[0]['value']);
         $this->assertEquals($metadatas[1]['provider'], $mdList[0]['provider']);
         $this->assertEquals($metadatas[1]['timestamp'], $mdList[0]['timestamp']);
+
+        // test that bucket metadata is included in the get table api response
+        $bucketMetadata = array($md);
+        $metadataApi->postBucketMetadata($this->getTestBucketId(), $provider, $bucketMetadata);
+
+        $table = $this->_client->getTable($tableId);
+        $this->assertArrayHasKey('metadata', $table['bucket']);
+        $this->assertCount(1, $table['bucket']['metadata']);
+        $this->assertEquals($table['bucket']['metadata'][0]['key'], $md['key']);
+        $this->assertEquals($table['bucket']['metadata'][0]['value'], $md['value']);
     }
 
 
