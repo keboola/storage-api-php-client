@@ -136,7 +136,7 @@ class AlterTableTest extends StorageApiTestCase
             $this->_client->createTablePrimaryKey($tableId, []);
             $this->fail('primary key should not be created');
         } catch (\Keboola\StorageApi\ClientException $e) {
-            $this->assertEquals($e->getStringCode(),  'storage.validation.primaryKey');
+            $this->assertEquals($e->getStringCode(), 'storage.validation.primaryKey');
         }
     }
 
