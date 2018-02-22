@@ -128,7 +128,7 @@ class SharingTest extends StorageApiTestCase
 
     public function testInvalidSharingType()
     {
-        $this->initTestBuckets(self::BACKEND_MYSQL);
+        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
         $bucketId = reset($this->_bucketIds);
 
         try {
@@ -857,7 +857,6 @@ class SharingTest extends StorageApiTestCase
     public function sharingBackendData()
     {
         return [
-            [self::BACKEND_MYSQL],
             [self::BACKEND_SNOWFLAKE],
             [self::BACKEND_REDSHIFT],
         ];
@@ -866,8 +865,6 @@ class SharingTest extends StorageApiTestCase
     public function workspaceMixedBackendData()
     {
         return [
-            [self::BACKEND_MYSQL, self::BACKEND_SNOWFLAKE],
-            [self::BACKEND_MYSQL, self::BACKEND_REDSHIFT],
             [self::BACKEND_SNOWFLAKE, self::BACKEND_SNOWFLAKE],
             [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT],
             [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE],

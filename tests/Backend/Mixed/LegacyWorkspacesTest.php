@@ -23,7 +23,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
     public function testDataTypesLoadToRedshift($dataTypesDefinition)
     {
 
-        $bucketBackend = self::BACKEND_MYSQL;
+        $bucketBackend = self::BACKEND_SNOWFLAKE;
 
         if ($this->_client->bucketExists("out.c-mixed-test-" . $bucketBackend)) {
             $this->_client->dropBucket(
@@ -405,9 +405,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
     {
         return [
             [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT],
-            [self::BACKEND_SNOWFLAKE, self::BACKEND_MYSQL],
             [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE],
-            [self::BACKEND_REDSHIFT, self::BACKEND_MYSQL],
         ];
     }
 

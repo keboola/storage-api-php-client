@@ -270,9 +270,7 @@ class WorkspacesRenameTest extends WorkspacesTestCase
     {
         return [
             [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT],
-            [self::BACKEND_SNOWFLAKE, self::BACKEND_MYSQL],
             [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE],
-            [self::BACKEND_REDSHIFT, self::BACKEND_MYSQL],
         ];
     }
 }
