@@ -2228,59 +2228,6 @@ is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
                 }
             }
 
-## Rollback Snapshot [/v2/storage/tables/{table_id}/rollback]
-
-### Rollback Table From Snapshot [POST]
-This operation allows reverting a table to a state stored in the snapshot. Table `data`, `medatadata` and `attributes` are 
-returned into a state stored in the specified snapshot. Rollback is disabled if there is an alias on the table and 
-that alias (or the alias filter) contains columns which are not present in the snapshot. This request 
-is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
-
-+ Parameters
-    + table_id (required) - Id of the table whose content will be overwritten
-
-+ Attributes
-    + snapshotId (required, number) - Id of the snapshot
-
-+ Request (application/x-www-form-urlencoded)
-    + Headers
-
-            X-StorageApi-Token: your_token
-
-    + Body
-
-            snapshotId=333
-
-+ Response 200 (application/json)
-
-        {
-            "id": 22074628,
-            "status": "waiting",
-            "url": "https://connection.keboola.com/v2/storage/jobs/22074628",
-            "tableId": "in.c-main.test",
-            "operationName": "tableRollback",
-            "operationParams": {
-                "snapshotId": 91810,
-                "queue": "main"
-            },
-            "createdTime": "2017-02-13T15:11:38+0100",
-            "startTime": null,
-            "endTime": null,
-            "runId": null,
-            "results": null,
-            "creatorToken": {
-                "id": "27978",
-                "description": "ondrej.popelka@keboola.com"
-            },
-            "metrics": {
-                "inCompressed": false,
-                "inBytes": 0,
-                "inBytesUncompressed": 0,
-                "outCompressed": false,
-                "outBytes": 0,
-                "outBytesUncompressed": 0
-            }
-        }
 
 # Group Workspaces
 Workspaces provide a playground for your data. You can load data from your storage, explore or modify it
