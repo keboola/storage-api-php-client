@@ -681,7 +681,16 @@ class Client
      * @param array $options
      *    Available options:
      *  - incremental
-     *  - partial
+     *  - delimiter
+     *  - enclosure
+     *  - escapedBy
+     *  - dataFileId
+     *  - dataUrl
+     *  - dataTableName
+     *  - dataWorkspaceId
+     *  - data
+     *  - withoutHeaders
+     *  - columns
      * @return mixed|string
      * @throws ClientException
      */
@@ -773,7 +782,6 @@ class Client
 
         return array_merge($filteredOptions, array(
             "incremental" => isset($options['incremental']) ? (bool)$options['incremental'] : false,
-            "partial" => isset($options['partial']) ? (bool)$options['partial'] : false,
         ));
     }
 
