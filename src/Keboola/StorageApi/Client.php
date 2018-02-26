@@ -90,9 +90,9 @@ class Client
      *     - url: (required) Storage API URL
      *     - userAgent: custom user agent
      *     - backoffMaxTries: backoff maximum number of attempts
-     *     - maxJobPollWaitPeriodSeconds: maximum time period between job status check in `waitForJob` method
      *     - awsRetries: number of aws client retries
      *     - logger: instance of Psr\Log\LoggerInterface
+     *     - jobPollRetryDelay: callable method which determines wait period for job polling
      */
     public function __construct(array $config = array())
     {
@@ -131,14 +131,9 @@ class Client
             if (!is_callable($config['jobPollRetryDelay'])) {
                 throw new \InvalidArgumentException('jobPollRetryDelay must be callable');
             }
-            if (isset($config['maxJobPollWaitPeriodSeconds'])) {
-                throw new \InvalidArgumentException('the jobPollRetryDelay option cannot be used with the maxJobPollWaitPeriodSeconds option');
-            }
             $this->jobPollRetryDelay = $config['jobPollRetryDelay'];
         } else {
-            $this->jobPollRetryDelay = self::getDefaultJobPollDelay(
-                isset($config['maxJobPollWaitPeriodSeconds']) ? (int) $config['maxJobPollWaitPeriodSeconds'] : self::DEFAULT_MAX_JOB_POLL_WAIT_SECONDS
-            );
+            $this->jobPollRetryDelay = self::getDefaultJobPollDelay();
         }
 
         $this->initClient();
@@ -163,13 +158,12 @@ class Client
     }
 
     /**
-     * @param $maxJobPollWaitPeriodSeconds
      * @return callable
      */
-    private static function getDefaultJobPollDelay($maxJobPollWaitPeriodSeconds)
+    private static function getDefaultJobPollDelay()
     {
-        return function ($tries) use ($maxJobPollWaitPeriodSeconds) {
-            return min(pow(2, $tries), $maxJobPollWaitPeriodSeconds);
+        return function ($tries) {
+            return min(pow(2, $tries), self::DEFAULT_MAX_JOB_POLL_WAIT_SECONDS);
         };
     }
 
