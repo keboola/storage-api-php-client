@@ -36,7 +36,7 @@ class JobPollDelayTest extends StorageApiTestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException \TypeError
      */
     public function testInvalidJobPollDelay()
     {
@@ -46,21 +46,6 @@ class JobPollDelayTest extends StorageApiTestCase
             'token' => STORAGE_API_TOKEN,
             'url' => STORAGE_API_URL,
             'jobPollRetryDelay' => $dumbDelay
-        ));
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testInvalidJobPollDelayParameters()
-    {
-        $dumbDelay = 'wait for 30 seconds';
-
-        $client = new \Keboola\StorageApi\Client(array(
-            'token' => STORAGE_API_TOKEN,
-            'url' => STORAGE_API_URL,
-            'jobPollRetryDelay' => $dumbDelay,
-            'maxJobPollDelayPeriodSeconds' => 20,
         ));
     }
 }

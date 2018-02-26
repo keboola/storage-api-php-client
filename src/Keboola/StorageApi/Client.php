@@ -128,12 +128,9 @@ class Client
         }
 
         if (isset($config['jobPollRetryDelay'])) {
-            if (!is_callable($config['jobPollRetryDelay'])) {
-                throw new \InvalidArgumentException('jobPollRetryDelay must be callable');
-            }
-            $this->jobPollRetryDelay = $config['jobPollRetryDelay'];
+            $this->setJobPollRetryDelay($config['jobPollRetryDelay']);
         } else {
-            $this->jobPollRetryDelay = self::getDefaultJobPollDelay();
+            $this->setJobPollRetryDelay(self::getDefaultJobPollDelay());
         }
 
         $this->initClient();
@@ -155,6 +152,11 @@ class Client
             'base_uri' => $this->apiUrl,
             'handler' => $handlerStack,
         ]);
+    }
+
+    private function setJobPollRetryDelay(callable $jobPollRetryDelay)
+    {
+        $this->jobPollRetryDelay = $jobPollRetryDelay;
     }
 
     /**
