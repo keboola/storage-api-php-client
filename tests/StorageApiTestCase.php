@@ -35,7 +35,7 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
             'token' => STORAGE_API_TOKEN,
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
-            'maxJobPollWaitPeriodSeconds' => 1,
+            'jobPollRetryDelay' => function() { return 1; },
         ));
     }
 
