@@ -26,8 +26,7 @@ class JobPollDelayTest extends StorageApiTestCase
         $client = new \Keboola\StorageApi\Client(array(
             'token' => STORAGE_API_TOKEN,
             'url' => STORAGE_API_URL,
-            'jobPollRetryDelay' => $linearDelay,
-            'maxJobPollWaitPeriodSeconds' => 20,
+            'jobPollRetryDelay' => $linearDelay
         ));
 
         $csvFile = new CsvFile(__DIR__ . '/../_data/languages.csv');
@@ -46,8 +45,22 @@ class JobPollDelayTest extends StorageApiTestCase
         $client = new \Keboola\StorageApi\Client(array(
             'token' => STORAGE_API_TOKEN,
             'url' => STORAGE_API_URL,
+            'jobPollRetryDelay' => $dumbDelay
+        ));
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testInvalidJobPollDelayParameters()
+    {
+        $dumbDelay = 'wait for 30 seconds';
+
+        $client = new \Keboola\StorageApi\Client(array(
+            'token' => STORAGE_API_TOKEN,
+            'url' => STORAGE_API_URL,
             'jobPollRetryDelay' => $dumbDelay,
-            'maxJobPollWaitPeriodSeconds' => 20,
+            'maxJobPollDelayPeriodSeconds' => 20,
         ));
     }
 }
