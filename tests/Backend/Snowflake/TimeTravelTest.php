@@ -205,7 +205,9 @@ class TimeTravelTest extends StorageApiTestCase
             'token' => $outputBucketToken['token'],
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
-            'jobPollRetryDelay' => function() { return 1; }
+            'jobPollRetryDelay' => function () {
+                return 1;
+            }
         ]);
 
         $description = 'Input bucket only read token';
@@ -218,7 +220,9 @@ class TimeTravelTest extends StorageApiTestCase
             'token' => $inputBucketToken['token'],
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
-            'jobPollRetryDelay' => function() { return 1; }
+            'jobPollRetryDelay' => function () {
+                return 1;
+            }
         ]);
 
         $description = 'Minimal permissions token';
@@ -232,7 +236,9 @@ class TimeTravelTest extends StorageApiTestCase
             'token' => $minimalToken['token'],
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
-            'jobPollRetryDelay' => function() { return 1; }
+            'jobPollRetryDelay' => function () {
+                return 1;
+            }
         ]);
 
         // test that only output bucket permissions will fail
