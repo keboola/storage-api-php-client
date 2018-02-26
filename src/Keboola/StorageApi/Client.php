@@ -52,7 +52,7 @@ class Client
     /**
      * @var callable|null
      */
-    private $retryDelay;
+    private $jobPollRetryDelay;
 
     /**
      * @var LoggerInterface
@@ -131,10 +131,10 @@ class Client
             $this->maxJobPollWaitPeriodSeconds = (int) $config['maxJobPollWaitPeriodSeconds'];
         }
 
-        if (isset($config['retryDelay'])) {
-            $this->retryDelay = $config['retryDelay'];
+        if (isset($config['jobPollRetryDelay'])) {
+            $this->jobPollRetryDelay = $config['jobPollRetryDelay'];
         } else {
-            $this->retryDelay = self::getDefaultJobPollDelay($this->maxJobPollWaitPeriodSeconds);
+            $this->jobPollRetryDelay = self::getDefaultJobPollDelay($this->maxJobPollWaitPeriodSeconds);
         }
 
         $this->initClient();
@@ -2024,7 +2024,7 @@ class Client
         // poll for status
         do {
             if ($retries > 0) {
-                $waitSeconds = call_user_func($this->retryDelay, $retries);
+                $waitSeconds = call_user_func($this->jobPollRetryDelay, $retries);
                 sleep($waitSeconds);
             }
             $retries++;
