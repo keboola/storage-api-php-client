@@ -35,4 +35,19 @@ class JobPollDelayTest extends StorageApiTestCase
 
         $this->assertTrue($methodUsed);
     }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testInvalidJobPollDelay()
+    {
+        $dumbDelay = 'wait for 30 seconds';
+
+        $client = new \Keboola\StorageApi\Client(array(
+            'token' => STORAGE_API_TOKEN,
+            'url' => STORAGE_API_URL,
+            'jobPollRetryDelay' => $dumbDelay,
+            'maxJobPollWaitPeriodSeconds' => 20,
+        ));
+    }
 }
