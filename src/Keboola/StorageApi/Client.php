@@ -29,6 +29,8 @@ class Client
 
     const VERSION = '9.0.0';
 
+    const DEFAULT_MAX_JOB_POLL_WAIT_SECONDS = 20;
+
     // Token string
     public $token;
 
@@ -41,8 +43,6 @@ class Client
     private $backoffMaxTries = 11;
 
     private $awsRetries = 15;
-
-    private $maxJobPollWaitPeriodSeconds = 20;
 
     private $awsDebug = false;
 
@@ -127,17 +127,15 @@ class Client
             $this->setLogger($config['logger']);
         }
 
-        if (isset($config['maxJobPollWaitPeriodSeconds'])) {
-            $this->maxJobPollWaitPeriodSeconds = (int) $config['maxJobPollWaitPeriodSeconds'];
-        }
-
         if (isset($config['jobPollRetryDelay'])) {
             if (!is_callable($config['jobPollRetryDelay'])) {
                 throw new \InvalidArgumentException('jobPollRetryDelay must be callable');
             }
             $this->jobPollRetryDelay = $config['jobPollRetryDelay'];
         } else {
-            $this->jobPollRetryDelay = self::getDefaultJobPollDelay($this->maxJobPollWaitPeriodSeconds);
+            $this->jobPollRetryDelay = self::getDefaultJobPollDelay(
+                isset($config['maxJobPollWaitPeriodSeconds']) ? (int) $config['maxJobPollWaitPeriodSeconds'] : self::DEFAULT_MAX_JOB_POLL_WAIT_SECONDS
+            );
         }
 
         $this->initClient();
