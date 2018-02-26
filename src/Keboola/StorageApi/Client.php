@@ -131,6 +131,9 @@ class Client
             if (!is_callable($config['jobPollRetryDelay'])) {
                 throw new \InvalidArgumentException('jobPollRetryDelay must be callable');
             }
+            if (isset($config['maxJobPollWaitPeriodSeconds'])) {
+                throw new \InvalidArgumentException('the jobPollRetryDelay option cannot be used with the maxJobPollWaitPeriodSeconds option');
+            }
             $this->jobPollRetryDelay = $config['jobPollRetryDelay'];
         } else {
             $this->jobPollRetryDelay = self::getDefaultJobPollDelay(
