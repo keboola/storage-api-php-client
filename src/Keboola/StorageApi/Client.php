@@ -29,8 +29,6 @@ class Client
 
     const VERSION = '9.0.0';
 
-    const DEFAULT_MAX_JOB_POLL_WAIT_SECONDS = 20;
-
     // Token string
     public $token;
 
@@ -130,7 +128,7 @@ class Client
         if (isset($config['jobPollRetryDelay'])) {
             $this->setJobPollRetryDelay($config['jobPollRetryDelay']);
         } else {
-            $this->setJobPollRetryDelay(self::getDefaultJobPollDelay());
+            $this->setJobPollRetryDelay(createSimpleJobPollDelay());
         }
 
         $this->initClient();
@@ -157,16 +155,6 @@ class Client
     private function setJobPollRetryDelay(callable $jobPollRetryDelay)
     {
         $this->jobPollRetryDelay = $jobPollRetryDelay;
-    }
-
-    /**
-     * @return callable
-     */
-    private static function getDefaultJobPollDelay()
-    {
-        return function ($tries) {
-            return min(pow(2, $tries), self::DEFAULT_MAX_JOB_POLL_WAIT_SECONDS);
-        };
     }
 
     /**
