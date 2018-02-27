@@ -9,9 +9,11 @@
 
 namespace Keboola\Test\Common;
 
+use Keboola\StorageApi\ClientException;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
+use Keboola\StorageApi\Client;
 
 class TokensTest extends StorageApiTestCase
 {
@@ -481,29 +483,23 @@ class TokensTest extends StorageApiTestCase
     public function testExpiredToken()
     {
         $description = 'Out read token with expiration';
-        $bucketPermissions = array(
-            $this->_outBucketId => 'read'
-        );
+        $bucketPermissions =[
+            $this->_outBucketId => 'read',
+        ];
         $oneSecondExpiration = 1;
         $tokenId = $this->_client->createToken($bucketPermissions, $description, $oneSecondExpiration);
         $token = $this->_client->getToken($tokenId);
         $tries = 0;
 
-        $client = null;
-        try {
-            while ($tries < 7) {
-                $client = new \Keboola\StorageApi\Client(array(
-                    'token' => $token['token'],
-                    'url' => STORAGE_API_URL,
-                ));
-                $client->verifyToken();
-                sleep(pow(2, $tries++));
-            }
-            $this->fail('token should be invalid');
-        } catch (\Keboola\StorageApi\ClientException $e) {
-            if ($e->getStringCode() !== 'storage.tokenExpired') {
-                $this->fail('storage.tokenExpired code should be rerturned from API.');
-            }
+        $this->expectException(ClientException::class);
+        while ($tries < 7) {
+            $client = new Client([
+                'token' => $token['token'],
+                'url' => STORAGE_API_URL,
+            ]);
+            $client->verifyToken();
+            sleep(pow(2, $tries++));
         }
+        $this->fail('token should be invalid');
     }
 }
