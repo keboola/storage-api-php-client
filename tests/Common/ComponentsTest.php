@@ -2699,4 +2699,40 @@ class ComponentsTest extends StorageApiTestCase
         $configurationResponse = $components->getConfiguration('wr-db', $newConfig['id']);
         $this->assertEquals($state, $configurationResponse['state']);
     }
+
+    public function testRevertingConfigRowVersionWillNotCreateEmptyConfiguration()
+    {
+        $components = new \Keboola\StorageApi\Components($this->_client);
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $componentId = 'wr-db';
+        $configurationId = 'main-1';
+        $configuration
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setName('Main');
+        $components->addConfiguration($configuration);
+        $configurationRow = new ConfigurationRow($configuration);
+        $configurationRow->setChangeDescription('Test description');
+        $rowArray = $components->addConfigurationRow($configurationRow);
+        $configurationArray = $components->getConfiguration($componentId, $configurationId);
+        $components->deleteConfigurationRow($componentId, $configurationId, $rowArray['id']);
+        $components->rollbackConfiguration($componentId, $configurationId,$configurationArray['version']);
+        $rollbackedConfigurationArray = $components->getConfiguration($componentId, $configurationId);
+        $expected = [
+            'id' => '393',
+            'name' => '',
+            'description' => '',
+            'configuration' => [],
+            'isDisabled' => false,
+            'version' => 2,
+            'created' => '2018-02-28T12:25:14+0100',
+            'creatorToken' => [
+                'id' => 1,
+                'description' => 'dev@keboola.com',
+            ],
+            'changeDescription' => 'Test description',
+            'state' => [],
+        ];
+        $this->assertEquals($expected, $rollbackedConfigurationArray['rows'][0]);
+    }
 }
