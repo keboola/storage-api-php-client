@@ -1674,91 +1674,6 @@ Removes the primary key from a table. This request is [asynchronous](#introducti
                }
             }
 
-## Create Column Index [/v2/storage/buckets/{table_id}/indexed-columns/]
-
-### Mark column as indexed [POST]
-
-**Indexed columns are deprecated and no longer required, filtering is now allowed on all table columns.**
-
-Indexed columns can be used to filter data when [exporting](#reference/tables/unload-data-asynchronously/asynchronous-export).
-Columns in a primary key are automatically indexed. The number of indexed columns is limited to 4 including the primary key.
-This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
-
-+ Parameters
-    + table_id (required) - Table Id
-
-+ Request (application/x-www-form-urlencoded)
-    + Headers
-
-            X-StorageApi-Token: your_token
-
-    + Body
-
-            name=authorName
-
-+ Response 202 (application/json)
-    + Body
-
-            {
-               "id":1189,
-               "status":"waiting",
-               "url":"https:\/\/connection.keboola.com\/v2\/storage\/jobs\/1189",
-               "tableId":"in.c-main.another",
-               "operationName":"tableIndexedColumnAdd",
-               "operationParams":{
-                  "name":"new-column"
-               },
-               "createdTime":"2013-07-08T10:01:03+0200",
-               "startTime":null,
-               "endTime":null,
-               "runId":null,
-               "results":null,
-               "creatorToken":{
-                  "id":"221",
-                  "name":"Master Token"
-               }
-            }
-
-## Manage Column Indexes [/v2/storage/tables/{table_id}/indexed-columns/{column_name}]
-
-### Remove Column Index [DELETE]
-
-**Indexed columns are deprecated and no longer required, filtering is now allowed on all table columns.**
-
-Removes a column from an index. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
-
-+ Parameters
-    + table_id (required) - Table Id
-    + column_name (required) - Column name
-
-+ Request
-    + Headers
-
-            X-StorageApi-Token: your_token
-
-+ Response 202 (application/json)
-    + Body
-
-            {
-               "id":1189,
-               "status":"waiting",
-               "url":"https:\/\/connection.keboola.com\/v2\/storage\/jobs\/1189",
-               "tableId":"in.c-main.another",
-               "operationName":"tableIndexedColumnDelete",
-               "operationParams":{
-                  "name":"new-column"
-               },
-               "createdTime":"2013-07-08T10:01:03+0200",
-               "startTime":null,
-               "endTime":null,
-               "runId":null,
-               "results":null,
-               "creatorToken":{
-                  "id":"221",
-                  "name":"Master Token"
-               }
-            }
-
 
 ## Manage Table Rows [/v2/storage/tables/{table_id}/rows]
 
@@ -1823,10 +1738,6 @@ The filter parameter `aliasFilter` must be set during an alias table creation or
 * **column** - Filtered by column name
 * **operator** - Filter operator: `eq`, `ne`
 * **values[]** - One or more filter values
-
-There are some limitations:
-* Filtering is enabled only on indexed tables
-* Index on a filtered column of the source table cannot be removed
 
 #### Alias table columns
 By default, the alias columns are automatically synced with the source table. You can disable this behaviour
