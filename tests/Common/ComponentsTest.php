@@ -9,12 +9,9 @@
 
 namespace Keboola\Test\Common;
 
-use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
-use Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions;
-use Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions;
 use Keboola\Test\StorageApiTestCase;
 use Symfony\Component\Process\Process;
 
@@ -2710,29 +2707,23 @@ class ComponentsTest extends StorageApiTestCase
             ->setComponentId($componentId)
             ->setConfigurationId($configurationId)
             ->setName('Main');
-        $components->addConfiguration($configuration);
         $configurationRow = new ConfigurationRow($configuration);
         $configurationRow->setChangeDescription('Test description');
+
+        $components->addConfiguration($configuration);
         $rowArray = $components->addConfigurationRow($configurationRow);
-        $configurationArray = $components->getConfiguration($componentId, $configurationId);
+        $originalConfigurationArray = $components->getConfiguration($componentId, $configurationId);
         $components->deleteConfigurationRow($componentId, $configurationId, $rowArray['id']);
-        $components->rollbackConfiguration($componentId, $configurationId,$configurationArray['version']);
+        $components->rollbackConfiguration($componentId, $configurationId, $originalConfigurationArray['version']);
         $rollbackedConfigurationArray = $components->getConfiguration($componentId, $configurationId);
-        $expected = [
-            'id' => '393',
-            'name' => '',
-            'description' => '',
-            'configuration' => [],
-            'isDisabled' => false,
-            'version' => 2,
-            'created' => '2018-02-28T12:25:14+0100',
-            'creatorToken' => [
-                'id' => 1,
-                'description' => 'dev@keboola.com',
-            ],
-            'changeDescription' => 'Test description',
-            'state' => [],
-        ];
-        $this->assertEquals($expected, $rollbackedConfigurationArray['rows'][0]);
+
+        // we're not comparing the same row
+        $this->assertNotEquals($originalConfigurationArray['rows'][0]['version'], $rollbackedConfigurationArray['rows'][0]['version']);
+        $this->assertNotEmpty($rollbackedConfigurationArray['rows'][0]['version']);
+        // now it's sure version is a different number than original, so set it to original to allow easy comparison
+        $rollbackedConfigurationArray['rows'][0]['version'] = $originalConfigurationArray['rows'][0]['version'];
+
+        // the rest should be the same
+        $this->assertEquals($originalConfigurationArray['rows'][0], $rollbackedConfigurationArray['rows'][0]);
     }
 }
