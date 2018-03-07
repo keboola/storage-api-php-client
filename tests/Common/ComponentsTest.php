@@ -2092,12 +2092,12 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(2, $component['version']);
 
         // update row 1st - without change
-        $row = $components->updateConfigurationRow($configurationRow);
+        $rowVersion1 = $components->updateConfigurationRow($configurationRow);
 
-        $this->assertEquals(1, $row['version']);
-        $this->assertEquals('', $row['name']);
-        $this->assertEquals('', $row['description']);
-        $this->assertEquals(false, $row['isDisabled']);
+        $this->assertEquals(1, $rowVersion1['version']);
+        $this->assertEquals('', $rowVersion1['name']);
+        $this->assertEquals('', $rowVersion1['description']);
+        $this->assertEquals(false, $rowVersion1['isDisabled']);
 
 
         $configurationData = array('test' => 1);
@@ -2106,14 +2106,14 @@ class ComponentsTest extends StorageApiTestCase
             ->setChangeDescription('some change');
 
         // update row 2nd
-        $row = $components->updateConfigurationRow($configurationRow);
+        $rowVersion2 = $components->updateConfigurationRow($configurationRow);
 
-        $this->assertEquals(2, $row['version']);
-        $this->assertEquals($configurationData, $row['configuration']);
-        $this->assertEquals('some change', $row['changeDescription']);
-        $this->assertEquals('', $row['name']);
-        $this->assertEquals('', $row['description']);
-        $this->assertEquals(false, $row['isDisabled']);
+        $this->assertEquals(2, $rowVersion2['version']);
+        $this->assertEquals($configurationData, $rowVersion2['configuration']);
+        $this->assertEquals('some change', $rowVersion2['changeDescription']);
+        $this->assertEquals('', $rowVersion2['name']);
+        $this->assertEquals('', $rowVersion2['description']);
+        $this->assertEquals(false, $rowVersion2['isDisabled']);
 
 
         // update row 3rd
@@ -2121,32 +2121,32 @@ class ComponentsTest extends StorageApiTestCase
         $configurationRow->setConfiguration($configurationData)
             ->setChangeDescription(null);
 
-        $row = $components->updateConfigurationRow($configurationRow);
+        $rowVersion3 = $components->updateConfigurationRow($configurationRow);
 
-        $this->assertEquals(3, $row['version']);
-        $this->assertEquals($configurationData, $row['configuration']);
-        $this->assertNull($row['changeDescription']);
+        $this->assertEquals(3, $rowVersion3['version']);
+        $this->assertEquals($configurationData, $rowVersion3['configuration']);
+        $this->assertNull($rowVersion3['changeDescription']);
 
         // rollback to version 1
-        $rowVersion = $components->rollbackConfigurationRow(
+        $rowVersion4 = $components->rollbackConfigurationRow(
             'wr-db',
             'main-1',
             $configurationRow->getRowId(),
             2
         );
 
-        $this->assertArrayHasKey('id', $rowVersion);
-        $this->assertArrayHasKey('version', $rowVersion);
-        $this->assertArrayHasKey('configuration', $rowVersion);
-        $this->assertArrayHasKey('isDisabled', $rowVersion);
-        $this->assertArrayHasKey('name', $rowVersion);
-        $this->assertArrayHasKey('description', $rowVersion);
-        $this->assertEquals("Rollback from version 2", $rowVersion['changeDescription']);
-        $this->assertEquals($originalRow['created'], $rowVersion['created']);
+        $this->assertArrayHasKey('id', $rowVersion4);
+        $this->assertArrayHasKey('version', $rowVersion4);
+        $this->assertArrayHasKey('configuration', $rowVersion4);
+        $this->assertArrayHasKey('isDisabled', $rowVersion4);
+        $this->assertArrayHasKey('name', $rowVersion4);
+        $this->assertArrayHasKey('description', $rowVersion4);
+        $this->assertEquals("Rollback from version 2", $rowVersion4['changeDescription']);
+        $this->assertEquals($originalRow['created'], $rowVersion4['created']);
 
-        $this->assertEquals($configurationRow->getRowId(), $rowVersion['id']);
-        $this->assertEquals(4, $rowVersion['version']);
-        $this->assertEquals(['test' => 1], $rowVersion['configuration']);
+        $this->assertEquals($configurationRow->getRowId(), $rowVersion4['id']);
+        $this->assertEquals(4, $rowVersion4['version']);
+        $this->assertEquals(['test' => 1], $rowVersion4['configuration']);
 
         $versions = $components->listConfigurationRowVersions(
             (new \Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions())
