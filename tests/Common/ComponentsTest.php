@@ -2135,18 +2135,22 @@ class ComponentsTest extends StorageApiTestCase
             2
         );
 
-        $this->assertArrayHasKey('id', $rowVersion4);
-        $this->assertArrayHasKey('version', $rowVersion4);
-        $this->assertArrayHasKey('configuration', $rowVersion4);
-        $this->assertArrayHasKey('isDisabled', $rowVersion4);
-        $this->assertArrayHasKey('name', $rowVersion4);
-        $this->assertArrayHasKey('description', $rowVersion4);
-        $this->assertEquals("Rollback from version 2", $rowVersion4['changeDescription']);
-        $this->assertEquals($originalRow['created'], $rowVersion4['created']);
+        $this->assertEquals(4, $rowVersion4['version'], 'Rollback creates new version of the row');
+        $this->assertEquals('Rollback from version 2', $rowVersion4['changeDescription'], 'Rollback creates automatic description');
+        $this->assertArrayEqualsExceptKeys($rowVersion2, $rowVersion4, ['version', 'changeDescription']);
 
-        $this->assertEquals($configurationRow->getRowId(), $rowVersion4['id']);
-        $this->assertEquals(4, $rowVersion4['version']);
-        $this->assertEquals(['test' => 1], $rowVersion4['configuration']);
+        // rollback to version 1
+        $rowVersion5 = $components->rollbackConfigurationRow(
+            'wr-db',
+            'main-1',
+            $configurationRow->getRowId(),
+            3,
+            'Custom rollback message'
+        );
+
+        $this->assertEquals(5, $rowVersion5['version'], 'Rollback creates new version of the row');
+        $this->assertEquals('Custom rollback message', $rowVersion5['changeDescription']);
+        $this->assertArrayEqualsExceptKeys($rowVersion3, $rowVersion5, ['version', 'changeDescription']);
 
         $versions = $components->listConfigurationRowVersions(
             (new \Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions())
@@ -2155,7 +2159,7 @@ class ComponentsTest extends StorageApiTestCase
                 ->setRowId($configurationRow->getRowId())
         );
 
-        $this->assertCount(4, $versions);
+        $this->assertCount(5, $versions);
     }
 
     public function testComponentConfigRowVersionCreate()
