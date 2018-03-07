@@ -9,6 +9,7 @@
 
 namespace Keboola\Test;
 
+use function array_key_exists;
 use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Options\ListFilesOptions;
@@ -28,6 +29,19 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
      * @var \Keboola\StorageApi\Client
      */
     protected $_client;
+
+    public function assertArrayEqualsExceptKeys($expected, $actual, array $exceptKeys)
+    {
+        foreach ($exceptKeys as $exceptKey) {
+            static::assertArrayHasKey($exceptKey, $actual);
+            if (array_key_exists($exceptKey, $expected) && array_key_exists($exceptKey, $actual)) {
+                static::assertNotEquals($expected[$exceptKey], $actual[$exceptKey]);
+            }
+            unset($actual[$exceptKey]);
+            unset($expected[$exceptKey]);
+        }
+        static::assertEquals($expected, $actual);
+    }
 
     public function setUp()
     {
