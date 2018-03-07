@@ -2717,13 +2717,8 @@ class ComponentsTest extends StorageApiTestCase
         $components->rollbackConfiguration($componentId, $configurationId, $originalConfigurationArray['version']);
         $rollbackedConfigurationArray = $components->getConfiguration($componentId, $configurationId);
 
-        // we're not comparing the same row
-        $this->assertNotEquals($originalConfigurationArray['rows'][0]['version'], $rollbackedConfigurationArray['rows'][0]['version']);
-        $this->assertNotEmpty($rollbackedConfigurationArray['rows'][0]['version']);
-        // now it's sure version is a different number than original, so set it to original to allow easy comparison
-        $rollbackedConfigurationArray['rows'][0]['version'] = $originalConfigurationArray['rows'][0]['version'];
-
-        // the rest should be the same
-        $this->assertEquals($originalConfigurationArray['rows'][0], $rollbackedConfigurationArray['rows'][0]);
+        $originalConfigRow = $originalConfigurationArray['rows'][0];
+        $rollbackedConfigRow = $rollbackedConfigurationArray['rows'][0];
+        $this->assertArrayEqualsExceptKeys($originalConfigRow, $rollbackedConfigRow, ['version']);
     }
 }
