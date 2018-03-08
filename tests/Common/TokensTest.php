@@ -62,16 +62,17 @@ class TokensTest extends StorageApiTestCase
     public function testTokenProperties()
     {
         $token = $this->_client->verifyToken();
-        $this->arrayHasKey('created', $token);
-        $this->arrayHasKey('description', $token);
-        $this->arrayHasKey('id', $token);
+        $this->assertArrayHasKey('created', $token);
+        $this->assertArrayHasKey('refreshed', $token);
+        $this->assertArrayHasKey('description', $token);
+        $this->assertArrayHasKey('id', $token);
         $this->assertTrue($token['isMasterToken']);
         $this->assertTrue($token['canManageBuckets']);
         $this->assertTrue($token['canReadAllFileUploads']);
         $this->assertFalse($token['isDisabled']);
         $this->assertNotEmpty($token['bucketPermissions']);
-        $this->arrayHasKey('owner', $token);
-        $this->arrayHasKey('admin', $token);
+        $this->assertArrayHasKey('owner', $token);
+        $this->assertArrayHasKey('admin', $token);
 
         $owner = $token['owner'];
         $this->assertInternalType('integer', $owner['dataSizeBytes']);
@@ -95,12 +96,12 @@ class TokensTest extends StorageApiTestCase
                 continue;
             }
 
-            $this->arrayHasKey($currentToken['admin']);
+            $this->assertArrayHasKey('admin', $currentToken);
 
             $admin = $currentToken['admin'];
-            $this->arrayHasKey('id', $admin);
-            $this->arrayHasKey('name', $admin);
-            $this->arrayHasKey('features', $admin);
+            $this->assertArrayHasKey('id', $admin);
+            $this->assertArrayHasKey('name', $admin);
+            $this->assertArrayHasKey('features', $admin);
             return;
         }
 
@@ -203,11 +204,14 @@ class TokensTest extends StorageApiTestCase
         );
         $tokenId = $this->_client->createToken($bucketPermissions, $description);
         $token = $this->_client->getToken($tokenId);
+        $created = strtotime($token['created']);
+        sleep(1);
 
         $this->_client->refreshToken($tokenId);
         $tokenAfterRefresh = $this->_client->getToken($tokenId);
 
         $this->assertNotEquals($token['token'], $tokenAfterRefresh['token']);
+        $this->assertGreaterThan($created, strtotime($tokenAfterRefresh['refreshed']));
     }
 
 
