@@ -101,7 +101,6 @@ class TokensTest extends StorageApiTestCase
             $admin = $currentToken['admin'];
             $this->assertArrayHasKey('id', $admin);
             $this->assertArrayHasKey('name', $admin);
-            $this->assertArrayHasKey('features', $admin);
             return;
         }
 
