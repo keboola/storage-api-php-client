@@ -2127,7 +2127,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals($configurationData, $rowVersion3['configuration']);
         $this->assertNull($rowVersion3['changeDescription']);
 
-        // rollback to version 1
+        // rollback to version 2
         $rowVersion4 = $components->rollbackConfigurationRow(
             'wr-db',
             'main-1',
@@ -2139,7 +2139,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals('Rollback from version 2', $rowVersion4['changeDescription'], 'Rollback creates automatic description');
         $this->assertArrayEqualsExceptKeys($rowVersion2, $rowVersion4, ['version', 'changeDescription']);
 
-        // rollback to version 1
+        // rollback to version 3
         $rowVersion5 = $components->rollbackConfigurationRow(
             'wr-db',
             'main-1',
