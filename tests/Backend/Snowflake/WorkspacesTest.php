@@ -85,7 +85,7 @@ class WorkspacesTest extends StorageApiTestCase
         $mapping = array(
             "source" => $sourceTableId,
             "destination" => "offsetTestLoaded",
-            "timeOffset" => -20
+            "atOffsetSeconds" => -20
         );
 
         $input = array($mapping);
@@ -135,7 +135,7 @@ class WorkspacesTest extends StorageApiTestCase
         $mapping = array(
             "source" => $sourceTableId,
             "destination" => "offsetTestLoaded",
-            "timestampOffset" => $timestamp
+            "atTimestamp" => $timestamp
         );
 
         $input = array($mapping);

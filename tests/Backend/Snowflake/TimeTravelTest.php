@@ -303,7 +303,7 @@ class TimeTravelTest extends StorageApiTestCase
         );
 
         $results = $this->_client->exportTableAsync($sourceTableId, [
-            'timeOffset' => -25
+            'atOffsetSeconds' => -25
         ]);
 
         $exportedFile = $this->_client->getFile(
@@ -362,7 +362,7 @@ class TimeTravelTest extends StorageApiTestCase
         );
 
         $results = $this->_client->exportTableAsync($sourceTableId, [
-            'timestampOffset' => $timestamp
+            'atTimestamp' => $timestamp
         ]);
 
         $exportedFile = $this->_client->getFile(

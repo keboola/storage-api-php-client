@@ -1175,8 +1175,8 @@ class Client
             'whereColumn',
             'whereOperator',
             'gzip',
-            'timeOffset',
-            'timestampOffset',
+            'atOffsetSeconds',
+            'atTimestamp',
         );
 
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
