@@ -277,4 +277,120 @@ class TimeTravelTest extends StorageApiTestCase
 
         $this->assertNotNull($repllicaTableId);
     }
+
+    public function testExportAtOffset()
+    {
+        $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
+
+        $sourceTable = 'languages_' . date('Ymd_His');
+
+        $sourceTableId = $this->_client->createTable(
+            $this->getTestBucketId(),
+            $sourceTable,
+            $importFile,
+            [
+                'primaryKey' => 'id',
+            ]
+        );
+        sleep(25);
+
+        $this->_client->writeTable(
+            $sourceTableId,
+            new CsvFile(__DIR__ . '/../../_data/languages.increment.csv'),
+            [
+                'incremental' => true,
+            ]
+        );
+
+        $results = $this->_client->exportTableAsync($sourceTableId, [
+            'atOffsetSeconds' => -25
+        ]);
+
+        $exportedFile = $this->_client->getFile(
+            $results['file']['id'],
+            (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true)
+        );
+
+        $manifest = json_decode(file_get_contents($exportedFile['url']), true);
+
+        $s3Client = new \Aws\S3\S3Client([
+            'credentials' => [
+                'key' => $exportedFile['credentials']['AccessKeyId'],
+                'secret' => $exportedFile['credentials']['SecretAccessKey'],
+                'token' => $exportedFile['credentials']['SessionToken'],
+            ],
+            'version' => 'latest',
+            'region' => $exportedFile['region']
+        ]);
+        $s3Client->registerStreamWrapper();
+
+        $csv = "";
+        foreach ($manifest['entries'] as $filePart) {
+            $csv .= file_get_contents($filePart['url']);
+        }
+
+        $parsedData = Client::parseCsv($csv, false, ",", '"');
+        $origData = Client::parseCsv(file_get_contents($importFile), false, ",", '"');
+        array_shift($origData); // remove header
+        $this->assertArrayEqualsSorted($origData, $parsedData, 0);
+    }
+
+    public function testExportAtTimestamp()
+    {
+        $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
+
+        $sourceTable = 'languages_' . date('Ymd_His');
+
+        $sourceTableId = $this->_client->createTable(
+            $this->getTestBucketId(),
+            $sourceTable,
+            $importFile,
+            [
+                'primaryKey' => 'id',
+            ]
+        );
+        sleep(10);
+        $timestamp = date(DATE_ATOM);
+        sleep(25);
+
+        $this->_client->writeTable(
+            $sourceTableId,
+            new CsvFile(__DIR__ . '/../../_data/languages.increment.csv'),
+            [
+                'incremental' => true,
+            ]
+        );
+
+        $results = $this->_client->exportTableAsync($sourceTableId, [
+            'atTimestamp' => $timestamp
+        ]);
+
+        $exportedFile = $this->_client->getFile(
+            $results['file']['id'],
+            (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true)
+        );
+
+        $manifest = json_decode(file_get_contents($exportedFile['url']), true);
+
+        $s3Client = new \Aws\S3\S3Client([
+            'credentials' => [
+                'key' => $exportedFile['credentials']['AccessKeyId'],
+                'secret' => $exportedFile['credentials']['SecretAccessKey'],
+                'token' => $exportedFile['credentials']['SessionToken'],
+            ],
+            'version' => 'latest',
+            'region' => $exportedFile['region']
+        ]);
+        $s3Client->registerStreamWrapper();
+
+        $csv = "";
+        foreach ($manifest['entries'] as $filePart) {
+            $csv .= file_get_contents($filePart['url']);
+        }
+
+        $parsedData = Client::parseCsv($csv, false, ",", '"');
+        $origData = Client::parseCsv(file_get_contents($importFile), false, ",", '"');
+        array_shift($origData); // remove header
+        $this->assertArrayEqualsSorted($origData, $parsedData, 0);
+    }
 }

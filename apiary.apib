@@ -1283,6 +1283,8 @@ will show information about the created file and caching:
             + ne - Not equals - can be used with multiple values.
         + Default: eq
     + gzip (optional, boolean) - The response will be gzipped if set to true.
+    + atOffsetSeconds (optional, integer) - Use the state of the table at this number of seconds in the past.  Snowflake only, maximum offset is the project's data retention setting.
+    + atTimestamp (optional, timestamp) - Use the state of the table at the given timestamp.  Snowflake only, timestamp must be within the project's data retention setting.  The preferred format is `YYYY-MM-DD hh:mm:ss Z`, other formats may also work, but time zone is required.
 
 + Request
     + Headers
@@ -2288,6 +2290,8 @@ Loads tables from Storage into a Workspace.
                     + distKey (optional) - Redshift only - Column to use for the key distribution style
                     + incremental (optional, boolean) - If incremental is set to true, the target table will be preserved and new data will be appended.
                         Default: false
+                    + atOffsetSeconds (optional, integer) - Snowflake only - Use the state of the table at this number of seconds in the past.  Maximum offset is the project's data retention setting.
+                    + atTimestamp (optional, timestamp) - Snowflake only - Use the state of the table at the given timestamp.  The timestamp must be within the project's data retention setting.  The preferred format is `YYYY-MM-DD hh:mm:ss Z`, other formats may also work, but time zone is required.
     + preserve (optional, boolean) - If true, the workspace will not be altered before loading. When false, clears the workspace before loading.
         Default: false
 
