@@ -3326,11 +3326,14 @@ all components using Keboola Connection.
 
 # Group Component Configurations
 Component Configuration represents specific settings of a 
-[registered Component](http://docs.test12301.apiary.io/#reference/miscellaneous/api-index/component-list) 
-in a project. This is a utility resource available only for master tokens and tokens with the `canManageBuckets` permission.
+[registered Component](#reference/miscellaneous/api-index/component-list) 
+in a project. See the [Developers Documentation](https://developers.keboola.com/integrate/storage/api/configurations/)
+for examples and use cases.
+This is a utility resource available only for master tokens and tokens with the `canManageBuckets` permission.
 Configurations may include *Configuration Rows* if they are composed of multiple objects. Configuration rows are 
 used in case parts of the configuration are supposed to be updated independently.
-Configurations are automatically versioned. Configuration Rows are versioned separately. The `configuration` and 
+Configurations are automatically versioned. Configuration Rows are versioned separately, but they are also recorded as
+changes of the configuration. The `configuration` and 
 `rows.configuration` fields can contain arbitrary objects. The content and interpretation of those fields is fully 
 defined by the component.
 
