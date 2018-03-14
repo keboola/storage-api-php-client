@@ -9,10 +9,13 @@
 
 namespace Keboola\Test\Common;
 
+use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
+use Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions;
 use Keboola\Test\StorageApiTestCase;
+use const PHP_EOL;
 use Symfony\Component\Process\Process;
 
 class ComponentsTest extends StorageApiTestCase
@@ -2160,6 +2163,111 @@ class ComponentsTest extends StorageApiTestCase
         );
 
         $this->assertCount(5, $versions);
+    }
+    public function testNajlos()
+    {
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main')
+            ->setDescription('some desc')
+        ;
+
+        $components = new \Keboola\StorageApi\Components($this->_client);
+
+        $components->addConfiguration($configuration);
+
+        $configurationUpdate = new Configuration();
+        $configurationUpdate
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main 2')
+            ->setChangeDescription('my update');
+
+        $components->updateConfiguration($configurationUpdate);
+
+        $rowConfiguration = array('my-value' => 666);
+
+        // add first row
+        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRow
+            ->setRowId('main-1-1')
+            ->setConfiguration($rowConfiguration)
+            ->setChangeDescription('create row ABC');
+
+        $components->addConfigurationRow($configurationRow);
+
+        $configurationData = function () { return array('test' => rand());};
+
+        $configurationRow
+            ->setConfiguration($configurationData())
+            ->setChangeDescription('update parameters');
+        $components->updateConfigurationRow($configurationRow);
+
+        $configurationRow
+            ->setConfiguration($configurationData())
+            ->setChangeDescription('update parameters 2');
+        $components->updateConfigurationRow($configurationRow);
+        $configurationRow
+            ->setConfiguration($configurationData())
+            ->setChangeDescription('update parameters 3');
+        $components->updateConfigurationRow($configurationRow);
+        $configurationRow
+            ->setConfiguration($configurationData())
+            ->setChangeDescription('update parameters 4');
+        $components->updateConfigurationRow($configurationRow);
+
+
+        $components->rollbackConfigurationRow(
+            'wr-db',
+            'main-1',
+            $configurationRow->getRowId(),
+            2
+        );
+        $components->rollbackConfigurationRow(
+            'wr-db',
+            'main-1',
+            $configurationRow->getRowId(),
+            3
+        );
+        $components->rollbackConfiguration(
+            'wr-db',
+            'main-1',
+            5
+        );
+        $components->rollbackConfiguration(
+            'wr-db',
+            'main-1',
+            6
+        );
+
+        $components->deleteConfigurationRow('wr-db', 'main-1', $configurationRow->getRowId());
+        
+        $components->rollbackConfiguration('wr-db', 'main-1', 4);
+
+
+        $versions = $components->listConfigurationRowVersions(
+            (new \Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions())
+                ->setComponentId('wr-db')
+                ->setConfigurationId('main-1')
+                ->setRowId($configurationRow->getRowId())
+        );
+
+        $configurations = $components->listConfigurationVersions((new ListConfigurationVersionsOptions())
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+        );
+
+        echo PHP_EOL;
+        var_dump(array_map(function ($row) {
+            return sprintf("%s\t%s", $row['version'], $row['changeDescription']);
+        }, array_reverse($versions)));
+
+        var_dump(array_map(function ($item) {
+            return sprintf("%s\t%s", $item['version'], $item['changeDescription']);
+        }, array_reverse($configurations)));
+
     }
 
     public function testComponentConfigRowVersionCreate()
