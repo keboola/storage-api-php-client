@@ -9,14 +9,22 @@
 
 namespace Keboola\Test\Common;
 
+use function array_keys;
+use ascii_table;
+use function is_array;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
+use Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions;
 use Keboola\Test\StorageApiTestCase;
 use const PHP_EOL;
+use function print_r;
+use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Process\Process;
+use function var_dump;
 
 class ComponentsTest extends StorageApiTestCase
 {
@@ -2260,14 +2268,47 @@ class ComponentsTest extends StorageApiTestCase
         );
 
         echo PHP_EOL;
-        var_dump(array_map(function ($row) {
-            return sprintf("%s\t%s", $row['version'], $row['changeDescription']);
-        }, array_reverse($versions)));
 
-        var_dump(array_map(function ($item) {
-            return sprintf("%s\t%s", $item['version'], $item['changeDescription']);
-        }, array_reverse($configurations)));
 
+        $this->dumpTable($versions);
+       /* $this->dumpTable($configurations);
+        $this->dumpTable($components->listConfigurationRows((new ListConfigurationRowsOptions)->setComponentId('wr-db')->setConfigurationId('main-1')));
+        $this->dumpTable($components->listComponentConfigurations((new ListComponentConfigurationsOptions())->setComponentId('wr-db')));*/
+
+    }
+
+    private function dumpTable($tableData, $expandNestedTables = 'table', $out = true)  {
+
+        if (!is_array(reset($tableData))) {
+            return print_r($tableData,1);
+        }
+        $dumpData = array_map(function ($row) use ($expandNestedTables) {
+            if (!is_array($row)) {
+                var_dump($row);
+            }
+            foreach ($row as $key => $value) {
+                if (is_array($value)) {
+                    if ($expandNestedTables === 'table') {
+                        $row[$key] = $this->dumpTable($value, $expandNestedTables, false);
+                    } elseif ($expandNestedTables === 'print_r') {
+                        $row[$key] = print_r($value, true);
+                    } else {
+                        $row[$key] = 'array';
+                    }
+                }
+            }
+            return $row;
+        }, array_reverse($tableData));
+        $output = new BufferedOutput();
+        $helper = new Table($output);
+        $helper->addRows($dumpData);
+        $helper->setHeaders(array_keys($tableData[0]));
+        $helper->render();
+        if ($out) {
+            echo $output->fetch();
+        } else {
+            return $output->fetch();
+        }
     }
 
     public function testComponentConfigRowVersionCreate()
