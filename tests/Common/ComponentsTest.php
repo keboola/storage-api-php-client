@@ -62,7 +62,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals('Main', $component['name']);
         $this->assertEquals('some desc', $component['description']);
         $this->assertEmpty($component['configuration']);
-        $this->assertEmpty($component['changeDescription']);
+        $this->assertSame('Configuration created', $component['changeDescription']);
         $this->assertFalse($component['isDeleted']);
         $this->assertEquals(1, $component['version']);
         $this->assertInternalType('int', $component['version']);
@@ -148,7 +148,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals('Main', $component['name']);
         $this->assertEquals('some desc', $component['description']);
         $this->assertEmpty($component['configuration']);
-        $this->assertEmpty($component['changeDescription']);
+        $this->assertSame('Configuration created', $component['changeDescription']);
         $this->assertFalse($component['isDeleted']);
         $this->assertEquals(1, $component['version']);
         $this->assertInternalType('int', $component['version']);
@@ -251,7 +251,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals('Main', $component['name']);
         $this->assertEquals('some desc', $component['description']);
         $this->assertEmpty($component['configuration']);
-        $this->assertEmpty($component['changeDescription']);
+        $this->assertSame('Configuration created', $component['changeDescription']);
         $this->assertFalse($component['isDeleted']);
         $this->assertEquals(1, $component['version']);
         $this->assertInternalType('int', $component['version']);
@@ -313,7 +313,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals('Main', $component['name']);
         $this->assertEquals('some desc', $component['description']);
         $this->assertEmpty($component['configuration']);
-        $this->assertEmpty($component['changeDescription']);
+        $this->assertSame('Configuration created', $component['changeDescription']);
         $this->assertEquals(1, $component['version']);
         $this->assertInternalType('int', $component['version']);
         $this->assertInternalType('int', $component['creatorToken']['id']);
