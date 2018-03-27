@@ -2172,6 +2172,59 @@ class ComponentsTest extends StorageApiTestCase
 
         $this->assertCount(5, $versions);
     }
+
+    public function testFullConfigAndRowScenario()
+    {
+        $components = new \Keboola\StorageApi\Components($this->_client);
+        $componentId = 'keboola.ex-aws-s3';
+        $configurationId = '370992761';
+
+        $configuration = new Configuration();
+        $configuration
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setName('Main')
+            ->setDescription('some desc')
+        ;
+        $components->addConfiguration($configuration);
+
+        $configurationUpdate = new Configuration();
+        $configurationUpdate
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setChangeDescription('AWS Credentials edited')
+            ->setConfiguration(
+                [
+                    "parameters" => [
+                        "accessKeyId" => "A",
+                    ],
+                ]
+            )
+        ;
+        $components->updateConfiguration($configurationUpdate);
+
+        $rowConfiguration = array('bucket' => 'B');
+        $configurationRow = new ConfigurationRow($configuration);
+        $configurationRow
+            ->setRowId($componentId)
+            ->setConfiguration($rowConfiguration)
+            ->setName('B')
+            ->setChangeDescription('Table B added')
+        ;
+        $components->addConfigurationRow($configurationRow);
+
+        $rowConfiguration = array('bucket' => 'C');
+        $configurationRow
+            ->setConfiguration($rowConfiguration)
+            ->setName('B')
+            ->setChangeDescription('Table B edited')
+        ;
+        $components->updateConfigurationRow($configurationRow);
+
+
+
+    }
+
     public function testNajlos()
     {
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
