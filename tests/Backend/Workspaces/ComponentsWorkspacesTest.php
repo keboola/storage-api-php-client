@@ -43,16 +43,6 @@ class ComponentsWorkspacesTest extends WorkspacesTestCase
             ->setName('Main')
             ->setDescription('some desc'));
 
-        $component = $components->getConfiguration($componentId, $configurationId);
-
-        $this->assertEquals('Main', $component['name']);
-        $this->assertEquals('some desc', $component['description']);
-        $this->assertEmpty($component['configuration']);
-        $this->assertEmpty($component['changeDescription']);
-        $this->assertEquals(1, $component['version']);
-        $this->assertInternalType('int', $component['version']);
-        $this->assertInternalType('int', $component['creatorToken']['id']);
-
         // create workspace
         $workspace = $components->createConfigurationWorkspace($componentId, $configurationId);
         $this->assertEquals($componentId, $workspace['component']);
