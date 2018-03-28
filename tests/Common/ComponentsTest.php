@@ -75,7 +75,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals('Main renewed', $component['name']);
         $this->assertEquals('some desc for renew', $component['description']);
         $this->assertEquals(["test" => false], $component['configuration']);
-        $this->assertEmpty($component['changeDescription']);
+        $this->assertSame('Configuration created', $component['changeDescription']);
         $this->assertFalse($component['isDeleted']);
         $this->assertEquals(4, $component['version']);
         $this->assertInternalType('int', $component['version']);
