@@ -43,8 +43,6 @@ class ComponentsWorkspacesTest extends WorkspacesTestCase
             ->setName('Main')
             ->setDescription('some desc'));
 
-        $components->getConfiguration($componentId, $configurationId);
-
         // create workspace
         $workspace = $components->createConfigurationWorkspace($componentId, $configurationId);
         $this->assertEquals($componentId, $workspace['component']);
