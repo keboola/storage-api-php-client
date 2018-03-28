@@ -13,6 +13,8 @@ use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\Test\StorageApiTestCase;
+use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Process\Process;
 
 class ComponentsTest extends StorageApiTestCase
@@ -2655,5 +2657,39 @@ class ComponentsTest extends StorageApiTestCase
         $rollbackedConfigRow = $rollbackedConfigurationArray['rows'][0];
         $this->assertSame('Rollback from version 1 (rollbacking config version 2)', $rollbackedConfigRow['changeDescription']);
         $this->assertArrayEqualsExceptKeys($originalConfigRow, $rollbackedConfigRow, ['version', 'changeDescription']);
+    }
+
+    private function dumpTable($tableData, $expandNestedTables = 'table', $out = true)
+    {
+        if (!is_array(reset($tableData))) {
+            return print_r($tableData, 1);
+        }
+        $dumpData = array_map(function ($row) use ($expandNestedTables) {
+            if (!is_array($row)) {
+                var_dump($row);
+            }
+            foreach ($row as $key => $value) {
+                if (is_array($value)) {
+                    if ($expandNestedTables === 'table') {
+                        $row[$key] = $this->dumpTable($value, $expandNestedTables, false);
+                    } elseif ($expandNestedTables === 'print_r') {
+                        $row[$key] = print_r($value, true);
+                    } else {
+                        $row[$key] = 'array';
+                    }
+                }
+            }
+            return $row;
+        }, $tableData);
+        $output = new BufferedOutput();
+        $helper = new Table($output);
+        $helper->addRows($dumpData);
+        $helper->setHeaders(array_keys($tableData[0]));
+        $helper->render();
+        if ($out) {
+            echo PHP_EOL . $output->fetch();
+        } else {
+            return $output->fetch();
+        }
     }
 }
