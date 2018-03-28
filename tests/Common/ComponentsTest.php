@@ -9,13 +9,19 @@
 
 namespace Keboola\Test\Common;
 
+use function array_reverse;
+use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
+use Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions;
+use Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions;
 use Keboola\Test\StorageApiTestCase;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Process\Process;
+use function json_decode;
+use function var_dump;
 
 class ComponentsTest extends StorageApiTestCase
 {
@@ -2082,6 +2088,119 @@ class ComponentsTest extends StorageApiTestCase
 
         $this->assertCount(5, $versions);
     }
+
+    public function testScenarioFromConnection1256()
+    {
+        $components = new \Keboola\StorageApi\Components($this->_client);
+        $componentId = 'wr-db';
+        $configurationId = '370992761';
+
+        $configuration = new Configuration();
+        $configuration
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setName('My configuration')
+            ->setDescription('This is a configuration for my new extractor')
+        ;
+        $components->addConfiguration($configuration);
+
+        $configurationUpdate = new Configuration();
+        $configurationUpdate
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setChangeDescription('Base URL edited')
+            ->setConfiguration(json_decode('{"parameters":{"baseUrl":"http://www.google.com"}}', true))
+        ;
+        $components->updateConfiguration($configurationUpdate);
+
+        $rowConfiguration = json_decode('{"parameters":{"path":""},"processors":{"after":[{"definition":{"component":"keboola.processor-move-files"},"parameters":{"direction":"tables","folder":"b"}},{"definition":{"component":"keboola.processor-create-manifest"},"parameters":{"delimiter":",","enclosure":"\"","incremental":false,"primary_key":[],"columns":[],"columns_from":"header"}},{"definition":{"component":"keboola.processor-skip-lines"},"parameters":{"lines":1}}]}}', true);
+        $configurationRow = new ConfigurationRow($configuration);
+        $configurationRow
+            ->setConfiguration($rowConfiguration)
+            ->setName('B')
+            ->setChangeDescription('Table B added')
+        ;
+        $row1 = $components->addConfigurationRow($configurationRow);
+        $rowConfiguration = json_decode('{"parameters":{"path":"favicon.ico"},"processors":{"after":[{"definition":{"component":"keboola.processor-move-files"},"parameters":{"direction":"tables","folder":"b"}},{"definition":{"component":"keboola.processor-create-manifest"},"parameters":{"delimiter":",","enclosure":"\"","incremental":false,"primary_key":[],"columns":[],"columns_from":"header"}},{"definition":{"component":"keboola.processor-skip-lines"},"parameters":{"lines":1}}]}}', true);
+        $configurationRow
+            ->setRowId($row1['id'])
+            ->setConfiguration($rowConfiguration)
+            ->setChangeDescription('Table B edited')
+        ;
+        $components->updateConfigurationRow($configurationRow);
+        $rowConfiguration = json_decode('{"parameters":{"path":""},"processors":{"after":[{"definition":{"component":"keboola.processor-move-files"},"parameters":{"direction":"tables","folder":"d"}},{"definition":{"component":"keboola.processor-create-manifest"},"parameters":{"delimiter":",","enclosure":"\"","incremental":false,"primary_key":[],"columns":[],"columns_from":"header"}},{"definition":{"component":"keboola.processor-skip-lines"},"parameters":{"lines":1}}]}}', true);
+        $configurationRow = new ConfigurationRow($configuration);
+        $configurationRow
+            ->setRowId($componentId)
+            ->setConfiguration($rowConfiguration)
+            ->setName('D')
+            ->setChangeDescription('Table D added')
+        ;
+        $row2 = $components->addConfigurationRow($configurationRow);
+        $rowConfiguration = json_decode('{"parameters":{"path":"textinputassistant/tia.png"},"processors":{"after":[{"definition":{"component":"keboola.processor-move-files"},"parameters":{"direction":"tables","folder":"d"}},{"definition":{"component":"keboola.processor-create-manifest"},"parameters":{"delimiter":",","enclosure":"\"","incremental":false,"primary_key":[],"columns":[],"columns_from":"header"}},{"definition":{"component":"keboola.processor-skip-lines"},"parameters":{"lines":1}}]}}', true);
+        $configurationRow
+            ->setRowId($row2['id'])
+            ->setConfiguration($row2)
+            ->setChangeDescription('Table D edited')
+        ;
+        $components->updateConfigurationRow($configurationRow);
+
+        $components->rollbackConfiguration($componentId, $configurationId, 4);
+        
+        $components->rollbackConfiguration($componentId, $configurationId, 6);
+
+        // assertions
+
+        $versions = array_reverse($components->listConfigurationVersions(
+            (new ListConfigurationVersionsOptions())
+                ->setComponentId($componentId)
+                ->setConfigurationId($configurationId)
+        ));
+        $lastVersion = 0;
+        $this->dumpTable($versions);
+        foreach ($versions as $version) {
+            $this->assertSame('My configuration', $version['name']);
+            $this->assertSame('This is a configuration for my new extractor', $version['description']);
+            $this->assertSame(++$lastVersion, $version['version']);
+            $this->assertNotEmpty($version['created']);
+            $this->assertNotEmpty($version['creatorToken']);
+            $this->assertNotEmpty($version['changeDescription'], sprintf('Expected "%s" to be non-empty.', $version['changeDescription']));
+        }
+
+        $row1Versions = array_reverse($components->listConfigurationRowVersions(
+            (new ListConfigurationRowVersionsOptions())
+                ->setComponentId($componentId)
+                ->setConfigurationId($configurationId)
+                ->setRowId($row1['id'])
+        ));
+        $lastVersion = 0;
+        $this->dumpTable($row1Versions);
+        foreach ($row1Versions as $version) {
+            $this->assertSame('B', $version['name']);
+            $this->assertEmpty($version['description']);
+            $this->assertSame(++$lastVersion, $version['version']);
+            $this->assertNotEmpty($version['created']);
+            $this->assertNotEmpty($version['creatorToken']);
+            $this->assertNotEmpty($version['changeDescription']);
+        }
+        $row2Versions = array_reverse($components->listConfigurationRowVersions(
+            (new ListConfigurationRowVersionsOptions())
+                ->setComponentId($componentId)
+                ->setConfigurationId($configurationId)
+                ->setRowId($row2['id'])
+        ));
+        $lastVersion = 0;
+        $this->dumpTable($row2Versions);
+        foreach ($row2Versions as $version) {
+            $this->assertSame('D', $version['name']);
+            $this->assertEmpty($version['description']);
+            $this->assertSame(++$lastVersion, $version['version']);
+            $this->assertNotEmpty($version['created']);
+            $this->assertNotEmpty($version['creatorToken']);
+            $this->assertNotEmpty($version['changeDescription']);
+        }
+    }
+
 
     public function testComponentConfigRowVersionCreate()
     {
