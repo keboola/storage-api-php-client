@@ -2103,6 +2103,7 @@ class ComponentsTest extends StorageApiTestCase
             ->setDescription('This is a configuration for my new extractor')
         ;
         $components->addConfiguration($configuration);
+        usleep(800000);
 
         $configurationUpdate = new Configuration();
         $configurationUpdate
@@ -2112,6 +2113,7 @@ class ComponentsTest extends StorageApiTestCase
             ->setConfiguration(json_decode('{"parameters":{"baseUrl":"http://www.google.com"}}', true))
         ;
         $components->updateConfiguration($configurationUpdate);
+        usleep(800000);
 
         $rowConfiguration = json_decode('{"parameters":{"path":""},"processors":{"after":[{"definition":{"component":"keboola.processor-move-files"},"parameters":{"direction":"tables","folder":"b"}},{"definition":{"component":"keboola.processor-create-manifest"},"parameters":{"delimiter":",","enclosure":"\"","incremental":false,"primary_key":[],"columns":[],"columns_from":"header"}},{"definition":{"component":"keboola.processor-skip-lines"},"parameters":{"lines":1}}]}}', true);
         $configurationRow = new ConfigurationRow($configuration);
@@ -2121,6 +2123,8 @@ class ComponentsTest extends StorageApiTestCase
             ->setChangeDescription('Table B added')
         ;
         $row1 = $components->addConfigurationRow($configurationRow);
+        usleep(800000);
+
         $rowConfiguration = json_decode('{"parameters":{"path":"favicon.ico"},"processors":{"after":[{"definition":{"component":"keboola.processor-move-files"},"parameters":{"direction":"tables","folder":"b"}},{"definition":{"component":"keboola.processor-create-manifest"},"parameters":{"delimiter":",","enclosure":"\"","incremental":false,"primary_key":[],"columns":[],"columns_from":"header"}},{"definition":{"component":"keboola.processor-skip-lines"},"parameters":{"lines":1}}]}}', true);
         $configurationRow
             ->setRowId($row1['id'])
@@ -2128,6 +2132,8 @@ class ComponentsTest extends StorageApiTestCase
             ->setChangeDescription('Table B edited')
         ;
         $components->updateConfigurationRow($configurationRow);
+        usleep(800000);
+
         $rowConfiguration = json_decode('{"parameters":{"path":""},"processors":{"after":[{"definition":{"component":"keboola.processor-move-files"},"parameters":{"direction":"tables","folder":"d"}},{"definition":{"component":"keboola.processor-create-manifest"},"parameters":{"delimiter":",","enclosure":"\"","incremental":false,"primary_key":[],"columns":[],"columns_from":"header"}},{"definition":{"component":"keboola.processor-skip-lines"},"parameters":{"lines":1}}]}}', true);
         $configurationRow = new ConfigurationRow($configuration);
         $configurationRow
@@ -2137,6 +2143,8 @@ class ComponentsTest extends StorageApiTestCase
             ->setChangeDescription('Table D added')
         ;
         $row2 = $components->addConfigurationRow($configurationRow);
+        usleep(800000);
+
         $rowConfiguration = json_decode('{"parameters":{"path":"textinputassistant/tia.png"},"processors":{"after":[{"definition":{"component":"keboola.processor-move-files"},"parameters":{"direction":"tables","folder":"d"}},{"definition":{"component":"keboola.processor-create-manifest"},"parameters":{"delimiter":",","enclosure":"\"","incremental":false,"primary_key":[],"columns":[],"columns_from":"header"}},{"definition":{"component":"keboola.processor-skip-lines"},"parameters":{"lines":1}}]}}', true);
         $configurationRow
             ->setRowId($row2['id'])
@@ -2144,9 +2152,11 @@ class ComponentsTest extends StorageApiTestCase
             ->setChangeDescription('Table D edited')
         ;
         $components->updateConfigurationRow($configurationRow);
+        usleep(800000);
 
         $components->rollbackConfiguration($componentId, $configurationId, 4);
-        
+        usleep(800000);
+
         $components->rollbackConfiguration($componentId, $configurationId, 6);
 
         // assertions
