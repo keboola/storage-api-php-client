@@ -2692,6 +2692,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $originalConfigRow = $originalConfigurationArray['rows'][0];
         $rollbackedConfigRow = $rollbackedConfigurationArray['rows'][0];
-        $this->assertArrayEqualsExceptKeys($originalConfigRow, $rollbackedConfigRow, ['version']);
+        $this->assertSame('Rollback from version 1 (rollbacking config version 2)', $rollbackedConfigRow['changeDescription']);
+        $this->assertArrayEqualsExceptKeys($originalConfigRow, $rollbackedConfigRow, ['version', 'changeDescription']);
     }
 }
