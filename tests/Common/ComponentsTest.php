@@ -197,25 +197,6 @@ class ComponentsTest extends StorageApiTestCase
 
         $components->deleteConfiguration($componentId, $configurationId);
 
-        $this->assertCount(0, $components->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
-        ));
-
-        $componentList = $components->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)->setIsDeleted(true)
-        );
-        $this->assertCount(1, $componentList);
-
-        $component = reset($componentList);
-        $this->assertEquals($configurationId, $component['id']);
-        $this->assertEquals('Main', $component['name']);
-        $this->assertEquals('some desc', $component['description']);
-        $this->assertNotEmpty('Configuration deleted');
-        $this->assertTrue($component['isDeleted']);
-        $this->assertEquals(2, $component['version']);
-        $this->assertInternalType('int', $component['version']);
-        $this->assertInternalType('int', $component['creatorToken']['id']);
-
         $components->restoreComponentConfiguration($componentId, $configurationId);
 
         $this->assertCount(0, $components->listComponentConfigurations(
