@@ -212,7 +212,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals($configurationId, $component['id']);
         $this->assertEquals('Main', $component['name']);
         $this->assertEquals('some desc', $component['description']);
-        $this->assertNotEmpty('Configuration restored');
+        $this->assertSame('Configuration restored', $component['changeDescription']);
         $this->assertFalse($component['isDeleted']);
         $this->assertEquals(3, $component['version']);
         $this->assertInternalType('int', $component['version']);
