@@ -2480,6 +2480,7 @@ class ComponentsTest extends StorageApiTestCase
         $response = $components->getConfiguration('wr-db', $copiedConfig["id"]);
         $this->assertEquals("", $response["rows"][0]["name"]);
         $this->assertEquals("", $response["rows"][0]["description"]);
+        $this->assertEquals('Copied from configuration "main-1" version 2', $response["rows"][0]["changeDescription"]);
         $this->assertEquals(false, $response["rows"][0]["isDisabled"]);
 
         // copy config version 3
@@ -2487,6 +2488,7 @@ class ComponentsTest extends StorageApiTestCase
         $response = $components->getConfiguration('wr-db', $copiedConfig["id"]);
         $this->assertEquals("name", $response["rows"][0]["name"]);
         $this->assertEquals("description", $response["rows"][0]["description"]);
+        $this->assertEquals('Copied from configuration "main-1" version 3', $response["rows"][0]["changeDescription"]);
         $this->assertEquals(true, $response["rows"][0]["isDisabled"]);
     }
 
