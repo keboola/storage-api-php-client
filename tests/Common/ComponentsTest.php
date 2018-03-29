@@ -2569,10 +2569,12 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals($createdRow["id"], $response["rows"][0]["id"]);
         $this->assertEquals("name", $response["rows"][0]["name"]);
         $this->assertEquals("description", $response["rows"][0]["description"]);
+        $this->assertEquals("", $response["rows"][0]["changeDescription"]);
         $this->assertEquals(true, $response["rows"][0]["isDisabled"]);
         $this->assertEquals($createdRow2["id"], $response["rows"][1]["id"]);
         $this->assertEquals("", $response["rows"][1]["name"]);
         $this->assertEquals("", $response["rows"][1]["description"]);
+        $this->assertStringMatchesFormat('Copied from configuration "main-1" row %d version 1', $response["rows"][1]["changeDescription"]);
         $this->assertEquals(false, $response["rows"][1]["isDisabled"]);
 
         // copy row version 2
@@ -2581,14 +2583,17 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals($createdRow["id"], $response["rows"][0]["id"]);
         $this->assertEquals("name", $response["rows"][0]["name"]);
         $this->assertEquals("description", $response["rows"][0]["description"]);
+        $this->assertEquals("", $response["rows"][0]["changeDescription"]);
         $this->assertEquals(true, $response["rows"][0]["isDisabled"]);
         $this->assertEquals($createdRow2["id"], $response["rows"][1]["id"]);
         $this->assertEquals("", $response["rows"][1]["name"]);
         $this->assertEquals("", $response["rows"][1]["description"]);
+        $this->assertStringMatchesFormat('Copied from configuration "main-1" row %d version 1', $response["rows"][1]["changeDescription"]);
         $this->assertEquals(false, $response["rows"][1]["isDisabled"]);
         $this->assertEquals($createdRow3["id"], $response["rows"][2]["id"]);
         $this->assertEquals("name", $response["rows"][2]["name"]);
         $this->assertEquals("description", $response["rows"][2]["description"]);
+        $this->assertStringMatchesFormat('Copied from configuration "main-1" row %d version 2', $response["rows"][2]["changeDescription"]);
         $this->assertEquals(true, $response["rows"][2]["isDisabled"]);
     }
 
