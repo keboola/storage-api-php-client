@@ -2570,19 +2570,19 @@ class ComponentsTest extends StorageApiTestCase
         // copy config version 2
         $copiedConfig = $components->createConfigurationFromVersion('wr-db', $config->getConfigurationId(), 2, 'test');
         $response = $components->getConfiguration('wr-db', $copiedConfig["id"]);
-        $this->assertSame('Copied from configuration "main-1" version 2', $response['changeDescription']);
+        $this->assertSame('Copied from configuration "name" (main-1) version 2', $response['changeDescription']);
         $this->assertEquals("", $response["rows"][0]["name"]);
         $this->assertEquals("", $response["rows"][0]["description"]);
-        $this->assertEquals('Copied from configuration "main-1" version 2', $response["rows"][0]["changeDescription"]);
+        $this->assertEquals('Copied from configuration "name" (main-1) version 2', $response["rows"][0]["changeDescription"]);
         $this->assertEquals(false, $response["rows"][0]["isDisabled"]);
 
         // copy config version 3
         $copiedConfig = $components->createConfigurationFromVersion('wr-db', $config->getConfigurationId(), 3, 'test');
         $response = $components->getConfiguration('wr-db', $copiedConfig["id"]);
-        $this->assertSame('Copied from configuration "main-1" version 3', $response['changeDescription']);
+        $this->assertSame('Copied from configuration "name" (main-1) version 3', $response['changeDescription']);
         $this->assertEquals("name", $response["rows"][0]["name"]);
         $this->assertEquals("description", $response["rows"][0]["description"]);
-        $this->assertEquals('Copied from configuration "main-1" version 3', $response["rows"][0]["changeDescription"]);
+        $this->assertEquals('Copied from configuration "name" (main-1) version 3', $response["rows"][0]["changeDescription"]);
         $this->assertEquals(true, $response["rows"][0]["isDisabled"]);
     }
 
@@ -2658,7 +2658,7 @@ class ComponentsTest extends StorageApiTestCase
         // copy row version 1
         $createdRow2 = $components->createConfigurationRowFromVersion('wr-db', $config->getConfigurationId(), $createdRow["id"], 1);
         $response = $components->getConfiguration('wr-db', $config->getConfigurationId());
-        $this->assertStringMatchesFormat('Row %d copied from configuration "main-1" row %d version 1', $response['changeDescription']);
+        $this->assertStringMatchesFormat('Row %d copied from configuration "name" (main-1) row %d version 1', $response['changeDescription']);
         $this->assertEquals($createdRow["id"], $response["rows"][0]["id"]);
         $this->assertEquals("name", $response["rows"][0]["name"]);
         $this->assertEquals("description", $response["rows"][0]["description"]);
@@ -2667,13 +2667,13 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals($createdRow2["id"], $response["rows"][1]["id"]);
         $this->assertEquals("", $response["rows"][1]["name"]);
         $this->assertEquals("", $response["rows"][1]["description"]);
-        $this->assertStringMatchesFormat('Copied from configuration "main-1" row %d version 1', $response["rows"][1]["changeDescription"]);
+        $this->assertStringMatchesFormat('Copied from configuration "name" (main-1) row %d version 1', $response["rows"][1]["changeDescription"]);
         $this->assertEquals(false, $response["rows"][1]["isDisabled"]);
 
         // copy row version 2
         $createdRow3 = $components->createConfigurationRowFromVersion('wr-db', $config->getConfigurationId(), $createdRow["id"], 2);
         $response = $components->getConfiguration('wr-db', $config->getConfigurationId());
-        $this->assertStringMatchesFormat('Row %d copied from configuration "main-1" row %d version 2', $response['changeDescription']);
+        $this->assertStringMatchesFormat('Row %d copied from configuration "name" (main-1) row %d version 2', $response['changeDescription']);
         $this->assertEquals($createdRow["id"], $response["rows"][0]["id"]);
         $this->assertEquals("name", $response["rows"][0]["name"]);
         $this->assertEquals("description", $response["rows"][0]["description"]);
@@ -2682,12 +2682,12 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals($createdRow2["id"], $response["rows"][1]["id"]);
         $this->assertEquals("", $response["rows"][1]["name"]);
         $this->assertEquals("", $response["rows"][1]["description"]);
-        $this->assertStringMatchesFormat('Copied from configuration "main-1" row %d version 1', $response["rows"][1]["changeDescription"]);
+        $this->assertStringMatchesFormat('Copied from configuration "name" (main-1) row %d version 1', $response["rows"][1]["changeDescription"]);
         $this->assertEquals(false, $response["rows"][1]["isDisabled"]);
         $this->assertEquals($createdRow3["id"], $response["rows"][2]["id"]);
         $this->assertEquals("name", $response["rows"][2]["name"]);
         $this->assertEquals("description", $response["rows"][2]["description"]);
-        $this->assertStringMatchesFormat('Copied from configuration "main-1" row %d version 2', $response["rows"][2]["changeDescription"]);
+        $this->assertStringMatchesFormat('Copied from configuration "name" (main-1) row %d version 2', $response["rows"][2]["changeDescription"]);
         $this->assertEquals(true, $response["rows"][2]["isDisabled"]);
     }
 
