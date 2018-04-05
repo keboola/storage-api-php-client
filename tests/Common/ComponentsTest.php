@@ -904,7 +904,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals($newConfiguration['created'], $currentConfiguration['created']);
         $this->assertEquals($firstRowConfig, $row['configuration']);
         $this->assertEquals(['a' => 'b'], $currentConfiguration['configuration']);
-        $this->assertEquals("Rollback from version 2", $currentConfiguration['changeDescription']);
+        $this->assertEquals("Rollback to version 2", $currentConfiguration['changeDescription']);
     }
 
     public function testUpdateRowWithoutIdShouldNotBeAllowed()
@@ -2063,7 +2063,7 @@ class ComponentsTest extends StorageApiTestCase
         );
 
         $this->assertEquals(4, $rowVersion4['version'], 'Rollback creates new version of the row');
-        $this->assertEquals('Rollback from version 2', $rowVersion4['changeDescription'], 'Rollback creates automatic description');
+        $this->assertEquals('Rollback to version 2', $rowVersion4['changeDescription'], 'Rollback creates automatic description');
         $this->assertArrayEqualsExceptKeys($rowVersion2, $rowVersion4, ['version', 'changeDescription']);
 
         // rollback to version 3
@@ -2784,7 +2784,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $originalConfigRow = $originalConfigurationArray['rows'][0];
         $rollbackedConfigRow = $rollbackedConfigurationArray['rows'][0];
-        $this->assertSame('Rollback from version 1 (rollbacking config version 2)', $rollbackedConfigRow['changeDescription']);
+        $this->assertSame('Rollback to version 1 (via configuration rollback to version 2)', $rollbackedConfigRow['changeDescription']);
         $this->assertArrayEqualsExceptKeys($originalConfigRow, $rollbackedConfigRow, ['version', 'changeDescription']);
     }
 
