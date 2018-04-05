@@ -14,6 +14,7 @@ use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
+use Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions;
 use Keboola\Test\StorageApiTestCase;
@@ -1957,117 +1958,59 @@ class ComponentsTest extends StorageApiTestCase
 
     public function testComponentConfigRowVersionRollback()
     {
+        $componentsApi = new \Keboola\StorageApi\Components($this->_client);
+
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
             ->setName('Main')
             ->setDescription('some desc');
+        $componentsApi->addConfiguration($configuration);
 
-        $components = new \Keboola\StorageApi\Components($this->_client);
-
-        $components->addConfiguration($configuration);
-
-        $component = $components->getConfiguration('wr-db', 'main-1');
-        $this->assertEquals('Main', $component['name']);
-        $this->assertEquals('some desc', $component['description']);
-        $this->assertEmpty($component['configuration']);
-        $this->assertEquals(1, $component['version']);
-        $this->assertInternalType('int', $component['version']);
-        $this->assertInternalType('int', $component['creatorToken']['id']);
-
-        $rowConfiguration = array('my-value' => 666);
-
-        // add first row
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
         $configurationRow->setRowId('main-1-1');
-        $configurationRow->setConfiguration($rowConfiguration);
+        $configurationRow->setConfiguration([
+            'my-value' => 666,
+        ]);
+        $componentsApi->addConfigurationRow($configurationRow);
 
-        $components->addConfigurationRow($configurationRow);
-
-        $listOptions = new \Keboola\StorageApi\Options\Components\ListComponentsOptions();
-        $listOptions->setInclude(array('rows'));
-        $components = $components->listComponents($listOptions);
-
-        $this->assertCount(1, $components);
-
-        $component = reset($components);
-        $this->assertEquals('wr-db', $component['id']);
-        $this->assertCount(1, $component['configurations']);
-
-        $configuration = reset($component['configurations']);
-        $this->assertEquals('main-1', $configuration['id']);
-        $this->assertEquals('Main', $configuration['name']);
-        $this->assertEquals('some desc', $configuration['description']);
-
-        $this->assertArrayHasKey('rows', $configuration);
-        $this->assertCount(1, $configuration['rows']);
-
-        $originalRow = reset($configuration['rows']);
-        $this->assertEquals('main-1-1', $originalRow['id']);
-
-        $components = new \Keboola\StorageApi\Components($this->_client);
-
-        $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
-            ->setComponentId($component['id'])
-            ->setConfigurationId($configuration['id']));
-
-        $row = reset($rows);
-        $this->assertEquals('main-1-1', $row['id']);
-
-        $component = $components->getConfiguration('wr-db', 'main-1');
-        $this->assertEquals(2, $component['version']);
+        $component = $componentsApi->getConfiguration('wr-db', 'main-1');
 
         // update row 1st - without change
-        $rowVersion1 = $components->updateConfigurationRow($configurationRow);
+        $configuration1 = $componentsApi->updateConfigurationRow($configurationRow);
 
-        $this->assertEquals(1, $rowVersion1['version']);
-        $this->assertEquals('', $rowVersion1['name']);
-        $this->assertEquals('', $rowVersion1['description']);
-        $this->assertEquals(false, $rowVersion1['isDisabled']);
-
-
-        $configurationData = array('test' => 1);
-
-        $configurationRow->setConfiguration($configurationData)
+        $configurationRow
+            ->setConfiguration([
+                'test' => 1,
+            ])
             ->setChangeDescription('some change');
+        $configuration2 = $componentsApi->updateConfigurationRow($configurationRow);
 
-        // update row 2nd
-        $rowVersion2 = $components->updateConfigurationRow($configurationRow);
-
-        $this->assertEquals(2, $rowVersion2['version']);
-        $this->assertEquals($configurationData, $rowVersion2['configuration']);
-        $this->assertEquals('some change', $rowVersion2['changeDescription']);
-        $this->assertEquals('', $rowVersion2['name']);
-        $this->assertEquals('', $rowVersion2['description']);
-        $this->assertEquals(false, $rowVersion2['isDisabled']);
-
-
-        // update row 3rd
-        $configurationData = array('test' => 2);
-        $configurationRow->setConfiguration($configurationData)
+        $configurationRow
+            ->setConfiguration([
+                'test' => 2
+            ])
             ->setChangeDescription(null);
-
-        $rowVersion3 = $components->updateConfigurationRow($configurationRow);
-
-        $this->assertEquals(3, $rowVersion3['version']);
-        $this->assertEquals($configurationData, $rowVersion3['configuration']);
-        $this->assertNull($rowVersion3['changeDescription']);
+        $configuration3 = $componentsApi->updateConfigurationRow($configurationRow);
 
         // rollback to version 2
-        $rowVersion4 = $components->rollbackConfigurationRow(
+        $configuration4 = $componentsApi->rollbackConfigurationRow(
             'wr-db',
             'main-1',
             $configurationRow->getRowId(),
             2
         );
 
-        $this->assertEquals(4, $rowVersion4['version'], 'Rollback creates new version of the row');
-        $this->assertEquals('Rollback to version 2', $rowVersion4['changeDescription'], 'Rollback creates automatic description');
-        $this->assertArrayEqualsExceptKeys($rowVersion2, $rowVersion4, ['version', 'changeDescription']);
+        $this->assertEquals(4, $configuration4['version'], 'Rollback creates new version of the configuration');
+        $this->assertEquals('Rollback to version 2', $configuration4['changeDescription'], 'Rollback creates automatic description');
+        $this->assertArrayEqualsExceptKeys($configuration2, $configuration4, [
+            'version',
+            'changeDescription'
+        ]);
 
         // rollback to version 3
-        $rowVersion5 = $components->rollbackConfigurationRow(
+        $configuration5 = $componentsApi->rollbackConfigurationRow(
             'wr-db',
             'main-1',
             $configurationRow->getRowId(),
@@ -2075,11 +2018,11 @@ class ComponentsTest extends StorageApiTestCase
             'Custom rollback message'
         );
 
-        $this->assertEquals(5, $rowVersion5['version'], 'Rollback creates new version of the row');
-        $this->assertEquals('Custom rollback message', $rowVersion5['changeDescription']);
-        $this->assertArrayEqualsExceptKeys($rowVersion3, $rowVersion5, ['version', 'changeDescription']);
+        $this->assertEquals(5, $configuration5['version'], 'Rollback creates new version of the row');
+        $this->assertEquals('Custom rollback message', $configuration5['changeDescription']);
+        $this->assertArrayEqualsExceptKeys($configuration3, $configuration5, ['version', 'changeDescription']);
 
-        $versions = $components->listConfigurationRowVersions(
+        $versions = $componentsApi->listConfigurationRowVersions(
             (new \Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions())
                 ->setComponentId('wr-db')
                 ->setConfigurationId('main-1')
@@ -2448,7 +2391,7 @@ class ComponentsTest extends StorageApiTestCase
         $config = $components->getConfiguration('wr-db', $componentConfig->getConfigurationId());
         $this->assertEquals($deleteRowChangeDescription, $config['changeDescription']);
     }
-    
+
     public function testConfigurationNameAndDescriptionShouldNotBeTrimmed()
     {
         $components = new \Keboola\StorageApi\Components($this->_client);
