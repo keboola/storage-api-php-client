@@ -756,75 +756,90 @@ class ComponentsTest extends StorageApiTestCase
 
     public function testComponentConfigsVersionsList()
     {
-        $config = (new \Keboola\StorageApi\Options\Components\Configuration())
+        $configuration = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
             ->setName('Main');
-        $components = new \Keboola\StorageApi\Components($this->_client);
-        $newConfiguration = $components->addConfiguration($config);
-        $this->assertEquals(1, $newConfiguration['version']);
-        $this->assertEmpty($newConfiguration['state']);
-        $this->assertEquals($newConfiguration['changeDescription'], $newConfiguration['currentVersion']['changeDescription']);
-        $this->assertEquals($newConfiguration['creatorToken'], $newConfiguration['currentVersion']['creatorToken']);
+        $componentsApi = new \Keboola\StorageApi\Components($this->_client);
+        $newConfiguration = $componentsApi->addConfiguration($configuration);
 
+        // create version 2
         $newName = 'neco';
         $newDesc = 'some desc';
-        $configurationData = array('x' => 'y');
-        $config->setName($newName)
+        $configurationData = ['x' => 'y'];
+        $configuration->setName($newName)
             ->setDescription($newDesc)
             ->setConfiguration($configurationData);
-        $components->updateConfiguration($config);
+        $componentsApi->updateConfiguration($configuration);
+        $configuration2 = $componentsApi->getConfiguration(
+            $configuration->getComponentId(),
+            $configuration->getConfigurationId()
+        );
 
-        $configuration = $components->getConfiguration($config->getComponentId(), $config->getConfigurationId());
-        $this->assertEquals(2, $configuration['version']);
+        $configuration = (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
+            ->setComponentId($configuration->getComponentId())
+            ->setConfigurationId($configuration->getConfigurationId())
+            ->setInclude(['name', 'state']);
+        $configurationVersions = $componentsApi->listConfigurationVersions($configuration);
 
-        $config = (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
-            ->setComponentId($config->getComponentId())
-            ->setConfigurationId($config->getConfigurationId())
-            ->setInclude(array('name', 'state'));
-        $result = $components->listConfigurationVersions($config);
-        $this->assertCount(2, $result);
-        $this->assertArrayHasKey('version', $result[0]);
-        $this->assertEquals(2, $result[0]['version']);
-        $this->assertArrayHasKey('name', $result[0]);
-        $this->assertEquals('neco', $result[0]['name']);
-        $this->assertArrayNotHasKey('state', $result[0]);
-        $this->assertArrayNotHasKey('description', $result[0]);
-        $this->assertArrayHasKey('version', $result[1]);
-        $this->assertEquals(1, $result[1]['version']);
-        $this->assertArrayHasKey('name', $result[1]);
-        $this->assertEquals('Main', $result[1]['name']);
-        $this->assertEquals($result[0]['changeDescription'], $configuration['currentVersion']['changeDescription']);
-        $this->assertEquals($result[0]['creatorToken'], $configuration['currentVersion']['creatorToken']);
-        $this->assertEquals($result[0]['created'], $configuration['currentVersion']['created']);
+        $this->assertCount(2, $configurationVersions);
 
-        $config = (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
-            ->setComponentId($config->getComponentId())
-            ->setConfigurationId($config->getConfigurationId())
+        $latestConfigurationVersion = $configurationVersions[0];
+        $previousConfigurationVersion = $configurationVersions[1];
+
+        $this->assertArrayHasKey('version', $latestConfigurationVersion);
+        $this->assertSame(2, $latestConfigurationVersion['version']);
+        $this->assertArrayHasKey('name', $latestConfigurationVersion);
+        $this->assertSame('neco', $latestConfigurationVersion['name']);
+        $this->assertArrayNotHasKey('state', $latestConfigurationVersion);
+        $this->assertArrayNotHasKey('description', $latestConfigurationVersion);
+
+        $this->assertArrayHasKey('version', $previousConfigurationVersion);
+        $this->assertSame(1, $previousConfigurationVersion['version']);
+        $this->assertArrayHasKey('name', $previousConfigurationVersion);
+        $this->assertSame('Main', $previousConfigurationVersion['name']);
+
+        $this->assertSame(
+            $configuration2['currentVersion']['changeDescription'],
+            $latestConfigurationVersion['changeDescription']
+        );
+        $this->assertSame(
+            $configuration2['currentVersion']['creatorToken'],
+            $latestConfigurationVersion['creatorToken']
+        );
+        $this->assertSame(
+            $configuration2['currentVersion']['created'],
+            $latestConfigurationVersion['created']
+        );
+
+        $configuration = (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
+            ->setComponentId($configuration->getComponentId())
+            ->setConfigurationId($configuration->getConfigurationId())
             ->setInclude(array('name', 'configuration'))
             ->setOffset(0)
             ->setLimit(1);
-        $result = $components->listConfigurationVersions($config);
-        $this->assertCount(1, $result);
-        $this->assertArrayHasKey('version', $result[0]);
-        $this->assertEquals(2, $result[0]['version']);
-        $this->assertArrayNotHasKey('state', $result[0]);
-        $this->assertArrayHasKey('configuration', $result[0]);
-        $this->assertEquals($configurationData, $result[0]['configuration']);
+        $configurationVersionsWithLimit = $componentsApi->listConfigurationVersions($configuration);
 
-        $config = (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
-            ->setComponentId($config->getComponentId())
-            ->setConfigurationId($config->getConfigurationId());
-        $result = $components->getConfigurationVersion($config->getComponentId(), $config->getConfigurationId(), 2);
-        $this->assertArrayHasKey('version', $result);
-        $this->assertInternalType('int', $result['version']);
-        $this->assertEquals(2, $result['version']);
-        $this->assertInternalType('int', $result['creatorToken']['id']);
-        $this->assertArrayNotHasKey('state', $result);
-        $this->assertArrayHasKey('configuration', $result);
-        $this->assertEquals($configurationData, $result['configuration']);
-        $result = $components->listConfigurationVersions($config);
-        $this->assertCount(2, $result);
+        $this->assertCount(1, $configurationVersionsWithLimit);
+        $this->assertArrayHasKey('version', $configurationVersionsWithLimit[0]);
+        $this->assertSame(2, $configurationVersionsWithLimit[0]['version']);
+        $this->assertArrayNotHasKey('state', $configurationVersionsWithLimit[0]);
+        $this->assertArrayHasKey('configuration', $configurationVersionsWithLimit[0]);
+        $this->assertSame($configurationData, $configurationVersionsWithLimit[0]['configuration']);
+
+        $configuration = (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
+            ->setComponentId($configuration->getComponentId())
+            ->setConfigurationId($configuration->getConfigurationId());
+        $configurationVersion = $componentsApi->getConfigurationVersion($configuration->getComponentId(), $configuration->getConfigurationId(), 2);
+
+        $this->assertArrayHasKey('version', $configurationVersion);
+        $this->assertSame(2, $configurationVersion['version']);
+        $this->assertInternalType('int', $configurationVersion['creatorToken']['id']);
+        $this->assertArrayNotHasKey('state', $configurationVersion);
+        $this->assertArrayHasKey('configuration', $configurationVersion);
+        $this->assertSame($configurationData, $configurationVersion['configuration']);
+        $configurationVersion = $componentsApi->listConfigurationVersions($configuration);
+        $this->assertCount(2, $configurationVersion);
     }
 
     /**
