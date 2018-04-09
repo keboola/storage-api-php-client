@@ -919,7 +919,6 @@ The method of creating a table asynchronously should be used for larger imports 
 The create request is created and added to a queue, the job resource url for status polling is returned.
 The actual data must be provided in one of the following attributes: 
 
-- `dataUrl`,
 - `dataFileId`,
 - `snapshotId`,
 - `dataWorkspaceId` and `dataTableName`
@@ -930,7 +929,7 @@ The actual data must be provided in one of the following attributes:
     
 + Attributes    
     + name (required) - New table name
-    + dataUrl (optional) - Publicly accessible url with a CSV file to import
+    + dataUrl (optional) - *This parameter is deprecated, please use CSV import component.* Publicly accessible url with a CSV file to import
     + dataFileId (optional) - Id of the file stored in [File Uploads](#reference/files)
     + snapshotId (optional) - Id of a table snapshot - a table will be created from the snapshot.
     + dataWorkspaceId (optional) - Load from the table [workspace](#reference/workspaces). Use with the **dataTableName** attribute.
@@ -982,13 +981,12 @@ The actual data must be provided in one of the following attributes:
 
  **This method of import is DEPRECATED**, please use [asynchronous import](#reference/tables/load-data-asynchronously).
 
- Each CSV table should contain a header with column names; all columns present in the table must be also present in the CSV file, new columns not present in the table are created. One of the `data`, `dataString` and `dataUrl` attributes must be provided.
+ Each CSV table should contain a header with column names; all columns present in the table must be also present in the CSV file, new columns not present in the table are created. One of the `data` and `dataString`  attributes must be provided.
  The CSV file can be raw or gzipped. Gzipped files must have the extension .gz.
 
 + Attributes
     + data (optional) - Multipart CSV file upload
     + dataString (optional) - CSV as a string in the request body
-    + dataUrl (optional) - URL with a CSV file 
     + incremental (optional) - If incremental is set to 0, the target table is truncated before each import. Default is 0.
     + delimiter (optional) - Field delimiter used in the CSV file. The default value is ','.  Use '\t' or type the tab char for the tabulator.
     + enclosure (optional) - Field enclosure used in the CSV file. The default value is '"'.
@@ -1035,7 +1033,6 @@ Asynchronous imports requested on the same table will be serialized.
 
 The actual data must be provided in one of the following attributes: 
 
-- **dataUrl**, 
 - **dataFileId**,
 - **snapshotId**, 
 - **dataWorkspaceId** and **dataTableName**
@@ -1053,7 +1050,7 @@ Further information can be found in the [Developers Documentation](https://devel
     + table_id (required) - Table Id
     
 + Attributes    
-    + dataUrl (optional) - Publicly accessible url with a CSV file to import
+    + dataUrl (optional) - *This parameter is deprecated, please use CSV import component.*  Publicly accessible url with a CSV file to import
     + dataFileId (optional) - Id of the file stored in [File Uploads](#reference/files); all gzipped and sliced files are supported.
     + snapshotId (optional) - Id of a table snapshot - a table will be created from the snapshot.
     + dataWorkspaceId (optional) - Load from the table [workspace](#reference/workspaces). Use with the **dataTableName** attribute.
