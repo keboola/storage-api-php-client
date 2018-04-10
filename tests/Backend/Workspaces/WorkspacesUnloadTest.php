@@ -15,7 +15,7 @@ use Keboola\StorageApi\Exception;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\StorageApiTestCase;
 
-class WorkspaceUnloadTest extends WorkspacesTestCase
+class WorkspacesUnloadTest extends WorkspacesTestCase
 {
     public function testCreateTableFromWorkspace()
     {
