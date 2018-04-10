@@ -1910,11 +1910,6 @@ class ComponentsTest extends StorageApiTestCase
         $component = $componentsApi->getConfiguration('wr-db', 'main-1');
         $this->assertEquals(2, $component['version']);
 
-        $row = $componentsApi->updateConfigurationRow($configurationRow);
-
-        $this->assertEquals(1, $row['version']);
-        $this->assertEmpty($row['configuration']);
-
         $configurationData = array('test' => 1);
 
         $configurationRow->setConfiguration($configurationData);
