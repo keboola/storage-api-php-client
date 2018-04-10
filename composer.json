@@ -37,7 +37,8 @@
 		"phpcbf": "phpcbf -n .",
 		"phpstan": "phpstan analyse --no-progress --level=1 . -c phpstan.neon",
 		"ci": [
-			"@phpcs"
+			"@phpcs",
+			"@phpstan"
 		]
 	}
 }
