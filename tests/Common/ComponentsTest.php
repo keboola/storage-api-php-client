@@ -1859,11 +1859,11 @@ class ComponentsTest extends StorageApiTestCase
             ->setName('Main')
             ->setDescription('some desc');
 
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $componentsApi = new \Keboola\StorageApi\Components($this->_client);
 
-        $components->addConfiguration($configuration);
+        $componentsApi->addConfiguration($configuration);
 
-        $component = $components->getConfiguration('wr-db', 'main-1');
+        $component = $componentsApi->getConfiguration('wr-db', 'main-1');
         $this->assertEquals('Main', $component['name']);
         $this->assertEquals('some desc', $component['description']);
         $this->assertEmpty($component['configuration']);
@@ -1874,11 +1874,11 @@ class ComponentsTest extends StorageApiTestCase
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
         $configurationRow->setRowId('main-1-1');
 
-        $components->addConfigurationRow($configurationRow);
+        $componentsApi->addConfigurationRow($configurationRow);
 
         $listOptions = new \Keboola\StorageApi\Options\Components\ListComponentsOptions();
         $listOptions->setInclude(array('rows'));
-        $components = $components->listComponents($listOptions);
+        $components = $componentsApi->listComponents($listOptions);
 
         $this->assertCount(1, $components);
 
@@ -1900,19 +1900,17 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals('', $row['description']);
         $this->assertEquals(false, $row['isDisabled']);
 
-        $components = new \Keboola\StorageApi\Components($this->_client);
-
-        $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
+        $rows = $componentsApi->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
             ->setComponentId($component['id'])
             ->setConfigurationId($configuration['id']));
 
         $row = reset($rows);
         $this->assertEquals('main-1-1', $row['id']);
 
-        $component = $components->getConfiguration('wr-db', 'main-1');
+        $component = $componentsApi->getConfiguration('wr-db', 'main-1');
         $this->assertEquals(2, $component['version']);
 
-        $row = $components->updateConfigurationRow($configurationRow);
+        $row = $componentsApi->updateConfigurationRow($configurationRow);
 
         $this->assertEquals(1, $row['version']);
         $this->assertEmpty($row['configuration']);
@@ -1921,13 +1919,13 @@ class ComponentsTest extends StorageApiTestCase
 
         $configurationRow->setConfiguration($configurationData);
 
-        $row = $components->updateConfigurationRow($configurationRow);
+        $row = $componentsApi->updateConfigurationRow($configurationRow);
 
         $this->assertEquals(2, $row['version']);
         $this->assertEquals($configurationData, $row['configuration']);
 
 
-        $versions = $components->listConfigurationRowVersions(
+        $versions = $componentsApi->listConfigurationRowVersions(
             (new \Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions())
                 ->setComponentId('wr-db')
                 ->setConfigurationId('main-1')
@@ -1942,7 +1940,7 @@ class ComponentsTest extends StorageApiTestCase
             $this->assertArrayHasKey('creatorToken', $version);
         }
 
-        $versions = $components->listConfigurationRowVersions(
+        $versions = $componentsApi->listConfigurationRowVersions(
             (new \Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions())
                 ->setComponentId('wr-db')
                 ->setConfigurationId('main-1')
@@ -1958,7 +1956,7 @@ class ComponentsTest extends StorageApiTestCase
             $this->assertArrayHasKey('creatorToken', $version);
             $this->assertArrayHasKey('configuration', $version);
 
-            $rowVersion = $components->getConfigurationRowVersion(
+            $rowVersion = $componentsApi->getConfigurationRowVersion(
                 'wr-db',
                 'main-1',
                 $configurationRow->getRowId(),
@@ -1971,7 +1969,7 @@ class ComponentsTest extends StorageApiTestCase
             $this->assertArrayHasKey('configuration', $rowVersion);
         }
 
-        $versions = $components->listConfigurationRowVersions(
+        $versions = $componentsApi->listConfigurationRowVersions(
             (new \Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions())
                 ->setComponentId('wr-db')
                 ->setConfigurationId('main-1')
