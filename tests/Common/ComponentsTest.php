@@ -1897,28 +1897,25 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertArrayEqualsIgnoreKeys($row2, $versions[0], $exceptKeys);
         $this->assertArrayEqualsIgnoreKeys($row1, $versions[1], $exceptKeys);
 
-        foreach ($versions as $version) {
-            $this->assertArrayHasKey('version', $version);
-            $this->assertArrayHasKey('created', $version);
-            $this->assertArrayHasKey('creatorToken', $version);
-        }
-
-        $versions = $componentsApi->listConfigurationRowVersions(
+        $versionsWithConfiguration = $componentsApi->listConfigurationRowVersions(
             (new \Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions())
                 ->setComponentId('wr-db')
                 ->setConfigurationId('main-1')
                 ->setRowId($configurationRow->getRowId())
-                ->setInclude(array('configuration'))
+                ->setInclude(['configuration'])
         );
 
-        $this->assertCount(2, $versions);
+        $this->assertCount(2, $versionsWithConfiguration);
 
-        foreach ($versions as $version) {
-            $this->assertArrayHasKey('version', $version);
-            $this->assertArrayHasKey('created', $version);
-            $this->assertArrayHasKey('creatorToken', $version);
-            $this->assertArrayHasKey('configuration', $version);
+        $exceptKeys = [
+            'id', // is not in the response
+            'created', // in version it shows when version was created, not row
+            'state', // not included
+        ];
+        $this->assertArrayEqualsIgnoreKeys($row2, $versionsWithConfiguration[0], $exceptKeys);
+        $this->assertArrayEqualsIgnoreKeys($row1, $versionsWithConfiguration[1], $exceptKeys);
 
+        foreach ($versionsWithConfiguration as $version) {
             $rowVersion = $componentsApi->getConfigurationRowVersion(
                 'wr-db',
                 'main-1',
@@ -1926,10 +1923,7 @@ class ComponentsTest extends StorageApiTestCase
                 $version['version']
             );
 
-            $this->assertArrayHasKey('version', $rowVersion);
-            $this->assertArrayHasKey('created', $rowVersion);
-            $this->assertArrayHasKey('creatorToken', $rowVersion);
-            $this->assertArrayHasKey('configuration', $rowVersion);
+            $this->assertEquals($rowVersion, $version);
         }
 
         $versions = $componentsApi->listConfigurationRowVersions(
