@@ -2165,7 +2165,6 @@ Creates a new workspace and return its credentials.
         + Members
             + redshift
             + snowflake
-    + statementTimeoutSeconds (optional, number) - Time, in seconds, after which a running SQL statement is cancelled by 
     the system. Supported only for Snowflake workspaces.
 
 + Request (application/x-www-form-urlencoded)
@@ -2175,7 +2174,7 @@ Creates a new workspace and return its credentials.
 
     + Body
 
-            backend=snowflake&statementTimeoutSeconds=300
+            backend=snowflake
 
 + Response 201 (application/json)
 
