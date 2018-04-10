@@ -30,5 +30,12 @@
 		"keboola/php-csv-db-import": "^2.2",
         "psr/log": "~1.0",
 		"ext-pdo_pgsql": "*"
+	},
+	"scripts": {
+		"phpcs": "phpcs --standard=psr2 --ignore=vendor -n .",
+		"phpcbf": "phpcbf --standard=psr2 --ignore=vendor -n .",
+		"ci": [
+			"@phpcs"
+		]
 	}
 }
