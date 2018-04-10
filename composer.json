@@ -32,8 +32,8 @@
 		"ext-pdo_pgsql": "*"
 	},
 	"scripts": {
-		"phpcs": "phpcs --standard=psr2 --ignore=vendor -n .",
-		"phpcbf": "phpcbf --standard=psr2 --ignore=vendor -n .",
+		"phpcs": "phpcs -n .",
+		"phpcbf": "phpcbf -n .",
 		"ci": [
 			"@phpcs"
 		]
