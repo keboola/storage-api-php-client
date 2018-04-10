@@ -13,6 +13,7 @@ use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
+use Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions;
 use Keboola\Test\StorageApiTestCase;
@@ -979,7 +980,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $components->addConfigurationRow($configurationRow);
 
-        $listOptions = new \Keboola\StorageApi\Options\Components\ListComponentsOptions();
+        $listOptions = new ListComponentsOptions();
         $listOptions->setInclude(array('rows'));
         $components = $components->listComponents($listOptions);
 
@@ -1013,7 +1014,7 @@ class ComponentsTest extends StorageApiTestCase
         $result = $components->listConfigurationVersions($config);
         $this->assertCount(5, $result);
 
-        $listOptions = new \Keboola\StorageApi\Options\Components\ListComponentsOptions();
+        $listOptions = new ListComponentsOptions();
         $listOptions->setInclude(array('rows'));
         $components = $components->listComponents($listOptions);
 
@@ -1117,7 +1118,7 @@ class ComponentsTest extends StorageApiTestCase
         $configs = $components->listComponents();
         $this->assertCount(2, $configs);
 
-        $configs = $components->listComponents((new \Keboola\StorageApi\Options\Components\ListComponentsOptions())
+        $configs = $components->listComponents((new ListComponentsOptions())
             ->setComponentType('writer'));
 
         $this->assertCount(2, $configs[0]['configurations']);
@@ -1127,7 +1128,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertArrayNotHasKey('configuration', $configuration);
 
         // list with configuration body
-        $configs = $components->listComponents((new \Keboola\StorageApi\Options\Components\ListComponentsOptions())
+        $configs = $components->listComponents((new ListComponentsOptions())
             ->setComponentType('writer')
             ->setInclude(array('configuration')));
 
@@ -1256,7 +1257,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $components->addConfigurationRow($configurationRow);
 
-        $listOptions = new \Keboola\StorageApi\Options\Components\ListComponentsOptions();
+        $listOptions = new ListComponentsOptions();
         $listOptions->setInclude(array('rows'));
         $components = $components->listComponents($listOptions);
 
@@ -1282,7 +1283,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $components = new \Keboola\StorageApi\Components($this->_client);
 
-        $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
+        $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId($component['id'])
             ->setConfigurationId($configuration['id']));
 
@@ -1318,7 +1319,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $components->addConfigurationRow($configurationRow);
 
-        $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
+        $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1'));
 
@@ -1347,7 +1348,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $components->addConfigurationRow($configurationRow);
 
-        $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
+        $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1'));
 
@@ -1376,7 +1377,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $components->addConfigurationRow($configurationRow);
 
-        $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
+        $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1'));
 
@@ -1418,7 +1419,7 @@ class ComponentsTest extends StorageApiTestCase
         ;
         $components->updateConfigurationRow($updateConfigurationRow);
 
-        $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
+        $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1'));
 
@@ -1458,7 +1459,7 @@ class ComponentsTest extends StorageApiTestCase
         ;
         $components->updateConfigurationRow($updateConfigurationRow);
 
-        $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
+        $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1'));
 
@@ -1488,7 +1489,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $components->addConfigurationRow($configurationRow);
 
-        $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
+        $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1'));
 
@@ -1503,7 +1504,7 @@ class ComponentsTest extends StorageApiTestCase
         ;
         $components->updateConfigurationRow($updateConfigurationRow);
 
-        $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
+        $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1'));
 
@@ -1534,7 +1535,7 @@ class ComponentsTest extends StorageApiTestCase
         ;
         $components->addConfigurationRow($configurationRow);
 
-        $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
+        $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1'));
 
@@ -1548,7 +1549,7 @@ class ComponentsTest extends StorageApiTestCase
         ;
         $components->updateConfigurationRow($updateConfigurationRow);
 
-        $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
+        $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1'));
 
@@ -1577,7 +1578,7 @@ class ComponentsTest extends StorageApiTestCase
         ;
         $components->addConfigurationRow($configurationRow);
 
-        $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
+        $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1'));
 
@@ -1592,7 +1593,7 @@ class ComponentsTest extends StorageApiTestCase
         ;
         $components->updateConfigurationRow($updateConfigurationRow);
 
-        $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
+        $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1'));
 
@@ -1629,7 +1630,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $components->addConfigurationRow($configurationRow);
 
-        $listOptions = new \Keboola\StorageApi\Options\Components\ListComponentsOptions();
+        $listOptions = new ListComponentsOptions();
         $listOptions->setInclude(array('rows'));
         $components = $components->listComponents($listOptions);
 
@@ -1654,7 +1655,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $components = new \Keboola\StorageApi\Components($this->_client);
 
-        $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
+        $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId($component['id'])
             ->setConfigurationId($configuration['id']));
 
@@ -1734,7 +1735,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $components->addConfigurationRow($configurationRow);
 
-        $listOptions = new \Keboola\StorageApi\Options\Components\ListComponentsOptions();
+        $listOptions = new ListComponentsOptions();
         $listOptions->setInclude(array('rows'));
         $components = $components->listComponents($listOptions);
 
@@ -1757,7 +1758,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $components = new \Keboola\StorageApi\Components($this->_client);
 
-        $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
+        $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId($component['id'])
             ->setConfigurationId($configuration['id']));
 
@@ -1777,7 +1778,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $components = new \Keboola\StorageApi\Components($this->_client);
 
-        $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
+        $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId($configurationRow->getComponentConfiguration()->getComponentId())
             ->setConfigurationId($configurationRow->getComponentConfiguration()->getConfigurationId()));
 
@@ -1808,7 +1809,7 @@ class ComponentsTest extends StorageApiTestCase
         $components->deleteConfigurationRow("transformation", "main", "test");
         $components->addConfigurationRow($configurationRow->setConfiguration(["key" => "newValue"]));
 
-        $listRowsOptions = new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions();
+        $listRowsOptions = new ListConfigurationRowsOptions();
         $listRowsOptions
             ->setComponentId("transformation")
             ->setConfigurationId("main");
@@ -2207,7 +2208,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals('', $row['description']);
         $this->assertEquals(false, $row['isDisabled']);
 
-        $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
+        $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId($configuration->getComponentId())
             ->setConfigurationId($configuration->getConfigurationId()));
 
@@ -2222,7 +2223,7 @@ class ComponentsTest extends StorageApiTestCase
             $configuration2->getConfigurationId()
         );
 
-        $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
+        $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId($configuration->getComponentId())
             ->setConfigurationId($configuration->getConfigurationId()));
 
@@ -2239,7 +2240,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(1, $row['version']);
         $this->assertEquals($configurationData, $row['configuration']);
 
-        $rows = $components->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
+        $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId($configuration2->getComponentId())
             ->setConfigurationId($configuration2->getConfigurationId()));
 
