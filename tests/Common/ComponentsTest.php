@@ -1926,22 +1926,25 @@ class ComponentsTest extends StorageApiTestCase
             $this->assertEquals($rowVersion, $version);
         }
 
-        $versions = $componentsApi->listConfigurationRowVersions(
+        $versionsWithLimitAndOffset = $componentsApi->listConfigurationRowVersions(
             (new \Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions())
                 ->setComponentId('wr-db')
                 ->setConfigurationId('main-1')
                 ->setRowId($configurationRow->getRowId())
+                ->setInclude(['configuration'])
                 ->setLimit(1)
                 ->setOffset(1)
         );
 
-        $this->assertCount(1, $versions);
+        $this->assertCount(1, $versionsWithLimitAndOffset);
 
-        foreach ($versions as $version) {
-            $this->assertArrayHasKey('version', $version);
-            $this->assertArrayHasKey('created', $version);
-            $this->assertArrayHasKey('creatorToken', $version);
-        }
+        $rowVersion = $componentsApi->getConfigurationRowVersion(
+            'wr-db',
+            'main-1',
+            $configurationRow->getRowId(),
+            1
+        );
+        $this->assertEquals($rowVersion, $versionsWithLimitAndOffset[0]);
     }
 
     public function testComponentConfigRowVersionRollback()
