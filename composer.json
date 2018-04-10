@@ -35,7 +35,7 @@
 	"scripts": {
 		"phpcs": "phpcs -n .",
 		"phpcbf": "phpcbf -n .",
-		"phpstan": "phpstan analyse --no-progress --level=0 . -c phpstan.neon",
+		"phpstan": "phpstan analyse --no-progress --level=1 . -c phpstan.neon",
 		"ci": [
 			"@phpcs"
 		]
