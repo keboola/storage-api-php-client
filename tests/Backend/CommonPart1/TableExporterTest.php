@@ -8,7 +8,7 @@
  */
 
 
-namespace Keboola\Test\Backend\CommonPart2;
+namespace Keboola\Test\Backend\CommonPart1;
 
 use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\Client;

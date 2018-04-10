@@ -1529,7 +1529,7 @@ class Client
                     $fh = fopen($filePath, 'r');
                     $putParams = array(
                         'Bucket' => $uploadParams['bucket'],
-                        'Key' => $uploadParams['key'] . baseName($filePath),
+                        'Key' => $uploadParams['key'] . basename($filePath),
                         'ACL' => $uploadParams['acl'],
                         'Body' => $fh,
                         'ContentDisposition' => sprintf('attachment; filename=%s;', basename($filePath)),
@@ -1545,7 +1545,7 @@ class Client
                     $s3Client,
                     $filePath,
                     $uploadParams['bucket'],
-                    $uploadParams['key'] . baseName($filePath),
+                    $uploadParams['key'] . basename($filePath),
                     $uploadParams['acl'],
                     $newOptions->getIsEncrypted() ?  $uploadParams['x-amz-server-side-encryption'] : null
                 );
@@ -1579,7 +1579,7 @@ class Client
                                 $s3Client,
                                 $filePath,
                                 $uploadParams['bucket'],
-                                $uploadParams['key'] . baseName($filePath),
+                                $uploadParams['key'] . basename($filePath),
                                 $uploadParams['acl'],
                                 $newOptions->getIsEncrypted() ?  $uploadParams['x-amz-server-side-encryption'] : null
                             );
