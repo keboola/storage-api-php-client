@@ -1852,20 +1852,18 @@ class ComponentsTest extends StorageApiTestCase
 
     public function testComponentConfigRowVersionsList()
     {
+        $componentsApi = new \Keboola\StorageApi\Components($this->_client);
+
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
             ->setName('Main')
             ->setDescription('some desc');
-
-        $componentsApi = new \Keboola\StorageApi\Components($this->_client);
-
         $componentsApi->addConfiguration($configuration);
 
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
         $configurationRow->setRowId('main-1-1');
-
         $componentsApi->addConfigurationRow($configurationRow);
 
         $listOptions = new \Keboola\StorageApi\Options\Components\ListComponentsOptions();
