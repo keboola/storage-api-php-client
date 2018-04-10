@@ -1876,9 +1876,6 @@ class ComponentsTest extends StorageApiTestCase
         $row = $rows[0];
         $this->assertEquals('main-1-1', $row['id']);
 
-        $component = $componentsApi->getConfiguration('wr-db', 'main-1');
-        $this->assertEquals(2, $component['version']);
-
         $configurationData = array('test' => 1);
 
         $configurationRow->setConfiguration($configurationData);
