@@ -30,6 +30,13 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
      */
     protected $_client;
 
+    /**
+     * Checks that two arrays are same except some keys, which MUST be different
+     *
+     * @param array $expected
+     * @param array $actual
+     * @param array $exceptKeys
+     */
     public function assertArrayEqualsExceptKeys($expected, $actual, array $exceptKeys)
     {
         foreach ($exceptKeys as $exceptKey) {
@@ -43,6 +50,14 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
         static::assertEquals($expected, $actual);
     }
 
+    /**
+     * Asserts that two arrays are equal, ignoring some keys. That keys may or
+     * may not be present.
+     *
+     * @param array $expected
+     * @param array $actual
+     * @param array $ignoreKeys
+     */
     public function assertArrayEqualsIgnoreKeys($expected, $actual, array $ignoreKeys)
     {
         foreach ($ignoreKeys as $ignoreKey) {
