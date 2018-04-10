@@ -1878,7 +1878,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $configurationData = array('test' => 1);
         $configurationRow->setConfiguration($configurationData);
-        $row = $componentsApi->updateConfigurationRow($configurationRow);
+        $row2 = $componentsApi->updateConfigurationRow($configurationRow);
 
         $versions = $componentsApi->listConfigurationRowVersions(
             (new \Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions())
@@ -1888,6 +1888,14 @@ class ComponentsTest extends StorageApiTestCase
         );
 
         $this->assertCount(2, $versions);
+        $exceptKeys = [
+            'id', // is not in the response
+            'created', // in version it shows when version was created, not row
+            'configuration', // not included
+            'state', // not included
+        ];
+        $this->assertArrayEqualsIgnoreKeys($row2, $versions[0], $exceptKeys);
+        $this->assertArrayEqualsIgnoreKeys($row1, $versions[1], $exceptKeys);
 
         foreach ($versions as $version) {
             $this->assertArrayHasKey('version', $version);
