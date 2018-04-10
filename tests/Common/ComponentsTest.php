@@ -1866,30 +1866,6 @@ class ComponentsTest extends StorageApiTestCase
         $configurationRow->setRowId('main-1-1');
         $componentsApi->addConfigurationRow($configurationRow);
 
-        $listOptions = new \Keboola\StorageApi\Options\Components\ListComponentsOptions();
-        $listOptions->setInclude(array('rows'));
-        $components = $componentsApi->listComponents($listOptions);
-
-        $this->assertCount(1, $components);
-
-        $component = reset($components);
-        $this->assertEquals('wr-db', $component['id']);
-        $this->assertCount(1, $component['configurations']);
-
-        $configuration = reset($component['configurations']);
-        $this->assertEquals('main-1', $configuration['id']);
-        $this->assertEquals('Main', $configuration['name']);
-        $this->assertEquals('some desc', $configuration['description']);
-
-        $this->assertArrayHasKey('rows', $configuration);
-        $this->assertCount(1, $configuration['rows']);
-
-        $row = reset($configuration['rows']);
-        $this->assertEquals('main-1-1', $row['id']);
-        $this->assertEquals('', $row['name']);
-        $this->assertEquals('', $row['description']);
-        $this->assertEquals(false, $row['isDisabled']);
-
         $rows = $componentsApi->listConfigurationRows((new \Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions())
             ->setComponentId($component['id'])
             ->setConfigurationId($configuration['id']));
