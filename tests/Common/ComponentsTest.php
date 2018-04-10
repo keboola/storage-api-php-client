@@ -1560,6 +1560,35 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(3, $configuration['version']);
     }
 
+    public function testComponentConfigRowUpdateNoNewVersionIsCreatedIfNothingChanged()
+    {
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('main')
+        ;
+
+        $componentsApi = new \Keboola\StorageApi\Components($this->_client);
+        $componentsApi->addConfiguration($configuration);
+
+        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRow->setRowId('main-1-1');
+        $componentsApi->addConfigurationRow($configurationRow);
+
+        // nothing is changed
+        $componentsApi->updateConfigurationRow($configurationRow);
+
+        $rows = $componentsApi->listConfigurationRowVersions(
+            (new ListConfigurationRowVersionsOptions())
+                ->setComponentId('wr-db')
+                ->setConfigurationId('main-1')
+                ->setRowId($configurationRow->getRowId())
+        );
+        $this->assertCount(1, $rows);
+        $this->assertSame(1, $rows[0]['version']);
+    }
+
     public function testComponentConfigRowUpdateConfigEmptyWithEmpty()
     {
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
