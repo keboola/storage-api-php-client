@@ -43,6 +43,15 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
         static::assertEquals($expected, $actual);
     }
 
+    public function assertArrayEqualsIgnoreKeys($expected, $actual, array $ignoreKeys)
+    {
+        foreach ($ignoreKeys as $ignoreKey) {
+            unset($actual[$ignoreKey]);
+            unset($expected[$ignoreKey]);
+        }
+        static::assertEquals($expected, $actual);
+    }
+
     public function setUp()
     {
         $this->_client = new \Keboola\StorageApi\Client(array(
