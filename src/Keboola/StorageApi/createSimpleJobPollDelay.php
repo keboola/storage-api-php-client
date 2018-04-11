@@ -4,7 +4,7 @@ namespace Keboola\StorageApi;
 
 /**
  * @param int $maxJobPollWaitSeconds
- * @return \callable
+ * @return callable
  */
 function createSimpleJobPollDelay($maxJobPollWaitSeconds = 20)
 {

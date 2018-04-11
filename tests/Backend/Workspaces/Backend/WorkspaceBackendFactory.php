@@ -13,6 +13,11 @@ use Keboola\Test\StorageApiTestCase;
 
 class WorkspaceBackendFactory
 {
+    /**
+     * @param $workspace
+     * @return WorkspaceBackend
+     * @throws Exception
+     */
     public static function createWorkspaceBackend($workspace)
     {
         

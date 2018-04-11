@@ -14,7 +14,7 @@ use Keboola\StorageApi\Workspaces;
 use Keboola\StorageApi\ClientException;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
-class WorkspaceLoadTest extends WorkspacesTestCase
+class WorkspacesLoadTest extends WorkspacesTestCase
 {
     public function testWorkspaceTablesPermissions()
     {

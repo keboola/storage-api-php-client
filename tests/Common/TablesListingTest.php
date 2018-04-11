@@ -7,7 +7,7 @@
  * To change this template use File | Settings | File Templates.
  */
 
-namespace Keboola\Test\Backend\CommonPart1;
+namespace Keboola\Test\Common;
 
 use Keboola\StorageApi\Metadata;
 use Keboola\Test\StorageApiTestCase;
@@ -141,8 +141,7 @@ class TablesListingTest extends StorageApiTestCase
 
         $this->assertCount(2, $tables);
 
-        function findTable($tables, $tableId)
-        {
+        $findTable = function ($tables, $tableId) {
             $found = array_filter($tables, function ($table) use ($tableId) {
                 return $table['id'] === $tableId;
             });
@@ -150,14 +149,14 @@ class TablesListingTest extends StorageApiTestCase
                 throw  new \Exception("Table $tableId not found");
             }
             return reset($found);
-        }
+        };
 
-        $languagesTables = findTable($tables, $tableId);
+        $languagesTables = $findTable($tables, $tableId);
         $this->assertEquals($tableId, $languagesTables['id']);
         $this->assertArrayHasKey('columns', $languagesTables);
         $this->assertEquals(array('id', 'name'), $languagesTables['columns']);
 
-        $usersTables = findTable($tables, $table2Id);
+        $usersTables = $findTable($tables, $table2Id);
         $this->assertEquals($table2Id, $usersTables['id']);
         $this->assertArrayHasKey('columns', $usersTables);
         $this->assertEquals(array('id', 'name', 'city', 'sex'), $usersTables['columns']);
@@ -168,17 +167,17 @@ class TablesListingTest extends StorageApiTestCase
         ));
         $this->assertCount(3, $tables);
 
-        $languagesTables = findTable($tables, $tableId);
+        $languagesTables = $findTable($tables, $tableId);
         $this->assertEquals($tableId, $languagesTables['id']);
         $this->assertArrayHasKey('columns', $languagesTables);
         $this->assertEquals(array('id', 'name'), $languagesTables['columns']);
 
-        $usersTables = findTable($tables, $table2Id);
+        $usersTables = $findTable($tables, $table2Id);
         $this->assertEquals($table2Id, $usersTables['id']);
         $this->assertArrayHasKey('columns', $usersTables);
         $this->assertEquals(array('id', 'name', 'city', 'sex'), $usersTables['columns']);
 
-        $datesTables = findTable($tables, $table3Id);
+        $datesTables = $findTable($tables, $table3Id);
         $this->assertEquals($table3Id, $datesTables['id']);
         $this->assertArrayHasKey('columns', $usersTables);
         $this->assertEquals(array('valid_from'), $datesTables['columns']);
