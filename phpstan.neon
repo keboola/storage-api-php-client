@@ -1,0 +1,5 @@
+parameters:
+    ignoreErrors:
+        - '#Constant STORAGE_API_[_A-Z]+ not found.#'
+    excludes_analyse:
+        - vendor

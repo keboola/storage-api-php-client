@@ -71,7 +71,7 @@ class SnowflakeWorkspaceBackend implements WorkspaceBackend
     public function countRows($table)
     {
         $tables = $this->db->fetchAll(
-            sprintf("SHOW TABLES LIKE '%s' IN SCHEMA %", $table, $this->schema)
+            sprintf("SHOW TABLES LIKE '%s' IN SCHEMA %s", $table, $this->schema)
         );
         return (int) $tables[0]['rows'];
     }

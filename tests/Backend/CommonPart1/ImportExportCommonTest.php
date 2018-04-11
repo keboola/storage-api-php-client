@@ -366,7 +366,7 @@ class ImportExportCommonTest extends StorageApiTestCase
             $this->fail('Exception should be thrown');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('csvImport.columnsNotMatch', $e->getStringCode());
-            $this->arrayHasKey('exceptionId', $e->getContextParams());
+            $this->assertArrayHasKey('exceptionId', $e->getContextParams());
             $this->assertArrayHasKey('job', $e->getContextParams());
             $job = $e->getContextParams()['job'];
             $this->assertEquals('error', $job['status']);

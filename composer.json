@@ -29,13 +29,16 @@
 		"apigen/apigen": "4.0.0-RC4",
 		"keboola/php-csv-db-import": "^2.2",
         "psr/log": "~1.0",
-		"ext-pdo_pgsql": "*"
+		"ext-pdo_pgsql": "*",
+		"phpstan/phpstan-shim": "^0.9.2"
 	},
 	"scripts": {
 		"phpcs": "phpcs -n .",
 		"phpcbf": "phpcbf -n .",
+		"phpstan": "phpstan analyse --no-progress --level=1 . -c phpstan.neon",
 		"ci": [
-			"@phpcs"
+			"@phpcs",
+			"@phpstan"
 		]
 	}
 }

@@ -9,7 +9,7 @@ use Keboola\StorageApi\Workspaces;
 use Keboola\StorageApi\ClientException;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
-class WorkspaceRenameLoadTest extends WorkspacesTestCase
+class WorkspacesRenameLoadTest extends WorkspacesTestCase
 {
     public function testLoadIncremental()
     {

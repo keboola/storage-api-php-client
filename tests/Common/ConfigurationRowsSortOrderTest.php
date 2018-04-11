@@ -38,7 +38,7 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
             ->setName('Main'));
 
         $configurationResponse = $components->getConfiguration('wr-db', 'main-1');
-        $this->arrayHasKey('rowsSortOrder', $configurationResponse);
+        $this->assertArrayHasKey('rowsSortOrder', $configurationResponse);
         $this->assertEmpty($configurationResponse['rowsSortOrder']);
         $this->assertInternalType('array', $configurationResponse['rowsSortOrder']);
     }
@@ -58,7 +58,7 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
         $components->addConfigurationRow($configurationRow);
 
         $configurationResponse = $components->getConfiguration('wr-db', 'main-1');
-        $this->arrayHasKey('rowsSortOrder', $configurationResponse);
+        $this->assertArrayHasKey('rowsSortOrder', $configurationResponse);
         $this->assertCount(0, $configurationResponse['rowsSortOrder']);
     }
 
@@ -78,7 +78,7 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
         $components->addConfigurationRow($configurationRow);
 
         $configurationResponse = $components->getConfiguration('wr-db', 'main-1');
-        $this->arrayHasKey('rowsSortOrder', $configurationResponse);
+        $this->assertArrayHasKey('rowsSortOrder', $configurationResponse);
 
         $updateConfig = new Configuration();
         $updateConfig
@@ -118,7 +118,7 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
         $components->addConfigurationRow($configurationRow);
 
         $configurationResponse = $components->getConfiguration('wr-db', 'main-1');
-        $this->arrayHasKey('rowsSortOrder', $configurationResponse);
+        $this->assertArrayHasKey('rowsSortOrder', $configurationResponse);
         $this->assertCount(2, $configurationResponse['rowsSortOrder']);
         $this->assertEquals(['main-1-1', 'abcd'], $configurationResponse['rowsSortOrder']);
         $this->assertEquals('main-1-1', $configurationResponse['rows'][0]['id']);
@@ -145,7 +145,7 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
         $components->addConfigurationRow($configurationRow);
 
         $configurationResponse = $components->getConfiguration('wr-db', 'main-1');
-        $this->arrayHasKey('rowsSortOrder', $configurationResponse);
+        $this->assertArrayHasKey('rowsSortOrder', $configurationResponse);
         $this->assertCount(0, $configurationResponse['rowsSortOrder']);
         $this->assertEquals('abcd', $configurationResponse['rows'][0]['id']);
         $this->assertEquals('main-1-1', $configurationResponse['rows'][1]['id']);
@@ -462,7 +462,7 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
             ->setName('Main'));
 
         $configurationResponse = $components->getConfigurationVersion('wr-db', 'main-1', 1);
-        $this->arrayHasKey('rowsSortOrder', $configurationResponse);
+        $this->assertArrayHasKey('rowsSortOrder', $configurationResponse);
         $this->assertEmpty($configurationResponse['rowsSortOrder']);
         $this->assertInternalType('array', $configurationResponse['rowsSortOrder']);
     }

@@ -12,7 +12,7 @@ namespace Keboola\Test\Common;
 use Keboola\StorageApi\Client;
 use Keboola\Test\StorageApiTestCase;
 
-class Common extends StorageApiTestCase
+class CommonTest extends StorageApiTestCase
 {
 
     public function testParseCsv()

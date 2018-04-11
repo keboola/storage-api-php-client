@@ -110,6 +110,8 @@ class TableExporter
 
             // Create file with header
             $format = 'rfc';
+            $delimiter = ",";
+            $enclosure = '"';
             if (isset($exportOptions['format'])) {
                 $format = $exportOptions['format'];
             }

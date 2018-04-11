@@ -10,7 +10,7 @@ namespace Keboola\Test\Backend\Redshift;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 
-class DeepCopyTest extends StorageApiTestCase
+class OptimizeTest extends StorageApiTestCase
 {
     public function setUp()
     {
