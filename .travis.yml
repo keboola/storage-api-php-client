@@ -14,7 +14,7 @@ install:
  - docker-compose build tests
 
 script:
- - docker-compose run --rm tests ./vendor/bin/phpcs --standard=psr2 --ignore=vendor -n .
+ - docker-compose run --rm tests composer ci
 
 deploy:
   provider: script
