@@ -43,7 +43,7 @@ class ConfigurationRowStateTest extends StorageApiTestCase
         $components->addConfigurationRow($configurationRow);
 
         $configurationResponse = $components->getConfiguration('wr-db', 'main-1');
-        $this->assertArrayHasKey('state', $configurationResponse['rows'][0]['state']);
+        $this->assertArrayHasKey('state', $configurationResponse['rows'][0]);
         $this->assertEmpty($configurationResponse['rows'][0]['state']);
         $this->assertInternalType('array', $configurationResponse['rows'][0]['state']);
     }
