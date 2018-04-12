@@ -1873,7 +1873,6 @@ class ComponentsTest extends StorageApiTestCase
         );
 
         $this->assertCount(1, $rows);
-        $row = $rows[0];
         $this->assertEquals($row1, $rows[0]);
 
         $configurationData = array('test' => 1);
