@@ -879,6 +879,9 @@ class ComponentsTest extends StorageApiTestCase
         // update config
         $componentsApi->updateConfiguration($configuration->setConfiguration(['d' => 'b']));
 
+        // wait a moment, rollbacked version should have different created date
+        sleep(2);
+
         // rollback to version 2
         // second row should be missing, and first row should be rolled back to first version
         $componentsApi->rollbackConfiguration('wr-db', $newConfiguration['id'], 2);
