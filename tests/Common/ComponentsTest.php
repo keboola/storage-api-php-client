@@ -1904,7 +1904,9 @@ class ComponentsTest extends StorageApiTestCase
                 ->setComponentId('wr-db')
                 ->setConfigurationId('main-1')
                 ->setRowId($configurationRow->getRowId())
-                ->setInclude(['configuration'])
+                // intentionally added "state" that is not supported
+                // it should be silently dropped
+                ->setInclude(['configuration', 'state'])
         );
 
         $this->assertCount(2, $versionsWithConfiguration);
