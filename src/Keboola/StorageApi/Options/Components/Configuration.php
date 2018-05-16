@@ -27,7 +27,7 @@ class Configuration
 
     private $changeDescription;
 
-    private $rowsSortOrder;
+    private $rowsSortOrder = [];
 
     /**
      * @return mixed
