@@ -109,11 +109,11 @@ class SimpleAliasTest extends StorageApiTestCase
         } catch (\Keboola\StorageApi\ClientException $e) {
         }
 
-        // first delete alias, than source table
-        $this->_client->dropTable($aliasTableId);
-        $this->_client->dropTable($sourceTableId);
-    }
+        $this->_client->dropTable($sourceTableId, ['force' => true]);
 
+        $this->assertCount(0, $this->_client->listTables($this->getTestBucketId()));
+        $this->assertCount(0, $this->_client->listTables($this->getTestBucketId(self::STAGE_OUT)));
+    }
 
     public function testTableAliasFilterModifications()
     {
