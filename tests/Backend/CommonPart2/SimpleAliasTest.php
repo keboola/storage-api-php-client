@@ -247,6 +247,19 @@ class SimpleAliasTest extends StorageApiTestCase
         $expectedColumns = array("id", "name", "city", "sex", "age");
         $this->assertEquals($expectedColumns, $aliasTable["columns"]);
 
+        try {
+            $this->_client->deleteTableColumn($sourceTableId, 'age');
+            $this->fail('Exception should be thrown on table delete when table has aliases');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.tables.cannotDeleteReferencedColumn', $e->getStringCode());
+        }
+
+        $this->_client->deleteTableColumn($sourceTableId, 'age', ['force' => true]);
+
+        $aliasTable = $this->_client->getTable($aliasTableId);
+        $expectedColumns = array("id", "name", "city", "sex");
+        $this->assertEquals($expectedColumns, $aliasTable["columns"]);
+
         $this->_client->disableAliasTableColumnsAutoSync($aliasTableId);
 
         $aliasTable = $this->_client->getTable($aliasTableId);
@@ -257,7 +270,7 @@ class SimpleAliasTest extends StorageApiTestCase
 
         $aliasTable = $this->_client->getTable($aliasTableId);
 
-        $expectedColumns = array("id", "city", "sex", "age");
+        $expectedColumns = array("id", "city", "sex");
         $this->assertEquals($expectedColumns, $aliasTable["columns"]);
 
         $data = $this->_client->parseCsv($this->_client->getTableDataPreview($aliasTableId));
@@ -267,7 +280,7 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->_client->enableAliasTableColumnsAutoSync($aliasTableId);
         $aliasTable = $this->_client->getTable($aliasTableId);
 
-        $this->assertEquals(array("id", "name", "city", "sex", "age", "birthDate"), $aliasTable['columns']);
+        $this->assertEquals(array("id", "name", "city", "sex", "birthDate"), $aliasTable['columns']);
     }
 
     public function testColumnUsedInFilteredAliasShouldNotBeDeletable()
