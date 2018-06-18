@@ -1390,8 +1390,13 @@ Obtains information about a table.
                 }
             }
 
-### Drop table [DELETE]
-Deletes a table from Storage.
+### Drop table [DELETE /v2/storage/tables/{table_id}/?force={force}]
+Deletes a table from Storage. In default mode, only table having any aliases can be deleted.
+Use the optional `force` parameter to delete its aliases too.
+
++ Parameters
+    + table_id (required) - Table Id
+    + force (optional, boolean) - Drops the table and its aliases. All aliases must have `aliasColumnsAutosync` enabled.
 
 + Request
     + Headers
@@ -1573,12 +1578,14 @@ Adds a new column to an existing table. This request is [asynchronous](#introduc
 
 ## Manage Table Columns [/v2/storage/tables/{table_id}/columns/{column_name}]
 
-### Delete Column from Table [DELETE]
+### Delete Column from Table [DELETE /v2/storage/tables/{table_id}/columns/{column_name}/?force={force}]
 Deletes an existing column from an existing table. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
+Use the optional `force` parameter to delete the column from table aliases too.
 
 + Parameters
     + table_id (required) - Table Id
     + column_name (required) - Column Name
+    + force (optional, boolean) - Delete the column from table and table aliases. All aliases must have `aliasColumnsAutosync` enabled.
 
 + Request
     + Headers
@@ -1595,7 +1602,8 @@ Deletes an existing column from an existing table. This request is [asynchronous
                "tableId":"in.c-main.another",
                "operationName":"tableColumnDelete",
                "operationParams":{
-                  "name":"new-column"
+                  "name":"new-column",
+                  "force": false
                },
                "createdTime":"2013-07-08T10:01:03+0200",
                "startTime":null,
