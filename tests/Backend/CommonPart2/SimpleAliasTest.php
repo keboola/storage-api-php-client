@@ -247,19 +247,6 @@ class SimpleAliasTest extends StorageApiTestCase
         $expectedColumns = array("id", "name", "city", "sex", "age");
         $this->assertEquals($expectedColumns, $aliasTable["columns"]);
 
-        try {
-            $this->_client->deleteTableColumn($sourceTableId, 'age');
-            $this->fail('Exception should be thrown on table delete when table has aliases');
-        } catch (ClientException $e) {
-            $this->assertEquals('storage.tables.cannotDeleteReferencedColumn', $e->getStringCode());
-        }
-
-        $this->_client->deleteTableColumn($sourceTableId, 'age', ['force' => true]);
-
-        $aliasTable = $this->_client->getTable($aliasTableId);
-        $expectedColumns = array("id", "name", "city", "sex");
-        $this->assertEquals($expectedColumns, $aliasTable["columns"]);
-
         $this->_client->disableAliasTableColumnsAutoSync($aliasTableId);
 
         $aliasTable = $this->_client->getTable($aliasTableId);
@@ -270,7 +257,7 @@ class SimpleAliasTest extends StorageApiTestCase
 
         $aliasTable = $this->_client->getTable($aliasTableId);
 
-        $expectedColumns = array("id", "city", "sex");
+        $expectedColumns = array("id", "city", "sex", "age");
         $this->assertEquals($expectedColumns, $aliasTable["columns"]);
 
         $data = $this->_client->parseCsv($this->_client->getTableDataPreview($aliasTableId));
@@ -280,7 +267,54 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->_client->enableAliasTableColumnsAutoSync($aliasTableId);
         $aliasTable = $this->_client->getTable($aliasTableId);
 
-        $this->assertEquals(array("id", "name", "city", "sex", "birthDate"), $aliasTable['columns']);
+        $this->assertEquals(array("id", "name", "city", "sex", "age", "birthDate"), $aliasTable['columns']);
+    }
+
+    public function testColumnAssignedToAliasWithAutoSyncShouldNotBeDeletable()
+    {
+        $importFile = __DIR__ . '/../../_data/users.csv';
+        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+
+        $aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users');
+
+        $aliasTable = $this->_client->getTable($aliasTableId);
+        $this->assertEquals(array("id", "name", "city", "sex"), $aliasTable["columns"]);
+
+        $this->_client->addTableColumn($sourceTableId, 'age');
+
+        $aliasTable = $this->_client->getTable($aliasTableId);
+        $expectedColumns = array("id", "name", "city", "sex", "age");
+        $this->assertEquals($expectedColumns, $aliasTable["columns"]);
+
+        try {
+            $this->_client->deleteTableColumn($sourceTableId, 'age');
+            $this->fail('Exception should be thrown on table delete when table has aliases');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.tables.cannotDeleteReferencedColumn', $e->getStringCode());
+        }
+    }
+
+    public function testColumnAssignedToAliasWithAutoSyncShouldBeForceDeletable()
+    {
+        $importFile = __DIR__ . '/../../_data/users.csv';
+        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+
+        $aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users');
+
+        $aliasTable = $this->_client->getTable($aliasTableId);
+        $this->assertEquals(array("id", "name", "city", "sex"), $aliasTable["columns"]);
+
+        $this->_client->addTableColumn($sourceTableId, 'age');
+
+        $aliasTable = $this->_client->getTable($aliasTableId);
+        $expectedColumns = array("id", "name", "city", "sex", "age");
+        $this->assertEquals($expectedColumns, $aliasTable["columns"]);
+
+        $this->_client->deleteTableColumn($sourceTableId, 'age', ['force' => true]);
+
+        $aliasTable = $this->_client->getTable($aliasTableId);
+        $expectedColumns = array("id", "name", "city", "sex");
+        $this->assertEquals($expectedColumns, $aliasTable["columns"]);
     }
 
     public function testColumnUsedInFilteredAliasShouldNotBeDeletable()
@@ -303,6 +337,26 @@ class SimpleAliasTest extends StorageApiTestCase
         }
     }
 
+    public function testColumnUsedInFilteredAliasShouldNotBeForceDeletable()
+    {
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile($importFile));
+
+        $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'languages', array(
+            'aliasFilter' => array(
+                'column' => 'id',
+                'values' => array('1'),
+            ),
+        ));
+
+        try {
+            $this->_client->deleteTableColumn($sourceTableId, 'id', ['force']);
+            $this->fail('Exception should be thrown when filtered column is deleted');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.tables.cannotDeleteReferencedColumn', $e->getStringCode());
+        }
+    }
+
     public function testColumnAssignedToAliasWithoutAutoSyncShouldNotBeDeletable()
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
@@ -318,6 +372,27 @@ class SimpleAliasTest extends StorageApiTestCase
 
         try {
             $this->_client->deleteTableColumn($sourceTableId, 'city');
+            $this->fail('Exception should be thrown when referenced column is deleted');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.tables.cannotDeleteReferencedColumn', $e->getStringCode());
+        }
+    }
+
+    public function testColumnAssignedToAliasWithoutAutoSyncShouldNotBeForceDeletable()
+    {
+        $importFile = __DIR__ . '/../../_data/users.csv';
+        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+
+        $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users', array(
+            'aliasColumns' => array(
+                'city',
+                'id',
+                'name',
+            ),
+        ));
+
+        try {
+            $this->_client->deleteTableColumn($sourceTableId, 'city', ['force' => true]);
             $this->fail('Exception should be thrown when referenced column is deleted');
         } catch (ClientException $e) {
             $this->assertEquals('storage.tables.cannotDeleteReferencedColumn', $e->getStringCode());
