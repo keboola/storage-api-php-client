@@ -370,7 +370,7 @@ class SimpleAliasTest extends StorageApiTestCase
         ));
 
         try {
-            $this->_client->deleteTableColumn($sourceTableId, 'id', ['force']);
+            $this->_client->deleteTableColumn($sourceTableId, 'id', ['force' => true]);
             $this->fail('Exception should be thrown when filtered column is deleted');
         } catch (ClientException $e) {
             $this->assertEquals('storage.tables.cannotDeleteReferencedColumn', $e->getStringCode());
