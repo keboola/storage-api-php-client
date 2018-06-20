@@ -638,7 +638,7 @@ class SharingTest extends StorageApiTestCase
                 $this->_client->deleteTableColumn($table['id'], 'name');
                 $this->fail('Shared table column delete should fail');
             } catch (ClientException $e) {
-                $this->assertEquals('storage.buckets.alreadyLinked', $e->getStringCode());
+                $this->assertEquals('storage.tables.cannotDeleteReferencedColumn', $e->getStringCode());
             }
         }
 
