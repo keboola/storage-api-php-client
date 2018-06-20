@@ -109,6 +109,21 @@ class SimpleAliasTest extends StorageApiTestCase
         } catch (\Keboola\StorageApi\ClientException $e) {
         }
 
+        // first delete alias, than source table
+        $this->_client->dropTable($aliasTableId);
+        $this->_client->dropTable($sourceTableId);
+    }
+
+    public function testTableWithAliasShouldBeForceDeletable()
+    {
+        $importFile = __DIR__ . '/../../_data/users.csv';
+        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+
+        $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users');
+
+        $this->assertCount(1, $this->_client->listTables($this->getTestBucketId()));
+        $this->assertCount(1, $this->_client->listTables($this->getTestBucketId(self::STAGE_OUT)));
+
         $this->_client->dropTable($sourceTableId, ['force' => true]);
 
         $this->assertCount(0, $this->_client->listTables($this->getTestBucketId()));
@@ -160,6 +175,11 @@ class SimpleAliasTest extends StorageApiTestCase
         $aliasTable = $this->_client->getTable($aliasTableId);
 
         $this->assertArrayNotHasKey('aliasFilter', $aliasTable);
+
+        $this->_client->dropTable($sourceTableId, ['force' => true]);
+
+        $this->assertCount(0, $this->_client->listTables($this->getTestBucketId()));
+        $this->assertCount(0, $this->_client->listTables($this->getTestBucketId(self::STAGE_OUT)));
     }
 
     public function testTableAliasUnlink()
@@ -433,6 +453,27 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->assertEquals($aliasTable['columns'], $aliasColumns, 'Column should not be added to alias with auto sync disabled');
     }
 
+    public function testTableWithAliasWithoutAutoSyncShouldBeForceDeletable()
+    {
+        $importFile = __DIR__ . '/../../_data/users.csv';
+        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+
+        $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users', array(
+            'aliasColumns' => array(
+                'city',
+                'id',
+                'name',
+            ),
+        ));
+
+        $this->assertCount(1, $this->_client->listTables($this->getTestBucketId()));
+        $this->assertCount(1, $this->_client->listTables($this->getTestBucketId(self::STAGE_OUT)));
+
+        $this->_client->dropTable($sourceTableId, ['force' => true]);
+
+        $this->assertCount(0, $this->_client->listTables($this->getTestBucketId()));
+        $this->assertCount(0, $this->_client->listTables($this->getTestBucketId(self::STAGE_OUT)));
+    }
 
     /**
      * @param $filterOptions
