@@ -419,6 +419,25 @@ class SimpleAliasTest extends StorageApiTestCase
         }
     }
 
+    public function testColumnNotUsedInAnyAliasShouldBeDeletable()
+    {
+        $importFile = __DIR__ . '/../../_data/users.csv';
+        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+
+        $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users', array(
+            'aliasColumns' => array(
+                'city',
+                'id',
+            ),
+        ));
+
+        $this->_client->deleteTableColumn($sourceTableId, 'name');
+
+        $sourceTable = $this->_client->getTable($sourceTableId);
+        $expectedColumns = ["id", "city", "sex"];
+        $this->assertEquals($expectedColumns, $sourceTable["columns"]);
+    }
+
     public function testAliasColumns()
     {
         // source table
