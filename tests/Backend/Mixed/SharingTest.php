@@ -638,7 +638,7 @@ class SharingTest extends StorageApiTestCase
                 $this->_client->deleteTableColumn($table['id'], 'name');
                 $this->fail('Shared table column delete should fail');
             } catch (ClientException $e) {
-                $this->assertEquals('storage.buckets.alreadyLinked', $e->getStringCode());
+                $this->assertEquals('storage.tables.cannotDeleteReferencedColumn', $e->getStringCode());
             }
         }
 
@@ -651,6 +651,60 @@ class SharingTest extends StorageApiTestCase
         }
 
         $this->validateTablesMetadata($bucketId, $linkedBucketId);
+    }
+
+    /**
+     * @dataProvider sharingBackendData
+     * @throws ClientException
+     */
+    public function testForcedDrop($backend)
+    {
+        $this->initTestBuckets($backend);
+        $bucketId = reset($this->_bucketIds);
+
+        // prepare bucket tables
+        $tableId = $this->_client->createTableAsync(
+            $bucketId,
+            'first',
+            new CsvFile(__DIR__ . '/../../_data/pk.simple.csv'),
+            [
+                'primaryKey' => 'id',
+            ]
+        );
+
+        $this->_client->shareBucket($bucketId);
+
+        // link
+        $response = $this->_client2->listSharedBuckets();
+        $this->assertCount(1, $response);
+
+        $sharedBucket = reset($response);
+
+        $linkedBucketId = $this->_client2->linkBucket(
+            "linked-" . time(),
+            'in',
+            $sharedBucket['project']['id'],
+            $sharedBucket['id']
+        );
+
+        $tables = $this->_client->listTables($bucketId);
+        $this->assertCount(1, $tables);
+
+        foreach ($this->_client->listTables($bucketId) as $table) {
+            // column drop
+            $this->_client->deleteTableColumn($table['id'], 'name', ['force' =>  true]);
+
+            $detail = $this->_client->getTable($table['id']);
+            $this->assertEquals(['id'], $detail['columns']);
+
+            $this->validateTablesMetadata($bucketId, $linkedBucketId);
+
+            // table drop
+            $this->_client->dropTable($table['id'], ['force' =>  true]);
+        }
+
+        $this->assertCount(0, $this->_client->listTables($bucketId));
+        $this->assertCount(0, $this->_client2->listTables($linkedBucketId));
     }
 
     /**

@@ -805,11 +805,22 @@ class Client
      * Drop a table
      *
      * @param string $tableId
+     * @param array $options - (bool) force
      * @return mixed|string
      */
-    public function dropTable($tableId)
+    public function dropTable($tableId, $options = array())
     {
-        $result = $this->apiDelete("storage/tables/" . $tableId);
+        $url = "storage/tables/" . $tableId;
+
+        $allowedOptions = array(
+            'force',
+        );
+
+        $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
+
+        $url .= '?' . http_build_query($filteredOptions);
+
+        $result = $this->apiDelete($url);
         $this->log("Table {$tableId} deleted");
         return $result;
     }
@@ -896,11 +907,22 @@ class Client
      *
      * @param string $tableId
      * @param string $name
+     * @param array $options - (bool) force
      * @return mixed|string
      */
-    public function deleteTableColumn($tableId, $name)
+    public function deleteTableColumn($tableId, $name, $options = array())
     {
-        $this->apiDelete("storage/tables/$tableId/columns/$name");
+        $url = "storage/tables/$tableId/columns/$name";
+
+        $allowedOptions = array(
+            'force',
+        );
+
+        $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
+
+        $url .= '?' . http_build_query($filteredOptions);
+
+        $this->apiDelete($url);
         $this->log("Table $tableId column $name deleted");
     }
 
