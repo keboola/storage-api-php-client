@@ -450,7 +450,14 @@ class ImportExportCommonTest extends StorageApiTestCase
         $oldFileInfo = $fileInfo;
         $secondRunId = $this->_client->generateRunId();
         $this->_client->setRunId($secondRunId);
+        $this->_client->exportTableAsync($tableId);
 
+        $thirdRunId = $this->_client->generateRunId();
+        $this->_client->setRunId($thirdRunId);
+        $this->_client->exportTableAsync($tableId);
+
+        $fourthRunId = $this->_client->generateRunId();
+        $this->_client->setRunId($fourthRunId);
         $tableExportResult = $this->_client->exportTableAsync($tableId);
         $fileInfo = $this->_client->getFile($tableExportResult["file"]["id"], (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
 
@@ -458,7 +465,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         $this->assertEquals($firstRunId, $fileInfo['runId']);
 
         $this->assertArrayHasKey('runIds', $fileInfo);
-        $this->assertEquals([$firstRunId, $secondRunId], $fileInfo['runIds']);
+        $this->assertEquals([$firstRunId, $secondRunId, $thirdRunId, $fourthRunId], $fileInfo['runIds']);
 
         $this->assertTrue($oldFileInfo["id"] === $fileInfo["id"]);
     }
