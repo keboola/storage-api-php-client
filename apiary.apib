@@ -3095,9 +3095,9 @@ This method allows you to upload a file to KBC File Storage. The upload should b
 1. Create a new file resource (use this API call).
 2. Use the provided credentials to actually upload the file data to the Amazon S3 storage.
 
-The credentials are generated either as standard *AWS credentials* (`federationToken` set to true) or for an HTTP *form submission* 
-(`federationToken` set to false). We recommend using the federation token and any of the many S3 clients or libraries to 
-upload the files. The *form submission* method is less reliable and does not work in all regions (e.g. eu-central-1, ap-northeast-2).
+The credentials are generated either as standard *AWS credentials* (`federationToken` set to true) or for an HTTP *legacy form submission*
+(`federationToken` set to false). The *legacy form submission* method is *deprecated*. Please use always the federation token method and any of the many S3 clients or libraries to
+upload the files. The *legacy form submission* method is less reliable and does not work in all regions (e.g. eu-central-1, ap-northeast-2).
 For a more detailed guide on the file upload, see the corresponding part of the 
 [Developers documentation](https://developers.keboola.com/integrate/storage/api/import-export/#manually-uploading-a-file).
 
@@ -3113,7 +3113,7 @@ For a more detailed guide on the file upload, see the corresponding part of the
     + notify (optional, boolean) - Notifies project administrators that a file was uploaded.
         Default: false
     + tags[] (optional) - Assigns one or more tags to the file.
-    + federationToken (optional, boolean) - When true, it returns AWS credentials instead of form submission parameters.
+    + federationToken (optional, boolean) - Must be set to `true`.
         Default: false
     + sliced (optional, boolean) - If true, multiple chunks of a file are allowed to be uploaded. Must be used with `federationToken`.
         Default: false
