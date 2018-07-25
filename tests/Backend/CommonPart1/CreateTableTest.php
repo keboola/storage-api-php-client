@@ -140,7 +140,11 @@ class CreateTableTest extends StorageApiTestCase
 
     public function testTableCreateFromNotUploadedFileShouldThrowError()
     {
-        $file = $this->_client->prepareFileUpload((new FileUploadOptions())->setFileName('missing'));
+        $file = $this->_client->prepareFileUpload(
+            (new FileUploadOptions())
+                ->setFileName('missing')
+                ->setFederationToken(true)
+        );
         try {
             $this->_client->createTableAsyncDirect(
                 $this->getTestBucketId(self::STAGE_IN),
