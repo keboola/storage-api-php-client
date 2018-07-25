@@ -9,7 +9,7 @@ use Keboola\Test\StorageApiTestCase;
 use \Keboola\StorageApi\Options\FileUploadOptions;
 use \Keboola\StorageApi\Options\ListFilesOptions;
 
-class FilesTest extends StorageApiTestCase
+class FilesLegacyFormUploadsTest extends StorageApiTestCase
 {
 
     public function testFormUpload()
