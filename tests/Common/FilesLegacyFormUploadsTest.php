@@ -3,11 +3,9 @@
 
 namespace Keboola\Test\Common;
 
-use GuzzleHttp\Client;
 use Keboola\Test\StorageApiTestCase;
 
 use \Keboola\StorageApi\Options\FileUploadOptions;
-use \Keboola\StorageApi\Options\ListFilesOptions;
 
 class FilesLegacyFormUploadsTest extends StorageApiTestCase
 {
