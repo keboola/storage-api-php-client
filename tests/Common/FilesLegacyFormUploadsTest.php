@@ -165,5 +165,4 @@ class FilesTest extends StorageApiTestCase
             $this->assertEquals('AccessDenied', $e->getAwsErrorCode());
         }
     }
-
 }
