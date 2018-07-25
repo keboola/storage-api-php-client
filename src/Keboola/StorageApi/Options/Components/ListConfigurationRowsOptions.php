@@ -7,6 +7,8 @@ class ListConfigurationRowsOptions
 
     private $configurationId;
 
+    private $rowId;
+
     /**
      * @return mixed
      */
@@ -40,6 +42,17 @@ class ListConfigurationRowsOptions
     public function setConfigurationId($configurationId)
     {
         $this->configurationId = $configurationId;
+        return $this;
+    }
+
+    public function getRowId()
+    {
+        return $this->rowId;
+    }
+
+    public function setRowId($rowId)
+    {
+        $this->rowId = $rowId;
         return $this;
     }
 }

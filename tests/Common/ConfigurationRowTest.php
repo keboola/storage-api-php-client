@@ -2,10 +2,12 @@
 namespace Keboola\Test\Common;
 
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
+use Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions;
 use Keboola\Test\StorageApiTestCase;
 use Symfony\Component\Process\Process;
 
@@ -28,6 +30,54 @@ class ConfigurationRowTest extends StorageApiTestCase
                 $components->deleteConfiguration($component['id'], $configuration['id']);
             }
         }
+    }
+
+    public function testConfigurationRowReturnsSingleRow()
+    {
+        $components = new Components($this->_client);
+        $configuration = new Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main');
+        $components->addConfiguration($configuration);
+
+        $configurationRow1 = new ConfigurationRow($configuration);
+        $configurationRow1->setRowId('main-1-1');
+        $components->addConfigurationRow($configurationRow1);
+
+        $configurationRow2 = new ConfigurationRow($configuration);
+        $configurationRow2->setRowId('main-1-2');
+        $components->addConfigurationRow($configurationRow2);
+
+        # qwe
+        $row = $components->getConfigurationRow(
+            (new ListConfigurationRowsOptions())
+                ->setComponentId('wr-db')
+                ->setConfigurationId('main-1')
+                ->setRowId('main-1-2')
+        );
+
+        $this->assertEquals('main-1-2', $row['id']);
+    }
+
+    public function testConfigurationRowThrowsNotFoundException()
+    {
+        $components = new Components($this->_client);
+        $configuration = new Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main');
+        $components->addConfiguration($configuration);
+
+        $this->expectException(ClientException::class);
+        $components->getConfigurationRow(
+            (new ListConfigurationRowsOptions())
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setRowId(666)
+        );
     }
 
     public function testConfigurationRowJsonDataTypes()
