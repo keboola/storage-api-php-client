@@ -81,7 +81,7 @@ class ConfigurationRowTest extends StorageApiTestCase
                 'X-StorageApi-Token' => $this->_client->getTokenString(),
             ),
         ]);
-        $response = json_decode((string)$response->getBody())[0];
+        $response = json_decode((string)$response->getBody());
         $this->assertEquals($config, $response->configuration);
         $this->assertEquals($state, $response->state);
 
@@ -119,7 +119,7 @@ class ConfigurationRowTest extends StorageApiTestCase
                 'X-StorageApi-Token' => $this->_client->getTokenString(),
             ),
         ]);
-        $response = json_decode((string)$response->getBody())[0];
+        $response = json_decode((string)$response->getBody());
         $this->assertEquals($config, $response->configuration);
         $this->assertEquals($state, $response->state);
     }
