@@ -50,12 +50,10 @@ class ConfigurationRowTest extends StorageApiTestCase
         $configurationRow2->setRowId('main-1-2');
         $components->addConfigurationRow($configurationRow2);
 
-        # qwe
         $row = $components->getConfigurationRow(
-            (new ListConfigurationRowsOptions())
-                ->setComponentId('wr-db')
-                ->setConfigurationId('main-1')
-                ->setRowId('main-1-2')
+            'wr-db',
+            'main-1',
+            'main-1-2'
         );
 
         $this->assertEquals('main-1-2', $row['id']);
@@ -63,6 +61,9 @@ class ConfigurationRowTest extends StorageApiTestCase
 
     public function testConfigurationRowThrowsNotFoundException()
     {
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Row invalidRowID not found');
+
         $components = new Components($this->_client);
         $configuration = new Configuration();
         $configuration
@@ -71,12 +72,10 @@ class ConfigurationRowTest extends StorageApiTestCase
             ->setName('Main');
         $components->addConfiguration($configuration);
 
-        $this->expectException(ClientException::class);
         $components->getConfigurationRow(
-            (new ListConfigurationRowsOptions())
-            ->setComponentId('wr-db')
-            ->setConfigurationId('main-1')
-            ->setRowId(666)
+            'wr-db',
+            'main-1',
+            'invalidRowID'
         );
     }
 
