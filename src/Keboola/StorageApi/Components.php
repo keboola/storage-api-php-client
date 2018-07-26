@@ -145,16 +145,13 @@ class Components
         );
     }
 
-    public function getConfigurationRow(ListConfigurationRowsOptions $options = null)
+    public function getConfigurationRow($componentId, $configurationId, $rowId)
     {
-        if (!$options) {
-            $options = new ListConfigurationRowsOptions();
-        }
         return $this->client->apiGet(sprintf(
             "storage/components/%s/configs/%s/rows/%s",
-            $options->getComponentId(),
-            $options->getConfigurationId(),
-            $options->getRowId()
+            $componentId,
+            $configurationId,
+            $rowId
         ));
     }
 
