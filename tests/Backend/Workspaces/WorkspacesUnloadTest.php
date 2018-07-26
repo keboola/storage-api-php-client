@@ -40,6 +40,13 @@ class WorkspacesUnloadTest extends WorkspacesTestCase
             'dataTableName' => 'test.Languages3',
         ));
 
+        $expectedMetadata = [];
+        $expectedColumnMetadata = [];
+        // check that the new table has the correct metadata
+        $table = $this->_client->getTable($tableId);
+        $this->assertEquals($expectedMetadata, $table['metadata']);
+        $this->assertEquals($expectedColumnMetadata, $table['columnMetadata']);
+
         $expected = array(
             ($connection['backend'] === parent::BACKEND_REDSHIFT) ? '"id","name"' : '"Id","Name"',
             '"1","cz"',
