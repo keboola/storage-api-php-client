@@ -13,6 +13,7 @@ use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Exception;
 use Keboola\StorageApi\Workspaces;
+use Keboola\Test\Common\MetadataTest;
 use Keboola\Test\StorageApiTestCase;
 
 class WorkspacesUnloadTest extends WorkspacesTestCase
@@ -28,8 +29,8 @@ class WorkspacesUnloadTest extends WorkspacesTestCase
         $db = $this->getDbConnection($connection);
 
         $db->query("create table \"test.Languages3\" (
-			\"Id\" integer not null,
-			\"Name\" varchar not null
+			\"Id\" varchar not null,
+			\"Name\" varchar null
 		);");
         $db->query("insert into \"test.Languages3\" (\"Id\", \"Name\") values (1, 'cz'), (2, 'en');");
 
@@ -40,12 +41,34 @@ class WorkspacesUnloadTest extends WorkspacesTestCase
             'dataTableName' => 'test.Languages3',
         ));
 
-        $expectedMetadata = [];
-        $expectedColumnMetadata = [];
+        $expectedMetadata = array (
+            'KBC.name' => 'test.Languages3',
+            'KBC.schema_name' => 'WORKSPACE_' . $workspace['id'],
+            'KBC.rows' => '2',
+            'KBC.bytes' => '1024',
+            'KBC.owner' => $connection['user'],
+        );
+        $expectedIdMetadata = array (
+            'KBC.datatype.type' => 'TEXT',
+            'KBC.datatype.nullable' => '',
+            'KBC.datatype.basetype' => 'STRING',
+            'KBC.datatype.length' => '16777216',
+            'KBC.datatype.default' => '',
+        );
+        $expectedNameMetadata = array (
+            'KBC.datatype.type' => 'TEXT',
+            'KBC.datatype.nullable' => '1',
+            'KBC.datatype.basetype' => 'STRING',
+            'KBC.datatype.length' => '16777216',
+            'KBC.datatype.default' => '',
+        );
         // check that the new table has the correct metadata
         $table = $this->_client->getTable($tableId);
-        $this->assertEquals($expectedMetadata, $table['metadata']);
-        $this->assertEquals($expectedColumnMetadata, $table['columnMetadata']);
+        $this->assertMetadata($expectedMetadata, $table['metadata']);
+        $this->assertArrayHasKey('Id', $table['columnMetadata']);
+        $this->assertMetadata($expectedIdMetadata, $table['columnMetadata']['Id']);
+        $this->assertArrayHasKey('Name', $table['columnMetadata']);
+        $this->assertMetadata($expectedNameMetadata, $table['columnMetadata']['Name']);
 
         $expected = array(
             ($connection['backend'] === parent::BACKEND_REDSHIFT) ? '"id","name"' : '"Id","Name"',
@@ -201,5 +224,19 @@ class WorkspacesUnloadTest extends WorkspacesTestCase
         $this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->getTableDataPreview($table['id'], array(
             'format' => 'rfc',
         )), 'new  column added');
+    }
+
+    private function assertMetadata($expectedKeyValues, $metadata)
+    {
+        $this->assertEquals(count($expectedKeyValues), count($metadata));
+        foreach ($metadata as $data) {
+            $this->assertArrayHasKey("key", $data);
+            $this->assertArrayHasKey("value", $data);
+            $this->assertEquals($expectedKeyValues[$data['key']], $data['value']);
+            $this->assertArrayHasKey("provider", $data);
+            $this->assertArrayHasKey("timestamp", $data);
+            $this->assertRegExp(self::ISO8601_REGEXP, $data['timestamp']);
+            $this->assertEquals('storage', $data['provider']);
+        }
     }
 }
