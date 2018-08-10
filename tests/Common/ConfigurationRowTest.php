@@ -2,10 +2,12 @@
 namespace Keboola\Test\Common;
 
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
+use Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions;
 use Keboola\Test\StorageApiTestCase;
 use Symfony\Component\Process\Process;
 
@@ -28,6 +30,53 @@ class ConfigurationRowTest extends StorageApiTestCase
                 $components->deleteConfiguration($component['id'], $configuration['id']);
             }
         }
+    }
+
+    public function testConfigurationRowReturnsSingleRow()
+    {
+        $components = new Components($this->_client);
+        $configuration = new Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main');
+        $components->addConfiguration($configuration);
+
+        $configurationRow1 = new ConfigurationRow($configuration);
+        $configurationRow1->setRowId('main-1-1');
+        $components->addConfigurationRow($configurationRow1);
+
+        $configurationRow2 = new ConfigurationRow($configuration);
+        $configurationRow2->setRowId('main-1-2');
+        $components->addConfigurationRow($configurationRow2);
+
+        $row = $components->getConfigurationRow(
+            'wr-db',
+            'main-1',
+            'main-1-2'
+        );
+
+        $this->assertEquals('main-1-2', $row['id']);
+    }
+
+    public function testConfigurationRowThrowsNotFoundException()
+    {
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Row invalidRowID not found');
+
+        $components = new Components($this->_client);
+        $configuration = new Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main');
+        $components->addConfiguration($configuration);
+
+        $components->getConfigurationRow(
+            'wr-db',
+            'main-1',
+            'invalidRowID'
+        );
     }
 
     public function testConfigurationRowJsonDataTypes()
@@ -81,7 +130,7 @@ class ConfigurationRowTest extends StorageApiTestCase
                 'X-StorageApi-Token' => $this->_client->getTokenString(),
             ),
         ]);
-        $response = json_decode((string)$response->getBody())[0];
+        $response = json_decode((string)$response->getBody());
         $this->assertEquals($config, $response->configuration);
         $this->assertEquals($state, $response->state);
 
@@ -119,7 +168,7 @@ class ConfigurationRowTest extends StorageApiTestCase
                 'X-StorageApi-Token' => $this->_client->getTokenString(),
             ),
         ]);
-        $response = json_decode((string)$response->getBody())[0];
+        $response = json_decode((string)$response->getBody());
         $this->assertEquals($config, $response->configuration);
         $this->assertEquals($state, $response->state);
     }

@@ -4019,6 +4019,40 @@ Gets configuration rows.
             ]
 
 
+## Get Configuration Row Detail [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}]
+### Row detail [GET]
+Gets configuration rows.
+
++ Parameters
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration
+    + row_id (required) - Id of the configuration row
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+
++ Response 200 (application/json)
+
+            {
+                "id": "236781529",
+                "configuration": {},
+                "state": {},
+                "name": "",
+                "description": "",
+                "isDisabled": false,
+                "version": 1,
+                "created": "2017-02-15T00:04:42+0100",
+                "creatorToken": {
+                    "id": 27978,
+                    "description": "name@example.com"
+                },
+                "changeDescription": "Row 236781529 added"
+            }
+
+
 ## Manage Configuration Rows [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}]
 ### Update Row [PUT]
 Modifies the content of a single row in a configuration. Note that configuration rows are versioned 
