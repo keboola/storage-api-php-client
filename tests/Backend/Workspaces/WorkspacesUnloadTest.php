@@ -41,27 +41,27 @@ class WorkspacesUnloadTest extends WorkspacesTestCase
             'dataTableName' => 'test.Languages3',
         ));
 
-        $expectedMetadata = array (
+        $expectedMetadata = [
             'KBC.name' => 'test.Languages3',
             'KBC.schema_name' => 'WORKSPACE_' . $workspace['id'],
             'KBC.rows' => '2',
             'KBC.bytes' => '1024',
             'KBC.owner' => $connection['user'],
-        );
-        $expectedIdMetadata = array (
+        ];
+        $expectedIdMetadata = [
             'KBC.datatype.type' => 'TEXT',
             'KBC.datatype.nullable' => '',
             'KBC.datatype.basetype' => 'STRING',
             'KBC.datatype.length' => '16777216',
             'KBC.datatype.default' => '',
-        );
-        $expectedNameMetadata = array (
+        ];
+        $expectedNameMetadata = [
             'KBC.datatype.type' => 'TEXT',
             'KBC.datatype.nullable' => '1',
             'KBC.datatype.basetype' => 'STRING',
             'KBC.datatype.length' => '16777216',
             'KBC.datatype.default' => '',
-        );
+        ];
         // check that the new table has the correct metadata
         $table = $this->_client->getTable($tableId);
         $this->assertMetadata($expectedMetadata, $table['metadata']);
@@ -164,7 +164,7 @@ class WorkspacesUnloadTest extends WorkspacesTestCase
 
         $db->query("create table \"test.Languages3\" (
 			\"Id\" integer not null,
-			\"Name\" varchar not null,
+			\"Name\" varchar not null default 'honza',
 			\"update\" varchar
 		);");
 
@@ -180,11 +180,49 @@ class WorkspacesUnloadTest extends WorkspacesTestCase
             '"1","cz",""',
             '"2","en",""',
         );
-
         $this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->getTableDataPreview($table['id'], array(
             'format' => 'rfc',
         )), 'imported data comparsion');
 
+        // check the created metadata
+        $expectedMetadata = array (
+            'KBC.name' => 'test.Languages3',
+            'KBC.schema_name' => 'WORKSPACE_' . $workspace['id'],
+            'KBC.rows' => '2',
+            'KBC.bytes' => '1024',
+            'KBC.owner' => $connection['user'],
+        );
+        $expectedIdMetadata = [
+            'KBC.datatype.type' => 'NUMBER',
+            'KBC.datatype.nullable' => '',
+            'KBC.datatype.basetype' => 'NUMERIC',
+            'KBC.datatype.length' => '38,0',
+            'KBC.datatype.default' => '',
+        ];
+        $expectedNameMetadata = [
+            'KBC.datatype.type' => 'TEXT',
+            'KBC.datatype.nullable' => '',
+            'KBC.datatype.basetype' => 'STRING',
+            'KBC.datatype.length' => '16777216',
+            'KBC.datatype.default' => '\'honza\'',
+        ];
+        $expectedUpdateMetadata = [
+            'KBC.datatype.type' => 'TEXT',
+            'KBC.datatype.nullable' => '1',
+            'KBC.datatype.basetype' => 'STRING',
+            'KBC.datatype.length' => '16777216',
+            'KBC.datatype.default' => '',
+        ];
+
+        // check that the new table has the correct metadata
+        $table = $this->_client->getTable($table['id']);
+        $this->assertMetadata($expectedMetadata, $table['metadata']);
+        $this->assertArrayHasKey('Id', $table['columnMetadata']);
+        $this->assertMetadata($expectedIdMetadata, $table['columnMetadata']['Id']);
+        $this->assertArrayHasKey('Name', $table['columnMetadata']);
+        $this->assertMetadata($expectedNameMetadata, $table['columnMetadata']['Name']);
+        $this->assertArrayHasKey('update', $table['columnMetadata']);
+        $this->assertMetadata($expectedUpdateMetadata, $table['columnMetadata']['update']);
 
         $db->query("truncate \"test.Languages3\"");
         $db->query("insert into \"test.Languages3\" values (1, 'cz', '1'), (3, 'sk', '1');");
@@ -206,12 +244,16 @@ class WorkspacesUnloadTest extends WorkspacesTestCase
         )), 'previously null column updated');
 
         $db->query("truncate table \"test.Languages3\"");
-        $db->query("alter table \"test.Languages3\" ADD COLUMN \"new_col\" varchar");
-        $db->query("insert into \"test.Languages3\" values (1, 'cz', '1', null), (3, 'sk', '1', 'newValue');");
+        $db->query("alter table \"test.Languages3\" ADD COLUMN \"new_col\" varchar(64)");
+        $db->query("alter table \"test.Languages3\" RENAME TO \"test.Languages4\"");
+        $db->query("insert into \"test.Languages4\" values " .
+                    "(1, 'cz', '1', null)," .
+                    " (3, 'sk', '1', 'newValue')," .
+                    " (4, 'jp','1', 'test');");
 
         $this->_client->writeTableAsyncDirect($table['id'], array(
             'dataWorkspaceId' => $workspace['id'],
-            'dataTableName' => 'test.Languages3',
+            'dataTableName' => 'test.Languages4',
             'incremental' => true,
         ));
 
@@ -220,10 +262,33 @@ class WorkspacesUnloadTest extends WorkspacesTestCase
             '"1","cz","1",""',
             '"2","en","",""',
             '"3","sk","1","newValue"',
+            '"4","jp","1","test"',
         );
         $this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->getTableDataPreview($table['id'], array(
             'format' => 'rfc',
         )), 'new  column added');
+
+        $expectedMetadata = [
+            'KBC.name' => 'test.Languages4',
+            'KBC.schema_name' => 'WORKSPACE_' . $workspace['id'],
+            'KBC.rows' => '3',
+            'KBC.bytes' => '1024',
+            'KBC.owner' => $connection['user'],
+        ];
+        $expectedNewColMetadata = [
+            'KBC.datatype.type' => 'TEXT',
+            'KBC.datatype.nullable' => '1',
+            'KBC.datatype.basetype' => 'STRING',
+            'KBC.datatype.length' => '64',
+            'KBC.datatype.default' => '',
+        ];
+        $table = $this->_client->getTable($table['id']);
+        $this->assertMetadata($expectedMetadata, $table['metadata']);
+        $this->assertArrayHasKey("Id", $table['columnMetadata']);
+        $this->assertArrayHasKey("Name", $table['columnMetadata']);
+        $this->assertArrayHasKey("update", $table['columnMetadata']);
+        $this->assertArrayHasKey("new_col", $table['columnMetadata']);
+        $this->assertMetadata($expectedNewColMetadata, $table['columnMetadata']['new_col']);
     }
 
     private function assertMetadata($expectedKeyValues, $metadata)
