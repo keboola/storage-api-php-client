@@ -3171,6 +3171,8 @@ For a more detailed guide on the file upload, see the corresponding part of the
 Lists all files uploaded by your token. If the `canReadAllFileUploads` permission is set for your token, 
 all file uploads for project will be returned.
 
+Files listing is not real time. There can be a latency about one second until the file change is fully propagated.
+
 + Parameters
     + sinceId (optional) - Shows only files after the specified Id.
     + maxId (optional) - Shows only files before the passed Id.
