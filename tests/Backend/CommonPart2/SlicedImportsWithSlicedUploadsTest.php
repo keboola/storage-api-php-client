@@ -7,6 +7,7 @@
 
 namespace Keboola\Test\Backend\CommonPart2;
 
+use Keboola\StorageApi\ClientException;
 use Keboola\Test\StorageApiTestCase;
 
 use Keboola\Csv\CsvFile;
@@ -88,5 +89,31 @@ class SlicedImportsWithSlicedUploadsTest extends StorageApiTestCase
         $this->assertLinesEqualsSorted($data, $this->_client->getTableDataPreview($tableId, array(
             'format' => 'rfc',
         )), 'imported data comparsion');
+    }
+
+    public function testSlicedFileImportWithoutHeadersOption()
+    {
+        $uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
+        $uploadOptions
+            ->setFileName('entries_')
+            ->setIsEncrypted(true)
+            ->setIsSliced(true);
+        $slices = [
+            __DIR__ . '/../../_data/sliced/neco_0000_part_00',
+            __DIR__ . '/../../_data/sliced/neco_0001_part_00'
+        ];
+        $slicedFileId = $this->_client->uploadSlicedFile($slices, $uploadOptions);
+
+        $headerFile = new CsvFile(__DIR__ . '/../../_data/sliced/header.csv');
+        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'entries', $headerFile);
+        $this->_client->writeTableAsyncDirect($tableId, array(
+            'dataFileId' => $slicedFileId,
+            'delimiter' => '|',
+            'enclosure' => '',
+            'withoutHeaders' => true,
+        ));
+
+        $tableInfo = $this->_client->getTable($tableId);
+        $this->assertEquals($tableInfo['rowsCount'], 27945);
     }
 }
