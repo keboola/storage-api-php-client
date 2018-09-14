@@ -116,4 +116,31 @@ class SlicedImportsWithSlicedUploadsTest extends StorageApiTestCase
         $tableInfo = $this->_client->getTable($tableId);
         $this->assertEquals($tableInfo['rowsCount'], 27945);
     }
+
+    public function testSlicedFileImportWithoutColumnsShouldBeUserError()
+    {
+        $uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
+        $uploadOptions
+            ->setFileName('languages_')
+            ->setIsSliced(true)
+            ->setIsEncrypted(false);
+        $slices = [
+            __DIR__ . '/../../_data/languages.no-headers.csv'
+        ];
+        $slicedFileId = $this->_client->uploadSlicedFile($slices, $uploadOptions);
+
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'entries',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+
+        $this->expectException(ClientException::class);
+        $this->_client->writeTableAsyncDirect($tableId, array(
+            'dataFileId' => $slicedFileId,
+            'delimiter' => ',',
+            'enclosure' => '"',
+            'escapedBy' => '',
+        ));
+    }
 }

@@ -304,6 +304,28 @@ class CreateTableTest extends StorageApiTestCase
         $this->_client->createTablePrimaryKey($tableId, ['id']);
         $this->assertNotEmpty($tableId);
     }
+
+    public function testCreateTableFromSlicedFile()
+    {
+        $uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
+        $uploadOptions
+            ->setFileName('languages_')
+            ->setIsSliced(true)
+            ->setIsEncrypted(false);
+        $slices = [
+            __DIR__ . '/../../_data/languages.no-headers.csv'
+        ];
+        $slicedFileId = $this->_client->uploadSlicedFile($slices, $uploadOptions);
+
+        $this->expectException(ClientException::class);
+        $this->_client->createTableAsyncDirect(
+            $this->getTestBucketId(self::STAGE_IN),
+            [
+                'name' => 'languages',
+                'dataFileId' => $slicedFileId,
+            ]
+        );
+    }
     
     public function invalidPrimaryKeys()
     {
