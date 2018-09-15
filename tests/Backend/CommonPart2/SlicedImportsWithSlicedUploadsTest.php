@@ -135,12 +135,17 @@ class SlicedImportsWithSlicedUploadsTest extends StorageApiTestCase
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
 
-        $this->expectException(ClientException::class);
-        $this->_client->writeTableAsyncDirect($tableId, array(
-            'dataFileId' => $slicedFileId,
-            'delimiter' => ',',
-            'enclosure' => '"',
-            'escapedBy' => '',
-        ));
+        try {
+            $this->_client->writeTableAsyncDirect($tableId, array(
+                'dataFileId' => $slicedFileId,
+                'delimiter' => ',',
+                'enclosure' => '"',
+                'escapedBy' => '',
+            ));
+            $this->fail('Table should not be imported');
+        } catch (ClientException $e) {
+            // it should be - cannot import sliced file
+            $this->assertEquals('csvImport.columnsNotMatch', $e->getStringCode());
+        }
     }
 }
