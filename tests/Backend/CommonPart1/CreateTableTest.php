@@ -317,14 +317,19 @@ class CreateTableTest extends StorageApiTestCase
         ];
         $slicedFileId = $this->_client->uploadSlicedFile($slices, $uploadOptions);
 
-        $this->expectException(ClientException::class);
-        $this->_client->createTableAsyncDirect(
-            $this->getTestBucketId(self::STAGE_IN),
-            [
-                'name' => 'languages',
-                'dataFileId' => $slicedFileId,
-            ]
-        );
+        try {
+            $this->_client->createTableAsyncDirect(
+                $this->getTestBucketId(self::STAGE_IN),
+                [
+                    'name' => 'languages',
+                    'dataFileId' => $slicedFileId,
+                ]
+            );
+            $this->fail('Table should not be created');
+        } catch (ClientException $e) {
+            // it should be - cannot create a table from sliced file without header
+            $this->assertEquals('storage.tables.validation.invalidColumnName', $e->getStringCode());
+        }
     }
     
     public function invalidPrimaryKeys()
