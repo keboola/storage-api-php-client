@@ -341,20 +341,22 @@ class SharingTest extends StorageApiTestCase
 
         // first share
         $this->_client->shareBucket($bucketId);
+
         $sharedBucket = $this->_client->getBucket($bucketId);
         $this->assertArrayHasKey('sharing', $sharedBucket);
         $this->assertEquals('organization', $sharedBucket['sharing']);
 
         // first reshare
         $this->_client->changeBucketSharing($bucketId, 'organization-project');
+
         $sharedBucket = $this->_client->getBucket($bucketId);
         $this->assertArrayHasKey('sharing', $sharedBucket);
         $this->assertEquals('organization-project', $sharedBucket['sharing']);
 
         // second reshare
         $this->_client->changeBucketSharing($bucketId);
-        $sharedBucket = $this->_client->getBucket($bucketId);
 
+        $sharedBucket = $this->_client->getBucket($bucketId);
         $this->assertArrayHasKey('sharing', $sharedBucket);
         $this->assertEquals('organization', $sharedBucket['sharing']);
     }
