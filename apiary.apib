@@ -764,6 +764,32 @@ This operations is available only for organization administrators.
                 "sharing": "organization"
             }
 
+### Change Bucket Sharing [PUT]
+Change [sharing type](https://help.keboola.com/storage/buckets/sharing/#sharing-type) of a bucket.
+This operations is available only for organization administrators.
+
+
++ Parameters
+    + bucket_id (required) - Bucket Id
+
++ Attributes
+    + sharing (optional, enum[string]) - Sharing type
+        + Members
+            + organization - Bucket is shared to organization. Any organization member can link bucket to project in organization.
+            + `organization-project` - Bucket is shared to organization. Any organization or organization's project member can link bucket to project.
+            + Default: organization
+
+        + Request
+            + Headers
+
+                X-StorageApi-Token: your_token
+
+        + Response 202 (application/json)
+            + Body
+
+                {
+                    "sharing": "organization"
+                }
 
 ### Stop Bucket Sharing [DELETE]
 Disables sharing of a bucket. A bucket must not be linked to other projects.
