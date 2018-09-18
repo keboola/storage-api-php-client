@@ -334,6 +334,35 @@ class SharingTest extends StorageApiTestCase
      * @dataProvider sharingBackendData
      * @throws ClientException
      */
+    public function testShareBucketChangeSharing($backend)
+    {
+        $this->initTestBuckets($backend);
+        $bucketId = reset($this->_bucketIds);
+
+        // first share
+        $this->_client->shareBucket($bucketId);
+        $sharedBucket = $this->_client->getBucket($bucketId);
+        $this->assertArrayHasKey('sharing', $sharedBucket);
+        $this->assertEquals('organization', $sharedBucket['sharing']);
+
+        // first reshare
+        $this->_client->changeBucketSharing($bucketId, 'organization-project');
+        $sharedBucket = $this->_client->getBucket($bucketId);
+        $this->assertArrayHasKey('sharing', $sharedBucket);
+        $this->assertEquals('organization-project', $sharedBucket['sharing']);
+
+        // second reshare
+        $this->_client->changeBucketSharing($bucketId);
+        $sharedBucket = $this->_client->getBucket($bucketId);
+
+        $this->assertArrayHasKey('sharing', $sharedBucket);
+        $this->assertEquals('organization', $sharedBucket['sharing']);
+    }
+
+    /**
+     * @dataProvider sharingBackendData
+     * @throws ClientException
+     */
     public function testSharedBuckets($backend)
     {
         $this->initTestBuckets($backend);
