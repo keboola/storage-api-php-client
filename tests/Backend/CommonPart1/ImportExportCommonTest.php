@@ -97,9 +97,6 @@ class ImportExportCommonTest extends StorageApiTestCase
                 'primaryKey' => 'Id,queryId',
             )),
 
-            array(new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.csv'), 'languages.csv', array('id', 'name')),
-
-            array(new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.csv.gz'), 'languages.csv', array('id', 'name')),
 
             array(new CsvFile(__DIR__ . '/../../_data/languages.utf8.bom.csv'), 'languages.csv', array('id', 'name')),
 
@@ -372,27 +369,6 @@ class ImportExportCommonTest extends StorageApiTestCase
             $this->assertEquals('error', $job['status']);
             $this->assertEquals(['missing'], $job['results']['missingColumns']);
             $this->assertEquals(['id', 'name', 'missing'], $job['results']['expectedColumns']);
-        }
-    }
-
-    public function testTableImportFromInvalidUrl()
-    {
-        $createFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', $createFile);
-
-        $csvFile = new CsvFile("http://unknown");
-        try {
-            $this->_client->writeTableAsync($tableId, $csvFile);
-            $this->fail('Exception should be thrown on invalid URL');
-        } catch (\Keboola\StorageApi\ClientException $e) {
-            $this->assertEquals('storage.urlFetchError', $e->getStringCode());
-        }
-
-        try {
-            $this->_client->writeTable($tableId, $csvFile);
-            $this->fail('Exception should be thrown on invalid URL');
-        } catch (\Keboola\StorageApi\ClientException $e) {
-            $this->assertEquals('storage.urlFetchError', $e->getStringCode());
         }
     }
 

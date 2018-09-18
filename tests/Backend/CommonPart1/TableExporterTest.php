@@ -70,7 +70,7 @@ class TableExporterTest extends StorageApiTestCase
 
     public function testLimitParameter()
     {
-        $importFile = new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.csv');
+        $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', $importFile);
         $this->_client->writeTable($tableId, $importFile);
 
@@ -86,28 +86,28 @@ class TableExporterTest extends StorageApiTestCase
 
     public function tableImportData()
     {
+        $filesBasePath = __DIR__ . '/../../_data/';
         return array(
-
-            array([self::BACKEND_SNOWFLAKE], new CsvFile('https://s3.amazonaws.com/keboola-tests/1200.csv'), '1200.csv'),
-            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.csv.gz'), 'languages.csv'),
-            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.encoding.csv'), 'languages.encoding.csv'),
-            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.csv.gz'), 'languages.csv', array('gzip' => true)),
-            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile('https://s3.amazonaws.com/keboola-tests/numbers.csv'), 'numbers.csv'),
-            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile('https://s3.amazonaws.com/keboola-tests/numbers.csv'), 'numbers.two-cols.csv', array('columns' => array('0', '45'))),
+            array([self::BACKEND_SNOWFLAKE], new CsvFile($filesBasePath . '1200.csv'), '1200.csv'),
+            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile($filesBasePath . 'languages.csv.gz'), 'languages.csv'),
+            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile($filesBasePath . 'languages.encoding.csv'), 'languages.encoding.csv'),
+            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile($filesBasePath . 'languages.csv.gz'), 'languages.csv', array('gzip' => true)),
+            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile($filesBasePath . 'numbers.csv'), 'numbers.csv'),
+            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile($filesBasePath . 'numbers.csv'), 'numbers.two-cols.csv', array('columns' => array('0', '45'))),
 
             // tests the redshift data too long bug https://github.com/keboola/connection/issues/412
-            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.64k.csv'), 'languages.64k.csv'),
-            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile('https://s3.amazonaws.com/keboola-tests/languages.64k.csv'), 'languages.64k.csv',  array('gzip' => true)),
-            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile('https://s3.amazonaws.com/keboola-tests/64K.csv'), '64K.csv'),
-            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile('https://s3.amazonaws.com/keboola-tests/64K.csv'), '64K.csv',  array('gzip' => true)),
+            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile($filesBasePath . 'languages.64k.csv'), 'languages.64k.csv'),
+            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile($filesBasePath . 'languages.64k.csv'), 'languages.64k.csv',  array('gzip' => true)),
+            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile($filesBasePath . '64K.csv'), '64K.csv'),
+            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile($filesBasePath . '64K.csv'), '64K.csv',  array('gzip' => true)),
 
-            array([self::BACKEND_REDSHIFT], new CsvFile('https://s3.amazonaws.com/keboola-tests/escaping.csv'), 'escaping.backslash.redshift.out.csv', array('format' => 'escaped')),
-            array([self::BACKEND_REDSHIFT], new CsvFile('https://s3.amazonaws.com/keboola-tests/escaping.csv'), 'escaping.backslash.redshift.out.csv', array('format' => 'escaped')),
-            array([self::BACKEND_REDSHIFT], new CsvFile('https://s3.amazonaws.com/keboola-tests/escaping.csv'), 'escaping.raw.redshift.out.csv', array('format' => 'raw')),
-            array([self::BACKEND_REDSHIFT], new CsvFile('https://s3.amazonaws.com/keboola-tests/escaping.csv'), 'escaping.raw.redshift.out.csv', array('gzip' => true, 'format' => 'raw')),
-            array([self::BACKEND_REDSHIFT], new CsvFile('https://s3.amazonaws.com/keboola-tests/escaping.csv'), 'escaping.standard.out.csv', array('gzip' => true)),
-            array([self::BACKEND_REDSHIFT], new CsvFile('https://s3.amazonaws.com/keboola-tests/numbers.csv'), 'numbers.csv', array('gzip' => true)),
-            array([self::BACKEND_REDSHIFT], new CsvFile('https://s3.amazonaws.com/keboola-tests/numbers.csv'), 'numbers.two-cols.csv', array('gzip' => true, 'columns' => array('0', '45'))),
+            array([self::BACKEND_REDSHIFT], new CsvFile($filesBasePath . 'escaping.csv'), 'escaping.backslash.redshift.out.csv', array('format' => 'escaped')),
+            array([self::BACKEND_REDSHIFT], new CsvFile($filesBasePath . 'escaping.csv'), 'escaping.backslash.redshift.out.csv', array('format' => 'escaped')),
+            array([self::BACKEND_REDSHIFT], new CsvFile($filesBasePath . 'escaping.csv'), 'escaping.raw.redshift.out.csv', array('format' => 'raw')),
+            array([self::BACKEND_REDSHIFT], new CsvFile($filesBasePath . 'escaping.csv'), 'escaping.raw.redshift.out.csv', array('gzip' => true, 'format' => 'raw')),
+            array([self::BACKEND_REDSHIFT], new CsvFile($filesBasePath . 'escaping.csv'), 'escaping.standard.out.csv', array('gzip' => true)),
+            array([self::BACKEND_REDSHIFT], new CsvFile($filesBasePath . 'numbers.csv'), 'numbers.csv', array('gzip' => true)),
+            array([self::BACKEND_REDSHIFT], new CsvFile($filesBasePath . 'numbers.csv'), 'numbers.two-cols.csv', array('gzip' => true, 'columns' => array('0', '45'))),
         );
     }
 }
