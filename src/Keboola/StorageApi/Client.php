@@ -540,11 +540,6 @@ class Client
         ));
     }
 
-    private function isUrl($path)
-    {
-        return preg_match('/^https?:\/\/.*$/', $path);
-    }
-
     /**
      * @param $bucketId
      * @param $sourceTableId
