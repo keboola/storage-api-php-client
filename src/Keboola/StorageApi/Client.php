@@ -435,13 +435,8 @@ class Client
             "escapedBy" => $csvFile->getEscapedBy(),
             "primaryKey" => isset($options['primaryKey']) ? $options['primaryKey'] : null,
             "columns" => isset($options['columns']) ? $options['columns'] : null,
+            "data" => fopen($csvFile->getPathname(), 'r'),
         );
-
-        if ($this->isUrl($csvFile->getPathname())) {
-            $options["dataUrl"] = $csvFile->getPathname();
-        } else {
-            $options["data"] = fopen($csvFile->getPathname(), 'r');
-        }
 
 
         $tableId = $this->getTableId($name, $bucketId);
@@ -487,20 +482,16 @@ class Client
             'columns' => isset($options['columns']) ? $options['columns'] : null,
         );
 
-        if ($this->isUrl($csvFile->getPathname())) {
-            $options['dataUrl'] = $csvFile->getPathname();
-        } else {
-            // upload file
-            $fileId = $this->uploadFile(
-                $csvFile->getPathname(),
-                (new FileUploadOptions())
-                    ->setNotify(false)
-                    ->setIsPublic(false)
-                    ->setCompress(true)
-                    ->setTags(array('file-import'))
-            );
-            $options['dataFileId'] = $fileId;
-        }
+        // upload file
+        $fileId = $this->uploadFile(
+            $csvFile->getPathname(),
+            (new FileUploadOptions())
+                ->setNotify(false)
+                ->setIsPublic(false)
+                ->setCompress(true)
+                ->setTags(array('file-import'))
+        );
+        $options['dataFileId'] = $fileId;
 
         return $this->createTableAsyncDirect($bucketId, $options);
     }
@@ -547,11 +538,6 @@ class Client
             'timestamp' => $timestamp,
             'name' => $name,
         ));
-    }
-
-    private function isUrl($path)
-    {
-        return preg_match('/^https?:\/\/.*$/', $path);
     }
 
     /**
@@ -688,7 +674,6 @@ class Client
      *  - enclosure
      *  - escapedBy
      *  - dataFileId
-     *  - dataUrl
      *  - dataTableName
      *  - dataWorkspaceId
      *  - data
@@ -705,13 +690,9 @@ class Client
             "escapedBy" => $csvFile->getEscapedBy(),
         )));
 
-        if ($this->isUrl($csvFile->getPathname())) {
-            $optionsExtended["dataUrl"] = $csvFile->getPathname();
-        } else {
-            $optionsExtended["data"] = @fopen($csvFile->getRealPath(), 'r');
-            if ($optionsExtended["data"] === false) {
-                throw new ClientException("Failed to open temporary data file " . $csvFile->getRealPath(), null, null, 'fileNotReadable');
-            }
+        $optionsExtended["data"] = @fopen($csvFile->getRealPath(), 'r');
+        if ($optionsExtended["data"] === false) {
+            throw new ClientException("Failed to open temporary data file " . $csvFile->getRealPath(), null, null, 'fileNotReadable');
         }
 
         $result = $this->apiPostMultipart("storage/tables/{$tableId}/import", $this->prepareMultipartData($optionsExtended));
@@ -736,20 +717,16 @@ class Client
             "escapedBy" => $csvFile->getEscapedBy(),
         ));
 
-        if ($this->isUrl($csvFile->getPathname())) {
-            $optionsExtended['dataUrl'] = $csvFile->getPathname();
-        } else {
-            // upload file
-            $fileId = $this->uploadFile(
-                $csvFile->getPathname(),
-                (new FileUploadOptions())
-                    ->setNotify(false)
-                    ->setIsPublic(false)
-                    ->setCompress(true)
-                    ->setTags(array('table-import'))
-            );
-            $optionsExtended['dataFileId'] = $fileId;
-        }
+        // upload file
+        $fileId = $this->uploadFile(
+            $csvFile->getPathname(),
+            (new FileUploadOptions())
+                ->setNotify(false)
+                ->setIsPublic(false)
+                ->setCompress(true)
+                ->setTags(array('table-import'))
+        );
+        $optionsExtended['dataFileId'] = $fileId;
 
         return $this->writeTableAsyncDirect($tableId, $optionsExtended);
     }
@@ -773,7 +750,6 @@ class Client
             'enclosure',
             'escapedBy',
             'dataFileId',
-            'dataUrl',
             'dataTableName',
             'dataWorkspaceId',
             'data',
