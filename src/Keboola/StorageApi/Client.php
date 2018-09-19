@@ -326,7 +326,7 @@ class Client
     {
         $url = "storage/buckets/" . $bucketId . "/share";
 
-        $result = $this->apiPut($url, ['sharing' => $sharing], null, false);
+        $result = $this->apiPut($url, ['sharing' => $sharing]);
 
         $this->log("Bucket {$bucketId} sharing changed to {$sharing}", array("result" => $result));
 
@@ -1862,19 +1862,13 @@ class Client
      *
      * @param string $url
      * @param array $postData
-     * @param string|null $responseFileName
-     * @param bool $handleAsyncTask
-     * @return mixed|string
+     * @return mixed|stringgit d
      */
-    public function apiPut($url, $postData = null, $responseFileName = null, $handleAsyncTask = true)
+    public function apiPut($url, $postData = null)
     {
-        return $this->request(
-            'put',
-            $this->versionUrl($url),
-            ['form_params' => $postData],
-            $responseFileName,
-            $handleAsyncTask
-        );
+        return $this->request('put', $this->versionUrl($url), [
+            'form_params' => $postData,
+        ]);
     }
 
     /**
