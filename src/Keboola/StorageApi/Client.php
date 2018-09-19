@@ -322,6 +322,17 @@ class Client
         return $result;
     }
 
+    public function changeBucketSharing($bucketId, $sharing)
+    {
+        $url = "storage/buckets/" . $bucketId . "/share";
+
+        $result = $this->apiPut($url, ['sharing' => $sharing]);
+
+        $this->log("Bucket {$bucketId} sharing changed to {$sharing}", array("result" => $result));
+
+        return $result;
+    }
+
     public function unshareBucket($bucketId)
     {
         $url = "storage/buckets/" . $bucketId . "/share";
