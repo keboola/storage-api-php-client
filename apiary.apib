@@ -778,17 +778,17 @@ This operations is available only for organization administrators.
             + `organization` - Bucket is shared to organization. Any organization member can link bucket to project in organization.
             + `organization-project` - Bucket is shared to organization. Any organization or organization's project member can link bucket to project.
 
-        + Request
-            + Headers
++ Request
+    + Headers
 
-                X-StorageApi-Token: your_token
+            X-StorageApi-Token: your_token
 
-        + Response 202 (application/json)
-            + Body
++ Response 202 (application/json)
+    + Body
 
-                {
-                    "sharing": "organization"
-                }
+            {
+                "sharing": "organization"
+            }
 
 ### Stop Bucket Sharing [DELETE]
 Disables sharing of a bucket. A bucket must not be linked to other projects.
