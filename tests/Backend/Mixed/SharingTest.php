@@ -372,7 +372,7 @@ class SharingTest extends StorageApiTestCase
 
         try {
             $this->_client->changeBucketSharing($bucketId, 'organization-project');
-            $this->fail('non-organization member should not be able to delete bucket');
+            $this->fail('change of sharing type of non-shared bucket should\'nt be possible');
         } catch (ClientException $e) {
             $this->assertEquals('The bucket out.c-API-sharing is not shared.', $e->getMessage());
             $this->assertEquals('storage.bucket.notShared', $e->getStringCode());
