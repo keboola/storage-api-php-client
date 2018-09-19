@@ -322,7 +322,7 @@ class Client
         return $result;
     }
 
-    public function changeBucketSharing($bucketId, $sharing = 'organization')
+    public function changeBucketSharing($bucketId, $sharing)
     {
         $url = "storage/buckets/" . $bucketId . "/share";
 
