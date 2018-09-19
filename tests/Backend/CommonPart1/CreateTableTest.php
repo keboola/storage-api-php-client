@@ -304,6 +304,33 @@ class CreateTableTest extends StorageApiTestCase
         $this->_client->createTablePrimaryKey($tableId, ['id']);
         $this->assertNotEmpty($tableId);
     }
+
+    public function testCreateTableFromSlicedFile()
+    {
+        $uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
+        $uploadOptions
+            ->setFileName('languages_')
+            ->setIsSliced(true)
+            ->setIsEncrypted(false);
+        $slices = [
+            __DIR__ . '/../../_data/languages.no-headers.csv'
+        ];
+        $slicedFileId = $this->_client->uploadSlicedFile($slices, $uploadOptions);
+
+        try {
+            $this->_client->createTableAsyncDirect(
+                $this->getTestBucketId(self::STAGE_IN),
+                [
+                    'name' => 'languages',
+                    'dataFileId' => $slicedFileId,
+                ]
+            );
+            $this->fail('Table should not be created');
+        } catch (ClientException $e) {
+            // it should be - cannot create a table from sliced file without header
+            $this->assertEquals('storage.tables.validation.invalidColumnName', $e->getStringCode());
+        }
+    }
     
     public function invalidPrimaryKeys()
     {
