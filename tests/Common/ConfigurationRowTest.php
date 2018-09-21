@@ -203,21 +203,14 @@ class ConfigurationRowTest extends StorageApiTestCase
 
         $response = $client->post('/v2/storage/components/wr-db/configs/main-1/rows', [
             'form_params' => [
-                'name' => 'testRow',
                 'configuration' => json_encode($config),
                 'state' => json_encode($state),
-                'isDisabled' => 'true',
             ],
             'headers' => array(
                 'X-StorageApi-Token' => $this->_client->getTokenString(),
             ),
         ]);
         $response = json_decode((string)$response->getBody());
-        
-        $this->assertTrue($response->isDisabled);
-        $this->assertEquals('testRow', $response->name);
-        $this->assertEquals($config, $response->configuration);
-
 
         $command = "curl '" . STORAGE_API_URL . "/v2/storage/components/wr-db/configs/main-1/rows/{$response->id}' \
                     -X PUT \
@@ -226,7 +219,7 @@ class ConfigurationRowTest extends StorageApiTestCase
                     -H 'content-type: application/x-www-form-urlencoded' \
                     -H 'accept: */*' \
                     -H 'x-storageapi-token: " . STORAGE_API_TOKEN . "' \
-                    --data 'isDisabled=false&changeDescription=Row%20ABCD%20enabled' \
+                    --data 'isDisabled=true&changeDescription=Row%20ABCD%20disabled' \
                     --compressed";
 
         $process = new Process($command);
@@ -236,7 +229,7 @@ class ConfigurationRowTest extends StorageApiTestCase
         }
 
         $result = json_decode($process->getOutput());
-        $this->assertFalse($result->isDisabled);
-        $this->assertEquals("Row ABCD enabled", $result->changeDescription);
+        $this->assertTrue($result->isDisabled);
+        $this->assertEquals("Row ABCD disabled", $result->changeDescription);
     }
 }
