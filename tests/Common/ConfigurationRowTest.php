@@ -232,4 +232,50 @@ class ConfigurationRowTest extends StorageApiTestCase
         $this->assertTrue($result->isDisabled);
         $this->assertEquals("Row ABCD disabled", $result->changeDescription);
     }
+
+    public function testCreateDisabledConfigurationRow(): void
+    {
+        $components = new \Keboola\StorageApi\Components($this->_client);
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main');
+        $components->addConfiguration($configuration);
+
+        $client = new \GuzzleHttp\Client([
+            'base_uri' => $this->_client->getApiUrl(),
+        ]);
+
+        $config = (object)[
+            'test' => 'neco',
+            'array' => [],
+            'object' => (object)[],
+        ];
+
+        $state = (object)[
+            'test' => 'state',
+            'array' => [],
+            'object' => (object)[
+                'subobject' => (object)[],
+            ]
+        ];
+
+        $response = $client->post('/v2/storage/components/wr-db/configs/main-1/rows', [
+            'form_params' => [
+                'name' => 'test configuration row',
+                'configuration' => json_encode($config),
+                'state' => json_encode($state),
+                'isDisabled' => 'true',
+            ],
+            'headers' => array(
+                'X-StorageApi-Token' => $this->_client->getTokenString(),
+            ),
+        ]);
+        $response = json_decode((string)$response->getBody());
+        $this->assertTrue($response->isDisabled);
+        $this->assertEquals('test configuration row', $response->name);
+        $this->assertEquals($config, $response->configuration);
+        $this->assertEquals($state, $response->state);
+    }
 }
