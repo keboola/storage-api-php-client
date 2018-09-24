@@ -461,4 +461,40 @@ class ImportExportCommonTest extends StorageApiTestCase
         $this->assertEquals(5, $inTable['rowsCount']);
         $this->assertEquals(7, $outTable['rowsCount']);
     }
+
+    public function testIncrementalImportMetadata()
+    {
+        $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
+        $tableId = $this->_client->createTableAsync(
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages',
+            $importFile
+        );
+
+        $this->_client->writeTable($tableId, $importFile, array(
+            'incremental' => true,
+        ));
+
+        $table = $this->_client->getTable($tableId);
+        $this->assertArrayHasKey('metadata', $table);
+        $this->assertCount(1, $table['netadata']);
+        $this->assertArrayHasKey('provider', $table['metadata'][0]);
+        $this->assertArrayHasKey('timestamp', $table['metadata'][0]);
+        $this->assertArrayHasKey('key', $table['metadata'][0]);
+        $this->assertArrayHasKey('value', $table['metadata'][0]);
+        $this->assertEquals('storage', $table['metadata'][0]['provider']);
+        $this->assertEquals('KBC.incremental', $table['metadata'][0]['key']);
+        $this->assertTrue($table['metadata'][0]['value']);
+
+        // test that it will update when changed
+        $this->_client->writeTable($tableId, $importFile, array(
+            'incremental' => false,
+        ));
+        $table = $this->_client->getTable($tableId);
+
+        $this->assertArrayHasKey('metadata', $table);
+        $this->assertCount(1, $table['netadata']);
+
+        $this->assertFalse($table['metadata'][0]['value']);
+    }
 }
