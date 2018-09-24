@@ -471,30 +471,30 @@ class ImportExportCommonTest extends StorageApiTestCase
             $importFile
         );
 
-        $this->_client->writeTable($tableId, $importFile, array(
+        $this->_client->writeTableAsync($tableId, $importFile, [
             'incremental' => true,
-        ));
-
+        ]);
         $table = $this->_client->getTable($tableId);
+
         $this->assertArrayHasKey('metadata', $table);
-        $this->assertCount(1, $table['netadata']);
+        $this->assertCount(1, $table['metadata']);
         $this->assertArrayHasKey('provider', $table['metadata'][0]);
         $this->assertArrayHasKey('timestamp', $table['metadata'][0]);
         $this->assertArrayHasKey('key', $table['metadata'][0]);
         $this->assertArrayHasKey('value', $table['metadata'][0]);
         $this->assertEquals('storage', $table['metadata'][0]['provider']);
         $this->assertEquals('KBC.incremental', $table['metadata'][0]['key']);
-        $this->assertTrue($table['metadata'][0]['value']);
+        $this->assertTrue((bool) $table['metadata'][0]['value']);
 
         // test that it will update when changed
-        $this->_client->writeTable($tableId, $importFile, array(
+        $this->_client->writeTableAsync($tableId, $importFile, array(
             'incremental' => false,
         ));
         $table = $this->_client->getTable($tableId);
 
         $this->assertArrayHasKey('metadata', $table);
-        $this->assertCount(1, $table['netadata']);
+        $this->assertCount(1, $table['metadata']);
 
-        $this->assertFalse($table['metadata'][0]['value']);
+        $this->assertFalse((bool) $table['metadata'][0]['value']);
     }
 }
