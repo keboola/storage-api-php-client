@@ -171,6 +171,7 @@ class ConfigurationRowTest extends StorageApiTestCase
         $response = json_decode((string)$response->getBody());
         $this->assertEquals($config, $response->configuration);
         $this->assertEquals($state, $response->state);
+        $this->assertFalse($response->isDisabled);
     }
 
     public function testConfigurationRowIsDisabledBooleanValue()
