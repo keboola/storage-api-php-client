@@ -110,12 +110,12 @@ class AlterTableTest extends StorageApiTestCase
 
         $this->assertEquals(array('id', 'name'), $detail['primaryKey']);
 
-        $this->_client->deleteTableColumn($tableId, 'name');
-        $detail = $this->_client->getTable($tableId);
-
-        $this->assertEquals(array('id'), $detail['columns']);
-
-        $this->assertEquals(array('id'), $detail['primaryKey']);
+        try {
+            $this->_client->deleteTableColumn($tableId, 'name');
+            $this->fail('Column should not be deleted.');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.tables.cannotDeletePrimaryKeyColumn', $e->getStringCode());
+        }
     }
 
     public function testPrimaryKeyAddRequiredParam()
