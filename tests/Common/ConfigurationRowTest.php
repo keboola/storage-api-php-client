@@ -234,7 +234,12 @@ class ConfigurationRowTest extends StorageApiTestCase
         $this->assertEquals("Row ABCD disabled", $result->changeDescription);
     }
 
-    public function testCreateDisabledConfigurationRow(): void
+    /**
+     * @dataProvider isDisabledProvider
+     * @param $isDisabled
+     * @param bool $expectedIsDisabled
+     */
+    public function testCreateConfigurationRowIsDisabled($isDisabled, bool $expectedIsDisabled): void
     {
         $components = new \Keboola\StorageApi\Components($this->_client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
@@ -267,16 +272,46 @@ class ConfigurationRowTest extends StorageApiTestCase
                 'name' => 'test configuration row',
                 'configuration' => json_encode($config),
                 'state' => json_encode($state),
-                'isDisabled' => 'true',
+                'isDisabled' => $isDisabled,
             ],
             'headers' => array(
                 'X-StorageApi-Token' => $this->_client->getTokenString(),
             ),
         ]);
         $response = json_decode((string)$response->getBody());
-        $this->assertTrue($response->isDisabled);
+        $this->assertEquals($expectedIsDisabled, $response->isDisabled);
         $this->assertEquals('test configuration row', $response->name);
         $this->assertEquals($config, $response->configuration);
         $this->assertEquals($state, $response->state);
+    }
+
+    public function isDisabledProvider()
+    {
+        return [
+            'isDisabled string' => [
+                'true',
+                true,
+            ],
+            'isDisabled bool' => [
+               true,
+               true,
+            ] ,
+            'isDisabled int' => [
+                1,
+                true,
+            ],
+            '!isDisabled string' => [
+                'false',
+                false,
+            ],
+            '!isDisabled bool' => [
+                false,
+                false
+            ],
+            '!isDisabled int' => [
+                0,
+                false,
+            ],
+        ];
     }
 }
