@@ -171,6 +171,7 @@ class ConfigurationRowTest extends StorageApiTestCase
         $response = json_decode((string)$response->getBody());
         $this->assertEquals($config, $response->configuration);
         $this->assertEquals($state, $response->state);
+        $this->assertFalse($response->isDisabled);
     }
 
     public function testConfigurationRowIsDisabledBooleanValue()
@@ -231,5 +232,86 @@ class ConfigurationRowTest extends StorageApiTestCase
         $result = json_decode($process->getOutput());
         $this->assertTrue($result->isDisabled);
         $this->assertEquals("Row ABCD disabled", $result->changeDescription);
+    }
+
+    /**
+     * @dataProvider isDisabledProvider
+     * @param $isDisabled
+     * @param bool $expectedIsDisabled
+     */
+    public function testCreateConfigurationRowIsDisabled($isDisabled, bool $expectedIsDisabled): void
+    {
+        $components = new \Keboola\StorageApi\Components($this->_client);
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main');
+        $components->addConfiguration($configuration);
+
+        $client = new \GuzzleHttp\Client([
+            'base_uri' => $this->_client->getApiUrl(),
+        ]);
+
+        $config = (object)[
+            'test' => 'neco',
+            'array' => [],
+            'object' => (object)[],
+        ];
+
+        $state = (object)[
+            'test' => 'state',
+            'array' => [],
+            'object' => (object)[
+                'subobject' => (object)[],
+            ]
+        ];
+
+        $response = $client->post('/v2/storage/components/wr-db/configs/main-1/rows', [
+            'form_params' => [
+                'name' => 'test configuration row',
+                'configuration' => json_encode($config),
+                'state' => json_encode($state),
+                'isDisabled' => $isDisabled,
+            ],
+            'headers' => array(
+                'X-StorageApi-Token' => $this->_client->getTokenString(),
+            ),
+        ]);
+        $response = json_decode((string)$response->getBody());
+        $this->assertEquals($expectedIsDisabled, $response->isDisabled);
+        $this->assertEquals('test configuration row', $response->name);
+        $this->assertEquals($config, $response->configuration);
+        $this->assertEquals($state, $response->state);
+    }
+
+    public function isDisabledProvider()
+    {
+        return [
+            'isDisabled string' => [
+                'true',
+                true,
+            ],
+            'isDisabled bool' => [
+               true,
+               true,
+            ] ,
+            'isDisabled int' => [
+                1,
+                true,
+            ],
+            '!isDisabled string' => [
+                'false',
+                false,
+            ],
+            '!isDisabled bool' => [
+                false,
+                false
+            ],
+            '!isDisabled int' => [
+                0,
+                false,
+            ],
+        ];
     }
 }
