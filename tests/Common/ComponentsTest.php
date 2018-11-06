@@ -2460,6 +2460,7 @@ class ComponentsTest extends StorageApiTestCase
 
         // config version 2, row version 1
         $rowConfig = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config);
+        $rowConfig->setState(['rowStateKey' => 'rowStateValue']);
         $createdRow = $components->addConfigurationRow($rowConfig);
 
         // config version 3, row version 2
