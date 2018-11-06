@@ -41,13 +41,6 @@ class WorkspacesUnloadTest extends WorkspacesTestCase
             'dataTableName' => 'test.Languages3',
         ));
 
-        $expectedMetadata = [
-            'KBC.name' => 'test.Languages3',
-            'KBC.schema_name' => 'WORKSPACE_' . $workspace['id'],
-            'KBC.rows' => '2',
-            'KBC.bytes' => '1024',
-            'KBC.owner' => $connection['user'],
-        ];
         $expectedIdMetadata = [
             'KBC.datatype.type' => 'TEXT',
             'KBC.datatype.nullable' => '',
@@ -64,7 +57,7 @@ class WorkspacesUnloadTest extends WorkspacesTestCase
         ];
         // check that the new table has the correct metadata
         $table = $this->_client->getTable($tableId);
-        $this->assertMetadata($expectedMetadata, $table['metadata']);
+        $this->assertEquals([], $table['metadata']);
         $this->assertArrayHasKey('Id', $table['columnMetadata']);
         $this->assertMetadata($expectedIdMetadata, $table['columnMetadata']['Id']);
         $this->assertArrayHasKey('Name', $table['columnMetadata']);
@@ -185,13 +178,6 @@ class WorkspacesUnloadTest extends WorkspacesTestCase
         )), 'imported data comparsion');
 
         // check the created metadata
-        $expectedMetadata = array (
-            'KBC.name' => 'test.Languages3',
-            'KBC.schema_name' => 'WORKSPACE_' . $workspace['id'],
-            'KBC.rows' => '2',
-            'KBC.bytes' => '1024',
-            'KBC.owner' => $connection['user'],
-        );
         $expectedIdMetadata = [
             'KBC.datatype.type' => 'NUMBER',
             'KBC.datatype.nullable' => '',
@@ -216,7 +202,7 @@ class WorkspacesUnloadTest extends WorkspacesTestCase
 
         // check that the new table has the correct metadata
         $table = $this->_client->getTable($table['id']);
-        $this->assertMetadata($expectedMetadata, $table['metadata']);
+        $this->assertEquals([], $table['metadata']);
         $this->assertArrayHasKey('Id', $table['columnMetadata']);
         $this->assertMetadata($expectedIdMetadata, $table['columnMetadata']['Id']);
         $this->assertArrayHasKey('Name', $table['columnMetadata']);
