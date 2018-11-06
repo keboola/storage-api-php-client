@@ -2521,7 +2521,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertArrayNotHasKey('state', $components->getConfigurationVersion('wr-db', 'main-1', 1));
     }
 
-    public function testRollbackPreservesState()
+    public function testRollbackResetsState()
     {
         $components = new \Keboola\StorageApi\Components($this->_client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
@@ -2547,7 +2547,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $configurationResponse = $components->getConfiguration('wr-db', 'main-1');
         $this->assertEquals(3, $configurationResponse['version']);
-        $this->assertEquals($state, $configurationResponse['state']);
+        $this->assertEmpty($configurationResponse['state']);
     }
 
     public function testCopyPreservesState()
