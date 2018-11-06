@@ -2482,6 +2482,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals("description", $row1["description"]);
         $this->assertEquals("", $row1["changeDescription"]);
         $this->assertEquals(true, $row1["isDisabled"]);
+        $this->assertNotEmpty($row1['state']);
 
         $row2 = $response["rows"][1];
         $this->assertEquals($createdRow2["id"], $row2["id"]);
@@ -2489,6 +2490,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals("", $row2["description"]);
         $this->assertStringMatchesFormat('Copied from configuration "name" (main-1) row %d version 1', $row2["changeDescription"]);
         $this->assertEquals(false, $row2["isDisabled"]);
+        $this->assertNotEmpty($row2['state']);
 
         // copy row version 2
         $createdRow3 = $components->createConfigurationRowFromVersion('wr-db', $config->getConfigurationId(), $createdRow["id"], 2);
@@ -2501,6 +2503,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals("description", $row1["description"]);
         $this->assertEquals("", $row1["changeDescription"]);
         $this->assertEquals(true, $row1["isDisabled"]);
+        $this->assertNotEmpty($row1['state']);
 
         $row2 = $response["rows"][1];
         $this->assertEquals($createdRow2["id"], $row2["id"]);
@@ -2508,6 +2511,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals("", $row2["description"]);
         $this->assertStringMatchesFormat('Copied from configuration "name" (main-1) row %d version 1', $row2["changeDescription"]);
         $this->assertEquals(false, $row2["isDisabled"]);
+        $this->assertNotEmpty($row2['state']);
 
         $row3 = $response["rows"][2];
         $this->assertEquals($createdRow3["id"], $row3["id"]);
@@ -2515,6 +2519,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals("description", $row3["description"]);
         $this->assertStringMatchesFormat('Copied from configuration "name" (main-1) row %d version 2', $row3["changeDescription"]);
         $this->assertEquals(true, $row3["isDisabled"]);
+        $this->assertNotEmpty($row3['state']);
     }
 
     public function testStateAttributeNotPresentInVersions()
