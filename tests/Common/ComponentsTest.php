@@ -973,7 +973,8 @@ class ComponentsTest extends StorageApiTestCase
 
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config);
         $configurationRow->setRowId('main-1-1')
-            ->setConfiguration(array('first' => 1));
+            ->setConfiguration(array('first' => 1))
+            ->setState(['stateKey' => 'stateValue']);
 
         $components->addConfigurationRow($configurationRow);
 
@@ -1018,7 +1019,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertCount(5, $result);
 
         $listOptions = new ListComponentsOptions();
-        $listOptions->setInclude(array('rows'));
+        $listOptions->setInclude(array('rows', 'state'));
         $components = $components->listComponents($listOptions);
 
         $this->assertCount(1, $components);
@@ -1032,6 +1033,7 @@ class ComponentsTest extends StorageApiTestCase
         $row = reset($configuration['rows']);
         $this->assertEquals(2, $row['version']);
         $this->assertEquals('main-1-1', $row['id']);
+        $this->assertEmpty($row['state']);
     }
 
     public function testComponentConfigsVersionsCreate()
