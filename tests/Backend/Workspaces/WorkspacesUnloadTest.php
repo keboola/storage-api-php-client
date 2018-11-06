@@ -269,7 +269,7 @@ class WorkspacesUnloadTest extends WorkspacesTestCase
             'KBC.datatype.default' => '',
         ];
         $table = $this->_client->getTable($table['id']);
-        $this->assertMetadata($expectedMetadata, $table['metadata']);
+        $this->assertEquals([], $table['metadata']);
         $this->assertArrayHasKey("Id", $table['columnMetadata']);
         $this->assertArrayHasKey("Name", $table['columnMetadata']);
         $this->assertArrayHasKey("update", $table['columnMetadata']);
