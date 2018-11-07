@@ -254,13 +254,6 @@ class WorkspacesUnloadTest extends WorkspacesTestCase
             'format' => 'rfc',
         )), 'new  column added');
 
-        $expectedMetadata = [
-            'KBC.name' => 'test.Languages4',
-            'KBC.schema_name' => 'WORKSPACE_' . $workspace['id'],
-            'KBC.rows' => '3',
-            'KBC.bytes' => '1024',
-            'KBC.owner' => $connection['user'],
-        ];
         $expectedNewColMetadata = [
             'KBC.datatype.type' => 'TEXT',
             'KBC.datatype.nullable' => '1',
