@@ -276,7 +276,7 @@ class ConfigurationRowStateTest extends StorageApiTestCase
         $this->assertEquals($state, $configurationResponse['rows'][0]['state']);
     }
 
-    public function testRowCopyPreservesState()
+    public function testRowCopyResetsState()
     {
         $components = new \Keboola\StorageApi\Components($this->_client);
 
@@ -322,11 +322,11 @@ class ConfigurationRowStateTest extends StorageApiTestCase
 
         $components->createConfigurationRowFromVersion('wr-db', 'main-1', 'main-1-1', 1, 'main-2');
         $configurationResponse = $components->getConfiguration('wr-db', 'main-2');
-        $this->assertEquals($state, $configurationResponse['rows'][0]['state']);
+        $this->assertEmpty($configurationResponse['rows'][0]['state']);
 
         $components->createConfigurationRowFromVersion('wr-db', 'main-1', 'main-1-1', 2, 'main-3');
         $configurationResponse = $components->getConfiguration('wr-db', 'main-3');
-        $this->assertEquals($state, $configurationResponse['rows'][0]['state']);
+        $this->assertEmpty($configurationResponse['rows'][0]['state']);
     }
 
     public function testDeletedRowRollbackPreservesState()
