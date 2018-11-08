@@ -2460,6 +2460,7 @@ class ComponentsTest extends StorageApiTestCase
 
         // config version 2, row version 1
         $rowConfig = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config);
+        $rowConfig->setState(['rowStateKey' => 'rowStateValue']);
         $createdRow = $components->addConfigurationRow($rowConfig);
 
         // config version 3, row version 2
@@ -2474,36 +2475,51 @@ class ComponentsTest extends StorageApiTestCase
         $createdRow2 = $components->createConfigurationRowFromVersion('wr-db', $config->getConfigurationId(), $createdRow["id"], 1);
         $response = $components->getConfiguration('wr-db', $config->getConfigurationId());
         $this->assertStringMatchesFormat('Row %d copied from configuration "name" (main-1) row %d version 1', $response['changeDescription']);
-        $this->assertEquals($createdRow["id"], $response["rows"][0]["id"]);
-        $this->assertEquals("name", $response["rows"][0]["name"]);
-        $this->assertEquals("description", $response["rows"][0]["description"]);
-        $this->assertEquals("", $response["rows"][0]["changeDescription"]);
-        $this->assertEquals(true, $response["rows"][0]["isDisabled"]);
-        $this->assertEquals($createdRow2["id"], $response["rows"][1]["id"]);
-        $this->assertEquals("", $response["rows"][1]["name"]);
-        $this->assertEquals("", $response["rows"][1]["description"]);
-        $this->assertStringMatchesFormat('Copied from configuration "name" (main-1) row %d version 1', $response["rows"][1]["changeDescription"]);
-        $this->assertEquals(false, $response["rows"][1]["isDisabled"]);
+
+        $row1 = $response["rows"][0];
+        $this->assertEquals($createdRow["id"], $row1["id"]);
+        $this->assertEquals("name", $row1["name"]);
+        $this->assertEquals("description", $row1["description"]);
+        $this->assertEquals("", $row1["changeDescription"]);
+        $this->assertEquals(true, $row1["isDisabled"]);
+        $this->assertNotEmpty($row1['state']);
+
+        $row2 = $response["rows"][1];
+        $this->assertEquals($createdRow2["id"], $row2["id"]);
+        $this->assertEquals("", $row2["name"]);
+        $this->assertEquals("", $row2["description"]);
+        $this->assertStringMatchesFormat('Copied from configuration "name" (main-1) row %d version 1', $row2["changeDescription"]);
+        $this->assertEquals(false, $row2["isDisabled"]);
+        $this->assertEmpty($row2['state']);
 
         // copy row version 2
         $createdRow3 = $components->createConfigurationRowFromVersion('wr-db', $config->getConfigurationId(), $createdRow["id"], 2);
         $response = $components->getConfiguration('wr-db', $config->getConfigurationId());
         $this->assertStringMatchesFormat('Row %d copied from configuration "name" (main-1) row %d version 2', $response['changeDescription']);
-        $this->assertEquals($createdRow["id"], $response["rows"][0]["id"]);
-        $this->assertEquals("name", $response["rows"][0]["name"]);
-        $this->assertEquals("description", $response["rows"][0]["description"]);
-        $this->assertEquals("", $response["rows"][0]["changeDescription"]);
-        $this->assertEquals(true, $response["rows"][0]["isDisabled"]);
-        $this->assertEquals($createdRow2["id"], $response["rows"][1]["id"]);
-        $this->assertEquals("", $response["rows"][1]["name"]);
-        $this->assertEquals("", $response["rows"][1]["description"]);
-        $this->assertStringMatchesFormat('Copied from configuration "name" (main-1) row %d version 1', $response["rows"][1]["changeDescription"]);
-        $this->assertEquals(false, $response["rows"][1]["isDisabled"]);
-        $this->assertEquals($createdRow3["id"], $response["rows"][2]["id"]);
-        $this->assertEquals("name", $response["rows"][2]["name"]);
-        $this->assertEquals("description", $response["rows"][2]["description"]);
-        $this->assertStringMatchesFormat('Copied from configuration "name" (main-1) row %d version 2', $response["rows"][2]["changeDescription"]);
-        $this->assertEquals(true, $response["rows"][2]["isDisabled"]);
+
+        $row1 = $response["rows"][0];
+        $this->assertEquals($createdRow["id"], $row1["id"]);
+        $this->assertEquals("name", $row1["name"]);
+        $this->assertEquals("description", $row1["description"]);
+        $this->assertEquals("", $row1["changeDescription"]);
+        $this->assertEquals(true, $row1["isDisabled"]);
+        $this->assertNotEmpty($row1['state']);
+
+        $row2 = $response["rows"][1];
+        $this->assertEquals($createdRow2["id"], $row2["id"]);
+        $this->assertEquals("", $row2["name"]);
+        $this->assertEquals("", $row2["description"]);
+        $this->assertStringMatchesFormat('Copied from configuration "name" (main-1) row %d version 1', $row2["changeDescription"]);
+        $this->assertEquals(false, $row2["isDisabled"]);
+        $this->assertEmpty($row2['state']);
+
+        $row3 = $response["rows"][2];
+        $this->assertEquals($createdRow3["id"], $row3["id"]);
+        $this->assertEquals("name", $row3["name"]);
+        $this->assertEquals("description", $row3["description"]);
+        $this->assertStringMatchesFormat('Copied from configuration "name" (main-1) row %d version 2', $row3["changeDescription"]);
+        $this->assertEquals(true, $row3["isDisabled"]);
+        $this->assertEmpty($row3['state']);
     }
 
     public function testStateAttributeNotPresentInVersions()
@@ -2548,7 +2564,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals($state, $configurationResponse['state']);
     }
 
-    public function testCopyPreservesState()
+    public function testCopyResetsState()
     {
         $components = new \Keboola\StorageApi\Components($this->_client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
@@ -2574,7 +2590,7 @@ class ComponentsTest extends StorageApiTestCase
         $newConfig = $components->createConfigurationFromVersion('wr-db', 'main-1', 1, 'main-2');
 
         $configurationResponse = $components->getConfiguration('wr-db', $newConfig['id']);
-        $this->assertEquals($state, $configurationResponse['state']);
+        $this->assertEmpty($configurationResponse['state']);
     }
 
     public function testRevertingConfigRowVersionWillNotCreateEmptyConfiguration()
