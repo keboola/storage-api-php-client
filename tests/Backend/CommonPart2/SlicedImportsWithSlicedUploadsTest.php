@@ -148,4 +148,27 @@ class SlicedImportsWithSlicedUploadsTest extends StorageApiTestCase
             $this->assertEquals('csvImport.columnsNotMatch', $e->getStringCode());
         }
     }
+
+    public function testSlicedImportCompress()
+    {
+        $uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
+        $uploadOptions
+            ->setFileName('entries_')
+            ->setIsEncrypted(true)
+            ->setIsSliced(true)
+            ->setCompress(true);
+        $slices = [
+            __DIR__ . '/../../_data/sliced/neco_0000_part_00',
+        ];
+        $slicedFileId = $this->_client->uploadSlicedFile($slices, $uploadOptions);
+
+        $headerFile = new CsvFile(__DIR__ . '/../../_data/sliced/header.csv');
+        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'entries', $headerFile);
+        $this->_client->writeTableAsyncDirect($tableId, array(
+            'dataFileId' => $slicedFileId,
+            'delimiter' => '|',
+            'enclosure' => '',
+            'withoutHeaders' => true,
+        ));
+    }
 }
