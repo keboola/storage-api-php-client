@@ -1472,7 +1472,7 @@ class Client
             }
             $fileSize += filesize($filePath);
         }
-        
+
         $newOptions
             ->setSizeBytes($fileSize)
             ->setFederationToken(true)
