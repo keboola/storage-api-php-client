@@ -170,5 +170,8 @@ class SlicedImportsWithSlicedUploadsTest extends StorageApiTestCase
             'enclosure' => '',
             'withoutHeaders' => true,
         ));
+
+        $tableInfo = $this->_client->getTable($tableId);
+        $this->assertEquals($tableInfo['rowsCount'], 13973);
     }
 }
