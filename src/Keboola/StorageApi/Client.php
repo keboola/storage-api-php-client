@@ -1432,13 +1432,6 @@ class Client
             $transferOptions = new FileUploadTransferOptions();
         }
 
-        $fileSize = 0;
-        foreach ($slices as $filePath) {
-            if (!is_readable($filePath)) {
-                throw new ClientException("File is not readable: " . $filePath, null, null, 'fileNotReadable');
-            }
-            $fileSize += filesize($filePath);
-        }
         $newOptions = clone $options;
         $fs = null;
         $currentUploadDir = null;
@@ -1470,6 +1463,14 @@ class Client
                     $slices[$key] = $gzFilePath;
                 }
             }
+        }
+
+        $fileSize = 0;
+        foreach ($slices as $filePath) {
+            if (!is_readable($filePath)) {
+                throw new ClientException("File is not readable: " . $filePath, null, null, 'fileNotReadable');
+            }
+            $fileSize += filesize($filePath);
         }
 
         $newOptions
