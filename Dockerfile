@@ -1,9 +1,23 @@
 FROM php:7.1
 MAINTAINER Martin Halamicek <martin@keboola.com>
 ENV DEBIAN_FRONTEND noninteractive
+ARG COMPOSER_FLAGS="--prefer-dist --no-interaction"
+ENV COMPOSER_ALLOW_SUPERUSER 1
+ENV COMPOSER_PROCESS_TIMEOUT 3600
 
-RUN apt-get update \
-  && apt-get install unzip git unixodbc unixodbc-dev libpq-dev -y
+WORKDIR /code/
+
+COPY docker/composer-install.sh /tmp/composer-install.sh
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        unzip \
+        git \
+        unixodbc \
+        unixodbc-dev \
+        libpq-dev \
+    && rm -r /var/lib/apt/lists/* \
+    && chmod +x /tmp/composer-install.sh \
+    && /tmp/composer-install.sh
 
 RUN echo "memory_limit = -1" >> /usr/local/etc/php/php.ini
 
@@ -30,11 +44,6 @@ RUN mkdir -p  /usr/bin/snowflake_odbc/log
 ENV SIMBAINI /etc/simba.snowflake.ini
 ENV SSL_DIR /usr/bin/snowflake_odbc/SSLCertificates/nssdb
 ENV LD_LIBRARY_PATH /usr/bin/snowflake_odbc/lib
-
-
-RUN cd \
-  && curl -sS https://getcomposer.org/installer | php \
-  && ln -s /root/composer.phar /usr/local/bin/composer
 
 ADD ./ /code
 
