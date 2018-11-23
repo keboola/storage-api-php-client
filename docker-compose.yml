@@ -1,18 +1,12 @@
 version: '2'
 services:
-  tests:
-    build: .
+  tests: &base
+    build:
+      context: .
+      args:
+        - AWS_ACCESS_KEY_ID
+        - AWS_SECRET_ACCESS_KEY
     image: keboola/storage-api-tests
-    tty: true
-    stdin_open: true
-    volumes:
-      - ./:/code
-    working_dir: /code
-    command: >
-       sh -c '
-       composer install
-       && ./vendor/bin/phpunit
-       '
     environment:
       - STORAGE_API_URL
       - STORAGE_API_TOKEN
@@ -21,14 +15,10 @@ services:
       - REDSHIFT_HOSTNAME
       - REDSHIFT_USER
       - REDSHIFT_PASSWORD
-  odbc:
-    build:
-      context: .
-      dockerfile: DockerfileOdbcDownload
+  dev:
+    <<: *base
     volumes:
-        - .:/code
-    working_dir: /code
-
+      - ./:/code
 networks:
   default:
     external:
