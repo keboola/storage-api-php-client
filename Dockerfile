@@ -45,12 +45,15 @@ ENV SIMBAINI /etc/simba.snowflake.ini
 ENV SSL_DIR /usr/bin/snowflake_odbc/SSLCertificates/nssdb
 ENV LD_LIBRARY_PATH /usr/bin/snowflake_odbc/lib
 
-ADD ./ /code
 
 WORKDIR /code
-RUN composer install --prefer-dist --no-interaction
 
-
-
-
-
+## Composer - deps always cached unless changed
+# First copy only composer files
+COPY composer.* ./
+# Download dependencies, but don't run scripts or init autoloaders as the app is missing
+RUN composer install $COMPOSER_FLAGS --no-scripts --no-autoloader
+# copy rest of the app
+COPY . .
+# run normal composer - all deps are cached already
+RUN composer install $COMPOSER_FLAGS
