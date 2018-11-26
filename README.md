@@ -88,7 +88,9 @@ Tests should be executed against local dockerized version of [Keboola Connection
 These tests and local KBC are configured to share docker network where the Storage and Manage API endpoints are provided. 
 These APIs are available at `http://connection-apache/` endpoint from clients tests.
 
+
 Before executing tests please install dev dependencies:
+- Prepare and export AWS keys for [Snowflake drivers download](https://github.com/keboola/drivers-management#driver-download) required by build
 - `docker-compose build`
 - `docker-compose run --rm tests composer install`
 
