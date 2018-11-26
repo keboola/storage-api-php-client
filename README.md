@@ -130,10 +130,7 @@ This test suite expects following environment variables set:
 - `STORAGE_API_TOKEN` - Storage API token associated to user (Admin master token) with all permissions. **Project must have `snowflake` set as default backend.**
 
 
-Tests are also testing provisioning of workspaces and direct connection to snowflake so it requires snowflake odbc driver.
-You can download odbc driver from [Snowflake Console](https://keboola.snowflakecomputing.com) and save it `snowflake_linux_x8664_odbc.tgz` to this repository root folder.
-
-You can run these tests in docker with drivers installed:
+You can run these tests in docker:
 
 `source ./set-env.snowflake.sh && docker-compose run --rm tests vendor/bin/phpunit --testsuite backend-snowflake-part-1`
 `source ./set-env.snowflake.sh && docker-compose run --rm tests vendor/bin/phpunit --testsuite backend-snowflake-part-2`
