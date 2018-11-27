@@ -2366,6 +2366,74 @@ Loads tables from Storage into a Workspace.
                 }
             }
 
+## Clone Data [/v2/storage/workspaces/{workspace_id}/load-clone]
+
++ Parameters
+
+    + workspace_id (required, number)
+
+### Clone Data [POST]
+Instant clone of data from Storage into a Workspace.
+Supported only for Snowflake projects.
+
++ Attributes
+    + input[] (required, array) - Mappings of source tables with destinations to be loaded into the workspace
+        + Items
+            + (object)
+                + Properties
+                    + source (required) - Full table identifier of the source table (e.g.: in.c-bucket.mytable)
+                    + destination (required) - Destination table name
+    + preserve (optional, boolean) - If true, the workspace will not be altered before loading. When false, clears the workspace before loading.
+        Default: false
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            input%5B0%5D%5Bsource%5D=in.c-application-testing.cashier-data&input%5B0%5D%5Bdestination%5D=my-table
+
++ Response 201 (application/json)
+    + Body
+
+            {
+                "id": 22077337,
+                "status": "waiting",
+                "url": "https://connection.keboola.com/v2/storage/jobs/22077337",
+                "tableId": null,
+                "operationName": "workspaceLoad",
+                "operationParams": {
+                    "workspaceId": "78423",
+                    "preserve": false,
+                    "input": [
+                        {
+                            "source": "in.c-application-testing.cashier-data",
+                            "destination": "my-table"
+                        }
+                    ],
+                    "queue": "main_fast"
+                },
+                "createdTime": "2017-02-13T16:41:18+0100",
+                "startTime": null,
+                "endTime": null,
+                "runId": null,
+                "results": null,
+                "creatorToken": {
+                    "id": "27978",
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
+                }
+            }
+
 ## Password reset [/v2/storage/workspaces/{workspace_id}/password]
 ### Password reset  [POST]
 Generates new password for the given workspace
