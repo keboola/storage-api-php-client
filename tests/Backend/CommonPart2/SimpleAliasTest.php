@@ -87,15 +87,10 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->assertEquals($expectedColumns, $aliasTable['columns'], 'Columns autocreate in alias table');
 
         // test creating alias from alias
-        $callFailed = false;
-        try {
-            $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $aliasTableId, 'double-alias');
-        } catch (ClientException $e) {
-            if ($e->getCode() == 400) {
-                $callFailed = true;
-            }
-        }
-        $this->assertTrue($callFailed, 'Alias of already aliased table should fail');
+        $aliasedAliasId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $aliasTableId, 'double-alias');
+        $aliasedAlias = $this->_client->getTable($aliasedAliasId);
+        $this->assertEquals($expectedColumns, $aliasedAlias['columns']);
+
 
         $this->assertArrayHasKey('isAlias', $sourceTable);
         $this->assertFalse($sourceTable['isAlias']);
@@ -110,6 +105,7 @@ class SimpleAliasTest extends StorageApiTestCase
         }
 
         // first delete alias, than source table
+        $this->_client->dropTable($aliasedAliasId);
         $this->_client->dropTable($aliasTableId);
         $this->_client->dropTable($sourceTableId);
     }
@@ -288,6 +284,64 @@ class SimpleAliasTest extends StorageApiTestCase
         $aliasTable = $this->_client->getTable($aliasTableId);
 
         $this->assertEquals(array("id", "name", "city", "sex", "age", "birthDate"), $aliasTable['columns']);
+    }
+
+    public function testAliasingSimpleAlias(): void
+    {
+        $importFile = __DIR__ . '/../../_data/users.csv';
+
+        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+        $sourceTable = $this->_client->getTable($sourceTableId);
+
+        $this->assertEquals(['id', 'name', 'city', 'sex'], $sourceTable['columns']);
+
+        $aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users');
+        $aliasedAliasId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $aliasTableId, 'users_alias');
+
+        $aliasedAlias = $this->_client->getTable($aliasedAliasId);
+
+        $this->assertEquals(['id', 'name', 'city', 'sex'], $aliasedAlias['columns']);
+    }
+
+    public function testAliasingAliasWithoutAutoSyncShouldFail(): void
+    {
+        $importFile = __DIR__ . '/../../_data/users.csv';
+
+        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+        $aliasTableId = $this->_client->createAliasTable(
+            $this->getTestBucketId(self::STAGE_OUT),
+            $sourceTableId,
+            'users',
+            ['aliasColumnsAutosync' => false]
+        );
+        $this->_client->disableAliasTableColumnsAutoSync($aliasTableId);
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Aliasing an advanced alias is not allowed.');
+        $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $aliasTableId, 'users_alias');
+    }
+
+    public function testAliasingAliasWithFilterShouldFail(): void
+    {
+        $importFile = __DIR__ . '/../../_data/users.csv';
+
+        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+        $aliasTableId = $this->_client->createAliasTable(
+            $this->getTestBucketId(self::STAGE_OUT),
+            $sourceTableId,
+            'users',
+            [
+                'aliasFilter' => [
+                    'column' => 'name',
+                    'values' => array('foo'),
+                    'operator' => 'eq',
+                ],
+            ]
+        );
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Aliasing an advanced alias is not allowed.');
+        $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $aliasTableId, 'users_alias');
     }
 
     public function testColumnAssignedToAliasWithAutoSyncShouldNotBeDeletable()
