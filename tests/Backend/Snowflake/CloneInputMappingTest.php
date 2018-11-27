@@ -27,6 +27,44 @@ class CloneInputMappingTest extends WorkspacesTestCase
         $this->runAndAssertWorkspaceClone($tableId);
     }
 
+    public function testCloneMultipleTables(): void
+    {
+        $bucketId = $this->ensureBucket($this->_client, 'clone-input-mapping');
+        $table1Id = $this->_client->createTable(
+            $bucketId,
+            'languages',
+            new CsvFile(self::IMPORT_FILE_PATH)
+        );
+
+        $table2Id = $this->_client->createTable(
+            $bucketId,
+            'rates',
+            new CsvFile(__DIR__ . '/../../_data/rates.csv')
+        );
+
+        $workspacesClient = new Workspaces($this->_client);
+        $workspace = $workspacesClient->createWorkspace([
+            'name' => 'clone',
+        ]);
+
+        $workspacesClient->cloneIntoWorkspace($workspace['id'], [
+           'input' => [
+               [
+                   'source' => $table1Id,
+                   'destination' => 'languages',
+               ],
+               [
+                   'source' => $table2Id,
+                   'destination' => 'rates',
+               ]
+           ]
+        ]);
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backendTables = $backend->getTables();
+        $this->assertCount(2, $backendTables);
+    }
+
     public function testCloneSimpleAlias(): void
     {
         $bucketId = $this->ensureBucket($this->_client, 'clone-alias-bucket', 'in');
