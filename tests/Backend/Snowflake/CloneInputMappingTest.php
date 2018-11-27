@@ -225,8 +225,8 @@ class CloneInputMappingTest extends WorkspacesTestCase
         Client $client,
         string $bucketName,
         string $stage = 'in'
-    ): string
-    {
+    ): string {
+    
         if ($client->bucketExists($stage . '.' . 'c-' . $bucketName)) {
             $client->dropBucket(
                 $stage . '.' . 'c-' . $bucketName,
@@ -246,8 +246,8 @@ class CloneInputMappingTest extends WorkspacesTestCase
         string $bucketId,
         string $importFilePath,
         $primaryKey = 'id'
-    ): string
-    {
+    ): string {
+    
         return $client->createTable(
             $bucketId,
             'languagesDetails',

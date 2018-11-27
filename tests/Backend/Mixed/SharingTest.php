@@ -942,7 +942,7 @@ class SharingTest extends StorageApiTestCase
         $linkedId = $this->_client2->linkBucket(
             "linked-" . uniqid(),
             'out',
-            $sourceProjectId ,
+            $sourceProjectId,
             $sourceBucketId
         );
 
@@ -979,7 +979,7 @@ class SharingTest extends StorageApiTestCase
                 ]
             ],
             array_map(
-                function(array $column) {
+                function (array $column) {
                     return [
                         'name' => $column['name'],
                         'type' => $column['type'],
