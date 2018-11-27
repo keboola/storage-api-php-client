@@ -97,8 +97,6 @@ class CloneInputMappingTest extends WorkspacesTestCase
         ]);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-        $workspaceTableColumns = $backend->getTableColumns('languagesDetails');
-
         $workspaceTableColumns = $backend->describeTableColumns('languagesDetails');
         $this->assertEquals(
             [
