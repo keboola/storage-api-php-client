@@ -7,6 +7,7 @@ namespace Keboola\Test\Backend\Snowflake;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\Workspaces;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\WorkspacesTestCase;
 use Keboola\Test\StorageApiTestCase;
 
@@ -118,35 +119,37 @@ class CloneInputMappingTest extends WorkspacesTestCase
             ],
         ]);
 
-        $data = $this->_client->getTableDataPreview($tableId);
-        $rows = str_getcsv($data, "\n");
-        $result = array_map('str_getcsv', $rows);
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $workspaceTableColumns = $backend->getTableColumns('languagesDetails');
 
-        $this->assertSame([
+        $workspaceTableColumns = $backend->describeTableColumns('languagesDetails');
+        $this->assertEquals(
             [
-                'id',
-                'name',
+                [
+                    'name' => 'id',
+                    'type' => 'VARCHAR(1048576)',
+                ],
+                [
+                    'name' => 'name',
+                    'type' => 'VARCHAR(1048576)',
+                ],
+                [
+                    'name' => '_timestamp',
+                    'type' => 'TIMESTAMP_NTZ(9)',
+                ]
             ],
-            [
-                '0',
-                '- unchecked -',
-            ],
-            [
-                '11',
-                'finnish',
-            ],
-            [
-                '24',
-                'french',
-            ],
-            [
-                '26',
-                'czech',
-            ],
-            [
-                '1',
-                'english',
-            ],
-        ], $result);
+            array_map(
+                function(array $column) {
+                    return [
+                        'name' => $column['name'],
+                        'type' => $column['type'],
+                    ];
+                },
+                $workspaceTableColumns
+            )
+        );
+
+        $workspaceTableData = $backend->fetchAll('languagesDetails');
+        $this->assertCount(5, $workspaceTableData);
     }
 }
