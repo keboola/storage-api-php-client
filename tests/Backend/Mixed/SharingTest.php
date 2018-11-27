@@ -924,6 +924,75 @@ class SharingTest extends StorageApiTestCase
         }
     }
 
+    public function testCloneLinkedBucket(): void
+    {
+        $this->deleteAllWorkspaces();
+        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
+
+        // prepare source data
+        $sourceBucketId = $this->getTestBucketId();
+        $table1Id = $this->_client->createTable(
+            $this->getTestBucketId(),
+            'languagesDetails',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+        $this->_client->shareBucket($sourceBucketId);
+
+        $sourceProjectId = $this->_client->verifyToken()['owner']['id'];
+        $linkedId = $this->_client2->linkBucket(
+            "linked-" . uniqid(),
+            'out',
+            $sourceProjectId ,
+            $sourceBucketId
+        );
+
+        // load data into workspace in destination project
+        $workspacesClient = new Workspaces($this->_client2);
+        $workspace = $workspacesClient->createWorkspace([
+            'name' => 'clone',
+        ]);
+
+        $workspacesClient->cloneIntoWorkspace($workspace['id'], [
+            'input' => [
+                [
+                    'source' => str_replace($sourceBucketId, $linkedId, $table1Id),
+                    'destination' => 'languagesDetails',
+                ],
+            ],
+        ]);
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $workspaceTableColumns = $backend->describeTableColumns('languagesDetails');
+        $this->assertEquals(
+            [
+                [
+                    'name' => 'id',
+                    'type' => 'VARCHAR(1048576)',
+                ],
+                [
+                    'name' => 'name',
+                    'type' => 'VARCHAR(1048576)',
+                ],
+                [
+                    'name' => '_timestamp',
+                    'type' => 'TIMESTAMP_NTZ(9)',
+                ]
+            ],
+            array_map(
+                function(array $column) {
+                    return [
+                        'name' => $column['name'],
+                        'type' => $column['type'],
+                    ];
+                },
+                $workspaceTableColumns
+            )
+        );
+
+        $workspaceTableData = $backend->fetchAll('languagesDetails');
+        $this->assertCount(5, $workspaceTableData);
+    }
+
     /**
      * @param $connection
      * @return Connection|\PDO

@@ -27,29 +27,6 @@ class CloneInputMappingTest extends WorkspacesTestCase
         $this->runAndAssertWorkspaceClone($tableId);
     }
 
-    public function testCloneLinkedBucket(): void
-    {
-        $client2 = new \Keboola\StorageApi\Client([
-            'token' => STORAGE_API_LINKING_TOKEN,
-            'url' => STORAGE_API_URL,
-            'backoffMaxTries' => 1,
-        ]);
-
-        $this->_client->dropBucket('in.c-clone-input-mapping', ['force' => true]);
-        $bucketId = $this->ensureBucket($client2, 'c-linked-to-dev');
-        $this->createTableFromFile(
-            $client2,
-            $bucketId,
-            self::IMPORT_FILE_PATH
-        );
-        $client2->shareBucket($bucketId);
-        $projectId = $client2->verifyToken()['owner']['id'];
-
-        $bucketId = $this->_client->linkBucket('clone-input-mapping', 'in', $projectId, $bucketId);
-
-        $this->runAndAssertWorkspaceClone($bucketId . '.languagesDetails');
-    }
-
     public function testCloneSimpleAlias(): void
     {
         $bucketId = $this->ensureBucket($this->_client, 'clone-alias-bucket', 'in');
