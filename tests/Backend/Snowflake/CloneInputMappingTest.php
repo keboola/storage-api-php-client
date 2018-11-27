@@ -7,9 +7,10 @@ namespace Keboola\Test\Backend\Snowflake;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\Workspaces;
+use Keboola\Test\Backend\Workspaces\WorkspacesTestCase;
 use Keboola\Test\StorageApiTestCase;
 
-class CloneInputMappingTest extends StorageApiTestCase
+class CloneInputMappingTest extends WorkspacesTestCase
 {
     const IMPORT_FILE_PATH = __DIR__ . '/../../_data/languages.csv';
 
@@ -95,20 +96,6 @@ class CloneInputMappingTest extends StorageApiTestCase
         );
     }
 
-    private function ensureWorkspace(Workspaces $workspacesClient, $workspaceName): array
-    {
-        $workspaces = $workspacesClient->listWorkspaces();
-        $existingWorkspaces = array_filter($workspaces, function ($workspace) use ($workspaceName) {
-            return $workspace['name'] === $workspaceName;
-        });
-        if (count($existingWorkspaces)) {
-            $workspacesClient->deleteWorkspace($existingWorkspaces[0]['id']);
-        }
-
-        $workspace = $workspacesClient->createWorkspace(['name' => $workspaceName]);
-        return $workspace;
-    }
-
     /**
      * @param $tableId
      * @param $workspacesClient
@@ -118,9 +105,11 @@ class CloneInputMappingTest extends StorageApiTestCase
     {
         $workspacesClient = new Workspaces($this->_client);
 
-        $workspace = $this->ensureWorkspace($workspacesClient, 'clone');
+        $workspace = $workspacesClient->createWorkspace([
+            'name' => 'clone',
+        ]);
 
-        $workspacesClient->cloneWorkspaceData($workspace['id'], [
+        $workspacesClient->cloneIntoWorkspace($workspace['id'], [
             'input' => [
                 [
                     'source' => $tableId,
