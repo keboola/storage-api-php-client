@@ -6,10 +6,10 @@ namespace Keboola\Test\Backend\Snowflake;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
+use Keboola\StorageApi\Exception;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\WorkspacesTestCase;
-use Keboola\Test\StorageApiTestCase;
 
 class CloneInputMappingTest extends WorkspacesTestCase
 {
@@ -41,11 +41,154 @@ class CloneInputMappingTest extends WorkspacesTestCase
         $this->runAndAssertWorkspaceClone($tableId);
     }
 
+    /**
+     * @dataProvider aliasSettingsProvider
+     * @param array $aliasSettings
+     */
+    public function testCloneOtherAliasesNotAllowed(array $aliasSettings): void
+    {
+        $sourceBucketId = $this->getTestBucketId();
+        $sourceTableId = $this->createTableFromFile(
+            $this->_client,
+            $sourceBucketId,
+            self::IMPORT_FILE_PATH
+        );
+
+        $aliasTableId = $this->_client->createAliasTable(
+            $sourceBucketId,
+            $sourceTableId,
+            'aliased',
+            $aliasSettings
+        );
+
+        $workspacesClient = new Workspaces($this->_client);
+        $workspace = $workspacesClient->createWorkspace([
+            'name' => 'cloning',
+        ]);
+
+        $this->expectException(Exception::class);
+        $workspacesClient->cloneIntoWorkspace($workspace['id'], [
+            'input' => [
+                [
+                    'source' => $aliasTableId,
+                    'destination' => 'languagesDetails',
+                ],
+            ],
+        ]);
+    }
+
+    public function testClonePreserveOffByDefault()
+    {
+        $sourceBucketId = $this->getTestBucketId();
+        $sourceTableId = $this->createTableFromFile(
+            $this->_client,
+            $sourceBucketId,
+            self::IMPORT_FILE_PATH
+        );
+
+        $workspacesClient = new Workspaces($this->_client);
+        $workspace = $workspacesClient->createWorkspace([
+            'name' => 'cloning',
+        ]);
+
+        // first load
+        $workspacesClient->cloneIntoWorkspace($workspace['id'], [
+            'input' => [
+                [
+                    'source' => $sourceTableId,
+                    'destination' => 'languagesDetails',
+                ],
+            ],
+        ]);
+
+        // second load will overwrite
+        $workspacesClient->cloneIntoWorkspace($workspace['id'], [
+            'input' => [
+                [
+                    'source' => $sourceTableId,
+                    'destination' => 'languages-2',
+                ],
+            ],
+        ]);
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backendTables = $backend->getTables();
+        $this->assertEquals(['languages-2'], $backendTables);
+    }
+
+    public function testClonePreserve()
+    {
+        $sourceBucketId = $this->getTestBucketId();
+        $sourceTableId = $this->createTableFromFile(
+            $this->_client,
+            $sourceBucketId,
+            self::IMPORT_FILE_PATH
+        );
+
+        $workspacesClient = new Workspaces($this->_client);
+        $workspace = $workspacesClient->createWorkspace([
+            'name' => 'cloning',
+        ]);
+
+        // first load
+        $workspacesClient->cloneIntoWorkspace($workspace['id'], [
+            'input' => [
+                [
+                    'source' => $sourceTableId,
+                    'destination' => 'languagesDetails',
+                ],
+            ],
+        ]);
+
+        // second load with preserve
+        $workspacesClient->cloneIntoWorkspace($workspace['id'], [
+            'input' => [
+                [
+                    'source' => $sourceTableId,
+                    'destination' => 'languages-2',
+                ],
+            ],
+            'preserve' => true,
+        ]);
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backendTables = $backend->getTables();
+        $this->assertEquals(
+            [
+                'languages-2',
+                'languagesDetails',
+            ],
+            $backendTables
+        );
+    }
+
+    public function aliasSettingsProvider(): array
+    {
+        return [
+            'filtered alias' => [
+                [
+                    'aliasFilter' => [
+                        'column' => 'id',
+                        'values' => [26],
+                    ],
+                ],
+            ],
+            'selected columns' => [
+                [
+                    'aliasColumns' => [
+                        'id',
+                    ],
+                ],
+            ],
+        ];
+    }
+
     private function ensureBucket(
         Client $client,
         string $bucketName,
         string $stage = 'in'
-    ): string {
+    ): string
+    {
         if ($client->bucketExists($stage . '.' . 'c-' . $bucketName)) {
             $client->dropBucket(
                 $stage . '.' . 'c-' . $bucketName,
@@ -65,7 +208,8 @@ class CloneInputMappingTest extends WorkspacesTestCase
         string $bucketId,
         string $importFilePath,
         $primaryKey = 'id'
-    ): string {
+    ): string
+    {
         return $client->createTable(
             $bucketId,
             'languagesDetails',
@@ -114,7 +258,7 @@ class CloneInputMappingTest extends WorkspacesTestCase
                 ]
             ],
             array_map(
-                function(array $column) {
+                function (array $column) {
                     return [
                         'name' => $column['name'],
                         'type' => $column['type'],
