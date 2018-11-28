@@ -3,6 +3,7 @@ namespace Keboola\StorageApi;
 
 use Aws\Exception\MultipartUploadException;
 use Aws\Multipart\UploadState;
+use Aws\S3\Exception\S3Exception;
 use Aws\S3\S3Client;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\MessageFormatter;
@@ -126,7 +127,7 @@ class Client
         if (!isset($config['logger'])) {
             $config['logger'] = new NullLogger();
         }
-        $this->setLogger($config['logger']);
+            $this->setLogger($config['logger']);
 
         if (isset($config['jobPollRetryDelay'])) {
             $this->setJobPollRetryDelay($config['jobPollRetryDelay']);
@@ -143,11 +144,11 @@ class Client
             'backoffMaxTries' => $this->backoffMaxTries,
         ]);
 
-        $handlerStack->push(Middleware::log(
-            $this->logger,
+            $handlerStack->push(Middleware::log(
+                $this->logger,
             new MessageFormatter("{hostname} {req_header_User-Agent} - [{ts}] \"{method} {resource} {protocol}/{version}\" {code} {res_header_Content-Length}"),
             LogLevel::DEBUG
-        ));
+            ));
         $this->client = new \GuzzleHttp\Client([
             'base_uri' => $this->apiUrl,
             'handler' => $handlerStack,
@@ -1332,13 +1333,32 @@ class Client
                 $result['name']
             );
 
+            $cnt = 0;
             do {
                 try {
+                    $cnt++;
                     $s3result = $uploader->upload();
                 } catch (MultipartUploadException $e) {
                     $this->logger->notice(
                         "Multipart upload failed: {$e->getMessage()}. Filename: {$filePath}, Bucket {$uploadParams['bucket']}"
                     );
+                    $this->log('Multipart upload failed: ' . $e->getMessage());
+                    if ($cnt > 10) {
+                        $params = $e->getState()->getId();
+                        if (!empty($params['UploadId'])) {
+                            try {
+                                $s3Client->abortMultipartUpload($params);
+                            } catch (S3Exception $e) {
+                                $this->log('Failed to abort multipart upload: ' . $e->getMessage());
+                            }
+                        }
+                        throw new ClientException(
+                            'Error on file upload to S3: ' . $filePath,
+                            null,
+                            $e,
+                            'fileNotReadable'
+                        );
+                    }
                     $uploader = $this->multipartUploaderFactory(
                         $s3Client,
                         $filePath,
@@ -2048,7 +2068,7 @@ class Client
     private function log($message, $context = array())
     {
         $this->logger->debug($message, $context);
-    }
+        }
 
     /**
      * @param LoggerInterface $logger
