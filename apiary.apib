@@ -2376,9 +2376,10 @@ Loads tables from Storage into a Workspace.
 Load tables from Storage into a Workspace using zero-copy cloning functionality in Snowflake. This load type does not
 support any filtering or processing parameters. Only tables stored in Snowflake are supported.
 
-The cloned table will contain all columns of the source table and a `_timestamp` system column.
-This column contains a unix timestamp value when the row was added to the table or when any of the row values
-were changed during an incremental import.
+The cloned table will contain all columns of the source table (all of them as `VARCHAR(1048576)`)
+and a `_timestamp` system column. 
+This column contains a unix timestamp value (`TIMESTAMP_NTZ(9)`) when the row was added to the table or
+when any of the row values were changed during an incremental import.
 
 + Attributes
     + input[] (required, array) - Mappings of source tables with destinations to be loaded into the workspace
