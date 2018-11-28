@@ -11,13 +11,13 @@ use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\WorkspacesTestCase;
 
-class CloneInputMappingTest extends WorkspacesTestCase
+class CloneIntoWorkspaceTest extends WorkspacesTestCase
 {
     const IMPORT_FILE_PATH = __DIR__ . '/../../_data/languages.csv';
 
     public function testCloneInputMapping(): void
     {
-        $bucketId = $this->ensureBucket($this->_client, 'clone-input-mapping');
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
         $tableId = $this->createTableFromFile(
             $this->_client,
             $bucketId,
@@ -29,7 +29,7 @@ class CloneInputMappingTest extends WorkspacesTestCase
 
     public function testCloneMultipleTables(): void
     {
-        $bucketId = $this->ensureBucket($this->_client, 'clone-input-mapping');
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
         $table1Id = $this->_client->createTable(
             $bucketId,
             'languages',
@@ -67,13 +67,13 @@ class CloneInputMappingTest extends WorkspacesTestCase
 
     public function testCloneSimpleAlias(): void
     {
-        $bucketId = $this->ensureBucket($this->_client, 'clone-alias-bucket', 'in');
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
         $sourceTableId = $this->createTableFromFile(
             $this->_client,
             $bucketId,
             self::IMPORT_FILE_PATH
         );
-        $bucketId = $this->ensureBucket($this->_client, 'clone-input-mapping');
+        $bucketId = $this->getTestBucketId(self::STAGE_OUT);
         $tableId = $this->_client->createAliasTable($bucketId, $sourceTableId);
 
         $this->runAndAssertWorkspaceClone($tableId);
@@ -219,23 +219,6 @@ class CloneInputMappingTest extends WorkspacesTestCase
                 ],
             ],
         ];
-    }
-
-    private function ensureBucket(
-        Client $client,
-        string $bucketName,
-        string $stage = 'in'
-    ): string {
-    
-        if ($client->bucketExists($stage . '.' . 'c-' . $bucketName)) {
-            $client->dropBucket(
-                $stage . '.' . 'c-' . $bucketName,
-                [
-                    'force' => true,
-                ]
-            );
-        }
-        return $client->createBucket($bucketName, $stage);
     }
 
     /**
