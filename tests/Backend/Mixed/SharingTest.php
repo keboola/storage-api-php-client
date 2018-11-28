@@ -382,6 +382,63 @@ class SharingTest extends StorageApiTestCase
 
     /**
      * @dataProvider sharingBackendData
+     */
+    public function testShareBucketWithAlias(string $backend): void
+    {
+        $this->initTestBuckets($backend);
+        $bucketId = reset($this->_bucketIds);
+        $csvFile = new CsvFile(__DIR__ . '/../../_data/numbers.csv');
+
+        $sourceTableId = $this->_client->createTable($bucketId, 'numbers', $csvFile);
+        $this->_client->createAliasTable($bucketId, $sourceTableId, 'numbers_alias');
+
+        $this->_client->shareBucket($bucketId);
+
+        $sharedBuckets = $this->_client->listSharedBuckets();
+        $linkedBucketProject2Id = $this->_client2->linkBucket(
+            'linked',
+            self::STAGE_IN,
+            $sharedBuckets[0]['project']['id'],
+            $sharedBuckets[0]['id']
+        );
+
+        $linkedBucket = $this->_client2->getBucket('in.c-linked');
+        $this->assertCount(2, $linkedBucket['tables']);
+
+        $aliasTable = $linkedBucket['tables'][1];
+        $this->assertEquals('in.c-linked.numbers_alias', $aliasTable['id']);
+        $this->assertEquals('numbers_alias', $aliasTable['name']);
+        $this->assertTrue($aliasTable['isAlias']);
+
+        $sharedBucketProject2Id = $this->_client2->createBucket('share', self::STAGE_OUT);
+        $this->_client2->shareBucket($sharedBucketProject2Id);
+        $sharedBuckets = $this->_client2->listSharedBuckets();
+
+        $linkedBucketProject1Id = $this->_client->linkBucket(
+            'linked',
+            self::STAGE_IN,
+            $sharedBuckets[1]['project']['id'],
+            $sharedBuckets[1]['id']
+        );
+        $this->_client2->createAliasTable($sharedBucketProject2Id, $aliasTable['id'], 'numbers_alias');
+
+        $linkedBucket = $this->_client->getBucket('in.c-linked');
+        $this->assertCount(1, $linkedBucket['tables']);
+
+        $aliasTable = $linkedBucket['tables'][0];
+        $this->assertEquals('in.c-linked.numbers_alias', $aliasTable['id']);
+        $this->assertEquals('numbers_alias', $aliasTable['name']);
+        $this->assertTrue($aliasTable['isAlias']);
+
+        $this->_client2->dropBucket($linkedBucketProject2Id);
+        $this->_client->dropBucket($linkedBucketProject1Id);
+        $this->_client2->dropBucket($sharedBucketProject2Id);
+        $this->_client->dropTable($sourceTableId, ['force' => true]);
+        $this->_client->dropBucket($bucketId);
+    }
+
+    /**
+     * @dataProvider sharingBackendData
      * @throws ClientException
      */
     public function testSharedBuckets($backend)
