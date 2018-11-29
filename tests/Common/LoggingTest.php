@@ -38,7 +38,7 @@ class LoggingTest extends StorageApiTestCase
             ->method('log');
 
         $logger->expects($this->atLeastOnce())
-            ->method('info')
+            ->method('debug')
             ->with($this->callback(function ($message) {
                 if (trim($message) == '') {
                     return false;
