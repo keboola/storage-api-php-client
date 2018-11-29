@@ -57,6 +57,16 @@ class Workspaces
         return $this->client->apiPost("storage/workspaces/{$id}/load", $options);
     }
 
+    /**
+     * @param $id
+     * @param array $options -- required input[mappings], optional preserve
+     * @return mixed|string
+     */
+    public function cloneIntoWorkspace($id, array $options = [])
+    {
+        return $this->client->apiPost("storage/workspaces/{$id}/load-clone", $options);
+    }
+
     public function resetWorkspacePassword($id)
     {
         return $this->client->apiPost("storage/workspaces/{$id}/password");
