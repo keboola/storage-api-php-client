@@ -14,6 +14,8 @@ use Keboola\StorageApi\Options\ListFilesOptions;
 use Keboola\StorageApi\Options\StatsOptions;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
+use Psr\Log\NullLogger;
 use Symfony\Component\Filesystem\Filesystem;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Options\FileUploadOptions;
@@ -121,9 +123,10 @@ class Client
             $this->awsDebug = (bool)$config['awsDebug'];
         }
 
-        if (isset($config['logger'])) {
-            $this->setLogger($config['logger']);
+        if (!isset($config['logger'])) {
+            $config['logger'] = new NullLogger();
         }
+        $this->setLogger($config['logger']);
 
         if (isset($config['jobPollRetryDelay'])) {
             $this->setJobPollRetryDelay($config['jobPollRetryDelay']);
@@ -140,12 +143,11 @@ class Client
             'backoffMaxTries' => $this->backoffMaxTries,
         ]);
 
-        if ($this->logger) {
-            $handlerStack->push(Middleware::log(
-                $this->logger,
-                new MessageFormatter("{hostname} {req_header_User-Agent} - [{ts}] \"{method} {resource} {protocol}/{version}\" {code} {res_header_Content-Length}")
-            ));
-        }
+        $handlerStack->push(Middleware::log(
+            $this->logger,
+            new MessageFormatter("{hostname} {req_header_User-Agent} - [{ts}] \"{method} {resource} {protocol}/{version}\" {code} {res_header_Content-Length}"),
+            LogLevel::DEBUG
+        ));
         $this->client = new \GuzzleHttp\Client([
             'base_uri' => $this->apiUrl,
             'handler' => $handlerStack,
@@ -1334,6 +1336,9 @@ class Client
                 try {
                     $s3result = $uploader->upload();
                 } catch (MultipartUploadException $e) {
+                    $this->logger->notice(
+                        "Multipart upload failed: {$e->getMessage()}. Filename: {$filePath}, Bucket {$uploadParams['bucket']}"
+                    );
                     $uploader = $this->multipartUploaderFactory(
                         $s3Client,
                         $filePath,
@@ -2042,9 +2047,7 @@ class Client
      */
     private function log($message, $context = array())
     {
-        if ($this->logger) {
-            $this->logger->info($message, $context);
-        }
+        $this->logger->debug($message, $context);
     }
 
     /**
