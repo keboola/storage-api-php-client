@@ -40,7 +40,7 @@ class LoggingTest extends StorageApiTestCase
             ->method('log')
             ->with($this->callback(function ($level) {
                 if ($level === LogLevel::INFO) {
-                  return false;
+                    return false;
                 }
                 return true;
             }));
