@@ -1269,7 +1269,7 @@ class Client
                 );
                 throw new ClientException("Failed to gzip file. " . $error);
             }
-
+            $newOptions->setFileName($newOptions->getFileName() . '.gz');
             $filePath = $gzFilePath;
         }
         $newOptions
@@ -1468,6 +1468,7 @@ class Client
                     $slices[$key] = $gzFilePath;
                 }
             }
+            $newOptions->setFileName($newOptions->getFileName() . '.gz');
         }
 
         $fileSize = 0;
