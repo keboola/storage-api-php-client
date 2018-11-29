@@ -9,13 +9,15 @@
 namespace Keboola\Test\Common;
 
 use Keboola\Test\StorageApiTestCase;
+use Psr\Log\LogLevel;
+use Psr\Log\NullLogger;
 
 class LoggingTest extends StorageApiTestCase
 {
 
     public function testLogger()
     {
-        $logger = $this->getMockBuilder('\Psr\Log\NullLogger')
+        $logger = $this->getMockBuilder(NullLogger::class)
             ->getMock();
 
         $logger->expects($this->once())
@@ -31,17 +33,14 @@ class LoggingTest extends StorageApiTestCase
 
     public function testAwsLogger()
     {
-        $logger = $this->getMockBuilder('\Psr\Log\NullLogger')
+        $logger = $this->getMockBuilder(NullLogger::class)
             ->getMock();
 
-        $logger->expects($this->once())
-            ->method('log');
-
         $logger->expects($this->atLeastOnce())
-            ->method('debug')
-            ->with($this->callback(function ($message) {
-                if (trim($message) == '') {
-                    return false;
+            ->method('log')
+            ->with($this->callback(function ($level) {
+                if ($level === LogLevel::INFO) {
+                  return false;
                 }
                 return true;
             }));
@@ -50,7 +49,8 @@ class LoggingTest extends StorageApiTestCase
             'token' => STORAGE_API_TOKEN,
             'url' => STORAGE_API_URL,
             'logger' => $logger,
-            'awsDebug' => true
+            'awsDebug' => true,
+            'backoffMaxTries' => 1,
         ));
         $options = new \Keboola\StorageApi\Options\FileUploadOptions();
         $client->uploadFile(__DIR__ . '/../_data/files.upload.txt', $options);

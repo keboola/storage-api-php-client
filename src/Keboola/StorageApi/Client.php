@@ -14,6 +14,7 @@ use Keboola\StorageApi\Options\ListFilesOptions;
 use Keboola\StorageApi\Options\StatsOptions;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
 use Symfony\Component\Filesystem\Filesystem;
 use Keboola\Csv\CsvFile;
@@ -144,7 +145,8 @@ class Client
 
         $handlerStack->push(Middleware::log(
             $this->logger,
-            new MessageFormatter("{hostname} {req_header_User-Agent} - [{ts}] \"{method} {resource} {protocol}/{version}\" {code} {res_header_Content-Length}")
+            new MessageFormatter("{hostname} {req_header_User-Agent} - [{ts}] \"{method} {resource} {protocol}/{version}\" {code} {res_header_Content-Length}"),
+            LogLevel::DEBUG
         ));
         $this->client = new \GuzzleHttp\Client([
             'base_uri' => $this->apiUrl,
