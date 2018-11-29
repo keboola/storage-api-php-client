@@ -2,7 +2,7 @@ FORMAT: 1A
 HOST: https://connection.keboola.com
 
 # Storage API
-Storage API provides an interface for sending data to Keboola Connection (KBC). The following are the most 
+Storage API provides an interface for sending data to Keboola Connection (KBC). The following are the most
 important features of the API:
 - Importing CSV data into Table Storage
 - Exporting CSV data from Table Storage
@@ -11,22 +11,22 @@ important features of the API:
 - Managing buckets including sharing
 - Managing component configurations
 
-The CSV files interchanged with Storage must adhere to the 
+The CSV files interchanged with Storage must adhere to the
 [RFC4180 Specification](http://tools.ietf.org/html/rfc4180) and must use the `UTF-8` encoding.
-The files can be sent uncompressed or gzipped. You can find more information about working 
+The files can be sent uncompressed or gzipped. You can find more information about working
 with these files in [our manual](https://help.keboola.com/storage/tables/csv-files/).
 
-For a list of available clients and their features, see the 
+For a list of available clients and their features, see the
 [Developers Documentation](https://developers.keboola.com/integrate/storage/).
-In it you will also find more complex examples of 
+In it you will also find more complex examples of
 [working with the API](https://developers.keboola.com/integrate/storage/api/).
 This documentation assumes that you are already familiar with the
-[Keboola Connection Storage component](https://help.keboola.com/storage/). 
+[Keboola Connection Storage component](https://help.keboola.com/storage/).
 
 ## HTTP Response Codes
-The response from Storage API will have an 
-[HTTP status code](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes) that will help 
-you determine if the request was successful. In case of an error, the HTTP status code 
+The response from Storage API will have an
+[HTTP status code](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes) that will help
+you determine if the request was successful. In case of an error, the HTTP status code
 will help you determine the cause of the error. The status codes used by Storage API are
 listed in the below tables.
 
@@ -84,23 +84,23 @@ listed in the below tables.
 
 ## Authentication
 Authentication is done via Storage API **Token**. There are multiple options
-for [obtaining a Storage API Token](https://help.keboola.com/storage/tokens/). 
+for [obtaining a Storage API Token](https://help.keboola.com/storage/tokens/).
 The token must be sent as a value of the `X-StorageApi-Token` HTTP header with each API call.
 
 Most API calls work within a *KBC Project*. The project is always derived from the token used for the API call.
 So the token includes both authentication and authorization to a single project.
 
 ## Synchronous and Asynchronous Calls
-Calls that represent potentially long-running actions are performed asynchronously. 
+Calls that represent potentially long-running actions are performed asynchronously.
 These are for example: loading table data, snapshotting, exporting table data, table structure modifications, etc.
-All asynchronous calls return the HTTP Response code `202` and a [Job Resource](#reference/jobs). 
-To obtain the actual result of the call, you have to monitor the job status by 
+All asynchronous calls return the HTTP Response code `202` and a [Job Resource](#reference/jobs).
+To obtain the actual result of the call, you have to monitor the job status by
 [polling the Job Resource URL](https://developers.keboola.com/integrate/storage/api/import-export/#python-example).
 
 ## Partial Response
-Some API calls that list objects are returning related resources by default. For example, 
+Some API calls that list objects are returning related resources by default. For example,
 the [table list](#reference/tables/create-or-list-tables/tables-in-bucket) also returns
-the table bucket properties and table attributes. You can use the `include` parameter 
+the table bucket properties and table attributes. You can use the `include` parameter
 to return only the required resources in the response.
 
 # Group Maintenance
@@ -108,8 +108,8 @@ to return only the required resources in the response.
 ## Maintenance Response Example [/v2/storage/]
 
 ### Example [GET]
-In case the system, or a project is under maintenance, you will receive a response similar to the below one. 
-Maintenance typically applies to a single project, for example due to migration. Be sure to use the `Retry-After` header 
+In case the system, or a project is under maintenance, you will receive a response similar to the below one.
+Maintenance typically applies to a single project, for example due to migration. Be sure to use the `Retry-After` header
 when accessing the API programatically.
 
 + Request
@@ -190,12 +190,12 @@ Creates a new token in the project. Note that it is not possible to create a new
 + Attributes
     + description (required) - Token description
     + bucketPermissions[{id_bucket}] (optional) - Permissions for a bucket. Available permissions: `read`, `write`.
-    + componentAccess[] (optional) - Grants access for component configurations. Allowed 
+    + componentAccess[] (optional) - Grants access for component configurations. Allowed
     values are [valid component IDs](#reference/miscellaneous/api-index/get).
-    + canManageBuckets (optional, boolean) - Allows full access to all buckets including newly created buckets. 
+    + canManageBuckets (optional, boolean) - Allows full access to all buckets including newly created buckets.
     Overrides `bucketPermissions` settings.
         + Default: false
-    + canReadAllFileUploads (optional, boolean) - Allows access to all file uploads. When set to false, 
+    + canReadAllFileUploads (optional, boolean) - Allows access to all file uploads. When set to false,
     only files uploaded by the current token are accessible.
         + Default: false
     + expiresIn (optional, number) - Number of seconds until the token expires. If not provided, the token never expires.
@@ -236,7 +236,7 @@ Creates a new token in the project. Note that it is not possible to create a new
 
 ## Token [/v2/storage/tokens/{id_token}]
 ### Token detail [GET]
-Returns all properties of a token. You can obtain the Token Id, for example, using 
+Returns all properties of a token. You can obtain the Token Id, for example, using
 the [Verify call](#reference/tokens-and-permissions/token/token-verification).
 
 + Parameters
@@ -267,15 +267,15 @@ the [Verify call](#reference/tokens-and-permissions/token/token-verification).
 
 
 ### Update Token [PUT]
-Updates Token properties. Beware that all current bucket permissions are replaced. If you want to add new 
+Updates Token properties. Beware that all current bucket permissions are replaced. If you want to add new
 bucket permissions, don't forget to specify the previous permissions.
 
 + Attributes
     + description (required) - Token description
     + bucketPermissions[{id_bucket}] (optional) - Permissions for the bucket. Available permissions: `read`, `write`.
-    + componentAccess[] (optional) - Grants access for component configurations. Allowed 
+    + componentAccess[] (optional) - Grants access for component configurations. Allowed
     values are [valid component IDs](#reference/miscellaneous/api-index/get).
-    + canReadAllFileUploads (optional, boolean) - Allows access to all file uploads. When set to false, 
+    + canReadAllFileUploads (optional, boolean) - Allows access to all file uploads. When set to false,
     only files uploaded by the current token are accessible.
         + Default: false
 
@@ -318,7 +318,7 @@ bucket permissions, don't forget to specify the previous permissions.
 
 ## Token Verification [/v2/storage/tokens/verify]
 ### Token verification [GET]
-Checks the token privileges and returns information about the project to which the token belongs (`owner`) 
+Checks the token privileges and returns information about the project to which the token belongs (`owner`)
 and the associated administrator (`admin`). This call can be executed by all tokens.
 
 + Request
@@ -415,7 +415,7 @@ and the associated administrator (`admin`). This call can be executed by all tok
 
 ## Share Token [/v2/storage/tokens/{token_id}/share]
 ### Share Token [POST]
-Use this call whenever you want to securely deliver a token to someone. The link to the token retrieval page will be sent to the 
+Use this call whenever you want to securely deliver a token to someone. The link to the token retrieval page will be sent to the
 provided email address. The link will expire in 2 hours.
 
 + Parameters
@@ -438,11 +438,11 @@ provided email address. The link will expire in 2 hours.
 
 ## Token Refresh [/v2/storage/tokens/{id_token}/refresh]
 ### Refresh Token [POST]
-Use this method to generate a new token value; the old token value will become immediately invalid. 
+Use this method to generate a new token value; the old token value will become immediately invalid.
 This method can be executed by all tokens.
 
 + Parameters
-    + id_token - A valid token id. You can get it from [Verify call](#reference/tokens-and-permissions/token/token-verification). 
+    + id_token - A valid token id. You can get it from [Verify call](#reference/tokens-and-permissions/token/token-verification).
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -510,7 +510,7 @@ the KBC Component architecture, see the [Developers documentation](https://devel
             }
 
 # Group Buckets
-[Buckets](https://help.keboola.com/storage/buckets/) are containers for one or more data tables. 
+[Buckets](https://help.keboola.com/storage/buckets/) are containers for one or more data tables.
 Access to buckets can be limited by access tokens. Each bucket has a *backend* in which all tables are created:
 - Snowlake (default)
 - Redshift
@@ -581,8 +581,8 @@ All buckets with their attributes are returned.
             ]
 
 ### Create Bucket [POST]
-Using this API call, you can either create a new bucket in the project, or you can link an 
-existing bucket from another project (see below). 
+Using this API call, you can either create a new bucket in the project, or you can link an
+existing bucket from another project (see below).
 
 + Attributes
     + name (required) - New bucket name; only alphanumeric characters and underscores are allowed.
@@ -628,8 +628,8 @@ existing bucket from another project (see below).
             }
 
 ### Link Shared Bucket [POST]
-Use this API call to create a new bucket which contains contents of a 
-[shared bucket](https://help.keboola.com/storage/buckets/sharing/) in a source project. 
+Use this API call to create a new bucket which contains contents of a
+[shared bucket](https://help.keboola.com/storage/buckets/sharing/) in a source project.
 Linking a bucket from another project is only possible if it has been
 [enabled](#reference/buckets/bucket-sharing/share-bucket) in the source project.
 
@@ -737,7 +737,7 @@ Use the optional `force` parameter to delete all bucket content too.
 
 
 ### Share Bucket [POST]
-[Enables sharing](https://help.keboola.com/storage/buckets/sharing/) of a bucket. The bucket will be shared 
+[Enables sharing](https://help.keboola.com/storage/buckets/sharing/) of a bucket. The bucket will be shared
 to the entire organization to which the project belongs. It may then be shared to any project of that organization.
 This operations is available only for organization administrators.
 
@@ -838,15 +838,15 @@ Lists buckets which may be shared to the project.
 ### Create new table from CSV file [POST]
 
 Creates a new table in a bucket. The CSV file must follow the [RFC 4180 Specification](https://tools.ietf.org/html/rfc4180).
-More information about the requirements can be found in the [Manual](https://help.keboola.com/storage/tables/csv-files/). 
+More information about the requirements can be found in the [Manual](https://help.keboola.com/storage/tables/csv-files/).
 Column names are extracted from the CSV file header; spaces and any other special characters in column names are
 replaced with an underscore. This API call should be used only for tables which can be safely transferred in a single HTTP request; for large
 tables use the [asynchronous call](#reference/tables/create-table-asynchronously/create-new-table-from-csv-file-asynchronously).
 
 + Parameters
     + bucket_id (required) - Bucket Id
-    
-+ Attributes    
+
++ Attributes
     + name (required) - New table name
     + data (required) - CSV file containing data for import. The data have to be encoded in **UTF-8**. The file can be raw or gzipped. Gzipped files must have the extension `.gz`.
     + delimiter (optional) - Field delimiter used in the CSV file. The default value is ','.  Use '\t' or type the char for the tabulator.
@@ -942,7 +942,7 @@ Lists tables in a given bucket.
 
 The method of creating a table asynchronously should be used for larger imports (everything with 100 lines and more).
 The create request is created and added to a queue, the job resource url for status polling is returned.
-The actual data must be provided in one of the following attributes: 
+The actual data must be provided in one of the following attributes:
 
 - `dataFileId`,
 - `snapshotId`,
@@ -951,8 +951,8 @@ The actual data must be provided in one of the following attributes:
 
 + Parameters
     + bucket_id (required) - The bucket Id
-    
-+ Attributes    
+
++ Attributes
     + name (required) - New table name
     + dataFileId (optional) - Id of the file stored in [File Uploads](#reference/files)
     + snapshotId (optional) - Id of a table snapshot - a table will be created from the snapshot.
@@ -1055,10 +1055,10 @@ The method of asynchronous importing should be used for larger imports (everythi
 The import request is created and added to a queue; the job resource url for status polling is returned.
 Asynchronous imports requested on the same table will be serialized.
 
-The actual data must be provided in one of the following attributes: 
+The actual data must be provided in one of the following attributes:
 
 - **dataFileId**,
-- **snapshotId**, 
+- **snapshotId**,
 - **dataWorkspaceId** and **dataTableName**
 
 An imported file can be sliced into multiple chunks; the conditions described in [File Uploads](#reference/files) must be satisfied.
@@ -1072,8 +1072,8 @@ Further information can be found in the [Developers Documentation](https://devel
 
 + Parameters
     + table_id (required) - Table Id
-    
-+ Attributes    
+
++ Attributes
     + dataFileId (optional) - Id of the file stored in [File Uploads](#reference/files); all gzipped and sliced files are supported.
     + snapshotId (optional) - Id of a table snapshot - a table will be created from the snapshot.
     + dataWorkspaceId (optional) - Load from the table [workspace](#reference/workspaces). Use with the **dataTableName** attribute.
@@ -1261,7 +1261,7 @@ The comparison operator essentially behaves like the [SQL IN](http://www.w3schoo
 `eq` value matches if any `whereValues` match, and the `new` value matches if none `whereValues` match.
 
 #### Caching
-Asynchronous exports support internal caching. When the export file for a certain table 
+Asynchronous exports support internal caching. When the export file for a certain table
 export parameters was created and there were no changes in the table data since, the
 previous cached file will be returned.
 
@@ -1277,7 +1277,7 @@ will show information about the created file and caching:
         },
         "cacheHit": false
     }
-```    
+```
 
 + Parameters
     + table_id (required) - Table Id
@@ -1432,7 +1432,7 @@ Use the optional `force` parameter to delete its aliases too.
 
 ### Optimize table [POST]
 This is a utility command implemented only for projects with the Redshift backend.
-Redshift tables with a lot of small-increment loads bloat in size. An optimize command is automatically scheduled to fix 
+Redshift tables with a lot of small-increment loads bloat in size. An optimize command is automatically scheduled to fix
 this issue. This API call can be used to trigger immediate optimization of a table.
 
 + Parameters
@@ -1477,12 +1477,12 @@ this issue. This API call can be used to trigger immediate optimization of a tab
 ## List Tables [/v2/storage/tables?include={include}]
 
 ### List All Tables [GET]
-Lists all tables accessible by the token. By default, all tables are returned with their 
+Lists all tables accessible by the token. By default, all tables are returned with their
 attributes and information about the containing bucket.
 
 + Parameters
-    + include (optional) - Comma separated list of resources to include for each table. 
-    Possible values: `attributes`, `buckets` and `columns`. 
+    + include (optional) - Comma separated list of resources to include for each table.
+    Possible values: `attributes`, `buckets` and `columns`.
         Default: `attributes,buckets`
 
 + Request
@@ -1641,7 +1641,7 @@ Use the optional `force` parameter to delete the column from table aliases too.
 
 ## Primary Keys [/v2/storage/tables/{table_id}/primary-key/]
 ### Create Primary Key [POST]
-If a primary key is set, updates can be done on the table. A primary key can be composed of multiple columns. 
+If a primary key is set, updates can be done on the table. A primary key can be composed of multiple columns.
 This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 
 + Parameters
@@ -1769,10 +1769,10 @@ This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls)
 
 
 # Group Table Aliases
-[Aliases](https://help.keboola.com/storage/tables/) behave like database Views. Alias tables are read-only. 
+[Aliases](https://help.keboola.com/storage/tables/) behave like database Views. Alias tables are read-only.
 Aliases cannot be chained and can be applied only between buckets with the same backend.
 
-Rows present in an alias table can be filtered by a simple condition similar to 
+Rows present in an alias table can be filtered by a simple condition similar to
 [table export filtering](#reference/tables/unload-data-asynchronously/asynchronous-export).
 The filter parameter `aliasFilter` must be set during an alias table creation or later to enable filtering:
 
@@ -1795,7 +1795,7 @@ When turning `aliasColumnsAutoSync` back on, the columns will be immediately syn
 
 + Attributes
     + name (required) - Name of the new table alias
-    + sourceTable (required) - Id of the source table 
+    + sourceTable (required) - Id of the source table
     + aliasFilter[column] (optional) - Name of the column for filtering
     + aliasFilter[operator] (optional, enum[string]) - Comparison operator
         + Members
@@ -1875,8 +1875,8 @@ When turning `aliasColumnsAutoSync` back on, the columns will be immediately syn
 ## Manage Alias Filters [/v2/storage/tables/{table_id}/alias-filter]
 
 ### Update Alias Filter [POST]
-Using this API call, you can update an existing filter. You can also set a new filter, but the 
-alias must be created with the `aliasFilter` parameter. 
+Using this API call, you can update an existing filter. You can also set a new filter, but the
+alias must be created with the `aliasFilter` parameter.
 
 + Parameters
     + table_id (required) - Id of the alias table
@@ -1950,8 +1950,8 @@ Deletes a filter from an alias. The alias table will contain all rows from the s
 ## Alias Column Synchronization [/v2/storage/tables/{table_id}/alias-columns-auto-sync]
 
 ### Enable Column Synchronization [POST]
-Enables automatic column synchronization between the alias and source table. All columns from the source table 
-will be immediately synchronized into the alias table. 
+Enables automatic column synchronization between the alias and source table. All columns from the source table
+will be immediately synchronized into the alias table.
 
 + Parameters
     + table_id (required) - Id of the alias table
@@ -1981,7 +1981,7 @@ will not propagate to the alias.
 
 
 # Group Table Snapshotting
-Table data and metadata (attributes, column settings) can be persisted by creating a snapshot. 
+Table data and metadata (attributes, column settings) can be persisted by creating a snapshot.
 When a snapshot is created you can use it to restore the table back to the snapshotted state.
 During the restoration process, the data can be applied to the original table or they can be restored
 into a new table.
@@ -1999,7 +1999,7 @@ Snapshots of an alias table contain only alias settings, actual data are not sto
 
 + Parameters
     + table_id (required) - Id of a table
-    
+
 + Attributes
     + description (optional) - Snapshot description
 
@@ -2084,7 +2084,7 @@ Retrieves a list of all snapshots of a table.
 Retrieves information about a single table snapshot.
 
 + Parameters
-    + snapshot_id - Id of the snapshot; use the 
+    + snapshot_id - Id of the snapshot; use the
     [List Snapshots Call](#reference/table-snapshotting/create-or-list-snapshots/list-table-snapshots) to find snapshot Id.
 
 + Request
@@ -2145,11 +2145,11 @@ Retrieves information about a single table snapshot.
 
 
 ### Delete Table Snapshot [DELETE]
-Removes a table snapshot. The current table data is not modified. This request 
+Removes a table snapshot. The current table data is not modified. This request
 is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 
 + Parameters
-    + snapshot_id - Id of the snapshot. Use the 
+    + snapshot_id - Id of the snapshot. Use the
     [List Snapshots Call](#reference/table-snapshotting/create-or-list-snapshots/list-table-snapshots) to find snapshot Id.
 
 + Request
@@ -2183,7 +2183,7 @@ is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 
 # Group Workspaces
 Workspaces provide a playground for your data. You can load data from your storage, explore or modify it
-and then, optionally, load it back to storage tables. A workspace is represented by access credentials to a storage 
+and then, optionally, load it back to storage tables. A workspace is represented by access credentials to a storage
 backend with permissions to write to the workspace specific database schema.
 
 ## Workspaces Collection [/v2/storage/workspaces]
@@ -2191,7 +2191,7 @@ backend with permissions to write to the workspace specific database schema.
 ### Create new workspace [POST]
 Creates a new workspace and return its credentials.
 
-+ Attributes 
++ Attributes
     + backend: snowflake (optional, enum[string]) - Workspace backend. When omitted, the default backend is used.
         + Members
             + redshift
@@ -2261,7 +2261,7 @@ Deletes a workspace. This also irreversibly removes the workspace content.
     + workspace_id (required, number)
 
 ### Load Data [POST]
-Loads tables from Storage into a Workspace. 
+Loads tables from Storage into a Workspace.
 
 + Attributes
     + input[] (required, array) - Mappings of source tables with destinations to be loaded into the workspace
@@ -2313,9 +2313,82 @@ Loads tables from Storage into a Workspace.
                             + all
                             + key
                     + distKey (optional) - Redshift only - Column to use for the key distribution style
-                    + incremental (optional, boolean) - If incremental is set to true, the target table will be preserved and new data will be appended.
+                    + incremental (optional, boolean) - Rows will be appended to an existing table
                         Default: false
-    + preserve (optional, boolean) - If true, the workspace will not be altered before loading. When false, clears the workspace before loading.
+    + preserve (optional, boolean) - Keep existing tables in the workspace, otherwise the workspace will be purged before loading
+        Default: false
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            input%5B0%5D%5Bsource%5D=in.c-application-testing.cashier-data&input%5B0%5D%5Bdestination%5D=my-table
+
++ Response 201 (application/json)
+    + Body
+
+            {
+                "id": 22077337,
+                "status": "waiting",
+                "url": "https://connection.keboola.com/v2/storage/jobs/22077337",
+                "tableId": null,
+                "operationName": "workspaceLoad",
+                "operationParams": {
+                    "workspaceId": "78423",
+                    "preserve": false,
+                    "input": [
+                        {
+                            "source": "in.c-application-testing.cashier-data",
+                            "destination": "my-table"
+                        }
+                    ],
+                    "queue": "main_fast"
+                },
+                "createdTime": "2017-02-13T16:41:18+0100",
+                "startTime": null,
+                "endTime": null,
+                "runId": null,
+                "results": null,
+                "creatorToken": {
+                    "id": "27978",
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
+                }
+            }
+
+## Load Data using CLONE [/v2/storage/workspaces/{workspace_id}/load-clone]
+
++ Parameters
+
+    + workspace_id (required, number)
+
+### Load Data using CLONE [POST]
+Load tables from Storage into a Workspace using zero-copy cloning functionality in Snowflake. This load type does not
+support any filtering or processing parameters. Only tables stored in Snowflake are supported.
+
+The cloned table will contain all columns of the source table (all of them as `VARCHAR(1048576)`)
+and a `_timestamp` system column. 
+This column contains a unix timestamp value (`TIMESTAMP_NTZ(9)`) when the row was added to the table or
+when any of the row values were changed during an incremental import.
+
++ Attributes
+    + input[] (required, array) - Mappings of source tables with destinations to be loaded into the workspace
+        + Items
+            + (object)
+                + Properties
+                    + source (required) - Full table identifier of the source table (e.g.: in.c-bucket.mytable)
+                    + destination (required) - Destination table name
+    + preserve (optional, boolean) - Keep existing tables in the workspace, otherwise the workspace will be purged before loading
         Default: false
 
 + Request (application/x-www-form-urlencoded)
@@ -2423,7 +2496,7 @@ Generates new password for the given workspace
 # Group Events
 Virtually every interaction of the client (an API call) creates an Event. Apart from that, external events may
 also be added via an API. Events are available for 6 months from their creation.
-You can access all events created on an account. 
+You can access all events created on an account.
 
 Events can be filtered by various filters:
 - `sinceId`, `maxId` - Events newer or older than the passed id
@@ -2550,7 +2623,7 @@ Lists all events associated with a particular table.
 ### Event
 + id: 498839405 - Event Id
 + event: storage.workspaceLoaded - Event identifier such as `storage.tableImportDone` or `storage.tableDetail`
-+ component: storage - Name of the component that logged the event. Events can be logged by the `storage` component or any other 
++ component: storage - Name of the component that logged the event. Events can be logged by the `storage` component or any other
 [registered component](#reference/miscellaneous/api-index/component-list).
 + message: `Table in.c-application-testing.cashier-data was loaded to the workspace workspace_78423 as my-table.` - Human readable description of the event
 + description: `` - Additional description of the event, such as a detailed error description
@@ -2562,7 +2635,7 @@ Lists all events associated with a particular table.
         + error
 + runId: null - Id of an associated job.
 + created: `2017-02-13T16:42:00+0100` - Datetime when the event was created.
-+ configurationId: null - Id of a [configuration](#reference/component-configurations/component-list) used by an external component. 
++ configurationId: null - Id of a [configuration](#reference/component-configurations/component-list) used by an external component.
 + objectId: `in.c-application-testing.cashier-data` - Id of the target object of the event - e.g. *id* of table for `storage.tableImportDone event`.
 + objectName: `cashier-data` - Name of the target object - e.g. a *table name* for a `storage.tableImportDone` event.
 + objectType: table - Type of the target object - e.g. *table* for the `storage.tableImportDone` event.
@@ -2584,13 +2657,13 @@ Lists all events associated with a particular table.
 
 # Group Attributes
 Attributes are key-value pairs and let you assign custom metadata to resources.
-You can associate custom attributes with buckets or tables. Bucket attributes methods are described 
+You can associate custom attributes with buckets or tables. Bucket attributes methods are described
 below, you can work with table attributes in the same manner.
 
 ## Create or Manage Bucket Attributes [/v2/storage/buckets/{bucket_id}/attributes/{attribute_key}]
 
 ### Set Bucket Attribute [POST]
-Updates or creates an attribute. If the attribute exists, it will be updated. If it does not 
+Updates or creates an attribute. If the attribute exists, it will be updated. If it does not
 exist, a new one will be created. All attributes associated with a bucket are returned in the response.
 
 + Parameters
@@ -2698,15 +2771,15 @@ Shows all attributes assigned to a bucket.
 
 # Group Metadata
 You can associate custom metadata with buckets, tables or columns.
-Metadata are timestamped key-value pairs separated by the provider, where the provider is the originating component. 
-Metadata allows you to assign custom information to your resources. Bucket attributes methods are described 
+Metadata are timestamped key-value pairs separated by the provider, where the provider is the originating component.
+Metadata allows you to assign custom information to your resources. Bucket attributes methods are described
 below. Work with table and column metadata in the same manner; simply use a table or column instead of a bucket in the url.
 
 ## Bucket Metadata [/v2/storage/buckets/{bucket_id}/metadata]
 
 ### Create or Update [POST]
-Sets multiple metadata with one call. If the given key and provider combination already exist 
-for the bucket, the data will be updated with the new value and timestamp. All metadata associated 
+Sets multiple metadata with one call. If the given key and provider combination already exist
+for the bucket, the data will be updated with the new value and timestamp. All metadata associated
 with the bucket are returned in the response.
 
 + Parameters
@@ -2720,7 +2793,7 @@ with the bucket are returned in the response.
             + value (required)
 
 + Request (application/x-www-form-urlencoded)
-    + Headers 
+    + Headers
 
             X-StorageApi-Token: your_token
 
@@ -2790,7 +2863,7 @@ Deletes all Metadata for the specified bucket.
 
 ### Create or Update [POST]
 Sets multiple metadata with one call. If the given key and provider combination already exist
-for the table, the data will be updated with the new value and timestamp. All metadata associated 
+for the table, the data will be updated with the new value and timestamp. All metadata associated
 with the table are returned in the response.
 
 + Parameters
@@ -2804,7 +2877,7 @@ with the table are returned in the response.
             + value (required)
 
 + Request (application/x-www-form-urlencoded)
-    + Headers 
+    + Headers
 
             X-StorageApi-Token: your_token
 
@@ -2873,8 +2946,8 @@ Deletes all Metadata for the specified table.
 ## Column Metadata [/v2/storage/columns/{column_id}/metadata]
 
 ### Create or Update [POST]
-Sets multiple metadata with one call. If the given key and provider combination already exist 
-for the column, the data will be updated with the new value and timestamp. All metadata associated 
+Sets multiple metadata with one call. If the given key and provider combination already exist
+for the column, the data will be updated with the new value and timestamp. All metadata associated
 with the column are returned in the response.
 
 + Parameters
@@ -2888,7 +2961,7 @@ with the column are returned in the response.
             + value (required)
 
 + Request (application/x-www-form-urlencoded)
-    + Headers 
+    + Headers
 
             X-StorageApi-Token: your_token
 
@@ -2955,10 +3028,10 @@ Deletes all Metadata for the specified column.
 + Response 204
 
 # Group Jobs
-Jobs are objects that manage asynchronous tasks, these are all potentially long-running actions such as 
-loading table data, snapshotting, table structure modifications. Jobs are created by actions on target 
-resources, e.g., an [Asynchronous import request](#reference/tables/load-data-asynchronously/import-data) creates 
-a table import job. For each new job, the Id and URL of the job is returned. 
+Jobs are objects that manage asynchronous tasks, these are all potentially long-running actions such as
+loading table data, snapshotting, table structure modifications. Jobs are created by actions on target
+resources, e.g., an [Asynchronous import request](#reference/tables/load-data-asynchronously/import-data) creates
+a table import job. For each new job, the Id and URL of the job is returned.
 
 When working with jobs, follow these steps:
 1. **Start the job** - Job resource is created and a URL for polling is returned.
@@ -3076,22 +3149,22 @@ File Storage is used for storing arbitrary files. This is used for data imported
 from tables. Additionally, the File storage can be used for data backup and exchange between project participants.
 
 File Storage is heavily used for data exchange between Storage API and other components, import backups, etc.
-This kind of data is not kept forever. By default, all files are stored for **6 months**. They can be stored permanently by 
-using the `isPermanent` parameter. Files can also be tagged to categorize file uploads. When the `X-KBC-RunId` header is 
+This kind of data is not kept forever. By default, all files are stored for **6 months**. They can be stored permanently by
+using the `isPermanent` parameter. Files can also be tagged to categorize file uploads. When the `X-KBC-RunId` header is
 provided, it is stored as the file `runId`.
 
-Internally, all files are stored encrypted on [Amazon S3](http://docs.aws.amazon.com/AmazonS3/latest/dev/Welcome.html) 
-and are private. When you access the file through the API, a URL with one hour expiration is generated. If you require 
-a permanent URL, you can set the file as `public`.  
+Internally, all files are stored encrypted on [Amazon S3](http://docs.aws.amazon.com/AmazonS3/latest/dev/Welcome.html)
+and are private. When you access the file through the API, a URL with one hour expiration is generated. If you require
+a permanent URL, you can set the file as `public`.
 
-Large files may be split into slices (chunks). A sliced file must have the `sliced` parameter set to `true`. In that case 
+Large files may be split into slices (chunks). A sliced file must have the `sliced` parameter set to `true`. In that case
 the S3 key points to a **manifest file**. The manifest file contains the actual list of uploaded chunks. When uploading a sliced
 file, you have to use the provided key as a prefix for chunks and generate the manifest file with the list of uploaded chunks.
 When a CSV file is imported into Storage Tables, there is no difference between a normal and a sliced file.
 
 **Example:**
 
-Assume that the [upload method](#reference/files/upload-file/) returns the following S3 key `exp-180/11/files/2014/02/25/11085.import`. 
+Assume that the [upload method](#reference/files/upload-file/) returns the following S3 key `exp-180/11/files/2014/02/25/11085.import`.
 Then you can upload e.g. these files:
 - exp-180/11/files/2014/02/25/11085.import_001
 - exp-180/11/files/2014/02/25/11085.import_002
@@ -3108,7 +3181,7 @@ Then create the following manifest file:
 }
 ```
 
-And then, upload that manifest file to the key `exp-180/11/files/2014/02/25/11085.import_manifest`. See our 
+And then, upload that manifest file to the key `exp-180/11/files/2014/02/25/11085.import_manifest`. See our
 [Developers documentation](https://developers.keboola.com/integrate/storage/api/import-export/#working-with-sliced-files)
 for a more detailed guide.
 
@@ -3121,7 +3194,7 @@ This method allows you to upload a file to KBC File Storage. The upload should b
 The credentials are generated either as standard *AWS credentials* (`federationToken` set to true) or for an HTTP *legacy form submission*
 (`federationToken` set to false). The *legacy form submission* method is *deprecated*. Please use always the federation token method and any of the many S3 clients or libraries to
 upload the files. The *legacy form submission* method is less reliable and does not work in all regions (e.g. eu-central-1, ap-northeast-2).
-For a more detailed guide on the file upload, see the corresponding part of the 
+For a more detailed guide on the file upload, see the corresponding part of the
 [Developers documentation](https://developers.keboola.com/integrate/storage/api/import-export/#manually-uploading-a-file).
 
 + Attributes
@@ -3191,10 +3264,10 @@ For a more detailed guide on the file upload, see the corresponding part of the
 
 ## List Files [/v2/storage/files?sinceId={sinceId}&maxId={maxId}&tags={tags}&q={q}&runId={runId}&limit={limit}&offset={offset}]
 ### List Files [GET]
-Lists all files uploaded by your token. If the `canReadAllFileUploads` permission is set for your token, 
+Lists all files uploaded by your token. If the `canReadAllFileUploads` permission is set for your token,
 all file uploads for project will be returned.
 
-*Note*: There can be a delay of up to one second before any file change is propagated into the 
+*Note*: There can be a delay of up to one second before any file change is propagated into the
 list of files (including addition and removal of a file).
 
 + Parameters
@@ -3245,7 +3318,7 @@ Returns detailed information about a single file.
 
 + Parameters
     + file_id (required, number) - File Id
-    + federationToken (optional, boolean) - Return AWS credentials with permissions for a direct file download from S3. The credentials are valid for 12 hours.    
+    + federationToken (optional, boolean) - Return AWS credentials with permissions for a direct file download from S3. The credentials are valid for 12 hours.
 
 + Request
     + Headers
@@ -3336,7 +3409,7 @@ Deletes a single tag from the specified file.
 + Response 204
 
 # Group Tickets
-Tickets are unique sequential 64 bit IDs. Tickets are used to generate unique run identifiers for 
+Tickets are unique sequential 64 bit IDs. Tickets are used to generate unique run identifiers for
 all components using Keboola Connection.
 
 ## Generate Unique ID [/v2/storage/tickets/]
@@ -3355,16 +3428,16 @@ all components using Keboola Connection.
             }
 
 # Group Component Configurations
-Component Configuration represents specific settings of a 
-[registered Component](#reference/miscellaneous/api-index/component-list) 
+Component Configuration represents specific settings of a
+[registered Component](#reference/miscellaneous/api-index/component-list)
 in a project. See the [Developers Documentation](https://developers.keboola.com/integrate/storage/api/configurations/)
 for examples and use cases.
 This is a utility resource available only for master tokens and tokens with the `canManageBuckets` permission.
-Configurations may include *Configuration Rows* if they are composed of multiple objects. Configuration rows are 
+Configurations may include *Configuration Rows* if they are composed of multiple objects. Configuration rows are
 used in case parts of the configuration are supposed to be updated independently.
 Configurations are automatically versioned. Configuration Rows are versioned separately, but they are also recorded as
-changes of the configuration. The `configuration` and 
-`rows.configuration` fields can contain arbitrary objects. The content and interpretation of those fields is fully 
+changes of the configuration. The `configuration` and
+`rows.configuration` fields can contain arbitrary objects. The content and interpretation of those fields is fully
 defined by the component.
 
 ## List Components [/v2/storage/components?include={include}&componentType={componentType}&isDeleted={isDeleted}]
@@ -3634,7 +3707,7 @@ Gets the component configuration detail.
 
 ### Update Configuration [PUT]
 Updates an existing configuration. When the configuration is updated, a new version is automatically created and
-marked as `currentVersion`. 
+marked as `currentVersion`.
 
 + Parameters
     + component_id (required) - Id of the component
@@ -3694,11 +3767,11 @@ marked as `currentVersion`.
 
 ### Delete Configuration [DELETE]
 Deletes a configuration. When a configuration is deleted, it is only marked as deleted and remains still available in the system.
-You can [list deleted](#reference/component-configurations/component-configs/list-configs) configurations, or 
+You can [list deleted](#reference/component-configurations/component-configs/list-configs) configurations, or
 [restore deleted](#reference/component-configurations/manage-configs/restore-deleted-config) configurations.
 Other operations with deleted configurations are restricted.
 
-Calling this API call on a deleted configuration will remove it permanently. I.e. to permanently remove a configuration 
+Calling this API call on a deleted configuration will remove it permanently. I.e. to permanently remove a configuration
 you have to delete it twice (call twice this API resource).
 
 + Parameters
@@ -3753,10 +3826,10 @@ and the configuration becomes available for other API calls.
 
 
 ## Publishing [/v2/storage/components/{component_id}/configs/{config_id}/publish]
-A configuration can be in the `published` or `draft` mode. The 
+A configuration can be in the `published` or `draft` mode. The
 [configuration detail API call](#reference/component-configurations/manage-configs/config-detail) returns
-the latest version of a configuration. The latest published version can be retrieved by the 
-[Configuration version API call](#reference/component-configurations/manage-configs-versions/version-detail) with 
+the latest version of a configuration. The latest published version can be retrieved by the
+[Configuration version API call](#reference/component-configurations/manage-configs-versions/version-detail) with
 the version `latestPublished`.
 
 ### Publish Configuration [POST]
@@ -4081,7 +4154,7 @@ Gets configuration rows.
 
 ## Manage Configuration Rows [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}]
 ### Update Row [PUT]
-Modifies the content of a single row in a configuration. Note that configuration rows are versioned 
+Modifies the content of a single row in a configuration. Note that configuration rows are versioned
 independently on the configurations.
 
 + Parameters
@@ -4287,7 +4360,7 @@ Creates a new configuration row from an existing row version.
     + version_id (required) - Id of the configuration row version to rollback to
 
 + Attributes
-    + targetConfigId (optional) - Copy the row to another existing configuration. If not provided, the row will be copied 
+    + targetConfigId (optional) - Copy the row to another existing configuration. If not provided, the row will be copied
     to the original configuration.
     + changeDescription (optional) - Version change description
 
