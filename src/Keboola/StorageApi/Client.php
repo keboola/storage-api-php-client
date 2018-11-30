@@ -129,7 +129,7 @@ class Client
         if (!isset($config['logger'])) {
             $config['logger'] = new NullLogger();
         }
-            $this->setLogger($config['logger']);
+        $this->setLogger($config['logger']);
 
         if (isset($config['jobPollRetryDelay'])) {
             $this->setJobPollRetryDelay($config['jobPollRetryDelay']);
@@ -146,11 +146,11 @@ class Client
             'backoffMaxTries' => $this->backoffMaxTries,
         ]);
 
-            $handlerStack->push(Middleware::log(
-                $this->logger,
+        $handlerStack->push(Middleware::log(
+            $this->logger,
             new MessageFormatter("{hostname} {req_header_User-Agent} - [{ts}] \"{method} {resource} {protocol}/{version}\" {code} {res_header_Content-Length}"),
             LogLevel::DEBUG
-            ));
+        ));
         $this->client = new \GuzzleHttp\Client([
             'base_uri' => $this->apiUrl,
             'handler' => $handlerStack,
@@ -2061,7 +2061,7 @@ class Client
     private function log($message, $context = array())
     {
         $this->logger->debug($message, $context);
-        }
+    }
 
     /**
      * @param LoggerInterface $logger
