@@ -13,7 +13,7 @@ class UploadSlicedFileTest extends StorageApiTestCase
     {
         $uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
         $uploadOptions
-            ->setFileName('entries_')
+            ->setFileName('entries')
             ->setIsEncrypted(true)
             ->setIsSliced(true)
             ->setCompress(false);
@@ -24,13 +24,14 @@ class UploadSlicedFileTest extends StorageApiTestCase
         $slicedFile = $this->_client->getFile($slicedFileId);
 
         $this->assertEquals(filesize(__DIR__ . '/../../_data/sliced/neco_0000_part_00'), $slicedFile['sizeBytes']);
+        $this->assertEquals('entries', $slicedFile['name']);
     }
 
     public function testCompress()
     {
         $uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
         $uploadOptions
-            ->setFileName('entries_')
+            ->setFileName('entries')
             ->setIsEncrypted(true)
             ->setIsSliced(true)
             ->setCompress(true);
@@ -41,5 +42,6 @@ class UploadSlicedFileTest extends StorageApiTestCase
         $slicedFile = $this->_client->getFile($slicedFileId);
 
         $this->assertLessThan(filesize(__DIR__ . '/../../_data/sliced/neco_0000_part_00'), $slicedFile['sizeBytes']);
+        $this->assertEquals('entries.gz', $slicedFile['name']);
     }
 }
