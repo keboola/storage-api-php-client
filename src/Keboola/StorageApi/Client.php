@@ -32,6 +32,8 @@ class Client
 
     const VERSION = '10.3.0';
 
+    const MULTIPART_UPLOAD_MAX_RETRIES = 1000;
+
     // Token string
     public $token;
 
@@ -1333,25 +1335,16 @@ class Client
                 $result['name']
             );
 
-            $cnt = 0;
+            $retries = 0;
             do {
                 try {
-                    $cnt++;
                     $s3result = $uploader->upload();
                 } catch (MultipartUploadException $e) {
                     $this->logger->notice(
                         "Multipart upload failed: {$e->getMessage()}. Filename: {$filePath}, Bucket {$uploadParams['bucket']}"
                     );
-                    $this->log('Multipart upload failed: ' . $e->getMessage());
-                    if ($cnt > 10) {
-                        $params = $e->getState()->getId();
-                        if (!empty($params['UploadId'])) {
-                            try {
-                                $s3Client->abortMultipartUpload($params);
-                            } catch (S3Exception $e) {
-                                $this->log('Failed to abort multipart upload: ' . $e->getMessage());
-                            }
-                        }
+                    $retries++;
+                    if ($retries > self::MULTIPART_UPLOAD_MAX_RETRIES) {
                         throw new ClientException(
                             'Error on file upload to S3: ' . $filePath,
                             null,
