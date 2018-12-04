@@ -92,7 +92,7 @@ class DataPreviewLimitsTest extends StorageApiTestCase
     private function getTruncatedRow(array $jsonPreview)
     {
         foreach ($jsonPreview['rows'] as $row) {
-            if ($row[0]['isTruncated'] === "1") {
+            if ($row[0]['isTruncated']) {
                 return $row;
             }
         }
