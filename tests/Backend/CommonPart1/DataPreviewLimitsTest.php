@@ -86,7 +86,7 @@ class DataPreviewLimitsTest extends StorageApiTestCase
         $this->assertContains('col' . ($columnCount - 1), $jsonPreview['columns']);
         $truncatedRow = $this->getTruncatedRow($jsonPreview);
         $this->assertNotEmpty($truncatedRow);
-        $this->assertEquals(16383, mb_strlen($truncatedRow[0]['value']), 'Value in row is not truncated');
+        $this->assertEquals(16384, mb_strlen($truncatedRow[0]['value']), 'Value in row is not truncated');
     }
 
     private function getTruncatedRow(array $jsonPreview)
