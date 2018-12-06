@@ -205,7 +205,7 @@ class S3Uploader
         if (!empty($encryption)) {
             $beforeInitiateCommands['ServerSideEncryption'] = $encryption;
         }
-        if (count($beforeInitiateCommands)) {
+        if ($beforeInitiateCommands) {
             $uploaderOptions['before_initiate'] = function ($command) use ($beforeInitiateCommands) {
                 foreach ($beforeInitiateCommands as $key => $value) {
                     $command[$key] = $value;
