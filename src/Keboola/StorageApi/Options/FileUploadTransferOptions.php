@@ -28,7 +28,7 @@ class FileUploadTransferOptions
      *
      * @var int
      */
-    private $maxRetriesPerChunk = 50;
+    private $maxRetriesPerChunk = 10;
 
     /**
      *
