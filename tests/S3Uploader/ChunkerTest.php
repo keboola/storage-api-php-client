@@ -7,7 +7,6 @@ use Keboola\Test\StorageApiTestCase;
 
 class ChunkerTest extends StorageApiTestCase
 {
-
     public function testSettersAndGetters()
     {
         $chunker = new Chunker();
