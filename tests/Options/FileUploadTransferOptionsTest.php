@@ -14,7 +14,7 @@ class FileUploadTransferOptionsTest extends StorageApiTestCase
     {
         $options = new FileUploadTransferOptions();
         $this->assertEquals(50, $options->getChunkSize());
-        $this->assertEquals(50, $options->getMaxRetriesPerChunk());
+        $this->assertEquals(10, $options->getMaxRetriesPerChunk());
         $this->assertEquals(20, $options->getSingleFileConcurrency());
         $this->assertEquals(5, $options->getMultiFileConcurrency());
     }
