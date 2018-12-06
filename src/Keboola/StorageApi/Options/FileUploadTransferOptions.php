@@ -31,6 +31,22 @@ class FileUploadTransferOptions
     private $maxRetriesPerChunk = 50;
 
     /**
+     *
+     * Multipart upload threads for single file uploads
+     *
+     * @var int
+     */
+    private $singleFileConcurrency = 20;
+
+    /**
+     *
+     * Multipart upload threads for multiple files uploads
+     *
+     * @var int
+     */
+    private $multiFileConcurrency = 5;
+
+    /**
      * @return int
      */
     public function getChunkSize()
@@ -71,9 +87,53 @@ class FileUploadTransferOptions
             throw new ClientException("Invalid max retries per chunk: '{$maxRetriesPerChunk}'");
         }
         $this->maxRetriesPerChunk = (int) $maxRetriesPerChunk;
-
-
-        $this->maxRetriesPerChunk = (int) $maxRetriesPerChunk;
         return $this;
     }
+
+    /**
+     * @return int
+     */
+    public function getSingleFileConcurrency()
+    {
+        return $this->singleFileConcurrency;
+    }
+
+    /**
+     * @param int $singleFileConcurrency
+     * @return $this
+     * @throws ClientException
+     */
+    public function setSingleFileConcurrency($singleFileConcurrency)
+    {
+        if ((int) $singleFileConcurrency <= 0) {
+            throw new ClientException("Invalid single file concurrency: '{$singleFileConcurrency}'");
+        }
+        $this->singleFileConcurrency = (int) $singleFileConcurrency;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMultiFileConcurrency()
+    {
+        return $this->multiFileConcurrency;
+    }
+
+    /**
+     * @param int $multiFileConcurrency
+     * @return $this
+     * @throws ClientException
+     */
+    public function setMultiFileConcurrency($multiFileConcurrency)
+    {
+        if ((int) $multiFileConcurrency <= 0) {
+            throw new ClientException("Invalid multi file concurrency: '{$multiFileConcurrency}'");
+        }
+        $this->multiFileConcurrency = (int) $multiFileConcurrency;
+        return $this;
+    }
+
+
+
 }
