@@ -438,7 +438,7 @@ class FilesTest extends StorageApiTestCase
             fputs($fileHandle, "0123456789");
         }
         fclose($fileHandle);
-        $fileId = $this->_client->uploadFile($filePath);
+        $fileId = $this->_client->uploadFile($filePath, new FileUploadOptions());
         $file = $this->_client->getFile($fileId);
 
         $this->assertEquals(basename($filePath), $file['name']);
@@ -448,7 +448,6 @@ class FilesTest extends StorageApiTestCase
     public function testFileDelete()
     {
         $filePath = __DIR__ . '/../_data/files.upload.txt';
-        ;
         $options = new FileUploadOptions();
 
         $fileId = $this->_client->uploadFile($filePath, $options);
