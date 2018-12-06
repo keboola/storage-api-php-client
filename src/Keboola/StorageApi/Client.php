@@ -1449,7 +1449,7 @@ class Client
         $manifestUploadOptions = [
             'Bucket' => $uploadParams['bucket'],
             'Key' => $uploadParams['key'] . 'manifest',
-            'Body' => json_encode($manifest),
+            'Body' => json_encode($manifest)
         ];
         if ($newOptions->getIsEncrypted()) {
             $manifestUploadOptions['ServerSideEncryption'] = $uploadParams['x-amz-server-side-encryption'];
