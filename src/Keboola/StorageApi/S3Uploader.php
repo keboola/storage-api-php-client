@@ -137,35 +137,34 @@ class S3Uploader
         }
 
         $retries = 0;
-        do {
-            $retries++;
+        while (true) {
             if ($retries >= $this->transferOptions->getMaxRetriesPerChunk()) {
                 throw new ClientException('Exceeded maximum number of retries per chunk upload');
             }
             $results = \GuzzleHttp\Promise\settle($promises)->wait();
-            $finished = true;
             $rejected = PromiseResultHandler::getRejected($results);
-            if (count($rejected) > 0) {
-                $finished = false;
-                /**
-                 * @var string $filePath
-                 * @var S3MultipartUploadException $reason
-                 */
-                foreach ($rejected as $filePath => $reason) {
-                    $uploader = $this->multipartUploaderFactory(
-                        $filePath,
-                        $bucket,
-                        $reason->getKey(),
-                        $acl,
-                        count($rejected) > 1 ? $this->transferOptions->getMultiFileConcurrency() : $this->transferOptions->getSingleFileConcurrency(),
-                        $encryption ? $encryption : null,
-                        $name ? $name : basename($filePath),
-                        $reason->getState()
-                    );
-                    $promises[$filePath] = $uploader->promise();
-                }
+            if (count($rejected) == 0) {
+                break;
             }
-        } while (!$finished);
+            $retries++;
+            /**
+             * @var string $filePath
+             * @var S3MultipartUploadException $reason
+             */
+            foreach ($rejected as $filePath => $reason) {
+                $uploader = $this->multipartUploaderFactory(
+                    $filePath,
+                    $bucket,
+                    $reason->getKey(),
+                    $acl,
+                    count($rejected) > 1 ? $this->transferOptions->getMultiFileConcurrency() : $this->transferOptions->getSingleFileConcurrency(),
+                    $encryption ? $encryption : null,
+                    $name ? $name : basename($filePath),
+                    $reason->getState()
+                );
+                $promises[$filePath] = $uploader->promise();
+            }
+        }
     }
 
     /**
