@@ -133,7 +133,4 @@ class FileUploadTransferOptions
         $this->multiFileConcurrency = (int) $multiFileConcurrency;
         return $this;
     }
-
-
-
 }
