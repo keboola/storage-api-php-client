@@ -15,12 +15,12 @@ class S3Uploader
     /**
      * @var S3Client
      */
-    protected $s3Client;
+    private $s3Client;
 
     /**
      * @var FileUploadTransferOptions
      */
-    protected $transferOptions;
+    private $transferOptions;
 
     /**
      * S3Uploader constructor.
@@ -81,7 +81,7 @@ class S3Uploader
      * @param null $encryption
      * @throws ClientException
      */
-    protected function putFile($bucket, $key, $acl, $filePath, $name = null, $encryption = null)
+    private function putFile($bucket, $key, $acl, $filePath, $name = null, $encryption = null)
     {
         $fh = @fopen($filePath, 'r');
         if ($fh === false) {
@@ -112,7 +112,7 @@ class S3Uploader
      * @param null $encryption
      * @throws ClientException
      */
-    protected function upload($bucket, $acl, $files, $name = null, $encryption = null)
+    private function upload($bucket, $acl, $files, $name = null, $encryption = null)
     {
         $promises = [];
         foreach ($files as $filePath => $key) {
@@ -178,7 +178,7 @@ class S3Uploader
      * @param UploadState|null $state
      * @return \Aws\S3\MultipartUploader
      */
-    protected function multipartUploaderFactory(
+    private function multipartUploaderFactory(
         $filePath,
         $bucket,
         $key,
