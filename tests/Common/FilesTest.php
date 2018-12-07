@@ -417,13 +417,11 @@ class FilesTest extends StorageApiTestCase
 
     /**
      * with compress = true
-     * @dataProvider multipartUploadThreshold
-     * @param $multipartUploadThresholdValue
      */
-    public function testFileUploadCompress($multipartUploadThresholdValue)
+    public function testFileUploadCompress()
     {
         $filePath = __DIR__ . '/../_data/files.upload.txt';
-        $fileId = $this->_client->uploadFile($filePath, (new FileUploadOptions())->setCompress(true)->setMultipartUploadThreshold($multipartUploadThresholdValue));
+        $fileId = $this->_client->uploadFile($filePath, (new FileUploadOptions())->setCompress(true));
         $file = $this->_client->getFile($fileId);
 
         $this->assertEquals(basename($filePath) . ".gz", $file['name']);
@@ -432,11 +430,7 @@ class FilesTest extends StorageApiTestCase
         $this->assertEquals(file_get_contents($filePath), gzread($gzFile, 524288));
     }
 
-    /**
-     * @dataProvider multipartUploadThreshold
-     * @param $multipartUploadThresholdValue
-     */
-    public function testFileUploadLargeFile($multipartUploadThresholdValue = 0)
+    public function testFileUploadLargeFile()
     {
         $filePath = __DIR__ . '/../_tmp/files.upload.large.csv';
         $fileHandle = fopen($filePath, "w+");
@@ -444,7 +438,7 @@ class FilesTest extends StorageApiTestCase
             fputs($fileHandle, "0123456789");
         }
         fclose($fileHandle);
-        $fileId = $this->_client->uploadFile($filePath, (new FileUploadOptions())->setMultipartUploadThreshold($multipartUploadThresholdValue));
+        $fileId = $this->_client->uploadFile($filePath, new FileUploadOptions());
         $file = $this->_client->getFile($fileId);
 
         $this->assertEquals(basename($filePath), $file['name']);
@@ -454,7 +448,6 @@ class FilesTest extends StorageApiTestCase
     public function testFileDelete()
     {
         $filePath = __DIR__ . '/../_data/files.upload.txt';
-        ;
         $options = new FileUploadOptions();
 
         $fileId = $this->_client->uploadFile($filePath, $options);
@@ -491,7 +484,6 @@ class FilesTest extends StorageApiTestCase
                 $path,
                 (new FileUploadOptions())
                     ->setIsPublic(true)
-                    ->setMultipartUploadThreshold(1)
             ),
             array(
                 $path,
@@ -501,19 +493,7 @@ class FilesTest extends StorageApiTestCase
             array(
                 $path,
                 (new FileUploadOptions())
-                    ->setIsEncrypted(false)
-                    ->setMultipartUploadThreshold(1)
-            ),
-            array(
-                $path,
-                (new FileUploadOptions())
                     ->setIsEncrypted(true)
-            ),
-            array(
-                $path,
-                (new FileUploadOptions())
-                    ->setIsEncrypted(true)
-                    ->setMultipartUploadThreshold(1)
             ),
             array(
                 $path,
@@ -525,25 +505,9 @@ class FilesTest extends StorageApiTestCase
             array(
                 $path,
                 (new FileUploadOptions())
-                    ->setNotify(false)
-                    ->setCompress(false)
-                    ->setIsPublic(false)
-                    ->setMultipartUploadThreshold(1)
-            ),
-            array(
-                $path,
-                (new FileUploadOptions())
                     ->setIsPublic(true)
                     ->setIsPermanent(true)
                     ->setTags(array('sapi-import', 'martin'))
-            ),
-            array(
-                $path,
-                (new FileUploadOptions())
-                    ->setIsPublic(true)
-                    ->setIsPermanent(true)
-                    ->setTags(array('sapi-import', 'martin'))
-                    ->setMultipartUploadThreshold(1)
             ),
         );
     }
@@ -712,13 +676,5 @@ class FilesTest extends StorageApiTestCase
         $this->_client->addFileTag($fileId, 'new');
         $file = $this->_client->getFile($fileId);
         $this->assertEquals(array('image', 'new'), $file['tags'], 'duplicate tag add is ignored');
-    }
-
-    public function multipartUploadThreshold()
-    {
-        return array(
-            array(104857600),
-            array(10)
-        );
     }
 }

@@ -1,10 +1,4 @@
 <?php
-/**
- *
- * User: Ondřej Hlaváček
- *
- */
-
 namespace Keboola\Test\Common;
 
 use Keboola\StorageApi\Options\FileUploadTransferOptions;
