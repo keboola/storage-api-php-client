@@ -15,6 +15,7 @@
 	<testsuite name="common">
 		<directory>tests/Common</directory>
 		<directory>tests/Options</directory>
+		<directory>tests/S3Uploader</directory>
 	</testsuite>
 
 	<testsuite name="backend-redshift-part-1">
