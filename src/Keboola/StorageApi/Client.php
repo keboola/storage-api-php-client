@@ -717,9 +717,10 @@ class Client
      * @param $tableId
      * @param CsvFile $csvFile
      * @param array $options
+     * @param bool $handleAsyncTask
      * @return array - table write results
      */
-    public function writeTableAsync($tableId, CsvFile $csvFile, $options = array())
+    public function writeTableAsync($tableId, CsvFile $csvFile, $options = array(), $handleAsyncTask = true)
     {
         $optionsExtended = array_merge($options, array(
             "delimiter" => $csvFile->getDelimiter(),
@@ -738,7 +739,7 @@ class Client
         );
         $optionsExtended['dataFileId'] = $fileId;
 
-        return $this->writeTableAsyncDirect($tableId, $optionsExtended);
+        return $this->writeTableAsyncDirect($tableId, $optionsExtended, $handleAsyncTask);
     }
 
     /**
@@ -746,11 +747,12 @@ class Client
      * Executes http://docs.keboola.apiary.io/#post-%2Fv2%2Fstorage%2Fbuckets%2F%7Bbucket_id%7D%2Ftables-async
      * @param $tableId
      * @param array $options
+     * * @param bool $handleAsyncTask
      * @return array
      */
-    public function writeTableAsyncDirect($tableId, $options = array())
+    public function writeTableAsyncDirect($tableId, $options = array(), $handleAsyncTask = true)
     {
-        return $this->apiPost("storage/tables/{$tableId}/import-async", $this->writeTableOptionsPrepare($options));
+        return $this->apiPost("storage/tables/{$tableId}/import-async", $this->writeTableOptionsPrepare($options), $handleAsyncTask);
     }
 
     private function writeTableOptionsPrepare($options)
@@ -1839,7 +1841,16 @@ class Client
     {
         $job = json_decode((string)$jobCreatedResponse->getBody(), true);
         $job = $this->waitForJob($job['id']);
+        $this->handleJobError($job);
+        return $job['results'];
+    }
 
+    /**
+     * @param $job
+     * @throws ClientException
+     */
+    private function handleJobError($job)
+    {
         if ($job['status'] == 'error') {
             throw new ClientException(
                 $job['error']['message'],
@@ -1851,8 +1862,6 @@ class Client
                 ])
             );
         }
-
-        return $job['results'];
     }
 
     /**
@@ -1877,6 +1886,22 @@ class Client
         } while (!in_array($job['status'], array('success', 'error')));
 
         return $job;
+    }
+
+    /**
+     * @param array $jobs
+     * @return array
+     * @throws ClientException
+     */
+    public function handleAsyncTasks($jobs = array())
+    {
+        $jobResults = [];
+        foreach ($jobs as $job) {
+            $jobResult = $this->waitForJob($job['id']);
+            $this->handleJobError($jobResult);
+            $jobResults[] = $jobResult;
+        }
+        return $jobResults;
     }
 
 
