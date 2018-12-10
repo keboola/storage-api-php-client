@@ -1893,7 +1893,7 @@ class Client
      * @return array
      * @throws ClientException
      */
-    public function handleAsyncTasks($jobs = array())
+    public function handleAsyncTasks($jobs)
     {
         $jobResults = [];
         foreach ($jobs as $job) {
