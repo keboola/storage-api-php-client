@@ -195,4 +195,98 @@ class WorkspacesUnloadTest extends WorkspacesTestCase
             'format' => 'rfc',
         )), 'new  column added');
     }
+
+    public function testCreateTableFromWorkspaceWithoutHandleAsyncTaskSuccess()
+    {
+        // create workspace and source table in workspace
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+        $connection = $workspace['connection'];
+        $db = $this->getDbConnection($connection);
+        $db->query("create table \"test.Languages1\" (
+			\"Id\" integer not null,
+			\"Name\" varchar not null
+		);");
+        $db->query("insert into \"test.Languages1\" (\"Id\", \"Name\") values (1, 'cz'), (2, 'en');");
+        $db->query("create table \"test.Languages2\" (
+			\"Id\" integer not null,
+			\"Name\" varchar not null
+		);");
+        $db->query("insert into \"test.Languages2\" (\"Id\", \"Name\") values (3, 'fr');");
+
+        $job1 = $this->_client->createTableAsyncDirect(
+            $this->getTestBucketId(self::STAGE_IN),
+            array(
+                'name' => 'languages1',
+                'dataWorkspaceId' => $workspace['id'],
+                'dataTableName' => 'test.Languages1',
+            ),
+            false
+        );
+
+        $job2 = $this->_client->createTableAsyncDirect(
+            $this->getTestBucketId(self::STAGE_IN),
+            array(
+                'name' => 'languages2',
+                'dataWorkspaceId' => $workspace['id'],
+                'dataTableName' => 'test.Languages2',
+            ),
+            false
+        );
+
+        $results = $this->_client->handleAsyncTasks([$job1, $job2]);
+
+        $this->assertCount(2, $results);
+        $this->assertTrue($this->_client->tableExists($results[0]['results']['id']));
+        $this->assertTrue($this->_client->tableExists($results[1]['results']['id']));
+    }
+
+
+    public function testCreateTableFromWorkspaceWithoutHandleAsyncTaskError()
+    {
+        // create workspace and source table in workspace
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+        $connection = $workspace['connection'];
+        $db = $this->getDbConnection($connection);
+        $db->query("create table \"test.Languages1\" (
+			\"Id\" integer not null,
+			\"Name\" varchar not null
+		);");
+        $db->query("insert into \"test.Languages1\" (\"Id\", \"Name\") values (1, 'cz'), (2, 'en');");
+        $db->query("create table \"test.Languages2\" (
+			\"_Id\" integer not null,
+			\"Name\" varchar not null
+		);");
+        $db->query("insert into \"test.Languages2\" (\"_Id\", \"Name\") values (3, 'fr');");
+
+        $job1 = $this->_client->createTableAsyncDirect(
+            $this->getTestBucketId(self::STAGE_IN),
+            array(
+                'name' => 'languages1',
+                'dataWorkspaceId' => $workspace['id'],
+                'dataTableName' => 'test.Languages1',
+            ),
+            false
+        );
+
+        $job2 = $this->_client->createTableAsyncDirect(
+            $this->getTestBucketId(self::STAGE_IN),
+            array(
+                'name' => 'languages2',
+                'dataWorkspaceId' => $workspace['id'],
+                'dataTableName' => 'test.Languages2',
+            ),
+            false
+        );
+
+        try {
+            $this->_client->handleAsyncTasks([$job1, $job2]);
+            $this->fail('Exception expected');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.invalidColumns', $e->getStringCode());
+        }
+        $this->assertTrue($this->_client->tableExists($this->getTestBucketId(self::STAGE_IN) . '.languages1'));
+        $this->assertFalse($this->_client->tableExists($this->getTestBucketId(self::STAGE_IN) . '.languages2'));
+    }
 }
