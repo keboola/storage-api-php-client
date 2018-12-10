@@ -7,7 +7,7 @@ use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\Test\StorageApiTestCase;
 
-class QueueTableImportJobTest extends StorageApiTestCase
+class HandleAsyncTasksTest extends StorageApiTestCase
 {
     public function setUp()
     {
