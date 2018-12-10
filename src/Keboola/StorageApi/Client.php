@@ -360,6 +360,7 @@ class Client
      *
      * Set a bucket attribute
      *
+     * @deprecated
      * @param string $bucketId
      * @param string $key
      * @param string $value
@@ -377,6 +378,7 @@ class Client
     }
 
     /**
+     * @deprecated
      * @param $bucketId
      * @param array $attributes array of objects with `name`, `value`, `protected` keys
      */
@@ -394,6 +396,7 @@ class Client
      *
      * Delete a bucket attribute
      *
+     * @deprecated
      * @param string $bucketId
      * @param string $key
      * @return mixed|string
@@ -849,6 +852,7 @@ class Client
      *
      * Set a table attribute
      *
+     * @deprecated
      * @param string $tableId
      * @param string $key
      * @param string $value
@@ -866,6 +870,7 @@ class Client
     }
 
     /**
+     * @deprecated
      * @param $tableId
      * @param array $attributes array of objects with `name`, `value`, `protected` keys
      */
@@ -882,6 +887,7 @@ class Client
      *
      * Delete a table attribute
      *
+     * @deprecated
      * @param string $tableId
      * @param string $key
      * @return mixed|string
