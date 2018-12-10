@@ -1854,7 +1854,7 @@ class Client
     }
 
     /**
-     * @param $job
+     * @param array $job
      * @throws ClientException
      */
     private function handleJobError($job)
