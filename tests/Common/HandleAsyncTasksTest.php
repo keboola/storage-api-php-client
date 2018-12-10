@@ -22,7 +22,7 @@ class HandleAsyncTasksTest extends StorageApiTestCase
         $this->_client->dropBucket('in.c-test', ['force' => true]);
     }
 
-    public function testSuccess()
+    public function testWriteTableAsyncSuccess()
     {
         $job1Info = $this->_client->writeTableAsync('in.c-test.table1', new CsvFile(__DIR__ . '/../_data/languages.csv'), [], false);
         $job2Info = $this->_client->writeTableAsync('in.c-test.table2', new CsvFile(__DIR__ . '/../_data/languages.csv'), [], false);
@@ -34,7 +34,7 @@ class HandleAsyncTasksTest extends StorageApiTestCase
         $this->assertEquals(5, $table2Info["rowsCount"]);
     }
 
-    public function testError()
+    public function testWriteTableAsyncError()
     {
         $job1Info = $this->_client->writeTableAsync('in.c-test.table1', new CsvFile(__DIR__ . '/../_data/languages.csv'), [], false);
         $job2Info = $this->_client->writeTableAsync('in.c-test.table2', new CsvFile(__DIR__ . '/../_data/languages.invalid-data.csv'), [], false);
