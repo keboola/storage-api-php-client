@@ -717,10 +717,9 @@ class Client
      * @param $tableId
      * @param CsvFile $csvFile
      * @param array $options
-     * @param bool $handleAsyncTask
      * @return array - table write results
      */
-    public function writeTableAsync($tableId, CsvFile $csvFile, $options = array(), $handleAsyncTask = true)
+    public function writeTableAsync($tableId, CsvFile $csvFile, $options = array())
     {
         $optionsExtended = array_merge($options, array(
             "delimiter" => $csvFile->getDelimiter(),
@@ -739,7 +738,7 @@ class Client
         );
         $optionsExtended['dataFileId'] = $fileId;
 
-        return $this->writeTableAsyncDirect($tableId, $optionsExtended, $handleAsyncTask);
+        return $this->writeTableAsyncDirect($tableId, $optionsExtended);
     }
 
     /**
@@ -747,12 +746,21 @@ class Client
      * Executes http://docs.keboola.apiary.io/#post-%2Fv2%2Fstorage%2Fbuckets%2F%7Bbucket_id%7D%2Ftables-async
      * @param $tableId
      * @param array $options
-     * * @param bool $handleAsyncTask
      * @return array
      */
-    public function writeTableAsyncDirect($tableId, $options = array(), $handleAsyncTask = true)
+    public function writeTableAsyncDirect($tableId, $options = array())
     {
-        return $this->apiPost("storage/tables/{$tableId}/import-async", $this->writeTableOptionsPrepare($options), $handleAsyncTask);
+        return $this->apiPost("storage/tables/{$tableId}/import-async", $this->writeTableOptionsPrepare($options));
+    }
+
+    /**
+     * @param $tableId
+     * @param array $options
+     * @return mixed|string
+     */
+    public function queueTableImport($tableId, $options = array())
+    {
+        return $this->apiPost("storage/tables/{$tableId}/import-async", $this->writeTableOptionsPrepare($options), false);
     }
 
     private function writeTableOptionsPrepare($options)
