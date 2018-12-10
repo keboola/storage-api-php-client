@@ -24,29 +24,29 @@ class HandleAsyncTasksTest extends StorageApiTestCase
 
     public function testWriteTableAsyncSuccess()
     {
-        $job1Info = $this->_client->writeTableAsync('in.c-test.table1', new CsvFile(__DIR__ . '/../_data/languages.csv'), [], false);
-        $job2Info = $this->_client->writeTableAsync('in.c-test.table2', new CsvFile(__DIR__ . '/../_data/languages.csv'), [], false);
-        $results = $this->_client->handleAsyncTasks([$job1Info, $job2Info]);
+        $job1 = $this->_client->writeTableAsync('in.c-test.table1', new CsvFile(__DIR__ . '/../_data/languages.csv'), [], false);
+        $job2 = $this->_client->writeTableAsync('in.c-test.table2', new CsvFile(__DIR__ . '/../_data/languages.csv'), [], false);
+        $results = $this->_client->handleAsyncTasks([$job1, $job2]);
         $this->assertCount(2, $results);
-        $table1Info = $this->_client->getTable("in.c-test.table1");
-        $table2Info = $this->_client->getTable("in.c-test.table2");
-        $this->assertEquals(5, $table1Info["rowsCount"]);
-        $this->assertEquals(5, $table2Info["rowsCount"]);
+        $table1 = $this->_client->getTable("in.c-test.table1");
+        $table2 = $this->_client->getTable("in.c-test.table2");
+        $this->assertEquals(5, $table1["rowsCount"]);
+        $this->assertEquals(5, $table2["rowsCount"]);
     }
 
     public function testWriteTableAsyncError()
     {
-        $job1Info = $this->_client->writeTableAsync('in.c-test.table1', new CsvFile(__DIR__ . '/../_data/languages.csv'), [], false);
-        $job2Info = $this->_client->writeTableAsync('in.c-test.table2', new CsvFile(__DIR__ . '/../_data/languages.invalid-data.csv'), [], false);
+        $job1 = $this->_client->writeTableAsync('in.c-test.table1', new CsvFile(__DIR__ . '/../_data/languages.csv'), [], false);
+        $job2 = $this->_client->writeTableAsync('in.c-test.table2', new CsvFile(__DIR__ . '/../_data/languages.invalid-data.csv'), [], false);
         try {
-            $this->_client->handleAsyncTasks([$job1Info, $job2Info]);
+            $this->_client->handleAsyncTasks([$job1, $job2]);
             $this->fail('Missing exception');
         } catch (ClientException $e) {
             $this->assertContains('invalidData', $e->getStringCode());
         }
-        $table1Info = $this->_client->getTable("in.c-test.table1");
-        $table2Info = $this->_client->getTable("in.c-test.table2");
-        $this->assertEquals(5, $table1Info["rowsCount"]);
-        $this->assertEquals(0, $table2Info["rowsCount"]);
+        $table1 = $this->_client->getTable("in.c-test.table1");
+        $table2 = $this->_client->getTable("in.c-test.table2");
+        $this->assertEquals(5, $table1["rowsCount"]);
+        $this->assertEquals(0, $table2["rowsCount"]);
     }
 }
