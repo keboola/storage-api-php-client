@@ -6,7 +6,7 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\Test\StorageApiTestCase;
 
-class QueueTableImportTest extends StorageApiTestCase
+class QueueJobsTest extends StorageApiTestCase
 {
     public function setUp()
     {
