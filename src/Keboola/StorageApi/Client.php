@@ -512,17 +512,12 @@ class Client
      *
      * @param $bucketId
      * @param array $options see createTable method params
-     * @param bool $handleAsyncTask
-     * @return mixed created table id or job detail
+     * @return string - created table id
      */
-    public function createTableAsyncDirect($bucketId, $options = array(), $handleAsyncTask = true)
+    public function createTableAsyncDirect($bucketId, $options = array())
     {
-        $response = $this->apiPost("storage/buckets/{$bucketId}/tables-async", $options, $handleAsyncTask);
-        if ($handleAsyncTask) {
-            return $response['id'];
-        } else {
-            return $response;
-        }
+        $createdTable = $this->apiPost("storage/buckets/{$bucketId}/tables-async", $options);
+        return $createdTable['id'];
     }
 
     /**
