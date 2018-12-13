@@ -70,6 +70,16 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         $this->assertArrayHasKey('sourceDatabase', $cloneEvent['params']);
         $this->assertArrayHasKey('workspace', $cloneEvent['params']);
 
+        // test that stats are generated
+        $stats = $this->_client->getStats((new \Keboola\StorageApi\Options\StatsOptions())->setRunId($runId));
+        $this->assertSame(0, $stats['tables']['import']['totalCount']);
+        $this->assertSame(1, $stats['tables']['export']['totalCount']);
+        $this->assertCount(1, $stats['tables']['export']['tables']);
+        $this->assertArrayEqualsIgnoreKeys([
+            'id' => 'in.c-API-tests.languagesDetails',
+            'count' => 1,
+        ], $stats['tables']['export']['tables'][0], ['durationTotalSeconds']);
+
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $workspaceTableColumns = $backend->describeTableColumns('languagesDetails');
         $this->assertEquals(
