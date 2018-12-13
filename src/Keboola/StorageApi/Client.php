@@ -760,7 +760,8 @@ class Client
      */
     public function queueTableImport($tableId, $options = array())
     {
-        return $this->apiPost("storage/tables/{$tableId}/import-async", $this->writeTableOptionsPrepare($options), false);
+        $job = $this->apiPost("storage/tables/{$tableId}/import-async", $this->writeTableOptionsPrepare($options), false);
+        return $job["id"];
     }
 
     private function writeTableOptionsPrepare($options)
@@ -1897,15 +1898,15 @@ class Client
     }
 
     /**
-     * @param array $jobs
+     * @param array $jobIds
      * @return array
      * @throws ClientException
      */
-    public function handleAsyncTasks($jobs)
+    public function handleAsyncTasks($jobIds)
     {
         $jobResults = [];
-        foreach ($jobs as $job) {
-            $jobResult = $this->waitForJob($job['id']);
+        foreach ($jobIds as $jobId) {
+            $jobResult = $this->waitForJob($jobId);
             $this->handleJobError($jobResult);
             $jobResults[] = $jobResult;
         }

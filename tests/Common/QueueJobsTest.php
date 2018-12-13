@@ -24,20 +24,10 @@ class QueueJobsTest extends StorageApiTestCase
     public function testQueueTableImport()
     {
         $fileId = $this->_client->uploadFile(__DIR__ . '/../_data/languages.csv', new FileUploadOptions());
-        $job = $this->_client->queueTableImport('in.c-test.table1', ['dataFileId' => $fileId]);
-        $this->assertArrayHasKey('id', $job);
-        $this->assertArrayHasKey('status', $job);
-        $this->assertEquals('waiting', $job['status']);
-        $this->assertArrayHasKey('url', $job);
-        $this->assertArrayHasKey('tableId', $job);
+        $jobId = $this->_client->queueTableImport('in.c-test.table1', ['dataFileId' => $fileId]);
+        $job = $this->_client->getJob($jobId);
         $this->assertEquals('in.c-test.table1', $job['tableId']);
-        $this->assertArrayHasKey('operationName', $job);
         $this->assertEquals('tableImport', $job['operationName']);
-        $this->assertArrayHasKey('operationParams', $job);
-        $this->assertArrayHasKey('params', $job['operationParams']);
-        $this->assertArrayHasKey('source', $job['operationParams']);
-        $this->assertArrayHasKey('fileId', $job['operationParams']['source']);
-        $this->assertArrayHasKey('type', $job['operationParams']['source']);
         $this->assertEquals($fileId, $job['operationParams']['source']['fileId']);
         $this->assertEquals('file', $job['operationParams']['source']['type']);
     }
