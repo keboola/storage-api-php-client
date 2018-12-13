@@ -52,16 +52,15 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
             ],
         ]);
 
+        // test that events are properly created
+
         // block until async events are processed, processing in order is not guaranteed but it should work most of time
         $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
-
         $events = $this->_client->listEvents([
             'runId' => $runId,
         ]);
-
         // there are two events, dummy (0) and the clone event (1)
         $cloneEvent = array_pop($events);
-
         $this->assertSame('storage.workspaceTableCloned', $cloneEvent['event']);
         $this->assertSame($runId, $cloneEvent['runId']);
         $this->assertSame('storage', $cloneEvent['component']);
