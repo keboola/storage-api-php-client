@@ -753,6 +753,17 @@ class Client
         return $this->apiPost("storage/tables/{$tableId}/import-async", $this->writeTableOptionsPrepare($options));
     }
 
+    /**
+     * @param $tableId
+     * @param array $options
+     * @return mixed|string
+     */
+    public function queueTableImport($tableId, $options = array())
+    {
+        $job = $this->apiPost("storage/tables/{$tableId}/import-async", $this->writeTableOptionsPrepare($options), false);
+        return $job["id"];
+    }
+
     private function writeTableOptionsPrepare($options)
     {
         $allowedOptions = array(
@@ -1839,7 +1850,16 @@ class Client
     {
         $job = json_decode((string)$jobCreatedResponse->getBody(), true);
         $job = $this->waitForJob($job['id']);
+        $this->handleJobError($job);
+        return $job['results'];
+    }
 
+    /**
+     * @param array $job
+     * @throws ClientException
+     */
+    private function handleJobError($job)
+    {
         if ($job['status'] == 'error') {
             throw new ClientException(
                 $job['error']['message'],
@@ -1851,8 +1871,6 @@ class Client
                 ])
             );
         }
-
-        return $job['results'];
     }
 
     /**
@@ -1877,6 +1895,22 @@ class Client
         } while (!in_array($job['status'], array('success', 'error')));
 
         return $job;
+    }
+
+    /**
+     * @param array $jobIds
+     * @return array
+     * @throws ClientException
+     */
+    public function handleAsyncTasks($jobIds)
+    {
+        $jobResults = [];
+        foreach ($jobIds as $jobId) {
+            $jobResult = $this->waitForJob($jobId);
+            $this->handleJobError($jobResult);
+            $jobResults[] = $jobResult;
+        }
+        return $jobResults;
     }
 
 
