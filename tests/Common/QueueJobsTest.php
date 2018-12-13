@@ -21,7 +21,7 @@ class QueueJobsTest extends StorageApiTestCase
         $this->_client->dropBucket('in.c-test', ['force' => true]);
     }
 
-    public function testQueueTableImport()
+    public function testQueueTableImportFromFile()
     {
         $fileId = $this->_client->uploadFile(__DIR__ . '/../_data/languages.csv', new FileUploadOptions());
         $jobId = $this->_client->queueTableImport('in.c-test.table1', ['dataFileId' => $fileId]);
