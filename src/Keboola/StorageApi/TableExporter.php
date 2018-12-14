@@ -175,10 +175,10 @@ class TableExporter
      *
      * Process async export and prepare the file on disk
      *
-     * @param $tableId string SAPI Table Id
-     * @param $destination string destination file
-     * @param $exportOptions array SAPI Client export options
-     * @return void
+     * @param $tableId
+     * @param $destination
+     * @param $exportOptions
+     * @throws Exception
      */
     public function exportTable($tableId, $destination, $exportOptions)
     {
@@ -197,6 +197,7 @@ class TableExporter
      */
     public function exportTables($tables = array())
     {
+        $exportJobs = [];
         foreach ($tables as $table) {
             if (!isset($table['tableId'])) {
                 throw new Exception('Missing tableId');
@@ -207,8 +208,13 @@ class TableExporter
             if (!isset($table['exportOptions'])) {
                 $table['exportOptions'] = array();
             }
-            $file = $this->client->exportTableAsync($table['tableId'], $table['exportOptions']);
-            $this->handleExportedFile($table['tableId'], $file['file']['id'], $table['destination'], $table['exportOptions']);
+            $jobId = $this->client->queueTableExport($table['tableId'], $table['exportOptions']);
+            $exportJobs[$jobId] = $table;
+        }
+        $jobResults = $this->client->handleAsyncTasks(array_keys($exportJobs));
+        foreach ($jobResults as $jobResult) {
+            $exportJob = $exportJobs[$jobResult['id']];
+            $this->handleExportedFile($exportJob['tableId'], $jobResult['results']['file']['id'], $exportJob['destination'], $exportJob['exportOptions']);
         }
     }
 }
