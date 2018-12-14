@@ -10,6 +10,7 @@
 
 namespace Keboola\Test\Backend\CommonPart1;
 
+use Keboola\StorageApi\Exception;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\Client;
 use Keboola\Csv\CsvFile;
@@ -65,7 +66,7 @@ class TableExporterTest extends StorageApiTestCase
 
         // compare data
         $this->assertTrue(file_exists($this->downloadPath));
-        $this->assertLinesEqualsSorted(file_get_contents($expectationsFile), file_get_contents($this->downloadPath), 'imported data comparsion');
+        $this->assertLinesEqualsSorted(file_get_contents($expectationsFile), file_get_contents($this->downloadPath), 'imported data comparison');
     }
 
     public function testLimitParameter()
@@ -82,6 +83,56 @@ class TableExporterTest extends StorageApiTestCase
         $this->assertTrue(file_exists($this->downloadPath));
         $parsed = Client::parseCsv(file_get_contents($this->downloadPath));
         $this->assertCount($exportOptions['limit'], $parsed);
+    }
+
+
+    public function testExportTables()
+    {
+        $filesBasePath = __DIR__ . '/../../_data/';
+        $table1Id = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'languages1', new CsvFile($filesBasePath . 'languages.csv'));
+        $table2Id = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'languages2', new CsvFile($filesBasePath . 'languages.csv'));
+        $exporter = new TableExporter($this->_client);
+        $file1 = __DIR__ . '/../../_tmp/languages1.csv';
+        $file2 = __DIR__ . '/../../_tmp/languages2.csv';
+        $exports = array(
+            array(
+                'tableId' => $table1Id,
+                'destination' => $file1
+            ),
+            array(
+                'tableId' => $table2Id,
+                'destination' => $file2
+            )
+
+        );
+        $exporter->exportTables($exports);
+        // compare data
+        $this->assertTrue(file_exists($file1));
+        $this->assertTrue(file_exists($file2));
+        $this->assertLinesEqualsSorted(file_get_contents($filesBasePath . 'languages.csv'), file_get_contents($file1), 'imported data comparison');
+        $this->assertLinesEqualsSorted(file_get_contents($filesBasePath . 'languages.csv'), file_get_contents($file2), 'imported data comparison');
+    }
+
+    public function testExportTablesMissingTableId()
+    {
+        $exporter = new TableExporter($this->_client);
+        try {
+            $exporter->exportTables(array(array()));
+            $this->fail('Missing exception');
+        } catch (Exception $e) {
+            $this->assertEquals('Missing tableId', $e->getMessage());
+        }
+    }
+
+    public function testExportTablesMissingDestination()
+    {
+        $exporter = new TableExporter($this->_client);
+        try {
+            $exporter->exportTables(array(array('tableId' => 'dummy')));
+            $this->fail('Missing exception');
+        } catch (Exception $e) {
+            $this->assertEquals('Missing destination', $e->getMessage());
+        }
     }
 
     public function tableImportData()

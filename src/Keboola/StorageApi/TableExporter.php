@@ -184,4 +184,21 @@ class TableExporter
 
         return;
     }
+
+    public function exportTables($tables = array())
+    {
+        foreach ($tables as $table) {
+            if (!isset($table['tableId'])) {
+                throw new Exception('Missing tableId');
+            }
+            if (!isset($table['destination'])) {
+                throw new Exception('Missing destination');
+            }
+            if (!isset($table['exportOptions'])) {
+                $table['exportOptions'] = array();
+            }
+
+            $this->exportTable($table['tableId'], $table['destination'], $table['exportOptions']);
+        }
+    }
 }
