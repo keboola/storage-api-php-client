@@ -32,25 +32,14 @@ class TableExporter
         $this->client = $client;
     }
 
-    /**
-     *
-     * Process async export and prepare the file on disk
-     *
-     * @param $tableId string SAPI Table Id
-     * @param $destination string destination file
-     * @param $exportOptions array SAPI Client export options
-     * @return void
-     */
-    public function exportTable($tableId, $destination, $exportOptions)
+    private function handleExportedFile($tableId, $fileId, $destination, $exportOptions)
     {
         if (!isset($exportOptions['gzip'])) {
             $exportOptions['gzip'] = false;
         }
 
-        // Export table from Storage API to S3
         $table = $this->client->getTable($tableId);
-        $fileId = $this->client->exportTableAsync($tableId, $exportOptions);
-        $fileInfo = $this->client->getFile($fileId["file"]["id"], (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
+        $fileInfo = $this->client->getFile($fileId, (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
 
         // Initialize S3Client with credentials from Storage API
         $s3Client = new S3Client([
@@ -179,12 +168,33 @@ class TableExporter
             ));
             $fs->rename($tmpFilePath, $destination);
         }
-
         $fs->remove($tmpFilePath);
-
-        return;
     }
 
+    /**
+     *
+     * Process async export and prepare the file on disk
+     *
+     * @param $tableId string SAPI Table Id
+     * @param $destination string destination file
+     * @param $exportOptions array SAPI Client export options
+     * @return void
+     */
+    public function exportTable($tableId, $destination, $exportOptions)
+    {
+        $this->exportTables([
+            [
+                'tableId' => $tableId,
+                'destination' => $destination,
+                'exportOptions' => $exportOptions
+            ]
+        ]);
+    }
+
+    /**
+     * @param array $tables
+     * @throws Exception
+     */
     public function exportTables($tables = array())
     {
         foreach ($tables as $table) {
@@ -197,8 +207,8 @@ class TableExporter
             if (!isset($table['exportOptions'])) {
                 $table['exportOptions'] = array();
             }
-
-            $this->exportTable($table['tableId'], $table['destination'], $table['exportOptions']);
+            $file = $this->client->exportTableAsync($table['tableId'], $table['exportOptions']);
+            $this->handleExportedFile($table['tableId'], $file['file']['id'], $table['destination'], $table['exportOptions']);
         }
     }
 }
