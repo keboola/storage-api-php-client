@@ -199,10 +199,10 @@ class TableExporter
     {
         $exportJobs = [];
         foreach ($tables as $table) {
-            if (!isset($table['tableId'])) {
+            if (empty($table['tableId'])) {
                 throw new Exception('Missing tableId');
             }
-            if (!isset($table['destination'])) {
+            if (empty($table['destination'])) {
                 throw new Exception('Missing destination');
             }
             if (!isset($table['exportOptions'])) {
