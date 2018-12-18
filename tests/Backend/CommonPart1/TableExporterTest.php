@@ -124,6 +124,17 @@ class TableExporterTest extends StorageApiTestCase
         }
     }
 
+    public function testExportTablesEmptyTableId()
+    {
+        $exporter = new TableExporter($this->_client);
+        try {
+            $exporter->exportTables(array(array('tableId' => '')));
+            $this->fail('Missing exception');
+        } catch (Exception $e) {
+            $this->assertEquals('Missing tableId', $e->getMessage());
+        }
+    }
+
     public function testExportTablesMissingDestination()
     {
         $exporter = new TableExporter($this->_client);
@@ -135,6 +146,17 @@ class TableExporterTest extends StorageApiTestCase
         }
     }
 
+    public function testExportTablesEmptyDestination()
+    {
+        $exporter = new TableExporter($this->_client);
+        try {
+            $exporter->exportTables(array(array('tableId' => 'dummy', 'destination' => '')));
+            $this->fail('Missing exception');
+        } catch (Exception $e) {
+            $this->assertEquals('Missing destination', $e->getMessage());
+        }
+    }
+    
     public function tableImportData()
     {
         $filesBasePath = __DIR__ . '/../../_data/';
