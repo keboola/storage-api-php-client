@@ -10,6 +10,7 @@
 
 namespace Keboola\Test\Backend\CommonPart1;
 
+use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Exception;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\Client;
@@ -156,7 +157,18 @@ class TableExporterTest extends StorageApiTestCase
             $this->assertEquals('Missing destination', $e->getMessage());
         }
     }
-    
+
+    public function testExportTablesInvalidTable()
+    {
+        $exporter = new TableExporter($this->_client);
+        try {
+            $exporter->exportTables(array(array('tableId' => 'in.c-dummy.dummy', 'destination' => 'dummy')));
+            $this->fail('Missing exception');
+        } catch (ClientException $e) {
+            $this->assertContains('The table "dummy" was not found in the bucket "in.c-dummy"', $e->getMessage());
+        }
+    }
+
     public function tableImportData()
     {
         $filesBasePath = __DIR__ . '/../../_data/';
