@@ -195,7 +195,7 @@ class TableExporter
      * @param array $tables
      * @throws Exception
      */
-    public function exportTables($tables = array())
+    public function exportTables(array $tables = array())
     {
         $exportJobs = [];
         foreach ($tables as $table) {
