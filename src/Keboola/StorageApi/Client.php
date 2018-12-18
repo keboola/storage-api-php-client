@@ -756,11 +756,22 @@ class Client
     /**
      * @param $tableId
      * @param array $options
-     * @return mixed|string
+     * @return int
      */
     public function queueTableImport($tableId, $options = array())
     {
         $job = $this->apiPost("storage/tables/{$tableId}/import-async", $this->writeTableOptionsPrepare($options), false);
+        return $job["id"];
+    }
+
+    /**
+     * @param $tableId
+     * @param $options
+     * @return int
+     */
+    public function queueTableExport($tableId, $options = array())
+    {
+        $job = $this->apiPost("storage/tables/{$tableId}/export-async", $this->prepareExportOptions($options), false);
         return $job["id"];
     }
 
