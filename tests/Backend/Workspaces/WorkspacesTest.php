@@ -97,8 +97,22 @@ class WorkspacesTest extends WorkspacesTestCase
 
         $this->assertArrayHasKey("mytable", array_flip($tableNames));
 
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
         $newCredentials = $workspaces->resetWorkspacePassword($workspace['id']);
         $this->assertArrayHasKey("password", $newCredentials);
+
+        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
+
+        $events = $this->_client->listEvents([
+            'runId' => $runId,
+        ]);
+
+        $workspaceCreatedEvent = array_pop($events);
+        $this->assertSame($runId, $workspaceCreatedEvent['runId']);
+        $this->assertSame('storage.workspacePasswordReset', $workspaceCreatedEvent['event']);
+        $this->assertSame('storage', $workspaceCreatedEvent['component']);
 
         if ($connection['backend'] === self::BACKEND_REDSHIFT) {
             try {
