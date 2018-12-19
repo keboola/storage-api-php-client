@@ -25,16 +25,6 @@ class WorkspacesTest extends WorkspacesTestCase
         $workspace = $workspaces->createWorkspace();
         $connection = $workspace['connection'];
 
-        // block until async events are processed, processing in order is not guaranteed but it should work most of time
-        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
-
-        $events = $this->_client->listEvents([
-            'runId' => $runId,
-        ]);
-
-        $workspaceCreatedEvent = array_pop($events);
-        $this->assertSame($runId, $workspaceCreatedEvent['runId']);
-
         $tokenInfo = $this->_client->verifyToken();
         $this->assertEquals($tokenInfo['owner']['defaultBackend'], $connection['backend']);
 
@@ -59,6 +49,23 @@ class WorkspacesTest extends WorkspacesTestCase
         $this->assertArrayHasKey($workspace['id'], array_flip($workspacesIds));
 
         $workspaces->deleteWorkspace($workspace['id']);
+
+        // block until async events are processed, processing in order is not guaranteed but it should work most of time
+        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
+
+        $events = $this->_client->listEvents([
+            'runId' => $runId,
+        ]);
+
+        $workspaceCreatedEvent = array_pop($events);
+        $this->assertSame($runId, $workspaceCreatedEvent['runId']);
+        $this->assertSame('storage.workspaceCreated', $workspaceCreatedEvent['event']);
+        $this->assertSame('storage', $workspaceCreatedEvent['component']);
+
+        $workspaceDeletedEvent = array_pop($events);
+        $this->assertSame($runId, $workspaceDeletedEvent['runId']);
+        $this->assertSame('storage.workspaceDeleted', $workspaceDeletedEvent['event']);
+        $this->assertSame('storage', $workspaceDeletedEvent['component']);
 
         // credentials should not work anymore
         try {
@@ -133,7 +140,7 @@ class WorkspacesTest extends WorkspacesTestCase
 
         $workspace = $workspaces->createWorkspace();
         $connection = $workspace['connection'];
-        
+
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $backend->createTable("mytable", ["amount" => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? "NUMBER" : "VARCHAR"]);
 
