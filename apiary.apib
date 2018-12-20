@@ -1173,6 +1173,11 @@ When you receive this message, please run the export again; these errors are ver
             + eq - Equals - can be used with multiple values.
             + ne - Not equals - can be used with multiple values.
         + Default: eq
+    + format (optional, enum[string]) - output format of preview
+        + Members
+            + rfc - will returns CSV formated output
+            + json - will return JSON formated ouput
+        + Default: rfc
 
 
 + Request
@@ -1193,6 +1198,51 @@ When you receive this message, please run the export again; these errors are ver
             "1","english"
             "11","finnish"
             "24","french"
+
+
++ Request
+
+    Request with json format. Flag `isTruncated` is true when value is longer than 16KB.
+
+    + Headers
+
+            X-StorageApi-Token: your_token
+            Accept-encoding: gzip
+
++ Response 200 (application/json)
+
+        {
+            columns: [
+                "id",
+                "name"
+            ],
+            rows: [
+               [
+                {
+                    "columnName" : "id",
+                    "value" : "26",
+                    "isTruncated": false
+                },
+                {
+                    "columnName" : "name",
+                    "value" : "czech",
+                    "isTruncated": false
+                }
+               ],
+               [
+                {
+                    "columnName" : "id",
+                    "value" : "1",
+                    "isTruncated": false
+                },
+                {
+                    "columnName" : "name",
+                    "value" : "english",
+                    "isTruncated": false
+                }
+               ],
+            ]
+        }
 
 
 ## Unload Data [/v2/storage/tables/{table_id}/export]
@@ -2377,7 +2427,7 @@ Load tables from Storage into a Workspace using zero-copy cloning functionality 
 support any filtering or processing parameters. Only tables stored in Snowflake are supported.
 
 The cloned table will contain all columns of the source table (all of them as `VARCHAR(1048576)`)
-and a `_timestamp` system column. 
+and a `_timestamp` system column.
 This column contains a unix timestamp value (`TIMESTAMP_NTZ(9)`) when the row was added to the table or
 when any of the row values were changed during an incremental import.
 
