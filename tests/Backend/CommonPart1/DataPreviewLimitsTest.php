@@ -68,65 +68,20 @@ class DataPreviewLimitsTest extends StorageApiTestCase
         }
     }
 
-
-    public function testJsonTruncationLimit()
-    {
-        $columnCount = 5;
-        $rowCount = 5;
-        $csvFile = $this->generateCsv($rowCount - 1, $columnCount);
-        $row = [];
-        for ($i = 0; $i < $columnCount; $i++) {
-            $row[] = $this->createRandomString(20000);
-        }
-        $csvFile->writeRow($row);
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'slim', $csvFile);
-        $jsonPreview = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);
-        $this->assertSame($columnCount, count($jsonPreview['columns']));
-        $this->assertSame($rowCount, count($jsonPreview['rows']));
-        $this->assertContains('col' . ($columnCount - 1), $jsonPreview['columns']);
-        $truncatedRow = $this->getTruncatedRow($jsonPreview);
-        $this->assertNotEmpty($truncatedRow);
-        $this->assertGreaterThan(16000, mb_strlen($truncatedRow[0]['value']), 'Value in row is not truncated');
-        $this->assertLessThan(19999, mb_strlen($truncatedRow[0]['value']), 'Value in row is not truncated');
-    }
-
-    private function getTruncatedRow(array $jsonPreview)
-    {
-        foreach ($jsonPreview['rows'] as $row) {
-            if ($row[0]['isTruncated'] === "1") {
-                return $row;
-            }
-        }
-        return [];
-    }
-
-
-    private function generateCsv(int $rowsCount, int $collsCount = 2)
+    /**
+     * @param $rowsCount
+     */
+    private function generateCsv($rowsCount)
     {
         $importFilePath = tempnam(sys_get_temp_dir(), 'keboola');
         $csvFile = new CsvFile($importFilePath);
-        $header = [];
-        for ($i = 0; $i < $collsCount; $i++) {
-            array_push($header, 'col' . $i);
-        }
-        $csvFile->writeRow($header);
+        $csvFile->writeRow(['col1', 'col2']);
         for ($i = 0; $i < $rowsCount; $i++) {
-            $row = [];
-            for ($j = 0; $j < $collsCount; $j++) {
-                array_push($row, rand());
-            }
-            $csvFile->writeRow($row);
+            $csvFile->writeRow([
+                rand(),
+                rand()
+            ]);
         }
         return $csvFile;
-    }
-
-    private function createRandomString(int $length)
-    {
-        $alpabet = "abcdefghijklmnopqrstvuwxyz0123456789 ";
-        $randStr = "";
-        for ($i = 0; $i < $length; $i++) {
-            $randStr .=  $alpabet[rand(0, strlen($alpabet)-1)];
-        }
-        return $randStr;
     }
 }
