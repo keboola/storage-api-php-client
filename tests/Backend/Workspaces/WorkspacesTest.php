@@ -19,8 +19,21 @@ class WorkspacesTest extends WorkspacesTestCase
 
         $workspaces = new Workspaces($this->_client);
 
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
         $workspace = $workspaces->createWorkspace();
         $connection = $workspace['connection'];
+
+        // block until async events are processed, processing in order is not guaranteed but it should work most of time
+        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
+
+        $events = $this->_client->listEvents([
+            'runId' => $runId,
+        ]);
+
+        $workspaceCreatedEvent = array_pop($events);
+        $this->assertSame($runId, $workspaceCreatedEvent['runId']);
 
         $tokenInfo = $this->_client->verifyToken();
         $this->assertEquals($tokenInfo['owner']['defaultBackend'], $connection['backend']);
