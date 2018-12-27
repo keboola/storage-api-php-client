@@ -71,12 +71,6 @@ class DataPreviewLimitsTest extends StorageApiTestCase
 
     public function testJsonTruncationLimit()
     {
-        $tokenData = $this->_client->verifyToken();
-        if ($tokenData['owner']['defaultBackend'] == self::BACKEND_REDSHIFT) {
-            $this->markTestSkipped('Temporarily disabled on Redshift backend');
-            return;
-        }
-
         $columnCount = 5;
         $rowCount = 5;
         $csvFile = $this->generateCsv($rowCount - 1, $columnCount);
@@ -86,7 +80,9 @@ class DataPreviewLimitsTest extends StorageApiTestCase
         }
         $csvFile->writeRow($row);
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'slim', $csvFile);
+
         $jsonPreview = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);
+
         $this->assertSame($columnCount, count($jsonPreview['columns']));
         $this->assertSame($rowCount, count($jsonPreview['rows']));
         $this->assertContains('col' . ($columnCount - 1), $jsonPreview['columns']);
