@@ -66,7 +66,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         $this->assertSame($runId, $cloneEvent['runId']);
         $this->assertSame('storage', $cloneEvent['component']);
         $this->assertArrayHasKey('params', $cloneEvent);
-        $this->assertSame('in.c-API-tests.languagesDetails', $cloneEvent['params']['source']);
+        $this->assertSame($sourceTableId, $cloneEvent['params']['source']);
         $this->assertSame('languagesDetails', $cloneEvent['params']['destination']);
         $this->assertArrayHasKey('sourceDatabase', $cloneEvent['params']);
         $this->assertArrayHasKey('workspace', $cloneEvent['params']);
@@ -77,7 +77,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         $this->assertSame(1, $stats['tables']['export']['totalCount']);
         $this->assertCount(1, $stats['tables']['export']['tables']);
         $this->assertArrayEqualsIgnoreKeys([
-            'id' => 'in.c-API-tests.languagesDetails',
+            'id' => $sourceTableId,
             'count' => 1,
         ], $stats['tables']['export']['tables'][0], ['durationTotalSeconds']);
 
