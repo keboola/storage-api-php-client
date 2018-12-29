@@ -34,14 +34,15 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
             $tableId = $this->_client->createAliasTable($bucketId, $tableId);
         }
 
-        $runId = $this->_client->generateRunId();
-        $this->_client->setRunId($runId);
 
         $workspacesClient = new Workspaces($this->_client);
 
         $workspace = $workspacesClient->createWorkspace([
             'name' => 'clone',
         ]);
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
 
         $workspacesClient->cloneIntoWorkspace($workspace['id'], [
             'input' => [
