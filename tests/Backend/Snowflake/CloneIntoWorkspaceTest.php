@@ -23,7 +23,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
     public function testClone(bool $isSourceTableAlias): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
-        $tableId = $this->createTableFromFile(
+        $sourceTableId = $this->createTableFromFile(
             $this->_client,
             $bucketId,
             self::IMPORT_FILE_PATH
@@ -31,8 +31,9 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
 
         if ($isSourceTableAlias) {
             $bucketId = $this->getTestBucketId(self::STAGE_OUT);
-            $tableId = $this->_client->createAliasTable($bucketId, $tableId);
+            $sourceTableId = $this->_client->createAliasTable($bucketId, $sourceTableId);
         }
+
 
         $workspacesClient = new Workspaces($this->_client);
 
@@ -40,14 +41,46 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
             'name' => 'clone',
         ]);
 
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
         $workspacesClient->cloneIntoWorkspace($workspace['id'], [
             'input' => [
                 [
-                    'source' => $tableId,
+                    'source' => $sourceTableId,
                     'destination' => 'languagesDetails',
                 ],
             ],
         ]);
+
+        // test that events are properly created
+
+        // block until async events are processed, processing in order is not guaranteed but it should work most of time
+        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
+        $events = $this->_client->listEvents([
+            'runId' => $runId,
+        ]);
+        // there are two events, dummy (0) and the clone event (1)
+        $cloneEvent = array_pop($events);
+        $this->assertSame('storage.workspaceTableCloned', $cloneEvent['event']);
+        $this->assertSame($runId, $cloneEvent['runId']);
+        $this->assertSame('storage', $cloneEvent['component']);
+        $this->assertSame($sourceTableId, $cloneEvent['objectId']);
+        $this->assertArrayHasKey('params', $cloneEvent);
+        $this->assertSame('in.c-API-tests.languagesDetails', $cloneEvent['params']['source']);
+        $this->assertSame('languagesDetails', $cloneEvent['params']['destination']);
+        $this->assertArrayHasKey('sourceDatabase', $cloneEvent['params']);
+        $this->assertArrayHasKey('workspace', $cloneEvent['params']);
+
+        // test that stats are generated
+        $stats = $this->_client->getStats((new \Keboola\StorageApi\Options\StatsOptions())->setRunId($runId));
+        $this->assertSame(0, $stats['tables']['import']['totalCount']);
+        $this->assertSame(1, $stats['tables']['export']['totalCount']);
+        $this->assertCount(1, $stats['tables']['export']['tables']);
+        $this->assertArrayEqualsIgnoreKeys([
+            'id' => $sourceTableId,
+            'count' => 1,
+        ], $stats['tables']['export']['tables'][0], ['durationTotalSeconds']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $workspaceTableColumns = $backend->describeTableColumns('languagesDetails');
@@ -282,7 +315,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         string $importFilePath,
         $primaryKey = 'id'
     ): string {
-    
+
         return $client->createTable(
             $bucketId,
             'languagesDetails',
