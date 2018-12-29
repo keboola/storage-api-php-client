@@ -23,7 +23,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
     public function testClone(bool $isSourceTableAlias): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
-        $tableId = $this->createTableFromFile(
+        $sourceTableId = $this->createTableFromFile(
             $this->_client,
             $bucketId,
             self::IMPORT_FILE_PATH
@@ -31,7 +31,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
 
         if ($isSourceTableAlias) {
             $bucketId = $this->getTestBucketId(self::STAGE_OUT);
-            $tableId = $this->_client->createAliasTable($bucketId, $tableId);
+            $sourceTableId = $this->_client->createAliasTable($bucketId, $sourceTableId);
         }
 
 
@@ -47,7 +47,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         $workspacesClient->cloneIntoWorkspace($workspace['id'], [
             'input' => [
                 [
-                    'source' => $tableId,
+                    'source' => $sourceTableId,
                     'destination' => 'languagesDetails',
                 ],
             ],
