@@ -1163,11 +1163,6 @@ For full table download please read more in [Asynchronous Unload documentation](
 
 To enable compression of API response traffic, please include the following HTTP header with the API request: `Accept-encoding: gzip`.
 
-#### Error Handling
-
-The moment the streaming connection is established, the HTTP 200 response code is returned and data are streamed row by row.
-When an error occurs and data cannot be streamed any more, a special row is returned to stream `KBC_INTERNAL_ERROR`.
-When you receive this message, please run the export again; these errors are very rare.
 
 + Parameters
     + table_id (required) - Table Id
