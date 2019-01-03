@@ -972,7 +972,7 @@ The actual data must be provided in one of the following attributes:
 
     + Body
 
-            name=table_name&dataFileId=234delimiter=%2C&enclosure=%22
+            name=table_name&dataFileId=234&delimiter=%2C&enclosure=%22
 
 + Response 202 (application/json)
 
@@ -993,9 +993,22 @@ The actual data must be provided in one of the following attributes:
                 }
             },
             "createdTime": "2013-05-31T16:11:05+0200",
-            "crea
             "startTime": null,
-            "endTime": null
+            "endTime": null,
+            "runId": null,
+            "results": null,
+            "creatorToken": {
+                "id": "27978",
+                "description": "ondrej.popelka@keboola.com"
+            },
+            "metrics": {
+                "inCompressed": false,
+                "inBytes": 0,
+                "inBytesUncompressed": 0,
+                "outCompressed": false,
+                "outBytes": 0,
+                "outBytesUncompressed": 0
+            }
         }
 
 
@@ -2377,7 +2390,7 @@ Load tables from Storage into a Workspace using zero-copy cloning functionality 
 support any filtering or processing parameters. Only tables stored in Snowflake are supported.
 
 The cloned table will contain all columns of the source table (all of them as `VARCHAR(1048576)`)
-and a `_timestamp` system column. 
+and a `_timestamp` system column.
 This column contains a unix timestamp value (`TIMESTAMP_NTZ(9)`) when the row was added to the table or
 when any of the row values were changed during an incremental import.
 
