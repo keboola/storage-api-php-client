@@ -1153,7 +1153,7 @@ Further information can be found in the [Developers Documentation](https://devel
             }
 
 
-## Data Preview [/v2/storage/tables/{table_id}/data-preview]
+## Data Preview [/v2/storage/tables/{table_id}/data-preview/]
 ### Data preview [GET]
 
 Returns up to 1000 rows from table in CSV (RFC) format. Rows can be filtered by various filters described below.
@@ -1181,6 +1181,11 @@ To enable compression of API response traffic, please include the following HTTP
             + eq - Equals - can be used with multiple values.
             + ne - Not equals - can be used with multiple values.
         + Default: eq
+    + format (optional, enum[string]) - output format of preview
+        + Members
+            + rfc - will returns CSV formated output
+            + json - will return JSON formated ouput
+        + Default: rfc
 
 
 + Request
@@ -1201,6 +1206,51 @@ To enable compression of API response traffic, please include the following HTTP
             "1","english"
             "11","finnish"
             "24","french"
+
+
++ Request
+
+    Request with &format=json.
+
+    + Headers
+
+            X-StorageApi-Token: your_token
+            Accept-encoding: gzip
+
++ Response 200 (application/json)
+
+        {
+            columns: [
+                "id",
+                "name"
+            ],
+            rows: [
+               [
+                {
+                    "columnName" : "id",
+                    "value" : "26",
+                    "isTruncated": false
+                },
+                {
+                    "columnName" : "name",
+                    "value" : "czech",
+                    "isTruncated": false
+                }
+               ],
+               [
+                {
+                    "columnName" : "id",
+                    "value" : "1",
+                    "isTruncated": false
+                },
+                {
+                    "columnName" : "name",
+                    "value" : "english",
+                    "isTruncated": false
+                }
+               ],
+            ]
+        }
 
 
 ## Unload Data [/v2/storage/tables/{table_id}/export]
