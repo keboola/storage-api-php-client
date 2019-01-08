@@ -98,26 +98,8 @@ class TableExporter
             }
 
             // Create file with header
-            $format = 'rfc';
             $delimiter = ",";
             $enclosure = '"';
-            if (isset($exportOptions['format'])) {
-                $format = $exportOptions['format'];
-            }
-            switch ($format) {
-                case 'raw':
-                    $delimiter = "\t";
-                    $enclosure = "";
-                    break;
-                case 'rfc':
-                    $delimiter = ",";
-                    $enclosure = '"';
-                    break;
-                case 'escaped':
-                    $delimiter = ",";
-                    $enclosure = '"';
-                    break;
-            }
 
             if (isset($exportOptions["columns"])) {
                 $columns = $exportOptions["columns"];
