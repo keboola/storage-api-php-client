@@ -1183,7 +1183,7 @@ class Client
      *  - (timestamp | strtotime format) changedUntil
      *  - (bool) escape
      *  - (array) columns
-     *  - (string) format - one of rfc, raw, escaped. rfc is default
+     *  - (string) format - rfc or json, where rfc is default
      * @return array job results
      */
     public function exportTableAsync($tableId, $options = array())

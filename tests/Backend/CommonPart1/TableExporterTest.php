@@ -186,10 +186,6 @@ class TableExporterTest extends StorageApiTestCase
             array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile($filesBasePath . '64K.csv'), '64K.csv'),
             array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile($filesBasePath . '64K.csv'), '64K.csv',  array('gzip' => true)),
 
-            array([self::BACKEND_REDSHIFT], new CsvFile($filesBasePath . 'escaping.csv'), 'escaping.backslash.redshift.out.csv', array('format' => 'escaped')),
-            array([self::BACKEND_REDSHIFT], new CsvFile($filesBasePath . 'escaping.csv'), 'escaping.backslash.redshift.out.csv', array('format' => 'escaped')),
-            array([self::BACKEND_REDSHIFT], new CsvFile($filesBasePath . 'escaping.csv'), 'escaping.raw.redshift.out.csv', array('format' => 'raw')),
-            array([self::BACKEND_REDSHIFT], new CsvFile($filesBasePath . 'escaping.csv'), 'escaping.raw.redshift.out.csv', array('gzip' => true, 'format' => 'raw')),
             array([self::BACKEND_REDSHIFT], new CsvFile($filesBasePath . 'escaping.csv'), 'escaping.standard.out.csv', array('gzip' => true)),
             array([self::BACKEND_REDSHIFT], new CsvFile($filesBasePath . 'numbers.csv'), 'numbers.csv', array('gzip' => true)),
             array([self::BACKEND_REDSHIFT], new CsvFile($filesBasePath . 'numbers.csv'), 'numbers.two-cols.csv', array('gzip' => true, 'columns' => array('0', '45'))),
