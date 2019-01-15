@@ -39,24 +39,24 @@ class TableExportTest extends StorageApiTestCase
         }
     }
 
-    public function testSyncExportMax120cols()
+    public function testSyncExportMax30cols()
     {
         $cols = [];
         $cols[] = implode(',', array_map(function ($colNum) {
             return "col_{$colNum}";
-        }, range(1, 110)));
+        }, range(1, 30)));
 
         $cols[] = implode(',', array_map(function ($colNum) {
             return "data_{$colNum}";
-        }, range(1, 110)));
+        }, range(1, 30)));
 
         $cols[] = implode(',', array_map(function ($colNum) {
             return "data_{$colNum}";
-        }, range(1, 110)));
+        }, range(1, 30)));
 
         $cols[] = implode(',', array_map(function ($colNum) {
             return "data_{$colNum}";
-        }, range(1, 110)));
+        }, range(1, 30)));
 
 
         $table = $this->_client->apiPost("storage/buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(
