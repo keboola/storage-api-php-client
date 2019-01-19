@@ -72,6 +72,21 @@ class AlterTableTest extends StorageApiTestCase
         }
     }
 
+    public function testAddColumnWithTooLongNameShouldThrowError()
+    {
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile($importFile));
+        try {
+            $this->_client->addTableColumn(
+                $tableId,
+                str_repeat('x', 100)
+            );
+            $this->fail('Column should not be created');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.tables.invalidColumnName', $e->getStringCode());
+        }
+    }
+
     public function testTableColumnDelete()
     {
         $importFile = __DIR__ . '/../../_data/languages.camel-case-columns.csv';
