@@ -16,10 +16,15 @@ services:
       - REDSHIFT_HOSTNAME
       - REDSHIFT_USER
       - REDSHIFT_PASSWORD
-  dev:
+  dev: &dev
     <<: *base
     volumes:
       - ./:/code
+  dev-xdebug:
+    <<: *dev
+    build:
+      context: docker/xdebug
+
 networks:
   default:
     external:
