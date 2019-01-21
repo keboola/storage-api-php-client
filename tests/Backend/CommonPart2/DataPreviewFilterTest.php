@@ -26,12 +26,12 @@ class DataPreviewFilterTest extends StorageApiTestCase
 
         $where = [
             [
-                "col" => "column_1",
-                "op" => "=",
+                "column" => "column_1",
+                "whereValues" => "eq",
                 "val" => "first",
             ]
         ];
-        $preview = $this->_client->getTableDataPreview($tableId, ['where' => $where]);
+        $preview = $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
 
         $this->assertCount(1, Client::parseCsv($preview));
     }
