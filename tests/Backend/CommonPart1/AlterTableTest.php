@@ -14,6 +14,7 @@
  * Time: 11:46
  *
  */
+
 namespace Keboola\Test\Backend\CommonPart1;
 
 use Keboola\StorageApi\ClientException;
@@ -49,6 +50,40 @@ class AlterTableTest extends StorageApiTestCase
             $this->_client->getTableDataPreview($tableId),
             'new column is imported'
         );
+    }
+
+    /**
+     * @dataProvider webalizeColumnNameProvider
+     * @param $requestedColumnName
+     * @param $expectedColumnName
+     */
+    public function testTableColumnNameShouldBeWebalized($requestedColumnName, $expectedColumnName)
+    {
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile($importFile));
+
+        $this->_client->addTableColumn($tableId, $requestedColumnName);
+
+        $table = $this->_client->getTable($tableId);
+        $this->assertEquals(['id', 'name', $expectedColumnName], $table['columns']);
+    }
+
+    public function webalizeColumnNameProvider()
+    {
+        return [
+            [
+                '_abc-def----ghi_',
+                'abc_def_ghi',
+            ],
+            [
+                'žluťoučký    kůň',
+                'zlutoucky_kun',
+            ],
+            [
+                'lot__of_____underscores____',
+                'lot__of_____underscores',
+            ]
+        ];
     }
 
     /**
