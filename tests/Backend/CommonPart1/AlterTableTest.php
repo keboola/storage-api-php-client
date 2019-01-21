@@ -14,6 +14,7 @@
  * Time: 11:46
  *
  */
+
 namespace Keboola\Test\Backend\CommonPart1;
 
 use Keboola\StorageApi\ClientException;
@@ -52,6 +53,40 @@ class AlterTableTest extends StorageApiTestCase
     }
 
     /**
+     * @dataProvider webalizeColumnNameProvider
+     * @param $requestedColumnName
+     * @param $expectedColumnName
+     */
+    public function testTableColumnNameShouldBeWebalized($requestedColumnName, $expectedColumnName)
+    {
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile($importFile));
+
+        $this->_client->addTableColumn($tableId, $requestedColumnName);
+
+        $table = $this->_client->getTable($tableId);
+        $this->assertEquals(['id', 'name', $expectedColumnName], $table['columns']);
+    }
+
+    public function webalizeColumnNameProvider()
+    {
+        return [
+            [
+                '_abc-def----ghi_',
+                'abc_def_ghi',
+            ],
+            [
+                'žluťoučký    kůň',
+                'zlutoucky_kun',
+            ],
+            [
+                'lot__of_____underscores____',
+                'lot__of_____underscores',
+            ]
+        ];
+    }
+
+    /**
      * @expectedException \Keboola\StorageApi\ClientException
      */
     public function testTableExistingColumnAdd()
@@ -70,6 +105,37 @@ class AlterTableTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertEquals('storage.tables.columnAlreadyExists', $e->getStringCode());
         }
+    }
+
+    /**
+     * @dataProvider invalidColumnNameProvider
+     * @param string $columnName
+     */
+    public function testAddColumnWithInvalidNameShouldThrowError($columnName)
+    {
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile($importFile));
+        try {
+            $this->_client->addTableColumn(
+                $tableId,
+                $columnName
+            );
+            $this->fail('Column should not be created');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.tables.invalidColumnName', $e->getStringCode());
+        }
+    }
+
+    public function invalidColumnNameProvider()
+    {
+        return [
+            'too long column' => [
+                str_repeat('x', 65),
+            ],
+            'empty column' => [
+                '',
+            ]
+        ];
     }
 
     public function testTableColumnDelete()
