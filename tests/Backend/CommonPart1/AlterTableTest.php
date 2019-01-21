@@ -95,7 +95,7 @@ class AlterTableTest extends StorageApiTestCase
     {
         return [
             'too long column' => [
-                str_repeat('x', 100),
+                str_repeat('x', 65),
             ],
             'empty column' => [
                 '',
