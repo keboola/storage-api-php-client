@@ -127,7 +127,7 @@ Than  you can run tests:
 ### Snowflake backend test suite
 This test suite expects following environment variables set:
 - `STORAGE_API_URL` - URL of Keboola Storage API (https://connection.keboola.com/)
-- `STORAGE_API_TOKEN` - Storage API token associated to user (Admin master token) with all permissions. **Project must have `snowflake` set as default backend.**
+- `STORAGE_API_TOKEN` and `STORAGE_API_LINKING_TOKEN`  - Storage API token associated to user (Admin master token) with all permissions. STORAGE_API_TOKEN and STORAGE_API_LINKING_TOKEN have to be tokens to different project in same organization. **Project must have `snowflake` set as default backend.**
 
 
 You can run these tests in docker:
