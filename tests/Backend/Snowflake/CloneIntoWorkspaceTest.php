@@ -6,6 +6,7 @@ namespace Keboola\Test\Backend\Snowflake;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
+use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Exception;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
@@ -187,17 +188,33 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
     public function testCloneLinkedTables()
     {
         $sourceProject = $this->_client->verifyToken()['owner'];
-        $sourceBucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        //setup test tables
+        $sourceBucketId1 = $this->getTestBucketId(self::STAGE_IN);
+        $sourceBucketId2 = $this->getTestBucketId(self::STAGE_OUT);
 
         $this->_client->createTable(
-            $sourceBucketId,
+            $sourceBucketId1,
             'languages',
             new CsvFile(self::IMPORT_FILE_PATH)
         );
 
-        $this->_client->shareBucket($sourceBucketId, ['sharing' => 'organization-project']);
-        $bucketId = $this->_client2->linkBucket('linked', self::STAGE_IN, $sourceProject['id'], $sourceBucketId);
+        $this->_client->createTable(
+            $sourceBucketId2,
+            'numbers',
+            new CsvFile(__DIR__ . '/../../_data/numbers.csv')
+        );
 
+        // share and link bucket
+        $this->_client->shareBucket($sourceBucketId1, ['sharing' => 'organization-project']);
+        $bucketId1 = $this->_client2->linkBucket('linked', self::STAGE_IN, $sourceProject['id'], $sourceBucketId1);
+
+        // share, link and inlink second bucket - test that it doesn't break permissions of first linked bucket
+        $this->_client->shareBucket($sourceBucketId2, ['sharing' => 'organization-project']);
+        $bucketId2 = $this->_client2->linkBucket('linked', self::STAGE_OUT, $sourceProject['id'], $sourceBucketId2);
+        $this->_client2->dropBucket($bucketId2);
+
+        // init workspace
         $workspacesClient = new Workspaces($this->_client2);
         $workspace = $workspacesClient->createWorkspace([
             'name' => 'clone',
@@ -209,23 +226,18 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         $workspacesClient->cloneIntoWorkspace($workspace['id'], [
             'input' => [
                 [
-                    'source' => $bucketId . '.languages',
+                    'source' => $bucketId1 . '.languages',
                     'destination' => 'languages-renamed',
                 ],
             ]
         ]);
-
-        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-        $backendTables = $backend->getTables();
-        $this->assertCount(1, $backendTables);
-
-        // test that events are properly created
 
         // block until async events are processed, processing in order is not guaranteed but it should work most of time
         $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
         $events = $this->_client2->listEvents([
             'runId' => $runId,
         ]);
+
         // there are two events, dummy (0) and the clone event (1)
         $cloneEvent = array_pop($events);
 
@@ -235,12 +247,12 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         $this->assertSame('storage.workspaceTableCloned', $cloneEvent['event']);
         $this->assertSame($runId, $cloneEvent['runId']);
         $this->assertSame('storage', $cloneEvent['component']);
-        $this->assertSame($bucketId . '.languages', $cloneEvent['objectId']);
+        $this->assertSame($bucketId1 . '.languages', $cloneEvent['objectId']);
         $this->assertSame('in.c-API-tests.languages', $cloneEventParams['source']);
         $this->assertSame('languages-renamed', $cloneEventParams['destination']);
 
         $this->assertArrayHasKey('source', $cloneEventParams);
-        $this->assertSame($bucketId . '.languages', $cloneEvent['objectId']);
+        $this->assertSame($bucketId1 . '.languages', $cloneEvent['objectId']);
         $this->assertArrayHasKey('sourceProject', $cloneEventParams);
         $this->assertSame($sourceProject['id'], $cloneEventParams['sourceProject']['id']);
         $this->assertSame($sourceProject['name'], $cloneEventParams['sourceProject']['name']);
@@ -248,6 +260,44 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         $this->assertArrayHasKey('workspace', $cloneEventParams);
         $this->assertSame($workspace['id'], $cloneEventParams['workspace']['id']);
         $this->assertSame($workspace['name'], $cloneEventParams['workspace']['name']);
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        // check that the table is in the workspace
+        $backendTables = $backend->getTables();
+        $this->assertCount(1, $backendTables);
+        $this->assertContains($backend->toIdentifier("languages-renamed"), $backendTables);
+
+        // check table structure and data
+        $workspaceTableColumns = $backend->describeTableColumns('languages-renamed');
+        $this->assertEquals(
+            [
+                [
+                    'name' => 'id',
+                    'type' => 'VARCHAR(16777216)',
+                ],
+                [
+                    'name' => 'name',
+                    'type' => 'VARCHAR(16777216)',
+                ],
+                [
+                    'name' => '_timestamp',
+                    'type' => 'TIMESTAMP_NTZ(9)',
+                ]
+            ],
+            array_map(
+                function (array $column) {
+                    return [
+                        'name' => $column['name'],
+                        'type' => $column['type'],
+                    ];
+                },
+                $workspaceTableColumns
+            )
+        );
+
+        $workspaceTableData = $backend->fetchAll('languages-renamed"');
+        $this->assertCount(5, $workspaceTableData);
     }
 
     /**
