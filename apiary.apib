@@ -2791,19 +2791,6 @@ Metadata can be listed for your bucket column.
                 }
             ]
 
-### Delete [DELETE]
-Deletes all Metadata for the specified bucket.
-
-+ Parameters
-    + bucket_id (required) - Id of the bucket
-
-+ Request
-    + Headers
-
-            X-StorageApi-Token: your_token
-
-+ Response 204
-
 ## Table Metadata [/v2/storage/tables/{table_id}/metadata]
 
 ### Create or Update [POST]
@@ -2874,19 +2861,6 @@ Shows all metadata associated with the specified table.
                     "value": "attribute_value"
                 }
             ]
-
-### Delete [DELETE]
-Deletes all Metadata for the specified table.
-
-+ Parameters
-    + table_id (required) - Id of the table
-
-+ Request
-    + Headers
-
-            X-StorageApi-Token: your_token
-
-+ Response 204
 
 ## Column Metadata [/v2/storage/columns/{column_id}/metadata]
 
@@ -2959,11 +2933,14 @@ Shows all metadata associated with the specified column.
                 }
             ]
 
+## Deleting Metadata [/v2/storage/{objectType}/{objectId}/metadata/{metadata_id}]
 ### Delete [DELETE]
-Deletes all Metadata for the specified column.
+Deletes the given metadata from the specified object (bucket, table or column).
 
 + Parameters
-    + column_id (required) - Id of the column
+    + objectType (required) - one of buckets, tables, or columns.
+    + objectId (required) - Id of the bucket, table or column acording to given objectType
+    + metadata_id (required) - Id of the metadata
 
 + Request
     + Headers
@@ -2971,6 +2948,8 @@ Deletes all Metadata for the specified column.
             X-StorageApi-Token: your_token
 
 + Response 204
+
+
 
 # Group Jobs
 Jobs are objects that manage asynchronous tasks, these are all potentially long-running actions such as
