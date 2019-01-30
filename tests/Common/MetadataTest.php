@@ -199,6 +199,36 @@ class MetadataTest extends StorageApiTestCase
         $this->assertEquals($metadatas[1]['timestamp'], $mdList[0]['timestamp']);
     }
 
+    public function testTableColumnDeleteWithMetadata()
+    {
+        $tableId = $this->getTestBucketId() . '.table';
+        $columnId = $this->getTestBucketId() . '.table.sex';
+        $metadataApi = new Metadata($this->_client);
+
+        $md = array(
+            "key" => "test_metadata_key1",
+            "value" => "testval",
+        );
+        $md2 = array(
+            "key" => "test_metadata_key2",
+            "value" => "testval",
+        );
+        $testMetadata = array($md, $md2);
+
+        $provider = self::TEST_PROVIDER;
+
+        $metadatas = $metadataApi->postColumnMetadata($columnId, $provider, $testMetadata);
+
+        $this->assertEquals(2, count($metadatas));
+
+        $this->_client->deleteTableColumn($tableId, 'sex');
+
+        $detail = $this->_client->getTable($tableId);
+
+        $this->assertEquals(array('id','name','city'), $detail['columns']);
+    }
+
+
     public function testUpdateTimestamp()
     {
         $bucketId = $this->getTestBucketId();
@@ -324,7 +354,7 @@ class MetadataTest extends StorageApiTestCase
             $this->assertEquals("storage.metadata.invalidProvider", $e->getStringCode());
         }
     }
-    
+
     public function apiEndpoints()
     {
         $tableId = '.table';
