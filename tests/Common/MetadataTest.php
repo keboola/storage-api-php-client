@@ -143,6 +143,46 @@ class MetadataTest extends StorageApiTestCase
         $this->assertEquals($table['bucket']['metadata'][0]['value'], $md['value']);
     }
 
+    public function testTableDeleteWithMetadata():void
+    {
+        $tableId = $this->getTestBucketId() . '.table';
+        $columnId = $this->getTestBucketId() . '.table.sex';
+        $metadataApi = new Metadata($this->_client);
+
+        $md = array(
+            "key" => "test_metadata_key1",
+            "value" => "testval",
+        );
+        $md2 = array(
+            "key" => "test_metadata_key2",
+            "value" => "testval",
+        );
+        $testMetadata = array($md, $md2);
+
+        $provider = self::TEST_PROVIDER;
+
+        $metadataApi->postTableMetadata($tableId, $provider, $testMetadata);
+        $tableDetail = $this->_client->getTable($tableId);
+
+        $this->assertNotEmpty($tableDetail['metadata']);
+        $this->assertCount(2, $tableDetail['metadata']);
+
+        $metadataApi->postColumnMetadata($columnId, $provider, $testMetadata);
+        $tableDetail = $this->_client->getTable($tableId);
+
+        $this->assertNotEmpty($tableDetail['columnMetadata']);
+        $this->assertCount(2, $tableDetail['columnMetadata']['sex']);
+
+        $this->_client->dropTable($tableId);
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionCode(404);
+        $metadataApi->listTableMetadata($tableId);
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionCode(404);
+        $metadataApi->listTableMetadata($columnId);
+    }
 
     public function testColumnMetadata()
     {
