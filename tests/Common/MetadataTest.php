@@ -217,15 +217,25 @@ class MetadataTest extends StorageApiTestCase
 
         $provider = self::TEST_PROVIDER;
 
-        $metadatas = $metadataApi->postColumnMetadata($columnId, $provider, $testMetadata);
+        $metadataApi->postColumnMetadata($columnId, $provider, $testMetadata);
 
-        $this->assertEquals(2, count($metadatas));
+        $tableDetail = $this->_client->getTable($tableId);
+
+        $this->assertNotEmpty($tableDetail['columnMetadata']);
+        $this->assertEquals(2, count($tableDetail['columnMetadata']['sex']));
 
         $this->_client->deleteTableColumn($tableId, 'sex');
 
-        $detail = $this->_client->getTable($tableId);
+        $tableDetail = $this->_client->getTable($tableId);
+        $this->assertEmpty($tableDetail['columnMetadata']);
 
-        $this->assertEquals(array('id','name','city'), $detail['columns']);
+        $this->assertEquals(array('id','name','city'), $tableDetail['columns']);
+
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionCode(404);
+
+        $metadataApi->listColumnMetadata($columnId);
     }
 
 
