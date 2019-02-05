@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Keboola\Test\Backend\CommonPart2;
+namespace Keboola\Test\Backend\Snowflake;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
