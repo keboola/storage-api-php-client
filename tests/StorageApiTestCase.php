@@ -26,6 +26,8 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
     const STAGE_OUT = 'out';
     const STAGE_SYS = 'sys';
 
+    const ISO8601_REGEXP = '/^([0-9]{4})-(1[0-2]|0[1-9])-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})\+([0-9]{4})$/';
+
     protected $_bucketIds = array();
 
     /**
