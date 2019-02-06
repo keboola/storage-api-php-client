@@ -42,7 +42,7 @@ class DataPreviewFilterTest extends StorageApiTestCase
                 'column' => 'column_string_number',
                 'operator' => 'ge',
                 'values' => ['6'],
-                'dataType' => 'NUMBER',
+                'dataType' => 'INTEGER',
             ],
         ];
         $preview = $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
@@ -102,7 +102,7 @@ class DataPreviewFilterTest extends StorageApiTestCase
                 'column' => 'column_string_number',
                 'operator' => 'lt',
                 'values' => ['5'],
-                'dataType' => 'NUMBER'
+                'dataType' => 'INTEGER'
             ]
         ];
         $preview = $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
