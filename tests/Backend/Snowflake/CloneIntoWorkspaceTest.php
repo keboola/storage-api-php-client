@@ -67,9 +67,8 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         $this->assertSame('storage', $cloneEvent['component']);
         $this->assertSame($sourceTableId, $cloneEvent['objectId']);
         $this->assertArrayHasKey('params', $cloneEvent);
-        $this->assertSame('in.c-API-tests.languagesDetails', $cloneEvent['params']['source']);
+        $this->assertSame($sourceTableId, $cloneEvent['params']['source']);
         $this->assertSame('languagesDetails', $cloneEvent['params']['destination']);
-        $this->assertArrayHasKey('sourceDatabase', $cloneEvent['params']);
         $this->assertArrayHasKey('workspace', $cloneEvent['params']);
 
         // test that stats are generated
