@@ -16,22 +16,51 @@ class WhereFilterTest extends StorageApiTestCase
         $this->_initEmptyTestBuckets();
     }
 
-    public function testForbiddenWhereOperators()
+    /**
+     * @dataProvider conditionProvider
+     */
+    public function testForbiddenWhereOperators(array $where)
     {
         $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
         $csvFile->writeRow(['test']);
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'conditions', $csvFile);
 
-        $where = [
-            [
-                'column' => 'test',
-                'operator' => 'gt',
-                'values' => [1]
-            ]
-        ];
-
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessageRegExp('~Operator gt not allowed .* Available operators are~');
-        $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
+        $this->expectExceptionMessageRegExp('~Operator ' . $where['operator'] . ' not allowed .* Available operators are~');
+        $this->_client->getTableDataPreview($tableId, ['whereFilters' => [$where]]);
+    }
+
+    public function conditionProvider()
+    {
+        return [
+            [
+                [
+                    'column' => 'test',
+                    'operator' => 'gt',
+                    'values' => [1],
+                ],
+            ],
+            [
+                [
+                    'column' => 'test',
+                    'operator' => 'lt',
+                    'values' => [1],
+                ],
+            ],
+            [
+                [
+                    'column' => 'test',
+                    'operator' => 'ge',
+                    'values' => [1],
+                ],
+            ],
+            [
+                [
+                    'column' => 'test',
+                    'operator' => 'le',
+                    'values' => [1],
+                ],
+            ],
+        ];
     }
 }
