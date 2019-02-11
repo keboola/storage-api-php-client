@@ -7,9 +7,10 @@ namespace Keboola\Test\Backend\Snowflake;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\TableExporter;
 use Keboola\Test\StorageApiTestCase;
 
-class DataPreviewFilterTest extends StorageApiTestCase
+class WhereFilterTest extends StorageApiTestCase
 {
     public function setUp()
     {
@@ -17,7 +18,7 @@ class DataPreviewFilterTest extends StorageApiTestCase
         $this->_initEmptyTestBuckets();
     }
 
-    public function testDataPreviewWithWhereConditions()
+    public function testSimpleWhereConditions()
     {
         $tableId = $this->prepareTable();
 
@@ -29,11 +30,11 @@ class DataPreviewFilterTest extends StorageApiTestCase
             ],
         ];
         $preview = $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
-
         $this->assertCount(1, Client::parseCsv($preview));
+        $this->assertCount(1, $this->getExportedTable($tableId, ['whereFilters' => $where]));
     }
 
-    public function testDataPreviewWithCast()
+    public function testFilterWithCast()
     {
         $tableId = $this->prepareTable();
 
@@ -46,10 +47,13 @@ class DataPreviewFilterTest extends StorageApiTestCase
             ],
         ];
         $preview = $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
-        $csv = Client::parseCsv($preview);
+        $previewCsv = Client::parseCsv($preview);
+        $exportCsv = $this->getExportedTable($tableId, ['whereFilters' => $where]);
 
-        $this->assertCount(1, $csv);
-        $this->assertEquals($csv[0]['column_string'], 'fifth');
+        $this->assertCount(1, $previewCsv);
+        $this->assertCount(1, $exportCsv);
+        $this->assertEquals($previewCsv[0]['column_string'], 'fifth');
+        $this->assertEquals($exportCsv[0]['column_string'], 'fifth');
     }
 
     public function testDataPreviewWithNonExistingDataType()
@@ -69,6 +73,23 @@ class DataPreviewFilterTest extends StorageApiTestCase
         $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
     }
 
+    public function testTableExportWithNonExistingDataType()
+    {
+        $tableId = $this->prepareTable();
+
+        $where = [
+            [
+                'column' => 'column_string_number',
+                'operator' => 'ge',
+                'values' => ['6'],
+                'dataType' => 'non-existing'
+            ],
+        ];
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessageRegExp('~Data type non-existing not recognized~');
+        $this->getExportedTable($tableId, ['whereFilters' => $where]);
+    }
+
     public function testCastToDouble()
     {
         $tableId = $this->prepareTable();
@@ -82,9 +103,11 @@ class DataPreviewFilterTest extends StorageApiTestCase
             ],
         ];
         $preview = $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
-        $csv = Client::parseCsv($preview);
+        $previewCsv = Client::parseCsv($preview);
+        $exportCsv = $this->getExportedTable($tableId, ['whereFilters' => $where]);
 
-        $this->assertCount(2, $csv);
+        $this->assertCount(2, $exportCsv);
+        $this->assertCount(2, $previewCsv);
     }
 
     public function testMultipleConditions()
@@ -106,12 +129,14 @@ class DataPreviewFilterTest extends StorageApiTestCase
             ]
         ];
         $preview = $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
-        $csv = Client::parseCsv($preview);
+        $previewCsv = Client::parseCsv($preview);
+        $exportCsv = $this->getExportedTable($tableId, ['whereFilters' => $where]);
 
-        $this->assertCount(1, $csv);
+        $this->assertCount(1, $previewCsv);
+        $this->assertCount(1, $exportCsv);
     }
 
-    public function testInvalidComparingOperator()
+    public function testDataPreviewInvalidComparingOperator()
     {
         $tableId = $this->prepareTable();
 
@@ -126,6 +151,31 @@ class DataPreviewFilterTest extends StorageApiTestCase
         $this->expectException(ClientException::class);
         $this->expectExceptionMessageRegExp('~Invalid where operator non-existing~');
         $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
+    }
+
+    public function testExportTableInvalidComparingOperator()
+    {
+        $tableId = $this->prepareTable();
+
+        $where = [
+          [
+              'column' => 'column_double',
+              'operator' => 'non-existing',
+              'values' => [123]
+          ]
+        ];
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessageRegExp('~Invalid where operator non-existing~');
+        $this->getExportedTable($tableId, ['whereFilters' => $where]);
+    }
+
+    private function getExportedTable(string $tableId, array $exportOptions): array
+    {
+        $tableExporter = new TableExporter($this->_client);
+        $path = tempnam(sys_get_temp_dir(), 'keboola-export');
+        $tableExporter->exportTable($tableId, $path, $exportOptions);
+        return Client::parseCsv(file_get_contents($path));
     }
 
     private function prepareTable(): string
