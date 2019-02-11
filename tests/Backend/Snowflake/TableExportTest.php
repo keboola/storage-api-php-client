@@ -42,22 +42,12 @@ class TableExportTest extends StorageApiTestCase
     public function testSyncExportMax30cols()
     {
         $cols = [];
-        $cols[] = implode(',', array_map(function ($colNum) {
-            return "col_{$colNum}";
-        }, range(1, 30)));
-
-        $cols[] = implode(',', array_map(function ($colNum) {
-            return "data_{$colNum}";
-        }, range(1, 30)));
-
-        $cols[] = implode(',', array_map(function ($colNum) {
-            return "data_{$colNum}";
-        }, range(1, 30)));
-
-        $cols[] = implode(',', array_map(function ($colNum) {
-            return "data_{$colNum}";
-        }, range(1, 30)));
-
+        $rows = 4;
+        for ($i = 0; $i < $rows; $i++) {
+            $cols[] = implode(',', array_map(function ($colNum) {
+                return "data_{$colNum}";
+            }, range(1, 30)));
+        }
 
         $table = $this->_client->apiPost("storage/buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(
             'dataString' => implode("\n", $cols),
@@ -65,6 +55,6 @@ class TableExportTest extends StorageApiTestCase
         ));
 
         $data = $this->_client->getTableDataPreview($table['id']);
-        $this->assertEquals(4, count(explode("\n", trim($data))));
+        $this->assertEquals($rows, count(explode("\n", trim($data))));
     }
 }
