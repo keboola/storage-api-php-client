@@ -1174,9 +1174,9 @@ To enable compression of API response traffic, please include the following HTTP
     + changedUntil (optional) - Filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp or any date accepted by [strtotime](http://www.php.net/manual/en/function.strtotime.php).
         Examples: `-2 days`, `1360138863`, `2013-02-12T15:19:21+00:00`
     + columns (optional) - Comma separated list of columns to export; by default all columns are exported.
-    + whereColumn (optional) - Column for exporting only matching rows; see more in the rows filtering section.
-    + whereValues[] (optional) - Values for exporting only matching rows; see more in the rows filtering section.
-    + whereOperator (optional, enum[string]) - Operator for value comparison.
+    + whereColumn (optional) - **Deprecated** (use whereFilters instead). Column for exporting only matching rows; see more in the rows filtering section.
+    + whereValues[] (optional) - **Deprecated** (use whereFilters instead). Values for exporting only matching rows; see more in the rows filtering section.
+    + whereOperator (optional, enum[string]) - **Deprecated** (use whereFilters instead). Operator for value comparison.
         + Members
             + eq - Equals - can be used with multiple values.
             + ne - Not equals - can be used with multiple values.
@@ -1186,6 +1186,22 @@ To enable compression of API response traffic, please include the following HTTP
             + rfc - will returns CSV formated output
             + json - will return JSON formated ouput
         + Default: rfc
+    + whereFilters[] (optional)
+        + column (required) - column which should be matched
+        + operator (required, enum[string]) - operator for value comparision
+            + Members
+                + eq - Equals - can be used with multiple values
+                + ne - Not equals  - case be used with multiple values
+                + gt - Greater than - Snowflake only
+                + ge - Greater than or equals - Snowflake only
+                + lt - Less than - Snowflake only
+                + le - Less than or equals  - Snowflake only
+            + Default: eq
+        + values[] (required, array) - array of variables to compare
+        + dataType (optional, enum[string]) - Snowflake only - for comparing ([gt|lt|le|ge]) numeric values you have to specify data type
+            + Members
+                + INTEGER - for numbers without a decimal point
+                + DOUBLE - for number with a decimal point
 
 
 + Request
@@ -1311,9 +1327,17 @@ This task is asynchronous; Id of the created file is stored in the `results` of 
 #### Rows filtering
 Exported rows can be filtered by a single filter. Examples of filtering by `userId` column:
 
-- `whereColumn=UserId&whereValues[]=23423` - Filters by single values of one column.
-- `whereColumn=UserId&whereValues[]=23423&whereValues[]=123` - Filters by multiple values of one column.
-- `whereColumn=UserId&whereValues[]=23423&whereOperator=ne` - Uses a different comparison operator.
+- `whereFilters[0][column]=UserID&whereFilters[0][values][0]=123` - Single value filter is used on one column.
+Equals to `UsedId = 123`.
+- `whereFilters[0][column]=UserID&whereFilters[0][values][0]=123&whereFilters[0][values][1]=234` - Multiple value
+filter is used on one column. Equals to `UserId IN (123,234)`.
+- `whereFilters[0][column]=UserID&whereFilters[0][values][0]=123&whereFilter[0][operator]=ne` - Uses a non equals operator.
+Equals to `UserId != 123`.
+- `whereFilters[0][column]=Price&whereFilters[0][values][0]=40.3&whereFilters[operator]=gt&dataType=DOUBLE` - Uses greater than operator and cast value as double
+Equals to `Price > 40.3`.
+
+ - For multiple filters use `whereFilters[0]...&whereFilters[1]...&whereFilters[2]...`. All filters are joined by AND expression.
+
 
 The comparison operator essentially behaves like the [SQL IN](http://www.w3schools.com/sql/sql_in.asp) (and NOT IN) operator. That is, the
 `eq` value matches if any `whereValues` match, and the `new` value matches if none `whereValues` match.
@@ -1353,13 +1377,29 @@ will show information about the created file and caching:
     + changedUntil (optional) - Filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp or any date accepted by [strtotime](http://www.php.net/manual/en/function.strtotime.php).
         Examples: `-2 days`, `1360138863`, `2013-02-12T15:19:21+00:00`
     + columns (optional) - Comma separated list of columns to export; by default all columns are exported.
-    + whereColumn (optional) - Column for exporting only matching rows; see more in the rows filtering section.
-    + whereValues[] (optional) - Values for exporting only matching rows; see more in the rows filtering section.
-    + whereOperator (optional, enum[string]) - Operator for value comparison.
+    + whereColumn (optional) - **Deprecated** (use whereFilters instead). Column for exporting only matching rows; see more in the rows filtering section.
+    + whereValues[] (optional) - **Deprecated** (use whereFilters instead). Values for exporting only matching rows; see more in the rows filtering section.
+    + whereOperator (optional, enum[string]) - **Deprecated** (use whereFilters instead). Operator for value comparison.
         + Members
             + eq - Equals - can be used with multiple values.
             + ne - Not equals - can be used with multiple values.
         + Default: eq
+    + whereFilters[] (optional, array)
+        + column (required) - column which should be matched
+        + operator (required, enum[string]) - operator for value comparision
+            + Members
+                + eq - Equals - can be used with multiple values
+                + ne - Not equals  - case be used with multiple values
+                + gt - Greater than - Snowflake only
+                + ge - Greater than or equals - Snowflake only
+                + lt - Less than - Snowflake only
+                + le - Less than or equals  - Snowflake only
+            + Default: eq
+        + values[] (required, array) - array of variables to compare
+        + dataType (optional, enum[string]) - Snowflake only - for comparing ([gt|lt|le|ge]) numeric values you have to specify data type
+            + Members
+                + INTEGER - for numbers without a decimal point
+                + DOUBLE - for number with a decimal point
     + gzip (optional, boolean) - The response will be gzipped if set to true.
 
 + Request
