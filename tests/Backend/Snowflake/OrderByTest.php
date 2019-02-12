@@ -6,6 +6,7 @@ namespace Keboola\Test\Backend\Snowflake;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
+use Keboola\StorageApi\TableExporter;
 use Keboola\Test\StorageApiTestCase;
 
 class OrderByTest extends StorageApiTestCase
@@ -23,9 +24,11 @@ class OrderByTest extends StorageApiTestCase
         $order = [
             'column' => 'column_string',
         ];
-        $dataPreview = $this->_client->getTableDataPreview($tableId, ['orderBy' => [$order]]);
 
+        $dataPreview = $this->_client->getTableDataPreview($tableId, ['orderBy' => [$order]]);
+        $exportTable = $this->getExportedTable($tableId, ['orderBy' => [$order]]);
         $this->assertSame('aa', Client::parseCsv($dataPreview)[0]['column_string']);
+        $this->assertSame('aa', $exportTable[0]['column_string']);
     }
 
     public function testSortWithDataType(): void
@@ -37,8 +40,9 @@ class OrderByTest extends StorageApiTestCase
             'dataType' => 'DOUBLE',
         ];
         $dataPreview = $this->_client->getTableDataPreview($tableId, ['orderBy' => [$order]]);
-
+        $exportTable = $this->getExportedTable($tableId, ['orderBy' => [$order]]);
         $this->assertSame('1.1234', Client::parseCsv($dataPreview)[0]['column_double']);
+        $this->assertSame('1.1234', $exportTable[0]['column_double']);
     }
 
     public function testComplexSort(): void
@@ -58,7 +62,17 @@ class OrderByTest extends StorageApiTestCase
         ];
 
         $dataPreview = $this->_client->getTableDataPreview($tableId, ['orderBy' => $order]);
+        $exportTable = $this->getExportedTable($tableId, ['orderBy' => $order]);
         $this->assertSame('5', Client::parseCsv($dataPreview)[0]['column_string_number']);
+        $this->assertSame('5', $exportTable[0]['column_string_number']);
+    }
+
+    private function getExportedTable(string $tableId, array $exportOptions): array
+    {
+        $tableExporter = new TableExporter($this->_client);
+        $path = tempnam(sys_get_temp_dir(), 'keboola-export');
+        $tableExporter->exportTable($tableId, $path, $exportOptions);
+        return Client::parseCsv(file_get_contents($path));
     }
 
     private function prepareTable(): string
