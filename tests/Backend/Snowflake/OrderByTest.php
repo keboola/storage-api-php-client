@@ -89,7 +89,7 @@ class OrderByTest extends StorageApiTestCase
 
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage($message);
-        $this->getExportedTable($tableId, ['orderBy' => [$order]]);
+        $this->getExportedTable($tableId, ['orderBy' => $order]);
     }
 
     public function invalidDataProvider(): array
@@ -117,6 +117,32 @@ class OrderByTest extends StorageApiTestCase
                 'Data type non-existing not recognized. Possible datatypes are [INTEGER|DOUBLE]',
             ]
         ];
+    }
+
+    public function testNonArrayParamsShouldReturnErrorInDataPreview()
+    {
+        $tableId = $this->prepareTable();
+
+        $params = [
+            'orderBy' => ['column' => 'column'],
+        ];
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Parameter orderBy must be array. Like &orderBy[0][column]=...');
+        $this->_client->getTableDataPreview($tableId, $params);
+    }
+
+    public function testNonArrayParamsShouldReturnErrorInAsyncExport()
+    {
+        $tableId = $this->prepareTable();
+
+        $params = [
+            'orderBy' => ['column' => 'column'],
+        ];
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Parameter orderBy must be array. Like &orderBy[0][column]=...');
+        $this->getExportedTable($tableId, $params);
     }
 
     private function getExportedTable(string $tableId, array $exportOptions): array
