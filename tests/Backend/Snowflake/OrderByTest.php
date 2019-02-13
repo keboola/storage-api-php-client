@@ -89,7 +89,7 @@ class OrderByTest extends StorageApiTestCase
 
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage($message);
-        $this->getExportedTable($tableId, ['orderBy' => $order]);
+        $this->getExportedTable($tableId, ['orderBy' => [$order]]);
     }
 
     public function invalidDataProvider(): array
