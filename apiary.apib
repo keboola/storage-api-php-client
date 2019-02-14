@@ -1202,7 +1202,17 @@ To enable compression of API response traffic, please include the following HTTP
             + Members
                 + INTEGER - for numbers without a decimal point
                 + DOUBLE - for number with a decimal point
-
+    + orderBy[] (optional) - Snowflake only
+        + column (required) - name of column used for sorting
+        + order (optional, enum[string])
+            + Members
+                + ASC - ascending sort
+                + DESC - descending sort
+            + Default ASC
+        + dataType (optional, enum[string]) - required when sorting by column contains numeric value
+            + Members
+                + INTEGER - for numbers without a decimal point
+                + DOUBLE - for number with a decimal point
 
 + Request
     + Headers
@@ -1338,6 +1348,22 @@ Equals to `try_to_double(Price) > 40.3`.
 
  - For multiple filters use `whereFilters[0]...&whereFilters[1]...&whereFilters[2]...`. All filters are joined by AND expression.
 
+#### Rows sorting
+Exported rows can be sorted by multiple column. Examples of sorting:
+
+- `orderBy[0][column]=UserId`
+Sorting ascending by column UserId.
+Equals to `ORDER BY UserId ASC`.
+
+- `orderBy[0][column]=UserId&orderBy[0][order]=DESC`
+Sorting descending by column UserId.
+Equals to `ORDER BY UserId DESC`.
+
+- `orderBy[0][column]=Price&orderBy[0][order]=DESC&orderBy[0][dataType]=DOUBLE`
+Sorting descending by column Price with casting column Price to DOUBLE
+Equals to `ORDER BY try_to_double(Price) DESC`.
+
+ - For multiple sort condititions use `orderBy[0]...&orderBy[1]...&orderBy[2]`.
 
 The comparison operator essentially behaves like the [SQL IN](http://www.w3schools.com/sql/sql_in.asp) (and NOT IN) operator. That is, the
 `eq` value matches if any `whereValues` match, and the `new` value matches if none `whereValues` match.
@@ -1397,6 +1423,17 @@ will show information about the created file and caching:
             + Default: eq
         + values[] (required, array) - array of variables to compare
         + dataType (optional, enum[string]) - Snowflake only - for comparing ([gt|lt|le|ge]) numeric values you have to specify data type
+            + Members
+                + INTEGER - for numbers without a decimal point
+                + DOUBLE - for number with a decimal point
+    + orderBy[] (optional) - Snowflake only
+        + column (required) - name of column used for sorting
+        + order (optional, enum[string])
+            + Members
+                + ASC - ascending sort
+                + DESC - descending sort
+            + Default ASC
+        + dataType (optional, enum[string]) - required when sorting by column contains numeric value
             + Members
                 + INTEGER - for numbers without a decimal point
                 + DOUBLE - for number with a decimal point
