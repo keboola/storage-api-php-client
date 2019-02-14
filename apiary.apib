@@ -1334,7 +1334,7 @@ filter is used on one column. Equals to `UserId IN (123,234)`.
 - `whereFilters[0][column]=UserID&whereFilters[0][values][0]=123&whereFilter[0][operator]=ne` - Uses a non equals operator.
 Equals to `UserId != 123`.
 - `whereFilters[0][column]=Price&whereFilters[0][values][0]=40.3&whereFilters[operator]=gt&dataType=DOUBLE` - Uses greater than operator and cast value as double
-Equals to `Price > 40.3`.
+Equals to `try_to_double(Price) > 40.3`.
 
  - For multiple filters use `whereFilters[0]...&whereFilters[1]...&whereFilters[2]...`. All filters are joined by AND expression.
 
