@@ -938,6 +938,12 @@ class SharingTest extends StorageApiTestCase
         );
         $this->_client->shareBucket($sourceBucketId);
 
+        $table2Id = $this->_client->createTable(
+            $this->getTestBucketId(),
+            'numbers',
+            new CsvFile(__DIR__ . '/../../_data/numbers.csv')
+        );
+
         $sourceProjectId = $this->_client->verifyToken()['owner']['id'];
         $linkedId = $this->_client2->linkBucket(
             "linked-" . uniqid(),
@@ -958,10 +964,15 @@ class SharingTest extends StorageApiTestCase
                     'source' => str_replace($sourceBucketId, $linkedId, $table1Id),
                     'destination' => 'languagesDetails',
                 ],
+                [
+                    'source' => str_replace($sourceBucketId, $linkedId, $table2Id),
+                    'destination' => 'NUMBERS',
+                ],
             ],
         ]);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        // assert table 1 data
         $workspaceTableColumns = $backend->describeTableColumns('languagesDetails');
         $this->assertEquals(
             [
@@ -991,6 +1002,49 @@ class SharingTest extends StorageApiTestCase
 
         $workspaceTableData = $backend->fetchAll('languagesDetails');
         $this->assertCount(5, $workspaceTableData);
+
+        // assert table 2 data
+        $workspaceTableColumns = $backend->describeTableColumns('NUMBERS');
+        $this->assertEquals(
+            [
+                [
+                    'name' => '0',
+                    'type' => 'VARCHAR(16777216)',
+                ],
+                [
+                    'name' => '1',
+                    'type' => 'VARCHAR(16777216)',
+                ],
+                [
+                    'name' => '2',
+                    'type' => 'VARCHAR(16777216)',
+                ],
+                [
+                    'name' => '3',
+                    'type' => 'VARCHAR(16777216)',
+                ],
+                [
+                    'name' => '45',
+                    'type' => 'VARCHAR(16777216)',
+                ],
+                [
+                    'name' => '_timestamp',
+                    'type' => 'TIMESTAMP_NTZ(9)',
+                ]
+            ],
+            array_map(
+                function (array $column) {
+                    return [
+                        'name' => $column['name'],
+                        'type' => $column['type'],
+                    ];
+                },
+                $workspaceTableColumns
+            )
+        );
+
+        $workspaceTableData = $backend->fetchAll('NUMBERS');
+        $this->assertCount(1, $workspaceTableData);
     }
 
     /**
