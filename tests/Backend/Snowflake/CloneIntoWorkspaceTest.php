@@ -6,6 +6,7 @@ namespace Keboola\Test\Backend\Snowflake;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
+use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Exception;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
@@ -282,6 +283,50 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
             ],
             $backendTables
         );
+    }
+
+    public function testTableAlreadyExistsShouldThrowUserError()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'Languages',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+
+        // first load
+        $workspaces->cloneIntoWorkspace(
+            $workspace['id'],
+            [
+                'input' => [
+                    [
+                        'source' => $tableId,
+                        'destination' => 'Langs',
+                    ]
+                ]
+            ]
+        );
+
+        // second load of same table with preserve
+        try {
+            $workspaces->cloneIntoWorkspace(
+                $workspace['id'],
+                [
+                    'input' => [
+                        [
+                            'source' => $tableId,
+                            'destination' => 'Langs',
+                        ]
+                    ],
+                    'preserve' => true,
+                ]
+            );
+            $this->fail('table should not be created');
+        } catch (ClientException $e) {
+            $this->assertEquals('workspace.duplicateTable', $e->getStringCode());
+        }
     }
 
     public function aliasSettingsProvider(): array
