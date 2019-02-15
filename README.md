@@ -2,7 +2,7 @@
 [![Latest Stable Version](https://poser.pugx.org/keboola/storage-api-client/v/stable.svg)](https://packagist.org/packages/keboola/storage-api-client)
 [![License](https://poser.pugx.org/keboola/storage-api-client/license.svg)](https://packagist.org/packages/keboola/storage-api-client)
 [![Total Downloads](https://poser.pugx.org/keboola/storage-api-client/downloads.svg)](https://packagist.org/packages/keboola/storage-api-client)
-[![Build Status](https://travis-ci.org/keboola/storage-api-php-client.svg?branch=master)](https://travis-ci.org/keboola/storage-api-php-client)
+[![Build Status](https://travis-ci.com/keboola/storage-api-php-client.svg?branch=master)](https://travis-ci.com/keboola/storage-api-php-client)
 
 Simple PHP wrapper library for [Keboola Storage REST API](http://docs.keboola.apiary.io/)
 
