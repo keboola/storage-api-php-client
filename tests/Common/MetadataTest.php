@@ -421,6 +421,22 @@ class MetadataTest extends StorageApiTestCase
         $medataApi->deleteBucketMetadata($anotherBucketId, $createdMetadata[0]['id']);
     }
 
+    public function testTryToRemoveForeignMetadataFromTable()
+    {
+        $medataApi = new Metadata($this->_client);
+        $md = [
+            'key' => 'magic-key',
+            'value' => 'magic-frog'
+        ];
+
+        $tableId = $this->getTestBucketId() . '.table';
+        $createdMetadata = $medataApi->postTableMetadata($tableId, 'provider', [$md]);
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('The supplied metadata ID was not found');
+        $medataApi->deleteBucketMetadata($this->getTestBucketId(), $createdMetadata[0]['id']);
+    }
+
     public function apiEndpoints()
     {
         $tableId = '.table';
