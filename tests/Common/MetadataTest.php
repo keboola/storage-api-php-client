@@ -414,12 +414,7 @@ class MetadataTest extends StorageApiTestCase
         ];
 
         $createdMetadata = $medataApi->postBucketMetadata($this->getTestBucketId(), 'provider', [$md]);
-        try {
-            $this->_client->dropBucket('in.c-another-bucket');
-        } catch (ClientException $e) {
-            //do nothing
-        }
-        $anotherBucketId = $this->_client->createBucket('another-bucket', StorageApiTestCase::STAGE_IN);
+        $anotherBucketId = $this->getTestBucketId(self::STAGE_OUT);
 
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('The supplied metadata ID was not found');
