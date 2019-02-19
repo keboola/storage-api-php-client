@@ -2791,11 +2791,12 @@ Metadata can be listed for your bucket column.
                 }
             ]
 
-### Delete [DELETE]
-Deletes all Metadata for the specified bucket.
+### Delete [DELETE /v2/storage/buckets/{bucket_id}/metadata/{metadata_id}]
+Deletes the specified metadata item from the bucket.
 
 + Parameters
     + bucket_id (required) - Id of the bucket
+    + metadata_id (required) - Id of the metadata
 
 + Request
     + Headers
@@ -2875,11 +2876,12 @@ Shows all metadata associated with the specified table.
                 }
             ]
 
-### Delete [DELETE]
-Deletes all Metadata for the specified table.
+### Delete [DELETE /v2/storage/tables/{table_id}/metadata/{metadata_id}]
+Deletes the specified metadata item from the table.
 
 + Parameters
     + table_id (required) - Id of the table
+    + metadata_id (required) - Id of the metadata
 
 + Request
     + Headers
@@ -2959,11 +2961,12 @@ Shows all metadata associated with the specified column.
                 }
             ]
 
-### Delete [DELETE]
-Deletes all Metadata for the specified column.
+### Delete [DELETE /v2/storage/columns/{column_id}/metadata/{metadata_id}]
+Deletes the specified metadata item from the column.
 
 + Parameters
     + column_id (required) - Id of the column
+    + metadata_id (required) - Id of the metadata
 
 + Request
     + Headers
