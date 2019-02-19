@@ -143,6 +143,46 @@ class MetadataTest extends StorageApiTestCase
         $this->assertEquals($table['bucket']['metadata'][0]['value'], $md['value']);
     }
 
+    public function testTableDeleteWithMetadata():void
+    {
+        $tableId = $this->getTestBucketId() . '.table';
+        $columnId = $this->getTestBucketId() . '.table.sex';
+        $metadataApi = new Metadata($this->_client);
+
+        $md = array(
+            "key" => "test_metadata_key1",
+            "value" => "testval",
+        );
+        $md2 = array(
+            "key" => "test_metadata_key2",
+            "value" => "testval",
+        );
+        $testMetadata = array($md, $md2);
+
+        $provider = self::TEST_PROVIDER;
+
+        $metadataApi->postTableMetadata($tableId, $provider, $testMetadata);
+        $tableDetail = $this->_client->getTable($tableId);
+
+        $this->assertNotEmpty($tableDetail['metadata']);
+        $this->assertCount(2, $tableDetail['metadata']);
+
+        $metadataApi->postColumnMetadata($columnId, $provider, $testMetadata);
+        $tableDetail = $this->_client->getTable($tableId);
+
+        $this->assertNotEmpty($tableDetail['columnMetadata']);
+        $this->assertCount(2, $tableDetail['columnMetadata']['sex']);
+
+        $this->_client->dropTable($tableId);
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionCode(404);
+        $metadataApi->listTableMetadata($tableId);
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionCode(404);
+        $metadataApi->listTableMetadata($columnId);
+    }
 
     public function testColumnMetadata()
     {
@@ -198,6 +238,46 @@ class MetadataTest extends StorageApiTestCase
         $this->assertEquals($metadatas[1]['provider'], $mdList[0]['provider']);
         $this->assertEquals($metadatas[1]['timestamp'], $mdList[0]['timestamp']);
     }
+
+    public function testTableColumnDeleteWithMetadata()
+    {
+        $tableId = $this->getTestBucketId() . '.table';
+        $columnId = $this->getTestBucketId() . '.table.sex';
+        $metadataApi = new Metadata($this->_client);
+
+        $md = array(
+            "key" => "test_metadata_key1",
+            "value" => "testval",
+        );
+        $md2 = array(
+            "key" => "test_metadata_key2",
+            "value" => "testval",
+        );
+        $testMetadata = array($md, $md2);
+
+        $provider = self::TEST_PROVIDER;
+
+        $metadataApi->postColumnMetadata($columnId, $provider, $testMetadata);
+
+        $tableDetail = $this->_client->getTable($tableId);
+
+        $this->assertNotEmpty($tableDetail['columnMetadata']);
+        $this->assertEquals(2, count($tableDetail['columnMetadata']['sex']));
+
+        $this->_client->deleteTableColumn($tableId, 'sex');
+
+        $tableDetail = $this->_client->getTable($tableId);
+        $this->assertEmpty($tableDetail['columnMetadata']);
+
+        $this->assertEquals(array('id','name','city'), $tableDetail['columns']);
+
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionCode(404);
+
+        $metadataApi->listColumnMetadata($columnId);
+    }
+
 
     public function testUpdateTimestamp()
     {
@@ -324,7 +404,39 @@ class MetadataTest extends StorageApiTestCase
             $this->assertEquals("storage.metadata.invalidProvider", $e->getStringCode());
         }
     }
-    
+
+    public function testTryToRemoveForeignData()
+    {
+        $medataApi = new Metadata($this->_client);
+        $md = [
+            'key' => 'magic-key',
+            'value' => 'magic-frog'
+        ];
+
+        $createdMetadata = $medataApi->postBucketMetadata($this->getTestBucketId(), 'provider', [$md]);
+        $anotherBucketId = $this->getTestBucketId(self::STAGE_OUT);
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('The supplied metadata ID was not found');
+        $medataApi->deleteBucketMetadata($anotherBucketId, $createdMetadata[0]['id']);
+    }
+
+    public function testTryToRemoveForeignMetadataFromTable()
+    {
+        $medataApi = new Metadata($this->_client);
+        $md = [
+            'key' => 'magic-key',
+            'value' => 'magic-frog'
+        ];
+
+        $tableId = $this->getTestBucketId() . '.table';
+        $createdMetadata = $medataApi->postTableMetadata($tableId, 'provider', [$md]);
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('The supplied metadata ID was not found');
+        $medataApi->deleteBucketMetadata($this->getTestBucketId(), $createdMetadata[0]['id']);
+    }
+
     public function apiEndpoints()
     {
         $tableId = '.table';
