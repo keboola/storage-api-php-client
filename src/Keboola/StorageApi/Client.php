@@ -1201,7 +1201,7 @@ class Client
 
     private function prepareExportOptions(array $options)
     {
-        $allowedOptions = array(
+        $allowedOptions = [
             'limit',
             'changedSince',
             'changedUntil',
@@ -1210,7 +1210,8 @@ class Client
             'whereColumn',
             'whereOperator',
             'gzip',
-        );
+            'whereFilters',
+        ];
 
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
 
