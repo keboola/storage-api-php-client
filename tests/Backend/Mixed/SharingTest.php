@@ -842,6 +842,14 @@ class SharingTest extends StorageApiTestCase
             new CsvFile(__DIR__ . '/../../_data/numbers.csv')
         );
 
+        $table3SourceTableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_OUT),
+            'dates',
+            new CsvFile(__DIR__ . '/../../_data/dates.csv')
+        );
+        // create alias in shared bucket
+        $table3Id = $this->_client->createAliasTable($bucketId, $table3SourceTableId, 'DATES_Alias');
+
         // share and link bucket
         $this->_client->shareBucket($bucketId);
         $this->assertTrue($this->_client->isSharedBucket($bucketId));
@@ -881,13 +889,18 @@ class SharingTest extends StorageApiTestCase
             "destination" => "numbersLoaded"
         );
 
+        $mapping3 = array(
+            "source" => str_replace($bucketId, $linkedId, $table3Id),
+            "destination" => "datesLoaded"
+        );
+
         // init workspace
         $workspaces = new Workspaces($this->_client2);
         $workspace = $workspaces->createWorkspace([
             "backend" => $workspaceBackend
         ]);
 
-        $input = array($mapping1, $mapping2);
+        $input = array($mapping1, $mapping2, $mapping3);
 
         // test if job is created and listed
         $initialJobs = $this->_client2->listJobs();
@@ -906,17 +919,18 @@ class SharingTest extends StorageApiTestCase
         $stats = $this->_client2->getStats((new \Keboola\StorageApi\Options\StatsOptions())->setRunId($runId));
 
         $export = $stats['tables']['export'];
-        $this->assertEquals(2, $export['totalCount']);
-        $this->assertCount(2, $export['tables']);
+        $this->assertEquals(3, $export['totalCount']);
+        $this->assertCount(3, $export['tables']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $tables = $backend->getTables();
 
         // check that the tables are in the workspace
-        $this->assertCount(2, $tables);
+        $this->assertCount(3, $tables);
         $this->assertContains($backend->toIdentifier("languagesLoaded"), $tables);
         $this->assertContains($backend->toIdentifier("numbersLoaded"), $tables);
+        $this->assertContains($backend->toIdentifier("datesLoaded"), $tables);
 
         // check table structure and data
         $data = $backend->fetchAll("languagesLoaded", \PDO::FETCH_ASSOC);
@@ -931,30 +945,29 @@ class SharingTest extends StorageApiTestCase
 
         // now we'll load another table and use the preserve parameters to check that all tables are present
         // lets create it now to see if the table permissions are correctly propagated
-        $table3Id = $this->_client->createTable(
+        $table4Id = $this->_client->createTable(
             $bucketId,
             'numbersLater',
             new CsvFile(__DIR__ . '/../../_data/numbers.csv')
         );
 
-        $mapping3 = array("source" => str_replace($bucketId, $linkedId, $table3Id), "destination" => "table3");
-        $workspaces->loadWorkspaceData($workspace['id'], array("input" => array($mapping3), "preserve" => true));
+        $mapping4 = array("source" => str_replace($bucketId, $linkedId, $table3Id), "destination" => "table4");
+        $workspaces->loadWorkspaceData($workspace['id'], array("input" => array($mapping4), "preserve" => true));
 
         $tables = $backend->getTables();
 
-        $this->assertCount(3, $tables);
-        $this->assertContains($backend->toIdentifier("table3"), $tables);
+        $this->assertCount(4, $tables);
+        $this->assertContains($backend->toIdentifier("table4"), $tables);
         $this->assertContains($backend->toIdentifier("languagesLoaded"), $tables);
         $this->assertContains($backend->toIdentifier("numbersLoaded"), $tables);
+        $this->assertContains($backend->toIdentifier("datesLoaded"), $tables);
 
         // now we'll try the same load, but it should clear the workspace first (preserve is false by default)
-        $workspaces->loadWorkspaceData($workspace['id'], array("input" => array($mapping3)));
+        $workspaces->loadWorkspaceData($workspace['id'], array("input" => array($mapping4)));
 
         $tables = $backend->getTables();
         $this->assertCount(1, $tables);
-        $this->assertContains($backend->toIdentifier("table3"), $tables);
-
-
+        $this->assertContains($backend->toIdentifier("table4"), $tables);
 
         // unload validation
         $connection = $workspace['connection'];
