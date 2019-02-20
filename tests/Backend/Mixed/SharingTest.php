@@ -508,9 +508,9 @@ class SharingTest extends StorageApiTestCase
         $response = $this->_client2->listSharedBuckets();
         $sharedBucket = reset($response);
 
-        $id = $this->_client2->linkBucket("linked-" . time(), 'out', $sharedBucket['project']['id'], $sharedBucket['id']);
+        $id = $this->_client2->linkBucket("linked-" . uniqid(), 'out', $sharedBucket['project']['id'], $sharedBucket['id']);
         try {
-            $this->_client2->linkBucket("linked-" . time(), 'out', $sharedBucket['project']['id'], $sharedBucket['id']);
+            $this->_client2->linkBucket("linked-" . uniqid(), 'out', $sharedBucket['project']['id'], $sharedBucket['id']);
             $this->fail('bucket should not be linked');
         } catch (ClientException $e) {
             $this->assertEquals('storage.buckets.alreadyLinked', $e->getStringCode());
