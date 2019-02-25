@@ -26,5 +26,4 @@ class OrderByTest extends StorageApiTestCase
         $this->expectExceptionMessage('Order statements are not supported for Redshift backend.');
         $this->_client->getTableDataPreview($tableId, ['orderBy' => [['column'=>'test']]]);
     }
-
 }
