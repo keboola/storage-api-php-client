@@ -1211,6 +1211,7 @@ class Client
             'whereOperator',
             'gzip',
             'whereFilters',
+            'orderBy',
         ];
 
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
