@@ -1278,56 +1278,6 @@ To enable compression of API response traffic, please include the following HTTP
             ]
         }
 
-
-## Unload Data [/v2/storage/tables/{table_id}/export]
-
-# Export table into CSV [GET]
-
-This method is **Deprecated**.
-
-
-For table data unload please use [Asynchronous version](#reference/tables/unload-data-asynchronously) of data unload.
-If you want to just fetch sample of table data please use [Table Data Preview](#reference/tables/data-preview).
-
-+ Parameters
-    + table_id (required) - Table Id
-
-+ Attributes
-    + limit (optional, number) - Limit the number of returned rows. Maximum allowed value is `1000`
-        + Default: 100
-    + changedSince (optional) - Filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp or any date accepted by [strtotime](http://www.php.net/manual/en/function.strtotime.php).
-    + changedUntil (optional) - Filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp or any date accepted by [strtotime](http://www.php.net/manual/en/function.strtotime.php).
-        Examples: `-2 days`, `1360138863`, `2013-02-12T15:19:21+00:00`
-    + columns (optional) - Comma separated list of columns to export; by default all columns are exported.
-    + whereColumn (optional) - Column for exporting only matching rows; see more in the rows filtering section.
-    + whereValues[] (optional) - Values for exporting only matching rows; see more in the rows filtering section.
-    + whereOperator (optional, enum[string]) - Operator for value comparison.
-        + Members
-            + eq - Equals - can be used with multiple values.
-            + ne - Not equals - can be used with multiple values.
-        + Default: eq
-
-
-+ Request
-    + Headers
-
-            X-StorageApi-Token: your_token
-            Accept-encoding: gzip
-
-+ Response 200 (text/csv)
-    + Headers
-
-            Content-Encoding: gzip
-
-    + Body
-
-            "id","name"
-            "26","czech"
-            "1","english"
-            "11","finnish"
-            "24","french"
-
-
 ## Unload Data Asynchronously [/v2/storage/tables/{table_id}/export-async]
 
 ### Asynchronous Export [POST]
