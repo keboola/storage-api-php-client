@@ -102,15 +102,19 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->assertArrayHasKey('isAlias', $aliasTable);
         $this->assertTrue($aliasTable['isAlias']);
 
-
-        try {
-            $this->_client->dropTable($sourceTableId);
-            $this->fail('Delete table with associated aliases should not been deleted');
-        } catch (\Keboola\StorageApi\ClientException $e) {
-        }
-
         // first delete alias, than source table
         $this->_client->dropTable($aliasTableId);
+        $this->_client->dropTable($sourceTableId);
+    }
+
+    public function testTableWithAliasShouldNotBeDeletableWithoutForce()
+    {
+        $importFile = __DIR__ . '/../../_data/users.csv';
+        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+
+        $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users');
+
+        $this->expectException(ClientException::class);
         $this->_client->dropTable($sourceTableId);
     }
 
