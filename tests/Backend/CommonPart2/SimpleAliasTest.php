@@ -36,11 +36,62 @@ class SimpleAliasTest extends StorageApiTestCase
         );
         $sourceTable = $this->_client->getTable($sourceTableId);
 
-        // create alias table
-        $aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'languages-alias');
+        // create alias tables
+        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'languages-alias-1');
+        $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $firstAliasTableId, 'languages-alias-2');
+        $thirdAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $secondAliasTableId, 'languages-alias-3');
 
-        // check alias metadata
-        $aliasTable = $this->_client->getTable($aliasTableId);
+        $firstAlias = $this->_client->getTable($firstAliasTableId);
+        $secondAlias = $this->_client->getTable($secondAliasTableId);
+        $thirdAlias = $this->_client->getTable($thirdAliasTableId);
+
+        // check aliases metadata
+        $expectedData = Client::parseCsv(file_get_contents($importFile));
+        $this->assertAliasMetadataAndExport(
+            $firstAlias,
+            $sourceTable,
+            $expectedData
+        );
+        $this->assertAliasMetadataAndExport(
+            $secondAlias,
+            $firstAlias,
+            $expectedData
+        );
+        $this->assertAliasMetadataAndExport(
+            $thirdAlias,
+            $secondAlias,
+            $expectedData
+        );
+
+        // second import into source table
+        $this->_client->writeTable($sourceTableId, new CsvFile(__DIR__ . '/../../_data/languages.csv'));
+        $sourceTable = $this->_client->getTable($sourceTableId);
+        $firstAlias = $this->_client->getTable($firstAliasTableId);
+        $secondAlias = $this->_client->getTable($secondAliasTableId);
+        $thirdAlias = $this->_client->getTable($thirdAliasTableId);
+        $this->assertEquals($sourceTable['lastImportDate'], $firstAlias['lastImportDate']);
+        $this->assertEquals($sourceTable['lastImportDate'], $secondAlias['lastImportDate']);
+        $this->assertEquals($sourceTable['lastImportDate'], $thirdAlias['lastImportDate']);
+        
+        // columns auto-create
+        $this->_client->writeTable($sourceTableId, new CsvFile(__DIR__ . '/../../_data/languages.more-columns.csv'));
+        $sourceTable = $this->_client->getTable($sourceTableId);
+        $expectedColumns = [
+            'id',
+            'name',
+            'count',
+        ];
+
+        $firstAlias = $this->_client->getTable($firstAliasTableId);
+        $secondAlias = $this->_client->getTable($secondAliasTableId);
+        $thirdAlias = $this->_client->getTable($thirdAliasTableId);
+        $this->assertEquals($expectedColumns, $firstAlias['columns'], 'Columns autocreate in alias table');
+        $this->assertEquals($expectedColumns, $secondAlias['columns'], 'Columns autocreate in alias table');
+        $this->assertEquals($expectedColumns, $thirdAlias['columns'], 'Columns autocreate in alias table');
+    }
+
+    private function assertAliasMetadataAndExport($aliasTable, $sourceTable, $expectedData)
+    {
         $this->assertNotEmpty($sourceTable['lastImportDate']);
         $this->assertEquals($sourceTable['lastImportDate'], $aliasTable['lastImportDate']);
         $this->assertEquals($sourceTable['lastChangeDate'], $aliasTable['lastChangeDate']);
@@ -53,36 +104,18 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->assertTrue($aliasTable['aliasColumnsAutoSync']);
 
         $this->assertArrayHasKey('sourceTable', $aliasTable);
-        $this->assertEquals($sourceTableId, $aliasTable['sourceTable']['id'], 'new table linked to source table');
+        $this->assertEquals($sourceTable['id'], $aliasTable['sourceTable']['id'], 'new table linked to source table');
 
         // alias data preview and async export
-        $expectedData = Client::parseCsv(file_get_contents($importFile));
         $exporter = new TableExporter($this->_client);
         $downloadPath = __DIR__ . '/../../_tmp/languages.sliced.csv';
 
-        $this->assertArrayEqualsSorted($expectedData, Client::parseCsv($this->_client->getTableDataPreview($aliasTableId)), 'id', 'data are exported from source table');
+        $this->assertArrayEqualsSorted($expectedData, Client::parseCsv($this->_client->getTableDataPreview($aliasTable['id'])), 'id', 'data are exported from source table');
 
-        $exporter->exportTable($sourceTableId, $downloadPath, []);
+        $exporter->exportTable($aliasTable['id'], $downloadPath, []);
         $this->assertArrayEqualsSorted($expectedData, Client::parseCsv(file_get_contents($downloadPath)), 'id');
 
-        // second import into source table
-        $this->_client->writeTable($sourceTableId, new CsvFile(__DIR__ . '/../../_data/languages.csv'));
-        $sourceTable = $this->_client->getTable($sourceTableId);
-        $aliasTable = $this->_client->getTable($aliasTableId);
-        $this->assertEquals($sourceTable['lastImportDate'], $aliasTable['lastImportDate']);
 
-        // columns auto-create
-        $this->_client->writeTable($sourceTableId, new CsvFile(__DIR__ . '/../../_data/languages.more-columns.csv'));
-        $sourceTable = $this->_client->getTable($sourceTableId);
-        $expectedColumns = array(
-            'id',
-            'name',
-            'count'
-        );
-        $this->assertEquals($expectedColumns, $sourceTable['columns'], 'Columns autocreate in source table');
-
-        $aliasTable = $this->_client->getTable($aliasTableId);
-        $this->assertEquals($expectedColumns, $aliasTable['columns'], 'Columns autocreate in alias table');
     }
 
     public function testTableWithAliasShouldNotBeDeletableWithoutForce()
