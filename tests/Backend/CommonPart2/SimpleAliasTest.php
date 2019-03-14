@@ -34,20 +34,12 @@ class SimpleAliasTest extends StorageApiTestCase
                 'primaryKey' => 'id'
             )
         );
-        $this->_client->writeTable($sourceTableId, new CsvFile(__DIR__ . '/../../_data/languages.csv'));
         $sourceTable = $this->_client->getTable($sourceTableId);
-
-        $expectedData = Client::parseCsv(file_get_contents($importFile));
-        $this->assertArrayEqualsSorted($expectedData, Client::parseCsv($this->_client->getTableDataPreview($sourceTableId)), 'id', 'data are present in source table');
-
-        $exporter = new TableExporter($this->_client);
-        $downloadPath = __DIR__ . '/../../_tmp/languages.sliced.csv';
-        $exporter->exportTable($sourceTableId, $downloadPath, []);
-        $this->assertArrayEqualsSorted($expectedData, Client::parseCsv(file_get_contents($downloadPath)), 'id');
 
         // create alias table
         $aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'languages-alias');
 
+        // check alias metadata
         $aliasTable = $this->_client->getTable($aliasTableId);
         $this->assertNotEmpty($sourceTable['lastImportDate']);
         $this->assertEquals($sourceTable['lastImportDate'], $aliasTable['lastImportDate']);
@@ -62,6 +54,12 @@ class SimpleAliasTest extends StorageApiTestCase
 
         $this->assertArrayHasKey('sourceTable', $aliasTable);
         $this->assertEquals($sourceTableId, $aliasTable['sourceTable']['id'], 'new table linked to source table');
+
+        // alias data preview and async export
+        $expectedData = Client::parseCsv(file_get_contents($importFile));
+        $exporter = new TableExporter($this->_client);
+        $downloadPath = __DIR__ . '/../../_tmp/languages.sliced.csv';
+
         $this->assertArrayEqualsSorted($expectedData, Client::parseCsv($this->_client->getTableDataPreview($aliasTableId)), 'id', 'data are exported from source table');
 
         $exporter->exportTable($sourceTableId, $downloadPath, []);
@@ -85,26 +83,6 @@ class SimpleAliasTest extends StorageApiTestCase
 
         $aliasTable = $this->_client->getTable($aliasTableId);
         $this->assertEquals($expectedColumns, $aliasTable['columns'], 'Columns autocreate in alias table');
-
-        // test creating alias from alias
-        $callFailed = false;
-        try {
-            $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $aliasTableId, 'double-alias');
-        } catch (ClientException $e) {
-            if ($e->getCode() == 400) {
-                $callFailed = true;
-            }
-        }
-        $this->assertTrue($callFailed, 'Alias of already aliased table should fail');
-
-        $this->assertArrayHasKey('isAlias', $sourceTable);
-        $this->assertFalse($sourceTable['isAlias']);
-        $this->assertArrayHasKey('isAlias', $aliasTable);
-        $this->assertTrue($aliasTable['isAlias']);
-
-        // first delete alias, than source table
-        $this->_client->dropTable($aliasTableId);
-        $this->_client->dropTable($sourceTableId);
     }
 
     public function testTableWithAliasShouldNotBeDeletableWithoutForce()
