@@ -114,8 +114,6 @@ class SimpleAliasTest extends StorageApiTestCase
 
         $exporter->exportTable($aliasTable['id'], $downloadPath, []);
         $this->assertArrayEqualsSorted($expectedData, Client::parseCsv(file_get_contents($downloadPath)), 'id');
-
-
     }
 
     public function testTableWithAliasShouldNotBeDeletableWithoutForce()

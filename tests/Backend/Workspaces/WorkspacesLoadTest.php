@@ -266,7 +266,6 @@ class WorkspacesLoadTest extends WorkspacesTestCase
         // fifth table
         $data = $backend->fetchAll("languagesNestedAlias", \PDO::FETCH_ASSOC);
         $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ",", '"'), $data, 'id');
-
     }
 
     public function testWorkspaceLoadColumns()
