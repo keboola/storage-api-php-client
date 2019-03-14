@@ -706,4 +706,41 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->assertNotEmpty($aliasId, 'out -> in');
         $this->_client->dropTable($aliasId);
     }
+
+    public function testAliasingAliasWithoutAutoSyncShouldFail(): void
+    {
+        $importFile = __DIR__ . '/../../_data/users.csv';
+        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+        $aliasTableId = $this->_client->createAliasTable(
+            $this->getTestBucketId(self::STAGE_OUT),
+            $sourceTableId,
+            'users',
+            ['aliasColumnsAutosync' => false]
+        );
+        $this->_client->disableAliasTableColumnsAutoSync($aliasTableId);
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Aliasing an advanced alias is not allowed.');
+        $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $aliasTableId, 'users_alias');
+    }
+
+    public function testAliasingAliasWithFilterShouldFail(): void
+    {
+        $importFile = __DIR__ . '/../../_data/users.csv';
+        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+        $aliasTableId = $this->_client->createAliasTable(
+            $this->getTestBucketId(self::STAGE_OUT),
+            $sourceTableId,
+            'users',
+            [
+                'aliasFilter' => [
+                    'column' => 'name',
+                    'values' => array('foo'),
+                    'operator' => 'eq',
+                ],
+            ]
+        );
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Aliasing an advanced alias is not allowed.');
+        $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $aliasTableId, 'users_alias');
+    }
 }
