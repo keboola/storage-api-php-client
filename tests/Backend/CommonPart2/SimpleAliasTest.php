@@ -134,15 +134,36 @@ class SimpleAliasTest extends StorageApiTestCase
         $importFile = __DIR__ . '/../../_data/users.csv';
         $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
-        $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users');
+        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users-1');
+        $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $firstAliasTableId, 'users-2');
+        $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $secondAliasTableId, 'users-3');
 
         $this->assertCount(1, $this->_client->listTables($this->getTestBucketId()));
-        $this->assertCount(1, $this->_client->listTables($this->getTestBucketId(self::STAGE_OUT)));
+        $this->assertCount(3, $this->_client->listTables($this->getTestBucketId(self::STAGE_OUT)));
 
         $this->_client->dropTable($sourceTableId, ['force' => true]);
 
         $this->assertCount(0, $this->_client->listTables($this->getTestBucketId()));
         $this->assertCount(0, $this->_client->listTables($this->getTestBucketId(self::STAGE_OUT)));
+    }
+
+    public function testAliasWithAliasesShouldBeForceDeletable()
+    {
+        $importFile = __DIR__ . '/../../_data/users.csv';
+        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+
+        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users-1');
+        $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $firstAliasTableId, 'users-2');
+        $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $firstAliasTableId, 'users-2-2');
+        $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $secondAliasTableId, 'users-3');
+
+        $this->assertCount(1, $this->_client->listTables($this->getTestBucketId()));
+        $this->assertCount(4, $this->_client->listTables($this->getTestBucketId(self::STAGE_OUT)));
+
+        $this->_client->dropTable($secondAliasTableId, ['force' => true]);
+
+        $this->assertCount(1, $this->_client->listTables($this->getTestBucketId()));
+        $this->assertCount(2, $this->_client->listTables($this->getTestBucketId(self::STAGE_OUT)));
     }
 
     public function testTableAliasFilterModifications()
