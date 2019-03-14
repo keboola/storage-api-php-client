@@ -107,7 +107,8 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
                 $this->_client->unshareBucket($bucket['id']);
             }
             $tables = $this->_client->listTables($bucket['id']);
-            foreach ($tables as $table) {
+            // iterate in reverse order to be able to delete aliases
+            foreach (array_reverse($tables) as $table) {
                 $this->_client->dropTable($table['id']);
             }
             $metadataApi = new Metadata($this->_client);
