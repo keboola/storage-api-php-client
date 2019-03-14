@@ -107,7 +107,15 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
                 $this->_client->unshareBucket($bucket['id']);
             }
             $tables = $this->_client->listTables($bucket['id']);
-            // iterate in reverse order to be able to delete aliases
+            // iterate in reverse creation order to be able to delete aliases
+            usort($tables, function ($table1, $table2) {
+                $timestamp1 = strtotime($table1['created']);
+                $timestamp2 = strtotime($table2['created']);
+                if ($timestamp1 == $timestamp2) {
+                    return 0;
+                }
+                return ($timestamp1 < $timestamp2) ? -1 : 1;
+            });
             foreach (array_reverse($tables) as $table) {
                 $this->_client->dropTable($table['id']);
             }
