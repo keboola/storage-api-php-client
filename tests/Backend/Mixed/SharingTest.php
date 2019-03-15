@@ -567,6 +567,18 @@ class SharingTest extends StorageApiTestCase
             ]
         );
 
+        $table2Id = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_OUT),
+            'languages-out',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+
+        $aliasTableId = $this->_client->createAliasTable(
+            $bucketId,
+            $table2Id,
+            'languages-alias'
+        );
+
         $this->_client->shareBucket($bucketId);
 
         // link
@@ -634,6 +646,11 @@ class SharingTest extends StorageApiTestCase
             [
                 'primaryKey' => 'id',
             ]
+        );
+        $this->_client->createAliasTable(
+            $bucketId,
+            $table2Id,
+            'languages-alias-2'
         );
         $this->validateTablesMetadata($bucketId, $linkedBucketId);
     }
