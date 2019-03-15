@@ -957,6 +957,19 @@ class SharingTest extends StorageApiTestCase
             new CsvFile(__DIR__ . '/../../_data/numbers.csv')
         );
 
+
+        $table3Id = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_OUT),
+            'languages-out',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+
+        $table4Id = $this->_client->createAliasTable(
+            $sourceBucketId,
+            $table3Id,
+            'languages-alias'
+        );
+
         $sourceProjectId = $this->_client->verifyToken()['owner']['id'];
         $linkedId = $this->_client2->linkBucket(
             "linked-" . uniqid(),
@@ -980,6 +993,10 @@ class SharingTest extends StorageApiTestCase
                 [
                     'source' => str_replace($sourceBucketId, $linkedId, $table2Id),
                     'destination' => 'NUMBERS',
+                ],
+                [
+                    'source' => str_replace($sourceBucketId, $linkedId, $table4Id),
+                    'destination' => 'languagesAlias',
                 ],
             ],
         ]);
@@ -1058,6 +1075,37 @@ class SharingTest extends StorageApiTestCase
 
         $workspaceTableData = $backend->fetchAll('NUMBERS');
         $this->assertCount(1, $workspaceTableData);
+
+        // assert alias table  data
+        $workspaceTableColumns = $backend->describeTableColumns('languagesAlias');
+        $this->assertEquals(
+            [
+                [
+                    'name' => 'id',
+                    'type' => 'VARCHAR(16777216)',
+                ],
+                [
+                    'name' => 'name',
+                    'type' => 'VARCHAR(16777216)',
+                ],
+                [
+                    'name' => '_timestamp',
+                    'type' => 'TIMESTAMP_NTZ(9)',
+                ]
+            ],
+            array_map(
+                function (array $column) {
+                    return [
+                        'name' => $column['name'],
+                        'type' => $column['type'],
+                    ];
+                },
+                $workspaceTableColumns
+            )
+        );
+
+        $workspaceTableData = $backend->fetchAll('languagesAlias');
+        $this->assertCount(5, $workspaceTableData);
     }
 
     /**
