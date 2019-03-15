@@ -301,6 +301,22 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->assertEquals($expectedColumns, $this->_client->getTable($secondAliasTableId)['columns']);
     }
 
+    public function testSourceTableColumnAddWithAutoSyncAliases()
+    {
+        $importFile = __DIR__ . '/../../_data/users.csv';
+        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+
+        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users-1');
+        $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $firstAliasTableId, 'users-2');
+
+        $this->_client->addTableColumn($sourceTableId, 'middleName');
+
+        $expectedColumns = ['id', 'name', 'city', 'sex', 'middleName'];
+        $this->assertEquals($expectedColumns, $this->_client->getTable($sourceTableId)['columns']);
+        $this->assertEquals($expectedColumns, $this->_client->getTable($firstAliasTableId)['columns']);
+        $this->assertEquals($expectedColumns, $this->_client->getTable($secondAliasTableId)['columns']);
+    }
+
     public function testAliasColumnsAutoSync()
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
