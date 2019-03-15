@@ -364,29 +364,6 @@ class SimpleAliasTest extends StorageApiTestCase
         }
     }
 
-    public function testColumnAssignedToAliasWithAutoSyncShouldBeForceDeletable()
-    {
-        $importFile = __DIR__ . '/../../_data/users.csv';
-        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
-
-        $aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users');
-
-        $aliasTable = $this->_client->getTable($aliasTableId);
-        $this->assertEquals(array("id", "name", "city", "sex"), $aliasTable["columns"]);
-
-        $this->_client->addTableColumn($sourceTableId, 'age');
-
-        $aliasTable = $this->_client->getTable($aliasTableId);
-        $expectedColumns = array("id", "name", "city", "sex", "age");
-        $this->assertEquals($expectedColumns, $aliasTable["columns"]);
-
-        $this->_client->deleteTableColumn($sourceTableId, 'age', ['force' => true]);
-
-        $aliasTable = $this->_client->getTable($aliasTableId);
-        $expectedColumns = array("id", "name", "city", "sex");
-        $this->assertEquals($expectedColumns, $aliasTable["columns"]);
-    }
-
     public function testColumnUsedInFilteredAliasShouldNotBeDeletable()
     {
         $importFile = __DIR__ . '/../../_data/languages.csv';
