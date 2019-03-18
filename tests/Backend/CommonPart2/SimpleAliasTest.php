@@ -750,6 +750,26 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->_client->dropTable($aliasId);
     }
 
+    public function testAliasAutoSyncCannotBeChangedIfDependentAliases()
+    {
+        $importFile = __DIR__ . '/../../_data/users.csv';
+        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+        $aliasTableId = $this->_client->createAliasTable(
+            $this->getTestBucketId(self::STAGE_OUT),
+            $sourceTableId,
+            'users'
+        );
+
+        $this->_client->createAliasTable(
+            $this->getTestBucketId(self::STAGE_OUT),
+            $aliasTableId,
+            'users-2'
+        );
+
+        $this->expectException(ClientException::class);
+        $this->_client->disableAliasTableColumnsAutoSync($aliasTableId);
+    }
+
     public function testAliasingAliasWithoutAutoSyncShouldFail(): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
