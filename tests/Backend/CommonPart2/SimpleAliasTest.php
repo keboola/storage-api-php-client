@@ -97,11 +97,13 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->assertEquals($sourceTable['lastChangeDate'], $aliasTable['lastChangeDate']);
         $this->assertEquals($sourceTable['columns'], $aliasTable['columns']);
         $this->assertEquals($sourceTable['primaryKey'], $aliasTable['primaryKey']);
+        $this->assertTrue($sourceTable['isAliasable']);
         $this->assertNotEmpty($aliasTable['created']);
         $this->assertNotEquals('0000-00-00 00:00:00', $aliasTable['created']);
         $this->assertEquals($sourceTable['rowsCount'], $aliasTable['rowsCount']);
         $this->assertEquals($sourceTable['dataSizeBytes'], $aliasTable['dataSizeBytes']);
         $this->assertTrue($aliasTable['aliasColumnsAutoSync']);
+        $this->assertTrue($aliasTable['isAliasable']);
 
         $this->assertArrayHasKey('sourceTable', $aliasTable);
         $this->assertEquals($sourceTable['id'], $aliasTable['sourceTable']['id'], 'new table linked to source table');
@@ -801,9 +803,12 @@ class SimpleAliasTest extends StorageApiTestCase
             $this->getTestBucketId(self::STAGE_OUT),
             $sourceTableId,
             'users',
-            ['aliasColumnsAutosync' => false]
+            [
+                'aliasColumns' => ['id', 'name'],
+            ]
         );
-        $this->_client->disableAliasTableColumnsAutoSync($aliasTableId);
+        $aliasTable = $this->_client->getTable($aliasTableId);
+        $this->assertFalse($aliasTable['isAliasable']);
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Aliasing an advanced alias is not allowed.');
         $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $aliasTableId, 'users_alias');
