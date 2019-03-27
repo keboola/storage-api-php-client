@@ -91,6 +91,21 @@ class DataPreviewLimitsTest extends StorageApiTestCase
         $this->assertEquals(16384, mb_strlen($truncatedRow[0]['value']), 'Value in row is not truncated');
     }
 
+    public function testJsonTruncationWithMultibyteChars()
+    {
+        $csvFile = $this->generateCsv("1");
+        $row = [];
+        $row[] = $this->createRandomString(20000, "🐱️👬🐇🐐🦖");
+        $row[] = $this->createRandomString(20000, "🐱️👬🐇🐐🦖️");
+        $csvFile->writeRow($row);
+
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'malformed', $csvFile);
+
+        $jsonPreview = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);
+
+        $this->assertNotEmpty($jsonPreview);
+    }
+
     private function getTruncatedRow(array $jsonPreview)
     {
         foreach ($jsonPreview['rows'] as $row) {
@@ -121,12 +136,11 @@ class DataPreviewLimitsTest extends StorageApiTestCase
         return $csvFile;
     }
 
-    private function createRandomString(int $length)
+    private function createRandomString(int $length, $alphabet = "abcdefghijklmnopqrstvuwxyz0123456789 ")
     {
-        $alpabet = "abcdefghijklmnopqrstvuwxyz0123456789 ";
         $randStr = "";
         for ($i = 0; $i < $length; $i++) {
-            $randStr .=  $alpabet[rand(0, strlen($alpabet)-1)];
+            $randStr .=  mb_substr($alphabet, rand(0, mb_strlen($alphabet)-1), 1);
         }
         return $randStr;
     }
