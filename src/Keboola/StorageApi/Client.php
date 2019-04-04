@@ -2107,6 +2107,11 @@ class Client
         $this->apiPost("storage/tables/$tableId/primary-key", $data);
     }
 
+    public function createTrigger(array $option)
+    {
+        return $this->apiPost("storage/triggers/", $option);
+    }
+
     /**
      * @return int
      */
