@@ -4462,7 +4462,7 @@ Created a trigger listeng on set of tables
 
 + Attributes
     + runWithTokenId (required, number) - Id of token used for running configured component
-    + componentType: `orchestration` (required, enum[string]) - For now we support only 'orchestration'
+    + component: `orchestration` (required, enum[string]) - For now we support only 'orchestration'
     + configurationId (required, number) - Id of component configuration
     + coolDownPeriod (required, number) - Minimal cool down period before firing action again in minutes (min is 5 minutes)
     + tabledIds (required, object) - Array of tables ids
@@ -4475,7 +4475,7 @@ Created a trigger listeng on set of tables
 
     + Body
 
-            runWithTokenId=123&componentType=orchestration&configurationId=123&coolDownPeriod=20&tableIds[0]=in.c-test.watched-1&tableIds[1]=in.c-prod.watched-5
+            runWithTokenId=123&component=orchestration&configurationId=123&coolDownPeriod=20&tableIds[0]=in.c-test.watched-1&tableIds[1]=in.c-prod.watched-5
 
 + Response 201 (application/json)
 
@@ -4483,7 +4483,7 @@ Created a trigger listeng on set of tables
             "id": 3,
             "runWithTokenId": 123,
             "projectId": 234,
-            "componentType": "orchestration",
+            "component": "orchestration",
             "configurationId": 123,
             "lastRun": null,
             "coolDownPeriod": 20,
@@ -4493,23 +4493,19 @@ Created a trigger listeng on set of tables
             "createdByTokenId": 4,
             "tables": [
                 {
-                    "triggerId": "3",
-                    "tableName": "watched",
-                    "bucketId": "2"
+                    "tableId": "in.c-test.watched-1"
                 },
                 {
-                    "triggerId": "3",
-                    "tableName": "watched-5",
-                    "bucketId": "3"
+                    "tableId": "in.c-prod.watched-5"
                 }
             ]
         }
 
-###List [GET /v2/storage/triggers/?componentType={componentType}&configurationId={configurationId}]
+###List [GET /v2/storage/triggers/?component={component}&configurationId={configurationId}]
 List all token of project with possible filters
 
 + Parameters
-    + componentType (optional, string) - type of component. Now we supports only 'orchestration'
+    + component (optional, string) - type of component. Now we supports only 'orchestration'
     + configurationId (optional, number) - id of component configuration
 
 + Response 200 (application/json)
@@ -4519,7 +4515,7 @@ List all token of project with possible filters
                 "id": 3,
                 "runWithTokenId": 123,
                 "projectId": 234,
-                "componentType": "orchestration",
+                "component": "orchestration",
                 "configurationId": 123,
                 "lastRun": null,
                 "coolDownPeriod": 20,
@@ -4529,14 +4525,10 @@ List all token of project with possible filters
                 "createdByTokenId": 4,
                 "tables": [
                     {
-                        "triggerId": "3",
-                        "tableName": "watched",
-                        "bucketId": "2"
+                        "tableId": "in.c-test.watched-1"
                     },
                     {
-                        "triggerId": "3",
-                        "tableName": "watched-5",
-                        "bucketId": "3"
+                        "tableId": "in.c-prod.watched-5"
                     }
                 ]
             }
@@ -4550,7 +4542,7 @@ Updates an existing trigger
 
 + Attributes
     + runWithTokenId (optional, number) - Id of token used for running configured component
-    + componentType `orchestration` (optional, enum[string]) - For now we support only 'orchestrations'
+    + component `orchestration` (optional, enum[string]) - For now we support only 'orchestrations'
     + configurationId (optional, number) - Id of component configuration
     + coolDownPeriod (optional, number) - Minimal cool down period before firing action again in minutes (min is 5 minutes)
     + tabledIds (optional, object) - Array of tables ids
@@ -4572,7 +4564,7 @@ Updates an existing trigger
             "id": 3,
             "runWithTokenId": 123,
             "projectId": 234,
-            "componentType": "orchestration",
+            "component": "orchestration",
             "configurationId": 100,
             "lastRun": null,
             "coolDownPeriod": 20,
@@ -4582,14 +4574,10 @@ Updates an existing trigger
             "createdByTokenId": 4,
             "tables": [
                 {
-                    "triggerId": "3",
-                    "tableName": "watched",
-                    "bucketId": "2"
+                    "tableId": "in.c-test.watched-1"
                 },
                 {
-                    "triggerId": "3",
-                    "tableName": "watched-5",
-                    "bucketId": "3"
+                    "tableId": "in.c-prod.watched-5"
                 }
             ]
         }
