@@ -771,6 +771,8 @@ class SimpleAliasTest extends StorageApiTestCase
         );
 
         $this->expectException(ClientException::class);
+        $this->expectExceptionCode(400);
+        $this->expectExceptionMessageRegExp('/^Cannot change auto sync settings - table has dependent aliases$/');
         $this->_client->disableAliasTableColumnsAutoSync($aliasTableId);
     }
 
