@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Keboola\Test\Common;
 
-use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\ClientException;
 use Keboola\Test\StorageApiTestCase;
 
@@ -117,5 +116,56 @@ class TriggersTest extends StorageApiTestCase
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage(sprintf('Trigger with id [%d] was not found', $loadedTrigger['id']));
         $this->_client->getTrigger($trigger['id']);
+    }
+
+    public function testListAction(): void
+    {
+        $table = $this->createTableWithRandomData("watched-2");
+        $newTokenId = $this->_client->createToken([$this->getTestBucketId() => 'read']);
+
+        $trigger1ConfigurationId = time();
+        $componentName = uniqid('test');
+        $trigger1 = $this->_client->createTrigger([
+            'component' => $componentName,
+            'configurationId' => $trigger1ConfigurationId,
+            'coolDownPeriod' => 10,
+            'runWithTokenId' => $newTokenId,
+            'tableIds' => [
+                $table,
+            ],
+        ]);
+        $trigger2 = $this->_client->createTrigger([
+            'component' => 'keboola.ex-manzelka',
+            'configurationId' => 123,
+            'coolDownPeriod' => 10,
+            'runWithTokenId' => $newTokenId,
+            'tableIds' => [
+                $table,
+            ],
+        ]);
+
+        $triggers = $this->_client->listTriggers();
+        $trigger1Found = $trigger2Found = false;
+        foreach ($triggers as $trigger) {
+            if ($trigger1['id'] == $trigger['id']) {
+                $trigger1Found = true;
+            }
+            if ($trigger2['id'] == $trigger['id']) {
+                $trigger2Found = true;
+            }
+        }
+
+        $this->assertTrue($trigger1Found);
+        $this->assertTrue($trigger2Found);
+
+        $triggers = $this->_client->listTriggers(
+            [
+                'component' => $componentName,
+                'configurationId' => $trigger1ConfigurationId
+            ]
+        );
+
+        $this->assertCount(1, $triggers);
+        $this->assertEquals($trigger1['id'], $triggers[0]['id']);
     }
 }

@@ -2127,6 +2127,12 @@ class Client
         return $this->apiDelete('storage/triggers/' . $triggerId .'/');
     }
 
+    public function listTriggers(array $filter = null): array
+    {
+        $filter = $filter ?? [];
+        return $this->apiGet('storage/triggers/?' . http_build_query($filter));
+    }
+
     /**
      * @return int
      */
