@@ -155,9 +155,9 @@ class SimpleAliasTest extends StorageApiTestCase
         $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
         $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users-1');
-        $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $firstAliasTableId, 'users-2');
-        $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $firstAliasTableId, 'users-2-2');
-        $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $secondAliasTableId, 'users-3');
+        $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $firstAliasTableId, 'users-1-1');
+        $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $firstAliasTableId, 'users-1-2');
+        $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $secondAliasTableId, 'users-1-1-1');
 
         $this->assertCount(1, $this->_client->listTables($this->getTestBucketId()));
         $this->assertCount(4, $this->_client->listTables($this->getTestBucketId(self::STAGE_OUT)));
