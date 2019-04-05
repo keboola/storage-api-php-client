@@ -126,6 +126,8 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users');
 
         $this->expectException(ClientException::class);
+        $this->expectExceptionCode(400);
+        $this->expectExceptionMessageRegExp('/^The table users cannot be deleted because an alias exists./');
         $this->_client->dropTable($sourceTableId);
     }
 
