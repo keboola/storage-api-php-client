@@ -567,6 +567,18 @@ class SharingTest extends StorageApiTestCase
             ]
         );
 
+        $table2Id = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_OUT),
+            'languages-out',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+
+        $aliasTableId = $this->_client->createAliasTable(
+            $bucketId,
+            $table2Id,
+            'languages-alias'
+        );
+
         $this->_client->shareBucket($bucketId);
 
         // link
@@ -634,6 +646,11 @@ class SharingTest extends StorageApiTestCase
             [
                 'primaryKey' => 'id',
             ]
+        );
+        $this->_client->createAliasTable(
+            $bucketId,
+            $table2Id,
+            'languages-alias-2'
         );
         $this->validateTablesMetadata($bucketId, $linkedBucketId);
     }
@@ -785,6 +802,12 @@ class SharingTest extends StorageApiTestCase
             new CsvFile(__DIR__ . '/../../_data/numbers.csv')
         );
 
+        $table3Id = $this->_client->createAliasTable(
+            $bucketId,
+            $table2Id,
+            'numbers-alias'
+        );
+
         // share and link bucket
         $this->_client->shareBucket($bucketId);
         $this->assertTrue($this->_client->isSharedBucket($bucketId));
@@ -824,13 +847,18 @@ class SharingTest extends StorageApiTestCase
             "destination" => "numbersLoaded"
         );
 
+        $mapping3 = array(
+            "source" => str_replace($bucketId, $linkedId, $table3Id),
+            "destination" => "numbersAliasLoaded"
+        );
+
         // init workspace
         $workspaces = new Workspaces($this->_client2);
         $workspace = $workspaces->createWorkspace([
             "backend" => $workspaceBackend
         ]);
 
-        $input = array($mapping1, $mapping2);
+        $input = array($mapping1, $mapping2, $mapping3);
 
         // test if job is created and listed
         $initialJobs = $this->_client2->listJobs();
@@ -849,17 +877,18 @@ class SharingTest extends StorageApiTestCase
         $stats = $this->_client2->getStats((new \Keboola\StorageApi\Options\StatsOptions())->setRunId($runId));
 
         $export = $stats['tables']['export'];
-        $this->assertEquals(2, $export['totalCount']);
-        $this->assertCount(2, $export['tables']);
+        $this->assertEquals(3, $export['totalCount']);
+        $this->assertCount(3, $export['tables']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $tables = $backend->getTables();
 
         // check that the tables are in the workspace
-        $this->assertCount(2, $tables);
+        $this->assertCount(3, $tables);
         $this->assertContains($backend->toIdentifier("languagesLoaded"), $tables);
         $this->assertContains($backend->toIdentifier("numbersLoaded"), $tables);
+        $this->assertContains($backend->toIdentifier("numbersAliasLoaded"), $tables);
 
         // check table structure and data
         $data = $backend->fetchAll("languagesLoaded", \PDO::FETCH_ASSOC);
@@ -885,10 +914,11 @@ class SharingTest extends StorageApiTestCase
 
         $tables = $backend->getTables();
 
-        $this->assertCount(3, $tables);
+        $this->assertCount(4, $tables);
         $this->assertContains($backend->toIdentifier("table3"), $tables);
         $this->assertContains($backend->toIdentifier("languagesLoaded"), $tables);
         $this->assertContains($backend->toIdentifier("numbersLoaded"), $tables);
+        $this->assertContains($backend->toIdentifier("numbersAliasLoaded"), $tables);
 
         // now we'll try the same load, but it should clear the workspace first (preserve is false by default)
         $workspaces->loadWorkspaceData($workspace['id'], array("input" => array($mapping3)));
@@ -944,6 +974,19 @@ class SharingTest extends StorageApiTestCase
             new CsvFile(__DIR__ . '/../../_data/numbers.csv')
         );
 
+
+        $table3Id = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_OUT),
+            'languages-out',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+
+        $table4Id = $this->_client->createAliasTable(
+            $sourceBucketId,
+            $table3Id,
+            'languages-alias'
+        );
+
         $sourceProjectId = $this->_client->verifyToken()['owner']['id'];
         $linkedId = $this->_client2->linkBucket(
             "linked-" . uniqid(),
@@ -967,6 +1010,10 @@ class SharingTest extends StorageApiTestCase
                 [
                     'source' => str_replace($sourceBucketId, $linkedId, $table2Id),
                     'destination' => 'NUMBERS',
+                ],
+                [
+                    'source' => str_replace($sourceBucketId, $linkedId, $table4Id),
+                    'destination' => 'languagesAlias',
                 ],
             ],
         ]);
@@ -1045,6 +1092,37 @@ class SharingTest extends StorageApiTestCase
 
         $workspaceTableData = $backend->fetchAll('NUMBERS');
         $this->assertCount(1, $workspaceTableData);
+
+        // assert alias table  data
+        $workspaceTableColumns = $backend->describeTableColumns('languagesAlias');
+        $this->assertEquals(
+            [
+                [
+                    'name' => 'id',
+                    'type' => 'VARCHAR(16777216)',
+                ],
+                [
+                    'name' => 'name',
+                    'type' => 'VARCHAR(16777216)',
+                ],
+                [
+                    'name' => '_timestamp',
+                    'type' => 'TIMESTAMP_NTZ(9)',
+                ]
+            ],
+            array_map(
+                function (array $column) {
+                    return [
+                        'name' => $column['name'],
+                        'type' => $column['type'],
+                    ];
+                },
+                $workspaceTableColumns
+            )
+        );
+
+        $workspaceTableData = $backend->fetchAll('languagesAlias');
+        $this->assertCount(5, $workspaceTableData);
     }
 
     /**
