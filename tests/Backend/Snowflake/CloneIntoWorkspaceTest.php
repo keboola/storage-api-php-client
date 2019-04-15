@@ -18,10 +18,10 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
 
     /**
      * @dataProvider cloneProvider
-     * @param bool $isSourceTableAlias
+     * @param int $aliasNestingLevel
      * @throws Exception
      */
-    public function testClone(bool $isSourceTableAlias): void
+    public function testClone(int $aliasNestingLevel): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
         $sourceTableId = $this->createTableFromFile(
@@ -30,11 +30,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
             self::IMPORT_FILE_PATH
         );
 
-        if ($isSourceTableAlias) {
-            $bucketId = $this->getTestBucketId(self::STAGE_OUT);
-            $sourceTableId = $this->_client->createAliasTable($bucketId, $sourceTableId);
-        }
-
+        $sourceTableId = $this->createTableAliasChain($sourceTableId, $aliasNestingLevel, 'languages');
 
         $workspacesClient = new Workspaces($this->_client);
 
@@ -118,11 +114,14 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
     {
         return [
           'normal table' => [
-              false,
+              0,
           ],
           'simple alias' => [
-              true,
-          ]
+              1,
+          ],
+          'simple alias 2 levels' =>[
+              2,
+          ],
         ];
     }
 
@@ -366,5 +365,19 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
             new CsvFile($importFilePath),
             ['primaryKey' => $primaryKey]
         );
+    }
+
+    private function createTableAliasChain($sourceTableId, $nestingLevel, $aliasNamePrefix)
+    {
+        $i = 0;
+        while ($i < $nestingLevel) {
+            $sourceTableId  = $this->_client->createAliasTable(
+                $this->getTestBucketId(self::STAGE_OUT),
+                $sourceTableId,
+                sprintf('%s-%s', $aliasNamePrefix, $i)
+            );
+            $i++;
+        }
+        return $sourceTableId;
     }
 }

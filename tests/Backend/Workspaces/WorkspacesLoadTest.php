@@ -176,6 +176,13 @@ class WorkspacesLoadTest extends WorkspacesTestCase
             'Languages'
         );
 
+        // nested alias
+        $table2AliasedId = $this->_client->createAliasTable(
+            $this->getTestBucketId(self::STAGE_OUT),
+            $table2Id,
+            'LanguagesNestedAlias'
+        );
+
         $table3Id = $this->_client->createAliasTable(
             $this->getTestBucketId(self::STAGE_OUT),
             $table1Id,
@@ -206,9 +213,10 @@ class WorkspacesLoadTest extends WorkspacesTestCase
         $mapping2 = ["source" => $table2Id, "destination" => "languagesAlias"];
         $mapping3 = ["source" => $table3Id, "destination" => "languagesOneColumn"];
         $mapping4 = ["source" => $table4Id, "destination" => "languagesFiltered"];
+        $mapping5 = ["source" => $table2AliasedId, "destination" => "languagesNestedAlias"];
 
 
-        $input = [$mapping1, $mapping2, $mapping3, $mapping4];
+        $input = [$mapping1, $mapping2, $mapping3, $mapping4, $mapping5];
         $workspaces->loadWorkspaceData($workspace['id'], ["input" => $input]);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
@@ -216,11 +224,12 @@ class WorkspacesLoadTest extends WorkspacesTestCase
         $tables = $backend->getTables();
 
         // check that the tables are in the workspace
-        $this->assertCount(4, $tables);
+        $this->assertCount(5, $tables);
         $this->assertContains($backend->toIdentifier("languagesLoaded"), $tables);
         $this->assertContains($backend->toIdentifier("languagesAlias"), $tables);
         $this->assertContains($backend->toIdentifier("languagesOneColumn"), $tables);
         $this->assertContains($backend->toIdentifier("languagesFiltered"), $tables);
+        $this->assertContains($backend->toIdentifier("languagesNestedAlias"), $tables);
 
         // check table structure and data
         // first table
@@ -253,6 +262,10 @@ class WorkspacesLoadTest extends WorkspacesTestCase
         $this->assertArrayHasKey('id', $data[0]);
 
         $this->assertEquals('1', $data[0]['id']);
+
+        // fifth table
+        $data = $backend->fetchAll("languagesNestedAlias", \PDO::FETCH_ASSOC);
+        $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ",", '"'), $data, 'id');
     }
 
     public function testWorkspaceLoadColumns()
