@@ -13,6 +13,10 @@ class TriggersTest extends StorageApiTestCase
     {
         parent::setUp();
         $this->_initEmptyTestBuckets();
+        $triggers = $this->_client->listTriggers();
+        foreach ($triggers as $trigger) {
+            $this->_client->deleteTrigger((int) $trigger['id']);
+        }
     }
 
     public function testCreateAndUpdateTrigger(): void
@@ -55,7 +59,7 @@ class TriggersTest extends StorageApiTestCase
             'tableIds' => [$table1],
         ];
 
-        $updateTrigger = $this->_client->updateTrigger($trigger['id'], $updateData);
+        $updateTrigger = $this->_client->updateTrigger((int) $trigger['id'], $updateData);
 
         $this->assertEquals('keboola.ex-1', $updateTrigger['component']);
         $this->assertEquals(111, $updateTrigger['configurationId']);
@@ -77,7 +81,7 @@ class TriggersTest extends StorageApiTestCase
             'tableIds' => ['nothing-is-here'],
         ];
         unset($data[$keyToDelete]);
-        $this->expectExceptionMessage(sprintf('Missing required query parametr(s) [%s]', $keyToDelete));
+        $this->expectExceptionMessage(sprintf('Missing required query parameter(s) "%s"', $keyToDelete));
         $this->expectException(ClientException::class);
         $this->_client->createTrigger($data);
     }
@@ -108,14 +112,14 @@ class TriggersTest extends StorageApiTestCase
             ],
         ]);
 
-        $loadedTrigger = $this->_client->getTrigger($trigger['id']);
+        $loadedTrigger = $this->_client->getTrigger((int) $trigger['id']);
         $this->assertEquals($trigger['id'], $loadedTrigger['id']);
 
-        $this->_client->deleteTrigger($loadedTrigger['id']);
+        $this->_client->deleteTrigger((int) $loadedTrigger['id']);
 
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage(sprintf('Trigger with id [%d] was not found', $loadedTrigger['id']));
-        $this->_client->getTrigger($trigger['id']);
+        $this->_client->getTrigger((int) $trigger['id']);
     }
 
     public function testListAction(): void
