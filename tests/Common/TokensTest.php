@@ -576,4 +576,36 @@ class TokensTest extends StorageApiTestCase
             $this->assertSame('manage', $bucketPermission);
         }
     }
+
+    public function testTokenWithoutTokensManagePermissionCanListAndViewOnlySelf()
+    {
+        $tokenId = $this->_client->createToken([], 'Token without canManageTokens permission');
+
+        $tokens = $this->_client->listTokens();
+        $this->assertCount(2, $tokens);
+
+        $token = $this->_client->getToken($tokenId);
+        $this->assertFalse($token['canManageTokens']);
+
+        $client = new \Keboola\StorageApi\Client(array(
+            'token' => $token['token'],
+            'url' => STORAGE_API_URL,
+        ));
+
+        $verifiedToken = $client->verifyToken();
+
+        $tokens = $client->listTokens();
+        $this->assertCount(1, $tokens);
+
+        $token = reset($tokens);
+        $this->assertSame($verifiedToken['id'], $token['id']);
+
+        $token = $client->getToken($tokenId);
+        $this->assertSame($verifiedToken['id'], $token['id']);
+
+        $tokenId = $this->_client->createToken([], 'Token without canManageTokens permission');
+
+        $this->expectException(ClientException::class);
+        $client->getToken($tokenId);
+    }
 }
