@@ -605,7 +605,10 @@ class TokensTest extends StorageApiTestCase
 
         $tokenId = $this->_client->createToken([], 'Token without canManageTokens permission');
 
-        $this->expectException(ClientException::class);
-        $client->getToken($tokenId);
+        try {
+            $client->getToken($tokenId);
+        } catch (ClientException $e) {
+            $this->assertEquals(403, $e->getCode());
+        }
     }
 }
