@@ -518,7 +518,7 @@ class FilesTest extends StorageApiTestCase
         $filePath = __DIR__ . '/../_data/files.upload.txt';
         $uploadOptions = new FileUploadOptions();
 
-        $newTokenId = $this->_client->createToken(array(), 'Files test');
+        $newTokenId = $this->_client->legacyCreateToken(array(), 'Files test');
         $newToken = $this->_client->getToken($newTokenId);
         $firstFileId = $this->createAndWaitForFile($filePath, $uploadOptions);
 
@@ -544,7 +544,7 @@ class FilesTest extends StorageApiTestCase
         $this->_client->dropToken($newTokenId);
 
         // new token wil all bucket permissions
-        $newTokenId = $this->_client->createToken(array(), 'files manage', null, true);
+        $newTokenId = $this->_client->legacyCreateToken(array(), 'files manage', null, true);
         $newToken = $this->_client->getToken($newTokenId);
 
 
@@ -559,7 +559,7 @@ class FilesTest extends StorageApiTestCase
         $file = $this->_client->prepareFileUpload($uploadOptions);
 
 
-        $newTokenId = $this->_client->createToken(array(), 'Files test', null, true);
+        $newTokenId = $this->_client->legacyCreateToken(array(), 'Files test', null, true);
         $newToken = $this->_client->getToken($newTokenId);
 
         // new token should not have access to any files
@@ -571,7 +571,7 @@ class FilesTest extends StorageApiTestCase
         $file = $newTokenClient->getFile($file['id']);
         $this->assertNotEmpty($file);
 
-        $this->_client->updateToken($newTokenId, array(), null, false);
+        $this->_client->legacyUpdateToken($newTokenId, array(), null, false);
 
         $token = $this->_client->getToken($newTokenId);
         $this->assertFalse($token['canReadAllFileUploads']);

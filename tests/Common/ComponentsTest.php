@@ -1162,7 +1162,7 @@ class ComponentsTest extends StorageApiTestCase
 
     public function testPermissions()
     {
-        $tokenId = $this->_client->createToken(array(), 'test');
+        $tokenId = $this->_client->legacyCreateToken(array(), 'test');
         $token = $this->_client->getToken($tokenId);
 
         $client = new \Keboola\StorageApi\Client(array(
@@ -1183,7 +1183,7 @@ class ComponentsTest extends StorageApiTestCase
     {
         $this->_initEmptyTestBuckets();
         $accessibleComponents = array("provisioning");
-        $tokenId = $this->_client->createToken(array($this->getTestBucketId(self::STAGE_IN) => "write"), 'test components', null, false, $accessibleComponents);
+        $tokenId = $this->_client->legacyCreateToken(array($this->getTestBucketId(self::STAGE_IN) => "write"), 'test components', null, false, $accessibleComponents);
         $token = $this->_client->getToken($tokenId);
 
         $client = new \Keboola\StorageApi\Client(array(
@@ -1216,7 +1216,7 @@ class ComponentsTest extends StorageApiTestCase
 
     public function testTokenWithManageAllBucketsShouldHaveAccessToComponents()
     {
-        $tokenId = $this->_client->createToken('manage', 'test components');
+        $tokenId = $this->_client->legacyCreateToken('manage', 'test components');
         $token = $this->_client->getToken($tokenId);
         $client = new \Keboola\StorageApi\Client(array(
             'token' => $token['token'],
@@ -1708,7 +1708,7 @@ class ComponentsTest extends StorageApiTestCase
         $configurationRow->setConfiguration($configurationData)
             ->setChangeDescription($configurationChangeDescription);
 
-        $newTokenId = $this->_client->createToken([], 'tests', 60, false, ['wr-db']);
+        $newTokenId = $this->_client->legacyCreateToken([], 'tests', 60, false, ['wr-db']);
         $newToken = $this->_client->getToken($newTokenId);
         $newClient = new \Keboola\StorageApi\Client([
             'token' => $newToken['token'],

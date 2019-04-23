@@ -9,6 +9,8 @@ use Keboola\StorageApi\Options\FileUploadTransferOptions;
 use Keboola\StorageApi\Options\GetFileOptions;
 use Keboola\StorageApi\Options\ListFilesOptions;
 use Keboola\StorageApi\Options\StatsOptions;
+use Keboola\StorageApi\Options\TokenCreateOptions;
+use Keboola\StorageApi\Options\TokenUpdateOptions;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
@@ -1038,7 +1040,7 @@ class Client
      * @param bool $canReadAllFileUploads
      * @return integer token id
      */
-    public function createToken($permissions, $description = null, $expiresIn = null, $canReadAllFileUploads = false, $componentAccess = null)
+    public function legacyCreateToken($permissions, $description = null, $expiresIn = null, $canReadAllFileUploads = false, $componentAccess = null)
     {
         $options = array();
 
@@ -1070,6 +1072,15 @@ class Client
         return $result["id"];
     }
 
+    public function createToken(TokenCreateOptions $options)
+    {
+        $result = $this->apiPost("storage/tokens", $options->toParamsArray());
+
+        $this->log("Token {$result["id"]} created", ["options" => $options->toParamsArray(), "result" => $result]);
+
+        return $result["id"];
+    }
+
     /**
      *
      * update token details
@@ -1079,7 +1090,7 @@ class Client
      * @param string null $description
      * @return int token id
      */
-    public function updateToken($tokenId, $permissions, $description = null, $canReadAllFileUploads = null, $componentAccess = null)
+    public function legacyUpdateToken($tokenId, $permissions, $description = null, $canReadAllFileUploads = null, $componentAccess = null)
     {
         $options = array();
         foreach ($permissions as $tableId => $permission) {
@@ -1105,6 +1116,25 @@ class Client
         $this->log("Token {$tokenId} updated", array("options" => $options, "result" => $result));
 
         return $tokenId;
+    }
+
+    /**
+     *
+     * update token details
+     *
+     * @param TokenUpdateOptions $options
+     * @return int token id
+     */
+    public function updateToken(TokenUpdateOptions $options)
+    {
+        $result = $this->apiPut("storage/tokens/" . $options->getTokenId(), $options->toParamsArray());
+
+        $this->log("Token {$options->getTokenId()} updated", [
+            "options" => $options->toParamsArray(),
+            "result" => $result
+        ]);
+
+        return $options->getTokenId();
     }
 
     /**
