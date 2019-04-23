@@ -204,7 +204,7 @@ class ExportParamsTest extends StorageApiTestCase
         $this->assertFalse($results['cacheHit']);
         $this->waitForFile($fileId);
 
-        $newTokenId = $this->_client->createToken(array(
+        $newTokenId = $this->_client->legacyCreateToken(array(
             $this->getTestBucketId() => 'read',
         ));
         $newToken = $this->_client->getToken($newTokenId);

@@ -996,7 +996,7 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
         $bucketPermissions = array(
             $this->getTestBucketId(self::STAGE_OUT) => 'read',
         );
-        $tokenId = $this->_client->createToken($bucketPermissions, 'workspaceLoadTest: Out read token');
+        $tokenId = $this->_client->legacyCreateToken($bucketPermissions, 'workspaceLoadTest: Out read token');
         $token = $this->_client->getToken($tokenId);
 
         $testClient = new \Keboola\StorageApi\Client(array(

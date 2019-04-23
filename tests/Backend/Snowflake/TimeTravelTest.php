@@ -199,7 +199,7 @@ class TimeTravelTest extends StorageApiTestCase
         $bucketPermissions = array(
             $this->getTestBucketId(self::STAGE_OUT) => 'write',
         );
-        $outputBucketTokenId = $this->_client->createToken($bucketPermissions, $description);
+        $outputBucketTokenId = $this->_client->legacyCreateToken($bucketPermissions, $description);
         $outputBucketToken = $this->_client->getToken($outputBucketTokenId);
         $outputBucketClient = new Client([
             'token' => $outputBucketToken['token'],
@@ -214,7 +214,7 @@ class TimeTravelTest extends StorageApiTestCase
         $bucketPermissions = array(
             $this->getTestBucketId() => 'read',
         );
-        $inputBucketTokenId = $this->_client->createToken($bucketPermissions, $description);
+        $inputBucketTokenId = $this->_client->legacyCreateToken($bucketPermissions, $description);
         $inputBucketToken = $this->_client->getToken($inputBucketTokenId);
         $inputBucketClient = new Client([
             'token' => $inputBucketToken['token'],
@@ -230,7 +230,7 @@ class TimeTravelTest extends StorageApiTestCase
             $this->getTestBucketId() => 'read',
             $this->getTestBucketId(self::STAGE_OUT) => 'write',
         );
-        $minimalTokenId = $this->_client->createToken($bucketPermissions, $description);
+        $minimalTokenId = $this->_client->legacyCreateToken($bucketPermissions, $description);
         $minimalToken = $this->_client->getToken($minimalTokenId);
         $minimalClient = new Client([
             'token' => $minimalToken['token'],
