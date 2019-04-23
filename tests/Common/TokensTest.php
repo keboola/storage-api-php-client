@@ -505,4 +505,70 @@ class TokensTest extends StorageApiTestCase
         }
         $this->fail('token should be invalid');
     }
+
+    public function testTokenUpdateKeepsCanManageBucketsFlag()
+    {
+        $bucketIds = array_map(
+            function ($bucket) {
+                return $bucket['id'];
+            },
+            $this->_client->listBuckets()
+        );
+
+        $this->assertGreaterThan(0, count($bucketIds));
+
+        $tokenId = $this->_client->createToken(
+            'manage',
+            'CanManageBuckets'
+        );
+
+        $token = $this->_client->getToken($tokenId);
+
+        $this->assertTrue($token['canManageBuckets']);
+
+        $this->assertCount(count($bucketIds), $token['bucketPermissions']);
+        $this->assertEmpty(array_diff($bucketIds, array_keys($token['bucketPermissions'])));
+
+        foreach ($token['bucketPermissions'] as $bucketPermission) {
+            $this->assertSame('manage', $bucketPermission);
+        }
+
+        // update token with permissions
+        $this->_client->updateToken(
+            $tokenId,
+            [
+                $this->_outBucketId => 'read',
+            ],
+            'CanManageBuckets update 1'
+        );
+
+        $token = $this->_client->getToken($tokenId);
+
+        $this->assertTrue($token['canManageBuckets']);
+
+        $this->assertCount(count($bucketIds), $token['bucketPermissions']);
+        $this->assertEmpty(array_diff($bucketIds, array_keys($token['bucketPermissions'])));
+
+        foreach ($token['bucketPermissions'] as $bucketPermission) {
+            $this->assertSame('manage', $bucketPermission);
+        }
+
+        // update token without permissions
+        $this->_client->updateToken(
+            $tokenId,
+            [],
+            'CanManageBuckets update 2'
+        );
+
+        $token = $this->_client->getToken($tokenId);
+
+        $this->assertTrue($token['canManageBuckets']);
+
+        $this->assertCount(count($bucketIds), $token['bucketPermissions']);
+        $this->assertEmpty(array_diff($bucketIds, array_keys($token['bucketPermissions'])));
+
+        foreach ($token['bucketPermissions'] as $bucketPermission) {
+            $this->assertSame('manage', $bucketPermission);
+        }
+    }
 }
