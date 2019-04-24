@@ -3,6 +3,8 @@ namespace Keboola\Test\Common;
 
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\Test\StorageApiTestCase;
+use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Client;
 
 class TokensTest extends StorageApiTestCase
 {
@@ -37,5 +39,50 @@ class TokensTest extends StorageApiTestCase
         $token = $this->_client->getToken($tokenId);
 
         $this->assertEquals('Created by ' . $currentToken['description'], $token['description']);
+    }
+
+    public function testTokenWithExpiration()
+    {
+        $options = (new TokenCreateOptions())
+            ->setDescription('Out read token with expiration')
+            ->setExpiresIn(2 * 60)
+        ;
+
+        $tokenId = $this->_client->createToken($options);
+        $token = $this->_client->getToken($tokenId);
+
+        $client = new \Keboola\StorageApi\Client(array(
+            'token' => $token['token'],
+            'url' => STORAGE_API_URL,
+        ));
+
+        $token = $client->verifyToken();
+
+        $this->assertNotEmpty($token['expires']);
+        $this->assertFalse($token['isExpired']);
+    }
+
+    public function testExpiredToken()
+    {
+        $options = (new TokenCreateOptions())
+            ->setDescription('Out read token with expiration')
+            ->setExpiresIn(1)
+        ;
+
+        $tokenId = $this->_client->createToken($options);
+        $token = $this->_client->getToken($tokenId);
+        $tries = 0;
+
+        $this->expectException(ClientException::class);
+        while ($tries < 7) {
+            $client = new Client([
+                'token' => $token['token'],
+                'url' => STORAGE_API_URL,
+            ]);
+            $client->verifyToken();
+            sleep(pow(2, $tries++));
+        }
+
+        $this->fail('token should be invalid');
     }
 }
