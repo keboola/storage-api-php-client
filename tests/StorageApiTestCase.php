@@ -10,7 +10,6 @@
 namespace Keboola\Test;
 
 use function array_key_exists;
-use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Options\ListFilesOptions;
@@ -400,33 +399,5 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
             $tries++;
             sleep(pow(2, $tries));
         }
-    }
-
-    protected function createTableWithRandomData(string $tableName, int $rows = 5, int $columns = 10, $charsInCell = 20): string
-    {
-        $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
-        $header = [];
-        for ($i = 0; $i++ < $columns;) {
-            $header[] = 'col_' . $i;
-        }
-        $csvFile->writeRow($header);
-        for ($i = 0; $i++ < $rows;) {
-            $row = [];
-            for ($j = 0; $j++ < $columns;) {
-                $row[] = $this->createRandomString($charsInCell);
-            }
-            $csvFile->writeRow($row);
-        }
-        return $this->_client->createTable($this->getTestBucketId(), $tableName, $csvFile);
-    }
-
-    private function createRandomString(int $length): string
-    {
-        $alpabet = "abcdefghijklmnopqrstvuwxyz0123456789 ";
-        $randStr = "";
-        for ($i = 0; $i < $length; $i++) {
-            $randStr .=  $alpabet[rand(0, strlen($alpabet)-1)];
-        }
-        return $randStr;
     }
 }
