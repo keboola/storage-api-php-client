@@ -546,8 +546,7 @@ class FilesTest extends StorageApiTestCase
 
         // new token wil all bucket permissions
         $newTokenId = $this->_client->legacyCreateToken(array(), 'files manage', null, true);
-        $newToken = $this->_client->getToken($newTokenId);
-
+        $this->_client->getToken($newTokenId);
 
         $this->_client->dropToken($newTokenId);
     }
@@ -572,9 +571,10 @@ class FilesTest extends StorageApiTestCase
         $file = $newTokenClient->getFile($file['id']);
         $this->assertNotEmpty($file);
 
-        $this->_client->updateToken((new TokenUpdateOptions())
-            ->setCanReadAllFileUploads(false)
-            ->setTokenId($newTokenId)
+        $this->_client->updateToken(
+            (new TokenUpdateOptions())
+                ->setCanReadAllFileUploads(false)
+                ->setTokenId($newTokenId)
         );
 
         $token = $this->_client->getToken($newTokenId);
