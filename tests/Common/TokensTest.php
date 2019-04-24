@@ -2,6 +2,10 @@
 namespace Keboola\Test\Common;
 
 use Keboola\Csv\CsvFile;
+use Keboola\StorageApi\Components;
+use Keboola\StorageApi\Options\Components\Configuration;
+use Keboola\StorageApi\Options\Components\ConfigurationRow;
+use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
 use Keboola\Test\StorageApiTestCase;
@@ -37,6 +41,46 @@ class TokensTest extends StorageApiTestCase
 
             $this->_client->dropToken($token['id']);
         }
+    }
+
+    private function clearComponents()
+    {
+        $components = new Components($this->_client);
+        foreach ($components->listComponents() as $component) {
+            foreach ($component['configurations'] as $configuration) {
+                $components->deleteConfiguration($component['id'], $configuration['id']);
+            }
+        }
+
+        // erase all deleted configurations
+        foreach ($components->listComponents((new ListComponentsOptions())->setIsDeleted(true)) as $component) {
+            foreach ($component['configurations'] as $configuration) {
+                $components->deleteConfiguration($component['id'], $configuration['id']);
+            }
+        }
+    }
+
+    private function initTestConfigurations()
+    {
+        $components = new Components($this->_client);
+
+        $this->assertCount(0, $components->listComponents());
+
+        $components->addConfiguration((new Configuration())
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main1'));
+
+        $components->addConfiguration((new Configuration())
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-2')
+            ->setConfiguration(array('x' => 'y'))
+            ->setName('Main2'));
+
+        $components->addConfiguration((new Configuration())
+            ->setComponentId('provisioning')
+            ->setConfigurationId('main-1')
+            ->setName('Main1'));
     }
 
     public function testTokenRefresh()
@@ -572,5 +616,134 @@ class TokensTest extends StorageApiTestCase
         $this->assertCount(1, $componentAccess);
 
         $this->assertEquals('wr-db', reset($componentAccess));
+    }
+
+    public function testTokenComponentAccess()
+    {
+        $this->clearComponents();
+        $this->initTestConfigurations();
+
+        $options = (new TokenCreateOptions())
+            ->setDescription('Component Access Test Token')
+            ->addComponentAccess('wr-db')
+        ;
+
+        $tokenId = $this->_client->createToken($options);
+        $token = $this->_client->getToken($tokenId);
+
+        $client = new \Keboola\StorageApi\Client([
+            'token' => $token['token'],
+            'url' => STORAGE_API_URL
+        ]);
+
+        $components = new Components($client);
+
+        $config = $components->getConfiguration('wr-db', 'main-1');
+        $this->assertEquals($config['name'], 'Main1');
+
+        // we should be able to add a configuration for our accessible component
+        $options = (new Configuration())
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-3')
+            ->setName('Main3')
+        ;
+
+        $components->addConfiguration($options);
+
+        // check that we can update our configuration
+        $newName = 'MAIN-3';
+        $newConfigData = ['foo' => 'bar'];
+
+        $options->setName($newName);
+        $options->setConfiguration($newConfigData);
+
+        $components->updateConfiguration($options);
+
+        $updatedConfig = $components->getConfiguration($options->getComponentId(), $options->getConfigurationId());
+        $this->assertEquals($updatedConfig['name'], $newName);
+        $this->assertEquals($updatedConfig['configuration'], $newConfigData);
+
+
+        // we should be able to delete this configuration too
+        $components->deleteConfiguration($options->getComponentId(), $options->getConfigurationId());
+
+        try {
+            // it should be gone now, and throw a 404
+            $deletedConfig = $components->getConfiguration($options->getComponentId(), $options->getConfigurationId());
+            $this->fail('Configuration should no longer exist, throw a 404');
+        } catch (ClientException $e) {
+            $this->assertEquals(404, $e->getCode());
+        }
+
+        $this->clearComponents();
+    }
+
+    public function testTokenComponentAccessError()
+    {
+        $this->clearComponents();
+        $this->initTestConfigurations();
+
+        $options = (new TokenCreateOptions())
+            ->setDescription('Component Access Test Token')
+        ;
+
+        $tokenId = $this->_client->createToken($options);
+        $token = $this->_client->getToken($tokenId);
+
+        $client = new \Keboola\StorageApi\Client([
+            'token' => $token['token'],
+            'url' => STORAGE_API_URL
+        ]);
+
+        $components = new Components($client);
+
+        try {
+            $components->listComponents();
+            $this->fail("This token should not be allowed to access components API");
+        } catch (ClientException $e) {
+            $this->assertEquals('accessDenied', $e->getStringCode());
+        }
+
+        // the token with no component access should not be able to add configurations
+        try {
+            $components->addConfiguration((new Configuration())
+                ->setComponentId('provisioning')
+                ->setConfigurationId('main-2')
+                ->setConfiguration(['foo' => 'bar'])
+                ->setName('Main2'));
+            $this->fail("Token was not granted access to this component, should throw an exception");
+        } catch (ClientException $e) {
+            $this->assertEquals('accessDenied', $e->getStringCode());
+        }
+
+        // the token with no component access should not be able to add configuration rows
+        $configurationRow = new ConfigurationRow((new Configuration())
+            ->setComponentId('provisioning')
+            ->setConfigurationId('main-1')
+        );
+
+        $configurationRow->setRowId('main-1-1');
+
+        try {
+            $components->addConfigurationRow($configurationRow);
+            $this->fail("Token was not granted access to this component, should throw an exception");
+        } catch (ClientException  $e) {
+            $this->assertEquals('accessDenied', $e->getStringCode());
+        }
+
+        // grant permission to component
+        $options = (new TokenUpdateOptions())
+            ->addComponentAccess('provisioning')
+            ->setTokenId($tokenId)
+        ;
+
+        $this->_client->updateToken($options);
+
+        $componentList = $components->listComponents();
+        $this->assertCount(1, $componentList);
+
+        $this->assertEquals('provisioning', $componentList[0]['id']);
+
+        $this->clearComponents();
     }
 }
