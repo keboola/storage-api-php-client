@@ -2,6 +2,7 @@
 namespace Keboola\Test\Common;
 
 use Keboola\StorageApi\Options\TokenCreateOptions;
+use Keboola\StorageApi\Options\TokenUpdateOptions;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Client;
@@ -113,5 +114,53 @@ class TokensTest extends StorageApiTestCase
         }
 
         $this->fail('token should be invalid');
+    }
+
+    public function testAllBucketsTokenPermissions()
+    {
+        $bucketsInitialCount = count($this->_client->listBuckets());
+
+        $options = (new TokenCreateOptions())
+            ->setDescription('Out buckets manage token')
+            ->setCanManageBuckets(true)
+        ;
+
+        $tokenId = $this->_client->createToken($options);
+        $token = $this->_client->getToken($tokenId);
+
+        $client = new \Keboola\StorageApi\Client(array(
+            'token' => $token['token'],
+            'url' => STORAGE_API_URL,
+        ));
+
+        // token getter
+        $this->assertEquals($client->getTokenString(), $token['token']);
+        $this->assertEmpty($token['expires']);
+        $this->assertFalse($token['isExpired']);
+
+        $this->assertCount($bucketsInitialCount, $token['bucketPermissions']);
+        foreach ($token['bucketPermissions'] as $bucketId => $permission) {
+            $this->assertEquals(TokenUpdateOptions::ALL_BUCKETS_PERMISSION, $permission);
+        }
+
+        // check assigned buckets
+        $buckets = $client->listBuckets();
+        $this->assertCount($bucketsInitialCount, $buckets);
+
+        // create new bucket with master token
+        $newBucketId = $this->_client->createBucket('test', 'in', 'testing');
+
+        // check if new token has access to token
+        $buckets = $client->listBuckets();
+        $this->assertCount($bucketsInitialCount + 1, $buckets);
+
+        $token = $this->_client->getToken($tokenId);
+        $this->assertCount($bucketsInitialCount + 1, $token['bucketPermissions']);
+        foreach ($token['bucketPermissions'] as $bucketId => $permission) {
+            $this->assertEquals(TokenUpdateOptions::ALL_BUCKETS_PERMISSION, $permission);
+        }
+
+        $client->getBucket($newBucketId);
+        $client->dropBucket($newBucketId);
     }
 }
