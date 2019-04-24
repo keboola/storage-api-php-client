@@ -64,59 +64,6 @@ class LegacyTokensTest extends StorageApiTestCase
         }
     }
 
-    public function testTokenManagement()
-    {
-        $initialTokens = $this->_client->listTokens();
-        $description = 'Out read token';
-        $bucketPermissions = array(
-            $this->_outBucketId => 'read',
-        );
-
-        $tokenId = $this->_client->legacyCreateToken($bucketPermissions, $description);
-
-        // check created token
-        $token = $this->_client->getToken($tokenId);
-        $this->assertEquals($description, $token['description']);
-        $this->assertFalse($token['canManageTokens']);
-        $this->assertFalse($token['canManageBuckets']);
-        $this->assertEquals($bucketPermissions, $token['bucketPermissions']);
-
-        $currentToken = $this->_client->verifyToken();
-        $this->assertArrayHasKey('creatorToken', $token);
-
-        $creatorToken = $token['creatorToken'];
-        $this->assertEquals($currentToken['id'], $creatorToken['id']);
-        $this->assertEquals($currentToken['description'], $creatorToken['description']);
-
-        $tokens = $this->_client->listTokens();
-        $this->assertCount(count($initialTokens) + 1, $tokens);
-
-        // update and check token again
-        $newBucketPermissions = array(
-            $this->_inBucketId => 'write',
-        );
-        $this->_client->legacyUpdateToken($tokenId, $newBucketPermissions);
-        $token = $this->_client->getToken($tokenId);
-        $this->assertEquals($newBucketPermissions, $token['bucketPermissions']);
-
-        // invalid permission
-        $invalidBucketPermissions = array(
-            $this->_inBucketId => 'manage',
-        );
-        try {
-            $this->_client->legacyUpdateToken($tokenId, $invalidBucketPermissions);
-            $this->fail('Manage permissions shouild not be allower to set');
-        } catch (\Keboola\StorageApi\ClientException $e) {
-        }
-        $token = $this->_client->getToken($tokenId);
-        $this->assertEquals($newBucketPermissions, $token['bucketPermissions']);
-
-        // drop token test
-        $this->_client->dropToken($tokenId);
-        $tokens = $this->_client->listTokens();
-        $this->assertCount(count($initialTokens), $tokens);
-    }
-
     public function testTokenComponentAccess()
     {
 
