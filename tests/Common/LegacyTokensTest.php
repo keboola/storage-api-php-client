@@ -189,18 +189,6 @@ class LegacyTokensTest extends StorageApiTestCase
         $this->assertCount(count($initialTokens), $tokens);
     }
 
-    public function testCreateTokenWithoutDescription()
-    {
-        $currentToken = $this->_client->verifyToken();
-        $newTokenId = $this->_client->legacyCreateToken(array());
-        $newToken = $this->_client->getToken($newTokenId);
-
-        $this->assertEquals('Created by ' . $currentToken['description'], $newToken['description']);
-
-        $this->_client->dropToken($newTokenId);
-    }
-
-
     public function testTokenComponentAccess()
     {
 
