@@ -1,15 +1,9 @@
 <?php
-/**
- *
- * User: Martin Halamíček
- * Date: 16.5.12
- * Time: 11:46
- *
- */
 
 namespace Keboola\Test\Common;
 
 use GuzzleHttp\Client;
+use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
 use Keboola\Test\StorageApiTestCase;
 
@@ -513,24 +507,29 @@ class FilesTest extends StorageApiTestCase
         );
     }
 
-
     public function testFilesPermissions()
     {
         $filePath = __DIR__ . '/../_data/files.upload.txt';
         $uploadOptions = new FileUploadOptions();
 
-        $newTokenId = $this->_client->legacyCreateToken(array(), 'Files test');
+        $tokenOptions = (new TokenCreateOptions())
+            ->setDescription('Files test')
+        ;
+
+        $newTokenId = $this->_client->createToken($tokenOptions);
         $newToken = $this->_client->getToken($newTokenId);
-        $firstFileId = $this->createAndWaitForFile($filePath, $uploadOptions);
+
+        $this->createAndWaitForFile($filePath, $uploadOptions);
 
         $totalFilesCount = count($this->_client->listFiles());
         $this->assertNotEmpty($totalFilesCount);
 
         // new token should not have access to any files
-        $newTokenClient = new \Keboola\StorageApi\Client(array(
+        $newTokenClient = new \Keboola\StorageApi\Client([
             'token' => $newToken['token'],
             'url' => STORAGE_API_URL
-        ));
+        ]);
+
         $this->assertEmpty($newTokenClient->listFiles());
 
         $newFileId = $this->createAndWaitForFile($filePath, $uploadOptions, $newTokenClient);
@@ -543,12 +542,6 @@ class FilesTest extends StorageApiTestCase
         $this->assertEquals($newFileId, reset($files)['id']);
 
         $this->_client->dropToken($newTokenId);
-
-        // new token wil all bucket permissions
-        $newTokenId = $this->_client->legacyCreateToken(array(), 'files manage', null, true);
-        $this->_client->getToken($newTokenId);
-
-        $this->_client->dropToken($newTokenId);
     }
 
     public function testFilesPermissionsCanReadAllFiles()
@@ -558,15 +551,19 @@ class FilesTest extends StorageApiTestCase
             ->setFederationToken(true);
         $file = $this->_client->prepareFileUpload($uploadOptions);
 
+        $tokenOptions = (new TokenCreateOptions())
+            ->setDescription('Files test')
+            ->setCanReadAllFileUploads(true)
+        ;
 
-        $newTokenId = $this->_client->legacyCreateToken(array(), 'Files test', null, true);
+        $newTokenId = $this->_client->createToken($tokenOptions);
         $newToken = $this->_client->getToken($newTokenId);
 
         // new token should not have access to any files
-        $newTokenClient = new \Keboola\StorageApi\Client(array(
+        $newTokenClient = new \Keboola\StorageApi\Client([
             'token' => $newToken['token'],
             'url' => STORAGE_API_URL
-        ));
+        ]);
 
         $file = $newTokenClient->getFile($file['id']);
         $this->assertNotEmpty($file);
