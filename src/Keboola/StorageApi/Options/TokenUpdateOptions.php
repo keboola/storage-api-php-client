@@ -10,11 +10,6 @@ class TokenUpdateOptions
     const BUCKET_PERMISSION_WRITE = 'write';
     const ALL_BUCKETS_PERMISSION = 'manage';
 
-    private const ALLOWED_BUCKET_PERMISSIONS = [
-        self::BUCKET_PERMISSION_READ,
-        self::BUCKET_PERMISSION_WRITE,
-    ];
-
     /** @var string|null */
     private $description;
 
@@ -27,8 +22,8 @@ class TokenUpdateOptions
     /** @var array */
     private $bucketPermissions = [];
 
-    /** @var array|null */
-    private $componentAccess = null;
+    /** @var array */
+    private $componentAccess = [];
 
     /**
      * @return string|null
@@ -40,10 +35,12 @@ class TokenUpdateOptions
 
     /**
      * @param string $description
+     * @return $this
      */
     public function setDescription($description)
     {
         $this->description = (string) $description;
+        return $this;
     }
 
     /**
@@ -98,15 +95,6 @@ class TokenUpdateOptions
      */
     public function addBucketPermission($bucketId, $permission)
     {
-        if (!in_array($permission, self::ALLOWED_BUCKET_PERMISSIONS)) {
-            throw new ClientException(sprintf(
-                "Invalid permission '%s' for bucket '%s'. Allowed permissions are: %s",
-                $permission,
-                $bucketId,
-                implode(', ', self::ALLOWED_BUCKET_PERMISSIONS)
-            ));
-        }
-
         $this->bucketPermissions[$bucketId] = $permission;
         return $this;
     }
