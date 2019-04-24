@@ -2,13 +2,10 @@
 
 namespace Keboola\StorageApi\Options;
 
-use Keboola\StorageApi\ClientException;
-
 class TokenUpdateOptions
 {
     const BUCKET_PERMISSION_READ = 'read';
     const BUCKET_PERMISSION_WRITE = 'write';
-    const ALL_BUCKETS_PERMISSION = 'manage';
 
     /** @var string|null */
     private $description;
@@ -91,7 +88,6 @@ class TokenUpdateOptions
      * @param string $bucketId
      * @param string $permission
      * @return $this
-     * @throws ClientException
      */
     public function addBucketPermission($bucketId, $permission)
     {
