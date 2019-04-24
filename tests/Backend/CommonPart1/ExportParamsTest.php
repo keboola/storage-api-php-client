@@ -9,6 +9,8 @@
 
 namespace Keboola\Test\Backend\CommonPart1;
 
+use Keboola\StorageApi\Options\TokenCreateOptions;
+use Keboola\StorageApi\Options\TokenUpdateOptions;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\Client;
 use Keboola\Csv\CsvFile;
@@ -204,14 +206,16 @@ class ExportParamsTest extends StorageApiTestCase
         $this->assertFalse($results['cacheHit']);
         $this->waitForFile($fileId);
 
-        $newTokenId = $this->_client->legacyCreateToken(array(
-            $this->getTestBucketId() => 'read',
-        ));
+        $tokenOptions = (new TokenCreateOptions())
+            ->addBucketPermission($this->getTestBucketId(), TokenUpdateOptions::BUCKET_PERMISSION_READ)
+        ;
+
+        $newTokenId = $this->_client->createToken($tokenOptions);
         $newToken = $this->_client->getToken($newTokenId);
-        $client = new \Keboola\StorageApi\Client(array(
+        $client = new \Keboola\StorageApi\Client([
             'token' => $newToken['token'],
             'url' => STORAGE_API_URL,
-        ));
+        ]);
 
         $results = $client->exportTableAsync($tableId);
         $this->assertTrue($results['cacheHit']);
