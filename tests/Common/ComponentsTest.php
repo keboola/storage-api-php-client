@@ -1165,6 +1165,7 @@ class ComponentsTest extends StorageApiTestCase
         ]);
 
         $components = new \Keboola\StorageApi\Components($client);
+
         try {
             $components->listComponents();
             $this->fail('List components should not be allowed');
@@ -1191,6 +1192,7 @@ class ComponentsTest extends StorageApiTestCase
         ]);
 
         $components = new \Keboola\StorageApi\Components($client);
+
         $componentsList = $components->listComponents();
         $this->assertEmpty($componentsList);
 
@@ -1203,13 +1205,14 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals($config['id'], $componentsList[0]['configurations'][0]['id']);
 
         try {
-            $config = $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
+            $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
                 ->setComponentId('wr-db')
                 ->setName('Main'));
             $this->fail('Have not been granted permission to access this component, should throw exception');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('accessDenied', $e->getStringCode());
         }
+
         $this->_client->dropToken($tokenId);
     }
 
