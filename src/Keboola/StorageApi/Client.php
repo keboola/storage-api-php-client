@@ -1028,50 +1028,6 @@ class Client
         return $this->apiGet("storage/tokens/keen");
     }
 
-    /**
-     *
-     * create a new token
-     *
-     * @TODO refactor parameters
-     *
-     * @param array $permissions hash bucketId => permission (read/write) or "manage" for all buckets permissions
-     * @param string null $description
-     * @param integer $expiresIn number of seconds until token expires
-     * @param bool $canReadAllFileUploads
-     * @return integer token id
-     */
-    public function legacyCreateToken($permissions, $description = null, $expiresIn = null, $canReadAllFileUploads = false, $componentAccess = null)
-    {
-        $options = array();
-
-        if ($permissions == 'manage') {
-            $options['canManageBuckets'] = 1;
-        } else {
-            foreach ((array)$permissions as $tableId => $permission) {
-                $key = "bucketPermissions[{$tableId}]";
-                $options[$key] = $permission;
-            }
-        }
-        if ($description) {
-            $options["description"] = $description;
-        }
-        if ($expiresIn) {
-            $options["expiresIn"] = (int)$expiresIn;
-        }
-        $options['canReadAllFileUploads'] = (bool)$canReadAllFileUploads;
-
-        if ($componentAccess) {
-            foreach ((array)$componentAccess as $index => $component) {
-                $options['componentAccess[{$index}]'] = $component;
-            }
-        }
-        $result = $this->apiPost("storage/tokens", $options);
-
-        $this->log("Token {$result["id"]} created", array("options" => $options, "result" => $result));
-
-        return $result["id"];
-    }
-
     public function createToken(TokenCreateOptions $options)
     {
         $result = $this->apiPost("storage/tokens", $options->toParamsArray());
