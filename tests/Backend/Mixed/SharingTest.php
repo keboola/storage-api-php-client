@@ -10,6 +10,7 @@ use Keboola\Csv\CsvFile;
 use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\StorageApiTestCase;
@@ -151,12 +152,19 @@ class SharingTest extends StorageApiTestCase
             'sharing' => 'organization-project',
         ]);
 
-        $tokenId = $this->_client2->legacyCreateToken('manage', 'Test Token', 3600);
+        $tokenOptions = (new TokenCreateOptions())
+            ->setDescription('Test Token')
+            ->setCanManageBuckets(true)
+            ->setExpiresIn(3600)
+        ;
+
+        $tokenId = $this->_client2->createToken($tokenOptions);
         $token = $this->_client2->getToken($tokenId);
-        $client = new \Keboola\StorageApi\Client(array(
+
+        $client = new \Keboola\StorageApi\Client([
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
-        ));
+        ]);
 
         $response = $client->verifyToken();
         $this->assertArrayHasKey('owner', $response);
@@ -252,13 +260,19 @@ class SharingTest extends StorageApiTestCase
         );
 
         // new token creation
-        $tokenId = $this->_client->legacyCreateToken('manage', 'Test Token', 3600);
+        $tokenOptions = (new TokenCreateOptions())
+            ->setDescription('Test Token')
+            ->setCanManageBuckets(true)
+            ->setExpiresIn(3600)
+        ;
+
+        $tokenId = $this->_client->createToken($tokenOptions);
         $token = $this->_client->getToken($tokenId);
 
-        $client = new \Keboola\StorageApi\Client(array(
+        $client = new \Keboola\StorageApi\Client([
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
-        ));
+        ]);
 
         $client->verifyToken();
 
@@ -479,12 +493,19 @@ class SharingTest extends StorageApiTestCase
 
         $linkedBucketId = $this->_client2->linkBucket("linked-" . time(), 'out', $sharedBucket['project']['id'], $sharedBucket['id']);
 
-        $tokenId = $this->_client2->legacyCreateToken('manage', 'Test Token', 3600);
+        $tokenOptions = (new TokenCreateOptions())
+            ->setDescription('Test Token')
+            ->setExpiresIn(3600)
+            ->setCanManageBuckets(true)
+        ;
+
+        $tokenId = $this->_client2->createToken($tokenOptions);
         $token = $this->_client2->getToken($tokenId);
-        $client = new \Keboola\StorageApi\Client(array(
+
+        $client = new \Keboola\StorageApi\Client([
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
-        ));
+        ]);
 
         try {
             $client->dropBucket($linkedBucketId);
