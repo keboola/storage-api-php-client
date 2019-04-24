@@ -397,4 +397,19 @@ class TokensTest extends StorageApiTestCase
             $this->assertEquals('accessDenied', $e->getStringCode());
         }
     }
+
+    public function testAssignNonExistingBucketShouldFail()
+    {
+        $options = (new TokenCreateOptions())
+            ->setDescription('Some description')
+            ->addBucketPermission('out.non-existing',TokenUpdateOptions::BUCKET_PERMISSION_READ)
+        ;
+
+        try {
+            $this->_client->createToken($options);
+            $this->fail('Invalid permissions exception should be thrown');
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertEquals('storage.tokens.invalidPermissions', $e->getStringCode());
+        }
+    }
 }
