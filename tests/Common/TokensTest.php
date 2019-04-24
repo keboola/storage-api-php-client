@@ -189,4 +189,56 @@ class TokensTest extends StorageApiTestCase
             $this->assertNotContains($invalidToken, $e->getMessage(), "Token value should not be returned back");
         }
     }
+
+    public function testTokenProperties()
+    {
+        $currentToken = $this->_client->verifyToken();
+
+        $this->assertArrayHasKey('created', $currentToken);
+        $this->assertArrayHasKey('refreshed', $currentToken);
+        $this->assertArrayHasKey('description', $currentToken);
+        $this->assertArrayHasKey('id', $currentToken);
+
+        $this->assertTrue($currentToken['isMasterToken']);
+        $this->assertTrue($currentToken['canManageBuckets']);
+        $this->assertTrue($currentToken['canReadAllFileUploads']);
+        $this->assertFalse($currentToken['isDisabled']);
+        $this->assertNotEmpty($currentToken['bucketPermissions']);
+        $this->assertArrayHasKey('owner', $currentToken);
+        $this->assertArrayHasKey('admin', $currentToken);
+
+        $owner = $currentToken['owner'];
+        $this->assertInternalType('integer', $owner['dataSizeBytes']);
+        $this->assertInternalType('integer', $owner['rowsCount']);
+        $this->assertInternalType('boolean', $owner['hasRedshift']);
+
+        $this->assertArrayHasKey('limits', $owner);
+        $this->assertArrayHasKey('metrics', $owner);
+        $this->assertArrayHasKey('defaultBackend', $owner);
+
+        $firstLimit = reset($owner['limits']);
+        $limitKeys = array_keys($owner['limits']);
+
+        $this->assertArrayHasKey('name', $firstLimit);
+        $this->assertArrayHasKey('value', $firstLimit);
+        $this->assertInternalType('int', $firstLimit['value']);
+        $this->assertEquals($firstLimit['name'], $limitKeys[0]);
+
+        $tokenFound = false;
+        foreach ($this->_client->listTokens() as $token) {
+            if ($token['id'] !== $currentToken['id']) {
+                continue;
+            }
+
+            $this->assertArrayHasKey('admin', $token);
+
+            $admin = $token['admin'];
+            $this->assertArrayHasKey('id', $admin);
+            $this->assertArrayHasKey('name', $admin);
+
+            $tokenFound = true;
+        }
+
+        $this->assertTrue($tokenFound);
+    }
 }
