@@ -15,7 +15,7 @@ use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\StorageApi\Client;
 
-class TokensTest extends StorageApiTestCase
+class LegacyTokensTest extends StorageApiTestCase
 {
 
     protected $_inBucketId;
