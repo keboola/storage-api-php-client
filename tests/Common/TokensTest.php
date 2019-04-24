@@ -402,7 +402,7 @@ class TokensTest extends StorageApiTestCase
     {
         $options = (new TokenCreateOptions())
             ->setDescription('Some description')
-            ->addBucketPermission('out.non-existing',TokenUpdateOptions::BUCKET_PERMISSION_READ)
+            ->addBucketPermission('out.non-existing', TokenUpdateOptions::BUCKET_PERMISSION_READ)
         ;
 
         try {
