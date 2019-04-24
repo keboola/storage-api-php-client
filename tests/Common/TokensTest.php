@@ -717,9 +717,10 @@ class TokensTest extends StorageApiTestCase
         }
 
         // the token with no component access should not be able to add configuration rows
-        $configurationRow = new ConfigurationRow((new Configuration())
-            ->setComponentId('provisioning')
-            ->setConfigurationId('main-1')
+        $configurationRow = new ConfigurationRow(
+            (new Configuration())
+                ->setComponentId('provisioning')
+                ->setConfigurationId('main-1')
         );
 
         $configurationRow->setRowId('main-1-1');
