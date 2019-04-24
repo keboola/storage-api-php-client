@@ -64,54 +64,6 @@ class LegacyTokensTest extends StorageApiTestCase
         }
     }
 
-    public function testTokenProperties()
-    {
-        $token = $this->_client->verifyToken();
-        $this->assertArrayHasKey('created', $token);
-        $this->assertArrayHasKey('refreshed', $token);
-        $this->assertArrayHasKey('description', $token);
-        $this->assertArrayHasKey('id', $token);
-        $this->assertTrue($token['isMasterToken']);
-        $this->assertTrue($token['canManageBuckets']);
-        $this->assertTrue($token['canReadAllFileUploads']);
-        $this->assertFalse($token['isDisabled']);
-        $this->assertNotEmpty($token['bucketPermissions']);
-        $this->assertArrayHasKey('owner', $token);
-        $this->assertArrayHasKey('admin', $token);
-
-        $owner = $token['owner'];
-        $this->assertInternalType('integer', $owner['dataSizeBytes']);
-        $this->assertInternalType('integer', $owner['rowsCount']);
-        $this->assertInternalType('boolean', $owner['hasRedshift']);
-
-        $this->assertArrayHasKey('limits', $owner);
-        $this->assertArrayHasKey('metrics', $owner);
-        $this->assertArrayHasKey('defaultBackend', $owner);
-
-        $firstLimit = reset($owner['limits']);
-        $limitKeys = array_keys($owner['limits']);
-        $this->assertArrayHasKey('name', $firstLimit);
-        $this->assertArrayHasKey('value', $firstLimit);
-        $this->assertInternalType('int', $firstLimit['value']);
-        $this->assertEquals($firstLimit['name'], $limitKeys[0]);
-
-        $tokens = $this->_client->listTokens();
-        foreach ($tokens as $currentToken) {
-            if ($currentToken['id'] != $token['id']) {
-                continue;
-            }
-
-            $this->assertArrayHasKey('admin', $currentToken);
-
-            $admin = $currentToken['admin'];
-            $this->assertArrayHasKey('id', $admin);
-            $this->assertArrayHasKey('name', $admin);
-            return;
-        }
-
-        $this->fail("Token $token[id] not present in list");
-    }
-
     public function testTokenManagement()
     {
         $initialTokens = $this->_client->listTokens();
