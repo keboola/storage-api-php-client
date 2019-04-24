@@ -1,6 +1,7 @@
 <?php
 namespace Keboola\Test\Common;
 
+use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
 use Keboola\Test\StorageApiTestCase;
@@ -240,5 +241,160 @@ class TokensTest extends StorageApiTestCase
         }
 
         $this->assertTrue($tokenFound);
+    }
+
+    public function testBucketReadTokenPermission()
+    {
+        $outTableId = $this->_client->createTable(
+            $this->outBucketId,
+            'languages',
+            new CsvFile(__DIR__ . '/../_data/languages.csv')
+        );
+
+        $options = (new TokenCreateOptions())
+            ->setDescription('Out read token')
+            ->addBucketPermission($this->outBucketId, TokenUpdateOptions::BUCKET_PERMISSION_READ)
+        ;
+
+        $tokenId = $this->_client->createToken($options);
+        $token = $this->_client->getToken($tokenId);
+
+        $client = new \Keboola\StorageApi\Client(array(
+            'token' => $token['token'],
+            'url' => STORAGE_API_URL,
+        ));
+
+        // check assigned buckets
+        $buckets = $client->listBuckets();
+        $this->assertCount(1, $buckets);
+
+        $bucket = reset($buckets);
+        $this->assertEquals($this->outBucketId, $bucket['id']);
+
+        // check assigned tables
+        $tables = $client->listTables();
+        $this->assertCount(1, $tables);
+
+        $table = reset($tables);
+        $this->assertEquals($outTableId, $table['id']);
+
+        // read from table
+        $tableData = $client->getTableDataPreview($outTableId);
+        $this->assertNotEmpty($tableData);
+
+        // write into table
+        try {
+            $client->writeTable($outTableId, new CsvFile(__DIR__ . '/../_data/languages.csv'));
+            $this->fail('Table imported with read token');
+        } catch (ClientException  $e) {
+            $this->assertEquals('accessDenied', $e->getStringCode());
+        }
+
+        // table attribute
+        try {
+            $client->setTableAttribute($outTableId, 'my', 'value');
+            $this->fail('Table attribute written with read token');
+        } catch (ClientException $e) {
+            $this->assertEquals('accessDenied', $e->getStringCode());
+        }
+    }
+
+    public function testBucketWriteTokenPermission()
+    {
+        $outTableId = $this->_client->createTable(
+            $this->outBucketId,
+            'languages',
+            new CsvFile(__DIR__ . '/../_data/languages.csv')
+        );
+
+        $options = (new TokenCreateOptions())
+            ->setDescription('Out write token')
+            ->addBucketPermission($this->outBucketId, TokenUpdateOptions::BUCKET_PERMISSION_WRITE)
+        ;
+
+        $tokenId = $this->_client->createToken($options);
+        $token = $this->_client->getToken($tokenId);
+
+        $client = new \Keboola\StorageApi\Client(array(
+            'token' => $token['token'],
+            'url' => STORAGE_API_URL,
+        ));
+
+        // check assigned buckets
+        $buckets = $client->listBuckets();
+        $this->assertCount(1, $buckets);
+
+        $bucket = reset($buckets);
+        $this->assertEquals($this->outBucketId, $bucket['id']);
+
+        // check assigned tables
+        $tables = $client->listTables();
+        $this->assertCount(1, $tables);
+
+        $table = reset($tables);
+        $this->assertEquals($outTableId, $table['id']);
+
+        // read from table
+        $tableData = $client->getTableDataPreview($outTableId);
+        $this->assertNotEmpty($tableData);
+
+        // write into table
+        $client->writeTable($outTableId, new CsvFile(__DIR__ . '/../_data/languages.csv'));
+
+        // table attribute
+        $client->setTableAttribute($outTableId, 'my', 'value');
+    }
+
+    public function testNoBucketTokenPermission()
+    {
+        $outTableId = $this->_client->createTable(
+            $this->outBucketId,
+            'languages',
+            new CsvFile(__DIR__ . '/../_data/languages.csv')
+        );
+
+        $options = (new TokenCreateOptions())
+            ->setDescription('No bucket permission token')
+        ;
+
+        $tokenId = $this->_client->createToken($options);
+        $token = $this->_client->getToken($tokenId);
+
+        $client = new \Keboola\StorageApi\Client(array(
+            'token' => $token['token'],
+            'url' => STORAGE_API_URL,
+        ));
+
+        // check assigned buckets
+        $buckets = $client->listBuckets();
+        $this->assertCount(0, $buckets);
+
+        // check assigned tables
+        $tables = $client->listTables();
+        $this->assertCount(0, $tables);
+
+        // read from table
+        try {
+            $client->getTableDataPreview($outTableId);
+            $this->fail('Table exported with no permission token');
+        } catch (ClientException  $e) {
+            $this->assertEquals('accessDenied', $e->getStringCode());
+        }
+
+        // write into table
+        try {
+            $client->writeTable($outTableId, new CsvFile(__DIR__ . '/../_data/languages.csv'));
+            $this->fail('Table imported with no permission token');
+        } catch (ClientException  $e) {
+            $this->assertEquals('accessDenied', $e->getStringCode());
+        }
+
+        // table attribute
+        try {
+            $client->setTableAttribute($outTableId, 'my', 'value');
+            $this->fail('Table attribute with no permission token');
+        } catch (ClientException $e) {
+            $this->assertEquals('accessDenied', $e->getStringCode());
+        }
     }
 }
