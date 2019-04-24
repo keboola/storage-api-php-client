@@ -200,24 +200,6 @@ class LegacyTokensTest extends StorageApiTestCase
         $this->_client->dropToken($newTokenId);
     }
 
-    public function testTokenRefresh()
-    {
-        $description = 'Out read token';
-        $bucketPermissions = array(
-            $this->_inBucketId => 'read'
-        );
-        $tokenId = $this->_client->legacyCreateToken($bucketPermissions, $description);
-        $token = $this->_client->getToken($tokenId);
-        $created = strtotime($token['created']);
-        sleep(1);
-
-        $this->_client->refreshToken($tokenId);
-        $tokenAfterRefresh = $this->_client->getToken($tokenId);
-
-        $this->assertNotEquals($token['token'], $tokenAfterRefresh['token']);
-        $this->assertGreaterThan($created, strtotime($tokenAfterRefresh['refreshed']));
-    }
-
 
     public function testTokenComponentAccess()
     {
