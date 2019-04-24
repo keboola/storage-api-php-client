@@ -28,4 +28,14 @@ class TokensTest extends StorageApiTestCase
         $this->assertNotEquals($tokenString, $token['token']);
         $this->assertGreaterThan($created->getTimestamp(), $refreshed->getTimestamp());
     }
+
+    public function testCreateTokenWithoutDescriptionGetsDefautGeneratedDescription()
+    {
+        $currentToken = $this->_client->verifyToken();
+
+        $tokenId = $this->_client->createToken(new TokenCreateOptions());
+        $token = $this->_client->getToken($tokenId);
+
+        $this->assertEquals('Created by ' . $currentToken['description'], $token['description']);
+    }
 }
