@@ -26,6 +26,11 @@ class TokensTest extends StorageApiTestCase
         parent::setUp();
         $this->_initEmptyTestBuckets();
 
+        $triggers = $this->_client->listTriggers();
+        foreach ($triggers as $trigger) {
+            $this->_client->deleteTrigger((int) $trigger['id']);
+        }
+
         $this->_outBucketId = $this->getTestBucketId(self::STAGE_OUT);
         $this->_inBucketId = $this->getTestBucketId(self::STAGE_IN);
 
