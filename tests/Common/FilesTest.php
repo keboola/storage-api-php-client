@@ -10,6 +10,7 @@
 namespace Keboola\Test\Common;
 
 use GuzzleHttp\Client;
+use Keboola\StorageApi\Options\TokenUpdateOptions;
 use Keboola\Test\StorageApiTestCase;
 
 use \Keboola\StorageApi\Options\FileUploadOptions;
@@ -571,7 +572,10 @@ class FilesTest extends StorageApiTestCase
         $file = $newTokenClient->getFile($file['id']);
         $this->assertNotEmpty($file);
 
-        $this->_client->legacyUpdateToken($newTokenId, array(), null, false);
+        $this->_client->updateToken((new TokenUpdateOptions())
+            ->setCanReadAllFileUploads(false)
+            ->setTokenId($newTokenId)
+        );
 
         $token = $this->_client->getToken($newTokenId);
         $this->assertFalse($token['canReadAllFileUploads']);
