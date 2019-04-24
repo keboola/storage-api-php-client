@@ -112,22 +112,6 @@ class LegacyTokensTest extends StorageApiTestCase
         $this->fail("Token $token[id] not present in list");
     }
 
-    public function testInvalidToken()
-    {
-        $invalidToken = 'tohlejeneplatnytoken';
-
-        try {
-            $client = new \Keboola\StorageApi\Client(array(
-                'token' => $invalidToken,
-                'url' => STORAGE_API_URL,
-            ));
-            $client->verifyToken();
-            $this->fail('Exception should be thrown on invalid token');
-        } catch (\Keboola\StorageApi\ClientException $e) {
-            $this->assertNotContains($invalidToken, $e->getMessage(), "Token value should not be returned back");
-        }
-    }
-
     public function testTokenManagement()
     {
         $initialTokens = $this->_client->listTokens();
