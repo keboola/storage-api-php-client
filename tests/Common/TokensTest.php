@@ -62,16 +62,6 @@ class TokensTest extends StorageApiTestCase
         $this->assertGreaterThan($created->getTimestamp(), $refreshed->getTimestamp());
     }
 
-    public function testCreateTokenWithoutDescriptionGetsDefautGeneratedDescription()
-    {
-        $currentToken = $this->_client->verifyToken();
-
-        $tokenId = $this->_client->createToken(new TokenCreateOptions());
-        $token = $this->_client->getToken($tokenId);
-
-        $this->assertEquals('Created by ' . $currentToken['description'], $token['description']);
-    }
-
     public function testTokenWithExpiration()
     {
         $options = (new TokenCreateOptions())
@@ -411,5 +401,176 @@ class TokensTest extends StorageApiTestCase
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.tokens.invalidPermissions', $e->getStringCode());
         }
+    }
+
+    public function testBucketPermissionUpdate()
+    {
+        $options = (new TokenCreateOptions())
+            ->setDescription('Some description')
+        ;
+
+        $tokenId = $this->_client->createToken($options);
+        $token = $this->_client->getToken($tokenId);
+
+        $bucketPermissions = $token['bucketPermissions'];
+        $this->assertCount(0, $bucketPermissions);
+
+        // read permissions
+        $permission = TokenUpdateOptions::BUCKET_PERMISSION_READ;
+        $options = (new TokenUpdateOptions())
+            ->addBucketPermission($this->outBucketId, $permission)
+            ->setTokenId($tokenId)
+        ;
+
+        $this->_client->updateToken($options);
+        $token = $this->_client->getToken($tokenId);
+
+        $bucketPermissions = $token['bucketPermissions'];
+        $this->assertCount(1, $bucketPermissions);
+
+        $this->assertEquals($this->outBucketId, key($bucketPermissions));
+        $this->assertEquals($permission, reset($bucketPermissions));
+
+        // read permissions
+        $permission = TokenUpdateOptions::BUCKET_PERMISSION_WRITE;
+        $options = (new TokenUpdateOptions())
+            ->addBucketPermission($this->outBucketId, $permission)
+            ->setTokenId($tokenId)
+        ;
+
+        $this->_client->updateToken($options);
+        $token = $this->_client->getToken($tokenId);
+
+        $bucketPermissions = $token['bucketPermissions'];
+        $this->assertCount(1, $bucketPermissions);
+
+        $this->assertEquals($this->outBucketId, key($bucketPermissions));
+        $this->assertEquals($permission, reset($bucketPermissions));
+
+        // invalid permission
+        $options = (new TokenUpdateOptions())
+            ->addBucketPermission($this->outBucketId, TokenUpdateOptions::ALL_BUCKETS_PERMISSION)
+            ->setTokenId($tokenId)
+        ;
+
+        try {
+            $this->_client->updateToken($options);
+            $this->fail('Manage permissions should not be allowed to set');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.tokens.invalidPermissions', $e->getStringCode());
+        }
+
+        $token = $this->_client->getToken($tokenId);
+
+        $bucketPermissions = $token['bucketPermissions'];
+        $this->assertCount(1, $bucketPermissions);
+
+        $this->assertEquals($this->outBucketId, key($bucketPermissions));
+        $this->assertEquals($permission, reset($bucketPermissions));
+    }
+
+    public function testAssignNonExistingBucketPermissionShouldFail()
+    {
+        $options = (new TokenCreateOptions())
+            ->setDescription('Some description')
+            ->addBucketPermission($this->outBucketId, TokenUpdateOptions::ALL_BUCKETS_PERMISSION)
+        ;
+
+        try {
+            $this->_client->createToken($options);
+            $this->fail('Invalid permissions exception should be thrown');
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertEquals('storage.tokens.invalidPermissions', $e->getStringCode());
+        }
+    }
+
+    public function testTokenDrop()
+    {
+        $initialTokens = $this->_client->listTokens();
+
+        $tokenId = $this->_client->createToken(new TokenCreateOptions());
+
+        $tokens = $this->_client->listTokens();
+        $this->assertCount(count($initialTokens) + 1, $tokens);
+
+        $this->_client->dropToken($tokenId);
+
+        $tokens = $this->_client->listTokens();
+        $this->assertCount(count($initialTokens), $tokens);
+    }
+
+    public function testTokenDefaultOptions()
+    {
+        $currentToken = $this->_client->verifyToken();
+
+        $tokenId = $this->_client->createToken(new TokenCreateOptions());
+        $token = $this->_client->getToken($tokenId);
+
+        $this->assertNull($token['expires']);
+
+        $this->assertFalse($token['isMasterToken']);
+        $this->assertFalse($token['canManageBuckets']);
+        $this->assertFalse($token['canManageTokens']);
+        $this->assertFalse($token['canReadAllFileUploads']);
+
+        $this->assertEquals('Created by ' . $currentToken['description'], $token['description']);
+
+        $this->assertArrayHasKey('bucketPermissions', $token);
+        $this->assertCount(0, $token['bucketPermissions']);
+
+        $this->assertArrayNotHasKey('admin', $token);
+        $this->assertArrayNotHasKey('componentAccess', $token);
+
+        $this->assertArrayHasKey('creatorToken', $token);
+
+        $creator = $token['creatorToken'];
+        $this->assertEquals($currentToken['id'], $creator['id']);
+        $this->assertEquals($currentToken['description'], $creator['description']);
+    }
+
+    public function testTokenMaximalOptions()
+    {
+        $currentToken = $this->_client->verifyToken();
+
+        $options = (new TokenCreateOptions())
+            ->setDescription('My test token')
+            ->setCanReadAllFileUploads(true)
+            ->setCanManageBuckets(true)
+            ->setExpiresIn(360)
+            ->addComponentAccess('wr-db')
+        ;
+
+        $tokenId = $this->_client->createToken($options);
+        $token = $this->_client->getToken($tokenId);
+
+        $this->assertNotNull($token['expires']);
+
+        $this->assertFalse($token['isMasterToken']);
+        $this->assertFalse($token['canManageTokens']);
+
+        $this->assertTrue($token['canManageBuckets']);
+        $this->assertTrue($token['canReadAllFileUploads']);
+
+        $this->assertEquals('My test token', $token['description']);
+
+        $this->assertArrayHasKey('bucketPermissions', $token);
+
+        $bucketPermissions = $token['bucketPermissions'];
+        $this->assertCount(2, $bucketPermissions);
+
+        $this->assertArrayNotHasKey('admin', $token);
+
+        $this->assertArrayHasKey('creatorToken', $token);
+
+        $creator = $token['creatorToken'];
+        $this->assertEquals($currentToken['id'], $creator['id']);
+        $this->assertEquals($currentToken['description'], $creator['description']);
+
+        $this->assertArrayHasKey('componentAccess', $token);
+
+        $componentAccess = $token['componentAccess'];
+        $this->assertCount(1, $componentAccess);
+
+        $this->assertEquals('wr-db', reset($componentAccess));
     }
 }
