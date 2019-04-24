@@ -172,4 +172,21 @@ class TokensTest extends StorageApiTestCase
         $this->assertNotEmpty($keen['keenToken']);
         $this->assertNotEmpty($keen['projectId']);
     }
+
+    public function testInvalidToken()
+    {
+        $invalidToken = 'thisIsInvalidToken';
+
+        try {
+            $client = new \Keboola\StorageApi\Client(array(
+                'token' => $invalidToken,
+                'url' => STORAGE_API_URL,
+            ));
+
+            $client->verifyToken();
+            $this->fail('Exception should be thrown on invalid token');
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertNotContains($invalidToken, $e->getMessage(), "Token value should not be returned back");
+        }
+    }
 }
