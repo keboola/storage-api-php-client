@@ -1,9 +1,5 @@
 <?php
-/**
- *
- * User: Erik Zigo
- *
- */
+
 namespace Keboola\Test\Backend\Mixed;
 
 use Keboola\Csv\CsvFile;
