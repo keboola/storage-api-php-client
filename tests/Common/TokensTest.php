@@ -163,4 +163,13 @@ class TokensTest extends StorageApiTestCase
         $client->getBucket($newBucketId);
         $client->dropBucket($newBucketId);
     }
+
+    public function testKeenReadTokensRetrieve()
+    {
+        $keen = $this->_client->getKeenReadCredentials();
+
+        $this->assertArrayHasKey('keenToken', $keen);
+        $this->assertNotEmpty($keen['keenToken']);
+        $this->assertNotEmpty($keen['projectId']);
+    }
 }

@@ -112,14 +112,6 @@ class LegacyTokensTest extends StorageApiTestCase
         $this->fail("Token $token[id] not present in list");
     }
 
-    public function testKeenReadTokensRetrieve()
-    {
-        $keen = $this->_client->getKeenReadCredentials();
-        $this->assertArrayHasKey('keenToken', $keen);
-        $this->assertNotEmpty($keen['keenToken']);
-        $this->assertNotEmpty($keen['projectId']);
-    }
-
     public function testInvalidToken()
     {
         $invalidToken = 'tohlejeneplatnytoken';
