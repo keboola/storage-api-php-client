@@ -1085,43 +1085,6 @@ class Client
      *
      * update token details
      *
-     * @param string $tokenId
-     * @param array $permissions
-     * @param string null $description
-     * @return int token id
-     */
-    public function legacyUpdateToken($tokenId, $permissions, $description = null, $canReadAllFileUploads = null, $componentAccess = null)
-    {
-        $options = array();
-        foreach ($permissions as $tableId => $permission) {
-            $key = "bucketPermissions[{$tableId}]";
-            $options[$key] = $permission;
-        }
-        if ($description) {
-            $options["description"] = $description;
-        }
-
-        if (!is_null($canReadAllFileUploads)) {
-            $options["canReadAllFileUploads"] = (bool)$canReadAllFileUploads;
-        }
-
-        if ($componentAccess) {
-            foreach ((array)$componentAccess as $index => $component) {
-                $options['componentAccess[{$index}]'] = $component;
-            }
-        }
-
-        $result = $this->apiPut("storage/tokens/" . $tokenId, $options);
-
-        $this->log("Token {$tokenId} updated", array("options" => $options, "result" => $result));
-
-        return $tokenId;
-    }
-
-    /**
-     *
-     * update token details
-     *
      * @param TokenUpdateOptions $options
      * @return int token id
      */
