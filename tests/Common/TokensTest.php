@@ -8,6 +8,35 @@ use Keboola\StorageApi\Client;
 
 class TokensTest extends StorageApiTestCase
 {
+    /** @var string */
+    private $inBucketId;
+
+    /** @var string */
+    private $outBucketId;
+
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->_initEmptyTestBuckets();
+
+        $this->outBucketId = $this->getTestBucketId(self::STAGE_OUT);
+        $this->inBucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $this->initTokens();
+    }
+
+    private function initTokens()
+    {
+        foreach ($this->_client->listTokens() as $token) {
+            if ($token['isMasterToken']) {
+                continue;
+            }
+
+            $this->_client->dropToken($token['id']);
+        }
+    }
+
     public function testTokenRefresh()
     {
         $options = (new TokenCreateOptions())
