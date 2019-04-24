@@ -14,6 +14,8 @@ use Keboola\StorageApi\Client;
 
 class TokensTest extends StorageApiTestCase
 {
+    private const BUCKET_PERMISSION_MANAGE = 'manage';
+
     /** @var string */
     private $inBucketId;
 
@@ -207,7 +209,7 @@ class TokensTest extends StorageApiTestCase
 
         // invalid permission
         $options = (new TokenUpdateOptions())
-            ->addBucketPermission($this->outBucketId, TokenUpdateOptions::ALL_BUCKETS_PERMISSION)
+            ->addBucketPermission($this->outBucketId, self::BUCKET_PERMISSION_MANAGE)
             ->setTokenId($tokenId)
         ;
 
@@ -231,7 +233,7 @@ class TokensTest extends StorageApiTestCase
     {
         $options = (new TokenCreateOptions())
             ->setDescription('Some description')
-            ->addBucketPermission($this->outBucketId, TokenUpdateOptions::ALL_BUCKETS_PERMISSION)
+            ->addBucketPermission($this->outBucketId, self::BUCKET_PERMISSION_MANAGE)
         ;
 
         try {
@@ -679,7 +681,7 @@ class TokensTest extends StorageApiTestCase
 
         $this->assertCount($bucketsInitialCount, $token['bucketPermissions']);
         foreach ($token['bucketPermissions'] as $bucketId => $permission) {
-            $this->assertEquals(TokenUpdateOptions::ALL_BUCKETS_PERMISSION, $permission);
+            $this->assertEquals(self::BUCKET_PERMISSION_MANAGE, $permission);
         }
 
         // check assigned buckets
@@ -696,7 +698,7 @@ class TokensTest extends StorageApiTestCase
         $token = $this->_client->getToken($tokenId);
         $this->assertCount($bucketsInitialCount + 1, $token['bucketPermissions']);
         foreach ($token['bucketPermissions'] as $bucketId => $permission) {
-            $this->assertEquals(TokenUpdateOptions::ALL_BUCKETS_PERMISSION, $permission);
+            $this->assertEquals(self::BUCKET_PERMISSION_MANAGE, $permission);
         }
 
         $client->getBucket($newBucketId);
