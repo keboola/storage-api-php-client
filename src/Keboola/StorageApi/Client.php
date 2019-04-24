@@ -2107,6 +2107,32 @@ class Client
         $this->apiPost("storage/tables/$tableId/primary-key", $data);
     }
 
+    public function createTrigger(array $option): array
+    {
+        return $this->apiPost("storage/triggers/", $option);
+    }
+
+    public function updateTrigger(int $triggerId, array $options): array
+    {
+        return $this->apiPut('storage/triggers/' . $triggerId .'/', $options);
+    }
+
+    public function getTrigger(int $triggerId): array
+    {
+        return $this->apiGet('storage/triggers/' . $triggerId .'/');
+    }
+
+    public function deleteTrigger(int $triggerId): string
+    {
+        return $this->apiDelete('storage/triggers/' . $triggerId .'/');
+    }
+
+    public function listTriggers(array $filter = null): array
+    {
+        $filter = $filter ?? [];
+        return $this->apiGet('storage/triggers/?' . http_build_query($filter));
+    }
+
     /**
      * @return int
      */
