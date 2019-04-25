@@ -587,10 +587,10 @@ class TokensTest extends StorageApiTestCase
         $token = $this->_client->getToken($tokenId);
         $this->assertFalse($token['canManageTokens']);
 
-        $client = new \Keboola\StorageApi\Client(array(
+        $client = new \Keboola\StorageApi\Client([
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
-        ));
+        ]);
 
         $verifiedToken = $client->verifyToken();
 
@@ -607,6 +607,7 @@ class TokensTest extends StorageApiTestCase
 
         try {
             $client->getToken($tokenId);
+            $this->fail('Other token detail with no permissions');
         } catch (ClientException $e) {
             $this->assertEquals(403, $e->getCode());
         }
