@@ -71,7 +71,7 @@ class OrderByTest extends StorageApiTestCase
     /**
      * @dataProvider invalidDataProvider
      */
-    public function testInvalidOrderByParamsShouldReturnErrorInDataPreview(array $order, string $message)
+    public function testInvalidOrderByParamsShouldReturnErrorInDataPreview($order, $message)
     {
         $tableId = $this->prepareTable();
 
@@ -83,7 +83,7 @@ class OrderByTest extends StorageApiTestCase
     /**
      * @dataProvider invalidDataProvider
      */
-    public function testInvalidOrderByParamsShouldReturnErrorInExport(array $order, string $message)
+    public function testInvalidOrderByParamsShouldReturnErrorInExport($order, $message)
     {
         $tableId = $this->prepareTable();
 
@@ -145,7 +145,7 @@ class OrderByTest extends StorageApiTestCase
         $this->getExportedTable($tableId, $params);
     }
 
-    private function getExportedTable(string $tableId, array $exportOptions)
+    private function getExportedTable($tableId, $exportOptions)
     {
         $tableExporter = new TableExporter($this->_client);
         $path = tempnam(sys_get_temp_dir(), 'keboola-export');

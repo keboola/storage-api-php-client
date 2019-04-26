@@ -402,7 +402,7 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
         }
     }
 
-    protected function createTableWithRandomData(string $tableName, int $rows = 5, int $columns = 10, $charsInCell = 20)
+    protected function createTableWithRandomData($tableName, $rows = 5, $columns = 10, $charsInCell = 20)
     {
         $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
         $header = [];
