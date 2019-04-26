@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+
 
 namespace Keboola\Test\Backend\Snowflake;
 
@@ -12,13 +12,13 @@ use Keboola\Test\StorageApiTestCase;
 
 class OrderByTest extends StorageApiTestCase
 {
-    public function setUp(): void
+    public function setUp()
     {
         parent::setUp();
         $this->_initEmptyTestBuckets();
     }
 
-    public function testSimpleSort(): void
+    public function testSimpleSort()
     {
         $tableId = $this->prepareTable();
 
@@ -32,7 +32,7 @@ class OrderByTest extends StorageApiTestCase
         $this->assertSame('aa', $exportTable[0]['column_string']);
     }
 
-    public function testSortWithDataType(): void
+    public function testSortWithDataType()
     {
         $tableId = $this->prepareTable();
 
@@ -46,7 +46,7 @@ class OrderByTest extends StorageApiTestCase
         $this->assertSame('1.1234', $exportTable[0]['column_double']);
     }
 
-    public function testComplexSort(): void
+    public function testComplexSort()
     {
         $tableId = $this->prepareTable();
 
@@ -71,7 +71,7 @@ class OrderByTest extends StorageApiTestCase
     /**
      * @dataProvider invalidDataProvider
      */
-    public function testInvalidOrderByParamsShouldReturnErrorInDataPreview(array $order, string $message): void
+    public function testInvalidOrderByParamsShouldReturnErrorInDataPreview(array $order, string $message)
     {
         $tableId = $this->prepareTable();
 
@@ -83,7 +83,7 @@ class OrderByTest extends StorageApiTestCase
     /**
      * @dataProvider invalidDataProvider
      */
-    public function testInvalidOrderByParamsShouldReturnErrorInExport(array $order, string $message): void
+    public function testInvalidOrderByParamsShouldReturnErrorInExport(array $order, string $message)
     {
         $tableId = $this->prepareTable();
 
@@ -92,7 +92,7 @@ class OrderByTest extends StorageApiTestCase
         $this->getExportedTable($tableId, ['orderBy' => [$order]]);
     }
 
-    public function invalidDataProvider(): array
+    public function invalidDataProvider()
     {
         return [
             [
@@ -145,7 +145,7 @@ class OrderByTest extends StorageApiTestCase
         $this->getExportedTable($tableId, $params);
     }
 
-    private function getExportedTable(string $tableId, array $exportOptions): array
+    private function getExportedTable(string $tableId, array $exportOptions)
     {
         $tableExporter = new TableExporter($this->_client);
         $path = tempnam(sys_get_temp_dir(), 'keboola-export');
@@ -153,7 +153,7 @@ class OrderByTest extends StorageApiTestCase
         return Client::parseCsv(file_get_contents($path));
     }
 
-    private function prepareTable(): string
+    private function prepareTable()
     {
         $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
         $csvFile->writeRow(['column_string', 'column_string_number', 'column_double']);

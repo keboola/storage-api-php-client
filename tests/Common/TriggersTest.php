@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+
 
 namespace Keboola\Test\Common;
 
@@ -19,7 +19,7 @@ class TriggersTest extends StorageApiTestCase
         }
     }
 
-    public function testCreateAndUpdateTrigger(): void
+    public function testCreateAndUpdateTrigger()
     {
         $table1 = $this->createTableWithRandomData("watched-1");
         $table2 = $this->createTableWithRandomData("watched-2");
@@ -71,7 +71,7 @@ class TriggersTest extends StorageApiTestCase
     /**
      * @dataProvider deleteKeyProvider
      */
-    public function testMissingParameters($keyToDelete): void
+    public function testMissingParameters($keyToDelete)
     {
         $data = [
             'component' => 'orchestrator',
@@ -86,7 +86,7 @@ class TriggersTest extends StorageApiTestCase
         $this->_client->createTrigger($data);
     }
 
-    public function deleteKeyProvider(): array
+    public function deleteKeyProvider()
     {
         return [
             ['component'],
@@ -97,7 +97,7 @@ class TriggersTest extends StorageApiTestCase
         ];
     }
 
-    public function testDeleteTrigger(): void
+    public function testDeleteTrigger()
     {
         $table = $this->createTableWithRandomData("watched-2");
         $newTokenId = $this->_client->createToken([$this->getTestBucketId() => 'read']);
@@ -122,7 +122,7 @@ class TriggersTest extends StorageApiTestCase
         $this->_client->getTrigger((int) $trigger['id']);
     }
 
-    public function testListAction(): void
+    public function testListAction()
     {
         $table = $this->createTableWithRandomData("watched-2");
         $newTokenId = $this->_client->createToken([$this->getTestBucketId() => 'read']);

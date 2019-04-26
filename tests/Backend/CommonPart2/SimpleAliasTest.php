@@ -799,7 +799,7 @@ class SimpleAliasTest extends StorageApiTestCase
         ]);
     }
 
-    public function testAliasingAliasWithoutAutoSyncShouldFail(): void
+    public function testAliasingAliasWithoutAutoSyncShouldFail()
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
@@ -818,7 +818,7 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $aliasTableId, 'users_alias');
     }
 
-    public function testAliasingAliasWithFilterShouldFail(): void
+    public function testAliasingAliasWithFilterShouldFail()
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));

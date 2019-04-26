@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+
 
 namespace Keboola\Test\Common;
 
@@ -23,7 +23,7 @@ class JobsListTest extends StorageApiTestCase
         }
     }
 
-    public function testJobsListing(): void
+    public function testJobsListing()
     {
         $jobs = $this->_client->listJobs();
 
