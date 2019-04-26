@@ -143,7 +143,7 @@ class MetadataTest extends StorageApiTestCase
         $this->assertEquals($table['bucket']['metadata'][0]['value'], $md['value']);
     }
 
-    public function testTableDeleteWithMetadata():void
+    public function testTableDeleteWithMetadata()
     {
         $tableId = $this->getTestBucketId() . '.table';
         $columnId = $this->getTestBucketId() . '.table.sex';

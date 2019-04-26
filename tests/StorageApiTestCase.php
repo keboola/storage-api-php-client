@@ -402,7 +402,7 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
         }
     }
 
-    protected function createTableWithRandomData(string $tableName, int $rows = 5, int $columns = 10, $charsInCell = 20): string
+    protected function createTableWithRandomData(string $tableName, int $rows = 5, int $columns = 10, $charsInCell = 20)
     {
         $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
         $header = [];
@@ -420,7 +420,7 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
         return $this->_client->createTable($this->getTestBucketId(), $tableName, $csvFile);
     }
 
-    private function createRandomString(int $length): string
+    private function createRandomString(int $length)
     {
         $alpabet = "abcdefghijklmnopqrstvuwxyz0123456789 ";
         $randStr = "";
