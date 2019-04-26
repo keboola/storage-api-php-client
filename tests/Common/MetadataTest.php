@@ -9,9 +9,9 @@ use Keboola\StorageApi\Metadata;
 
 class MetadataTest extends StorageApiTestCase
 {
-    private const TEST_PROVIDER = "test";
+    const TEST_PROVIDER = "test";
 
-    private const ISO8601_REGEXP = '/^([0-9]{4})-(1[0-2]|0[1-9])-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})\+([0-9]{4})$/';
+    const ISO8601_REGEXP = '/^([0-9]{4})-(1[0-2]|0[1-9])-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})\+([0-9]{4})$/';
 
     public function setUp()
     {

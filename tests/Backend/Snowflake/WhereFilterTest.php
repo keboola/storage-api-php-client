@@ -170,7 +170,7 @@ class WhereFilterTest extends StorageApiTestCase
         $this->getExportedTable($tableId, ['whereFilters' => $where]);
     }
 
-    private function getExportedTable(string $tableId, array $exportOptions)
+    private function getExportedTable($tableId, $exportOptions)
     {
         $tableExporter = new TableExporter($this->_client);
         $path = tempnam(sys_get_temp_dir(), 'keboola-export');
