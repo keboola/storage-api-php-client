@@ -28,7 +28,7 @@ class TriggersTest extends StorageApiTestCase
         $trigger = $this->_client->createTrigger([
             'component' => 'orchestrator',
             'configurationId' => 123,
-            'coolDownPeriod' => 10,
+            'coolDownPeriodMinutes' => 10,
             'runWithTokenId' => $newTokenId,
             'tableIds' => [
                 $table1,
@@ -38,7 +38,7 @@ class TriggersTest extends StorageApiTestCase
 
         $this->assertEquals('orchestrator', $trigger['component']);
         $this->assertEquals(123, $trigger['configurationId']);
-        $this->assertEquals(10, $trigger['coolDownPeriod']);
+        $this->assertEquals(10, $trigger['coolDownPeriodMinutes']);
         $this->assertEquals($newTokenId, $trigger['runWithTokenId']);
         $this->assertEquals(null, $trigger['lastRun']);
         $this->assertEquals(
@@ -54,7 +54,7 @@ class TriggersTest extends StorageApiTestCase
         $updateData = [
             'component' => 'keboola.ex-1',
             'configurationId' => 111,
-            'coolDownPeriod' => 20,
+            'coolDownPeriodMinutes' => 20,
             'runWithTokenId' => $brandNewTokenId,
             'tableIds' => [$table1],
         ];
@@ -63,7 +63,7 @@ class TriggersTest extends StorageApiTestCase
 
         $this->assertEquals('keboola.ex-1', $updateTrigger['component']);
         $this->assertEquals(111, $updateTrigger['configurationId']);
-        $this->assertEquals(20, $updateTrigger['coolDownPeriod']);
+        $this->assertEquals(20, $updateTrigger['coolDownPeriodMinutes']);
         $this->assertEquals($brandNewTokenId, $updateTrigger['runWithTokenId']);
         $this->assertEquals([['tableId' => 'in.c-API-tests.watched-1']], $updateTrigger['tables']);
     }
@@ -76,7 +76,7 @@ class TriggersTest extends StorageApiTestCase
         $data = [
             'component' => 'orchestrator',
             'configurationId' => 123,
-            'coolDownPeriod' => 10,
+            'coolDownPeriodMinutes' => 10,
             'runWithTokenId' => 'nothing-is-here',
             'tableIds' => ['nothing-is-here'],
         ];
@@ -91,7 +91,7 @@ class TriggersTest extends StorageApiTestCase
         return [
             ['component'],
             ['configurationId'],
-            ['coolDownPeriod'],
+            ['coolDownPeriodMinutes'],
             ['runWithTokenId'],
             ['tableIds'],
         ];
@@ -105,7 +105,7 @@ class TriggersTest extends StorageApiTestCase
         $trigger = $this->_client->createTrigger([
             'component' => 'orchestrator',
             'configurationId' => 123,
-            'coolDownPeriod' => 10,
+            'coolDownPeriodMinutes' => 10,
             'runWithTokenId' => $newTokenId,
             'tableIds' => [
                 $table,
@@ -132,7 +132,7 @@ class TriggersTest extends StorageApiTestCase
         $trigger1 = $this->_client->createTrigger([
             'component' => $componentName,
             'configurationId' => $trigger1ConfigurationId,
-            'coolDownPeriod' => 10,
+            'coolDownPeriodMinutes' => 10,
             'runWithTokenId' => $newTokenId,
             'tableIds' => [
                 $table,
@@ -141,7 +141,7 @@ class TriggersTest extends StorageApiTestCase
         $trigger2 = $this->_client->createTrigger([
             'component' => 'keboola.ex-manzelka',
             'configurationId' => 123,
-            'coolDownPeriod' => 10,
+            'coolDownPeriodMinutes' => 10,
             'runWithTokenId' => $newTokenId,
             'tableIds' => [
                 $table,
