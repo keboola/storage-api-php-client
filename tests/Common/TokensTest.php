@@ -579,10 +579,12 @@ class TokensTest extends StorageApiTestCase
 
     public function testTokenWithoutTokensManagePermissionCanListAndViewOnlySelf()
     {
+        $initialTokens = $this->_client->listTokens();
+
         $tokenId = $this->_client->createToken([], 'Token without canManageTokens permission');
 
         $tokens = $this->_client->listTokens();
-        $this->assertGreaterThan(1, count($tokens));
+        $this->assertCount(count($initialTokens) + 1, $tokens);
 
         $token = $this->_client->getToken($tokenId);
         $this->assertFalse($token['canManageTokens']);
