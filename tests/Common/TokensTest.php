@@ -582,7 +582,7 @@ class TokensTest extends StorageApiTestCase
         $tokenId = $this->_client->createToken([], 'Token without canManageTokens permission');
 
         $tokens = $this->_client->listTokens();
-        $this->assertCount(2, $tokens);
+        $this->assertGreaterThan(1, count($tokens));
 
         $token = $this->_client->getToken($tokenId);
         $this->assertFalse($token['canManageTokens']);
