@@ -754,4 +754,119 @@ class TokensTest extends StorageApiTestCase
 
         $this->fail('token should be invalid');
     }
+
+    public function testTokenUpdateKeepsCanManageBucketsFlag()
+    {
+        $bucketIds = array_map(
+            function ($bucket) {
+                return $bucket['id'];
+            },
+            $this->_client->listBuckets()
+        );
+
+        $this->assertGreaterThan(0, count($bucketIds));
+
+        $options = (new TokenCreateOptions())
+            ->setDescription('CanManageBuckets')
+            ->setCanManageBuckets(true)
+        ;
+
+        $tokenId = $this->_client->createToken($options);
+
+        $token = $this->_client->getToken($tokenId);
+
+        $this->assertTrue($token['canManageBuckets']);
+
+        $this->assertCount(count($bucketIds), $token['bucketPermissions']);
+        $this->assertEmpty(array_diff($bucketIds, array_keys($token['bucketPermissions'])));
+
+        foreach ($token['bucketPermissions'] as $bucketPermission) {
+            $this->assertSame(self::BUCKET_PERMISSION_MANAGE, $bucketPermission);
+        }
+
+        // update token and set buckets permissions
+        $options = (new TokenUpdateOptions())
+            ->setDescription('CanManageBuckets update 1')
+            ->addBucketPermission($this->outBucketId, TokenUpdateOptions::BUCKET_PERMISSION_READ)
+            ->setTokenId($tokenId)
+        ;
+
+        $this->_client->updateToken($options);
+
+        $token = $this->_client->getToken($tokenId);
+
+        $this->assertTrue($token['canManageBuckets']);
+
+        $this->assertCount(count($bucketIds), $token['bucketPermissions']);
+        $this->assertEmpty(array_diff($bucketIds, array_keys($token['bucketPermissions'])));
+
+        foreach ($token['bucketPermissions'] as $bucketPermission) {
+            $this->assertSame(self::BUCKET_PERMISSION_MANAGE, $bucketPermission);
+        }
+
+        // update token without setting permissions
+        $options = (new TokenUpdateOptions())
+            ->setDescription('CanManageBuckets update 2')
+            ->setTokenId($tokenId)
+        ;
+
+        $this->_client->updateToken($options);
+
+        $token = $this->_client->getToken($tokenId);
+
+        $this->assertTrue($token['canManageBuckets']);
+
+        $this->assertCount(count($bucketIds), $token['bucketPermissions']);
+        $this->assertEmpty(array_diff($bucketIds, array_keys($token['bucketPermissions'])));
+
+        foreach ($token['bucketPermissions'] as $bucketPermission) {
+            $this->assertSame(self::BUCKET_PERMISSION_MANAGE, $bucketPermission);
+        }
+    }
+
+    public function testTokenWithoutTokensManagePermissionCanListAndViewOnlySelf()
+    {
+        $initialTokens = $this->_client->listTokens();
+
+        $options = (new TokenCreateOptions())
+            ->setDescription('Token without canManageTokens permission')
+        ;
+
+        $tokenId = $this->_client->createToken($options);
+
+        $tokens = $this->_client->listTokens();
+        $this->assertCount(count($initialTokens) + 1, $tokens);
+
+        $token = $this->_client->getToken($tokenId);
+        $this->assertFalse($token['canManageTokens']);
+
+        $client = new \Keboola\StorageApi\Client([
+            'token' => $token['token'],
+            'url' => STORAGE_API_URL,
+        ]);
+
+        $verifiedToken = $client->verifyToken();
+
+        $tokens = $client->listTokens();
+        $this->assertCount(1, $tokens);
+
+        $token = reset($tokens);
+        $this->assertSame($verifiedToken['id'], $token['id']);
+
+        $token = $client->getToken($tokenId);
+        $this->assertSame($verifiedToken['id'], $token['id']);
+
+        $options = (new TokenCreateOptions())
+            ->setDescription('Token without canManageTokens permission')
+        ;
+
+        $tokenId = $this->_client->createToken($options);
+
+        try {
+            $client->getToken($tokenId);
+            $this->fail('Other token detail with no permissions');
+        } catch (ClientException $e) {
+            $this->assertEquals(403, $e->getCode());
+        }
+    }
 }
