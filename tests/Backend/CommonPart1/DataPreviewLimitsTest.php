@@ -102,7 +102,7 @@ class DataPreviewLimitsTest extends StorageApiTestCase
     }
 
 
-    private function generateCsv(int $rowsCount, int $collsCount = 2)
+    private function generateCsv($rowsCount, $collsCount = 2)
     {
         $importFilePath = tempnam(sys_get_temp_dir(), 'keboola');
         $csvFile = new CsvFile($importFilePath);

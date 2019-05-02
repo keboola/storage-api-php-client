@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+
 
 namespace Keboola\Test\Backend\Snowflake;
 
@@ -170,7 +170,7 @@ class WhereFilterTest extends StorageApiTestCase
         $this->getExportedTable($tableId, ['whereFilters' => $where]);
     }
 
-    private function getExportedTable(string $tableId, array $exportOptions): array
+    private function getExportedTable($tableId, $exportOptions)
     {
         $tableExporter = new TableExporter($this->_client);
         $path = tempnam(sys_get_temp_dir(), 'keboola-export');
@@ -178,7 +178,7 @@ class WhereFilterTest extends StorageApiTestCase
         return Client::parseCsv(file_get_contents($path));
     }
 
-    private function prepareTable(): string
+    private function prepareTable()
     {
         $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
         $csvFile->writeRow(['column_string', 'column_string_number', 'column_double']);
