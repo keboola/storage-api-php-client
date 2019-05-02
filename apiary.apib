@@ -4464,7 +4464,7 @@ Created a trigger listeng on set of tables
     + runWithTokenId (required, number) - Id of token used for running configured component
     + component: `orchestration` (required, enum[string]) - For now we support only 'orchestration'
     + configurationId (required, number) - Id of component configuration
-    + coolDownPeriod (required, number) - Minimal cool down period before firing action again in minutes (min is 5 minutes)
+    + coolDownPeriodMinutes (required, number) - Minimal cool down period before firing action again in minutes (min is 5 minutes)
     + tabledIds (required, object) - Array of tables ids
         + tableId (string) - Id of table (like "in.c-test.watched")
 + Request
@@ -4475,7 +4475,7 @@ Created a trigger listeng on set of tables
 
     + Body
 
-            runWithTokenId=123&component=orchestration&configurationId=123&coolDownPeriod=20&tableIds[0]=in.c-test.watched-1&tableIds[1]=in.c-prod.watched-5
+            runWithTokenId=123&component=orchestration&configurationId=123&coolDownPeriodMinutes=20&tableIds[0]=in.c-test.watched-1&tableIds[1]=in.c-prod.watched-5
 
 + Response 201 (application/json)
 
@@ -4486,7 +4486,7 @@ Created a trigger listeng on set of tables
             "component": "orchestration",
             "configurationId": 123,
             "lastRun": null,
-            "coolDownPeriod": 20,
+            "coolDownPeriodMinutes": 20,
             "creatorName": "Name Surname",
             "creatorId": 1,
             "createdByTokenName": "dev@keboola.com",
@@ -4518,7 +4518,7 @@ List all token of project with possible filters
                 "component": "orchestration",
                 "configurationId": 123,
                 "lastRun": null,
-                "coolDownPeriod": 20,
+                "coolDownPeriodMinutes": 20,
                 "creatorName": "Name Surname",
                 "creatorId": 1,
                 "createdByTokenName": "dev@keboola.com",
@@ -4544,7 +4544,7 @@ Updates an existing trigger
     + runWithTokenId (optional, number) - Id of token used for running configured component
     + component `orchestration` (optional, enum[string]) - For now we support only 'orchestrations'
     + configurationId (optional, number) - Id of component configuration
-    + coolDownPeriod (optional, number) - Minimal cool down period before firing action again in minutes (min is 5 minutes)
+    + coolDownPeriodMinutes (optional, number) - Minimal cool down period before firing action again in minutes (min is 5 minutes)
     + tabledIds (optional, object) - Array of tables ids
         + tableId (string) - Id of table (like "in.c-test.watched")
 
@@ -4567,7 +4567,7 @@ Updates an existing trigger
             "component": "orchestration",
             "configurationId": 100,
             "lastRun": null,
-            "coolDownPeriod": 20,
+            "coolDownPeriodMinutes": 20,
             "creatorName": "Name Surname",
             "creatorId": 1,
             "createdByTokenName": "dev@keboola.com",
