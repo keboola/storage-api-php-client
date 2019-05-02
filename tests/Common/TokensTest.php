@@ -14,7 +14,7 @@ use Keboola\StorageApi\Client;
 
 class TokensTest extends StorageApiTestCase
 {
-    private const BUCKET_PERMISSION_MANAGE = 'manage';
+    const BUCKET_PERMISSION_MANAGE = 'manage';
 
     /** @var string */
     private $inBucketId;
