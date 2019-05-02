@@ -320,8 +320,10 @@ class TokensTest extends StorageApiTestCase
 
         $this->assertArrayHasKey('bucketPermissions', $token);
 
+        $buckets = $this->_client->listBuckets();
+
         $bucketPermissions = $token['bucketPermissions'];
-        $this->assertCount(2, $bucketPermissions);
+        $this->assertCount(count($buckets), $bucketPermissions);
 
         $this->assertArrayNotHasKey('admin', $token);
 
