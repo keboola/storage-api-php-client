@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+
 
 namespace Keboola\Test\Backend\Snowflake;
 
@@ -57,7 +57,7 @@ class FulltextSearchTest extends StorageApiTestCase
         $this->_client->getTableDataPreview($tableId, $params);
     }
 
-    private function prepareTable(): string
+    private function prepareTable()
     {
         $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
         $csvFile->writeRow(['column_1', 'column_2', 'column_3']);

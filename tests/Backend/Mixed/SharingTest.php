@@ -954,7 +954,7 @@ class SharingTest extends StorageApiTestCase
         }
     }
 
-    public function testCloneLinkedBucket(): void
+    public function testCloneLinkedBucket()
     {
         $this->deleteAllWorkspaces();
         $this->initTestBuckets(self::BACKEND_SNOWFLAKE);

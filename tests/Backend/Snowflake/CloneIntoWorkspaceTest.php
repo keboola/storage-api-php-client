@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+
 
 namespace Keboola\Test\Backend\Snowflake;
 
@@ -21,7 +21,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
      * @param int $aliasNestingLevel
      * @throws Exception
      */
-    public function testClone(int $aliasNestingLevel): void
+    public function testClone(int $aliasNestingLevel)
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
         $sourceTableId = $this->createTableFromFile(
@@ -125,7 +125,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         ];
     }
 
-    public function testCloneMultipleTables(): void
+    public function testCloneMultipleTables()
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
         $table1Id = $this->_client->createTable(
@@ -167,7 +167,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
      * @dataProvider aliasSettingsProvider
      * @param array $aliasSettings
      */
-    public function testCloneOtherAliasesNotAllowed(array $aliasSettings): void
+    public function testCloneOtherAliasesNotAllowed(array $aliasSettings)
     {
         $sourceBucketId = $this->getTestBucketId();
         $sourceTableId = $this->createTableFromFile(
@@ -328,7 +328,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         }
     }
 
-    public function aliasSettingsProvider(): array
+    public function aliasSettingsProvider()
     {
         return [
             'filtered alias' => [
@@ -357,7 +357,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         string $bucketId,
         string $importFilePath,
         $primaryKey = 'id'
-    ): string {
+    ) {
 
         return $client->createTable(
             $bucketId,
