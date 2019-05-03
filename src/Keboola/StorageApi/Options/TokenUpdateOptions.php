@@ -2,7 +2,7 @@
 
 namespace Keboola\StorageApi\Options;
 
-class TokenUpdateOptions
+class TokenUpdateOptions extends TokenAbstractOptions
 {
     const BUCKET_PERMISSION_READ = 'read';
     const BUCKET_PERMISSION_WRITE = 'write';
