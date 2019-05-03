@@ -183,9 +183,8 @@ class TokensTest extends StorageApiTestCase
 
         // read permissions
         $permission = TokenAbstractOptions::BUCKET_PERMISSION_READ;
-        $options = (new TokenUpdateOptions())
+        $options = (new TokenUpdateOptions($tokenId))
             ->addBucketPermission($this->outBucketId, $permission)
-            ->setTokenId($tokenId)
         ;
 
         $this->_client->updateToken($options);
@@ -199,9 +198,8 @@ class TokensTest extends StorageApiTestCase
 
         // read permissions
         $permission = TokenAbstractOptions::BUCKET_PERMISSION_WRITE;
-        $options = (new TokenUpdateOptions())
+        $options = (new TokenUpdateOptions($tokenId))
             ->addBucketPermission($this->outBucketId, $permission)
-            ->setTokenId($tokenId)
         ;
 
         $this->_client->updateToken($options);
@@ -214,9 +212,8 @@ class TokensTest extends StorageApiTestCase
         $this->assertEquals($permission, reset($bucketPermissions));
 
         // invalid permission
-        $options = (new TokenUpdateOptions())
+        $options = (new TokenUpdateOptions($tokenId))
             ->addBucketPermission($this->outBucketId, self::BUCKET_PERMISSION_MANAGE)
-            ->setTokenId($tokenId)
         ;
 
         try {
@@ -480,9 +477,8 @@ class TokensTest extends StorageApiTestCase
         }
 
         // grant permission to component
-        $options = (new TokenUpdateOptions())
+        $options = (new TokenUpdateOptions($tokenId))
             ->addComponentAccess('provisioning')
-            ->setTokenId($tokenId)
         ;
 
         $this->_client->updateToken($options);
@@ -788,10 +784,9 @@ class TokensTest extends StorageApiTestCase
         }
 
         // update token and set buckets permissions
-        $options = (new TokenUpdateOptions())
+        $options = (new TokenUpdateOptions($tokenId))
             ->setDescription('CanManageBuckets update 1')
             ->addBucketPermission($this->outBucketId, TokenAbstractOptions::BUCKET_PERMISSION_READ)
-            ->setTokenId($tokenId)
         ;
 
         $this->_client->updateToken($options);
@@ -808,9 +803,8 @@ class TokensTest extends StorageApiTestCase
         }
 
         // update token without setting permissions
-        $options = (new TokenUpdateOptions())
+        $options = (new TokenUpdateOptions($tokenId))
             ->setDescription('CanManageBuckets update 2')
-            ->setTokenId($tokenId)
         ;
 
         $this->_client->updateToken($options);
