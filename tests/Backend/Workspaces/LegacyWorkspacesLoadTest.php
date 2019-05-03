@@ -6,7 +6,6 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
-use Keboola\StorageApi\Options\TokenUpdateOptions;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
@@ -1004,7 +1003,7 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
         $tokenId = $this->_client->createToken($tokenOptions);
         $token = $this->_client->getToken($tokenId);
 
-        $testClient = new \Keboola\StorageApi\Client([
+        $testClient = new Client([
             'token' => $token['token'],
             'url' => STORAGE_API_URL
         ]);
