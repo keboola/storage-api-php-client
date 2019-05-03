@@ -9,6 +9,7 @@
 
 namespace Keboola\Test\Backend\CommonPart1;
 
+use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
 use Keboola\Test\StorageApiTestCase;
@@ -207,7 +208,7 @@ class ExportParamsTest extends StorageApiTestCase
         $this->waitForFile($fileId);
 
         $tokenOptions = (new TokenCreateOptions())
-            ->addBucketPermission($this->getTestBucketId(), TokenUpdateOptions::BUCKET_PERMISSION_READ)
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
         ;
 
         $newTokenId = $this->_client->createToken($tokenOptions);
