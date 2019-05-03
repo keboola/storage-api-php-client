@@ -13,9 +13,6 @@ abstract class TokenAbstractOptions
     /** @var bool|null */
     private $canReadAllFileUploads;
 
-    /** @var int $tokenId */
-    private $tokenId;
-
     /** @var array */
     private $bucketPermissions = [];
 
@@ -55,24 +52,6 @@ abstract class TokenAbstractOptions
     public function setCanReadAllFileUploads($canReadAll)
     {
         $this->canReadAllFileUploads = (bool) $canReadAll;
-        return $this;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getTokenId()
-    {
-        return $this->tokenId;
-    }
-
-    /**
-     * @param int $tokenId
-     * @return $this
-     */
-    public function setTokenId($tokenId)
-    {
-        $this->tokenId = (int) $tokenId;
         return $this;
     }
 
