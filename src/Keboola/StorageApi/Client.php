@@ -1053,7 +1053,7 @@ class Client
             "result" => $result
         ]);
 
-        return $options->getTokenId();
+        return $result['id'];
     }
 
     /**
