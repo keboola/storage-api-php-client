@@ -6,6 +6,7 @@ use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
+use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
 use Keboola\Test\StorageApiTestCase;
@@ -181,7 +182,7 @@ class TokensTest extends StorageApiTestCase
         $this->assertCount(0, $bucketPermissions);
 
         // read permissions
-        $permission = TokenUpdateOptions::BUCKET_PERMISSION_READ;
+        $permission = TokenAbstractOptions::BUCKET_PERMISSION_READ;
         $options = (new TokenUpdateOptions())
             ->addBucketPermission($this->outBucketId, $permission)
             ->setTokenId($tokenId)
@@ -197,7 +198,7 @@ class TokensTest extends StorageApiTestCase
         $this->assertEquals($permission, reset($bucketPermissions));
 
         // read permissions
-        $permission = TokenUpdateOptions::BUCKET_PERMISSION_WRITE;
+        $permission = TokenAbstractOptions::BUCKET_PERMISSION_WRITE;
         $options = (new TokenUpdateOptions())
             ->addBucketPermission($this->outBucketId, $permission)
             ->setTokenId($tokenId)
@@ -504,7 +505,7 @@ class TokensTest extends StorageApiTestCase
 
         $options = (new TokenCreateOptions())
             ->setDescription('Out read token')
-            ->addBucketPermission($this->outBucketId, TokenUpdateOptions::BUCKET_PERMISSION_READ)
+            ->addBucketPermission($this->outBucketId, TokenAbstractOptions::BUCKET_PERMISSION_READ)
         ;
 
         $tokenId = $this->_client->createToken($options);
@@ -560,7 +561,7 @@ class TokensTest extends StorageApiTestCase
 
         $options = (new TokenCreateOptions())
             ->setDescription('Out write token')
-            ->addBucketPermission($this->outBucketId, TokenUpdateOptions::BUCKET_PERMISSION_WRITE)
+            ->addBucketPermission($this->outBucketId, TokenAbstractOptions::BUCKET_PERMISSION_WRITE)
         ;
 
         $tokenId = $this->_client->createToken($options);
@@ -653,7 +654,7 @@ class TokensTest extends StorageApiTestCase
     {
         $options = (new TokenCreateOptions())
             ->setDescription('Some description')
-            ->addBucketPermission('out.non-existing', TokenUpdateOptions::BUCKET_PERMISSION_READ)
+            ->addBucketPermission('out.non-existing', TokenAbstractOptions::BUCKET_PERMISSION_READ)
         ;
 
         try {
@@ -789,7 +790,7 @@ class TokensTest extends StorageApiTestCase
         // update token and set buckets permissions
         $options = (new TokenUpdateOptions())
             ->setDescription('CanManageBuckets update 1')
-            ->addBucketPermission($this->outBucketId, TokenUpdateOptions::BUCKET_PERMISSION_READ)
+            ->addBucketPermission($this->outBucketId, TokenAbstractOptions::BUCKET_PERMISSION_READ)
             ->setTokenId($tokenId)
         ;
 

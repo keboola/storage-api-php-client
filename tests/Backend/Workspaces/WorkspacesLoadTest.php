@@ -4,6 +4,7 @@ namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
+use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
 use Keboola\StorageApi\Workspaces;
@@ -1434,7 +1435,7 @@ class WorkspacesLoadTest extends WorkspacesTestCase
 
         $tokenOptions = (new TokenCreateOptions())
             ->setDescription('workspaceLoadTest: Out read token')
-            ->addBucketPermission($this->getTestBucketId(self::STAGE_OUT), TokenUpdateOptions::BUCKET_PERMISSION_READ)
+            ->addBucketPermission($this->getTestBucketId(self::STAGE_OUT), TokenAbstractOptions::BUCKET_PERMISSION_READ)
         ;
 
         $tokenId = $this->_client->createToken($tokenOptions);
