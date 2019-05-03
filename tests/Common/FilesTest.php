@@ -569,9 +569,8 @@ class FilesTest extends StorageApiTestCase
         $this->assertNotEmpty($file);
 
         $this->_client->updateToken(
-            (new TokenUpdateOptions())
+            (new TokenUpdateOptions($newTokenId))
                 ->setCanReadAllFileUploads(false)
-                ->setTokenId($newTokenId)
         );
 
         $token = $this->_client->getToken($newTokenId);
