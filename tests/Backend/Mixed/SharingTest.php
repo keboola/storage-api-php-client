@@ -22,7 +22,7 @@ class SharingTest extends StorageApiTestCase
     {
         parent::setUp();
 
-        $this->_client2 = new \Keboola\StorageApi\Client(array(
+        $this->_client2 = new Client(array(
             'token' => STORAGE_API_LINKING_TOKEN,
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
@@ -157,7 +157,7 @@ class SharingTest extends StorageApiTestCase
         $tokenId = $this->_client2->createToken($tokenOptions);
         $token = $this->_client2->getToken($tokenId);
 
-        $client = new \Keboola\StorageApi\Client([
+        $client = new Client([
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
         ]);
@@ -265,7 +265,7 @@ class SharingTest extends StorageApiTestCase
         $tokenId = $this->_client->createToken($tokenOptions);
         $token = $this->_client->getToken($tokenId);
 
-        $client = new \Keboola\StorageApi\Client([
+        $client = new Client([
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
         ]);
@@ -498,7 +498,7 @@ class SharingTest extends StorageApiTestCase
         $tokenId = $this->_client2->createToken($tokenOptions);
         $token = $this->_client2->getToken($tokenId);
 
-        $client = new \Keboola\StorageApi\Client([
+        $client = new Client([
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
         ]);
