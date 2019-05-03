@@ -2,7 +2,7 @@
 
 namespace Keboola\StorageApi\Options;
 
-class TokenCreateOptions extends TokenUpdateOptions
+class TokenCreateOptions extends TokenAbstractOptions
 {
     /** @var int|null */
     private $expiresIn;
