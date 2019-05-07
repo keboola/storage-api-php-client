@@ -9,6 +9,8 @@ use Keboola\StorageApi\Options\FileUploadTransferOptions;
 use Keboola\StorageApi\Options\GetFileOptions;
 use Keboola\StorageApi\Options\ListFilesOptions;
 use Keboola\StorageApi\Options\StatsOptions;
+use Keboola\StorageApi\Options\TokenCreateOptions;
+use Keboola\StorageApi\Options\TokenUpdateOptions;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
@@ -1026,46 +1028,11 @@ class Client
         return $this->apiGet("storage/tokens/keen");
     }
 
-    /**
-     *
-     * create a new token
-     *
-     * @TODO refactor parameters
-     *
-     * @param array $permissions hash bucketId => permission (read/write) or "manage" for all buckets permissions
-     * @param string null $description
-     * @param integer $expiresIn number of seconds until token expires
-     * @param bool $canReadAllFileUploads
-     * @return integer token id
-     */
-    public function createToken($permissions, $description = null, $expiresIn = null, $canReadAllFileUploads = false, $componentAccess = null)
+    public function createToken(TokenCreateOptions $options)
     {
-        $options = array();
+        $result = $this->apiPost("storage/tokens", $options->toParamsArray());
 
-        if ($permissions == 'manage') {
-            $options['canManageBuckets'] = 1;
-        } else {
-            foreach ((array)$permissions as $tableId => $permission) {
-                $key = "bucketPermissions[{$tableId}]";
-                $options[$key] = $permission;
-            }
-        }
-        if ($description) {
-            $options["description"] = $description;
-        }
-        if ($expiresIn) {
-            $options["expiresIn"] = (int)$expiresIn;
-        }
-        $options['canReadAllFileUploads'] = (bool)$canReadAllFileUploads;
-
-        if ($componentAccess) {
-            foreach ((array)$componentAccess as $index => $component) {
-                $options['componentAccess[{$index}]'] = $component;
-            }
-        }
-        $result = $this->apiPost("storage/tokens", $options);
-
-        $this->log("Token {$result["id"]} created", array("options" => $options, "result" => $result));
+        $this->log("Token {$result["id"]} created", ["options" => $options->toParamsArray(), "result" => $result]);
 
         return $result["id"];
     }
@@ -1074,37 +1041,19 @@ class Client
      *
      * update token details
      *
-     * @param string $tokenId
-     * @param array $permissions
-     * @param string null $description
+     * @param TokenUpdateOptions $options
      * @return int token id
      */
-    public function updateToken($tokenId, $permissions, $description = null, $canReadAllFileUploads = null, $componentAccess = null)
+    public function updateToken(TokenUpdateOptions $options)
     {
-        $options = array();
-        foreach ($permissions as $tableId => $permission) {
-            $key = "bucketPermissions[{$tableId}]";
-            $options[$key] = $permission;
-        }
-        if ($description) {
-            $options["description"] = $description;
-        }
+        $result = $this->apiPut("storage/tokens/" . $options->getTokenId(), $options->toParamsArray());
 
-        if (!is_null($canReadAllFileUploads)) {
-            $options["canReadAllFileUploads"] = (bool)$canReadAllFileUploads;
-        }
+        $this->log("Token {$options->getTokenId()} updated", [
+            "options" => $options->toParamsArray(),
+            "result" => $result
+        ]);
 
-        if ($componentAccess) {
-            foreach ((array)$componentAccess as $index => $component) {
-                $options['componentAccess[{$index}]'] = $component;
-            }
-        }
-
-        $result = $this->apiPut("storage/tokens/" . $tokenId, $options);
-
-        $this->log("Token {$tokenId} updated", array("options" => $options, "result" => $result));
-
-        return $tokenId;
+        return $result['id'];
     }
 
     /**
