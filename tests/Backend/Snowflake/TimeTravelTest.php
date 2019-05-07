@@ -5,9 +5,6 @@ namespace Keboola\Test\Backend\Snowflake;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
-use Keboola\StorageApi\Options\TokenAbstractOptions;
-use Keboola\StorageApi\Options\TokenCreateOptions;
-use Keboola\StorageApi\Options\TokenUpdateOptions;
 use Keboola\StorageApi\TableExporter;
 use Keboola\Test\StorageApiTestCase;
 
@@ -198,14 +195,12 @@ class TimeTravelTest extends StorageApiTestCase
         sleep(10);
 
         // Setup our test clients
-        $outputBucketTokenOptions = (new TokenCreateOptions())
-            ->setDescription('Output bucket only write token')
-            ->addBucketPermission($this->getTestBucketId(self::STAGE_OUT), TokenAbstractOptions::BUCKET_PERMISSION_WRITE)
-        ;
-
-        $outputBucketTokenId = $this->_client->createToken($outputBucketTokenOptions);
+        $description = 'Output bucket only write token';
+        $bucketPermissions = array(
+            $this->getTestBucketId(self::STAGE_OUT) => 'write',
+        );
+        $outputBucketTokenId = $this->_client->createToken($bucketPermissions, $description);
         $outputBucketToken = $this->_client->getToken($outputBucketTokenId);
-
         $outputBucketClient = new Client([
             'token' => $outputBucketToken['token'],
             'url' => STORAGE_API_URL,
@@ -215,14 +210,12 @@ class TimeTravelTest extends StorageApiTestCase
             }
         ]);
 
-        $inputBucketTokenOptions = (new TokenCreateOptions())
-            ->setDescription('Input bucket only read token')
-            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
-        ;
-
-        $inputBucketTokenId = $this->_client->createToken($inputBucketTokenOptions);
+        $description = 'Input bucket only read token';
+        $bucketPermissions = array(
+            $this->getTestBucketId() => 'read',
+        );
+        $inputBucketTokenId = $this->_client->createToken($bucketPermissions, $description);
         $inputBucketToken = $this->_client->getToken($inputBucketTokenId);
-
         $inputBucketClient = new Client([
             'token' => $inputBucketToken['token'],
             'url' => STORAGE_API_URL,
@@ -232,15 +225,13 @@ class TimeTravelTest extends StorageApiTestCase
             }
         ]);
 
-        $minimalTokenOptions = (new TokenCreateOptions())
-            ->setDescription('Minimal permissions token')
-            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
-            ->addBucketPermission($this->getTestBucketId(self::STAGE_OUT), TokenAbstractOptions::BUCKET_PERMISSION_WRITE)
-        ;
-
-        $minimalTokenId = $this->_client->createToken($minimalTokenOptions);
+        $description = 'Minimal permissions token';
+        $bucketPermissions = array(
+            $this->getTestBucketId() => 'read',
+            $this->getTestBucketId(self::STAGE_OUT) => 'write',
+        );
+        $minimalTokenId = $this->_client->createToken($bucketPermissions, $description);
         $minimalToken = $this->_client->getToken($minimalTokenId);
-
         $minimalClient = new Client([
             'token' => $minimalToken['token'],
             'url' => STORAGE_API_URL,
