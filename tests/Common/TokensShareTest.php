@@ -1,8 +1,14 @@
 <?php
+/**
+ *
+ * User: Martin Halamíček
+ * Date: 16.5.12
+ * Time: 11:46
+ *
+ */
 
 namespace Keboola\Test\Common;
 
-use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\Test\StorageApiTestCase;
 
 class TokensShareTest extends StorageApiTestCase
@@ -21,7 +27,7 @@ class TokensShareTest extends StorageApiTestCase
 
     public function testTokenShare()
     {
-        $newTokenId = $this->_client->createToken(new TokenCreateOptions());
+        $newTokenId = $this->_client->createToken(array());
         $this->_client->shareToken($newTokenId, 'test@devel.keboola.com', 'Hi');
     }
 }
