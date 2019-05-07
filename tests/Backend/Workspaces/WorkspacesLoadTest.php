@@ -1,15 +1,12 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: marc
- * Date: 08/07/2016
- * Time: 15:30
- */
 
 namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
+use Keboola\StorageApi\Options\TokenAbstractOptions;
+use Keboola\StorageApi\Options\TokenCreateOptions;
+use Keboola\StorageApi\Options\TokenUpdateOptions;
 use Keboola\StorageApi\Workspaces;
 use Keboola\StorageApi\ClientException;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
@@ -1436,23 +1433,25 @@ class WorkspacesLoadTest extends WorkspacesTestCase
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
 
-        $bucketPermissions = array(
-            $this->getTestBucketId(self::STAGE_OUT) => 'read',
-        );
-        $tokenId = $this->_client->createToken($bucketPermissions, 'workspaceLoadTest: Out read token');
+        $tokenOptions = (new TokenCreateOptions())
+            ->setDescription('workspaceLoadTest: Out read token')
+            ->addBucketPermission($this->getTestBucketId(self::STAGE_OUT), TokenAbstractOptions::BUCKET_PERMISSION_READ)
+        ;
+
+        $tokenId = $this->_client->createToken($tokenOptions);
         $token = $this->_client->getToken($tokenId);
 
-        $testClient = new \Keboola\StorageApi\Client(array(
+        $testClient = new \Keboola\StorageApi\Client([
             'token' => $token['token'],
             'url' => STORAGE_API_URL
-        ));
+        ]);
 
         // create the workspace with the limited permission client
         $workspaces = new Workspaces($testClient);
         $workspace = $workspaces->createWorkspace();
 
-        $input = array(
-            array(
+        $input = [
+            [
                 "source" => $tableId,
                 "destination" => "irrelevant",
                 "columns" => [
@@ -1465,11 +1464,12 @@ class WorkspacesLoadTest extends WorkspacesTestCase
                         "type" => "VARCHAR",
                     ]
                 ]
-            )
-        );
+            ]
+        ];
+
         try {
-            $workspaces->loadWorkspaceData($workspace['id'], array("input" => $input));
-            $this->fail("This should fail due to insufficient permission");
+            $workspaces->loadWorkspaceData($workspace['id'], ['input' => $input]);
+            $this->fail('This should fail due to insufficient permission');
         } catch (ClientException $e) {
             $this->assertEquals(403, $e->getCode());
             $this->assertEquals('workspace.tableAccessDenied', $e->getStringCode());
