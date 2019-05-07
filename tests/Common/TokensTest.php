@@ -1,32 +1,29 @@
 <?php
+/**
+ *
+ * User: Martin Halamíček
+ * Date: 16.5.12
+ * Time: 11:46
+ *
+ */
+
 namespace Keboola\Test\Common;
 
-use Keboola\Csv\CsvFile;
-use Keboola\StorageApi\Components;
-use Keboola\StorageApi\Options\Components\Configuration;
-use Keboola\StorageApi\Options\Components\ConfigurationRow;
-use Keboola\StorageApi\Options\Components\ListComponentsOptions;
-use Keboola\StorageApi\Options\TokenAbstractOptions;
-use Keboola\StorageApi\Options\TokenCreateOptions;
-use Keboola\StorageApi\Options\TokenUpdateOptions;
-use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\ClientException;
+use Keboola\Test\StorageApiTestCase;
+use Keboola\Csv\CsvFile;
+use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\StorageApi\Client;
 
 class TokensTest extends StorageApiTestCase
 {
-    const BUCKET_PERMISSION_MANAGE = 'manage';
 
-    /** @var string */
-    private $inBucketId;
-
-    /** @var string */
-    private $outBucketId;
+    protected $_inBucketId;
+    protected $_outBucketId;
 
     public function setUp()
     {
         parent::setUp();
-
         $this->_initEmptyTestBuckets();
 
         $triggers = $this->_client->listTriggers();
@@ -34,26 +31,25 @@ class TokensTest extends StorageApiTestCase
             $this->_client->deleteTrigger((int) $trigger['id']);
         }
 
-        $this->outBucketId = $this->getTestBucketId(self::STAGE_OUT);
-        $this->inBucketId = $this->getTestBucketId(self::STAGE_IN);
+        $this->_outBucketId = $this->getTestBucketId(self::STAGE_OUT);
+        $this->_inBucketId = $this->getTestBucketId(self::STAGE_IN);
 
-        $this->initTokens();
+        $this->_initTokens();
     }
 
-    private function initTokens()
+    protected function _initTokens()
     {
         foreach ($this->_client->listTokens() as $token) {
             if ($token['isMasterToken']) {
                 continue;
             }
-
             $this->_client->dropToken($token['id']);
         }
     }
 
-    private function clearComponents()
+    protected function _clearComponents()
     {
-        $components = new Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($this->_client);
         foreach ($components->listComponents() as $component) {
             foreach ($component['configurations'] as $configuration) {
                 $components->deleteConfiguration($component['id'], $configuration['id']);
@@ -68,47 +64,22 @@ class TokensTest extends StorageApiTestCase
         }
     }
 
-    private function initTestConfigurations()
-    {
-        $components = new Components($this->_client);
-
-        $this->assertCount(0, $components->listComponents());
-
-        $components->addConfiguration((new Configuration())
-            ->setComponentId('wr-db')
-            ->setConfigurationId('main-1')
-            ->setName('Main1'));
-
-        $components->addConfiguration((new Configuration())
-            ->setComponentId('wr-db')
-            ->setConfigurationId('main-2')
-            ->setConfiguration(array('x' => 'y'))
-            ->setName('Main2'));
-
-        $components->addConfiguration((new Configuration())
-            ->setComponentId('provisioning')
-            ->setConfigurationId('main-1')
-            ->setName('Main1'));
-    }
-
     public function testTokenProperties()
     {
-        $currentToken = $this->_client->verifyToken();
+        $token = $this->_client->verifyToken();
+        $this->assertArrayHasKey('created', $token);
+        $this->assertArrayHasKey('refreshed', $token);
+        $this->assertArrayHasKey('description', $token);
+        $this->assertArrayHasKey('id', $token);
+        $this->assertTrue($token['isMasterToken']);
+        $this->assertTrue($token['canManageBuckets']);
+        $this->assertTrue($token['canReadAllFileUploads']);
+        $this->assertFalse($token['isDisabled']);
+        $this->assertNotEmpty($token['bucketPermissions']);
+        $this->assertArrayHasKey('owner', $token);
+        $this->assertArrayHasKey('admin', $token);
 
-        $this->assertArrayHasKey('created', $currentToken);
-        $this->assertArrayHasKey('refreshed', $currentToken);
-        $this->assertArrayHasKey('description', $currentToken);
-        $this->assertArrayHasKey('id', $currentToken);
-
-        $this->assertTrue($currentToken['isMasterToken']);
-        $this->assertTrue($currentToken['canManageBuckets']);
-        $this->assertTrue($currentToken['canReadAllFileUploads']);
-        $this->assertFalse($currentToken['isDisabled']);
-        $this->assertNotEmpty($currentToken['bucketPermissions']);
-        $this->assertArrayHasKey('owner', $currentToken);
-        $this->assertArrayHasKey('admin', $currentToken);
-
-        $owner = $currentToken['owner'];
+        $owner = $token['owner'];
         $this->assertInternalType('integer', $owner['dataSizeBytes']);
         $this->assertInternalType('integer', $owner['rowsCount']);
         $this->assertInternalType('boolean', $owner['hasRedshift']);
@@ -119,34 +90,31 @@ class TokensTest extends StorageApiTestCase
 
         $firstLimit = reset($owner['limits']);
         $limitKeys = array_keys($owner['limits']);
-
         $this->assertArrayHasKey('name', $firstLimit);
         $this->assertArrayHasKey('value', $firstLimit);
         $this->assertInternalType('int', $firstLimit['value']);
         $this->assertEquals($firstLimit['name'], $limitKeys[0]);
 
-        $tokenFound = false;
-        foreach ($this->_client->listTokens() as $token) {
-            if ($token['id'] !== $currentToken['id']) {
+        $tokens = $this->_client->listTokens();
+        foreach ($tokens as $currentToken) {
+            if ($currentToken['id'] != $token['id']) {
                 continue;
             }
 
-            $this->assertArrayHasKey('admin', $token);
+            $this->assertArrayHasKey('admin', $currentToken);
 
-            $admin = $token['admin'];
+            $admin = $currentToken['admin'];
             $this->assertArrayHasKey('id', $admin);
             $this->assertArrayHasKey('name', $admin);
-
-            $tokenFound = true;
+            return;
         }
 
-        $this->assertTrue($tokenFound);
+        $this->fail("Token $token[id] not present in list");
     }
 
     public function testKeenReadTokensRetrieve()
     {
         $keen = $this->_client->getKeenReadCredentials();
-
         $this->assertArrayHasKey('keenToken', $keen);
         $this->assertNotEmpty($keen['keenToken']);
         $this->assertNotEmpty($keen['projectId']);
@@ -154,14 +122,13 @@ class TokensTest extends StorageApiTestCase
 
     public function testInvalidToken()
     {
-        $invalidToken = 'thisIsInvalidToken';
+        $invalidToken = 'tohlejeneplatnytoken';
 
         try {
             $client = new \Keboola\StorageApi\Client(array(
                 'token' => $invalidToken,
                 'url' => STORAGE_API_URL,
             ));
-
             $client->verifyToken();
             $this->fail('Exception should be thrown on invalid token');
         } catch (\Keboola\StorageApi\ClientException $e) {
@@ -169,508 +136,238 @@ class TokensTest extends StorageApiTestCase
         }
     }
 
-    public function testBucketPermissionUpdate()
-    {
-        $options = (new TokenCreateOptions())
-            ->setDescription('Some description')
-        ;
-
-        $tokenId = $this->_client->createToken($options);
-        $token = $this->_client->getToken($tokenId);
-
-        $bucketPermissions = $token['bucketPermissions'];
-        $this->assertCount(0, $bucketPermissions);
-
-        // read permissions
-        $permission = TokenAbstractOptions::BUCKET_PERMISSION_READ;
-        $options = (new TokenUpdateOptions($tokenId))
-            ->addBucketPermission($this->outBucketId, $permission)
-        ;
-
-        $this->_client->updateToken($options);
-        $token = $this->_client->getToken($tokenId);
-
-        $bucketPermissions = $token['bucketPermissions'];
-        $this->assertCount(1, $bucketPermissions);
-
-        $this->assertEquals($this->outBucketId, key($bucketPermissions));
-        $this->assertEquals($permission, reset($bucketPermissions));
-
-        // read permissions
-        $permission = TokenAbstractOptions::BUCKET_PERMISSION_WRITE;
-        $options = (new TokenUpdateOptions($tokenId))
-            ->addBucketPermission($this->outBucketId, $permission)
-        ;
-
-        $this->_client->updateToken($options);
-        $token = $this->_client->getToken($tokenId);
-
-        $bucketPermissions = $token['bucketPermissions'];
-        $this->assertCount(1, $bucketPermissions);
-
-        $this->assertEquals($this->outBucketId, key($bucketPermissions));
-        $this->assertEquals($permission, reset($bucketPermissions));
-
-        // invalid permission
-        $options = (new TokenUpdateOptions($tokenId))
-            ->addBucketPermission($this->outBucketId, self::BUCKET_PERMISSION_MANAGE)
-        ;
-
-        try {
-            $this->_client->updateToken($options);
-            $this->fail('Manage permissions should not be allowed to set');
-        } catch (ClientException $e) {
-            $this->assertEquals('storage.tokens.invalidPermissions', $e->getStringCode());
-        }
-
-        $token = $this->_client->getToken($tokenId);
-
-        $bucketPermissions = $token['bucketPermissions'];
-        $this->assertCount(1, $bucketPermissions);
-
-        $this->assertEquals($this->outBucketId, key($bucketPermissions));
-        $this->assertEquals($permission, reset($bucketPermissions));
-    }
-
-    public function testAssignNonExistingBucketPermissionShouldFail()
-    {
-        $options = (new TokenCreateOptions())
-            ->setDescription('Some description')
-            ->addBucketPermission($this->outBucketId, self::BUCKET_PERMISSION_MANAGE)
-        ;
-
-        try {
-            $this->_client->createToken($options);
-            $this->fail('Invalid permissions exception should be thrown');
-        } catch (\Keboola\StorageApi\ClientException $e) {
-            $this->assertEquals('storage.tokens.invalidPermissions', $e->getStringCode());
-        }
-    }
-
-    public function testTokenDrop()
+    public function testTokenManagement()
     {
         $initialTokens = $this->_client->listTokens();
+        $description = 'Out read token';
+        $bucketPermissions = array(
+            $this->_outBucketId => 'read',
+        );
 
-        $tokenId = $this->_client->createToken(new TokenCreateOptions());
+        $tokenId = $this->_client->createToken($bucketPermissions, $description);
+
+        // check created token
+        $token = $this->_client->getToken($tokenId);
+        $this->assertEquals($description, $token['description']);
+        $this->assertFalse($token['canManageTokens']);
+        $this->assertFalse($token['canManageBuckets']);
+        $this->assertEquals($bucketPermissions, $token['bucketPermissions']);
+
+        $currentToken = $this->_client->verifyToken();
+        $this->assertArrayHasKey('creatorToken', $token);
+
+        $creatorToken = $token['creatorToken'];
+        $this->assertEquals($currentToken['id'], $creatorToken['id']);
+        $this->assertEquals($currentToken['description'], $creatorToken['description']);
 
         $tokens = $this->_client->listTokens();
         $this->assertCount(count($initialTokens) + 1, $tokens);
 
-        $this->_client->dropToken($tokenId);
+        // update and check token again
+        $newBucketPermissions = array(
+            $this->_inBucketId => 'write',
+        );
+        $this->_client->updateToken($tokenId, $newBucketPermissions);
+        $token = $this->_client->getToken($tokenId);
+        $this->assertEquals($newBucketPermissions, $token['bucketPermissions']);
 
+        // invalid permission
+        $invalidBucketPermissions = array(
+            $this->_inBucketId => 'manage',
+        );
+        try {
+            $this->_client->updateToken($tokenId, $invalidBucketPermissions);
+            $this->fail('Manage permissions shouild not be allower to set');
+        } catch (\Keboola\StorageApi\ClientException $e) {
+        }
+        $token = $this->_client->getToken($tokenId);
+        $this->assertEquals($newBucketPermissions, $token['bucketPermissions']);
+
+        // drop token test
+        $this->_client->dropToken($tokenId);
         $tokens = $this->_client->listTokens();
         $this->assertCount(count($initialTokens), $tokens);
     }
 
-    public function testTokenDefaultOptions()
+    public function testCreateTokenWithoutDescription()
     {
         $currentToken = $this->_client->verifyToken();
+        $newTokenId = $this->_client->createToken(array());
+        $newToken = $this->_client->getToken($newTokenId);
 
-        $tokenId = $this->_client->createToken(new TokenCreateOptions());
-        $token = $this->_client->getToken($tokenId);
+        $this->assertEquals('Created by ' . $currentToken['description'], $newToken['description']);
 
-        $this->assertNull($token['expires']);
-
-        $this->assertFalse($token['isMasterToken']);
-        $this->assertFalse($token['canManageBuckets']);
-        $this->assertFalse($token['canManageTokens']);
-        $this->assertFalse($token['canReadAllFileUploads']);
-
-        $this->assertEquals('Created by ' . $currentToken['description'], $token['description']);
-
-        $this->assertArrayHasKey('bucketPermissions', $token);
-        $this->assertCount(0, $token['bucketPermissions']);
-
-        $this->assertArrayNotHasKey('admin', $token);
-        $this->assertArrayNotHasKey('componentAccess', $token);
-
-        $this->assertArrayHasKey('creatorToken', $token);
-
-        $creator = $token['creatorToken'];
-        $this->assertEquals($currentToken['id'], $creator['id']);
-        $this->assertEquals($currentToken['description'], $creator['description']);
-    }
-
-    public function testTokenMaximalOptions()
-    {
-        $currentToken = $this->_client->verifyToken();
-
-        $options = (new TokenCreateOptions())
-            ->setDescription('My test token')
-            ->setCanReadAllFileUploads(true)
-            ->setCanManageBuckets(true)
-            ->setExpiresIn(360)
-            ->addComponentAccess('wr-db')
-        ;
-
-        $tokenId = $this->_client->createToken($options);
-        $token = $this->_client->getToken($tokenId);
-
-        $this->assertNotNull($token['expires']);
-
-        $this->assertFalse($token['isMasterToken']);
-        $this->assertFalse($token['canManageTokens']);
-
-        $this->assertTrue($token['canManageBuckets']);
-        $this->assertTrue($token['canReadAllFileUploads']);
-
-        $this->assertEquals('My test token', $token['description']);
-
-        $this->assertArrayHasKey('bucketPermissions', $token);
-
-        $buckets = $this->_client->listBuckets();
-
-        $bucketPermissions = $token['bucketPermissions'];
-        $this->assertCount(count($buckets), $bucketPermissions);
-
-        $this->assertArrayNotHasKey('admin', $token);
-
-        $this->assertArrayHasKey('creatorToken', $token);
-
-        $creator = $token['creatorToken'];
-        $this->assertEquals($currentToken['id'], $creator['id']);
-        $this->assertEquals($currentToken['description'], $creator['description']);
-
-        $this->assertArrayHasKey('componentAccess', $token);
-
-        $componentAccess = $token['componentAccess'];
-        $this->assertCount(1, $componentAccess);
-
-        $this->assertEquals('wr-db', reset($componentAccess));
+        $this->_client->dropToken($newTokenId);
     }
 
     public function testTokenRefresh()
     {
-        $options = (new TokenCreateOptions())
-            ->setDescription('Out read token')
-        ;
-
-        $tokenId = $this->_client->createToken($options);
+        $description = 'Out read token';
+        $bucketPermissions = array(
+            $this->_inBucketId => 'read'
+        );
+        $tokenId = $this->_client->createToken($bucketPermissions, $description);
         $token = $this->_client->getToken($tokenId);
-
-        $tokenString = $token['token'];
-        $created = new \DateTime($token['created']);
-
+        $created = strtotime($token['created']);
         sleep(1);
 
         $this->_client->refreshToken($tokenId);
-        $token = $this->_client->getToken($tokenId);
+        $tokenAfterRefresh = $this->_client->getToken($tokenId);
 
-        $refreshed = new \DateTime($token['refreshed']);
-
-        $this->assertNotEquals($tokenString, $token['token']);
-        $this->assertGreaterThan($created->getTimestamp(), $refreshed->getTimestamp());
+        $this->assertNotEquals($token['token'], $tokenAfterRefresh['token']);
+        $this->assertGreaterThan($created, strtotime($tokenAfterRefresh['refreshed']));
     }
+
 
     public function testTokenComponentAccess()
     {
-        $this->clearComponents();
-        $this->initTestConfigurations();
 
-        $options = (new TokenCreateOptions())
-            ->setDescription('Component Access Test Token')
-            ->addComponentAccess('wr-db')
-        ;
+        $this->_clearComponents();
 
-        $tokenId = $this->_client->createToken($options);
-        $token = $this->_client->getToken($tokenId);
+        $description = "Component Access Test Token";
+        $componentAccess = array("wr-db");
+        $bucketPermissions = array($this->_inBucketId => "write");
 
-        $client = new \Keboola\StorageApi\Client([
-            'token' => $token['token'],
+        $componentAccessTokenId = $this->_client->createToken($bucketPermissions, $description, null, false, $componentAccess);
+        $componentAccessToken = $this->_client->getToken($componentAccessTokenId);
+
+        $componentFailTokenId = $this->_client->createToken($bucketPermissions, $description);
+        $componentFailToken = $this->_client->getToken($componentFailTokenId);
+
+        $accessClient = new \Keboola\StorageApi\Client(array(
+            'token' => $componentAccessToken['token'],
             'url' => STORAGE_API_URL
-        ]);
+        ));
 
-        $components = new Components($client);
+        $failClient = new \Keboola\StorageApi\Client(array(
+            'token' => $componentFailToken['token'],
+            'url' => STORAGE_API_URL
+        ));
 
-        $config = $components->getConfiguration('wr-db', 'main-1');
-        $this->assertEquals($config['name'], 'Main1');
+        // we'll test 3 scenarios, using an admin token, a token with some component access, and a token with no access
+        $adminComponentClient = new \Keboola\StorageApi\Components($this->_client);
+        $accessComponentClient = new \Keboola\StorageApi\Components($accessClient);
+        $failComponentClient = new \Keboola\StorageApi\Components($failClient);
+
+        // we should have no components at the start
+        $allComponents = $adminComponentClient->listComponents();
+        $this->assertCount(0, $allComponents);
+
+        // we'll create some initial test configuration
+        $adminComponentClient->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main1'));
+        $adminComponentClient->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-2')
+            ->setConfiguration(array('x' => 'y'))
+            ->setName('Main2'));
+        $provisioningConfig = (new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId('provisioning')
+            ->setConfigurationId('main-1')
+            ->setName('Main1');
+        $adminComponentClient->addConfiguration($provisioningConfig);
+
+        // make sure our admin token sees all
+        $allComponents = $adminComponentClient->listComponents();
+        $this->assertCount(2, $allComponents);
+
+        $accessibleComponents = $accessComponentClient->listComponents();
+        $this->assertCount(1, $accessibleComponents);
+        $this->assertEquals($componentAccess[0], $accessibleComponents[0]['id']);
+
+        try {
+            $failComponents = $failComponentClient->listComponents();
+            $this->fail("This token should not be allowed to access components API");
+        } catch (\Keboola\StorageApi\ClientException  $e) {
+        }
+
+        // we should be able to read a config from our accessible component
+        $config = $accessComponentClient->getConfiguration("wr-db", "main-1");
+        $this->assertEquals($config["name"], "Main1");
 
         // we should be able to add a configuration for our accessible component
-        $options = (new Configuration())
+        $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-3')
-            ->setName('Main3')
-        ;
-
-        $components->addConfiguration($options);
+            ->setName('Main3');
+        $accessComponentClient->addConfiguration($config);
 
         // check that we can update our configuration
-        $newName = 'MAIN-3';
-        $newConfigData = ['foo' => 'bar'];
-
-        $options->setName($newName);
-        $options->setConfiguration($newConfigData);
-
-        $components->updateConfiguration($options);
-
-        $updatedConfig = $components->getConfiguration($options->getComponentId(), $options->getConfigurationId());
+        $newName = "MAIN-3";
+        $newConfigData = array("foo" => "bar");
+        $config->setName($newName);
+        $config->setConfiguration($newConfigData);
+        $accessComponentClient->updateConfiguration($config);
+        $updatedConfig = $accessComponentClient->getConfiguration($config->getComponentId(), $config->getConfigurationId());
         $this->assertEquals($updatedConfig['name'], $newName);
         $this->assertEquals($updatedConfig['configuration'], $newConfigData);
 
-
         // we should be able to delete this configuration too
-        $components->deleteConfiguration($options->getComponentId(), $options->getConfigurationId());
-
+        $accessComponentClient->deleteConfiguration($config->getComponentId(), $config->getConfigurationId());
         try {
             // it should be gone now, and throw a 404
-            $deletedConfig = $components->getConfiguration($options->getComponentId(), $options->getConfigurationId());
-            $this->fail('Configuration should no longer exist, throw a 404');
-        } catch (ClientException $e) {
+            $deletedConfig = $accessComponentClient->getConfiguration($config->getComponentId(), $config->getConfigurationId());
+            $this->fail("Configuration should no longer exist, throw a 404");
+        } catch (\Keboola\StorageApi\ClientException  $e) {
             $this->assertEquals(404, $e->getCode());
         }
 
-        $this->clearComponents();
-    }
-
-    public function testTokenComponentAccessError()
-    {
-        $this->clearComponents();
-        $this->initTestConfigurations();
-
-        $options = (new TokenCreateOptions())
-            ->setDescription('Component Access Test Token')
-        ;
-
-        $tokenId = $this->_client->createToken($options);
-        $token = $this->_client->getToken($tokenId);
-
-        $client = new \Keboola\StorageApi\Client([
-            'token' => $token['token'],
-            'url' => STORAGE_API_URL
-        ]);
-
-        $components = new Components($client);
-
+        // we should not be able to add a configuration for any other components
         try {
-            $components->listComponents();
-            $this->fail("This token should not be allowed to access components API");
-        } catch (ClientException $e) {
-            $this->assertEquals('accessDenied', $e->getStringCode());
+            $accessComponentClient->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
+                ->setComponentId('provisioning')
+                ->setConfigurationId('main-2')
+                ->setConfiguration(array('foo' => 'bar'))
+                ->setName('Main2'));
+            $this->fail("Token was not granted access to this component, should throw an exception");
+        } catch (\Keboola\StorageApi\ClientException  $e) {
+        }
+
+        // tokens should not be able to add configuration rows to configs of components that are inaccessible
+        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($provisioningConfig);
+        $configurationRow->setRowId('main-1-1');
+        try {
+            $accessComponentClient->addConfigurationRow($configurationRow);
+            $this->fail("Token was not granted access to this component, should throw an exception");
+        } catch (\Keboola\StorageApi\ClientException  $e) {
         }
 
         // the token with no component access should not be able to add configurations
         try {
-            $components->addConfiguration((new Configuration())
+            $failComponentClient->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
                 ->setComponentId('provisioning')
                 ->setConfigurationId('main-2')
-                ->setConfiguration(['foo' => 'bar'])
+                ->setConfiguration(array('foo' => 'bar'))
                 ->setName('Main2'));
             $this->fail("Token was not granted access to this component, should throw an exception");
-        } catch (ClientException $e) {
-            $this->assertEquals('accessDenied', $e->getStringCode());
+        } catch (\Keboola\StorageApi\ClientException  $e) {
         }
 
-        // the token with no component access should not be able to add configuration rows
-        $configurationRow = new ConfigurationRow(
-            (new Configuration())
-                ->setComponentId('provisioning')
-                ->setConfigurationId('main-1')
+        // let's grant the fail token access to the provisioning component
+        $newFailTokenId = $this->_client->updateToken($componentFailTokenId, $bucketPermissions, $description, null, ["provisioning"]);
+        $this->assertEquals($newFailTokenId, $componentFailTokenId);
+        // the fail client should be able to see this component now
+        $nonFailComponents = $failComponentClient->listComponents();
+        $this->assertCount(1, $nonFailComponents);
+        $this->assertEquals("provisioning", $nonFailComponents[0]["id"]);
+
+        // cleanup
+        $this->_clearComponents();
+    }
+
+    public function testTokenPermissions()
+    {
+        // prepare token and test tables
+        $inTableId = $this->_client->createTable($this->_inBucketId, 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+        $outTableId = $this->_client->createTable($this->_outBucketId, 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+
+        $description = 'Out read token';
+        $bucketPermissions = array(
+            $this->_outBucketId => 'read'
         );
-
-        $configurationRow->setRowId('main-1-1');
-
-        try {
-            $components->addConfigurationRow($configurationRow);
-            $this->fail("Token was not granted access to this component, should throw an exception");
-        } catch (ClientException  $e) {
-            $this->assertEquals('accessDenied', $e->getStringCode());
-        }
-
-        // grant permission to component
-        $options = (new TokenUpdateOptions($tokenId))
-            ->addComponentAccess('provisioning')
-        ;
-
-        $this->_client->updateToken($options);
-
-        $componentList = $components->listComponents();
-        $this->assertCount(1, $componentList);
-
-        $this->assertEquals('provisioning', $componentList[0]['id']);
-
-        $this->clearComponents();
-    }
-
-    public function testBucketReadTokenPermission()
-    {
-        $outTableId = $this->_client->createTable(
-            $this->outBucketId,
-            'languages',
-            new CsvFile(__DIR__ . '/../_data/languages.csv')
-        );
-
-        $options = (new TokenCreateOptions())
-            ->setDescription('Out read token')
-            ->addBucketPermission($this->outBucketId, TokenAbstractOptions::BUCKET_PERMISSION_READ)
-        ;
-
-        $tokenId = $this->_client->createToken($options);
-        $token = $this->_client->getToken($tokenId);
-
-        $client = new \Keboola\StorageApi\Client(array(
-            'token' => $token['token'],
-            'url' => STORAGE_API_URL,
-        ));
-
-        // check assigned buckets
-        $buckets = $client->listBuckets();
-        $this->assertCount(1, $buckets);
-
-        $bucket = reset($buckets);
-        $this->assertEquals($this->outBucketId, $bucket['id']);
-
-        // check assigned tables
-        $tables = $client->listTables();
-        $this->assertCount(1, $tables);
-
-        $table = reset($tables);
-        $this->assertEquals($outTableId, $table['id']);
-
-        // read from table
-        $tableData = $client->getTableDataPreview($outTableId);
-        $this->assertNotEmpty($tableData);
-
-        // write into table
-        try {
-            $client->writeTable($outTableId, new CsvFile(__DIR__ . '/../_data/languages.csv'));
-            $this->fail('Table imported with read token');
-        } catch (ClientException  $e) {
-            $this->assertEquals('accessDenied', $e->getStringCode());
-        }
-
-        // table attribute
-        try {
-            $client->setTableAttribute($outTableId, 'my', 'value');
-            $this->fail('Table attribute written with read token');
-        } catch (ClientException $e) {
-            $this->assertEquals('accessDenied', $e->getStringCode());
-        }
-    }
-
-    public function testBucketWriteTokenPermission()
-    {
-        $outTableId = $this->_client->createTable(
-            $this->outBucketId,
-            'languages',
-            new CsvFile(__DIR__ . '/../_data/languages.csv')
-        );
-
-        $options = (new TokenCreateOptions())
-            ->setDescription('Out write token')
-            ->addBucketPermission($this->outBucketId, TokenAbstractOptions::BUCKET_PERMISSION_WRITE)
-        ;
-
-        $tokenId = $this->_client->createToken($options);
-        $token = $this->_client->getToken($tokenId);
-
-        $client = new \Keboola\StorageApi\Client(array(
-            'token' => $token['token'],
-            'url' => STORAGE_API_URL,
-        ));
-
-        // check assigned buckets
-        $buckets = $client->listBuckets();
-        $this->assertCount(1, $buckets);
-
-        $bucket = reset($buckets);
-        $this->assertEquals($this->outBucketId, $bucket['id']);
-
-        // check assigned tables
-        $tables = $client->listTables();
-        $this->assertCount(1, $tables);
-
-        $table = reset($tables);
-        $this->assertEquals($outTableId, $table['id']);
-
-        // read from table
-        $tableData = $client->getTableDataPreview($outTableId);
-        $this->assertNotEmpty($tableData);
-
-        // write into table
-        $client->writeTable($outTableId, new CsvFile(__DIR__ . '/../_data/languages.csv'));
-
-        // table attribute
-        $client->setTableAttribute($outTableId, 'my', 'value');
-    }
-
-    public function testNoBucketTokenPermission()
-    {
-        $outTableId = $this->_client->createTable(
-            $this->outBucketId,
-            'languages',
-            new CsvFile(__DIR__ . '/../_data/languages.csv')
-        );
-
-        $options = (new TokenCreateOptions())
-            ->setDescription('No bucket permission token')
-        ;
-
-        $tokenId = $this->_client->createToken($options);
-        $token = $this->_client->getToken($tokenId);
-
-        $client = new \Keboola\StorageApi\Client(array(
-            'token' => $token['token'],
-            'url' => STORAGE_API_URL,
-        ));
-
-        // check assigned buckets
-        $buckets = $client->listBuckets();
-        $this->assertCount(0, $buckets);
-
-        // check assigned tables
-        $tables = $client->listTables();
-        $this->assertCount(0, $tables);
-
-        // read from table
-        try {
-            $client->getTableDataPreview($outTableId);
-            $this->fail('Table exported with no permission token');
-        } catch (ClientException  $e) {
-            $this->assertEquals('accessDenied', $e->getStringCode());
-        }
-
-        // write into table
-        try {
-            $client->writeTable($outTableId, new CsvFile(__DIR__ . '/../_data/languages.csv'));
-            $this->fail('Table imported with no permission token');
-        } catch (ClientException  $e) {
-            $this->assertEquals('accessDenied', $e->getStringCode());
-        }
-
-        // table attribute
-        try {
-            $client->setTableAttribute($outTableId, 'my', 'value');
-            $this->fail('Table attribute with no permission token');
-        } catch (ClientException $e) {
-            $this->assertEquals('accessDenied', $e->getStringCode());
-        }
-    }
-
-    public function testAssignNonExistingBucketShouldFail()
-    {
-        $options = (new TokenCreateOptions())
-            ->setDescription('Some description')
-            ->addBucketPermission('out.non-existing', TokenAbstractOptions::BUCKET_PERMISSION_READ)
-        ;
-
-        try {
-            $this->_client->createToken($options);
-            $this->fail('Invalid permissions exception should be thrown');
-        } catch (\Keboola\StorageApi\ClientException $e) {
-            $this->assertEquals('storage.tokens.invalidPermissions', $e->getStringCode());
-        }
-    }
-
-    public function testAllBucketsTokenPermissions()
-    {
-        $bucketsInitialCount = count($this->_client->listBuckets());
-
-        $options = (new TokenCreateOptions())
-            ->setDescription('Out buckets manage token')
-            ->setCanManageBuckets(true)
-        ;
-
-        $tokenId = $this->_client->createToken($options);
+        $tokenId = $this->_client->createToken($bucketPermissions, $description);
         $token = $this->_client->getToken($tokenId);
 
         $client = new \Keboola\StorageApi\Client(array(
@@ -683,10 +380,79 @@ class TokensTest extends StorageApiTestCase
         $this->assertEmpty($token['expires']);
         $this->assertFalse($token['isExpired']);
 
-        $this->assertCount($bucketsInitialCount, $token['bucketPermissions']);
-        foreach ($token['bucketPermissions'] as $bucketId => $permission) {
-            $this->assertEquals(self::BUCKET_PERMISSION_MANAGE, $permission);
+        // check assigned buckets
+        $buckets = $client->listBuckets();
+        $this->assertCount(1, $buckets);
+        $bucket = reset($buckets);
+        $this->assertEquals($this->_outBucketId, $bucket['id']);
+
+        // check assigned tables
+        $tables = $client->listTables();
+        $this->assertCount(1, $tables);
+        $table = reset($tables);
+        $this->assertEquals($outTableId, $table['id']);
+
+        // read from table
+        $tableData = $client->getTableDataPreview($outTableId);
+        $this->assertNotEmpty($tableData);
+
+        try {
+            $client->getTableDataPreview($inTableId);
+            $this->fail('Table exported with no permissions');
+        } catch (\Keboola\StorageApi\ClientException $e) {
         }
+
+        // write into table
+        try {
+            $client->writeTable($outTableId, new CsvFile(__DIR__ . '/../_data/languages.csv'));
+            $this->fail('Table imported with read token');
+        } catch (\Keboola\StorageApi\ClientException  $e) {
+        }
+
+        // table attribute
+        try {
+            $client->setTableAttribute($outTableId, 'my', 'value');
+            $this->fail('Table attribute written with read token');
+        } catch (\Keboola\StorageApi\ClientException $e) {
+        }
+
+        try {
+            $client->writeTable($inTableId, new CsvFile(__DIR__ . '/../_data/languages.csv'));
+            $this->fail('Table imported with no permissions');
+        } catch (\Keboola\StorageApi\ClientException  $e) {
+        }
+    }
+
+    public function testAssignNonExistingBucketShouldFail()
+    {
+        $bucketPermissions = array(
+            'out.tohle-je-hodne-blby-nazev' => 'read'
+        );
+
+        try {
+            $this->_client->createToken($bucketPermissions, 'Some description');
+            $this->fail('Invalid permissions exception should be thrown');
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertEquals('storage.tokens.invalidPermissions', $e->getStringCode());
+        }
+    }
+
+    public function testAllBucketsTokenPermissions()
+    {
+        $description = 'Out read token';
+        $bucketsInitialCount = count($this->_client->listBuckets());
+        $tokenId = $this->_client->createToken('manage', $description);
+        $token = $this->_client->getToken($tokenId);
+
+        $client = new \Keboola\StorageApi\Client(array(
+            'token' => $token['token'],
+            'url' => STORAGE_API_URL,
+        ));
+
+        // token getter
+        $this->assertEquals($client->getTokenString(), $token['token']);
+        $this->assertEmpty($token['expires']);
+        $this->assertFalse($token['isExpired']);
 
         // check assigned buckets
         $buckets = $client->listBuckets();
@@ -699,45 +465,37 @@ class TokensTest extends StorageApiTestCase
         $buckets = $client->listBuckets();
         $this->assertCount($bucketsInitialCount + 1, $buckets);
 
-        $token = $this->_client->getToken($tokenId);
-        $this->assertCount($bucketsInitialCount + 1, $token['bucketPermissions']);
-        foreach ($token['bucketPermissions'] as $bucketId => $permission) {
-            $this->assertEquals(self::BUCKET_PERMISSION_MANAGE, $permission);
-        }
-
-        $client->getBucket($newBucketId);
+        $bucket = $client->getBucket($newBucketId);
         $client->dropBucket($newBucketId);
     }
 
     public function testTokenWithExpiration()
     {
-        $options = (new TokenCreateOptions())
-            ->setDescription('Out read token with expiration')
-            ->setExpiresIn(2 * 60)
-        ;
-
-        $tokenId = $this->_client->createToken($options);
+        $description = 'Out read token with expiration';
+        $bucketPermissions = array(
+            $this->_outBucketId => 'read'
+        );
+        $twoMinutesExpiration = 2 * 60;
+        $tokenId = $this->_client->createToken($bucketPermissions, $description, $twoMinutesExpiration);
         $token = $this->_client->getToken($tokenId);
 
         $client = new \Keboola\StorageApi\Client(array(
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
         ));
-
         $token = $client->verifyToken();
-
         $this->assertNotEmpty($token['expires']);
         $this->assertFalse($token['isExpired']);
     }
 
     public function testExpiredToken()
     {
-        $options = (new TokenCreateOptions())
-            ->setDescription('Out read token with expiration')
-            ->setExpiresIn(1)
-        ;
-
-        $tokenId = $this->_client->createToken($options);
+        $description = 'Out read token with expiration';
+        $bucketPermissions =[
+            $this->_outBucketId => 'read',
+        ];
+        $oneSecondExpiration = 1;
+        $tokenId = $this->_client->createToken($bucketPermissions, $description, $oneSecondExpiration);
         $token = $this->_client->getToken($tokenId);
         $tries = 0;
 
@@ -750,7 +508,6 @@ class TokensTest extends StorageApiTestCase
             $client->verifyToken();
             sleep(pow(2, $tries++));
         }
-
         $this->fail('token should be invalid');
     }
 
@@ -765,12 +522,10 @@ class TokensTest extends StorageApiTestCase
 
         $this->assertGreaterThan(0, count($bucketIds));
 
-        $options = (new TokenCreateOptions())
-            ->setDescription('CanManageBuckets')
-            ->setCanManageBuckets(true)
-        ;
-
-        $tokenId = $this->_client->createToken($options);
+        $tokenId = $this->_client->createToken(
+            'manage',
+            'CanManageBuckets'
+        );
 
         $token = $this->_client->getToken($tokenId);
 
@@ -780,16 +535,17 @@ class TokensTest extends StorageApiTestCase
         $this->assertEmpty(array_diff($bucketIds, array_keys($token['bucketPermissions'])));
 
         foreach ($token['bucketPermissions'] as $bucketPermission) {
-            $this->assertSame(self::BUCKET_PERMISSION_MANAGE, $bucketPermission);
+            $this->assertSame('manage', $bucketPermission);
         }
 
-        // update token and set buckets permissions
-        $options = (new TokenUpdateOptions($tokenId))
-            ->setDescription('CanManageBuckets update 1')
-            ->addBucketPermission($this->outBucketId, TokenAbstractOptions::BUCKET_PERMISSION_READ)
-        ;
-
-        $this->_client->updateToken($options);
+        // update token with permissions
+        $this->_client->updateToken(
+            $tokenId,
+            [
+                $this->_outBucketId => 'read',
+            ],
+            'CanManageBuckets update 1'
+        );
 
         $token = $this->_client->getToken($tokenId);
 
@@ -799,15 +555,15 @@ class TokensTest extends StorageApiTestCase
         $this->assertEmpty(array_diff($bucketIds, array_keys($token['bucketPermissions'])));
 
         foreach ($token['bucketPermissions'] as $bucketPermission) {
-            $this->assertSame(self::BUCKET_PERMISSION_MANAGE, $bucketPermission);
+            $this->assertSame('manage', $bucketPermission);
         }
 
-        // update token without setting permissions
-        $options = (new TokenUpdateOptions($tokenId))
-            ->setDescription('CanManageBuckets update 2')
-        ;
-
-        $this->_client->updateToken($options);
+        // update token without permissions
+        $this->_client->updateToken(
+            $tokenId,
+            [],
+            'CanManageBuckets update 2'
+        );
 
         $token = $this->_client->getToken($tokenId);
 
@@ -817,7 +573,7 @@ class TokensTest extends StorageApiTestCase
         $this->assertEmpty(array_diff($bucketIds, array_keys($token['bucketPermissions'])));
 
         foreach ($token['bucketPermissions'] as $bucketPermission) {
-            $this->assertSame(self::BUCKET_PERMISSION_MANAGE, $bucketPermission);
+            $this->assertSame('manage', $bucketPermission);
         }
     }
 
@@ -825,11 +581,7 @@ class TokensTest extends StorageApiTestCase
     {
         $initialTokens = $this->_client->listTokens();
 
-        $options = (new TokenCreateOptions())
-            ->setDescription('Token without canManageTokens permission')
-        ;
-
-        $tokenId = $this->_client->createToken($options);
+        $tokenId = $this->_client->createToken([], 'Token without canManageTokens permission');
 
         $tokens = $this->_client->listTokens();
         $this->assertCount(count($initialTokens) + 1, $tokens);
@@ -853,11 +605,7 @@ class TokensTest extends StorageApiTestCase
         $token = $client->getToken($tokenId);
         $this->assertSame($verifiedToken['id'], $token['id']);
 
-        $options = (new TokenCreateOptions())
-            ->setDescription('Token without canManageTokens permission')
-        ;
-
-        $tokenId = $this->_client->createToken($options);
+        $tokenId = $this->_client->createToken([], 'Token without canManageTokens permission');
 
         try {
             $client->getToken($tokenId);
