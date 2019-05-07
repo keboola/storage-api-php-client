@@ -82,7 +82,7 @@ class MetadataFromWorkspaceTest extends WorkspacesTestCase
         $expectedIdMetadata = [
             'KBC.datatype.type' => 'int4',
             'KBC.datatype.nullable' => '',
-            'KBC.datatype.basetype' => 'STRINGß',
+            'KBC.datatype.basetype' => 'STRING',
         ];
         $expectedNameMetadata = [
             'KBC.datatype.type' => 'varchar',
