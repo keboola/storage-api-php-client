@@ -248,4 +248,35 @@ class TriggersTest extends StorageApiTestCase
         $this->assertCount(1, $triggers);
         $this->assertEquals($trigger1['id'], $triggers[0]['id']);
     }
+
+    public function testPreventTokenDelete()
+    {
+        $table1 = $this->createTableWithRandomData("watched-1");
+        $newTokenId = $this->_client->createToken([$this->getTestBucketId() => 'read']);
+
+        $trigger = $this->_client->createTrigger([
+            'component' => 'orchestrator',
+            'configurationId' => 123,
+            'coolDownPeriodMinutes' => 10,
+            'runWithTokenId' => $newTokenId,
+            'tableIds' => [
+                $table1,
+            ],
+        ]);
+
+        try {
+            $this->_client->dropToken($newTokenId);
+            $this->fail("Token should not be deleted");
+        } catch (ClientException $e) {
+            $this->assertEquals(403, $e->getCode());
+            $this->assertEquals('storage.tokens.cannotDeleteDueToOrchestration', $e->getStringCode());
+            $this->assertEquals(
+                $e->getMessage(),
+                'Cannot delete token, bacause it\'s used for event trigger inside component "orchestrator" with configuration id "123"'
+            );
+        }
+
+        $this->_client->deleteTrigger($trigger['id']);
+        $this->_client->dropToken($newTokenId);
+    }
 }
