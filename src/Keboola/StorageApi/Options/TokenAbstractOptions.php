@@ -2,8 +2,6 @@
 
 namespace Keboola\StorageApi\Options;
 
-use Keboola\StorageApi\ClientException;
-
 abstract class TokenAbstractOptions
 {
     const BUCKET_PERMISSION_WRITE = 'write';
@@ -69,22 +67,9 @@ abstract class TokenAbstractOptions
      * @param string $bucketId
      * @param string $permission
      * @return $this
-     * @throws ClientException
      */
     public function addBucketPermission($bucketId, $permission)
     {
-        $possibleValues = [self::BUCKET_PERMISSION_READ, self::BUCKET_PERMISSION_WRITE];
-
-        if (!in_array($permission, $possibleValues)) {
-            throw new ClientException(
-                sprintf(
-                    'Invalid bucket permission "%s". Available permissions "%s"',
-                    $permission,
-                    implode('|', $possibleValues)
-                )
-            );
-        }
-
         $this->bucketPermissions[$bucketId] = $permission;
         return $this;
     }
