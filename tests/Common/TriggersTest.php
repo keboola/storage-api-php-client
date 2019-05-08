@@ -122,6 +122,55 @@ class TriggersTest extends StorageApiTestCase
         $this->_client->getTrigger((int) $trigger['id']);
     }
 
+    public function testUpdateTwoTables()
+    {
+        $table1 = $this->createTableWithRandomData("watched-1");
+        $table2 = $this->createTableWithRandomData("watched-2");
+        $newTokenId = $this->_client->createToken([$this->getTestBucketId() => 'read']);
+
+        $trigger1ConfigurationId = time();
+        $componentName = uniqid('test');
+        $trigger1Config = [
+            'component' => $componentName,
+            'configurationId' => $trigger1ConfigurationId,
+            'coolDownPeriodMinutes' => 10,
+            'runWithTokenId' => $newTokenId,
+            'tableIds' => [
+                $table1,
+            ],
+        ];
+        $trigger1 = $this->_client->createTrigger($trigger1Config);
+        $trigger2Config = [
+            'component' => 'keboola.ex-manzelka',
+            'configurationId' => 123,
+            'coolDownPeriodMinutes' => 10,
+            'runWithTokenId' => $newTokenId,
+            'tableIds' => [
+                $table2,
+            ],
+        ];
+        $trigger2 = $this->_client->createTrigger($trigger2Config);
+
+        $trigger1 = $this->_client->updateTrigger($trigger1['id'], $trigger1Config);
+        $trigger2 = $this->_client->updateTrigger($trigger2['id'], $trigger2Config);
+
+        $triggers = $this->_client->listTriggers();
+        $trigger1Found = $trigger2Found = false;
+        foreach ($triggers as $trigger) {
+            if ($trigger1['id'] == $trigger['id']) {
+                $trigger1Found = true;
+                $this->assertSame($trigger1Config['tableIds'][0], $trigger['tables'][0]['tableId']);
+            }
+            if ($trigger2['id'] == $trigger['id']) {
+                $trigger2Found = true;
+                $this->assertSame($trigger2Config['tableIds'][0], $trigger['tables'][0]['tableId']);
+            }
+        }
+
+        $this->assertTrue($trigger1Found);
+        $this->assertTrue($trigger2Found);
+    }
+
     public function testListAction()
     {
         $table = $this->createTableWithRandomData("watched-2");
