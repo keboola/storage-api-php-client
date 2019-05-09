@@ -413,7 +413,7 @@ class TokensTest extends StorageApiTestCase
 
         try {
             // it should be gone now, and throw a 404
-            $deletedConfig = $components->getConfiguration($options->getComponentId(), $options->getConfigurationId());
+            $components->getConfiguration($options->getComponentId(), $options->getConfigurationId());
             $this->fail('Configuration should no longer exist, throw a 404');
         } catch (ClientException $e) {
             $this->assertEquals(404, $e->getCode());
