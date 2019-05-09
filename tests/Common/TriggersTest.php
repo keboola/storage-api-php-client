@@ -248,4 +248,20 @@ class TriggersTest extends StorageApiTestCase
         $this->assertCount(1, $triggers);
         $this->assertEquals($trigger1['id'], $triggers[0]['id']);
     }
+
+    public function testInvalidToken()
+    {
+        $tokenId = $this->_client->createToken(new TokenCreateOptions());
+        $this->_client->dropToken($tokenId);
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage("Token with id \"$tokenId\" was not found.");
+        $this->_client->createTrigger([
+            'component' => 'keboola.ex-manzelka',
+            'configurationId' => 123,
+            'coolDownPeriodMinutes' => 10,
+            'runWithTokenId' => $tokenId,
+            'tableIds' => [''],
+        ]);
+    }
 }
