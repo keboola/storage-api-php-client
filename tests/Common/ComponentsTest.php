@@ -1,26 +1,16 @@
 <?php
-/**
- * Created by JetBrains PhpStorm.
- * User: martinhalamicek
- * Date: 22/05/14
- * Time: 16:38
- * To change this template use File | Settings | File Templates.
- */
-
 namespace Keboola\Test\Common;
 
-use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions;
-use Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions;
+use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\Test\StorageApiTestCase;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Process\Process;
-use function array_reverse;
 use function json_decode;
 use function var_dump;
 
@@ -1162,15 +1152,20 @@ class ComponentsTest extends StorageApiTestCase
 
     public function testPermissions()
     {
-        $tokenId = $this->_client->createToken(array(), 'test');
+        $tokenOptions = (new TokenCreateOptions())
+            ->setDescription('test')
+        ;
+
+        $tokenId = $this->_client->createToken($tokenOptions);
         $token = $this->_client->getToken($tokenId);
 
-        $client = new \Keboola\StorageApi\Client(array(
+        $client = new \Keboola\StorageApi\Client([
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
-        ));
+        ]);
 
         $components = new \Keboola\StorageApi\Components($client);
+
         try {
             $components->listComponents();
             $this->fail('List components should not be allowed');
@@ -1182,16 +1177,22 @@ class ComponentsTest extends StorageApiTestCase
     public function testTokenWithComponentAccess()
     {
         $this->_initEmptyTestBuckets();
-        $accessibleComponents = array("provisioning");
-        $tokenId = $this->_client->createToken(array($this->getTestBucketId(self::STAGE_IN) => "write"), 'test components', null, false, $accessibleComponents);
+
+        $tokenOptions = (new TokenCreateOptions())
+            ->setDescription('test components')
+            ->addComponentAccess('provisioning')
+        ;
+
+        $tokenId = $this->_client->createToken($tokenOptions);
         $token = $this->_client->getToken($tokenId);
 
-        $client = new \Keboola\StorageApi\Client(array(
+        $client = new \Keboola\StorageApi\Client([
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
-        ));
+        ]);
 
         $components = new \Keboola\StorageApi\Components($client);
+
         $componentsList = $components->listComponents();
         $this->assertEmpty($componentsList);
 
@@ -1204,32 +1205,44 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals($config['id'], $componentsList[0]['configurations'][0]['id']);
 
         try {
-            $config = $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
+            $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
                 ->setComponentId('wr-db')
                 ->setName('Main'));
-            $this->fail("Have not been granted permission to access this component, should throw exception");
+            $this->fail('Have not been granted permission to access this component, should throw exception');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('accessDenied', $e->getStringCode());
         }
+
         $this->_client->dropToken($tokenId);
     }
 
     public function testTokenWithManageAllBucketsShouldHaveAccessToComponents()
     {
-        $tokenId = $this->_client->createToken('manage', 'test components');
+        $tokenOptions = (new TokenCreateOptions())
+            ->setDescription('test components')
+            ->setCanManageBuckets(true)
+        ;
+
+        $tokenId = $this->_client->createToken($tokenOptions);
+
         $token = $this->_client->getToken($tokenId);
-        $client = new \Keboola\StorageApi\Client(array(
+        $client = new \Keboola\StorageApi\Client([
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
-        ));
+        ]);
+
         $components = new \Keboola\StorageApi\Components($client);
+
         $componentsList = $components->listComponents();
         $this->assertEmpty($componentsList);
+
         $config = $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setName('Main'));
+
         $componentsList = $components->listComponents();
         $this->assertCount(1, $componentsList);
+
         $this->assertEquals($config['id'], $componentsList[0]['configurations'][0]['id']);
         $this->_client->dropToken($tokenId);
     }
@@ -1708,8 +1721,15 @@ class ComponentsTest extends StorageApiTestCase
         $configurationRow->setConfiguration($configurationData)
             ->setChangeDescription($configurationChangeDescription);
 
-        $newTokenId = $this->_client->createToken([], 'tests', 60, false, ['wr-db']);
+        $tokenOptions = (new TokenCreateOptions())
+            ->setDescription('test')
+            ->setExpiresIn(60)
+            ->addComponentAccess('wr-db')
+        ;
+
+        $newTokenId = $this->_client->createToken($tokenOptions);
         $newToken = $this->_client->getToken($newTokenId);
+
         $newClient = new \Keboola\StorageApi\Client([
             'token' => $newToken['token'],
             'url' => STORAGE_API_URL,

@@ -5,6 +5,8 @@
 namespace Keboola\Test\Common;
 
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Options\TokenAbstractOptions;
+use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\Test\StorageApiTestCase;
 
 class TriggersTest extends StorageApiTestCase
@@ -12,7 +14,9 @@ class TriggersTest extends StorageApiTestCase
     public function setUp()
     {
         parent::setUp();
+
         $this->_initEmptyTestBuckets();
+
         $triggers = $this->_client->listTriggers();
         foreach ($triggers as $trigger) {
             $this->_client->deleteTrigger((int) $trigger['id']);
@@ -23,7 +27,12 @@ class TriggersTest extends StorageApiTestCase
     {
         $table1 = $this->createTableWithRandomData("watched-1");
         $table2 = $this->createTableWithRandomData("watched-2");
-        $newTokenId = $this->_client->createToken([$this->getTestBucketId() => 'read']);
+
+        $options = (new TokenCreateOptions())
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
+        ;
+
+        $newTokenId = $this->_client->createToken($options);
 
         $trigger = $this->_client->createTrigger([
             'component' => 'orchestrator',
@@ -49,7 +58,11 @@ class TriggersTest extends StorageApiTestCase
             $trigger['tables']
         );
 
-        $brandNewTokenId = $this->_client->createToken([$this->getTestBucketId() => 'read']);
+        $options = (new TokenCreateOptions())
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
+        ;
+
+        $brandNewTokenId = $this->_client->createToken($options);
 
         $updateData = [
             'component' => 'keboola.ex-1',
@@ -100,7 +113,12 @@ class TriggersTest extends StorageApiTestCase
     public function testDeleteTrigger()
     {
         $table = $this->createTableWithRandomData("watched-2");
-        $newTokenId = $this->_client->createToken([$this->getTestBucketId() => 'read']);
+
+        $options = (new TokenCreateOptions())
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
+        ;
+
+        $newTokenId = $this->_client->createToken($options);
 
         $trigger = $this->_client->createTrigger([
             'component' => 'orchestrator',
@@ -126,7 +144,11 @@ class TriggersTest extends StorageApiTestCase
     {
         $table1 = $this->createTableWithRandomData("watched-1");
         $table2 = $this->createTableWithRandomData("watched-2");
-        $newTokenId = $this->_client->createToken([$this->getTestBucketId() => 'read']);
+
+        $options = (new TokenCreateOptions())
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
+        ;
+        $newTokenId = $this->_client->createToken($options);
 
         $trigger1ConfigurationId = time();
         $componentName = uniqid('test');
@@ -174,7 +196,12 @@ class TriggersTest extends StorageApiTestCase
     public function testListAction()
     {
         $table = $this->createTableWithRandomData("watched-2");
-        $newTokenId = $this->_client->createToken([$this->getTestBucketId() => 'read']);
+
+        $options = (new TokenCreateOptions())
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
+        ;
+
+        $newTokenId = $this->_client->createToken($options);
 
         $trigger1ConfigurationId = time();
         $componentName = uniqid('test');
