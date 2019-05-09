@@ -144,7 +144,11 @@ class TriggersTest extends StorageApiTestCase
     {
         $table1 = $this->createTableWithRandomData("watched-1");
         $table2 = $this->createTableWithRandomData("watched-2");
-        $newTokenId = $this->_client->createToken([$this->getTestBucketId() => 'read']);
+
+        $options = (new TokenCreateOptions())
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
+        ;
+        $newTokenId = $this->_client->createToken($options);
 
         $trigger1ConfigurationId = time();
         $componentName = uniqid('test');
