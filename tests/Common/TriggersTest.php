@@ -252,7 +252,12 @@ class TriggersTest extends StorageApiTestCase
     public function testPreventTokenDelete()
     {
         $table1 = $this->createTableWithRandomData("watched-1");
-        $newTokenId = $this->_client->createToken([$this->getTestBucketId() => 'read']);
+
+        $options = (new TokenCreateOptions())
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
+        ;
+
+        $newTokenId = $this->_client->createToken($options);
 
         $trigger = $this->_client->createTrigger([
             'component' => 'orchestrator',
@@ -271,8 +276,8 @@ class TriggersTest extends StorageApiTestCase
             $this->assertEquals(403, $e->getCode());
             $this->assertEquals('storage.tokens.cannotDeleteDueToOrchestration', $e->getStringCode());
             $this->assertEquals(
-                $e->getMessage(),
-                'Cannot delete token, bacause it\'s used for event trigger inside component "orchestrator" with configuration id "123"'
+                'Cannot delete token, bacause it\'s used for event trigger inside component "orchestrator" with configuration id "123"',
+                $e->getMessage()
             );
         }
 
