@@ -11,7 +11,6 @@ class MetadataFromWorkspaceTest extends WorkspacesTestCase
 {
     public function testCreateTableFromWorkspace()
     {
-
         // create workspace and source table in workspace
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
