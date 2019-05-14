@@ -13,7 +13,7 @@ class MetadataFromWorkspaceTest extends WorkspacesTestCase
     {
         // create workspace and source table in workspace
         $workspaces = new Workspaces($this->_client);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $workspaces->createWorkspace(["backend" => "redshift"]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
         $db->query("create table \"test.Languages3\" (
@@ -56,7 +56,7 @@ class MetadataFromWorkspaceTest extends WorkspacesTestCase
         ));
         // create workspace and source table in workspace
         $workspaces = new Workspaces($this->_client);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $workspaces->createWorkspace(["backend" => "redshift"]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
         $db->query("create table \"test.Languages3\" (
