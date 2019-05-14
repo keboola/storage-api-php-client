@@ -1157,7 +1157,8 @@ Further information can be found in the [Developers Documentation](https://devel
 ### Data preview [GET]
 
 Returns up to 1000 rows from table in CSV (RFC) format. Rows can be filtered by various filters described below.
-For full table download please read more in [Asynchronous Unload documentation](#reference/tables/unload-data-asynchronously)
+For full table download please read more in [Asynchronous Unload documentation](#reference/tables/unload-data-asynchronously).
+For the description of filters, see [Asynchronous Unload documentation](#reference/tables/unload-data-asynchronously).
 
 #### HTTP Compression
 
@@ -2411,29 +2412,33 @@ Loads tables from Storage into a Workspace.
 
     + Body
 
-            input%5B0%5D%5Bsource%5D=in.c-application-testing.cashier-data&input%5B0%5D%5Bdestination%5D=my-table
+            input%5B0%5D%5Bsource%5D=in.c-application-testing.carseats&input%5B0%5D%5Bdestination%5D=table1&input%5B1%5D%5Bsource%5D=in.c-application-testing.cashier-data&input%5B1%5D%5Bdestination%5D=table2
 
 + Response 201 (application/json)
     + Body
 
             {
-                "id": 22077337,
+                "id": 75682259,
                 "status": "waiting",
-                "url": "https://connection.keboola.com/v2/storage/jobs/22077337",
+                "url": "https://connection.keboola.com/v2/storage/jobs/75682259",
                 "tableId": null,
                 "operationName": "workspaceLoad",
                 "operationParams": {
-                    "workspaceId": "78423",
+                    "workspaceId": "504345774",
                     "preserve": false,
                     "input": [
                         {
+                            "source": "in.c-application-testing.carseats",
+                            "destination": "table1"
+                        },
+                        {
                             "source": "in.c-application-testing.cashier-data",
-                            "destination": "my-table"
+                            "destination": "table2"
                         }
                     ],
-                    "queue": "main_fast"
+                    "queue": "main"
                 },
-                "createdTime": "2017-02-13T16:41:18+0100",
+                "createdTime": "2019-05-13T21:15:52+0200",
                 "startTime": null,
                 "endTime": null,
                 "runId": null,
@@ -2451,6 +2456,7 @@ Loads tables from Storage into a Workspace.
                     "outBytesUncompressed": 0
                 }
             }
+
 
 ## Load Data using CLONE [/v2/storage/workspaces/{workspace_id}/load-clone]
 
