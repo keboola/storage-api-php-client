@@ -64,4 +64,9 @@
 	<testsuite name="backend-mixed">
 		<directory>tests/Backend/Mixed</directory>
 	</testsuite>
+
+	<testsuite name="metadata-snowflake-feature">
+		<file>tests/Backend/Workspaces/MetadataFromRedshiftWorkspaceTest.php</file>
+		<file>tests/Backend/Workspaces/MetadataFromSnowflakeWorkspaceTest.php</file>
+	</testsuite>
 </phpunit>
