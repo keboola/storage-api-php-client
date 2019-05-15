@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Keboola\Test\Backend\Redshift;
+namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\WorkspacesTestCase;
 
-class MetadataFromWorkspaceTest extends WorkspacesTestCase
+class MetadataFromRedshiftWorkspaceTest extends WorkspacesTestCase
 {
     public function testCreateTableFromWorkspace()
     {
