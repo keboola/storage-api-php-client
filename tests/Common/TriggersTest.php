@@ -284,4 +284,38 @@ class TriggersTest extends StorageApiTestCase
         $this->_client->deleteTrigger($trigger['id']);
         $this->_client->dropToken($newTokenId);
     }
+
+
+    public function testInvalidToken()
+    {
+        $tokenId = $this->_client->createToken(new TokenCreateOptions());
+        $this->_client->dropToken($tokenId);
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage("Token with id \"$tokenId\" was not found.");
+        $this->_client->createTrigger([
+            'component' => 'keboola.ex-manzelka',
+            'configurationId' => 123,
+            'coolDownPeriodMinutes' => 10,
+            'runWithTokenId' => $tokenId,
+            'tableIds' => [''],
+        ]);
+    }
+
+    public function testTokenWithExpiration()
+    {
+        $tokenId = $this->_client->createToken(
+            (new TokenCreateOptions())->setExpiresIn(5)
+        );
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage("The 'runByToken' has expiration set. Use token without expiration.");
+        $this->_client->createTrigger([
+            'component' => 'keboola.ex-manzelka',
+            'configurationId' => 123,
+            'coolDownPeriodMinutes' => 10,
+            'runWithTokenId' => $tokenId,
+            'tableIds' => [''],
+        ]);
+    }
 }
