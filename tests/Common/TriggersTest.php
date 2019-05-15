@@ -49,7 +49,8 @@ class TriggersTest extends StorageApiTestCase
         $this->assertEquals(123, $trigger['configurationId']);
         $this->assertEquals(10, $trigger['coolDownPeriodMinutes']);
         $this->assertEquals($newTokenId, $trigger['runWithTokenId']);
-        $this->assertEquals(null, $trigger['lastRun']);
+        $this->assertNotNull($trigger['lastRun']);
+        $this->assertLessThan((new \DateTime()), (new \DateTime($trigger['lastRun'])));
         $this->assertEquals(
             [
                 ['tableId' => 'in.c-API-tests.watched-1'],
