@@ -136,14 +136,25 @@ class OrderByTest extends StorageApiTestCase
     {
         $tableId = $this->prepareTable();
 
-        $params = [
-            'orderBy' => ['column' => 'column'],
-        ];
+        $orderBy = ['column' => 'column'];
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Parameter orderBy must be array. Like &orderBy[0][column]=...');
-        $this->getExportedTable($tableId, $params);
+        $this->expectExceptionMessageRegExp("/All items in param \"orderBy\" should be an arrays, but request contains:/");
+        $this->getExportedTable($tableId, ['orderBy' => $orderBy]);
     }
+
+
+    public function testInvalidStructuredQuery()
+    {
+        $tableId = $this->prepareTable();
+
+        $orderBy = "string";
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessageRegExp("/Parameter \"orderBy\" should be an array, but request contains:/");
+        $this->getExportedTable($tableId, ['orderBy' => $orderBy]);
+    }
+
 
     private function getExportedTable($tableId, $exportOptions)
     {

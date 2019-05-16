@@ -170,6 +170,28 @@ class WhereFilterTest extends StorageApiTestCase
         $this->getExportedTable($tableId, ['whereFilters' => $where]);
     }
 
+    public function testInvalidStructuredQuery()
+    {
+        $tableId = $this->prepareTable();
+
+        $where = "string";
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessageRegExp("/Parameter \"whereFilters\" should be an array, but request contains:/");
+        $this->getExportedTable($tableId, ['whereFilters' => $where]);
+    }
+
+    public function testNonArrayParamsShouldReturnErrorInAsyncExport()
+    {
+        $tableId = $this->prepareTable();
+
+        $where = ['column' => 'column'];
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessageRegExp("/All items in param \"whereFilters\" should be an arrays, but request contains:/");
+        $this->getExportedTable($tableId, ['whereFilters' => $where]);
+    }
+
     private function getExportedTable($tableId, $exportOptions)
     {
         $tableExporter = new TableExporter($this->_client);
