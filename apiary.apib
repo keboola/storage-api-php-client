@@ -198,6 +198,8 @@ Creates a new token in the project. Note that it is not possible to create a new
     + canReadAllFileUploads (optional, boolean) - Allows access to all file uploads. When set to false,
     only files uploaded by the current token are accessible.
         + Default: false
+    + canPurgeTrash (optional, boolean) - Allows permanently remove deleted configurations.
+        + Default: false
     + expiresIn (optional, number) - Number of seconds until the token expires. If not provided, the token never expires.
 
 + Request (application/x-www-form-urlencoded)
@@ -278,6 +280,8 @@ bucket permissions, don't forget to specify the previous permissions.
     + canReadAllFileUploads (optional, boolean) - Allows access to all file uploads. When set to false,
     only files uploaded by the current token are accessible.
         + Default: false
+    + canPurgeTrash (optional, boolean) - Allows permanently remove deleted configurations.
+        + Default: false
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -302,6 +306,7 @@ bucket permissions, don't forget to specify the previous permissions.
                 "canManageBuckets": false,
                 "canManageTokens": false,
                 "canReadAllFileUploads": false,
+                "canPurgeTrash": false,
                 "expires": null,
                 "isExpired": false,
                 "isDisabled": false,
@@ -3754,7 +3759,7 @@ You can [list deleted](#reference/component-configurations/component-configs/lis
 Other operations with deleted configurations are restricted.
 
 Calling this API call on a deleted configuration will remove it permanently. I.e. to permanently remove a configuration
-you have to delete it twice (call twice this API resource).
+you have to delete it twice (call twice this API resource). The `canPurgeTrash` permission must be set for your token.
 
 + Parameters
     + component_id (required) - Id of the component
