@@ -13,6 +13,9 @@ abstract class TokenAbstractOptions
     /** @var bool|null */
     private $canReadAllFileUploads;
 
+    /** @var bool|null */
+    private $canPurgeTrash;
+
     /** @var array */
     private $bucketPermissions = [];
 
@@ -52,6 +55,24 @@ abstract class TokenAbstractOptions
     public function setCanReadAllFileUploads($canReadAll)
     {
         $this->canReadAllFileUploads = (bool) $canReadAll;
+        return $this;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function getCanPurgeTrash()
+    {
+        return $this->canPurgeTrash;
+    }
+
+    /**
+     * @param bool $canPurgeTrash
+     * @return $this
+     */
+    public function setCanPurgeTrash($canPurgeTrash)
+    {
+        $this->canPurgeTrash = (bool) $canPurgeTrash;
         return $this;
     }
 
@@ -105,6 +126,10 @@ abstract class TokenAbstractOptions
 
         if ($this->getCanReadAllFileUploads() !== null) {
             $params['canReadAllFileUploads'] = $this->getCanReadAllFileUploads();
+        }
+
+        if ($this->getCanPurgeTrash() !== null) {
+            $params['canPurgeTrash'] = $this->getCanPurgeTrash();
         }
 
         foreach ($this->getBucketPermissions() as $bucketId => $permission) {
