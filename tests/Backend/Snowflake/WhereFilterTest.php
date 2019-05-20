@@ -177,7 +177,11 @@ class WhereFilterTest extends StorageApiTestCase
         $where = "string";
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessageRegExp("/Parameter \"whereFilters\" should be an array, but request contains:/");
+        $this->expectExceptionMessage("Parameter \"whereFilters\" should be an array, but request contains:
+Array
+(
+    [whereFilters] => string
+)");
         $this->getExportedTable($tableId, ['whereFilters' => $where]);
     }
 
@@ -188,7 +192,15 @@ class WhereFilterTest extends StorageApiTestCase
         $where = ['column' => 'column'];
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessageRegExp("/All items in param \"whereFilters\" should be an arrays, but request contains:/");
+        $this->expectExceptionMessage("All items in param \"whereFilters\" should be an arrays, but request contains:
+Array
+(
+    [whereFilters] => Array
+        (
+            [column] => column
+        )
+
+");
         $this->getExportedTable($tableId, ['whereFilters' => $where]);
     }
 
@@ -199,7 +211,11 @@ class WhereFilterTest extends StorageApiTestCase
         $where = "string";
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessageRegExp("/Parameter \"whereFilters\" should be an array, but request contains:/");
+        $this->expectExceptionMessage("Parameter \"whereFilters\" should be an array, but request contains:
+Array
+(
+    [whereFilters] => string
+)");
         $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
     }
 
@@ -210,7 +226,15 @@ class WhereFilterTest extends StorageApiTestCase
         $where = ['column' => 'column'];
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessageRegExp("/All items in param \"whereFilters\" should be an arrays, but request contains:/");
+        $this->expectExceptionMessage("All items in param \"whereFilters\" should be an arrays, but request contains:
+Array
+(
+    [whereFilters] => Array
+        (
+            [column] => column
+        )
+
+");
         $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
     }
 
