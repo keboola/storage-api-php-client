@@ -9,6 +9,7 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\TableExporter;
 use Keboola\Test\StorageApiTestCase;
+use function GuzzleHttp\json_encode;
 
 class OrderByTest extends StorageApiTestCase
 {
@@ -126,15 +127,7 @@ class OrderByTest extends StorageApiTestCase
         $orderBy = ['column' => 'column'];
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessage("All items in param \"orderBy\" should be an arrays, but request contains:
-Array
-(
-    [orderBy] => Array
-        (
-            [column] => column
-        )
-
-");
+        $this->expectExceptionMessage("All items in param \"orderBy\" should be an arrays, but parameter contains:\n" . json_encode($orderBy));
         $this->getExportedTable($tableId, ['orderBy' => $orderBy]);
     }
 
@@ -146,11 +139,7 @@ Array
         $orderBy = "string";
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessage("Parameter \"orderBy\" should be an array, but request contains:
-Array
-(
-    [orderBy] => string
-)");
+        $this->expectExceptionMessage("Parameter \"orderBy\" should be an array, but parameter contains:\n" . json_encode($orderBy));
         $this->getExportedTable($tableId, ['orderBy' => $orderBy]);
     }
 
@@ -161,15 +150,7 @@ Array
         $orderBy = ['column' => 'column'];
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessage("All items in param \"orderBy\" should be an arrays, but request contains:
-Array
-(
-    [orderBy] => Array
-        (
-            [column] => column
-        )
-
-");
+        $this->expectExceptionMessage("All items in param \"orderBy\" should be an arrays, but parameter contains:\n" . json_encode($orderBy));
         $this->_client->getTableDataPreview($tableId, ['orderBy' => $orderBy]);
     }
 
@@ -181,11 +162,7 @@ Array
         $orderBy = "string";
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessage("Parameter \"orderBy\" should be an array, but request contains:
-Array
-(
-    [orderBy] => string
-)");
+        $this->expectExceptionMessage("Parameter \"orderBy\" should be an array, but parameter contains:\n" . json_encode($orderBy));
         $this->_client->getTableDataPreview($tableId, ['orderBy' => $orderBy]);
     }
 
