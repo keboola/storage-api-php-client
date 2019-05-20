@@ -170,7 +170,7 @@ class WhereFilterTest extends StorageApiTestCase
         $this->getExportedTable($tableId, ['whereFilters' => $where]);
     }
 
-    public function testInvalidStructuredQuery()
+    public function testInvalidStructuredQueryInAsyncExport()
     {
         $tableId = $this->prepareTable();
 
@@ -190,6 +190,28 @@ class WhereFilterTest extends StorageApiTestCase
         $this->expectException(ClientException::class);
         $this->expectExceptionMessageRegExp("/All items in param \"whereFilters\" should be an arrays, but request contains:/");
         $this->getExportedTable($tableId, ['whereFilters' => $where]);
+    }
+
+    public function testInvalidStructuredQueryInDataPreview()
+    {
+        $tableId = $this->prepareTable();
+
+        $where = "string";
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessageRegExp("/Parameter \"whereFilters\" should be an array, but request contains:/");
+        $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
+    }
+
+    public function testNonArrayParamsShouldReturnErrorInDataPreview()
+    {
+        $tableId = $this->prepareTable();
+
+        $where = ['column' => 'column'];
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessageRegExp("/All items in param \"whereFilters\" should be an arrays, but request contains:/");
+        $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
     }
 
     private function getExportedTable($tableId, $exportOptions)

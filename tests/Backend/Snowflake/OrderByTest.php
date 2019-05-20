@@ -119,19 +119,6 @@ class OrderByTest extends StorageApiTestCase
         ];
     }
 
-    public function testNonArrayParamsShouldReturnErrorInDataPreview()
-    {
-        $tableId = $this->prepareTable();
-
-        $params = [
-            'orderBy' => ['column' => 'column'],
-        ];
-
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Parameter orderBy must be array. Like &orderBy[0][column]=...');
-        $this->_client->getTableDataPreview($tableId, $params);
-    }
-
     public function testNonArrayParamsShouldReturnErrorInAsyncExport()
     {
         $tableId = $this->prepareTable();
@@ -144,7 +131,7 @@ class OrderByTest extends StorageApiTestCase
     }
 
 
-    public function testInvalidStructuredQuery()
+    public function testInvalidStructuredQueryInAsyncExport()
     {
         $tableId = $this->prepareTable();
 
@@ -153,6 +140,29 @@ class OrderByTest extends StorageApiTestCase
         $this->expectException(ClientException::class);
         $this->expectExceptionMessageRegExp("/Parameter \"orderBy\" should be an array, but request contains:/");
         $this->getExportedTable($tableId, ['orderBy' => $orderBy]);
+    }
+
+    public function testNonArrayParamsShouldReturnErrorInDataPreview()
+    {
+        $tableId = $this->prepareTable();
+
+        $orderBy = ['column' => 'column'];
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessageRegExp("/All items in param \"orderBy\" should be an arrays, but request contains:/");
+        $this->_client->getTableDataPreview($tableId, ['orderBy' => $orderBy]);
+    }
+
+
+    public function testInvalidStructuredQueryInADataPreview()
+    {
+        $tableId = $this->prepareTable();
+
+        $orderBy = "string";
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessageRegExp("/Parameter \"orderBy\" should be an array, but request contains:/");
+        $this->_client->getTableDataPreview($tableId, ['orderBy' => $orderBy]);
     }
 
 
