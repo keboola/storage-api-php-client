@@ -126,7 +126,15 @@ class OrderByTest extends StorageApiTestCase
         $orderBy = ['column' => 'column'];
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessageRegExp("/All items in param \"orderBy\" should be an arrays, but request contains:/");
+        $this->expectExceptionMessage("All items in param \"orderBy\" should be an arrays, but request contains:
+Array
+(
+    [orderBy] => Array
+        (
+            [column] => column
+        )
+
+");
         $this->getExportedTable($tableId, ['orderBy' => $orderBy]);
     }
 
@@ -138,7 +146,11 @@ class OrderByTest extends StorageApiTestCase
         $orderBy = "string";
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessageRegExp("/Parameter \"orderBy\" should be an array, but request contains:/");
+        $this->expectExceptionMessage("Parameter \"orderBy\" should be an array, but request contains:
+Array
+(
+    [orderBy] => string
+)");
         $this->getExportedTable($tableId, ['orderBy' => $orderBy]);
     }
 
@@ -149,7 +161,15 @@ class OrderByTest extends StorageApiTestCase
         $orderBy = ['column' => 'column'];
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessageRegExp("/All items in param \"orderBy\" should be an arrays, but request contains:/");
+        $this->expectExceptionMessage("All items in param \"orderBy\" should be an arrays, but request contains:
+Array
+(
+    [orderBy] => Array
+        (
+            [column] => column
+        )
+
+");
         $this->_client->getTableDataPreview($tableId, ['orderBy' => $orderBy]);
     }
 
@@ -161,7 +181,11 @@ class OrderByTest extends StorageApiTestCase
         $orderBy = "string";
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessageRegExp("/Parameter \"orderBy\" should be an array, but request contains:/");
+        $this->expectExceptionMessage("Parameter \"orderBy\" should be an array, but request contains:
+Array
+(
+    [orderBy] => string
+)");
         $this->_client->getTableDataPreview($tableId, ['orderBy' => $orderBy]);
     }
 
