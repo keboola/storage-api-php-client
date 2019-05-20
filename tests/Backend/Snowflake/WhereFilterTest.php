@@ -9,6 +9,7 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\TableExporter;
 use Keboola\Test\StorageApiTestCase;
+use function GuzzleHttp\json_encode;
 
 class WhereFilterTest extends StorageApiTestCase
 {
@@ -177,11 +178,7 @@ class WhereFilterTest extends StorageApiTestCase
         $where = "string";
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessage("Parameter \"whereFilters\" should be an array, but request contains:
-Array
-(
-    [whereFilters] => string
-)");
+        $this->expectExceptionMessage("Parameter \"whereFilters\" should be an array, but parameter contains:\n" . json_encode($where));
         $this->getExportedTable($tableId, ['whereFilters' => $where]);
     }
 
@@ -192,15 +189,7 @@ Array
         $where = ['column' => 'column'];
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessage("All items in param \"whereFilters\" should be an arrays, but request contains:
-Array
-(
-    [whereFilters] => Array
-        (
-            [column] => column
-        )
-
-");
+        $this->expectExceptionMessage("All items in param \"whereFilters\" should be an arrays, but parameter contains:\n" . json_encode($where));
         $this->getExportedTable($tableId, ['whereFilters' => $where]);
     }
 
@@ -211,11 +200,7 @@ Array
         $where = "string";
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessage("Parameter \"whereFilters\" should be an array, but request contains:
-Array
-(
-    [whereFilters] => string
-)");
+        $this->expectExceptionMessage("Parameter \"whereFilters\" should be an array, but parameter contains:\n" . json_encode($where));
         $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
     }
 
@@ -226,15 +211,7 @@ Array
         $where = ['column' => 'column'];
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessage("All items in param \"whereFilters\" should be an arrays, but request contains:
-Array
-(
-    [whereFilters] => Array
-        (
-            [column] => column
-        )
-
-");
+        $this->expectExceptionMessage("All items in param \"whereFilters\" should be an arrays, but parameter contains:\n" . json_encode($where));
         $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
     }
 
