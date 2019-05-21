@@ -9,6 +9,7 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\TableExporter;
 use Keboola\Test\StorageApiTestCase;
+use function GuzzleHttp\json_encode;
 
 class WhereFilterTest extends StorageApiTestCase
 {
@@ -168,6 +169,50 @@ class WhereFilterTest extends StorageApiTestCase
         $this->expectException(ClientException::class);
         $this->expectExceptionMessageRegExp('~Invalid where operator non-existing~');
         $this->getExportedTable($tableId, ['whereFilters' => $where]);
+    }
+
+    public function testInvalidStructuredQueryInAsyncExport()
+    {
+        $tableId = $this->prepareTable();
+
+        $where = "string";
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage("Parameter \"whereFilters\" should be an array, but parameter contains:\n" . json_encode($where));
+        $this->getExportedTable($tableId, ['whereFilters' => $where]);
+    }
+
+    public function testNonArrayParamsShouldReturnErrorInAsyncExport()
+    {
+        $tableId = $this->prepareTable();
+
+        $where = ['column' => 'column'];
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage("All items in param \"whereFilters\" should be an arrays, but parameter contains:\n" . json_encode($where));
+        $this->getExportedTable($tableId, ['whereFilters' => $where]);
+    }
+
+    public function testInvalidStructuredQueryInDataPreview()
+    {
+        $tableId = $this->prepareTable();
+
+        $where = "string";
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage("Parameter \"whereFilters\" should be an array, but parameter contains:\n" . json_encode($where));
+        $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
+    }
+
+    public function testNonArrayParamsShouldReturnErrorInDataPreview()
+    {
+        $tableId = $this->prepareTable();
+
+        $where = ['column' => 'column'];
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage("All items in param \"whereFilters\" should be an arrays, but parameter contains:\n" . json_encode($where));
+        $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
     }
 
     private function getExportedTable($tableId, $exportOptions)
