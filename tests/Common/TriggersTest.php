@@ -286,7 +286,7 @@ class TriggersTest extends StorageApiTestCase
             $this->_client->dropToken($newTokenId);
             $this->fail("Token should not be deleted");
         } catch (ClientException $e) {
-            $this->assertEquals(403, $e->getCode());
+            $this->assertEquals(400, $e->getCode());
             $this->assertEquals('storage.tokens.cannotDeleteDueToOrchestration', $e->getStringCode());
             $this->assertEquals(
                 'Cannot delete token, bacause it\'s used for event trigger inside component "orchestrator" with configuration id "123"',
@@ -302,6 +302,8 @@ class TriggersTest extends StorageApiTestCase
         $tokenId = $this->_client->createToken(
             (new TokenCreateOptions())->setExpiresIn(5)
         );
+
+        $this->expectExceptionCode(400);
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage("The 'runByToken' has expiration set. Use token without expiration.");
         $this->_client->createTrigger([
