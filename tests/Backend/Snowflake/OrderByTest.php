@@ -9,6 +9,7 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\TableExporter;
 use Keboola\Test\StorageApiTestCase;
+use function GuzzleHttp\json_encode;
 
 class OrderByTest extends StorageApiTestCase
 {
@@ -119,31 +120,52 @@ class OrderByTest extends StorageApiTestCase
         ];
     }
 
-    public function testNonArrayParamsShouldReturnErrorInDataPreview()
-    {
-        $tableId = $this->prepareTable();
-
-        $params = [
-            'orderBy' => ['column' => 'column'],
-        ];
-
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Parameter orderBy must be array. Like &orderBy[0][column]=...');
-        $this->_client->getTableDataPreview($tableId, $params);
-    }
-
     public function testNonArrayParamsShouldReturnErrorInAsyncExport()
     {
         $tableId = $this->prepareTable();
 
-        $params = [
-            'orderBy' => ['column' => 'column'],
-        ];
+        $orderBy = ['column' => 'column'];
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Parameter orderBy must be array. Like &orderBy[0][column]=...');
-        $this->getExportedTable($tableId, $params);
+        $this->expectExceptionMessage("All items in param \"orderBy\" should be an arrays, but parameter contains:\n" . json_encode($orderBy));
+        $this->getExportedTable($tableId, ['orderBy' => $orderBy]);
     }
+
+
+    public function testInvalidStructuredQueryInAsyncExport()
+    {
+        $tableId = $this->prepareTable();
+
+        $orderBy = "string";
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage("Parameter \"orderBy\" should be an array, but parameter contains:\n" . json_encode($orderBy));
+        $this->getExportedTable($tableId, ['orderBy' => $orderBy]);
+    }
+
+    public function testNonArrayParamsShouldReturnErrorInDataPreview()
+    {
+        $tableId = $this->prepareTable();
+
+        $orderBy = ['column' => 'column'];
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage("All items in param \"orderBy\" should be an arrays, but parameter contains:\n" . json_encode($orderBy));
+        $this->_client->getTableDataPreview($tableId, ['orderBy' => $orderBy]);
+    }
+
+
+    public function testInvalidStructuredQueryInADataPreview()
+    {
+        $tableId = $this->prepareTable();
+
+        $orderBy = "string";
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage("Parameter \"orderBy\" should be an array, but parameter contains:\n" . json_encode($orderBy));
+        $this->_client->getTableDataPreview($tableId, ['orderBy' => $orderBy]);
+    }
+
 
     private function getExportedTable($tableId, $exportOptions)
     {
