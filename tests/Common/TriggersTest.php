@@ -265,4 +265,53 @@ class TriggersTest extends StorageApiTestCase
             'tableIds' => [''],
         ]);
     }
+
+    public function testPreventTokenDelete()
+    {
+        $table1 = $this->createTableWithRandomData("watched-1");
+        $options = (new TokenCreateOptions())
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
+        ;
+        $newTokenId = $this->_client->createToken($options);
+        $trigger = $this->_client->createTrigger([
+            'component' => 'orchestrator',
+            'configurationId' => 123,
+            'coolDownPeriodMinutes' => 10,
+            'runWithTokenId' => $newTokenId,
+            'tableIds' => [
+                $table1,
+            ],
+        ]);
+        try {
+            $this->_client->dropToken($newTokenId);
+            $this->fail("Token should not be deleted");
+        } catch (ClientException $e) {
+            $this->assertEquals(400, $e->getCode());
+            $this->assertEquals('storage.tokens.cannotDeleteDueToOrchestration', $e->getStringCode());
+            $this->assertEquals(
+                'Cannot delete token, bacause it\'s used for event trigger inside component "orchestrator" with configuration id "123"',
+                $e->getMessage()
+            );
+        }
+        $this->_client->deleteTrigger($trigger['id']);
+        $this->_client->dropToken($newTokenId);
+    }
+
+    public function testTokenWithExpiration()
+    {
+        $tokenId = $this->_client->createToken(
+            (new TokenCreateOptions())->setExpiresIn(5)
+        );
+
+        $this->expectExceptionCode(400);
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage("The 'runByToken' has expiration set. Use token without expiration.");
+        $this->_client->createTrigger([
+            'component' => 'keboola.ex-manzelka',
+            'configurationId' => 123,
+            'coolDownPeriodMinutes' => 10,
+            'runWithTokenId' => $tokenId,
+            'tableIds' => [''],
+        ]);
+    }
 }
