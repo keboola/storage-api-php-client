@@ -5,6 +5,7 @@ use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
+use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
@@ -103,6 +104,7 @@ class TokensTest extends StorageApiTestCase
         $this->assertTrue($currentToken['isMasterToken']);
         $this->assertTrue($currentToken['canManageBuckets']);
         $this->assertTrue($currentToken['canReadAllFileUploads']);
+        $this->assertTrue($currentToken['canPurgeTrash']);
         $this->assertFalse($currentToken['isDisabled']);
         $this->assertNotEmpty($currentToken['bucketPermissions']);
         $this->assertArrayHasKey('owner', $currentToken);
@@ -275,6 +277,7 @@ class TokensTest extends StorageApiTestCase
         $this->assertFalse($token['canManageBuckets']);
         $this->assertFalse($token['canManageTokens']);
         $this->assertFalse($token['canReadAllFileUploads']);
+        $this->assertFalse($token['canPurgeTrash']);
 
         $this->assertEquals('Created by ' . $currentToken['description'], $token['description']);
 
@@ -299,6 +302,7 @@ class TokensTest extends StorageApiTestCase
             ->setDescription('My test token')
             ->setCanReadAllFileUploads(true)
             ->setCanManageBuckets(true)
+            ->setCanPurgeTrash(true)
             ->setExpiresIn(360)
             ->addComponentAccess('wr-db')
         ;
@@ -313,6 +317,7 @@ class TokensTest extends StorageApiTestCase
 
         $this->assertTrue($token['canManageBuckets']);
         $this->assertTrue($token['canReadAllFileUploads']);
+        $this->assertTrue($token['canPurgeTrash']);
 
         $this->assertEquals('My test token', $token['description']);
 
@@ -865,5 +870,85 @@ class TokensTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertEquals(403, $e->getCode());
         }
+    }
+
+    public function testTokenWithoutCanPurgeTrashPermission()
+    {
+        $this->clearComponents();
+
+        // create token without purge trash permission
+        $options = (new TokenCreateOptions())
+            ->setCanManageBuckets(true)
+            ->setDescription('Token without canPurgeTrash permission')
+        ;
+
+        $tokenId = $this->_client->createToken($options);
+
+        $token = $this->_client->getToken($tokenId);
+        $this->assertFalse($token['canPurgeTrash']);
+
+        $client = new \Keboola\StorageApi\Client([
+            'token' => $token['token'],
+            'url' => STORAGE_API_URL,
+        ]);
+
+
+        $components = new Components($client);
+
+        $listOptions = (new ListComponentConfigurationsOptions())
+            ->setComponentId('provisioning')
+        ;
+
+        $configurations = $components->listComponentConfigurations($listOptions);
+        $this->assertCount(0, $configurations);
+
+        // create test configuration
+        $components->addConfiguration((new Configuration())
+            ->setComponentId('provisioning')
+            ->setConfigurationId('for-delete')
+            ->setConfiguration(['foo' => 'bar'])
+            ->setName('Main2'));
+
+        $configurations = $components->listComponentConfigurations($listOptions);
+        $this->assertCount(1, $configurations);
+
+        // move configuration to trash
+        $components->deleteConfiguration('provisioning', 'for-delete');
+
+        $configurations = $components->listComponentConfigurations($listOptions);
+        $this->assertCount(0, $configurations);
+
+        $listDeletedOptions = (new ListComponentConfigurationsOptions())
+            ->setComponentId('provisioning')
+            ->setIsDeleted(true)
+        ;
+
+        $configurations = $components->listComponentConfigurations($listDeletedOptions);
+        $this->assertCount(1, $configurations);
+
+        try {
+            $components->deleteConfiguration('provisioning', 'for-delete');
+            $this->fail('Token without permission should not delete configuration from trash');
+        } catch (ClientException $e) {
+            $this->assertEquals(403, $e->getCode());
+        }
+
+        $configurations = $components->listComponentConfigurations($listDeletedOptions);
+        $this->assertCount(1, $configurations);
+
+        // update token permission
+        $options = (new TokenUpdateOptions($tokenId))
+            ->setCanPurgeTrash(true)
+        ;
+
+        $this->_client->updateToken($options);
+
+        $token = $this->_client->getToken($tokenId);
+        $this->assertTrue($token['canPurgeTrash']);
+
+        $components->deleteConfiguration('provisioning', 'for-delete');
+
+        $configurations = $components->listComponentConfigurations($listDeletedOptions);
+        $this->assertCount(0, $configurations);
     }
 }
