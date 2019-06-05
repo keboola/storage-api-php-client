@@ -63,9 +63,7 @@
 
 	<testsuite name="backend-mixed">
 		<directory>tests/Backend/Mixed</directory>
-	</testsuite>
-
-	<testsuite name="storage-types-feature">
+		<!-- tests for feature "storage-types-feature" -->
 		<file>tests/Backend/Workspaces/MetadataFromRedshiftWorkspaceTest.php</file>
 		<file>tests/Backend/Workspaces/MetadataFromSnowflakeWorkspaceTest.php</file>
 	</testsuite>
