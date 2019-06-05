@@ -107,7 +107,7 @@ You can export variables manually or you can create and fill file `set-env.sh` a
 
 Than  you can run tests:
 
-`source ./set-env.sh &&  docker-compose run --rm tests vendor/bin/phpunit --testsuite common`
+`source ./set-env.sh &&  docker-compose run --rm dev vendor/bin/phpunit --testsuite common`
 
  
 ### Redshift backend test suite
@@ -121,8 +121,8 @@ as copy of attached `set-env.redshift.template.sh`.
 
 Than  you can run tests:
 
-`source ./set-env.redshift.sh && docker-compose run --rm tests vendor/bin/phpunit --testsuite backend-redshift-part-1`
-`source ./set-env.redshift.sh && docker-compose run --rm tests vendor/bin/phpunit --testsuite backend-redshift-part-2`
+`source ./set-env.redshift.sh && docker-compose run --rm dev vendor/bin/phpunit --testsuite backend-redshift-part-1`
+`source ./set-env.redshift.sh && docker-compose run --rm dev vendor/bin/phpunit --testsuite backend-redshift-part-2`
 
 ### Snowflake backend test suite
 This test suite expects following environment variables set:
@@ -132,8 +132,8 @@ This test suite expects following environment variables set:
 
 You can run these tests in docker:
 
-`source ./set-env.snowflake.sh && docker-compose run --rm tests vendor/bin/phpunit --testsuite backend-snowflake-part-1`
-`source ./set-env.snowflake.sh && docker-compose run --rm tests vendor/bin/phpunit --testsuite backend-snowflake-part-2`
+`source ./set-env.snowflake.sh && docker-compose run --rm dev vendor/bin/phpunit --testsuite backend-snowflake-part-1`
+`source ./set-env.snowflake.sh && docker-compose run --rm dev vendor/bin/phpunit --testsuite backend-snowflake-part-2`
 
 ### Mixed backend test suite
 Project can support multiple backends, this is useful for migrations from one backend to another.
@@ -149,7 +149,7 @@ You can export variables manually or you can create and fill file `set-env.mixed
 
 Than  you can run tests:
 
-`source ./set-env.mixed.sh && docker-compose run --rm tests vendor/bin/phpunit --testsuite backend-mixed'`
+`source ./set-env.mixed.sh && docker-compose run --rm dev vendor/bin/phpunit --testsuite backend-mixed'`
 
 
 
