@@ -1142,6 +1142,86 @@ class SharingTest extends StorageApiTestCase
         $this->assertCount(5, $workspaceTableData);
     }
 
+    public function testLinkBucketToSpecificUserAdminIdIsNotSet()
+    {
+        //@todo-roman
+//        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
+        $bucketId = 'in.c-roman-pokus';//reset($this->_bucketIds);
+
+        try {
+            $this->_client->shareBucket($bucketId, [
+                'sharing' => 'specific-user',
+            ]);
+            $this->fail('Bucket should not be shared');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.buckets.idAdminIsNotSet', $e->getStringCode());
+            $this->assertEquals(400, $e->getCode());
+        }
+    }
+
+    public function testLinkBucketToSpecificProjectTargetProjectIsNotSet()
+    {
+        //@todo-roman
+//        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
+        $bucketId = 'in.c-roman-pokus';//reset($this->_bucketIds);
+
+        try {
+            $this->_client->shareBucket($bucketId, [
+                'sharing' => 'specific-project',
+            ]);
+            $this->fail('Bucket should not be shared');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.buckets.targetProjectIsNotSet', $e->getStringCode());
+            $this->assertEquals(400, $e->getCode());
+        }
+    }
+
+    public function testLinkBucketToSpecificUser()
+    {
+//        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
+        $bucketId = 'in.c-roman-pokus';//reset($this->_bucketIds);
+//
+        $result = $this->_client->shareBucket($bucketId, [
+            'sharing' => 'specific-user',
+            'idAdmin' => '2'
+        ]);
+
+        $tokenOptions = (new TokenCreateOptions())
+            ->setDescription('Test Token')
+            ->setCanManageBuckets(true)
+            ->setExpiresIn(3600)
+        ;
+
+        $tokenId = $this->_client2->createToken($tokenOptions);
+        $token = $this->_client2->getToken($tokenId);
+
+        $client = new Client([
+            'token' => $token['token'],
+            'url' => STORAGE_API_URL,
+        ]);
+
+        $response = $client->verifyToken();
+        $this->assertArrayHasKey('owner', $response);
+        $this->assertArrayHasKey('id', $response['owner']);
+        $this->assertArrayHasKey('name', $response['owner']);
+        $linkedBucketProject = $response['owner'];
+
+//        // bucket can be listed with non-admin sapi token
+        $sharedBuckets = $client->listSharedBuckets();
+//
+//        $linkedBucketId = $client->linkBucket(
+//            'specific-user-test',
+//            self::STAGE_IN,
+//            $sharedBuckets[0]['project']['id'],
+//            $sharedBuckets[0]['id']
+//        );
+//
+//        $this->assertCount(1, $sharedBuckets);
+//
+//        $this->assertEquals($bucketId, $sharedBuckets[0]['id']);
+//        $this->assertEquals('specific-user', $sharedBuckets[0]['sharing']);
+    }
+
     /**
      * @param $connection
      * @return Connection|\PDO
