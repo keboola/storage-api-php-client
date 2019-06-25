@@ -11,6 +11,8 @@ namespace Keboola\Test;
 
 use function array_key_exists;
 use Keboola\Csv\CsvFile;
+use Keboola\StorageApi\Client;
+use Keboola\StorageApi\Event;
 use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Options\ListFilesOptions;
@@ -349,15 +351,17 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
         return $this->_bucketIds[$stage];
     }
 
-    protected function createAndWaitForEvent(\Keboola\StorageApi\Event $event)
+    protected function createAndWaitForEvent(Event $event, Client $sapiClient = null)
     {
-        $id = $this->_client->createEvent($event);
+        $client = $sapiClient ? $sapiClient : $this->_client;
+
+        $id = $client->createEvent($event);
 
         sleep(2); // wait for ES refresh
         $tries = 0;
         while (true) {
             try {
-                return $this->_client->getEvent($id);
+                return $client->getEvent($id);
             } catch (\Keboola\StorageApi\ClientException $e) {
                 echo 'Event not found: ' . $id . PHP_EOL;
             }
@@ -369,7 +373,7 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
         }
     }
 
-    protected function createAndWaitForFile($path, FileUploadOptions $options, $sapiClient = null)
+    protected function createAndWaitForFile($path, FileUploadOptions $options, Client $sapiClient = null)
     {
         $client = $sapiClient ? $sapiClient : $this->_client;
 
