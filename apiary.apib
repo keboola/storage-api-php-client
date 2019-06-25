@@ -2715,6 +2715,30 @@ Lists all events associated with a particular table.
 + Response 200 (application/json)
    + Attributes (array[Event])
 
+## List Token Events [/v2/storage/tokens/{token_id}/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}]
+### Token events list [GET]
+Lists all events associated with a particular token.
+
++ Parameters
+    + sinceId (optional) - Shows only events after the specified Id.
+    + maxId (optional) - Shows only events before the passed Id.
+    + component (optional) - Shows only events emitted by the specified component.
+    + configurationId (optional) - Shows only events related to the given configuration Id.
+    + runId (optional) - Shows only events with the specified run Id.
+    + q (optional) - Searches events using advanced [Query string syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax).
+    + limit (optional, number) - Pagination limit
+        + Default: 100
+    + offset (optional, number) - Pagination offset
+        + Default: 0
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+   + Attributes (array[Event])
+
 ## Data Structures
 
 ### Event
