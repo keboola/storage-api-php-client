@@ -1605,6 +1605,22 @@ class Client
     }
 
     /**
+     * @param int $tokenId
+     * @param array $params
+     * @return array
+     */
+    public function listTokenEvents($tokenId, $params = array())
+    {
+        $defaultParams = array(
+            'limit' => 100,
+            'offset' => 0,
+        );
+
+        $queryParams = array_merge($defaultParams, $params);
+        return $this->apiGet("storage/tokens/{$tokenId}/events?" . http_build_query($queryParams));
+    }
+
+    /**
      * @param $id
      * @return array
      */
