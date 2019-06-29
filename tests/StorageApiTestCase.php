@@ -353,7 +353,7 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
 
     protected function createAndWaitForEvent(Event $event, Client $sapiClient = null)
     {
-        $client = $sapiClient ? $sapiClient : $this->_client;
+        $client = $sapiClient ?? $this->_client;
 
         $id = $client->createEvent($event);
 
