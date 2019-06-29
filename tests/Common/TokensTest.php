@@ -992,9 +992,7 @@ class TokensTest extends StorageApiTestCase
         ;
 
         $tokenId = $this->_client->createToken($options);
-
         $token = $this->_client->getToken($tokenId);
-        $this->assertFalse($token['canManageTokens']);
 
         $client = new \Keboola\StorageApi\Client([
             'token' => $token['token'],
