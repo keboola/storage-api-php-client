@@ -323,9 +323,10 @@ class Client
         return $result;
     }
 
-    public function changeBucketSharing($bucketId, $sharing)
+    public function changeBucketSharing($bucketId, $sharing, $options = [])
     {
         $url = "storage/buckets/" . $bucketId . "/share";
+        $url .= '?' . http_build_query($options);
 
         $result = $this->apiPut($url, ['sharing' => $sharing]);
 
