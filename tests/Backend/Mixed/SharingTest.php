@@ -27,17 +27,17 @@ class SharingTest extends StorageApiTestCase
     {
         parent::setUp();
 
-        $this->_client2 = new Client(array(
+        $this->_client2 = new Client([
             'token' => STORAGE_API_LINKING_TOKEN,
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
-        ));
+        ]);
 
-        $this->_otherUserClient = new Client(array(
+        $this->_otherUserClient = new Client([
             'token' => STORAGE_API_SECOND_USER_TOKEN,
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
-        ));
+        ]);
     }
 
     /**
@@ -1158,9 +1158,11 @@ class SharingTest extends StorageApiTestCase
         $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
         $bucketId = reset($this->_bucketIds);
 
+        $availableAdminEmails = explode(',', STORAGE_API_ADMIN_EMAILS_AVAILABLE_TO_LINK_BUCKET);
+
         $this->_client->shareBucket($bucketId, [
             'sharing' => 'specific-users',
-            'adminEmails' => ['defRoman@keboola.com']
+            'adminEmails' => $availableAdminEmails
         ]);
 
         $sharedBuckets = $this->_otherUserClient->listSharedBuckets();
@@ -1187,55 +1189,38 @@ class SharingTest extends StorageApiTestCase
         $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
         $bucketId = reset($this->_bucketIds);
 
+        $nonAvailableAdminEmails = explode(',', STORAGE_API_ADMIN_EMAILS_NON_AVAILABLE_TO_LINK_BUCKET);
+
         $this->_client->shareBucket($bucketId, [
             'sharing' => 'specific-users',
-            'adminEmails' => ['dev@keboola.com']
+            'adminEmails' => $nonAvailableAdminEmails
         ]);
 
+        $this->assertCount(1, $this->_client->listSharedBuckets());
         $this->assertCount(0, $this->_otherUserClient->listSharedBuckets());
 
         $this->_client->unshareBucket($bucketId);
     }
 
-    //@todo-roman
-//    public function testSpecificUsersCantLinkBucket()
-//    {
-//        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
-//        $bucketId = reset($this->_bucketIds);
-//
-//
-//        $this->_client->shareBucket($bucketId, [
-//            'sharing' => 'specific-users',
-//            'adminEmails' => ['dev@keboola.com']
-//        ]);
-//
-//        // bucket can be linked by another project
-//        $linkedBucketId = $this->_client3->linkBucket(
-//            'specific-project-test',
-//            self::STAGE_IN,
-//            56,
-//            'out.c-API-sharing'
-//        );
-//
-//        $this->_client->unshareBucket($bucketId);
-//    }
-
-    public function testSpecificProjectsSharing()
+    public function testSpecificProjectsShareAndLink()
     {
         $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
         $bucketId = reset($this->_bucketIds);
 
+        $availableProjectIds = explode(',', STORAGE_API_PROJECT_IDS_AVAILABLE_TO_LINK_BUCKET);
+
         $this->_client->shareBucket($bucketId, [
             'sharing' => 'specific-projects',
-            'targetProjectIds' => [56]
+            'targetProjectIds' => $availableProjectIds
         ]);
 
         $sharedBuckets = $this->_otherUserClient->listSharedBuckets();
+
         $this->assertCount(1, $sharedBuckets);
 
         // bucket can be linked by another project
         $linkedBucketId = $this->_otherUserClient->linkBucket(
-            'organization-project-test',
+            'organization2-project-test',
             self::STAGE_IN,
             $sharedBuckets[0]['project']['id'],
             $sharedBuckets[0]['id']
@@ -1249,40 +1234,30 @@ class SharingTest extends StorageApiTestCase
         $this->_client->unshareBucket($bucketId);
     }
 
-    public function testCantSpecificProjectsSharing()
-    {
-        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
-        $bucketId = reset($this->_bucketIds);
-
-        $this->_client->shareBucket($bucketId, [
-            'sharing' => 'specific-projects',
-            'targetProjectIds' => [56]
-        ]);
-
-        $this->assertCount(0, $this->_otherUserClient->listSharedBuckets());
-
-        $this->_client->unshareBucket($bucketId);
-    }
-
     public function testUpdateSpecificUserSharing()
     {
         $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
         $bucketId = reset($this->_bucketIds);
 
+        $availableAdminEmails = explode(',', STORAGE_API_ADMIN_EMAILS_AVAILABLE_TO_LINK_BUCKET);
+        $nonAvailableAdminEmails = explode(',', STORAGE_API_ADMIN_EMAILS_NON_AVAILABLE_TO_LINK_BUCKET);
+
         $this->_client->shareBucket($bucketId, [
             'sharing' => 'specific-users',
-            'adminEmails' => ['dev@keboola.com']
+            'adminEmails' => $nonAvailableAdminEmails
         ]);
 
         $this->assertCount(1, $this->_client->listSharedBuckets());
         $this->assertCount(0, $this->_otherUserClient->listSharedBuckets());
 
         $this->_client->changeBucketSharing($bucketId, 'specific-users', [
-            'adminEmails' => ['defRoman@keboola.com']
+            'adminEmails' => $availableAdminEmails
         ]);
 
         $this->assertCount(0, $this->_client->listSharedBuckets());
         $this->assertCount(1, $this->_otherUserClient->listSharedBuckets());
+
+        $this->_client->unshareBucket($bucketId);
     }
 
     public function testUpdateSpecificProjectSharing()
@@ -1290,20 +1265,118 @@ class SharingTest extends StorageApiTestCase
         $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
         $bucketId = reset($this->_bucketIds);
 
+        $availableProjectIds = explode(',', STORAGE_API_PROJECT_IDS_AVAILABLE_TO_LINK_BUCKET);
+        $nonAvailableProjectIds = explode(',', STORAGE_API_ADMIN_EMAILS_NON_AVAILABLE_FOR_SECOND_CLIENT);
+
         $this->_client->shareBucket($bucketId, [
             'sharing' => 'specific-projects',
-            'targetProjectIds' => [1]
+            'targetProjectIds' => $nonAvailableProjectIds
         ]);
 
         $this->assertCount(1, $this->_client->listSharedBuckets());
         $this->assertCount(0, $this->_otherUserClient->listSharedBuckets());
 
         $this->_client->changeBucketSharing($bucketId, 'specific-projects', [
-            'targetProjectIds' => [56]
+            'targetProjectIds' => $availableProjectIds
         ]);
 
         $this->assertCount(0, $this->_client->listSharedBuckets());
         $this->assertCount(1, $this->_otherUserClient->listSharedBuckets());
+
+        $this->_client->unshareBucket($bucketId);
+    }
+
+    public function testSpecificUsersInOtherOrganization()
+    {
+        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
+        $bucketId = reset($this->_bucketIds);
+
+        try {
+            $this->_client->shareBucket($bucketId, [
+                'sharing' => 'specific-users',
+                'adminEmails' => [STORAGE_API_OTHER_ORGANIZATION_ADMIN_EMAIL]
+            ]);
+            $this->fail('Email addresses "' . implode(',', STORAGE_API_OTHER_ORGANIZATION_ADMIN_EMAIL) . '" are not part of organization.');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.buckets.adminEmailsAreNotPartOfOrganization', $e->getStringCode());
+            $this->assertEquals(422, $e->getCode());
+        }
+    }
+
+    public function testLinkBucketForAnotherOrganization()
+    {
+        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
+        $bucketId = reset($this->_bucketIds);
+
+        $availableProjectIds = explode(',', STORAGE_API_PROJECT_IDS_AVAILABLE_TO_LINK_BUCKET);
+        $nonAvailableProjectIds = explode(',', STORAGE_API_PROJECT_IDS_NON_AVAILABLE_TO_LINK_BUCKET);
+
+        $projectIds = array_merge($nonAvailableProjectIds, $availableProjectIds);
+
+        try {
+            $this->_client->shareBucket($bucketId, [
+                'sharing' => 'specific-projects',
+                'targetProjectIds' => $projectIds
+            ]);
+            $this->fail('TargetProjectIds "[' . implode(',', $nonAvailableProjectIds) . ']" are no part of organization.');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.buckets.targetProjectIdAreNotPartOfOrganization', $e->getStringCode());
+            $this->assertEquals(422, $e->getCode());
+        }
+    }
+
+    public function testUpdateSpecificUserForWrongEmail()
+    {
+        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
+        $bucketId = reset($this->_bucketIds);
+
+        $availableAdminEmails = explode(',', STORAGE_API_ADMIN_EMAILS_AVAILABLE_TO_LINK_BUCKET);
+
+        $this->_client->shareBucket($bucketId, [
+            'sharing' => 'specific-users',
+            'adminEmails' => $availableAdminEmails
+        ]);
+
+        $this->assertCount(1, $this->_otherUserClient->listSharedBuckets());
+
+        try {
+            $this->_client->changeBucketSharing($bucketId, 'specific-users', [
+                'adminEmails' => ['roman.bracinik']
+            ]);
+            $this->fail('The "roman.bracinik" is not valid email address.');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.buckets.emailAddrIsNotValid', $e->getStringCode());
+            $this->assertEquals(400, $e->getCode());
+        }
+
+        $this->_client->unshareBucket($bucketId);
+    }
+
+    public function testUpdateSpecificUserNonExistForEmail()
+    {
+        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
+        $bucketId = reset($this->_bucketIds);
+
+        $availableAdminEmails = explode(',', STORAGE_API_ADMIN_EMAILS_AVAILABLE_TO_LINK_BUCKET);
+
+        $this->_client->shareBucket($bucketId, [
+            'sharing' => 'specific-users',
+            'adminEmails' => $availableAdminEmails
+        ]);
+
+        $this->assertCount(1, $this->_otherUserClient->listSharedBuckets());
+
+        try {
+            $this->_client->changeBucketSharing($bucketId, 'specific-users', [
+                'adminEmails' => ['roman.kinicarb@keboola.com']
+            ]);
+            $this->fail('Users not found for email ["roman.kinicarb@keboola.com"].');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.buckets.usersNotExist', $e->getStringCode());
+            $this->assertEquals(422, $e->getCode());
+        }
+
+        $this->_client->unshareBucket($bucketId);
     }
 
     public function testInvalidEmailException()
@@ -1316,9 +1389,10 @@ class SharingTest extends StorageApiTestCase
                 'sharing' => 'specific-users',
                 'adminEmails' => ['roman.bracinik']
             ]);
+            $this->fail('The "roman.bracinik" is not valid email address.');
         } catch (ClientException $e) {
-            $this->assertEquals(422, $e->getCode());
-            $this->assertEquals('The roman.bracinik is not valid email address.', $e->getMessage());
+            $this->assertEquals('storage.buckets.emailAddrIsNotValid', $e->getStringCode());
+            $this->assertEquals(400, $e->getCode());
         }
     }
 
@@ -1332,24 +1406,10 @@ class SharingTest extends StorageApiTestCase
                 'sharing' => 'specific-users',
                 'adminEmails' => ['roman.kinicarb@keboola.com']
             ]);
+            $this->fail('Users not found for email "[roman.kinicarb@keboola.com]".');
         } catch (ClientException $e) {
+            $this->assertEquals('storage.buckets.usersNotExist', $e->getStringCode());
             $this->assertEquals(422, $e->getCode());
-            $this->assertEquals('User not found for email roman.kinicarb@keboola.com.', $e->getMessage());
-        }
-    }
-
-    public function testEmailIsNotPartOfOrganizationException()
-    {
-        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
-        $bucketId = reset($this->_bucketIds);
-        try {
-            $this->_client->shareBucket($bucketId, [
-                'sharing' => 'specific-users',
-                'adminEmails' => ['dev2@keboola.com']
-            ]);
-        } catch (ClientException $e) {
-            $this->assertEquals(422, $e->getCode());
-            $this->assertEquals('User dev2@keboola.com is not in organization.', $e->getMessage());
         }
     }
 
@@ -1363,9 +1423,10 @@ class SharingTest extends StorageApiTestCase
                 'sharing' => 'specific-users',
                 'adminEmails' => []
             ]);
+            $this->fail('The Parameter "adminEmails" is not set.');
         } catch (ClientException $e) {
+            $this->assertEquals('storage.buckets.adminEmailsIsNotSet', $e->getStringCode());
             $this->assertEquals(400, $e->getCode());
-            $this->assertEquals('AdminEmails is not set.', $e->getMessage());
         }
     }
 
@@ -1379,9 +1440,44 @@ class SharingTest extends StorageApiTestCase
                 'sharing' => 'specific-users',
                 'adminEmails' => 'roman.bracinik@keboola.com'
             ]);
+            $this->fail('The parameter "adminEmails" must be an array.');
         } catch (ClientException $e) {
+            $this->assertEquals('storage.buckets.adminEmailsMustBeAnArray', $e->getStringCode());
             $this->assertEquals(400, $e->getCode());
-            $this->assertEquals('The parameter adminEmails must be an array.', $e->getMessage());
+        }
+    }
+
+    public function testProjectIdsIsNotSetException()
+    {
+        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
+        $bucketId = reset($this->_bucketIds);
+
+        try {
+            $this->_client->shareBucket($bucketId, [
+                'sharing' => 'specific-projects',
+                'targetProjectIds' => []
+            ]);
+            $this->fail('The parameter "projectIds" is not set.');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.buckets.targetProjectIsNotSet', $e->getStringCode());
+            $this->assertEquals(400, $e->getCode());
+        }
+    }
+
+    public function testProjectIdsMustBeArrayException()
+    {
+        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
+        $bucketId = reset($this->_bucketIds);
+
+        try {
+            $this->_client->shareBucket($bucketId, [
+                'sharing' => 'specific-projects',
+                'targetProjectIds' => 1
+            ]);
+            $this->fail('The parameter "targetProjectIds" must be an array.');
+        } catch (ClientException $e) {
+            $this->assertEquals('exceptions.buckets.targetProjectIdsMustBeAnArray', $e->getStringCode());
+            $this->assertEquals(400, $e->getCode());
         }
     }
 
