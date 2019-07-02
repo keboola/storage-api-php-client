@@ -368,6 +368,48 @@ class TokensTest extends StorageApiTestCase
         $this->assertGreaterThan($created->getTimestamp(), $refreshed->getTimestamp());
     }
 
+    public function testTokenWithoutTokensManagePermissionCanRefreshOnlySelf()
+    {
+        $options = (new TokenCreateOptions())
+            ->setDescription('Out read token')
+        ;
+
+        $tokenId = $this->_client->createToken($options);
+        $token = $this->_client->getToken($tokenId);
+
+        $tokenString = $token['token'];
+
+        $client = new \Keboola\StorageApi\Client([
+            'token' => $tokenString,
+            'url' => STORAGE_API_URL
+        ]);
+
+        $client->refreshToken($tokenId);
+        $token = $client->getToken($tokenId);
+
+        $this->assertNotEquals($tokenString, $token['token']);
+
+        // refresh other token
+        $tokenString = $token['token'];
+
+        $tokenId = $this->_client->createToken($options);
+        $token = $this->_client->getToken($tokenId);
+
+        $client = new \Keboola\StorageApi\Client([
+            'token' => $tokenString,
+            'url' => STORAGE_API_URL
+        ]);
+
+        try {
+            $client->refreshToken($tokenId);
+            $this->fail('Token without canManageTokens permission can refresh only self');
+        } catch (ClientException $e) {
+            $this->assertEquals(403, $e->getCode());
+        }
+
+        $this->assertEquals($token, $this->_client->getToken($tokenId));
+    }
+
     public function testTokenComponentAccess()
     {
         $this->clearComponents();
