@@ -368,6 +368,28 @@ class TokensTest extends StorageApiTestCase
         $this->assertGreaterThan($created->getTimestamp(), $refreshed->getTimestamp());
     }
 
+    public function testTokenWithoutTokensManagePermissionCannotRefreshOtherTokens()
+    {
+        $options = (new TokenCreateOptions())
+            ->setDescription('Out read token')
+        ;
+
+        $limitedAccessTokenId = $this->_client->createToken($options);
+        $limitedAccessToken = $this->_client->getToken($limitedAccessTokenId);
+        $limitAccessTokenClient = new \Keboola\StorageApi\Client([
+            'token' => $limitedAccessToken['token'],
+            'url' => STORAGE_API_URL
+        ]);
+
+        $otherTokenId = $this->_client->createToken($options);
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionCode(403);
+
+        $limitAccessTokenClient->refreshToken($otherTokenId);
+        $this->assertEquals($limitedAccessToken, $this->_client->getToken($limitedAccessTokenId));
+    }
+
     public function testTokenComponentAccess()
     {
         $this->clearComponents();
