@@ -323,14 +323,108 @@ class Client
         return $result;
     }
 
-    public function changeBucketSharing($bucketId, $sharing, $options = [])
+    public function changeBucketSharing($bucketId, $sharing)
     {
         $url = "storage/buckets/" . $bucketId . "/share";
-        $url .= '?' . http_build_query($options);
 
         $result = $this->apiPut($url, ['sharing' => $sharing]);
 
         $this->log("Bucket {$bucketId} sharing changed to {$sharing}", array("result" => $result));
+
+        return $result;
+    }
+
+    public function changeBucketSharingToOrganization($bucketId)
+    {
+        $url = "storage/buckets/" . $bucketId . "/share-organization";
+
+        $result = $this->apiPut($url);
+
+        $this->log("Bucket {$bucketId} sharing changed to organization", array("result" => $result));
+
+        return $result;
+    }
+
+    public function changeBucketSharingToOrganizationProject($bucketId)
+    {
+        $url = "storage/buckets/" . $bucketId . "/share-organization-project";
+
+        $result = $this->apiPut($url);
+
+        $this->log("Bucket {$bucketId} sharing changed to organization project", array("result" => $result));
+
+        return $result;
+    }
+
+    public function changeBucketSpecificUsersSharing($bucketId, array $targetAdminEmails)
+    {
+        $url = "storage/buckets/" . $bucketId . "/share-specific-users";
+        $url .= '?' . http_build_query(['targetAdminEmails' => $targetAdminEmails]);
+
+        $result = $this->apiPut($url);
+
+        $this->log("Bucket {$bucketId} sharing changed to specific-users", array("result" => $result));
+
+        return $result;
+    }
+
+    public function changeBucketSharingToSpecificProjects($bucketId, array $projectIds)
+    {
+        $url = "storage/buckets/" . $bucketId . "/share-specific-projects";
+        $url .= '?' . http_build_query(['targetProjectIds' => $projectIds]);
+
+        $result = $this->apiPut($url);
+
+        $this->log("Bucket {$bucketId} sharing changed to specific-projects", array("result" => $result));
+
+        return $result;
+    }
+
+
+    public function shareOrganizationBucket($bucketId)
+    {
+        $url = "storage/buckets/" . $bucketId . "/share-organization";
+
+        $result = $this->apiPost($url, [], false);
+
+        $this->log("Bucket {$bucketId} shared", array("result" => $result));
+
+        return $result;
+    }
+
+    public function shareOrganizationProjectBucket($bucketId)
+    {
+        $url = "storage/buckets/" . $bucketId . "/share-organization-project";
+
+        $result = $this->apiPost($url, [], false);
+
+        $this->log("Bucket {$bucketId} shared", array("result" => $result));
+
+        return $result;
+    }
+
+    public function shareToSpecificUsersBucket($bucketId, array $targetAdminEmails)
+    {
+        $url = "storage/buckets/" . $bucketId . "/share-specific-users";
+
+        $url .= '?' . http_build_query(['targetAdminEmails' => $targetAdminEmails]);
+
+        $result = $this->apiPost($url, [], false);
+
+        $this->log("Bucket {$bucketId} shared", array("result" => $result));
+
+        return $result;
+    }
+
+    public function shareToSpecificProjectsBucket($bucketId, array $targetProjectIds)
+    {
+        $url = "storage/buckets/" . $bucketId . "/share-specific-projects";
+
+        $url .= '?' . http_build_query(['targetProjectIds' => $targetProjectIds]);
+
+        $result = $this->apiPost($url, [], false);
+
+        $this->log("Bucket {$bucketId} shared", array("result" => $result));
 
         return $result;
     }
