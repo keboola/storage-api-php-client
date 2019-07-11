@@ -356,7 +356,7 @@ class Client
         return $result;
     }
 
-    public function changeBucketSpecificUsersSharing($bucketId, array $targetAdminEmails)
+    public function changeBucketSharingToSpecificUsers($bucketId, array $targetAdminEmails)
     {
         $url = "storage/buckets/" . $bucketId . "/share-specific-users";
         $url .= '?' . http_build_query(['targetAdminEmails' => $targetAdminEmails]);
@@ -381,7 +381,7 @@ class Client
     }
 
 
-    public function shareOrganizationBucket($bucketId)
+    public function shareBucketToOrganization($bucketId)
     {
         $url = "storage/buckets/" . $bucketId . "/share-organization";
 
@@ -392,7 +392,7 @@ class Client
         return $result;
     }
 
-    public function shareOrganizationProjectBucket($bucketId)
+    public function shareBucketToOrganizationProject($bucketId)
     {
         $url = "storage/buckets/" . $bucketId . "/share-organization-project";
 
@@ -403,7 +403,7 @@ class Client
         return $result;
     }
 
-    public function shareToSpecificUsersBucket($bucketId, array $targetAdminEmails)
+    public function shareBucketToSpecificUsers($bucketId, array $targetAdminEmails)
     {
         $url = "storage/buckets/" . $bucketId . "/share-specific-users";
 
@@ -416,7 +416,7 @@ class Client
         return $result;
     }
 
-    public function shareToSpecificProjectsBucket($bucketId, array $targetProjectIds)
+    public function shareBucketToSpecificProjects($bucketId, array $targetProjectIds)
     {
         $url = "storage/buckets/" . $bucketId . "/share-specific-projects";
 
