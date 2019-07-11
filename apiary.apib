@@ -738,24 +738,15 @@ Use the optional `force` parameter to delete all bucket content too.
 
 + Response 204
 
-## Bucket Sharing [/v2/storage/buckets/{bucket_id}/share]
+## Bucket Sharing [/]
 
-
-### Share Bucket [POST]
-[Enables sharing](https://help.keboola.com/storage/buckets/sharing/) of a bucket. The bucket will be shared
-to the entire organization to which the project belongs. It may then be shared to any project of that organization.
+[Enables sharing](https://help.keboola.com/storage/buckets/sharing/) of a bucket.
 This operations is available only for organization administrators.
 
-
+### Share Bucket to organization [POST /v2/storage/buckets/{bucket_id}/share-organization]
+The bucket will be shared to organization. Any organization member can link bucket to project in organization.
 + Parameters
     + bucket_id (required) - Bucket Id
-
-+ Attributes
-    + sharing (optional, enum[string]) - Sharing type
-        + Members
-            + organization - Bucket is shared to organization. Any organization member can link bucket to project in organization.
-            + `organization-project` - Bucket is shared to organization. Any organization or organization's project member can link bucket to project.
-        + Default: organization
 
 + Request
     + Headers
@@ -769,19 +760,70 @@ This operations is available only for organization administrators.
                 "sharing": "organization"
             }
 
-### Change Bucket Sharing [PUT]
-Change [sharing type](https://help.keboola.com/storage/buckets/sharing/#sharing-type) of a bucket.
-This operations is available only for organization administrators.
+### Share Bucket to organization project [POST /v2/storage/buckets/{bucket_id}/share-organization-project]
+The bucket will be shared to organization. Any organization or organization's project member can link bucket to project.
++ Parameters
+    + bucket_id (required) - Bucket Id
 
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 202 (application/json)
+    + Body
+
+            {
+                "sharing": "organization-project"
+            }
+
+### Share Bucket to specific users [POST /v2/storage/buckets/{bucket_id}/share-specific-users]
+The bucket will be shared to the selected users. Any of the selected
+users can link bucket to project.
 
 + Parameters
     + bucket_id (required) - Bucket Id
 
 + Attributes
-    + sharing (required, enum[string]) - Sharing type
-        + Members
-            + `organization` - Bucket is shared to organization. Any organization member can link bucket to project in organization.
-            + `organization-project` - Bucket is shared to organization. Any organization or organization's project member can link bucket to project.
+    + targetAdminEmails[] (required, array) - Array of admin email
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 202 (application/json)
+    + Body
+
+            {
+                "sharing": "specific-users"
+            }
+
+### Share Bucket to specific projects [POST /v2/storage/buckets/{bucket_id}/share-specific-projects]
+The bucket will be shared to the selected projects. Any users in this projects can link bucket to project.
+
++ Parameters
+    + bucket_id (required) - Bucket Id
+
++ Attributes
+    + targetProjectIds[] (required, array) - Array of project ids
+
++ Request
+    + Headers
+            X-StorageApi-Token: your_token
+
++ Response 202 (application/json)
+    + Body
+
+            {
+                "sharing": "specific-projects"
+            }
+
+### Change Bucket Sharing to organization [PUT /v2/storage/buckets/{bucket_id}/share-organization]
+Change [sharing type](https://help.keboola.com/storage/buckets/sharing/#sharing-type) of a bucket to organization.
+
++ Parameters
+    + bucket_id (required) - Bucket Id
 
 + Request
     + Headers
@@ -793,6 +835,66 @@ This operations is available only for organization administrators.
 
             {
                 "sharing": "organization"
+            }
+
+### Change Bucket Sharing to organization project [PUT /v2/storage/buckets/{bucket_id}/share-organization-project]
+Change [sharing type](https://help.keboola.com/storage/buckets/sharing/#sharing-type) of a bucket to organization project.
+
++ Parameters
+    + bucket_id (required) - Bucket Id
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 202 (application/json)
+    + Body
+
+            {
+                "sharing": "organization-project"
+            }
+
+### Change Bucket Sharing to specific users [PUT /v2/storage/buckets/{bucket_id}/share-specific-users]
+Change [sharing type](https://help.keboola.com/storage/buckets/sharing/#sharing-type) of a bucket to specific users.
+
++ Parameters
+    + bucket_id (required) - Bucket Id
+
++ Attributes
+    + targetAdminEmails[] (required, array) - Array of admin emails
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 202 (application/json)
+    + Body
+
+            {
+                "sharing": "specific-users"
+            }
+
+### Change Bucket Sharing to specific projects [PUT /v2/storage/buckets/{bucket_id}/share-specific-projects]
+Change [sharing type](https://help.keboola.com/storage/buckets/sharing/#sharing-type) of a bucket to specific projects.
+
++ Parameters
+    + bucket_id (required) - Bucket Id
+
++ Attributes
+    + targetProjectIds[] (required, array) - Array of project ids
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 202 (application/json)
+    + Body
+
+            {
+                "sharing": "specific-projects"
             }
 
 ### Stop Bucket Sharing [DELETE]
@@ -2694,6 +2796,30 @@ Lists all events associated with a particular bucket.
 ## List Table Events [/v2/storage/tables/{table_id}/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}]
 ### Table events list [GET]
 Lists all events associated with a particular table.
+
++ Parameters
+    + sinceId (optional) - Shows only events after the specified Id.
+    + maxId (optional) - Shows only events before the passed Id.
+    + component (optional) - Shows only events emitted by the specified component.
+    + configurationId (optional) - Shows only events related to the given configuration Id.
+    + runId (optional) - Shows only events with the specified run Id.
+    + q (optional) - Searches events using advanced [Query string syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax).
+    + limit (optional, number) - Pagination limit
+        + Default: 100
+    + offset (optional, number) - Pagination offset
+        + Default: 0
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+   + Attributes (array[Event])
+
+## List Token Events [/v2/storage/tokens/{token_id}/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}]
+### Token events list [GET]
+Lists all events associated with a particular token.
 
 + Parameters
     + sinceId (optional) - Shows only events after the specified Id.
