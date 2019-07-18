@@ -4515,17 +4515,21 @@ Created a trigger listeng on set of tables
 + Response 201 (application/json)
 
         {
-            "id": 3,
-            "runWithTokenId": 123,
-            "projectId": 234,
+            "id": "3",
+            "runWithTokenId": "123",
+            "projectId": "234",
             "component": "orchestration",
-            "configurationId": 123,
-            "lastRun": null,
-            "coolDownPeriodMinutes": 20,
-            "creatorName": "Name Surname",
-            "creatorId": 1,
-            "createdByTokenName": "dev@keboola.com",
-            "createdByTokenId": 4,
+            "configurationId": "100",
+            "lastRun": "2017-02-13T16:42:00+0100",
+            "coolDownPeriodMinutes": "20",
+            "creatorUser": {
+                "id": "1",
+                "name": "Name Surname"
+            },
+            "creatorToken": {
+                "id": "1"
+                "description": "dev@keboola.com"
+            },
             "tables": [
                 {
                     "tableId": "in.c-test.watched-1"
@@ -4547,17 +4551,21 @@ List all token of project with possible filters
 
         [
             {
-                "id": 3,
-                "runWithTokenId": 123,
-                "projectId": 234,
+                "id": "3",
+                "runWithTokenId": "123",
+                "projectId": "234",
                 "component": "orchestration",
-                "configurationId": 123,
-                "lastRun": null,
-                "coolDownPeriodMinutes": 20,
-                "creatorName": "Name Surname",
-                "creatorId": 1,
-                "createdByTokenName": "dev@keboola.com",
-                "createdByTokenId": 4,
+                "configurationId": "100",
+                "lastRun": "2017-02-13T16:42:00+0100",
+                "coolDownPeriodMinutes": "20",
+                "creatorUser": {
+                    "id": "1",
+                    "name": "Name Surname"
+                },
+                "creatorToken": {
+                    "id": "1",
+                    "description": "dev@keboola.com"
+                },
                 "tables": [
                     {
                         "tableId": "in.c-test.watched-1"
@@ -4596,17 +4604,21 @@ Updates an existing trigger
 + Response 200 (application/json)
 
         {
-            "id": 3,
-            "runWithTokenId": 123,
-            "projectId": 234,
+            "id": "3",
+            "runWithTokenId": "123",
+            "projectId": "234",
             "component": "orchestration",
-            "configurationId": 100,
-            "lastRun": null,
-            "coolDownPeriodMinutes": 20,
-            "creatorName": "Name Surname",
-            "creatorId": 1,
-            "createdByTokenName": "dev@keboola.com",
-            "createdByTokenId": 4,
+            "configurationId": "100",
+            "lastRun": "2017-02-13T16:42:00+0100",
+            "coolDownPeriodMinutes": "20",
+            "creatorUser": {
+                "id": "1",
+                "name": "Name Surname"
+            },
+            "creatorToken": {
+                "id": "1",
+                "description": "dev@keboola.com"
+            },
             "tables": [
                 {
                     "tableId": "in.c-test.watched-1"
