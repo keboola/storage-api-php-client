@@ -60,13 +60,6 @@ class TriggersTest extends StorageApiTestCase
             ],
             $trigger['creatorToken']
         );
-        $this->assertEquals(
-            [
-                'id' => $token['admin']['id'],
-                'name' => $token['admin']['name'],
-            ],
-            $trigger['creatorUser']
-        );
     }
 
     public function testUpdateTrigger()
