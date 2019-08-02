@@ -17,6 +17,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         unixodbc \
         unixodbc-dev \
         libpq-dev \
+        gpg \
+        debsig-verify \
+        dirmngr \
+        gpg-agent \
     && rm -r /var/lib/apt/lists/* \
     && chmod +x /tmp/composer-install.sh \
     && /tmp/composer-install.sh
@@ -52,7 +56,7 @@ ENV LANG en_US.UTF-8
 RUN mkdir -p ~/.gnupg \
     && chmod 700 ~/.gnupg \
     && echo "disable-ipv6" >> ~/.gnupg/dirmngr.conf \
-    && mkdir /usr/share/debsig/keyrings/$SNOWFLAKE_GPG_KEY \
+    && mkdir -p /usr/share/debsig/keyrings/$SNOWFLAKE_GPG_KEY \
     && gpg --keyserver hkp://keys.gnupg.net --recv-keys $SNOWFLAKE_GPG_KEY \
     && gpg --export $SNOWFLAKE_GPG_KEY > /usr/share/debsig/keyrings/$SNOWFLAKE_GPG_KEY/debsig.gpg \
     && debsig-verify /tmp/snowflake-odbc.deb \
