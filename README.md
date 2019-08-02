@@ -90,7 +90,6 @@ These APIs are available at `http://connection-apache/` endpoint from clients te
 
 
 Before executing tests please install dev dependencies:
-- Prepare and export AWS keys for [Snowflake drivers download](https://github.com/keboola/drivers-management#driver-download) required by build
 - `docker-compose build`
 - `docker-compose run --rm dev composer install`
 
