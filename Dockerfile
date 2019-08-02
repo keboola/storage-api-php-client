@@ -1,14 +1,9 @@
-FROM quay.io/keboola/aws-cli
-ARG AWS_SECRET_ACCESS_KEY
-ARG AWS_ACCESS_KEY_ID
-ARG AWS_SESSION_TOKEN
-# How to update drivers - https://github.com/keboola/drivers-management
-RUN /usr/bin/aws s3 cp s3://keboola-drivers/snowflake/snowflake-odbc-2.16.10.x86_64.deb /tmp/snowflake-odbc.deb
-
 FROM php:7.1
 MAINTAINER Martin Halamicek <martin@keboola.com>
 ENV DEBIAN_FRONTEND noninteractive
 ARG COMPOSER_FLAGS="--prefer-dist --no-interaction"
+ARG SNOWFLAKE_ODBC_VERSION=2.19.7
+ARG SNOWFLAKE_GPG_KEY=EC218558EABB25A1
 ENV COMPOSER_ALLOW_SUPERUSER 1
 ENV COMPOSER_PROCESS_TIMEOUT 3600
 
@@ -47,12 +42,22 @@ RUN set -ex; \
 
 
 ## install snowflake drivers
-COPY --from=0 /tmp/snowflake-odbc.deb /tmp/snowflake-odbc.deb
-RUN dpkg -i /tmp/snowflake-odbc.deb
+ADD ./docker/snowflake/generic.pol /etc/debsig/policies/$SNOWFLAKE_GPG_KEY/generic.pol
+ADD https://sfc-repo.snowflakecomputing.com/odbc/linux/$SNOWFLAKE_ODBC_VERSION/snowflake-odbc-$SNOWFLAKE_ODBC_VERSION.x86_64.deb /tmp/snowflake-odbc.deb
 ADD ./docker/snowflake/simba.snowflake.ini /usr/lib/snowflake/odbc/lib/simba.snowflake.ini
 
 # snowflake - charset settings
 ENV LANG en_US.UTF-8
+
+RUN mkdir -p ~/.gnupg \
+    && chmod 700 ~/.gnupg \
+    && echo "disable-ipv6" >> ~/.gnupg/dirmngr.conf \
+    && mkdir /usr/share/debsig/keyrings/$SNOWFLAKE_GPG_KEY \
+    && gpg --keyserver hkp://keys.gnupg.net --recv-keys $SNOWFLAKE_GPG_KEY \
+    && gpg --export $SNOWFLAKE_GPG_KEY > /usr/share/debsig/keyrings/$SNOWFLAKE_GPG_KEY/debsig.gpg \
+    && debsig-verify /tmp/snowflake-odbc.deb \
+    && gpg --batch --delete-key --yes $SNOWFLAKE_GPG_KEY \
+    && dpkg -i /tmp/snowflake-odbc.deb
 
 WORKDIR /code
 
