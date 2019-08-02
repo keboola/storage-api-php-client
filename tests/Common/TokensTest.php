@@ -3,6 +3,7 @@ namespace Keboola\Test\Common;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Components;
+use Keboola\StorageApi\Event;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
@@ -365,6 +366,28 @@ class TokensTest extends StorageApiTestCase
 
         $this->assertNotEquals($tokenString, $token['token']);
         $this->assertGreaterThan($created->getTimestamp(), $refreshed->getTimestamp());
+    }
+
+    public function testTokenWithoutTokensManagePermissionCannotRefreshOtherTokens()
+    {
+        $options = (new TokenCreateOptions())
+            ->setDescription('Out read token')
+        ;
+
+        $limitedAccessTokenId = $this->_client->createToken($options);
+        $limitedAccessToken = $this->_client->getToken($limitedAccessTokenId);
+        $limitAccessTokenClient = new \Keboola\StorageApi\Client([
+            'token' => $limitedAccessToken['token'],
+            'url' => STORAGE_API_URL
+        ]);
+
+        $otherTokenId = $this->_client->createToken($options);
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionCode(403);
+
+        $limitAccessTokenClient->refreshToken($otherTokenId);
+        $this->assertEquals($limitedAccessToken, $this->_client->getToken($limitedAccessTokenId));
     }
 
     public function testTokenComponentAccess()
@@ -950,5 +973,77 @@ class TokensTest extends StorageApiTestCase
 
         $configurations = $components->listComponentConfigurations($listDeletedOptions);
         $this->assertCount(0, $configurations);
+    }
+
+    public function testTokenEvents()
+    {
+        $options = (new TokenCreateOptions())
+            ->setCanManageBuckets(true)
+            ->setDescription('Token with canManageBuckets permission')
+        ;
+
+        $tokenId = $this->_client->createToken($options);
+
+        $token = $this->_client->getToken($tokenId);
+
+        $client = new \Keboola\StorageApi\Client([
+            'token' => $token['token'],
+            'url' => STORAGE_API_URL,
+        ]);
+
+        $event = new Event();
+        $event->setComponent('dummy')
+            ->setMessage($token['description'] . ' sample event');
+
+        $event = $this->createAndWaitForEvent($event, $client);
+
+        $tokenEvents = $this->_client->listTokenEvents($tokenId);
+        $this->assertCount(2, $tokenEvents); // token created + sample event
+
+        $this->assertSame($event, reset($tokenEvents));
+
+        $events = $this->_client->listEvents();
+        $this->assertGreaterThan(2, count($events));
+    }
+
+    public function testTokenWithoutTokensManagePermissionCanListOnlyOwnTokenEvents()
+    {
+        $options = (new TokenCreateOptions())
+            ->setCanManageBuckets(true)
+            ->setDescription('Token with canManageBuckets permission')
+        ;
+
+        $tokenId = $this->_client->createToken($options);
+        $token = $this->_client->getToken($tokenId);
+
+        $client = new \Keboola\StorageApi\Client([
+            'token' => $token['token'],
+            'url' => STORAGE_API_URL,
+        ]);
+
+        // check access for own events
+        $event = new Event();
+        $event->setComponent('dummy')
+            ->setMessage($token['description'] . ' sample event');
+
+        $event = $this->createAndWaitForEvent($event, $client);
+
+        $tokenEvents = $client->listTokenEvents($tokenId);
+        $this->assertCount(2, $tokenEvents); // token created + sample event
+
+        $this->assertSame($event, reset($tokenEvents));
+
+        $events = $this->_client->listEvents();
+        $this->assertGreaterThan(2, count($events));
+
+        // check access for other token events
+        $verifiedToken = $this->_client->verifyToken();
+
+        try {
+            $client->listTokenEvents($verifiedToken['id']);
+            $this->fail('Other token events with no permissions');
+        } catch (ClientException $e) {
+            $this->assertEquals(403, $e->getCode());
+        }
     }
 }

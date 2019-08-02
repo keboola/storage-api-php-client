@@ -2715,6 +2715,30 @@ Lists all events associated with a particular table.
 + Response 200 (application/json)
    + Attributes (array[Event])
 
+## List Token Events [/v2/storage/tokens/{token_id}/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}]
+### Token events list [GET]
+Lists all events associated with a particular token.
+
++ Parameters
+    + sinceId (optional) - Shows only events after the specified Id.
+    + maxId (optional) - Shows only events before the passed Id.
+    + component (optional) - Shows only events emitted by the specified component.
+    + configurationId (optional) - Shows only events related to the given configuration Id.
+    + runId (optional) - Shows only events with the specified run Id.
+    + q (optional) - Searches events using advanced [Query string syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax).
+    + limit (optional, number) - Pagination limit
+        + Default: 100
+    + offset (optional, number) - Pagination offset
+        + Default: 0
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+   + Attributes (array[Event])
+
 ## Data Structures
 
 ### Event
@@ -4474,7 +4498,7 @@ Created a trigger listeng on set of tables
 + Attributes
     + runWithTokenId (required, number) - Id of token used for running configured component
     + component: `orchestration` (required, enum[string]) - For now we support only 'orchestration'
-    + configurationId (required, number) - Id of component configuration
+    + configurationId (required, string) - Id of component configuration
     + coolDownPeriodMinutes (required, number) - Minimal cool down period before firing action again in minutes (min is 5 minutes)
     + tabledIds (required, object) - Array of tables ids
         + tableId (string) - Id of table (like "in.c-test.watched")
@@ -4491,17 +4515,16 @@ Created a trigger listeng on set of tables
 + Response 201 (application/json)
 
         {
-            "id": 3,
+            "id": "3",
             "runWithTokenId": 123,
-            "projectId": 234,
             "component": "orchestration",
-            "configurationId": 123,
-            "lastRun": null,
+            "configurationId": "config-100",
+            "lastRun": "2017-02-13T16:42:00+0100",
             "coolDownPeriodMinutes": 20,
-            "creatorName": "Name Surname",
-            "creatorId": 1,
-            "createdByTokenName": "dev@keboola.com",
-            "createdByTokenId": 4,
+            "creatorToken": {
+                "id": 1,
+                "description": "dev@keboola.com"
+            },
             "tables": [
                 {
                     "tableId": "in.c-test.watched-1"
@@ -4523,17 +4546,16 @@ List all token of project with possible filters
 
         [
             {
-                "id": 3,
+                "id": "3",
                 "runWithTokenId": 123,
-                "projectId": 234,
                 "component": "orchestration",
-                "configurationId": 123,
-                "lastRun": null,
+                "configurationId": "config-100",
+                "lastRun": "2017-02-13T16:42:00+0100",
                 "coolDownPeriodMinutes": 20,
-                "creatorName": "Name Surname",
-                "creatorId": 1,
-                "createdByTokenName": "dev@keboola.com",
-                "createdByTokenId": 4,
+                "creatorToken": {
+                    "id": 1,
+                    "description": "dev@keboola.com"
+                },
                 "tables": [
                     {
                         "tableId": "in.c-test.watched-1"
@@ -4554,7 +4576,7 @@ Updates an existing trigger
 + Attributes
     + runWithTokenId (optional, number) - Id of token used for running configured component
     + component `orchestration` (optional, enum[string]) - For now we support only 'orchestrations'
-    + configurationId (optional, number) - Id of component configuration
+    + configurationId (optional, string) - Id of component configuration
     + coolDownPeriodMinutes (optional, number) - Minimal cool down period before firing action again in minutes (min is 5 minutes)
     + tabledIds (optional, object) - Array of tables ids
         + tableId (string) - Id of table (like "in.c-test.watched")
@@ -4572,17 +4594,16 @@ Updates an existing trigger
 + Response 200 (application/json)
 
         {
-            "id": 3,
+            "id": "3",
             "runWithTokenId": 123,
-            "projectId": 234,
             "component": "orchestration",
-            "configurationId": 100,
-            "lastRun": null,
+            "configurationId": "config-100",
+            "lastRun": "2017-02-13T16:42:00+0100",
             "coolDownPeriodMinutes": 20,
-            "creatorName": "Name Surname",
-            "creatorId": 1,
-            "createdByTokenName": "dev@keboola.com",
-            "createdByTokenId": 4,
+            "creatorToken": {
+                "id": 1,
+                "description": "dev@keboola.com"
+            },
             "tables": [
                 {
                     "tableId": "in.c-test.watched-1"
