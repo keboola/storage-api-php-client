@@ -265,6 +265,13 @@ class MetadataTest extends StorageApiTestCase
             $mdList,
             $tables[0]['sourceTable']['columnMetadata']['id']
         );
+
+        $alias = $this->_client->getTable($aliasAliasTableId);
+        $this->assertNotEmpty($alias['sourceTable']['columnMetadata']);
+        $this->assertEquals(
+            $mdList,
+            $alias['sourceTable']['columnMetadata']['id']
+        );
     }
 
     public function testTableColumnDeleteWithMetadata()
