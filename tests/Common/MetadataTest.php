@@ -237,6 +237,34 @@ class MetadataTest extends StorageApiTestCase
         $this->assertEquals($metadatas[1]['value'], $mdList[0]['value']);
         $this->assertEquals($metadatas[1]['provider'], $mdList[0]['provider']);
         $this->assertEquals($metadatas[1]['timestamp'], $mdList[0]['timestamp']);
+
+        // create alias of alias
+        $this->_client->createAliasTable(
+            $this->getTestBucketId(),
+            $this->getTestBucketId() . '.table',
+            'tableAlias'
+        );
+        $this->_client->createAliasTable(
+            $this->getTestBucketId(),
+            $this->getTestBucketId() . '.tableAlias',
+            'tableAliasAlias'
+        );
+
+        // test list tables call
+        $tables = $this->_client->listTables(null, ['include' => 'columnMetadata']);
+        // call return all tables, filter the alias of alias one
+
+        $aliasAliasTableId = $this->getTestBucketId() . '.tableAliasAlias';
+        $tables = array_values(array_filter($tables, function ($table) use ($aliasAliasTableId) {
+            return $table['id'] === $aliasAliasTableId;
+        }));
+
+        // the metadata should be propagated from the source table
+        $this->assertNotEmpty($tables[0]['sourceTable']['columnMetadata']['id']);
+        $this->assertEquals(
+            $mdList,
+            $tables[0]['sourceTable']['columnMetadata']['id']
+        );
     }
 
     public function testTableColumnDeleteWithMetadata()
