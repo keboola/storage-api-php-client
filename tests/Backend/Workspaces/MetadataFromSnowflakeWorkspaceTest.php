@@ -16,41 +16,135 @@ class MetadataFromSnowflakeWorkspaceTest extends WorkspacesTestCase
         $workspace = $workspaces->createWorkspace(["backend" => "snowflake"]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
-        $db->query("create table \"test.Languages3\" (
-                    \"Id\" varchar not null,
-                    \"Name\" varchar null
+        $db->query("create table \"test.metadata_columns\" (
+                    \"string\" varchar(16) not null default 'string',
+                    \"char\" char null,
+                    \"integer\" integer not null default 4,
+                    \"decimal\" decimal(10,3) not null default 234.123,
+                    \"real\" real null,
+                    \"double\" double precision null,
+                    \"boolean\" boolean not null default true,
+                    \"variant\" variant,
+                    \"time\" time not null default current_time,
+                    \"date\" date not null default current_date,
+                    \"timestamp\" timestamp not null default current_timestamp,
+                    \"timestampltz\" timestampltz not null default current_timestamp 
                 );");
         // create table from workspace
         $tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), array(
-            'name' => 'languages3',
+            'name' => 'metadata_columns',
             'dataWorkspaceId' => $workspace['id'],
-            'dataTableName' => 'test.Languages3',
+            'dataTableName' => 'test.metadata_columns',
         ));
-        $expectedIdMetadata = [
+        $expectedStringMetadata = [
             'KBC.datatype.type' => 'TEXT',
             'KBC.datatype.nullable' => '',
             'KBC.datatype.basetype' => 'STRING',
-            'KBC.datatype.length' => '16777216',
-            'KBC.datatype.default' => '',
+            'KBC.datatype.length' => '16',
+            'KBC.datatype.default' => '\'string\'',
         ];
-        $expectedNameMetadata = [
+        $expectedCharMetadata = [
             'KBC.datatype.type' => 'TEXT',
             'KBC.datatype.nullable' => '1',
             'KBC.datatype.basetype' => 'STRING',
-            'KBC.datatype.length' => '16777216',
+            'KBC.datatype.length' => '1',
             'KBC.datatype.default' => '',
+        ];
+        $expectedIntegerMetadata = [
+            'KBC.datatype.type' => 'NUMBER',
+            'KBC.datatype.nullable' => '',
+            'KBC.datatype.basetype' => 'NUMERIC',
+            'KBC.datatype.length' => '38,0',
+            'KBC.datatype.default' => '4',
+        ];
+        $expectedDecimalMetadata = [
+            'KBC.datatype.type' => 'NUMBER',
+            'KBC.datatype.nullable' => '',
+            'KBC.datatype.basetype' => 'NUMERIC',
+            'KBC.datatype.length' => '10,3',
+            'KBC.datatype.default' => '234.123',
+        ];
+        $expectedRealMetadata = [
+            'KBC.datatype.type' => 'REAL',
+            'KBC.datatype.nullable' => '1',
+            'KBC.datatype.basetype' => 'FLOAT',
+            'KBC.datatype.default' => '',
+        ];
+        $expectedDoubleMetadata = [
+            'KBC.datatype.type' => 'REAL',
+            'KBC.datatype.nullable' => '1',
+            'KBC.datatype.basetype' => 'FLOAT',
+            'KBC.datatype.default' => '',
+        ];
+        $expectedBooleanMetadata = [
+            'KBC.datatype.type' => 'BOOLEAN',
+            'KBC.datatype.nullable' => '',
+            'KBC.datatype.basetype' => 'BOOLEAN',
+            'KBC.datatype.default' => 'TRUE',
+        ];
+        $expectedVariantMetadata = [
+            'KBC.datatype.type' => 'VARIANT',
+            'KBC.datatype.nullable' => '1',
+            'KBC.datatype.basetype' => 'STRING',
+            'KBC.datatype.default' => '',
+        ];
+        $expectedTimeMetadata = [
+            'KBC.datatype.type' => 'TIME',
+            'KBC.datatype.nullable' => '',
+            'KBC.datatype.basetype' => 'STRING',
+            'KBC.datatype.default' => 'CURRENT_TIME()',
+        ];
+        $expectedDateMetadata = [
+            'KBC.datatype.type' => 'DATE',
+            'KBC.datatype.nullable' => '',
+            'KBC.datatype.basetype' => 'DATE',
+            'KBC.datatype.default' => 'CURRENT_DATE()',
+        ];
+        $expectedTimestampMetadata = [
+            'KBC.datatype.type' => 'TIMESTAMP_NTZ',
+            'KBC.datatype.nullable' => '',
+            'KBC.datatype.basetype' => 'TIMESTAMP',
+            'KBC.datatype.default' => 'CURRENT_TIMESTAMP()',
+        ];
+        $expectedTimestamptzMetadata = [
+            'KBC.datatype.type' => 'TIMESTAMP_LTZ',
+            'KBC.datatype.nullable' => '',
+            'KBC.datatype.basetype' => 'TIMESTAMP',
+            'KBC.datatype.default' => 'CURRENT_TIMESTAMP()',
         ];
         // check that the new table has the correct metadata
         $table = $this->_client->getTable($tableId);
+
         $this->assertEquals([], $table['metadata']);
-        $this->assertArrayHasKey('Id', $table['columnMetadata']);
-        $this->assertMetadata($expectedIdMetadata, $table['columnMetadata']['Id']);
-        $this->assertArrayHasKey('Name', $table['columnMetadata']);
-        $this->assertMetadata($expectedNameMetadata, $table['columnMetadata']['Name']);
+        $this->assertArrayHasKey('string', $table['columnMetadata']);
+        $this->assertMetadata($expectedStringMetadata, $table['columnMetadata']['string']);
+        $this->assertArrayHasKey('char', $table['columnMetadata']);
+        $this->assertMetadata($expectedCharMetadata, $table['columnMetadata']['char']);
+        $this->assertArrayHasKey('integer', $table['columnMetadata']);
+        $this->assertMetadata($expectedIntegerMetadata, $table['columnMetadata']['integer']);
+        $this->assertArrayHasKey('decimal', $table['columnMetadata']);
+        $this->assertMetadata($expectedDecimalMetadata, $table['columnMetadata']['decimal']);
+        $this->assertArrayHasKey('real', $table['columnMetadata']);
+        $this->assertMetadata($expectedRealMetadata, $table['columnMetadata']['real']);
+        $this->assertArrayHasKey('double', $table['columnMetadata']);
+        $this->assertMetadata($expectedDoubleMetadata, $table['columnMetadata']['double']);
+        $this->assertArrayHasKey('boolean', $table['columnMetadata']);
+        $this->assertMetadata($expectedBooleanMetadata, $table['columnMetadata']['boolean']);
+        $this->assertArrayHasKey('variant', $table['columnMetadata']);
+        $this->assertMetadata($expectedVariantMetadata, $table['columnMetadata']['variant']);
+        $this->assertArrayHasKey('time', $table['columnMetadata']);
+        $this->assertMetadata($expectedTimeMetadata, $table['columnMetadata']['time']);
+        $this->assertArrayHasKey('date', $table['columnMetadata']);
+        $this->assertMetadata($expectedDateMetadata, $table['columnMetadata']['date']);
+        $this->assertArrayHasKey('timestamp', $table['columnMetadata']);
+        $this->assertMetadata($expectedTimestampMetadata, $table['columnMetadata']['timestamp']);
+        $this->assertArrayHasKey('timestampltz', $table['columnMetadata']);
+        $this->assertMetadata($expectedTimestamptzMetadata, $table['columnMetadata']['timestampltz']);
     }
 
     public function testCopyImport()
     {
+        return;
         $table = $this->_client->apiPost("storage/buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(
             'dataString' => 'Id,Name,update',
             'name' => 'languages',
