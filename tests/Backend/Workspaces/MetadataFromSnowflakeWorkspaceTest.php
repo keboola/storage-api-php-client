@@ -144,7 +144,6 @@ class MetadataFromSnowflakeWorkspaceTest extends WorkspacesTestCase
 
     public function testCopyImport()
     {
-        return;
         $table = $this->_client->apiPost("storage/buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(
             'dataString' => 'Id,Name,update',
             'name' => 'languages',
