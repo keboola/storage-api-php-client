@@ -11,6 +11,8 @@ use Keboola\StorageApi\Options\ListFilesOptions;
 use Keboola\StorageApi\Options\StatsOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
+use MicrosoftAzure\Storage\Blob\BlobRestProxy;
+use MicrosoftAzure\Storage\Blob\Models\CreateBlobBlockOptions;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
@@ -1253,23 +1255,39 @@ class Client
             ->setSizeBytes(filesize($filePath))
             ->setFederationToken(true);
 
-        // 1. prepare resource
         $prepareResult = $this->prepareFileUpload($newOptions);
 
-        // 2. upload directly do S3 using returned credentials
-        // using federation token
-        $this->uploadFileToS3(
-          $prepareResult,
-            $transferOptions,
-            $filePath,
-            $newOptions
-        );
+        switch($prepareResult['provider']) {
+            case 'azure':
+                $this->uploadFileToAbs(
+                    $prepareResult,
+                    $filePath
+                );
+                break;
+            default:
+                $this->logger->warning('File upload without provider has been used', $prepareResult);
+            case 'aws':
+                $this->uploadFileToS3(
+                    $prepareResult,
+                    $transferOptions,
+                    $filePath,
+                    $newOptions
+                );
+        }
 
         if ($fs) {
             $fs->remove($currentUploadDir);
         }
 
         return $prepareResult['id'];
+    }
+
+    private function uploadFileToAbs(
+        array $prepareResult,
+        string $filePath
+    ) {
+        $blobClient = BlobRestProxy::createBlobService($prepareResult['uploadParams']['credentials']['SASConnectionString']);
+        $blobClient->createBlockBlob($prepareResult['uploadParams']['container'], $prepareResult['uploadParams']['blobName'], fopen($filePath, 'r'));
     }
 
     private function uploadFileToS3(
