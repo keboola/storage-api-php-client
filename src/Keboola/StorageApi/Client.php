@@ -1254,17 +1254,35 @@ class Client
             ->setFederationToken(true);
 
         // 1. prepare resource
-        $result = $this->prepareFileUpload($newOptions);
+        $prepareResult = $this->prepareFileUpload($newOptions);
 
         // 2. upload directly do S3 using returned credentials
         // using federation token
-        $uploadParams = $result['uploadParams'];
+        $this->uploadFileToS3(
+          $prepareResult,
+            $transferOptions,
+            $filePath,
+            $newOptions
+        );
 
+        if ($fs) {
+            $fs->remove($currentUploadDir);
+        }
 
+        return $prepareResult['id'];
+    }
+
+    private function uploadFileToS3(
+        array $prepareResult,
+        FileUploadTransferOptions $transferOptions,
+        string $filePath,
+        FileUploadOptions $newOptions
+    ) {
+        $uploadParams = $prepareResult['uploadParams'];
         $s3options = [
             'version' => '2006-03-01',
             'retries' => $this->getAwsRetries(),
-            'region' => $result['region'],
+            'region' => $prepareResult['region'],
             'debug' => false,
             'credentials' => [
                 'key' => $uploadParams['credentials']['AccessKeyId'],
@@ -1296,15 +1314,9 @@ class Client
             $uploadParams['key'],
             $uploadParams['acl'],
             $filePath,
-            $result['name'],
+            $prepareResult['name'],
             $newOptions->getIsEncrypted() ? $uploadParams['x-amz-server-side-encryption'] : null
         );
-
-        if ($fs) {
-            $fs->remove($currentUploadDir);
-        }
-
-        return $result['id'];
     }
 
     /**
