@@ -158,7 +158,13 @@ class FilesTest extends StorageApiTestCase
         $fileId = $this->_client->uploadFile($filePath, $options);
         $file = $this->_client->getFile($fileId);
 
-        $this->assertEquals($options->getIsPublic(), $file['isPublic']);
+        if ($file['provider'] === 'azure') {
+            $this->assertFalse($file['isPublic']);
+            $this->assertTrue($file['isEncrypted']);
+        } else {
+            $this->assertEquals($options->getIsPublic(), $file['isPublic']);
+            $this->assertEquals($file['isEncrypted'], $options->getIsEncrypted());
+        }
         $this->assertEquals(basename($filePath), $file['name']);
         $this->assertEquals(filesize($filePath), $file['sizeBytes']);
         $this->assertEquals(file_get_contents($filePath), file_get_contents($file['url']));
@@ -172,7 +178,6 @@ class FilesTest extends StorageApiTestCase
         $info = $this->_client->verifyToken();
         $this->assertEquals($file['creatorToken']['id'], (int)$info['id']);
         $this->assertEquals($file['creatorToken']['description'], $info['description']);
-        $this->assertEquals($file['isEncrypted'], $options->getIsEncrypted());
 
         if ($options->getIsPermanent()) {
             $this->assertNull($file['maxAgeDays']);
@@ -184,7 +189,7 @@ class FilesTest extends StorageApiTestCase
         // check attachment, download
         $client = new Client();
         $response = $client->get($file['url']);
-        $this->assertStringStartsWith('attachment;', (string) $response->getHeader('Content-Disposition')[0]);
+        $this->assertStringStartsWith('attachment', (string) $response->getHeader('Content-Disposition')[0]);
     }
 
     public function testEmptyFileUpload()
