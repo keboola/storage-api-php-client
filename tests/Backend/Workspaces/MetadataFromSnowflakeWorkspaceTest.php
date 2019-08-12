@@ -229,7 +229,7 @@ class MetadataFromSnowflakeWorkspaceTest extends WorkspacesTestCase
             'KBC.datatype.nullable' => '',
             'KBC.datatype.basetype' => 'STRING',
             'KBC.datatype.length' => '64',
-            'KBC.datatype.default' => '',
+            'KBC.datatype.default' => '\'\'',
         ];
         $table = $this->_client->getTable($table['id']);
         $this->assertEquals([], $table['metadata']);
