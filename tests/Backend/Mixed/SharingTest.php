@@ -6,6 +6,7 @@ use Keboola\Csv\CsvFile;
 use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
@@ -13,6 +14,8 @@ use Keboola\Test\StorageApiTestCase;
 
 class SharingTest extends StorageApiTestCase
 {
+    const TEST_METADATA_PROVIDER = 'test-metadata-provider';
+
     /**
      * @var Client
      */
@@ -590,6 +593,21 @@ class SharingTest extends StorageApiTestCase
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
 
+        $metadataApi = new Metadata($this->_client);
+        $testMetadata = [
+            [
+                "key" => "test_metadata_key1",
+                "value" => "testval",
+            ],
+            [
+                "key" => "test_metadata_key2",
+                "value" => "testval",
+            ],
+        ];
+
+        $columnId = $table2Id . '.id';
+        $expectedMetadata = $metadataApi->postColumnMetadata($columnId, self::TEST_METADATA_PROVIDER, $testMetadata);
+
         $aliasTableId = $this->_client->createAliasTable(
             $bucketId,
             $table2Id,
@@ -664,12 +682,14 @@ class SharingTest extends StorageApiTestCase
                 'primaryKey' => 'id',
             ]
         );
-        $this->_client->createAliasTable(
+        $aliasId = $this->_client->createAliasTable(
             $bucketId,
             $table2Id,
             'languages-alias-2'
         );
         $this->validateTablesMetadata($bucketId, $linkedBucketId);
+        $aliasTable = $this->_client->getTable($aliasId, ['include' => 'columnMetadata']);
+        $this->assertSame($expectedMetadata, $aliasTable['sourceTable']['columnMetadata']['id']);
     }
 
     /**
