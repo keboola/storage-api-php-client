@@ -918,7 +918,9 @@ Lists tables in a given bucket.
         + Members
             + attributes
             + columns
-        + Default: attributes
+            + metadata
+            + columnMetadata            
+        + Default: attributes,metadata
 
 + Request
     + Headers
@@ -929,15 +931,78 @@ Lists tables in a given bucket.
     + Body
 
             [
-              {
-                "uri": "https://connection.keboola.com/v2/storage/tables/in.c-main.tweets",
-                "id": "in.c-main.tweets",
-                "name": "tweets",
-                "gdName": "",
-                "created": "2012-07-13 09:58:47",
-                "lastImportDate": "2012-07-13 10:00:42",
-                "backend": "snowflake"
-              }
+                {
+                    "uri": "https://connection.keboola.com/v2/storage/tables/in.c-keboola-ex-db-snowflake-528221294.datatypes",
+                    "id": "in.c-keboola-ex-db-snowflake-528221294.datatypes",
+                    "name": "datatypes",
+                    "transactional": false,
+                    "primaryKey": [],
+                    "indexedColumns": [],
+                    "created": "2019-08-12T14:36:00+0200",
+                    "lastImportDate": "2019-08-12T21:16:41+0200",
+                    "lastChangeDate": "2019-08-12T21:16:41+0200",
+                    "rowsCount": 2,
+                    "dataSizeBytes": 1024,
+                    "isAlias": false,
+                    "isAliasable": true,
+                    "metadata": [
+                        {
+                            "id": "206180828",
+                            "key": "KBC.createdBy.component.id",
+                            "value": "keboola.ex-db-snowflake",
+                            "provider": "system",
+                            "timestamp": "2019-08-12T14:36:08+0200"
+                        }
+                    ],
+                    "columnMetadata": {
+                        "ID": [
+                            {
+                                "id": "206180838",
+                                "key": "KBC.datatype.type",
+                                "value": "NUMBER",
+                                "provider": "keboola.ex-db-snowflake",
+                                "timestamp": "2019-08-12T14:36:17+0200"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "uri": "https://connection.keboola.com/v2/storage/tables/in.c-keboola-ex-db-snowflake-528221294.datatypes-alias",
+                    "id": "in.c-keboola-ex-db-snowflake-528221294.datatypes-alias",
+                    "name": "datatypes-alias",
+                    "transactional": false,
+                    "primaryKey": [],
+                    "indexedColumns": [],
+                    "created": "2019-08-14T11:43:17+0200",
+                    "lastImportDate": "2019-08-12T21:16:41+0200",
+                    "lastChangeDate": "2019-08-12T21:16:41+0200",
+                    "rowsCount": 2,
+                    "dataSizeBytes": 1024,
+                    "isAlias": true,
+                    "isAliasable": true,
+                    "sourceTable": {
+                        "id": "in.c-keboola-ex-db-snowflake-528221294.datatypes",
+                        "uri": "https://connection.keboola.com/v2/storage/tables/in.c-keboola-ex-db-snowflake-528221294.datatypes",
+                        "project": {
+                            "id": 578,
+                            "name": "Some source project"
+                        },
+                        "columnMetadata": {
+                            "ID": [
+                                {
+                                    "id": "206180838",
+                                    "key": "KBC.datatype.type",
+                                    "value": "NUMBER",
+                                    "provider": "keboola.ex-db-snowflake",
+                                    "timestamp": "2019-08-12T14:36:17+0200"
+                                }
+                            ]
+                        }
+                    },
+                    "aliasColumnsAutoSync": true,
+                    "metadata": [],
+                    "columnMetadata": []
+                }
             ]
 
 
