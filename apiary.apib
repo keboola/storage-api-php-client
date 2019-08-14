@@ -919,7 +919,7 @@ Lists tables in a given bucket.
             + attributes
             + columns
             + metadata
-            + columnMetadata            
+            + columnMetadata
         + Default: attributes,metadata
 
 + Request
@@ -1526,18 +1526,39 @@ Obtains information about a table.
 + Response 200 (application/json)
 
             {
-                "uri": "https://connection.keboola.com/v2/storage/tables/in.c-application-testing.cashier-data",
-                "id": "in.c-application-testing.cashier-data",
-                "name": "cashier-data",
+                "uri": "https://connection.keboola.com/v2/storage/tables/in.c-application-testing.cashier-data-alias",
+                "id": "in.c-application-testing.cashier-data-alias",
+                "name": "cashier-data-alias",
                 "transactional": false,
                 "primaryKey": [],
                 "indexedColumns": [],
-                "created": "2015-11-03T10:58:28+0100",
+                "created": "2019-08-14T16:54:06+0200",
                 "lastImportDate": "2015-11-03T10:58:31+0100",
                 "lastChangeDate": "2015-11-03T10:58:32+0100",
                 "rowsCount": 199,
                 "dataSizeBytes": 25165824,
-                "isAlias": false,
+                "isAlias": true,
+                "isAliasable": true,
+                "sourceTable": {
+                    "id": "in.c-application-testing.cashier-data",
+                    "uri": "https://connection.keboola.com/v2/storage/tables/in.c-application-testing.cashier-data",
+                    "project": {
+                        "id": 123,
+                        "name": "Some source project"
+                    },
+                    "columnMetadata": {
+                        "number_of_items": [
+                            {
+                                "id": "207947778",
+                                "key": "KBC.datatype.basetype",
+                                "value": "INTEGER",
+                                "provider": "user",
+                                "timestamp": "2019-08-14T16:55:34+0200"
+                            }
+                        ]
+                    }
+                },
+                "aliasColumnsAutoSync": true,
                 "columns": [
                     "time_spent_in_shop",
                     "number_of_items",
@@ -1559,14 +1580,14 @@ Obtains information about a table.
                     "description": "",
                     "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-application-testing/tables",
                     "created": "2015-11-03T10:54:55+0100",
-                    "lastChangeDate": "2016-11-16T17:48:36+0100",
+                    "lastChangeDate": "2019-08-14T16:54:06+0200",
                     "isReadOnly": false,
-                    "dataSizeBytes": 130023424,
-                    "rowsCount": 10628,
+                    "dataSizeBytes": 129427968,
+                    "rowsCount": 237902,
                     "isMaintenance": false,
-                    "backend": "redshift",
+                    "backend": "snowflake",
                     "sharing": null,
-                    "metadata": [],
+                    "metadata": []
                 }
             }
 
