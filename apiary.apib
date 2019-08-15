@@ -918,7 +918,9 @@ Lists tables in a given bucket.
         + Members
             + attributes
             + columns
-        + Default: attributes
+            + metadata
+            + columnMetadata
+        + Default: attributes,metadata
 
 + Request
     + Headers
@@ -929,15 +931,78 @@ Lists tables in a given bucket.
     + Body
 
             [
-              {
-                "uri": "https://connection.keboola.com/v2/storage/tables/in.c-main.tweets",
-                "id": "in.c-main.tweets",
-                "name": "tweets",
-                "gdName": "",
-                "created": "2012-07-13 09:58:47",
-                "lastImportDate": "2012-07-13 10:00:42",
-                "backend": "snowflake"
-              }
+                {
+                    "uri": "https://connection.keboola.com/v2/storage/tables/in.c-keboola-ex-db-snowflake-528221294.datatypes",
+                    "id": "in.c-keboola-ex-db-snowflake-528221294.datatypes",
+                    "name": "datatypes",
+                    "transactional": false,
+                    "primaryKey": [],
+                    "indexedColumns": [],
+                    "created": "2019-08-12T14:36:00+0200",
+                    "lastImportDate": "2019-08-12T21:16:41+0200",
+                    "lastChangeDate": "2019-08-12T21:16:41+0200",
+                    "rowsCount": 2,
+                    "dataSizeBytes": 1024,
+                    "isAlias": false,
+                    "isAliasable": true,
+                    "metadata": [
+                        {
+                            "id": "206180828",
+                            "key": "KBC.createdBy.component.id",
+                            "value": "keboola.ex-db-snowflake",
+                            "provider": "system",
+                            "timestamp": "2019-08-12T14:36:08+0200"
+                        }
+                    ],
+                    "columnMetadata": {
+                        "ID": [
+                            {
+                                "id": "206180838",
+                                "key": "KBC.datatype.type",
+                                "value": "NUMBER",
+                                "provider": "keboola.ex-db-snowflake",
+                                "timestamp": "2019-08-12T14:36:17+0200"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "uri": "https://connection.keboola.com/v2/storage/tables/in.c-keboola-ex-db-snowflake-528221294.datatypes-alias",
+                    "id": "in.c-keboola-ex-db-snowflake-528221294.datatypes-alias",
+                    "name": "datatypes-alias",
+                    "transactional": false,
+                    "primaryKey": [],
+                    "indexedColumns": [],
+                    "created": "2019-08-14T11:43:17+0200",
+                    "lastImportDate": "2019-08-12T21:16:41+0200",
+                    "lastChangeDate": "2019-08-12T21:16:41+0200",
+                    "rowsCount": 2,
+                    "dataSizeBytes": 1024,
+                    "isAlias": true,
+                    "isAliasable": true,
+                    "sourceTable": {
+                        "id": "in.c-keboola-ex-db-snowflake-528221294.datatypes",
+                        "uri": "https://connection.keboola.com/v2/storage/tables/in.c-keboola-ex-db-snowflake-528221294.datatypes",
+                        "project": {
+                            "id": 578,
+                            "name": "Some source project"
+                        },
+                        "columnMetadata": {
+                            "ID": [
+                                {
+                                    "id": "206180838",
+                                    "key": "KBC.datatype.type",
+                                    "value": "NUMBER",
+                                    "provider": "keboola.ex-db-snowflake",
+                                    "timestamp": "2019-08-12T14:36:17+0200"
+                                }
+                            ]
+                        }
+                    },
+                    "aliasColumnsAutoSync": true,
+                    "metadata": [],
+                    "columnMetadata": []
+                }
             ]
 
 
@@ -1461,18 +1526,39 @@ Obtains information about a table.
 + Response 200 (application/json)
 
             {
-                "uri": "https://connection.keboola.com/v2/storage/tables/in.c-application-testing.cashier-data",
-                "id": "in.c-application-testing.cashier-data",
-                "name": "cashier-data",
+                "uri": "https://connection.keboola.com/v2/storage/tables/in.c-application-testing.cashier-data-alias",
+                "id": "in.c-application-testing.cashier-data-alias",
+                "name": "cashier-data-alias",
                 "transactional": false,
                 "primaryKey": [],
                 "indexedColumns": [],
-                "created": "2015-11-03T10:58:28+0100",
+                "created": "2019-08-14T16:54:06+0200",
                 "lastImportDate": "2015-11-03T10:58:31+0100",
                 "lastChangeDate": "2015-11-03T10:58:32+0100",
                 "rowsCount": 199,
                 "dataSizeBytes": 25165824,
-                "isAlias": false,
+                "isAlias": true,
+                "isAliasable": true,
+                "sourceTable": {
+                    "id": "in.c-application-testing.cashier-data",
+                    "uri": "https://connection.keboola.com/v2/storage/tables/in.c-application-testing.cashier-data",
+                    "project": {
+                        "id": 123,
+                        "name": "Some source project"
+                    },
+                    "columnMetadata": {
+                        "number_of_items": [
+                            {
+                                "id": "207947778",
+                                "key": "KBC.datatype.basetype",
+                                "value": "INTEGER",
+                                "provider": "user",
+                                "timestamp": "2019-08-14T16:55:34+0200"
+                            }
+                        ]
+                    }
+                },
+                "aliasColumnsAutoSync": true,
                 "columns": [
                     "time_spent_in_shop",
                     "number_of_items",
@@ -1494,14 +1580,14 @@ Obtains information about a table.
                     "description": "",
                     "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-application-testing/tables",
                     "created": "2015-11-03T10:54:55+0100",
-                    "lastChangeDate": "2016-11-16T17:48:36+0100",
+                    "lastChangeDate": "2019-08-14T16:54:06+0200",
                     "isReadOnly": false,
-                    "dataSizeBytes": 130023424,
-                    "rowsCount": 10628,
+                    "dataSizeBytes": 129427968,
+                    "rowsCount": 237902,
                     "isMaintenance": false,
-                    "backend": "redshift",
+                    "backend": "snowflake",
                     "sharing": null,
-                    "metadata": [],
+                    "metadata": []
                 }
             }
 
@@ -1573,9 +1659,14 @@ Lists all tables accessible by the token. By default, all tables are returned wi
 attributes and information about the containing bucket.
 
 + Parameters
-    + include (optional) - Comma separated list of resources to include for each table.
-    Possible values: `attributes`, `buckets` and `columns`.
-        Default: `attributes,buckets`
+    + include (optional, enum[string]) - Comma separated list of resources to include for each table.
+        + Members
+            + attributes
+            + buckets
+            + columns
+            + metadata
+            + columnMetadata
+        + Default: attributes,metadata
 
 + Request
     + Headers
@@ -1587,9 +1678,9 @@ attributes and information about the containing bucket.
 
             [
                 {
-                    "uri": "https://connection.keboola.com/v2/storage/tables/in.c-main.data",
-                    "id": "in.c-main.data",
-                    "name": "data",
+                    "uri": "https:\/\/connection.keboola.com\/v2\/storage\/tables\/in.c-application-testing.cashier-data",
+                    "id": "in.c-application-testing.cashier-data",
+                    "name": "cashier-data",
                     "transactional": false,
                     "primaryKey": [],
                     "indexedColumns": [],
@@ -1599,14 +1690,25 @@ attributes and information about the containing bucket.
                     "rowsCount": 18,
                     "dataSizeBytes": 12288,
                     "isAlias": false,
+                    "isAliasable": true,
                     "attributes": [],
+                    "columns": [
+                        "time_spent_in_shop",
+                        "number_of_items",
+                        "customer_shoe_size",
+                        "customer_age",
+                        "age_segment",
+                        "no_segment",
+                        "customer_segment",
+                        "visit_id"
+                    ],
                     "bucket": {
-                        "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-main",
-                        "id": "in.c-main",
-                        "name": "c-main",
+                        "uri": "https:\/\/connection.keboola.com\/v2\/storage\/buckets\/in.c-application-testing",
+                        "id": "in.c-application-testing",
+                        "name": "c-application-testing",
                         "stage": "in",
                         "description": "Main project storage",
-                        "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-main/tables",
+                        "tables": "https:\/\/connection.keboola.com\/v2\/storage\/buckets\/in.c-application-testing\/tables",
                         "created": "2015-02-05T10:57:08+0100",
                         "lastChangeDate": "2017-02-12T10:36:15+0100",
                         "isReadOnly": false,
@@ -1615,12 +1717,23 @@ attributes and information about the containing bucket.
                         "isMaintenance": false,
                         "backend": "snowflake",
                         "sharing": null
+                    },
+                    "columnMetadata": {
+                        "number_of_items": [
+                            {
+                                "id": "207947778",
+                                "key": "KBC.datatype.basetype",
+                                "value": "INTEGER",
+                                "provider": "user",
+                                "timestamp": "2019-08-14T16:55:34+0200"
+                            }
+                        ]
                     }
                 },
                 {
-                    "uri": "https://connection.keboola.com/v2/storage/tables/in.c-main.data_items",
-                    "id": "in.c-main.data_items",
-                    "name": "data_items",
+                    "uri": "https:\/\/connection.keboola.com\/v2\/storage\/tables\/in.c-application-testing.cashier-data-alias",
+                    "id": "in.c-application-testing.cashier-data-alias",
+                    "name": "cashier-data-alias",
                     "transactional": false,
                     "primaryKey": [],
                     "indexedColumns": [],
@@ -1629,15 +1742,46 @@ attributes and information about the containing bucket.
                     "lastChangeDate": "2016-07-07T11:26:05+0200",
                     "rowsCount": 48,
                     "dataSizeBytes": 12288,
-                    "isAlias": false,
+                    "isAlias": true,
+                    "isAliasable": true,
+                    "sourceTable": {
+                        "id": "in.c-application-testing.cashier-data",
+                        "uri": "https:\/\/connection.keboola.com\/v2\/storage\/tables\/in.c-application-testing.cashier-data",
+                        "project": {
+                            "id": 578,
+                            "name": "Some source project"
+                        },
+                        "columnMetadata": {
+                            "number_of_items": [
+                                {
+                                    "id": "207947778",
+                                    "key": "KBC.datatype.basetype",
+                                    "value": "INTEGER",
+                                    "provider": "user",
+                                    "timestamp": "2019-08-14T16:55:34+0200"
+                                }
+                            ]
+                        }
+                    },
+                    "aliasColumnsAutoSync": true,
                     "attributes": [],
+                    "columns": [
+                        "time_spent_in_shop",
+                        "number_of_items",
+                        "customer_shoe_size",
+                        "customer_age",
+                        "age_segment",
+                        "no_segment",
+                        "customer_segment",
+                        "visit_id"
+                    ],
                     "bucket": {
-                        "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-main",
-                        "id": "in.c-main",
-                        "name": "c-main",
+                        "uri": "https:\/\/connection.keboola.com\/v2\/storage\/buckets\/in.c-application-testing",
+                        "id": "in.c-application-testing",
+                        "name": "c-application-testing",
                         "stage": "in",
                         "description": "Main project storage",
-                        "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-main/tables",
+                        "tables": "https:\/\/connection.keboola.com\/v2\/storage\/buckets\/in.c-application-testing\/tables",
                         "created": "2015-02-05T10:57:08+0100",
                         "lastChangeDate": "2017-02-12T10:36:15+0100",
                         "isReadOnly": false,
@@ -1646,7 +1790,8 @@ attributes and information about the containing bucket.
                         "isMaintenance": false,
                         "backend": "snowflake",
                         "sharing": null
-                    }
+                    },
+                    "columnMetadata": []
                 }
             ]
 
