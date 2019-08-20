@@ -11,6 +11,8 @@ use Keboola\Test\StorageApiTestCase;
 
 use \Keboola\StorageApi\Options\FileUploadOptions;
 use \Keboola\StorageApi\Options\ListFilesOptions;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 
 class FilesTest extends StorageApiTestCase
 {
@@ -331,98 +333,14 @@ class FilesTest extends StorageApiTestCase
 
     public function testSlicedFileUpload()
     {
-        $pathToFile = __DIR__ . '/../_data/files.upload.txt';
-        $options = new FileUploadOptions();
-        $options
-            ->setIsSliced(true)
-            ->setIsEncrypted(false)
-            ->setFileName('upload.txt');
-
-        $preparedFile = $this->_client->prepareFileUpload($options);
-
-        $uploadParams = $preparedFile['uploadParams'];
-        $this->assertArrayHasKey('credentials', $uploadParams);
-        $this->assertTrue($preparedFile['isSliced']);
-
-
-        $s3Client = new \Aws\S3\S3Client([
-            'version' => 'latest',
-            'region' => $preparedFile['region'],
-            'credentials' => [
-                'key' => $uploadParams['credentials']['AccessKeyId'],
-                'secret' => $uploadParams['credentials']['SecretAccessKey'],
-                'token' => $uploadParams['credentials']['SessionToken'],
-            ],
-        ]);
-
-        $part1URL = $s3Client->putObject(array(
-            'Bucket' => $uploadParams['bucket'],
-            'Key' => $uploadParams['key'] . 'part001',
-            'Body' => fopen($pathToFile, 'r+'),
-        ))->get('ObjectURL');
-        $part2URL = $s3Client->putObject(array(
-            'Bucket' => $uploadParams['bucket'],
-            'Key' => $uploadParams['key'] . 'part002',
-            'Body' => fopen($pathToFile, 'r+'),
-        ))->get('ObjectURL');
-
-        $manifest = array(
-            'entries' => array(
-                array(
-                    'url' => $part1URL,
-                ),
-                array(
-                    'url' => $part2URL,
-                )
-            ),
-        );
-        $s3Client->putObject(array(
-            'Bucket' => $uploadParams['bucket'],
-            'Key' => $uploadParams['key'] . 'manifest',
-            'Body' => json_encode($manifest),
-        ));
-
-        $file = $this->_client->getFile($preparedFile['id']);
-        $this->assertEquals(json_encode($manifest), file_get_contents($file['url']));
-
-        // download sliced file
-        $file = $this->_client->getFile($preparedFile['id'], (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
-        $this->assertTrue($file['isSliced']);
-
-        $s3Client = new \Aws\S3\S3Client([
-            'version' => 'latest',
-            'region' => $file['region'],
-            'credentials' => [
-                'key' => $file['credentials']['AccessKeyId'],
-                'secret' => $file['credentials']['SecretAccessKey'],
-                'token' => $file['credentials']['SessionToken'],
-            ],
-        ]);
-
-        $objects = $s3Client->listObjects(array(
-            'Bucket' => $file['s3Path']['bucket'],
-            'Prefix' => $file['s3Path']['key'],
-        ));
-
-        $this->assertCount(3, $objects->get('Contents'));
-
-        $object = $s3Client->getObject(array(
-            'Bucket' => $file['s3Path']['bucket'],
-            'Key' => $file['s3Path']['key'] . 'manifest',
-        ));
-        $this->assertEquals(json_encode($manifest), $object['Body']);
-
-        $object = $s3Client->getObject(array(
-            'Bucket' => $file['s3Path']['bucket'],
-            'Key' => $file['s3Path']['key'] . 'part001',
-        ));
-        $this->assertEquals(file_get_contents($pathToFile), $object['Body']);
-
-        $object = $s3Client->getObject(array(
-            'Bucket' => $file['s3Path']['bucket'],
-            'Key' => $file['s3Path']['key'] . 'part002',
-        ));
-        $this->assertEquals(file_get_contents($pathToFile), $object['Body']);
+        $slices = [
+            __DIR__ . '/../_data/sliced/neco_0000_part_00',
+            __DIR__ . '/../_data/sliced/neco_0001_part_00',
+        ];
+        $uploadOptions = (new FileUploadOptions())->setIsSliced(true)
+            ->setFileName('slicedFile');
+        $fileId = $this->_client->uploadSlicedFile($slices, $uploadOptions);
+        $info = $this->_client->getFile($fileId);
     }
 
     /**
@@ -668,6 +586,49 @@ class FilesTest extends StorageApiTestCase
         } catch (\Aws\S3\Exception\S3Exception $e) {
             $this->assertEquals(403, $e->getStatusCode());
         }
+    }
+
+    public function testDownloadFile()
+    {
+        $uploadOptions = (new FileUploadOptions())
+            ->setFileName('testing_file_name');
+        $sourceFilePath = __DIR__ . '/../_data/files.upload.txt';
+        $fileId = $this->_client->uploadFile($sourceFilePath, $uploadOptions);
+        $tmpDestination = __DIR__ . '/../_tmp/testing_file_name';
+        if (file_exists($tmpDestination)) {
+            $fs = new Filesystem();
+            $fs->remove($tmpDestination);
+        }
+
+        $this->_client->downloadFile($fileId, $tmpDestination);
+
+        $this->assertSame(
+            file_get_contents($sourceFilePath),
+            file_get_contents($tmpDestination)
+        );
+    }
+
+    public function testDownloadSlicedFile()
+    {
+        $uploadOptions = (new FileUploadOptions())
+            ->setFileName('sliced_testing_file_name')
+            ->setIsSliced(true)
+        ;
+        $slices = [
+            __DIR__ . '/../_data/sliced/neco_0000_part_00',
+            __DIR__ . '/../_data/sliced/neco_0001_part_00',
+        ];
+        $fileId = $this->_client->uploadSlicedFile($slices, $uploadOptions);
+        $tmpDestinationFolder = __DIR__ . '/../_tmp/slicedUpload/';
+        $fs = new Filesystem();
+        if (file_exists($tmpDestinationFolder)) {
+            $fs->remove($tmpDestinationFolder);
+        }
+        $fs->mkdir($tmpDestinationFolder);
+
+        $donwloadFiles = $this->_client->downloadSlicedFile($fileId, $tmpDestinationFolder);
+        $this->assertFileEquals($slices[0], $donwloadFiles[0]);
+        $this->assertFileEquals($slices[1], $donwloadFiles[1]);
     }
 
     public function testTagging()
