@@ -12,7 +12,6 @@ use Keboola\Test\StorageApiTestCase;
 use \Keboola\StorageApi\Options\FileUploadOptions;
 use \Keboola\StorageApi\Options\ListFilesOptions;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Finder\Finder;
 
 class FilesTest extends StorageApiTestCase
 {
@@ -227,7 +226,7 @@ class FilesTest extends StorageApiTestCase
         // check attachment, download
         $client = new Client();
         $response = $client->get($file['url']);
-        $this->assertStringStartsWith('attachment;', (string) $response->getHeader('Content-Disposition')[0]);
+        $this->assertStringStartsWith('attachment', (string) $response->getHeader('Content-Disposition')[0]);
     }
 
     /**
@@ -248,43 +247,17 @@ class FilesTest extends StorageApiTestCase
         $uploadParams = $result['uploadParams'];
         $this->assertArrayHasKey('credentials', $uploadParams);
 
-        $s3Client = new \Aws\S3\S3Client([
-            'version' => 'latest',
-            'region' => $result['region'],
-            'credentials' => [
-                'key' => $uploadParams['credentials']['AccessKeyId'],
-                'secret' => $uploadParams['credentials']['SecretAccessKey'],
-                'token' => $uploadParams['credentials']['SessionToken'],
-            ],
-        ]);
+        $fileId = $this->_client->uploadFile($pathToFile, $options);
 
-        $putParams = array(
-            'Bucket' => $uploadParams['bucket'],
-            'Key' => $uploadParams['key'],
-            'Body' => fopen($pathToFile, 'r+'),
-        );
-
-        if ($options->getIsEncrypted()) {
-            $putParams['ServerSideEncryption'] = $uploadParams['x-amz-server-side-encryption'];
-        }
-
-        $s3Client->putObject($putParams);
-
-        $file = $this->_client->getFile($result['id']);
+        $file = $this->_client->getFile($fileId);
 
         $this->assertEquals(file_get_contents($pathToFile), file_get_contents($file['url']));
-        $this->assertEquals($result['isEncrypted'], $options->getIsEncrypted());
 
-        try {
-            $s3Client->putObject(array(
-                'Bucket' => $uploadParams['bucket'],
-                'Key' => $uploadParams['key'] . '_part0001',
-                'Body' => fopen($pathToFile, 'r+'),
-            ));
-            $this->fail('Access denied exception should be thrown');
-        } catch (\Aws\S3\Exception\S3Exception $e) {
-            $this->assertEquals(403, $e->getStatusCode());
+        if ($result['provider'] === 'aws') {
+            //all files on Azure are encrypted
+            $this->assertEquals($result['isEncrypted'], $options->getIsEncrypted());
         }
+        //TODO: add test for uploading file not in permission scope
     }
 
     public function encryptedData()
