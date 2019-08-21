@@ -1483,7 +1483,7 @@ class Client
      */
     public function getFile($fileId, GetFileOptions $options = null)
     {
-        if (!is_numeric($fileId) || $fileId > 0) {
+        if (!is_numeric($fileId) || $fileId < 0) {
             throw new ClientException('File id must be a positive integer');
         }
         return $this->apiGet("storage/files/$fileId?" . http_build_query($options ? $options->toArray() : array()));
