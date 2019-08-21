@@ -687,16 +687,16 @@ class FilesTest extends StorageApiTestCase
         $this->_client->getFile($fileId);
     }
 
-
     public function invalidIdDataProvider()
     {
         return [
-          [null],
-          ['karel'],
-          [-123],
-          ['-123'],
-          ['-50karlu'],
-          ['karel50'],
+            [null],
+            ['karel'],
+            [-123],
+            ['-123'],
+            ['-50karlu'],
+            ['karel50'],
+            ['5karlu'],
         ];
     }
 }
