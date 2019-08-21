@@ -3,6 +3,7 @@
 namespace Keboola\Test\Common;
 
 use GuzzleHttp\Client;
+use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
 use Keboola\Test\StorageApiTestCase;
@@ -676,5 +677,26 @@ class FilesTest extends StorageApiTestCase
         $this->_client->addFileTag($fileId, 'new');
         $file = $this->_client->getFile($fileId);
         $this->assertEquals(array('image', 'new'), $file['tags'], 'duplicate tag add is ignored');
+    }
+
+    /** @dataProvider  invalidIdDataProvider*/
+    public function testInvalidFileId($fileId)
+    {
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('File id must be a positive integer');
+        $this->_client->getFile($fileId);
+    }
+
+
+    public function invalidIdDataProvider()
+    {
+        return [
+          [null],
+          ['karel'],
+          [-123],
+          ['-123'],
+          ['-50karlu'],
+          ['karel50'],
+        ];
     }
 }
