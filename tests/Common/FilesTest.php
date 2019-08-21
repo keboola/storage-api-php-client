@@ -697,6 +697,7 @@ class FilesTest extends StorageApiTestCase
             ['-50karlu'],
             ['karel50'],
             ['5karlu'],
+            ['5 karlu'],
         ];
     }
 }
