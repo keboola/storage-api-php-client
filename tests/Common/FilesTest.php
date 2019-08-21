@@ -679,7 +679,7 @@ class FilesTest extends StorageApiTestCase
         $this->assertEquals(array('image', 'new'), $file['tags'], 'duplicate tag add is ignored');
     }
 
-    /** @dataProvider  invalidIdDataProvider*/
+    /** @dataProvider  invalidIdDataProvider */
     public function testInvalidFileId($fileId)
     {
         $this->expectException(ClientException::class);
