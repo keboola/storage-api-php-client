@@ -1483,9 +1483,7 @@ class Client
      */
     public function getFile($fileId, GetFileOptions $options = null)
     {
-        if (!is_numeric($fileId) || $fileId < 0) {
-            throw new ClientException('File id must be a positive integer');
-        }
+        $this->verifyIsPositiveWholeNumber($fileId, 'File id must be a positive whole number');
         return $this->apiGet("storage/files/$fileId?" . http_build_query($options ? $options->toArray() : array()));
     }
 
@@ -2114,5 +2112,13 @@ class Client
     public function isAwsDebug()
     {
         return $this->awsDebug;
+    }
+
+    private function verifyIsPositiveWholeNumber($value, $errorMessage)
+    {
+        if (((string) (int) $value === (string) $value) && ($value > 0)) {
+            return;
+        }
+        throw new ClientException($errorMessage);
     }
 }
