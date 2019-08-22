@@ -683,7 +683,7 @@ class FilesTest extends StorageApiTestCase
     public function testInvalidFileId($fileId)
     {
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('File id must be a positive whole number');
+        $this->expectExceptionMessage('File id cannot be empty');
         $this->_client->getFile($fileId);
     }
 
@@ -691,16 +691,7 @@ class FilesTest extends StorageApiTestCase
     {
         return [
             [null],
-            ['karel'],
-            [-123],
-            ['-123'],
-            ['-50karlu'],
-            ['karel50'],
-            ['5karlu'],
-            ['5 karlu'],
-            ['12341234.1234124'],
-            ['30E343'],
-            ['34e010']
+            [''],
         ];
     }
 }
