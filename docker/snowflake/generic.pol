@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<!DOCTYPE Policy SYSTEM "http://www.debian.org/debsig/1.0/policy.dtd">
+<Policy xmlns="https://www.debian.org/debsig/1.0/">
+    <Origin Name="Snowflake Computing" id="EC218558EABB25A1" Description="Snowflake ODBC Driver DEB package"/>
+    <Selection>
+        <Required Type="origin" File="debsig.gpg" id="EC218558EABB25A1"/>
+    </Selection>
+    <Verification MinOptional="0">
+        <Required Type="origin" File="debsig.gpg" id="EC218558EABB25A1"/>
+    </Verification>
+</Policy>
