@@ -1287,8 +1287,8 @@ class Client
         array $prepareResult,
         string $filePath
     ) {
-        $blobClient = BlobRestProxy::createBlobService($prepareResult['uploadParams']['credentials']['SASConnectionString']);
-        $blobClient->createBlockBlob($prepareResult['uploadParams']['container'], $prepareResult['uploadParams']['blobName'], fopen($filePath, 'r'));
+        $blobClient = BlobRestProxy::createBlobService($prepareResult['absUploadParams']['absCredentials']['SASConnectionString']);
+        $blobClient->createBlockBlob($prepareResult['absUploadParams']['container'], $prepareResult['absUploadParams']['blobName'], fopen($filePath, 'r'));
     }
 
     private function uploadFileToS3(
