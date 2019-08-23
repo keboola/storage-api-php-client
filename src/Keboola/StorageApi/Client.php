@@ -1483,6 +1483,9 @@ class Client
      */
     public function getFile($fileId, GetFileOptions $options = null)
     {
+        if (empty($fileId)) {
+            throw new ClientException('File id cannot be empty');
+        }
         return $this->apiGet("storage/files/$fileId?" . http_build_query($options ? $options->toArray() : array()));
     }
 
