@@ -235,7 +235,7 @@ class CommonFileTest extends StorageApiTestCase
         }
         $this->expectExceptionCode(404);
         $this->expectException(\GuzzleHttp\Exception\ClientException::class);
-        $response = (new Client())->get($file['url']);
+        (new Client())->get($file['url']);
     }
 
     public function testNotExistingFileUpload()
