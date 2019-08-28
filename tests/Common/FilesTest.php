@@ -245,8 +245,13 @@ class FilesTest extends StorageApiTestCase
 
         $result = $this->_client->prepareFileUpload($options);
 
-        $uploadParams = $result['uploadParams'];
-        $this->assertArrayHasKey('credentials', $uploadParams);
+        if ($result['provider'] === 'azure') {
+            $uploadParams = $result['absUploadParams'];
+            $this->assertArrayHasKey('absCredentials', $uploadParams);
+        } else {
+            $uploadParams = $result['uploadParams'];
+            $this->assertArrayHasKey('credentials', $uploadParams);
+        }
 
         $fileId = $this->_client->uploadFile($pathToFile, $options);
 
@@ -303,18 +308,6 @@ class FilesTest extends StorageApiTestCase
             $this->assertEquals(403, $e->getStatusCode());
             $this->assertEquals('AccessDenied', $e->getAwsErrorCode());
         }
-    }
-
-    public function testSlicedFileUpload()
-    {
-        $slices = [
-            __DIR__ . '/../_data/sliced/neco_0000_part_00',
-            __DIR__ . '/../_data/sliced/neco_0001_part_00',
-        ];
-        $uploadOptions = (new FileUploadOptions())->setIsSliced(true)
-            ->setFileName('slicedFile');
-        $fileId = $this->_client->uploadSlicedFile($slices, $uploadOptions);
-        $info = $this->_client->getFile($fileId);
     }
 
     /**
@@ -582,7 +575,7 @@ class FilesTest extends StorageApiTestCase
         );
     }
 
-    public function testDownloadSlicedFile()
+    public function testUploadAndDownloadSlicedFile()
     {
         $uploadOptions = (new FileUploadOptions())
             ->setFileName('sliced_testing_file_name')
