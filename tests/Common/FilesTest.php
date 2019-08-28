@@ -284,6 +284,9 @@ class FilesTest extends StorageApiTestCase
             ->setIsSliced(true);
         $slicedFile = $this->_client->prepareFileUpload($uploadOptions);
 
+        if ($slicedFile['provider'] !== 'aws') {
+            $this->markTestSkipped('Encryption is tested only on AWS');
+        }
         $uploadParams = $slicedFile['uploadParams'];
 
         $s3Client = new \Aws\S3\S3Client([
