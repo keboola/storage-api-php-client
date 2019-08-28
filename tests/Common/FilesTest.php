@@ -510,6 +510,10 @@ class FilesTest extends StorageApiTestCase
 
         $file = $this->_client->getFile($fileId, (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
 
+        if ($file['provider'] !== 'aws') {
+            $this->markTestSkipped('Federation token is tested only on AWS');
+        }
+
         $this->assertArrayHasKey('credentials', $file);
         $this->assertArrayHasKey('s3Path', $file);
         $this->assertArrayHasKey('Expiration', $file['credentials']);
