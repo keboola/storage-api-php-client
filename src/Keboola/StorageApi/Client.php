@@ -1535,7 +1535,7 @@ class Client
     private function downloadAbsFile(array $fileInfo, $destination)
     {
         $blobClient = BlobRestProxy::createBlobService(
-            $fileInfo['credentials']['SASConnectionString']
+            $fileInfo['absCredentials']['SASConnectionString']
         );
         $getResult = $blobClient->getBlob($fileInfo['absPath']['container'], $fileInfo['absPath']['name']);
         file_put_contents($destination, $getResult->getContentStream());
@@ -1577,7 +1577,7 @@ class Client
     private function downloadAbsSlicedFile(array $fileInfo, $destinationFolder)
     {
         $blobClient = BlobRestProxy::createBlobService(
-            $fileInfo['credentials']['SASConnectionString']
+            $fileInfo['absCredentials']['SASConnectionString']
         );
 
         if (!file_exists($destinationFolder)) {
