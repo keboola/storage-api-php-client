@@ -1430,12 +1430,12 @@ class Client
         array $slices
     ) {
         $blobClient = BlobRestProxy::createBlobService(
-            $prepareResult['uploadParams']['credentials']['SASConnectionString']
+            $prepareResult['absUploadParams']['absCredentials']['SASConnectionString']
         );
 
         foreach ($slices as $slice) {
             $blobClient->createBlockBlob(
-                $prepareResult['uploadParams']['container'],
+                $prepareResult['absUploadParams']['container'],
                 basename($slice),
                 fopen($slice, 'r')
             );
@@ -1447,10 +1447,10 @@ class Client
 
         foreach ($slices as $filePath) {
             $manifest['entries'][] = [
-                "url" => "azure://" . $prepareResult['uploadParams']['accountName'] . 'blob.core.windows.net/' . $prepareResult['uploadParams']['container'] . '/' . basename($filePath),
+                "url" => "azure://" . $prepareResult['absUploadParams']['accountName'] . 'blob.core.windows.net/' . $prepareResult['absUploadParams']['container'] . '/' . basename($filePath),
             ];
         }
-        $blobClient->createBlockBlob($prepareResult['uploadParams']['container'], $prepareResult['uploadParams']['blobName'] . 'manifest', json_encode($manifest));
+        $blobClient->createBlockBlob($prepareResult['absUploadParams']['container'], $prepareResult['absUploadParams']['blobName'] . 'manifest', json_encode($manifest));
     }
 
     private function uploadSlicedFileToS3(
