@@ -262,8 +262,26 @@ class FilesTest extends StorageApiTestCase
         if ($result['provider'] === 'aws') {
             //all files on Azure are encrypted
             $this->assertEquals($result['isEncrypted'], $options->getIsEncrypted());
+            $s3Client = new \Aws\S3\S3Client([
+                'version' => 'latest',
+                'region' => $result['region'],
+                'credentials' => [
+                    'key' => $uploadParams['credentials']['AccessKeyId'],
+                    'secret' => $uploadParams['credentials']['SecretAccessKey'],
+                    'token' => $uploadParams['credentials']['SessionToken'],
+                ],
+            ]);
+            try {
+                $s3Client->putObject([                //all files on Azure are encrypted
+                    'Bucket' => $uploadParams['bucket'],
+                    'Key' => $uploadParams['key'] . '_part0001',
+                    'Body' => fopen($pathToFile, 'r+'),
+                ]);
+                $this->fail('Access denied exception should be thrown');
+            } catch (\Aws\S3\Exception\S3Exception $e) {
+                $this->assertEquals(403, $e->getStatusCode());
+            }
         }
-        //TODO: add test for uploading file not in permission scope
     }
 
     public function encryptedData()
