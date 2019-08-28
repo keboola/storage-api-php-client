@@ -160,6 +160,7 @@ class FilesTest extends StorageApiTestCase
         $file = $this->_client->getFile($fileId);
 
         if ($file['provider'] === 'azure') {
+            //azure storage is always encrypted and private. Request params 'isEncrypted' and 'isPublic' is ignored
             $this->assertFalse($file['isPublic']);
             $this->assertTrue($file['isEncrypted']);
         } else {
