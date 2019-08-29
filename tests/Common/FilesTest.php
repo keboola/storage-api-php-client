@@ -24,6 +24,7 @@ class FilesTest extends StorageApiTestCase
         $uploadedFile = reset($files);
         $this->assertEquals($fileId, $uploadedFile['id']);
         $this->assertArrayHasKey('region', $uploadedFile);
+        $this->assertArrayNotHasKey('credentials', $uploadedFile);
     }
 
     public function testFilesListFilterByTags()
