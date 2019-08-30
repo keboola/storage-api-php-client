@@ -1546,11 +1546,11 @@ class Client
                 'token' => $fileInfo['credentials']['SessionToken'],
             ],
         ]);
-        $object = $s3Client->getObject([
+        $s3Client->getObject([
             'Bucket' => $fileInfo['s3Path']['bucket'],
             'Key' => $fileInfo['s3Path']['key'],
+            'SaveAs' => $destination
         ]);
-        file_put_contents($destination, $object['Body']);
     }
 
     public function downloadSlicedFile($fileId, $destinationFolder)
