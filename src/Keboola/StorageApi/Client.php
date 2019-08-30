@@ -1513,15 +1513,15 @@ class Client
         $s3Client->putObject($manifestUploadOptions);
     }
 
-    public function downloadFile($fileId, $destionation, GetFileOptions $getOptions = null)
+    public function downloadFile($fileId, $destination, GetFileOptions $getOptions = null)
     {
         $fileInfo = $this->getFile($fileId, $getOptions);
         switch ($fileInfo['provider']) {
             case 'azure':
-                $this->downloadAbsFile($fileInfo, $destionation);
+                $this->downloadAbsFile($fileInfo, $destination);
                 break;
             case 'aws':
-                $this->downloadS3File($fileInfo, $destionation);
+                $this->downloadS3File($fileInfo, $destination);
                 break;
         }
     }
