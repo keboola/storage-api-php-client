@@ -1265,8 +1265,6 @@ class Client
                     $filePath
                 );
                 break;
-            default:
-                $this->logger->warning('File upload without provider has been used', $prepareResult);
             case 'aws':
                 $this->uploadFileToS3(
                     $prepareResult,
@@ -1410,8 +1408,6 @@ class Client
             case 'azure':
                 $this->uploadSlicedFileToAbs($prepareResult, $slices);
                 break;
-            default:
-                $this->logger->warning('File upload without provider has been used', $prepareResult);
             case 'aws':
                 $this->uploadSlicedFileToS3($prepareResult, $slices, $options, $transferOptions);
                 break;
@@ -1524,8 +1520,6 @@ class Client
             case 'azure':
                 $this->downloadAbsFile($fileInfo, $destionation);
                 break;
-            default:
-                $this->logger->warning('File upload without provider has been used', $fileInfo);
             case 'aws':
                 $this->downloadS3File($fileInfo, $destionation);
                 break;
@@ -1565,12 +1559,8 @@ class Client
         switch ($fileInfo['provider']) {
             case 'azure':
                 return $this->downloadAbsSlicedFile($fileInfo, $destinationFolder);
-                break;
-            default:
-                $this->logger->warning('File upload without provider has been used', $fileInfo);
             case 'aws':
                 return $this->downloadS3SlicedFile($fileInfo, $destinationFolder);
-                break;
         }
     }
 
