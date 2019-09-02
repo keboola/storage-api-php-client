@@ -22,6 +22,7 @@
 
 	<testsuite name="files-azure">
 		<file>tests/File/AzureFileTest.php</file>
+		<file>tests/File/CommonFilesTests.php</file>
 	</testsuite>
 
 	<testsuite name="backend-redshift-part-1">
