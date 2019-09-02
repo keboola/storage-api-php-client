@@ -88,4 +88,3 @@ class AzureFileTest extends StorageApiTestCase
         );
     }
 }
-
