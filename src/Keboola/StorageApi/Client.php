@@ -33,6 +33,9 @@ class Client
 
     const VERSION = '10.4.0';
 
+    const FILE_PROVIDER_AWS = 'aws';
+    const FILE_PROVIDER_AZURE = 'azure';
+
     // Token string
     public $token;
 
@@ -1259,13 +1262,13 @@ class Client
         $prepareResult = $this->prepareFileUpload($newOptions);
 
         switch ($prepareResult['provider']) {
-            case 'azure':
+            case self::FILE_PROVIDER_AZURE:
                 $this->uploadFileToAbs(
                     $prepareResult,
                     $filePath
                 );
                 break;
-            case 'aws':
+            case self::FILE_PROVIDER_AWS:
                 $this->uploadFileToS3(
                     $prepareResult,
                     $filePath,
@@ -1405,10 +1408,10 @@ class Client
         $prepareResult = $this->prepareFileUpload($newOptions);
 
         switch ($prepareResult['provider']) {
-            case 'azure':
+            case self::FILE_PROVIDER_AZURE:
                 $this->uploadSlicedFileToAbs($prepareResult, $slices);
                 break;
-            case 'aws':
+            case self::FILE_PROVIDER_AWS:
                 $this->uploadSlicedFileToS3($prepareResult, $slices, $options, $transferOptions);
                 break;
         }
@@ -1517,10 +1520,10 @@ class Client
     {
         $fileInfo = $this->getFile($fileId, $getOptions);
         switch ($fileInfo['provider']) {
-            case 'azure':
+            case self::FILE_PROVIDER_AZURE:
                 $this->downloadAbsFile($fileInfo, $destination);
                 break;
-            case 'aws':
+            case self::FILE_PROVIDER_AWS:
                 $this->downloadS3File($fileInfo, $destination);
                 break;
         }
@@ -1557,9 +1560,9 @@ class Client
     {
         $fileInfo = $this->getFile($fileId);
         switch ($fileInfo['provider']) {
-            case 'azure':
+            case self::FILE_PROVIDER_AZURE:
                 return $this->downloadAbsSlicedFile($fileInfo, $destinationFolder);
-            case 'aws':
+            case self::FILE_PROVIDER_AWS:
                 return $this->downloadS3SlicedFile($fileInfo, $destinationFolder);
         }
     }
