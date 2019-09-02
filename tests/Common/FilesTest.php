@@ -4,6 +4,7 @@ namespace Keboola\Test\Common;
 
 use GuzzleHttp\Client;
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Options\GetFileOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
 use Keboola\Test\StorageApiTestCase;
@@ -25,6 +26,13 @@ class FilesTest extends StorageApiTestCase
         $this->assertEquals($fileId, $uploadedFile['id']);
         $this->assertArrayHasKey('region', $uploadedFile);
         $this->assertArrayNotHasKey('credentials', $uploadedFile);
+    }
+
+    public function testGetFileWithoutCredentials()
+    {
+        $fileId = $this->createAndWaitForFile(__DIR__ . '/../_data/files.upload.txt', (new FileUploadOptions()));
+        $file = $this->_client->getFile($fileId, (new GetFileOptions())->setFederationToken(false));
+        $this->assertArrayNotHasKey('credentials', $file);
     }
 
     public function testFilesListFilterByTags()
