@@ -1518,6 +1518,8 @@ class Client
 
     public function downloadFile($fileId, $destination, GetFileOptions $getOptions = null)
     {
+        $getOptions = ($getOptions)? $getOptions : new GetFileOptions();
+        $getOptions->setFederationToken(true);
         $fileInfo = $this->getFile($fileId, $getOptions);
         switch ($fileInfo['provider']) {
             case self::FILE_PROVIDER_AZURE:
@@ -1558,7 +1560,7 @@ class Client
 
     public function downloadSlicedFile($fileId, $destinationFolder)
     {
-        $fileInfo = $this->getFile($fileId);
+        $fileInfo = $this->getFile($fileId, (new GetFileOptions())->setFederationToken(true));
         switch ($fileInfo['provider']) {
             case self::FILE_PROVIDER_AZURE:
                 return $this->downloadAbsSlicedFile($fileInfo, $destinationFolder);
