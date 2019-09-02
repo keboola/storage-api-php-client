@@ -4,6 +4,7 @@ namespace Keboola\Test\File;
 
 use GuzzleHttp\Client;
 use Keboola\StorageApi\Options\FileUploadOptions;
+use Keboola\StorageApi\Options\GetFileOptions;
 use Keboola\Test\StorageApiTestCase;
 
 class AzureFileTest extends StorageApiTestCase
@@ -14,7 +15,7 @@ class AzureFileTest extends StorageApiTestCase
     public function testFileUpload($filePath, FileUploadOptions $options)
     {
         $fileId = $this->_client->uploadFile($filePath, $options);
-        $file = $this->_client->getFile($fileId);
+        $file = $this->_client->getFile($fileId, (new GetFileOptions())->setFederationToken(true));
 
         //azure storage is always encrypted and private. Request params 'isEncrypted' and 'isPublic' is ignored
         $this->assertFalse($file['isPublic']);
