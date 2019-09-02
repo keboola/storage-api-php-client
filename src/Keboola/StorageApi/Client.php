@@ -1535,7 +1535,7 @@ class Client
             $fileInfo['absCredentials']['SASConnectionString']
         );
         $getResult = $blobClient->getBlob($fileInfo['absPath']['container'], $fileInfo['absPath']['name']);
-        file_put_contents($destination, $getResult->getContentStream());
+        (new Filesystem())->dumpFile($destination, $getResult->getContentStream());
     }
 
     private function downloadS3File(array $fileInfo, $destination)
@@ -1585,10 +1585,11 @@ class Client
         $getResult = $blobClient->getblob($fileInfo['absPath']['container'], $fileInfo['absPath']['name'] . 'manifest');
         $manifest = \GuzzleHttp\json_decode(stream_get_contents($getResult->getContentStream()), true);
         $slices = [];
+        $fs = new Filesystem();
         foreach ($manifest['entries'] as $entry) {
             $getResult = $blobClient->getBlob($fileInfo['absPath']['container'], basename($entry['url']));
             $slices[] = $destinationFile = $destinationFolder . basename($entry['url']);
-            file_put_contents($destinationFile, $getResult->getContentStream());
+            $fs->dumpFile($destinationFile, $getResult->getContentStream());
         }
         return $slices;
     }
