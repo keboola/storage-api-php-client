@@ -20,7 +20,7 @@
 		<file>tests/File/AwsFileTest.php</file>
 	</testsuite>
 
-	<testsuite name="files-azure">
+	<testsuite name="file-storage-azure">
 		<file>tests/File/AzureFileTest.php</file>
 		<file>tests/File/CommonFilesTests.php</file>
 	</testsuite>
