@@ -1,6 +1,7 @@
 <?php
 namespace Keboola\StorageApi;
 
+use Aws\S3\S3Client;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\MessageFormatter;
 use GuzzleHttp\Middleware;
@@ -11,6 +12,8 @@ use Keboola\StorageApi\Options\ListFilesOptions;
 use Keboola\StorageApi\Options\StatsOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
+use MicrosoftAzure\Storage\Blob\BlobRestProxy;
+use MicrosoftAzure\Storage\Blob\Models\CreateBlobBlockOptions;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
@@ -29,6 +32,9 @@ class Client
     const API_VERSION = "v2";
 
     const VERSION = '10.4.0';
+
+    const FILE_PROVIDER_AWS = 'aws';
+    const FILE_PROVIDER_AZURE = 'azure';
 
     // Token string
     public $token;
@@ -1253,18 +1259,50 @@ class Client
             ->setSizeBytes(filesize($filePath))
             ->setFederationToken(true);
 
-        // 1. prepare resource
-        $result = $this->prepareFileUpload($newOptions);
+        $prepareResult = $this->prepareFileUpload($newOptions);
 
-        // 2. upload directly do S3 using returned credentials
-        // using federation token
-        $uploadParams = $result['uploadParams'];
+        switch ($prepareResult['provider']) {
+            case self::FILE_PROVIDER_AZURE:
+                $this->uploadFileToAbs(
+                    $prepareResult,
+                    $filePath
+                );
+                break;
+            case self::FILE_PROVIDER_AWS:
+                $this->uploadFileToS3(
+                    $prepareResult,
+                    $filePath,
+                    $newOptions,
+                    $transferOptions
+                );
+        }
 
+        if ($fs) {
+            $fs->remove($currentUploadDir);
+        }
 
+        return $prepareResult['id'];
+    }
+
+    private function uploadFileToAbs(
+        array $prepareResult,
+        string $filePath
+    ) {
+        $blobClient = BlobRestProxy::createBlobService($prepareResult['absUploadParams']['absCredentials']['SASConnectionString']);
+        $blobClient->createBlockBlob($prepareResult['absUploadParams']['container'], $prepareResult['absUploadParams']['blobName'], fopen($filePath, 'r'));
+    }
+
+    private function uploadFileToS3(
+        array $prepareResult,
+        string $filePath,
+        FileUploadOptions $newOptions,
+        FileUploadTransferOptions $transferOptions = null
+    ) {
+        $uploadParams = $prepareResult['uploadParams'];
         $s3options = [
             'version' => '2006-03-01',
             'retries' => $this->getAwsRetries(),
-            'region' => $result['region'],
+            'region' => $prepareResult['region'],
             'debug' => false,
             'credentials' => [
                 'key' => $uploadParams['credentials']['AccessKeyId'],
@@ -1289,22 +1327,16 @@ class Client
             ];
         }
 
-        $s3Client = new \Aws\S3\S3Client($s3options);
+        $s3Client = new S3Client($s3options);
         $s3Uploader = new S3Uploader($s3Client, $transferOptions);
         $s3Uploader->uploadFile(
             $uploadParams['bucket'],
             $uploadParams['key'],
             $uploadParams['acl'],
             $filePath,
-            $result['name'],
+            $prepareResult['name'],
             $newOptions->getIsEncrypted() ? $uploadParams['x-amz-server-side-encryption'] : null
         );
-
-        if ($fs) {
-            $fs->remove($currentUploadDir);
-        }
-
-        return $result['id'];
     }
 
     /**
@@ -1373,12 +1405,60 @@ class Client
             ->setIsSliced(true);
 
         // 1. prepare resource
-        $preparedFileResult = $this->prepareFileUpload($newOptions);
+        $prepareResult = $this->prepareFileUpload($newOptions);
 
-        // 2. upload directly do S3 using returned credentials
-        // using federation token
+        switch ($prepareResult['provider']) {
+            case self::FILE_PROVIDER_AZURE:
+                $this->uploadSlicedFileToAbs($prepareResult, $slices);
+                break;
+            case self::FILE_PROVIDER_AWS:
+                $this->uploadSlicedFileToS3($prepareResult, $slices, $options, $transferOptions);
+                break;
+        }
+
+        // Cleanup
+        if ($fs) {
+            $fs->remove($currentUploadDir);
+        }
+
+        return $prepareResult['id'];
+    }
+
+    private function uploadSlicedFileToAbs(
+        array $prepareResult,
+        array $slices
+    ) {
+        $blobClient = BlobRestProxy::createBlobService(
+            $prepareResult['absUploadParams']['absCredentials']['SASConnectionString']
+        );
+
+        foreach ($slices as $slice) {
+            $blobClient->createBlockBlob(
+                $prepareResult['absUploadParams']['container'],
+                basename($slice),
+                fopen($slice, 'r')
+            );
+        }
+
+        $manifest = [
+            'entries' => [],
+        ];
+
+        foreach ($slices as $filePath) {
+            $manifest['entries'][] = [
+                "url" => "azure://" . $prepareResult['absUploadParams']['accountName'] . 'blob.core.windows.net/' . $prepareResult['absUploadParams']['container'] . '/' . basename($filePath),
+            ];
+        }
+        $blobClient->createBlockBlob($prepareResult['absUploadParams']['container'], $prepareResult['absUploadParams']['blobName'] . 'manifest', json_encode($manifest));
+    }
+
+    private function uploadSlicedFileToS3(
+        array $preparedFileResult,
+        array $slices,
+        FileUploadOptions $newOptions,
+        FileUploadTransferOptions $transferOptions = null
+    ) {
         $uploadParams = $preparedFileResult['uploadParams'];
-
         $options = [
             'version' => '2006-03-01',
             'retries' => $this->getAwsRetries(),
@@ -1407,7 +1487,7 @@ class Client
             ];
         }
 
-        $s3Client = new \Aws\S3\S3Client($options);
+        $s3Client = new S3Client($options);
         $s3Uploader = new S3Uploader($s3Client, $transferOptions);
         $s3Uploader->uploadSlicedFile(
             $uploadParams['bucket'],
@@ -1434,13 +1514,124 @@ class Client
             $manifestUploadOptions['ServerSideEncryption'] = $uploadParams['x-amz-server-side-encryption'];
         }
         $s3Client->putObject($manifestUploadOptions);
+    }
 
-        // Cleanup
-        if ($fs) {
-            $fs->remove($currentUploadDir);
+    public function downloadFile($fileId, $destination, GetFileOptions $getOptions = null)
+    {
+        $getOptions = ($getOptions)? $getOptions : new GetFileOptions();
+        $getOptions->setFederationToken(true);
+        $fileInfo = $this->getFile($fileId, $getOptions);
+        switch ($fileInfo['provider']) {
+            case self::FILE_PROVIDER_AZURE:
+                $this->downloadAbsFile($fileInfo, $destination);
+                break;
+            case self::FILE_PROVIDER_AWS:
+                $this->downloadS3File($fileInfo, $destination);
+                break;
+        }
+    }
+
+    private function downloadAbsFile(array $fileInfo, $destination)
+    {
+        $blobClient = BlobRestProxy::createBlobService(
+            $fileInfo['absCredentials']['SASConnectionString']
+        );
+        $getResult = $blobClient->getBlob($fileInfo['absPath']['container'], $fileInfo['absPath']['name']);
+        (new Filesystem())->dumpFile($destination, $getResult->getContentStream());
+    }
+
+    private function downloadS3File(array $fileInfo, $destination)
+    {
+        $s3Client = new S3Client([
+            'version' => 'latest',
+            'region' => $fileInfo['region'],
+            'credentials' => [
+                'key' => $fileInfo['credentials']['AccessKeyId'],
+                'secret' => $fileInfo['credentials']['SecretAccessKey'],
+                'token' => $fileInfo['credentials']['SessionToken'],
+            ],
+        ]);
+        $s3Client->getObject([
+            'Bucket' => $fileInfo['s3Path']['bucket'],
+            'Key' => $fileInfo['s3Path']['key'],
+            'SaveAs' => $destination
+        ]);
+    }
+
+    public function downloadSlicedFile($fileId, $destinationFolder)
+    {
+        $fileInfo = $this->getFile($fileId, (new GetFileOptions())->setFederationToken(true));
+        switch ($fileInfo['provider']) {
+            case self::FILE_PROVIDER_AZURE:
+                return $this->downloadAbsSlicedFile($fileInfo, $destinationFolder);
+            case self::FILE_PROVIDER_AWS:
+                return $this->downloadS3SlicedFile($fileInfo, $destinationFolder);
+        }
+    }
+
+    private function downloadAbsSlicedFile(array $fileInfo, $destinationFolder)
+    {
+        $blobClient = BlobRestProxy::createBlobService(
+            $fileInfo['absCredentials']['SASConnectionString']
+        );
+
+        if (!file_exists($destinationFolder)) {
+            $fs = new Filesystem();
+            $fs->mkdir($destinationFolder);
         }
 
-        return $preparedFileResult['id'];
+        if (substr($destinationFolder, -1) !== '/') {
+            $destinationFolder .= '/';
+        }
+
+        $getResult = $blobClient->getblob($fileInfo['absPath']['container'], $fileInfo['absPath']['name'] . 'manifest');
+        $manifest = \GuzzleHttp\json_decode(stream_get_contents($getResult->getContentStream()), true);
+        $slices = [];
+        $fs = new Filesystem();
+        foreach ($manifest['entries'] as $entry) {
+            $getResult = $blobClient->getBlob($fileInfo['absPath']['container'], basename($entry['url']));
+            $slices[] = $destinationFile = $destinationFolder . basename($entry['url']);
+            $fs->dumpFile($destinationFile, $getResult->getContentStream());
+        }
+        return $slices;
+    }
+
+    private function downloadS3SlicedFile(array $fileInfo, $destinationFolder)
+    {
+        $s3Client = new S3Client([
+            'version' => 'latest',
+            'region' => $fileInfo['region'],
+            'credentials' => [
+                'key' => $fileInfo['credentials']['AccessKeyId'],
+                'secret' => $fileInfo['credentials']['SecretAccessKey'],
+                'token' => $fileInfo['credentials']['SessionToken'],
+            ],
+        ]);
+
+        if (!file_exists($destinationFolder)) {
+            $fs = new Filesystem();
+            $fs->mkdir($destinationFolder);
+        }
+
+        if (substr($destinationFolder, -1) !== '/') {
+            $destinationFolder .= '/';
+        }
+
+        $object = $s3Client->getObject([
+            'Bucket' => $fileInfo['s3Path']['bucket'],
+            'Key' => $fileInfo['s3Path']['key'] . 'manifest',
+        ]);
+        $manifest = \GuzzleHttp\json_decode($object['Body'], true);
+        $slices = [];
+        foreach ($manifest['entries'] as $entry) {
+            $object = $s3Client->getObject([
+                'Bucket' => $fileInfo['s3Path']['bucket'],
+                'Key' => strtr($entry['url'], ['s3://' . $fileInfo['s3Path']['bucket'] . '/' => '']),
+            ]);
+            $slices[] = $destinationFile = $destinationFolder . basename($entry['url']);
+            file_put_contents($destinationFile, $object['Body']);
+        }
+        return $slices;
     }
 
     /**
