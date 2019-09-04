@@ -223,7 +223,7 @@ class CommonFileTest extends StorageApiTestCase
         $options = new FileUploadOptions();
 
         $fileId = $this->_client->uploadFile($filePath, $options);
-        $this->_client->getFile($fileId);
+        $file = $this->_client->getFile($fileId);
 
         $this->_client->deleteFile($fileId);
 
@@ -233,6 +233,9 @@ class CommonFileTest extends StorageApiTestCase
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.files.notFound', $e->getStringCode());
         }
+        $this->expectExceptionCode(404);
+        $this->expectException(\GuzzleHttp\Exception\ClientException::class);
+        (new Client())->get($file['url']);
     }
 
     public function testNotExistingFileUpload()
