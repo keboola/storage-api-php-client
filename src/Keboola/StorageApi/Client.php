@@ -330,6 +330,28 @@ class Client
         return $result;
     }
 
+    public function shareOrganizationBucket($bucketId)
+    {
+        $url = "storage/buckets/" . $bucketId . "/share-organization";
+
+        $result = $this->apiPost($url, [], false);
+
+        $this->log("Bucket {$bucketId} shared", array("result" => $result));
+
+        return $result;
+    }
+
+    public function shareOrganizationProjectBucket($bucketId)
+    {
+        $url = "storage/buckets/" . $bucketId . "/share-organization-project";
+
+        $result = $this->apiPost($url, [], false);
+
+        $this->log("Bucket {$bucketId} shared", array("result" => $result));
+
+        return $result;
+    }
+
     public function changeBucketSharing($bucketId, $sharing)
     {
         $url = "storage/buckets/" . $bucketId . "/share";
@@ -337,6 +359,28 @@ class Client
         $result = $this->apiPut($url, ['sharing' => $sharing]);
 
         $this->log("Bucket {$bucketId} sharing changed to {$sharing}", array("result" => $result));
+
+        return $result;
+    }
+
+    public function changeBucketToOrganizationSharing($bucketId)
+    {
+        $url = "storage/buckets/" . $bucketId . "/share-organization";
+
+        $result = $this->apiPut($url);
+
+        $this->log("Bucket {$bucketId} sharing changed to share-organization", array("result" => $result));
+
+        return $result;
+    }
+
+    public function changeBucketToOrganizationProjectSharing($bucketId)
+    {
+        $url = "storage/buckets/" . $bucketId . "/share-organization-project";
+
+        $result = $this->apiPut($url);
+
+        $this->log("Bucket {$bucketId} sharing changed to share-organization-project", array("result" => $result));
 
         return $result;
     }

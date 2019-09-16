@@ -1163,6 +1163,93 @@ class SharingTest extends StorageApiTestCase
     }
 
     /**
+     * @dataProvider sharingBackendData
+     * @throws ClientException
+     */
+    public function testOrganizationShareBucket($backend)
+    {
+        $this->initTestBuckets($backend);
+        $bucketId = reset($this->_bucketIds);
+
+        // first share
+        $this->_client->shareOrganizationBucket($bucketId);
+        $this->assertTrue($this->_client->isSharedBucket($bucketId));
+
+        $this->_client->unshareBucket($bucketId);
+        $this->assertFalse($this->_client->isSharedBucket($bucketId));
+
+        // sharing twice
+        $this->_client->shareOrganizationBucket($bucketId);
+
+        try {
+            $this->_client->shareOrganizationBucket($bucketId);
+            $this->fail("sharing twice should fail");
+        } catch (ClientException $e) {
+            $this->assertEquals(400, $e->getCode());
+            $this->assertEquals('storage.buckets.shareTwice', $e->getStringCode());
+        }
+    }
+
+    /**
+     * @dataProvider sharingBackendData
+     * @throws ClientException
+     */
+    public function testOrganizationProjectShareBucket($backend)
+    {
+        $this->initTestBuckets($backend);
+        $bucketId = reset($this->_bucketIds);
+
+        // first share
+        $this->_client->shareOrganizationProjectBucket($bucketId);
+        $this->assertTrue($this->_client->isSharedBucket($bucketId));
+
+        $this->_client->unshareBucket($bucketId);
+        $this->assertFalse($this->_client->isSharedBucket($bucketId));
+
+        // sharing twice
+        $this->_client->shareOrganizationProjectBucket($bucketId);
+
+        try {
+            $this->_client->shareOrganizationProjectBucket($bucketId);
+            $this->fail("sharing twice should fail");
+        } catch (ClientException $e) {
+            $this->assertEquals(400, $e->getCode());
+            $this->assertEquals('storage.buckets.shareTwice', $e->getStringCode());
+        }
+    }
+
+    /**
+     * @dataProvider sharingBackendData
+     * @throws ClientException
+     */
+    public function testShareOrganizationBucketChangeType($backend)
+    {
+        $this->initTestBuckets($backend);
+        $bucketId = reset($this->_bucketIds);
+
+        // first share
+        $this->_client->shareOrganizationBucket($bucketId);
+
+        $sharedBucket = $this->_client->getBucket($bucketId);
+        $this->assertArrayHasKey('sharing', $sharedBucket);
+        $this->assertEquals('organization', $sharedBucket['sharing']);
+
+        // first reshare
+        $this->_client->changeBucketToOrganizationProjectSharing($bucketId);
+
+        $sharedBucket = $this->_client->getBucket($bucketId);
+        $this->assertArrayHasKey('sharing', $sharedBucket);
+        $this->assertEquals('organization-project', $sharedBucket['sharing']);
+
+        // second reshare
+        $this->_client->changeBucketToOrganizationSharing($bucketId, 'organization');
+
+        $sharedBucket = $this->_client->getBucket($bucketId);
+        $this->assertArrayHasKey('sharing', $sharedBucket);
+        $this->assertEquals('organization', $sharedBucket['sharing']);
+    }
+
+    /**
      * @param $connection
      * @return Connection|\PDO
      * @throws \Exception
