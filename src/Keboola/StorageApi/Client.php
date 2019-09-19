@@ -971,6 +971,15 @@ class Client
     }
 
     /**
+     * @param array $options
+     * @return array
+     */
+    public function searchTables($options = array())
+    {
+        return $this->apiGet("storage/search/tables?" . http_build_query($options));
+    }
+
+    /**
      * @param $jobId
      * @return array
      */
