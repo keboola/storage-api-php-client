@@ -4589,6 +4589,155 @@ Returns all workspaces for the component configuration.
 
    + Attributes (array[Workspace])
 
+# Group Search
+## Search Tables [/v2/storage/search/tables?metadataKey={metadataKey}&metadataValue={metadataValue}&metadataProvider={metadataProvider}&include={include}]
+
+### Search Tables [GET]
+Search all tables accessible by the token by either metadataKey, metadataValue or metadataProvider. By default, all tables are returned with their
+attributes and information about the containing bucket.
+
++ Parameters
+    + include (optional, enum[string]) - Comma separated list of resources to include for each table.
+        + Members
+            + attributes
+            + buckets
+            + columns
+            + metadata
+            + columnMetadata
+        + Default: attributes,metadata
+    + metadataKey (optional, string) - string to search with exact match on one of existing metadata.key
+        + Default: NULL
+    + metadataValue (optional, string) - string to search with exact match on one of existing metadata.value
+        + Default: NULL
+    + metadataProvider (optional, string) - string to search with exact match on one of existing metadata.provider
+        + Default: NULL
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+    + Body
+
+            [
+                {
+                    "uri": "https:\/\/connection.keboola.com\/v2\/storage\/tables\/in.c-application-testing.cashier-data",
+                    "id": "in.c-application-testing.cashier-data",
+                    "name": "cashier-data",
+                    "transactional": false,
+                    "primaryKey": [],
+                    "indexedColumns": [],
+                    "created": "2016-06-23T20:41:07+0200",
+                    "lastImportDate": "2016-07-07T11:25:32+0200",
+                    "lastChangeDate": "2016-07-07T11:25:34+0200",
+                    "rowsCount": 18,
+                    "dataSizeBytes": 12288,
+                    "isAlias": false,
+                    "isAliasable": true,
+                    "attributes": [],
+                    "columns": [
+                        "time_spent_in_shop",
+                        "number_of_items",
+                        "customer_shoe_size",
+                        "customer_age",
+                        "age_segment",
+                        "no_segment",
+                        "customer_segment",
+                        "visit_id"
+                    ],
+                    "bucket": {
+                        "uri": "https:\/\/connection.keboola.com\/v2\/storage\/buckets\/in.c-application-testing",
+                        "id": "in.c-application-testing",
+                        "name": "c-application-testing",
+                        "stage": "in",
+                        "description": "Main project storage",
+                        "tables": "https:\/\/connection.keboola.com\/v2\/storage\/buckets\/in.c-application-testing\/tables",
+                        "created": "2015-02-05T10:57:08+0100",
+                        "lastChangeDate": "2017-02-12T10:36:15+0100",
+                        "isReadOnly": false,
+                        "dataSizeBytes": 685750272,
+                        "rowsCount": 2438881,
+                        "isMaintenance": false,
+                        "backend": "snowflake",
+                        "sharing": null
+                    },
+                    "columnMetadata": {
+                        "number_of_items": [
+                            {
+                                "id": "207947778",
+                                "key": "KBC.datatype.basetype",
+                                "value": "INTEGER",
+                                "provider": "user",
+                                "timestamp": "2019-08-14T16:55:34+0200"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "uri": "https:\/\/connection.keboola.com\/v2\/storage\/tables\/in.c-application-testing.cashier-data-alias",
+                    "id": "in.c-application-testing.cashier-data-alias",
+                    "name": "cashier-data-alias",
+                    "transactional": false,
+                    "primaryKey": [],
+                    "indexedColumns": [],
+                    "created": "2016-06-23T20:41:38+0200",
+                    "lastImportDate": "2016-07-07T11:26:03+0200",
+                    "lastChangeDate": "2016-07-07T11:26:05+0200",
+                    "rowsCount": 48,
+                    "dataSizeBytes": 12288,
+                    "isAlias": true,
+                    "isAliasable": true,
+                    "sourceTable": {
+                        "id": "in.c-application-testing.cashier-data",
+                        "uri": "https:\/\/connection.keboola.com\/v2\/storage\/tables\/in.c-application-testing.cashier-data",
+                        "project": {
+                            "id": 578,
+                            "name": "Some source project"
+                        },
+                        "columnMetadata": {
+                            "number_of_items": [
+                                {
+                                    "id": "207947778",
+                                    "key": "KBC.datatype.basetype",
+                                    "value": "INTEGER",
+                                    "provider": "user",
+                                    "timestamp": "2019-08-14T16:55:34+0200"
+                                }
+                            ]
+                        }
+                    },
+                    "aliasColumnsAutoSync": true,
+                    "attributes": [],
+                    "columns": [
+                        "time_spent_in_shop",
+                        "number_of_items",
+                        "customer_shoe_size",
+                        "customer_age",
+                        "age_segment",
+                        "no_segment",
+                        "customer_segment",
+                        "visit_id"
+                    ],
+                    "bucket": {
+                        "uri": "https:\/\/connection.keboola.com\/v2\/storage\/buckets\/in.c-application-testing",
+                        "id": "in.c-application-testing",
+                        "name": "c-application-testing",
+                        "stage": "in",
+                        "description": "Main project storage",
+                        "tables": "https:\/\/connection.keboola.com\/v2\/storage\/buckets\/in.c-application-testing\/tables",
+                        "created": "2015-02-05T10:57:08+0100",
+                        "lastChangeDate": "2017-02-12T10:36:15+0100",
+                        "isReadOnly": false,
+                        "dataSizeBytes": 685750272,
+                        "rowsCount": 2438881,
+                        "isMaintenance": false,
+                        "backend": "snowflake",
+                        "sharing": null
+                    },
+                    "columnMetadata": []
+                }
+            ]
+
 
 # Group Stats
 ## RunId [/v2/storage/stats?runId={runId}]
