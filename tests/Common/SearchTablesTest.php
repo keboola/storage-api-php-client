@@ -32,6 +32,12 @@ class SearchTablesTest extends StorageApiTestCase
                 "value" => "testValue",
             ],
         ]);
+        $this->_initTable('table2', [
+            [
+                "key" => "differentkey",
+                "value" => "differentValue",
+            ],
+        ]);
 
         $result = $this->_client->searchTables([
             'metadataKey' => 'testkey',
@@ -46,7 +52,7 @@ class SearchTablesTest extends StorageApiTestCase
         $result = $this->_client->searchTables([
             'metadataProvider' => self::TEST_PROVIDER,
         ]);
-        $this->assertCount(1, $result);
+        $this->assertCount(2, $result);
 
         $result = $this->_client->searchTables([
             'metadataKey' => 'testkey',
@@ -54,6 +60,9 @@ class SearchTablesTest extends StorageApiTestCase
             'metadataProvider' => self::TEST_PROVIDER,
         ]);
         $this->assertCount(1, $result);
+
+        $result = $this->_client->searchTables([]);
+        $this->assertCount(2, $result);
     }
 
     private function _initTable(string $tableName, array $metadata)
