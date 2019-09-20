@@ -3,6 +3,7 @@
 namespace Keboola\Test\Common;
 
 use Keboola\StorageApi\Metadata;
+use Keboola\StorageApi\Options\SearchTablesOptions;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 
@@ -18,9 +19,7 @@ class SearchTablesTest extends StorageApiTestCase
 
     public function testSearchTablesNoResult()
     {
-        $result = $this->_client->searchTables([
-            'metadataKey' => 'nonexisting.key',
-        ]);
+        $result = $this->_client->searchTables(SearchTablesOptions::create('nonexisting.key', null, null));
         $this->assertCount(0, $result);
     }
 
@@ -39,33 +38,32 @@ class SearchTablesTest extends StorageApiTestCase
             ],
         ]);
 
-        $result = $this->_client->searchTables([
-            'metadataKey' => 'testkey',
-        ]);
+        $result = $this->_client->searchTables(
+            SearchTablesOptions::create('testkey', null, null)
+        );
         $this->assertCount(1, $result);
 
-        $result = $this->_client->searchTables([
-            'metadataValue' => 'testValue',
-        ]);
+        $result = $this->_client->searchTables(
+            SearchTablesOptions::create(null, 'testValue', null)
+        );
         $this->assertCount(1, $result);
 
-        $result = $this->_client->searchTables([
-            'metadataProvider' => self::TEST_PROVIDER,
-        ]);
+        $result = $this->_client->searchTables(
+            SearchTablesOptions::create(null, null, self::TEST_PROVIDER)
+        );
         $this->assertCount(2, $result);
 
-        $result = $this->_client->searchTables([
-            'metadataKey' => 'testkey',
-            'metadataValue' => 'testValue',
-            'metadataProvider' => self::TEST_PROVIDER,
-        ]);
+        $result = $this->_client->searchTables(
+            SearchTablesOptions::create('testkey', 'testValue', self::TEST_PROVIDER)
+        );
         $this->assertCount(1, $result);
 
-        $result = $this->_client->searchTables([]);
-        $this->assertCount(2, $result);
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('At least one option must be set');
+        $this->_client->searchTables(new SearchTablesOptions());
     }
 
-    private function _initTable(string $tableName, array $metadata)
+    private function _initTable($tableName, array $metadata)
     {
         $metadataApi = new Metadata($this->_client);
         $tableId = $this->_client->createTable($this->getTestBucketId(), $tableName, new CsvFile(__DIR__ . '/../_data/languages.csv'));
