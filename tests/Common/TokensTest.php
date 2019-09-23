@@ -1,4 +1,5 @@
 <?php
+
 namespace Keboola\Test\Common;
 
 use Keboola\Csv\CsvFile;
@@ -148,11 +149,9 @@ class TokensTest extends StorageApiTestCase
 
     public function testKeenReadTokensRetrieve()
     {
-        $keen = $this->_client->getKeenReadCredentials();
-
-        $this->assertArrayHasKey('keenToken', $keen);
-        $this->assertNotEmpty($keen['keenToken']);
-        $this->assertNotEmpty($keen['projectId']);
+        $this->expectException(\Keboola\StorageApi\ClientException::class);
+        $this->expectExceptionMessage('Api endpoint \'storage/tokens/keen\' was removed from KBC');
+        $this->_client->getKeenReadCredentials();
     }
 
     public function testInvalidToken()
