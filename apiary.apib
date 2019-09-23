@@ -833,7 +833,7 @@ This operations is available only for organization administrators.
                 "sharing": "organization"
             }
 
-### Change Bucket Sharing To Organization [PUT /v2/storage/buckets/{bucket_id}/share-organization]
+### Change Bucket Sharing To Organization [POST /v2/storage/buckets/{bucket_id}/share-organization?update=1]
 Change [sharing type](https://help.keboola.com/storage/buckets/sharing/#sharing-type) of a bucket.
 Bucket is shared to organization. Any organization member can link bucket to project in organization.
 This operations is available only for organization administrators.
@@ -854,7 +854,7 @@ This operations is available only for organization administrators.
                 "sharing": "organization"
             }
 
-### Change Bucket Sharing To Organization Project [PUT /v2/storage/buckets/{bucket_id}/share-organization-project]
+### Change Bucket Sharing To Organization Project [POST /v2/storage/buckets/{bucket_id}/share-organization-project?update=1]
 Change [sharing type](https://help.keboola.com/storage/buckets/sharing/#sharing-type) of a bucket.
 Bucket is shared to organization. Any organization or organization's project member can link bucket to project.
 This operations is available only for organization administrators.

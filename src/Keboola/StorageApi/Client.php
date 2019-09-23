@@ -366,8 +366,9 @@ class Client
     public function changeBucketToOrganizationSharing($bucketId)
     {
         $url = "storage/buckets/" . $bucketId . "/share-organization";
+        $url .= '?' . http_build_query(['update' => true]);
 
-        $result = $this->apiPut($url);
+        $result = $this->apiPost($url, [], false);
 
         $this->log("Bucket {$bucketId} sharing changed to share-organization", array("result" => $result));
 
@@ -377,8 +378,9 @@ class Client
     public function changeBucketToOrganizationProjectSharing($bucketId)
     {
         $url = "storage/buckets/" . $bucketId . "/share-organization-project";
+        $url .= '?' . http_build_query(['update' => true]);
 
-        $result = $this->apiPut($url);
+        $result = $this->apiPost($url, [], false);
 
         $this->log("Bucket {$bucketId} sharing changed to share-organization-project", array("result" => $result));
 
