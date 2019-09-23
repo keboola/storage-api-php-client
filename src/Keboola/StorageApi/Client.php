@@ -1029,9 +1029,13 @@ class Client
         return $this->apiGet("storage/tokens/verify");
     }
 
+    /**
+     * @throws ClientException
+     * @deprecated will be removed in v11
+     */
     public function getKeenReadCredentials()
     {
-        return $this->apiGet("storage/tokens/keen");
+        throw new ClientException('Api endpoint \'storage/tokens/keen\' was removed from KBC');
     }
 
     public function createToken(TokenCreateOptions $options)
