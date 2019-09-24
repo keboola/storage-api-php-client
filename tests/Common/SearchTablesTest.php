@@ -57,10 +57,6 @@ class SearchTablesTest extends StorageApiTestCase
             SearchTablesOptions::create('testkey', 'testValue', self::TEST_PROVIDER)
         );
         $this->assertCount(1, $result);
-
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('At least one option must be set');
-        $this->_client->searchTables(new SearchTablesOptions());
     }
 
     private function _initTable($tableName, array $metadata)

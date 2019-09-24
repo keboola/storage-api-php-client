@@ -978,7 +978,6 @@ class Client
      */
     public function searchTables(SearchTablesOptions $options)
     {
-        $options->validate();
         return $this->apiGet("storage/search/tables?" . http_build_query($options->toArray()));
     }
 
