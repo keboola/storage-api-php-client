@@ -29,14 +29,6 @@ class SearchTablesOptions
     }
 
     /**
-     * @return string|null
-     */
-    public function getMetadataKey()
-    {
-        return $this->metadataKey;
-    }
-
-    /**
      * @param string|null $metadataKey
      * @return SearchTablesOptions
      */
@@ -44,14 +36,6 @@ class SearchTablesOptions
     {
         $this->metadataKey = $metadataKey;
         return $this;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getMetadataValue()
-    {
-        return $this->metadataValue;
     }
 
     /**
@@ -65,14 +49,6 @@ class SearchTablesOptions
     }
 
     /**
-     * @return string|null
-     */
-    public function getMetadataProvider()
-    {
-        return $this->metadataProvider;
-    }
-
-    /**
      * @param string|null $metadataProvider
      * @return SearchTablesOptions
      */
@@ -80,17 +56,6 @@ class SearchTablesOptions
     {
         $this->metadataProvider = $metadataProvider;
         return $this;
-    }
-
-    public function validate()
-    {
-        foreach ($this->toArray() as $option) {
-            if (!empty($option)) {
-                return;
-            }
-        }
-
-        throw new \Exception('At least one option must be set');
     }
 
     /**
