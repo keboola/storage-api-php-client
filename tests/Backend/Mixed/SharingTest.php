@@ -1185,6 +1185,149 @@ class SharingTest extends StorageApiTestCase
     }
 
     /**
+     * @dataProvider sharingBackendData
+     * @throws ClientException
+     */
+    public function testShareBucketToProject($backend)
+    {
+        $this->initTestBuckets($backend);
+        $bucketId = reset($this->_bucketIds);
+
+        $targetProjectIds = explode(',', STORAGE_API_PROJECT_IDS_IN_ORGANIZATION);
+
+        $this->_client->shareBucketToProject($bucketId, $targetProjectIds);
+
+        $sharedBucket = $this->_client->getBucket($bucketId);
+        $this->assertArrayHasKey('sharing', $sharedBucket);
+        $this->assertEquals('specific-project', $sharedBucket['sharing']);
+    }
+
+    /**
+     * @dataProvider sharingBackendData
+     * @throws ClientException
+     */
+    public function testUpdateShareBucketToProject($backend)
+    {
+        $this->initTestBuckets($backend);
+        $bucketId = reset($this->_bucketIds);
+
+        $targetProjectIds = explode(',', STORAGE_API_PROJECT_IDS_IN_ORGANIZATION);
+        $changeTargetProjectIds = explode(',', STORAGE_API_PROJECT_ID_AVAILABLE_TO_LINK);
+
+        $this->_client->shareBucketToProject($bucketId, $targetProjectIds);
+
+        $sharedBucket = $this->_client->getBucket($bucketId);
+
+        $this->assertArrayHasKey('sharing', $sharedBucket);
+        $this->assertEquals('specific-project', $sharedBucket['sharing']);
+
+        $client2SharedBuckets = $this->_client2->listSharedBuckets();
+        $this->assertCount(0, $client2SharedBuckets);
+
+        $this->_client->changeBucketSharingToProject($bucketId, $changeTargetProjectIds);
+
+        $client2SharedBuckets = $this->_client2->listSharedBuckets();
+        $this->assertCount(1, $client2SharedBuckets);
+    }
+
+    /**
+     * @dataProvider sharingBackendData
+     * @throws ClientException
+     */
+    public function testLinkBucketToSpecificProject($backend)
+    {
+        $this->initTestBuckets($backend);
+        $bucketId = reset($this->_bucketIds);
+
+        $targetProjectIds = explode(',', STORAGE_API_PROJECT_ID_AVAILABLE_TO_LINK);
+
+        $this->_client->shareBucketToProject($bucketId, $targetProjectIds);
+
+        // link
+        $response = $this->_client2->listSharedBuckets();
+        $this->assertCount(1, $response);
+
+        $sharedBucket = reset($response);
+
+        $linkedBucketId = $this->_client2->linkBucket(
+            "linked-" . time(),
+            'in',
+            $sharedBucket['project']['id'],
+            $sharedBucket['id']
+        );
+
+        // validate bucket
+        $bucket = $this->_client->getBucket($bucketId);
+        $linkedBucket = $this->_client2->getBucket($linkedBucketId);
+
+        $this->assertEquals($linkedBucketId, $linkedBucket['id']);
+        $this->assertEquals('in', $linkedBucket['stage']);
+        $this->assertEquals($bucket['backend'], $linkedBucket['backend']);
+        $this->assertEquals($bucket['description'], $linkedBucket['description']);
+    }
+
+    /**
+     * @dataProvider sharingBackendData
+     * @throws ClientException
+     */
+    public function testNotAbleToLinkBucketToSpecificProject($backend)
+    {
+        $this->initTestBuckets($backend);
+        $bucketId = reset($this->_bucketIds);
+
+        $targetProjectIds = explode(',', STORAGE_API_PROJECT_IDS_IN_ORGANIZATION);
+
+        $this->_client->shareBucketToProject($bucketId, $targetProjectIds);
+        $SharedBuckets = $this->_client->listSharedBuckets();
+        $this->assertCount(1, $SharedBuckets);
+
+        try {
+            $this->_client2->linkBucket(
+                "linked-" . time(),
+                'in',
+                STORAGE_API_PROJECT_IDS_IN_ORGANIZATION,
+                $bucketId
+            );
+            $this->fail('TargetProjectIds are not part of organization.');
+        } catch (ClientException $e) {
+            $this->assertEquals(
+                'You do not have accees to link this bucket',
+                $e->getMessage()
+            );
+
+            $this->assertEquals('accessDenied', $e->getStringCode());
+            $this->assertEquals(403, $e->getCode());
+        }
+    }
+
+    /**
+     * @dataProvider sharingBackendData
+     * @throws ClientException
+     */
+    public function testShareBucketToAnotherOrganizationProject($backend)
+    {
+        $this->initTestBuckets($backend);
+        $bucketId = reset($this->_bucketIds);
+        $invalidTargetProjectIds = explode(',', STORAGE_API_PROJECT_IDS_NOT_IN_ORGANIZATION);
+
+        try {
+            $this->_client->shareBucketToProject($bucketId, $invalidTargetProjectIds);
+            $this->fail('TargetProjectIds are not part of organization.');
+        } catch (ClientException $e) {
+            $this->assertEquals(
+                sprintf(
+                    'TargetProjectIds "[%s]" are not part of organization.',
+                    implode(', ', $invalidTargetProjectIds)
+                ),
+                $e->getMessage()
+            );
+
+            $this->assertEquals('storage.buckets.targetProjectIdsAreNotPartOfOrganization', $e->getStringCode());
+            $this->assertEquals(422, $e->getCode());
+        }
+    }
+
+    /**
      * @param $connection
      * @return Connection|\PDO
      * @throws \Exception
