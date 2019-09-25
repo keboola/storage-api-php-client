@@ -239,7 +239,7 @@ class ConfigurationRowTest extends StorageApiTestCase
      * @param $isDisabled
      * @param bool $expectedIsDisabled
      */
-    public function testCreateConfigurationRowIsDisabled($isDisabled, bool $expectedIsDisabled)
+    public function testCreateConfigurationRowIsDisabled($isDisabled, $expectedIsDisabled)
     {
         $components = new \Keboola\StorageApi\Components($this->_client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();

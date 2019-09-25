@@ -21,7 +21,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
      * @param int $aliasNestingLevel
      * @throws Exception
      */
-    public function testClone(int $aliasNestingLevel)
+    public function testClone($aliasNestingLevel)
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
         $sourceTableId = $this->createTableFromFile(
@@ -350,12 +350,16 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
     }
 
     /**
-     * @param array|string $primaryKey
+     * @param Client $client
+     * @param string $bucketId
+     * @param string $importFilePath
+     * @param string|array $primaryKey
+     * @return string
      */
     private function createTableFromFile(
         Client $client,
-        string $bucketId,
-        string $importFilePath,
+        $bucketId,
+        $importFilePath,
         $primaryKey = 'id'
     ) {
 
