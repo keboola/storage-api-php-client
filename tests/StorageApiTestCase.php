@@ -353,7 +353,7 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
 
     protected function createAndWaitForEvent(Event $event, Client $sapiClient = null)
     {
-        $client = $sapiClient ?? $this->_client;
+        $client = null !== $sapiClient ? $sapiClient : $this->_client;
 
         $id = $client->createEvent($event);
 
@@ -424,7 +424,11 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
         return $this->_client->createTable($this->getTestBucketId(), $tableName, $csvFile);
     }
 
-    private function createRandomString(int $length)
+    /**
+     * @param int $length
+     * @return string
+     */
+    private function createRandomString($length)
     {
         $alpabet = "abcdefghijklmnopqrstvuwxyz0123456789 ";
         $randStr = "";
