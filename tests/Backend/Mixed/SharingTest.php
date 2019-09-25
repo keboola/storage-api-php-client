@@ -1181,13 +1181,10 @@ class SharingTest extends StorageApiTestCase
         // sharing twice
         $this->_client->shareOrganizationBucket($bucketId);
 
-        try {
-            $this->_client->shareOrganizationBucket($bucketId);
-            $this->fail("sharing twice should fail");
-        } catch (ClientException $e) {
-            $this->assertEquals(400, $e->getCode());
-            $this->assertEquals('storage.buckets.shareTwice', $e->getStringCode());
-        }
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage(sprintf('The bucket %s is already shared to organization.', $bucketId));
+
+        $this->_client->shareOrganizationBucket($bucketId);
     }
 
     /**
@@ -1209,13 +1206,10 @@ class SharingTest extends StorageApiTestCase
         // sharing twice
         $this->_client->shareOrganizationProjectBucket($bucketId);
 
-        try {
-            $this->_client->shareOrganizationProjectBucket($bucketId);
-            $this->fail("sharing twice should fail");
-        } catch (ClientException $e) {
-            $this->assertEquals(400, $e->getCode());
-            $this->assertEquals('storage.buckets.shareTwice', $e->getStringCode());
-        }
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage(sprintf('The bucket %s is already shared to organization-project.', $bucketId));
+
+        $this->_client->shareOrganizationProjectBucket($bucketId);
     }
 
     /**
