@@ -1288,17 +1288,28 @@ class Client
         return $prepareResult['id'];
     }
 
+    /**
+     * @param array $prepareResult
+     * @param string $filePath
+     */
     private function uploadFileToAbs(
         array $prepareResult,
-        string $filePath
+        $filePath
     ) {
         $blobClient = BlobRestProxy::createBlobService($prepareResult['absUploadParams']['absCredentials']['SASConnectionString']);
         $blobClient->createBlockBlob($prepareResult['absUploadParams']['container'], $prepareResult['absUploadParams']['blobName'], fopen($filePath, 'r'));
     }
 
+    /**
+     * @param array $prepareResult
+     * @param string $filePath
+     * @param FileUploadOptions $newOptions
+     * @param FileUploadTransferOptions|null $transferOptions
+     * @throws ClientException
+     */
     private function uploadFileToS3(
         array $prepareResult,
-        string $filePath,
+        $filePath,
         FileUploadOptions $newOptions,
         FileUploadTransferOptions $transferOptions = null
     ) {

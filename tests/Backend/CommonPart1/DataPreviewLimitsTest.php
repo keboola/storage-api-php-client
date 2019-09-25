@@ -121,7 +121,11 @@ class DataPreviewLimitsTest extends StorageApiTestCase
         return $csvFile;
     }
 
-    private function createRandomString(int $length)
+    /**
+     * @param int $length
+     * @return string
+     */
+    private function createRandomString($length)
     {
         $alpabet = "abcdefghijklmnopqrstvuwxyz0123456789 ";
         $randStr = "";
