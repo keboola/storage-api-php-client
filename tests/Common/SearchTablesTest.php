@@ -37,6 +37,10 @@ class SearchTablesTest extends StorageApiTestCase
                 "value" => "differentValue",
             ],
         ]);
+        $this->_initTable('table-nometa', []);
+
+        $result = $this->_client->searchTables(SearchTablesOptions::create(null, null, null));
+        $this->assertCount(3, $result);
 
         $result = $this->_client->searchTables(
             SearchTablesOptions::create('testkey', null, null)
@@ -64,10 +68,12 @@ class SearchTablesTest extends StorageApiTestCase
         $metadataApi = new Metadata($this->_client);
         $tableId = $this->_client->createTable($this->getTestBucketId(), $tableName, new CsvFile(__DIR__ . '/../_data/languages.csv'));
 
-        $metadataApi->postTableMetadata(
-            $tableId,
-            self::TEST_PROVIDER,
-            $metadata
-        );
+        if (!empty($metadata)) {
+            $metadataApi->postTableMetadata(
+                $tableId,
+                self::TEST_PROVIDER,
+                $metadata
+            );
+        }
     }
 }
