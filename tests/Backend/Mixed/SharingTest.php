@@ -1212,7 +1212,6 @@ class SharingTest extends StorageApiTestCase
         $bucketId = reset($this->_bucketIds);
 
         $targetProjectIds = explode(',', STORAGE_API_PROJECT_IDS_IN_ORGANIZATION);
-        $changeTargetProjectIds = explode(',', STORAGE_API_PROJECT_ID_AVAILABLE_TO_LINK);
 
         $this->_client->shareBucketToProject($bucketId, $targetProjectIds);
 
@@ -1224,7 +1223,7 @@ class SharingTest extends StorageApiTestCase
         $client2SharedBuckets = $this->_client2->listSharedBuckets();
         $this->assertCount(0, $client2SharedBuckets);
 
-        $this->_client->changeBucketSharingToProject($bucketId, $changeTargetProjectIds);
+        $this->_client->changeBucketSharingToProject($bucketId, STORAGE_API_PROJECT_ID_AVAILABLE_TO_LINK);
 
         $client2SharedBuckets = $this->_client2->listSharedBuckets();
         $this->assertCount(1, $client2SharedBuckets);
@@ -1291,11 +1290,11 @@ class SharingTest extends StorageApiTestCase
             $this->fail('TargetProjectIds are not part of organization.');
         } catch (ClientException $e) {
             $this->assertEquals(
-                'You do not have accees to link this bucket',
+                'You do not have permission to link this bucket',
                 $e->getMessage()
             );
 
-            $this->assertEquals('accessDenied', $e->getStringCode());
+            $this->assertEquals('notPermissionToLink', $e->getStringCode());
             $this->assertEquals(403, $e->getCode());
         }
     }

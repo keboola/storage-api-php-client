@@ -367,12 +367,8 @@ class Client
     public function changeBucketSharingToProject($bucketId, $targetProjectIds)
     {
         $url = "storage/buckets/" . $bucketId . "/share-to-projects";
-        $url .= '?' . http_build_query([
-            'targetProjectIds' => $targetProjectIds,
-            'update' => true
-            ]);
 
-        $result = $this->apiPost($url, [], false);
+        $result = $this->apiPut($url, ['targetProjectIds' => $targetProjectIds]);
 
         $this->log("Bucket {$bucketId} shared", ["result" => $result]);
 
