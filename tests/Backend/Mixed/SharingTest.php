@@ -1287,10 +1287,10 @@ class SharingTest extends StorageApiTestCase
                 STORAGE_API_PROJECT_IDS_IN_ORGANIZATION,
                 $bucketId
             );
-            $this->fail('TargetProjectIds are not part of organization.');
+            $this->fail('You do not have permission to link this bucket.');
         } catch (ClientException $e) {
             $this->assertEquals(
-                'You do not have permission to link this bucket',
+                'You do not have permission to link this bucket.',
                 $e->getMessage()
             );
 
