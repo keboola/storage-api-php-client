@@ -766,12 +766,12 @@ This operations is available only for organization administrators.
     + Body
 
             {
-                "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-my-new-bucket",
-                "id": "in.c-my-new-bucket",
-                "name": "c-my-new-bucket",
+                "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-my-bucket",
+                "id": "in.c-my-bucket",
+                "name": "c-my-bucket",
                 "stage": "in",
                 "description": "Some Description",
-                "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-my-new-bucket/tables",
+                "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-my-bucket/tables",
                 "created": "2017-02-13T12:01:05+0100",
                 "lastChangeDate": null,
                 "isReadOnly": false,
@@ -798,12 +798,12 @@ This operations is available only for organization administrators.
     + Body
 
             {
-                "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-my-new-bucket",
-                "id": "in.c-my-new-bucket",
-                "name": "c-my-new-bucket",
+                "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-my-bucket",
+                "id": "in.c-my-bucket",
+                "name": "c-my-bucket",
                 "stage": "in",
                 "description": "Some Description",
-                "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-my-new-bucket/tables",
+                "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-my-bucket/tables",
                 "created": "2017-02-13T12:01:05+0100",
                 "lastChangeDate": null,
                 "isReadOnly": false,
@@ -830,12 +830,12 @@ This operations is available only for organization administrators.
     + Body
 
             {
-                "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-my-new-bucket",
-                "id": "in.c-my-new-bucket",
-                "name": "c-my-new-bucket",
+                "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-my-bucket",
+                "id": "in.c-my-bucket",
+                "name": "c-my-bucket",
                 "stage": "in",
                 "description": "Some Description",
-                "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-my-new-bucket/tables",
+                "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-my-bucket/tables",
                 "created": "2017-02-13T12:01:05+0100",
                 "lastChangeDate": null,
                 "isReadOnly": false,
@@ -865,16 +865,16 @@ This operations is available only for organization administrators.
 
             X-StorageApi-Token: your_token
 
-+ Response 202 (application/json)
++ Response 200 (application/json)
     + Body
 
             {
-                "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-my-new-bucket",
-                "id": "in.c-my-new-bucket",
-                "name": "c-my-new-bucket",
+                "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-my-bucket",
+                "id": "in.c-my-bucket",
+                "name": "c-my-bucket",
                 "stage": "in",
                 "description": "Some Description",
-                "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-my-new-bucket/tables",
+                "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-my-bucket/tables",
                 "created": "2017-02-13T12:01:05+0100",
                 "lastChangeDate": null,
                 "isReadOnly": false,
@@ -885,7 +885,7 @@ This operations is available only for organization administrators.
                 "sharing": "organization"
             }
 
-### Change Bucket Sharing To Organization [POST /v2/storage/buckets/{bucket_id}/share-organization?update=1]
+### Change Bucket Sharing To Organization [PUT /v2/storage/buckets/{bucket_id}/share-organization]
 Change [sharing type](https://help.keboola.com/storage/buckets/sharing/#sharing-type) of a bucket.
 Bucket is shared to organization. Any organization member can link bucket to project in organization.
 This operations is available only for organization administrators.
@@ -899,16 +899,16 @@ This operations is available only for organization administrators.
 
             X-StorageApi-Token: your_token
 
-+ Response 202 (application/json)
++ Response 200 (application/json)
     + Body
 
             {
-                "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-my-new-bucket",
-                "id": "in.c-my-new-bucket",
-                "name": "c-my-new-bucket",
+                "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-my-bucket",
+                "id": "in.c-my-bucket",
+                "name": "c-my-bucket",
                 "stage": "in",
                 "description": "Some Description",
-                "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-my-new-bucket/tables",
+                "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-my-bucket/tables",
                 "created": "2017-02-13T12:01:05+0100",
                 "lastChangeDate": null,
                 "isReadOnly": false,
@@ -919,7 +919,7 @@ This operations is available only for organization administrators.
                 "sharing": "organization"
             }
 
-### Change Bucket Sharing To Organization Project [POST /v2/storage/buckets/{bucket_id}/share-organization-project?update=1]
+### Change Bucket Sharing To Organization Project [PUT /v2/storage/buckets/{bucket_id}/share-organization-project]
 Change [sharing type](https://help.keboola.com/storage/buckets/sharing/#sharing-type) of a bucket.
 Bucket is shared to organization. Any organization or organization's project member can link bucket to project.
 This operations is available only for organization administrators.
@@ -933,16 +933,16 @@ This operations is available only for organization administrators.
 
             X-StorageApi-Token: your_token
 
-+ Response 202 (application/json)
++ Response 200 (application/json)
     + Body
 
             {
-                "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-my-new-bucket",
-                "id": "in.c-my-new-bucket",
-                "name": "c-my-new-bucket",
+                "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-my-bucket",
+                "id": "in.c-my-bucket",
+                "name": "c-my-bucket",
                 "stage": "in",
                 "description": "Some Description",
-                "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-my-new-bucket/tables",
+                "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-my-bucket/tables",
                 "created": "2017-02-13T12:01:05+0100",
                 "lastChangeDate": null,
                 "isReadOnly": false,
