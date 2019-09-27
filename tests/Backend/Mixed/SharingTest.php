@@ -1199,7 +1199,7 @@ class SharingTest extends StorageApiTestCase
 
         $sharedBucket = $this->_client->getBucket($bucketId);
         $this->assertArrayHasKey('sharing', $sharedBucket);
-        $this->assertEquals('specific-project', $sharedBucket['sharing']);
+        $this->assertEquals('specific-projects', $sharedBucket['sharing']);
     }
 
     /**
@@ -1218,7 +1218,7 @@ class SharingTest extends StorageApiTestCase
         $sharedBucket = $this->_client->getBucket($bucketId);
 
         $this->assertArrayHasKey('sharing', $sharedBucket);
-        $this->assertEquals('specific-project', $sharedBucket['sharing']);
+        $this->assertEquals('specific-projects', $sharedBucket['sharing']);
 
         $client2SharedBuckets = $this->_client2->listSharedBuckets();
         $this->assertCount(0, $client2SharedBuckets);
