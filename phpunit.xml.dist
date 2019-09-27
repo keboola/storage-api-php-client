@@ -26,6 +26,7 @@
 	</testsuite>
 
 	<testsuite name="backend-redshift-part-1">
+		<file>tests/Backend/Workspaces/MetadataFromRedshiftWorkspaceTest.php</file>
 		<directory>tests/Backend/CommonPart1</directory>
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesRedshiftTest.php</file>
@@ -44,6 +45,7 @@
 	</testsuite>
 
 	<testsuite name="backend-snowflake-part-1">
+		<file>tests/Backend/Workspaces/MetadataFromSnowflakeWorkspaceTest.php</file>
 		<directory>tests/Backend/CommonPart1</directory>
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
@@ -63,8 +65,5 @@
 
 	<testsuite name="backend-mixed">
 		<directory>tests/Backend/Mixed</directory>
-		<!-- tests for feature "storage-types-feature" -->
-		<file>tests/Backend/Workspaces/MetadataFromRedshiftWorkspaceTest.php</file>
-		<file>tests/Backend/Workspaces/MetadataFromSnowflakeWorkspaceTest.php</file>
 	</testsuite>
 </phpunit>
