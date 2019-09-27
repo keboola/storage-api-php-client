@@ -2,6 +2,7 @@
 
 namespace Keboola\Test\Common;
 
+use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\Options\SearchTablesOptions;
 use Keboola\Test\StorageApiTestCase;
@@ -19,19 +20,19 @@ class SearchTablesTest extends StorageApiTestCase
 
     public function testSearchTablesNoResult()
     {
-        $result = $this->_client->searchTables(SearchTablesOptions::create('nonexisting.key', null, null));
+        $result = $this->_client->searchTables(new SearchTablesOptions('nonexisting.key', null, null));
         $this->assertCount(0, $result);
     }
 
     public function testSearchTables()
     {
-        $this->_initTable('table1', [
+        $this->_initTable('tableX', [
             [
                 "key" => "testkey",
                 "value" => "testValue",
             ],
         ]);
-        $this->_initTable('table2', [
+        $this->_initTable('tableY', [
             [
                 "key" => "differentkey",
                 "value" => "differentValue",
@@ -39,28 +40,41 @@ class SearchTablesTest extends StorageApiTestCase
         ]);
         $this->_initTable('table-nometa', []);
 
-        $result = $this->_client->searchTables(SearchTablesOptions::create(null, null, null));
-        $this->assertCount(3, $result);
-
         $result = $this->_client->searchTables(
-            SearchTablesOptions::create('testkey', null, null)
+            new SearchTablesOptions('testkey', null, null)
         );
         $this->assertCount(1, $result);
 
         $result = $this->_client->searchTables(
-            SearchTablesOptions::create(null, 'testValue', null)
+            new SearchTablesOptions(null, 'testValue', null)
         );
         $this->assertCount(1, $result);
 
         $result = $this->_client->searchTables(
-            SearchTablesOptions::create(null, null, self::TEST_PROVIDER)
+            new SearchTablesOptions(null, null, self::TEST_PROVIDER)
         );
         $this->assertCount(2, $result);
 
         $result = $this->_client->searchTables(
-            SearchTablesOptions::create('testkey', 'testValue', self::TEST_PROVIDER)
+            new SearchTablesOptions('testkey', 'testValue', self::TEST_PROVIDER)
         );
         $this->assertCount(1, $result);
+    }
+
+    public function testSearchTablesEmptyRequest()
+    {
+        try {
+            $this->_client->searchTables(new SearchTablesOptions);
+        } catch (ClientException $clientException) {
+            $this->assertSame('Invalid request', $clientException->getMessage());
+            $this->assertSame([
+                [
+                    'key' => 'metadataKey',
+                    'message' => 'At least on of search parameters metadataKey|metadataValue|metadataProvider must be provided.',
+                ],
+            ], $clientException->getContextParams()['errors']);
+            $this->assertEquals('validationError', $clientException->getContextParams()['code']);
+        }
     }
 
     private function _initTable($tableName, array $metadata)

@@ -9,7 +9,7 @@ class SearchTablesOptionsTest extends StorageApiTestCase
 {
     public function testGetDefaults()
     {
-        $options = new SearchTablesOptions();
+        $options = new SearchTablesOptions;
         $this->assertSame([
             'metadataKey' => null,
             'metadataValue' => null,
@@ -19,7 +19,7 @@ class SearchTablesOptionsTest extends StorageApiTestCase
 
     public function testCreate()
     {
-        $options = SearchTablesOptions::create(null, null, null);
+        $options = new SearchTablesOptions;
         $this->assertInstanceOf(SearchTablesOptions::class, $options);
         $this->assertSame([
             'metadataKey' => null,
@@ -27,7 +27,7 @@ class SearchTablesOptionsTest extends StorageApiTestCase
             'metadataProvider' => null,
         ], $options->toArray());
 
-        $options = SearchTablesOptions::create('key', 'value', 'provider');
+        $options = new SearchTablesOptions('key', 'value', 'provider');
         $this->assertInstanceOf(SearchTablesOptions::class, $options);
 
         $this->assertSame([
@@ -39,7 +39,7 @@ class SearchTablesOptionsTest extends StorageApiTestCase
 
     public function testFluentInterface()
     {
-        $options = new SearchTablesOptions();
+        $options = new SearchTablesOptions;
         $this->assertInstanceOf(SearchTablesOptions::class, $options->setMetadataKey('key'));
         $this->assertInstanceOf(SearchTablesOptions::class, $options->setMetadataValue('value'));
         $this->assertInstanceOf(SearchTablesOptions::class, $options->setMetadataProvider('provider'));

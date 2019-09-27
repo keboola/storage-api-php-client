@@ -17,15 +17,12 @@ class SearchTablesOptions
      * @param string|null $metadataKey
      * @param string|null $metadataValue
      * @param string|null $metadataProvider
-     * @return SearchTablesOptions
      */
-    public static function create($metadataKey, $metadataValue, $metadataProvider)
+    public function __construct($metadataKey = null, $metadataValue = null, $metadataProvider = null)
     {
-        $self = new self();
-        $self->metadataKey = $metadataKey;
-        $self->metadataValue = $metadataValue;
-        $self->metadataProvider = $metadataProvider;
-        return $self;
+        $this->metadataKey = $metadataKey;
+        $this->metadataValue = $metadataValue;
+        $this->metadataProvider = $metadataProvider;
     }
 
     /**
