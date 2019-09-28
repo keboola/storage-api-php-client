@@ -1195,7 +1195,7 @@ class SharingTest extends StorageApiTestCase
 
         $targetProjectIds = explode(',', STORAGE_API_PROJECT_IDS_IN_ORGANIZATION);
 
-        $this->_client->shareBucketToProject($bucketId, $targetProjectIds);
+        $this->_client->shareBucketToProjects($bucketId, $targetProjectIds);
 
         $sharedBucket = $this->_client->getBucket($bucketId);
         $this->assertArrayHasKey('sharing', $sharedBucket);
@@ -1213,7 +1213,7 @@ class SharingTest extends StorageApiTestCase
 
         $targetProjectIds = explode(',', STORAGE_API_PROJECT_IDS_IN_ORGANIZATION);
 
-        $this->_client->shareBucketToProject($bucketId, $targetProjectIds);
+        $this->_client->shareBucketToProjects($bucketId, $targetProjectIds);
 
         $sharedBucket = $this->_client->getBucket($bucketId);
 
@@ -1223,7 +1223,7 @@ class SharingTest extends StorageApiTestCase
         $client2SharedBuckets = $this->_client2->listSharedBuckets();
         $this->assertCount(0, $client2SharedBuckets);
 
-        $this->_client->changeBucketSharingToProject($bucketId, STORAGE_API_PROJECT_ID_AVAILABLE_TO_LINK);
+        $this->_client->shareBucketToProjects($bucketId, STORAGE_API_PROJECT_ID_AVAILABLE_TO_LINK);
 
         $client2SharedBuckets = $this->_client2->listSharedBuckets();
         $this->assertCount(1, $client2SharedBuckets);
@@ -1240,7 +1240,7 @@ class SharingTest extends StorageApiTestCase
 
         $targetProjectIds = explode(',', STORAGE_API_PROJECT_ID_AVAILABLE_TO_LINK);
 
-        $this->_client->shareBucketToProject($bucketId, $targetProjectIds);
+        $this->_client->shareBucketToProjects($bucketId, $targetProjectIds);
 
         // link
         $response = $this->_client2->listSharedBuckets();
@@ -1276,7 +1276,7 @@ class SharingTest extends StorageApiTestCase
 
         $targetProjectIds = explode(',', STORAGE_API_PROJECT_IDS_IN_ORGANIZATION);
 
-        $this->_client->shareBucketToProject($bucketId, $targetProjectIds);
+        $this->_client->shareBucketToProjects($bucketId, $targetProjectIds);
         $SharedBuckets = $this->_client->listSharedBuckets();
         $this->assertCount(1, $SharedBuckets);
 
@@ -1310,7 +1310,7 @@ class SharingTest extends StorageApiTestCase
         $invalidTargetProjectIds = explode(',', STORAGE_API_PROJECT_IDS_NOT_IN_ORGANIZATION);
 
         try {
-            $this->_client->shareBucketToProject($bucketId, $invalidTargetProjectIds);
+            $this->_client->shareBucketToProjects($bucketId, $invalidTargetProjectIds);
             $this->fail('TargetProjectIds are not part of organization.');
         } catch (ClientException $e) {
             $this->assertEquals(
