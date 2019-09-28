@@ -363,28 +363,6 @@ class Client
         return $result;
     }
 
-    public function changeBucketToOrganizationSharing($bucketId)
-    {
-        $url = "storage/buckets/" . $bucketId . "/share-organization";
-
-        $result = $this->apiPut($url);
-
-        $this->log("Bucket {$bucketId} sharing changed to share-organization", ["result" => $result]);
-
-        return $result;
-    }
-
-    public function changeBucketToOrganizationProjectSharing($bucketId)
-    {
-        $url = "storage/buckets/" . $bucketId . "/share-organization-project";
-
-        $result = $this->apiPut($url);
-
-        $this->log("Bucket {$bucketId} sharing changed to share-organization-project", array("result" => $result));
-
-        return $result;
-    }
-
     public function unshareBucket($bucketId)
     {
         $url = "storage/buckets/" . $bucketId . "/share";

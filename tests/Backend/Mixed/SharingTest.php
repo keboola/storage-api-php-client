@@ -1166,94 +1166,22 @@ class SharingTest extends StorageApiTestCase
      * @dataProvider sharingBackendData
      * @throws ClientException
      */
-    public function testOrganizationShareBucket($backend)
-    {
-        $this->initTestBuckets($backend);
-        $bucketId = reset($this->_bucketIds);
-
-        // first share
-        $this->_client->shareOrganizationBucket($bucketId);
-        $this->assertTrue($this->_client->isSharedBucket($bucketId));
-
-        $this->_client->unshareBucket($bucketId);
-        $this->assertFalse($this->_client->isSharedBucket($bucketId));
-
-        // sharing twice
-        $this->_client->shareOrganizationBucket($bucketId);
-
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage(sprintf('The bucket %s is already shared to organization.', $bucketId));
-
-        $this->_client->shareOrganizationBucket($bucketId);
-    }
-
-    /**
-     * @dataProvider sharingBackendData
-     * @throws ClientException
-     */
-    public function testOrganizationProjectShareBucket($backend)
-    {
-        $this->initTestBuckets($backend);
-        $bucketId = reset($this->_bucketIds);
-
-        // first share
-        $this->_client->shareOrganizationProjectBucket($bucketId);
-        $this->assertTrue($this->_client->isSharedBucket($bucketId));
-
-        $this->_client->unshareBucket($bucketId);
-        $this->assertFalse($this->_client->isSharedBucket($bucketId));
-
-        // sharing twice
-        $this->_client->shareOrganizationProjectBucket($bucketId);
-
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage(sprintf('The bucket %s is already shared to organization-project.', $bucketId));
-
-        $this->_client->shareOrganizationProjectBucket($bucketId);
-    }
-
-    /**
-     * @dataProvider sharingBackendData
-     * @throws ClientException
-     */
     public function testShareOrganizationBucketChangeType($backend)
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
 
-        // first share
         $this->_client->shareOrganizationBucket($bucketId);
-        $this->assertTrue($this->_client->isSharedBucket($bucketId));
-
-        // first reshare
-        $this->_client->changeBucketToOrganizationProjectSharing($bucketId);
 
         $sharedBucket = $this->_client->getBucket($bucketId);
         $this->assertArrayHasKey('sharing', $sharedBucket);
-        $this->assertEquals('organization-project', $sharedBucket['sharing']);
-    }
+        $this->assertEquals('organization', $sharedBucket['sharing']);
 
-    /**
-     * @dataProvider sharingBackendData
-     * @throws ClientException
-     */
-    public function testShareOrganizationProjectBucketChangeType($backend)
-    {
-        $this->initTestBuckets($backend);
-        $bucketId = reset($this->_bucketIds);
-
-        // first share
         $this->_client->shareOrganizationProjectBucket($bucketId);
 
         $sharedBucket = $this->_client->getBucket($bucketId);
         $this->assertArrayHasKey('sharing', $sharedBucket);
         $this->assertEquals('organization-project', $sharedBucket['sharing']);
-
-        $this->_client->changeBucketToOrganizationSharing($bucketId);
-
-        $sharedBucket = $this->_client->getBucket($bucketId);
-        $this->assertArrayHasKey('sharing', $sharedBucket);
-        $this->assertEquals('organization', $sharedBucket['sharing']);
     }
 
     /**
@@ -1294,7 +1222,7 @@ class SharingTest extends StorageApiTestCase
     {
         return [
             [self::BACKEND_SNOWFLAKE],
-            [self::BACKEND_REDSHIFT],
+//            [self::BACKEND_REDSHIFT],
         ];
     }
 
@@ -1303,8 +1231,8 @@ class SharingTest extends StorageApiTestCase
         return [
             [self::BACKEND_SNOWFLAKE, self::BACKEND_SNOWFLAKE],
             [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT],
-            [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE],
-            [self::BACKEND_REDSHIFT, self::BACKEND_REDSHIFT],
+//            [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE],
+//            [self::BACKEND_REDSHIFT, self::BACKEND_REDSHIFT],
         ];
     }
 }
