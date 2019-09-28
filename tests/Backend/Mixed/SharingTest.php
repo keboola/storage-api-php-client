@@ -1222,7 +1222,7 @@ class SharingTest extends StorageApiTestCase
     {
         return [
             [self::BACKEND_SNOWFLAKE],
-//            [self::BACKEND_REDSHIFT],
+            [self::BACKEND_REDSHIFT],
         ];
     }
 
@@ -1231,8 +1231,8 @@ class SharingTest extends StorageApiTestCase
         return [
             [self::BACKEND_SNOWFLAKE, self::BACKEND_SNOWFLAKE],
             [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT],
-//            [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE],
-//            [self::BACKEND_REDSHIFT, self::BACKEND_REDSHIFT],
+            [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE],
+            [self::BACKEND_REDSHIFT, self::BACKEND_REDSHIFT],
         ];
     }
 }

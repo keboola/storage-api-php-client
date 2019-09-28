@@ -358,7 +358,7 @@ class Client
 
         $result = $this->apiPut($url, ['sharing' => $sharing]);
 
-        $this->log("Bucket {$bucketId} sharing changed to {$sharing}", ["result" => $result]);
+        $this->log("Bucket {$bucketId} sharing changed to {$sharing}", array("result" => $result));
 
         return $result;
     }
