@@ -753,8 +753,8 @@ This operations is available only for organization administrators.
 + Attributes
     + sharing (optional, enum[string]) - Sharing type
         + Members
-            + organization - Bucket is shared to organization. Any organization member can link bucket to project in organization.
-            + `organization-project` - Bucket is shared to organization. Any organization or organization's project member can link bucket to project.
+            + `organization` - Bucket is shared to organization. Any organization member will be able to link to this bucket from any project within the organization.
+            + `organization-project` - Bucket is shared to organization. Any member of a project within the organization will be able to link to this bucket from their project.
         + Default: organization
 
 + Request
@@ -783,8 +783,8 @@ This operations is available only for organization administrators.
             }
 
 ### Share Bucket To Organization [POST /v2/storage/buckets/{bucket_id}/share-organization]
-[Enables sharing](https://help.keboola.com/storage/buckets/sharing/) of a bucket.
-Bucket is shared to organization. Any organization member can link bucket to project in organization.
+[Enables sharing](https://help.keboola.com/storage/buckets/sharing/) or **update sharing** for this bucket within the organization.
+Any organization member will be able to link to this bucket from any project within the organization.
 This operations is available only for organization administrators.
 + Parameters
     + bucket_id (required) - Bucket Id
@@ -794,7 +794,7 @@ This operations is available only for organization administrators.
 
             X-StorageApi-Token: your_token
 
-+ Response 202 (application/json)
++ Response 201 (application/json)
     + Body
 
             {
@@ -815,8 +815,8 @@ This operations is available only for organization administrators.
             }
 
 ### Share Bucket To Organization Project [POST /v2/storage/buckets/{bucket_id}/share-organization-project]
-[Enables sharing](https://help.keboola.com/storage/buckets/sharing/) of a bucket.
-Bucket is shared to organization. Any organization or organization's project member can link bucket to project.
+[Enables sharing](https://help.keboola.com/storage/buckets/sharing/) or **update sharing** for this bucket within the organization.
+Any member of a project within the organization will be able to link to this bucket from their project.
 This operations is available only for organization administrators.
 + Parameters
     + bucket_id (required) - Bucket Id
@@ -826,7 +826,7 @@ This operations is available only for organization administrators.
 
             X-StorageApi-Token: your_token
 
-+ Response 202 (application/json)
++ Response 201 (application/json)
     + Body
 
             {
@@ -857,8 +857,8 @@ This operations is available only for organization administrators.
 + Attributes
     + sharing (required, enum[string]) - Sharing type
         + Members
-            + `organization` - Bucket is shared to organization. Any organization member can link bucket to project in organization.
-            + `organization-project` - Bucket is shared to organization. Any organization or organization's project member can link bucket to project.
+            + `organization` - Bucket is shared to organization. Any organization member will be able to link to this bucket from any project within the organization.
+            + `organization-project` - Bucket is shared to organization. Any member of a project within the organization will be able to link to this bucket from their project.
 
 + Request
     + Headers
@@ -884,76 +884,6 @@ This operations is available only for organization administrators.
                 "backend": "snowflake",
                 "sharing": "organization"
             }
-
-### Change Bucket Sharing To Organization [PUT /v2/storage/buckets/{bucket_id}/share-organization]
-Change [sharing type](https://help.keboola.com/storage/buckets/sharing/#sharing-type) of a bucket.
-Bucket is shared to organization. Any organization member can link bucket to project in organization.
-This operations is available only for organization administrators.
-
-
-+ Parameters
-    + bucket_id (required) - Bucket Id
-
-+ Request
-    + Headers
-
-            X-StorageApi-Token: your_token
-
-+ Response 200 (application/json)
-    + Body
-
-            {
-                "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-my-bucket",
-                "id": "in.c-my-bucket",
-                "name": "c-my-bucket",
-                "stage": "in",
-                "description": "Some Description",
-                "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-my-bucket/tables",
-                "created": "2017-02-13T12:01:05+0100",
-                "lastChangeDate": null,
-                "isReadOnly": false,
-                "dataSizeBytes": 0,
-                "rowsCount": 0,
-                "isMaintenance": false,
-                "backend": "snowflake",
-                "sharing": "organization"
-            }
-
-### Change Bucket Sharing To Organization Project [PUT /v2/storage/buckets/{bucket_id}/share-organization-project]
-Change [sharing type](https://help.keboola.com/storage/buckets/sharing/#sharing-type) of a bucket.
-Bucket is shared to organization. Any organization or organization's project member can link bucket to project.
-This operations is available only for organization administrators.
-
-
-+ Parameters
-    + bucket_id (required) - Bucket Id
-
-+ Request
-    + Headers
-
-            X-StorageApi-Token: your_token
-
-+ Response 200 (application/json)
-    + Body
-
-            {
-                "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-my-bucket",
-                "id": "in.c-my-bucket",
-                "name": "c-my-bucket",
-                "stage": "in",
-                "description": "Some Description",
-                "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-my-bucket/tables",
-                "created": "2017-02-13T12:01:05+0100",
-                "lastChangeDate": null,
-                "isReadOnly": false,
-                "dataSizeBytes": 0,
-                "rowsCount": 0,
-                "isMaintenance": false,
-                "backend": "snowflake",
-                "sharing": "organization-project"
-            }
-
-
 
 ### Stop Bucket Sharing [DELETE]
 Disables sharing of a bucket. A bucket must not be linked to other projects.
