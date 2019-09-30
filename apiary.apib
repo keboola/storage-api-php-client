@@ -846,11 +846,10 @@ This operations is available only for organization administrators.
                 "sharing": "organization-project"
             }
 
-### Share Bucket To Project [POST /v2/storage/buckets/{bucket_id}/share-to-project]
-[Enables sharing](https://help.keboola.com/storage/buckets/sharing/) of a bucket. The bucket will be shared
-to the specific projects.
+### Share Bucket To Project [POST /v2/storage/buckets/{bucket_id}/share-to-projects]
+[Enables sharing](https://help.keboola.com/storage/buckets/sharing/) or **update sharing** for this bucket to a specific set of projects in the organization.
+Any user who is a member of one of the targeted projects will be able to link to this bucket from that specific project.
 This operations is available only for organization administrators.
-
 
 + Parameters
     + bucket_id (required) - Bucket Id
@@ -865,7 +864,7 @@ This operations is available only for organization administrators.
     + Body
         targetProjectIds%5B0%5D=1&targetProjectIds%5B1%5D=2&targetProjectIds%5B2%5D=3
 
-+ Response 202 (application/json)
++ Response 201 (application/json)
     + Body
 
             {
