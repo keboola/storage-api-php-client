@@ -20,7 +20,6 @@ class SearchTablesOptionsTest extends StorageApiTestCase
     public function testCreate()
     {
         $options = new SearchTablesOptions;
-        $this->assertInstanceOf(SearchTablesOptions::class, $options);
         $this->assertSame([
             'metadataKey' => null,
             'metadataValue' => null,
@@ -28,7 +27,6 @@ class SearchTablesOptionsTest extends StorageApiTestCase
         ], $options->toArray());
 
         $options = new SearchTablesOptions('key', 'value', 'provider');
-        $this->assertInstanceOf(SearchTablesOptions::class, $options);
 
         $this->assertSame([
             'metadataKey' => 'key',
