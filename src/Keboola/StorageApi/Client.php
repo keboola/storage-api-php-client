@@ -330,6 +330,28 @@ class Client
         return $result;
     }
 
+    public function shareOrganizationBucket($bucketId)
+    {
+        $url = "storage/buckets/" . $bucketId . "/share-organization";
+
+        $result = $this->apiPost($url, [], false);
+
+        $this->log("Bucket {$bucketId} shared", ["result" => $result]);
+
+        return $result;
+    }
+
+    public function shareOrganizationProjectBucket($bucketId)
+    {
+        $url = "storage/buckets/" . $bucketId . "/share-organization-project";
+
+        $result = $this->apiPost($url, [], false);
+
+        $this->log("Bucket {$bucketId} shared", ["result" => $result]);
+
+        return $result;
+    }
+
     public function changeBucketSharing($bucketId, $sharing)
     {
         $url = "storage/buckets/" . $bucketId . "/share";
