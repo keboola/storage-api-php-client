@@ -32,6 +32,7 @@ class SearchTablesTest extends StorageApiTestCase
                 "value" => "testValue",
             ],
         ]);
+        $this->_initTable('tableX', [], self::STAGE_OUT); // table in different bucket
         $this->_initTable('tableY', [
             [
                 "key" => "differentkey",
@@ -77,10 +78,13 @@ class SearchTablesTest extends StorageApiTestCase
         }
     }
 
-    private function _initTable($tableName, array $metadata)
-    {
+    private function _initTable(
+        $tableName,
+        array $metadata,
+        $stage = self::STAGE_IN
+    ) {
         $metadataApi = new Metadata($this->_client);
-        $tableId = $this->_client->createTable($this->getTestBucketId(), $tableName, new CsvFile(__DIR__ . '/../_data/languages.csv'));
+        $tableId = $this->_client->createTable($this->getTestBucketId($stage), $tableName, new CsvFile(__DIR__ . '/../_data/languages.csv'));
 
         if (!empty($metadata)) {
             $metadataApi->postTableMetadata(
