@@ -9,6 +9,7 @@ use GuzzleHttp\Psr7\Response;
 use Keboola\StorageApi\Options\FileUploadTransferOptions;
 use Keboola\StorageApi\Options\GetFileOptions;
 use Keboola\StorageApi\Options\ListFilesOptions;
+use Keboola\StorageApi\Options\SearchTablesOptions;
 use Keboola\StorageApi\Options\StatsOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
@@ -968,6 +969,16 @@ class Client
             }
             throw $e;
         }
+    }
+
+    /**
+     * @param SearchTablesOptions $options
+     * @return array
+     * @throws \Exception
+     */
+    public function searchTables(SearchTablesOptions $options)
+    {
+        return $this->apiGet("storage/search/tables?" . http_build_query($options->toArray()));
     }
 
     /**
