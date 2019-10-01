@@ -1163,6 +1163,28 @@ class SharingTest extends StorageApiTestCase
     }
 
     /**
+     * @dataProvider sharingBackendData
+     * @throws ClientException
+     */
+    public function testShareOrganizationBucketChangeType($backend)
+    {
+        $this->initTestBuckets($backend);
+        $bucketId = reset($this->_bucketIds);
+
+        $this->_client->shareOrganizationBucket($bucketId);
+
+        $sharedBucket = $this->_client->getBucket($bucketId);
+        $this->assertArrayHasKey('sharing', $sharedBucket);
+        $this->assertEquals('organization', $sharedBucket['sharing']);
+
+        $this->_client->shareOrganizationProjectBucket($bucketId);
+
+        $sharedBucket = $this->_client->getBucket($bucketId);
+        $this->assertArrayHasKey('sharing', $sharedBucket);
+        $this->assertEquals('organization-project', $sharedBucket['sharing']);
+    }
+
+    /**
      * @param $connection
      * @return Connection|\PDO
      * @throws \Exception
