@@ -1223,7 +1223,7 @@ class SharingTest extends StorageApiTestCase
         $client2SharedBuckets = $this->_client2->listSharedBuckets();
         $this->assertCount(0, $client2SharedBuckets);
 
-        $this->_client->shareBucketToProjects($bucketId, STORAGE_API_PROJECT_ID_AVAILABLE_TO_LINK);
+        $this->_client->shareBucketToProjects($bucketId, [STORAGE_API_PROJECT_ID_AVAILABLE_TO_LINK]);
 
         $client2SharedBuckets = $this->_client2->listSharedBuckets();
         $this->assertCount(1, $client2SharedBuckets);
@@ -1238,9 +1238,7 @@ class SharingTest extends StorageApiTestCase
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
 
-        $targetProjectIds = explode(',', STORAGE_API_PROJECT_ID_AVAILABLE_TO_LINK);
-
-        $this->_client->shareBucketToProjects($bucketId, $targetProjectIds);
+        $this->_client->shareBucketToProjects($bucketId, [STORAGE_API_PROJECT_ID_AVAILABLE_TO_LINK]);
 
         // link
         $response = $this->_client2->listSharedBuckets();
@@ -1294,7 +1292,7 @@ class SharingTest extends StorageApiTestCase
                 $e->getMessage()
             );
 
-            $this->assertEquals('notPermissionToLink', $e->getStringCode());
+            $this->assertEquals('storage.buckets.notPermissionToLink', $e->getStringCode());
             $this->assertEquals(403, $e->getCode());
         }
     }
