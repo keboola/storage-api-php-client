@@ -14,7 +14,6 @@ use Keboola\StorageApi\Options\StatsOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
-use MicrosoftAzure\Storage\Blob\Models\CreateBlobBlockOptions;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
@@ -24,6 +23,15 @@ use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Symfony\Component\Process\Process;
 
+/**
+ * @formatter:off
+ * @method int createToken(array $permissions, string $description = null, int $expiresIn = null, bool $canReadAllFileUploads = false, $componentAccess = null)
+ * @method int createToken(TokenCreateOptions $options)
+ *
+ * @method int updateToken(string $tokenId, array $permissions, string $description = null, $canReadAllFileUploads = null, $componentAccess = null)
+ * @method int updateToken(TokenUpdateOptions $options)
+ * @formatter:on
+ */
 class Client
 {
     // Stage names
@@ -1071,7 +1079,16 @@ class Client
         throw new ClientException('Api endpoint \'storage/tokens/keen\' was removed from KBC');
     }
 
-    public function createToken(TokenCreateOptions $options)
+    /**
+     *
+     * create a new token
+     *
+     * @param TokenCreateOptions $options
+     * @return int token id
+     * @todo rename to createToken and make public in 11.0
+     *
+     */
+    private function nextCreateToken(TokenCreateOptions $options)
     {
         $result = $this->apiPost("storage/tokens", $options->toParamsArray());
 
@@ -1086,17 +1103,113 @@ class Client
      *
      * @param TokenUpdateOptions $options
      * @return int token id
+     * @todo rename to createToken and make public in 11.0
+     *
      */
-    public function updateToken(TokenUpdateOptions $options)
+    private function nextUpdateToken(TokenUpdateOptions $options)
     {
         $result = $this->apiPut("storage/tokens/" . $options->getTokenId(), $options->toParamsArray());
 
         $this->log("Token {$options->getTokenId()} updated", [
             "options" => $options->toParamsArray(),
-            "result" => $result
+            "result" => $result,
         ]);
 
         return $result['id'];
+    }
+
+    /**
+     *
+     * create a new token
+     *
+     * @param array $permissions hash bucketId => permission (read/write) or
+     *     "manage" for all buckets permissions
+     * @param string null $description
+     * @param integer $expiresIn number of seconds until token expires
+     * @param bool $canReadAllFileUploads
+     * @return integer token id
+     * @todo remove with 11.0
+     *
+     * @deprecated reprecated since 10.7 to be removed in 11.0
+     */
+    private function deprecatedCreateToken(
+        $permissions,
+        $description = null,
+        $expiresIn = null,
+        $canReadAllFileUploads = false,
+        $componentAccess = null
+    ) {
+        $options = [];
+        if ($permissions == 'manage') {
+            $options['canManageBuckets'] = 1;
+        } else {
+            foreach ((array) $permissions as $tableId => $permission) {
+                $key = "bucketPermissions[{$tableId}]";
+                $options[$key] = $permission;
+            }
+        }
+        if ($description) {
+            $options["description"] = $description;
+        }
+        if ($expiresIn) {
+            $options["expiresIn"] = (int) $expiresIn;
+        }
+        $options['canReadAllFileUploads'] = (bool) $canReadAllFileUploads;
+        if ($componentAccess) {
+            foreach ((array) $componentAccess as $index => $component) {
+                $options['componentAccess[{$index}]'] = $component;
+            }
+        }
+        $result = $this->apiPost("storage/tokens", $options);
+        $this->log("Token {$result["id"]} created", [
+            "options" => $options,
+            "result" => $result,
+        ]);
+        var_dump($result);
+        return $result["id"];
+    }
+
+    /**
+     *
+     * update token details
+     *
+     * @param string $tokenId
+     * @param array $permissions
+     * @param string null $description
+     * @return int token id
+     * @deprecated reprecated since 10.7 to be removed in 11.0
+     * @todo remove with 11.0
+     *
+     */
+    private function deprecatedUpdateToken(
+        $tokenId,
+        $permissions,
+        $description = null,
+        $canReadAllFileUploads = null,
+        $componentAccess = null
+    ) {
+        $options = [];
+        foreach ($permissions as $tableId => $permission) {
+            $key = "bucketPermissions[{$tableId}]";
+            $options[$key] = $permission;
+        }
+        if ($description) {
+            $options["description"] = $description;
+        }
+        if (!is_null($canReadAllFileUploads)) {
+            $options["canReadAllFileUploads"] = (bool) $canReadAllFileUploads;
+        }
+        if ($componentAccess) {
+            foreach ((array) $componentAccess as $index => $component) {
+                $options['componentAccess[{$index}]'] = $component;
+            }
+        }
+        $result = $this->apiPut("storage/tokens/" . $tokenId, $options);
+        $this->log("Token {$tokenId} updated", [
+            "options" => $options,
+            "result" => $result,
+        ]);
+        return $tokenId;
     }
 
     /**
@@ -1147,7 +1260,6 @@ class Client
             'message' => $message,
         ));
     }
-
 
     /**
      * Table data preview
@@ -2353,5 +2465,42 @@ class Client
     public function isAwsDebug()
     {
         return $this->awsDebug;
+    }
+
+    /**
+     * Only for deprecated methods
+     * @todo remove in 11.0
+     * @param $name
+     * @param $arguments
+     */
+    public function __call($name, $arguments)
+    {
+        if (!in_array($name, ['createToken', 'updateToken'])) {
+            throw new \BadMethodCallException(
+                sprintf('Call to undefined method %s::%s().', self::class, $name)
+            );
+        }
+
+        if (0 === count($arguments)) {
+            throw new \InvalidArgumentException(
+                sprintf('Method %s::%s() expect at least one argument.', self::class, $name)
+            );
+        }
+
+        if ($name === 'createToken') {
+            if ($arguments[0] instanceof TokenCreateOptions) {
+                return $this->nextCreateToken($arguments[0]);
+            } else {
+                return $this->deprecatedCreateToken(...$arguments);
+            }
+        }
+
+        if ($name === 'updateToken') {
+            if ($arguments[0] instanceof TokenUpdateOptions) {
+                return $this->nextUpdateToken($arguments[0]);
+            } else {
+                return $this->deprecatedUpdateToken(...$arguments);
+            }
+        }
     }
 }
