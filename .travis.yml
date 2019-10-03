@@ -12,6 +12,7 @@ install:
  - docker-compose build tests
 
 script:
+ - docker run --rm -v `pwd`:/app nyholm/roave-bc-check
  - docker-compose run --rm tests composer ci
 
 deploy:
