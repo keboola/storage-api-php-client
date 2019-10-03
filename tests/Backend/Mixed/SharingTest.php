@@ -1398,6 +1398,7 @@ class SharingTest extends StorageApiSharingTestCase
         $bucketId = reset($this->_bucketIds);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         // first share
         $targetProjectId = $this->clientInSameOrg->verifyToken()['owner']['id'];
         $this->_client->shareBucketToProjects($bucketId, [$targetProjectId]);
@@ -1449,6 +1450,9 @@ class SharingTest extends StorageApiSharingTestCase
         }
 =======
         $targetUserIds = explode(',', STORAGE_API_PROJECT_IDS_IN_ORGANIZATION);
+=======
+        $targetUserIds = explode(',', STORAGE_API_ADMIN_EMAILS_AVAILABLE_TO_LINK_BUCKET);
+>>>>>>> stash
 
         $this->_client->shareBucketToUsers($bucketId, $targetUserIds);
 
@@ -1467,19 +1471,19 @@ class SharingTest extends StorageApiSharingTestCase
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
 
-        $targetProjectIds = explode(',', STORAGE_API_PROJECT_IDS_IN_ORGANIZATION);
+        $targetUserIds = explode(',', STORAGE_API_ADMIN_EMAILS_NON_AVAILABLE_TO_LINK_BUCKET);
 
-        $this->_client->shareBucketToUsers($bucketId, $targetProjectIds);
+        $this->_client->shareBucketToUsers($bucketId, $targetUserIds);
 
         $sharedBucket = $this->_client->getBucket($bucketId);
 
         $this->assertArrayHasKey('sharing', $sharedBucket);
-        $this->assertEquals('specific-project', $sharedBucket['sharing']);
+        $this->assertEquals('specific-users', $sharedBucket['sharing']);
 
         $client2SharedBuckets = $this->_client2->listSharedBuckets();
         $this->assertCount(0, $client2SharedBuckets);
 
-        $this->_client->changeBucketSharingToProject($bucketId, STORAGE_API_PROJECT_ID_AVAILABLE_TO_LINK);
+        $this->_client->shareBucketToUsers($bucketId, STORAGE_API_ADMIN_EMAILS_AVAILABLE_TO_LINK_BUCKET);
 
         $client2SharedBuckets = $this->_client2->listSharedBuckets();
         $this->assertCount(1, $client2SharedBuckets);
@@ -1494,9 +1498,9 @@ class SharingTest extends StorageApiSharingTestCase
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
 
-        $targetProjectIds = explode(',', STORAGE_API_PROJECT_ID_AVAILABLE_TO_LINK);
+        $targetUserIds = explode(',', STORAGE_API_ADMIN_EMAILS_AVAILABLE_TO_LINK_BUCKET);
 
-        $this->_client->shareBucketToProject($bucketId, $targetProjectIds);
+        $this->_client->shareBucketToUsers($bucketId, $targetUserIds);
 
         // link
         $response = $this->_client2->listSharedBuckets();
@@ -1530,12 +1534,10 @@ class SharingTest extends StorageApiSharingTestCase
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
 
-        $targetProjectIds = explode(',', STORAGE_API_PROJECT_IDS_IN_ORGANIZATION);
+        $targetAdminIds = explode(',', STORAGE_API_ADMIN_EMAILS_NON_AVAILABLE_TO_LINK_BUCKET);
 
-        $this->_client->shareBucketToProject($bucketId, $targetProjectIds);
-        $SharedBuckets = $this->_client->listSharedBuckets();
-        $this->assertCount(1, $SharedBuckets);
-
+        //@todo tu este je problem ze nemam ako zistit idcko zdrojovoeho projektu
+        $this->_client->shareBucketToUsers($bucketId, $targetAdminIds);
         try {
             $this->_client2->linkBucket(
                 "linked-" . time(),
@@ -1550,7 +1552,7 @@ class SharingTest extends StorageApiSharingTestCase
                 $e->getMessage()
             );
 
-            $this->assertEquals('notPermissionToLink', $e->getStringCode());
+            $this->assertEquals('storage.buckets.notPermissionToLink', $e->getStringCode());
             $this->assertEquals(403, $e->getCode());
         }
     }
@@ -1563,21 +1565,21 @@ class SharingTest extends StorageApiSharingTestCase
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
-        $invalidTargetProjectIds = explode(',', STORAGE_API_PROJECT_IDS_NOT_IN_ORGANIZATION);
+        $invalidTargetAdminIds = explode(',', STORAGE_API_PROJECT_IDS_NOT_IN_ORGANIZATION);
 
         try {
-            $this->_client->shareBucketToProject($bucketId, $invalidTargetProjectIds);
+            $this->_client->shareBucketToUsers($bucketId, $invalidTargetAdminIds);
             $this->fail('TargetProjectIds are not part of organization.');
         } catch (ClientException $e) {
             $this->assertEquals(
                 sprintf(
-                    'TargetProjectIds "[%s]" are not part of organization.',
-                    implode(', ', $invalidTargetProjectIds)
+                    'Admins "[%s]" are not part of organization.',
+                    implode(',', $invalidTargetAdminIds)
                 ),
                 $e->getMessage()
             );
 
-            $this->assertEquals('storage.buckets.targetProjectIdsAreNotPartOfOrganization', $e->getStringCode());
+            $this->assertEquals('storage.buckets.targetAdminsAreNotPartOfOrganization', $e->getStringCode());
             $this->assertEquals(422, $e->getCode());
         }
     }
