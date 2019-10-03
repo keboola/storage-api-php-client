@@ -367,7 +367,7 @@ class Client
     public function shareBucketToUsers($bucketId, $targetUsers = [])
     {
         $url = "storage/buckets/" . $bucketId . "/share-to-users";
-        $url .= '?' . http_build_query(['targetUserIds' => $targetUsers]);
+        $url .= '?' . http_build_query(['targetUsers' => $targetUsers]);
 
         $result = $this->apiPost($url, [], false);
 
