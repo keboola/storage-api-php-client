@@ -900,6 +900,60 @@ This operations is available only for organization administrators.
                  }
             }
 
+### Share Bucket To Users [POST /v2/storage/buckets/{bucket_id}/share-to-users]
+[Enables sharing](https://help.keboola.com/storage/buckets/sharing/) or **update sharing** for this bucket to a specific set of users in the organization.
+Any user who is included in the targetUsers array will be able to link to this bucket.
+This operations is available only for organization administrators.
+
++ Parameters
+    + bucket_id (required) - Bucket Id
+
++ Attributes
+    + targetUsers[] (required, array) - array of users id or user emails
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+    + Body
+        targetUsers%5B0%5D=dev%40keboola.com&targetUsers%5B1%5D=dev2%40keboola.com&targetUsers%5B2%5D=dev3%40keboola.com
+
++ Response 201 (application/json)
+    + Body
+
+            {
+                "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-main",
+                "id": "in.c-main",
+                "name": "c-main",
+                "stage": "in",
+                "description": "Main user storage",
+                "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-main/tables",
+                "created": "2019-09-25T17:45:11+0200",
+                "lastChangeDate": null,
+                "isReadOnly": false,
+                "dataSizeBytes": 0,
+                "rowsCount": 0,
+                "isMaintenance": false,
+                "backend": "snowflake",
+                "sharing": "specific-users",
+                "sharingParameters": {
+                    "users": [
+                           {
+                                   "id": 1,
+                                   "email": "dev@keboola.com"
+                           },
+                           {
+                                   "id": 2,
+                                   "name": "dev2@keboola.com"
+                           },
+                           {
+                                   "id": 3,
+                                   "name": "dev3@keboola.com"
+                           }
+                    ]
+                }
+            }
+
 ### Change Bucket Sharing [PUT]
 Change [sharing type](https://help.keboola.com/storage/buckets/sharing/#sharing-type) of a bucket.
 This operations is available only for organization administrators.
