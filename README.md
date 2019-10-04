@@ -145,6 +145,10 @@ This test suite expects following environment variables set:
  - `STORAGE_API_TOKEN_IN_SAME_ORGANIZATION` - Storage API token associated to project in the same organization as `STORAGE_API_TOKEN`.
  - `STORAGE_API_TOKEN_IN_OTHER_ORGANIZATION` - Storage API token associated to project in the other organization.
 
+ - `STORAGE_API_PROJECT_TO_STORAGE_API_TOKEN` - Id of project which is associated with `STORAGE_API_TOKEN`.
+ - `STORAGE_API_USER_EMAIL_AVAILABLE_TO_LINK_BUCKET` - Email of existing user who is a member of organization.
+ - `STORAGE_API_USER_EMAILS_NON_AVAILABLE_TO_LINK_BUCKET` - Email of existing user who is a member of organization and different from `STORAGE_API_USER_EMAIL_AVAILABLE_TO_LINK_BUCKET`.
+ 
 You can export variables manually or you can create and fill file `set-env.mixed.sh` as copy of attached `set-env.mixed.template.sh`.
 
 Than  you can run tests:
