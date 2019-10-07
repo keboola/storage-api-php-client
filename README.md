@@ -142,10 +142,10 @@ This test suite expects following environment variables set:
  - `STORAGE_API_URL` - URL of Keboola Storage API (https://connection.keboola.com/)
  - `STORAGE_API_TOKEN` and `STORAGE_API_LINKING_TOKEN` - Storage API token associated to user (Admin master token) with all permissions. Project must have assigned `snowflake` and `redshift` backend. STORAGE_API_TOKEN and STORAGE_API_LINKING_TOKEN have to be tokens to different project in same organization.
  - `STORAGE_API_MAINTENANCE_URL` - URL for maintenance testing (https://maintenance-testing.keboola.com/)
- - `STORAGE_API_PROJECT_IDS_IN_ORGANIZATION` - IDs of projects in organization, where one must be ID associated with `STORAGE_API_TOKEN`
- - `STORAGE_API_PROJECT_ID_AVAILABLE_TO_LINK` - ID of project in organization, which is associated with `STORAGE_API_LINKING_TOKEN` but it must be different from the `STORAGE_API_PROJECT_IDS_IN_ORGANIZATION`
- - `STORAGE_API_PROJECT_ID_NOT_AVAILABLE_TO_LINK` - ID of project in organization, which is not associated with `STORAGE_API_LINKING_TOKEN`
- - `STORAGE_API_PROJECT_IDS_NOT_IN_ORGANIZATION` - IDs of projects in other organization
+ - `STORAGE_API_PROJECT_IDS_IN_ORGANIZATION` - IDs of projects in the organization, where one of them must be the ID associated with `STORAGE_API_TOKEN`
+ - `STORAGE_API_PROJECT_ID_AVAILABLE_TO_LINK` - ID of project in the organization, which is associated with `STORAGE_API_LINKING_TOKEN` but it must be different from the `STORAGE_API_PROJECT_IDS_IN_ORGANIZATION`
+ - `STORAGE_API_PROJECT_ID_NOT_AVAILABLE_TO_LINK` - ID of project in the organization, which is not associated with `STORAGE_API_LINKING_TOKEN`
+ - `STORAGE_API_PROJECT_IDS_NOT_IN_ORGANIZATION` - IDs of projects in the other organization
 
 You can export variables manually or you can create and fill file `set-env.mixed.sh` as copy of attached `set-env.mixed.template.sh`.
 
