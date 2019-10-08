@@ -848,7 +848,7 @@ This operations is available only for organization administrators.
 
 ### Share Bucket To Projects [POST /v2/storage/buckets/{bucket_id}/share-to-projects]
 [Enables sharing](https://help.keboola.com/storage/buckets/sharing/) or **update sharing** for this bucket to a specific set of projects in the organization.
-Any user who is a member of one of the targeted projects will be able to link to this bucket from that specific project.
+All users who are member of one of the targeted projects will be able to link to this bucket from that specific project.
 This operations is available only for organization administrators.
 
 + Parameters
@@ -881,7 +881,7 @@ This operations is available only for organization administrators.
                 "rowsCount": 0,
                 "isMaintenance": false,
                 "backend": "snowflake",
-                "sharing": "specific-project"
+                "sharing": "specific-project",
                 "sharingParameters": {
                     "projects": [
                            {

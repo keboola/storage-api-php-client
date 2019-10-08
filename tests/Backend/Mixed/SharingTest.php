@@ -1200,6 +1200,12 @@ class SharingTest extends StorageApiTestCase
         $sharedBucket = $this->_client->getBucket($bucketId);
         $this->assertArrayHasKey('sharing', $sharedBucket);
         $this->assertEquals('specific-projects', $sharedBucket['sharing']);
+        $this->assertArrayHasKey('sharingParameters', $sharedBucket);
+        $this->assertArrayHasKey('projects', $sharedBucket['sharingParameters']);
+
+        foreach ($sharedBucket['sharingParameters']['projects'] as $key => $sharingParameter) {
+            $this->assertTrue(in_array($sharingParameter['id'], $targetProjectIds));
+        }
     }
 
     /**
@@ -1223,7 +1229,8 @@ class SharingTest extends StorageApiTestCase
         $client2SharedBuckets = $this->_client2->listSharedBuckets();
         $this->assertCount(0, $client2SharedBuckets);
 
-        $this->_client->shareBucketToProjects($bucketId, [STORAGE_API_PROJECT_ID_AVAILABLE_TO_LINK]);
+        $token = $this->_client2->verifyToken();
+        $this->_client->shareBucketToProjects($bucketId, $token['owner']['id']);
 
         $client2SharedBuckets = $this->_client2->listSharedBuckets();
         $this->assertCount(1, $client2SharedBuckets);
@@ -1238,7 +1245,8 @@ class SharingTest extends StorageApiTestCase
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
 
-        $this->_client->shareBucketToProjects($bucketId, [STORAGE_API_PROJECT_ID_AVAILABLE_TO_LINK]);
+        $token = $this->_client2->verifyToken();
+        $this->_client->shareBucketToProjects($bucketId, $token['owner']['id']);
 
         // link
         $response = $this->_client2->listSharedBuckets();
