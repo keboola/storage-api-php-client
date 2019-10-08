@@ -1067,7 +1067,210 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertCount(5, $workspaceTableData);
     }
 
+<<<<<<< HEAD
     public function invalidSharingTypeData()
+=======
+    /**
+     * @dataProvider sharingBackendData
+     * @throws ClientException
+     */
+    public function testShareBucketToUser($backend)
+    {
+        $this->initTestBuckets($backend);
+        $bucketId = reset($this->_bucketIds);
+
+        $targetUsers = explode(',', STORAGE_API_USER_EMAIL_AVAILABLE_TO_LINK_BUCKET);
+
+        $this->_client->shareBucketToUsers($bucketId, $targetUsers);
+
+        $sharedBucket = $this->_client->getBucket($bucketId);
+        $this->assertArrayHasKey('sharing', $sharedBucket);
+        $this->assertEquals('specific-users', $sharedBucket['sharing']);
+        $this->assertArrayHasKey('sharingParameters', $sharedBucket);
+        $this->assertArrayHasKey('users', $sharedBucket['sharingParameters']);
+
+        foreach ($sharedBucket['sharingParameters']['users'] as $key => $sharingParameter) {
+            $this->assertTrue(in_array($sharingParameter['email'], $targetUsers));
+        }
+    }
+
+    /**
+     * @dataProvider sharingBackendData
+     * @throws ClientException
+     */
+    public function testUpdateShareBucketToUser($backend)
+    {
+        $this->initTestBuckets($backend);
+        $bucketId = reset($this->_bucketIds);
+
+        $targetUsers = explode(',', STORAGE_API_USER_EMAILS_NON_AVAILABLE_TO_LINK_BUCKET);
+
+        $this->_client->shareBucketToUsers($bucketId, $targetUsers);
+
+        $sharedBucket = $this->_client->getBucket($bucketId);
+
+        $this->assertArrayHasKey('sharing', $sharedBucket);
+        $this->assertEquals('specific-users', $sharedBucket['sharing']);
+
+        $client2SharedBuckets = $this->_client2->listSharedBuckets();
+        $this->assertCount(0, $client2SharedBuckets);
+
+        $this->_client->shareBucketToUsers($bucketId, [STORAGE_API_USER_EMAIL_AVAILABLE_TO_LINK_BUCKET]);
+
+        $client2SharedBuckets = $this->_client2->listSharedBuckets();
+        $this->assertCount(1, $client2SharedBuckets);
+    }
+
+    /**
+     * @dataProvider sharingBackendData
+     * @throws ClientException
+     */
+    public function testLinkBucketToSpecificUser($backend)
+    {
+        $this->initTestBuckets($backend);
+        $bucketId = reset($this->_bucketIds);
+
+        $this->_client->shareBucketToUsers($bucketId, [STORAGE_API_USER_EMAIL_AVAILABLE_TO_LINK_BUCKET]);
+
+        // link
+        $response = $this->_client2->listSharedBuckets();
+        $this->assertCount(1, $response);
+
+        $sharedBucket = reset($response);
+
+        $linkedBucketId = $this->_client2->linkBucket(
+            "linked-" . time(),
+            'in',
+            $sharedBucket['project']['id'],
+            $sharedBucket['id']
+        );
+
+        // validate bucket
+        $bucket = $this->_client->getBucket($bucketId);
+        $linkedBucket = $this->_client2->getBucket($linkedBucketId);
+
+        $this->assertEquals($linkedBucketId, $linkedBucket['id']);
+        $this->assertEquals('in', $linkedBucket['stage']);
+        $this->assertEquals($bucket['backend'], $linkedBucket['backend']);
+        $this->assertEquals($bucket['description'], $linkedBucket['description']);
+    }
+
+    /**
+     * @dataProvider sharingBackendData
+     * @throws ClientException
+     */
+    public function testNotAbleToLinkBucketToSpecificUser($backend)
+    {
+        $this->initTestBuckets($backend);
+        $bucketId = reset($this->_bucketIds);
+
+        $targetAdmins = explode(',', STORAGE_API_USER_EMAILS_NON_AVAILABLE_TO_LINK_BUCKET);
+
+        $this->_client->shareBucketToUsers($bucketId, $targetAdmins);
+        try {
+            $this->_client2->linkBucket(
+                "linked-" . time(),
+                'in',
+                STORAGE_API_PROJECT_TO_STORAGE_API_TOKEN,
+                $bucketId
+            );
+            $this->fail('You do not have permission to link this bucket.');
+        } catch (ClientException $e) {
+            $this->assertEquals(
+                'You do not have permission to link this bucket.',
+                $e->getMessage()
+            );
+
+            $this->assertEquals('storage.buckets.notPermissionToLink', $e->getStringCode());
+            $this->assertEquals(403, $e->getCode());
+        }
+    }
+
+    /**
+     * @dataProvider sharingBackendData
+     * @throws ClientException
+     */
+    public function testShareBucketToAnotherOrganizationUser($backend)
+    {
+        $this->initTestBuckets($backend);
+        $bucketId = reset($this->_bucketIds);
+        $invalidTargetAdmins = explode(',', STORAGE_API_PROJECT_IDS_NOT_IN_ORGANIZATION);
+
+        try {
+            $this->_client->shareBucketToUsers($bucketId, $invalidTargetAdmins);
+            $this->fail('TargetProjectIds are not part of organization.');
+        } catch (ClientException $e) {
+            $this->assertEquals(
+                sprintf(
+                    'Admins "[%s]" are not part of organization.',
+                    implode(',', $invalidTargetAdmins)
+                ),
+                $e->getMessage()
+            );
+
+            $this->assertEquals('storage.buckets.targetAdminsAreNotPartOfOrganization', $e->getStringCode());
+            $this->assertEquals(422, $e->getCode());
+        }
+    }
+
+    /**
+     * @dataProvider sharingBackendData
+     * @throws ClientException
+     */
+    public function testShareOrganizationBucketChangeType($backend)
+    {
+        $this->initTestBuckets($backend);
+        $bucketId = reset($this->_bucketIds);
+
+        $this->_client->shareOrganizationBucket($bucketId);
+
+        $sharedBucket = $this->_client->getBucket($bucketId);
+        $this->assertArrayHasKey('sharing', $sharedBucket);
+        $this->assertEquals('organization', $sharedBucket['sharing']);
+
+        $this->_client->shareOrganizationProjectBucket($bucketId);
+
+        $sharedBucket = $this->_client->getBucket($bucketId);
+        $this->assertArrayHasKey('sharing', $sharedBucket);
+        $this->assertEquals('organization-project', $sharedBucket['sharing']);
+    }
+
+    /**
+     * @param $connection
+     * @return Connection|\PDO
+     * @throws \Exception
+     */
+    protected function getDbConnection($connection)
+    {
+        if ($connection['backend'] === parent::BACKEND_SNOWFLAKE) {
+            $db = new Connection([
+                'host' => $connection['host'],
+                'database' => $connection['database'],
+                'warehouse' => $connection['warehouse'],
+                'user' => $connection['user'],
+                'password' => $connection['password'],
+            ]);
+            // set connection to use workspace schema
+            $db->query(sprintf("USE SCHEMA %s;", $db->quoteIdentifier($connection['schema'])));
+
+            return $db;
+        } else if ($connection['backend'] === parent::BACKEND_REDSHIFT) {
+            $pdo = new \PDO(
+                "pgsql:dbname={$connection['database']};port=5439;host=" . $connection['host'],
+                $connection['user'],
+                $connection['password']
+            );
+            $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+
+            return $pdo;
+        } else {
+            throw new \Exception("Unsupported Backend for workspaces");
+        }
+    }
+
+
+    public function sharingBackendData()
+>>>>>>> Upravy
     {
         return [
             'non existing type' => [
