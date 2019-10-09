@@ -1103,9 +1103,10 @@ class SharingTest extends StorageApiSharingTestCase
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
 
-        $targetUsers = explode(',', STORAGE_API_USER_EMAILS_NON_AVAILABLE_TO_LINK_BUCKET);
+        $targetUsersNonAvailableForClient2 = explode(',', STORAGE_API_USER_EMAIL_AVAILABLE_TO_LINK_BUCKET);
+        $targetUsers =explode(',', STORAGE_API_USER_EMAILS_NON_AVAILABLE_TO_LINK_BUCKET);
 
-        $this->_client->shareBucketToUsers($bucketId, $targetUsers);
+        $this->_client->shareBucketToUsers($bucketId, $targetUsersNonAvailableForClient2);
 
         $sharedBucket = $this->_client->getBucket($bucketId);
 
@@ -1115,7 +1116,7 @@ class SharingTest extends StorageApiSharingTestCase
         $client2SharedBuckets = $this->_client2->listSharedBuckets();
         $this->assertCount(0, $client2SharedBuckets);
 
-        $this->_client->shareBucketToUsers($bucketId, [STORAGE_API_USER_EMAIL_AVAILABLE_TO_LINK_BUCKET]);
+        $this->_client->shareBucketToUsers($bucketId, $targetUsers);
 
         $client2SharedBuckets = $this->_client2->listSharedBuckets();
         $this->assertCount(1, $client2SharedBuckets);
@@ -1130,7 +1131,8 @@ class SharingTest extends StorageApiSharingTestCase
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
 
-        $this->_client->shareBucketToUsers($bucketId, [STORAGE_API_USER_EMAIL_AVAILABLE_TO_LINK_BUCKET]);
+        $emailsAvailableToClient2Link = explode(',', STORAGE_API_USER_EMAILS_NON_AVAILABLE_TO_LINK_BUCKET);
+        $this->_client->shareBucketToUsers($bucketId, $emailsAvailableToClient2Link);
 
         // link
         $response = $this->_client2->listSharedBuckets();
@@ -1170,7 +1172,7 @@ class SharingTest extends StorageApiSharingTestCase
         $token = $this->_client->verifyToken();
 
         try {
-            $this->_client2->linkBucket(
+            $this->_client->linkBucket(
                 "linked-" . time(),
                 'in',
                 $token['owner']['id'],
