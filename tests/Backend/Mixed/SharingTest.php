@@ -1167,11 +1167,13 @@ class SharingTest extends StorageApiSharingTestCase
         $targetAdmins = explode(',', STORAGE_API_USER_EMAILS_NON_AVAILABLE_TO_LINK_BUCKET);
 
         $this->_client->shareBucketToUsers($bucketId, $targetAdmins);
+        $token = $this->_client->verifyToken();
+
         try {
             $this->_client2->linkBucket(
                 "linked-" . time(),
                 'in',
-                STORAGE_API_PROJECT_TO_STORAGE_API_TOKEN,
+                $token['owner']['id'],
                 $bucketId
             );
             $this->fail('You do not have permission to link this bucket.');
