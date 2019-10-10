@@ -1300,7 +1300,7 @@ class SharingTest extends StorageApiTestCase
                 $e->getMessage()
             );
 
-            $this->assertEquals('storage.buckets.notPermissionToLink', $e->getStringCode());
+            $this->assertEquals('accessDenied', $e->getStringCode());
             $this->assertEquals(403, $e->getCode());
         }
     }
@@ -1370,7 +1370,7 @@ class SharingTest extends StorageApiTestCase
     {
         return [
             [self::BACKEND_SNOWFLAKE],
-            [self::BACKEND_REDSHIFT],
+//            [self::BACKEND_REDSHIFT],
         ];
     }
 
@@ -1378,9 +1378,9 @@ class SharingTest extends StorageApiTestCase
     {
         return [
             [self::BACKEND_SNOWFLAKE, self::BACKEND_SNOWFLAKE],
-            [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT],
-            [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE],
-            [self::BACKEND_REDSHIFT, self::BACKEND_REDSHIFT],
+//            [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT],
+//            [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE],
+//            [self::BACKEND_REDSHIFT, self::BACKEND_REDSHIFT],
         ];
     }
 }
