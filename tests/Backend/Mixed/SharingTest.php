@@ -1067,9 +1067,6 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertCount(5, $workspaceTableData);
     }
 
-<<<<<<< HEAD
-    public function invalidSharingTypeData()
-=======
     /**
      * @dataProvider sharingBackendData
      * @throws ClientException
@@ -1185,7 +1182,7 @@ class SharingTest extends StorageApiSharingTestCase
                 $e->getMessage()
             );
 
-            $this->assertEquals('storage.buckets.notPermissionToLink', $e->getStringCode());
+            $this->assertEquals('accessDenied', $e->getStringCode());
             $this->assertEquals(403, $e->getCode());
         }
     }
@@ -1271,10 +1268,8 @@ class SharingTest extends StorageApiSharingTestCase
             throw new \Exception("Unsupported Backend for workspaces");
         }
     }
-
-
-    public function sharingBackendData()
->>>>>>> Upravy
+    
+    public function invalidSharingTypeData()
     {
         return [
             'non existing type' => [
