@@ -3,121 +3,22 @@
 namespace Keboola\Test\Backend\Mixed;
 
 use Keboola\Csv\CsvFile;
-use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
-use Keboola\Test\StorageApiTestCase;
 
-class SharingTest extends StorageApiTestCase
+class SharingTest extends StorageApiSharingTestCase
 {
-    const TEST_METADATA_PROVIDER = 'test-metadata-provider';
-
-    /**
-     * @var Client
-     */
-    private $_client2;
-
-    public function setUp()
+    public function testClientTokens()
     {
-        parent::setUp();
+        $clientOrgId = $this->_client->verifyToken()['organization']['id'];
+        $this->assertSame($clientOrgId, $this->_client2->verifyToken()['organization']['id']);
+        $this->assertSame($clientOrgId, $this->clientInSameOrg->verifyToken()['organization']['id']);
 
-        $this->_client2 = new Client(array(
-            'token' => STORAGE_API_LINKING_TOKEN,
-            'url' => STORAGE_API_URL,
-            'backoffMaxTries' => 1,
-        ));
-    }
-
-    /**
-     * Remove all workspaces in both projects
-     */
-    private function deleteAllWorkspaces()
-    {
-        /**
-         * @var Client[] $clients
-         */
-        $clients = [
-            $this->_client,
-            $this->_client2,
-        ];
-
-        // unlink buckets
-        foreach ($clients as $client) {
-            $workspaces = new Workspaces($client);
-            foreach ($workspaces->listWorkspaces() as $workspace) {
-                $workspaces->deleteWorkspace($workspace['id']);
-            }
-        }
-    }
-
-    /**
-     * Init empty bucket test helper
-     *
-     * @param $name
-     * @param $stage
-     * @return bool|string
-     */
-    private function initEmptyBucket($name, $stage, $backend)
-    {
-        if ($this->_client->bucketExists("$stage.c-$name")) {
-            $this->_client->dropBucket(
-                "$stage.c-$name",
-                [
-                    'force' => true,
-                ]
-            );
-        }
-
-        return $this->_client->createBucket($name, $stage, 'Api tests', $backend);
-    }
-
-    /**
-     * Unlinks and unshare all buckets from both projects
-     * Then recreates test buckets in given backend
-     *
-     * @param $backend
-     * @return array created bucket ids
-     * @throws ClientException
-     */
-    private function initTestBuckets($backend)
-    {
-        /**
-         * @var Client[] $clients
-         */
-        $clients = [
-            $this->_client,
-            $this->_client2,
-        ];
-
-        // unlink buckets
-        foreach ($clients as $client) {
-            foreach ($client->listBuckets() as $bucket) {
-                if (!empty($bucket['sourceBucket'])) {
-                    $client->dropBucket($bucket['id']);
-                }
-            }
-        }
-
-        // unshare buckets
-        foreach ($clients as $client) {
-            foreach ($client->listBuckets() as $bucket) {
-                if ($client->isSharedBucket($bucket['id'])) {
-                    $client->unshareBucket($bucket['id']);
-                }
-            }
-        }
-
-        // recreate buckets in firs project
-        $this->_bucketIds = [];
-        foreach (array(self::STAGE_OUT, self::STAGE_IN) as $stage) {
-            $this->_bucketIds[$stage] = $this->initEmptyBucket('API-sharing', $stage, $backend);
-        }
-
-        return $this->_bucketIds;
+        $this->assertNotSame($clientOrgId, $this->clientInOtherOrg->verifyToken()['owner']['id']);
     }
 
     public function testOrganizationAdminInTokenVerify()
@@ -134,6 +35,22 @@ class SharingTest extends StorageApiTestCase
         try {
             $this->_client->shareBucket($bucketId, [
                 'sharing' => 'global',
+            ]);
+            $this->fail('Bucket should not be shared');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.buckets.invalidSharingType', $e->getStringCode());
+            $this->assertEquals(400, $e->getCode());
+        }
+    }
+
+    public function testInvalidSharingToProjectType()
+    {
+        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
+        $bucketId = reset($this->_bucketIds);
+
+        try {
+            $this->_client->shareBucket($bucketId, [
+                'sharing' => 'share-to-projects',
             ]);
             $this->fail('Bucket should not be shared');
         } catch (ClientException $e) {
@@ -353,11 +270,13 @@ class SharingTest extends StorageApiTestCase
         $bucketId = reset($this->_bucketIds);
 
         // first share
-        $this->_client->shareBucket($bucketId);
+        $targetProjectId = $this->clientInSameOrg->verifyToken()['owner']['id'];
+        $this->_client->shareBucketToProjects($bucketId, [$targetProjectId]);
 
         $sharedBucket = $this->_client->getBucket($bucketId);
         $this->assertArrayHasKey('sharing', $sharedBucket);
-        $this->assertEquals('organization', $sharedBucket['sharing']);
+        $this->assertEquals('specific-projects', $sharedBucket['sharing']);
+        $this->assertArrayHasKey('sharingParameters', $sharedBucket);
 
         // first reshare
         $this->_client->changeBucketSharing($bucketId, 'organization-project');
@@ -365,6 +284,7 @@ class SharingTest extends StorageApiTestCase
         $sharedBucket = $this->_client->getBucket($bucketId);
         $this->assertArrayHasKey('sharing', $sharedBucket);
         $this->assertEquals('organization-project', $sharedBucket['sharing']);
+        $this->assertArrayNotHasKey('sharingParameters', $sharedBucket);
 
         // second reshare
         $this->_client->changeBucketSharing($bucketId, 'organization');
@@ -372,6 +292,7 @@ class SharingTest extends StorageApiTestCase
         $sharedBucket = $this->_client->getBucket($bucketId);
         $this->assertArrayHasKey('sharing', $sharedBucket);
         $this->assertEquals('organization', $sharedBucket['sharing']);
+        $this->assertArrayNotHasKey('sharingParameters', $sharedBucket);
     }
 
     /**
@@ -1160,227 +1081,5 @@ class SharingTest extends StorageApiTestCase
 
         $workspaceTableData = $backend->fetchAll('languagesAlias');
         $this->assertCount(5, $workspaceTableData);
-    }
-
-    /**
-     * @dataProvider sharingBackendData
-     * @throws ClientException
-     */
-    public function testShareOrganizationBucketChangeType($backend)
-    {
-        $this->initTestBuckets($backend);
-        $bucketId = reset($this->_bucketIds);
-
-        $this->_client->shareOrganizationBucket($bucketId);
-
-        $sharedBucket = $this->_client->getBucket($bucketId);
-        $this->assertArrayHasKey('sharing', $sharedBucket);
-        $this->assertEquals('organization', $sharedBucket['sharing']);
-
-        $this->_client->shareOrganizationProjectBucket($bucketId);
-
-        $sharedBucket = $this->_client->getBucket($bucketId);
-        $this->assertArrayHasKey('sharing', $sharedBucket);
-        $this->assertEquals('organization-project', $sharedBucket['sharing']);
-    }
-
-    /**
-     * @dataProvider sharingBackendData
-     * @throws ClientException
-     */
-    public function testShareBucketToProject($backend)
-    {
-        $this->initTestBuckets($backend);
-        $bucketId = reset($this->_bucketIds);
-
-        $targetProjectIds = explode(',', STORAGE_API_PROJECT_IDS_IN_ORGANIZATION);
-
-        $this->_client->shareBucketToProjects($bucketId, $targetProjectIds);
-
-        $sharedBucket = $this->_client->getBucket($bucketId);
-        $this->assertArrayHasKey('sharing', $sharedBucket);
-        $this->assertEquals('specific-projects', $sharedBucket['sharing']);
-        $this->assertArrayHasKey('sharingParameters', $sharedBucket);
-        $this->assertArrayHasKey('projects', $sharedBucket['sharingParameters']);
-
-        foreach ($sharedBucket['sharingParameters']['projects'] as $key => $sharingParameter) {
-            $this->assertTrue(in_array($sharingParameter['id'], $targetProjectIds));
-        }
-    }
-
-    /**
-     * @dataProvider sharingBackendData
-     * @throws ClientException
-     */
-    public function testUpdateShareBucketToProject($backend)
-    {
-        $this->initTestBuckets($backend);
-        $bucketId = reset($this->_bucketIds);
-
-        $targetProjectIds = explode(',', STORAGE_API_PROJECT_IDS_IN_ORGANIZATION);
-
-        $this->_client->shareBucketToProjects($bucketId, $targetProjectIds);
-
-        $sharedBucket = $this->_client->getBucket($bucketId);
-
-        $this->assertArrayHasKey('sharing', $sharedBucket);
-        $this->assertEquals('specific-projects', $sharedBucket['sharing']);
-
-        $client2SharedBuckets = $this->_client2->listSharedBuckets();
-        $this->assertCount(0, $client2SharedBuckets);
-
-        $token = $this->_client2->verifyToken();
-        $this->_client->shareBucketToProjects($bucketId, $token['owner']['id']);
-
-        $client2SharedBuckets = $this->_client2->listSharedBuckets();
-        $this->assertCount(1, $client2SharedBuckets);
-    }
-
-    /**
-     * @dataProvider sharingBackendData
-     * @throws ClientException
-     */
-    public function testLinkBucketToSpecificProject($backend)
-    {
-        $this->initTestBuckets($backend);
-        $bucketId = reset($this->_bucketIds);
-
-        $token = $this->_client2->verifyToken();
-        $this->_client->shareBucketToProjects($bucketId, $token['owner']['id']);
-
-        // link
-        $response = $this->_client2->listSharedBuckets();
-        $this->assertCount(1, $response);
-
-        $sharedBucket = reset($response);
-
-        $linkedBucketId = $this->_client2->linkBucket(
-            "linked-" . time(),
-            'in',
-            $sharedBucket['project']['id'],
-            $sharedBucket['id']
-        );
-
-        // validate bucket
-        $bucket = $this->_client->getBucket($bucketId);
-        $linkedBucket = $this->_client2->getBucket($linkedBucketId);
-
-        $this->assertEquals($linkedBucketId, $linkedBucket['id']);
-        $this->assertEquals('in', $linkedBucket['stage']);
-        $this->assertEquals($bucket['backend'], $linkedBucket['backend']);
-        $this->assertEquals($bucket['description'], $linkedBucket['description']);
-    }
-
-    /**
-     * @dataProvider sharingBackendData
-     * @throws ClientException
-     */
-    public function testNotAbleToLinkBucketToSpecificProject($backend)
-    {
-        $this->initTestBuckets($backend);
-        $bucketId = reset($this->_bucketIds);
-
-        $targetProjectIds = explode(',', STORAGE_API_PROJECT_IDS_IN_ORGANIZATION);
-
-        $this->_client->shareBucketToProjects($bucketId, $targetProjectIds);
-        $SharedBuckets = $this->_client->listSharedBuckets();
-        $this->assertCount(1, $SharedBuckets);
-
-        try {
-            $this->_client2->linkBucket(
-                "linked-" . time(),
-                'in',
-                STORAGE_API_PROJECT_IDS_IN_ORGANIZATION,
-                $bucketId
-            );
-            $this->fail('You do not have permission to link this bucket.');
-        } catch (ClientException $e) {
-            $this->assertEquals(
-                'You do not have permission to link this bucket.',
-                $e->getMessage()
-            );
-
-            $this->assertEquals('accessDenied', $e->getStringCode());
-            $this->assertEquals(403, $e->getCode());
-        }
-    }
-
-    /**
-     * @dataProvider sharingBackendData
-     * @throws ClientException
-     */
-    public function testShareBucketToAnotherOrganizationProject($backend)
-    {
-        $this->initTestBuckets($backend);
-        $bucketId = reset($this->_bucketIds);
-        $invalidTargetProjectIds = explode(',', STORAGE_API_PROJECT_IDS_NOT_IN_ORGANIZATION);
-
-        try {
-            $this->_client->shareBucketToProjects($bucketId, $invalidTargetProjectIds);
-            $this->fail('TargetProjectIds are not part of organization.');
-        } catch (ClientException $e) {
-            $this->assertEquals(
-                sprintf(
-                    'TargetProjectIds "[%s]" are not part of organization.',
-                    implode(', ', $invalidTargetProjectIds)
-                ),
-                $e->getMessage()
-            );
-
-            $this->assertEquals('storage.buckets.targetProjectIdsAreNotPartOfOrganization', $e->getStringCode());
-            $this->assertEquals(422, $e->getCode());
-        }
-    }
-
-    /**
-     * @param $connection
-     * @return Connection|\PDO
-     * @throws \Exception
-     */
-    protected function getDbConnection($connection)
-    {
-        if ($connection['backend'] === parent::BACKEND_SNOWFLAKE) {
-            $db = new Connection([
-                'host' => $connection['host'],
-                'database' => $connection['database'],
-                'warehouse' => $connection['warehouse'],
-                'user' => $connection['user'],
-                'password' => $connection['password'],
-            ]);
-            // set connection to use workspace schema
-            $db->query(sprintf("USE SCHEMA %s;", $db->quoteIdentifier($connection['schema'])));
-
-            return $db;
-        } else if ($connection['backend'] === parent::BACKEND_REDSHIFT) {
-            $pdo = new \PDO(
-                "pgsql:dbname={$connection['database']};port=5439;host=" . $connection['host'],
-                $connection['user'],
-                $connection['password']
-            );
-            $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-
-            return $pdo;
-        } else {
-            throw new \Exception("Unsupported Backend for workspaces");
-        }
-    }
-
-
-    public function sharingBackendData()
-    {
-        return [
-            [self::BACKEND_SNOWFLAKE],
-//            [self::BACKEND_REDSHIFT],
-        ];
-    }
-
-    public function workspaceMixedBackendData()
-    {
-        return [
-            [self::BACKEND_SNOWFLAKE, self::BACKEND_SNOWFLAKE],
-//            [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT],
-//            [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE],
-//            [self::BACKEND_REDSHIFT, self::BACKEND_REDSHIFT],
-        ];
     }
 }
