@@ -268,6 +268,8 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertArrayHasKey('sharing', $sharedBucket);
         $this->assertEquals('specific-projects', $sharedBucket['sharing']);
         $this->assertArrayHasKey('sharingParameters', $sharedBucket);
+        $this->assertNotEmpty($sharedBucket['sharingParameters']);
+        $this->assertInternalType('array', $sharedBucket['sharingParameters']);
 
         // first reshare
         $this->_client->changeBucketSharing($bucketId, 'organization-project');
@@ -275,7 +277,9 @@ class SharingTest extends StorageApiSharingTestCase
         $sharedBucket = $this->_client->getBucket($bucketId);
         $this->assertArrayHasKey('sharing', $sharedBucket);
         $this->assertEquals('organization-project', $sharedBucket['sharing']);
-        $this->assertArrayNotHasKey('sharingParameters', $sharedBucket);
+        $this->assertArrayHasKey('sharingParameters', $sharedBucket);
+        $this->assertEmpty($sharedBucket['sharingParameters']);
+        $this->assertInternalType('array', $sharedBucket['sharingParameters']);
 
         // second reshare
         $this->_client->changeBucketSharing($bucketId, 'organization');
@@ -283,7 +287,9 @@ class SharingTest extends StorageApiSharingTestCase
         $sharedBucket = $this->_client->getBucket($bucketId);
         $this->assertArrayHasKey('sharing', $sharedBucket);
         $this->assertEquals('organization', $sharedBucket['sharing']);
-        $this->assertArrayNotHasKey('sharingParameters', $sharedBucket);
+        $this->assertArrayHasKey('sharingParameters', $sharedBucket);
+        $this->assertEmpty($sharedBucket['sharingParameters']);
+        $this->assertInternalType('array', $sharedBucket['sharingParameters']);
     }
 
     /**
