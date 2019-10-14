@@ -8,7 +8,7 @@ use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\StorageApiTestCase;
 
-class StorageApiSharingTestCase extends StorageApiTestCase
+abstract class StorageApiSharingTestCase extends StorageApiTestCase
 {
     const TEST_METADATA_PROVIDER = 'test-metadata-provider';
 
@@ -183,7 +183,7 @@ class StorageApiSharingTestCase extends StorageApiTestCase
     {
         return [
             [self::BACKEND_SNOWFLAKE],
-//            [self::BACKEND_REDSHIFT],
+            [self::BACKEND_REDSHIFT],
         ];
     }
 
@@ -191,9 +191,9 @@ class StorageApiSharingTestCase extends StorageApiTestCase
     {
         return [
             [self::BACKEND_SNOWFLAKE, self::BACKEND_SNOWFLAKE],
-//            [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT],
-//            [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE],
-//            [self::BACKEND_REDSHIFT, self::BACKEND_REDSHIFT],
+            [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT],
+            [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE],
+            [self::BACKEND_REDSHIFT, self::BACKEND_REDSHIFT],
         ];
     }
 }
