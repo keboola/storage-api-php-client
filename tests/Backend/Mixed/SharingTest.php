@@ -12,15 +12,6 @@ use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class SharingTest extends StorageApiSharingTestCase
 {
-    public function testClientTokens()
-    {
-        $clientOrgId = $this->_client->verifyToken()['organization']['id'];
-        $this->assertSame($clientOrgId, $this->_client2->verifyToken()['organization']['id']);
-        $this->assertSame($clientOrgId, $this->clientInSameOrg->verifyToken()['organization']['id']);
-
-        $this->assertNotSame($clientOrgId, $this->clientInOtherOrg->verifyToken()['owner']['id']);
-    }
-
     public function testOrganizationAdminInTokenVerify()
     {
         $token = $this->_client->verifyToken();
