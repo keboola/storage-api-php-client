@@ -15,6 +15,15 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
 
+        // first share
+        $targetProjectId = $this->clientInSameOrg->verifyToken()['owner']['id'];
+        $this->_client->shareBucketToProjects($bucketId, [$targetProjectId]);
+
+        $sharedBucket = $this->_client->getBucket($bucketId);
+        $this->assertArrayHasKey('sharing', $sharedBucket);
+        $this->assertEquals('specific-projects', $sharedBucket['sharing']);
+        $this->assertArrayHasKey('sharingParameters', $sharedBucket);
+
         $this->_client->shareOrganizationBucket($bucketId);
 
         $sharedBucket = $this->_client->getBucket($bucketId);
