@@ -18,30 +18,17 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertTrue($token['admin']['isOrganizationMember']);
     }
 
-    public function testInvalidSharingType()
+    /**
+     * @dataProvider invalidSharingTypeData
+     */
+    public function testInvalidSharingType($sharingType)
     {
         $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
         $bucketId = reset($this->_bucketIds);
 
         try {
             $this->_client->shareBucket($bucketId, [
-                'sharing' => 'global',
-            ]);
-            $this->fail('Bucket should not be shared');
-        } catch (ClientException $e) {
-            $this->assertEquals('storage.buckets.invalidSharingType', $e->getStringCode());
-            $this->assertEquals(400, $e->getCode());
-        }
-    }
-
-    public function testInvalidSharingToProjectType()
-    {
-        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
-        $bucketId = reset($this->_bucketIds);
-
-        try {
-            $this->_client->shareBucket($bucketId, [
-                'sharing' => 'share-to-projects',
+                'sharing' => $sharingType,
             ]);
             $this->fail('Bucket should not be shared');
         } catch (ClientException $e) {
@@ -1078,5 +1065,17 @@ class SharingTest extends StorageApiSharingTestCase
 
         $workspaceTableData = $backend->fetchAll('languagesAlias');
         $this->assertCount(5, $workspaceTableData);
+    }
+
+    public function invalidSharingTypeData()
+    {
+        return [
+            'non existing type' => [
+                'global',
+            ],
+            'sharing to specifix projects' => [
+                'specific-projects',
+            ],
+        ];
     }
 }
