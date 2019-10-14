@@ -24,6 +24,7 @@ class StorageApiSharingTestCase extends StorageApiTestCase
     {
         parent::setUp();
 
+
         $this->_client2 = new Client(array(
             'token' => STORAGE_API_LINKING_TOKEN,
             'url' => STORAGE_API_URL,
@@ -41,6 +42,20 @@ class StorageApiSharingTestCase extends StorageApiTestCase
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
         ));
+
+        $clientOrgId = $this->_client->verifyToken()['organization']['id'];
+
+        if ($clientOrgId !== $this->_client2->verifyToken()['organization']['id']) {
+            throw new \Exception("STORAGE_API_LINKING_TOKEN is not in the same organization as STORAGE_API_TOKEN");
+        } elseif ($clientOrgId !== $this->clientInSameOrg->verifyToken()['organization']['id']) {
+            throw new \Exception(
+                "STORAGE_API_TOKEN_IN_SAME_ORGANIZATION is not in the same organization as STORAGE_API_TOKEN"
+            );
+        } elseif ($clientOrgId === $this->clientInOtherOrg->verifyToken()['owner']['id']) {
+            throw new \Exception(
+                "STORAGE_API_TOKEN_IN_OTHER_ORGANIZATION is in the same organization as STORAGE_API_TOKEN"
+            );
+        }
     }
 
     /**
@@ -168,7 +183,7 @@ class StorageApiSharingTestCase extends StorageApiTestCase
     {
         return [
             [self::BACKEND_SNOWFLAKE],
-            [self::BACKEND_REDSHIFT],
+//            [self::BACKEND_REDSHIFT],
         ];
     }
 
@@ -176,9 +191,9 @@ class StorageApiSharingTestCase extends StorageApiTestCase
     {
         return [
             [self::BACKEND_SNOWFLAKE, self::BACKEND_SNOWFLAKE],
-            [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT],
-            [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE],
-            [self::BACKEND_REDSHIFT, self::BACKEND_REDSHIFT],
+//            [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT],
+//            [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE],
+//            [self::BACKEND_REDSHIFT, self::BACKEND_REDSHIFT],
         ];
     }
 }
