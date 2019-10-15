@@ -352,6 +352,18 @@ class Client
         return $result;
     }
 
+    public function shareBucketToProjects($bucketId, $targetProjectIds)
+    {
+        $url = "storage/buckets/" . $bucketId . "/share-to-projects";
+        $url .= '?' . http_build_query(['targetProjectIds' => $targetProjectIds]);
+
+        $result = $this->apiPost($url, [], false);
+
+        $this->log("Bucket {$bucketId} shared", ["result" => $result]);
+
+        return $result;
+    }
+
     public function changeBucketSharing($bucketId, $sharing)
     {
         $url = "storage/buckets/" . $bucketId . "/share";
