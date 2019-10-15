@@ -846,6 +846,60 @@ This operations is available only for organization administrators.
                 "sharing": "organization-project"
             }
 
+### Share Bucket To Projects [POST /v2/storage/buckets/{bucket_id}/share-to-projects]
+[Enables sharing](https://help.keboola.com/storage/buckets/sharing/) or **update sharing** for this bucket to a specific set of projects in the organization.
+All users who are member of one of the targeted projects will be able to link to this bucket from that specific project.
+This operations is available only for organization administrators.
+
++ Parameters
+    + bucket_id (required) - Bucket Id
+
++ Attributes
+    + targetProjectIds[] (required, array) - array of projects id
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+    + Body
+        targetProjectIds%5B0%5D=1&targetProjectIds%5B1%5D=2&targetProjectIds%5B2%5D=3
+
++ Response 201 (application/json)
+    + Body
+
+            {
+                "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-main",
+                "id": "in.c-main",
+                "name": "c-main",
+                "stage": "in",
+                "description": "Main user storage",
+                "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-main/tables",
+                "created": "2019-09-25T17:45:11+0200",
+                "lastChangeDate": null,
+                "isReadOnly": false,
+                "dataSizeBytes": 0,
+                "rowsCount": 0,
+                "isMaintenance": false,
+                "backend": "snowflake",
+                "sharing": "specific-project",
+                "sharingParameters": {
+                    "projects": [
+                           {
+                                   "id": 1,
+                                   "name": "Project 1"
+                           },
+                           {
+                                   "id": 2,
+                                   "name": "Project 2"
+                           },
+                           {
+                                   "id": 3,
+                                   "name": "Project 3"
+                           }
+                    ]
+                 }
+            }
+
 ### Change Bucket Sharing [PUT]
 Change [sharing type](https://help.keboola.com/storage/buckets/sharing/#sharing-type) of a bucket.
 This operations is available only for organization administrators.
