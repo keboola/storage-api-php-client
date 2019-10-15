@@ -19,6 +19,8 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
 
     protected $clientInSameOrg;
     protected $clientInOtherOrg;
+    protected $clientWithOtherEmail;
+    protected $clientWithOtherEmailAndOtherOrg;
 
     public function setUp()
     {
@@ -39,6 +41,18 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
 
         $this->clientInOtherOrg = new Client(array(
             'token' => STORAGE_API_TOKEN_IN_OTHER_ORGANIZATION,
+            'url' => STORAGE_API_URL,
+            'backoffMaxTries' => 1,
+        ));
+
+        $this->clientWithOtherEmail = new Client(array(
+            'token' => STORAGE_API_TOKEN_USER_WITH_OTHER_EMAIL,
+            'url' => STORAGE_API_URL,
+            'backoffMaxTries' => 1,
+        ));
+
+        $this->clientWithOtherEmailAndOtherOrg = new Client(array(
+            'token' => STORAGE_API_TOKEN_USER_EMAIL_IN_OTHER_ORG,
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
         ));

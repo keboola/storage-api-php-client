@@ -1076,6 +1076,9 @@ class SharingTest extends StorageApiSharingTestCase
             'sharing to specifix projects' => [
                 'specific-projects',
             ],
+            'sharing to specifix users' => [
+                'specific-users',
+            ],
         ];
     }
 }

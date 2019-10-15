@@ -144,9 +144,8 @@ This test suite expects following environment variables set:
  - `STORAGE_API_MAINTENANCE_URL` - URL for maintenance testing (https://maintenance-testing.keboola.com/)
  - `STORAGE_API_TOKEN_IN_SAME_ORGANIZATION` - Storage API token associated to project in the same organization as `STORAGE_API_TOKEN`.
  - `STORAGE_API_TOKEN_IN_OTHER_ORGANIZATION` - Storage API token associated to project in the other organization.
- - `STORAGE_API_USER_EMAIL_AVAILABLE_TO_LINK_BUCKET` - Email of existing user who is a member of organization.
- - `STORAGE_API_USER_EMAILS_NON_AVAILABLE_TO_LINK_BUCKET` - Email of existing user who is a member of organization but different from `STORAGE_API_USER_EMAIL_AVAILABLE_TO_LINK_BUCKET`.
- 
+ - `STORAGE_API_TOKEN_USER_WITH_OTHER_EMAIL` - Storage API token associated to user with other email and in the same organization as `STORAGE_API_TOKEN`.
+ - `STORAGE_API_TOKEN_USER_EMAIL_IN_OTHER_ORG` - Storage API token associated to user in the other organization.
 You can export variables manually or you can create and fill file `set-env.mixed.sh` as copy of attached `set-env.mixed.template.sh`.
 
 Than  you can run tests:
