@@ -19,8 +19,6 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
 
     protected $clientInSameOrg;
     protected $clientInOtherOrg;
-    protected $clientWithOtherEmail;
-    protected $clientWithOtherEmailAndOtherOrg;
 
     public function setUp()
     {
@@ -34,7 +32,7 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
         ));
 
         $this->clientInSameOrg = new Client(array(
-            'token' => STORAGE_API_TOKEN_IN_SAME_ORGANIZATION,
+            'token' => STORAGE_API_TOKEN_WITH_OTHER_EMAIL_IN_SAME_ORGANIZATION,
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
         ));
@@ -45,25 +43,19 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
             'backoffMaxTries' => 1,
         ));
 
-        $this->clientWithOtherEmail = new Client(array(
-            'token' => STORAGE_API_TOKEN_USER_WITH_OTHER_EMAIL,
-            'url' => STORAGE_API_URL,
-            'backoffMaxTries' => 1,
-        ));
-
-        $this->clientWithOtherEmailAndOtherOrg = new Client(array(
-            'token' => STORAGE_API_TOKEN_USER_EMAIL_IN_OTHER_ORG,
-            'url' => STORAGE_API_URL,
-            'backoffMaxTries' => 1,
-        ));
-
         $clientOrgId = $this->_client->verifyToken()['organization']['id'];
+
+        if ($this->_client->verifyToken()['description'] === $this->clientInSameOrg->verifyToken()['description']) {
+            throw new \Exception(
+                "STORAGE_API_TOKEN_WITH_OTHER_EMAIL_IN_SAME_ORGANIZATION has the same email as STORAGE_API_TOKEN"
+            );
+        }
 
         if ($clientOrgId !== $this->_client2->verifyToken()['organization']['id']) {
             throw new \Exception("STORAGE_API_LINKING_TOKEN is not in the same organization as STORAGE_API_TOKEN");
         } elseif ($clientOrgId !== $this->clientInSameOrg->verifyToken()['organization']['id']) {
             throw new \Exception(
-                "STORAGE_API_TOKEN_IN_SAME_ORGANIZATION is not in the same organization as STORAGE_API_TOKEN"
+                "STORAGE_API_TOKEN_WITH_OTHER_EMAIL_IN_SAME_ORGANIZATION is not in the same organization as STORAGE_API_TOKEN"
             );
         } elseif ($clientOrgId === $this->clientInOtherOrg->verifyToken()['owner']['id']) {
             throw new \Exception(
@@ -197,7 +189,7 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
     {
         return [
             [self::BACKEND_SNOWFLAKE],
-            [self::BACKEND_REDSHIFT],
+//            [self::BACKEND_REDSHIFT],
         ];
     }
 
@@ -205,9 +197,9 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
     {
         return [
             [self::BACKEND_SNOWFLAKE, self::BACKEND_SNOWFLAKE],
-            [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT],
-            [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE],
-            [self::BACKEND_REDSHIFT, self::BACKEND_REDSHIFT],
+//            [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT],
+//            [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE],
+//            [self::BACKEND_REDSHIFT, self::BACKEND_REDSHIFT],
         ];
     }
 }
