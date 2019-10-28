@@ -25,23 +25,23 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
         parent::setUp();
 
 
-        $this->_client2 = new Client(array(
+        $this->_client2 = new Client([
             'token' => STORAGE_API_LINKING_TOKEN,
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
-        ));
+        ]);
 
-        $this->clientWithOtherAdminInSameOrg = new Client(array(
+        $this->clientWithOtherAdminInSameOrg = new Client([
             'token' => STORAGE_API_TOKEN_WITH_OTHER_ADMIN_IN_SAME_ORGANIZATION,
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
-        ));
+        ]);
 
-        $this->clientWithOtherAdminInOtherOrg = new Client(array(
+        $this->clientWithOtherAdminInOtherOrg = new Client([
             'token' => STORAGE_API_TOKEN_WITH_OTHER_ADMIN_IN_OTHER_ORGANIZATION,
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
-        ));
+        ]);
 
         $tokenData = $this->_client->verifyToken();
         $tokenWithOtherAdminInSameOrgData = $this->clientWithOtherAdminInSameOrg->verifyToken();
@@ -158,7 +158,7 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
 
         // recreate buckets in firs project
         $this->_bucketIds = [];
-        foreach (array(self::STAGE_OUT, self::STAGE_IN) as $stage) {
+        foreach ([self::STAGE_OUT, self::STAGE_IN] as $stage) {
             $this->_bucketIds[$stage] = $this->initEmptyBucket('API-sharing', $stage, $backend);
         }
 
