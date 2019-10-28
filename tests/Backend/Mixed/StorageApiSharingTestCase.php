@@ -56,7 +56,11 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
 
         if (count(array_unique($adminIds)) !== count($adminIds)) {
             throw new \Exception(sprintf(
-                'Tokens %s cannot belong to the same admin', implode(', ', array_keys($adminIds))
+                'Tokens %s cannot belong to the same admin',
+                implode(
+                    ', ',
+                    array_keys($adminIds)
+                )
             ));
         }
 
