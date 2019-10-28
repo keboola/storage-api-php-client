@@ -43,22 +43,30 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
             'backoffMaxTries' => 1,
         ));
 
-        $clientData = $this->_client->verifyToken();
-        $clientWithOtherAdminInSameOrgData = $this->clientWithOtherAdminInSameOrg->verifyToken();
+        $tokenData = $this->_client->verifyToken();
+        $tokenWithOtherAdminInSameOrgData = $this->clientWithOtherAdminInSameOrg->verifyToken();
+        $tokenWithOtherAdminInOtherOrg = $this->clientWithOtherAdminInOtherOrg->verifyToken();
 
-        if ($clientData['admin']['id'] === $clientWithOtherAdminInSameOrgData['admin']['id']) {
-            throw new \Exception(
-                "Admin of STORAGE_API_TOKEN_WITH_OTHER_ADMIN_IN_SAME_ORGANIZATION is the same as STORAGE_API_TOKEN"
+        // not same admins validation
+        $adminIds = [
+            'STORAGE_API_TOKEN' => $tokenData['admin']['id'],
+            'STORAGE_API_TOKEN_WITH_OTHER_ADMIN_IN_SAME_ORGANIZATION' => $tokenWithOtherAdminInSameOrgData['admin']['id'],
+            'STORAGE_API_TOKEN_WITH_OTHER_ADMIN_IN_OTHER_ORGANIZATION' => $tokenWithOtherAdminInOtherOrg['admin']['id'],
+        ];
+
+        if (count(array_unique($adminIds)) !== count($adminIds)) {
+            throw new \Exception(sprintf(
+                'Tokens %s cannot belong to the same admin', implode(', ', array_keys($adminIds)))
             );
         }
 
-        if ($clientData['organization']['id'] !== $this->_client2->verifyToken()['organization']['id']) {
+        if ($tokenData['organization']['id'] !== $this->_client2->verifyToken()['organization']['id']) {
             throw new \Exception("STORAGE_API_LINKING_TOKEN is not in the same organization as STORAGE_API_TOKEN");
-        } elseif ($clientData['organization']['id'] !== $clientWithOtherAdminInSameOrgData['organization']['id']) {
+        } elseif ($tokenData['organization']['id'] !== $tokenWithOtherAdminInSameOrgData['organization']['id']) {
             throw new \Exception(
                 "STORAGE_API_TOKEN_WITH_OTHER_ADMIN_IN_SAME_ORGANIZATION is not in the same organization as STORAGE_API_TOKEN"
             );
-        } elseif ($clientData['organization']['id'] === $this->clientWithOtherAdminInOtherOrg->verifyToken()['organization']['id']) {
+        } elseif ($tokenData['organization']['id'] === $tokenWithOtherAdminInOtherOrg['organization']['id']) {
             throw new \Exception(
                 "STORAGE_API_TOKEN_WITH_OTHER_ADMIN_IN_OTHER_ORGANIZATION is in the same organization as STORAGE_API_TOKEN"
             );
