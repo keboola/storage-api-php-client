@@ -167,7 +167,7 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
                 $this->_client->verifyToken()['owner']['id'],
                 $bucketId
             );
-            $this->fail('You do not have permission to link this bucket.');
+            $this->fail('Linking bucket to unauthorized project should fail.');
         } catch (ClientException $e) {
             $this->assertEquals(
                 'You do not have permission to link this bucket.',
@@ -192,7 +192,7 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
 
         try {
             $this->_client->shareBucketToProjects($bucketId, [$targetProjectIdInOtherOrg]);
-            $this->fail('TargetProjectIds are not part of organization.');
+            $this->fail('Sharing bucket to project in other organization should fail.');
         } catch (ClientException $e) {
             $this->assertEquals(
                 sprintf(

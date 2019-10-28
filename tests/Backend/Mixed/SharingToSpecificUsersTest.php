@@ -211,7 +211,7 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
                 $this->_client->verifyToken()['owner']['id'],
                 $bucketId
             );
-            $this->fail('You do not have permission to link this bucket.');
+            $this->fail('Linking bucket by unauthorized user should fail.');
         } catch (ClientException $e) {
             $this->assertEquals(
                 'You do not have permission to link this bucket.',
@@ -236,7 +236,7 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
 
         try {
             $this->_client->shareBucketToUsers($bucketId, [$targetUser['id']]);
-            $this->fail('TargetProjectIds are not part of organization.');
+            $this->fail('Sharing bucket to non organization member should fail.');
         } catch (ClientException $e) {
             $this->assertEquals(
                 sprintf(
