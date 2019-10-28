@@ -17,8 +17,8 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
      */
     protected $_client2;
 
-    protected $clientInSameOrg;
-    protected $clientInOtherOrg;
+    protected $clientWithOtherAdminInSameOrg;
+    protected $clientWithOtherAdminInOtherOrg;
 
     public function setUp()
     {
@@ -31,35 +31,36 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
             'backoffMaxTries' => 1,
         ));
 
-        $this->clientInSameOrg = new Client(array(
-            'token' => STORAGE_API_TOKEN_WITH_OTHER_EMAIL_IN_SAME_ORGANIZATION,
+        $this->clientWithOtherAdminInSameOrg = new Client(array(
+            'token' => STORAGE_API_TOKEN_WITH_OTHER_ADMIN_IN_SAME_ORGANIZATION,
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
         ));
 
-        $this->clientInOtherOrg = new Client(array(
-            'token' => STORAGE_API_TOKEN_IN_OTHER_ORGANIZATION,
+        $this->clientWithOtherAdminInOtherOrg = new Client(array(
+            'token' => STORAGE_API_TOKEN_WITH_OTHER_ADMIN_IN_OTHER_ORGANIZATION,
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
         ));
 
-        $clientOrgId = $this->_client->verifyToken()['organization']['id'];
+        $clientData = $this->_client->verifyToken();
+        $clientWithOtherAdminInSameOrgData = $this->clientWithOtherAdminInSameOrg->verifyToken();
 
-        if ($this->_client->verifyToken()['description'] === $this->clientInSameOrg->verifyToken()['description']) {
+        if ($clientData['admin']['id'] === $clientWithOtherAdminInSameOrgData['admin']['id']) {
             throw new \Exception(
-                "STORAGE_API_TOKEN_WITH_OTHER_EMAIL_IN_SAME_ORGANIZATION has the same email as STORAGE_API_TOKEN"
+                "Admin of STORAGE_API_TOKEN_WITH_OTHER_ADMIN_IN_SAME_ORGANIZATION is the same as STORAGE_API_TOKEN"
             );
         }
 
-        if ($clientOrgId !== $this->_client2->verifyToken()['organization']['id']) {
+        if ($clientData['organization']['id'] !== $this->_client2->verifyToken()['organization']['id']) {
             throw new \Exception("STORAGE_API_LINKING_TOKEN is not in the same organization as STORAGE_API_TOKEN");
-        } elseif ($clientOrgId !== $this->clientInSameOrg->verifyToken()['organization']['id']) {
+        } elseif ($clientData['organization']['id'] !== $clientWithOtherAdminInSameOrgData['organization']['id']) {
             throw new \Exception(
-                "STORAGE_API_TOKEN_WITH_OTHER_EMAIL_IN_SAME_ORGANIZATION is not in the same organization as STORAGE_API_TOKEN"
+                "STORAGE_API_TOKEN_WITH_OTHER_ADMIN_IN_SAME_ORGANIZATION is not in the same organization as STORAGE_API_TOKEN"
             );
-        } elseif ($clientOrgId === $this->clientInOtherOrg->verifyToken()['owner']['id']) {
+        } elseif ($clientData['organization']['id'] === $this->clientWithOtherAdminInOtherOrg->verifyToken()['organization']['id']) {
             throw new \Exception(
-                "STORAGE_API_TOKEN_IN_OTHER_ORGANIZATION is in the same organization as STORAGE_API_TOKEN"
+                "STORAGE_API_TOKEN_WITH_OTHER_ADMIN_IN_OTHER_ORGANIZATION is in the same organization as STORAGE_API_TOKEN"
             );
         }
     }
@@ -189,7 +190,7 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
     {
         return [
             [self::BACKEND_SNOWFLAKE],
-//            [self::BACKEND_REDSHIFT],
+            [self::BACKEND_REDSHIFT],
         ];
     }
 
@@ -197,9 +198,9 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
     {
         return [
             [self::BACKEND_SNOWFLAKE, self::BACKEND_SNOWFLAKE],
-//            [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT],
-//            [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE],
-//            [self::BACKEND_REDSHIFT, self::BACKEND_REDSHIFT],
+            [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT],
+            [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE],
+            [self::BACKEND_REDSHIFT, self::BACKEND_REDSHIFT],
         ];
     }
 }
