@@ -60,13 +60,17 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
             );
         }
 
+        // same organizations validation
         if ($tokenData['organization']['id'] !== $this->_client2->verifyToken()['organization']['id']) {
             throw new \Exception("STORAGE_API_LINKING_TOKEN is not in the same organization as STORAGE_API_TOKEN");
         } elseif ($tokenData['organization']['id'] !== $tokenWithOtherAdminInSameOrgData['organization']['id']) {
             throw new \Exception(
                 "STORAGE_API_TOKEN_WITH_OTHER_ADMIN_IN_SAME_ORGANIZATION is not in the same organization as STORAGE_API_TOKEN"
             );
-        } elseif ($tokenData['organization']['id'] === $tokenWithOtherAdminInOtherOrg['organization']['id']) {
+        }
+
+        // not same organization
+        if ($tokenData['organization']['id'] === $tokenWithOtherAdminInOtherOrg['organization']['id']) {
             throw new \Exception(
                 "STORAGE_API_TOKEN_WITH_OTHER_ADMIN_IN_OTHER_ORGANIZATION is in the same organization as STORAGE_API_TOKEN"
             );
