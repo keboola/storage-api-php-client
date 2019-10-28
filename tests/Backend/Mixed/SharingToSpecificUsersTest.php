@@ -135,7 +135,7 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
 
-        $targetUser = $this->clientWithOtherAdminInSameOrg->verifyToken()['admin'];
+        $targetUser = $this->clientAdmin2InSameOrg->verifyToken()['admin'];
 
         $this->_client->shareBucketToUsers($bucketId, $targetUser['id']);
 
@@ -198,10 +198,10 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
 
-        $targetUser = $this->clientWithOtherAdminInSameOrg->verifyToken()['admin'];
+        $targetUser = $this->clientAdmin2InSameOrg->verifyToken()['admin'];
         $this->_client->shareBucketToUsers($bucketId, $targetUser['id']);
 
-        $SharedBuckets = $this->clientWithOtherAdminInSameOrg->listSharedBuckets();
+        $SharedBuckets = $this->clientAdmin2InSameOrg->listSharedBuckets();
         $this->assertCount(1, $SharedBuckets);
 
         try {
@@ -232,7 +232,7 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
 
-        $targetUser = $this->clientWithOtherAdminInOtherOrg->verifyToken()['admin'];
+        $targetUser = $this->clientAdmin3InOtherOrg->verifyToken()['admin'];
 
         try {
             $this->_client->shareBucketToUsers($bucketId, [$targetUser['id']]);
