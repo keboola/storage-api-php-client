@@ -248,7 +248,7 @@ class SharingTest extends StorageApiSharingTestCase
         $bucketId = reset($this->_bucketIds);
 
         // first share
-        $targetProjectId = $this->clientInSameOrg->verifyToken()['owner']['id'];
+        $targetProjectId = $this->clientAdmin2InSameOrg->verifyToken()['owner']['id'];
         $this->_client->shareBucketToProjects($bucketId, [$targetProjectId]);
 
         $sharedBucket = $this->_client->getBucket($bucketId);
@@ -1075,6 +1075,9 @@ class SharingTest extends StorageApiSharingTestCase
             ],
             'sharing to specifix projects' => [
                 'specific-projects',
+            ],
+            'sharing to specifix users' => [
+                'specific-users',
             ],
         ];
     }
