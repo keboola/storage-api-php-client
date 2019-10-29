@@ -16,7 +16,7 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
         $bucketId = reset($this->_bucketIds);
 
         // first share
-        $targetProjectId = $this->clientAdmin2InSameOrg->verifyToken()['owner']['id'];
+        $targetProjectId = $this->clientInSameOrg->verifyToken()['owner']['id'];
         $this->_client->shareBucketToProjects($bucketId, [$targetProjectId]);
 
         $sharedBucket = $this->_client->getBucket($bucketId);
@@ -54,7 +54,7 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
 
-        $targetProject = $this->clientAdmin2InSameOrg->verifyToken()['owner'];
+        $targetProject = $this->clientInSameOrg->verifyToken()['owner'];
         $result = $this->_client->shareBucketToProjects(
             $bucketId,
             [$targetProject['id']]
@@ -92,7 +92,7 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
 
-        $targetProjectId = $this->clientAdmin2InSameOrg->verifyToken()['owner']['id'];
+        $targetProjectId = $this->clientInSameOrg->verifyToken()['owner']['id'];
 
         $this->_client->shareBucketToProjects($bucketId, [$targetProjectId]);
 
@@ -155,9 +155,9 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
 
-        $targetProjectId = $this->clientAdmin2InSameOrg->verifyToken()['owner']['id'];
+        $targetProjectId = $this->clientInSameOrg->verifyToken()['owner']['id'];
         $this->_client->shareBucketToProjects($bucketId, [$targetProjectId]);
-        $SharedBuckets = $this->clientAdmin2InSameOrg->listSharedBuckets();
+        $SharedBuckets = $this->clientInSameOrg->listSharedBuckets();
         $this->assertCount(1, $SharedBuckets);
 
         try {
@@ -167,7 +167,7 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
                 $this->_client->verifyToken()['owner']['id'],
                 $bucketId
             );
-            $this->fail('Linking bucket to unauthorized project should fail.');
+            $this->fail('You do not have permission to link this bucket.');
         } catch (ClientException $e) {
             $this->assertEquals(
                 'You do not have permission to link this bucket.',
@@ -188,11 +188,11 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
 
-        $targetProjectIdInOtherOrg = $this->clientAdmin3InOtherOrg->verifyToken()['owner']['id'];
+        $targetProjectIdInOtherOrg = $this->clientInOtherOrg->verifyToken()['owner']['id'];
 
         try {
             $this->_client->shareBucketToProjects($bucketId, [$targetProjectIdInOtherOrg]);
-            $this->fail('Sharing bucket to project in other organization should fail.');
+            $this->fail('TargetProjectIds are not part of organization.');
         } catch (ClientException $e) {
             $this->assertEquals(
                 sprintf(
