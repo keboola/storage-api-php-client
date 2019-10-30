@@ -307,6 +307,13 @@ class SharingTest extends StorageApiSharingTestCase
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
 
+        $tableName = 'numbers';
+        $tableId = $this->_client->createTable(
+            $bucketId,
+            $tableName,
+            new CsvFile(__DIR__ . '/../../_data/numbers.csv')
+        );
+
         $this->_client->shareBucket($bucketId);
         $this->assertTrue($this->_client->isSharedBucket($bucketId));
 
@@ -325,12 +332,23 @@ class SharingTest extends StorageApiSharingTestCase
             $this->assertArrayHasKey('id', $sharedBucket);
             $this->assertArrayHasKey('description', $sharedBucket);
             $this->assertArrayHasKey('project', $sharedBucket);
+            $this->assertArrayHasKey('tables', $sharedBucket);
 
             $this->assertArrayHasKey('id', $sharedBucket['project']);
             $this->assertArrayHasKey('name', $sharedBucket['project']);
 
             $this->assertEquals($sharedBucket['project']['id'], $project['id']);
             $this->assertEquals($sharedBucket['project']['name'], $project['name']);
+
+            $this->assertCount(1, $sharedBucket['tables']);
+
+            $sharedBucketTable = reset($sharedBucket['tables']);
+
+            $this->assertArrayHasKey('id', $sharedBucketTable);
+            $this->assertArrayHasKey('name', $sharedBucketTable);
+
+            $this->assertEquals($tableId, $sharedBucketTable['id']);
+            $this->assertEquals($tableName, $sharedBucketTable['name']);
         }
     }
 
