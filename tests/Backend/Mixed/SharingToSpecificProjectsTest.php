@@ -52,35 +52,43 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
     public function testShareBucketToProject($backend)
     {
         $this->initTestBuckets($backend);
-        $bucketId = reset($this->_bucketIds);
+        $bucketIds = $this->_bucketIds;
 
         $targetProject = $this->clientInSameOrg->verifyToken()['owner'];
-        $result = $this->_client->shareBucketToProjects(
-            $bucketId,
-            [$targetProject['id']]
-        );
+        $this->assertCount(0, $this->clientInSameOrg->listSharedBuckets());
 
-        $this->assertArrayHasKey('sharingParameters', $result);
-        $this->assertArrayHasKey('projects', $result['sharingParameters']);
+        foreach ($bucketIds as $bucketId) {
+            $result = $this->_client->shareBucketToProjects(
+                $bucketId,
+                [$targetProject['id']]
+            );
 
-        $this->assertCount(1, $result['sharingParameters']['projects']);
+            $this->assertArrayHasKey('sharingParameters', $result);
+            $this->assertArrayHasKey('projects', $result['sharingParameters']);
 
-        $project = reset($result['sharingParameters']['projects']);
-        $this->assertEquals($targetProject['id'], $project['id']);
-        $this->assertEquals($targetProject['name'], $project['name']);
+            $this->assertCount(1, $result['sharingParameters']['projects']);
 
-        $sharedBucket = $this->_client->getBucket($bucketId);
-        $this->assertArrayHasKey('sharing', $sharedBucket);
-        $this->assertEquals('specific-projects', $sharedBucket['sharing']);
+            $project = reset($result['sharingParameters']['projects']);
+            $this->assertEquals($targetProject['id'], $project['id']);
+            $this->assertEquals($targetProject['name'], $project['name']);
+        }
 
-        $this->assertArrayHasKey('sharingParameters', $sharedBucket);
-        $this->assertArrayHasKey('projects', $sharedBucket['sharingParameters']);
+        foreach ($bucketIds as $bucketId) {
+            $sharedBucket = $this->_client->getBucket($bucketId);
+            $this->assertArrayHasKey('sharing', $sharedBucket);
+            $this->assertEquals('specific-projects', $sharedBucket['sharing']);
 
-        $this->assertCount(1, $sharedBucket['sharingParameters']['projects']);
+            $this->assertArrayHasKey('sharingParameters', $sharedBucket);
+            $this->assertArrayHasKey('projects', $sharedBucket['sharingParameters']);
 
-        $project = reset($sharedBucket['sharingParameters']['projects']);
-        $this->assertEquals($targetProject['id'], $project['id']);
-        $this->assertEquals($targetProject['name'], $project['name']);
+            $this->assertCount(1, $sharedBucket['sharingParameters']['projects']);
+
+            $project = reset($sharedBucket['sharingParameters']['projects']);
+            $this->assertEquals($targetProject['id'], $project['id']);
+            $this->assertEquals($targetProject['name'], $project['name']);
+        }
+
+        $this->assertCount(2, $this->clientInSameOrg->listSharedBuckets());
     }
 
     /**
