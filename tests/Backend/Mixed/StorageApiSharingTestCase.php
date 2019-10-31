@@ -17,43 +17,66 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
      */
     protected $_client2;
 
-    protected $clientInSameOrg;
-    protected $clientInOtherOrg;
+    protected $clientAdmin2InSameOrg;
+    protected $clientAdmin3InOtherOrg;
 
     public function setUp()
     {
         parent::setUp();
 
 
-        $this->_client2 = new Client(array(
+        $this->_client2 = new Client([
             'token' => STORAGE_API_LINKING_TOKEN,
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
-        ));
+        ]);
 
-        $this->clientInSameOrg = new Client(array(
-            'token' => STORAGE_API_TOKEN_IN_SAME_ORGANIZATION,
+        $this->clientAdmin2InSameOrg = new Client([
+            'token' => STORAGE_API_TOKEN_ADMIN_2_IN_SAME_ORGANIZATION,
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
-        ));
+        ]);
 
-        $this->clientInOtherOrg = new Client(array(
-            'token' => STORAGE_API_TOKEN_IN_OTHER_ORGANIZATION,
+        $this->clientAdmin3InOtherOrg = new Client([
+            'token' => STORAGE_API_TOKEN_ADMIN_3_IN_OTHER_ORGANIZATION,
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
-        ));
+        ]);
 
-        $clientOrgId = $this->_client->verifyToken()['organization']['id'];
+        $tokenData = $this->_client->verifyToken();
+        $tokenAdmin2InSameOrgData = $this->clientAdmin2InSameOrg->verifyToken();
+        $tokenAdmin3InOtherOrg = $this->clientAdmin3InOtherOrg->verifyToken();
 
-        if ($clientOrgId !== $this->_client2->verifyToken()['organization']['id']) {
+        // not same admins validation
+        $adminIds = [
+            'STORAGE_API_TOKEN' => $tokenData['admin']['id'],
+            'STORAGE_API_TOKEN_ADMIN_2_IN_SAME_ORGANIZATION' => $tokenAdmin2InSameOrgData['admin']['id'],
+            'STORAGE_API_TOKEN_ADMIN_3_IN_OTHER_ORGANIZATION' => $tokenAdmin3InOtherOrg['admin']['id'],
+        ];
+
+        if (count(array_unique($adminIds)) !== count($adminIds)) {
+            throw new \Exception(sprintf(
+                'Tokens %s cannot belong to the same admin',
+                implode(
+                    ', ',
+                    array_keys($adminIds)
+                )
+            ));
+        }
+
+        // same organizations validation
+        if ($tokenData['organization']['id'] !== $this->_client2->verifyToken()['organization']['id']) {
             throw new \Exception("STORAGE_API_LINKING_TOKEN is not in the same organization as STORAGE_API_TOKEN");
-        } elseif ($clientOrgId !== $this->clientInSameOrg->verifyToken()['organization']['id']) {
+        } elseif ($tokenData['organization']['id'] !== $tokenAdmin2InSameOrgData['organization']['id']) {
             throw new \Exception(
-                "STORAGE_API_TOKEN_IN_SAME_ORGANIZATION is not in the same organization as STORAGE_API_TOKEN"
+                "STORAGE_API_TOKEN_ADMIN_2_IN_SAME_ORGANIZATION is not in the same organization as STORAGE_API_TOKEN"
             );
-        } elseif ($clientOrgId === $this->clientInOtherOrg->verifyToken()['owner']['id']) {
+        }
+
+        // not same organization
+        if ($tokenData['organization']['id'] === $tokenAdmin3InOtherOrg['organization']['id']) {
             throw new \Exception(
-                "STORAGE_API_TOKEN_IN_OTHER_ORGANIZATION is in the same organization as STORAGE_API_TOKEN"
+                "STORAGE_API_TOKEN_ADMIN_3_IN_OTHER_ORGANIZATION is in the same organization as STORAGE_API_TOKEN"
             );
         }
     }
@@ -139,7 +162,7 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
 
         // recreate buckets in firs project
         $this->_bucketIds = [];
-        foreach (array(self::STAGE_OUT, self::STAGE_IN) as $stage) {
+        foreach ([self::STAGE_OUT, self::STAGE_IN] as $stage) {
             $this->_bucketIds[$stage] = $this->initEmptyBucket('API-sharing', $stage, $backend);
         }
 
