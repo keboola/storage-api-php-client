@@ -902,14 +902,14 @@ This operations is available only for organization administrators.
 
 ### Share Bucket To Users [POST /v2/storage/buckets/{bucket_id}/share-to-users]
 [Enables sharing](https://help.keboola.com/storage/buckets/sharing/) or **update sharing** for this bucket to a specific set of users in the organization.
-Any user who is included in the targetUsers array will be able to link to this bucket.
+All users who are included in the targetUsers array will be able to link to this bucket.
 This operations is available only for organization administrators.
 
 + Parameters
     + bucket_id (required) - Bucket Id
 
 + Attributes
-    + targetUsers[] (required, array) - array of users id or user emails
+    + targetUsers[] (required, array) - array of users id or user emails. Users must be member of at least one project in the organization.
 
 + Request
     + Headers
