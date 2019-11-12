@@ -76,6 +76,20 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
         $this->assertEquals($workspace['statementTimeoutSeconds'], $timeout);
     }
 
+    public function testClientSessionKeepAlive()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+
+        $db = $this->getDbConnection($workspace['connection']);
+
+        $isKeepAlive = $db->fetchAll(sprintf(
+            'SHOW PARAMETERS LIKE \'CLIENT_SESSION_KEEP_ALIVE\' IN USER %s',
+            $workspace['connection']['user']
+        ))[0]['value'];
+        $this->assertEquals('true', $isKeepAlive);
+    }
+
     public function testTransientTables()
     {
         $workspaces = new Workspaces($this->_client);
