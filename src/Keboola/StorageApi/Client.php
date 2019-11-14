@@ -391,9 +391,19 @@ class Client
         return !empty($result['sharing']);
     }
 
-    public function listSharedBuckets()
+    public function listSharedBuckets($options = array())
     {
         $url = "storage/shared-buckets";
+
+        $allowedOptions = array(
+            'include',
+        );
+
+        $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
+
+        if (!empty($filteredOptions)) {
+            $url .= '?' . http_build_query($filteredOptions);
+        }
 
         return $this->apiGet($url);
     }
