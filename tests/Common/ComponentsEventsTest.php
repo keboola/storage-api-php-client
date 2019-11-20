@@ -65,11 +65,25 @@ class ComponentsEventsTest extends StorageApiTestCase
     {
         $config = $this->getConfiguration();
         $this->components->addConfiguration($config);
+
         $config->setDescription('new desc');
         $this->components->updateConfiguration($config);
+
         $events = $this->listEvents('storage.componentConfigurationChanged');
-        self::assertEquals('storage.componentConfigurationChanged', $events[0]['event']);
-        self::assertEquals('Changed component configuration "test" (wr-db)', $events[0]['message']);
+        $this->assertEvent(
+            $events[0],
+            'storage.componentConfigurationChanged',
+            'Changed component configuration "test" (wr-db)',
+            $this->configurationId,
+            'test',
+            'componentConfiguration',
+            [
+                'component' => 'wr-db',
+                'configurationId' => $this->configurationId,
+                'name' => 'test',
+                'version' => 2,
+            ]
+        );
     }
 
     /**
@@ -119,21 +133,72 @@ class ComponentsEventsTest extends StorageApiTestCase
         return $events;
     }
 
+    private function assertEvent(
+        $event,
+        $expectedEventName,
+        $expectedEventMessage,
+        $expectedObjectId,
+        $expectedObjectName,
+        $expectedObjectType,
+        $expectedParams
+    ) {
+        self::assertArrayHasKey('objectName', $event);
+        self::assertEquals($expectedObjectName, $event['objectName']);
+        self::assertArrayHasKey('objectType', $event);
+        self::assertEquals($expectedObjectType, $event['objectType']);
+        self::assertArrayHasKey('objectId', $event);
+        self::assertEquals($expectedObjectId, $event['objectId']);
+        self::assertArrayHasKey('event', $event);
+        self::assertEquals($expectedEventName, $event['event']);
+        self::assertArrayHasKey('message', $event);
+        self::assertEquals($expectedEventMessage, $event['message']);
+        self::assertArrayHasKey('token', $event);
+        self::assertEquals($this->tokenId, $event['token']['id']);
+        self::assertArrayHasKey('params', $event);
+        self::assertSame($expectedParams, $event['params']);
+    }
+
     public function testConfigurationCreate()
     {
         $config = $this->getConfiguration();
         $this->components->addConfiguration($config);
+
         // check create event
         $events = $this->listEvents('storage.componentConfigurationCreated');
-        self::assertEquals('storage.componentConfigurationCreated', $events[0]['event']);
-        self::assertEquals('Created component configuration "test" (wr-db)', $events[0]['message']);
+        $this->assertEvent(
+            $events[0],
+            'storage.componentConfigurationCreated',
+            'Created component configuration "test" (wr-db)',
+            $config->getConfigurationId(),
+            'test',
+            'componentConfiguration',
+            [
+                'component' => 'wr-db',
+                'configurationId' => $config->getConfigurationId(),
+                'name' => 'test',
+                'version' => 1,
+            ]
+        );
 
         // check restore event on create action
         $this->components->deleteConfiguration(self::COMPONENT_ID, $this->configurationId);
         $this->components->addConfiguration($this->getConfiguration());
+
         $events = $this->listEvents('storage.componentConfigurationRestored');
-        self::assertEquals('storage.componentConfigurationRestored', $events[0]['event']);
-        self::assertEquals('Restored component configuration "test" (wr-db)', $events[0]['message']);
+        $this->assertEvent(
+            $events[0],
+            'storage.componentConfigurationRestored',
+            'Restored component configuration "test" (wr-db)',
+            $this->configurationId,
+            'test',
+            'componentConfiguration',
+            [
+                'component' => 'wr-db',
+                'configurationId' => $this->configurationId,
+                'name' => 'test',
+                'version' => 3,
+            ]
+        );
     }
 
     public function testConfigurationDelete()
@@ -143,14 +208,38 @@ class ComponentsEventsTest extends StorageApiTestCase
         // delete
         $this->components->deleteConfiguration(self::COMPONENT_ID, $this->configurationId);
         $events = $this->listEvents('storage.componentConfigurationDeleted');
-        self::assertEquals('storage.componentConfigurationDeleted', $events[0]['event']);
-        self::assertEquals('Deleted component configuration "test" (wr-db)', $events[0]['message']);
+        $this->assertEvent(
+            $events[0],
+            'storage.componentConfigurationDeleted',
+            'Deleted component configuration "test" (wr-db)',
+            $this->configurationId,
+            'test',
+            'componentConfiguration',
+            [
+                'component' => 'wr-db',
+                'configurationId' => $this->configurationId,
+                'name' => 'test',
+                'version' => 2,
+            ]
+        );
 
         // purge
         $this->components->deleteConfiguration(self::COMPONENT_ID, $this->configurationId);
         $events = $this->listEvents('storage.componentConfigurationPurged');
-        self::assertEquals('storage.componentConfigurationPurged', $events[0]['event']);
-        self::assertEquals('Permanently deleted component configuration "test" (wr-db)', $events[0]['message']);
+        $this->assertEvent(
+            $events[0],
+            'storage.componentConfigurationPurged',
+            'Permanently deleted component configuration "test" (wr-db)',
+            $this->configurationId,
+            'test',
+            'componentConfiguration',
+            [
+                'component' => 'wr-db',
+                'configurationId' => $this->configurationId,
+                'name' => 'test',
+                'version' => 2,
+            ]
+        );
     }
 
     public function testConfigurationRestore()
@@ -158,20 +247,59 @@ class ComponentsEventsTest extends StorageApiTestCase
         $config = $this->getConfiguration();
         $this->components->addConfiguration($config);
         $this->components->deleteConfiguration(self::COMPONENT_ID, $this->configurationId);
+
         $this->components->restoreComponentConfiguration(self::COMPONENT_ID, $this->configurationId);
         $events = $this->listEvents('storage.componentConfigurationRestored');
-        self::assertEquals('storage.componentConfigurationRestored', $events[0]['event']);
-        self::assertEquals('Restored component configuration "test" (wr-db)', $events[0]['message']);
+
+        $this->assertEvent(
+            $events[0],
+            'storage.componentConfigurationRestored',
+            'Restored component configuration "test" (wr-db)',
+            $this->configurationId,
+            'test',
+            'componentConfiguration',
+            [
+                'component' => 'wr-db',
+                'configurationId' => $this->configurationId,
+                'name' => 'test',
+                'version' => 3,
+            ]
+        );
     }
 
     public function testConfigurationVersionCopy()
     {
         $config = $this->getConfiguration();
         $this->components->addConfiguration($config);
-        $this->components->createConfigurationFromVersion(self::COMPONENT_ID, $this->configurationId, 1, 'new');
+
+        $newConfig = $this->components->createConfigurationFromVersion(
+            self::COMPONENT_ID,
+            $this->configurationId,
+            1,
+            'new'
+        );
+
         $events = $this->listEvents('storage.componentConfigurationCopied');
-        self::assertEquals('storage.componentConfigurationCopied', $events[0]['event']);
-        self::assertEquals('Created component configuration "new" (wr-db)', $events[0]['message']);
+        $this->assertEvent(
+            $events[0],
+            'storage.componentConfigurationCopied',
+            'Created component configuration "new" (wr-db)',
+            $newConfig['id'],
+            'new',
+            'componentConfiguration',
+            [
+                'component' => 'wr-db',
+                'configurationId' => $newConfig['id'],
+                'name' => 'new',
+                'version' => 1,
+                'sourceConfiguration' => [
+                    'component' => 'wr-db',
+                    'configurationId' => $this->configurationId,
+                    'name' => 'test',
+                    'version' => 1,
+                ],
+            ]
+        );
     }
 
     public function testConfigurationVersionRollback()
@@ -181,8 +309,21 @@ class ComponentsEventsTest extends StorageApiTestCase
         $this->components->createConfigurationFromVersion(self::COMPONENT_ID, $this->configurationId, 1, 'v2');
         $this->components->rollbackConfiguration(self::COMPONENT_ID, $this->configurationId, 1, 'rollback');
         $events = $this->listEvents('storage.componentConfigurationRolledBack');
-        self::assertEquals('storage.componentConfigurationRolledBack', $events[0]['event']);
-        self::assertEquals('Rolled back component configuration "test" (wr-db)', $events[0]['message']);
+
+        $this->assertEvent(
+            $events[0],
+            'storage.componentConfigurationRolledBack',
+            'Rolled back component configuration "test" (wr-db)',
+            $this->configurationId,
+            'test',
+            'componentConfiguration',
+            [
+                'component' => 'wr-db',
+                'configurationId' => $this->configurationId,
+                'name' => 'test',
+                'version' => 2,
+            ]
+        );
     }
 
     public function testRowsChange()
@@ -193,10 +334,28 @@ class ComponentsEventsTest extends StorageApiTestCase
         $this->components->addConfigurationRow($rowOptions);
         $rowOptions->setDescription('desc2');
 
-        $this->components->updateConfigurationRow($rowOptions);
+        $rowResponse = $this->components->updateConfigurationRow($rowOptions);
         $events = $this->listEvents('storage.componentConfigurationRowChanged');
-        self::assertEquals('storage.componentConfigurationRowChanged', $events[0]['event']);
-        self::assertEquals('Changed component configuration row "rowName" (wr-db)', $events[0]['message']);
+
+        $this->assertEvent(
+            $events[0],
+            'storage.componentConfigurationRowChanged',
+            'Changed component configuration row "rowName" (wr-db)',
+            $rowResponse['id'],
+            'rowName',
+            'componentConfigurationRow',
+            [
+                'rowId' => $rowResponse['id'],
+                'name' => 'rowName',
+                'version' => 2,
+                'configuration' => [
+                    'component' => 'wr-db',
+                    'configurationId' => $this->configurationId,
+                    'name' => 'test',
+                    'version' => 3,
+                ],
+            ]
+        );
     }
 
     /**
@@ -218,10 +377,28 @@ class ComponentsEventsTest extends StorageApiTestCase
         $this->components->addConfiguration($config);
         $rowOptions = $this->getConfigRowOptions();
 
-        $this->components->addConfigurationRow($rowOptions);
+        $rowResponse = $this->components->addConfigurationRow($rowOptions);
         $events = $this->listEvents('storage.componentConfigurationRowCreated');
-        self::assertEquals('storage.componentConfigurationRowCreated', $events[0]['event']);
-        self::assertEquals('Created component configuration row "rowName" (wr-db)', $events[0]['message']);
+
+        $this->assertEvent(
+            $events[0],
+            'storage.componentConfigurationRowCreated',
+            'Created component configuration row "rowName" (wr-db)',
+            $rowResponse['id'],
+            'rowName',
+            'componentConfigurationRow',
+            [
+                'rowId' => $rowResponse['id'],
+                'name' => 'rowName',
+                'version' => 1,
+                'configuration' => [
+                    'component' => 'wr-db',
+                    'configurationId' => $this->configurationId,
+                    'name' => 'test',
+                    'version' => 2,
+                ],
+            ]
+        );
     }
 
     public function testRowsDelete()
@@ -229,12 +406,30 @@ class ComponentsEventsTest extends StorageApiTestCase
         $config = $this->getConfiguration();
         $this->components->addConfiguration($config);
         $rowOptions = $this->getConfigRowOptions();
-        $this->components->addConfigurationRow($rowOptions);
+        $rowResponse = $this->components->addConfigurationRow($rowOptions);
 
         $this->components->deleteConfigurationRow(self::COMPONENT_ID, $this->configurationId, $rowOptions->getRowId());
         $events = $this->listEvents('storage.componentConfigurationRowDeleted');
-        self::assertEquals('storage.componentConfigurationRowDeleted', $events[0]['event']);
-        self::assertEquals('Deleted component configuration row "rowName" (wr-db)', $events[0]['message']);
+
+        $this->assertEvent(
+            $events[0],
+            'storage.componentConfigurationRowDeleted',
+            'Deleted component configuration row "rowName" (wr-db)',
+            $rowResponse['id'],
+            'rowName',
+            'componentConfigurationRow',
+            [
+                'rowId' => $rowResponse['id'],
+                'name' => 'rowName',
+                'version' => 1,
+                'configuration' => [
+                    'component' => 'wr-db',
+                    'configurationId' => $this->configurationId,
+                    'name' => 'test',
+                    'version' => 3,
+                ],
+            ]
+        );
     }
 
     public function testRowsVersionCreate()
@@ -242,17 +437,45 @@ class ComponentsEventsTest extends StorageApiTestCase
         $config = $this->getConfiguration();
         $this->components->addConfiguration($config);
         $rowOptions = $this->getConfigRowOptions();
-        $this->components->addConfigurationRow($rowOptions);
+        $sourceRowResponse = $this->components->addConfigurationRow($rowOptions);
 
-        $this->components->createConfigurationRowFromVersion(
+        $rowResponse = $this->components->createConfigurationRowFromVersion(
             self::COMPONENT_ID,
             $this->configurationId,
             $rowOptions->getRowId(),
             1
         );
         $events = $this->listEvents('storage.componentConfigurationRowCopied');
-        self::assertEquals('storage.componentConfigurationRowCopied', $events[0]['event']);
-        self::assertEquals('Copied component configuration row "rowName" (wr-db)', $events[0]['message']);
+        $this->assertEvent(
+            $events[0],
+            'storage.componentConfigurationRowCopied',
+            'Copied component configuration row "rowName" (wr-db)',
+            $rowResponse['id'],
+            'rowName',
+            'componentConfigurationRow',
+            [
+                'rowId' => $rowResponse['id'],
+                'name' => 'rowName',
+                'version' => 1,
+                'configuration' => [
+                    'component' => 'wr-db',
+                    'configurationId' => $config->getConfigurationId(),
+                    'name' => 'test',
+                    'version' => 3,
+                ],
+                'sourceRow' => [
+                    'rowId' => $sourceRowResponse['id'],
+                    'name' => 'rowName',
+                    'version' => 1,
+                    'configuration' => [
+                        'component' => 'wr-db',
+                        'configurationId' => $config->getConfigurationId(),
+                        'name' => 'test',
+                        'version' => 3,
+                    ],
+                ],
+            ]
+        );
     }
 
     public function testRowsVersionRollback()
@@ -260,7 +483,7 @@ class ComponentsEventsTest extends StorageApiTestCase
         $config = $this->getConfiguration();
         $this->components->addConfiguration($config);
         $rowOptions = $this->getConfigRowOptions();
-        $this->components->addConfigurationRow($rowOptions);
+        $rowToRollbackTo = $this->components->addConfigurationRow($rowOptions);
         $this->components->createConfigurationRowFromVersion(
             self::COMPONENT_ID,
             $this->configurationId,
@@ -275,7 +498,36 @@ class ComponentsEventsTest extends StorageApiTestCase
             1
         );
         $events = $this->listEvents('storage.componentConfigurationRowRolledBack');
-        self::assertEquals('storage.componentConfigurationRowRolledBack', $events[0]['event']);
-        self::assertEquals('Rolled back component configuration row "rowName" (wr-db)', $events[0]['message']);
+
+        $this->assertEvent(
+            $events[0],
+            'storage.componentConfigurationRowRolledBack',
+            'Rolled back component configuration row "rowName" (wr-db)',
+            $rowToRollbackTo['id'],
+            'rowName',
+            'componentConfigurationRow',
+            [
+                'rowId' => $rowToRollbackTo['id'],
+                'name' => 'rowName',
+                'version' => 2,
+                'configuration' => [
+                    'component' => 'wr-db',
+                    'configurationId' => $this->configurationId,
+                    'name' => 'test',
+                    'version' => 4,
+                ],
+                'sourceRow' => [
+                        'rowId' => $rowToRollbackTo['id'],
+                        'name' => 'rowName',
+                        'version' => 1,
+                        'configuration' => [
+                            'component' => 'wr-db',
+                            'configurationId' => $this->configurationId,
+                            'name' => 'test',
+                            'version' => 4,
+                        ],
+                ],
+            ]
+        );
     }
 }
