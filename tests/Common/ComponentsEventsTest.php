@@ -11,7 +11,7 @@ use Keboola\Test\StorageApiTestCase;
 class ComponentsEventsTest extends StorageApiTestCase
 {
     const COMPONENT_ID = 'wr-db';
-    const CONFIGURATION_NAME = 'test';
+    const CONFIGURATION_NAME = 'component-events-test';
 
     /**
      * @var int
@@ -73,14 +73,14 @@ class ComponentsEventsTest extends StorageApiTestCase
         $this->assertEvent(
             $events[0],
             'storage.componentConfigurationChanged',
-            'Changed component configuration "test" (wr-db)',
+            'Changed component configuration "component-events-test" (wr-db)',
             $this->configurationId,
-            'test',
+            'component-events-test',
             'componentConfiguration',
             [
                 'component' => 'wr-db',
                 'configurationId' => $this->configurationId,
-                'name' => 'test',
+                'name' => 'component-events-test',
                 'version' => 2,
             ]
         );
@@ -168,14 +168,14 @@ class ComponentsEventsTest extends StorageApiTestCase
         $this->assertEvent(
             $events[0],
             'storage.componentConfigurationCreated',
-            'Created component configuration "test" (wr-db)',
+            'Created component configuration "component-events-test" (wr-db)',
             $config->getConfigurationId(),
-            'test',
+            'component-events-test',
             'componentConfiguration',
             [
                 'component' => 'wr-db',
                 'configurationId' => $config->getConfigurationId(),
-                'name' => 'test',
+                'name' => 'component-events-test',
                 'version' => 1,
             ]
         );
@@ -188,14 +188,14 @@ class ComponentsEventsTest extends StorageApiTestCase
         $this->assertEvent(
             $events[0],
             'storage.componentConfigurationRestored',
-            'Restored component configuration "test" (wr-db)',
+            'Restored component configuration "component-events-test" (wr-db)',
             $this->configurationId,
-            'test',
+            'component-events-test',
             'componentConfiguration',
             [
                 'component' => 'wr-db',
                 'configurationId' => $this->configurationId,
-                'name' => 'test',
+                'name' => 'component-events-test',
                 'version' => 3,
             ]
         );
@@ -211,14 +211,14 @@ class ComponentsEventsTest extends StorageApiTestCase
         $this->assertEvent(
             $events[0],
             'storage.componentConfigurationDeleted',
-            'Deleted component configuration "test" (wr-db)',
+            'Deleted component configuration "component-events-test" (wr-db)',
             $this->configurationId,
-            'test',
+            'component-events-test',
             'componentConfiguration',
             [
                 'component' => 'wr-db',
                 'configurationId' => $this->configurationId,
-                'name' => 'test',
+                'name' => 'component-events-test',
                 'version' => 2,
             ]
         );
@@ -229,14 +229,14 @@ class ComponentsEventsTest extends StorageApiTestCase
         $this->assertEvent(
             $events[0],
             'storage.componentConfigurationPurged',
-            'Permanently deleted component configuration "test" (wr-db)',
+            'Permanently deleted component configuration "component-events-test" (wr-db)',
             $this->configurationId,
-            'test',
+            'component-events-test',
             'componentConfiguration',
             [
                 'component' => 'wr-db',
                 'configurationId' => $this->configurationId,
-                'name' => 'test',
+                'name' => 'component-events-test',
                 'version' => 2,
             ]
         );
@@ -254,14 +254,14 @@ class ComponentsEventsTest extends StorageApiTestCase
         $this->assertEvent(
             $events[0],
             'storage.componentConfigurationRestored',
-            'Restored component configuration "test" (wr-db)',
+            'Restored component configuration "component-events-test" (wr-db)',
             $this->configurationId,
-            'test',
+            'component-events-test',
             'componentConfiguration',
             [
                 'component' => 'wr-db',
                 'configurationId' => $this->configurationId,
-                'name' => 'test',
+                'name' => 'component-events-test',
                 'version' => 3,
             ]
         );
@@ -295,7 +295,7 @@ class ComponentsEventsTest extends StorageApiTestCase
                 'sourceConfiguration' => [
                     'component' => 'wr-db',
                     'configurationId' => $this->configurationId,
-                    'name' => 'test',
+                    'name' => 'component-events-test',
                     'version' => 1,
                 ],
             ]
@@ -313,19 +313,19 @@ class ComponentsEventsTest extends StorageApiTestCase
         $this->assertEvent(
             $events[0],
             'storage.componentConfigurationRolledBack',
-            'Rolled back component configuration "test" (wr-db)',
+            'Rolled back component configuration "component-events-test" (wr-db)',
             $this->configurationId,
-            'test',
+            'component-events-test',
             'componentConfiguration',
             [
                 'component' => 'wr-db',
                 'configurationId' => $this->configurationId,
-                'name' => 'test',
+                'name' => 'component-events-test',
                 'version' => 2,
                 'sourceConfiguration' => [
                     'component' => 'wr-db',
                     'configurationId' => $this->configurationId,
-                    'name' => 'test',
+                    'name' => 'component-events-test',
                     'version' => 1,
                 ],
             ]
@@ -357,7 +357,7 @@ class ComponentsEventsTest extends StorageApiTestCase
                 'configuration' => [
                     'component' => 'wr-db',
                     'configurationId' => $this->configurationId,
-                    'name' => 'test',
+                    'name' => 'component-events-test',
                     'version' => 3,
                 ],
             ]
@@ -400,7 +400,7 @@ class ComponentsEventsTest extends StorageApiTestCase
                 'configuration' => [
                     'component' => 'wr-db',
                     'configurationId' => $this->configurationId,
-                    'name' => 'test',
+                    'name' => 'component-events-test',
                     'version' => 2,
                 ],
             ]
@@ -431,7 +431,7 @@ class ComponentsEventsTest extends StorageApiTestCase
                 'configuration' => [
                     'component' => 'wr-db',
                     'configurationId' => $this->configurationId,
-                    'name' => 'test',
+                    'name' => 'component-events-test',
                     'version' => 3,
                 ],
             ]
@@ -466,7 +466,7 @@ class ComponentsEventsTest extends StorageApiTestCase
                 'configuration' => [
                     'component' => 'wr-db',
                     'configurationId' => $config->getConfigurationId(),
-                    'name' => 'test',
+                    'name' => 'component-events-test',
                     'version' => 3,
                 ],
                 'sourceRow' => [
@@ -476,7 +476,7 @@ class ComponentsEventsTest extends StorageApiTestCase
                     'configuration' => [
                         'component' => 'wr-db',
                         'configurationId' => $config->getConfigurationId(),
-                        'name' => 'test',
+                        'name' => 'component-events-test',
                         'version' => 2,
                     ],
                 ],
@@ -519,7 +519,7 @@ class ComponentsEventsTest extends StorageApiTestCase
                 'configuration' => [
                     'component' => 'wr-db',
                     'configurationId' => $this->configurationId,
-                    'name' => 'test',
+                    'name' => 'component-events-test',
                     'version' => 4,
                 ],
                 'sourceRow' => [
@@ -529,7 +529,7 @@ class ComponentsEventsTest extends StorageApiTestCase
                         'configuration' => [
                             'component' => 'wr-db',
                             'configurationId' => $this->configurationId,
-                            'name' => 'test',
+                            'name' => 'component-events-test',
                             'version' => 3,
                         ],
                 ],
