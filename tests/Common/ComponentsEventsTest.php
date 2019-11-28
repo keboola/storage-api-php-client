@@ -322,6 +322,12 @@ class ComponentsEventsTest extends StorageApiTestCase
                 'configurationId' => $this->configurationId,
                 'name' => 'test',
                 'version' => 2,
+                'sourceConfiguration' => [
+                    'component' => 'wr-db',
+                    'configurationId' => $this->configurationId,
+                    'name' => 'test',
+                    'version' => 1,
+                ],
             ]
         );
     }
