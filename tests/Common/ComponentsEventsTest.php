@@ -283,7 +283,7 @@ class ComponentsEventsTest extends StorageApiTestCase
         $this->assertEvent(
             $events[0],
             'storage.componentConfigurationCopied',
-            'Created component configuration "new" (wr-db)',
+            'Copied component configuration "test" to "new" (wr-db)',
             $newConfig['id'],
             'new',
             'componentConfiguration',
