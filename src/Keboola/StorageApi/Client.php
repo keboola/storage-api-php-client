@@ -364,6 +364,18 @@ class Client
         return $result;
     }
 
+    public function shareBucketToUsers($bucketId, $targetUsers = [])
+    {
+        $url = "storage/buckets/" . $bucketId . "/share-to-users";
+        $url .= '?' . http_build_query(['targetUsers' => $targetUsers]);
+
+        $result = $this->apiPost($url, [], false);
+
+        $this->log("Bucket {$bucketId} shared", ["result" => $result]);
+
+        return $result;
+    }
+
     public function changeBucketSharing($bucketId, $sharing)
     {
         $url = "storage/buckets/" . $bucketId . "/share";
