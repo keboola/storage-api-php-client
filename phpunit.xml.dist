@@ -25,6 +25,18 @@
 		<file>tests/File/CommonFilesTests.php</file>
 	</testsuite>
 
+	<testsuite name="azure-snowflake-import-export">
+		<file>tests/Backend/Snowflake/TableExportTest.php</file>
+		<file>tests/Backend/Snowflake/TimeTravelTest.php</file>
+		<file>tests/Backend/CommonPart1/TableExporterTest.php</file>
+		<file>tests/Backend/CommonPart1/ImportExportCommonTest.php</file>
+		<file>tests/Backend/CommonPart2/SnapshottingTest.php</file>
+		<file>tests/Backend/Export/ExportParamsTest.php</file>
+		<file>tests/Backend/Mixed/WorkspacesTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
+	</testsuite>
+
 	<testsuite name="backend-redshift-part-1">
 		<directory>tests/Backend/CommonPart1</directory>
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
