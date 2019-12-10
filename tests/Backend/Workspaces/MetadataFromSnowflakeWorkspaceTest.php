@@ -5,10 +5,20 @@ namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Workspaces;
-use Keboola\Test\Backend\Workspaces\WorkspacesTestCase;
 
 class MetadataFromSnowflakeWorkspaceTest extends WorkspacesTestCase
 {
+    public function setUp()
+    {
+        parent::setUp();
+
+        $token = $this->_client->verifyToken();
+
+        if (!in_array('storage-types', $token['owner']['features'])) {
+            $this->fail(sprintf('Metadata from workspaces are not enabled for project "%s"', $token['owner']['id']));
+        }
+    }
+
     public function testCreateTableFromWorkspace()
     {
 
