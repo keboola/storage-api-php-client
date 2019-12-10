@@ -31,10 +31,10 @@
 		<file>tests/Backend/CommonPart1/TableExporterTest.php</file>
 		<file>tests/Backend/CommonPart1/ImportExportCommonTest.php</file>
 		<file>tests/Backend/CommonPart2/SnapshottingTest.php</file>
-		<file>tests/Backend/Export/ExportParamsTest.php</file>
-		<file>tests/Backend/Mixed/WorkspacesTest.php</file>
+		<file>tests/Backend/Mixed/Workspaces/AbsWorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesSnowflakeTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-redshift-part-1">
@@ -75,5 +75,6 @@
 
 	<testsuite name="backend-mixed">
 		<directory>tests/Backend/Mixed</directory>
+		<exclude>tests/Backend/Mixed/Workspaces/S3WorkspacesTest.php</exclude>
 	</testsuite>
 </phpunit>
