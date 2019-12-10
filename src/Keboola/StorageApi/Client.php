@@ -27,6 +27,7 @@ use Symfony\Component\Process\Process;
 class Client
 {
     // Stage names
+    const DEFAULT_RETRIES_COUNT = 15;
     const STAGE_IN = "in";
     const STAGE_OUT = "out";
     const STAGE_SYS = "sys";
@@ -48,7 +49,7 @@ class Client
 
     private $backoffMaxTries = 11;
 
-    private $awsRetries = 15;
+    private $awsRetries = self::DEFAULT_RETRIES_COUNT;
 
     private $awsDebug = false;
 
