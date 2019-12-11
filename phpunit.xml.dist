@@ -35,6 +35,7 @@
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesSnowflakeTest.php</file>
+		<file>tests/Backend/CommonPart2/MetricsTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-redshift-part-1">
