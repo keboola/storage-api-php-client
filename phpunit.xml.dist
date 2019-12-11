@@ -16,13 +16,13 @@
 		<directory>tests/Common</directory>
 		<directory>tests/Options</directory>
 		<directory>tests/S3Uploader</directory>
-		<file>tests/File/CommonFilesTests.php</file>
+		<file>tests/File/CommonFileTests.php</file>
 		<file>tests/File/AwsFileTest.php</file>
 	</testsuite>
 
 	<testsuite name="file-storage-azure">
 		<file>tests/File/AzureFileTest.php</file>
-		<file>tests/File/CommonFilesTests.php</file>
+		<file>tests/File/CommonFileTest.php</file>
 	</testsuite>
 
 	<testsuite name="azure-snowflake-import-export">
