@@ -14,7 +14,7 @@ use Keboola\StorageApi\Options\StatsOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
-use MicrosoftAzure\Storage\Blob\Models\CreateBlobBlockOptions;
+use MicrosoftAzure\Storage\Blob\Models\CreateBlockBlobOptions;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
@@ -1363,8 +1363,19 @@ class Client
         array $prepareResult,
         $filePath
     ) {
-        $blobClient = BlobRestProxy::createBlobService($prepareResult['absUploadParams']['absCredentials']['SASConnectionString']);
-        $blobClient->createBlockBlob($prepareResult['absUploadParams']['container'], $prepareResult['absUploadParams']['blobName'], fopen($filePath, 'r'));
+        $options = new CreateBlockBlobOptions();
+        $options->setContentDisposition(
+            sprintf('attachment; filename=%s', $prepareResult['name'])
+        );
+        $blobClient = BlobRestProxy::createBlobService(
+            $prepareResult['absUploadParams']['absCredentials']['SASConnectionString']
+        );
+        $blobClient->createBlockBlob(
+            $prepareResult['absUploadParams']['container'],
+            $prepareResult['absUploadParams']['blobName'],
+            fopen($filePath, 'r'),
+            $options
+        );
     }
 
     /**
