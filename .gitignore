@@ -14,5 +14,4 @@ set-env.sharing.sh
 *.kdev4
 .kdev4
 snowflake_linux_x8664_odbc.tgz
-.env
 REVISION
