@@ -333,6 +333,11 @@ class SharingTest extends StorageApiSharingTestCase
             $this->assertArrayHasKey('description', $sharedBucket);
             $this->assertArrayHasKey('project', $sharedBucket);
             $this->assertArrayHasKey('tables', $sharedBucket);
+            $this->assertArrayHasKey('created', $sharedBucket);
+            $this->assertArrayHasKey('lastChangeDate', $sharedBucket);
+            $this->assertArrayHasKey('dataSizeBytes', $sharedBucket);
+            $this->assertArrayHasKey('rowsCount', $sharedBucket);
+            $this->assertArrayHasKey('backend', $sharedBucket);
 
             $this->assertArrayHasKey('id', $sharedBucket['project']);
             $this->assertArrayHasKey('name', $sharedBucket['project']);
