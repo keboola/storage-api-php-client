@@ -21,6 +21,65 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
         }
     }
 
+    public function testDevelopmentWorkspaceLoadWithoutPreserve(): void
+    {
+        $runId = $this->_client->generateRunId();
+        var_dump($runId);
+        $this->_client->setRunId($runId);
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+        // Create a table of sample data
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            "languages",
+            new CsvFile($importFile)
+        );
+
+        $input = [];
+        $i = 0;
+        while ($i++ < 5) {
+            $input[] = [
+                "source" => $tableId,
+                "destination" => "languages-" . $i,
+                "columns" => [
+                    [
+                        'source' => 'id',
+                        'type' => 'int',
+                    ],
+                    [
+                        'source' => 'name',
+                        'type' => 'varchar',
+                    ],
+                ]
+            ];
+        }
+        $workspaces->loadWorkspaceData($workspace['id'], [
+            "input" => $input,
+        ]);
+
+        $workspaces->loadWorkspaceData($workspace['id'], [
+            "input" => [
+                [
+                    "source" => $tableId,
+                    "destination" => "languages",
+                    "columns" => [
+                        [
+                            'source' => 'id',
+                            'type' => 'int',
+                        ],
+                        [
+                            'source' => 'name',
+                            'type' => 'varchar',
+                        ],
+                    ]
+                ]
+            ],
+            "preserve" => true,
+        ]);
+    }
+
     public function testLoadDataTypesDefaults()
     {
         $workspaces = new Workspaces($this->_client);
@@ -130,7 +189,7 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
 
         $tables = $db->fetchAll("SHOW TABLES IN SCHEMA " . $db->quoteIdentifier($workspaceSchema['name']));
         $this->assertCount(1, $tables);
-        
+
         $table = reset($tables);
         $this->assertEquals('languages', $table['name']);
         $this->assertEquals('TRANSIENT', $table['kind']);
