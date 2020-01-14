@@ -16,6 +16,7 @@
 		<directory>tests/Common</directory>
 		<directory>tests/Options</directory>
 		<directory>tests/S3Uploader</directory>
+		<directory>tests/Downloader</directory>
 		<file>tests/File/CommonFileTests.php</file>
 		<file>tests/File/AwsFileTest.php</file>
 	</testsuite>
