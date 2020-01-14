@@ -33,18 +33,7 @@ class AbsDownloader implements DownloaderInterface
      */
     public function downloadManifestEntry($fileResponse, $entry, $tmpFilePath)
     {
-        $matched = [];
-        preg_match(
-            '/^(https|azure):\/\/'
-            . '(.*?)' // account
-            . '\.blob\.core\.windows\.net\/'
-            . '(.*?)' // container
-            . '\/'
-            . '(.*)$/', // filepath
-            $entry["url"],
-            $matched
-        );
-        list($full, $protocol, $account, $container, $file) = $matched;
+        list($protocol, $account, $container, $file) = AbsUrlParser::parseAbsUrl($entry['url']);
 
         $filePath = $tmpFilePath . '_' . md5(str_replace('/', '_', $file));
 
