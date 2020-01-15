@@ -249,6 +249,38 @@ class MetadataFromSnowflakeWorkspaceTest extends WorkspacesTestCase
         $this->assertMetadata($expectedUpdateMetadata, $table['columnMetadata']['update']);
     }
 
+    public function testBugCreateTableFromWorkspace()
+    {
+        $table_id = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'metadata_columns',
+            new CsvFile(__DIR__ . '/../../_data/metadataBug.csv')
+        );
+
+        // create workspace and source table in workspace
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace(["backend" => "snowflake"]);
+        $connection = $workspace['connection'];
+        $db = $this->getDbConnection($connection);
+        $db->query("CREATE OR REPLACE TABLE \"test.metadata_columns\" AS SELECT
+                        '1'::integer AS \"id\",
+                        'roman'::string AS \"name\",
+                        'test'::variant AS \"variant\",
+                        PARSE_JSON('{\"id\":\"test\"}'):id as \"variant2\",
+                        PARSE_JSON('{\"id\":\"test\"}'):id::variant as \"variant3\"
+                    ;");
+
+        $this->_client->writeTableAsyncDirect($table_id, array(
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => 'test.metadata_columns',
+        ));
+
+        $table = $this->_client->getTable($table_id);
+
+        $this->assertEquals(5, count($table['columns']));
+        $this->assertEquals([], $table['columnMetadata']);
+    }
+
     private function assertMetadata($expectedKeyValues, $metadata)
     {
         $this->assertEquals(count($expectedKeyValues), count($metadata));
