@@ -10,23 +10,23 @@ use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 class DownloaderFactory
 {
     /**
-     * @param $fileInfo
+     * @param array $getFileResponse
      * @param int $retries
      * @return DownloaderInterface
      * @throws Exception
      */
-    public static function createDownloaderForPrepareRequest($fileInfo, $retries = Client::DEFAULT_RETRIES_COUNT)
+    public static function createDownloaderForFileResponse($getFileResponse, $retries = Client::DEFAULT_RETRIES_COUNT)
     {
-        switch ($fileInfo['provider']) {
+        switch ($getFileResponse['provider']) {
             case Client::FILE_PROVIDER_AWS:
                 $s3Client = new S3Client([
                     'version' => '2006-03-01',
-                    'region' => $fileInfo['region'],
+                    'region' => $getFileResponse['region'],
                     'retries' => $retries,
                     'credentials' => [
-                        'key' => $fileInfo["credentials"]["AccessKeyId"],
-                        'secret' => $fileInfo["credentials"]["SecretAccessKey"],
-                        'token' => $fileInfo["credentials"]["SessionToken"],
+                        'key' => $getFileResponse["credentials"]["AccessKeyId"],
+                        'secret' => $getFileResponse["credentials"]["SecretAccessKey"],
+                        'token' => $getFileResponse["credentials"]["SessionToken"],
                     ],
                     'http' => [
                         'decode_content' => false,
@@ -35,14 +35,14 @@ class DownloaderFactory
                 return new S3Downloader($s3Client);
             case Client::FILE_PROVIDER_AZURE:
                 $blobClient = BlobRestProxy::createBlobService(
-                    $fileInfo['absCredentials']['SASConnectionString']
+                    $getFileResponse['absCredentials']['SASConnectionString']
                 );
                 return new AbsDownloader($blobClient);
         }
 
         throw new Exception(sprintf(
             'There is no downloader implemented for "%s" provider.',
-            $fileInfo['provider']
+            $getFileResponse['provider']
         ));
     }
 }

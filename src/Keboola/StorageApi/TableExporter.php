@@ -39,7 +39,7 @@ class TableExporter
         }
 
         $table = $this->client->getTable($tableId);
-        $fileInfo = $this->client->getFile(
+        $getFileResponse = $this->client->getFile(
             $fileId,
             (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true)
         );
@@ -57,12 +57,12 @@ class TableExporter
             $fs->remove($destination);
         }
 
-        $downloader = DownloaderFactory::createDownloaderForPrepareRequest(
-            $fileInfo,
+        $downloader = DownloaderFactory::createDownloaderForFileResponse(
+            $getFileResponse,
             $this->client->getAwsRetries()
         );
 
-        if ($fileInfo['isSliced'] === true) {
+        if ($getFileResponse['isSliced'] === true) {
             /**
              * sliced file - combine files together
              */
@@ -73,12 +73,12 @@ class TableExporter
                     'backoffMaxTries' => 10,
                 ]),
             ]);
-            $manifest = json_decode($client->get($fileInfo['url'])->getBody(), true);
+            $manifest = json_decode($client->get($getFileResponse['url'])->getBody(), true);
             $files = [];
 
             // Download all sliced files
             foreach ($manifest["entries"] as $part) {
-                $files[] = $downloader->downloadManifestEntry($fileInfo, $part, $tmpFilePath);
+                $files[] = $downloader->downloadManifestEntry($getFileResponse, $part, $tmpFilePath);
             }
 
             // Create file with header
@@ -127,7 +127,7 @@ class TableExporter
             /**
              * NonSliced file, just move from temp to destination file
              */
-            $downloader->downloadFileFromFileResponse($fileInfo, $tmpFilePath);
+            $downloader->downloadFileFromFileResponse($getFileResponse, $tmpFilePath);
             $fs->rename($tmpFilePath, $destination);
         }
         $fs->remove($tmpFilePath);
