@@ -44,6 +44,13 @@ class SharingTest extends StorageApiSharingTestCase
         $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
         $bucketId = reset($this->_bucketIds);
 
+        $tableName = 'dates';
+        $tableId = $this->_client->createTable(
+            $bucketId,
+            $tableName,
+            new CsvFile(__DIR__ . '/../../_data/dates.csv')
+        );
+
         $this->_client->shareBucket($bucketId, [
             'sharing' => 'organization-project',
         ]);
@@ -85,6 +92,10 @@ class SharingTest extends StorageApiSharingTestCase
         $linkedBucket = $client->getBucket($linkedBucketId);
         $this->assertEquals($sharedBuckets[0]['id'], $linkedBucket['sourceBucket']['id']);
         $this->assertEquals($sharedBuckets[0]['project']['id'], $linkedBucket['sourceBucket']['project']['id']);
+
+        $this->assertArrayHasKey('tables', $linkedBucket['sourceBucket']);
+        $this->assertSame($tableId, $linkedBucket['sourceBucket']['tables'][0]['id']);
+        $this->assertSame($tableName, $linkedBucket['sourceBucket']['tables'][0]['name']);
 
         // bucket can be linked by the same project
         $selfLinkedBucketId = $this->_client->linkBucket(
@@ -130,6 +141,14 @@ class SharingTest extends StorageApiSharingTestCase
 
         $this->assertArrayHasKey("linkedBy", $listedSharedBucket);
         $this->assertCount(2, $listedSharedBucket['linkedBy']);
+
+        $sameListedSharedBucket = (array) array_values(array_filter($buckets, function ($listBucket) use ($selfLinkedBucketId) {
+            return ($listBucket['id'] === $selfLinkedBucketId);
+        }))[0];
+
+        $this->assertArrayHasKey('tables', $sameListedSharedBucket['sourceBucket']);
+        $this->assertSame($tableId, $sameListedSharedBucket['sourceBucket']['tables'][0]['id']);
+        $this->assertSame($tableName, $sameListedSharedBucket['sourceBucket']['tables'][0]['name']);
 
         // user should be also able to delete the linked bucket
         $client->dropBucket($linkedBucketId);
@@ -309,11 +328,11 @@ class SharingTest extends StorageApiSharingTestCase
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
 
-        $tableName = 'numbers';
+        $tableName = 'transactions';
         $tableId = $this->_client->createTable(
             $bucketId,
             $tableName,
-            new CsvFile(__DIR__ . '/../../_data/numbers.csv')
+            new CsvFile(__DIR__ . '/../../_data/transactions.csv')
         );
 
         // ensure that sharing data is not output for unshared bucket
@@ -385,6 +404,18 @@ class SharingTest extends StorageApiSharingTestCase
             $this->assertEquals($tableId, $sharedBucketTable['id']);
             $this->assertEquals($tableName, $sharedBucketTable['name']);
         }
+
+        $this->sharedBucketDetailTest(
+            $bucketId,
+            $tableId,
+            $project
+        );
+
+        $this->sharedBucketDetailWithAliasTableMetadataTest(
+            $bucketId,
+            $tableId,
+            $project
+        );
     }
 
     /**
@@ -1198,6 +1229,274 @@ class SharingTest extends StorageApiSharingTestCase
 
         $workspaceTableData = $backend->fetchAll('languagesAlias');
         $this->assertCount(5, $workspaceTableData);
+    }
+
+    private function sharedBucketDetailTest($bucketId, $tableId, $project)
+    {
+        $columnId = $tableId . '.transid';
+        $this->prepareTestMetadata($bucketId, $tableId, $columnId);
+
+        $response = $this->_client2->getSharedBucketDetail(
+            $project['id'],
+            $bucketId,
+            [
+                'include' => 'columns'
+            ]
+        );
+
+        $this->assertArrayHasKey('id', $response);
+        $this->assertArrayHasKey('description', $response);
+        $this->assertArrayHasKey('project', $response);
+        $this->assertArrayHasKey('tables', $response);
+        $this->assertArrayHasKey('created', $response);
+        $this->assertArrayHasKey('lastChangeDate', $response);
+        $this->assertArrayHasKey('dataSizeBytes', $response);
+        $this->assertArrayHasKey('rowsCount', $response);
+        $this->assertArrayHasKey('backend', $response);
+
+        $this->assertArrayHasKey('id', $response['project']);
+        $this->assertArrayHasKey('name', $response['project']);
+
+        $this->assertSame($bucketId, $response['id']);
+        $this->assertEquals($response['project']['id'], $project['id']);
+        $this->assertEquals($response['project']['name'], $project['name']);
+
+        $this->assertArrayHasKey('tables', $response);
+
+        $tableColumns = $this->_client->getTable($tableId)['columns'];
+        foreach ($response['tables'] as $table) {
+            $this->assertArrayNotHasKey('metadata', $table);
+            $this->assertArrayNotHasKey('columnMetadata', $table);
+            $this->assertArrayHasKey('columns', $table);
+            $this->assertCount(5, $table['columns']);
+            foreach ($table['columns'] as $column) {
+                $this->assertTrue(in_array($column, $tableColumns));
+            }
+        }
+
+        $response = $this->_client2->getSharedBucketDetail(
+            $project['id'],
+            $bucketId,
+            [
+                'include' => 'metadata,columns,tableMetadata,columnMetadata'
+            ]
+        );
+
+        $this->assertCount(1, $response['metadata']);
+
+        $sharedBucketMetadata = reset($response['metadata']);
+
+        $this->assertArrayHasKey('id', $sharedBucketMetadata);
+        $this->assertArrayHasKey('key', $sharedBucketMetadata);
+        $this->assertArrayHasKey('value', $sharedBucketMetadata);
+        $this->assertArrayHasKey('provider', $sharedBucketMetadata);
+        $this->assertArrayHasKey('timestamp', $sharedBucketMetadata);
+
+        $this->assertEquals('test', $sharedBucketMetadata['provider']);
+        $this->assertEquals('test.metadata.key', $sharedBucketMetadata['key']);
+        $this->assertEquals('test.metadata.value', $sharedBucketMetadata['value']);
+
+        foreach ($response['tables'] as $table) {
+            $this->assertArrayHasKey('metadata', $table);
+            $this->assertArrayHasKey('columns', $table);
+            $this->assertArrayHasKey('columnMetadata', $table);
+
+            $tableMetadata = reset($table['metadata']);
+
+            $this->assertArrayHasKey('id', $tableMetadata);
+            $this->assertArrayHasKey('key', $tableMetadata);
+            $this->assertArrayHasKey('value', $tableMetadata);
+            $this->assertArrayHasKey('provider', $tableMetadata);
+            $this->assertArrayHasKey('timestamp', $tableMetadata);
+
+            $this->assertEquals('test', $tableMetadata['provider']);
+            $this->assertEquals('test.metadata.key', $tableMetadata['key']);
+            $this->assertEquals('test.metadata.value', $tableMetadata['value']);
+
+            $columns = $table['columns'];
+
+            $this->assertSame(5, count($columns));
+            foreach ($columns as $column) {
+                $this->assertTrue(in_array($column, $tableColumns));
+            }
+
+            $columnsMetadata = reset($table['columnMetadata']['transid']);
+
+            $this->assertArrayHasKey('id', $columnsMetadata);
+            $this->assertArrayHasKey('key', $columnsMetadata);
+            $this->assertArrayHasKey('value', $columnsMetadata);
+            $this->assertArrayHasKey('provider', $columnsMetadata);
+            $this->assertArrayHasKey('timestamp', $columnsMetadata);
+
+            $this->assertEquals('test', $columnsMetadata['provider']);
+            $this->assertEquals('test.metadata.key', $columnsMetadata['key']);
+            $this->assertEquals('test.metadata.value', $columnsMetadata['value']);
+        }
+    }
+
+    private function sharedBucketDetailWithAliasTableMetadataTest($bucketId, $tableId, $project)
+    {
+        $columnId = $tableId . '.transid';
+        $mdList = $this->prepareTestMetadata($bucketId, $tableId, $columnId);
+
+        // create alias of alias
+        $this->_client->createAliasTable(
+            $bucketId,
+            $tableId,
+            'tableAlias'
+        );
+        $tableAliasAliasName = 'tableAliasAlias';
+        $this->_client->createAliasTable(
+            $bucketId,
+            $bucketId . '.tableAlias',
+            $tableAliasAliasName
+        );
+
+        $response = $this->_client2->getSharedBucketDetail(
+            $project['id'],
+            $bucketId,
+            [
+                'include' => 'columns,tableMetadata,columnMetadata'
+            ]
+        );
+
+        $aliasAliasTableId = $bucketId . '.' . $tableAliasAliasName;
+        $tables = array_values(array_filter($response['tables'], function ($table) use ($aliasAliasTableId) {
+            return $table['id'] === $aliasAliasTableId;
+        }));
+
+        // the metadata should be propagated from the source table
+        $this->assertNotEmpty($tables[0]['sourceTable']['columnMetadata']['transid']);
+        $this->assertEquals(
+            $mdList,
+            $tables[0]['sourceTable']['columnMetadata']['transid']
+        );
+
+        $this->assertArrayHasKey('metadata', $tables[0]);
+        $this->assertArrayHasKey('columns', $tables[0]);
+        $this->assertArrayHasKey('columnMetadata', $tables[0]);
+
+        $this->assertSame(0, count($tables[0]['metadata']));
+
+        $columns = $tables[0]['columns'];
+        $tableColumns = $this->_client->getTable($tableId)['columns'];
+        $this->assertSame(5, count($columns));
+        foreach ($columns as $column) {
+            $this->assertTrue(in_array($column, $tableColumns));
+        }
+
+        $this->assertSame(0, count($tables[0]['columnMetadata']));
+
+        $columnId = $aliasAliasTableId . '.id';
+
+        $mdList = $this->prepareTestMetadata($bucketId, $aliasAliasTableId, $columnId);
+
+        $response = $this->_client2->getSharedBucketDetail(
+            $project['id'],
+            $bucketId,
+            [
+                'include' => 'columns,tableMetadata,columnMetadata'
+            ]
+        );
+
+        $this->assertSame($bucketId, $response['id']);
+
+        $tables = array_values(array_filter($response['tables'], function ($table) use ($aliasAliasTableId) {
+            return $table['id'] === $aliasAliasTableId;
+        }));
+
+        $this->assertNotEmpty($tables[0]['columnMetadata']['id']);
+        $this->assertEquals(
+            $mdList,
+            $tables[0]['columnMetadata']['id']
+        );
+
+        $this->assertArrayHasKey('metadata', $tables[0]);
+        $this->assertArrayHasKey('columns', $tables[0]);
+        
+        $this->assertSame(5, count($tables[0]['columns']));
+        foreach ($tables[0]['columns'] as $column) {
+            $this->assertTrue(in_array($column, $tableColumns));
+        }
+
+        $tableMetadata = reset($tables[0]['metadata']);
+
+        $this->assertArrayHasKey('id', $tableMetadata);
+        $this->assertArrayHasKey('key', $tableMetadata);
+        $this->assertArrayHasKey('value', $tableMetadata);
+        $this->assertArrayHasKey('provider', $tableMetadata);
+        $this->assertArrayHasKey('timestamp', $tableMetadata);
+
+        $this->assertEquals('test', $tableMetadata['provider']);
+        $this->assertEquals('test.metadata.key', $tableMetadata['key']);
+        $this->assertEquals('test.metadata.value', $tableMetadata['value']);
+    }
+
+    private function prepareTestMetadata($bucketId, $tableId, $columnId)
+    {
+        $metadataClient = new Metadata($this->_client);
+        $metadataClient->postBucketMetadata(
+            $bucketId,
+            'test',
+            [
+                [
+                    'key' => 'test.metadata.key',
+                    'value' => 'test.metadata.value',
+                ],
+            ]
+        );
+
+        $metadataClient->postTableMetadata(
+            $tableId,
+            'test',
+            [
+                [
+                    'key' => 'test.metadata.key',
+                    'value' => 'test.metadata.value',
+                ],
+            ]
+        );
+
+        $metadataClient->postColumnMetadata(
+            $columnId,
+            'test',
+            [
+                [
+                    'key' => 'test.metadata.key',
+                    'value' => 'test.metadata.value',
+                ],
+            ]
+        );
+
+        return $metadataClient->listColumnMetadata($columnId);
+    }
+
+    /**
+     * @dataProvider sharingBackendData
+     * @throws ClientException
+     */
+    public function testGetSharedBucketDetailForNonExistBucket($backend)
+    {
+        $response = $this->_client->verifyToken();
+        $this->assertArrayHasKey('owner', $response);
+
+        $this->assertArrayHasKey('id', $response['owner']);
+        $this->assertArrayHasKey('name', $response['owner']);
+
+        $project = $response['owner'];
+
+        try {
+            $this->_client2->getSharedBucketDetail(
+                $project['id'],
+                'non-exist',
+                [
+                    'include' => 'columns'
+                ]
+            );
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.buckets.notFound', $e->getStringCode());
+            $this->assertEquals(404, $e->getCode());
+        }
     }
 
     public function invalidSharingTypeData()
