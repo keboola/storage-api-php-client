@@ -1170,6 +1170,475 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertCount(5, $workspaceTableData);
     }
 
+    /**
+     * @dataProvider sharingBackendData
+     * @throws ClientException
+     */
+    public function testSharedBucketDetail($backend)
+    {
+        $this->initTestBuckets($backend);
+        $bucketId = reset($this->_bucketIds);
+
+        $tableName = 'transactions';
+        $this->_client->createTable(
+            $bucketId,
+            $tableName,
+            new CsvFile(__DIR__ . '/../../_data/transactions.csv')
+        );
+
+        $this->_client->shareBucket($bucketId);
+        $this->assertTrue($this->_client->isSharedBucket($bucketId));
+
+        $response = $this->_client->verifyToken();
+        $this->assertArrayHasKey('owner', $response);
+
+        $this->assertArrayHasKey('id', $response['owner']);
+        $this->assertArrayHasKey('name', $response['owner']);
+
+        $project = $response['owner'];
+
+        $response = $this->_client2->getSharedBucketDetail(
+            $project['id'],
+            $bucketId,
+            [
+                'include' => 'columns'
+            ]
+        );
+
+        $this->assertArrayHasKey('tables', $response);
+
+        foreach ($response['tables'] as $table) {
+            $this->assertArrayHasKey('columns', $table);
+
+            $tableColumns = ['id', 'transid', 'item', 'price', 'quantity'];
+            $this->assertCount(5, $table['columns']);
+            foreach ($table['columns'] as $column) {
+                $this->assertTrue(in_array($column, $tableColumns));
+            }
+        }
+    }
+
+    /**
+     * @dataProvider sharingBackendData
+     * @throws ClientException
+     */
+    public function testSharedBucketDetailWithMetadata($backend)
+    {
+        $this->initTestBuckets($backend);
+        $bucketId = reset($this->_bucketIds);
+
+        $tableName = 'transactions';
+        $tableId = $this->_client->createTable(
+            $bucketId,
+            $tableName,
+            new CsvFile(__DIR__ . '/../../_data/transactions.csv')
+        );
+
+        $this->_client->shareBucket($bucketId);
+        $this->assertTrue($this->_client->isSharedBucket($bucketId));
+
+        $response = $this->_client->verifyToken();
+        $this->assertArrayHasKey('owner', $response);
+
+        $this->assertArrayHasKey('id', $response['owner']);
+        $this->assertArrayHasKey('name', $response['owner']);
+
+        $project = $response['owner'];
+
+        $metadataClient = new Metadata($this->_client);
+        $metadataClient->postTableMetadata(
+            $tableId,
+            'test',
+            [
+                [
+                    'key' => 'test.metadata.key',
+                    'value' => 'test.metadata.value',
+                ],
+            ]
+        );
+
+        $columnId = 'out.c-API-sharing.transactions.transid';
+        $metadataClient = new Metadata($this->_client);
+        $metadataClient->postColumnMetadata(
+            $columnId,
+            'test',
+            [
+                [
+                    'key' => 'test.metadata.key',
+                    'value' => 'test.metadata.value',
+                ],
+            ]
+        );
+
+        $response = $this->_client2->getSharedBucketDetail(
+            $project['id'],
+            $bucketId,
+            [
+                'include' => 'tableMetadata,columns,columnMetadata'
+            ]
+        );
+
+        foreach ($response['tables'] as $table) {
+            $this->assertArrayHasKey('tableMetadata', $table);
+            $this->assertArrayHasKey('columnMetadata', $table);
+
+            $tableMetadata = reset($table['tableMetadata']);
+
+            $this->assertArrayHasKey('id', $tableMetadata);
+            $this->assertArrayHasKey('key', $tableMetadata);
+            $this->assertArrayHasKey('value', $tableMetadata);
+            $this->assertArrayHasKey('provider', $tableMetadata);
+            $this->assertArrayHasKey('timestamp', $tableMetadata);
+
+            $this->assertEquals('test', $tableMetadata['provider']);
+            $this->assertEquals('test.metadata.key', $tableMetadata['key']);
+            $this->assertEquals('test.metadata.value', $tableMetadata['value']);
+
+            $columnsMetadata = reset($table['columnMetadata']['transid']);
+
+            $this->assertArrayHasKey('id', $columnsMetadata);
+            $this->assertArrayHasKey('key', $columnsMetadata);
+            $this->assertArrayHasKey('value', $columnsMetadata);
+            $this->assertArrayHasKey('provider', $columnsMetadata);
+            $this->assertArrayHasKey('timestamp', $columnsMetadata);
+
+            $this->assertEquals('test', $columnsMetadata['provider']);
+            $this->assertEquals('test.metadata.key', $columnsMetadata['key']);
+            $this->assertEquals('test.metadata.value', $columnsMetadata['value']);
+        }
+    }
+
+    /**
+     * @dataProvider sharingBackendData
+     * @throws ClientException
+     */
+    public function testSharedBucketForProject($backend)
+    {
+        $this->initTestBuckets($backend);
+        $bucketId = reset($this->_bucketIds);
+
+        $tableName = 'transactions';
+        $this->_client->createTable(
+            $bucketId,
+            $tableName,
+            new CsvFile(__DIR__ . '/../../_data/transactions.csv')
+        );
+
+        $this->_client->shareBucket($bucketId);
+        $this->assertTrue($this->_client->isSharedBucket($bucketId));
+
+        $response = $this->_client->verifyToken();
+        $this->assertArrayHasKey('owner', $response);
+
+        $this->assertArrayHasKey('id', $response['owner']);
+        $this->assertArrayHasKey('name', $response['owner']);
+
+        $project = $response['owner'];
+
+        $response = $this->_client2->getSharedBucketsForProject(
+            $project['id'],
+            [
+                'include' => 'columns'
+            ]
+        );
+
+        foreach ($response as $bucket) {
+            $this->assertArrayHasKey('tables', $bucket);
+
+            foreach ($bucket['tables'] as $table) {
+                $this->assertArrayHasKey('columns', $table);
+
+                $tableColumns = ['id', 'transid', 'item', 'price', 'quantity'];
+                $this->assertCount(5, $table['columns']);
+                foreach ($table['columns'] as $column) {
+                    $this->assertTrue(in_array($column, $tableColumns));
+                }
+            }
+        }
+    }
+
+    /**
+     * @dataProvider sharingBackendData
+     * @throws ClientException
+     */
+    public function testSharedBucketForProjectWithMetadata($backend)
+    {
+        $this->initTestBuckets($backend);
+        $bucketId = reset($this->_bucketIds);
+
+        $tableName = 'transactions';
+        $tableId = $this->_client->createTable(
+            $bucketId,
+            $tableName,
+            new CsvFile(__DIR__ . '/../../_data/transactions.csv')
+        );
+
+        $this->_client->shareBucket($bucketId);
+        $this->assertTrue($this->_client->isSharedBucket($bucketId));
+
+        $response = $this->_client->verifyToken();
+        $this->assertArrayHasKey('owner', $response);
+
+        $this->assertArrayHasKey('id', $response['owner']);
+        $this->assertArrayHasKey('name', $response['owner']);
+
+        $project = $response['owner'];
+
+        $metadataClient = new Metadata($this->_client);
+        $metadataClient->postTableMetadata(
+            $tableId,
+            'test',
+            [
+                [
+                    'key' => 'test.metadata.key',
+                    'value' => 'test.metadata.value',
+                ],
+            ]
+        );
+
+        $columnId = 'out.c-API-sharing.transactions.transid';
+        $metadataClient = new Metadata($this->_client);
+        $metadataClient->postColumnMetadata(
+            $columnId,
+            'test',
+            [
+                [
+                    'key' => 'test.metadata.key',
+                    'value' => 'test.metadata.value',
+                ],
+            ]
+        );
+
+        $response = $this->_client2->getSharedBucketsForProject(
+            $project['id'],
+            [
+                'include' => 'tableMetadata,columns,columnMetadata'
+            ]
+        );
+
+        foreach ($response as $bucket) {
+            foreach ($bucket['tables'] as $table) {
+                $this->assertArrayHasKey('tableMetadata', $table);
+                $this->assertArrayHasKey('columnMetadata', $table);
+
+                $tableMetadata = reset($table['tableMetadata']);
+
+                $this->assertArrayHasKey('id', $tableMetadata);
+                $this->assertArrayHasKey('key', $tableMetadata);
+                $this->assertArrayHasKey('value', $tableMetadata);
+                $this->assertArrayHasKey('provider', $tableMetadata);
+                $this->assertArrayHasKey('timestamp', $tableMetadata);
+
+                $this->assertEquals('test', $tableMetadata['provider']);
+                $this->assertEquals('test.metadata.key', $tableMetadata['key']);
+                $this->assertEquals('test.metadata.value', $tableMetadata['value']);
+
+                $columnsMetadata = reset($table['columnMetadata']['transid']);
+
+                $this->assertArrayHasKey('id', $columnsMetadata);
+                $this->assertArrayHasKey('key', $columnsMetadata);
+                $this->assertArrayHasKey('value', $columnsMetadata);
+                $this->assertArrayHasKey('provider', $columnsMetadata);
+                $this->assertArrayHasKey('timestamp', $columnsMetadata);
+
+                $this->assertEquals('test', $columnsMetadata['provider']);
+                $this->assertEquals('test.metadata.key', $columnsMetadata['key']);
+                $this->assertEquals('test.metadata.value', $columnsMetadata['value']);
+            }
+        }
+    }
+
+    /**
+     * @dataProvider sharingBackendData
+     * @throws ClientException
+     */
+    public function testSharedBucketForNonExistProject($backend)
+    {
+        $this->initTestBuckets($backend);
+        $bucketId = reset($this->_bucketIds);
+
+        $tableName = 'transactions';
+        $this->_client->createTable(
+            $bucketId,
+            $tableName,
+            new CsvFile(__DIR__ . '/../../_data/transactions.csv')
+        );
+
+        $this->_client->shareBucket($bucketId);
+        $this->assertTrue($this->_client->isSharedBucket($bucketId));
+
+        $response = $this->_client->verifyToken();
+        $this->assertArrayHasKey('owner', $response);
+
+        $this->assertArrayHasKey('id', $response['owner']);
+        $this->assertArrayHasKey('name', $response['owner']);
+
+        try {
+            $this->_client2->getSharedBucketsForProject(
+                'non-exist',
+                [
+                    'include' => 'columns'
+                ]
+            );
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.buckets.projectNotFound', $e->getStringCode());
+            $this->assertEquals(404, $e->getCode());
+        }
+    }
+
+    /**
+     * @dataProvider sharingBackendData
+     * @throws ClientException
+     */
+    public function testSharedBucketForNonExistBucket($backend)
+    {
+        $this->initTestBuckets($backend);
+        $bucketId = reset($this->_bucketIds);
+
+        $tableName = 'transactions';
+        $this->_client->createTable(
+            $bucketId,
+            $tableName,
+            new CsvFile(__DIR__ . '/../../_data/transactions.csv')
+        );
+
+        $this->_client->shareBucket($bucketId);
+        $this->assertTrue($this->_client->isSharedBucket($bucketId));
+
+        $response = $this->_client->verifyToken();
+        $this->assertArrayHasKey('owner', $response);
+
+        $this->assertArrayHasKey('id', $response['owner']);
+        $this->assertArrayHasKey('name', $response['owner']);
+
+        $project = $response['owner'];
+
+        try {
+            $this->_client2->getSharedBucketDetail(
+                $project['id'],
+                'non-exist',
+                [
+                    'include' => 'columns'
+                ]
+            );
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.buckets.notFound', $e->getStringCode());
+            $this->assertEquals(404, $e->getCode());
+        }
+    }
+
+    /**
+     * @dataProvider sharingBackendData
+     * @throws ClientException
+     */
+    public function testSharedBucketDetailNotAppearsInOtherProjects($backend)
+    {
+        $this->initTestBuckets($backend);
+        $bucketId = reset($this->_bucketIds);
+
+        $tableName = 'transactions';
+        $this->_client->createTable(
+            $bucketId,
+            $tableName,
+            new CsvFile(__DIR__ . '/../../_data/transactions.csv')
+        );
+
+        $this->_client->shareBucket($bucketId);
+        $this->assertTrue($this->_client->isSharedBucket($bucketId));
+
+        $response = $this->_client->verifyToken();
+        $this->assertArrayHasKey('owner', $response);
+
+        $this->assertArrayHasKey('id', $response['owner']);
+        $this->assertArrayHasKey('name', $response['owner']);
+
+        $project = $response['owner'];
+
+        $responseClient2 = $this->_client2->getSharedBucketDetail(
+            $project['id'],
+            $bucketId,
+            [
+                'include' => 'columns'
+            ]
+        );
+
+        $this->assertArrayHasKey('tables', $responseClient2);
+
+        foreach ($responseClient2['tables'] as $table) {
+            $this->assertArrayHasKey('columns', $table);
+
+            $tableColumns = ['id', 'transid', 'item', 'price', 'quantity'];
+            $this->assertCount(5, $table['columns']);
+            foreach ($table['columns'] as $column) {
+                $this->assertTrue(in_array($column, $tableColumns));
+            }
+        }
+
+        $this->assertCount(
+            0,
+            $this->clientAdmin2InSameOrg->getSharedBucketsForProject($project['id'])
+        );
+
+        try {
+            $this->clientAdmin2InSameOrg->getSharedBucketDetail(
+                $project['id'],
+                $bucketId,
+                [
+                    'include' => 'columns'
+                ]
+            );
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.buckets.notFound', $e->getStringCode());
+            $this->assertEquals(404, $e->getCode());
+        }
+    }
+
+//    /**
+//     * @dataProvider sharingBackendData
+//     * @throws ClientException
+//     * @group Roman
+//     */
+//    public function testShareBucketsDetailVisibility($backend)
+//    {
+//        $this->initTestBuckets($backend);
+//        $bucketIds = $this->_bucketIds;
+//
+//        $this->_client->shareOrganizationProjectBucket($bucketIds['in']);
+//        $this->assertTrue($this->_client->isSharedBucket($bucketIds['in']));
+//
+//        $response = $this->_client2->listSharedBuckets();
+//        $this->assertCount(1, $response);
+//
+//        $response = $this->clientAdmin2InSameOrg->listSharedBuckets();
+//        $this->assertCount(1, $response);
+//
+//        $this->_client2->dropBucket(self::STAGE_IN . 'visibility');
+//        $client2BucketId = $this->_client2->createBucket('visibility', self::STAGE_IN, $backend);
+//
+//        $baseProjectId = $this->_client->verifyToken()['owner']['id'];
+//        $client2ProjectId = $this->_client2->verifyToken()['owner']['id'];
+//
+//        $this->_client2->shareBucketToProjects($client2BucketId, $baseProjectId);
+//
+//        $response = $this->_client->getSharedBucketsForProject($baseProjectId);
+//        $this->assertCount(1, $response);
+//
+//        $response = $this->_client->getSharedBucketsForProject($client2ProjectId);
+//        $this->assertCount(1, $response);
+//
+//        $response = $this->_client2->getSharedBucketsForProject($baseProjectId);
+//        $this->assertCount(1, $response);
+//
+//        $response = $this->_client2->getSharedBucketsForProject($client2ProjectId);
+//        $this->assertCount(0, $response);
+//
+//        $response = $this->clientAdmin2InSameOrg->getSharedBucketsForProject($baseProjectId);
+//        $this->assertCount(1, $response);
+//
+//        $response = $this->clientAdmin2InSameOrg->getSharedBucketsForProject($client2ProjectId);
+//        $this->assertCount(0, $response);
+//    }
+
     public function invalidSharingTypeData()
     {
         return [

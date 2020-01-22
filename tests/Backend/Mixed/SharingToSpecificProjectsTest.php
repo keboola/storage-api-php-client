@@ -86,9 +86,21 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
             $project = reset($sharedBucket['sharingParameters']['projects']);
             $this->assertEquals($targetProject['id'], $project['id']);
             $this->assertEquals($targetProject['name'], $project['name']);
+
+            $this->assertCount(12, $this->_client->getSharedBucketDetail($targetProject['id'], $bucketId));
+
+            try {
+                $this->clientAdmin2InSameOrg->getSharedBucketDetail($targetProject['id'], $bucketId);
+            } catch (ClientException $e) {
+                $this->assertEquals('storage.buckets.notFound', $e->getStringCode());
+                $this->assertEquals(404, $e->getCode());
+            }
         }
 
         $this->assertCount(2, $this->_client->listSharedBuckets());
+        $this->assertCount(2, $this->_client->getSharedBucketsForProject($targetProject['id']));
+
+        $this->assertCount(0, $this->clientAdmin2InSameOrg->getSharedBucketsForProject($targetProject['id']));
     }
 
     /**
@@ -152,6 +164,32 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
         $this->assertEquals('in', $linkedBucket['stage']);
         $this->assertEquals($bucket['backend'], $linkedBucket['backend']);
         $this->assertEquals($bucket['description'], $linkedBucket['description']);
+    }
+
+    /**
+     * @dataProvider sharingBackendData
+     * @throws ClientException
+     */
+    public function testNonAbleToGetBucketDetailToSpecificProject($backend)
+    {
+        $this->initTestBuckets($backend);
+        $bucketId = reset($this->_bucketIds);
+
+        $targetProjectId = $this->clientAdmin2InSameOrg->verifyToken()['owner']['id'];
+        $this->_client->shareBucketToProjects($bucketId, [$targetProjectId]);
+        $SharedBuckets = $this->clientAdmin2InSameOrg->listSharedBuckets();
+        $this->assertCount(1, $SharedBuckets);
+
+        $baseProjectId = $this->_client->verifyToken()['owner']['id'];
+        $SharedBuckets = $this->_client2->getSharedBucketsForProject($baseProjectId);
+        $this->assertCount(0, $SharedBuckets);
+
+        try {
+            $this->_client2->getSharedBucketDetail($baseProjectId, $bucketId);
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.buckets.notFound', $e->getStringCode());
+            $this->assertEquals(404, $e->getCode());
+        }
     }
 
     /**

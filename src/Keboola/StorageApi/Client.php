@@ -420,6 +420,40 @@ class Client
         return $this->apiGet($url);
     }
 
+    public function getSharedBucketDetail($projectId, $bucketId, $options = [])
+    {
+        $url = "storage/shared-buckets/" . $projectId . '/detail/' . $bucketId;
+
+        $allowedOptions = [
+            'include',
+        ];
+
+        $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
+
+        if (!empty($filteredOptions)) {
+            $url .= '?' . http_build_query($filteredOptions);
+        }
+
+        return $this->apiGet($url);
+    }
+
+    public function getSharedBucketsForProject($projectId, $options = [])
+    {
+        $url = "storage/shared-buckets/" . $projectId . '/detail';
+
+        $allowedOptions = [
+            'include',
+        ];
+
+        $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
+
+        if (!empty($filteredOptions)) {
+            $url .= '?' . http_build_query($filteredOptions);
+        }
+
+        return $this->apiGet($url);
+    }
+
     /**
      *
      * Set a bucket attribute
