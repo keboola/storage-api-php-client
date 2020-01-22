@@ -17,7 +17,10 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
      */
     protected $_client2;
 
+    /** @var Client */
     protected $clientAdmin2InSameOrg;
+
+    /** @var Client */
     protected $clientAdmin3InOtherOrg;
 
     public function setUp()
