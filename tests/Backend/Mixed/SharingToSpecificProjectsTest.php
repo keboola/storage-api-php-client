@@ -86,6 +86,15 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
             $project = reset($sharedBucket['sharingParameters']['projects']);
             $this->assertEquals($targetProject['id'], $project['id']);
             $this->assertEquals($targetProject['name'], $project['name']);
+
+            $this->assertCount(13, $this->_client->getSharedBucketDetail($targetProject['id'], $bucketId));
+
+            try {
+                $this->clientAdmin2InSameOrg->getSharedBucketDetail($targetProject['id'], $bucketId);
+            } catch (ClientException $e) {
+                $this->assertEquals('storage.buckets.notFound', $e->getStringCode());
+                $this->assertEquals(404, $e->getCode());
+            }
         }
 
         $this->assertCount(2, $this->_client->listSharedBuckets());
