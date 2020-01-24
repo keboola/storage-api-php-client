@@ -237,6 +237,60 @@ class MetadataFromRedshiftWorkspaceTest extends WorkspacesTestCase
         $this->assertMetadata($expectedUpdateMetadata, $table['columnMetadata']['update']);
     }
 
+    public function testWriteTableFromWorkspaceWithUnsupportedDataType()
+    {
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'metadata_columns',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+
+        // create workspace and source table in workspace
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace(["backend" => "redshift"]);
+        $connection = $workspace['connection'];
+        $db = $this->getDbConnection($connection);
+
+         $db->query("create table \"test.metadata_columns\" (
+                \"id\" integer not null,
+                \"shape\" geometry not null
+            );");
+
+        $this->_client->writeTableAsyncDirect($tableId, array(
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => 'test.metadata_columns',
+        ));
+
+        $table = $this->_client->getTable($tableId);
+
+        $this->assertEquals(2, count($table['columns']));
+        $this->assertEquals([], $table['columnMetadata']);
+    }
+
+    public function testCreateTableFromWorkspaceWithUnsupportedDataType()
+    {
+        // create workspace and source table in workspace
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace(["backend" => "redshift"]);
+        $connection = $workspace['connection'];
+        $db = $this->getDbConnection($connection);
+
+        $db->query("create table \"test.metadata_columns\" (
+                \"id\" integer not null,
+                \"shape\" geometry not null
+            );");
+
+        $tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), array(
+            'name' => 'metadata_columns',
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => 'test.metadata_columns',
+        ));
+
+        $table = $this->_client->getTable($tableId);
+
+        $this->assertEquals(2, count($table['columns']));
+        $this->assertEquals([], $table['columnMetadata']);
+    }
 
     private function assertMetadata($expectedKeyValues, $metadata)
     {
