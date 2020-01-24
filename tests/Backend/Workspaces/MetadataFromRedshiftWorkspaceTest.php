@@ -4,6 +4,7 @@
 namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\Csv\CsvFile;
+use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 
 class MetadataFromRedshiftWorkspaceTest extends WorkspacesTestCase
@@ -237,6 +238,76 @@ class MetadataFromRedshiftWorkspaceTest extends WorkspacesTestCase
         $this->assertMetadata($expectedUpdateMetadata, $table['columnMetadata']['update']);
     }
 
+    public function testWriteTableFromWorkspaceWithUnsupportedDataType()
+    {
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'metadata_columns',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+
+        // create workspace and source table in workspace
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace(["backend" => "redshift"]);
+        $connection = $workspace['connection'];
+        $db = $this->getDbConnection($connection);
+
+         $db->query("create table \"test.metadata_columns\" (
+                \"id\" integer not null,
+                \"shape\" geometry
+            );");
+
+        try {
+            $this->_client->writeTableAsyncDirect($tableId, array(
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => 'test.metadata_columns',
+            ));
+            $this->fail('Exception "cannot cast type geometry to character " should be thrown');
+        } catch (ClientException $e) {
+            $this->assertContains(
+                $e->getMessage(),
+                "Cannot coerce: 7 ERROR:  cannot cast type geometry to character varying"
+            );
+        }
+
+        $table = $this->_client->getTable($tableId);
+
+        $this->assertEquals(2, count($table['columns']));
+        $this->assertEquals([], $table['columnMetadata']);
+    }
+
+    public function testCreateTableFromWorkspaceWithUnsupportedDataType()
+    {
+        // create workspace and source table in workspace
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace(["backend" => "redshift"]);
+        $connection = $workspace['connection'];
+        $db = $this->getDbConnection($connection);
+
+        $db->query("create table \"test.metadata_columns\" (
+                \"id\" integer not null,
+                \"shape\" geometry
+            );");
+
+        try {
+            $tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), array(
+                'name' => 'metadata_columns',
+                'dataWorkspaceId' => $workspace['id'],
+                'dataTableName' => 'test.metadata_columns',
+            ));
+
+            $table = $this->_client->getTable($tableId);
+
+            $this->assertEquals(2, count($table['columns']));
+            $this->assertEquals([], $table['columnMetadata']);
+            $this->fail('Exception "cannot cast type geometry to character " should be thrown');
+        } catch (ClientException $e) {
+            $this->assertContains(
+                $e->getMessage(),
+                "Cannot coerce: 7 ERROR:  cannot cast type geometry to character varying"
+            );
+        }
+    }
 
     private function assertMetadata($expectedKeyValues, $metadata)
     {
