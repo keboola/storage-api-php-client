@@ -11,8 +11,8 @@
 
 namespace Keboola\StorageApi;
 
+use Aws\S3\S3Client;
 use GuzzleHttp\Client as HttpClient;
-use Keboola\StorageApi\Downloader\DownloaderFactory;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
@@ -39,14 +39,26 @@ class TableExporter
         }
 
         $table = $this->client->getTable($tableId);
-        $getFileResponse = $this->client->getFile(
-            $fileId,
-            (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true)
-        );
+        $fileInfo = $this->client->getFile($fileId, (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
 
-        // Temporary folder to save downloaded files
+        // Initialize S3Client with credentials from Storage API
+        $s3Client = new S3Client([
+            'version' => '2006-03-01',
+            'region' => $fileInfo['region'],
+            'retries' => $this->client->getAwsRetries(),
+            'credentials' => [
+                'key' => $fileInfo["credentials"]["AccessKeyId"],
+                'secret' => $fileInfo["credentials"]["SecretAccessKey"],
+                'token' => $fileInfo["credentials"]["SessionToken"],
+            ],
+            'http' => [
+                'decode_content' => false,
+            ],
+        ]);
+
+        // Temporary folder to save downloaded files from S3
         $workingDir = sys_get_temp_dir() . '/sapi-php-client';
-        $tmpFilePath = $workingDir . '/' . uniqid('sapi-export-', true);
+
 
         $fs = new Filesystem();
         if (!$fs->exists($workingDir)) {
@@ -57,12 +69,9 @@ class TableExporter
             $fs->remove($destination);
         }
 
-        $downloader = DownloaderFactory::createDownloaderForFileResponse(
-            $getFileResponse,
-            $this->client->getAwsRetries()
-        );
+        $tmpFilePath = $workingDir . '/' . uniqid('sapi-export-');
 
-        if ($getFileResponse['isSliced'] === true) {
+        if ($fileInfo['isSliced'] === true) {
             /**
              * sliced file - combine files together
              */
@@ -73,12 +82,19 @@ class TableExporter
                     'backoffMaxTries' => 10,
                 ]),
             ]);
-            $manifest = json_decode($client->get($getFileResponse['url'])->getBody(), true);
-            $files = [];
+            $manifest = json_decode($client->get($fileInfo['url'])->getBody(), true);
+            $files = array();
 
             // Download all sliced files
             foreach ($manifest["entries"] as $part) {
-                $files[] = $downloader->downloadManifestEntry($getFileResponse, $part, $tmpFilePath);
+                $fileKey = substr($part["url"], strpos($part["url"], '/', 5) + 1);
+                $filePath = $tmpFilePath . '_' . md5(str_replace('/', '_', $fileKey));
+                $files[] = $filePath;
+                $s3Client->getObject(array(
+                    'Bucket' => $fileInfo["s3Path"]["bucket"],
+                    'Key' => $fileKey,
+                    'SaveAs' => $filePath,
+                ));
             }
 
             // Create file with header
@@ -127,7 +143,11 @@ class TableExporter
             /**
              * NonSliced file, just move from temp to destination file
              */
-            $downloader->downloadFileFromFileResponse($getFileResponse, $tmpFilePath);
+            $s3Client->getObject(array(
+                'Bucket' => $fileInfo["s3Path"]["bucket"],
+                'Key' => $fileInfo["s3Path"]["key"],
+                'SaveAs' => $tmpFilePath,
+            ));
             $fs->rename($tmpFilePath, $destination);
         }
         $fs->remove($tmpFilePath);
