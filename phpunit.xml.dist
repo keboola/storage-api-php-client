@@ -16,13 +16,30 @@
 		<directory>tests/Common</directory>
 		<directory>tests/Options</directory>
 		<directory>tests/S3Uploader</directory>
-		<file>tests/File/CommonFilesTests.php</file>
+		<directory>tests/Downloader</directory>
+		<file>tests/File/CommonFileTests.php</file>
 		<file>tests/File/AwsFileTest.php</file>
 	</testsuite>
 
 	<testsuite name="file-storage-azure">
 		<file>tests/File/AzureFileTest.php</file>
-		<file>tests/File/CommonFilesTests.php</file>
+		<file>tests/File/CommonFileTest.php</file>
+	</testsuite>
+
+	<testsuite name="backend-snowflake-abs-part-1">
+		<file>tests/Backend/CommonPart1/TableExporterTest.php</file>
+		<file>tests/Backend/CommonPart1/ImportExportCommonTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesSnowflakeTest.php</file>
+	</testsuite>
+
+	<testsuite name="backend-snowflake-abs-part-2">
+		<file>tests/Backend/Snowflake/TableExportTest.php</file>
+		<file>tests/Backend/Snowflake/TimeTravelTest.php</file>
+		<file>tests/Backend/Mixed/Workspaces/AbsWorkspacesTest.php</file>
+		<file>tests/Backend/CommonPart2/SnapshottingTest.php</file>
+		<file>tests/Backend/CommonPart2/MetricsTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-redshift-part-1">
@@ -63,5 +80,6 @@
 
 	<testsuite name="backend-mixed">
 		<directory>tests/Backend/Mixed</directory>
+		<exclude>tests/Backend/Mixed/Workspaces/S3WorkspacesTest.php</exclude>
 	</testsuite>
 </phpunit>
