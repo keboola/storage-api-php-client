@@ -26,16 +26,19 @@
 		<file>tests/File/CommonFileTest.php</file>
 	</testsuite>
 
-	<testsuite name="azure-snowflake-import-export">
-		<file>tests/Backend/Snowflake/TableExportTest.php</file>
-		<file>tests/Backend/Snowflake/TimeTravelTest.php</file>
+	<testsuite name="backend-snowflake-abs-part-1">
 		<file>tests/Backend/CommonPart1/TableExporterTest.php</file>
 		<file>tests/Backend/CommonPart1/ImportExportCommonTest.php</file>
-		<file>tests/Backend/CommonPart2/SnapshottingTest.php</file>
-		<file>tests/Backend/Mixed/Workspaces/AbsWorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesSnowflakeTest.php</file>
+	</testsuite>
+
+	<testsuite name="backend-snowflake-abs-part-2">
+		<file>tests/Backend/Snowflake/TableExportTest.php</file>
+		<file>tests/Backend/Snowflake/TimeTravelTest.php</file>
+		<file>tests/Backend/Mixed/Workspaces/AbsWorkspacesTest.php</file>
+		<file>tests/Backend/CommonPart2/SnapshottingTest.php</file>
 		<file>tests/Backend/CommonPart2/MetricsTest.php</file>
 	</testsuite>
 
