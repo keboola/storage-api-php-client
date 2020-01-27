@@ -14,7 +14,7 @@ use Keboola\StorageApi\Options\StatsOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
-use MicrosoftAzure\Storage\Blob\Models\CreateBlobBlockOptions;
+use MicrosoftAzure\Storage\Blob\Models\CreateBlockBlobOptions;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
@@ -27,6 +27,7 @@ use Symfony\Component\Process\Process;
 class Client
 {
     // Stage names
+    const DEFAULT_RETRIES_COUNT = 15;
     const STAGE_IN = "in";
     const STAGE_OUT = "out";
     const STAGE_SYS = "sys";
@@ -48,7 +49,7 @@ class Client
 
     private $backoffMaxTries = 11;
 
-    private $awsRetries = 15;
+    private $awsRetries = self::DEFAULT_RETRIES_COUNT;
 
     private $awsDebug = false;
 
@@ -1362,8 +1363,19 @@ class Client
         array $prepareResult,
         $filePath
     ) {
-        $blobClient = BlobRestProxy::createBlobService($prepareResult['absUploadParams']['absCredentials']['SASConnectionString']);
-        $blobClient->createBlockBlob($prepareResult['absUploadParams']['container'], $prepareResult['absUploadParams']['blobName'], fopen($filePath, 'r'));
+        $options = new CreateBlockBlobOptions();
+        $options->setContentDisposition(
+            sprintf('attachment; filename=%s', $prepareResult['name'])
+        );
+        $blobClient = BlobRestProxy::createBlobService(
+            $prepareResult['absUploadParams']['absCredentials']['SASConnectionString']
+        );
+        $blobClient->createBlockBlob(
+            $prepareResult['absUploadParams']['container'],
+            $prepareResult['absUploadParams']['blobName'],
+            fopen($filePath, 'r'),
+            $options
+        );
     }
 
     /**
