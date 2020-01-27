@@ -409,10 +409,8 @@ class WorkspacesRenameLoadTest extends WorkspacesTestCase
         }
         if ($workspace['connection']['backend'] === $this::BACKEND_REDSHIFT) {
             $this->assertEquals("int4", $columnInfo['langid']['DATA_TYPE']);
-            $this->assertEquals("lzo", $columnInfo['langid']['COMPRESSION']);
             $this->assertEquals("varchar", $columnInfo['langname']['DATA_TYPE']);
             $this->assertEquals(50, $columnInfo['langname']['LENGTH']);
-            $this->assertEquals("lzo", $columnInfo['langname']['COMPRESSION']);
         }
     }
 
