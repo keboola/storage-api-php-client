@@ -181,11 +181,9 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
 
         $this->assertEquals("int4", $table['id']['DATA_TYPE']);
         $this->assertEquals(4, $table['id']['LENGTH']);
-        $this->assertEquals("lzo", $table['id']['COMPRESSION']);
 
         $this->assertEquals("varchar", $table['name']['DATA_TYPE']);
         $this->assertEquals(256, $table['name']['LENGTH']);
-        $this->assertEquals("lzo", $table['name']['COMPRESSION']);
     }
 
     public function testLoadedPrimaryKeys()
