@@ -225,4 +225,86 @@ class TimestampTest extends WorkspacesTestCase
             $this->assertNotNull($timestampRecord['_timestamp']);
         }
     }
+
+    /**
+     * Originally this is WorkspacesUnloadTest::testCopyImport but only works in snowflake
+     */
+    public function testTimestampCopyImport()
+    {
+        $table = $this->_client->apiPost("storage/buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(
+            'dataString' => 'Id,Name,update',
+            'name' => 'languages',
+            'primaryKey' => 'Id',
+        ));
+
+        // create workspace and source table in workspace
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+        $connection = $workspace['connection'];
+        $db = $this->getDbConnection($connection);
+        $db->query("create table \"test.Languages3\" (
+			\"Id\" integer not null,
+			\"Name\" varchar not null,
+			\"update\" varchar
+		);");
+        $db->query("insert into \"test.Languages3\" (\"Id\", \"Name\") values (1, 'cz'), (2, 'en');");
+        $this->_client->writeTableAsyncDirect($table['id'], array(
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => 'test.Languages3',
+        ));
+        unset($db);
+        // test timestamp
+        $tmpWorkspaceFull = $workspaces->createWorkspace();
+        $tmpWorkspaceDb = $this->getDbConnection($tmpWorkspaceFull['connection']);
+        $workspaces->cloneIntoWorkspace($tmpWorkspaceFull['id'], [
+            'input' => [
+                [
+                    'source' => $table['id'],
+                    'destination' => 'timestamptestFull',
+                ],
+            ],
+        ]);
+        $data = $tmpWorkspaceDb->fetchAll('SELECT "_timestamp" FROM "timestamptestFull"');
+        foreach ($data as $timestampRecord) {
+            $this->assertNotNull($timestampRecord['_timestamp']);
+        }
+        unset($tmpWorkspaceDb);
+
+        $db = $this->getDbConnection($connection);
+        $db->query("truncate \"test.Languages3\"");
+        $db->query("insert into \"test.Languages3\" values (1, 'cz', '1'), (3, 'sk', '1');");
+
+        $this->_client->writeTableAsyncDirect($table['id'], array(
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => 'test.Languages3',
+            'incremental' => true,
+        ));
+
+        $db->query("truncate table \"test.Languages3\"");
+        $db->query("alter table \"test.Languages3\" ADD COLUMN \"new_col\" varchar");
+        $db->query("insert into \"test.Languages3\" values (1, 'cz', '1', null), (3, 'sk', '1', 'newValue');");
+
+        $this->_client->writeTableAsyncDirect($table['id'], array(
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => 'test.Languages3',
+            'incremental' => true,
+        ));
+        unset($db);
+
+        $tmpWorkspaceInc = $workspaces->createWorkspace();
+        $tmpWorkspaceDb = $this->getDbConnection($tmpWorkspaceInc['connection']);
+        $workspaces->cloneIntoWorkspace($tmpWorkspaceInc['id'], [
+            'input' => [
+                [
+                    'source' => $table['id'],
+                    'destination' => 'timestamptestInc',
+                ],
+            ],
+        ]);
+        $data = $tmpWorkspaceDb->fetchAll('SELECT "_timestamp" FROM "timestamptestInc"');
+        foreach ($data as $timestampRecord) {
+            $this->assertNotNull($timestampRecord['_timestamp']);
+        }
+        unset($tmpWorkspaceDb);
+    }
 }
