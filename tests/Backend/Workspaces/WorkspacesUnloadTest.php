@@ -155,6 +155,21 @@ class WorkspacesUnloadTest extends WorkspacesTestCase
             'format' => 'rfc',
         )), 'imported data comparsion');
 
+        $tmpWorkspaceFull = $workspaces->createWorkspace();
+        $connection = $tmpWorkspaceFull['connection'];
+        $db = $this->getDbConnection($connection);
+        $workspaces->cloneIntoWorkspace($tmpWorkspaceFull['id'], [
+            'input' => [
+                [
+                    'source' => $table['id'],
+                    'destination' => 'timestamptestFull',
+                ],
+            ],
+        ]);
+        $data = $db->fetchAll('SELECT "_timestamp" FROM "timestamptestFull"');
+        foreach ($data as $timestampRecord) {
+            $this->assertNotNull($timestampRecord['_timestamp']);
+        }
 
         $db->query("truncate \"test.Languages3\"");
         $db->query("insert into \"test.Languages3\" values (1, 'cz', '1'), (3, 'sk', '1');");
@@ -194,5 +209,22 @@ class WorkspacesUnloadTest extends WorkspacesTestCase
         $this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->getTableDataPreview($table['id'], array(
             'format' => 'rfc',
         )), 'new  column added');
+
+
+        $tmpWorkspaceInc = $workspaces->createWorkspace();
+        $connection = $tmpWorkspaceInc['connection'];
+        $db = $this->getDbConnection($connection);
+        $workspaces->cloneIntoWorkspace($tmpWorkspaceInc['id'], [
+            'input' => [
+                [
+                    'source' => $table['id'],
+                    'destination' => 'timestamptestInc',
+                ],
+            ],
+        ]);
+        $data = $db->fetchAll('SELECT "_timestamp" FROM "timestamptestInc"');
+        foreach ($data as $timestampRecord) {
+            $this->assertNotNull($timestampRecord['_timestamp']);
+        }
     }
 }
