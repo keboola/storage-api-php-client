@@ -811,7 +811,13 @@ This operations is available only for organization administrators.
                 "rowsCount": 0,
                 "isMaintenance": false,
                 "backend": "snowflake",
-                "sharing": "organization"
+                "sharing": "organization",
+                "sharingParameters": [],
+                "sharedBy": {
+                    "id": 5,
+                    "name": "dev@keboola.com",
+                    "date": "2020-02-03T14:58:29+0100"
+                }
             }
 
 ### Share Bucket To Organization Project [POST /v2/storage/buckets/{bucket_id}/share-organization-project]
@@ -843,7 +849,13 @@ This operations is available only for organization administrators.
                 "rowsCount": 0,
                 "isMaintenance": false,
                 "backend": "snowflake",
-                "sharing": "organization-project"
+                "sharing": "organization-project",
+                "sharingParameters": [],
+                "sharedBy": {
+                    "id": 5,
+                    "name": "dev@keboola.com",
+                    "date": "2020-02-03T14:58:29+0100"
+                }
             }
 
 ### Share Bucket To Projects [POST /v2/storage/buckets/{bucket_id}/share-to-projects]
@@ -897,7 +909,12 @@ This operations is available only for organization administrators.
                                    "name": "Project 3"
                            }
                     ]
-                 }
+                },
+                "sharedBy": {
+                    "id": 5,
+                    "name": "dev@keboola.com",
+                    "date": "2020-02-03T14:58:29+0100"
+                }
             }
 
 ### Share Bucket To Users [POST /v2/storage/buckets/{bucket_id}/share-to-users]
@@ -954,6 +971,11 @@ This operations is available only for organization administrators.
                                    "email": "dev3@keboola.com"
                            }
                     ]
+                },
+                "sharedBy": {
+                    "id": 5,
+                    "name": "dev@keboola.com",
+                    "date": "2020-02-03T14:58:29+0100"
                 }
             }
 
@@ -993,7 +1015,13 @@ This operations is available only for organization administrators.
                 "rowsCount": 0,
                 "isMaintenance": false,
                 "backend": "snowflake",
-                "sharing": "organization"
+                "sharing": "organization",
+                "sharingParameters": [],
+                "sharedBy": {
+                    "id": 5,
+                    "name": "dev@keboola.com",
+                    "date": "2020-02-03T14:58:29+0100"
+                }
             }
 
 ### Stop Bucket Sharing [DELETE]
@@ -1050,7 +1078,13 @@ Lists buckets which may be shared to the project.
                             "id": "in.c-main.languages",
                             "name": "languages"
                         }
-                    ]
+                    ],
+                    "sharingParameters": [],
+                    "sharedBy": {
+                        "id": 5,
+                        "name": "dev@keboola.com",
+                        "date": "2020-02-03T14:58:29+0100"
+                    }
                 }
             ]
 
