@@ -2,6 +2,8 @@
 
 namespace Keboola\Test\Backend\Mixed;
 
+use DateInterval;
+use DateTimeImmutable;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
@@ -361,6 +363,13 @@ class SharingTest extends StorageApiSharingTestCase
             $this->assertEquals(
                 $verifyTokenResponse['description'],
                 $sharedBucket['sharedBy']['name']
+            );
+            $this->assertNotNull(
+                $sharedBucket['sharedBy']['date']
+            );
+            $this->assertGreaterThan(
+                (new DateTimeImmutable())->sub(new DateInterval('PT5M')),
+                new DateTimeImmutable($sharedBucket['sharedBy']['date'])
             );
 
             $this->assertCount(1, $sharedBucket['tables']);
