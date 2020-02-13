@@ -176,6 +176,20 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
             ]
         ]);
 
+        $actualJobId = null;
+        foreach ($this->_client->listJobs() as $job) {
+            if ($job['operationName'] === 'workspaceLoad') {
+                if ((int) $job['operationParams']['workspaceId'] === $workspace['id']) {
+                    $actualJobId = $job['id'];
+                }
+            }
+        }
+
+        $job = $this->_client->waitForJob($actualJobId);
+        $this->assertArrayHasKey('metrics', $job);
+        $this->assertEquals(1024, $job['metrics']['outBytes']);
+
+
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $table = $backend->describeTableColumns('languages-rs');
 
