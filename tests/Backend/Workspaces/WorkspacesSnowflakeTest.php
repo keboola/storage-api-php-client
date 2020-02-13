@@ -57,14 +57,13 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
         foreach ($this->_client->listJobs() as $job) {
             if ($job['operationName'] === 'workspaceLoad') {
                 if ((int) $job['operationParams']['workspaceId'] === $workspace['id']) {
-                    $actualJobId = $job['id'];
+                    $actualJobId = $job;
                 }
             }
         }
-        $job = $this->_client->waitForJob($actualJobId);
 
-        $this->assertArrayHasKey('metrics', $job);
-        $this->assertEquals(1024, $job['metrics']['outBytes']);
+        $this->assertArrayHasKey('metrics', $actualJobId);
+        $this->assertEquals(1024, $actualJobId['metrics']['outBytes']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $table = $backend->describeTableColumns('languages');
