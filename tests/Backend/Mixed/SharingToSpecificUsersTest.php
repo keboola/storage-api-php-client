@@ -48,6 +48,7 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
     /**
      * @dataProvider sharingBackendData
      * @throws ClientException
+     * @group Roman
      */
     public function testShareBucketToUser($backend)
     {
@@ -88,9 +89,20 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
             $this->assertEquals($targetUser['admin']['name'], $user['name']);
             $this->assertEquals($targetUser['description'], $admin['email']);
 
-            $this->assertNotEmpty($this->clientAdmin2InSameOrg->getSharedBucketDetail($baseProjectId, $bucketId));
+            $response = $this->clientAdmin2InSameOrg->getSharedBucketDetail($baseProjectId, $bucketId);
+
+            $this->assertNotEmpty($response);
+            $this->assertSame($bucketId, $response['id']);
+
             try {
                 $this->_client->getSharedBucketDetail($baseProjectId, $bucketId);
+            } catch (ClientException $e) {
+                $this->assertEquals('storage.buckets.notFound', $e->getStringCode());
+                $this->assertEquals(404, $e->getCode());
+            }
+
+            try {
+                $this->_client2->getSharedBucketDetail($baseProjectId, $bucketId);
             } catch (ClientException $e) {
                 $this->assertEquals('storage.buckets.notFound', $e->getStringCode());
                 $this->assertEquals(404, $e->getCode());
