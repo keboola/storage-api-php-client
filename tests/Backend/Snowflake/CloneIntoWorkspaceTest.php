@@ -158,6 +158,19 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
            ]
         ]);
 
+        $actualJob = null;
+        foreach ($this->_client->listJobs() as $job) {
+            if ($job['operationName'] === 'workspaceLoadClone') {
+                if ((int) $job['operationParams']['workspaceId'] === $workspace['id']) {
+                    $actualJob = $job;
+                }
+            }
+        }
+
+        $this->assertNotNull($actualJob);
+        $this->assertArrayHasKey('metrics', $actualJob);
+        $this->assertEquals(34304, $actualJob['metrics']['outBytes']);
+
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $backendTables = $backend->getTables();
         $this->assertCount(2, $backendTables);
