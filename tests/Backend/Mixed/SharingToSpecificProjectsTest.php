@@ -109,7 +109,7 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
             }
         }
 
-        $this->assertCount(2, $this->_client->listSharedBuckets());
+        $this->assertCount(2, $this->_client2->listSharedBuckets());
     }
 
     /**
