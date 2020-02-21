@@ -28,16 +28,22 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
 
         // Create a table of sample data
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $tableId = $this->_client->createTable(
+        $table1Id = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile($importFile)
         );
 
+        $table2Id = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'rates',
+            new CsvFile(__DIR__ . '/../../_data/rates.csv')
+        );
+
         $workspaces->loadWorkspaceData($workspace['id'], [
             "input" => [
                 [
-                    "source" => $tableId,
+                    "source" => $table1Id,
                     "destination" => "languages",
                     "columns" => [
                         [
@@ -46,6 +52,20 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
                         ],
                         [
                             'source' => 'name',
+                            'type' => 'varchar',
+                        ],
+                    ]
+                ],
+                [
+                    "source" => $table2Id,
+                    "destination" => "rates",
+                    "columns" => [
+                        [
+                            'source' => 'Date',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'SKK',
                             'type' => 'varchar',
                         ],
                     ]
@@ -63,7 +83,7 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
         }
 
         $this->assertArrayHasKey('metrics', $actualJobId);
-        $this->assertEquals(1024, $actualJobId['metrics']['outBytes']);
+        $this->assertEquals(2560, $actualJobId['metrics']['outBytes']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $table = $backend->describeTableColumns('languages');
@@ -72,6 +92,14 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
         $this->assertEquals("NUMBER(38,0)", $table[0]['type']);
 
         $this->assertEquals('name', $table[1]['name']);
+        $this->assertEquals("VARCHAR(16777216)", $table[1]['type']);
+
+        $table = $backend->describeTableColumns('rates');
+
+        $this->assertEquals('Date', $table[0]['name']);
+        $this->assertEquals("VARCHAR(16777216)", $table[0]['type']);
+
+        $this->assertEquals('SKK', $table[1]['name']);
         $this->assertEquals("VARCHAR(16777216)", $table[1]['type']);
     }
 
@@ -109,20 +137,42 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
 
         // Create a table of sample data
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $tableId = $this->_client->createTable(
+        $table1Id = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),
             'languages-rs',
             new CsvFile($importFile)
         );
 
+        $table2Id = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'users',
+            new CsvFile(__DIR__ . '/../../_data/users.csv')
+        );
+
         $workspaces->loadWorkspaceData($workspace['id'], [
             "input" => [
                 [
-                    "source" => $tableId,
+                    "source" => $table1Id,
                     "destination" => "languages",
+                ],
+                [
+                    "source" => $table2Id,
+                    "destination" => "users",
                 ]
             ]
         ]);
+
+        $actualJobId = null;
+        foreach ($this->_client->listJobs() as $job) {
+            if ($job['operationName'] === 'workspaceLoad') {
+                if ((int) $job['operationParams']['workspaceId'] === $workspace['id']) {
+                    $actualJobId = $job;
+                }
+            }
+        }
+
+        $this->assertArrayHasKey('metrics', $actualJobId);
+        $this->assertEquals(2048, $actualJobId['metrics']['outBytes']);
 
         $db = $this->getDbConnection($workspace['connection']);
 
@@ -141,11 +191,12 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
         $this->assertEquals('TRANSIENT', $workspaceSchema['options']);
 
         $tables = $db->fetchAll("SHOW TABLES IN SCHEMA " . $db->quoteIdentifier($workspaceSchema['name']));
-        $this->assertCount(1, $tables);
+        $this->assertCount(2, $tables);
         
-        $table = reset($tables);
-        $this->assertEquals('languages', $table['name']);
-        $this->assertEquals('TRANSIENT', $table['kind']);
+        $this->assertEquals('languages', $tables[0]['name']);
+        $this->assertEquals('TRANSIENT', $tables[0]['kind']);
+
+        $this->assertEquals('users', $tables[1]['name']);
     }
 
 
@@ -254,6 +305,19 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
         ];
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
+
+        $actualJobId = null;
+        foreach ($this->_client->listJobs() as $job) {
+            if ($job['operationName'] === 'workspaceLoad') {
+                if ((int) $job['operationParams']['workspaceId'] === $workspace['id']) {
+                    $actualJobId = $job;
+                }
+            }
+        }
+
+        $this->assertArrayHasKey('metrics', $actualJobId);
+        $this->assertEquals(2048, $actualJobId['metrics']['outBytes']);
+
         $this->assertEquals(2, $backend->countRows("languages"));
         $this->assertEquals(5, $backend->countRows("languagesDetails"));
 
@@ -594,6 +658,113 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
         } else {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
         }
+    }
+
+    public function testOutBytesMetricsWithLoadWorkspaceWithRows()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+
+        // Create a table of sample data
+        $table1Id = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+
+        $table2Id = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'rates',
+            new CsvFile(__DIR__ . '/../../_data/rates.csv')
+        );
+
+        $workspaces->loadWorkspaceData($workspace['id'], [
+            "input" => [
+                [
+                    "source" => $table1Id,
+                    "destination" => "languages",
+                ],
+                [
+                    "source" => $table2Id,
+                    "destination" => "rates",
+                    'rows' => 15,
+                ]
+            ]
+        ]);
+
+        $actualJobId = null;
+        foreach ($this->_client->listJobs() as $job) {
+            if ($job['operationName'] === 'workspaceLoad') {
+                if ((int) $job['operationParams']['workspaceId'] === $workspace['id']) {
+                    $actualJobId = $job;
+                }
+            }
+        }
+
+        $this->assertArrayHasKey('metrics', $actualJobId);
+        $this->assertEquals(7168, $actualJobId['metrics']['outBytes']);
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $this->assertEquals(5, $backend->countRows('languages'));
+        $this->assertEquals(15, $backend->countRows('rates'));
+    }
+
+    public function testOutBytesMetricsWithLoadWorkspaceWithSeconds()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+
+        // Create a table of sample data
+        $table1Id = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+
+        $table2Id = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'users',
+            new CsvFile(__DIR__ . '/../../_data/users.csv')
+        );
+
+        sleep(35);
+        $startTime = time();
+
+        $importCsv = new CsvFile(__DIR__ . '/../../_data/languages.csv');
+        $this->_client->writeTable($table1Id, $importCsv, array(
+            'incremental' => true,
+        ));
+
+        $workspaces->loadWorkspaceData($workspace['id'], [
+            "input" => [
+                [
+                    "source" => $table1Id,
+                    "destination" => "languages",
+                    'seconds' => floor(time() - $startTime) + 30,
+                ],
+                [
+                    "source" => $table2Id,
+                    "destination" => "users",
+                    'seconds' => floor(time() - $startTime) + 30,
+                ]
+            ]
+        ]);
+
+        $actualJobId = null;
+        foreach ($this->_client->listJobs() as $job) {
+            if ($job['operationName'] === 'workspaceLoad') {
+                if ((int) $job['operationParams']['workspaceId'] === $workspace['id']) {
+                    $actualJobId = $job;
+                }
+            }
+        }
+
+        $this->assertArrayHasKey('metrics', $actualJobId);
+        $this->assertEquals(1024, $actualJobId['metrics']['outBytes']);
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $this->assertEquals(5, $backend->countRows('languages'));
+        $this->assertEquals(0, $backend->countRows('users'));
     }
 
     public function dataTypesDiffDefinitions()
