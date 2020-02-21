@@ -225,7 +225,15 @@ class TimestampTest extends WorkspacesTestCase
         $data = $backend->fetchAll($workspaceTableName, \PDO::FETCH_ASSOC);
         $this->assertCount($expectedRows, $data);
         foreach ($data as $timestampRecord) {
-            $this->assertRegExp(self::TIMESTAMP_FORMAT, $timestampRecord['_timestamp']);
+            $this->assertNotNull(
+                $timestampRecord['_timestamp'],
+                '_timestamp field must not be a null.'
+            );
+            $this->assertRegExp(
+                self::TIMESTAMP_FORMAT,
+                $timestampRecord['_timestamp'],
+                '_timestamp has wrong pattern.'
+            );
         }
     }
 }
