@@ -353,6 +353,9 @@ class SharingTest extends StorageApiSharingTestCase
             $this->assertEquals($sharedBucket['project']['id'], $project['id']);
             $this->assertEquals($sharedBucket['project']['name'], $project['name']);
 
+            $this->assertArrayHasKey('sharingParameters', $sharedBucket);
+            $this->assertSame([], $sharedBucket['sharingParameters']);
+
             $this->assertArrayHasKey('id', $sharedBucket['sharedBy']);
             $this->assertArrayHasKey('name', $sharedBucket['sharedBy']);
 
