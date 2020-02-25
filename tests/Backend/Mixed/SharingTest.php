@@ -37,10 +37,20 @@ class SharingTest extends StorageApiSharingTestCase
         }
     }
 
+    /**
+     * @group Roman
+     */
     public function testOrganizationPublicSharing()
     {
         $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
         $bucketId = reset($this->_bucketIds);
+
+        $tableName = 'dates';
+        $tableId = $this->_client->createTable(
+            $bucketId,
+            $tableName,
+            new CsvFile(__DIR__ . '/../../_data/dates.csv')
+        );
 
         $this->_client->shareBucket($bucketId, [
             'sharing' => 'organization-project',
@@ -83,6 +93,10 @@ class SharingTest extends StorageApiSharingTestCase
         $linkedBucket = $client->getBucket($linkedBucketId);
         $this->assertEquals($sharedBuckets[0]['id'], $linkedBucket['sourceBucket']['id']);
         $this->assertEquals($sharedBuckets[0]['project']['id'], $linkedBucket['sourceBucket']['project']['id']);
+
+        $this->assertArrayHasKey('tables', $linkedBucket['sourceBucket']);
+        $this->assertSame($tableId, $linkedBucket['sourceBucket']['tables'][0]['id']);
+        $this->assertSame($tableName, $linkedBucket['sourceBucket']['tables'][0]['name']);
 
         // bucket can be linked by the same project
         $selfLinkedBucketId = $this->_client->linkBucket(
@@ -1211,7 +1225,6 @@ class SharingTest extends StorageApiSharingTestCase
             ]
         );
 
-        $metadataClient = new Metadata($this->_client);
         $metadataClient->postColumnMetadata(
             $columnId,
             'test',
@@ -1234,6 +1247,8 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertArrayHasKey('tables', $response);
 
         foreach ($response['tables'] as $table) {
+            $this->assertArrayNotHasKey('metadata', $table);
+            $this->assertArrayNotHasKey('columnMetadata', $table);
             $this->assertArrayHasKey('columns', $table);
 
             $tableColumns = ['id', 'transid', 'item', 'price', 'quantity'];
@@ -1251,8 +1266,11 @@ class SharingTest extends StorageApiSharingTestCase
             ]
         );
 
+        $bucketColumns = ['id', 'transid', 'item', 'price', 'quantity'];
+
         foreach ($response['tables'] as $table) {
             $this->assertArrayHasKey('metadata', $table);
+            $this->assertArrayHasKey('columns', $table);
             $this->assertArrayHasKey('columnMetadata', $table);
 
             $tableMetadata = reset($table['metadata']);
@@ -1266,6 +1284,13 @@ class SharingTest extends StorageApiSharingTestCase
             $this->assertEquals('test', $tableMetadata['provider']);
             $this->assertEquals('test.metadata.key', $tableMetadata['key']);
             $this->assertEquals('test.metadata.value', $tableMetadata['value']);
+
+            $columns = $table['columns'];
+
+            $this->assertSame(5, count($columns));
+            foreach ($columns as $column) {
+                $this->assertTrue(in_array($column, $bucketColumns));
+            }
 
             $columnsMetadata = reset($table['columnMetadata']['transid']);
 
@@ -1284,6 +1309,7 @@ class SharingTest extends StorageApiSharingTestCase
     /**
      * @dataProvider sharingBackendData
      * @throws ClientException
+     * @group Roman
      */
     public function testSharedBucketDetailWithAliasTableMetadata($backend)
     {
@@ -1297,8 +1323,19 @@ class SharingTest extends StorageApiSharingTestCase
             new CsvFile(__DIR__ . '/../../_data/transactions.csv')
         );
 
-        $columnId = 'out.c-API-sharing.transactions.id';
+        $columnId = 'out.c-API-sharing.transactions.id'; //@todo
         $metadataClient = new Metadata($this->_client);
+        $metadataClient->postTableMetadata(
+            $tableId,
+            'test',
+            [
+                [
+                    'key' => 'test.metadata.key',
+                    'value' => 'test.metadata.value',
+                ],
+            ]
+        );
+
         $metadataClient->postColumnMetadata(
             $columnId,
             'test',
@@ -1339,7 +1376,7 @@ class SharingTest extends StorageApiSharingTestCase
             $project['id'],
             $bucketId,
             [
-                'include' => 'tableMetadata'
+                'include' => 'metadata,columns,tableMetadata,columnMetadata'
             ]
         );
 
@@ -1355,8 +1392,24 @@ class SharingTest extends StorageApiSharingTestCase
             $tables[0]['sourceTable']['columnMetadata']['id']
         );
 
+        $this->assertArrayHasKey('metadata', $tables[0]);
+        $this->assertArrayHasKey('columns', $tables[0]);
+        $this->assertArrayHasKey('columnMetadata', $tables[0]);
+
         $columnId = 'out.c-API-sharing.tableAliasAlias.id';
         $metadataClient = new Metadata($this->_client);
+
+        $metadataClient->postTableMetadata(
+            'out.c-API-sharing.tableAliasAlias',
+            'test',
+            [
+                [
+                    'key' => 'test.metadata.key',
+                    'value' => 'test.metadata.value',
+                ],
+            ]
+        );
+
         $metadataClient->postColumnMetadata(
             $columnId,
             'test',
@@ -1373,7 +1426,7 @@ class SharingTest extends StorageApiSharingTestCase
             $project['id'],
             $bucketId,
             [
-                'include' => 'columnMetadata'
+                'include' => 'metadata,columns,tableMetadata,columnMetadata'
             ]
         );
 
@@ -1387,6 +1440,21 @@ class SharingTest extends StorageApiSharingTestCase
             $mdList,
             $tables[0]['columnMetadata']['id']
         );
+
+        $this->assertArrayHasKey('metadata', $tables[0]);
+        $this->assertArrayHasKey('columns', $tables[0]);
+
+        $tableMetadata = reset($tables[0]['metadata']);
+
+        $this->assertArrayHasKey('id', $tableMetadata);
+        $this->assertArrayHasKey('key', $tableMetadata);
+        $this->assertArrayHasKey('value', $tableMetadata);
+        $this->assertArrayHasKey('provider', $tableMetadata);
+        $this->assertArrayHasKey('timestamp', $tableMetadata);
+
+        $this->assertEquals('test', $tableMetadata['provider']);
+        $this->assertEquals('test.metadata.key', $tableMetadata['key']);
+        $this->assertEquals('test.metadata.value', $tableMetadata['value']);
     }
 
     /**
