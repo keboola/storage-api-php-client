@@ -10,7 +10,7 @@ use Keboola\Test\Backend\Workspaces\WorkspacesTestCase;
 
 class TimestampTest extends WorkspacesTestCase
 {
-    const TIMESTAMP_FORMAT = '/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/';
+    const TIMESTAMP_FORMAT = '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/';
 
     /**
      * Originally this is ImportExportCommonTest::testTableAsyncImportExport but only works in snowflake
