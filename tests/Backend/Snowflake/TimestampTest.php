@@ -7,63 +7,66 @@ use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\SnowflakeWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\WorkspacesTestCase;
+use Keboola\Test\StorageApiTestCase;
 
 class TimestampTest extends WorkspacesTestCase
 {
+    const TIMESTAMP_FORMAT = '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/';
+
+    /** @var Workspaces */
+    private static $workspaceApi;
+    /** @var array */
+    private static $workspace;
+
+    public function setUp()
+    {
+        StorageApiTestCase::setUp();
+        $this->_initEmptyTestBuckets();
+    }
+
+    public static function setUpBeforeClass()
+    {
+        $client = new \Keboola\StorageApi\Client([
+            'token' => STORAGE_API_TOKEN,
+            'url' => STORAGE_API_URL,
+            'backoffMaxTries' => 1,
+            'jobPollRetryDelay' => function () {
+                return 1;
+            },
+        ]);
+        self::$workspaceApi = new Workspaces($client);
+        foreach (self::$workspaceApi->listWorkspaces() as $workspace) {
+            self::$workspaceApi->deleteWorkspace($workspace['id']);
+        }
+        self::$workspace = self::$workspaceApi->createWorkspace();
+    }
+
     /**
      * Originally this is ImportExportCommonTest::testTableAsyncImportExport but only works in snowflake
      */
     public function testTimestampCSVImportAsync()
     {
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
-        $createTableOptions = [];
+        // count - header
+        $count = iterator_count($importFile) - 1;
 
         $tableId = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),
             'languages-3',
             $importFile,
-            $createTableOptions
+            []
         );
 
         $this->_client->writeTableAsync($tableId, $importFile);
 
-        $workspaces = new Workspaces($this->_client);
-        $tmpWorkspace = $workspaces->createWorkspace();
-        /** @var SnowflakeWorkspaceBackend $backend */
-        $backend = WorkspaceBackendFactory::createWorkspaceBackend($tmpWorkspace);
-        $workspaces->cloneIntoWorkspace($tmpWorkspace['id'], [
-            'input' => [
-                [
-                    'source' => $tableId,
-                    'destination' => 'timestampTestFull',
-                ],
-            ],
-        ]);
-        $data = $backend->fetchAll('timestampTestFull', \PDO::FETCH_ASSOC);
-        foreach ($data as $timestampRecord) {
-            $this->assertNotNull($timestampRecord['_timestamp']);
-        }
+        $this->assertDataInTable($tableId, 'timestampCSVImportAsyncFull', $count);
 
         // incremental
         $this->_client->writeTableAsync($tableId, $importFile, [
             'incremental' => true,
         ]);
 
-        $tmpWorkspace = $workspaces->createWorkspace();
-        /** @var SnowflakeWorkspaceBackend $backend */
-        $backend = WorkspaceBackendFactory::createWorkspaceBackend($tmpWorkspace);
-        $workspaces->cloneIntoWorkspace($tmpWorkspace['id'], [
-            'input' => [
-                [
-                    'source' => $tableId,
-                    'destination' => 'timestampTestInc',
-                ],
-            ],
-        ]);
-        $data = $backend->fetchAll('timestampTestInc', \PDO::FETCH_ASSOC);
-        foreach ($data as $timestampRecord) {
-            $this->assertNotNull($timestampRecord['_timestamp']);
-        }
+        $this->assertDataInTable($tableId, 'timestampCSVImportAsyncInc', $count + $count);
     }
 
     /**
@@ -72,54 +75,26 @@ class TimestampTest extends WorkspacesTestCase
     public function testTimestampCSVImportSync()
     {
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
-        $createTableOptions = [];
+        // count - header
+        $count = iterator_count($importFile) - 1;
 
         $tableId = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),
             'languages-2',
             $importFile,
-            $createTableOptions
+            []
         );
 
         $this->_client->writeTable($tableId, $importFile);
 
-        $workspaces = new Workspaces($this->_client);
-        $tmpWorkspace = $workspaces->createWorkspace();
-        /** @var SnowflakeWorkspaceBackend $backend */
-        $backend = WorkspaceBackendFactory::createWorkspaceBackend($tmpWorkspace);
-        $workspaces->cloneIntoWorkspace($tmpWorkspace['id'], [
-            'input' => [
-                [
-                    'source' => $tableId,
-                    'destination' => 'timestampTestFull',
-                ],
-            ],
-        ]);
-        $data = $backend->fetchAll('timestampTestFull', \PDO::FETCH_ASSOC);
-        foreach ($data as $timestampRecord) {
-            $this->assertNotNull($timestampRecord['_timestamp']);
-        }
+        $this->assertDataInTable($tableId, 'timestampCSVImportSyncFull', $count);
 
         // incremental
         $this->_client->writeTable($tableId, $importFile, [
             'incremental' => true,
         ]);
 
-        $tmpWorkspace = $workspaces->createWorkspace();
-        /** @var SnowflakeWorkspaceBackend $backend */
-        $backend = WorkspaceBackendFactory::createWorkspaceBackend($tmpWorkspace);
-        $workspaces->cloneIntoWorkspace($tmpWorkspace['id'], [
-            'input' => [
-                [
-                    'source' => $tableId,
-                    'destination' => 'timestampTestInc',
-                ],
-            ],
-        ]);
-        $data = $backend->fetchAll('timestampTestInc', \PDO::FETCH_ASSOC);
-        foreach ($data as $timestampRecord) {
-            $this->assertNotNull($timestampRecord['_timestamp']);
-        }
+        $this->assertDataInTable($tableId, 'timestampCSVImportSyncInc', $count + $count);
     }
 
     /**
@@ -179,22 +154,9 @@ class TimestampTest extends WorkspacesTestCase
             ],
         ]);
 
-        $workspaces = new Workspaces($this->_client);
-        $tmpWorkspace = $workspaces->createWorkspace();
-        /** @var SnowflakeWorkspaceBackend $backend */
-        $backend = WorkspaceBackendFactory::createWorkspaceBackend($tmpWorkspace);
-        $workspaces->cloneIntoWorkspace($tmpWorkspace['id'], [
-            'input' => [
-                [
-                    'source' => $tableId,
-                    'destination' => 'timestampTestFull',
-                ],
-            ],
-        ]);
-        $data = $backend->fetchAll('timestampTestFull', \PDO::FETCH_ASSOC);
-        foreach ($data as $timestampRecord) {
-            $this->assertNotNull($timestampRecord['_timestamp']);
-        }
+        $count = iterator_count(new CsvFile(__DIR__ . '/../../_data/languages.no-headers.csv'));
+
+        $this->assertDataInTable($tableId, 'timestampSlicedImportFull', $count);
 
         // incremental
         $this->_client->writeTableAsyncDirect($tableId, [
@@ -209,21 +171,7 @@ class TimestampTest extends WorkspacesTestCase
             ],
         ]);
 
-        $tmpWorkspace = $workspaces->createWorkspace();
-        /** @var SnowflakeWorkspaceBackend $backend */
-        $backend = WorkspaceBackendFactory::createWorkspaceBackend($tmpWorkspace);
-        $workspaces->cloneIntoWorkspace($tmpWorkspace['id'], [
-            'input' => [
-                [
-                    'source' => $tableId,
-                    'destination' => 'timestampTestInc',
-                ],
-            ],
-        ]);
-        $data = $backend->fetchAll('timestampTestInc', \PDO::FETCH_ASSOC);
-        foreach ($data as $timestampRecord) {
-            $this->assertNotNull($timestampRecord['_timestamp']);
-        }
+        $this->assertDataInTable($tableId, 'timestampSlicedImportInc', $count + $count);
     }
 
     /**
@@ -238,8 +186,7 @@ class TimestampTest extends WorkspacesTestCase
         ));
 
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->_client);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = self::$workspaceApi->createWorkspace();
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
         $db->query("create table \"test.Languages3\" (
@@ -248,27 +195,14 @@ class TimestampTest extends WorkspacesTestCase
 			\"update\" varchar
 		);");
         $db->query("insert into \"test.Languages3\" (\"Id\", \"Name\") values (1, 'cz'), (2, 'en');");
+        // copy data from workspace
         $this->_client->writeTableAsyncDirect($table['id'], array(
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => 'test.Languages3',
         ));
         unset($db);
         // test timestamp
-        $tmpWorkspaceFull = $workspaces->createWorkspace();
-        $tmpWorkspaceDb = $this->getDbConnection($tmpWorkspaceFull['connection']);
-        $workspaces->cloneIntoWorkspace($tmpWorkspaceFull['id'], [
-            'input' => [
-                [
-                    'source' => $table['id'],
-                    'destination' => 'timestamptestFull',
-                ],
-            ],
-        ]);
-        $data = $tmpWorkspaceDb->fetchAll('SELECT "_timestamp" FROM "timestamptestFull"');
-        foreach ($data as $timestampRecord) {
-            $this->assertNotNull($timestampRecord['_timestamp']);
-        }
-        unset($tmpWorkspaceDb);
+        $this->assertDataInTable($table['id'], 'timestampCopyImportFull', 2);
 
         $db = $this->getDbConnection($connection);
         $db->query("truncate \"test.Languages3\"");
@@ -291,20 +225,38 @@ class TimestampTest extends WorkspacesTestCase
         ));
         unset($db);
 
-        $tmpWorkspaceInc = $workspaces->createWorkspace();
-        $tmpWorkspaceDb = $this->getDbConnection($tmpWorkspaceInc['connection']);
-        $workspaces->cloneIntoWorkspace($tmpWorkspaceInc['id'], [
+        $this->assertDataInTable($table['id'], 'timestampCopyImportInc', 3);
+    }
+
+    /**
+     * @param string $tableId
+     * @param string $workspaceTableName
+     * @param int $expectedRows
+     */
+    private function assertDataInTable($tableId, $workspaceTableName, $expectedRows)
+    {
+        /** @var SnowflakeWorkspaceBackend $backend */
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend(self::$workspace);
+        self::$workspaceApi->cloneIntoWorkspace(self::$workspace['id'], [
             'input' => [
                 [
-                    'source' => $table['id'],
-                    'destination' => 'timestamptestInc',
+                    'source' => $tableId,
+                    'destination' => $workspaceTableName,
                 ],
             ],
         ]);
-        $data = $tmpWorkspaceDb->fetchAll('SELECT "_timestamp" FROM "timestamptestInc"');
+        $data = $backend->fetchAll($workspaceTableName, \PDO::FETCH_ASSOC);
+        $this->assertCount($expectedRows, $data);
         foreach ($data as $timestampRecord) {
-            $this->assertNotNull($timestampRecord['_timestamp']);
+            $this->assertNotNull(
+                $timestampRecord['_timestamp'],
+                '_timestamp field must not be a null.'
+            );
+            $this->assertRegExp(
+                self::TIMESTAMP_FORMAT,
+                $timestampRecord['_timestamp'],
+                '_timestamp has wrong pattern.'
+            );
         }
-        unset($tmpWorkspaceDb);
     }
 }
