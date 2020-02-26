@@ -2,6 +2,8 @@
 
 namespace Keboola\Test\Backend\Mixed;
 
+use DateInterval;
+use DateTimeImmutable;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
@@ -314,16 +316,22 @@ class SharingTest extends StorageApiSharingTestCase
             new CsvFile(__DIR__ . '/../../_data/numbers.csv')
         );
 
+        // ensure that sharing data is not output for unshared bucket
+        $this->assertFalse($this->_client->isSharedBucket($bucketId));
+        $bucketBeforeSharing = $this->_client->getBucket($bucketId);
+        $this->assertArrayNotHasKey('sharedBy', $bucketBeforeSharing);
+        $this->assertArrayNotHasKey('sharingParameters', $bucketBeforeSharing);
+
         $this->_client->shareBucket($bucketId);
         $this->assertTrue($this->_client->isSharedBucket($bucketId));
 
-        $response = $this->_client->verifyToken();
-        $this->assertArrayHasKey('owner', $response);
+        $verifyTokenResponse = $this->_client->verifyToken();
+        $this->assertArrayHasKey('owner', $verifyTokenResponse);
 
-        $this->assertArrayHasKey('id', $response['owner']);
-        $this->assertArrayHasKey('name', $response['owner']);
+        $this->assertArrayHasKey('id', $verifyTokenResponse['owner']);
+        $this->assertArrayHasKey('name', $verifyTokenResponse['owner']);
 
-        $project = $response['owner'];
+        $project = $verifyTokenResponse['owner'];
 
         $response = $this->_client2->listSharedBuckets();
         $this->assertCount(1, $response);
@@ -344,6 +352,28 @@ class SharingTest extends StorageApiSharingTestCase
 
             $this->assertEquals($sharedBucket['project']['id'], $project['id']);
             $this->assertEquals($sharedBucket['project']['name'], $project['name']);
+
+            $this->assertArrayHasKey('sharingParameters', $sharedBucket);
+            $this->assertSame([], $sharedBucket['sharingParameters']);
+
+            $this->assertArrayHasKey('id', $sharedBucket['sharedBy']);
+            $this->assertArrayHasKey('name', $sharedBucket['sharedBy']);
+
+            $this->assertEquals(
+                $verifyTokenResponse['id'],
+                $sharedBucket['sharedBy']['id']
+            );
+            $this->assertEquals(
+                $verifyTokenResponse['description'],
+                $sharedBucket['sharedBy']['name']
+            );
+            $this->assertNotNull(
+                $sharedBucket['sharedBy']['date']
+            );
+            $this->assertGreaterThan(
+                (new DateTimeImmutable())->sub(new DateInterval('PT5M')),
+                new DateTimeImmutable($sharedBucket['sharedBy']['date'])
+            );
 
             $this->assertCount(1, $sharedBucket['tables']);
 
