@@ -195,4 +195,88 @@ class WorkspacesUnloadTest extends WorkspacesTestCase
             'format' => 'rfc',
         )), 'new  column added');
     }
+
+    public function testCreateTableFromWorkspaceRedshiftToSnowflake()
+    {
+        // create workspace and source table in workspace
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace(["backend" => "redshift"]);
+
+        $connection = $workspace['connection'];
+
+        $db = $this->getDbConnection($connection);
+
+        $db->query("create table \"test.Languages3\" (
+			\"Id\" integer not null,
+			\"Name\" varchar not null
+		);");
+        $db->query("insert into \"test.Languages3\" (\"Id\", \"Name\") values (1, 'cz'), (2, 'en');");
+
+        // create table from workspace
+        try {
+            $this->_client->dropBucket('in.c-API-tests-rs', ['force' => 1]);
+        } catch (ClientException $e) {
+            if ($e->getCode() !== 404) {
+                throw $e;
+            }
+        }
+        $bucketId = $this->_client->createBucket('API-tests-rs', self::STAGE_IN, 'Api tests', 'snowflake');
+        $tableId = $this->_client->createTableAsyncDirect($bucketId, array(
+            'name' => 'languages3',
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => 'test.Languages3',
+        ));
+
+        $expected = array(
+            ($connection['backend'] === parent::BACKEND_REDSHIFT) ? '"id","name"' : '"Id","Name"',
+            '"1","cz"',
+            '"2","en"',
+        );
+
+        $this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->getTableDataPreview($tableId, array(
+            'format' => 'rfc',
+        )), 'imported data comparsion');
+    }
+
+    public function testCreateTableFromWorkspaceSnowflakeToRedshift()
+    {
+        // create workspace and source table in workspace
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace(["backend" => "snowflake"]);
+
+        $connection = $workspace['connection'];
+
+        $db = $this->getDbConnection($connection);
+
+        $db->query("create table \"test.Languages3\" (
+			\"Id\" integer not null,
+			\"Name\" varchar not null
+		);");
+        $db->query("insert into \"test.Languages3\" (\"Id\", \"Name\") values (1, 'cz'), (2, 'en');");
+
+        // create table from workspace
+        try {
+            $this->_client->dropBucket('in.c-API-tests-snow', ['force' => 1]);
+        } catch (ClientException $e) {
+            if ($e->getCode() !== 404) {
+                throw $e;
+            }
+        }
+        $bucketId = $this->_client->createBucket('API-tests-snow', self::STAGE_IN, 'Api tests', 'redshift');
+        $tableId = $this->_client->createTableAsyncDirect($bucketId, array(
+            'name' => 'languages3',
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => 'test.Languages3',
+        ));
+
+        $expected = array(
+            ($connection['backend'] === parent::BACKEND_REDSHIFT) ? '"id","name"' : '"Id","Name"',
+            '"1","cz"',
+            '"2","en"',
+        );
+
+        $this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->getTableDataPreview($tableId, array(
+            'format' => 'rfc',
+        )), 'imported data comparsion');
+    }
 }
