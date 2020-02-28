@@ -423,7 +423,7 @@ class Client
 
     public function getSharedBucketDetail($projectId, $bucketId, $options = [])
     {
-        $url = "storage/shared-buckets/" . $projectId . '/buckets/' . $bucketId . '/tables';
+        $url = "storage/shared-buckets/" . $projectId . '/buckets/' . $bucketId;
 
         $allowedOptions = [
             'include',
