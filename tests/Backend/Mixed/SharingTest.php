@@ -1238,10 +1238,7 @@ class SharingTest extends StorageApiSharingTestCase
 
         $response = $this->_client2->getSharedBucketDetail(
             $project['id'],
-            $bucketId,
-            [
-                'include' => 'columns'
-            ]
+            $bucketId
         );
 
         $this->assertArrayHasKey('id', $response);
@@ -1263,15 +1260,12 @@ class SharingTest extends StorageApiSharingTestCase
 
         $this->assertArrayHasKey('tables', $response);
 
-        $tableColumns = $this->_client->getTable($tableId)['columns'];
         foreach ($response['tables'] as $table) {
+            $this->assertSame($tableId, $table['id']);
+            $this->assertSame('transactions', $table['name']);
             $this->assertArrayNotHasKey('metadata', $table);
             $this->assertArrayNotHasKey('columnMetadata', $table);
-            $this->assertArrayHasKey('columns', $table);
-            $this->assertCount(5, $table['columns']);
-            foreach ($table['columns'] as $column) {
-                $this->assertTrue(in_array($column, $tableColumns));
-            }
+            $this->assertArrayNotHasKey('columns', $table);
         }
 
         $response = $this->_client2->getSharedBucketDetail(
@@ -1284,7 +1278,7 @@ class SharingTest extends StorageApiSharingTestCase
 
         $this->assertCount(1, $response['metadata']);
 
-        $sharedBucketMetadata = reset($response['metadata']);
+        $sharedBucketMetadata = $response['metadata'][0];
 
         $this->assertArrayHasKey('id', $sharedBucketMetadata);
         $this->assertArrayHasKey('key', $sharedBucketMetadata);
@@ -1301,7 +1295,8 @@ class SharingTest extends StorageApiSharingTestCase
             $this->assertArrayHasKey('columns', $table);
             $this->assertArrayHasKey('columnMetadata', $table);
 
-            $tableMetadata = reset($table['metadata']);
+            $this->assertCount(1, $table['metadata']);
+            $tableMetadata = $table['metadata'][0];
 
             $this->assertArrayHasKey('id', $tableMetadata);
             $this->assertArrayHasKey('key', $tableMetadata);
@@ -1315,12 +1310,11 @@ class SharingTest extends StorageApiSharingTestCase
 
             $columns = $table['columns'];
 
-            $this->assertSame(5, count($columns));
-            foreach ($columns as $column) {
-                $this->assertTrue(in_array($column, $tableColumns));
-            }
+            $tableColumns = $this->_client->getTable($tableId)['columns'];
+            $this->assertSame($tableColumns, $columns);
 
-            $columnsMetadata = reset($table['columnMetadata']['transid']);
+            $this->assertCount(1, $table['columnMetadata']['transid']);
+            $columnsMetadata = $table['columnMetadata']['transid'][0];
 
             $this->assertArrayHasKey('id', $columnsMetadata);
             $this->assertArrayHasKey('key', $columnsMetadata);
@@ -1380,10 +1374,7 @@ class SharingTest extends StorageApiSharingTestCase
 
         $columns = $tables[0]['columns'];
         $tableColumns = $this->_client->getTable($tableId)['columns'];
-        $this->assertSame(5, count($columns));
-        foreach ($columns as $column) {
-            $this->assertTrue(in_array($column, $tableColumns));
-        }
+        $this->assertSame($tableColumns, $columns);
 
         $this->assertSame(0, count($tables[0]['columnMetadata']));
 
@@ -1419,7 +1410,8 @@ class SharingTest extends StorageApiSharingTestCase
             $this->assertTrue(in_array($column, $tableColumns));
         }
 
-        $tableMetadata = reset($tables[0]['metadata']);
+        $this->assertCount(1, $tables[0]['metadata']);
+        $tableMetadata = $tables[0]['metadata'][0];
 
         $this->assertArrayHasKey('id', $tableMetadata);
         $this->assertArrayHasKey('key', $tableMetadata);
@@ -1471,11 +1463,7 @@ class SharingTest extends StorageApiSharingTestCase
         return $metadataClient->listColumnMetadata($columnId);
     }
 
-    /**
-     * @dataProvider sharingBackendData
-     * @throws ClientException
-     */
-    public function testGetSharedBucketDetailForNonExistBucket($backend)
+    public function testGetSharedBucketDetailForNonExistBucket()
     {
         $response = $this->_client->verifyToken();
         $this->assertArrayHasKey('owner', $response);
