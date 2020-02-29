@@ -54,8 +54,7 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
         $this->initTestBuckets($backend);
         $bucketIds = $this->_bucketIds;
 
-        $sourceProject = $this->_client->verifyToken()['owner'];
-        $targetProject = $this->_client2->verifyToken()['owner'];
+        $targetProject = $this->_client->verifyToken()['owner'];
         $this->assertCount(0, $this->_client->listSharedBuckets());
 
         foreach ($bucketIds as $bucketId) {
@@ -87,28 +86,9 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
             $project = reset($sharedBucket['sharingParameters']['projects']);
             $this->assertEquals($targetProject['id'], $project['id']);
             $this->assertEquals($targetProject['name'], $project['name']);
-
-            $response = $this->_client2->getSharedBucketDetail($sourceProject['id'], $bucketId);
-
-            $this->assertNotEmpty($response);
-            $this->assertSame($bucketId, $response['id']);
-
-            try {
-                $this->clientAdmin2InSameOrg->getSharedBucketDetail($targetProject['id'], $bucketId);
-            } catch (ClientException $e) {
-                $this->assertEquals('storage.buckets.notFound', $e->getStringCode());
-                $this->assertEquals(404, $e->getCode());
-            }
-
-            try {
-                $this->clientAdmin3InOtherOrg->getSharedBucketDetail($targetProject['id'], $bucketId);
-            } catch (ClientException $e) {
-                $this->assertEquals('storage.buckets.notFound', $e->getStringCode());
-                $this->assertEquals(404, $e->getCode());
-            }
         }
 
-        $this->assertCount(2, $this->_client2->listSharedBuckets());
+        $this->assertCount(2, $this->_client->listSharedBuckets());
     }
 
     /**
