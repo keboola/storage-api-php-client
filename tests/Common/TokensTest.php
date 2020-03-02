@@ -1045,4 +1045,37 @@ class TokensTest extends StorageApiTestCase
             $this->assertEquals(403, $e->getCode());
         }
     }
+
+    public function testGuestTokenCreateRestrictedToken()
+    {
+        $client = new \Keboola\StorageApi\Client(array(
+            'token' => STORAGE_API_GUEST_TOKEN,
+            'url' => STORAGE_API_URL,
+            'backoffMaxTries' => 1,
+            'jobPollRetryDelay' => function () {
+                return 1;
+            },
+        ));
+
+        $token = $client->verifyToken();
+
+        $this->assertTrue($token['isMasterToken']);
+        $this->assertFalse($token['canManageTokens']);
+
+        $options = new TokenCreateOptions();
+        $options->setDescription('Autosave test');
+        $options->setExpiresIn(60 * 5);
+
+        $tokenId = $client->createToken($options);
+
+        $token = $this->_client->getToken($tokenId);
+
+        $this->assertFalse($token['isMasterToken']);
+        $this->assertFalse($token['canManageBuckets']);
+        $this->assertFalse($token['canManageTokens']);
+        $this->assertFalse($token['canReadAllFileUploads']);
+        $this->assertFalse($token['canPurgeTrash']);
+        $this->assertNotEmpty($token['expires']);
+        $this->assertSame([], $token['bucketPermissions']);
+    }
 }
