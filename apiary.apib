@@ -1052,10 +1052,81 @@ This operations is available only for organization administrators.
 
 + Response 204
 
-## List Shared Buckets [/v2/storage/shared-buckets]
-Lists buckets which may be shared to the project.
+## Manage Shared Buckets [/v2/storage/shared-buckets]
+
+### Shared bucket detail [GET /v2/storage/shared-buckets/{project_id}/buckets/{bucket_id}]
+Detail of bucket which may be linked to the project
+
++ Parameters
+    + project_id (required) - Project Id
+    + bucket_id (required) - Bucket Id
+    + include (optional) - Comma-separated list of resources to include for each table. Available resources: 'metadata, tableMetadata, columns, columnMetadata'.
+        + Default: ''
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+    + Body
+        {
+            "id": "in.c-main",
+            "name": "c-main",
+            "stage": "in",
+            "description": "Organization shared data",
+            "sharing": "organization-project",
+            "created": "2020-01-12T18:28:31+0100",
+            "lastChangeDate": "2020-01-12T18:31:49+0100",
+            "dataSizeBytes": 1536,
+            "rowsCount": 32,
+            "backend": "snowflake",
+            "project": {
+                "id": 123,
+                "name": "Project name"
+            },
+            "tables": [
+                {
+                    "id": "in.c-main.languages",
+                    "name": "languages",
+                    "columns": [
+                        "id"
+                    ],
+                    "metadata": [
+                        {
+                            "id": "45",
+                            "key": "KBC.description",
+                            "value": "table description",
+                            "provider": "user",
+                            "timestamp": "2020-02-02T20:19:13+0100"
+                        }
+                    ],
+                    "columnMetadata": {
+                        "id": [
+                            {
+                                "id": "1",
+                                "key": "KBC.datatype.basetype",
+                                "value": "INTEGER",
+                                "provider": "user",
+                                "timestamp": "2020-02-02T20:19:05+0100"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "metadata": [
+                {
+                    "id": "1",
+                    "key": "KBC.description",
+                    "value": "bucket description",
+                    "provider": "user",
+                    "timestamp": "2020-02-02T20:19:13+0100"
+                }
+            ]
+        }
 
 ### Shared buckets list [GET]
+Lists buckets which may be linked to the project.
 
 + Parameters
     + include (optional) - Comma-separated list of resources to include for each table. Available resources: 'metadata'.
@@ -1098,6 +1169,16 @@ Lists buckets which may be shared to the project.
                         "name": "dev@keboola.com",
                         "date": "2020-02-03T14:58:29+0100"
                     }
+                    ]
+                    "metadata": [
+                        {
+                            "id": "1",
+                            "key": "KBC.description",
+                            "value": "bucket description",
+                            "provider": "user",
+                            "timestamp": "2020-02-02T20:19:13+0100"
+                        }
+                    ]
                 }
             ]
 
