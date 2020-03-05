@@ -29,6 +29,8 @@
 	<testsuite name="backend-snowflake-abs-part-1">
 		<file>tests/Backend/CommonPart1/TableExporterTest.php</file>
 		<file>tests/Backend/CommonPart1/ImportExportCommonTest.php</file>
+		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
+		<file>tests/Backend/Workspaces/LegacyWorkspacesSnowflakeTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesSnowflakeTest.php</file>
