@@ -9,6 +9,7 @@
 
 namespace Keboola\Test\Common;
 
+use Keboola\StorageApi\ClientException;
 use Keboola\Test\StorageApiTestCase;
 
 class IndexTest extends StorageApiTestCase
@@ -31,5 +32,24 @@ class IndexTest extends StorageApiTestCase
 
         $urlTemplates = $index['urlTemplates'];
         $this->assertArrayHasKey('orchestrationJob', $urlTemplates);
+    }
+
+    public function testSuccessfullyWebalizeDisplayName()
+    {
+        $responseDisplayName = $this->_client->webalizeDisplayName('Môj 1$ obľúbený bucket $');
+
+        $this->assertSame('Moj-1-oblubeny-bucket', $responseDisplayName['displayName']);
+    }
+
+    public function testFailWebalizeDisplayName()
+    {
+        try {
+            $this->_client->webalizeDisplayName('-----');
+            $this->fail('fail webalize displayName');
+        } catch (ClientException $e) {
+            $this->assertEquals('Filtered name "" should be valid name', $e->getMessage());
+            $this->assertEquals('storage.webalize.displayName.invalid', $e->getStringCode());
+            $this->assertEquals(422, $e->getCode());
+        }
     }
 }
