@@ -41,6 +41,8 @@ class BucketsTest extends StorageApiTestCase
 
         $firstBucket = reset($buckets);
         $this->assertArrayHasKey('attributes', $firstBucket);
+        $this->assertArrayHasKey('displayName', $firstBucket);
+        $this->assertNotEquals('', $firstBucket['displayName']);
     }
 
     public function testBucketDetail()
@@ -110,11 +112,65 @@ class BucketsTest extends StorageApiTestCase
     public function testBucketManipulation()
     {
         $tokenData = $this->_client->verifyToken();
-        $bucketData = array(
+
+        $bucketData = [
             'name' => 'test',
+            'displayName' => 'test-display-name',
             'stage' => 'in',
             'description' => 'this is just a test',
+        ];
+
+        $newBucketId = $this->_client->createBucket(
+            $bucketData['name'],
+            $bucketData['stage'],
+            $bucketData['description'],
+            null,
+            $bucketData['displayName']
         );
+
+        $newBucket = $this->_client->getBucket($newBucketId);
+        $this->assertEquals('c-' . $bucketData['name'], $newBucket['name'], 'bucket name');
+        $this->assertEquals($bucketData['displayName'], $newBucket['displayName'], 'bucket displayName');
+        $this->assertEquals($bucketData['stage'], $newBucket['stage'], 'bucket stage');
+        $this->assertEquals($bucketData['description'], $newBucket['description'], 'bucket description');
+        $this->assertEquals($tokenData['owner']['defaultBackend'], $newBucket['backend'], 'backend');
+
+        // check if bucket is in list
+        $buckets = $this->_client->listBuckets();
+        $this->assertTrue(in_array($newBucketId, array_map(function ($bucket) {
+            return $bucket['id'];
+        }, $buckets)));
+
+        try {
+            $this->_client->createBucket(
+                $bucketData['name'] . '-' . time(),
+                $bucketData['stage'],
+                $bucketData['description'],
+                null,
+                $bucketData['displayName']
+            );
+            $this->fail('Display name already exist for project');
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertEquals('The display name "test-display-name" already exists in project.', $e->getMessage());
+            $this->assertEquals('storage.buckets.alreadyExists', $e->getStringCode());
+        }
+
+        try {
+            $this->_client->createBucket(
+                $bucketData['name'] . '-' . time(),
+                $bucketData['stage'],
+                $bucketData['description'],
+                null,
+                '$$$$$'
+            );
+            $this->fail('Display name provided is invalid');
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertEquals('Invalid data - displayName: Only alphanumeric characters dash and underscores are allowed in table name.', $e->getMessage());
+            $this->assertEquals('storage.buckets.validation', $e->getStringCode());
+        }
+
+        $this->_client->dropBucket($newBucket['id']);
+
         $newBucketId = $this->_client->createBucket(
             $bucketData['name'],
             $bucketData['stage'],
@@ -123,6 +179,7 @@ class BucketsTest extends StorageApiTestCase
 
         $newBucket = $this->_client->getBucket($newBucketId);
         $this->assertEquals('c-' . $bucketData['name'], $newBucket['name'], 'bucket name');
+        $this->assertEquals($bucketData['name'], $newBucket['displayName'], 'bucket displayName');
         $this->assertEquals($bucketData['stage'], $newBucket['stage'], 'bucket stage');
         $this->assertEquals($bucketData['description'], $newBucket['description'], 'bucket description');
         $this->assertEquals($tokenData['owner']['defaultBackend'], $newBucket['backend'], 'backend');

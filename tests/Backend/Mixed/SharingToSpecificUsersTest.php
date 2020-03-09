@@ -17,7 +17,9 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
 
         // first share
         $tokenUser = $this->_client->verifyToken()['admin'];
-        $this->_client->shareBucketToUsers($bucketId, [$tokenUser['id']]);
+        $response = $this->_client->shareBucketToUsers($bucketId, [$tokenUser['id']]);
+
+        $this->assertArrayHasKey('displayName', $response);
 
         $sharedBucket = $this->_client->getBucket($bucketId);
         $this->assertArrayHasKey('sharing', $sharedBucket);

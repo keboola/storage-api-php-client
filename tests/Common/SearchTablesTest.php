@@ -46,6 +46,9 @@ class SearchTablesTest extends StorageApiTestCase
         );
         $this->assertCount(1, $result);
 
+        $firstResult = reset($result);
+        $this->assertArrayHasKey('displayName', $firstResult['bucket']);
+
         $result = $this->_client->searchTables(
             new SearchTablesOptions(null, 'testValue', null)
         );
