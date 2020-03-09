@@ -185,6 +185,14 @@ class Client
         return $this->apiGet("storage");
     }
 
+    public function webalizeDisplayName($displayName)
+    {
+        return $this->apiPostJson(
+            'storage/webalize/display-name',
+            ['displayName' => $displayName]
+        );
+    }
+
     /**
      * Get UserAgent name
      *
@@ -1983,6 +1991,12 @@ class Client
         return $this->request('post', $this->versionUrl($url), array('multipart' => $postData), null, $handleAsyncTask);
     }
 
+    private function apiPostJson($url, $data = [])
+    {
+        return $this->request('POST', $this->versionUrl($url), [
+            'json' => $data,
+        ]);
+    }
 
     /**
      *
