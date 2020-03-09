@@ -728,6 +728,39 @@ Obtains information about a bucket.
                 ]
             }
 
+### Bucket Update [PUT /v2/storage/buckets/{bucket_id}]
+Update an existing bucket
+
++ Parameters
+    + bucket_id (required) - Bucket Id
+
++ Attributes
+    + displayName (required, string) - Bucket displayName, this name is displayed in UI and can be changed anytime; only alphanumeric characters,underscores and dashes are allowed.
+
++ Request
+    + Headers
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+    + Body
+
+            {
+                "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-my-bucket",
+                "id": "in.c-my-bucket",
+                "name": "c-my-bucket",
+                "displayName": "my-bucket",
+                "stage": "in",
+                "description": "Some Description",
+                "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-my-bucket/tables",
+                "created": "2017-02-13T12:01:05+0100",
+                "lastChangeDate": null,
+                "isReadOnly": false,
+                "dataSizeBytes": 0,
+                "rowsCount": 0,
+                "isMaintenance": false,
+                "backend": "snowflake",
+                "sharing": null
+            }
 
 ### Drop Bucket [DELETE /v2/storage/buckets/{bucket_id}/?force={force}]
 Deletes a bucket from the project. In the default mode, only empty buckets can be deleted.
