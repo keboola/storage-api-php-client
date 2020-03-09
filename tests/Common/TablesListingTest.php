@@ -59,6 +59,7 @@ class TablesListingTest extends StorageApiTestCase
         $this->assertArrayHasKey('attributes', $firstTable, 'List tables are returned with attributes');
         $this->assertCount(1, $firstTable['attributes']);
         $this->assertArrayHasKey('bucket', $firstTable, 'List tables are returned with attributes');
+        $this->assertArrayHasKey('displayName', $firstTable['bucket']);
         $this->assertArrayNotHasKey('columns', $firstTable);
     }
 
