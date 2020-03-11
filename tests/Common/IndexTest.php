@@ -37,7 +37,6 @@ class IndexTest extends StorageApiTestCase
     public function testSuccessfullyWebalizeDisplayName()
     {
         $responseDisplayName = $this->_client->webalizeDisplayName('Môj 1$ obľúbený bucket $');
-
         $this->assertSame('Moj-1-oblubeny-bucket', $responseDisplayName['displayName']);
     }
 
