@@ -16,7 +16,7 @@ use Keboola\Csv\CsvFile;
 
 class CreateTableTest extends StorageApiTestCase
 {
-
+//@TODO - test that table name can be provided with and without displayname
 
     public function setUp()
     {
