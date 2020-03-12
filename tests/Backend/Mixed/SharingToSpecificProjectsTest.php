@@ -17,7 +17,9 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
 
         // first share
         $targetProjectId = $this->clientAdmin2InSameOrg->verifyToken()['owner']['id'];
-        $this->_client->shareBucketToProjects($bucketId, [$targetProjectId]);
+        $response = $this->_client->shareBucketToProjects($bucketId, [$targetProjectId]);
+
+        $this->assertArrayHasKey('displayName', $response);
 
         $sharedBucket = $this->_client->getBucket($bucketId);
         $this->assertArrayHasKey('sharing', $sharedBucket);
@@ -26,7 +28,9 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
         $this->assertNotEmpty($sharedBucket['sharingParameters']);
         $this->assertInternalType('array', $sharedBucket['sharingParameters']);
 
-        $this->_client->shareOrganizationBucket($bucketId);
+        $response = $this->_client->shareOrganizationBucket($bucketId);
+
+        $this->assertArrayHasKey('displayName', $response);
 
         $sharedBucket = $this->_client->getBucket($bucketId);
         $this->assertArrayHasKey('sharing', $sharedBucket);
@@ -35,7 +39,9 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
         $this->assertEmpty($sharedBucket['sharingParameters']);
         $this->assertInternalType('array', $sharedBucket['sharingParameters']);
 
-        $this->_client->shareOrganizationProjectBucket($bucketId);
+        $response = $this->_client->shareOrganizationProjectBucket($bucketId);
+
+        $this->assertArrayHasKey('displayName', $response);
 
         $sharedBucket = $this->_client->getBucket($bucketId);
         $this->assertArrayHasKey('sharing', $sharedBucket);

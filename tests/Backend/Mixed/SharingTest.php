@@ -44,9 +44,11 @@ class SharingTest extends StorageApiSharingTestCase
         $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
         $bucketId = reset($this->_bucketIds);
 
-        $this->_client->shareBucket($bucketId, [
+        $response = $this->_client->shareBucket($bucketId, [
             'sharing' => 'organization-project',
         ]);
+
+        $this->assertArrayHasKey('displayName', $response);
 
         $tokenOptions = (new TokenCreateOptions())
             ->setDescription('Test Token')
@@ -72,19 +74,58 @@ class SharingTest extends StorageApiSharingTestCase
         $sharedBuckets = $client->listSharedBuckets();
         $this->assertCount(1, $sharedBuckets);
 
+        $this->assertArrayHasKey('displayName', $sharedBuckets[0]);
+
         $this->assertEquals($bucketId, $sharedBuckets[0]['id']);
         $this->assertEquals('organization-project', $sharedBuckets[0]['sharing']);
 
+        $displayName = 'linked-displayName';
         // bucket can be linked by another project
         $linkedBucketId = $client->linkBucket(
             'organization-project-test',
             self::STAGE_IN,
             $sharedBuckets[0]['project']['id'],
-            $sharedBuckets[0]['id']
+            $sharedBuckets[0]['id'],
+            $displayName
         );
         $linkedBucket = $client->getBucket($linkedBucketId);
         $this->assertEquals($sharedBuckets[0]['id'], $linkedBucket['sourceBucket']['id']);
         $this->assertEquals($sharedBuckets[0]['project']['id'], $linkedBucket['sourceBucket']['project']['id']);
+        $this->assertEquals($displayName, $linkedBucket['displayName']);
+
+        // bucket can't be linked with same displayName
+        try {
+            $linkedBucketId = $client->linkBucket(
+                'organization-project-test'. time(),
+                self::STAGE_IN,
+                $sharedBuckets[0]['project']['id'],
+                $sharedBuckets[0]['id'],
+                $displayName
+            );
+            $this->fail('bucket can\'t be linked with same displayName');
+        } catch (ClientException $e) {
+            $this->assertEquals("The display name \"".$displayName."\" already exists in project.", $e->getMessage());
+            $this->assertEquals(400, $e->getCode());
+            $this->assertEquals('storage.buckets.alreadyExists', $e->getStringCode());
+        }
+
+        try {
+            $linkedBucketId = $client->linkBucket(
+                'organization-project-test'. time(),
+                self::STAGE_IN,
+                $sharedBuckets[0]['project']['id'],
+                $sharedBuckets[0]['id'],
+                '&&&&&&'
+            );
+            $this->fail('bucket can\'t be linked with same displayName');
+        } catch (ClientException $e) {
+            $this->assertEquals(
+                'Invalid data - displayName: Only alphanumeric characters dash and underscores are allowed in table name.',
+                $e->getMessage()
+            );
+            $this->assertEquals(400, $e->getCode());
+            $this->assertEquals('storage.buckets.validation', $e->getStringCode());
+        }
 
         // bucket can be linked by the same project
         $selfLinkedBucketId = $this->_client->linkBucket(

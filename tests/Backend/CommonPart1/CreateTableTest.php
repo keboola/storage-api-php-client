@@ -39,6 +39,8 @@ class CreateTableTest extends StorageApiTestCase
         );
         $table = $this->_client->getTable($tableId);
 
+        $this->assertArrayHasKey('displayName', $table['bucket']);
+
         $expectationFileCsv = new CsvFile($expectationFile);
 
         $this->assertEquals($tableId, $table['id']);

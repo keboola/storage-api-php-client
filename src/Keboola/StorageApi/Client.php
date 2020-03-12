@@ -252,10 +252,11 @@ class Client
      * @param string $name bucket name
      * @param string $stage bucket stage
      * @param string $description bucket description
+     * @param string|null $displayName bucket display name
      *
      * @return string bucket Id
      */
-    public function createBucket($name, $stage, $description = "", $backend = null)
+    public function createBucket($name, $stage, $description = "", $backend = null, $displayName = null)
     {
         $options = array(
             "name" => $name,
@@ -265,6 +266,10 @@ class Client
 
         if ($backend) {
             $options['backend'] = $backend;
+        }
+
+        if ($displayName) {
+            $options['displayName'] = $displayName;
         }
 
         $bucketId = $this->getBucketId($name, $stage);
@@ -286,9 +291,10 @@ class Client
      * @param string $stage bucket stage
      * @param int $sourceProjectId
      * @param int $sourceBucketId
+     * @param string|null $displayName bucket display name
      * @return mixed
      */
-    public function linkBucket($name, $stage, $sourceProjectId, $sourceBucketId)
+    public function linkBucket($name, $stage, $sourceProjectId, $sourceBucketId, $displayName = null)
     {
         $options = array(
             "name" => $name,
@@ -296,6 +302,10 @@ class Client
             "sourceProjectId" => $sourceProjectId,
             "sourceBucketId" => $sourceBucketId,
         );
+
+        if ($displayName) {
+            $options['displayName'] = $displayName;
+        }
 
         $result = $this->apiPost("storage/buckets", $options);
 
