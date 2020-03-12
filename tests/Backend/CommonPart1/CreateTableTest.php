@@ -43,6 +43,7 @@ class CreateTableTest extends StorageApiTestCase
 
         $this->assertEquals($tableId, $table['id']);
         $this->assertEquals($tableName, $table['name']);
+        $this->assertEquals($tableName, $table['displayName'], 'display name is same as name');
         $this->assertNotEmpty($table['created']);
         $this->assertNotEmpty($table['lastChangeDate']);
         $this->assertNotEmpty($table['lastImportDate']);
@@ -56,6 +57,16 @@ class CreateTableTest extends StorageApiTestCase
             $this->_client->getTableDataPreview($tableId),
             'initial data imported into table'
         );
+
+        $displayName = 'Romanov-display-name';
+        $this->_client->updateTable(
+            $tableId,
+            [
+                'displayName' => $displayName,
+            ]
+        );
+
+        $this->assertEquals($displayName, $table['displayName']);
     }
 
     public function tableCreateData()
