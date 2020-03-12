@@ -59,6 +59,18 @@ class CreateTableTest extends StorageApiTestCase
             $this->_client->getTableDataPreview($tableId),
             'initial data imported into table'
         );
+
+        $displayName = 'Romanov-display-name';
+        $tableId = $this->_client->updateTable(
+            $tableId,
+            [
+                'displayName' => $displayName,
+            ]
+        );
+
+        $table = $this->_client->getTable($tableId);
+
+        $this->assertEquals($displayName, $table['displayName']);
     }
 
     public function tableCreateData()
