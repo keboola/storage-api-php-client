@@ -1277,6 +1277,18 @@ class SharingTest extends StorageApiSharingTestCase
         $columnId = $tableId . '.transid';
         $this->prepareTestMetadata($bucketId, $tableId, $columnId);
 
+        $newBucketId = $this->_bucketIds['in'];
+        $this->_client->shareBucket($newBucketId);
+
+        $this->assertSame(2, count($this->_client2->listSharedBuckets()));
+
+        $response = $this->_client2->getSharedBucketDetail(
+            $project['id'],
+            $newBucketId
+        );
+
+        $this->assertSame($newBucketId, $response['id']);
+
         $response = $this->_client2->getSharedBucketDetail(
             $project['id'],
             $bucketId
@@ -1366,6 +1378,40 @@ class SharingTest extends StorageApiSharingTestCase
             $this->assertEquals('test', $columnsMetadata['provider']);
             $this->assertEquals('test.metadata.key', $columnsMetadata['key']);
             $this->assertEquals('test.metadata.value', $columnsMetadata['value']);
+        }
+
+        try {
+            $this->_client2->getSharedBucketDetail(
+                '',
+                $bucketId
+            );
+
+            $this->fail('Wrong Project Id');
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertEquals('storage.buckets.wrongProjectId', $e->getStringCode());
+            $this->assertEquals(400, $e->getCode());
+        }
+
+        try {
+            $this->_client2->getSharedBucketDetail(
+                $project['id'],
+                ''
+            );
+
+            $this->fail('Wrong Bucket Id');
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertEquals('storage.buckets.wrongBucketId', $e->getStringCode());
+            $this->assertEquals(400, $e->getCode());
+        }
+
+        try {
+            $this->_client2->getSharedBucketDetail(
+                $this->clientAdmin3InOtherOrg->verifyToken()['owner']['id'],
+                $bucketId
+            );
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertEquals('storage.buckets.projectNotFound', $e->getStringCode());
+            $this->assertEquals(404, $e->getCode());
         }
     }
 
