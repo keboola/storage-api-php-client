@@ -71,6 +71,42 @@ class CreateTableTest extends StorageApiTestCase
         $table = $this->_client->getTable($tableId);
 
         $this->assertEquals($displayName, $table['displayName']);
+
+        try {
+            $this->_client->updateTable(
+                $tableId,
+                [
+                    'displayName' => $displayName,
+                ]
+            );
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertEquals(
+                sprintf(
+                    'The table "%s" in the bucket already has the same display name "%s".',
+                    $table['name'],
+                    $displayName
+                ),
+                $e->getMessage()
+            );
+            $this->assertEquals('storage.buckets.tableAlreadyExists', $e->getStringCode());
+            $this->assertEquals(400, $e->getCode());
+        }
+
+        try {
+            $this->_client->updateTable(
+                $tableId,
+                [
+                    'displayName' => '_wrong-display-name',
+                ]
+            );
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertEquals(
+                'Invalid data - displayName: Cannot start with underscore.',
+                $e->getMessage()
+            );
+            $this->assertEquals('storage.tables.validation', $e->getStringCode());
+            $this->assertEquals(400, $e->getCode());
+        }
     }
 
     public function tableCreateData()
@@ -346,7 +382,7 @@ class CreateTableTest extends StorageApiTestCase
             $this->assertEquals('storage.tables.validation.invalidColumnName', $e->getStringCode());
         }
     }
-    
+
     public function invalidPrimaryKeys()
     {
         return array(
