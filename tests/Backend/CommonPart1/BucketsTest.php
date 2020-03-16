@@ -73,7 +73,7 @@ class BucketsTest extends StorageApiTestCase
             $this->_client->updateBucket($bucketUpdateOptions);
             $this->fail('Wrong display name');
         } catch (\Keboola\StorageApi\ClientException $e) {
-            $this->assertEquals('Invalid data - displayName: Only alphanumeric characters dash and underscores are allowed in table name.', $e->getMessage());
+            $this->assertEquals('Invalid data - displayName: Only alphanumeric characters dash and underscores are allowed.', $e->getMessage());
             $this->assertEquals('storage.buckets.validation', $e->getStringCode());
             $this->assertEquals(400, $e->getCode());
         }
