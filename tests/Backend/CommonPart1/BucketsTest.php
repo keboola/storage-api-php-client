@@ -9,6 +9,7 @@
 namespace Keboola\Test\Backend\CommonPart1;
 
 use Keboola\StorageApi\Metadata;
+use Keboola\StorageApi\Options\BucketUpdateOptions;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 
@@ -48,8 +49,40 @@ class BucketsTest extends StorageApiTestCase
     public function testBucketDetail()
     {
         $tokenData = $this->_client->verifyToken();
+        $displayName = "Romanov-Bucket";
         $bucket = $this->_client->getBucket($this->getTestBucketId());
         $this->assertEquals($tokenData['owner']['defaultBackend'], $bucket['backend']);
+
+        $this->assertNotEquals($displayName, $bucket['displayName']);
+
+        $bucketUpdateOptions = new BucketUpdateOptions($this->getTestBucketId(), $displayName);
+        $bucket = $this->_client->updateBucket($bucketUpdateOptions);
+
+        $this->assertEquals($displayName, $bucket['displayName']);
+
+        try {
+            $this->_client->updateBucket($bucketUpdateOptions);
+            $this->fail('The display name already exists in project');
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertEquals('The display name "' . $displayName . '" already exists in project.', $e->getMessage());
+            $this->assertEquals('storage.buckets.alreadyExists', $e->getStringCode());
+            $this->assertEquals(400, $e->getCode());
+        }
+
+        $bucketUpdateOptions = new BucketUpdateOptions($this->getTestBucketId(), '$$$$$');
+        try {
+            $this->_client->updateBucket($bucketUpdateOptions);
+            $this->fail('Wrong display name');
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertEquals('Invalid data - displayName: Only alphanumeric characters dash and underscores are allowed.', $e->getMessage());
+            $this->assertEquals('storage.buckets.validation', $e->getStringCode());
+            $this->assertEquals(400, $e->getCode());
+        }
+
+        $bucket = $this->_client->getBucket($this->getTestBucketId());
+        $this->assertEquals($displayName, $bucket['displayName']);
+
+        $this->_client->dropBucket($bucket['id']);
     }
 
     public function testBucketEvents()
