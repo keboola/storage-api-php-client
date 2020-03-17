@@ -1046,36 +1046,57 @@ class TokensTest extends StorageApiTestCase
         }
     }
 
-    public function testGuestTokenCreateRestrictedToken()
+    /**
+     * @dataProvider limitedTokenOptionsData
+     */
+    public function testGuestTokenCreateLimitedToken(TokenCreateOptions $options)
     {
-        $client = new \Keboola\StorageApi\Client(array(
+        $client = new \Keboola\StorageApi\Client([
             'token' => STORAGE_API_GUEST_TOKEN,
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
             'jobPollRetryDelay' => function () {
                 return 1;
             },
-        ));
+        ]);
 
         $token = $client->verifyToken();
 
         $this->assertTrue($token['isMasterToken']);
         $this->assertFalse($token['canManageTokens']);
 
-        $options = new TokenCreateOptions();
-        $options->setDescription('Autosave test');
-        $options->setExpiresIn(60 * 5);
-
         $tokenId = $client->createToken($options);
 
         $token = $this->_client->getToken($tokenId);
 
+        $this->assertSame('Autosave test', $token['description']);
         $this->assertFalse($token['isMasterToken']);
         $this->assertFalse($token['canManageBuckets']);
         $this->assertFalse($token['canManageTokens']);
         $this->assertFalse($token['canReadAllFileUploads']);
         $this->assertFalse($token['canPurgeTrash']);
+        $this->assertArrayNotHasKey('componentAccess', $token);
         $this->assertNotEmpty($token['expires']);
         $this->assertSame([], $token['bucketPermissions']);
+    }
+
+    public function limitedTokenOptionsData()
+    {
+        return [
+            [
+                (new TokenCreateOptions())
+                    ->setDescription('Autosave test')
+                    ->setExpiresIn(60 * 5)
+            ],
+            [
+                (new TokenCreateOptions())
+                    ->setDescription('Autosave test')
+                    ->setExpiresIn(60 * 5)
+                    ->setCanReadAllFileUploads(true)
+                    ->setCanPurgeTrash(true)
+                    ->addBucketPermission('in.c-test', TokenAbstractOptions::BUCKET_PERMISSION_READ)
+                    ->addComponentAccess('wr-db')
+            ],
+        ];
     }
 }
