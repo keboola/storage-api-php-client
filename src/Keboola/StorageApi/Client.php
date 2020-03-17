@@ -6,6 +6,7 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\MessageFormatter;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
+use Keboola\StorageApi\Options\BucketUpdateOptions;
 use Keboola\StorageApi\Options\FileUploadTransferOptions;
 use Keboola\StorageApi\Options\GetFileOptions;
 use Keboola\StorageApi\Options\ListFilesOptions;
@@ -246,13 +247,22 @@ class Client
     }
 
     /**
+     * @param BucketUpdateOptions $options
+     * @return array
+     */
+    public function updateBucket(BucketUpdateOptions $options)
+    {
+        return $this->apiPut('storage/buckets/' . $options->getBucketId(), $options->toParamsArray());
+    }
+
+    /**
      *
      * Create a bucket. If a bucket exists, return existing bucket URL.
      *
      * @param string $name bucket name
      * @param string $stage bucket stage
      * @param string $description bucket description
-     * @param string|null $displayName bucket display name
+     * @param string|null $displayName name that will be displayed in the UI - can be changed
      *
      * @return string bucket Id
      */
