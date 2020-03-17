@@ -260,10 +260,9 @@ class Client
      * Create a bucket. If a bucket exists, return existing bucket URL.
      *
      * @param string $name bucket name
-     * @param string $displayName name that will be displayed in the UI - can be changed
      * @param string $stage bucket stage
      * @param string $description bucket description
-     * @param string|null $displayName bucket display name
+     * @param string|null $displayName name that will be displayed in the UI - can be changed
      *
      * @return string bucket Id
      */

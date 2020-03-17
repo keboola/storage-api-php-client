@@ -53,11 +53,12 @@ class BucketsTest extends StorageApiTestCase
         $bucket = $this->_client->getBucket($this->getTestBucketId());
         $this->assertEquals($tokenData['owner']['defaultBackend'], $bucket['backend']);
 
-        $bucketUpdateOptions = new BucketUpdateOptions($this->getTestBucketId(), $displayName);
+        $this->assertNotEquals($displayName, $bucket['displayName']);
 
+        $bucketUpdateOptions = new BucketUpdateOptions($this->getTestBucketId(), $displayName);
         $bucket = $this->_client->updateBucket($bucketUpdateOptions);
+
         $this->assertEquals($displayName, $bucket['displayName']);
-        $this->assertNotEquals($bucket['name'], $bucket['displayName']);
 
         try {
             $this->_client->updateBucket($bucketUpdateOptions);
