@@ -153,6 +153,12 @@ class BucketsTest extends StorageApiTestCase
             'description' => 'this is just a test',
         ];
 
+        $testBucketId = $bucketData['stage'] . '.c-'.$bucketData['name'];
+
+        if ($this->_client->getBucket($testBucketId)) {
+            $this->_client->dropBucket($testBucketId);
+        }
+
         $newBucketId = $this->_client->createBucket(
             $bucketData['name'],
             $bucketData['stage'],
@@ -222,8 +228,6 @@ class BucketsTest extends StorageApiTestCase
         $this->assertTrue(in_array($newBucketId, array_map(function ($bucket) {
             return $bucket['id'];
         }, $buckets)));
-
-        $this->_client->dropBucket($newBucket['id']);
     }
 
     public function testBucketCreateWithoutDescription()
