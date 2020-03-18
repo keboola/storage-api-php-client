@@ -1073,22 +1073,6 @@ class TokensTest extends StorageApiTestCase
         $this->assertSame([], $token['bucketPermissions']);
     }
 
-    public function testGuestUserMustSpecifyRequiredParametersWhenCreatingToken()
-    {
-        $client = $this->getGuestClient();
-
-        $token = $client->verifyToken();
-
-        $this->assertTrue($token['isMasterToken']);
-        $this->assertFalse($token['canManageTokens']);
-
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Missing required query parameter(s) "description, expiresIn"');
-
-        $options = (new TokenCreateOptions());
-        $tokenId = $client->createToken($options);
-    }
-
     public function limitedTokenOptionsData()
     {
         return [
@@ -1106,6 +1090,47 @@ class TokensTest extends StorageApiTestCase
                     ->addBucketPermission('in.c-test', TokenAbstractOptions::BUCKET_PERMISSION_READ)
                     ->addComponentAccess('wr-db')
             ],
+        ];
+    }
+
+
+
+    /**
+     * @dataProvider provideInvalidOptionsForGuestUser
+     * @param string $expectedExceptionClass
+     * @param string $expectedExceptionMessage
+     */
+    public function testGuestUserSuppliesInvalidOptions(
+        TokenCreateOptions $invalidOptions,
+        $expectedExceptionClass,
+        $expectedExceptionMessage
+    ) {
+        $client = $this->getGuestClient();
+
+        $token = $client->verifyToken();
+
+        $this->assertTrue($token['isMasterToken']);
+        $this->assertFalse($token['canManageTokens']);
+
+        $this->expectException($expectedExceptionClass);
+        $this->expectExceptionMessage($expectedExceptionMessage);
+
+        $tokenId = $client->createToken($invalidOptions);
+    }
+
+    public function provideInvalidOptionsForGuestUser()
+    {
+        yield 'missing required' => [
+            new TokenCreateOptions(),
+            ClientException::class,
+            'Missing required query parameter(s) "description, expiresIn"',
+        ];
+        yield 'invalid expiration' => [
+            (new TokenCreateOptions())
+                ->setExpiresIn(0)
+                ->setDescription('Whatever'),
+            ClientException::class,
+            'Minimal expiration must be greater or equal to 1 second'
         ];
     }
 
