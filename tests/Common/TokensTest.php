@@ -1080,6 +1080,29 @@ class TokensTest extends StorageApiTestCase
         $this->assertSame([], $token['bucketPermissions']);
     }
 
+    public function testGuestUserMustSpecifyRequiredParametersWhenCreatingToken()
+    {
+        $client = new \Keboola\StorageApi\Client([
+            'token' => STORAGE_API_GUEST_TOKEN,
+            'url' => STORAGE_API_URL,
+            'backoffMaxTries' => 1,
+            'jobPollRetryDelay' => function () {
+                return 1;
+            },
+        ]);
+
+        $token = $client->verifyToken();
+
+        $this->assertTrue($token['isMasterToken']);
+        $this->assertFalse($token['canManageTokens']);
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Missing required query parameter(s) "description, expiresIn"');
+
+        $options = (new TokenCreateOptions());
+        $tokenId = $client->createToken($options);
+    }
+
     public function limitedTokenOptionsData()
     {
         return [
