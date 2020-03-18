@@ -1051,14 +1051,7 @@ class TokensTest extends StorageApiTestCase
      */
     public function testGuestTokenCreateLimitedToken(TokenCreateOptions $options)
     {
-        $client = new \Keboola\StorageApi\Client([
-            'token' => STORAGE_API_GUEST_TOKEN,
-            'url' => STORAGE_API_URL,
-            'backoffMaxTries' => 1,
-            'jobPollRetryDelay' => function () {
-                return 1;
-            },
-        ]);
+        $client = $this->getGuestClient();
 
         $token = $client->verifyToken();
 
@@ -1082,14 +1075,7 @@ class TokensTest extends StorageApiTestCase
 
     public function testGuestUserMustSpecifyRequiredParametersWhenCreatingToken()
     {
-        $client = new \Keboola\StorageApi\Client([
-            'token' => STORAGE_API_GUEST_TOKEN,
-            'url' => STORAGE_API_URL,
-            'backoffMaxTries' => 1,
-            'jobPollRetryDelay' => function () {
-                return 1;
-            },
-        ]);
+        $client = $this->getGuestClient();
 
         $token = $client->verifyToken();
 
@@ -1121,5 +1107,18 @@ class TokensTest extends StorageApiTestCase
                     ->addComponentAccess('wr-db')
             ],
         ];
+    }
+
+    public function getGuestClient()
+    {
+        $client = new \Keboola\StorageApi\Client([
+            'token' => STORAGE_API_GUEST_TOKEN,
+            'url' => STORAGE_API_URL,
+            'backoffMaxTries' => 1,
+            'jobPollRetryDelay' => function () {
+                return 1;
+            },
+        ]);
+        return $client;
     }
 }
