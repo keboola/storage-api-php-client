@@ -120,7 +120,7 @@ class SharingTest extends StorageApiSharingTestCase
             $this->fail('bucket can\'t be linked with same displayName');
         } catch (ClientException $e) {
             $this->assertEquals(
-                'Invalid data - displayName: Only alphanumeric characters dash and underscores are allowed in table name.',
+                'Invalid data - displayName: Only alphanumeric characters dash and underscores are allowed.',
                 $e->getMessage()
             );
             $this->assertEquals(400, $e->getCode());
