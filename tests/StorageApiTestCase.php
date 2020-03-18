@@ -441,22 +441,13 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param Client $client
      * @param string $testBucketId
      */
     public function dropBucketIfExists($client, $testBucketId)
     {
-        try {
-            if ($client->getBucket($testBucketId)) {
-                $client->dropBucket($testBucketId);
-            }
-        } catch (\Keboola\StorageApi\ClientException $e) {
-            if ($e->getStringCode() === 'storage.buckets.notFound') {
-                // intentionally empty the bucket does not exist
-                // no need to delete it
-            } else {
-                // rethrow otherwise
-                throw $e;
-            }
+        if ($client->bucketExists($testBucketId)) {
+            $client->dropBucket($testBucketId);
         }
     }
 }
