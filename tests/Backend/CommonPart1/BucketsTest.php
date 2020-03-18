@@ -155,8 +155,18 @@ class BucketsTest extends StorageApiTestCase
 
         $testBucketId = $bucketData['stage'] . '.c-'.$bucketData['name'];
 
-        if ($this->_client->getBucket($testBucketId)) {
-            $this->_client->dropBucket($testBucketId);
+        try {
+            if ($this->_client->getBucket($testBucketId)) {
+                $this->_client->dropBucket($testBucketId);
+            }
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            if ($e->getStringCode() === 'storage.buckets.notFound') {
+                // intentionally empty the bucket does not exist
+                // no need to delete it
+            } else {
+                // rethrow otherwise
+                throw $e;
+            }
         }
 
         $newBucketId = $this->_client->createBucket(
