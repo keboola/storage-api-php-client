@@ -439,4 +439,15 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
         }
         return $randStr;
     }
+
+    /**
+     * @param Client $client
+     * @param string $testBucketId
+     */
+    public function dropBucketIfExists($client, $testBucketId)
+    {
+        if ($client->bucketExists($testBucketId)) {
+            $client->dropBucket($testBucketId);
+        }
+    }
 }
