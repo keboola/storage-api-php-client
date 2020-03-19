@@ -45,6 +45,7 @@ class CreateTableTest extends StorageApiTestCase
 
         $this->assertEquals($tableId, $table['id']);
         $this->assertEquals($tableName, $table['name']);
+        $this->assertEquals($tableName, $table['displayName'], 'display name is same as name');
         $this->assertNotEmpty($table['created']);
         $this->assertNotEmpty($table['lastChangeDate']);
         $this->assertNotEmpty($table['lastImportDate']);

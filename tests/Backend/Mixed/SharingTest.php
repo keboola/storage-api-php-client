@@ -425,6 +425,11 @@ class SharingTest extends StorageApiSharingTestCase
 
             $this->assertEquals($tableId, $sharedBucketTable['id']);
             $this->assertEquals($tableName, $sharedBucketTable['name']);
+            $this->assertEquals(
+                $tableName,
+                $sharedBucketTable['displayName'],
+                'display name is same as name'
+            );
         }
     }
 
