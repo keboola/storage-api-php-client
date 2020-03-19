@@ -1053,16 +1053,21 @@ class TokensTest extends StorageApiTestCase
     {
         $client = $this->getGuestClient();
 
-        $token = $client->verifyToken();
+        $creatorToken = $client->verifyToken();
 
-        $this->assertTrue($token['isMasterToken']);
-        $this->assertFalse($token['canManageTokens']);
+        $this->assertTrue($creatorToken['isMasterToken']);
+        $this->assertFalse($creatorToken['canManageTokens']);
 
         $tokenId = $client->createToken($options);
 
         $token = $this->_client->getToken($tokenId);
 
-        $this->assertSame('Autosave test', $token['description']);
+        if ($options->getDescription()) {
+            $this->assertSame($options->getDescription(), $token['description']);
+        } else {
+            $this->assertSame(sprintf('Created by %s', $creatorToken['description']), $token['description']);
+        }
+
         $this->assertFalse($token['isMasterToken']);
         $this->assertFalse($token['canManageBuckets']);
         $this->assertFalse($token['canManageTokens']);
@@ -1079,6 +1084,10 @@ class TokensTest extends StorageApiTestCase
             [
                 (new TokenCreateOptions())
                     ->setDescription('Autosave test')
+                    ->setExpiresIn(60 * 5)
+            ],
+            [
+                (new TokenCreateOptions())
                     ->setExpiresIn(60 * 5)
             ],
             [
@@ -1123,7 +1132,7 @@ class TokensTest extends StorageApiTestCase
         yield 'missing required' => [
             new TokenCreateOptions(),
             ClientException::class,
-            'Missing required query parameter(s) "description, expiresIn"',
+            'Missing required query parameter(s) "expiresIn"',
         ];
         yield 'invalid expiration' => [
             (new TokenCreateOptions())
