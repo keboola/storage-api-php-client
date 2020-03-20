@@ -1894,6 +1894,94 @@ Obtains information about a table.
                 }
             }
 
+### Table update [PUT /v2/storage/tables/{table_id}]
+Update an existing table
+
++ Parameters
+    + table_id (required) - Table Id
+
++ Attributes
+    + displayName (required, string) - Table displayName, this name is displayed in UI and can be changed anytime; only alphanumeric characters,underscores and dashes are allowed.
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            displayName=updated-table-display-name
+
++ Response 200 (application/json)
+
+            {
+                "uri": "https://connection.keboola.com/v2/storage/tables/in.c-application-testing.cashier-data-alias",
+                "id": "in.c-application-testing.cashier-data-alias",
+                "name": "cashier-data-alias",
+                "displayName": "my-display-name",
+                "transactional": false,
+                "primaryKey": [],
+                "indexedColumns": [],
+                "created": "2019-08-14T16:54:06+0200",
+                "lastImportDate": "2015-11-03T10:58:31+0100",
+                "lastChangeDate": "2015-11-03T10:58:32+0100",
+                "rowsCount": 199,
+                "dataSizeBytes": 25165824,
+                "isAlias": true,
+                "isAliasable": true,
+                "sourceTable": {
+                    "id": "in.c-application-testing.cashier-data",
+                    "uri": "https://connection.keboola.com/v2/storage/tables/in.c-application-testing.cashier-data",
+                    "project": {
+                        "id": 123,
+                        "name": "Some source project"
+                    },
+                    "columnMetadata": {
+                        "number_of_items": [
+                            {
+                                "id": "207947778",
+                                "key": "KBC.datatype.basetype",
+                                "value": "INTEGER",
+                                "provider": "user",
+                                "timestamp": "2019-08-14T16:55:34+0200"
+                            }
+                        ]
+                    }
+                },
+                "aliasColumnsAutoSync": true,
+                "columns": [
+                    "time_spent_in_shop",
+                    "number_of_items",
+                    "customer_shoe_size",
+                    "customer_age",
+                    "age_segment",
+                    "no_segment",
+                    "customer_segment",
+                    "visit_id"
+                ],
+                "columnMetadata": [],
+                "attributes": [],
+                "metadata": [],
+                "bucket": {
+                    "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-application-testing",
+                    "id": "in.c-application-testing",
+                    "name": "c-application-testing",
+                    "stage": "in",
+                    "description": "",
+                    "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-application-testing/tables",
+                    "created": "2015-11-03T10:54:55+0100",
+                    "lastChangeDate": "2019-08-14T16:54:06+0200",
+                    "isReadOnly": false,
+                    "dataSizeBytes": 129427968,
+                    "rowsCount": 237902,
+                    "isMaintenance": false,
+                    "backend": "snowflake",
+                    "sharing": null,
+                    "metadata": []
+                }
+            }
+
+
 ### Drop table [DELETE /v2/storage/tables/{table_id}/?force={force}]
 Deletes a table from Storage. In default mode, only table having any aliases can be deleted.
 Use the optional `force` parameter to delete its aliases too.
