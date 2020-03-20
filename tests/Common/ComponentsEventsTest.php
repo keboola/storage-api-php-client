@@ -110,13 +110,21 @@ class ComponentsEventsTest extends StorageApiTestCase
      * @param string $eventName
      * @return array
      */
-    private function listEvents($eventName)
+    private function listEvents($eventName, $expectedObjectId = null)
     {
-        return $this->retry(function () {
-            return $this->_client->listTokenEvents($this->tokenId, [
+        return $this->retry(function () use ($expectedObjectId) {
+            $tokenEvents = $this->_client->listTokenEvents($this->tokenId, [
                 'sinceId' => $this->lastEventId,
                 'limit' => 1,
             ]);
+
+            if ($expectedObjectId === null) {
+                return $tokenEvents;
+            }
+
+            return array_filter($tokenEvents, function ($event) use ($expectedObjectId) {
+                return $event['objectId'] === $expectedObjectId;
+            });
         }, 10, $eventName);
     }
 
@@ -215,7 +223,7 @@ class ComponentsEventsTest extends StorageApiTestCase
         $this->components->addConfiguration($config);
         // delete
         $this->components->deleteConfiguration(self::COMPONENT_ID, $this->configurationId);
-        $events = $this->listEvents('storage.componentConfigurationDeleted');
+        $events = $this->listEvents('storage.componentConfigurationDeleted', $this->configurationId);
         $this->assertEvent(
             $events[0],
             'storage.componentConfigurationDeleted',
@@ -233,7 +241,7 @@ class ComponentsEventsTest extends StorageApiTestCase
 
         // purge
         $this->components->deleteConfiguration(self::COMPONENT_ID, $this->configurationId);
-        $events = $this->listEvents('storage.componentConfigurationPurged');
+        $events = $this->listEvents('storage.componentConfigurationPurged', $this->configurationId);
         $this->assertEvent(
             $events[0],
             'storage.componentConfigurationPurged',
