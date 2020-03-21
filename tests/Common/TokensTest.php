@@ -1081,16 +1081,16 @@ class TokensTest extends StorageApiTestCase
     public function limitedTokenOptionsData()
     {
         return [
-            [
+            'minimal configuration' => [
+                (new TokenCreateOptions())
+                    ->setExpiresIn(60 * 5)
+            ],
+            'all applicable params' => [
                 (new TokenCreateOptions())
                     ->setDescription('Autosave test')
                     ->setExpiresIn(60 * 5)
             ],
-            [
-                (new TokenCreateOptions())
-                    ->setExpiresIn(60 * 5)
-            ],
-            [
+            'full configuration' => [
                 (new TokenCreateOptions())
                     ->setDescription('Autosave test')
                     ->setExpiresIn(60 * 5)
@@ -1139,7 +1139,7 @@ class TokensTest extends StorageApiTestCase
                 ->setExpiresIn(0)
                 ->setDescription('Whatever'),
             ClientException::class,
-            'Minimal expiration must be greater or equal to 1 second'
+            'Minimal expiration must be greater or equal to 1 second(s)'
         ];
     }
 
