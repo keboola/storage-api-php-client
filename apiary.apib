@@ -187,8 +187,8 @@ Lists all tokens in the project.
 ### Create token [POST]
 Creates a new token in the project. Note that it is not possible to create a new master token.
 
-If your admin token has not `canManageTokens` permission, you can create only temporary token with minimal privileges.
-In this case you are allowed set the `description` and token expiration via `expiresIn` (required) parameter. All other attributes will be ignored.
+If your admin token does not have `canManageTokens` permission, you can only create temporary token with minimal privileges.
+In this case, you are allowed to set the `description` and token expiration via `expiresIn` (required) parameter. All other attributes will be ignored.
 
 + Attributes
     + description (optional) - Token description
