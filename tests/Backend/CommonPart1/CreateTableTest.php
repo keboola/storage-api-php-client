@@ -72,6 +72,14 @@ class CreateTableTest extends StorageApiTestCase
 
         $this->assertEquals($displayName, $table['displayName']);
 
+        // rename table to same name it already has should succeed
+        $this->_client->updateTable(
+            $tableId,
+            [
+                'displayName' => $displayName,
+            ]
+        );
+
         try {
             $this->_client->updateTable(
                 $tableId,
