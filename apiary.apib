@@ -5314,3 +5314,29 @@ Deletes an existing trigger
             X-StorageApi-Token: your_token
 
 + Response 204
+
+# Group Webalize
+
+###Webalize Display Name [POST /v2/storage/webalize/display-name]
+Webalize string which you want to use as `displayName` for [tables](https://keboola.docs.apiary.io/#reference/tables/manage-tables/table-update)
+and [buckets](https://keboola.docs.apiary.io/#reference/buckets/manage-bucket/bucket-update)
++ Attributes
+    + displayName (required, string)
+
++ Request
+
+    + Headers
+
+            Content-Type: application/json
+
+    + Body
+
+            {
+                "displayName": "My$$Display-Name"
+            }
+
++ Response 200 (application/json)
+
+        {
+            "displayName": "My-Display-Name"
+        }
