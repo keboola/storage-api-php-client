@@ -72,13 +72,21 @@ class CreateTableTest extends StorageApiTestCase
 
         $this->assertEquals($displayName, $table['displayName']);
 
+        $tableNameAnother = $tableName . '_another';
+        $anotherTableId = $this->_client->{$createMethod}(
+            $this->getTestBucketId(self::STAGE_IN),
+            $tableNameAnother,
+            new CsvFile($createFile),
+            $options
+        );
         try {
             $this->_client->updateTable(
-                $tableId,
+                $anotherTableId,
                 [
                     'displayName' => $displayName,
                 ]
             );
+            $this->fail('Renaming another table to existing displayname should fail');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals(
                 sprintf(
