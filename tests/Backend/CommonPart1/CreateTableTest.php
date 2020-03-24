@@ -72,6 +72,22 @@ class CreateTableTest extends StorageApiTestCase
 
         $this->assertEquals($displayName, $table['displayName']);
 
+        try {
+            $this->_client->updateTable(
+                $tableId,
+                [
+                    'displayName' => '_wrong-display-name',
+                ]
+            );
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertEquals(
+                'Invalid data - displayName: Cannot start with underscore.',
+                $e->getMessage()
+            );
+            $this->assertEquals('storage.tables.validation', $e->getStringCode());
+            $this->assertEquals(400, $e->getCode());
+        }
+
         $tableNameAnother = $tableName . '_another';
         $anotherTableId = $this->_client->{$createMethod}(
             $this->getTestBucketId(self::STAGE_IN),
@@ -97,22 +113,6 @@ class CreateTableTest extends StorageApiTestCase
                 $e->getMessage()
             );
             $this->assertEquals('storage.buckets.tableAlreadyExists', $e->getStringCode());
-            $this->assertEquals(400, $e->getCode());
-        }
-
-        try {
-            $this->_client->updateTable(
-                $tableId,
-                [
-                    'displayName' => '_wrong-display-name',
-                ]
-            );
-        } catch (\Keboola\StorageApi\ClientException $e) {
-            $this->assertEquals(
-                'Invalid data - displayName: Cannot start with underscore.',
-                $e->getMessage()
-            );
-            $this->assertEquals('storage.tables.validation', $e->getStringCode());
             $this->assertEquals(400, $e->getCode());
         }
     }
