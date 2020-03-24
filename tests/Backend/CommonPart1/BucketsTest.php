@@ -60,6 +60,8 @@ class BucketsTest extends StorageApiTestCase
 
         $this->assertEquals($displayName, $bucket['displayName']);
 
+        $bucketUpdateOptions = new BucketUpdateOptions($this->getTestBucketId(self::STAGE_OUT), $displayName);
+
         try {
             $this->_client->updateBucket($bucketUpdateOptions);
             $this->fail('The display name already exists in project');
@@ -81,6 +83,10 @@ class BucketsTest extends StorageApiTestCase
 
         $bucket = $this->_client->getBucket($this->getTestBucketId());
         $this->assertEquals($displayName, $bucket['displayName']);
+
+        // renaming bucket to itself should be successful
+        $bucketUpdateOptions = new BucketUpdateOptions($this->getTestBucketId(), $displayName);
+        $bucket = $this->_client->updateBucket($bucketUpdateOptions);
 
         $this->_client->dropBucket($bucket['id']);
     }
