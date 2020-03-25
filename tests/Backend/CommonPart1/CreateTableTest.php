@@ -72,25 +72,13 @@ class CreateTableTest extends StorageApiTestCase
 
         $this->assertEquals($displayName, $table['displayName']);
 
-        try {
-            $this->_client->updateTable(
-                $tableId,
-                [
-                    'displayName' => $displayName,
-                ]
-            );
-        } catch (\Keboola\StorageApi\ClientException $e) {
-            $this->assertEquals(
-                sprintf(
-                    'The table "%s" in the bucket already has the same display name "%s".',
-                    $table['name'],
-                    $displayName
-                ),
-                $e->getMessage()
-            );
-            $this->assertEquals('storage.buckets.tableAlreadyExists', $e->getStringCode());
-            $this->assertEquals(400, $e->getCode());
-        }
+        // rename table to same name it already has should succeed
+        $this->_client->updateTable(
+            $tableId,
+            [
+                'displayName' => $displayName,
+            ]
+        );
 
         try {
             $this->_client->updateTable(
@@ -105,6 +93,34 @@ class CreateTableTest extends StorageApiTestCase
                 $e->getMessage()
             );
             $this->assertEquals('storage.tables.validation', $e->getStringCode());
+            $this->assertEquals(400, $e->getCode());
+        }
+
+        $tableNameAnother = $tableName . '_another';
+        $anotherTableId = $this->_client->{$createMethod}(
+            $this->getTestBucketId(self::STAGE_IN),
+            $tableNameAnother,
+            new CsvFile($createFile),
+            $options
+        );
+        try {
+            $this->_client->updateTable(
+                $anotherTableId,
+                [
+                    'displayName' => $displayName,
+                ]
+            );
+            $this->fail('Renaming another table to existing displayname should fail');
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertEquals(
+                sprintf(
+                    'The table "%s" in the bucket already has the same display name "%s".',
+                    $table['name'],
+                    $displayName
+                ),
+                $e->getMessage()
+            );
+            $this->assertEquals('storage.buckets.tableAlreadyExists', $e->getStringCode());
             $this->assertEquals(400, $e->getCode());
         }
     }

@@ -48,18 +48,24 @@ class BucketsTest extends StorageApiTestCase
 
     public function testBucketDetail()
     {
-        $tokenData = $this->_client->verifyToken();
         $displayName = "Romanov-Bucket";
-        $bucket = $this->_client->getBucket($this->getTestBucketId());
-        $this->assertEquals($tokenData['owner']['defaultBackend'], $bucket['backend']);
+        $bucketName = 'BucketsTest_testBucketDetail';
 
+        $tokenData = $this->_client->verifyToken();
+        $this->dropBucketIfExists($this->_client, 'in.c-' . $bucketName);
+        $bucketId = $this->_client->createBucket($bucketName, self::STAGE_IN);
+
+        $bucket = $this->_client->getBucket($bucketId);
+
+        $this->assertEquals($tokenData['owner']['defaultBackend'], $bucket['backend']);
         $this->assertNotEquals($displayName, $bucket['displayName']);
 
-        $bucketUpdateOptions = new BucketUpdateOptions($this->getTestBucketId(), $displayName);
+        $bucketUpdateOptions = new BucketUpdateOptions($bucketId, $displayName);
         $bucket = $this->_client->updateBucket($bucketUpdateOptions);
 
         $this->assertEquals($displayName, $bucket['displayName']);
 
+        $bucketUpdateOptions = new BucketUpdateOptions($this->getTestBucketId(), $displayName);
         try {
             $this->_client->updateBucket($bucketUpdateOptions);
             $this->fail('The display name already exists in project');
@@ -69,7 +75,7 @@ class BucketsTest extends StorageApiTestCase
             $this->assertEquals(400, $e->getCode());
         }
 
-        $bucketUpdateOptions = new BucketUpdateOptions($this->getTestBucketId(), '$$$$$');
+        $bucketUpdateOptions = new BucketUpdateOptions($bucketId, '$$$$$');
         try {
             $this->_client->updateBucket($bucketUpdateOptions);
             $this->fail('Wrong display name');
@@ -79,8 +85,12 @@ class BucketsTest extends StorageApiTestCase
             $this->assertEquals(400, $e->getCode());
         }
 
-        $bucket = $this->_client->getBucket($this->getTestBucketId());
+        $bucket = $this->_client->getBucket($bucketId);
         $this->assertEquals($displayName, $bucket['displayName']);
+
+        // renaming bucket to the same name should be successful
+        $bucketUpdateOptions = new BucketUpdateOptions($bucketId, $displayName);
+        $bucket = $this->_client->updateBucket($bucketUpdateOptions);
 
         $this->_client->dropBucket($bucket['id']);
     }
