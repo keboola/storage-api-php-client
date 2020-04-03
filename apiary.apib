@@ -636,6 +636,8 @@ existing bucket from another project (see below).
                 "isMaintenance": false,
                 "backend": "snowflake",
                 "sharing": null,
+                "directAccessEnabled": false,
+                "directAccessSchemaName": null,
                 "attributes": []
             }
 
@@ -762,7 +764,9 @@ Update an existing bucket
                 "rowsCount": 0,
                 "isMaintenance": false,
                 "backend": "snowflake",
-                "sharing": null
+                "sharing": null,
+                "directAccessEnabled": false,
+                "directAccessSchemaName": null
             }
 
 ### Drop Bucket [DELETE /v2/storage/buckets/{bucket_id}/?force={force}]
@@ -822,7 +826,9 @@ This operations is available only for organization administrators.
                 "rowsCount": 0,
                 "isMaintenance": false,
                 "backend": "snowflake",
-                "sharing": "organization"
+                "sharing": "organization",
+                "directAccessEnabled": false,
+                "directAccessSchemaName": null
             }
 
 ### Share Bucket To Organization [POST /v2/storage/buckets/{bucket_id}/share-organization]
@@ -861,7 +867,9 @@ This operations is available only for organization administrators.
                     "id": 5,
                     "name": "dev@keboola.com",
                     "date": "2020-02-03T14:58:29+0100"
-                }
+                },
+                "directAccessEnabled": false,
+                "directAccessSchemaName": null
             }
 
 ### Share Bucket To Organization Project [POST /v2/storage/buckets/{bucket_id}/share-organization-project]
@@ -900,7 +908,9 @@ This operations is available only for organization administrators.
                     "id": 5,
                     "name": "dev@keboola.com",
                     "date": "2020-02-03T14:58:29+0100"
-                }
+                },
+                "directAccessEnabled": false,
+                "directAccessSchemaName": null
             }
 
 ### Share Bucket To Projects [POST /v2/storage/buckets/{bucket_id}/share-to-projects]
@@ -960,7 +970,9 @@ This operations is available only for organization administrators.
                     "id": 5,
                     "name": "dev@keboola.com",
                     "date": "2020-02-03T14:58:29+0100"
-                }
+                },
+                "directAccessEnabled": false,
+                "directAccessSchemaName": null
             }
 
 ### Share Bucket To Users [POST /v2/storage/buckets/{bucket_id}/share-to-users]
@@ -1023,7 +1035,9 @@ This operations is available only for organization administrators.
                     "id": 5,
                     "name": "dev@keboola.com",
                     "date": "2020-02-03T14:58:29+0100"
-                }
+                },
+                "directAccessEnabled": false,
+                "directAccessSchemaName": null
             }
 
 ### Change Bucket Sharing [PUT]
@@ -1069,7 +1083,9 @@ This operations is available only for organization administrators.
                     "id": 5,
                     "name": "dev@keboola.com",
                     "date": "2020-02-03T14:58:29+0100"
-                }
+                },
+                "directAccessEnabled": false,
+                "directAccessSchemaName": null
             }
 
 ### Stop Bucket Sharing [DELETE]
@@ -1893,6 +1909,8 @@ Obtains information about a table.
                     "isMaintenance": false,
                     "backend": "snowflake",
                     "sharing": null,
+                    "directAccessEnabled": false,
+                    "directAccessSchemaName": null,
                     "metadata": []
                 }
             }
@@ -1980,6 +1998,8 @@ Update an existing table
                     "isMaintenance": false,
                     "backend": "snowflake",
                     "sharing": null,
+                    "directAccessEnabled": false,
+                    "directAccessSchemaName": null,
                     "metadata": []
                 }
             }
@@ -2112,7 +2132,9 @@ attributes and information about the containing bucket.
                         "rowsCount": 2438881,
                         "isMaintenance": false,
                         "backend": "snowflake",
-                        "sharing": null
+                        "sharing": null,
+                        "directAccessEnabled": false,
+                        "directAccessSchemaName": null
                     },
                     "columnMetadata": {
                         "number_of_items": [
@@ -2187,7 +2209,9 @@ attributes and information about the containing bucket.
                         "rowsCount": 2438881,
                         "isMaintenance": false,
                         "backend": "snowflake",
-                        "sharing": null
+                        "sharing": null,
+                        "directAccessEnabled": false,
+                        "directAccessSchemaName": null
                     },
                     "columnMetadata": []
                 }
@@ -2504,7 +2528,9 @@ When turning `aliasColumnsAutoSync` back on, the columns will be immediately syn
                     "rowsCount": 0,
                     "isMaintenance": false,
                     "backend": "snowflake",
-                    "sharing": null
+                    "sharing": null,
+                    "directAccessEnabled": false,
+                    "directAccessSchemaName": null
                 }
             }
 
@@ -5056,7 +5082,9 @@ attributes and information about the containing bucket. At least one of paramete
                         "rowsCount": 2438881,
                         "isMaintenance": false,
                         "backend": "snowflake",
-                        "sharing": null
+                        "sharing": null,
+                        "directAccessEnabled": false
+                        "directAccessSchemaName": null
                     },
                     "columnMetadata": {
                         "number_of_items": [
@@ -5124,7 +5152,9 @@ attributes and information about the containing bucket. At least one of paramete
                         "rowsCount": 2438881,
                         "isMaintenance": false,
                         "backend": "snowflake",
-                        "sharing": null
+                        "sharing": null,
+                        "directAccessEnabled": false,
+                        "directAccessSchemaName": null
                     },
                     "columnMetadata": []
                 }
