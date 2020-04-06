@@ -57,6 +57,9 @@ class BucketsTest extends StorageApiTestCase
 
         $bucket = $this->_client->getBucket($bucketId);
 
+        $this->assertFalse($bucket['directAccessEnabled']);
+        $this->assertNull($bucket['directAccessSchemaName']);
+
         $this->assertEquals($tokenData['owner']['defaultBackend'], $bucket['backend']);
         $this->assertNotEquals($displayName, $bucket['displayName']);
 
