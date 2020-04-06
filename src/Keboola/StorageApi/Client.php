@@ -1578,7 +1578,11 @@ class Client
         foreach ($slices as $slice) {
             $blobClient->createBlockBlob(
                 $prepareResult['absUploadParams']['container'],
-                basename($slice),
+                sprintf(
+                    '%s%s',
+                    $prepareResult['absUploadParams']['blobName'],
+                    basename($slice)
+                ),
                 fopen($slice, 'r')
             );
         }
