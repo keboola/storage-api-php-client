@@ -155,7 +155,7 @@ class ImportExportCommonTest extends StorageApiTestCase
     public function testTableImportColumnsCaseInsensitive()
     {
         $tokenData = $this->_client->verifyToken();
-        if ($tokenData['owner']['defaultBackend'] == self::BACKEND_SNOWFLAKE) {
+        if (in_array($tokenData['owner']['defaultBackend'], [self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE])) {
             return;
         }
 
