@@ -1589,7 +1589,13 @@ class Client
 
         foreach ($slices as $filePath) {
             $manifest['entries'][] = [
-                "url" => "azure://" . $prepareResult['absUploadParams']['accountName'] . 'blob.core.windows.net/' . $prepareResult['absUploadParams']['container'] . '/' . basename($filePath),
+                'url' => sprintf(
+                    'azure://%sblob.core.windows.net/%s/%s%s',
+                    $prepareResult['absUploadParams']['accountName'],
+                    $prepareResult['absUploadParams']['container'],
+                    $prepareResult['absUploadParams']['blobName'],
+                    basename($filePath)
+                ),
             ];
         }
         $blobClient->createBlockBlob($prepareResult['absUploadParams']['container'], $prepareResult['absUploadParams']['blobName'] . 'manifest', json_encode($manifest));
