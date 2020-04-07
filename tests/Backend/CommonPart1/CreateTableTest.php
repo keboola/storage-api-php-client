@@ -372,11 +372,14 @@ class CreateTableTest extends StorageApiTestCase
         $this->assertNotEmpty($tableId);
     }
 
-    public function testCreateTableFromSlicedFile()
+    /**
+     * @dataProvider createTableFromSlicedFileData
+     */
+    public function testCreateTableFromSlicedFile($fileName)
     {
         $uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
         $uploadOptions
-            ->setFileName('languages_')
+            ->setFileName($fileName)
             ->setIsSliced(true)
             ->setIsEncrypted(false);
         $slices = [
@@ -405,5 +408,20 @@ class CreateTableTest extends StorageApiTestCase
             array('ID'),
             array('idus'),
         );
+    }
+
+    public function createTableFromSlicedFileData()
+    {
+        return [
+            'same prefix as slice' => [
+                'languages',
+            ],
+            'same prefix (due webalize) as slice' => [
+                'languages_',
+            ],
+            'other' => [
+                'other',
+            ],
+        ];
     }
 }
