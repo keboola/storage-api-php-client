@@ -89,5 +89,6 @@
 		<file>tests/Backend/CommonPart1/BucketsTest.php</file>
 		<file>tests/Backend/Synapse/CreateTableTest.php</file>
 		<file>tests/Backend/Synapse/ImportExportCommonTest.php</file>
+		<file>tests/Backend/Synapse/WorkspacesTest.php</file>
 	</testsuite>
 </phpunit>
