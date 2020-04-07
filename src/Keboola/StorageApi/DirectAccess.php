@@ -26,4 +26,9 @@ class DirectAccess
     {
         $this->client->apiDelete("storage/direct-access/{$backend}");
     }
+
+    public function resetPassword($backend)
+    {
+        return $this->client->apiPost("storage/direct-access/{$backend}/reset-password");
+    }
 }
