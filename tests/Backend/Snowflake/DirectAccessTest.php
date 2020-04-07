@@ -22,6 +22,12 @@ class DirectAccessTest extends StorageApiTestCase
         }
 
         try {
+            $directAccess->resetPassword($backend);
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertEquals('storage.directAccess.tryResetPasswordOnNonExistCredentials', $e->getStringCode());
+        }
+
+        try {
             $directAccess->deleteCredentials($backend);
             $this->fail('Exception should be thrown');
         } catch (\Keboola\StorageApi\ClientException $e) {
@@ -45,6 +51,10 @@ class DirectAccessTest extends StorageApiTestCase
         $credentials = $directAccess->getCredentials($backend);
         $this->assertArrayHasKey('username', $credentials);
         $this->assertSame($newCredentials['username'], $credentials['username']);
+
+        $password = $directAccess->resetPassword($backend);
+
+        $this->assertArrayHasKey('password', $password);
 
         $directAccess->deleteCredentials($backend);
 
