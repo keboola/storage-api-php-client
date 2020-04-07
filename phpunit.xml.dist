@@ -91,5 +91,6 @@
 		<file>tests/Backend/Synapse/ImportExportCommonTest.php</file>
 		<file>tests/Backend/Synapse/WorkspacesTest.php</file>
 		<file>tests/Backend/Synapse/WorkspacesLoadTest.php</file>
+		<file>tests/Backend/Synapse/ComponentsWorkspacesTest.php</file>
 	</testsuite>
 </phpunit>
