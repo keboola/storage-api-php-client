@@ -9,6 +9,7 @@ use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
 use Keboola\StorageApi\Workspaces;
 use Keboola\StorageApi\ClientException;
+use Keboola\Test\Backend\Workspaces\Backend\InputMappingConverter;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class WorkspacesLoadTest extends WorkspacesTestCase
@@ -58,7 +59,10 @@ class WorkspacesLoadTest extends WorkspacesTestCase
             ],
         ];
 
-        $options = $this->convertInputColumnsTypesForBackend($workspace['connection']['backend'], $options);
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
@@ -329,7 +333,10 @@ class WorkspacesLoadTest extends WorkspacesTestCase
             ),
         ];
 
-        $options = $this->convertInputColumnsTypesForBackend($workspace['connection']['backend'], $options);
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
         // check that the tables have the appropriate columns
@@ -364,7 +371,10 @@ class WorkspacesLoadTest extends WorkspacesTestCase
                 ]
             ]
         ];
-        $options = $this->convertInputColumnsTypesForBackend($workspace['connection']['backend'], $options);
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
             $this->fail("Trying to select a non existent column should fail");
@@ -411,7 +421,10 @@ class WorkspacesLoadTest extends WorkspacesTestCase
                 ],
             ],
         ];
-        $options = $this->convertInputColumnsTypesForBackend($workspace['connection']['backend'], $options);
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 //        $this->assertEquals(2, $backend->countRows("languagesDetails"));
@@ -438,7 +451,10 @@ class WorkspacesLoadTest extends WorkspacesTestCase
                 ],
             ],
         ];
-        $options = $this->convertInputColumnsTypesForBackend($workspace['connection']['backend'], $options);
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
         $this->assertEquals(5, $backend->countRows("languagesDetails"));
     }
@@ -475,7 +491,10 @@ class WorkspacesLoadTest extends WorkspacesTestCase
                 ],
             ],
         ];
-        $options = $this->convertInputColumnsTypesForBackend($workspace['connection']['backend'], $options);
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
         $this->assertEquals(5, $backend->countRows("languages"));
 
@@ -505,7 +524,10 @@ class WorkspacesLoadTest extends WorkspacesTestCase
                 ],
             ],
         ];
-        $options = $this->convertInputColumnsTypesForBackend($workspace['connection']['backend'], $options);
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
             $this->fail('Workspace should not be loaded');
@@ -548,7 +570,10 @@ class WorkspacesLoadTest extends WorkspacesTestCase
                 ],
             ],
         ];
-        $options = $this->convertInputColumnsTypesForBackend($workspace['connection']['backend'], $options);
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
         $this->assertEquals(5, $backend->countRows("languages"));
 
@@ -570,7 +595,10 @@ class WorkspacesLoadTest extends WorkspacesTestCase
                 ],
             ],
         ];
-        $options = $this->convertInputColumnsTypesForBackend($workspace['connection']['backend'], $options);
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
             $this->fail('Workspace should not be loaded');
@@ -607,7 +635,10 @@ class WorkspacesLoadTest extends WorkspacesTestCase
                 ],
             ],
         ];
-        $options = $this->convertInputColumnsTypesForBackend($workspace['connection']['backend'], $options);
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
         // second load - incremental
@@ -621,7 +652,10 @@ class WorkspacesLoadTest extends WorkspacesTestCase
                 ],
             ],
         ];
-        $options = $this->convertInputColumnsTypesForBackend($workspace['connection']['backend'], $options);
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
             $this->fail('Incremental load with different datatypes should fail');
@@ -673,7 +707,10 @@ class WorkspacesLoadTest extends WorkspacesTestCase
                 ],
             ],
         ];
-        $options = $this->convertInputColumnsTypesForBackend($workspace['connection']['backend'], $options);
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
         // ok, the table should only have rows from the 2 most recent loads
         $numRows = $backend->countRows("languages");
@@ -712,7 +749,10 @@ class WorkspacesLoadTest extends WorkspacesTestCase
                 ],
             ],
         ];
-        $options = $this->convertInputColumnsTypesForBackend($workspace['connection']['backend'], $options);
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
         $numrows = $backend->countRows('languages');
@@ -742,7 +782,10 @@ class WorkspacesLoadTest extends WorkspacesTestCase
             ],
         ];
 
-        $options = $this->convertInputColumnsTypesForBackend($workspace['connection']['backend'], $options);
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
@@ -1073,7 +1116,10 @@ class WorkspacesLoadTest extends WorkspacesTestCase
                 ],
             ],
         ];
-        $options = $this->convertInputColumnsTypesForBackend($workspace['connection']['backend'], $options);
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
         //check to make sure the columns have the right types
@@ -1117,7 +1163,10 @@ class WorkspacesLoadTest extends WorkspacesTestCase
                 ],
             ],
         ];
-        $options = $this->convertInputColumnsTypesForBackend($workspace['connection']['backend'], $options);
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
             $this->fail('Workspace should not be loaded');
@@ -1158,7 +1207,10 @@ class WorkspacesLoadTest extends WorkspacesTestCase
                 ],
             ],
         ];
-        $options = $this->convertInputColumnsTypesForBackend($workspace['connection']['backend'], $options);
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
             $this->fail('workspace should not be loaded');
@@ -1197,7 +1249,10 @@ class WorkspacesLoadTest extends WorkspacesTestCase
                 ],
             ],
         ];
-        $options = $this->convertInputColumnsTypesForBackend($workspace['connection']['backend'], $options);
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
             $this->fail('Workspace should not be loaded');
@@ -1264,7 +1319,7 @@ class WorkspacesLoadTest extends WorkspacesTestCase
                 ],
             ],
         ];
-        $options = $this->convertInputColumnsTypesForBackend(
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
             ['input' => [$mapping1, $mapping2]]
         );
@@ -1286,7 +1341,7 @@ class WorkspacesLoadTest extends WorkspacesTestCase
             'Languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
-        $options = $this->convertInputColumnsTypesForBackend(
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
             [
                 'input' => [
@@ -1312,7 +1367,7 @@ class WorkspacesLoadTest extends WorkspacesTestCase
             $workspace['id'],
             $options
         );
-        $options = $this->convertInputColumnsTypesForBackend(
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
             [
                 'input' => [
@@ -1362,7 +1417,7 @@ class WorkspacesLoadTest extends WorkspacesTestCase
                 ],
             ],
         ];
-        $options = $this->convertInputColumnsTypesForBackend(
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
             ['input' => [$mappingInvalidSource]]
         );
@@ -1403,7 +1458,7 @@ class WorkspacesLoadTest extends WorkspacesTestCase
             ],
         ];
         $input = [$mapping1];
-        $options = $this->convertInputColumnsTypesForBackend(
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
             ['input' => $mapping1]
         );
@@ -1414,7 +1469,7 @@ class WorkspacesLoadTest extends WorkspacesTestCase
         } catch (ClientException $e) {
             $this->assertEquals('workspace.loadRequestBadInput', $e->getStringCode());
         }
-        $options = $this->convertInputColumnsTypesForBackend(
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
             ['input' => $input]
         );
@@ -1437,7 +1492,7 @@ class WorkspacesLoadTest extends WorkspacesTestCase
 
         $testMapping = $mapping1;
         unset($testMapping["destination"]);
-        $options = $this->convertInputColumnsTypesForBackend(
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
             ['input' => [$testMapping]]
         );
@@ -1451,7 +1506,7 @@ class WorkspacesLoadTest extends WorkspacesTestCase
 
         $testMapping = $mapping1;
         unset($testMapping["source"]);
-        $options = $this->convertInputColumnsTypesForBackend(
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
             ['input' => [$testMapping]]
         );
@@ -1505,7 +1560,10 @@ class WorkspacesLoadTest extends WorkspacesTestCase
                 ]
             ]
         ];
-        $options = $this->convertInputColumnsTypesForBackend($workspace['connection']['backend'], ['input' => $input]);
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            ['input' => $input]
+        );
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
             $this->fail('This should fail due to insufficient permission');
@@ -1547,7 +1605,10 @@ class WorkspacesLoadTest extends WorkspacesTestCase
             ]
         ];
 
-        $options = $this->convertInputColumnsTypesForBackend($workspace['connection']['backend'], $options);
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
@@ -1595,7 +1656,10 @@ class WorkspacesLoadTest extends WorkspacesTestCase
                 ],
             ],
         ];
-        $options = $this->convertInputColumnsTypesForBackend($workspace['connection']['backend'], $options);
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
         $this->assertEquals(2, $backend->countRows("languagesDetails"));
 
@@ -1621,7 +1685,10 @@ class WorkspacesLoadTest extends WorkspacesTestCase
                 ],
             ],
         ];
-        $options = $this->convertInputColumnsTypesForBackend($workspace['connection']['backend'], $options);
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
         $this->assertEquals(5, $backend->countRows("languagesDetails"));
     }
@@ -1771,60 +1838,5 @@ class WorkspacesLoadTest extends WorkspacesTestCase
                 ],
             ],
         ];
-    }
-
-    /**
-     * @param string $backendType
-     * @param array $input
-     * @return array
-     */
-    private function convertInputColumnsTypesForBackend($backendType, $input)
-    {
-        if ($backendType !== 'synapse') {
-            return $input;
-        }
-        if (empty($input['input'])) {
-            return $input;
-        }
-
-        if (array_key_exists('columns', $input['input'])) {
-            $input['input'] = $this->convertColumnsDefinition($input['input']);
-        } else {
-            $input['input'] = array_map(function ($input) {
-                return $this->convertColumnsDefinition($input);
-            }, $input['input']);
-        }
-
-        return $input;
-    }
-
-    private function convertColumnsDefinition(array $input)
-    {
-        if (!array_key_exists('columns', $input)) {
-            return $input;
-        }
-
-        $convert = static function ($column) {
-            switch (strtolower($column['type'])) {
-                case 'integer':
-                    $column['type'] = 'int';
-                    break;
-                case 'character':
-                    $column['type'] = 'char';
-                    break;
-            }
-            return $column;
-        };
-
-        if (!empty($input['columns'])) {
-            // columns are in tests also invalid with assoc arr
-            $isIndexed = array_values($input['columns']) === $input['columns'];
-            if ($isIndexed === true) {
-                $input['columns'] = array_map($convert, $input['columns']);
-            } else {
-                $input['columns'] = $convert($input['columns']);
-            }
-        }
-        return $input;
     }
 }
