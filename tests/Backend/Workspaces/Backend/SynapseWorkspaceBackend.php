@@ -5,7 +5,7 @@ namespace Keboola\Test\Backend\Workspaces\Backend;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Keboola\Datatype\Definition\Synapse;
-use Keboola\TableBackendUtils\Column\ColumnIterator;
+use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
 use Keboola\TableBackendUtils\Schema\SynapseSchemaReflection;
 use Keboola\TableBackendUtils\Table\SynapseTableQueryBuilder;
@@ -96,13 +96,12 @@ class SynapseWorkspaceBackend implements WorkspaceBackend
         foreach ($columns as $column => $dataType) {
             $cols[] = new SynapseColumn($column, new Synapse($dataType));
         }
-        $columns = new ColumnIterator($cols);
 
         $qb = new SynapseTableQueryBuilder($this->db);
         $this->db->exec($qb->getCreateTableCommand(
             $this->schema,
             $tableName,
-            $columns
+            new ColumnCollection($cols)
         ));
     }
 
