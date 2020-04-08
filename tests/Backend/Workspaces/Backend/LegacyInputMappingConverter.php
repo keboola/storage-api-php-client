@@ -7,7 +7,7 @@ namespace Keboola\Test\Backend\Workspaces\Backend;
  * Actually this class now exists only because
  * synapse don't know integer,character types
  */
-final class InputMappingConverter
+final class LegacyInputMappingConverter
 {
     /**
      * @param string $backendType
@@ -23,7 +23,7 @@ final class InputMappingConverter
             return $input;
         }
 
-        if (array_key_exists('columns', $input['input'])) {
+        if (array_key_exists('datatypes', $input['input'])) {
             $input['input'] = self::convertColumnsDefinition($input['input']);
         } else {
             $input['input'] = array_map(static function ($input) {
@@ -36,37 +36,34 @@ final class InputMappingConverter
 
     private static function convertColumnsDefinition(array $input)
     {
-        if (!array_key_exists('columns', $input)) {
+        if (!array_key_exists('datatypes', $input)) {
             return $input;
         }
 
         $convert = static function ($column) {
-            $column['type'] = self::convertType($column['type']);
+            if (array_key_exists('type', $column)) {
+                $column['type'] = InputMappingConverter::convertType($column['type']);
+            } else {
+                foreach ($column as $id => $type) {
+                    if (is_array($type)) {
+                        $column[$id]['type'] = InputMappingConverter::convertType($type['type']);
+                    } else {
+                        $column[$id] = InputMappingConverter::convertType($type);
+                    }
+                }
+            }
             return $column;
         };
 
-        if (!empty($input['columns'])) {
+        if (!empty($input['datatypes'])) {
             // columns are in tests also invalid with assoc arr
-            $isIndexed = array_values($input['columns']) === $input['columns'];
+            $isIndexed = array_values($input['datatypes']) === $input['datatypes'];
             if ($isIndexed === true) {
-                $input['columns'] = array_map($convert, $input['columns']);
+                $input['datatypes'] = array_map($convert, $input['datatypes']);
             } else {
-                $input['columns'] = $convert($input['columns']);
+                $input['datatypes'] = $convert($input['datatypes']);
             }
         }
         return $input;
-    }
-
-    public static function convertType($type)
-    {
-        switch (strtolower($type)) {
-            case 'integer':
-                return 'int';
-                break;
-            case 'character':
-                return 'char';
-                break;
-        }
-        return $type;
     }
 }
