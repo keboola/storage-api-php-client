@@ -530,7 +530,6 @@ class WorkspacesSynapseTest extends WorkspacesTestCase
      */
     public function testsIncrementalDataTypesDiff($table, $firstLoadColumns, $secondLoadColumns, $shouldFail)
     {
-        $this->markTestSkipped('TODO');
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
 
@@ -701,7 +700,8 @@ class WorkspacesSynapseTest extends WorkspacesTestCase
                 [
                     [
                         'source' =>  'Date',
-                        'type' => 'datetime'
+                        'type' => 'datetime2',
+                        'length' => '2',
                     ],
                 ],
                 [
@@ -711,7 +711,7 @@ class WorkspacesSynapseTest extends WorkspacesTestCase
                         'length' => '3',
                     ],
                 ],
-                false,
+                true,
             ],
             [
                 'languages',
@@ -724,17 +724,17 @@ class WorkspacesSynapseTest extends WorkspacesTestCase
                 [
                     [
                         'source' =>  'id',
-                        'type' => 'NUMBER',
+                        'type' => 'INT',
                     ],
                 ],
-                false,
+                true,
             ],
             [
                 'languages',
                 [
                     [
                         'source' =>  'id',
-                        'type' => 'DOUBLE',
+                        'type' => 'FLOAT',
                     ],
                 ],
                 [
@@ -743,7 +743,7 @@ class WorkspacesSynapseTest extends WorkspacesTestCase
                         'type' => 'REAL',
                     ],
                 ],
-                false,
+                true,
             ],
         ];
     }
