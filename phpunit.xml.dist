@@ -95,5 +95,7 @@
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesSynapseTest.php</file>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
+		<file>tests/Backend/Synapse/FulltextSearchTest.php</file>
+		<file>tests/Backend/Synapse/OrderByTest.php</file>
 	</testsuite>
 </phpunit>
