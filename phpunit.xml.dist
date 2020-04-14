@@ -91,5 +91,7 @@
 		<file>tests/Backend/Synapse/ImportExportCommonTest.php</file>
 		<file>tests/Backend/Synapse/AlterTableTest.php</file>
 		<file>tests/Backend/Synapse/WorkspacesTest.php</file>
+		<file>tests/Backend/Synapse/FulltextSearchTest.php</file>
+		<file>tests/Backend/Synapse/OrderByTest.php</file>
 	</testsuite>
 </phpunit>
