@@ -5507,3 +5507,59 @@ and [buckets](https://keboola.docs.apiary.io/#reference/buckets/manage-bucket/bu
         {
             "displayName": "My-Display-Name"
         }
+
+# Group Direct Access
+**Direct Access** allows you to connect directly to the your project backend(for now only snowflake is supported).
+Then you are allowed to works with your tables(call query, create new tables etc.) in buckets which has turned on **Direct Access**.
+These tables are automatically updated when something change in source buckets(tables) in Keboola Connection.
+Each user in project can have its own credentials for **Direct Access**. The credentials are valid per project,
+if you want **Direct Access** to the another project, you have to create it by `StorageApi-Token`(Only admin token is allowed) for project where
+you want to have **Direct Access**.
+
+## Create or List Direct Access [/v2/storage/direct-access]
+###Create Direct Access Credentials [POST]
+Creates and new credentials(for all supported backends) in your project to **Direct Access** connect for buckets.
+In response you will get URL to set your new password. The generated URL is valid for one use only and expires after 4 hours.
+
++ Request
+
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 201 (application/json)
+
+        {
+            "snowflake": {
+                "host": "keboola.snowflake.com"
+                "username": "da_123_romanbracinik",
+                "urlToSetPassword": "https://KEBOOLADEV.snowflakecomputing.com/console/login?...."
+            }
+        }
+
+###List of backends for which is credentials already generated [GET]
+Returns array of booleans for which backends in project you have already created credentials.
+
++ Request
+
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+
+        {
+            "snowflake": true
+        }
+
+###Remove Credentials [DELETE]
+Deletes all your credentials for all supported backends in your project.
+From now on you won't be able to sign in to the **Direct Access** for specific project.
+
++ Request
+
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 204
