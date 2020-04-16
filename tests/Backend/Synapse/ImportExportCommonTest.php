@@ -106,7 +106,25 @@ class ImportExportCommonTest extends CommonImportExportTest
 
     public function testTableImportCreateMissingColumns()
     {
-        $this->markTestSkipped('Adding missing columns for Synapse backend is not supported yet');
+        $filePath = __DIR__ . '/../../_data/languages.camel-case-columns.csv';
+        $importFile = new CsvFile($filePath);
+        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', $importFile);
+
+        $extendedFile = __DIR__ . '/../../_data/languages-more-columns.csv';
+        $result = $this->_client->writeTable($tableId, new CsvFile($extendedFile));
+        $table = $this->_client->getTable($tableId);
+
+        $this->assertEmpty($result['warnings']);
+        $this->assertEquals(array('Id', 'Name', 'iso', 'Something'), array_values($result['importedColumns']), 'columns');
+        $this->assertEmpty($result['transaction']);
+        $this->assertNotEmpty($table['dataSizeBytes']);
+        $this->assertNotEmpty($result['totalDataSizeBytes']);
+
+        // @TODO not implemented yet
+//        // compare data
+//        $this->assertLinesEqualsSorted(file_get_contents($extendedFile), $this->_client->getTableDataPreview($tableId, array(
+//            'format' => 'rfc',
+//        )), 'imported data comparsion');
     }
 
     public function testTableImportFromString()
@@ -123,11 +141,6 @@ class ImportExportCommonTest extends CommonImportExportTest
 //        $this->assertEquals($lines, $this->_client->getTableDataPreview($tableId, array(
 //            'format' => 'rfc',
 //        )));
-    }
-
-    public function testTableInvalidAsyncImport()
-    {
-        $this->markTestSkipped('Adding missing table columns for Synapse backend is not supported yet');
     }
 
     public function testTableAsyncExportRepeatedly()
