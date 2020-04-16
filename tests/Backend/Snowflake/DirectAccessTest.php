@@ -14,9 +14,12 @@ class DirectAccessTest extends StorageApiTestCase
         $backend = self::BACKEND_SNOWFLAKE;
         $directAccess = $this->prepareDirectAccess();
 
-        $credentials = $directAccess->hasCredentials($backend);
-
-        $this->assertEmpty($credentials);
+        try {
+            $directAccess->getCredentials($backend);
+            $this->fail('Exception should be thrown');
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertEquals('storage.directAccess.credentialsForProjectBackendNotFound', $e->getStringCode());
+        }
 
         try {
             $directAccess->deleteCredentials($backend);
@@ -39,7 +42,7 @@ class DirectAccessTest extends StorageApiTestCase
         $this->assertArrayHasKey('username', $newCredentials);
         $this->assertArrayHasKey('urlToSetPassword', $newCredentials);
 
-        $credentials = $directAccess->hasCredentials($backend);
+        $credentials = $directAccess->getCredentials($backend);
         $this->assertArrayHasKey('username', $credentials);
         $this->assertSame($newCredentials['username'], $credentials['username']);
     }
@@ -68,8 +71,12 @@ class DirectAccessTest extends StorageApiTestCase
     private function prepareDirectAccess()
     {
         $directAccess = new DirectAccess($this->_client);
-        if ($directAccess->hasCredentials(self::BACKEND_SNOWFLAKE)) {
-            $directAccess->deleteCredentials(self::BACKEND_SNOWFLAKE);
+
+        try {
+            if ($directAccess->getCredentials(self::BACKEND_SNOWFLAKE)) {
+                $directAccess->deleteCredentials(self::BACKEND_SNOWFLAKE);
+            }
+        } catch (\Keboola\StorageApi\ClientException $e) {
         }
 
         return $directAccess;

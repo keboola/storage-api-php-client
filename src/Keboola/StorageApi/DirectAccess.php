@@ -17,7 +17,7 @@ class DirectAccess
         return $this->client->apiPost("storage/direct-access/{$backend}");
     }
 
-    public function hasCredentials($backend)
+    public function getCredentials($backend)
     {
         return $this->client->apiGet("storage/direct-access/{$backend}");
     }
