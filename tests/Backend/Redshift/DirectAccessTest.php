@@ -28,7 +28,7 @@ class DirectAccessTest extends StorageApiTestCase
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('Invalid request', $e->getMessage());
             $this->assertEquals(
-                'storage.directAccess.notSupportedBackendForDirectAccess',
+                'storage.directAccess.validationError',
                 $e->getStringCode()
             );
         }
