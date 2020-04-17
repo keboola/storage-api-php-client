@@ -81,12 +81,33 @@ class CreateTableTest extends StorageApiTestCase
         );
 
         try {
+            $tableId = $this->_client->{$createMethod}(
+                $this->getTestBucketId(self::STAGE_IN),
+                $displayName,
+                new CsvFile($createFile),
+                $options
+            );
+            $this->fail('Should fail');
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertEquals(
+                sprintf(
+                    'The table "%s" in the bucket already has the same display name "%s".',
+                    $table['name'],
+                    $displayName
+                ),
+                $e->getMessage()
+            );
+            $this->assertEquals('storage.buckets.tableAlreadyExists', $e->getStringCode());
+        }
+
+        try {
             $this->_client->updateTable(
                 $tableId,
                 [
                     'displayName' => '_wrong-display-name',
                 ]
             );
+            $this->fail('Should fail');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals(
                 'Invalid data - displayName: Cannot start with underscore.',
