@@ -40,11 +40,20 @@ class DirectAccessTest extends StorageApiTestCase
 
         $this->assertArrayHasKey('host', $newCredentials);
         $this->assertArrayHasKey('username', $newCredentials);
-        $this->assertArrayHasKey('urlToSetPassword', $newCredentials);
+        $this->assertArrayHasKey('password', $newCredentials);
 
         $credentials = $directAccess->getCredentials($backend);
         $this->assertArrayHasKey('username', $credentials);
         $this->assertSame($newCredentials['username'], $credentials['username']);
+
+        $directAccess->deleteCredentials($backend);
+
+        try {
+            $directAccess->getCredentials($backend);
+            $this->fail('Exception should be thrown');
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertEquals('storage.directAccess.credentialsForProjectBackendNotFound', $e->getStringCode());
+        }
     }
 
     public function testWithNonAdminToken()
