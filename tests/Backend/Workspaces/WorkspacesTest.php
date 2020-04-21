@@ -10,6 +10,7 @@ namespace Keboola\Test\Backend\Workspaces;
 use Doctrine\DBAL\DBALException;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
+use Keboola\Test\Backend\Workspaces\Backend\SynapseWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class WorkspacesTest extends WorkspacesTestCase
@@ -115,6 +116,25 @@ class WorkspacesTest extends WorkspacesTestCase
             }
         }
 
+        if ($connection['backend'] === self::BACKEND_SYNAPSE) {
+            // synapse takes few minutes to propagate password change
+            // during this time both passwords are working
+            // usually this takes around 10minutes
+            /** @var SynapseWorkspaceBackend $backend */
+            $backend->disconnect();
+            $retries = 20;
+            while ($retries > 0) {
+                try {
+                    $db = $this->getDbConnection($connection);
+                    $db->close();
+                    $retries--;
+                    sleep(60); //wait the minute
+                } catch (\Doctrine\DBAL\Driver\PDOException $e) {
+                    break;
+                }
+            }
+        }
+
         $backend = null; // force odbc disconnect
 
         // credentials should not work anymore
@@ -207,7 +227,17 @@ class WorkspacesTest extends WorkspacesTestCase
             $this->fail('Credentials should be invalid');
         } catch (\Doctrine\DBAL\Driver\PDOException $e) {
             // Synapse
-            $this->assertEquals('08004', $e->getCode());
+            if (!in_array(
+                $e->getCode(),
+                [
+                    //https://docs.microsoft.com/en-us/sql/odbc/reference/appendixes/appendix-a-odbc-error-codes?view=sql-server-ver15
+                    '28000', // Invalid authorization specification
+                    '08004', // Server rejected the connection
+                ],
+                true
+            )) {
+                $this->fail(sprintf('Unexpected error code "%s" for Synapse credentials fail.', $e->getCode()));
+            }
         } catch (\PDOException $e) {
             // RS
             $this->assertEquals(7, $e->getCode());
