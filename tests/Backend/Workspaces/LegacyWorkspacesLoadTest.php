@@ -7,6 +7,7 @@ use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Workspaces;
+use Keboola\Test\Backend\Workspaces\Backend\LegacyInputMappingConverter;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class LegacyWorkspacesLoadTest extends WorkspacesTestCase
@@ -479,7 +480,10 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
                 ],
             ],
         ];
-
+        $options = LegacyInputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
         // second load - incremental
@@ -493,7 +497,10 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
                 ],
             ],
         ];
-
+        $options = LegacyInputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
             $this->fail('Incremental load with different datatypes should fail');
@@ -629,7 +636,10 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
                 'datatypes' => $dataTypesDefinition
             ]
         ]);
-
+        $options = LegacyInputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
         //check to make sure the columns have the right types
@@ -672,7 +682,10 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
                 'datatypes' => $dataTypesDefinition
             ]
         ]);
-
+        $options = LegacyInputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
             $this->fail('Workspace should not be loaded');
@@ -738,7 +751,10 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
                 ]
             ]
         ]);
-
+        $options = LegacyInputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
             $this->fail('workspace should not be loaded');
@@ -792,7 +808,10 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
                 ]
             ]
         ]);
-
+        $options = LegacyInputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
             $this->fail('Workspace should not be loaded');
@@ -829,7 +848,10 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
                 ]
             ]
         ]);
-
+        $options = LegacyInputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
             $this->fail('Workspace should not be loaded');
