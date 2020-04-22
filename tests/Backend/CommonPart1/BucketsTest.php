@@ -8,10 +8,11 @@
  */
 namespace Keboola\Test\Backend\CommonPart1;
 
+use Keboola\Csv\CsvFile;
+use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\Options\BucketUpdateOptions;
 use Keboola\Test\StorageApiTestCase;
-use Keboola\Csv\CsvFile;
 
 class BucketsTest extends StorageApiTestCase
 {
@@ -44,6 +45,83 @@ class BucketsTest extends StorageApiTestCase
         $this->assertArrayHasKey('attributes', $firstBucket);
         $this->assertArrayHasKey('displayName', $firstBucket);
         $this->assertNotEquals('', $firstBucket['displayName']);
+    }
+
+    public function testTemporaryDirectAccessRestrictions()
+    {
+        $client = new \Keboola\StorageApi\Client([
+            'token' => STORAGE_API_TOKEN_LOCAL_DEV,
+            'url' => STORAGE_API_URL,
+            'backoffMaxTries' => 1,
+            'jobPollRetryDelay' => function () {
+                return 1;
+            },
+        ]);
+        $bucketId = 'in.c-mujbucket';
+        $tableId = $bucketId . '.mytable';
+
+        $client->dropTable($tableId);
+
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $client->createTable($bucketId, 'mytable', new CsvFile($importFile));
+
+        try {
+            $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
+            $client->writeTableAsync(
+                $tableId,
+                new CsvFile($importFile),
+                [
+                    'incremental' => true,
+                ]
+            );
+            $this->fail('Should have thrown!');
+        } catch (ClientException $e) {
+            $this->assertSame(
+                'Cannot add columns ("iso", "Something" to a table "in.c-mujbucket.mytable" in bucket "in.c-mujbucket"'
+                . ' with direct access enabled, disable direct access first',
+                $e->getMessage()
+            );
+        }
+
+        try {
+            $client->addTableColumn($tableId, 'otherColumn');
+            $this->fail('Should have thrown!');
+        } catch (ClientException $e) {
+            $this->assertSame(
+                'Cannot add column to a table "in.c-mujbucket.mytable" in bucket "in.c-mujbucket" with direct access '
+                . 'enabled, disable direct access first',
+                $e->getMessage()
+            );
+        }
+        try {
+            $client->deleteTableColumn($tableId, 'otherColumn');
+            $this->fail('Should have thrown!');
+        } catch (ClientException $e) {
+            $this->assertSame(
+                'Cannot remove column from a table "in.c-mujbucket.mytable" in bucket "in.c-mujbucket" with direct '
+                . 'access enabled, disable direct access first',
+                $e->getMessage()
+            );
+        }
+        try {
+            $client->createAliasTable($bucketId, $tableId, 'tableAlias');
+            $this->fail('Should have thrown!');
+        } catch (ClientException $e) {
+            $this->assertSame(
+                'Cannot add alias to bucket "in.c-mujbucket" with direct access enabled, disable direct access first',
+                $e->getMessage()
+            );
+        }
+        try {
+            $client->updateTable($tableId, ['displayName' => 'differentDisplayName']);
+            $this->fail('Should have thrown!');
+        } catch (ClientException $e) {
+            $this->assertSame(
+                'Cannot change displayName of table "in.c-mujbucket.mytable" in bucket "in.c-mujbucket" with direct '
+                . 'access enabled, disable direct access first',
+                $e->getMessage()
+            );
+        }
     }
 
     public function testBucketDetail()
