@@ -7,6 +7,7 @@
  */
 namespace Keboola\Test\Backend\Workspaces;
 
+use Doctrine\DBAL\DBALException;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
@@ -66,16 +67,7 @@ class WorkspacesTest extends WorkspacesTestCase
         $this->assertSame($runId, $workspaceDeletedEvent['runId']);
         $this->assertSame('storage.workspaceDeleted', $workspaceDeletedEvent['event']);
         $this->assertSame('storage', $workspaceDeletedEvent['component']);
-
-        // credentials should not work anymore
-        try {
-            $this->getDbConnection($connection);
-            $this->fail('Credentials should be deleted');
-        } catch (\PDOException $e) {
-            $this->assertEquals(7, $e->getCode());
-        } catch (\Keboola\Db\Import\Exception $e) {
-            $this->assertContains('Incorrect username or password was specified', $e->getMessage());
-        }
+        $this->assertCredentialsShouldNotWork($connection);
     }
 
     public function testWorkspacePasswordReset()
@@ -126,14 +118,7 @@ class WorkspacesTest extends WorkspacesTestCase
         $backend = null; // force odbc disconnect
 
         // credentials should not work anymore
-        try {
-            $this->getDbConnection($connection);
-            $this->fail('Credentials should be invalid');
-        } catch (\PDOException $e) {
-            $this->assertEquals(7, $e->getCode());
-        } catch (\Keboola\Db\Import\Exception $e) {
-            $this->assertContains('Incorrect username or password was specified', $e->getMessage());
-        }
+        $this->assertCredentialsShouldNotWork($connection);
 
         $workspace['connection']['password'] = $newCredentials['password'];
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
@@ -166,6 +151,9 @@ class WorkspacesTest extends WorkspacesTestCase
             $this->fail("workspace no longer exists. connection should be dead.");
         } catch (\PDOException $e) { // catch redshift connection exception
             $this->assertEquals("57P01", $e->getCode());
+        } catch (DBALException $e) {
+            // Synapse
+            $this->assertEquals(0, $e->getCode(), $e->getMessage());
         } catch (\Exception $e) {
             // check that exception not caused by the above fail()
             $this->assertEquals(2, $e->getCode(), $e->getMessage());
@@ -206,5 +194,25 @@ class WorkspacesTest extends WorkspacesTestCase
                 ]
             ]
         ];
+    }
+
+    /**
+     * @param array $connection
+     * @throws \Exception
+     */
+    private function assertCredentialsShouldNotWork($connection)
+    {
+        try {
+            $this->getDbConnection($connection);
+            $this->fail('Credentials should be invalid');
+        } catch (\Doctrine\DBAL\Driver\PDOException $e) {
+            // Synapse
+            $this->assertEquals('08004', $e->getCode());
+        } catch (\PDOException $e) {
+            // RS
+            $this->assertEquals(7, $e->getCode());
+        } catch (\Keboola\Db\Import\Exception $e) {
+            $this->assertContains('Incorrect username or password was specified', $e->getMessage());
+        }
     }
 }

@@ -11,16 +11,23 @@ WORKDIR /code/
 
 COPY docker/composer-install.sh /tmp/composer-install.sh
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update -q \
+    && apt-get install gnupg -y --no-install-recommends \
+    && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+    && curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+    && apt-get update -q \
+    && ACCEPT_EULA=Y apt-get install \
         unzip \
         git \
         unixodbc \
         unixodbc-dev \
         libpq-dev \
-        gpg \
         debsig-verify \
         dirmngr \
-        gpg-agent \
+        msodbcsql17 \
+        libonig-dev \
+        libxml2-dev \
+        -y --no-install-recommends \
     && rm -r /var/lib/apt/lists/* \
     && chmod +x /tmp/composer-install.sh \
     && /tmp/composer-install.sh
@@ -62,6 +69,12 @@ RUN mkdir -p ~/.gnupg \
     && debsig-verify /tmp/snowflake-odbc.deb \
     && gpg --batch --delete-key --yes $SNOWFLAKE_GPG_KEY \
     && dpkg -i /tmp/snowflake-odbc.deb
+
+#Synapse ODBC
+RUN set -ex; \
+    pecl install sqlsrv-5.6.1 pdo_sqlsrv-5.6.1; \
+    docker-php-ext-enable sqlsrv pdo_sqlsrv; \
+    docker-php-source delete
 
 WORKDIR /code
 
