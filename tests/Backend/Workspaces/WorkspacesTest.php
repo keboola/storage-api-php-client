@@ -116,32 +116,13 @@ class WorkspacesTest extends WorkspacesTestCase
             }
         }
 
-        if ($connection['backend'] === self::BACKEND_SYNAPSE) {
-            // synapse takes few minutes to propagate password change
-            // during this time both passwords are working
-            // usually this takes around 10minutes
-            /** @var SynapseWorkspaceBackend $backend */
-            $backend->disconnect();
-            $retries = 20;
-            while ($retries > 0) {
-                try {
-                    $db = $this->getDbConnection($connection);
-                    $db->close();
-                    $retries--;
-                    sleep(60); //wait the minute
-                } catch (\Doctrine\DBAL\Driver\PDOException $e) {
-                    break;
-                }
-            }
-        }
-
         $backend = null; // force odbc disconnect
-
-        // credentials should not work anymore
-        $this->assertCredentialsShouldNotWork($connection);
 
         $workspace['connection']['password'] = $newCredentials['password'];
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        // old password should not work anymore
+        $this->assertCredentialsShouldNotWork($connection);
 
         $tableNames = $backend->getTables();
         $backend = null; // force odbc disconnect
