@@ -697,17 +697,13 @@ class Client
      */
     public function updateTable($tableId, $options)
     {
-        $url = "storage/tables/" . $tableId;
-
         $allowedOptions = [
             'displayName',
         ];
 
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
 
-        $url .= '?' . http_build_query($filteredOptions);
-
-        $result = $this->apiPut($url);
+        $result = $this->apiPut('storage/tables/' . $tableId, $filteredOptions);
         $this->log("Table {$tableId} updated");
         return $result['id'];
     }
