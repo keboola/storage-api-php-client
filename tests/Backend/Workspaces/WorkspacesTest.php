@@ -118,11 +118,11 @@ class WorkspacesTest extends WorkspacesTestCase
 
         $backend = null; // force odbc disconnect
 
-        $workspace['connection']['password'] = $newCredentials['password'];
-        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-
         // old password should not work anymore
         $this->assertCredentialsShouldNotWork($connection);
+
+        $workspace['connection']['password'] = $newCredentials['password'];
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $tableNames = $backend->getTables();
         $backend = null; // force odbc disconnect
