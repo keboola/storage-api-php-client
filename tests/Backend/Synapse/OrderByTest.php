@@ -1,7 +1,5 @@
 <?php
 
-
-
 namespace Keboola\Test\Backend\Synapse;
 
 use Keboola\Csv\CsvFile;
@@ -28,9 +26,10 @@ class OrderByTest extends StorageApiTestCase
         ];
 
         $dataPreview = $this->_client->getTableDataPreview($tableId, ['orderBy' => [$order]]);
-        $exportTable = $this->getExportedTable($tableId, ['orderBy' => [$order]]);
+//        // @TODO table export is not implemented
+//        $exportTable = $this->getExportedTable($tableId, ['orderBy' => [$order]]);
         $this->assertSame('aa', Client::parseCsv($dataPreview)[0]['column_string']);
-        $this->assertSame('aa', $exportTable[0]['column_string']);
+//        $this->assertSame('aa', $exportTable[0]['column_string']);
     }
 
     public function testSortWithDataType()
@@ -39,12 +38,13 @@ class OrderByTest extends StorageApiTestCase
 
         $order = [
             'column' => 'column_double',
-            'dataType' => 'DOUBLE',
+            'dataType' => 'REAL',
         ];
         $dataPreview = $this->_client->getTableDataPreview($tableId, ['orderBy' => [$order]]);
-        $exportTable = $this->getExportedTable($tableId, ['orderBy' => [$order]]);
+//        // @TODO table export is not implemented
+//        $exportTable = $this->getExportedTable($tableId, ['orderBy' => [$order]]);
         $this->assertSame('1.1234', Client::parseCsv($dataPreview)[0]['column_double']);
-        $this->assertSame('1.1234', $exportTable[0]['column_double']);
+//        $this->assertSame('1.1234', $exportTable[0]['column_double']);
     }
 
     public function testComplexSort()
@@ -59,14 +59,15 @@ class OrderByTest extends StorageApiTestCase
             [
                 'column' => 'column_string_number',
                 'order' => 'ASC',
-                'dataType' => 'INTEGER',
+                'dataType' => 'REAL',
             ],
         ];
 
         $dataPreview = $this->_client->getTableDataPreview($tableId, ['orderBy' => $order]);
-        $exportTable = $this->getExportedTable($tableId, ['orderBy' => $order]);
+//        // @TODO table export is not implemented
+//        $exportTable = $this->getExportedTable($tableId, ['orderBy' => $order]);
         $this->assertSame('5', Client::parseCsv($dataPreview)[0]['column_string_number']);
-        $this->assertSame('5', $exportTable[0]['column_string_number']);
+//        $this->assertSame('5', $exportTable[0]['column_string_number']);
     }
 
     /**
@@ -86,11 +87,7 @@ class OrderByTest extends StorageApiTestCase
      */
     public function testInvalidOrderByParamsShouldReturnErrorInExport($order, $message)
     {
-        $tableId = $this->prepareTable();
-
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage($message);
-        $this->getExportedTable($tableId, ['orderBy' => [$order]]);
+        $this->markTestSkipped('Exporting table table for Synapse backend is not supported yet');
     }
 
     public function invalidDataProvider()
@@ -112,35 +109,22 @@ class OrderByTest extends StorageApiTestCase
             [
                 [
                     'column' => 'column_string',
-                    'order' => 'DESC',
                     'dataType' => 'non-existing'
                 ],
-                'Data type non-existing not recognized. Possible datatypes are [INTEGER|DOUBLE]',
+                'Data type non-existing not recognized. Possible datatypes are [BIGINT|REAL]',
             ]
         ];
     }
 
     public function testNonArrayParamsShouldReturnErrorInAsyncExport()
     {
-        $tableId = $this->prepareTable();
-
-        $orderBy = ['column' => 'column'];
-
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage("All items in param \"orderBy\" should be an arrays, but parameter contains:\n" . json_encode($orderBy));
-        $this->getExportedTable($tableId, ['orderBy' => $orderBy]);
+        $this->markTestSkipped('Exporting table table for Synapse backend is not supported yet');
     }
 
 
     public function testInvalidStructuredQueryInAsyncExport()
     {
-        $tableId = $this->prepareTable();
-
-        $orderBy = "string";
-
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage("Parameter \"orderBy\" should be an array, but parameter contains:\n" . json_encode($orderBy));
-        $this->getExportedTable($tableId, ['orderBy' => $orderBy]);
+        $this->markTestSkipped('Exporting table table for Synapse backend is not supported yet');
     }
 
     public function testNonArrayParamsShouldReturnErrorInDataPreview()
@@ -154,7 +138,6 @@ class OrderByTest extends StorageApiTestCase
         $this->_client->getTableDataPreview($tableId, ['orderBy' => $orderBy]);
     }
 
-
     public function testInvalidStructuredQueryInADataPreview()
     {
         $tableId = $this->prepareTable();
@@ -164,15 +147,6 @@ class OrderByTest extends StorageApiTestCase
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage("Parameter \"orderBy\" should be an array, but parameter contains:\n" . json_encode($orderBy));
         $this->_client->getTableDataPreview($tableId, ['orderBy' => $orderBy]);
-    }
-
-
-    private function getExportedTable($tableId, $exportOptions)
-    {
-        $tableExporter = new TableExporter($this->_client);
-        $path = tempnam(sys_get_temp_dir(), 'keboola-export');
-        $tableExporter->exportTable($tableId, $path, $exportOptions);
-        return Client::parseCsv(file_get_contents($path));
     }
 
     private function prepareTable()
