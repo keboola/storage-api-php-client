@@ -2,6 +2,7 @@
 
 namespace Keboola\Test\Backend\Snowflake;
 
+use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\DirectAccess;
 use Keboola\StorageApi\Options\TokenCreateOptions;
@@ -19,6 +20,12 @@ class DirectAccessTest extends StorageApiTestCase
             $this->fail('Exception should be thrown');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.directAccess.credentialsForProjectBackendNotFound', $e->getStringCode());
+        }
+
+        try {
+            $directAccess->resetPassword($backend);
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertEquals('storage.directAccess.tryResetPasswordOnNonExistCredentials', $e->getStringCode());
         }
 
         try {
@@ -45,6 +52,44 @@ class DirectAccessTest extends StorageApiTestCase
         $credentials = $directAccess->getCredentials($backend);
         $this->assertArrayHasKey('username', $credentials);
         $this->assertSame($newCredentials['username'], $credentials['username']);
+
+        $connection = new Connection([
+            'host' => $newCredentials['host'],
+            'user' => $newCredentials['username'],
+            'password' => $newCredentials['password']
+        ]);
+
+        $testResult = $connection->fetchAll("select 'test'");
+        $this->assertSame('test', reset($testResult[0]));
+
+        unset($connection);
+
+        $response = $directAccess->resetPassword($backend);
+
+        try {
+            new Connection([
+                'host' => $newCredentials['host'],
+                'user' => $newCredentials['username'],
+                'password' => $newCredentials['password']
+            ]);
+            $this->fail('Exception should be thrown');
+        } catch (\Keboola\Db\Import\Exception $e) {
+            $this->assertContains(
+                'Incorrect username or password was specified., SQL state 28000 in SQLConnect',
+                $e->getMessage()
+            );
+        }
+
+        $connection = new Connection([
+            'host' => $newCredentials['host'],
+            'user' => $newCredentials['username'],
+            'password' => $response['password']
+        ]);
+
+        $testResult = $connection->fetchAll("select 'test'");
+        $this->assertSame('test', reset($testResult[0]));
+
+        $this->assertArrayHasKey('password', $response);
 
         $directAccess->deleteCredentials($backend);
 
