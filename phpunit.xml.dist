@@ -90,7 +90,7 @@
 		<file>tests/Backend/Synapse/CreateTableTest.php</file>
 		<file>tests/Backend/Synapse/ImportExportCommonTest.php</file>
 		<file>tests/Backend/Synapse/AlterTableTest.php</file>
-		<file>tests/Backend/Synapse/WorkspacesTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesSynapseTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesSynapseTest.php</file>

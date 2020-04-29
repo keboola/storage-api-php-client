@@ -10,6 +10,7 @@ namespace Keboola\Test\Backend\Workspaces;
 use Doctrine\DBAL\DBALException;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
+use Keboola\Test\Backend\Workspaces\Backend\SynapseWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class WorkspacesTest extends WorkspacesTestCase
@@ -117,7 +118,7 @@ class WorkspacesTest extends WorkspacesTestCase
 
         $backend = null; // force odbc disconnect
 
-        // credentials should not work anymore
+        // old password should not work anymore
         $this->assertCredentialsShouldNotWork($connection);
 
         $workspace['connection']['password'] = $newCredentials['password'];
@@ -207,7 +208,17 @@ class WorkspacesTest extends WorkspacesTestCase
             $this->fail('Credentials should be invalid');
         } catch (\Doctrine\DBAL\Driver\PDOException $e) {
             // Synapse
-            $this->assertEquals('08004', $e->getCode());
+            if (!in_array(
+                $e->getCode(),
+                [
+                    //https://docs.microsoft.com/en-us/sql/odbc/reference/appendixes/appendix-a-odbc-error-codes?view=sql-server-ver15
+                    '28000', // Invalid authorization specification
+                    '08004', // Server rejected the connection
+                ],
+                true
+            )) {
+                $this->fail(sprintf('Unexpected error code "%s" for Synapse credentials fail.', $e->getCode()));
+            }
         } catch (\PDOException $e) {
             // RS
             $this->assertEquals(7, $e->getCode());
