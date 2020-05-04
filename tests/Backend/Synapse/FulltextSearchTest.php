@@ -23,7 +23,7 @@ class FulltextSearchTest extends StorageApiTestCase
 
         $dataPreview = $this->_client->getTableDataPreview($tableId, ['fulltextSearch' => 'containsE']);
         $dataPreviewCsv = Client::parseCsv($dataPreview);
-        var_dump($dataPreviewCsv);
+
         $this->assertCount(2, $dataPreviewCsv);
         $this->assertSame('DcontainsDD', $dataPreviewCsv[0]['column_2']);
     }
