@@ -21,11 +21,19 @@ class FulltextSearchTest extends StorageApiTestCase
     {
         $tableId = $this->prepareTable();
 
-        $dataPreview = $this->_client->getTableDataPreview($tableId, ['fulltextSearch' => 'containsE']);
+        $dataPreview = $this->_client->getTableDataPreview($tableId, [
+            'fulltextSearch' => 'containsE',
+            'orderBy' => [
+                [
+                    'column' => 'column_1',
+                ]
+            ]
+        ]);
         $dataPreviewCsv = Client::parseCsv($dataPreview);
 
         $this->assertCount(2, $dataPreviewCsv);
-        $this->assertSame('DcontainsDD', $dataPreviewCsv[0]['column_2']);
+        $this->assertSame('EcontainsEE', $dataPreviewCsv[0]['column_3']);
+        $this->assertSame('EcontainsEE', $dataPreviewCsv[1]['column_2']);
     }
 
     public function testFindNonExistingDataByFulltext()
