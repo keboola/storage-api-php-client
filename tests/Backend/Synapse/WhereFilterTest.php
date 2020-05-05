@@ -32,7 +32,6 @@ class WhereFilterTest extends StorageApiTestCase
         ];
         $preview = $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
         $this->assertCount(1, Client::parseCsv($preview));
-//        // @TODO table export is not implemented
         $this->assertCount(1, $this->getExportedTable($tableId, ['whereFilters' => $where]));
     }
 
@@ -51,7 +50,6 @@ class WhereFilterTest extends StorageApiTestCase
         $preview = $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
         $previewCsv = Client::parseCsv($preview);
 
-//        // @TODO table export is not implemented
         $exportCsv = $this->getExportedTable($tableId, ['whereFilters' => $where]);
 
         $this->assertCount(1, $previewCsv);
@@ -108,7 +106,6 @@ class WhereFilterTest extends StorageApiTestCase
         ];
         $preview = $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
         $previewCsv = Client::parseCsv($preview);
-//        // @TODO table export is not implementd yet
         $exportCsv = $this->getExportedTable($tableId, ['whereFilters' => $where]);
 
         $this->assertCount(2, $exportCsv);
@@ -135,7 +132,6 @@ class WhereFilterTest extends StorageApiTestCase
         ];
         $preview = $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
         $previewCsv = Client::parseCsv($preview);
-//        // @TODO table export is not implementd yet
         $exportCsv = $this->getExportedTable($tableId, ['whereFilters' => $where]);
 
         $this->assertCount(1, $previewCsv);
