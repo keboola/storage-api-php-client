@@ -33,7 +33,7 @@ class WhereFilterTest extends StorageApiTestCase
         $preview = $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
         $this->assertCount(1, Client::parseCsv($preview));
 //        // @TODO table export is not implemented
-//        $this->assertCount(1, $this->getExportedTable($tableId, ['whereFilters' => $where]));
+        $this->assertCount(1, $this->getExportedTable($tableId, ['whereFilters' => $where]));
     }
 
     public function testFilterWithCast()
@@ -52,12 +52,12 @@ class WhereFilterTest extends StorageApiTestCase
         $previewCsv = Client::parseCsv($preview);
 
 //        // @TODO table export is not implemented
-//        $exportCsv = $this->getExportedTable($tableId, ['whereFilters' => $where]);
+        $exportCsv = $this->getExportedTable($tableId, ['whereFilters' => $where]);
 
         $this->assertCount(1, $previewCsv);
-//        $this->assertCount(1, $exportCsv);
+        $this->assertCount(1, $exportCsv);
         $this->assertEquals($previewCsv[0]['column_string'], 'fifth');
-//        $this->assertEquals($exportCsv[0]['column_string'], 'fifth');
+        $this->assertEquals($exportCsv[0]['column_string'], 'fifth');
     }
 
     public function testDataPreviewWithNonExistingDataType()
@@ -79,21 +79,19 @@ class WhereFilterTest extends StorageApiTestCase
 
     public function testTableExportWithNonExistingDataType()
     {
-        $this->markTestSkipped('Exporting table table for Synapse backend is not supported yet');
+        $tableId = $this->prepareTable();
 
-//        $tableId = $this->prepareTable();
-//
-//        $where = [
-//            [
-//                'column' => 'column_string_number',
-//                'operator' => 'ge',
-//                'values' => ['6'],
-//                'dataType' => 'non-existing'
-//            ],
-//        ];
-//        $this->expectException(ClientException::class);
-//        $this->expectExceptionMessageRegExp('~Data type non-existing not recognized~');
-//        $this->getExportedTable($tableId, ['whereFilters' => $where]);
+        $where = [
+            [
+                'column' => 'column_string_number',
+                'operator' => 'ge',
+                'values' => ['6'],
+                'dataType' => 'non-existing'
+            ],
+        ];
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessageRegExp('~Data type non-existing not recognized~');
+        $this->getExportedTable($tableId, ['whereFilters' => $where]);
     }
 
     public function testCastToDouble()
@@ -111,9 +109,9 @@ class WhereFilterTest extends StorageApiTestCase
         $preview = $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
         $previewCsv = Client::parseCsv($preview);
 //        // @TODO table export is not implementd yet
-//        $exportCsv = $this->getExportedTable($tableId, ['whereFilters' => $where]);
+        $exportCsv = $this->getExportedTable($tableId, ['whereFilters' => $where]);
 
-//        $this->assertCount(2, $exportCsv);
+        $this->assertCount(2, $exportCsv);
         $this->assertCount(2, $previewCsv);
     }
 
@@ -138,10 +136,10 @@ class WhereFilterTest extends StorageApiTestCase
         $preview = $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
         $previewCsv = Client::parseCsv($preview);
 //        // @TODO table export is not implementd yet
-//        $exportCsv = $this->getExportedTable($tableId, ['whereFilters' => $where]);
+        $exportCsv = $this->getExportedTable($tableId, ['whereFilters' => $where]);
 
         $this->assertCount(1, $previewCsv);
- //       $this->assertCount(1, $exportCsv);
+        $this->assertCount(1, $exportCsv);
     }
 
     public function testDataPreviewInvalidComparingOperator()
@@ -163,60 +161,52 @@ class WhereFilterTest extends StorageApiTestCase
 
     public function testExportTableInvalidComparingOperator()
     {
-        $this->markTestSkipped('Exporting table table for Synapse backend is not supported yet');
+        $tableId = $this->prepareTable();
 
-//        $tableId = $this->prepareTable();
-//
-//        $where = [
-//          [
-//              'column' => 'column_double',
-//              'operator' => 'non-existing',
-//              'values' => [123]
-//          ]
-//        ];
-//
-//        $this->expectException(ClientException::class);
-//        $this->expectExceptionMessageRegExp('~Invalid where operator non-existing~');
-//        $this->getExportedTable($tableId, ['whereFilters' => $where]);
+        $where = [
+          [
+              'column' => 'column_double',
+              'operator' => 'non-existing',
+              'values' => [123]
+          ]
+        ];
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessageRegExp('~Invalid where operator non-existing~');
+        $this->getExportedTable($tableId, ['whereFilters' => $where]);
     }
 
     public function testInvalidStructuredQueryInAsyncExport()
     {
-        $this->markTestSkipped('Exporting table table for Synapse backend is not supported yet');
+        $tableId = $this->prepareTable();
 
-//        $tableId = $this->prepareTable();
-//
-//        $where = "string";
-//
-//        $this->expectException(ClientException::class);
-//        $this->expectExceptionMessage("Parameter \"whereFilters\" should be an array, but parameter contains:\n" . json_encode($where));
-//        $this->getExportedTable($tableId, ['whereFilters' => $where]);
+        $where = "string";
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage("Parameter \"whereFilters\" should be an array, but parameter contains:\n" . json_encode($where));
+        $this->getExportedTable($tableId, ['whereFilters' => $where]);
     }
 
     public function testNonArrayParamsShouldReturnErrorInAsyncExport()
     {
-        $this->markTestSkipped('Exporting table table for Synapse backend is not supported yet');
+        $tableId = $this->prepareTable();
 
-//        $tableId = $this->prepareTable();
-//
-//        $where = ['column' => 'column'];
+        $where = ['column' => 'column'];
 
-//        $this->expectException(ClientException::class);
-//        $this->expectExceptionMessage("All items in param \"whereFilters\" should be an arrays, but parameter contains:\n" . json_encode($where));
-//        $this->getExportedTable($tableId, ['whereFilters' => $where]);
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage("All items in param \"whereFilters\" should be an arrays, but parameter contains:\n" . json_encode($where));
+        $this->getExportedTable($tableId, ['whereFilters' => $where]);
     }
 
     public function testInvalidStructuredQueryInDataPreview()
     {
-        $this->markTestSkipped('Exporting table table for Synapse backend is not supported yet');
+        $tableId = $this->prepareTable();
 
-//        $tableId = $this->prepareTable();
-//
-//        $where = "string";
-//
-//        $this->expectException(ClientException::class);
-//        $this->expectExceptionMessage("Parameter \"whereFilters\" should be an array, but parameter contains:\n" . json_encode($where));
-//        $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
+        $where = "string";
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage("Parameter \"whereFilters\" should be an array, but parameter contains:\n" . json_encode($where));
+        $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
     }
 
     public function testNonArrayParamsShouldReturnErrorInDataPreview()
