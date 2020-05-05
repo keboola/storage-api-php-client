@@ -87,6 +87,7 @@
 
 	<testsuite name="backend-synapse-part-1">
 		<file>tests/Backend/CommonPart1/BucketsTest.php</file>
+		<file>tests/Backend/Synapse/ExportParamsTest.php</file>
 		<file>tests/Backend/Synapse/CreateTableTest.php</file>
 		<file>tests/Backend/Synapse/ImportExportCommonTest.php</file>
 		<file>tests/Backend/Synapse/AlterTableTest.php</file>
@@ -95,5 +96,9 @@
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesSynapseTest.php</file>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
+		<file>tests/Backend/Synapse/FulltextSearchTest.php</file>
+		<file>tests/Backend/Synapse/OrderByTest.php</file>
+		<file>tests/Backend/Synapse/DataPreviewLimitsTest.php</file>
+		<file>tests/Backend/Synapse/WhereFilterTest.php</file>
 	</testsuite>
 </phpunit>
