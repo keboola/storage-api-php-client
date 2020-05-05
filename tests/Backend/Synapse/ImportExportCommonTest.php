@@ -8,8 +8,4 @@ use Keboola\Test\Backend\CommonPart1\ImportExportCommonTest as CommonImportExpor
 
 class ImportExportCommonTest extends CommonImportExportTest
 {
-    public function testTableAsyncExportRepeatedly()
-    {
-        $this->markTestSkipped('Exporting table table for Synapse backend is not supported yet');
-    }
 }
