@@ -117,7 +117,7 @@ class DirectAccessTest extends StorageApiTestCase
             $directAccess->createCredentials($backend);
             $this->fail('Exception should be thrown');
         } catch (\Keboola\StorageApi\ClientException $e) {
-            $this->assertEquals('storage.directAccess.onlyAdminTokenCanCreateCredentials', $e->getStringCode());
+            $this->assertEquals('storage.directAccess.tokenCanNotUseDirectAccess', $e->getStringCode());
         }
     }
 
