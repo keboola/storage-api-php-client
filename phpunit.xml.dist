@@ -90,6 +90,7 @@
 		<file>tests/Backend/Synapse/ExportParamsTest.php</file>
 		<file>tests/Backend/Synapse/CreateTableTest.php</file>
 		<file>tests/Backend/CommonPart1/ImportExportCommonTest.php</file>
+		<file>tests/Backend/CommonPart1/TableExporterTest.php</file>
 		<file>tests/Backend/Synapse/AlterTableTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesSynapseTest.php</file>
