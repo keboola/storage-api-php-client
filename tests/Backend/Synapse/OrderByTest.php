@@ -26,10 +26,9 @@ class OrderByTest extends StorageApiTestCase
         ];
 
         $dataPreview = $this->_client->getTableDataPreview($tableId, ['orderBy' => [$order]]);
-//        // @TODO table export is not implemented
-//        $exportTable = $this->getExportedTable($tableId, ['orderBy' => [$order]]);
+        $exportTable = $this->getExportedTable($tableId, ['orderBy' => [$order], 'limit' => 1]);
         $this->assertSame('aa', Client::parseCsv($dataPreview)[0]['column_string']);
-//        $this->assertSame('aa', $exportTable[0]['column_string']);
+        $this->assertSame('aa', $exportTable[0]['column_string']);
     }
 
     public function testSortWithDataType()
@@ -41,10 +40,17 @@ class OrderByTest extends StorageApiTestCase
             'dataType' => 'REAL',
         ];
         $dataPreview = $this->_client->getTableDataPreview($tableId, ['orderBy' => [$order]]);
-//        // @TODO table export is not implemented
-//        $exportTable = $this->getExportedTable($tableId, ['orderBy' => [$order]]);
+        $exportTable = $this->getExportedTable($tableId, ['orderBy' => [$order], 'limit' => 1]);
         $this->assertSame('1.1234', Client::parseCsv($dataPreview)[0]['column_double']);
-//        $this->assertSame('1.1234', $exportTable[0]['column_double']);
+        $this->assertSame('1.1234', $exportTable[0]['column_double']);
+    }
+
+    private function getExportedTable($tableId, $exportOptions)
+    {
+        $tableExporter = new TableExporter($this->_client);
+        $path = tempnam(sys_get_temp_dir(), 'keboola-export');
+        $tableExporter->exportTable($tableId, $path, $exportOptions);
+        return Client::parseCsv(file_get_contents($path));
     }
 
     public function testComplexSort()
@@ -64,10 +70,9 @@ class OrderByTest extends StorageApiTestCase
         ];
 
         $dataPreview = $this->_client->getTableDataPreview($tableId, ['orderBy' => $order]);
-//        // @TODO table export is not implemented
-//        $exportTable = $this->getExportedTable($tableId, ['orderBy' => $order]);
+        $exportTable = $this->getExportedTable($tableId, ['orderBy' => $order, 'limit' => 1]);
         $this->assertSame('5', Client::parseCsv($dataPreview)[0]['column_string_number']);
-//        $this->assertSame('5', $exportTable[0]['column_string_number']);
+        $this->assertSame('5', $exportTable[0]['column_string_number']);
     }
 
     /**
@@ -87,7 +92,11 @@ class OrderByTest extends StorageApiTestCase
      */
     public function testInvalidOrderByParamsShouldReturnErrorInExport($order, $message)
     {
-        $this->markTestSkipped('Exporting table table for Synapse backend is not supported yet');
+        $tableId = $this->prepareTable();
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage($message);
+        $this->getExportedTable($tableId, ['orderBy' => [$order]]);
     }
 
     public function invalidDataProvider()
@@ -118,13 +127,25 @@ class OrderByTest extends StorageApiTestCase
 
     public function testNonArrayParamsShouldReturnErrorInAsyncExport()
     {
-        $this->markTestSkipped('Exporting table table for Synapse backend is not supported yet');
+        $tableId = $this->prepareTable();
+
+        $orderBy = ['column' => 'column'];
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage("All items in param \"orderBy\" should be an arrays, but parameter contains:\n" . json_encode($orderBy));
+        $this->getExportedTable($tableId, ['orderBy' => $orderBy]);
     }
 
 
     public function testInvalidStructuredQueryInAsyncExport()
     {
-        $this->markTestSkipped('Exporting table table for Synapse backend is not supported yet');
+        $tableId = $this->prepareTable();
+
+        $orderBy = "string";
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage("Parameter \"orderBy\" should be an array, but parameter contains:\n" . json_encode($orderBy));
+        $this->getExportedTable($tableId, ['orderBy' => $orderBy]);
     }
 
     public function testNonArrayParamsShouldReturnErrorInDataPreview()
