@@ -27,19 +27,23 @@
 	</testsuite>
 
 	<testsuite name="backend-snowflake-abs-part-1">
-		<file>tests/Backend/CommonPart1/TableExporterTest.php</file>
-		<file>tests/Backend/CommonPart1/ImportExportCommonTest.php</file>
-		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
-		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
-		<file>tests/Backend/Workspaces/WorkspacesSnowflakeTest.php</file>
+		<file>tests/Backend/Workspaces/MetadataFromSnowflakeWorkspaceTest.php</file>
+		<directory>tests/Backend/CommonPart1</directory>
+		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
+		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
+		<file>tests/Backend/Workspaces/LegacyWorkspacesSnowflakeTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-snowflake-abs-part-2">
-		<file>tests/Backend/Snowflake/TableExportTest.php</file>
-		<file>tests/Backend/Snowflake/TimeTravelTest.php</file>
-		<file>tests/Backend/Mixed/Workspaces/AbsWorkspacesTest.php</file>
-		<file>tests/Backend/CommonPart2/SnapshottingTest.php</file>
-		<file>tests/Backend/CommonPart2/MetricsTest.php</file>
+		<directory>tests/Backend/CommonPart2</directory>
+		<exclude>tests/Backend/CommonPart2/SlicedImportsTest.php</exclude>
+		<file>tests/Backend/Workspaces/WorkspacesSnowflakeTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>
+		<directory>tests/Backend/Snowflake</directory>
+		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-redshift-part-1">
