@@ -178,6 +178,24 @@ class BucketsTest extends StorageApiTestCase
             $bucketData['displayName']
         );
 
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        // create and import data into source table
+        $sourceTableId = $this->_client->createTable(
+            $newBucketId,
+            'languages',
+            new CsvFile($importFile)
+        );
+
+        $this->_client->dropBucket($newBucketId, ['force' => true]);
+
+        $newBucketId = $this->_client->createBucket(
+            $bucketData['name'],
+            $bucketData['stage'],
+            $bucketData['description'],
+            null,
+            $bucketData['displayName']
+        );
+
         $newBucket = $this->_client->getBucket($newBucketId);
         $this->assertEquals('c-' . $bucketData['name'], $newBucket['name'], 'bucket name');
         $this->assertEquals($bucketData['displayName'], $newBucket['displayName'], 'bucket displayName');
