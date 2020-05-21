@@ -2,8 +2,10 @@
 
 namespace Keboola\Test\Backend\Snowflake;
 
+use Keboola\Csv\CsvFile;
 use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\StorageApi\Client;
+use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\DirectAccess;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\Test\StorageApiTestCase;
@@ -121,9 +123,187 @@ class DirectAccessTest extends StorageApiTestCase
         }
     }
 
-    /** @return DirectAccess */
-    private function prepareDirectAccess()
+    public function testDirectAccessAndRestrictions()
     {
+        $bucketName = 'API-tests';
+        $bucket2Name = 'API-DA_TEST';
+        $bucketStage = 'in';
+        $bucketId = $bucketStage . '.c-' . $bucketName;
+        $bucket2Id = $bucketStage . '.c-' . $bucket2Name;
+
+        $tableName = 'mytable';
+        $tableId = $bucketId . '.' . $tableName . '';
+        $table2Name = 'other_table';
+        $table2Id = $bucket2Id . '.' . $table2Name . '';
+
+        $this->prepareDirectAccess($bucketId);
+        $this->prepareDirectAccess($bucket2Id);
+        $this->dropBucketIfExists($this->_client, $bucketId);
+        $this->dropBucketIfExists($this->_client, $bucket2Id);
+
+        $bucketId = $this->_client->createBucket($bucketName, $bucketStage, '', null, 'b1-display-name');
+        $bucket2Id = $this->_client->createBucket($bucket2Name, $bucketStage);
+
+
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $this->_client->createTable($bucketId, $tableName, new CsvFile($importFile));
+        $this->_client->updateTable($tableId, ['displayName' => 'mytable_displayName']);
+
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $this->_client->createTable($bucket2Id, $table2Name, new CsvFile($importFile));
+
+        $this->_client->enableBucketDirectAccess($bucketId);
+
+        $bucket = $this->_client->getBucket($bucketId);
+        $this->assertTrue($bucket['directAccessEnabled']);
+        $this->assertSame('da_in_b1-display-name', $bucket['directAccessSchemaName']);
+
+        // other buckets does not have DA enabled
+        $bucket = $this->_client->getBucket($bucket2Id);
+        $this->assertFalse($bucket['directAccessEnabled']);
+        $this->assertSame(null, $bucket['directAccessSchemaName']);
+
+        $directAccess = new DirectAccess($this->_client);
+        $credentials = $directAccess->createCredentials(self::BACKEND_SNOWFLAKE);
+
+        $connection = new Connection([
+            'host' => $credentials['host'],
+            'user' => $credentials['username'],
+            'password' => $credentials['password'],
+        ]);
+
+        $schemas = $connection->fetchAll('SHOW SCHEMAS');
+        $this->assertCount(2, $schemas, 'There should be INFORMATION SCHEMA and one bucket');
+        $schemas = array_values(array_filter($schemas, function ($schema) {
+            return $schema['name'] === 'da_in_b1-display-name';
+        }));
+        $this->assertSame('da_in_b1-display-name', $schemas[0]['name']);
+
+        $connection->query(sprintf(
+            'USE DATABASE %s',
+            $connection->quoteIdentifier($schemas[0]['database_name'])
+        ));
+
+        $connection->query(sprintf(
+            'USE SCHEMA %s',
+            $connection->quoteIdentifier($schemas[0]['name'])
+        ));
+        $views = $connection->fetchAll('SHOW VIEWS');
+        $this->assertCount(1, $views);
+        $views = array_values(array_filter($views, function ($view) {
+            return $view['name'] === 'mytable_displayName';
+        }));
+        $this->assertSame('mytable_displayName', $views[0]['name']);
+        $this->assertSame(
+            'CREATE OR REPLACE VIEW "da_in_b1-display-name"."mytable_displayName"'
+            . ' AS SELECT * FROM "in.c-API-tests"."mytable"',
+            $views[0]['text']
+        );
+
+        $tables = $connection->fetchAll('SHOW TABLES');
+        $this->assertSame([], $tables);
+
+        try {
+            $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
+            $this->_client->writeTableAsync(
+                $tableId,
+                new CsvFile($importFile),
+                [
+                    'incremental' => true,
+                ]
+            );
+            $this->fail('Should have thrown!');
+        } catch (ClientException $e) {
+            $this->assertSame(
+                'Cannot add columns ("iso", "Something" to a table "in.c-API-tests.mytable" in bucket "in.c-API-tests"'
+                . ' with direct access enabled, disable direct access first',
+                $e->getMessage()
+            );
+        }
+
+        try {
+            $this->_client->addTableColumn($tableId, 'otherColumn');
+            $this->fail('Should have thrown!');
+        } catch (ClientException $e) {
+            $this->assertSame(
+                'Cannot add column to a table "in.c-API-tests.mytable" in bucket "in.c-API-tests" with direct access '
+                . 'enabled, disable direct access first',
+                $e->getMessage()
+            );
+        }
+        try {
+            $this->_client->deleteTableColumn($tableId, 'otherColumn');
+            $this->fail('Should have thrown!');
+        } catch (ClientException $e) {
+            $this->assertSame(
+                'Cannot remove column from a table "in.c-API-tests.mytable" in bucket "in.c-API-tests" with direct '
+                . 'access enabled, disable direct access first',
+                $e->getMessage()
+            );
+        }
+        try {
+            $this->_client->createAliasTable($bucketId, $tableId, 'tableAlias');
+            $this->fail('Should have thrown!');
+        } catch (ClientException $e) {
+            $this->assertSame(
+                'Cannot add alias to bucket "in.c-API-tests" with direct access enabled, disable direct access first',
+                $e->getMessage()
+            );
+        }
+        try {
+            $this->_client->updateTable($tableId, ['displayName' => 'differentDisplayName']);
+            $this->fail('Should have thrown!');
+        } catch (ClientException $e) {
+            $this->assertSame(
+                'Cannot change displayName of table "in.c-API-tests.mytable" in bucket "in.c-API-tests" with direct '
+                . 'access enabled, disable direct access first',
+                $e->getMessage()
+            );
+        }
+
+        $this->_client->disableBucketDirectAccess($bucketId);
+        $this->_client->enableBucketDirectAccess($bucket2Id);
+
+        $schemas = $connection->fetchAll('SHOW SCHEMAS');
+        $this->assertCount(2, $schemas, 'There should be INFORMATION SCHEMA and one bucket');
+        $schemas = array_values(array_filter($schemas, function ($schema) {
+            return $schema['name'] === 'da_in_API-DA_TEST';
+        }));
+        $this->assertSame('da_in_API-DA_TEST', $schemas[0]['name']);
+
+        $connection->query(sprintf(
+            'USE DATABASE %s',
+            $connection->quoteIdentifier($schemas[0]['database_name'])
+        ));
+
+        $connection->query(sprintf(
+            'USE SCHEMA %s',
+            $connection->quoteIdentifier($schemas[0]['name'])
+        ));
+        $views = $connection->fetchAll('SHOW VIEWS');
+        $this->assertCount(1, $views);
+        $views = array_values(array_filter($views, function ($view) {
+            return $view['name'] === 'other_table';
+        }));
+        $this->assertSame('other_table', $views[0]['name']);
+        $this->assertSame(
+            'CREATE OR REPLACE VIEW "da_in_API-DA_TEST"."other_table"'
+            . ' AS SELECT * FROM "in.c-API-DA_TEST"."other_table"',
+            $views[0]['text']
+        );
+    }
+
+    /** @return DirectAccess */
+    private function prepareDirectAccess($bucketId = null)
+    {
+        if ($bucketId) {
+            try {
+                $this->_client->disableBucketDirectAccess($bucketId);
+            } catch (ClientException $e) {
+                // intentionally empty
+            }
+        }
+
         $directAccess = new DirectAccess($this->_client);
 
         try {
