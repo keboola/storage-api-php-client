@@ -524,6 +524,28 @@ class Client
         }
     }
 
+    public function enableBucketDirectAccess($bucketId)
+    {
+        $url = "storage/buckets/" . $bucketId . "/direct-access";
+
+        $result = $this->apiPost($url);
+
+        $this->log("Bucket {$bucketId} direct access enabled", ["result" => $result]);
+
+        return $result;
+    }
+
+    public function disableBucketDirectAccess($bucketId)
+    {
+        $url = "storage/buckets/" . $bucketId . "/direct-access";
+
+        $result = $this->apiDelete($url);
+
+        $this->log("Bucket {$bucketId} direct access disabled", ["result" => $result]);
+
+        return $result;
+    }
+
     /**
      * @param $bucketId
      * @param $name
