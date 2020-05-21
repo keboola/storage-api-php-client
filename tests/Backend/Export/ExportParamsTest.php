@@ -10,6 +10,7 @@ namespace Keboola\Test\Backend\Export;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
+use Symfony\Component\Filesystem\Filesystem;
 
 class ExportParamsTest extends StorageApiTestCase
 {
@@ -41,51 +42,51 @@ class ExportParamsTest extends StorageApiTestCase
         $this->assertTrue($exportedFile['isSliced']);
         $this->assertGreaterThan(0, $exportedFile['sizeBytes']);
 
-        $manifest = json_decode(file_get_contents($exportedFile['url']), true);
+        $tmpDestinationFolder = __DIR__ . '/../_tmp/slicedUpload/';
+        $fs = new Filesystem();
+        if (file_exists($tmpDestinationFolder)) {
+            $fs->remove($tmpDestinationFolder);
+        }
+        $fs->mkdir($tmpDestinationFolder);
 
-        $s3Client = new \Aws\S3\S3Client([
-            'credentials' => [
-                'key' => $exportedFile['credentials']['AccessKeyId'],
-                'secret' => $exportedFile['credentials']['SecretAccessKey'],
-                'token' => $exportedFile['credentials']['SessionToken'],
-            ],
-            'version' => 'latest',
-            'region' => $exportedFile['region']
-        ]);
-        $s3Client->registerStreamWrapper();
+        $slices = $this->_client->downloadSlicedFile($results['file']['id'], $tmpDestinationFolder);
 
-        $csv = "";
-        foreach ($manifest['entries'] as $filePart) {
-            $csv .= file_get_contents($filePart['url']);
+        $csv = '';
+        foreach ($slices as $slice) {
+            $csv .= file_get_contents($slice);
         }
 
         $parsedData = Client::parseCsv($csv, false, ",", '"');
         $this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
 
-        // Check S3 ACL and listing bucket
-        $s3Client = new \Aws\S3\S3Client([
-            'credentials' => [
-                'key' => $exportedFile['credentials']['AccessKeyId'],
-                'secret' => $exportedFile['credentials']['SecretAccessKey'],
-                'token' => $exportedFile['credentials']['SessionToken'],
-            ],
-            'version' => 'latest',
-            'region' => $exportedFile['region']
-        ]);
-        $bucket = $exportedFile["s3Path"]["bucket"];
-        $prefix = $exportedFile["s3Path"]["key"];
-        $objects = $s3Client->listObjects(array(
-            "Bucket" => $bucket,
-            "Prefix" => $prefix
-        ));
-        foreach ($objects["Contents"] as $object) {
-            $objectDetail = $s3Client->headObject([
-                'Bucket' => $bucket,
-                'Key' => $object['Key'],
+        if ($exportedFile['provider'] === Client::FILE_PROVIDER_AZURE) {
+            $this->markTestIncomplete('TODO: check ABS ACL and listing bucket');
+        } else {
+            // Check S3 ACL and listing bucket
+            $s3Client = new \Aws\S3\S3Client([
+                'credentials' => [
+                    'key' => $exportedFile['credentials']['AccessKeyId'],
+                    'secret' => $exportedFile['credentials']['SecretAccessKey'],
+                    'token' => $exportedFile['credentials']['SessionToken'],
+                ],
+                'version' => 'latest',
+                'region' => $exportedFile['region']
             ]);
+            $bucket = $exportedFile["s3Path"]["bucket"];
+            $prefix = $exportedFile["s3Path"]["key"];
+            $objects = $s3Client->listObjects(array(
+                "Bucket" => $bucket,
+                "Prefix" => $prefix
+            ));
+            foreach ($objects["Contents"] as $object) {
+                $objectDetail = $s3Client->headObject([
+                    'Bucket' => $bucket,
+                    'Key' => $object['Key'],
+                ]);
 
-            $this->assertEquals('AES256', $objectDetail['ServerSideEncryption']);
-            $this->assertStringStartsWith($prefix, $object["Key"]);
+                $this->assertEquals('AES256', $objectDetail['ServerSideEncryption']);
+                $this->assertStringStartsWith($prefix, $object["Key"]);
+            }
         }
     }
 }
