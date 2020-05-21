@@ -1590,7 +1590,7 @@ class Client
         foreach ($slices as $filePath) {
             $manifest['entries'][] = [
                 'url' => sprintf(
-                    'azure://%sblob.core.windows.net/%s/%s%s',
+                    'azure://%s.blob.core.windows.net/%s/%s%s',
                     $prepareResult['absUploadParams']['accountName'],
                     $prepareResult['absUploadParams']['container'],
                     $prepareResult['absUploadParams']['blobName'],
