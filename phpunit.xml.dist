@@ -43,6 +43,7 @@
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>
 		<directory>tests/Backend/Snowflake</directory>
+		<exclude>tests/Backend/Snowflake/SlicedImportsTest.php</exclude>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>
 
