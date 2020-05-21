@@ -8,6 +8,7 @@
  */
 namespace Keboola\Test\Backend\CommonPart1;
 
+use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\Options\BucketUpdateOptions;
 use Keboola\Test\StorageApiTestCase;
@@ -185,6 +186,13 @@ class BucketsTest extends StorageApiTestCase
             'languages',
             new CsvFile($importFile)
         );
+
+        try {
+            $this->_client->dropBucket($newBucketId);
+        } catch (ClientException $e) {
+            $this->assertSame('Only empty buckets can be deleted. There are 1 tables in the bucket.', $e->getMessage());
+            $this->assertSame('buckets.deleteNotEmpty', $e->getStringCode());
+        }
 
         $this->_client->dropBucket($newBucketId, ['force' => true]);
 
