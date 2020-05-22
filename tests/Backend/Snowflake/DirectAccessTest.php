@@ -154,6 +154,28 @@ class DirectAccessTest extends StorageApiTestCase
 
         $this->_client->enableBucketDirectAccess($bucketId);
 
+        try {
+            $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
+            $this->_client->createTable(
+                $bucketId,
+                'newtable',
+                new CsvFile($importFile)
+            );
+            $this->fail('Should have thrown!');
+        } catch (ClientException $e) {
+            $this->assertSame(
+                'Bucket "in.c-API-tests" has Direct Access enabled please use async call',
+                $e->getMessage()
+            );
+        }
+
+        $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
+        $this->_client->createTableAsync(
+            $bucketId,
+            'newSecondTable',
+            new CsvFile($importFile)
+        );
+
         $bucket = $this->_client->getBucket($bucketId);
         $this->assertTrue($bucket['directAccessEnabled']);
         $this->assertSame('da_in_b1-display-name', $bucket['directAccessSchemaName']);
@@ -188,15 +210,25 @@ class DirectAccessTest extends StorageApiTestCase
             'USE SCHEMA %s',
             $connection->quoteIdentifier($schemas[0]['name'])
         ));
-        $views = $connection->fetchAll('SHOW VIEWS');
-        $this->assertCount(1, $views);
-        $views = array_values(array_filter($views, function ($view) {
+        $viewsResult = $connection->fetchAll('SHOW VIEWS');
+        $this->assertCount(2, $viewsResult);
+        $views = array_values(array_filter($viewsResult, function ($view) {
             return $view['name'] === 'mytable_displayName';
         }));
         $this->assertSame('mytable_displayName', $views[0]['name']);
         $this->assertSame(
             'CREATE OR REPLACE VIEW "da_in_b1-display-name"."mytable_displayName"'
             . ' AS SELECT * FROM "in.c-API-tests"."mytable"',
+            $views[0]['text']
+        );
+
+        $views = array_values(array_filter($viewsResult, function ($view) {
+            return $view['name'] === 'newSecondTable';
+        }));
+        $this->assertSame('newSecondTable', $views[0]['name']);
+        $this->assertSame(
+            'CREATE OR REPLACE VIEW "da_in_b1-display-name"."newSecondTable"'
+            . ' AS SELECT * FROM "in.c-API-tests"."newSecondTable"',
             $views[0]['text']
         );
 
