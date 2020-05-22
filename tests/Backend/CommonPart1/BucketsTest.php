@@ -67,6 +67,12 @@ class BucketsTest extends StorageApiTestCase
         $bucketUpdateOptions = new BucketUpdateOptions($bucketId, $displayName);
         $bucket = $this->_client->updateBucket($bucketUpdateOptions);
 
+        try {
+            $this->_client->createBucket($displayName, self::STAGE_IN);
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertSame('The display name "Romanov-Bucket" already exists in project.', $e->getMessage());
+        };
+
         $this->assertEquals($displayName, $bucket['displayName']);
 
         $bucketUpdateOptions = new BucketUpdateOptions($this->getTestBucketId(), $displayName);
