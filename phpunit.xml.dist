@@ -88,11 +88,11 @@
 	<testsuite name="backend-synapse-part-1">
 		<file>tests/Backend/CommonPart1/BucketsTest.php</file>
 		<file>tests/Backend/Synapse/ExportParamsTest.php</file>
-		<file>tests/Backend/Synapse/CreateTableTest.php</file>
+		<file>tests/Backend/CommonPart1/CreateTableTest.php</file>
 		<file>tests/Backend/CommonPart1/ImportExportCommonTest.php</file>
 		<file>tests/Backend/CommonPart1/TableExporterTest.php</file>
 		<file>tests/Backend/CommonPart1/DeleteRowsTest.php</file>
-		<file>tests/Backend/Synapse/AlterTableTest.php</file>
+		<file>tests/Backend/CommonPart1/AlterTableTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesSynapseTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
