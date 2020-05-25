@@ -807,6 +807,7 @@ Update an existing bucket
 
 + Request
     + Headers
+
             X-StorageApi-Token: your_token
 
 + Response 200 (application/json)
@@ -1028,7 +1029,8 @@ This operations is available only for organization administrators.
 
             X-StorageApi-Token: your_token
     + Body
-        targetProjectIds%5B0%5D=1&targetProjectIds%5B1%5D=2&targetProjectIds%5B2%5D=3
+
+            targetProjectIds%5B0%5D=1&targetProjectIds%5B1%5D=2&targetProjectIds%5B2%5D=3
 
 + Response 201 (application/json)
     + Body
@@ -1090,7 +1092,8 @@ This operations is available only for organization administrators.
 
             X-StorageApi-Token: your_token
     + Body
-        targetUsers%5B0%5D=dev%40keboola.com&targetUsers%5B1%5D=dev2%40keboola.com&targetUsers%5B2%5D=dev3%40keboola.com
+
+            targetUsers%5B0%5D=dev%40keboola.com&targetUsers%5B1%5D=dev2%40keboola.com&targetUsers%5B2%5D=dev3%40keboola.com
 
 + Response 201 (application/json)
     + Body
@@ -1203,7 +1206,7 @@ This operations is available only for organization administrators.
 
 + Response 204
 
-## List Shared Buckets [/v2/storage/shared-buckets]
+## List Shared Buckets [/v2/storage/shared-buckets?include={include}]
 Lists buckets which may be shared to the project.
 
 ### Shared buckets list [GET]
@@ -4800,7 +4803,7 @@ Gets configuration rows.
             ]
 
 
-## Get Configuration Row Detail [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}]
+## Manage Configuration Rows [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}]
 ### Row detail [GET]
 Gets configuration rows.
 
@@ -4833,8 +4836,6 @@ Gets configuration rows.
                 "changeDescription": "Row 236781529 added"
             }
 
-
-## Manage Configuration Rows [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}]
 ### Update Row [PUT]
 Modifies the content of a single row in a configuration. Note that configuration rows are versioned
 independently on the configurations.
