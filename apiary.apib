@@ -832,13 +832,14 @@ Update an existing bucket
                 "directAccessSchemaName": null
             }
 
-### Drop Bucket [DELETE /v2/storage/buckets/{bucket_id}/?force={force}]
+### Drop Bucket [DELETE /v2/storage/buckets/{bucket_id}/?force={force}&async={async}]
 Deletes a bucket from the project. In the default mode, only empty buckets can be deleted.
 Use the optional `force` parameter to delete all bucket content too.
 
 + Parameters
     + bucket_id (required) - Bucket Id
     + force (optional, boolean) - Drops all tables and aliases. Tables must not have any dependencies (aliases, etc.).
+    + async (optional, boolean) - Drops the bucket in a background job. This is useful if dropping takes too much time and times out.
 
 + Request
     + Headers
@@ -846,6 +847,41 @@ Use the optional `force` parameter to delete all bucket content too.
             X-StorageApi-Token: your_token
 
 + Response 204
+Synchronous call response (async=false)
+    + Body
+
++ Response 202
+Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
+    + Body
+        {
+            "id": 11,
+            "status": "waiting",
+            "url": "https://connection.keboola.com/v2/storage/jobs/11",
+            "operationName": "bucketDelete",
+            "operationParams": {
+                "params": {
+                    "idBucket": 123,
+                    "force": true
+                }
+            },
+            "createdTime": "2013-05-31T16:11:05+0200",
+            "startTime": null,
+            "endTime": null,
+            "runId": null,
+            "results": null,
+            "creatorToken": {
+                "id": "27978",
+                "description": "ondrej.popelka@keboola.com"
+            },
+            "metrics": {
+                "inCompressed": false,
+                "inBytes": 0,
+                "inBytesUncompressed": 0,
+                "outCompressed": false,
+                "outBytes": 0,
+                "outBytesUncompressed": 0
+            }
+        }
 
 ## Bucket Sharing [/v2/storage/buckets/{bucket_id}/share]
 
