@@ -10,6 +10,7 @@ namespace Keboola\Test\Backend\Export;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
+use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use Symfony\Component\Filesystem\Filesystem;
 
 class ExportParamsTest extends StorageApiTestCase
@@ -60,7 +61,20 @@ class ExportParamsTest extends StorageApiTestCase
         $this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
 
         if ($exportedFile['provider'] === Client::FILE_PROVIDER_AZURE) {
-            $this->markTestIncomplete('TODO: check ABS ACL and listing bucket');
+            // Check ABC ACL and listing blobs
+            $blobClient = BlobRestProxy::createBlobService(
+                $exportedFile['absCredentials']['SASConnectionString']
+            );
+
+            $listResult = $blobClient->listBlobs($exportedFile['absPath']['container']);
+            $this->assertCount(2, $listResult->getBlobs());
+
+            foreach ($listResult->getBlobs() as $blob) {
+                $blobClient->getBlob(
+                    $exportedFile['absPath']['container'],
+                    $blob->getName()
+                );
+            }
         } else {
             // Check S3 ACL and listing bucket
             $s3Client = new \Aws\S3\S3Client([
