@@ -202,11 +202,6 @@ class DirectAccessTest extends StorageApiTestCase
         $this->assertSame('da_in_b1-display-name', $schemas[0]['name']);
 
         $connection->query(sprintf(
-            'USE DATABASE %s',
-            $connection->quoteIdentifier($schemas[0]['database_name'])
-        ));
-
-        $connection->query(sprintf(
             'USE SCHEMA %s',
             $connection->quoteIdentifier($schemas[0]['name'])
         ));
