@@ -31,4 +31,19 @@ class DirectAccess
     {
         return $this->client->apiPost("storage/direct-access/{$backend}/reset-password");
     }
+
+    public function enableBucketDirectAccess($bucketId)
+    {
+        $url = "storage/buckets/" . $bucketId . "/direct-access";
+
+        return $this->client->apiPost($url);
+    }
+
+    public function disableBucketDirectAccess($bucketId)
+    {
+        $url = "storage/buckets/" . $bucketId . "/direct-access";
+
+        return $this->client->apiDelete($url);
+    }
+
 }
