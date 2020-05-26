@@ -136,6 +136,8 @@ class DirectAccessTest extends StorageApiTestCase
         $table2Name = 'other_table';
         $table2Id = $bucket2Id . '.' . $table2Name . '';
 
+        $directAccess = new DirectAccess($this->_client);
+
         $this->prepareDirectAccess($bucketId);
         $this->prepareDirectAccess($bucket2Id);
         $this->dropBucketIfExists($this->_client, $bucketId);
@@ -152,7 +154,7 @@ class DirectAccessTest extends StorageApiTestCase
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $this->_client->createTable($bucket2Id, $table2Name, new CsvFile($importFile));
 
-        $this->_client->enableBucketDirectAccess($bucketId);
+        $directAccess->enableBucketDirectAccess($bucketId);
 
         try {
             $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
@@ -185,7 +187,7 @@ class DirectAccessTest extends StorageApiTestCase
         $this->assertFalse($bucket['directAccessEnabled']);
         $this->assertSame(null, $bucket['directAccessSchemaName']);
 
-        $directAccess = new DirectAccess($this->_client);
+
         $credentials = $directAccess->createCredentials(self::BACKEND_SNOWFLAKE);
 
         $connection = new Connection([
@@ -293,8 +295,8 @@ class DirectAccessTest extends StorageApiTestCase
             );
         }
 
-        $this->_client->disableBucketDirectAccess($bucketId);
-        $this->_client->enableBucketDirectAccess($bucket2Id);
+        $directAccess->disableBucketDirectAccess($bucketId);
+        $directAccess->enableBucketDirectAccess($bucket2Id);
 
         $schemas = $connection->fetchAll('SHOW SCHEMAS');
         $this->assertCount(2, $schemas, 'There should be INFORMATION SCHEMA and one bucket');
@@ -328,15 +330,15 @@ class DirectAccessTest extends StorageApiTestCase
     /** @return DirectAccess */
     private function prepareDirectAccess($bucketId = null)
     {
+        $directAccess = new DirectAccess($this->_client);
+
         if ($bucketId) {
             try {
-                $this->_client->disableBucketDirectAccess($bucketId);
+                $directAccess->disableBucketDirectAccess($bucketId);
             } catch (ClientException $e) {
                 // intentionally empty
             }
         }
-
-        $directAccess = new DirectAccess($this->_client);
 
         try {
             if ($directAccess->getCredentials(self::BACKEND_SNOWFLAKE)) {
