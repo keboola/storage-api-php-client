@@ -154,7 +154,7 @@ class DirectAccessTest extends StorageApiTestCase
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $this->_client->createTable($bucket2Id, $table2Name, new CsvFile($importFile));
 
-        $directAccess->enableBucketDirectAccess($bucketId);
+        $directAccess->enableForBucket($bucketId);
 
         try {
             $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
@@ -295,8 +295,8 @@ class DirectAccessTest extends StorageApiTestCase
             );
         }
 
-        $directAccess->disableBucketDirectAccess($bucketId);
-        $directAccess->enableBucketDirectAccess($bucket2Id);
+        $directAccess->disableForBucket($bucketId);
+        $directAccess->enableForBucket($bucket2Id);
 
         $schemas = $connection->fetchAll('SHOW SCHEMAS');
         $this->assertCount(2, $schemas, 'There should be INFORMATION SCHEMA and one bucket');
@@ -334,7 +334,7 @@ class DirectAccessTest extends StorageApiTestCase
 
         if ($bucketId) {
             try {
-                $directAccess->disableBucketDirectAccess($bucketId);
+                $directAccess->disableForBucket($bucketId);
             } catch (ClientException $e) {
                 // intentionally empty
             }
