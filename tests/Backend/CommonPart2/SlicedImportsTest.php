@@ -9,9 +9,11 @@
 
 namespace Keboola\Test\Backend\CommonPart2;
 
+use Keboola\StorageApi\Client;
 use Keboola\Test\StorageApiTestCase;
 
 use Keboola\Csv\CsvFile;
+use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 
 class SlicedImportsTest extends StorageApiTestCase
 {
@@ -24,61 +26,28 @@ class SlicedImportsTest extends StorageApiTestCase
 
     public function testSlicedImportGzipped()
     {
+        $slices = [
+            __DIR__ . '/../../_data/sliced/neco_0000_part_00.gz',
+            __DIR__ . '/../../_data/sliced/neco_0001_part_00.gz',
+        ];
 
         $uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
         $uploadOptions
             ->setFileName('entries_')
             ->setIsEncrypted(true)
             ->setIsSliced(true);
-        $slicedFile = $this->_client->prepareFileUpload($uploadOptions);
 
-        $uploadParams = $slicedFile['uploadParams'];
-        $s3Client = new \Aws\S3\S3Client([
-            'credentials' => [
-                'key' => $uploadParams['credentials']['AccessKeyId'],
-                'secret' => $uploadParams['credentials']['SecretAccessKey'],
-                'token' => $uploadParams['credentials']['SessionToken'],
-            ],
-            'version' => 'latest',
-            'region' => $slicedFile['region'],
-
-        ]);
-        $s3Client->putObject(array(
-            'Bucket' => $uploadParams['bucket'],
-            'Key' => $uploadParams['key'] . 'part001.gz',
-            'Body' => fopen(__DIR__ . '/../../_data/sliced/neco_0000_part_00.gz', 'r+'),
-            'ServerSideEncryption' => $uploadParams['x-amz-server-side-encryption'],
-        ))->get('ObjectURL');
-
-        $s3Client->putObject(array(
-            'Bucket' => $uploadParams['bucket'],
-            'Key' => $uploadParams['key'] . 'part002.gz',
-            'Body' => fopen(__DIR__ . '/../../_data/sliced/neco_0001_part_00.gz', 'r+'),
-            'ServerSideEncryption' => $uploadParams['x-amz-server-side-encryption'],
-        ))->get('ObjectURL');
-
-        $s3Client->putObject(array(
-            'Bucket' => $uploadParams['bucket'],
-            'Key' => $uploadParams['key'] . 'manifest',
-            'ServerSideEncryption' => $uploadParams['x-amz-server-side-encryption'],
-            'Body' => json_encode(array(
-                'entries' => array(
-                    array(
-                        'url' => 's3://' . $uploadParams['bucket'] . '/' . $uploadParams['key'] . 'part001.gz',
-                    ),
-                    array(
-                        'url' => 's3://' . $uploadParams['bucket'] . '/' . $uploadParams['key'] . 'part002.gz',
-                    )
-                ),
-            )),
-        ))->get('ObjectURL');
+        $fileId = $this->_client->uploadSlicedFile(
+            $slices,
+            $uploadOptions
+        );
 
         $headerFile = new CsvFile(__DIR__ . '/../../_data/sliced/header.csv');
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'entries', $headerFile, [
             'primaryKey' => 'id',
         ]);
         $this->_client->writeTableAsyncDirect($tableId, array(
-            'dataFileId' => $slicedFile['id'],
+            'dataFileId' => $fileId,
             'columns' => $headerFile->getHeader(),
             'delimiter' => '|',
             'enclosure' => '',
@@ -87,40 +56,20 @@ class SlicedImportsTest extends StorageApiTestCase
 
     public function testSlicedImportSingleFile()
     {
+        $slices = [
+            __DIR__ . '/../../_data/languages.no-headers.csv',
+        ];
+
         $uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
         $uploadOptions
             ->setFileName('languages_')
             ->setIsSliced(true)
             ->setIsEncrypted(false);
-        $slicedFile = $this->_client->prepareFileUpload($uploadOptions);
 
-        $uploadParams = $slicedFile['uploadParams'];
-        $s3Client = new \Aws\S3\S3Client([
-            'credentials' => [
-                'key' => $uploadParams['credentials']['AccessKeyId'],
-                'secret' => $uploadParams['credentials']['SecretAccessKey'],
-                'token' => $uploadParams['credentials']['SessionToken'],
-            ],
-            'version' => 'latest',
-            'region' => $slicedFile['region'],
-        ]);
-        $s3Client->putObject([
-            'Bucket' => $uploadParams['bucket'],
-            'Key' => $uploadParams['key'] . 'part001.csv',
-            'Body' => fopen(__DIR__ . '/../../_data/languages.no-headers.csv', 'r+'),
-        ])->get('ObjectURL');
-
-        $s3Client->putObject([
-            'Bucket' => $uploadParams['bucket'],
-            'Key' => $uploadParams['key'] . 'manifest',
-            'Body' => json_encode([
-                'entries' => [
-                    [
-                        'url' => 's3://' . $uploadParams['bucket'] . '/' . $uploadParams['key'] . 'part001.csv',
-                    ]
-                ],
-            ]),
-        ])->get('ObjectURL');
+        $fileId = $this->_client->uploadSlicedFile(
+            $slices,
+            $uploadOptions
+        );
 
         $tableId = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),
@@ -129,7 +78,7 @@ class SlicedImportsTest extends StorageApiTestCase
         );
         $this->_client->deleteTableRows($tableId);
         $this->_client->writeTableAsyncDirect($tableId, [
-            'dataFileId' => $slicedFile['id'],
+            'dataFileId' => $fileId,
             'delimiter' => ',',
             'enclosure' => '"',
             'escapedBy' => '',
@@ -149,7 +98,7 @@ class SlicedImportsTest extends StorageApiTestCase
 
         // incremental
         $this->_client->writeTableAsyncDirect($tableId, [
-            'dataFileId' => $slicedFile['id'],
+            'dataFileId' => $fileId,
             'incremental' => true,
             'delimiter' => ',',
             'enclosure' => '"',
@@ -214,40 +163,87 @@ class SlicedImportsTest extends StorageApiTestCase
             ->setIsSliced(true);
         $slicedFile = $this->_client->prepareFileUpload($uploadOptions);
 
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'entries', new CsvFile(__DIR__ . '/../../_data/sliced/header.csv'));
+        if ($slicedFile['provider'] === Client::FILE_PROVIDER_AZURE) {
+            $uploadParams = $slicedFile['absUploadParams'];
 
-        $uploadParams = $slicedFile['uploadParams'];
-        $s3Client = new \Aws\S3\S3Client([
-            'credentials' => [
-                'key' => $uploadParams['credentials']['AccessKeyId'],
-                'secret' => $uploadParams['credentials']['SecretAccessKey'],
-                'token' => $uploadParams['credentials']['SessionToken'],
-            ],
-            'version' => 'latest',
-            'region' => $slicedFile['region'],
-        ]);
-        $part1URL = $s3Client->putObject(array(
-            'Bucket' => $uploadParams['bucket'],
-            'Key' => $uploadParams['key'] . 'part001.gz',
-            'Body' => fopen(__DIR__ . '/../../_data/sliced/neco_0000_part_00.gz', 'r+'),
-        ))->get('ObjectURL');
+            $blobClient = BlobRestProxy::createBlobService(
+                $uploadParams['absCredentials']['SASConnectionString']
+            );
 
-        $s3Client->putObject(array(
-            'Bucket' => $uploadParams['bucket'],
-            'Key' => $uploadParams['key'] . 'manifest',
-            'Body' => json_encode(array(
-                'entries' => array(
-                    array(
-                        'url' => 's3://' . $uploadParams['bucket'] . '/' . $uploadParams['key'] . 'part001.gz',
-                        'mandatory' => true,
-                    ),
-                    array(
-                        'url' => 's3://' . $uploadParams['bucket'] . '/' . $uploadParams['key'] . 'part001.gzsome',
-                        'mandatory' => true,
-                    )
+            $blobClient->createBlockBlob(
+                $uploadParams['container'],
+                sprintf(
+                    '%s%s',
+                    $uploadParams['blobName'],
+                    'part001.gz'
                 ),
-            )),
-        ))->get('ObjectURL');
+                fopen(__DIR__ . '/../../_data/sliced/neco_0000_part_00.gz', 'r')
+            );
+
+            $blobClient->createBlockBlob(
+                $uploadParams['container'],
+                $uploadParams['blobName'] . 'manifest',
+                json_encode([
+                    'entries' => [
+                        [
+                            'url' => sprintf(
+                                'azure://%s.blob.core.windows.net/%s/%s%s',
+                                $uploadParams['accountName'],
+                                $uploadParams['container'],
+                                $uploadParams['blobName'],
+                                'part001.gz'
+                            ),
+                        ],
+                        [
+                            'url' => sprintf(
+                                'azure://%s.blob.core.windows.net/%s/%s%s',
+                                $uploadParams['accountName'],
+                                $uploadParams['container'],
+                                $uploadParams['blobName'],
+                                'part001.gzsome'
+                            ),
+                        ],
+                    ],
+                ])
+            );
+        } else {
+            $uploadParams = $slicedFile['uploadParams'];
+
+            $s3Client = new \Aws\S3\S3Client([
+                'credentials' => [
+                    'key' => $uploadParams['credentials']['AccessKeyId'],
+                    'secret' => $uploadParams['credentials']['SecretAccessKey'],
+                    'token' => $uploadParams['credentials']['SessionToken'],
+                ],
+                'version' => 'latest',
+                'region' => $slicedFile['region'],
+            ]);
+
+            $s3Client->putObject(array(
+                'Bucket' => $uploadParams['bucket'],
+                'Key' => $uploadParams['key'] . 'part001.gz',
+                'Body' => fopen(__DIR__ . '/../../_data/sliced/neco_0000_part_00.gz', 'r+'),
+            ))->get('ObjectURL');
+
+            $s3Client->putObject(array(
+                'Bucket' => $uploadParams['bucket'],
+                'Key' => $uploadParams['key'] . 'manifest',
+                'Body' => json_encode([
+                    'entries' => [
+                        [
+                            'url' => 's3://' . $uploadParams['bucket'] . '/' . $uploadParams['key'] . 'part001.gz',
+                            'mandatory' => true,
+                        ],
+                        [
+                            'url' => 's3://' . $uploadParams['bucket'] . '/' . $uploadParams['key'] . 'part001.gzsome',
+                            'mandatory' => true,
+                        ]
+                    ],
+                ]),
+            ))->get('ObjectURL');
+        }
+
+        $tableId = $this->_client->createTable($this->getTestBucketId(), 'entries', new CsvFile(__DIR__ . '/../../_data/sliced/header.csv'));
 
         try {
             $this->_client->writeTableAsyncDirect($tableId, array(
@@ -274,47 +270,94 @@ class SlicedImportsTest extends StorageApiTestCase
         // First upload
         $slicedFile = $this->_client->prepareFileUpload($uploadOptions);
 
-        $uploadParams = $slicedFile['uploadParams'];
-        $s3Client = new \Aws\S3\S3Client([
-            'credentials' => [
-                'key' => $uploadParams['credentials']['AccessKeyId'],
-                'secret' => $uploadParams['credentials']['SecretAccessKey'],
-                'token' => $uploadParams['credentials']['SessionToken'],
-            ],
-            'version' => 'latest',
-            'region' => $slicedFile['region'],
-        ]);
-        $part1URL = $s3Client->putObject(array(
-            'Bucket' => $uploadParams['bucket'],
-            'Key' => $uploadParams['key'] . 'part001.gz',
-            'Body' => fopen(__DIR__ . '/../../_data/escaping.csv', 'r+'),
-        ))->get('ObjectURL');
+        if ($slicedFile['provider'] === Client::FILE_PROVIDER_AZURE) {
+            $uploadParams = $slicedFile['absUploadParams'];
 
+            $blobClient = BlobRestProxy::createBlobService(
+                $uploadParams['absCredentials']['SASConnectionString']
+            );
+
+            $blobClient->createBlockBlob(
+                $uploadParams['container'],
+                sprintf(
+                    '%s%s',
+                    $uploadParams['blobName'],
+                    'part001.gz'
+                ),
+                fopen(__DIR__ . '/../../_data/escaping.csv', 'r')
+            );
+
+            $part1URL = sprintf(
+                'azure://%s.blob.core.windows.net/%s/%s%s',
+                $uploadParams['accountName'],
+                $uploadParams['container'],
+                $uploadParams['blobName'],
+                'part001.gz'
+            );
+        } else {
+            $uploadParams = $slicedFile['uploadParams'];
+            $s3Client = new \Aws\S3\S3Client([
+                'credentials' => [
+                    'key' => $uploadParams['credentials']['AccessKeyId'],
+                    'secret' => $uploadParams['credentials']['SecretAccessKey'],
+                    'token' => $uploadParams['credentials']['SessionToken'],
+                ],
+                'version' => 'latest',
+                'region' => $slicedFile['region'],
+            ]);
+
+            $part1URL = $s3Client->putObject([
+                'Bucket' => $uploadParams['bucket'],
+                'Key' => $uploadParams['key'] . 'part001.gz',
+                'Body' => fopen(__DIR__ . '/../../_data/escaping.csv', 'r+'),
+            ])->get('ObjectURL');
+        }
 
         // Second upload
         $slicedFile = $this->_client->prepareFileUpload($uploadOptions);
-        $uploadParams = $slicedFile['uploadParams'];
-        $s3Client = new \Aws\S3\S3Client([
-            'credentials' => [
-                'key' => $uploadParams['credentials']['AccessKeyId'],
-                'secret' => $uploadParams['credentials']['SecretAccessKey'],
-                'token' => $uploadParams['credentials']['SessionToken'],
-            ],
-            'version' => 'latest',
-            'region' => $slicedFile['region'],
-        ]);
 
-        $s3Client->putObject(array(
-            'Bucket' => $uploadParams['bucket'],
-            'Key' => $uploadParams['key'] . 'manifest',
-            'Body' => json_encode(array(
-                'entries' => array(
-                    array(
-                        'url' => $part1URL,
-                    ),
-                ),
-            )),
-        ))->get('ObjectURL');
+        if ($slicedFile['provider'] === Client::FILE_PROVIDER_AZURE) {
+            $uploadParams = $slicedFile['absUploadParams'];
+
+            $blobClient = BlobRestProxy::createBlobService(
+                $uploadParams['absCredentials']['SASConnectionString']
+            );
+
+            $blobClient->createBlockBlob(
+                $uploadParams['container'],
+                $uploadParams['blobName'] . 'manifest',
+                json_encode([
+                    'entries' => [
+                        [
+                            'url' => $part1URL,
+                        ],
+                    ],
+                ])
+            );
+        } else {
+            $uploadParams = $slicedFile['uploadParams'];
+            $s3Client = new \Aws\S3\S3Client([
+                'credentials' => [
+                    'key' => $uploadParams['credentials']['AccessKeyId'],
+                    'secret' => $uploadParams['credentials']['SecretAccessKey'],
+                    'token' => $uploadParams['credentials']['SessionToken'],
+                ],
+                'version' => 'latest',
+                'region' => $slicedFile['region'],
+            ]);
+
+            $s3Client->putObject([
+                'Bucket' => $uploadParams['bucket'],
+                'Key' => $uploadParams['key'] . 'manifest',
+                'Body' => json_encode([
+                    'entries' => [
+                        [
+                            'url' => $part1URL,
+                        ],
+                    ],
+                ]),
+            ])->get('ObjectURL');
+        }
 
         try {
             $this->_client->writeTableAsyncDirect($tableId, array(

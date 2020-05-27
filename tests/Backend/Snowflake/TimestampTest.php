@@ -102,40 +102,21 @@ class TimestampTest extends WorkspacesTestCase
      */
     public function testTimestampSlicedImport()
     {
+        $slices = [
+            __DIR__ . '/../../_data/languages.no-headers.csv',
+        ];
+
         $uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
         $uploadOptions
             ->setFileName('languages_')
             ->setIsSliced(true)
             ->setIsEncrypted(false);
-        $slicedFile = $this->_client->prepareFileUpload($uploadOptions);
 
-        $uploadParams = $slicedFile['uploadParams'];
-        $s3Client = new \Aws\S3\S3Client([
-            'credentials' => [
-                'key' => $uploadParams['credentials']['AccessKeyId'],
-                'secret' => $uploadParams['credentials']['SecretAccessKey'],
-                'token' => $uploadParams['credentials']['SessionToken'],
-            ],
-            'version' => 'latest',
-            'region' => $slicedFile['region'],
-        ]);
-        $s3Client->putObject([
-            'Bucket' => $uploadParams['bucket'],
-            'Key' => $uploadParams['key'] . 'part001.csv',
-            'Body' => fopen(__DIR__ . '/../../_data/languages.no-headers.csv', 'r+'),
-        ])->get('ObjectURL');
 
-        $s3Client->putObject([
-            'Bucket' => $uploadParams['bucket'],
-            'Key' => $uploadParams['key'] . 'manifest',
-            'Body' => json_encode([
-                'entries' => [
-                    [
-                        'url' => 's3://' . $uploadParams['bucket'] . '/' . $uploadParams['key'] . 'part001.csv',
-                    ],
-                ],
-            ]),
-        ])->get('ObjectURL');
+        $fileId = $this->_client->uploadSlicedFile(
+            $slices,
+            $uploadOptions
+        );
 
         $tableId = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),
@@ -144,7 +125,7 @@ class TimestampTest extends WorkspacesTestCase
         );
         $this->_client->deleteTableRows($tableId);
         $this->_client->writeTableAsyncDirect($tableId, [
-            'dataFileId' => $slicedFile['id'],
+            'dataFileId' => $fileId,
             'delimiter' => ',',
             'enclosure' => '"',
             'escapedBy' => '',
@@ -160,7 +141,7 @@ class TimestampTest extends WorkspacesTestCase
 
         // incremental
         $this->_client->writeTableAsyncDirect($tableId, [
-            'dataFileId' => $slicedFile['id'],
+            'dataFileId' => $fileId,
             'incremental' => true,
             'delimiter' => ',',
             'enclosure' => '"',
