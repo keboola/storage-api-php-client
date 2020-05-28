@@ -143,6 +143,11 @@ class DirectAccessTest extends StorageApiTestCase
         $this->dropBucketIfExists($this->_client, $bucketId);
         $this->dropBucketIfExists($this->_client, $bucket2Id);
 
+        //test drop bucket with DA enabled via async call
+        $bucketId = $this->_client->createBucket($bucketName, $bucketStage, '', null, 'b1-display-name');
+        $directAccess->enableForBucket($bucketId);
+        $this->dropBucketIfExists($this->_client, $bucketId, true);
+
         $bucketId = $this->_client->createBucket($bucketName, $bucketStage, '', null, 'b1-display-name');
         $bucket2Id = $this->_client->createBucket($bucket2Name, $bucketStage);
 
