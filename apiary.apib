@@ -854,35 +854,36 @@ Synchronous call response (async=false)
 + Response 202
 Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
     + Body
-        {
-            "id": 11,
-            "status": "waiting",
-            "url": "https://connection.keboola.com/v2/storage/jobs/11",
-            "operationName": "bucketDelete",
-            "operationParams": {
-                "params": {
-                    "idBucket": 123,
-                    "force": true
+
+            {
+                "id": 11,
+                "status": "waiting",
+                "url": "https://connection.keboola.com/v2/storage/jobs/11",
+                "operationName": "bucketDelete",
+                "operationParams": {
+                    "params": {
+                        "idBucket": 123,
+                        "force": true
+                    }
+                },
+                "createdTime": "2013-05-31T16:11:05+0200",
+                "startTime": null,
+                "endTime": null,
+                "runId": null,
+                "results": null,
+                "creatorToken": {
+                    "id": "27978",
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
                 }
-            },
-            "createdTime": "2013-05-31T16:11:05+0200",
-            "startTime": null,
-            "endTime": null,
-            "runId": null,
-            "results": null,
-            "creatorToken": {
-                "id": "27978",
-                "description": "ondrej.popelka@keboola.com"
-            },
-            "metrics": {
-                "inCompressed": false,
-                "inBytes": 0,
-                "inBytesUncompressed": 0,
-                "outCompressed": false,
-                "outBytes": 0,
-                "outBytesUncompressed": 0
             }
-        }
 
 ## Bucket Sharing [/v2/storage/buckets/{bucket_id}/share]
 
