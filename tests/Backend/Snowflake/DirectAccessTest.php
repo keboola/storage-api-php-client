@@ -185,7 +185,7 @@ class DirectAccessTest extends StorageApiTestCase
 
         $bucket = $this->_client->getBucket($bucketId);
         $this->assertTrue($bucket['directAccessEnabled']);
-        $this->assertSame('da_in_b1-display-name', $bucket['directAccessSchemaName']);
+        $this->assertSame('DA_IN_B1-DISPLAY-NAME', $bucket['directAccessSchemaName']);
 
         // other buckets does not have DA enabled
         $bucket = $this->_client->getBucket($bucket2Id);
@@ -204,9 +204,9 @@ class DirectAccessTest extends StorageApiTestCase
         $schemas = $connection->fetchAll('SHOW SCHEMAS');
         $this->assertCount(2, $schemas, 'There should be INFORMATION SCHEMA and one bucket');
         $schemas = array_values(array_filter($schemas, function ($schema) {
-            return $schema['name'] === 'da_in_b1-display-name';
+            return $schema['name'] === 'DA_IN_B1-DISPLAY-NAME';
         }));
-        $this->assertSame('da_in_b1-display-name', $schemas[0]['name']);
+        $this->assertSame('DA_IN_B1-DISPLAY-NAME', $schemas[0]['name']);
 
         $connection->query(sprintf(
             'USE SCHEMA %s',
@@ -219,7 +219,7 @@ class DirectAccessTest extends StorageApiTestCase
         }));
         $this->assertSame('mytable_displayName', $views[0]['name']);
         $this->assertSame(
-            'CREATE OR REPLACE VIEW "da_in_b1-display-name"."mytable_displayName"'
+            'CREATE OR REPLACE VIEW "DA_IN_B1-DISPLAY-NAME"."mytable_displayName"'
             . ' AS SELECT * FROM "in.c-API-tests"."mytable"',
             $views[0]['text']
         );
@@ -229,7 +229,7 @@ class DirectAccessTest extends StorageApiTestCase
         }));
         $this->assertSame('newSecondTable', $views[0]['name']);
         $this->assertSame(
-            'CREATE OR REPLACE VIEW "da_in_b1-display-name"."newSecondTable"'
+            'CREATE OR REPLACE VIEW "DA_IN_B1-DISPLAY-NAME"."newSecondTable"'
             . ' AS SELECT * FROM "in.c-API-tests"."newSecondTable"',
             $views[0]['text']
         );
@@ -301,9 +301,9 @@ class DirectAccessTest extends StorageApiTestCase
         $schemas = $connection->fetchAll('SHOW SCHEMAS');
         $this->assertCount(2, $schemas, 'There should be INFORMATION SCHEMA and one bucket');
         $schemas = array_values(array_filter($schemas, function ($schema) {
-            return $schema['name'] === 'da_in_API-DA_TEST';
+            return $schema['name'] === 'DA_IN_API-DA_TEST';
         }));
-        $this->assertSame('da_in_API-DA_TEST', $schemas[0]['name']);
+        $this->assertSame('DA_IN_API-DA_TEST', $schemas[0]['name']);
 
         $connection->query(sprintf(
             'USE DATABASE %s',
@@ -321,7 +321,7 @@ class DirectAccessTest extends StorageApiTestCase
         }));
         $this->assertSame('other_table', $views[0]['name']);
         $this->assertSame(
-            'CREATE OR REPLACE VIEW "da_in_API-DA_TEST"."other_table"'
+            'CREATE OR REPLACE VIEW "DA_IN_API-DA_TEST"."other_table"'
             . ' AS SELECT * FROM "in.c-API-DA_TEST"."other_table"',
             $views[0]['text']
         );
