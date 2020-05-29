@@ -64,8 +64,8 @@ class BucketsTest extends StorageApiTestCase
         $this->assertEquals($tokenData['owner']['defaultBackend'], $bucket['backend']);
         $this->assertNotEquals($displayName, $bucket['displayName']);
 
-        $bucketUpdateOptions = new BucketUpdateOptions($bucketId, $displayName);
-        $bucket = $this->_client->updateBucket($bucketUpdateOptions);
+        $bucketUpdateOptions = new BucketUpdateOptions($bucketId, $displayName, true);
+        $this->_client->updateBucket($bucketUpdateOptions);
 
         try {
             $this->_client->createBucket($displayName, self::STAGE_IN);
@@ -73,6 +73,7 @@ class BucketsTest extends StorageApiTestCase
             $this->assertSame('The display name "Romanov-Bucket" already exists in project.', $e->getMessage());
         };
 
+        $bucket = $this->_client->getBucket($bucketId);
         $this->assertEquals($displayName, $bucket['displayName']);
 
         $bucketUpdateOptions = new BucketUpdateOptions($this->getTestBucketId(), $displayName);
