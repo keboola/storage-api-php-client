@@ -145,8 +145,69 @@ class DirectAccessTest extends StorageApiTestCase
 
         //test drop bucket with DA enabled via async call
         $bucketId = $this->_client->createBucket($bucketName, $bucketStage, '', null, 'b1-display-name');
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $this->_client->createTable($bucketId, $tableName, new CsvFile($importFile));
+
+        $this->_client->getTable($tableId);
         $directAccess->enableForBucket($bucketId);
+
+        $credentials = $directAccess->createCredentials(self::BACKEND_SNOWFLAKE);
+
+        $connection = new Connection([
+            'host' => $credentials['host'],
+            'user' => $credentials['username'],
+            'password' => $credentials['password'],
+        ]);
+
+        $schemas = $connection->fetchAll('SHOW SCHEMAS');
+        $this->assertCount(2, $schemas, 'There should be INFORMATION SCHEMA and one bucket');
+        $schemas = array_values(array_filter($schemas, function ($schema) {
+            return $schema['name'] === 'DA_IN_B1-DISPLAY-NAME';
+        }));
+        $this->assertSame('DA_IN_B1-DISPLAY-NAME', $schemas[0]['name']);
+
+        $connection->query(sprintf(
+            'USE SCHEMA %s',
+            $connection->quoteIdentifier($schemas[0]['name'])
+        ));
+
+        $viewsResult = $connection->fetchAll('SHOW VIEWS');
+        $this->assertCount(1, $viewsResult);
+        $views = array_values(array_filter($viewsResult, function ($view) {
+            return $view['name'] === 'mytable';
+        }));
+        $this->assertSame('mytable', $views[0]['name']);
+
+        //test drop table with DA enabled
+        $this->_client->dropTable($tableId);
+
+        $viewsResult = $connection->fetchAll('SHOW VIEWS');
+        $this->assertCount(0, $viewsResult);
+        $views = array_values(array_filter($viewsResult, function ($view) {
+            return $view['name'] === 'mytable';
+        }));
+        $this->assertEmpty($views);
+
+        try {
+            $this->_client->getTable($tableId);
+            $this->fail('Should have thrown!');
+        } catch (ClientException $e) {
+            $this->assertContains(
+                'The table "mytable" was not found in the bucket "in.c-API-tests"',
+                $e->getMessage()
+            );
+        }
+
         $this->dropBucketIfExists($this->_client, $bucketId, true);
+
+        $schemas = $connection->fetchAll('SHOW SCHEMAS');
+        $this->assertCount(1, $schemas, 'There should be INFORMATION SCHEMA and one bucket');
+        $schemas = array_values(array_filter($schemas, function ($schema) {
+            return $schema['name'] === 'DA_IN_B1-DISPLAY-NAME';
+        }));
+        $this->assertEmpty($schemas);
+
+        $directAccess->deleteCredentials(self::BACKEND_SNOWFLAKE);
 
         $bucketId = $this->_client->createBucket($bucketName, $bucketStage, '', null, 'b1-display-name');
         $bucket2Id = $this->_client->createBucket($bucket2Name, $bucketStage);
