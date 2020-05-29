@@ -143,7 +143,7 @@ class DirectAccessTest extends StorageApiTestCase
         $this->dropBucketIfExists($this->_client, $bucketId);
         $this->dropBucketIfExists($this->_client, $bucket2Id);
 
-        //test drop bucket with DA enabled via async call
+        //test drop table with DA enabled via async call
         $bucketId = $this->_client->createBucket($bucketName, $bucketStage, '', null, 'b1-display-name');
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $this->_client->createTable($bucketId, $tableName, new CsvFile($importFile));
@@ -200,15 +200,55 @@ class DirectAccessTest extends StorageApiTestCase
 
         $this->dropBucketIfExists($this->_client, $bucketId, true);
 
+        //test drop bucket with DA enabled via async call
+        $bucketId = $this->_client->createBucket($bucketName, $bucketStage, '', null, 'b1-display-name');
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $this->_client->createTable($bucketId, $tableName, new CsvFile($importFile));
+
+        $this->_client->getTable($tableId);
+        $directAccess->enableForBucket($bucketId);
+
         $schemas = $connection->fetchAll('SHOW SCHEMAS');
-        $this->assertCount(1, $schemas, 'There should be INFORMATION SCHEMA and one bucket');
+        $this->assertCount(2, $schemas, 'There should be INFORMATION SCHEMA and one bucket');
+        $schemas = array_values(array_filter($schemas, function ($schema) {
+            return $schema['name'] === 'DA_IN_B1-DISPLAY-NAME';
+        }));
+        $this->assertSame('DA_IN_B1-DISPLAY-NAME', $schemas[0]['name']);
+
+        $connection->query(sprintf(
+            'USE SCHEMA %s',
+            $connection->quoteIdentifier($schemas[0]['name'])
+        ));
+
+        $viewsResult = $connection->fetchAll('SHOW VIEWS');
+        $this->assertCount(1, $viewsResult);
+        $views = array_values(array_filter($viewsResult, function ($view) {
+            return $view['name'] === 'mytable';
+        }));
+        $this->assertSame('mytable', $views[0]['name']);
+
+
+        $this->_client->dropBucket($bucketId, ['force' => true, 'async' => true]);
+
+        $viewsResult = $connection->fetchAll('SHOW VIEWS');
+        // cannot test count as we don't have the schema anymore and there are some views in DB
+        $views = array_values(array_filter($viewsResult, function ($view) {
+            return $view['name'] === 'mytable';
+        }));
+        $this->assertEmpty($views);
+
+        $schemas = $connection->fetchAll('SHOW SCHEMAS');
+        $this->assertCount(1, $schemas, 'There should be only INFORMATION SCHEMA');
         $schemas = array_values(array_filter($schemas, function ($schema) {
             return $schema['name'] === 'DA_IN_B1-DISPLAY-NAME';
         }));
         $this->assertEmpty($schemas);
 
+        // cleanup
+        $this->dropBucketIfExists($this->_client, $bucketId, true);
         $directAccess->deleteCredentials(self::BACKEND_SNOWFLAKE);
 
+        // test only enabled buckets are visible in DA
         $bucketId = $this->_client->createBucket($bucketName, $bucketStage, '', null, 'b1-display-name');
         $bucket2Id = $this->_client->createBucket($bucket2Name, $bucketStage);
 
