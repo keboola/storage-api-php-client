@@ -835,6 +835,7 @@ Synchronous call response (async=false)
                 "directAccessSchemaName": null
             }
 + Response 202
+
 Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
     + Body
 
@@ -867,6 +868,7 @@ Asynchronous call response (async=true) that creates a new job. To see job detai
                     "outBytesUncompressed": 0
                 }
             }
+
 ### Drop Bucket [DELETE /v2/storage/buckets/{bucket_id}/?force={force}&async={async}]
 Deletes a bucket from the project. In the default mode, only empty buckets can be deleted.
 Use the optional `force` parameter to delete all bucket content too.

@@ -261,6 +261,9 @@ class DirectAccessTest extends StorageApiTestCase
         }));
         $this->assertSame('mytable', $views[0]['name']);
 
+        $viewsResult = $connection->fetchAll('SELECT * FROM "mytable"');
+        $this->assertCount(5, $viewsResult);
+
         $this->_client->dropBucket($bucketId, ['force' => true, 'async' => true]);
 
         $viewsResult = $connection->fetchAll('SHOW VIEWS');
