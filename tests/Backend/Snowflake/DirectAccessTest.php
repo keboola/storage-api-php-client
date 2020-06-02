@@ -149,6 +149,15 @@ class DirectAccessTest extends StorageApiTestCase
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $this->_client->createTable($bucketId, $tableName, new CsvFile($importFile));
 
+        // test alias
+        $aliasTableId = $this->_client->createAliasTable($bucketId, $tableId, 'this-is-alias');
+        try {
+            $directAccess->enableForBucket($bucketId);
+        } catch (ClientException $e) {
+            $this->assertSame('Cannot enable Direct Access for bucket that has alias table ("this-is-alias")', $e->getMessage());
+        }
+        $this->_client->dropTable($aliasTableId);
+
         $this->_client->getTable($tableId);
         $directAccess->enableForBucket($bucketId);
 
