@@ -137,10 +137,22 @@ class DirectAccessTest extends StorageApiTestCase
         $table2Name = 'other_table';
         $table2Id = $bucket2Id . '.' . $table2Name . '';
 
+        $client2 = new Client([
+            'token' => STORAGE_API_LINKING_TOKEN,
+            'url' => STORAGE_API_URL,
+            'backoffMaxTries' => 1,
+        ]);
+
+        $linkedBucketName = 'API-linked-tests';
+        $linkedBucketStage = 'in';
+        $linkedBucketId = $linkedBucketStage . '.c-' . $linkedBucketName;
+
         $directAccess = new DirectAccess($this->_client);
 
+        $this->prepareDirectAccess($linkedBucketId);
         $this->prepareDirectAccess($bucketId);
         $this->prepareDirectAccess($bucket2Id);
+        $this->dropBucketIfExists($client2, $linkedBucketId, true);
         $this->dropBucketIfExists($this->_client, $bucketId);
         $this->dropBucketIfExists($this->_client, $bucket2Id);
 
@@ -296,7 +308,6 @@ class DirectAccessTest extends StorageApiTestCase
         // test only enabled buckets are visible in DA
         $bucketId = $this->_client->createBucket($bucketName, $bucketStage, '', null, 'b1-display-name');
         $bucket2Id = $this->_client->createBucket($bucket2Name, $bucketStage);
-
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $this->_client->createTable($bucketId, $tableName, new CsvFile($importFile));
@@ -469,6 +480,62 @@ class DirectAccessTest extends StorageApiTestCase
         $this->assertSame(
             'CREATE OR REPLACE VIEW "DA_IN_API-DA_TEST"."other_table"'
             . ' AS SELECT * FROM "in.c-API-DA_TEST"."other_table"',
+            $views[0]['text']
+        );
+
+        //Linked bucket
+        $this->_client->shareOrganizationProjectBucket($bucketId);
+
+        $client2DirectAccess = new DirectAccess($client2);
+        try {
+            $client2DirectAccess->deleteCredentials(self::BACKEND_SNOWFLAKE);
+        } catch (\Keboola\StorageApi\ClientException $e) {
+        }
+
+        $client2Credentials = $client2DirectAccess->createCredentials(self::BACKEND_SNOWFLAKE);
+
+        $response = $client2->listSharedBuckets();
+        $sharedBucket = reset($response);
+        $linkedBucketId = $client2->linkBucket(
+            $linkedBucketName,
+            $linkedBucketStage,
+            $sharedBucket['project']['id'],
+            $sharedBucket['id']
+        );
+
+        $client2DirectAccess->enableForBucket($linkedBucketId);
+
+        $client2Connection = new Connection([
+            'host' => $client2Credentials['host'],
+            'user' => $client2Credentials['username'],
+            'password' => $client2Credentials['password'],
+        ]);
+
+        $schemas = $client2Connection->fetchAll('SHOW SCHEMAS');
+
+        $this->assertCount(2, $schemas, 'There should be INFORMATION SCHEMA and one bucket');
+        $schemas = array_values(array_filter($schemas, function ($schema) {
+            return $schema['name'] === 'DA_IN_API-LINKED-TESTS';
+        }));
+        $this->assertSame('DA_IN_API-LINKED-TESTS', $schemas[0]['name']);
+
+        $client2Connection->query(sprintf(
+            'USE SCHEMA %s',
+            $client2Connection->quoteIdentifier($schemas[0]['name'])
+        ));
+        $viewsResult = $client2Connection->fetchAll('SHOW VIEWS');
+        $this->assertCount(1, $viewsResult);
+        $views = array_values(array_filter($viewsResult, function ($view) {
+            return $view['name'] === 'mytable';
+        }));
+        $this->assertSame('mytable', $views[0]['name']);
+        $this->assertSame(
+            sprintf(
+                'CREATE OR REPLACE VIEW "%s"."DA_IN_API-LINKED-TESTS"."mytable"'.
+                ' AS SELECT * FROM "%s"."in.c-API-tests"."mytable"',
+                $views[0]['database_name'],
+                $views[0]['owner']
+            ),
             $views[0]['text']
         );
     }
