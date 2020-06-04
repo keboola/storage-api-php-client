@@ -524,7 +524,7 @@ class DirectAccessTest extends StorageApiTestCase
             $client2Connection->quoteIdentifier($schemas[0]['name'])
         ));
         $viewsResult = $client2Connection->fetchAll('SHOW VIEWS');
-        $this->assertCount(1, $viewsResult);
+        $this->assertCount(2, $viewsResult);
         $views = array_values(array_filter($viewsResult, function ($view) {
             return $view['name'] === 'mytable';
         }));
