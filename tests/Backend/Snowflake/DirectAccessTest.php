@@ -7,6 +7,7 @@ use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\DirectAccess;
+use Keboola\StorageApi\Options\BucketUpdateOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\Test\StorageApiTestCase;
 
@@ -227,6 +228,41 @@ class DirectAccessTest extends StorageApiTestCase
         }));
         $this->assertSame('mytable', $views[0]['name']);
 
+        try {
+            $bucketUpdateOptions = new BucketUpdateOptions($bucketId, 'updated-b1-display-name', false);
+            $this->_client->updateBucket($bucketUpdateOptions);
+            $this->fail('Should have thrown!');
+        } catch (ClientException $e) {
+            $this->assertSame(
+                'Bucket "in.c-API-tests" has Direct Access enabled please use async call',
+                $e->getMessage()
+            );
+        }
+
+        $bucketUpdateOptions = new BucketUpdateOptions($bucketId, 'updated-b1-display-name', true);
+        $this->_client->updateBucket($bucketUpdateOptions);
+
+        $schemas = $connection->fetchAll('SHOW SCHEMAS');
+        $this->assertCount(2, $schemas, 'There should be INFORMATION SCHEMA and one bucket');
+        $schemas = array_values(array_filter($schemas, function ($schema) {
+            return $schema['name'] === 'DA_IN_UPDATED-B1-DISPLAY-NAME';
+        }));
+        $this->assertSame('DA_IN_UPDATED-B1-DISPLAY-NAME', $schemas[0]['name']);
+
+        $connection->query(sprintf(
+            'USE SCHEMA %s',
+            $connection->quoteIdentifier($schemas[0]['name'])
+        ));
+
+        $viewsResult = $connection->fetchAll('SHOW VIEWS');
+        $this->assertCount(1, $viewsResult);
+        $views = array_values(array_filter($viewsResult, function ($view) {
+            return $view['name'] === 'mytable';
+        }));
+        $this->assertSame('mytable', $views[0]['name']);
+
+        $viewsResult = $connection->fetchAll('SELECT * FROM "mytable"');
+        $this->assertCount(5, $viewsResult);
 
         $this->_client->dropBucket($bucketId, ['force' => true, 'async' => true]);
 

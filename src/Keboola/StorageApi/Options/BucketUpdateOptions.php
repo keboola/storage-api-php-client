@@ -10,10 +10,14 @@ class BucketUpdateOptions
     /** @var string $displayName */
     private $displayName;
 
-    public function __construct($bucketId, $displayName)
+    /** @var bool $async */
+    private $async;
+
+    public function __construct($bucketId, $displayName, $async = false)
     {
         $this->bucketId = (string) $bucketId;
         $this->displayName = (string) $displayName;
+        $this->async = $async;
     }
 
     /** @return string */
@@ -35,6 +39,10 @@ class BucketUpdateOptions
 
         if ($this->getDisplayName()) {
             $params['displayName'] = $this->getDisplayName();
+        }
+
+        if ($this->async) {
+            $params['async'] = $this->async;
         }
 
         return $params;
