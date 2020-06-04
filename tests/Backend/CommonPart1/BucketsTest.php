@@ -64,9 +64,15 @@ class BucketsTest extends StorageApiTestCase
         $this->assertEquals($tokenData['owner']['defaultBackend'], $bucket['backend']);
         $this->assertNotEquals($displayName, $bucket['displayName']);
 
+        $asyncBucketDisplayName = $displayName . '-async';
+        $bucketUpdateOptions = new BucketUpdateOptions($bucketId, $asyncBucketDisplayName, true);
+        $this->_client->updateBucket($bucketUpdateOptions);
+
+        $bucket = $this->_client->getBucket($bucketId);
+        $this->assertEquals($asyncBucketDisplayName, $bucket['displayName']);
+
         $bucketUpdateOptions = new BucketUpdateOptions($bucketId, $displayName);
         $bucket = $this->_client->updateBucket($bucketUpdateOptions);
-
         try {
             $this->_client->createBucket($displayName, self::STAGE_IN);
         } catch (\Keboola\StorageApi\ClientException $e) {
