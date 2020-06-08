@@ -483,6 +483,9 @@ class DirectAccessTest extends StorageApiTestCase
             $views[0]['text']
         );
 
+
+        $this->_client->createAliasTable($bucketId, $tableId, 'this-is-alias');
+
         //Linked bucket
         $this->_client->shareOrganizationProjectBucket($bucketId);
 
@@ -502,6 +505,15 @@ class DirectAccessTest extends StorageApiTestCase
             $sharedBucket['project']['id'],
             $sharedBucket['id']
         );
+
+        try {
+            $client2DirectAccess->enableForBucket($linkedBucketId);
+        } catch (ClientException $e) {
+            $this->assertSame('Cannot enable Direct Access for bucket that has alias table ("this-is-alias")'
+                .' in source bucket', $e->getMessage());
+        }
+
+        $this->_client->dropTable($aliasTableId, ['force'=>true]);
 
         $client2DirectAccess->enableForBucket($linkedBucketId);
 
