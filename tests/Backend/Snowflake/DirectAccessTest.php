@@ -526,6 +526,20 @@ class DirectAccessTest extends StorageApiTestCase
         $viewsResult = $client2Connection->fetchAll('SHOW VIEWS');
         $this->assertCount(2, $viewsResult);
         $views = array_values(array_filter($viewsResult, function ($view) {
+            return $view['name'] === 'newSecondTable';
+        }));
+        $this->assertSame('newSecondTable', $views[0]['name']);
+        $this->assertSame(
+            sprintf(
+                'CREATE OR REPLACE VIEW "%s"."DA_IN_API-LINKED-TESTS"."newSecondTable"'.
+                ' AS SELECT * FROM "%s"."in.c-API-tests"."newSecondTable"',
+                $views[0]['database_name'],
+                $views[0]['owner']
+            ),
+            $views[0]['text']
+        );
+
+        $views = array_values(array_filter($viewsResult, function ($view) {
             return $view['name'] === 'mytable';
         }));
         $this->assertSame('mytable', $views[0]['name']);
