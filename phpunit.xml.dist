@@ -106,5 +106,6 @@
 		<file>tests/Backend/Synapse/OrderByTest.php</file>
 		<file>tests/Backend/Synapse/DataPreviewLimitsTest.php</file>
 		<file>tests/Backend/Synapse/WhereFilterTest.php</file>
+		<file>tests/Backend/Workspaces/MetadataFromSynapseWorkspaceTest.php</file>
 	</testsuite>
 </phpunit>
