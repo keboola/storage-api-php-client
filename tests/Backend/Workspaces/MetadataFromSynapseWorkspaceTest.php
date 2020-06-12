@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\Csv\CsvFile;

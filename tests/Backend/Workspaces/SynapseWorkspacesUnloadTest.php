@@ -1,19 +1,9 @@
 <?php
-/**
- *
- * User: Martin Halamíček
- * Date: 16.5.12
- * Time: 11:46
- *
- */
 
 namespace Keboola\Test\Backend\Workspaces;
 
-use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\StorageApi\ClientException;
-use Keboola\StorageApi\Exception;
 use Keboola\StorageApi\Workspaces;
-use Keboola\Test\StorageApiTestCase;
 
 class SynapseWorkspacesUnloadTest extends WorkspacesTestCase
 {
