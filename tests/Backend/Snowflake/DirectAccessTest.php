@@ -13,6 +13,19 @@ use Keboola\Test\StorageApiTestCase;
 
 class DirectAccessTest extends StorageApiTestCase
 {
+    private $client2;
+
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->client2 = new Client([
+            'token' => STORAGE_API_LINKING_TOKEN,
+            'url' => STORAGE_API_URL,
+            'backoffMaxTries' => 1,
+        ]);
+    }
+
     public function testGetDirectAccessCredentials()
     {
         $backend = self::BACKEND_SNOWFLAKE;
@@ -137,12 +150,6 @@ class DirectAccessTest extends StorageApiTestCase
         $table2Name = 'other_table';
         $table2Id = $bucket2Id . '.' . $table2Name . '';
 
-        $client2 = new Client([
-            'token' => STORAGE_API_LINKING_TOKEN,
-            'url' => STORAGE_API_URL,
-            'backoffMaxTries' => 1,
-        ]);
-
         $linkedBucketName = 'API-linked-tests';
         $linkedBucketStage = 'in';
         $linkedBucketId = $linkedBucketStage . '.c-' . $linkedBucketName;
@@ -152,7 +159,7 @@ class DirectAccessTest extends StorageApiTestCase
         $this->prepareDirectAccess($linkedBucketId);
         $this->prepareDirectAccess($bucketId);
         $this->prepareDirectAccess($bucket2Id);
-        $this->dropBucketIfExists($client2, $linkedBucketId, true);
+        $this->dropBucketIfExists($this->client2, $linkedBucketId, true);
         $this->dropBucketIfExists($this->_client, $bucketId);
         $this->dropBucketIfExists($this->_client, $bucket2Id);
 
@@ -165,6 +172,7 @@ class DirectAccessTest extends StorageApiTestCase
         $aliasTableId = $this->_client->createAliasTable($bucketId, $tableId, 'this-is-alias');
         try {
             $directAccess->enableForBucket($bucketId);
+            $this->fail('Should have thrown!');
         } catch (ClientException $e) {
             $this->assertSame('Cannot enable Direct Access for bucket that has alias table ("this-is-alias")', $e->getMessage());
         }
@@ -489,7 +497,7 @@ class DirectAccessTest extends StorageApiTestCase
         //Linked bucket
         $this->_client->shareOrganizationProjectBucket($bucketId);
 
-        $client2DirectAccess = new DirectAccess($client2);
+        $client2DirectAccess = new DirectAccess($this->client2);
         try {
             $client2DirectAccess->deleteCredentials(self::BACKEND_SNOWFLAKE);
         } catch (\Keboola\StorageApi\ClientException $e) {
@@ -497,9 +505,16 @@ class DirectAccessTest extends StorageApiTestCase
 
         $client2Credentials = $client2DirectAccess->createCredentials(self::BACKEND_SNOWFLAKE);
 
-        $response = $client2->listSharedBuckets();
-        $sharedBucket = reset($response);
-        $linkedBucketId = $client2->linkBucket(
+        $response = $this->client2->listSharedBuckets();
+
+        $sharedBucket = [];
+        foreach ($response as $bucket) {
+            if ($bucket['id'] === $bucketId) {
+                $sharedBucket = $bucket;
+            }
+        }
+
+        $linkedBucketId = $this->client2->linkBucket(
             $linkedBucketName,
             $linkedBucketStage,
             $sharedBucket['project']['id'],
@@ -508,6 +523,7 @@ class DirectAccessTest extends StorageApiTestCase
 
         try {
             $client2DirectAccess->enableForBucket($linkedBucketId);
+            $this->fail('Should have thrown!');
         } catch (ClientException $e) {
             $this->assertSame('Cannot enable Direct Access for bucket that has alias table ("this-is-alias")'
                 .' in source bucket', $e->getMessage());
