@@ -153,7 +153,6 @@ class DirectAccessTest extends StorageApiTestCase
         $this->prepareDirectAccess($linkedBucketId);
         $this->prepareDirectAccess($bucketId);
         $this->prepareDirectAccess($bucket2Id);
-        $this->dropBucketIfExists($client2, $linkedBucketId, true);
         $this->dropBucketIfExists($this->_client, $bucketId);
         $this->dropBucketIfExists($this->_client, $bucket2Id);
 
@@ -499,6 +498,7 @@ class DirectAccessTest extends StorageApiTestCase
 
         $client2Credentials = $client2DirectAccess->createCredentials(self::BACKEND_SNOWFLAKE);
 
+        $this->dropBucketIfExists($client2, $linkedBucketId, true);
         $response = $client2->listSharedBuckets();
         $sharedBucket = reset($response);
         $linkedBucketId = $client2->linkBucket(
