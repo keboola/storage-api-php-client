@@ -24,6 +24,89 @@ class CreateTableTest extends StorageApiTestCase
         $this->_initEmptyTestBuckets();
     }
 
+    public function testSyntheticPrimaryKey()
+    {
+        $testBucketName = $this->getTestBucketName(__METHOD__);
+        $testBucketStage = self::STAGE_IN;
+        $testBucketId = $testBucketStage . '.c-' . $testBucketName;
+        $tableName = 'testSynthPk';
+        $testTableId = $testBucketId . '.' . $tableName;
+
+        $this->dropBucketIfExists($this->_client, $testBucketId);
+        $testBucketId = $this->_client->createBucket($testBucketName, self::STAGE_IN);
+        $this->_client->createTable(
+            $testBucketId,
+            $tableName,
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+
+        // test spk part of detail
+        $table = $this->_client->getTable($testBucketId . '.' . $tableName);
+        $this->assertSame(false, $table['syntheticPrimaryKeyEnabled']);
+
+        try {
+            $tableId = $this->_client->createTable(
+                $testBucketId,
+                'myTable',
+                new CsvFile(__DIR__ . '/../../_data/languages.csv'),
+                ['syntheticPrimaryKeyEnabled' => 1, 'primaryKey' => 'id,name']
+            );
+            $this->fail('Should have thrown');
+        } catch (ClientException $e) {
+            $this->assertSame(
+                'Synthetic primary key cannot be enabled in sync call, use async call to create the table',
+                $e->getMessage()
+            );
+        }
+
+        try {
+            $tableId = $this->_client->createTableAsync(
+                $testBucketId,
+                'myTable',
+                new CsvFile(__DIR__ . '/../../_data/languages.csv'),
+                ['syntheticPrimaryKeyEnabled' => 1]
+            );
+            $this->fail('Should have thrown');
+        } catch (ClientException $e) {
+            $this->assertSame('Cannot set synthetic primary key if primary key is empty', $e->getMessage());
+        }
+
+        try {
+            $tableId = $this->_client->createTableAsync(
+                $testBucketId,
+                'myTable',
+                new CsvFile(__DIR__ . '/../../_data/languages.csv'),
+                ['syntheticPrimaryKeyEnabled' => 1, 'primaryKey' => 'id,name']
+            );
+            $this->fail('Should have thrown');
+        } catch (ClientException $e) {
+            $this->assertSame('Synthetic primary key is not supported outside Snowflake and ABS', $e->getMessage());
+        }
+
+        $this->markTestSkipped('Following needs SPK enabled on table');
+
+        try {
+            $this->_client->createTablePrimaryKey($testTableId, ['id']);
+            $this->fail('Should have thrown');
+        } catch (ClientException $e) {
+            $this->assertSame(
+                'Cannot alter primary key of table "in.c-testSyntheticPrimaryKey.testSynthPk" ' .
+                'with synthetic primary key enabled',
+                $e->getMessage()
+            );
+        }
+        try {
+            $this->_client->removeTablePrimaryKey($testTableId, ['id']);
+            $this->fail('Should have thrown');
+        } catch (ClientException $e) {
+            $this->assertSame(
+                'Cannot alter primary key of table "in.c-testSyntheticPrimaryKey.testSynthPk" ' .
+                'with synthetic primary key enabled',
+                $e->getMessage()
+            );
+        }
+    }
+
     /**
      * @dataProvider tableCreateData
      * @param $createFile
@@ -444,5 +527,14 @@ class CreateTableTest extends StorageApiTestCase
                 'other',
             ],
         ];
+    }
+
+    /**
+     * @param $testName
+     * @return false|string
+     */
+    public function getTestBucketName($testName)
+    {
+        return substr($testName, strpos($testName, '::') + 2);
     }
 }
