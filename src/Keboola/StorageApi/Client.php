@@ -543,6 +543,7 @@ class Client
             "primaryKey" => isset($options['primaryKey']) ? $options['primaryKey'] : null,
             "columns" => isset($options['columns']) ? $options['columns'] : null,
             "data" => fopen($csvFile->getPathname(), 'r'),
+            'syntheticPrimaryKeyEnabled' => isset($options['syntheticPrimaryKeyEnabled']) ? $options['syntheticPrimaryKeyEnabled'] : null,
         );
 
 
@@ -587,6 +588,7 @@ class Client
             "primaryKey" => isset($options['primaryKey']) ? $options['primaryKey'] : null,
             "transactional" => isset($options['transactional']) ? $options['transactional'] : false,
             'columns' => isset($options['columns']) ? $options['columns'] : null,
+            'syntheticPrimaryKeyEnabled' => isset($options['syntheticPrimaryKeyEnabled']) ? $options['syntheticPrimaryKeyEnabled'] : null,
         );
 
         // upload file
