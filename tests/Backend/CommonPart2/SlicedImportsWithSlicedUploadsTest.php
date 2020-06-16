@@ -37,6 +37,10 @@ class SlicedImportsWithSlicedUploadsTest extends StorageApiTestCase
 
         $headerFile = new CsvFile(__DIR__ . '/../../_data/sliced/header.csv');
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'entries', $headerFile);
+        $table = $this->_client->getTable($tableId);
+        if ($table['bucket']['backend'] === self::BACKEND_SYNAPSE) {
+            $this->markTestSkipped('Empty ECLOSURE is not possible with synapse.');
+        }
         $this->_client->writeTableAsyncDirect($tableId, array(
             'dataFileId' => $slicedFileId,
             'columns' => $headerFile->getHeader(),
@@ -106,6 +110,10 @@ class SlicedImportsWithSlicedUploadsTest extends StorageApiTestCase
 
         $headerFile = new CsvFile(__DIR__ . '/../../_data/sliced/header.csv');
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'entries', $headerFile);
+        $table = $this->_client->getTable($tableId);
+        if ($table['bucket']['backend'] === self::BACKEND_SYNAPSE) {
+            $this->markTestSkipped('Empty ECLOSURE is not possible with synapse.');
+        }
         $this->_client->writeTableAsyncDirect($tableId, array(
             'dataFileId' => $slicedFileId,
             'delimiter' => '|',
@@ -164,6 +172,10 @@ class SlicedImportsWithSlicedUploadsTest extends StorageApiTestCase
 
         $headerFile = new CsvFile(__DIR__ . '/../../_data/sliced/header.csv');
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'entries', $headerFile);
+        $table = $this->_client->getTable($tableId);
+        if ($table['bucket']['backend'] === self::BACKEND_SYNAPSE) {
+            $this->markTestSkipped('Empty ECLOSURE is not possible with synapse.');
+        }
         $this->_client->writeTableAsyncDirect($tableId, array(
             'dataFileId' => $slicedFileId,
             'delimiter' => '|',

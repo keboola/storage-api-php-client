@@ -84,8 +84,7 @@ class WorkspacesSynapseTest extends WorkspacesTestCase
         }
 
         $this->assertArrayHasKey('metrics', $actualJobId);
-// TODO
-//        $this->assertEquals(0, $actualJobId['metrics']['outBytes']);
+        $this->assertGreaterThan(0, $actualJobId['metrics']['outBytes']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         /** @var ColumnCollection $table */
@@ -107,8 +106,6 @@ class WorkspacesSynapseTest extends WorkspacesTestCase
 
         $this->assertEquals('SKK', $table[1]->getColumnName());
         $this->assertEquals('varchar(8000)', $table[1]->getColumnDefinition()->getSQLDefinition());
-
-        $this->markTestIncomplete('TODO: metrics.outBytes does not work');
     }
 
     public function testLoadedPrimaryKeys()
@@ -232,8 +229,7 @@ class WorkspacesSynapseTest extends WorkspacesTestCase
         }
 
         $this->assertArrayHasKey('metrics', $actualJobId);
-// TODO
-//        $this->assertEquals(0, $actualJobId['metrics']['outBytes']);
+        $this->assertGreaterThan(0, $actualJobId['metrics']['outBytes']);
 
         $this->assertEquals(2, $backend->countRows('languages'));
         $this->assertEquals(5, $backend->countRows('languagesDetails'));
@@ -260,8 +256,6 @@ class WorkspacesSynapseTest extends WorkspacesTestCase
         $workspaces->loadWorkspaceData($workspace['id'], $options);
         $this->assertEquals(3, $backend->countRows('languages'));
         $this->assertEquals(3, $backend->countRows('languagesDetails'));
-
-        $this->markTestIncomplete('TODO: metrics.outBytes does not work');
     }
 
     public function testLoadIncrementalAndPreserve()
@@ -621,14 +615,11 @@ class WorkspacesSynapseTest extends WorkspacesTestCase
         }
 
         $this->assertArrayHasKey('metrics', $actualJobId);
-// TODO
-//        $this->assertEquals(7168, $actualJobId['metrics']['outBytes']);
+        $this->assertGreaterThan(0, $actualJobId['metrics']['outBytes']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $this->assertEquals(5, $backend->countRows('languages'));
         $this->assertEquals(15, $backend->countRows('rates'));
-
-        $this->markTestIncomplete('TODO: metrics.outBytes does not work');
     }
 
     public function testOutBytesMetricsWithLoadWorkspaceWithSeconds()
@@ -682,14 +673,11 @@ class WorkspacesSynapseTest extends WorkspacesTestCase
         }
 
         $this->assertArrayHasKey('metrics', $actualJobId);
-// TODO
-//        $this->assertEquals(1024, $actualJobId['metrics']['outBytes']);
+        $this->assertGreaterThan(0, $actualJobId['metrics']['outBytes']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $this->assertEquals(5, $backend->countRows('languages'));
         $this->assertEquals(0, $backend->countRows('users'));
-
-        $this->markTestIncomplete('TODO: metrics.outBytes does not work');
     }
 
     public function dataTypesDiffDefinitions()
