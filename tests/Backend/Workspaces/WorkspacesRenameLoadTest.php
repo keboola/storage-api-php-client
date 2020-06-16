@@ -7,6 +7,7 @@ namespace Keboola\Test\Backend\Workspaces;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Workspaces;
 use Keboola\StorageApi\ClientException;
+use Keboola\Test\Backend\Workspaces\Backend\InputMappingConverter;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class WorkspacesRenameLoadTest extends WorkspacesTestCase
@@ -51,7 +52,10 @@ class WorkspacesRenameLoadTest extends WorkspacesTestCase
                 ],
             ],
         ];
-
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
         $this->assertEquals(2, $backend->countRows("languagesDetails"));
         $workspaceData = $backend->fetchAll('languagesDetails', \PDO::FETCH_ASSOC, '"primary" ASC');
@@ -93,7 +97,10 @@ class WorkspacesRenameLoadTest extends WorkspacesTestCase
                 ],
             ],
         ];
-
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
         $this->assertEquals(5, $backend->countRows("languagesDetails"));
 
@@ -139,7 +146,7 @@ class WorkspacesRenameLoadTest extends WorkspacesTestCase
             new CsvFile($importFile)
         );
 
-        $workspaces->loadWorkspaceData($workspace['id'], [
+        $options = [
             "input" => [
                 [
                     "source" => $tableId,
@@ -158,7 +165,13 @@ class WorkspacesRenameLoadTest extends WorkspacesTestCase
                     ]
                 ]
             ]
-        ]);
+        ];
+
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         // let's try to delete some columns
@@ -209,7 +222,10 @@ class WorkspacesRenameLoadTest extends WorkspacesTestCase
                 ],
             ],
         ];
-
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
         $this->assertEquals(5, $backend->countRows("languages"));
 
@@ -242,7 +258,10 @@ class WorkspacesRenameLoadTest extends WorkspacesTestCase
                 ],
             ],
         ];
-
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
             $this->fail('Workspace should not be loaded');
@@ -287,7 +306,10 @@ class WorkspacesRenameLoadTest extends WorkspacesTestCase
                 ],
             ],
         ];
-
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
         $this->assertEquals(5, $backend->countRows("languages"));
 
@@ -310,7 +332,10 @@ class WorkspacesRenameLoadTest extends WorkspacesTestCase
                 ],
             ],
         ];
-
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
             $this->fail('Workspace should not be loaded');
@@ -347,7 +372,10 @@ class WorkspacesRenameLoadTest extends WorkspacesTestCase
                 ],
             ],
         ];
-
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
         // second load - incremental
@@ -361,7 +389,10 @@ class WorkspacesRenameLoadTest extends WorkspacesTestCase
                 ],
             ],
         ];
-
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
             $this->fail('Incremental load with different datatypes should fail');
@@ -395,7 +426,10 @@ class WorkspacesRenameLoadTest extends WorkspacesTestCase
                 'columns' => $columnsDefinition
             ]
         ]);
-
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
         //check to make sure the columns have the right types
