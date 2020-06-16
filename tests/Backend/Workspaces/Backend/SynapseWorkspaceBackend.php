@@ -110,8 +110,8 @@ class SynapseWorkspaceBackend implements WorkspaceBackend
         $data = [];
         $res = $this->db->fetchAll(sprintf(
             "SELECT * FROM %s.%s %s;",
-            $this->platform->quoteIdentifier($this->schema),
-            $this->platform->quoteIdentifier($table),
+            $this->platform->quoteSingleIdentifier($this->schema),
+            $this->platform->quoteSingleIdentifier($table),
             $orderBy !== null ? "ORDER BY $orderBy" : null
         ));
         switch ($style) {

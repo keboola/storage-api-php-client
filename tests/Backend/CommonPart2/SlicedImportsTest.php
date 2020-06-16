@@ -46,6 +46,10 @@ class SlicedImportsTest extends StorageApiTestCase
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'entries', $headerFile, [
             'primaryKey' => 'id',
         ]);
+        $table = $this->_client->getTable($tableId);
+        if ($table['bucket']['backend'] === self::BACKEND_SYNAPSE) {
+            $this->markTestSkipped('Empty ECLOSURE is not possible with synapse.');
+        }
         $this->_client->writeTableAsyncDirect($tableId, array(
             'dataFileId' => $fileId,
             'columns' => $headerFile->getHeader(),
