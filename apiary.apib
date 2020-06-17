@@ -5516,10 +5516,15 @@ Each user in project can have its own credentials for **Direct Access**. The cre
 if you want **Direct Access** to the another project, you have to create it by `StorageApi-Token`(Only admin token is allowed) for project where
 you want to have **Direct Access**.
 
-## Create or List Direct Access [/v2/storage/direct-access]
-###Create Direct Access Credentials [POST]
+## Create or List Direct Access Credentials [/v2/storage/direct-access/{backend}]
+
++ Parameters
+    + backend (required, enum[string]) - type of backend
+        + Members
+            + snowflake
+
+###Create Credentials [POST]
 Creates and new credentials(for all supported backends) in your project to **Direct Access** connect for buckets.
-In response you will get URL to set your new password. The generated URL is valid for one use only and expires after 4 hours.
 
 + Request
 
@@ -5532,13 +5537,13 @@ In response you will get URL to set your new password. The generated URL is vali
         {
             "snowflake": {
                 "host": "keboola.snowflake.com"
-                "username": "da_123_romanbracinik",
-                "urlToSetPassword": "https://KEBOOLADEV.snowflakecomputing.com/console/login?...."
+                "username": "KEBOOLA_DA_1_1",
+                "password": "q.s3JQLTUC8i2v_BQQC3jLChqmz9L2ic"
             }
         }
 
-###List of backends for which is credentials already generated [GET]
-Returns array of booleans for which backends in project you have already created credentials.
+###Credentials Detail [GET]
+Returns host and username for backends in project where you have already created credentials.
 
 + Request
 
@@ -5549,11 +5554,12 @@ Returns array of booleans for which backends in project you have already created
 + Response 200 (application/json)
 
         {
-            "snowflake": true
+            "host": "keboola.snowflake.com",
+            "username": "KEBOOLA_DA_1_1"
         }
 
 ###Remove Credentials [DELETE]
-Deletes all your credentials for all supported backends in your project.
+Deletes your credentials for selected backends in your project.
 From now on you won't be able to sign in to the **Direct Access** for specific project.
 
 + Request
