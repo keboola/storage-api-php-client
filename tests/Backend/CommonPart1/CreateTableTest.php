@@ -71,6 +71,8 @@ class CreateTableTest extends StorageApiTestCase
             $this->assertSame('Cannot set synthetic primary key if primary key is empty', $e->getMessage());
         }
 
+        $this->markTestSkipped('Following needs SPK enabled on table');
+
         try {
             $tableId = $this->_client->createTableAsync(
                 $testBucketId,
@@ -82,8 +84,6 @@ class CreateTableTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame('Synthetic primary key is not supported outside Snowflake and ABS', $e->getMessage());
         }
-
-        $this->markTestSkipped('Following needs SPK enabled on table');
 
         try {
             $this->_client->createTablePrimaryKey($testTableId, ['id']);
