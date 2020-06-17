@@ -27,6 +27,7 @@ class DirectAccessTest extends StorageApiTestCase
 
         try {
             $directAccess->resetPassword($backend);
+            $this->fail('Should have thrown!');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.directAccess.tryResetPasswordOnNonExistCredentials', $e->getStringCode());
         }
@@ -126,7 +127,7 @@ class DirectAccessTest extends StorageApiTestCase
 
     public function testDirectAccessAndRestrictions()
     {
-        $bucketName = 'API-tests';
+        $bucketName = 'API-DA-tests';
         $bucket2Name = 'API-DA_TEST';
         $bucketStage = 'in';
         $bucketId = $bucketStage . '.c-' . $bucketName;
@@ -165,6 +166,7 @@ class DirectAccessTest extends StorageApiTestCase
         $aliasTableId = $this->_client->createAliasTable($bucketId, $tableId, 'this-is-alias');
         try {
             $directAccess->enableForBucket($bucketId);
+            $this->fail('Should have thrown!');
         } catch (ClientException $e) {
             $this->assertSame('Cannot enable Direct Access for bucket that has alias table ("this-is-alias")', $e->getMessage());
         }
@@ -215,7 +217,7 @@ class DirectAccessTest extends StorageApiTestCase
             $this->fail('Should have thrown!');
         } catch (ClientException $e) {
             $this->assertContains(
-                'The table "mytable" was not found in the bucket "in.c-API-tests"',
+                'The table "mytable" was not found in the bucket "in.c-API-DA-tests"',
                 $e->getMessage()
             );
         }
@@ -255,7 +257,7 @@ class DirectAccessTest extends StorageApiTestCase
             $this->fail('Should have thrown!');
         } catch (ClientException $e) {
             $this->assertSame(
-                'Bucket "in.c-API-tests" has Direct Access enabled please use async call',
+                'Bucket "in.c-API-DA-tests" has Direct Access enabled please use async call',
                 $e->getMessage()
             );
         }
@@ -328,7 +330,7 @@ class DirectAccessTest extends StorageApiTestCase
             $this->fail('Should have thrown!');
         } catch (ClientException $e) {
             $this->assertSame(
-                'Bucket "in.c-API-tests" has Direct Access enabled please use async call',
+                'Bucket "in.c-API-DA-tests" has Direct Access enabled please use async call',
                 $e->getMessage()
             );
         }
@@ -377,7 +379,7 @@ class DirectAccessTest extends StorageApiTestCase
         $this->assertSame('mytable_displayName', $views[0]['name']);
         $this->assertSame(
             'CREATE OR REPLACE VIEW "DA_IN_B1-DISPLAY-NAME"."mytable_displayName"'
-            . ' AS SELECT * FROM "in.c-API-tests"."mytable"',
+            . ' AS SELECT * FROM "in.c-API-DA-tests"."mytable"',
             $views[0]['text']
         );
 
@@ -387,7 +389,7 @@ class DirectAccessTest extends StorageApiTestCase
         $this->assertSame('newSecondTable', $views[0]['name']);
         $this->assertSame(
             'CREATE OR REPLACE VIEW "DA_IN_B1-DISPLAY-NAME"."newSecondTable"'
-            . ' AS SELECT * FROM "in.c-API-tests"."newSecondTable"',
+            . ' AS SELECT * FROM "in.c-API-DA-tests"."newSecondTable"',
             $views[0]['text']
         );
 
@@ -406,7 +408,7 @@ class DirectAccessTest extends StorageApiTestCase
             $this->fail('Should have thrown!');
         } catch (ClientException $e) {
             $this->assertSame(
-                'Cannot add columns ("iso", "Something" to a table "in.c-API-tests.mytable" in bucket "in.c-API-tests"'
+                'Cannot add columns ("iso", "Something" to a table "in.c-API-DA-tests.mytable" in bucket "in.c-API-DA-tests"'
                 . ' with direct access enabled, disable direct access first',
                 $e->getMessage()
             );
@@ -417,7 +419,7 @@ class DirectAccessTest extends StorageApiTestCase
             $this->fail('Should have thrown!');
         } catch (ClientException $e) {
             $this->assertSame(
-                'Cannot add column to a table "in.c-API-tests.mytable" in bucket "in.c-API-tests" with direct access '
+                'Cannot add column to a table "in.c-API-DA-tests.mytable" in bucket "in.c-API-DA-tests" with direct access '
                 . 'enabled, disable direct access first',
                 $e->getMessage()
             );
@@ -427,7 +429,7 @@ class DirectAccessTest extends StorageApiTestCase
             $this->fail('Should have thrown!');
         } catch (ClientException $e) {
             $this->assertSame(
-                'Cannot remove column from a table "in.c-API-tests.mytable" in bucket "in.c-API-tests" with direct '
+                'Cannot remove column from a table "in.c-API-DA-tests.mytable" in bucket "in.c-API-DA-tests" with direct '
                 . 'access enabled, disable direct access first',
                 $e->getMessage()
             );
@@ -437,7 +439,7 @@ class DirectAccessTest extends StorageApiTestCase
             $this->fail('Should have thrown!');
         } catch (ClientException $e) {
             $this->assertSame(
-                'Cannot add alias to bucket "in.c-API-tests" with direct access enabled, disable direct access first',
+                'Cannot add alias to bucket "in.c-API-DA-tests" with direct access enabled, disable direct access first',
                 $e->getMessage()
             );
         }
@@ -446,7 +448,7 @@ class DirectAccessTest extends StorageApiTestCase
             $this->fail('Should have thrown!');
         } catch (ClientException $e) {
             $this->assertSame(
-                'Cannot change displayName of table "in.c-API-tests.mytable" in bucket "in.c-API-tests" with direct '
+                'Cannot change displayName of table "in.c-API-DA-tests.mytable" in bucket "in.c-API-DA-tests" with direct '
                 . 'access enabled, disable direct access first',
                 $e->getMessage()
             );
@@ -486,8 +488,9 @@ class DirectAccessTest extends StorageApiTestCase
 
         $this->_client->createAliasTable($bucketId, $tableId, 'this-is-alias');
 
+        $project2Id = $client2->verifyToken()['owner']['id'];
         //Linked bucket
-        $this->_client->shareOrganizationProjectBucket($bucketId);
+        $this->_client->shareBucketToProjects($bucketId, [$project2Id]);
 
         $client2DirectAccess = new DirectAccess($client2);
         try {
@@ -508,6 +511,7 @@ class DirectAccessTest extends StorageApiTestCase
 
         try {
             $client2DirectAccess->enableForBucket($linkedBucketId);
+            $this->fail('Should have thrown!');
         } catch (ClientException $e) {
             $this->assertSame('Cannot enable Direct Access for bucket that has alias table ("this-is-alias")'
                 .' in source bucket', $e->getMessage());
@@ -544,7 +548,7 @@ class DirectAccessTest extends StorageApiTestCase
         $this->assertSame(
             sprintf(
                 'CREATE OR REPLACE VIEW "%s"."DA_IN_API-LINKED-TESTS"."newSecondTable"'.
-                ' AS SELECT * FROM "%s"."in.c-API-tests"."newSecondTable"',
+                ' AS SELECT * FROM "%s"."in.c-API-DA-tests"."newSecondTable"',
                 $views[0]['database_name'],
                 $views[0]['owner']
             ),
@@ -558,7 +562,7 @@ class DirectAccessTest extends StorageApiTestCase
         $this->assertSame(
             sprintf(
                 'CREATE OR REPLACE VIEW "%s"."DA_IN_API-LINKED-TESTS"."mytable"'.
-                ' AS SELECT * FROM "%s"."in.c-API-tests"."mytable"',
+                ' AS SELECT * FROM "%s"."in.c-API-DA-tests"."mytable"',
                 $views[0]['database_name'],
                 $views[0]['owner']
             ),
