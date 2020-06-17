@@ -5569,3 +5569,74 @@ From now on you won't be able to sign in to the **Direct Access** for specific p
             X-StorageApi-Token: your_token
 
 + Response 204
+
+## Enable or Disable Direct Access For Bucket [/v2/storage/buckets/{bucket_id}/direct-access]
+
++ Parameters
+    + bucket_id (required) - Bucket Id
+
+###Enable Direct Access [POST]
+**Enable Direct Access** for the **specific bucket** in your **project**. Then you will be able to work with bucket in the your project direct access.
++ Response 202
+
+    + Body
+
+            {
+                "id": 11,
+                "status": "waiting",
+                "url": "https://connection.keboola.com/v2/storage/jobs/11",
+                "operationName": "directAccessEnable",
+                "operationParams": {
+                        "queue": "main"
+                },
+                "createdTime": "2013-05-31T16:11:05+0200",
+                "startTime": null,
+                "endTime": null,
+                "runId": null,
+                "results": null,
+                "creatorToken": {
+                    "id": "27978",
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
+                }
+            }
+
+###Disable Direct Access [DELETE]
+**Disable Direct Access** for the **specific bucket** in your **project**. Then you won't be able to work with bucket in the your project direct access.
++ Response 202
+
+    + Body
+
+            {
+                "id": 11,
+                "status": "waiting",
+                "url": "https://connection.keboola.com/v2/storage/jobs/11",
+                "operationName": "directAccessDisable",
+                "operationParams": {
+                        "queue": "main"
+                },
+                "createdTime": "2013-05-31T16:11:05+0200",
+                "startTime": null,
+                "endTime": null,
+                "runId": null,
+                "results": null,
+                "creatorToken": {
+                    "id": "27978",
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
+                }
+            }
