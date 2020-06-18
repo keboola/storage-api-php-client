@@ -135,7 +135,15 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
         $bucketId = reset($this->_bucketIds);
 
         $token = $this->_client2->verifyToken();
-        $this->_client->shareBucketToProjects($bucketId, $token['owner']['id']);
+        $tokenAdmin2InSameOrg = $this->clientAdmin2InSameOrg->verifyToken();
+
+        $this->_client->shareBucketToProjects(
+            $bucketId,
+            [
+                $token['owner']['id'],
+                $tokenAdmin2InSameOrg['owner']['id'],
+            ]
+        );
 
         // link
         $response = $this->_client2->listSharedBuckets();
@@ -155,6 +163,57 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
         $linkedBucket = $this->_client2->getBucket($linkedBucketId);
 
         $this->assertEquals($linkedBucketId, $linkedBucket['id']);
+        $this->assertEquals('in', $linkedBucket['stage']);
+        $this->assertEquals($bucket['backend'], $linkedBucket['backend']);
+        $this->assertEquals($bucket['description'], $linkedBucket['description']);
+
+        // link Admin2InSameOrg
+        $response = $this->clientAdmin2InSameOrg->listSharedBuckets();
+        $this->assertCount(1, $response);
+
+        $sharedBucket = reset($response);
+
+        $linkedBucketId2 = $this->clientAdmin2InSameOrg->linkBucket(
+            "linked-" . time(),
+            'in',
+            $sharedBucket['project']['id'],
+            $sharedBucket['id']
+        );
+
+        // validate bucket
+        $bucket = $this->_client->getBucket($bucketId);
+        $linkedBucket = $this->clientAdmin2InSameOrg->getBucket($linkedBucketId2);
+
+        $this->assertEquals($linkedBucketId2, $linkedBucket['id']);
+        $this->assertEquals('in', $linkedBucket['stage']);
+        $this->assertEquals($bucket['backend'], $linkedBucket['backend']);
+        $this->assertEquals($bucket['description'], $linkedBucket['description']);
+
+        //allow shareing only for _client token
+        $this->_client->shareBucketToProjects(
+            $bucketId,
+            [
+                $token['owner']['id'],
+            ]
+        );
+
+        $response = $this->clientAdmin2InSameOrg->listSharedBuckets();
+        $this->assertCount(0, $response);
+
+        // validate bucket
+        $bucket = $this->_client->getBucket($bucketId);
+        $linkedBucket = $this->_client2->getBucket($linkedBucketId);
+
+        $this->assertEquals($linkedBucketId, $linkedBucket['id']);
+        $this->assertEquals('in', $linkedBucket['stage']);
+        $this->assertEquals($bucket['backend'], $linkedBucket['backend']);
+        $this->assertEquals($bucket['description'], $linkedBucket['description']);
+
+        // validate bucket
+        $bucket = $this->_client->getBucket($bucketId);
+        $linkedBucket = $this->clientAdmin2InSameOrg->getBucket($linkedBucketId2);
+
+        $this->assertEquals($linkedBucketId2, $linkedBucket['id']);
         $this->assertEquals('in', $linkedBucket['stage']);
         $this->assertEquals($bucket['backend'], $linkedBucket['backend']);
         $this->assertEquals($bucket['description'], $linkedBucket['description']);

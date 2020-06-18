@@ -172,7 +172,14 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
         $bucketId = reset($this->_bucketIds);
 
         $targetUser = $this->_client2->verifyToken()['admin'];
-        $this->_client->shareBucketToUsers($bucketId, [$targetUser['id']]);
+        $targetAdmin2InSameOrg = $this->clientAdmin2InSameOrg->verifyToken()['admin'];
+        $this->_client->shareBucketToUsers(
+            $bucketId,
+            [
+                $targetUser['id'],
+                $targetAdmin2InSameOrg['id']
+            ]
+        );
 
         // link
         $response = $this->_client2->listSharedBuckets();
@@ -195,6 +202,49 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
         $this->assertEquals('in', $linkedBucket['stage']);
         $this->assertEquals($bucket['backend'], $linkedBucket['backend']);
         $this->assertEquals($bucket['description'], $linkedBucket['description']);
+
+        // link
+        $response = $this->clientAdmin2InSameOrg->listSharedBuckets();
+        $this->assertCount(1, $response);
+
+        $sharedBucket = reset($response);
+
+        $linkedBucketId2 = $this->clientAdmin2InSameOrg->linkBucket(
+            "linked-" . time(),
+            'in',
+            $sharedBucket['project']['id'],
+            $sharedBucket['id']
+        );
+
+        // validate bucket
+        $bucket = $this->_client->getBucket($bucketId);
+        $linkedBucket2 = $this->clientAdmin2InSameOrg->getBucket($linkedBucketId2);
+
+        $this->assertEquals($linkedBucketId2, $linkedBucket2['id']);
+        $this->assertEquals('in', $linkedBucket2['stage']);
+        $this->assertEquals($bucket['backend'], $linkedBucket2['backend']);
+        $this->assertEquals($bucket['description'], $linkedBucket2['description']);
+
+        //allow shareing only for _client token
+        $this->_client->shareBucketToUsers(
+            $bucketId,
+            [
+                $targetUser['id'],
+            ]
+        );
+
+        $response = $this->clientAdmin2InSameOrg->listSharedBuckets();
+        $this->assertCount(0, $response);
+
+        $this->assertEquals($linkedBucketId, $linkedBucket['id']);
+        $this->assertEquals('in', $linkedBucket['stage']);
+        $this->assertEquals($bucket['backend'], $linkedBucket['backend']);
+        $this->assertEquals($bucket['description'], $linkedBucket['description']);
+
+        $this->assertEquals($linkedBucketId2, $linkedBucket2['id']);
+        $this->assertEquals('in', $linkedBucket2['stage']);
+        $this->assertEquals($bucket['backend'], $linkedBucket2['backend']);
+        $this->assertEquals($bucket['description'], $linkedBucket2['description']);
     }
 
     /**
