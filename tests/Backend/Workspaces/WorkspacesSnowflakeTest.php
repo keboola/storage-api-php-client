@@ -188,7 +188,11 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
         }
 
         $this->assertNotEmpty($workspaceSchema, 'schema not found');
-        $this->assertEquals('TRANSIENT, MANAGED ACCESS', $workspaceSchema['options']);
+        if (isset($workspace['isUsingFutureGrants']) && $workspace['isUsingFutureGrants'] === true) {
+            $this->assertEquals('TRANSIENT, MANAGED ACCESS', $workspaceSchema['options']);
+        } else {
+            $this->assertEquals('TRANSIENT', $workspaceSchema['options']);
+        }
 
         $tables = $db->fetchAll("SHOW TABLES IN SCHEMA " . $db->quoteIdentifier($workspaceSchema['name']));
         $this->assertCount(2, $tables);
