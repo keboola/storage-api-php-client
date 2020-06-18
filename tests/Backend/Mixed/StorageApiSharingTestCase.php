@@ -17,6 +17,7 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
      */
     protected $_client2;
 
+    /** @var Client */
     protected $clientAdmin2InSameOrg;
     protected $clientAdmin3InOtherOrg;
 
@@ -140,6 +141,7 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
         $clients = [
             $this->_client,
             $this->_client2,
+            $this->clientAdmin2InSameOrg,
         ];
 
         // unlink buckets
