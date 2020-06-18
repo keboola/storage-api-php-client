@@ -29,7 +29,7 @@ class WorkspacesTest extends WorkspacesTestCase
 
         $tokenInfo = $this->_client->verifyToken();
         $this->assertEquals($tokenInfo['owner']['defaultBackend'], $connection['backend']);
-
+        $this->assertArrayHasKey('isUsingFutureGrants', $workspace);
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $backend->createTable("mytable", ["amount" => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? "NUMBER" : "VARCHAR"]);
@@ -42,6 +42,7 @@ class WorkspacesTest extends WorkspacesTestCase
         // get workspace
         $workspace = $workspaces->getWorkspace($workspace['id']);
         $this->assertArrayNotHasKey('password', $workspace['connection']);
+        $this->assertArrayHasKey('isUsingFutureGrants', $workspace);
 
         // list workspaces
         $workspacesIds = array_map(function ($workspace) {
