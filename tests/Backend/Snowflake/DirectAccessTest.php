@@ -54,6 +54,7 @@ class DirectAccessTest extends StorageApiTestCase
         $this->assertArrayHasKey('password', $newCredentials);
 
         $credentials = $directAccess->getCredentials($backend);
+        $this->assertArrayHasKey('host', $credentials);
         $this->assertArrayHasKey('username', $credentials);
         $this->assertSame($newCredentials['username'], $credentials['username']);
 
