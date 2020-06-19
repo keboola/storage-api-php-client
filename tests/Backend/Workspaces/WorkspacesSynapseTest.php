@@ -92,20 +92,20 @@ class WorkspacesSynapseTest extends WorkspacesTestCase
         $table = iterator_to_array($table->getIterator());
 
         $this->assertEquals('id', $table[0]->getColumnName());
-        $this->assertEquals('int', $table[0]->getColumnDefinition()->getSQLDefinition());
+        $this->assertEquals('INT', $table[0]->getColumnDefinition()->getSQLDefinition());
 
         $this->assertEquals('name', $table[1]->getColumnName());
-        $this->assertEquals('varchar(8000)', $table[1]->getColumnDefinition()->getSQLDefinition());
+        $this->assertEquals('VARCHAR(8000)', $table[1]->getColumnDefinition()->getSQLDefinition());
 
         /** @var ColumnCollection $table */
         $table = $backend->describeTableColumns('rates');
         $table = iterator_to_array($table->getIterator());
 
         $this->assertEquals('Date', $table[0]->getColumnName());
-        $this->assertEquals('varchar(8000)', $table[0]->getColumnDefinition()->getSQLDefinition());
+        $this->assertEquals('VARCHAR(8000)', $table[0]->getColumnDefinition()->getSQLDefinition());
 
         $this->assertEquals('SKK', $table[1]->getColumnName());
-        $this->assertEquals('varchar(8000)', $table[1]->getColumnDefinition()->getSQLDefinition());
+        $this->assertEquals('VARCHAR(8000)', $table[1]->getColumnDefinition()->getSQLDefinition());
     }
 
     public function testLoadedPrimaryKeys()
@@ -136,17 +136,17 @@ class WorkspacesSynapseTest extends WorkspacesTestCase
         $cols = iterator_to_array($cols->getIterator());
         $this->assertCount(6, $cols);
         $this->assertEquals('Paid_Search_Engine_Account', $cols[0]->getColumnName());
-        $this->assertEquals('nvarchar(4000) NOT NULL', $cols[0]->getColumnDefinition()->getSQLDefinition());
+        $this->assertEquals('NVARCHAR(4000) NOT NULL', $cols[0]->getColumnDefinition()->getSQLDefinition());
         $this->assertEquals('Advertiser_ID', $cols[1]->getColumnName());
-        $this->assertEquals('nvarchar(4000)', $cols[1]->getColumnDefinition()->getSQLDefinition());
+        $this->assertEquals('NVARCHAR(4000)', $cols[1]->getColumnDefinition()->getSQLDefinition());
         $this->assertEquals('Date', $cols[2]->getColumnName());
-        $this->assertEquals('nvarchar(4000) NOT NULL', $cols[2]->getColumnDefinition()->getSQLDefinition());
+        $this->assertEquals('NVARCHAR(4000) NOT NULL', $cols[2]->getColumnDefinition()->getSQLDefinition());
         $this->assertEquals('Paid_Search_Campaign', $cols[3]->getColumnName());
-        $this->assertEquals('nvarchar(4000) NOT NULL', $cols[3]->getColumnDefinition()->getSQLDefinition());
+        $this->assertEquals('NVARCHAR(4000) NOT NULL', $cols[3]->getColumnDefinition()->getSQLDefinition());
         $this->assertEquals('Paid_Search_Ad_ID', $cols[4]->getColumnName());
-        $this->assertEquals('nvarchar(4000) NOT NULL', $cols[4]->getColumnDefinition()->getSQLDefinition());
+        $this->assertEquals('NVARCHAR(4000) NOT NULL', $cols[4]->getColumnDefinition()->getSQLDefinition());
         $this->assertEquals('Site__DFA', $cols[5]->getColumnName());
-        $this->assertEquals('nvarchar(4000) NOT NULL', $cols[5]->getColumnDefinition()->getSQLDefinition());
+        $this->assertEquals('NVARCHAR(4000) NOT NULL', $cols[5]->getColumnDefinition()->getSQLDefinition());
 
         // Check that PK is NOT set if not all PK columns are present
         $mapping2 = [
@@ -171,9 +171,9 @@ class WorkspacesSynapseTest extends WorkspacesTestCase
 
         $this->assertCount(2, $cols);
         $this->assertEquals('Paid_Search_Engine_Account', $cols[0]->getColumnName());
-        $this->assertEquals('varchar(8000)', $cols[0]->getColumnDefinition()->getSQLDefinition());
+        $this->assertEquals('VARCHAR(8000)', $cols[0]->getColumnDefinition()->getSQLDefinition());
         $this->assertEquals('Date', $cols[1]->getColumnName());
-        $this->assertEquals('varchar(8000)', $cols[1]->getColumnDefinition()->getSQLDefinition());
+        $this->assertEquals('VARCHAR(8000)', $cols[1]->getColumnDefinition()->getSQLDefinition());
     }
 
     public function testLoadIncremental()
