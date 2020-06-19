@@ -62,6 +62,7 @@ abstract class WorkspacesTestCase extends StorageApiTestCase
                     'port' => 1433,
                     'driver' => 'pdo_sqlsrv',
                     'driverOptions' => [
+                        'LoginTimeout' => 30,
                         'ConnectRetryCount' => 5,
                         'ConnectRetryInterval' => 10,
                     ],
