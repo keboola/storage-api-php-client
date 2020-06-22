@@ -1741,7 +1741,11 @@ class Client
         $slices = [];
         $fs = new Filesystem();
         foreach ($manifest['entries'] as $entry) {
-            $getResult = $blobClient->getBlob($fileInfo['absPath']['container'], basename($entry['url']));
+            $blobPath = explode(sprintf(
+                'blob.core.windows.net/%s/',
+                $fileInfo['absPath']['container']
+            ), $entry['url'])[1];
+            $getResult = $blobClient->getBlob($fileInfo['absPath']['container'], $blobPath);
             $slices[] = $destinationFile = $destinationFolder . basename($entry['url']);
             $fs->dumpFile($destinationFile, $getResult->getContentStream());
         }
