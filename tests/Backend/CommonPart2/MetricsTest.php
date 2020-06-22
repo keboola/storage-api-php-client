@@ -47,7 +47,12 @@ class MetricsTest extends StorageApiTestCase
 
         $job = $this->_client->waitForJob($job['id']);
 
-        if (in_array($tokenData['owner']['defaultBackend'], [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE]) && $expectedMetrics['inCompressed']) {
+        if (in_array($tokenData['owner']['defaultBackend'], [
+                self::BACKEND_REDSHIFT,
+                self::BACKEND_SNOWFLAKE,
+                self::BACKEND_SYNAPSE,
+            ])
+            && $expectedMetrics['inCompressed']) {
             $expectedMetrics['inBytesUncompressed'] = 0; // We don't know uncompressed size of file
         }
 
@@ -76,7 +81,11 @@ class MetricsTest extends StorageApiTestCase
         ], false);
         $job = $this->_client->waitForJob($job['id']);
 
-        if (in_array($tokenData['owner']['defaultBackend'], [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE]) && $expectedMetrics['inCompressed']) {
+        if (in_array($tokenData['owner']['defaultBackend'], [
+                self::BACKEND_REDSHIFT,
+                self::BACKEND_SNOWFLAKE,
+                self::BACKEND_SYNAPSE,
+            ]) && $expectedMetrics['inCompressed']) {
             $expectedMetrics['inBytesUncompressed'] = 0; // We don't know uncompressed size of file
         }
 

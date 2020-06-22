@@ -89,23 +89,23 @@
 	</testsuite>
 
 	<testsuite name="backend-synapse-part-1">
-		<file>tests/Backend/CommonPart1/BucketsTest.php</file>
-		<file>tests/Backend/Synapse/ExportParamsTest.php</file>
-		<file>tests/Backend/CommonPart1/CreateTableTest.php</file>
-		<file>tests/Backend/CommonPart1/ImportExportCommonTest.php</file>
-		<file>tests/Backend/CommonPart1/TableExporterTest.php</file>
-		<file>tests/Backend/CommonPart1/DeleteRowsTest.php</file>
-		<file>tests/Backend/CommonPart1/AlterTableTest.php</file>
-		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
-		<file>tests/Backend/Workspaces/WorkspacesSynapseTest.php</file>
-		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
-		<file>tests/Backend/Workspaces/SynapseWorkspacesUnloadTest.php</file>
-		<file>tests/Backend/Workspaces/LegacyWorkspacesSynapseTest.php</file>
-		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
-		<file>tests/Backend/Synapse/FulltextSearchTest.php</file>
-		<file>tests/Backend/Synapse/OrderByTest.php</file>
-		<file>tests/Backend/Synapse/DataPreviewLimitsTest.php</file>
-		<file>tests/Backend/Synapse/WhereFilterTest.php</file>
 		<file>tests/Backend/Workspaces/MetadataFromSynapseWorkspaceTest.php</file>
+		<directory>tests/Backend/CommonPart1</directory>
+<!--	DataPreviewLimitsTest is in tests/Backend/Synapse -->
+		<exclude>tests/Backend/CommonPart1/DataPreviewLimitsTest.php</exclude>
+		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
+		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
+		<file>tests/Backend/Workspaces/LegacyWorkspacesSynapseTest.php</file>
+	</testsuite>
+
+	<testsuite name="backend-synapse-part-2">
+		<directory>tests/Backend/CommonPart2</directory>
+		<file>tests/Backend/Workspaces/WorkspacesSynapseTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
+		<file>tests/Backend/Workspaces/SynapseWorkspacesUnloadTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>
+		<directory>tests/Backend/Synapse</directory>
+		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>
 </phpunit>
