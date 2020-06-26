@@ -59,7 +59,7 @@ class SlicedFilesUploadTest extends StorageApiTestCase
             $this->assertNull($file['maxAgeDays']);
         } else {
             $this->assertInternalType('integer', $file['maxAgeDays']);
-            $this->assertEquals(180, $file['maxAgeDays']);
+            $this->assertEquals(StorageApiTestCase::FILE_LONG_TERM_EXPIRATION_IN_DAYS, $file['maxAgeDays']);
         }
     }
 
@@ -118,7 +118,7 @@ class SlicedFilesUploadTest extends StorageApiTestCase
             $this->assertNull($file['maxAgeDays']);
         } else {
             $this->assertInternalType('integer', $file['maxAgeDays']);
-            $this->assertEquals(180, $file['maxAgeDays']);
+            $this->assertEquals(StorageApiTestCase::FILE_LONG_TERM_EXPIRATION_IN_DAYS, $file['maxAgeDays']);
         }
     }
 

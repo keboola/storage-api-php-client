@@ -29,6 +29,8 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
 
     const ISO8601_REGEXP = '/^([0-9]{4})-(1[0-2]|0[1-9])-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})\+([0-9]{4})$/';
 
+    const FILE_LONG_TERM_EXPIRATION_IN_DAYS = 180;
+
     protected $_bucketIds = array();
 
     /**
