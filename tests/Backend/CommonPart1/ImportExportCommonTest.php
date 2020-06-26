@@ -415,6 +415,9 @@ class ImportExportCommonTest extends StorageApiTestCase
         $tableExportResult = $this->_client->exportTableAsync($tableId);
         $fileInfo = $this->_client->getFile($tableExportResult["file"]["id"], (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
 
+        $this->assertArrayHasKey('maxAgeDays', $fileInfo);
+        $this->assertInternalType('integer', $fileInfo['maxAgeDays']);
+        $this->assertEquals(StorageApiTestCase::FILE_SHORT_TERM_EXPIRATION_IN_DAYS, $fileInfo['maxAgeDays']);
         $this->assertArrayHasKey('runId', $fileInfo);
         $this->assertEquals($firstRunId, $fileInfo['runId']);
         $this->assertArrayHasKey('runIds', $fileInfo);
