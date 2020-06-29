@@ -72,7 +72,7 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->assertEquals($sourceTable['lastImportDate'], $firstAlias['lastImportDate']);
         $this->assertEquals($sourceTable['lastImportDate'], $secondAlias['lastImportDate']);
         $this->assertEquals($sourceTable['lastImportDate'], $thirdAlias['lastImportDate']);
-        
+
         // columns auto-create
         $this->_client->writeTable($sourceTableId, new CsvFile(__DIR__ . '/../../_data/languages.more-columns.csv'));
         $sourceTable = $this->_client->getTable($sourceTableId);
@@ -218,38 +218,6 @@ class SimpleAliasTest extends StorageApiTestCase
 
         $this->assertCount(0, $this->_client->listTables($this->getTestBucketId()));
         $this->assertCount(0, $this->_client->listTables($this->getTestBucketId(self::STAGE_OUT)));
-    }
-
-    public function testTableAliasUnlink()
-    {
-        $importFile = __DIR__ . '/../../_data/languages.csv';
-
-        // create and import data into source table
-        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile($importFile));
-        $this->_client->writeTable($sourceTableId, new CsvFile(__DIR__ . '/../../_data/languages.csv'));
-
-        // create alias table
-        $aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId);
-        $aliasTable = $this->_client->getTable($aliasTableId);
-
-        $this->assertArrayHasKey('sourceTable', $aliasTable);
-        $this->assertEquals($sourceTableId, $aliasTable['sourceTable']['id'], 'new table linked to source table');
-
-        // unlink
-        $this->_client->unlinkTable($aliasTableId);
-
-        $aliasTable = $this->_client->getTable($aliasTableId);
-        $this->assertArrayNotHasKey('sourceTable', $aliasTable);
-        $this->assertEmpty($aliasTable['lastImportDate'], 'Last import date is null');
-        $this->assertEquals(0, $aliasTable['dataSizeBytes']);
-        $this->assertEquals(0, $aliasTable['rowsCount']);
-
-        // real table cannot be unlinked
-        try {
-            $this->_client->unlinkTable($aliasTableId);
-            $this->fail('Real table should not be unlinked');
-        } catch (ClientException $e) {
-        }
     }
 
     public function testAliasColumnWithoutAutoSyncShouldBeDeletable()
