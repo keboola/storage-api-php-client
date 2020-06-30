@@ -118,6 +118,13 @@ class TokensTest extends StorageApiTestCase
         $this->assertInternalType('integer', $owner['rowsCount']);
         $this->assertInternalType('boolean', $owner['hasRedshift']);
 
+        $admin = $currentToken['admin'];
+        $this->assertInternalType('string', $admin['name']);
+        $this->assertInternalType('integer', $admin['id']);
+        $this->assertInternalType('array', $admin['features']);
+        $this->assertInternalType('boolean', $admin['isOrganizationMember']);
+        $this->assertEquals('admin', $admin['role']);
+
         $this->assertArrayHasKey('limits', $owner);
         $this->assertArrayHasKey('metrics', $owner);
         $this->assertArrayHasKey('defaultBackend', $owner);
@@ -139,13 +146,22 @@ class TokensTest extends StorageApiTestCase
             $this->assertArrayHasKey('admin', $token);
 
             $admin = $token['admin'];
-            $this->assertArrayHasKey('id', $admin);
-            $this->assertArrayHasKey('name', $admin);
+            $this->assertInternalType('integer', $admin['id']);
+            $this->assertInternalType('string', $admin['name']);
+            $this->assertInternalType('string', $admin['role']);
+            $this->assertEquals('admin', $admin['role']);
 
             $tokenFound = true;
         }
 
         $this->assertTrue($tokenFound);
+
+        // check role of guest user
+        $guestUserToken = $this->getGuestClient()->verifyToken();
+
+        $this->assertArrayHasKey('admin', $guestUserToken);
+        $admin = $guestUserToken['admin'];
+        $this->assertEquals('guest', $admin['role']);
     }
 
     public function testKeenReadTokensRetrieve()
