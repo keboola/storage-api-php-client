@@ -2,14 +2,21 @@
 
 namespace Keboola\Test\Common;
 
+use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Options\TokenAbstractOptions;
+use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Metadata;
 
 class MetadataTest extends StorageApiTestCase
 {
-    const TEST_PROVIDER = "test";
+    const TEST_PROVIDER = 'test';
+
+    const TEST_METADATA_KEY_1 = 'test_metadata_key1';
+    const TEST_METADATA_KEY_2 = 'test_metadata_key2';
+
 
     const ISO8601_REGEXP = '/^([0-9]{4})-(1[0-2]|0[1-9])-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})\+([0-9]{4})$/';
 
@@ -30,14 +37,14 @@ class MetadataTest extends StorageApiTestCase
         $bucketId = $this->getTestBucketId();
         $metadataApi = new Metadata($this->_client);
 
-        $md = array(
-            "key" => "test_metadata_key1",
-            "value" => "testval"
-        );
-        $md2 = array(
-            "key" => "test_metadata_key2",
-            "value" => "testval"
-        );
+        $md = [
+            'key' => self::TEST_METADATA_KEY_1,
+            'value' => 'testval',
+        ];
+        $md2 = [
+            'key' => self::TEST_METADATA_KEY_2,
+            'value' => 'testval',
+        ];
         $testMetadata = array($md, $md2);
 
         $provider = self::TEST_PROVIDER;
@@ -82,14 +89,14 @@ class MetadataTest extends StorageApiTestCase
         $tableId = $this->getTestBucketId() . '.table';
         $metadataApi = new Metadata($this->_client);
 
-        $md = array(
-            "key" => "test_metadata_key1",
-            "value" => "testval",
-        );
-        $md2 = array(
-            "key" => "test_metadata_key2",
-            "value" => "testval",
-        );
+        $md = [
+            'key' => self::TEST_METADATA_KEY_1,
+            'value' => 'testval',
+        ];
+        $md2 = [
+            'key' => self::TEST_METADATA_KEY_2,
+            'value' => 'testval',
+        ];
         $testMetadata = array($md, $md2);
 
         $provider = self::TEST_PROVIDER;
@@ -143,20 +150,113 @@ class MetadataTest extends StorageApiTestCase
         $this->assertEquals($table['bucket']['metadata'][0]['value'], $md['value']);
     }
 
+
+    public function testTableMetadataForTokenWithReadPrivilege()
+    {
+        $testMetadataValue = 'testval';
+
+        $bucketId = $this->getTestBucketId();
+        $tableId = $this->getTestBucketId() . '.table';
+        $metadataApi = new Metadata($this->_client);
+
+        $provider = self::TEST_PROVIDER;
+        $metadataApi->postTableMetadata(
+            $tableId,
+            $provider,
+            [
+                [
+                    'key' => self::TEST_METADATA_KEY_1,
+                    'value' => $testMetadataValue,
+                ]
+            ]
+        );
+
+
+        $readClient = new Client([
+            'token' => $this->prepareTokenWithReadPrivilegeForBucket($bucketId),
+            'url' => STORAGE_API_URL,
+            'backoffMaxTries' => 1,
+        ]);
+
+        $readMetadataApi = new Metadata($readClient);
+
+        $metadataArray = $readMetadataApi->listTableMetadata($tableId);
+        $this->assertCount(1, $metadataArray);
+
+        $metadata = reset($metadataArray);
+        $this->assertEquals($testMetadataValue, $metadata['value']);
+
+        // delete
+        try {
+            $readMetadataApi->deleteTableMetadata($tableId, $metadata['id']);
+            $this->fail('Token with read permissions should not delete metadata');
+        } catch (ClientException $e) {
+            $this->assertEquals(403, $e->getCode());
+        }
+
+        $metadataArray = $readMetadataApi->listTableMetadata($tableId);
+        $this->assertCount(1, $metadataArray);
+
+        // update
+        try {
+            $readMetadataApi->postTableMetadata(
+                $tableId,
+                $provider,
+                [
+                    [
+                        'key' => self::TEST_METADATA_KEY_1,
+                        'value' => 'changed',
+                    ]
+                ]
+            );
+
+            $this->fail('Token with read permissions should not update metadata');
+        } catch (ClientException $e) {
+            $this->assertEquals(403, $e->getCode());
+        }
+
+        $metadataArray = $readMetadataApi->listTableMetadata($tableId);
+        $this->assertCount(1, $metadataArray);
+
+        $metadata = reset($metadataArray);
+        $this->assertEquals($testMetadataValue, $metadata['value']);
+
+        // new metadata
+        try {
+            $readMetadataApi->postTableMetadata(
+                $tableId,
+                $provider,
+                [
+                    [
+                        'key' => self::TEST_METADATA_KEY_2,
+                        'value' => $testMetadataValue,
+                    ]
+                ]
+            );
+
+            $this->fail('Token with read permissions should not create metadata');
+        } catch (ClientException $e) {
+            $this->assertEquals(403, $e->getCode());
+        }
+
+        $metadataArray = $readMetadataApi->listTableMetadata($tableId);
+        $this->assertCount(1, $metadataArray);
+    }
+
     public function testTableDeleteWithMetadata()
     {
         $tableId = $this->getTestBucketId() . '.table';
         $columnId = $this->getTestBucketId() . '.table.sex';
         $metadataApi = new Metadata($this->_client);
 
-        $md = array(
-            "key" => "test_metadata_key1",
-            "value" => "testval",
-        );
-        $md2 = array(
-            "key" => "test_metadata_key2",
-            "value" => "testval",
-        );
+        $md = [
+            'key' => self::TEST_METADATA_KEY_1,
+            'value' => 'testval',
+        ];
+        $md2 = [
+            'key' => self::TEST_METADATA_KEY_2,
+            'value' => 'testval',
+        ];
         $testMetadata = array($md, $md2);
 
         $provider = self::TEST_PROVIDER;
@@ -189,14 +289,14 @@ class MetadataTest extends StorageApiTestCase
         $columnId = $this->getTestBucketId() . '.table.id';
         $metadataApi = new Metadata($this->_client);
 
-        $md = array(
-            "key" => "test_metadata_key1",
-            "value" => "testval",
-        );
-        $md2 = array(
-            "key" => "test_metadata_key2",
-            "value" => "testval",
-        );
+        $md = [
+            'key' => self::TEST_METADATA_KEY_1,
+            'value' => 'testval',
+        ];
+        $md2 = [
+            'key' => self::TEST_METADATA_KEY_2,
+            'value' => 'testval',
+        ];
         $testMetadata = array($md, $md2);
 
         $provider = self::TEST_PROVIDER;
@@ -283,20 +383,112 @@ class MetadataTest extends StorageApiTestCase
         );
     }
 
+    public function testColumnMetadataForTokenWithReadPrivilege()
+    {
+        $testMetadataValue = 'testval';
+
+        $bucketId = $this->getTestBucketId();
+        $columnId = $bucketId . '.table.id';
+        $metadataApi = new Metadata($this->_client);
+
+        $provider = self::TEST_PROVIDER;
+        $metadataApi->postColumnMetadata(
+            $columnId,
+            $provider,
+            [
+                [
+                    'key' => self::TEST_METADATA_KEY_1,
+                    'value' => $testMetadataValue,
+                ]
+            ]
+        );
+
+
+        $readClient = new Client([
+            'token' => $this->prepareTokenWithReadPrivilegeForBucket($bucketId),
+            'url' => STORAGE_API_URL,
+            'backoffMaxTries' => 1,
+        ]);
+
+        $readMetadataApi = new Metadata($readClient);
+
+        $metadataArray = $readMetadataApi->listColumnMetadata($columnId);
+        $this->assertCount(1, $metadataArray);
+
+        $metadata = reset($metadataArray);
+        $this->assertEquals($testMetadataValue, $metadata['value']);
+
+        // delete
+        try {
+            $readMetadataApi->deleteColumnMetadata($columnId, $metadata['id']);
+            $this->fail('Token with read permissions should not delete metadata');
+        } catch (ClientException $e) {
+            $this->assertEquals(403, $e->getCode());
+        }
+
+        $metadataArray = $readMetadataApi->listColumnMetadata($columnId);
+        $this->assertCount(1, $metadataArray);
+
+        // update
+        try {
+            $readMetadataApi->postColumnMetadata(
+                $columnId,
+                $provider,
+                [
+                    [
+                        'key' => self::TEST_METADATA_KEY_1,
+                        'value' => 'changed',
+                    ]
+                ]
+            );
+
+            $this->fail('Token with read permissions should not update metadata');
+        } catch (ClientException $e) {
+            $this->assertEquals(403, $e->getCode());
+        }
+
+        $metadataArray = $readMetadataApi->listColumnMetadata($columnId);
+        $this->assertCount(1, $metadataArray);
+
+        $metadata = reset($metadataArray);
+        $this->assertEquals($testMetadataValue, $metadata['value']);
+
+        // new metadata
+        try {
+            $readMetadataApi->postColumnMetadata(
+                $columnId,
+                $provider,
+                [
+                    [
+                        'key' => self::TEST_METADATA_KEY_2,
+                        'value' => $testMetadataValue,
+                    ]
+                ]
+            );
+
+            $this->fail('Token with read permissions should not create metadata');
+        } catch (ClientException $e) {
+            $this->assertEquals(403, $e->getCode());
+        }
+
+        $metadataArray = $readMetadataApi->listColumnMetadata($columnId);
+        $this->assertCount(1, $metadataArray);
+    }
+
     public function testTableColumnDeleteWithMetadata()
     {
         $tableId = $this->getTestBucketId() . '.table';
         $columnId = $this->getTestBucketId() . '.table.sex';
         $metadataApi = new Metadata($this->_client);
 
-        $md = array(
-            "key" => "test_metadata_key1",
-            "value" => "testval",
-        );
-        $md2 = array(
-            "key" => "test_metadata_key2",
-            "value" => "testval",
-        );
+        $md = [
+            'key' => self::TEST_METADATA_KEY_1,
+            'value' => 'testval',
+        ];
+        $md2 = [
+            'key' => self::TEST_METADATA_KEY_2,
+            'value' => 'testval',
+        ];
         $testMetadata = array($md, $md2);
 
         $provider = self::TEST_PROVIDER;
@@ -328,14 +520,14 @@ class MetadataTest extends StorageApiTestCase
         $bucketId = $this->getTestBucketId();
         $metadataApi = new Metadata($this->_client);
 
-        $md = array(
-            "key" => "test_metadata_key1",
-            "value" => "testval"
-        );
-        $md2 = array(
-            "key" => "test_metadata_key1",
-            "value" => "new testval"
-        );
+        $md = [
+            'key' => self::TEST_METADATA_KEY_1,
+            'value' => 'testval',
+        ];
+        $md2 = [
+            'key' => self::TEST_METADATA_KEY_1,
+            'value' => 'new testval',
+        ];
         $testMetadata = array($md);
 
         $provider = self::TEST_PROVIDER;
@@ -481,6 +673,97 @@ class MetadataTest extends StorageApiTestCase
         $medataApi->deleteBucketMetadata($this->getTestBucketId(), $createdMetadata[0]['id']);
     }
 
+    public function testBucketMetadataForTokenWithReadPrivilege()
+    {
+        $testMetadataValue = 'testval';
+
+        $bucketId = $this->getTestBucketId();
+        $metadataApi = new Metadata($this->_client);
+
+        $provider = self::TEST_PROVIDER;
+        $metadataApi->postBucketMetadata(
+            $bucketId,
+            $provider,
+            [
+                [
+                    'key' => self::TEST_METADATA_KEY_1,
+                    'value' => $testMetadataValue,
+                ]
+            ]
+        );
+
+
+        $readClient = new Client([
+            'token' => $this->prepareTokenWithReadPrivilegeForBucket($bucketId),
+            'url' => STORAGE_API_URL,
+            'backoffMaxTries' => 1,
+        ]);
+
+        $readMetadataApi = new Metadata($readClient);
+
+        $metadataArray = $readMetadataApi->listBucketMetadata($bucketId);
+        $this->assertCount(1, $metadataArray);
+
+        $metadata = reset($metadataArray);
+        $this->assertEquals($testMetadataValue, $metadata['value']);
+
+        // delete
+        try {
+            $readMetadataApi->deleteBucketMetadata($bucketId, $metadata['id']);
+            $this->fail('Token with read permissions should not delete metadata');
+        } catch (ClientException $e) {
+            $this->assertEquals(403, $e->getCode());
+        }
+
+        $metadataArray = $readMetadataApi->listBucketMetadata($bucketId);
+        $this->assertCount(1, $metadataArray);
+
+        // update
+        try {
+            $readMetadataApi->postBucketMetadata(
+                $bucketId,
+                $provider,
+                [
+                    [
+                        'key' => self::TEST_METADATA_KEY_1,
+                        'value' => 'changed',
+                    ]
+                ]
+            );
+
+            $this->fail('Token with read permissions should not update metadata');
+        } catch (ClientException $e) {
+            $this->assertEquals(403, $e->getCode());
+        }
+
+        $metadataArray = $readMetadataApi->listBucketMetadata($bucketId);
+        $this->assertCount(1, $metadataArray);
+
+        $metadata = reset($metadataArray);
+        $this->assertEquals($testMetadataValue, $metadata['value']);
+
+        // new metadata
+        try {
+            $readMetadataApi->postBucketMetadata(
+                $bucketId,
+                $provider,
+                [
+                    [
+                        'key' => self::TEST_METADATA_KEY_2,
+                        'value' => $testMetadataValue,
+                    ]
+                ]
+            );
+
+            $this->fail('Token with read permissions should not create metadata');
+        } catch (ClientException $e) {
+            $this->assertEquals(403, $e->getCode());
+        }
+
+        $metadataArray = $readMetadataApi->listBucketMetadata($bucketId);
+        $this->assertCount(1, $metadataArray);
+    }
+
     public function apiEndpoints()
     {
         $tableId = '.table';
@@ -522,5 +805,19 @@ class MetadataTest extends StorageApiTestCase
                 $res = $metadataApi->deleteBucketMetadata($objId, $metadataId);
                 break;
         }
+    }
+
+    private function prepareTokenWithReadPrivilegeForBucket($bucketId)
+    {
+        $options = new TokenCreateOptions();
+        $options
+            ->setExpiresIn(60 * 5)
+            ->setDescription(sprintf('Test read of "%s" bucket', $bucketId))
+            ->addBucketPermission($bucketId, TokenAbstractOptions::BUCKET_PERMISSION_READ)
+        ;
+
+        $tokenId = $this->_client->createToken($options);
+        $token = $this->_client->getToken($tokenId);
+        return $token['token'];
     }
 }
