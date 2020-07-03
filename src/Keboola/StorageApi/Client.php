@@ -951,18 +951,6 @@ class Client
     }
 
     /**
-     * Unlink aliased table from source table
-     * @param string $tableId
-     * @return mixed|string
-     */
-    public function unlinkTable($tableId)
-    {
-        $result = $this->apiDelete("storage/tables/" . $tableId . '?unlink');
-        $this->log("Table {$tableId} unlinked");
-        return $result;
-    }
-
-    /**
      *
      * Set a table attribute
      *
