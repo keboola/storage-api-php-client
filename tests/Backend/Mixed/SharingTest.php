@@ -627,7 +627,7 @@ class SharingTest extends StorageApiSharingTestCase
             'name',
             'columns',
             'primaryKey',
-            'name',
+            'displayName',
             'dataSizeBytes',
             'rowsCount',
             'lastImportDate',
