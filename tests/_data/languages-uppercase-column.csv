@@ -4,3 +4,4 @@
 "1","english"
 "11","finnish"
 "24","french"
+new CsvFile(__DIR__ . '/../../_data/languages-uppercase-column.csv')
