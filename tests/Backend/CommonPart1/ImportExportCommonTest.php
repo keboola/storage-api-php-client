@@ -52,29 +52,6 @@ class ImportExportCommonTest extends StorageApiTestCase
         $this->assertNotEmpty($result['totalDataSizeBytes']);
     }
 
-    public function testTableImportCaseSensitive()
-    {
-        $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
-        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', $importFile);
-
-        $table = $this->_client->getTable($tableId);
-        $this->assertNotEmpty($table['dataSizeBytes']);
-        $this->assertSame(5, $table['rowsCount']);
-
-        $importFile2 = new CsvFile(__DIR__ . '/../../_data/languages-uppercase-column.csv');
-        try {
-            $this->_client->writeTable($tableId, $importFile2);
-            $this->fail('Exception should be thrown');
-        } catch (\Keboola\StorageApi\ClientException $e) {
-            $this->assertEquals(
-                'Some columns are missing in the csv file. Missing columns: name. Expected columns: '.
-                'id,name. Please check if the expected delimiter "," is used in the csv file.',
-                $e->getMessage()
-            );
-
-            $this->assertEquals('csvImport.columnsNotMatch', $e->getStringCode());
-        }
-    }
     /**
      * @dataProvider tableImportData
      * @param $importFileName
@@ -175,22 +152,42 @@ class ImportExportCommonTest extends StorageApiTestCase
         ];
     }
 
-    public function testTableImportColumnsCaseInsensitive()
+    public function testTableImportCaseSensitive()
     {
-        $tokenData = $this->_client->verifyToken();
-        if (in_array($tokenData['owner']['defaultBackend'], [self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE])) {
-            return;
-        }
-
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', $importFile);
 
-        $result = $this->_client->writeTableAsync($tableId, new CsvFile(__DIR__ . '/../../_data/languages.camel-case-columns.csv'));
-
         $table = $this->_client->getTable($tableId);
-        $this->assertEquals($importFile->getHeader(), $table['columns']);
-    }
+        $this->assertNotEmpty($table['dataSizeBytes']);
+        $this->assertSame(5, $table['rowsCount']);
 
+        $importFile2 = new CsvFile(__DIR__ . '/../../_data/languages.camel-case-columns.csv');
+        try {
+            $this->_client->writeTable($tableId, $importFile2);
+            $this->fail('Exception should be thrown');
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertEquals(
+                'Some columns are missing in the csv file. Missing columns: id,name. Expected columns: '.
+                'id,name. Please check if the expected delimiter "," is used in the csv file.',
+                $e->getMessage()
+            );
+
+            $this->assertEquals('csvImport.columnsNotMatch', $e->getStringCode());
+        }
+
+        try {
+            $this->_client->writeTableAsync($tableId, $importFile2);
+            $this->fail('Exception should be thrown');
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertEquals(
+                'Some columns are missing in the csv file. Missing columns: id,name. Expected columns: '.
+                'id,name. Please check if the expected delimiter "," is used in the csv file.',
+                $e->getMessage()
+            );
+
+            $this->assertEquals('csvImport.columnsNotMatch', $e->getStringCode());
+        }
+    }
 
     /**
      * @dataProvider tableImportInvalidData
