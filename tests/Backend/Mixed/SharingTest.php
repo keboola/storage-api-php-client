@@ -671,6 +671,9 @@ class SharingTest extends StorageApiSharingTestCase
             ]
         );
 
+        $displayName = 'display-name-first';
+        $this->_client->updateTable($tableId, ['displayName' => $displayName]);
+
         $table2Id = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_OUT),
             'languages-out',
