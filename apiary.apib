@@ -2054,11 +2054,12 @@ Obtains information about a table.
                 }
             }
 
-### Table update [PUT /v2/storage/tables/{table_id}]
+### Table update [PUT /v2/storage/tables/{table_id}/?async={async}]
 Update an existing table
 
 + Parameters
     + table_id (required) - Table Id
+    + async (optional, boolean) - Updates the table in a background job. This is useful if updates takes too much time and times out.
 
 + Attributes
     + displayName (required, string) - Table displayName, this name is displayed in UI and can be changed anytime; only alphanumeric characters,underscores and dashes are allowed.
@@ -2073,6 +2074,8 @@ Update an existing table
             displayName=updated-table-display-name
 
 + Response 200 (application/json)
+Synchronous call response (async=false)
+    + Body
 
             {
                 "uri": "https://connection.keboola.com/v2/storage/tables/in.c-application-testing.cashier-data-alias",
@@ -2142,7 +2145,38 @@ Update an existing table
                     "metadata": []
                 }
             }
++ Response 202 (application/json)
+Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
+    + Body
 
+            {
+                "id": 11,
+                "status": "waiting",
+                "url": "https://connection.keboola.com/v2/storage/jobs/11",
+                "operationName": "tableUpdate",
+                "operationParams": {
+                    "values": {
+                        "displayName": "updated-table-display-name"
+                    },
+                },
+                "createdTime": "2013-05-31T16:11:05+0200",
+                "startTime": null,
+                "endTime": null,
+                "runId": null,
+                "results": null,
+                "creatorToken": {
+                    "id": "27978",
+                    "description": "roman.bracinik@keboola.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
+                }
+            }
 
 ### Drop table [DELETE /v2/storage/tables/{table_id}/?force={force}]
 Deletes a table from Storage. In default mode, only table having any aliases can be deleted.
