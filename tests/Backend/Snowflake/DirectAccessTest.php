@@ -444,13 +444,13 @@ class DirectAccessTest extends StorageApiTestCase
                 $e->getMessage()
             );
         }
+
         try {
             $this->_client->updateTable($tableId, ['displayName' => 'differentDisplayName']);
             $this->fail('Should have thrown!');
         } catch (ClientException $e) {
             $this->assertSame(
-                'Cannot change displayName of table "in.c-API-DA-tests.mytable" in bucket "in.c-API-DA-tests" with direct '
-                . 'access enabled, disable direct access first',
+                'Cannot update a table "in.c-API-DA-tests.mytable" in bucket "in.c-API-DA-tests" with Direct Access enabled please use async call',
                 $e->getMessage()
             );
         }
