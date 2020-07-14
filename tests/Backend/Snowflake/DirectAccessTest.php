@@ -444,16 +444,63 @@ class DirectAccessTest extends StorageApiTestCase
                 $e->getMessage()
             );
         }
+
         try {
             $this->_client->updateTable($tableId, ['displayName' => 'differentDisplayName']);
             $this->fail('Should have thrown!');
         } catch (ClientException $e) {
             $this->assertSame(
-                'Cannot change displayName of table "in.c-API-DA-tests.mytable" in bucket "in.c-API-DA-tests" with direct '
-                . 'access enabled, disable direct access first',
+                'Cannot update a table "in.c-API-DA-tests.mytable" in bucket "in.c-API-DA-tests" with Direct Access enabled please use async call',
                 $e->getMessage()
             );
         }
+
+        $connection->query(sprintf(
+            'USE DATABASE %s',
+            $connection->quoteIdentifier($schemas[0]['database_name'])
+        ));
+
+        $connection->query(sprintf(
+            'USE SCHEMA %s',
+            $connection->quoteIdentifier($schemas[0]['name'])
+        ));
+        $views = $connection->fetchAll('SHOW VIEWS');
+
+        $this->assertCount(2, $views);
+
+        $views = array_values(array_filter($views, function ($view) {
+            return $view['name'] === 'mytable_displayName';
+        }));
+        $this->assertSame('mytable_displayName', $views[0]['name']);
+        $this->assertSame(
+            'CREATE OR REPLACE VIEW "DA_IN_B1-DISPLAY-NAME"."mytable_displayName"'
+            . ' AS SELECT * FROM "in.c-API-DA-tests"."mytable"',
+            $views[0]['text']
+        );
+
+        $this->_client->updateTable($tableId, ['displayName' => 'updatedDisplayName', 'async' => true]);
+
+        $connection->query(sprintf(
+            'USE DATABASE %s',
+            $connection->quoteIdentifier($schemas[0]['database_name'])
+        ));
+
+        $connection->query(sprintf(
+            'USE SCHEMA %s',
+            $connection->quoteIdentifier($schemas[0]['name'])
+        ));
+        $views = $connection->fetchAll('SHOW VIEWS');
+
+        $this->assertCount(2, $views);
+        $views = array_values(array_filter($views, function ($view) {
+            return $view['name'] === 'updatedDisplayName';
+        }));
+        $this->assertSame('updatedDisplayName', $views[0]['name']);
+        $this->assertSame(
+            'CREATE OR REPLACE VIEW "DA_IN_B1-DISPLAY-NAME"."updatedDisplayName"'
+            . ' AS SELECT * FROM "in.c-API-DA-tests"."mytable"',
+            $views[0]['text']
+        );
 
         $directAccess->disableForBucket($bucketId);
         $directAccess->enableForBucket($bucket2Id);
