@@ -88,6 +88,7 @@ class SharingTest extends StorageApiSharingTestCase
             $sharedBuckets[0]['id'],
             $displayName
         );
+
         $linkedBucket = $client->getBucket($linkedBucketId);
         $this->assertEquals($sharedBuckets[0]['id'], $linkedBucket['sourceBucket']['id']);
         $this->assertEquals($sharedBuckets[0]['project']['id'], $linkedBucket['sourceBucket']['project']['id']);
@@ -171,6 +172,70 @@ class SharingTest extends StorageApiSharingTestCase
 
         $this->assertArrayHasKey("linkedBy", $listedSharedBucket);
         $this->assertCount(2, $listedSharedBucket['linkedBy']);
+
+        $bucket = $this->_client->getBucket($bucketId);
+        $linkedBucketId = $bucket['linkedBy'][0]['id'];
+        $linkedBucketProject = $bucket['linkedBy'][0]['project']['id'];
+
+        try {
+            // cannot unlink bucket from nonexistent project
+            $this->_client->forceUnlinkBucket($bucketId, 9223372036854775807, $linkedBucketId);
+            $this->fail('Should have thrown');
+        } catch (ClientException $e) {
+            $this->assertSame('Project "9223372036854775807" does not exist', $e->getMessage());
+        }
+        try {
+            // cannot unlink nonexistent bucket
+            $this->_client->forceUnlinkBucket($bucketId, $linkedBucketProject, 'in.c-does-not-exist');
+            $this->fail('Should have thrown');
+        } catch (ClientException $e) {
+            $this->assertSame('There is no linked bucket "in.c-does-not-exist" in project "218"', $e->getMessage());
+        }
+
+        $notLinkedBucketName = 'normal-bucket';
+        $notLinkedBucketStage = 'in';
+        $notLinkedBucket = $notLinkedBucketStage . '.c-' . $notLinkedBucketName . '';
+        if ($client->bucketExists($notLinkedBucket)) {
+            $client->dropBucket($notLinkedBucket);
+        }
+        $client->createBucket($notLinkedBucketName, $notLinkedBucketStage);
+        try {
+            // cannot unlink bucket that is not linked from source project
+            $this->_client->forceUnlinkBucket($bucketId, $linkedBucketProject, $notLinkedBucket);
+            $this->fail('Should have thrown');
+        } catch (ClientException $e) {
+            $this->assertSame('There is no linked bucket "in.c-normal-bucket" in project "218"', $e->getMessage());
+        }
+
+        $notSourceBucketName = 'normal-bucket';
+        $notSourceBucketStage = 'in';
+        $notSourceBucketId = $notSourceBucketStage . '.c-' . $notSourceBucketName . '';
+        if ($this->_client->bucketExists($notSourceBucketId)) {
+            $this->_client->dropBucket($notSourceBucketId);
+        }
+        $this->_client->createBucket($notSourceBucketName, $notSourceBucketStage);
+        try {
+            // cannot unlink bucket that is linked from different source bucket
+            $this->_client->forceUnlinkBucket($notSourceBucketId, $linkedBucketProject, $linkedBucketId);
+            $this->fail('Should have thrown');
+        } catch (ClientException $e) {
+            $this->assertSame('There is no linked bucket "in.c-organization-project-test" in project "218"', $e->getMessage());
+        }
+
+        $this->_client->forceUnlinkBucket($bucketId, $linkedBucketProject, $linkedBucketId);
+
+        $bucket = $this->_client->getBucket($bucketId);
+        $this->assertArrayHasKey("linkedBy", $bucket);
+        $this->assertCount(1, $bucket['linkedBy']);
+        $this->assertFalse($client->bucketExists($linkedBucketId));
+
+        $linkedBucketId = $client->linkBucket(
+            'organization-project-test',
+            self::STAGE_IN,
+            $sharedBuckets[0]['project']['id'],
+            $sharedBuckets[0]['id'],
+            $displayName
+        );
 
         // user should be also able to delete the linked bucket
         $client->dropBucket($linkedBucketId);
