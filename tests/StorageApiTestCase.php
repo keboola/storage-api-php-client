@@ -174,7 +174,7 @@ abstract class StorageApiTestCase extends \PHPUnit\Framework\TestCase
         };
         usort($expected, $comparsion);
         usort($actual, $comparsion);
-        return $this->assertEquals($expected, $actual, $message);
+        $this->assertEquals($expected, $actual, $message);
     }
 
     public function tableExportFiltersData()
