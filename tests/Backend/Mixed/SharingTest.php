@@ -627,7 +627,7 @@ class SharingTest extends StorageApiSharingTestCase
             'name',
             'columns',
             'primaryKey',
-            'name',
+            'displayName',
             'dataSizeBytes',
             'rowsCount',
             'lastImportDate',
@@ -670,6 +670,9 @@ class SharingTest extends StorageApiSharingTestCase
                 'primaryKey' => 'id',
             ]
         );
+
+        $displayName = 'display-name-first';
+        $this->_client->updateTable($tableId, ['displayName' => $displayName]);
 
         $table2Id = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_OUT),
