@@ -604,12 +604,12 @@ class DirectAccessTest extends StorageApiTestCase
         );
 
         $views = array_values(array_filter($viewsResult, function ($view) {
-            return $view['name'] === 'mytable_displayName';
+            return $view['name'] === 'updatedDisplayName';
         }));
-        $this->assertSame('mytable_displayName', $views[0]['name']);
+        $this->assertSame('updatedDisplayName', $views[0]['name']);
         $this->assertSame(
             sprintf(
-                'CREATE OR REPLACE VIEW "%s"."DA_IN_API-LINKED-TESTS"."mytable_displayName"'.
+                'CREATE OR REPLACE VIEW "%s"."DA_IN_API-LINKED-TESTS"."updatedDisplayName"'.
                 ' AS SELECT * FROM "%s"."in.c-API-DA-tests"."mytable"',
                 $views[0]['database_name'],
                 $views[0]['owner']
