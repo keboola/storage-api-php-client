@@ -17,7 +17,7 @@ use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Options\ListFilesOptions;
 
-abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
+abstract class StorageApiTestCase extends \PHPUnit\Framework\TestCase
 {
     const BACKEND_REDSHIFT = 'redshift';
     const BACKEND_SNOWFLAKE = 'snowflake';
