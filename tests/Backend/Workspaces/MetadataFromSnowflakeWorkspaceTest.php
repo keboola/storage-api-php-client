@@ -67,6 +67,7 @@ class MetadataFromSnowflakeWorkspaceTest extends WorkspacesTestCase
                     \"name\" varchar(1)
                 );");
 
+        // incremental load will not update datatype length as length in workspace is lower than in table
         $this->_client->writeTableAsyncDirect($tableId, [
             'incremental' => true,
             'dataWorkspaceId' => $workspace['id'],
@@ -82,7 +83,7 @@ class MetadataFromSnowflakeWorkspaceTest extends WorkspacesTestCase
         $this->assertArrayHasKey('name', $table['columnMetadata']);
         $this->assertMetadata($expectedNameMetadata, $table['columnMetadata']['name']);
 
-        //only incremental load doesn't update datatype length down
+        //only full load will update datatype length
         $this->_client->writeTableAsyncDirect($tableId, [
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => 'test.metadata_columns',
@@ -121,14 +122,6 @@ class MetadataFromSnowflakeWorkspaceTest extends WorkspacesTestCase
             'KBC.datatype.nullable' => '1',
             'KBC.datatype.basetype' => 'STRING',
             'KBC.datatype.length' => '32',
-            'KBC.datatype.default' => '',
-        ];
-
-        $expectedIdMetadata = [
-            'KBC.datatype.type' => 'TEXT',
-            'KBC.datatype.nullable' => '1',
-            'KBC.datatype.basetype' => 'STRING',
-            'KBC.datatype.length' => '16',
             'KBC.datatype.default' => '',
         ];
 
