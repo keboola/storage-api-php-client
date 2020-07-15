@@ -20,6 +20,142 @@ class MetadataFromRedshiftWorkspaceTest extends WorkspacesTestCase
         }
     }
 
+    public function testIncrementalLoadOnlyUpdateDataTypeLengthOnlyUpward()
+    {
+        // create workspace and source table in workspace
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace(["backend" => "redshift"]);
+        $connection = $workspace['connection'];
+        $db = $this->getDbConnection($connection);
+        $db->query("create table \"test.metadata_columns\" (
+                    \"id\" varchar(16),
+                    \"name\" varchar(16)
+                );");
+
+        $tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), [
+            'name' => 'metadata_columns',
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => 'test.metadata_columns',
+        ]);
+
+        $expectedNameMetadata = [
+            'KBC.datatype.type' => 'VARCHAR',
+            'KBC.datatype.nullable' => '1',
+            'KBC.datatype.basetype' => 'STRING',
+            'KBC.datatype.length' => '16',
+        ];
+
+        $expectedIdMetadata = [
+            'KBC.datatype.type' => 'VARCHAR',
+            'KBC.datatype.nullable' => '1',
+            'KBC.datatype.basetype' => 'STRING',
+            'KBC.datatype.length' => '16',
+        ];
+
+        $table = $this->_client->getTable($tableId);
+
+        $this->assertEquals([], $table['metadata']);
+
+        $this->assertArrayHasKey('id', $table['columnMetadata']);
+
+        $this->assertMetadata($expectedIdMetadata, $table['columnMetadata']['id']);
+        $this->assertArrayHasKey('name', $table['columnMetadata']);
+        $this->assertMetadata($expectedNameMetadata, $table['columnMetadata']['name']);
+
+        $db->query("drop table \"test.metadata_columns\"");
+        $db->query("create table \"test.metadata_columns\" (
+                    \"id\" varchar(16),
+                    \"name\" varchar(1)
+                );");
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        // incremental load will not update datatype length as length in workspace is lower than in table
+        $this->_client->writeTableAsyncDirect($tableId, [
+            'incremental' => true,
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => 'test.metadata_columns',
+        ]);
+
+        $events = $this->_client->listEvents([
+            'runId' => $runId,
+        ]);
+
+        $notUpdateLengthEvent = null;
+        foreach ($events as $event) {
+            if ($event['event'] === 'storage.tableAutomaticDataTypesNotUpdateColumnLength') {
+                $notUpdateLengthEvent = $event;
+            }
+        }
+
+        $this->assertSame('storage.tableAutomaticDataTypesNotUpdateColumnLength', $notUpdateLengthEvent['event']);
+        $this->assertSame('storage', $notUpdateLengthEvent['component']);
+        $this->assertSame('warn', $notUpdateLengthEvent['type']);
+        $this->assertArrayHasKey('params', $notUpdateLengthEvent);
+        $this->assertSame('in.c-API-tests.metadata_columns', $notUpdateLengthEvent['objectId']);
+        $this->assertSame('name', $notUpdateLengthEvent['params']['column']);
+
+        $table = $this->_client->getTable($tableId);
+
+        $this->assertEquals([], $table['metadata']);
+
+        $this->assertArrayHasKey('id', $table['columnMetadata']);
+        $this->assertMetadata($expectedIdMetadata, $table['columnMetadata']['id']);
+        $this->assertArrayHasKey('name', $table['columnMetadata']);
+        $this->assertMetadata($expectedNameMetadata, $table['columnMetadata']['name']);
+
+        //only full load will update datatype length
+        $this->_client->writeTableAsyncDirect($tableId, [
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => 'test.metadata_columns',
+        ]);
+
+        $expectedNameMetadata = [
+            'KBC.datatype.type' => 'VARCHAR',
+            'KBC.datatype.nullable' => '1',
+            'KBC.datatype.basetype' => 'STRING',
+            'KBC.datatype.length' => '1',
+        ];
+
+        $table = $this->_client->getTable($tableId);
+
+        $this->assertEquals([], $table['metadata']);
+
+        $this->assertArrayHasKey('id', $table['columnMetadata']);
+        $this->assertMetadata($expectedIdMetadata, $table['columnMetadata']['id']);
+        $this->assertArrayHasKey('name', $table['columnMetadata']);
+        $this->assertMetadata($expectedNameMetadata, $table['columnMetadata']['name']);
+
+        $db->query("drop table \"test.metadata_columns\"");
+        $db->query("create table \"test.metadata_columns\" (
+                    \"id\" varchar(16),
+                    \"name\" varchar(32)
+                );");
+
+        $this->_client->writeTableAsyncDirect($tableId, [
+            'incremental' => true,
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => 'test.metadata_columns',
+        ]);
+
+        $expectedNameMetadata = [
+            'KBC.datatype.type' => 'VARCHAR',
+            'KBC.datatype.nullable' => '1',
+            'KBC.datatype.basetype' => 'STRING',
+            'KBC.datatype.length' => '32',
+        ];
+
+        $table = $this->_client->getTable($tableId);
+
+        $this->assertEquals([], $table['metadata']);
+
+        $this->assertArrayHasKey('id', $table['columnMetadata']);
+        $this->assertMetadata($expectedIdMetadata, $table['columnMetadata']['id']);
+        $this->assertArrayHasKey('name', $table['columnMetadata']);
+        $this->assertMetadata($expectedNameMetadata, $table['columnMetadata']['name']);
+    }
+
     public function testCreateTableFromWorkspace()
     {
         // create workspace and source table in workspace
