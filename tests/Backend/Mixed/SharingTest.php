@@ -225,6 +225,11 @@ class SharingTest extends StorageApiSharingTestCase
 
         $this->_client->forceUnlinkBucket($bucketId, $linkedBucketProjectId, $linkedBucketId);
 
+        $events = $this->_client2->listEvents([
+            'limit' => 1,
+            'q' => 'objectId:' . $linkedBucketId . ' AND objectType:bucket AND project.id:' . $linkedBucketProjectId,
+        ]);
+        $this->assertSame('storage.bucketForceUnlinked', $events[0]['event']);
 
         $bucket = $this->_client->getBucket($bucketId);
         $this->assertArrayHasKey("linkedBy", $bucket);
