@@ -69,6 +69,7 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertArrayHasKey('id', $response['owner']);
         $this->assertArrayHasKey('name', $response['owner']);
         $linkedBucketProject = $response['owner'];
+        $linkedBucketProjectId = $linkedBucketProject['id'];
 
         // bucket can be listed with non-admin sapi token
         $sharedBuckets = $client->listSharedBuckets();
@@ -149,7 +150,7 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertNotFalse($linkedBucketKey);
         $listedLinkedBucket = $sharedBucket['linkedBy'][$linkedBucketKey];
         $this->assertArrayHasKey("project", $listedLinkedBucket);
-        $this->assertEquals($linkedBucketProject['id'], $listedLinkedBucket['project']['id']);
+        $this->assertEquals($linkedBucketProjectId, $listedLinkedBucket['project']['id']);
         $this->assertEquals($linkedBucketProject['name'], $listedLinkedBucket['project']['name']);
         $this->assertArrayHasKey("created", $listedLinkedBucket);
         $this->assertEquals($linkedBucket['created'], $listedLinkedBucket['created']);
@@ -222,7 +223,8 @@ class SharingTest extends StorageApiSharingTestCase
             $this->assertSame('There is no linked bucket "in.c-organization-project-test" in project "218"', $e->getMessage());
         }
 
-        $this->_client->forceUnlinkBucket($bucketId, $linkedBucketProject, $linkedBucketId);
+        $this->_client->forceUnlinkBucket($bucketId, $linkedBucketProjectId, $linkedBucketId);
+
 
         $bucket = $this->_client->getBucket($bucketId);
         $this->assertArrayHasKey("linkedBy", $bucket);
