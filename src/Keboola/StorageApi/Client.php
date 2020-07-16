@@ -429,8 +429,8 @@ class Client
         $url = "storage/buckets/" . $bucketId . "/force-unlink";
 
         return $this->apiPostJson($url, [
-            'linked_project_id' => $projectId,
-            'linked_bucket_id' => $linkedBucketId,
+            'linkedProjectId' => $projectId,
+            'linkedBucketId' => $linkedBucketId,
         ]);
     }
 
