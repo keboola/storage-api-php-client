@@ -88,11 +88,18 @@ abstract class StorageApiTestCase extends \PHPUnit\Framework\TestCase
         ));
     }
 
+    /**
+     * @return string
+     */
+    public function getBucketNameForTest()
+    {
+        return 'API-tests' . md5($this->getName());
+    }
 
-    protected function _initEmptyTestBuckets($stages = [self::STAGE_OUT, self::STAGE_IN])
+    protected function _initEmptyTestBuckets($stages = [self::STAGE_OUT, self::STAGE_IN], $name = 'API-tests')
     {
         foreach ($stages as $stage) {
-            $this->_bucketIds[$stage] = $this->initEmptyBucket('API-tests', $stage);
+            $this->_bucketIds[$stage] = $this->initEmptyBucket($name, $stage);
         }
     }
 
