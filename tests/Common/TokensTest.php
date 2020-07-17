@@ -98,6 +98,8 @@ class TokensTest extends StorageApiTestCase
     {
         $currentToken = $this->_client->verifyToken();
 
+        // Master token should not return unencrypted token
+        $this->assertArrayNotHasKey('token', $currentToken);
         $this->assertArrayHasKey('created', $currentToken);
         $this->assertArrayHasKey('refreshed', $currentToken);
         $this->assertArrayHasKey('description', $currentToken);
@@ -306,6 +308,8 @@ class TokensTest extends StorageApiTestCase
 
         $this->assertArrayNotHasKey('admin', $token);
         $this->assertArrayNotHasKey('componentAccess', $token);
+        // Default token should return unencrypted token
+        $this->assertArrayHasKey('token', $token);
 
         $this->assertArrayHasKey('creatorToken', $token);
 
