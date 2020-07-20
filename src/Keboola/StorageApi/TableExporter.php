@@ -170,6 +170,11 @@ class TableExporter
             if (!isset($table['exportOptions'])) {
                 $table['exportOptions'] = array();
             }
+            if (empty($table['exportOptions']['columns'])) {
+                $tableDetail = $this->client->getTable($table['tableId']);
+                $table['exportOptions']['columns'] = $tableDetail['columns'];
+            }
+
             $jobId = $this->client->queueTableExport($table['tableId'], $table['exportOptions']);
             $exportJobs[$jobId] = $table;
         }
