@@ -415,16 +415,6 @@ class DirectAccessTest extends StorageApiTestCase
         }
 
         try {
-            $this->_client->deleteTableColumn($tableId, 'otherColumn');
-            $this->fail('Should have thrown!');
-        } catch (ClientException $e) {
-            $this->assertSame(
-                'Cannot remove column from a table "in.c-API-DA-tests.mytable" in bucket "in.c-API-DA-tests" with direct '
-                . 'access enabled, disable direct access first',
-                $e->getMessage()
-            );
-        }
-        try {
             $this->_client->createAliasTable($bucketId, $tableId, 'tableAlias');
             $this->fail('Should have thrown!');
         } catch (ClientException $e) {
@@ -667,6 +657,42 @@ class DirectAccessTest extends StorageApiTestCase
             ),
             $views[0]['text']
         );
+
+        $this->_client->deleteTableColumn($tableId, 'add_test_column', ['force' => true]);
+
+        $connection->query(sprintf(
+            'USE SCHEMA %s',
+            $connection->quoteIdentifier('DA_IN_B1-DISPLAY-NAME')
+        ));
+
+        $columns = array_map(function ($row) {
+            return $row['column_name'];
+        }, $connection->fetchAll(sprintf('SHOW COLUMNS IN %s', $connection->quoteIdentifier('updatedDisplayName'))));
+
+        $this->assertNotContains('add_test_column', $columns);
+        $this->assertEquals(['id', 'name', '_timestamp', 'count'], $columns);
+
+        $schemas = $client2Connection->fetchAll('SHOW SCHEMAS');
+
+        $this->assertCount(2, $schemas, 'There should be INFORMATION SCHEMA and one bucket');
+        $schemas = array_values(array_filter($schemas, function ($schema) {
+            return $schema['name'] === 'DA_IN_API-LINKED-TESTS';
+        }));
+        $this->assertSame('DA_IN_API-LINKED-TESTS', $schemas[0]['name']);
+
+        $client2Connection->query(sprintf(
+            'USE SCHEMA %s',
+            $client2Connection->quoteIdentifier($schemas[0]['name'])
+        ));
+
+        $columns = array_map(function ($row) {
+            return $row['column_name'];
+        }, $client2Connection->fetchAll(
+            sprintf('SHOW COLUMNS IN %s', $connection->quoteIdentifier('updatedDisplayName'))
+        ));
+
+        $this->assertNotContains('add_test_column', $columns);
+        $this->assertEquals(['id', 'name', '_timestamp', 'count'], $columns);
     }
 
     /** @return DirectAccess */
