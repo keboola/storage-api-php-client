@@ -179,7 +179,14 @@ class TableExporterTest extends StorageApiTestCase
                 'tableId' => $table1Id,
                 'destination' => $file1,
                 'exportOptions' => [
-                    'limit' => 1,
+                    'whereFilters' => [
+                        [
+                            'column' => 'id',
+                            'values' => [
+                                '0'
+                            ],
+                        ],
+                    ],
                     'columns' => ['name', 'id'],
                 ],
             ],
