@@ -399,7 +399,7 @@ class DirectAccessTest extends StorageApiTestCase
 
         try {
             $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
-            $this->_client->writeTableAsync(
+            $this->_client->writeTable(
                 $tableId,
                 new CsvFile($importFile),
                 [
@@ -409,8 +409,7 @@ class DirectAccessTest extends StorageApiTestCase
             $this->fail('Should have thrown!');
         } catch (ClientException $e) {
             $this->assertSame(
-                'Cannot add columns ("iso", "Something" to a table "in.c-API-DA-tests.mytable" in bucket "in.c-API-DA-tests"'
-                . ' with direct access enabled, disable direct access first',
+                'Bucket "in.c-API-DA-tests" has Direct Access enabled please use async call',
                 $e->getMessage()
             );
         }
@@ -567,6 +566,38 @@ class DirectAccessTest extends StorageApiTestCase
 
         $directAccess->enableForBucket($bucketId);
 
+        $connection->query(sprintf(
+            'USE SCHEMA %s',
+            $connection->quoteIdentifier('DA_IN_B1-DISPLAY-NAME')
+        ));
+
+        $columns = array_map(function ($row) {
+            return $row['column_name'];
+        }, $connection->fetchAll(sprintf('SHOW COLUMNS IN %s', $connection->quoteIdentifier('updatedDisplayName'))));
+
+        $this->assertEquals(['id', 'name', '_timestamp'], $columns);
+
+        $importFile = __DIR__ . '/../../_data/languages.more-columns.csv';
+        $this->_client->writeTableAsync(
+            $tableId,
+            new CsvFile($importFile),
+            [
+                'incremental' => true,
+            ]
+        );
+
+        $connection->query(sprintf(
+            'USE SCHEMA %s',
+            $connection->quoteIdentifier('DA_IN_B1-DISPLAY-NAME')
+        ));
+
+        $columns = array_map(function ($row) {
+            return $row['column_name'];
+        }, $connection->fetchAll(sprintf('SHOW COLUMNS IN %s', $connection->quoteIdentifier('updatedDisplayName'))));
+
+        $this->assertContains('count', $columns);
+        $this->assertEquals(['id', 'name', '_timestamp', 'count'], $columns);
+
         $this->_client->addTableColumn($tableId, 'add_test_column');
 
         $connection->query(sprintf(
@@ -579,7 +610,7 @@ class DirectAccessTest extends StorageApiTestCase
         }, $connection->fetchAll(sprintf('SHOW COLUMNS IN %s', $connection->quoteIdentifier('updatedDisplayName'))));
 
         $this->assertContains('add_test_column', $columns);
-        $this->assertEquals(['id', 'name', '_timestamp', 'add_test_column'], $columns);
+        $this->assertEquals(['id', 'name', '_timestamp', 'count', 'add_test_column'], $columns);
 
         $schemas = $client2Connection->fetchAll('SHOW SCHEMAS');
 
@@ -601,7 +632,7 @@ class DirectAccessTest extends StorageApiTestCase
         ));
 
         $this->assertContains('add_test_column', $columns);
-        $this->assertEquals(['id', 'name', '_timestamp', 'add_test_column'], $columns);
+        $this->assertEquals(['id', 'name', '_timestamp', 'count', 'add_test_column'], $columns);
 
         $viewsResult = $client2Connection->fetchAll('SHOW VIEWS');
         $this->assertCount(2, $viewsResult);
