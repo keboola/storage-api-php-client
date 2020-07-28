@@ -20,7 +20,7 @@ class MetadataFromRedshiftWorkspaceTest extends WorkspacesTestCase
         }
     }
 
-    public function testIncrementalLoadOnlyUpdateDataTypeLengthOnlyUpward()
+    public function testIncrementalLoadUpdateDataType()
     {
         // create workspace and source table in workspace
         $workspaces = new Workspaces($this->_client);
@@ -62,6 +62,49 @@ class MetadataFromRedshiftWorkspaceTest extends WorkspacesTestCase
         $this->assertArrayHasKey('name', $table['columnMetadata']);
         $this->assertMetadata($expectedNameMetadata, $table['columnMetadata']['name']);
 
+        $db->query("drop table \"test.metadata_columns\"");
+        $db->query("create table \"test.metadata_columns\" (
+                    \"id\" integer,
+                    \"name\" varchar(1)
+                );");
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        // incremental load will not update datatype length as length in workspace is lower than in table
+        $this->_client->writeTableAsyncDirect($tableId, [
+            'incremental' => true,
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => 'test.metadata_columns',
+        ]);
+
+        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
+        $events = $this->_client->listEvents([
+            'runId' => $runId,
+        ]);
+
+        $notUpdateColumnTypeEvent = null;
+        foreach ($events as $event) {
+            if ($event['event'] === 'storage.tableAutomaticDataTypesNotUpdateColumnType') {
+                $notUpdateColumnTypeEvent = $event;
+            }
+        }
+
+        $this->assertSame('storage.tableAutomaticDataTypesNotUpdateColumnType', $notUpdateColumnTypeEvent['event']);
+        $this->assertSame('storage', $notUpdateColumnTypeEvent['component']);
+        $this->assertSame('warn', $notUpdateColumnTypeEvent['type']);
+        $this->assertArrayHasKey('params', $notUpdateColumnTypeEvent);
+        $this->assertSame('in.c-API-tests.metadata_columns', $notUpdateColumnTypeEvent['objectId']);
+        $this->assertSame('id', $notUpdateColumnTypeEvent['params']['column']);
+
+        $table = $this->_client->getTable($tableId);
+
+        $this->assertEquals([], $table['metadata']);
+
+        $this->assertArrayHasKey('id', $table['columnMetadata']);
+        $this->assertMetadata($expectedIdMetadata, $table['columnMetadata']['id']);
+        $this->assertArrayHasKey('name', $table['columnMetadata']);
+        $this->assertMetadata($expectedNameMetadata, $table['columnMetadata']['name']);
         $db->query("drop table \"test.metadata_columns\"");
         $db->query("create table \"test.metadata_columns\" (
                     \"id\" varchar(16),
