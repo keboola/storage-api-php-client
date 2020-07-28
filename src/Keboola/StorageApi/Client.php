@@ -1366,7 +1366,7 @@ class Client
             $gzFilePath = $currentUploadDir . '/' . basename($filePath) . '.gz';
             $command = sprintf("gzip -c %s > %s", escapeshellarg($filePath), escapeshellarg($gzFilePath));
 
-            $process = new Process($command);
+            $process = ProcessPolyfill::createProcess($command);
             $process->setTimeout(null);
             if (0 !== $process->run()) {
                 $error = sprintf(
@@ -1521,7 +1521,7 @@ class Client
                     // gzip file and preserve it's base name
                     $gzFilePath = $currentUploadDir . '/' . basename($filePath) . '.gz';
                     $command = sprintf("gzip -c %s > %s", escapeshellarg($filePath), escapeshellarg($gzFilePath));
-                    $process = new Process($command);
+                    $process = ProcessPolyfill::createProcess($command);
                     $process->setTimeout(null);
                     if (0 !== $process->run()) {
                         $error = sprintf(
