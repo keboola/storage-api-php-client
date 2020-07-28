@@ -538,7 +538,10 @@ class DirectAccessTest extends StorageApiTestCase
         $client2Credentials = $client2DirectAccess->createCredentials(self::BACKEND_SNOWFLAKE);
 
         $response = $client2->listSharedBuckets();
-        $sharedBucket = reset($response);
+        $sharedBucket = array_filter($response, static function ($v) {
+            return $v['displayName'] === 'b1-display-name';
+        });
+        $sharedBucket = reset($sharedBucket);
         $linkedBucketId = $client2->linkBucket(
             $linkedBucketName,
             $linkedBucketStage,
