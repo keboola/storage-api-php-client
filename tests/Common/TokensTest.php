@@ -148,6 +148,24 @@ class TokensTest extends StorageApiTestCase
         $this->assertTrue($tokenFound);
     }
 
+    public function testPayGoTokenProperties()
+    {
+        $currentToken = $this->_client->verifyToken();
+
+        $this->assertArrayHasKey('owner', $currentToken);
+
+        if (!in_array('pay-as-you-go', $currentToken['owner']['features'])) {
+            $this->assertArrayNotHasKey('payAsYouGo', $currentToken['owner']);
+            $this->markTestSkipped('Project is not Pay As You Go project');
+            return;
+        } else {
+            $this->assertArrayHasKey('payAsYouGo', $currentToken['owner']);
+
+            $payAsYouGo = $currentToken['owner']['payAsYouGo'];
+            $this->assertInternalType('integer', $payAsYouGo['purchasedCredits']);
+        }
+    }
+
     public function testKeenReadTokensRetrieve()
     {
         $this->expectException(\Keboola\StorageApi\ClientException::class);
