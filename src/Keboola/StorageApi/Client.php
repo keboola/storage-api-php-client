@@ -424,14 +424,13 @@ class Client
         return $this->apiDelete($url);
     }
 
-    public function forceUnlinkBucket($bucketId, $projectId, $linkedBucketId)
+    public function forceUnlinkBucket($bucketId, $projectId)
     {
-        $url = "storage/buckets/" . $bucketId . "/force-unlink";
 
-        return $this->apiPost($url, [
-            'linkedProjectId' => $projectId,
-            'linkedBucketId' => $linkedBucketId,
-        ]);
+        $url = "storage/buckets/" . $bucketId . "/links/" . $projectId;
+
+
+        return $this->apiDelete($url);
     }
 
     public function isSharedBucket($bucketId)
