@@ -523,7 +523,7 @@ class DirectAccessTest extends StorageApiTestCase
         );
 
 
-        $this->_client->createAliasTable($bucketId, $tableId, 'this-is-alias');
+        $aliasTableId = $this->_client->createAliasTable($bucketId, $tableId, 'this-is-alias');
 
         $project2Id = $client2->verifyToken()['owner']['id'];
         //Linked bucket
