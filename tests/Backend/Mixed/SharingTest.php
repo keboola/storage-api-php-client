@@ -183,7 +183,7 @@ class SharingTest extends StorageApiSharingTestCase
             $this->_client->forceUnlinkBucket($bucketId, 9223372036854775807, $linkedBucketId);
             $this->fail('Should have thrown');
         } catch (ClientException $e) {
-            $this->assertSame('Project "9223372036854775807" does not exist', $e->getMessage());
+            $this->assertSame('There is no linked bucket "in.c-organization-project-test" in project "9223372036854775807"', $e->getMessage());
         }
         try {
             // cannot unlink nonexistent bucket
@@ -208,7 +208,13 @@ class SharingTest extends StorageApiSharingTestCase
             $this->_client->forceUnlinkBucket($bucketId, $linkedBucketProjectId, $notLinkedBucket);
             $this->fail('Should have thrown');
         } catch (ClientException $e) {
-            $this->assertSame('There is no linked bucket "in.c-normal-bucket" in project "218"', $e->getMessage());
+            $this->assertSame(
+                sprintf(
+                    'There is no linked bucket "in.c-normal-bucket" in project "%s"',
+                    $this->_client2->verifyToken()['owner']['id']
+                ),
+                $e->getMessage()
+            );
         }
 
         $notSourceBucketName = 'normal-bucket';
