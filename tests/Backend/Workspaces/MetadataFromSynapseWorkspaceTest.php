@@ -157,7 +157,6 @@ class MetadataFromSynapseWorkspaceTest extends WorkspacesTestCase
             'KBC.datatype.nullable' => '1',
             'KBC.datatype.basetype' => 'INTEGER',
             'KBC.datatype.length' => '38,0',
-            'KBC.datatype.default' => '',
         ];
 
         $table = $this->_client->getTable($tableId);
