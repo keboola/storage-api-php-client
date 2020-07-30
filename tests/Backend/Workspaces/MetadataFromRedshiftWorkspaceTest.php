@@ -71,7 +71,7 @@ class MetadataFromRedshiftWorkspaceTest extends WorkspacesTestCase
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
 
-        // incremental load will not update datatype length as length in workspace is lower than in table
+        // incremental load will not update datatype basetype as basetype in workspace is different than in table
         $this->_client->writeTableAsyncDirect($tableId, [
             'incremental' => true,
             'dataWorkspaceId' => $workspace['id'],
@@ -105,21 +105,6 @@ class MetadataFromRedshiftWorkspaceTest extends WorkspacesTestCase
         $this->assertMetadata($expectedIdMetadata, $table['columnMetadata']['id']);
         $this->assertArrayHasKey('name', $table['columnMetadata']);
         $this->assertMetadata($expectedNameMetadata, $table['columnMetadata']['name']);
-        $db->query("drop table \"test.metadata_columns\"");
-        $db->query("create table \"test.metadata_columns\" (
-                    \"id\" varchar(16),
-                    \"name\" varchar(1)
-                );");
-
-        $runId = $this->_client->generateRunId();
-        $this->_client->setRunId($runId);
-
-        // incremental load will not update datatype length as length in workspace is lower than in table
-        $this->_client->writeTableAsyncDirect($tableId, [
-            'incremental' => true,
-            'dataWorkspaceId' => $workspace['id'],
-            'dataTableName' => 'test.metadata_columns',
-        ]);
 
         $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
         $events = $this->_client->listEvents([
@@ -162,6 +147,14 @@ class MetadataFromRedshiftWorkspaceTest extends WorkspacesTestCase
             'KBC.datatype.length' => '1',
         ];
 
+        $expectedIdMetadata = [
+            'KBC.datatype.type' => 'INT4',
+            'KBC.datatype.nullable' => '1',
+            'KBC.datatype.basetype' => 'INTEGER',
+            'KBC.datatype.length' => '38,0',
+            'KBC.datatype.default' => '',
+        ];
+
         $table = $this->_client->getTable($tableId);
 
         $this->assertEquals([], $table['metadata']);
@@ -173,7 +166,7 @@ class MetadataFromRedshiftWorkspaceTest extends WorkspacesTestCase
 
         $db->query("drop table \"test.metadata_columns\"");
         $db->query("create table \"test.metadata_columns\" (
-                    \"id\" varchar(16),
+                    \"id\" integer,
                     \"name\" varchar(32)
                 );");
 
