@@ -151,7 +151,7 @@ class MetadataFromRedshiftWorkspaceTest extends WorkspacesTestCase
             'KBC.datatype.type' => 'INT4',
             'KBC.datatype.nullable' => '1',
             'KBC.datatype.basetype' => 'INTEGER',
-            'KBC.datatype.length' => '38,0',
+            'KBC.datatype.length' => '16',
         ];
 
         $table = $this->_client->getTable($tableId);
