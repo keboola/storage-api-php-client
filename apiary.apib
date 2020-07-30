@@ -1246,7 +1246,7 @@ This operations is available only for organization administrators.
 
 + Response 204
 
-### Force unlink a bucket from a project  [DELETE /v2/storage/buckets/{bucket_id}/links/{linkedProjectId}]
+### Force unlink a bucket from a project  [DELETE /v2/storage/buckets/{bucket_id}/links/{linkedProjectId}?async={async}]
 
 When bucket is shared and someone links it, it effectively prevents the owner of the data from revoking the share.
 When user of the linked bucket is not responding it's a blocker. Force unlink allows you to unlink
@@ -1257,6 +1257,7 @@ a bucket from any project it's linked to, solving the situation.
 + Parameters
     + bucket_id (required) - Bucket Id
     + linkedProjectId (required, number) - id of project where the bucket is linked
+    + async (optional, boolean) - Unlinks the bucket in a background job. This is useful if dropping takes too much time and times out.
 
 + Request
     + Headers
@@ -1264,6 +1265,42 @@ a bucket from any project it's linked to, solving the situation.
             X-StorageApi-Token: your_token
 
 + Response 204
+Synchronous call response (async=false)
+    + Body
++ Response 202
+Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
+    + Body
+
+            {
+                "id": 11,
+                "status": "waiting",
+                "url": "https://connection.keboola.com/v2/storage/jobs/11",
+                "operationName": "bucketForceUnlink",
+                "operationParams": {
+                    "params": {
+                        "linkedIdBucket": 123,
+                        "linkedIdProject": 321,
+                        "async": true
+                    }
+                },
+                "createdTime": "2013-05-31T16:11:05+0200",
+                "startTime": null,
+                "endTime": null,
+                "runId": null,
+                "results": null,
+                "creatorToken": {
+                    "id": "27978",
+                    "description": "roman.bracinik@keboola.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
+                }
+            }
 
 ## List Shared Buckets [/v2/storage/shared-buckets?include={include}]
 Lists buckets which may be shared to the project.
