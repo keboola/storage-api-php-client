@@ -1246,7 +1246,7 @@ This operations is available only for organization administrators.
 
 + Response 204
 
-### Force unlink a bucket from a project  [POST /v2/storage/buckets/{bucket_id}/force-unlink]
+### Force unlink a bucket from a project  [DELETE /v2/storage/buckets/{bucket_id}/links/{linkedProjectId}]
 
 When bucket is shared and someone links it, it effectively prevents the owner of the data from revoking the share.
 When user of the linked bucket is not responding it's a blocker. Force unlink allows you to unlink
@@ -1256,10 +1256,7 @@ a bucket from any project it's linked to, solving the situation.
 
 + Parameters
     + bucket_id (required) - Bucket Id
-
-+ Attributes
     + linkedProjectId (required, number) - id of project where the bucket is linked
-    + linkedBucketId (required) - id of the linked bucket
 
 + Request
     + Headers
