@@ -12,10 +12,11 @@ final class ProcessPolyfill
      */
     public static function createProcess($cmdString)
     {
-        if (method_exists(Process::class, 'fromShellCommandline')) {
-            return Process::fromShellCommandline($cmdString);
+        $ref = new \ReflectionClass(Process::class);
+        if ($ref->hasMethod('fromShellCommandline')) {
+            return $ref->getMethod('fromShellCommandline')->invoke(null, $cmdString);
         }
 
-        return new Process($cmdString);
+        return $ref->newInstance($cmdString);
     }
 }
