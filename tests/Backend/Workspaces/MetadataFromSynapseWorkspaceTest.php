@@ -35,7 +35,7 @@ class MetadataFromSynapseWorkspaceTest extends WorkspacesTestCase
 
         $db->query("create table $quotedTableId (
                     \"id\" varchar(16),
-                    \"name\" varchar(16)
+                    \"name\" varchar
                 );");
 
         $tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), [
@@ -48,7 +48,7 @@ class MetadataFromSynapseWorkspaceTest extends WorkspacesTestCase
             'KBC.datatype.type' => 'VARCHAR',
             'KBC.datatype.nullable' => '1',
             'KBC.datatype.basetype' => 'STRING',
-            'KBC.datatype.length' => '16',
+            'KBC.datatype.length' => '16777216',
         ];
 
         $expectedIdMetadata = [
@@ -70,7 +70,7 @@ class MetadataFromSynapseWorkspaceTest extends WorkspacesTestCase
         $db->query("drop table $quotedTableId");
         $db->query("create table $quotedTableId (
                     \"id\" integer,
-                    \"name\" varchar(1) not null
+                    \"name\" char not null
                 );");
 
         $runId = $this->_client->generateRunId();
