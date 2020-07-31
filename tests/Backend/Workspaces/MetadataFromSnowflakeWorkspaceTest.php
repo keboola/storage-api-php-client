@@ -64,7 +64,7 @@ class MetadataFromSnowflakeWorkspaceTest extends WorkspacesTestCase
 
         $db->query("create or replace table \"test.metadata_columns\" (
                     \"id\" integer,
-                    \"name\" varchar(1)
+                    \"name\" varchar(1) not null
                 );");
 
         $runId = $this->_client->generateRunId();
@@ -83,12 +83,21 @@ class MetadataFromSnowflakeWorkspaceTest extends WorkspacesTestCase
         ]);
 
         $notUpdateColumnTypeEvent = null;
+        $notUpdateNullableColumnEvent = null;
+        $notUpdateLengthEvent = null;
         foreach ($events as $event) {
             if ($event['event'] === 'storage.tableAutomaticDataTypesNotUpdateColumnType') {
                 $notUpdateColumnTypeEvent = $event;
             }
+            if ($event['event'] === 'storage.tableAutomaticDataTypesNotUpdateColumnNullable') {
+                $notUpdateNullableColumnEvent = $event;
+            }
+            if ($event['event'] === 'storage.tableAutomaticDataTypesNotUpdateColumnLength') {
+                $notUpdateLengthEvent = $event;
+            }
         }
 
+        // type event assert
         $this->assertSame('storage.tableAutomaticDataTypesNotUpdateColumnType', $notUpdateColumnTypeEvent['event']);
         $this->assertSame('storage', $notUpdateColumnTypeEvent['component']);
         $this->assertSame('warn', $notUpdateColumnTypeEvent['type']);
@@ -105,18 +114,7 @@ class MetadataFromSnowflakeWorkspaceTest extends WorkspacesTestCase
         $this->assertArrayHasKey('name', $table['columnMetadata']);
         $this->assertMetadata($expectedNameMetadata, $table['columnMetadata']['name']);
 
-        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
-        $events = $this->_client->listEvents([
-            'runId' => $runId,
-        ]);
-
-        $notUpdateLengthEvent = null;
-        foreach ($events as $event) {
-            if ($event['event'] === 'storage.tableAutomaticDataTypesNotUpdateColumnLength') {
-                $notUpdateLengthEvent = $event;
-            }
-        }
-
+        // length event assert
         $this->assertSame('storage.tableAutomaticDataTypesNotUpdateColumnLength', $notUpdateLengthEvent['event']);
         $this->assertSame('storage', $notUpdateLengthEvent['component']);
         $this->assertSame('warn', $notUpdateLengthEvent['type']);
@@ -133,39 +131,13 @@ class MetadataFromSnowflakeWorkspaceTest extends WorkspacesTestCase
         $this->assertArrayHasKey('name', $table['columnMetadata']);
         $this->assertMetadata($expectedNameMetadata, $table['columnMetadata']['name']);
 
-        $db->query("create or replace table \"test.metadata_columns\" (
-                    \"id\" integer not null,
-                    \"name\" varchar(1)
-                );");
-
-        $runId = $this->_client->generateRunId();
-        $this->_client->setRunId($runId);
-
-        // incremental load will not update datatype nullable as nullable in workspace is different than in table
-        $this->_client->writeTableAsyncDirect($tableId, [
-            'incremental' => true,
-            'dataWorkspaceId' => $workspace['id'],
-            'dataTableName' => 'test.metadata_columns',
-        ]);
-
-        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
-        $events = $this->_client->listEvents([
-            'runId' => $runId,
-        ]);
-
-        $notUpdateNullableColumnEvent = null;
-        foreach ($events as $event) {
-            if ($event['event'] === 'storage.tableAutomaticDataTypesNotUpdateColumnNullable') {
-                $notUpdateNullableColumnEvent = $event;
-            }
-        }
-
+        // nullable event assert
         $this->assertSame('storage.tableAutomaticDataTypesNotUpdateColumnNullable', $notUpdateNullableColumnEvent['event']);
         $this->assertSame('storage', $notUpdateNullableColumnEvent['component']);
         $this->assertSame('warn', $notUpdateNullableColumnEvent['type']);
         $this->assertArrayHasKey('params', $notUpdateNullableColumnEvent);
         $this->assertSame('in.c-API-tests.metadata_columns', $notUpdateNullableColumnEvent['objectId']);
-        $this->assertSame('id', $notUpdateNullableColumnEvent['params']['column']);
+        $this->assertSame('name', $notUpdateNullableColumnEvent['params']['column']);
 
         $table = $this->_client->getTable($tableId);
 
@@ -184,7 +156,7 @@ class MetadataFromSnowflakeWorkspaceTest extends WorkspacesTestCase
 
         $expectedNameMetadata = [
             'KBC.datatype.type' => 'TEXT',
-            'KBC.datatype.nullable' => '1',
+            'KBC.datatype.nullable' => '',
             'KBC.datatype.basetype' => 'STRING',
             'KBC.datatype.length' => '1',
             'KBC.datatype.default' => '',
@@ -192,7 +164,7 @@ class MetadataFromSnowflakeWorkspaceTest extends WorkspacesTestCase
 
         $expectedIdMetadata = [
             'KBC.datatype.type' => 'NUMBER',
-            'KBC.datatype.nullable' => '',
+            'KBC.datatype.nullable' => '1',
             'KBC.datatype.basetype' => 'NUMERIC',
             'KBC.datatype.length' => '38,0',
             'KBC.datatype.default' => '',
