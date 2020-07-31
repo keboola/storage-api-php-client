@@ -29,7 +29,7 @@ class MetadataFromRedshiftWorkspaceTest extends WorkspacesTestCase
         $db = $this->getDbConnection($connection);
         $db->query("create table \"test.metadata_columns\" (
                     \"id\" varchar(16),
-                    \"name\" varchar(16)
+                    \"name\" varchar
                 );");
 
         $tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), [
@@ -42,7 +42,7 @@ class MetadataFromRedshiftWorkspaceTest extends WorkspacesTestCase
             'KBC.datatype.type' => 'VARCHAR',
             'KBC.datatype.nullable' => '1',
             'KBC.datatype.basetype' => 'STRING',
-            'KBC.datatype.length' => '16',
+            'KBC.datatype.length' => '16777216',
         ];
 
         $expectedIdMetadata = [
@@ -65,7 +65,7 @@ class MetadataFromRedshiftWorkspaceTest extends WorkspacesTestCase
         $db->query("drop table \"test.metadata_columns\"");
         $db->query("create table \"test.metadata_columns\" (
                     \"id\" integer,
-                    \"name\" varchar(1) not null
+                    \"name\" char not null
                 );");
 
         $runId = $this->_client->generateRunId();
