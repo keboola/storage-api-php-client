@@ -28,7 +28,7 @@ class MetadataFromSnowflakeWorkspaceTest extends WorkspacesTestCase
         $db = $this->getDbConnection($connection);
         $db->query("create table \"test.metadata_columns\" (
                     \"id\" varchar(16),
-                    \"name\" varchar(16)
+                    \"name\" varchar
                 );");
 
         $tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), [
@@ -41,7 +41,7 @@ class MetadataFromSnowflakeWorkspaceTest extends WorkspacesTestCase
             'KBC.datatype.type' => 'TEXT',
             'KBC.datatype.nullable' => '1',
             'KBC.datatype.basetype' => 'STRING',
-            'KBC.datatype.length' => '16',
+            'KBC.datatype.length' => '16777216',
             'KBC.datatype.default' => '',
         ];
 
@@ -64,7 +64,7 @@ class MetadataFromSnowflakeWorkspaceTest extends WorkspacesTestCase
 
         $db->query("create or replace table \"test.metadata_columns\" (
                     \"id\" integer,
-                    \"name\" varchar(1) not null
+                    \"name\" char not null
                 );");
 
         $runId = $this->_client->generateRunId();
