@@ -368,7 +368,7 @@ bucket permissions, don't forget to specify the previous permissions.
 ## Token Verification [/v2/storage/tokens/verify]
 ### Token verification [GET]
 Checks the token privileges and returns information about the project to which the token belongs (`owner`)
-and the associated administrator (`admin`). This call can be executed by all tokens.
+and the associated administrator (`admin`). If the project is configured with pay as you go billing, `payAsYouGo` section with details is available under `owner` info. This call can be executed by all tokens.
 
 + Request
     + Headers
@@ -469,6 +469,9 @@ and the associated administrator (`admin`). This call can be executed by all tok
                                 "name": "storage.rowsCount",
                                 "value": 3316230
                             }
+                        },
+                        "payAsYouGo": {
+                            "purchasedCredits": 123
                         }
                 }
             }
