@@ -69,6 +69,7 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertArrayHasKey('id', $response['owner']);
         $this->assertArrayHasKey('name', $response['owner']);
         $linkedBucketProject = $response['owner'];
+        $linkedBucketProjectId = $linkedBucketProject['id'];
 
         // bucket can be listed with non-admin sapi token
         $sharedBuckets = $client->listSharedBuckets();
@@ -88,6 +89,7 @@ class SharingTest extends StorageApiSharingTestCase
             $sharedBuckets[0]['id'],
             $displayName
         );
+
         $linkedBucket = $client->getBucket($linkedBucketId);
         $this->assertEquals($sharedBuckets[0]['id'], $linkedBucket['sourceBucket']['id']);
         $this->assertEquals($sharedBuckets[0]['project']['id'], $linkedBucket['sourceBucket']['project']['id']);
@@ -148,7 +150,7 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertNotFalse($linkedBucketKey);
         $listedLinkedBucket = $sharedBucket['linkedBy'][$linkedBucketKey];
         $this->assertArrayHasKey("project", $listedLinkedBucket);
-        $this->assertEquals($linkedBucketProject['id'], $listedLinkedBucket['project']['id']);
+        $this->assertEquals($linkedBucketProjectId, $listedLinkedBucket['project']['id']);
         $this->assertEquals($linkedBucketProject['name'], $listedLinkedBucket['project']['name']);
         $this->assertArrayHasKey("created", $listedLinkedBucket);
         $this->assertEquals($linkedBucket['created'], $listedLinkedBucket['created']);
@@ -171,6 +173,92 @@ class SharingTest extends StorageApiSharingTestCase
 
         $this->assertArrayHasKey("linkedBy", $listedSharedBucket);
         $this->assertCount(2, $listedSharedBucket['linkedBy']);
+
+        $bucket = $this->_client->getBucket($bucketId);
+        $linkedBucketId = $bucket['linkedBy'][0]['id'];
+        $linkedBucketProjectId = $bucket['linkedBy'][0]['project']['id'];
+
+        $client->dropBucket($linkedBucketId);
+        try {
+            // cannot unlink bucket from nonexistent project
+            $this->_client->forceUnlinkBucket($bucketId, 9223372036854775807);
+            $this->fail('Should have thrown');
+        } catch (ClientException $e) {
+            $this->assertSame('There is no linked bucket in project "9223372036854775807"', $e->getMessage());
+        }
+
+        $notLinkedBucketName = 'normal-bucket';
+        $notLinkedBucketStage = 'in';
+        $notLinkedBucket = $notLinkedBucketStage . '.c-' . $notLinkedBucketName . '';
+        if ($client->bucketExists($notLinkedBucket)) {
+            $client->dropBucket($notLinkedBucket);
+        }
+        $client->createBucket($notLinkedBucketName, $notLinkedBucketStage);
+        try {
+            // cannot unlink bucket that is not linked from source project
+            $this->_client->forceUnlinkBucket($bucketId, $linkedBucketProjectId);
+            $this->fail('Should have thrown');
+        } catch (ClientException $e) {
+            $this->assertSame(
+                sprintf(
+                    'There is no linked bucket in project "%s"',
+                    $this->_client2->verifyToken()['owner']['id']
+                ),
+                $e->getMessage()
+            );
+        }
+
+        $notSourceBucketName = 'normal-bucket';
+        $notSourceBucketStage = 'in';
+        $notSourceBucketId = $notSourceBucketStage . '.c-' . $notSourceBucketName . '';
+        if ($this->_client->bucketExists($notSourceBucketId)) {
+            $this->_client->dropBucket($notSourceBucketId);
+        }
+        $this->_client->createBucket($notSourceBucketName, $notSourceBucketStage);
+        try {
+            // cannot unlink bucket that is linked from different source bucket
+            $this->_client->forceUnlinkBucket($notSourceBucketId, $linkedBucketProjectId);
+            $this->fail('Should have thrown');
+        } catch (ClientException $e) {
+            $this->assertSame(
+                'There is no linked bucket in project "' . $linkedBucketProjectId . '"',
+                $e->getMessage()
+            );
+        }
+
+        $linkedBucketId = $client->linkBucket(
+            'organization-project-test',
+            self::STAGE_IN,
+            $sharedBuckets[0]['project']['id'],
+            $sharedBuckets[0]['id'],
+            $displayName
+        );
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        $this->_client->forceUnlinkBucket($bucketId, $linkedBucketProjectId);
+
+        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
+        $events = $this->_client2->listEvents([
+            'limit' => 1,
+            'q' => 'objectId:' . $linkedBucketId . ' AND objectType:bucket AND project.id:' . $linkedBucketProjectId,
+        ]);
+
+        $this->assertSame('storage.bucketForceUnlinked', $events[0]['event']);
+
+        $bucket = $this->_client->getBucket($bucketId);
+        $this->assertArrayHasKey("linkedBy", $bucket);
+        $this->assertCount(1, $bucket['linkedBy']);
+        $this->assertFalse($client->bucketExists($linkedBucketId));
+
+        $linkedBucketId = $client->linkBucket(
+            'organization-project-test',
+            self::STAGE_IN,
+            $sharedBuckets[0]['project']['id'],
+            $sharedBuckets[0]['id'],
+            $displayName
+        );
 
         // user should be also able to delete the linked bucket
         $client->dropBucket($linkedBucketId);
