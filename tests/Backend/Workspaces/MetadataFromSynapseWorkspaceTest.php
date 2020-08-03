@@ -18,7 +18,7 @@ class MetadataFromSynapseWorkspaceTest extends WorkspacesTestCase
         }
     }
 
-    public function testIncrementalLoadOnlyUpdateDataTypeLengthOnlyUpward()
+    public function testIncrementalLoadUpdateDataType()
     {
         // create workspace and source table in workspace
         $workspaces = new Workspaces($this->_client);
@@ -69,20 +69,47 @@ class MetadataFromSynapseWorkspaceTest extends WorkspacesTestCase
 
         $db->query("drop table $quotedTableId");
         $db->query("create table $quotedTableId (
-                    \"id\" varchar(16),
+                    \"id\" integer,
                     \"name\" varchar(1)
                 );");
 
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
 
-        // incremental load will not update datatype length as length in workspace is lower than in table
+        // incremental load will not update datatype basetype as basetype in workspace is different than in table
         $this->_client->writeTableAsyncDirect($tableId, [
             'incremental' => true,
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => $tableName,
         ]);
 
+        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
+        $events = $this->_client->listEvents([
+            'runId' => $runId,
+        ]);
+
+        $notUpdateColumnTypeEvent = null;
+        foreach ($events as $event) {
+            if ($event['event'] === 'storage.tableAutomaticDataTypesNotUpdateColumnType') {
+                $notUpdateColumnTypeEvent = $event;
+            }
+        }
+
+        $this->assertSame('storage.tableAutomaticDataTypesNotUpdateColumnType', $notUpdateColumnTypeEvent['event']);
+        $this->assertSame('storage', $notUpdateColumnTypeEvent['component']);
+        $this->assertSame('warn', $notUpdateColumnTypeEvent['type']);
+        $this->assertArrayHasKey('params', $notUpdateColumnTypeEvent);
+        $this->assertSame('in.c-API-tests.metadata_columns', $notUpdateColumnTypeEvent['objectId']);
+        $this->assertSame('id', $notUpdateColumnTypeEvent['params']['column']);
+
+        $table = $this->_client->getTable($tableId);
+
+        $this->assertEquals([], $table['metadata']);
+
+        $this->assertArrayHasKey('id', $table['columnMetadata']);
+        $this->assertMetadata($expectedIdMetadata, $table['columnMetadata']['id']);
+        $this->assertArrayHasKey('name', $table['columnMetadata']);
+        $this->assertMetadata($expectedNameMetadata, $table['columnMetadata']['name']);
 
         $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
         $events = $this->_client->listEvents([
@@ -125,6 +152,13 @@ class MetadataFromSynapseWorkspaceTest extends WorkspacesTestCase
             'KBC.datatype.length' => '1',
         ];
 
+        $expectedIdMetadata = [
+            'KBC.datatype.type' => 'INT',
+            'KBC.datatype.nullable' => '1',
+            'KBC.datatype.basetype' => 'INTEGER',
+            'KBC.datatype.length' => '16',
+        ];
+
         $table = $this->_client->getTable($tableId);
 
         $this->assertEquals([], $table['metadata']);
@@ -136,7 +170,7 @@ class MetadataFromSynapseWorkspaceTest extends WorkspacesTestCase
 
         $db->query("drop table $quotedTableId");
         $db->query("create table $quotedTableId (
-                    \"id\" varchar(16),
+                    \"id\" integer,
                     \"name\" varchar(32)
                 );");
 
