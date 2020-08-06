@@ -29,9 +29,6 @@ class IndexTest extends StorageApiTestCase
         $this->assertArrayHasKey('id', $component);
         $this->assertArrayHasKey('uri', $component);
 
-        $features = $index['features'];
-        $this->assertArrayHasKey('disableSyncImportData', $features);
-
         $this->assertArrayHasKey('urlTemplates', $index);
 
         $urlTemplates = $index['urlTemplates'];
