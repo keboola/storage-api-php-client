@@ -260,6 +260,32 @@ class SharingTest extends StorageApiSharingTestCase
             $displayName
         );
 
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        $this->_client->forceUnlinkBucket($bucketId, $linkedBucketProjectId, ['async' => true]);
+
+        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
+        $events = $this->_client2->listEvents([
+            'limit' => 1,
+            'q' => 'objectId:' . $linkedBucketId . ' AND objectType:bucket AND project.id:' . $linkedBucketProjectId,
+        ]);
+
+        $this->assertSame('storage.bucketForceUnlinked', $events[0]['event']);
+
+        $bucket = $this->_client->getBucket($bucketId);
+        $this->assertArrayHasKey("linkedBy", $bucket);
+        $this->assertCount(1, $bucket['linkedBy']);
+        $this->assertFalse($client->bucketExists($linkedBucketId));
+
+        $linkedBucketId = $client->linkBucket(
+            'organization-project-test',
+            self::STAGE_IN,
+            $sharedBuckets[0]['project']['id'],
+            $sharedBuckets[0]['id'],
+            $displayName
+        );
+
         // user should be also able to delete the linked bucket
         $client->dropBucket($linkedBucketId);
     }

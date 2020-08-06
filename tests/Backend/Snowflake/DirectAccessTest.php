@@ -693,6 +693,32 @@ class DirectAccessTest extends StorageApiTestCase
 
         $this->assertNotContains('add_test_column', $columns);
         $this->assertEquals(['id', 'name', '_timestamp', 'count'], $columns);
+
+        try {
+            $this->_client->forceUnlinkBucket($sharedBucket['id'], $project2Id);
+            $this->fail('Should have thrown!');
+        } catch (ClientException $e) {
+            $this->assertSame(
+                sprintf(
+                    'Linked bucket has Direct Access enabled in project "%s" please use async call',
+                    $project2Id
+                ),
+                $e->getMessage()
+            );
+        }
+
+        $this->_client->forceUnlinkBucket($sharedBucket['id'], $project2Id, ['async' => true]);
+
+        try {
+            $client2->getBucket($sharedBucket['id']);
+        } catch (ClientException $e) {
+            $this->assertSame('Bucket in.c-API-DA-tests not found', $e->getMessage());
+        }
+
+        $schemas = $client2Connection->fetchAll('SHOW SCHEMAS');
+
+        $this->assertCount(1, $schemas, 'There should be INFORMATION SCHEMA');
+        $this->assertNotSame('DA_IN_API-LINKED-TESTS', $schemas[0]['name']);
     }
 
     /** @return DirectAccess */

@@ -424,11 +424,18 @@ class Client
         return $this->apiDelete($url);
     }
 
-    public function forceUnlinkBucket($bucketId, $projectId)
+    public function forceUnlinkBucket($bucketId, $projectId, $options = [])
     {
 
         $url = "storage/buckets/" . $bucketId . "/links/" . $projectId;
 
+        $allowedOptions = [
+            'async',
+        ];
+
+        $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
+
+        $url .= '?' . http_build_query($filteredOptions);
 
         return $this->apiDelete($url);
     }
