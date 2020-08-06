@@ -26,7 +26,7 @@ class ListFilesOptions
     private $runId;
 
     /** @var bool */
-    private $showExpired = true;
+    private $showExpired = false;
 
     /**
      * @return array
