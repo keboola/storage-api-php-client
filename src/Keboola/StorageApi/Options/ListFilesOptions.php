@@ -92,7 +92,7 @@ class ListFilesOptions
             'sinceId' => $this->getSinceId(),
             'maxId' => $this->getMaxId(),
             'runId' => $this->getRunId(),
-            'showExpired' => $this->showExpired(),
+            'showExpired' => $this->getShowExpired(),
         );
     }
 
@@ -168,7 +168,7 @@ class ListFilesOptions
     /**
      * @return bool
      */
-    public function showExpired()
+    public function getShowExpired()
     {
         return $this->showExpired;
     }
