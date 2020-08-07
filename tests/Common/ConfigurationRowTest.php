@@ -5,11 +5,9 @@ use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
-use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
-use Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions;
+use Keboola\StorageApi\ProcessPolyfill;
 use Keboola\Test\StorageApiTestCase;
-use Symfony\Component\Process\Process;
 
 class ConfigurationRowTest extends StorageApiTestCase
 {
@@ -223,7 +221,7 @@ class ConfigurationRowTest extends StorageApiTestCase
                     --data 'isDisabled=true&changeDescription=Row%20ABCD%20disabled' \
                     --compressed";
 
-        $process = new Process($command);
+        $process = ProcessPolyfill::createProcess($command);
         $process->run();
         if (!$process->isSuccessful()) {
             $this->fail("Config Row PUT request should not produce an error.");
