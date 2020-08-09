@@ -256,7 +256,7 @@ class ComponentsTest extends StorageApiTestCase
             $this->fail('Params should be invalid');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.components.validation', $e->getStringCode());
-            $this->assertContains('name', $e->getMessage());
+            $this->assertContains('name', $e->getContextParams()['errors'][0]['key']);
         }
     }
 
