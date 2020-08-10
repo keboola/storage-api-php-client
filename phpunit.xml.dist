@@ -6,12 +6,11 @@
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true"
          processIsolation="false"
-         stopOnFailure="false"
+         stopOnFailure="true"
          stopOnError="false"
-         syntaxCheck="false"
-		 verbose="true"
+         verbose="true"
          bootstrap="tests/bootstrap.php">
-
+<testsuites>
 	<testsuite name="common">
 		<directory>tests/Common</directory>
 		<directory>tests/Options</directory>
@@ -20,7 +19,6 @@
 		<file>tests/File/CommonFileTests.php</file>
 		<file>tests/File/AwsFileTest.php</file>
 	</testsuite>
-
 	<testsuite name="file-storage-azure">
 		<file>tests/File/AzureFileTest.php</file>
 		<file>tests/File/CommonFileTest.php</file>
@@ -28,10 +26,13 @@
 
 	<testsuite name="backend-snowflake-abs-part-1">
 		<file>tests/Backend/Workspaces/MetadataFromSnowflakeWorkspaceTest.php</file>
-		<directory>tests/Backend/CommonPart1</directory>
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesSnowflakeTest.php</file>
+	</testsuite>
+
+	<testsuite name="paratest-backend-snowflake-abs-part-1">
+		<directory>tests/Backend/CommonPart1</directory>
 	</testsuite>
 
 	<testsuite name="backend-snowflake-abs-part-2">
@@ -47,10 +48,13 @@
 
 	<testsuite name="backend-redshift-part-1">
 		<file>tests/Backend/Workspaces/MetadataFromRedshiftWorkspaceTest.php</file>
-		<directory>tests/Backend/CommonPart1</directory>
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesRedshiftTest.php</file>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
+	</testsuite>
+
+	<testsuite name="paratest-backend-redshift-part-1">
+		<directory>tests/Backend/CommonPart1</directory>
 	</testsuite>
 
 	<testsuite name="backend-redshift-part-2">
@@ -66,15 +70,18 @@
 
 	<testsuite name="backend-snowflake-part-1">
 		<file>tests/Backend/Workspaces/MetadataFromSnowflakeWorkspaceTest.php</file>
-		<directory>tests/Backend/CommonPart1</directory>
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesSnowflakeTest.php</file>
 	</testsuite>
 
+	<testsuite name="paratest-backend-snowflake-part-1">
+		<directory>tests/Backend/CommonPart1</directory>
+	</testsuite>
+
 	<testsuite name="backend-snowflake-part-2">
 		<directory>tests/Backend/CommonPart2</directory>
-        <file>tests/Backend/Workspaces/WorkspacesSnowflakeTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesSnowflakeTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
@@ -90,12 +97,15 @@
 
 	<testsuite name="backend-synapse-part-1">
 		<file>tests/Backend/Workspaces/MetadataFromSynapseWorkspaceTest.php</file>
-		<directory>tests/Backend/CommonPart1</directory>
-<!--	DataPreviewLimitsTest is in tests/Backend/Synapse -->
-		<exclude>tests/Backend/CommonPart1/DataPreviewLimitsTest.php</exclude>
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesSynapseTest.php</file>
+	</testsuite>
+
+	<testsuite name="paratest-backend-synapse-part-1">
+		<directory>tests/Backend/CommonPart1</directory>
+<!--	DataPreviewLimitsTest is in tests/Backend/Synapse -->
+		<exclude>tests/Backend/CommonPart1/DataPreviewLimitsTest.php</exclude>
 	</testsuite>
 
 	<testsuite name="backend-synapse-part-2">
@@ -108,4 +118,5 @@
 		<directory>tests/Backend/Synapse</directory>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>
+</testsuites>
 </phpunit>
