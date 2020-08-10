@@ -81,7 +81,7 @@ class TableExporterTest extends StorageApiTestCase
         $this->assertLinesEqualsSorted(file_get_contents($expectationsFile), file_get_contents($this->downloadPath), 'imported data comparison');
 
         // check that columns has been set in export job params
-        $jobs = $this->_client->listJobs(['limit' => 1]);
+        $jobs = $this->loadJobsByRunId($runId);
         $job = reset($jobs);
 
         $this->assertSame($runId, $job['runId']);
@@ -145,7 +145,9 @@ class TableExporterTest extends StorageApiTestCase
         // check that columns has been set in export job params
         $table1Job = null;
         $table2Job = null;
-        foreach ($this->_client->listJobs(['limit' => 2]) as $job) {
+
+        $jobs = $this->loadJobsByRunId($runId);
+        foreach ($jobs as $job) {
             $this->assertSame($runId, $job['runId']);
             $this->assertSame('tableExport', $job['operationName']);
 
@@ -203,7 +205,7 @@ class TableExporterTest extends StorageApiTestCase
         $this->assertEquals(['- unchecked -', '0'], $csvFile->current());
 
         // check that columns has been set in export job params
-        $jobs = $this->_client->listJobs(['limit' => 1]);
+        $jobs = $this->loadJobsByRunId($runId);
         $table1Job = reset($jobs);
 
         $this->assertSame($runId, $table1Job['runId']);
@@ -288,6 +290,16 @@ class TableExporterTest extends StorageApiTestCase
             array([self::BACKEND_REDSHIFT], new CsvFile($filesBasePath . 'escaping.csv'), 'escaping.standard.out.csv', array('gzip' => true)),
             array([self::BACKEND_REDSHIFT], new CsvFile($filesBasePath . 'numbers.csv'), 'numbers.csv', array('gzip' => true)),
             array([self::BACKEND_REDSHIFT], new CsvFile($filesBasePath . 'numbers.csv'), 'numbers.two-cols.csv', array('gzip' => true, 'columns' => array('0', '45'))),
+        );
+    }
+
+    private function loadJobsByRunId($runId)
+    {
+        return array_filter(
+            $this->_client->listJobs(['limit' => 100]),
+            function (array $job) use ($runId) {
+                return $job['runId'] === $runId;
+            }
         );
     }
 }
