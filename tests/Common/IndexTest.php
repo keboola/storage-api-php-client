@@ -33,6 +33,12 @@ class IndexTest extends StorageApiTestCase
 
         $urlTemplates = $index['urlTemplates'];
         $this->assertArrayHasKey('orchestrationJob', $urlTemplates);
+        $this->assertArrayHasKey('services', $index);
+        $services = $index['services'];
+        $servicesMapped = array_map(function (array $service) {
+            return $service['id'];
+        }, $services);
+        $this->assertSame(['docker-runner', 'import', 'syrup', 'oauth', 'sqldep-analyzer', 'billing'], $servicesMapped);
     }
 
     public function testSuccessfullyWebalizeDisplayName()
