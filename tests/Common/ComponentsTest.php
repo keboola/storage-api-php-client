@@ -10,7 +10,7 @@ use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\Test\StorageApiTestCase;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\BufferedOutput;
-use Symfony\Component\Process\Process;
+use Keboola\StorageApi\ProcessPolyfill;
 use function json_decode;
 use function var_dump;
 
@@ -114,7 +114,7 @@ class ComponentsTest extends StorageApiTestCase
                     -H 'content-type: application/x-www-form-urlencoded' \
                     -H 'accept: */*' \
                     -H 'x-storageapi-token: " . STORAGE_API_TOKEN . "'";
-        $process = new Process($command);
+        $process = ProcessPolyfill::createProcess($command);
         $process->run();
         if (!$process->isSuccessful()) {
             $this->fail("Api request failure GET component configs");
@@ -128,7 +128,7 @@ class ComponentsTest extends StorageApiTestCase
                     -H 'content-type: application/x-www-form-urlencoded' \
                     -H 'accept: */*' \
                     -H 'x-storageapi-token: " . STORAGE_API_TOKEN . "'";
-        $process = new Process($command);
+        $process = ProcessPolyfill::createProcess($command);
         $process->run();
         if (!$process->isSuccessful()) {
             $this->fail("Api request failure GET component list");

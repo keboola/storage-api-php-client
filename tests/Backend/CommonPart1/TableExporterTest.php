@@ -12,6 +12,7 @@ namespace Keboola\Test\Backend\CommonPart1;
 
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Exception;
+use Keboola\StorageApi\ProcessPolyfill;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\Client;
 use Keboola\Csv\CsvFile;
@@ -67,7 +68,7 @@ class TableExporterTest extends StorageApiTestCase
             if (file_exists($this->downloadPath)) {
                 unlink($this->downloadPath);
             }
-            $process = new \Symfony\Component\Process\Process("gunzip " . escapeshellarg($this->downloadPathGZip));
+            $process = ProcessPolyfill::createProcess("gunzip " . escapeshellarg($this->downloadPathGZip));
             if (0 !== $process->run()) {
                 throw new \Symfony\Component\Process\Exception\ProcessFailedException($process);
             }
