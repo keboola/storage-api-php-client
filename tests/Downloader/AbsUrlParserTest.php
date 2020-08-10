@@ -3,8 +3,9 @@
 namespace Keboola\Test\Downloader;
 
 use Keboola\StorageApi\Downloader\AbsUrlParser;
+use PHPUnit\Framework\TestCase;
 
-class AbsUrlParserTest extends \PHPUnit_Framework_TestCase
+class AbsUrlParserTest extends TestCase
 {
     public function testParseAbsUrlAzure()
     {
