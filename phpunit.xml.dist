@@ -36,7 +36,6 @@
 	</testsuite>
 
 	<testsuite name="backend-snowflake-abs-part-2">
-		<directory>tests/Backend/CommonPart2</directory>
 		<file>tests/Backend/Workspaces/WorkspacesSnowflakeTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
@@ -44,6 +43,10 @@
 		<file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>
 		<directory>tests/Backend/Snowflake</directory>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
+	</testsuite>
+
+	<testsuite name="paratest-backend-snowflake-abs-part-2">
+		<directory>tests/Backend/CommonPart2</directory>
 	</testsuite>
 
 	<testsuite name="backend-redshift-part-1">
@@ -58,7 +61,6 @@
 	</testsuite>
 
 	<testsuite name="backend-redshift-part-2">
-		<directory>tests/Backend/CommonPart2</directory>
 		<file>tests/Backend/Workspaces/WorkspacesRedshiftTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
@@ -66,6 +68,10 @@
 		<file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>
 		<directory>tests/Backend/Redshift</directory>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
+	</testsuite>
+
+	<testsuite name="paratest-backend-redshift-part-2">
+		<directory>tests/Backend/CommonPart2</directory>
 	</testsuite>
 
 	<testsuite name="backend-snowflake-part-1">
@@ -80,7 +86,6 @@
 	</testsuite>
 
 	<testsuite name="backend-snowflake-part-2">
-		<directory>tests/Backend/CommonPart2</directory>
 		<file>tests/Backend/Workspaces/WorkspacesSnowflakeTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
@@ -88,6 +93,10 @@
 		<file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>
 		<directory>tests/Backend/Snowflake</directory>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
+	</testsuite>
+
+	<testsuite name="paratest-backend-snowflake-part-2">
+		<directory>tests/Backend/CommonPart2</directory>
 	</testsuite>
 
 	<testsuite name="backend-mixed">
@@ -109,7 +118,6 @@
 	</testsuite>
 
 	<testsuite name="backend-synapse-part-2">
-		<directory>tests/Backend/CommonPart2</directory>
 		<file>tests/Backend/Workspaces/WorkspacesSynapseTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/SynapseWorkspacesUnloadTest.php</file>
@@ -117,6 +125,10 @@
 		<file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>
 		<directory>tests/Backend/Synapse</directory>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
+	</testsuite>
+
+	<testsuite name="paratest-backend-synapse-part-2">
+		<directory>tests/Backend/CommonPart2</directory>
 	</testsuite>
 </testsuites>
 </phpunit>
