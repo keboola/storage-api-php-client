@@ -129,9 +129,14 @@ class BucketsTest extends StorageApiTestCase
 
     public function testBucketsListWithIncludeMetadata()
     {
-        $buckets = $this->_client->listBuckets(array(
-            'include' => 'metadata',
-        ));
+        $testBucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $buckets = array_filter(
+            $this->_client->listBuckets(['include' => 'metadata']),
+            function (array $bucket) use ($testBucketId) {
+                return $bucket['id'] === $testBucketId;
+            }
+        );
 
         $firstBucket = reset($buckets);
         $this->assertArrayNotHasKey('attributes', $firstBucket);
@@ -146,9 +151,13 @@ class BucketsTest extends StorageApiTestCase
             ]
         ]);
 
-        $buckets = $this->_client->listBuckets(array(
-            'include' => 'metadata',
-        ));
+        $buckets = array_filter(
+            $this->_client->listBuckets(['include' => 'metadata']),
+            function (array $bucket) use ($testBucketId) {
+                return $bucket['id'] === $testBucketId;
+            }
+        );
+
         $firstBucket = reset($buckets);
         $this->assertArrayHasKey('metadata', $firstBucket);
         $this->assertCount(1, $firstBucket['metadata']);
