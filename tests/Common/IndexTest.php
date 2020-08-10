@@ -38,7 +38,7 @@ class IndexTest extends StorageApiTestCase
         $servicesMapped = array_map(function (array $service) {
             return $service['id'];
         }, $services);
-        $this->assertSame(['docker-runner', 'import', 'syrup', 'oauth', 'sqldep-analyzer', 'billing'], $servicesMapped);
+        $this->assertSame(['docker-runner', 'import', 'syrup', 'oauth', 'sqldep-analyzer', 'queue', 'billing'], $servicesMapped);
     }
 
     public function testSuccessfullyWebalizeDisplayName()
