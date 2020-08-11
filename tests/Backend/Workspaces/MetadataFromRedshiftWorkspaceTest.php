@@ -42,7 +42,7 @@ class MetadataFromRedshiftWorkspaceTest extends WorkspacesTestCase
             'KBC.datatype.type' => 'VARCHAR',
             'KBC.datatype.nullable' => '1',
             'KBC.datatype.basetype' => 'STRING',
-            'KBC.datatype.length' => '16777216',
+            'KBC.datatype.length' => '256',
         ];
 
         $expectedIdMetadata = [
@@ -156,7 +156,7 @@ class MetadataFromRedshiftWorkspaceTest extends WorkspacesTestCase
         ]);
 
         $expectedNameMetadata = [
-            'KBC.datatype.type' => 'VARCHAR',
+            'KBC.datatype.type' => 'BPCHAR',
             'KBC.datatype.nullable' => '',
             'KBC.datatype.basetype' => 'STRING',
             'KBC.datatype.length' => '1',
