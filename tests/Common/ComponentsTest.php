@@ -285,6 +285,21 @@ class ComponentsTest extends StorageApiTestCase
         }
     }
 
+    public function testNonJsonStateShouldNotBeAllowed()
+    {
+        try {
+            $this->_client->apiPost('storage/components/wr-db/configs', array(
+                'name' => 'neco',
+                'description' => 'some',
+                'state' => '{sdf}',
+            ));
+            $this->fail('Post invalid json should not be allowed.');
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertEquals(400, $e->getCode());
+            $this->assertEquals('validation.invalidStateFormat', $e->getStringCode());
+        }
+    }
+
     public function testComponentConfigurationJsonDataTypes()
     {
         // to check if params is object we have to convert received json to objects instead of assoc array
