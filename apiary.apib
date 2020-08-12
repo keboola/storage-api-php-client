@@ -544,7 +544,7 @@ This method can be executed by all tokens.
 # Group Miscellaneous
 ## API Index [/v2/storage]
 ### Component List [GET]
-Use this API call to obtain definitions of all components and services available in KBC. For more information about
+Use this API call to obtain definitions of all components, services and stack features available in KBC. For more information about
 the KBC Component architecture, see the [Developers documentation](https://developers.keboola.com/overview/).
 
 + Response 200 (application/json)
@@ -577,6 +577,9 @@ the KBC Component architecture, see the [Developers documentation](https://devel
                         "id": "syrup",
                         "url": "https:\/\/syrup.keboola.com"
                     }
+                ],
+                "features": [
+                    "disable-sync-import-data"
                 ],
                 "urlTemplates": {
                     "orchestrationJob": "\/admin\/projects\/&&projectId&&\/orchestrations\/&&orchestrationId&&\/jobs\/&&jobId&&"
