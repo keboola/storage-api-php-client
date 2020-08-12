@@ -25,6 +25,9 @@ class ListFilesOptions
 
     private $runId;
 
+    /** @var bool */
+    private $showExpired = false;
+
     /**
      * @return array
      */
@@ -89,6 +92,7 @@ class ListFilesOptions
             'sinceId' => $this->getSinceId(),
             'maxId' => $this->getMaxId(),
             'runId' => $this->getRunId(),
+            'showExpired' => $this->getShowExpired(),
         );
     }
 
@@ -158,6 +162,24 @@ class ListFilesOptions
     public function setRunId($runId)
     {
         $this->runId = $runId;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getShowExpired()
+    {
+        return $this->showExpired;
+    }
+
+    /**
+     * @param bool $showExpired
+     * @return ListFilesOptions
+     */
+    public function setShowExpired($showExpired)
+    {
+        $this->showExpired = $showExpired;
         return $this;
     }
 }
