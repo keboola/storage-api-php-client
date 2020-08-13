@@ -9,103 +9,120 @@
          stopOnFailure="false"
          stopOnError="false"
          syntaxCheck="false"
-		 verbose="true"
+         verbose="true"
          bootstrap="tests/bootstrap.php">
 
-	<testsuite name="common">
-		<directory>tests/Common</directory>
-		<directory>tests/Options</directory>
-		<directory>tests/S3Uploader</directory>
-		<directory>tests/Downloader</directory>
-		<file>tests/File/CommonFileTests.php</file>
-		<file>tests/File/AwsFileTest.php</file>
-	</testsuite>
+    <php>
+        <env name="STORAGE_API_URL" force="true"/>
+        <env name="STORAGE_API_TOKEN_REDSHIFT" force="true"/>
+        <env name="STORAGE_API_MAINTENANCE_URL" force="true"/>
+        <env name="STORAGE_API_LINKING_TOKEN" force="true"/>
+        <env name="STORAGE_API_TOKEN_ADMIN_2_IN_SAME_ORGANIZATION" force="true"/>
+        <env name="STORAGE_API_TOKEN_ADMIN_3_IN_OTHER_ORGANIZATION" force="true"/>
+        <env name="STORAGE_API_TOKEN" force="true"/>
+        <env name="STORAGE_API_GUEST_TOKEN" force="true"/>
+        <env name="REDSHIFT_HOSTNAME" force="true"/>
+        <env name="REDSHIFT_USER" force="true"/>
+        <env name="REDSHIFT_PASSWORD" force="true"/>
+    </php>
 
-	<testsuite name="file-storage-azure">
-		<file>tests/File/AzureFileTest.php</file>
-		<file>tests/File/CommonFileTest.php</file>
-	</testsuite>
+    <testsuites>
+        <testsuite name="common">
+            <directory>tests/Common</directory>
+            <directory>tests/Options</directory>
+            <directory>tests/S3Uploader</directory>
+            <directory>tests/Downloader</directory>
+            <file>tests/File/CommonFileTests.php</file>
+            <file>tests/File/AwsFileTest.php</file>
+        </testsuite>
 
-	<testsuite name="backend-snowflake-abs-part-1">
-		<file>tests/Backend/Workspaces/MetadataFromSnowflakeWorkspaceTest.php</file>
-		<directory>tests/Backend/CommonPart1</directory>
-		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
-		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
-		<file>tests/Backend/Workspaces/LegacyWorkspacesSnowflakeTest.php</file>
-	</testsuite>
+        <testsuite name="file-storage-azure">
+            <file>tests/File/AzureFileTest.php</file>
+            <file>tests/File/CommonFileTest.php</file>
+        </testsuite>
 
-	<testsuite name="backend-snowflake-abs-part-2">
-		<directory>tests/Backend/CommonPart2</directory>
-		<file>tests/Backend/Workspaces/WorkspacesSnowflakeTest.php</file>
-		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
-		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
-		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
-		<file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>
-		<directory>tests/Backend/Snowflake</directory>
-		<file>tests/Backend/Export/ExportParamsTest.php</file>
-	</testsuite>
+        <testsuite name="backend-snowflake-abs-part-1">
+            <file>tests/Backend/Workspaces/MetadataFromSnowflakeWorkspaceTest.php</file>
+            <directory>tests/Backend/CommonPart1</directory>
+            <file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
+            <file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
+            <file>tests/Backend/Workspaces/LegacyWorkspacesSnowflakeTest.php</file>
+        </testsuite>
 
-	<testsuite name="backend-redshift-part-1">
-		<file>tests/Backend/Workspaces/MetadataFromRedshiftWorkspaceTest.php</file>
-		<directory>tests/Backend/CommonPart1</directory>
-		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
-		<file>tests/Backend/Workspaces/LegacyWorkspacesRedshiftTest.php</file>
-		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
-	</testsuite>
+        <testsuite name="backend-snowflake-abs-part-2">
+            <directory>tests/Backend/CommonPart2</directory>
+            <file>tests/Backend/Workspaces/WorkspacesSnowflakeTest.php</file>
+            <file>tests/Backend/Workspaces/WorkspacesTest.php</file>
+            <file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
+            <file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
+            <file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>
+            <directory>tests/Backend/Snowflake</directory>
+            <file>tests/Backend/Export/ExportParamsTest.php</file>
+        </testsuite>
 
-	<testsuite name="backend-redshift-part-2">
-		<directory>tests/Backend/CommonPart2</directory>
-		<file>tests/Backend/Workspaces/WorkspacesRedshiftTest.php</file>
-		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
-		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
-		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
-		<file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>
-		<directory>tests/Backend/Redshift</directory>
-		<file>tests/Backend/Export/ExportParamsTest.php</file>
-	</testsuite>
+        <testsuite name="backend-redshift-part-1">
+            <file>tests/Backend/Workspaces/MetadataFromRedshiftWorkspaceTest.php</file>
+            <directory>tests/Backend/CommonPart1</directory>
+            <file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
+            <file>tests/Backend/Workspaces/LegacyWorkspacesRedshiftTest.php</file>
+            <file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
+        </testsuite>
 
-	<testsuite name="backend-snowflake-part-1">
-		<file>tests/Backend/Workspaces/MetadataFromSnowflakeWorkspaceTest.php</file>
-		<directory>tests/Backend/CommonPart1</directory>
-		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
-		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
-		<file>tests/Backend/Workspaces/LegacyWorkspacesSnowflakeTest.php</file>
-	</testsuite>
+        <testsuite name="backend-redshift-part-2">
+            <directory>tests/Backend/CommonPart2</directory>
+            <file>tests/Backend/Workspaces/WorkspacesRedshiftTest.php</file>
+            <file>tests/Backend/Workspaces/WorkspacesTest.php</file>
+            <file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
+            <file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
+            <file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>
+            <directory>tests/Backend/Redshift</directory>
+            <file>tests/Backend/Export/ExportParamsTest.php</file>
+        </testsuite>
 
-	<testsuite name="backend-snowflake-part-2">
-		<directory>tests/Backend/CommonPart2</directory>
-        <file>tests/Backend/Workspaces/WorkspacesSnowflakeTest.php</file>
-		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
-		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
-		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
-		<file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>
-		<directory>tests/Backend/Snowflake</directory>
-		<file>tests/Backend/Export/ExportParamsTest.php</file>
-	</testsuite>
+        <testsuite name="backend-snowflake-part-1">
+            <file>tests/Backend/CommonPart1/BucketsTest.php</file>
+            <file>tests/Backend/Workspaces/MetadataFromSnowflakeWorkspaceTest.php</file>
+            <directory>tests/Backend/CommonPart1</directory>
+            <file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
+            <file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
+            <file>tests/Backend/Workspaces/LegacyWorkspacesSnowflakeTest.php</file>
+        </testsuite>
 
-	<testsuite name="backend-mixed">
-		<directory>tests/Backend/Mixed</directory>
-		<exclude>tests/Backend/Mixed/Workspaces/S3WorkspacesTest.php</exclude>
-	</testsuite>
+        <testsuite name="backend-snowflake-part-2">
+            <directory>tests/Backend/CommonPart2</directory>
+            <file>tests/Backend/Workspaces/WorkspacesSnowflakeTest.php</file>
+            <file>tests/Backend/Workspaces/WorkspacesTest.php</file>
+            <file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
+            <file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
+            <file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>
+            <directory>tests/Backend/Snowflake</directory>
+            <file>tests/Backend/Export/ExportParamsTest.php</file>
+        </testsuite>
 
-	<testsuite name="backend-synapse-part-1">
-		<file>tests/Backend/Workspaces/MetadataFromSynapseWorkspaceTest.php</file>
-		<directory>tests/Backend/CommonPart1</directory>
-<!--	DataPreviewLimitsTest is in tests/Backend/Synapse -->
-		<exclude>tests/Backend/CommonPart1/DataPreviewLimitsTest.php</exclude>
-		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
-		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
-		<file>tests/Backend/Workspaces/LegacyWorkspacesSynapseTest.php</file>
-	</testsuite>
+        <testsuite name="backend-mixed">
+            <directory>tests/Backend/Mixed</directory>
+            <exclude>tests/Backend/Mixed/Workspaces/S3WorkspacesTest.php</exclude>
+        </testsuite>
 
-	<testsuite name="backend-synapse-part-2">
-		<directory>tests/Backend/CommonPart2</directory>
-		<file>tests/Backend/Workspaces/WorkspacesSynapseTest.php</file>
-		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
-		<file>tests/Backend/Workspaces/SynapseWorkspacesUnloadTest.php</file>
-		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
-		<file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>
-		<directory>tests/Backend/Synapse</directory>
-		<file>tests/Backend/Export/ExportParamsTest.php</file>
-	</testsuite>
+        <testsuite name="backend-synapse-part-1">
+            <file>tests/Backend/Workspaces/MetadataFromSynapseWorkspaceTest.php</file>
+            <directory>tests/Backend/CommonPart1</directory>
+            <!--	DataPreviewLimitsTest is in tests/Backend/Synapse -->
+            <exclude>tests/Backend/CommonPart1/DataPreviewLimitsTest.php</exclude>
+            <file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
+            <file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
+            <file>tests/Backend/Workspaces/LegacyWorkspacesSynapseTest.php</file>
+        </testsuite>
+
+        <testsuite name="backend-synapse-part-2">
+            <directory>tests/Backend/CommonPart2</directory>
+            <file>tests/Backend/Workspaces/WorkspacesSynapseTest.php</file>
+            <file>tests/Backend/Workspaces/WorkspacesTest.php</file>
+            <file>tests/Backend/Workspaces/SynapseWorkspacesUnloadTest.php</file>
+            <file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
+            <file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>
+            <directory>tests/Backend/Synapse</directory>
+            <file>tests/Backend/Export/ExportParamsTest.php</file>
+        </testsuite>
+    </testsuites>
 </phpunit>

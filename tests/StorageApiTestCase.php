@@ -17,7 +17,7 @@ use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Options\ListFilesOptions;
 
-abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
+abstract class StorageApiTestCase extends \PHPUnit\Framework\TestCase
 {
     const BACKEND_REDSHIFT = 'redshift';
     const BACKEND_SNOWFLAKE = 'snowflake';
@@ -88,11 +88,18 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
         ));
     }
 
+    /**
+     * @return string
+     */
+    public function getBucketNameForTest()
+    {
+        return 'API-tests' . md5($this->getName());
+    }
 
-    protected function _initEmptyTestBuckets($stages = [self::STAGE_OUT, self::STAGE_IN])
+    protected function _initEmptyTestBuckets($stages = [self::STAGE_OUT, self::STAGE_IN], $name = 'API-tests')
     {
         foreach ($stages as $stage) {
-            $this->_bucketIds[$stage] = $this->initEmptyBucket('API-tests', $stage);
+            $this->_bucketIds[$stage] = $this->initEmptyBucket($name, $stage);
         }
     }
 
@@ -174,7 +181,7 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
         };
         usort($expected, $comparsion);
         usort($actual, $comparsion);
-        return $this->assertEquals($expected, $actual, $message);
+        $this->assertEquals($expected, $actual, $message);
     }
 
     public function tableExportFiltersData()

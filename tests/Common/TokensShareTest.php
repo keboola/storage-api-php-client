@@ -19,6 +19,9 @@ class TokensShareTest extends StorageApiTestCase
         }
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testTokenShare()
     {
         $newTokenId = $this->_client->createToken(new TokenCreateOptions());
