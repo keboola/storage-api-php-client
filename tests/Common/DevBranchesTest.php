@@ -2,7 +2,6 @@
 
 namespace Keboola\Test\Common;
 
-use Exception;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\DevBranches;
