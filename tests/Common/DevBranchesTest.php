@@ -62,7 +62,7 @@ class DevBranchesTest extends StorageApiTestCase
         $this->expectExceptionMessage('You don\'t have access to resource.');
         $this->expectException(ClientException::class);
 
-        $branch = $branches->createBranch($branchName);
+        $branches->createBranch($branchName);
     }
 
     public function provideInvalidClients()
