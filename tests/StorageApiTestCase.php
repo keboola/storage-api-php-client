@@ -457,4 +457,11 @@ abstract class StorageApiTestCase extends TestCase
             $client->dropBucket($testBucketId, ['force' => true, 'async' => $async]);
         }
     }
+
+    protected function getExportFilePathForTest($fileName)
+    {
+        $testName = get_class($this) . '\\' . $this->getName();
+        return __DIR__ . '/_tmp/' . sha1($testName) . '.' . $fileName;
+    }
+
 }
