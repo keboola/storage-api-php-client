@@ -110,7 +110,7 @@ class SimpleAliasTest extends StorageApiTestCase
 
         // alias data preview and async export
         $exporter = new TableExporter($this->_client);
-        $downloadPath = __DIR__ . '/../../_tmp/languages.sliced.csv';
+        $downloadPath = $this->getExportFilePathForTest('languages.sliced.csv');
 
         $this->assertArrayEqualsSorted($expectedData, Client::parseCsv($this->_client->getTableDataPreview($aliasTable['id'])), 'id', 'data are exported from source table');
 
@@ -550,7 +550,7 @@ class SimpleAliasTest extends StorageApiTestCase
 
         // async export
         $exporter = new TableExporter($this->_client);
-        $downloadPath = __DIR__ . '/../../_tmp/languages.sliced.csv';
+        $downloadPath = $this->getExportFilePathForTest('languages.sliced.csv');
         $exporter->exportTable($aliasTableId, $downloadPath, []);
         $parsedData = Client::parseCsv(file_get_contents($downloadPath), false);
         array_shift($parsedData); // remove header
@@ -612,7 +612,7 @@ class SimpleAliasTest extends StorageApiTestCase
 
         // async export
         $exporter = new TableExporter($this->_client);
-        $downloadPath = __DIR__ . '/../../_tmp/languages.sliced.csv';
+        $downloadPath = $this->getExportFilePathForTest('languages.sliced.csv');
         $exporter->exportTable($aliasTableId, $downloadPath, []);
         $parsedData = Client::parseCsv(file_get_contents($downloadPath), false);
         array_shift($parsedData); // remove header
@@ -661,7 +661,7 @@ class SimpleAliasTest extends StorageApiTestCase
 
         // async export
         $exporter = new TableExporter($this->_client);
-        $downloadPath = __DIR__ . '/../../_tmp/languages.sliced.csv';
+        $downloadPath = $this->getExportFilePathForTest('languages.sliced.csv');
         $exporter->exportTable($aliasTableId, $downloadPath, [
             'whereColumn' => 'sex',
             'whereValues' => array('male'),
@@ -681,7 +681,7 @@ class SimpleAliasTest extends StorageApiTestCase
 
         // async export
         $exporter = new TableExporter($this->_client);
-        $downloadPath = __DIR__ . '/../../_tmp/languages.sliced.csv';
+        $downloadPath = $this->getExportFilePathForTest('languages.sliced.csv');
         $exporter->exportTable($aliasTableId, $downloadPath, [
             'whereColumn' => 'city',
             'whereValues' => array('VAN'),
