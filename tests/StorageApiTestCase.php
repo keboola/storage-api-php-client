@@ -463,5 +463,4 @@ abstract class StorageApiTestCase extends TestCase
         $testName = get_class($this) . '\\' . $this->getName();
         return __DIR__ . '/_tmp/' . sha1($testName) . '.' . $fileName;
     }
-
 }
