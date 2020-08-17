@@ -18,6 +18,207 @@ class MetadataFromSynapseWorkspaceTest extends WorkspacesTestCase
         }
     }
 
+    public function testIncrementalLoadUpdateDataType()
+    {
+        // create workspace and source table in workspace
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace(["backend" => "synapse"]);
+        $connection = $workspace['connection'];
+        $db = $this->getDbConnection($connection);
+
+        $tableName = 'metadata_columns';
+        $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
+            '%s.%s',
+            $connection['schema'],
+            $tableName
+        ));
+
+        $db->query("create table $quotedTableId (
+                    \"id\" varchar(16),
+                    \"name\" varchar(16)
+                );");
+
+        $tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), [
+            'name' => $tableName,
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => $tableName,
+        ]);
+
+        $expectedNameMetadata = [
+            'KBC.datatype.type' => 'VARCHAR',
+            'KBC.datatype.nullable' => '1',
+            'KBC.datatype.basetype' => 'STRING',
+            'KBC.datatype.length' => '16',
+        ];
+
+        $expectedIdMetadata = [
+            'KBC.datatype.type' => 'VARCHAR',
+            'KBC.datatype.nullable' => '1',
+            'KBC.datatype.basetype' => 'STRING',
+            'KBC.datatype.length' => '16',
+        ];
+
+        $table = $this->_client->getTable($tableId);
+
+        $this->assertEquals([], $table['metadata']);
+
+        $this->assertArrayHasKey('id', $table['columnMetadata']);
+        $this->assertMetadata($expectedIdMetadata, $table['columnMetadata']['id']);
+        $this->assertArrayHasKey('name', $table['columnMetadata']);
+        $this->assertMetadata($expectedNameMetadata, $table['columnMetadata']['name']);
+
+        $db->query("drop table $quotedTableId");
+        $db->query("create table $quotedTableId (
+                    \"id\" integer,
+                    \"name\" char not null
+                );");
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        // incremental load will not update datatype basetype as basetype in workspace is different than in table
+        $this->_client->writeTableAsyncDirect($tableId, [
+            'incremental' => true,
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => $tableName,
+        ]);
+
+        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
+        $events = $this->_client->listEvents([
+            'runId' => $runId,
+        ]);
+
+        $notUpdateColumnTypeEvent = null;
+        $notUpdateNullableColumnEvent = null;
+        $notUpdateLengthEvent = null;
+        foreach ($events as $event) {
+            if ($event['event'] === 'storage.tableAutomaticDataTypesNotUpdateColumnType') {
+                $notUpdateColumnTypeEvent = $event;
+            }
+            if ($event['event'] === 'storage.tableAutomaticDataTypesNotUpdateColumnNullable') {
+                $notUpdateNullableColumnEvent = $event;
+            }
+            if ($event['event'] === 'storage.tableAutomaticDataTypesNotUpdateColumnLength') {
+                $notUpdateLengthEvent = $event;
+            }
+        }
+
+        // type event assert
+        $this->assertSame('storage.tableAutomaticDataTypesNotUpdateColumnType', $notUpdateColumnTypeEvent['event']);
+        $this->assertSame('storage', $notUpdateColumnTypeEvent['component']);
+        $this->assertSame('warn', $notUpdateColumnTypeEvent['type']);
+        $this->assertArrayHasKey('params', $notUpdateColumnTypeEvent);
+        $this->assertSame('in.c-API-tests.metadata_columns', $notUpdateColumnTypeEvent['objectId']);
+        $this->assertSame('id', $notUpdateColumnTypeEvent['params']['column']);
+
+        $table = $this->_client->getTable($tableId);
+
+        $this->assertEquals([], $table['metadata']);
+
+        $this->assertArrayHasKey('id', $table['columnMetadata']);
+        $this->assertMetadata($expectedIdMetadata, $table['columnMetadata']['id']);
+        $this->assertArrayHasKey('name', $table['columnMetadata']);
+        $this->assertMetadata($expectedNameMetadata, $table['columnMetadata']['name']);
+
+        // length event assert
+        $this->assertSame('storage.tableAutomaticDataTypesNotUpdateColumnLength', $notUpdateLengthEvent['event']);
+        $this->assertSame('storage', $notUpdateLengthEvent['component']);
+        $this->assertSame('warn', $notUpdateLengthEvent['type']);
+        $this->assertArrayHasKey('params', $notUpdateLengthEvent);
+        $this->assertSame('in.c-API-tests.metadata_columns', $notUpdateLengthEvent['objectId']);
+        $this->assertSame('name', $notUpdateLengthEvent['params']['column']);
+
+        $table = $this->_client->getTable($tableId);
+
+        $this->assertEquals([], $table['metadata']);
+
+        $this->assertArrayHasKey('id', $table['columnMetadata']);
+        $this->assertMetadata($expectedIdMetadata, $table['columnMetadata']['id']);
+        $this->assertArrayHasKey('name', $table['columnMetadata']);
+        $this->assertMetadata($expectedNameMetadata, $table['columnMetadata']['name']);
+
+        // nullable event assert
+        $this->assertSame('storage.tableAutomaticDataTypesNotUpdateColumnNullable', $notUpdateNullableColumnEvent['event']);
+        $this->assertSame('storage', $notUpdateNullableColumnEvent['component']);
+        $this->assertSame('warn', $notUpdateNullableColumnEvent['type']);
+        $this->assertArrayHasKey('params', $notUpdateNullableColumnEvent);
+        $this->assertSame('in.c-API-tests.metadata_columns', $notUpdateNullableColumnEvent['objectId']);
+        $this->assertSame('name', $notUpdateNullableColumnEvent['params']['column']);
+
+        $table = $this->_client->getTable($tableId);
+
+        $this->assertEquals([], $table['metadata']);
+
+        $this->assertArrayHasKey('id', $table['columnMetadata']);
+        $this->assertMetadata($expectedIdMetadata, $table['columnMetadata']['id']);
+        $this->assertArrayHasKey('name', $table['columnMetadata']);
+        $this->assertMetadata($expectedNameMetadata, $table['columnMetadata']['name']);
+
+        //only full load will update datatype length
+        $this->_client->writeTableAsyncDirect($tableId, [
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => $tableName,
+        ]);
+
+        $expectedNameMetadata = [
+            'KBC.datatype.type' => 'CHAR',
+            'KBC.datatype.nullable' => '',
+            'KBC.datatype.basetype' => 'STRING',
+            'KBC.datatype.length' => '1',
+        ];
+
+        $expectedIdMetadata = [
+            'KBC.datatype.type' => 'INT',
+            'KBC.datatype.nullable' => '1',
+            'KBC.datatype.basetype' => 'INTEGER',
+            'KBC.datatype.length' => '16',
+        ];
+
+        $table = $this->_client->getTable($tableId);
+
+        $this->assertEquals([], $table['metadata']);
+
+        $this->assertArrayHasKey('id', $table['columnMetadata']);
+        $this->assertMetadata($expectedIdMetadata, $table['columnMetadata']['id']);
+        $this->assertArrayHasKey('name', $table['columnMetadata']);
+        $this->assertMetadata($expectedNameMetadata, $table['columnMetadata']['name']);
+
+        $db->query("drop table $quotedTableId");
+        $db->query("create table $quotedTableId (
+                    \"id\" integer,
+                    \"name\" varchar(32)
+                );");
+
+        $this->_client->writeTableAsyncDirect($tableId, [
+            'incremental' => true,
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => $tableName,
+        ]);
+
+        $expectedNameMetadata = [
+            'KBC.datatype.type' => 'VARCHAR',
+            'KBC.datatype.nullable' => '1',
+            'KBC.datatype.basetype' => 'STRING',
+            'KBC.datatype.length' => '32',
+        ];
+
+        $expectedIdMetadata = [
+            'KBC.datatype.type' => 'INT',
+            'KBC.datatype.nullable' => '1',
+            'KBC.datatype.basetype' => 'INTEGER',
+            'KBC.datatype.length' => '16',
+        ];
+
+        $table = $this->_client->getTable($tableId);
+
+        $this->assertEquals([], $table['metadata']);
+
+        $this->assertArrayHasKey('id', $table['columnMetadata']);
+        $this->assertMetadata($expectedIdMetadata, $table['columnMetadata']['id']);
+        $this->assertArrayHasKey('name', $table['columnMetadata']);
+        $this->assertMetadata($expectedNameMetadata, $table['columnMetadata']['name']);
+    }
+
     public function testCreateTableFromWorkspace()
     {
         // create workspace and source table in workspace
