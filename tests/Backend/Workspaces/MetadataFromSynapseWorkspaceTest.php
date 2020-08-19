@@ -174,29 +174,12 @@ class MetadataFromSynapseWorkspaceTest extends WorkspacesTestCase
             $this->_client->getTableDataPreview($table_id, array('format' => 'rfc')),
             'imported data comparsion'
         );
-        // check the created metadata
-        $expectedIdMetadata = [
-            'KBC.datatype.type' => 'INT',
-            'KBC.datatype.nullable' => '',
-            'KBC.datatype.basetype' => 'INTEGER',
-        ];
-        $expectedNameMetadata = [
-            'KBC.datatype.type' => 'VARCHAR',
-            'KBC.datatype.nullable' => '',
-            'KBC.datatype.basetype' => 'STRING',
-            'KBC.datatype.length' => '50',
-            'KBC.datatype.default' => '\'honza\'',
-        ];
-
 
         // check that the new table has the correct metadata
         $table = $this->_client->getTable($table_id);
 
         $this->assertEquals([], $table['metadata']);
-        $this->assertArrayHasKey('id', $table['columnMetadata']);
-        $this->assertMetadata($expectedIdMetadata, $table['columnMetadata']['id']);
-        $this->assertArrayHasKey('name', $table['columnMetadata']);
-        $this->assertMetadata($expectedNameMetadata, $table['columnMetadata']['name']);
+        $this->assertEquals([], $table['columnMetadata']);
 
         $db->query("truncate table $quotedTableId");
         $db->query("alter table $quotedTableId ADD \"update\" varchar(64) NOT NULL DEFAULT '';");
@@ -222,19 +205,10 @@ class MetadataFromSynapseWorkspaceTest extends WorkspacesTestCase
             $this->_client->getTableDataPreview($table['id'], array('format' => 'rfc')),
             'new  column added'
         );
-        $expectedUpdateMetadata = [
-            'KBC.datatype.type' => 'VARCHAR',
-            'KBC.datatype.nullable' => '',
-            'KBC.datatype.basetype' => 'STRING',
-            'KBC.datatype.length' => '64',
-            'KBC.datatype.default' => '\'\'',
-        ];
+
         $table = $this->_client->getTable($table['id']);
         $this->assertEquals([], $table['metadata']);
-        $this->assertArrayHasKey("id", $table['columnMetadata']);
-        $this->assertArrayHasKey("name", $table['columnMetadata']);
-        $this->assertArrayHasKey("update", $table['columnMetadata']);
-        $this->assertMetadata($expectedUpdateMetadata, $table['columnMetadata']['update']);
+        $this->assertEquals([], $table['columnMetadata']);
     }
 
     private function assertMetadata($expectedKeyValues, $metadata)
