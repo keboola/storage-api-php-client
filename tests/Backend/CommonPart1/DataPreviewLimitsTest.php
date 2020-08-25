@@ -24,6 +24,27 @@ class DataPreviewLimitsTest extends StorageApiTestCase
         $this->_initEmptyTestBuckets();
     }
 
+    public function testSimplePreview()
+    {
+        $csv = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
+        $csv->writeRow(['Id', 'Name']);
+        $csv->writeRow(['test', 'aabb']);
+        $csv->writeRow(['test2', 'ccdd']);
+        $tableId = $this->_client->createTable($this->getTestBucketId(), 'test1', $csv);
+
+        $data = (array) $this->_client->getTableDataPreview(
+            $tableId,
+            ['format' => 'json']
+        );
+        $values = [];
+        foreach ($data['rows'] as $row) {
+            foreach ($row as $column) {
+                $values[] = $column['value'];
+            }
+        }
+        sort($values);
+        $this->assertEquals(['aabb', 'ccdd', 'test', 'test2'], $values);
+    }
 
     public function testDataPreviewDefaultLimit()
     {
