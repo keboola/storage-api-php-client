@@ -27,23 +27,24 @@ class DataPreviewLimitsTest extends StorageApiTestCase
     public function testSimplePreview()
     {
         $csv = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
-        $csv->writeRow(['Id', 'Name']);
-        $csv->writeRow(['test', 'aabb']);
-        $csv->writeRow(['test2', 'ccdd']);
+        $csv->writeRow(['Name','Id']);
+        $csv->writeRow(['aabb','test']);
+        $csv->writeRow(['ccdd','test2']);
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'test1', $csv);
 
         $data = (array) $this->_client->getTableDataPreview(
             $tableId,
             ['format' => 'json']
         );
-        $values = [];
-        foreach ($data['rows'] as $row) {
-            foreach ($row as $column) {
-                $values[] = $column['value'];
-            }
-        }
-        sort($values);
-        $this->assertEquals(['aabb', 'ccdd', 'test', 'test2'], $values);
+        // check columns order
+        $this->assertEquals('Name', $data['columns'][0]);
+        $this->assertEquals('Id', $data['columns'][1]);
+        // check rows
+        $this->assertEquals('aabb', $data['rows'][0][0]['value']);
+        $this->assertEquals('test', $data['rows'][0][1]['value']);
+
+        $this->assertEquals('ccdd', $data['rows'][1][0]['value']);
+        $this->assertEquals('test2', $data['rows'][1][1]['value']);
     }
 
     public function testDataPreviewDefaultLimit()
