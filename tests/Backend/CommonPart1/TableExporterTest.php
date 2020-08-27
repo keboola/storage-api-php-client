@@ -28,7 +28,7 @@ class TableExporterTest extends StorageApiTestCase
     public function setUp()
     {
         parent::setUp();
-        $this->_initEmptyTestBuckets();
+        $this->initEmptyTestBucketsForParallelTests();
         $this->downloadPath = __DIR__ . '/../../_tmp/languages.sliced.csv';
         $this->downloadPathGZip = __DIR__ . '/../../_tmp/languages.sliced.csv.gz';
     }
