@@ -98,8 +98,6 @@ class TokensTest extends StorageApiTestCase
     {
         $currentToken = $this->_client->verifyToken();
 
-        // Master token should not return unencrypted token
-        $this->assertArrayNotHasKey('token', $currentToken);
         $this->assertArrayHasKey('created', $currentToken);
         $this->assertArrayHasKey('refreshed', $currentToken);
         $this->assertArrayHasKey('description', $currentToken);
@@ -114,6 +112,8 @@ class TokensTest extends StorageApiTestCase
         $this->assertNotEmpty($currentToken['bucketPermissions']);
         $this->assertArrayHasKey('owner', $currentToken);
         $this->assertArrayHasKey('admin', $currentToken);
+
+        $this->assertMasterTokenVisibility($currentToken);
 
         $owner = $currentToken['owner'];
         $this->assertInternalType('integer', $owner['dataSizeBytes']);
@@ -155,8 +155,6 @@ class TokensTest extends StorageApiTestCase
         $verifiedToken = $this->_client->verifyToken();
         $currentToken = $this->_client->getToken($verifiedToken['id']);
 
-        // Master token should not return unencrypted token
-        $this->assertArrayNotHasKey('token', $currentToken);
         $this->assertArrayHasKey('created', $currentToken);
         $this->assertArrayHasKey('refreshed', $currentToken);
         $this->assertArrayHasKey('description', $currentToken);
@@ -171,6 +169,8 @@ class TokensTest extends StorageApiTestCase
         $this->assertNotEmpty($currentToken['bucketPermissions']);
         $this->assertArrayHasKey('owner', $currentToken);
         $this->assertArrayHasKey('admin', $currentToken);
+
+        $this->assertMasterTokenVisibility($currentToken);
 
         $owner = $currentToken['owner'];
         $this->assertInternalType('integer', $owner['dataSizeBytes']);
@@ -1237,5 +1237,25 @@ class TokensTest extends StorageApiTestCase
             },
         ]);
         return $client;
+    }
+
+    private function assertMasterTokenVisibility(array $currentToken)
+    {
+        $owner = $currentToken['owner'];
+        $this->assertArrayHasKey('features', $owner);
+        $features = $owner['features'];
+
+        if (in_array('force-decrypted-token', $features)) {
+            // when force is active must show token in any case
+            $this->assertArrayHasKey('token', $currentToken);
+        } else {
+            if (in_array('hide-decrypted-token', $features)) {
+                // when has hide feature token is hidden
+                $this->assertArrayNotHasKey('token', $currentToken);
+            } else {
+                // when does not have hide feature token is shown
+                $this->assertArrayHasKey('token', $currentToken);
+            }
+        }
     }
 }
