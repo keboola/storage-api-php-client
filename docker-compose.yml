@@ -27,6 +27,7 @@ services:
     <<: *dev
     build:
       context: docker/xdebug
+    image: keboola/storage-api-tests-xdebug
 
 networks:
   default:
