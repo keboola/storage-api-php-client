@@ -30,6 +30,7 @@ class DevBranchesTest extends StorageApiTestCase
         $this->assertArrayHasKey('created', $branch);
         unset($branch['created']);
         $this->assertArrayHasKey('id', $branch);
+        $branchId = $branch['id'];
         unset($branch['id']);
         $this->assertSame($branchName, $branch['name']);
         $this->assertArrayHasKey('owner', $branch);
@@ -41,8 +42,31 @@ class DevBranchesTest extends StorageApiTestCase
 
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage(sprintf('There already is a branch with name "%s"', $branchName));
+        $event = $this->findLastEvent($providedClient, [
+            'event' => 'storage.devBranchCreated',
+            'objectId' => $branchId
+        ]);
+        $this->assertSame($branchName, $event['objectName']);
 
         $branches->createBranch($branchName);
+    }
+
+    private function findLastEvent(Client $client, array $filter)
+    {
+        $this->createAndWaitForEvent(
+            (new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'),
+            $client
+        );
+        $events = $client->listTokenEvents($client->verifyToken()['id']);
+        foreach ($events as $event) {
+            foreach ($filter as $key => $value) {
+                if ($event[$key] != $value) {
+                    continue 2;
+                }
+            }
+            return $event;
+        }
+        $this->fail(sprintf('Event for filter "%s" does not exist', (string) json_encode($filter)));
     }
 
     public function provideValidClients()
