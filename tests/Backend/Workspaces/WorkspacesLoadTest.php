@@ -12,11 +12,11 @@ use Keboola\StorageApi\ClientException;
 use Keboola\Test\Backend\Workspaces\Backend\InputMappingConverter;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
-class WorkspacesLoadTest extends WorkspacesTestCase
+class WorkspacesLoadTest extends ParallelWorkspacesTestCase
 {
     public function testWorkspaceTablesPermissions()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
 
         $workspace = $workspaces->createWorkspace();
 
@@ -80,7 +80,7 @@ class WorkspacesLoadTest extends WorkspacesTestCase
 
     public function testWorkspaceLoadData()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
 
         $workspace = $workspaces->createWorkspace();
 
@@ -159,7 +159,7 @@ class WorkspacesLoadTest extends WorkspacesTestCase
 
     public function testWorkspaceLoadAliasTable()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
 
         $workspace = $workspaces->createWorkspace();
 
@@ -273,7 +273,7 @@ class WorkspacesLoadTest extends WorkspacesTestCase
 
     public function testWorkspaceLoadColumns()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
@@ -387,7 +387,7 @@ class WorkspacesLoadTest extends WorkspacesTestCase
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
@@ -461,7 +461,7 @@ class WorkspacesLoadTest extends WorkspacesTestCase
 
     public function testIncrementalAdditionalColumns()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -540,7 +540,7 @@ class WorkspacesLoadTest extends WorkspacesTestCase
 
     public function testIncrementalMissingColumns()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -614,7 +614,7 @@ class WorkspacesLoadTest extends WorkspacesTestCase
      */
     public function testIncrementalDataTypesDiff($table, $firstLoadDataColumns, $secondLoadDataColumns)
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $importFile = __DIR__ . "/../../_data/$table.csv";
@@ -667,7 +667,7 @@ class WorkspacesLoadTest extends WorkspacesTestCase
 
     public function testSecondsFilter()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -719,7 +719,7 @@ class WorkspacesLoadTest extends WorkspacesTestCase
 
     public function testRowsParameter()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -769,7 +769,7 @@ class WorkspacesLoadTest extends WorkspacesTestCase
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));
 
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -1096,7 +1096,7 @@ class WorkspacesLoadTest extends WorkspacesTestCase
      */
     public function testDataTypes($columnsDefinition)
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -1144,7 +1144,7 @@ class WorkspacesLoadTest extends WorkspacesTestCase
      */
     public function testDataTypeConversionUserError($columnsDefinition)
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -1188,7 +1188,7 @@ class WorkspacesLoadTest extends WorkspacesTestCase
      */
     public function testDataTypeForNotExistingColumnUserError($columnsDefinition)
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $importFile = __DIR__ . '/../../_data/languages.camel-case-columns.csv';
@@ -1221,7 +1221,7 @@ class WorkspacesLoadTest extends WorkspacesTestCase
 
     public function testInvalidExtendedColumnUserError()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -1263,7 +1263,7 @@ class WorkspacesLoadTest extends WorkspacesTestCase
 
     public function testDuplicateDestination()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         //setup test tables
@@ -1333,7 +1333,7 @@ class WorkspacesLoadTest extends WorkspacesTestCase
 
     public function testTableAlreadyExistsShouldThrowUserError()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $tableId = $this->_client->createTable(
@@ -1403,7 +1403,7 @@ class WorkspacesLoadTest extends WorkspacesTestCase
 
     public function testSourceTableNotFound()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         // let's try loading from a table that doesn't exist
@@ -1432,7 +1432,7 @@ class WorkspacesLoadTest extends WorkspacesTestCase
 
     public function testInvalidInputs()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
 
         $workspace = $workspaces->createWorkspace();
 
@@ -1575,7 +1575,7 @@ class WorkspacesLoadTest extends WorkspacesTestCase
 
     public function testDottedDestination()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         // Create a table of sample data
@@ -1622,7 +1622,7 @@ class WorkspacesLoadTest extends WorkspacesTestCase
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
