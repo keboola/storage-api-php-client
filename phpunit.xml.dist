@@ -36,6 +36,12 @@
 
 	<testsuite name="paratest-backend-snowflake-abs-part-1">
 		<directory>tests/Backend/CommonPart1</directory>
+		<directory>tests/Backend/CommonPart2</directory>
+		<directory>tests/Backend/Snowflake</directory>
+		<exclude>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</exclude>
+		<exclude>tests/Backend/Snowflake/TimestampTest.php</exclude>
+		<exclude>tests/Backend/Snowflake/DirectAccessTest.php</exclude>
+		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-snowflake-abs-part-2">
@@ -49,15 +55,6 @@
 		<file>tests/Backend/Snowflake/DirectAccessTest.php</file>
 	</testsuite>
 
-	<testsuite name="paratest-backend-snowflake-abs-part-2">
-		<directory>tests/Backend/CommonPart2</directory>
-		<directory>tests/Backend/Snowflake</directory>
-		<exclude>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</exclude>
-		<exclude>tests/Backend/Snowflake/TimestampTest.php</exclude>
-		<exclude>tests/Backend/Snowflake/DirectAccessTest.php</exclude>
-		<file>tests/Backend/Export/ExportParamsTest.php</file>
-	</testsuite>
-
 	<testsuite name="backend-redshift-part-1">
 		<file>tests/Backend/Workspaces/MetadataFromRedshiftWorkspaceTest.php</file>
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
@@ -67,6 +64,7 @@
 
 	<testsuite name="paratest-backend-redshift-part-1">
 		<directory>tests/Backend/CommonPart1</directory>
+		<directory>tests/Backend/CommonPart2</directory>
 	</testsuite>
 
 	<testsuite name="backend-redshift-part-2">
@@ -79,10 +77,6 @@
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>
 
-	<testsuite name="paratest-backend-redshift-part-2">
-		<directory>tests/Backend/CommonPart2</directory>
-	</testsuite>
-
 	<testsuite name="backend-snowflake-part-1">
 		<file>tests/Backend/Workspaces/MetadataFromSnowflakeWorkspaceTest.php</file>
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
@@ -92,6 +86,12 @@
 
 	<testsuite name="paratest-backend-snowflake-part-1">
 		<directory>tests/Backend/CommonPart1</directory>
+		<directory>tests/Backend/CommonPart2</directory>
+		<directory>tests/Backend/Snowflake</directory>
+		<exclude>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</exclude>
+		<exclude>tests/Backend/Snowflake/TimestampTest.php</exclude>
+		<exclude>tests/Backend/Snowflake/DirectAccessTest.php</exclude>
+		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-snowflake-part-2">
@@ -103,15 +103,6 @@
 		<file>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</file>
 		<file>tests/Backend/Snowflake/TimestampTest.php</file>
 		<file>tests/Backend/Snowflake/DirectAccessTest.php</file>
-	</testsuite>
-
-	<testsuite name="paratest-backend-snowflake-part-2">
-		<directory>tests/Backend/CommonPart2</directory>
-		<directory>tests/Backend/Snowflake</directory>
-		<exclude>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</exclude>
-		<exclude>tests/Backend/Snowflake/TimestampTest.php</exclude>
-		<exclude>tests/Backend/Snowflake/DirectAccessTest.php</exclude>
-		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-mixed">
@@ -130,6 +121,7 @@
 		<directory>tests/Backend/CommonPart1</directory>
 <!--	DataPreviewLimitsTest is in tests/Backend/Synapse -->
 		<exclude>tests/Backend/CommonPart1/DataPreviewLimitsTest.php</exclude>
+		<directory>tests/Backend/CommonPart2</directory>
 	</testsuite>
 
 	<testsuite name="backend-synapse-part-2">
@@ -142,8 +134,5 @@
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>
 
-	<testsuite name="paratest-backend-synapse-part-2">
-		<directory>tests/Backend/CommonPart2</directory>
-	</testsuite>
 </testsuites>
 </phpunit>
