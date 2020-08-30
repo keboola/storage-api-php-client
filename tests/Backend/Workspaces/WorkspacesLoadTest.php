@@ -106,6 +106,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $initialJobs = $this->_client->listJobs();
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
+        $this->workspaceSapiClient->setRunId($runId);
         $workspaces->loadWorkspaceData($workspace['id'], ["input" => $input]);
         $afterJobs = $this->_client->listJobs();
 
@@ -117,7 +118,6 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
 
         $stats = $this->_client->getStats((new \Keboola\StorageApi\Options\StatsOptions())->setRunId($runId));
-
         $export = $stats['tables']['export'];
         $this->assertEquals(2, $export['totalCount']);
         $this->assertCount(2, $export['tables']);
