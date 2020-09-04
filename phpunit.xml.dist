@@ -12,6 +12,7 @@
 		 verbose="true"
          bootstrap="tests/bootstrap.php">
 
+<testsuites>
 	<testsuite name="common">
 		<directory>tests/Common</directory>
 		<directory>tests/S3Uploader</directory>
@@ -116,4 +117,5 @@
 		<directory>tests/Backend/Synapse</directory>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>
+</testsuites>
 </phpunit>
