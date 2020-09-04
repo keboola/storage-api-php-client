@@ -83,7 +83,12 @@
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>
 		<directory>tests/Backend/Snowflake</directory>
+		<exclude>tests/Backend/Snowflake/OrderByTest.php</exclude>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
+	</testsuite>
+
+	<testsuite name="paratest-backend-snowflake-part-2">
+		<file>tests/Backend/Snowflake/OrderByTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-mixed">
