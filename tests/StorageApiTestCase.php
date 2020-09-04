@@ -89,14 +89,14 @@ abstract class StorageApiTestCase extends TestCase
         ));
     }
 
-    protected function _legacyInitEmptyTestBuckets($stages = [self::STAGE_OUT, self::STAGE_IN])
+    protected function _initEmptyTestBuckets($stages = [self::STAGE_OUT, self::STAGE_IN])
     {
         foreach ($stages as $stage) {
             $this->_bucketIds[$stage] = $this->initEmptyBucket('API-tests', $stage, 'API-tests');
         }
     }
 
-    protected function _initEmptyTestBuckets($stages = [self::STAGE_OUT, self::STAGE_IN])
+    protected function initEmptyTestBucketsForParallelTests($stages = [self::STAGE_OUT, self::STAGE_IN])
     {
         $description = get_class($this) . '\\' . $this->getName();
         $bucketName = sprintf('API-tests-' . sha1($description));
