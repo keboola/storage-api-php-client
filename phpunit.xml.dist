@@ -14,14 +14,14 @@
 
 	<testsuite name="common">
 		<directory>tests/Common</directory>
+		<directory>tests/S3Uploader</directory>
+		<directory>tests/Downloader</directory>
+		<file>tests/File/AwsFileTest.php</file>
 		<file>tests/File/CommonFileTests.php</file>
 	</testsuite>
 
 	<testsuite name="paratest-common">
 		<directory>tests/Options</directory>
-		<directory>tests/S3Uploader</directory>
-		<directory>tests/Downloader</directory>
-		<file>tests/File/AwsFileTest.php</file>
 	</testsuite>
 
 	<testsuite name="file-storage-azure">
