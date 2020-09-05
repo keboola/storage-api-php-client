@@ -51,24 +51,6 @@ class DevBranchesTest extends StorageApiTestCase
         $branches->createBranch($branchName);
     }
 
-    private function findLastEvent(Client $client, array $filter)
-    {
-        $this->createAndWaitForEvent(
-            (new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'),
-            $client
-        );
-        $events = $client->listTokenEvents($client->verifyToken()['id']);
-        foreach ($events as $event) {
-            foreach ($filter as $key => $value) {
-                if ($event[$key] != $value) {
-                    continue 2;
-                }
-            }
-            return $event;
-        }
-        $this->fail(sprintf('Event for filter "%s" does not exist', (string) json_encode($filter)));
-    }
-
     public function provideValidClients()
     {
         $guest = ClientsProvider::getGuestStorageApiClient();
