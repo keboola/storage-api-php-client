@@ -5738,3 +5738,61 @@ From now on you won't be able to sign in to the **Direct Access** for specific p
                     "outBytesUncompressed": 0
                 }
             }
+
+# Group Development Branches
+
+**EXPERIMENTAL**
+
+Development branches allow you to prepare changes to configuration and tables in isolation. When ready, you can replace the production with the development branch.
+
+## Branches [/v2/storage/dev-branches/]
+
+### Create branch [POST]
+
++ Parameters
+    + name (string) - name of the branch
+
++ Request (application/x-www-form-urlencoded)
+
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 202
+
+    + Body
+
+        {
+            "id": 347,
+            "status": "success",
+            "url": "https:\/\/connection.keboola.com\/\/v2\/storage\/jobs\/347",
+            "tableId": null,
+            "operationName": "devBranchCreate",
+            "operationParams": {
+                "queue": "main",
+                "values": {
+                    "name": "Refactor DB extractors"
+                }
+            },
+            "createdTime": "2020-09-05T15:29:45+0200",
+            "startTime": "2020-09-05T15:29:45+0200",
+            "endTime": "2020-09-05T15:29:45+0200",
+            "runId": "955",
+            "results": {
+                "id": 12,
+                "name": "Refactor DB extractors",
+                "created": "2020-09-05T15:29:45+0200"
+            },
+            "creatorToken": {
+                "id": "1",
+                "description": "dev@keboola.com"
+            },
+            "metrics": {
+                "inCompressed": false,
+                "inBytes": 0,
+                "inBytesUncompressed": 0,
+                "outCompressed": false,
+                "outBytes": 0,
+                "outBytesUncompressed": 0
+            }
+        }
