@@ -33,12 +33,6 @@ class DevBranchesTest extends StorageApiTestCase
         $branchId = $branch['id'];
         unset($branch['id']);
         $this->assertSame($branchName, $branch['name']);
-        $this->assertArrayHasKey('owner', $branch);
-        $this->assertSame(['id', 'name'], array_keys($branch['owner']));
-        $this->assertSame($projectId, $branch['owner']['id']);
-        $this->assertArrayHasKey('admin', $branch);
-        $this->assertSame(['id', 'name', 'email'], array_keys($branch['admin']));
-        $this->assertSame($adminId, $branch['admin']['id']);
 
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage(sprintf('There already is a branch with name "%s"', $branchName));
