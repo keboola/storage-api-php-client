@@ -22,7 +22,7 @@ class DevBranchesTest extends StorageApiTestCase
         $token = $providedClient->verifyToken();
         $branches = new DevBranches($providedClient);
 
-        $branchName = __CLASS__ . microtime();
+        $branchName = __CLASS__ . ' příliš žluťoučký kůň' . microtime();
         $branch = $branches->createBranch($branchName);
         $adminId = $token['admin']['id'];
         $projectId = $token['owner']['id'];
