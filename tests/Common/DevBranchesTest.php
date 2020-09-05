@@ -72,6 +72,45 @@ class DevBranchesTest extends StorageApiTestCase
         $branches->deleteBranch($newBranch['id']);
     }
 
+    public function testOrgAdminCanDeleteBranchCreatedByAdmin()
+    {
+        $guestClient = ClientsProvider::getGuestStorageApiClient();
+
+        $branches = new DevBranches($guestClient);
+        $branchName = __CLASS__ . ' příliš žluťoučký kůň' . microtime();
+
+        $branch = $branches->createBranch($branchName);
+
+        $branchId = $branch['id'];
+
+        $orgAdminClient = ClientsProvider::getClient();
+        $branches = new DevBranches($orgAdminClient);
+
+        $branches->deleteBranch($branchId);
+
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testCannotDeleteNotOwnedBranch()
+    {
+        $orgAdminClient = ClientsProvider::getClient();
+        $branches = new DevBranches($orgAdminClient);
+
+        $branchName = __CLASS__ . ' příliš žluťoučký kůň' . microtime();
+
+        $branch = $branches->createBranch($branchName);
+
+        $branchId = $branch['id'];
+
+        $guestClient = ClientsProvider::getGuestStorageApiClient();
+        $branches = new DevBranches($guestClient);
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Only owner or organization admin can delete development branch');
+
+        $branches->deleteBranch($branchId);
+    }
+
     public function provideValidClients()
     {
         $guest = ClientsProvider::getGuestStorageApiClient();
