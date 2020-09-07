@@ -40,11 +40,16 @@ class DevBranchesTest extends StorageApiTestCase
             'objectId' => $branchId
         ]);
         $this->assertSame($branchName, $event['objectName']);
+        $this->assertSame('devBranch', $event['objectType']);
 
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage(sprintf('There already is a branch with name "%s"', $branchName));
 
-        $branches->createBranch($branchName);
+        try {
+            $branches->createBranch($branchName);
+        } catch (ClientException $e) {
+            $expectedMessage = sprintf('There already is a branch with name "%s"', $branchName);
+            $this->assertSame($expectedMessage, $e->getMessage());
+            $this->assertSame('devBranch.duplicateName', $e->getStringCode());
+        }
     }
 
     public function provideValidClients()
