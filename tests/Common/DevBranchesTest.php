@@ -106,7 +106,7 @@ class DevBranchesTest extends StorageApiTestCase
         $branches = new DevBranches($guestClient);
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Only owner or organization admin can delete development branch');
+        $this->expectExceptionMessage('Only owner or organization admin can manipulate a development branch');
 
         $branches->deleteBranch($branchId);
     }
