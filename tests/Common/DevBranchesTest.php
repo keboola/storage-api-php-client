@@ -19,13 +19,11 @@ class DevBranchesTest extends StorageApiTestCase
      */
     public function testCreateBranch(Client $providedClient)
     {
-        $token = $providedClient->verifyToken();
+        $providedClient->verifyToken();
         $branches = new DevBranches($providedClient);
 
         $branchName = __CLASS__ . ' příliš žluťoučký kůň' . microtime();
         $branch = $branches->createBranch($branchName);
-        $adminId = $token['admin']['id'];
-        $projectId = $token['owner']['id'];
 
         $this->assertArrayHasKey('created', $branch);
         unset($branch['created']);
