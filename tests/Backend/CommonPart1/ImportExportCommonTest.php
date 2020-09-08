@@ -9,6 +9,8 @@
 
 namespace Keboola\Test\Backend\CommonPart1;
 
+use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Workspaces;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\Client;
 use Keboola\Csv\CsvFile;
@@ -168,6 +170,24 @@ class ImportExportCommonTest extends StorageApiTestCase
         $this->assertEquals($importFile->getHeader(), $table['columns']);
     }
 
+    public function testTableImportCaseSensitiveThrowsUserError()
+    {
+        $tokenData = $this->_client->verifyToken();
+        if (in_array($tokenData['owner']['defaultBackend'], [self::BACKEND_REDSHIFT, self::BACKEND_SYNAPSE])) {
+            $this->markTestSkipped("Test case-sensitivity columns name only for snowflake");
+        }
+
+        $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
+        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages-case-sensitive', $importFile);
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage(
+            'Some columns are missing in the csv file. Missing columns: id,name. '
+            .'Expected columns: id,name. Please check if the expected delimiter "," is used in the csv file.'
+        );
+        
+        $this->_client->writeTableAsync($tableId, new CsvFile(__DIR__ . '/../../_data/languages.camel-case-columns.csv'), ['incremental' => true]);
+    }
 
     /**
      * @dataProvider tableImportInvalidData

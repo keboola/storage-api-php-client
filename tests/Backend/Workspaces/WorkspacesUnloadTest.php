@@ -9,6 +9,7 @@
 
 namespace Keboola\Test\Backend\Workspaces;
 
+use Keboola\Csv\CsvFile;
 use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Exception;
@@ -17,6 +18,41 @@ use Keboola\Test\StorageApiTestCase;
 
 class WorkspacesUnloadTest extends WorkspacesTestCase
 {
+    public function testTableCloneCaseSensitiveThrowsUserError()
+    {
+        $tokenData = $this->_client->verifyToken();
+        if (in_array($tokenData['owner']['defaultBackend'], [self::BACKEND_REDSHIFT, self::BACKEND_SYNAPSE])) {
+            $this->markTestSkipped("Test case-sensitivity columns name only for snowflake");
+        }
+
+        $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
+        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages-case-sensitive', $importFile);
+
+        // create workspace and source table in workspace
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+
+        $connection = $workspace['connection'];
+
+        $db = $this->getDbConnection($connection);
+
+        $db->query("create table \"test.Languages3\" (
+			\"id\" integer not null,
+			\"Name\" varchar not null
+		);");
+
+        $db->query("insert into \"test.Languages3\" (\"id\", \"Name\") values (1, 'cz'), (2, 'en');");
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Some columns are missing in the csv file. Missing columns: name. Expected columns: id,name. ');
+
+        $this->_client->writeTableAsyncDirect($tableId, [
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => 'test.Languages3',
+            'incremental' => true,
+        ]);
+    }
+
     public function testCreateTableFromWorkspace()
     {
         // create workspace and source table in workspace
