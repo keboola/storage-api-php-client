@@ -9,6 +9,8 @@
 
 namespace Keboola\Test\Backend\CommonPart1;
 
+use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Workspaces;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\Client;
 use Keboola\Csv\CsvFile;
@@ -168,6 +170,21 @@ class ImportExportCommonTest extends StorageApiTestCase
         $this->assertEquals($importFile->getHeader(), $table['columns']);
     }
 
+    public function testTableImportCaseSensitiveThrowsUserError()
+    {
+        $tokenData = $this->_client->verifyToken();
+        if (in_array($tokenData['owner']['defaultBackend'], [self::BACKEND_REDSHIFT, self::BACKEND_SYNAPSE])) {
+            return;
+        }
+
+        $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
+        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', $importFile);
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Invalid column name "Id"');
+        
+        $this->_client->writeTableAsync($tableId, new CsvFile(__DIR__ . '/../../_data/languages.camel-case-columns.csv'), ['incremental' => true]);
+    }
 
     /**
      * @dataProvider tableImportInvalidData
