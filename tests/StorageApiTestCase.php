@@ -16,8 +16,9 @@ use Keboola\StorageApi\Event;
 use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Options\ListFilesOptions;
+use PHPUnit\Framework\TestCase;
 
-abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
+abstract class StorageApiTestCase extends TestCase
 {
     const BACKEND_REDSHIFT = 'redshift';
     const BACKEND_SNOWFLAKE = 'snowflake';
@@ -88,11 +89,19 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
         ));
     }
 
-
     protected function _initEmptyTestBuckets($stages = [self::STAGE_OUT, self::STAGE_IN])
     {
         foreach ($stages as $stage) {
-            $this->_bucketIds[$stage] = $this->initEmptyBucket('API-tests', $stage);
+            $this->_bucketIds[$stage] = $this->initEmptyBucket('API-tests', $stage, 'API-tests');
+        }
+    }
+
+    protected function initEmptyTestBucketsForParallelTests($stages = [self::STAGE_OUT, self::STAGE_IN])
+    {
+        $description = get_class($this) . '\\' . $this->getName();
+        $bucketName = sprintf('API-tests-' . sha1($description));
+        foreach ($stages as $stage) {
+            $this->_bucketIds[$stage] = $this->initEmptyBucket($bucketName, $stage, $description);
         }
     }
 
@@ -102,7 +111,7 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
      * @param $stage
      * @return bool|string
      */
-    private function initEmptyBucket($name, $stage)
+    private function initEmptyBucket($name, $stage, $description)
     {
         try {
             $bucket = $this->_client->getBucket("$stage.c-$name");
@@ -135,7 +144,7 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
             }
             return $bucket['id'];
         } catch (\Keboola\StorageApi\ClientException $e) {
-            return $this->_client->createBucket($name, $stage, 'Api tests');
+            return $this->_client->createBucket($name, $stage, $description);
         }
     }
 
@@ -174,7 +183,7 @@ abstract class StorageApiTestCase extends \PHPUnit_Framework_TestCase
         };
         usort($expected, $comparsion);
         usort($actual, $comparsion);
-        return $this->assertEquals($expected, $actual, $message);
+        $this->assertEquals($expected, $actual, $message);
     }
 
     public function tableExportFiltersData()

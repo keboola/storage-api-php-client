@@ -12,13 +12,17 @@
 		 verbose="true"
          bootstrap="tests/bootstrap.php">
 
+<testsuites>
 	<testsuite name="common">
 		<directory>tests/Common</directory>
-		<directory>tests/Options</directory>
 		<directory>tests/S3Uploader</directory>
 		<directory>tests/Downloader</directory>
-		<file>tests/File/CommonFileTests.php</file>
 		<file>tests/File/AwsFileTest.php</file>
+		<file>tests/File/CommonFileTests.php</file>
+	</testsuite>
+
+	<testsuite name="paratest-common">
+		<directory>tests/Options</directory>
 	</testsuite>
 
 	<testsuite name="file-storage-azure">
@@ -80,7 +84,12 @@
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>
 		<directory>tests/Backend/Snowflake</directory>
+		<exclude>tests/Backend/Snowflake/OrderByTest.php</exclude>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
+	</testsuite>
+
+	<testsuite name="paratest-backend-snowflake-part-2">
+		<file>tests/Backend/Snowflake/OrderByTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-mixed">
@@ -108,4 +117,5 @@
 		<directory>tests/Backend/Synapse</directory>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>
+</testsuites>
 </phpunit>
