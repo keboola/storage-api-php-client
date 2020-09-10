@@ -178,10 +178,13 @@ class ImportExportCommonTest extends StorageApiTestCase
         }
 
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
-        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', $importFile);
+        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages-case-sensitive', $importFile);
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Invalid columns name "Id, Name"');
+        $this->expectExceptionMessage(
+            'Some columns are missing in the csv file. Missing columns: id,name. '
+            .'Expected columns: id,name. Please check if the expected delimiter "," is used in the csv file.'
+        );
         
         $this->_client->writeTableAsync($tableId, new CsvFile(__DIR__ . '/../../_data/languages.camel-case-columns.csv'), ['incremental' => true]);
     }

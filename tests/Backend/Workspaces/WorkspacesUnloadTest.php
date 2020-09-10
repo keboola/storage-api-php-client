@@ -26,7 +26,7 @@ class WorkspacesUnloadTest extends WorkspacesTestCase
         }
 
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
-        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', $importFile);
+        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages-case-sensitive', $importFile);
 
         // create workspace and source table in workspace
         $workspaces = new Workspaces($this->_client);
@@ -44,7 +44,7 @@ class WorkspacesUnloadTest extends WorkspacesTestCase
         $db->query("insert into \"test.Languages3\" (\"id\", \"Name\") values (1, 'cz'), (2, 'en');");
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Invalid columns name "Name"');
+        $this->expectExceptionMessage('Some columns are missing in the csv file. Missing columns: name. Expected columns: id,name. ');
 
         $this->_client->writeTableAsyncDirect($tableId, [
             'dataWorkspaceId' => $workspace['id'],
