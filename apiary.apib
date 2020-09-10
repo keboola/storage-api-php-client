@@ -5749,14 +5749,18 @@ Development branches allow you to prepare changes to configuration and tables in
 
 ### Create branch [POST]
 
-+ Parameters
-    + name (string) - name of the branch
++ Attributes
+    + name (required, string) - name of the branch
 
 + Request (application/x-www-form-urlencoded)
 
     + Headers
 
-            X-StorageApi-Token: your_token
+        X-StorageApi-Token: your_token
+
+    + Body
+
+        name=Refactor+DB+extractors
 
 + Response 202
 
