@@ -5797,3 +5797,51 @@ Development branches allow you to prepare changes to configuration and tables in
                     "outBytesUncompressed": 0
                 }
             }
+
+## Branch manipulation [/v2/storage/dev-branches/{id}]
+
+### Delete branch [DELETE]
+
++ Parameters
+    + id (int) - id of the branch
+
++ Request (application/x-www-form-urlencoded)
+
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 202
+
+    + Body
+
+        {
+            "id": 366,
+            "status": "waiting",
+            "url": "https:\/\/connection.keboola.com\/\/v2\/storage\/jobs\/366",
+            "tableId": null,
+            "operationName": "devBranchDelete",
+            "operationParams": {
+                "queue": "main",
+                "values": {
+                    "id": 14
+                }
+            },
+            "createdTime": "2020-09-05T18:58:11+0200",
+            "startTime": null,
+            "endTime": null,
+            "runId": "994",
+            "results": null,
+            "creatorToken": {
+                "id": "1",
+                "description": "dev@keboola.com"
+            },
+            "metrics": {
+                "inCompressed": false,
+                "inBytes": 0,
+                "inBytesUncompressed": 0,
+                "outCompressed": false,
+                "outBytes": 0,
+                "outBytesUncompressed": 0
+            }
+        }
