@@ -819,6 +819,7 @@ Update an existing bucket
 
 + Response 200 (application/json)
 Synchronous call response (async=false)
+
     + Body
 
             {
@@ -841,8 +842,8 @@ Synchronous call response (async=false)
                 "directAccessSchemaName": null
             }
 + Response 202
-
 Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
+
     + Body
 
             {
@@ -4080,7 +4081,7 @@ For a more detailed guide on the file upload, see the corresponding part of the
                 }
             }
 
-## List Files [/v2/storage/files?sinceId={sinceId}&maxId={maxId}&tags={tags}&q={q}&runId={runId}&limit={limit}&offset={offset}]
+## List Files [/v2/storage/files?sinceId={sinceId}&maxId={maxId}&tags={tags}&q={q}&runId={runId}&limit={limit}&offset={offset}&showExpired={showExpired}]
 ### List Files [GET]
 Lists all files uploaded by your token. If the `canReadAllFileUploads` permission is set for your token,
 all file uploads for project will be returned.
@@ -5756,11 +5757,11 @@ Development branches allow you to prepare changes to configuration and tables in
 
     + Headers
 
-        X-StorageApi-Token: your_token
+            X-StorageApi-Token: your_token
 
     + Body
 
-        name=Refactor+DB+extractors
+            name=Refactor+DB+extractors
 
 + Response 202
 
