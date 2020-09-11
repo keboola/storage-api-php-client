@@ -19,4 +19,12 @@ class DevBranches
     {
         return $this->client->apiPost("storage/dev-branches/", ['name' => $branchName]);
     }
+
+    /**
+     * @param int $branchId
+     */
+    public function deleteBranch($branchId)
+    {
+        return $this->client->apiDelete('storage/dev-branches/' . $branchId);
+    }
 }

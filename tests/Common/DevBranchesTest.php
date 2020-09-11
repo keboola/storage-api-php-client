@@ -40,14 +40,75 @@ class DevBranchesTest extends StorageApiTestCase
         $this->assertSame($branchName, $event['objectName']);
         $this->assertSame('devBranch', $event['objectType']);
 
-
         try {
             $branches->createBranch($branchName);
         } catch (ClientException $e) {
-            $expectedMessage = sprintf('There already is a branch with name "%s"', $branchName);
-            $this->assertSame($expectedMessage, $e->getMessage());
+            $this->assertSame(
+                sprintf('There already is a branch with name "%s"', $branchName),
+                $e->getMessage()
+            );
             $this->assertSame('devBranch.duplicateName', $e->getStringCode());
         }
+
+        $branches->deleteBranch($branchId);
+
+        $this->findLastEvent($providedClient, [
+            'event' => 'storage.devBranchDeleted',
+            'objectId' => $branchId
+        ]);
+
+        try {
+            $branches->deleteBranch($branchId);
+        } catch (ClientException $e) {
+            $this->assertSame(
+                sprintf('Branch not found'),
+                $e->getMessage()
+            );
+        }
+
+        // now branch can be created
+        $newBranch = $branches->createBranch($branchName);
+
+        $branches->deleteBranch($newBranch['id']);
+    }
+
+    public function testOrgAdminCanDeleteBranchCreatedByAdmin()
+    {
+        $guestClient = ClientsProvider::getGuestStorageApiClient();
+
+        $branches = new DevBranches($guestClient);
+        $branchName = __CLASS__ . ' příliš žluťoučký kůň' . microtime();
+
+        $branch = $branches->createBranch($branchName);
+
+        $branchId = $branch['id'];
+
+        $orgAdminClient = ClientsProvider::getClient();
+        $branches = new DevBranches($orgAdminClient);
+
+        $branches->deleteBranch($branchId);
+
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testCannotDeleteNotOwnedBranch()
+    {
+        $orgAdminClient = ClientsProvider::getClient();
+        $branches = new DevBranches($orgAdminClient);
+
+        $branchName = __CLASS__ . ' příliš žluťoučký kůň' . microtime();
+
+        $branch = $branches->createBranch($branchName);
+
+        $branchId = $branch['id'];
+
+        $guestClient = ClientsProvider::getGuestStorageApiClient();
+        $branches = new DevBranches($guestClient);
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Only owner or organization admin can manipulate a development branch');
+
+        $branches->deleteBranch($branchId);
     }
 
     public function provideValidClients()
