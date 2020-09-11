@@ -819,6 +819,7 @@ Update an existing bucket
 
 + Response 200 (application/json)
 Synchronous call response (async=false)
+
     + Body
 
             {
@@ -841,8 +842,8 @@ Synchronous call response (async=false)
                 "directAccessSchemaName": null
             }
 + Response 202
-
 Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
+
     + Body
 
             {
@@ -4080,7 +4081,7 @@ For a more detailed guide on the file upload, see the corresponding part of the
                 }
             }
 
-## List Files [/v2/storage/files?sinceId={sinceId}&maxId={maxId}&tags={tags}&q={q}&runId={runId}&limit={limit}&offset={offset}]
+## List Files [/v2/storage/files?sinceId={sinceId}&maxId={maxId}&tags={tags}&q={q}&runId={runId}&limit={limit}&offset={offset}&showExpired={showExpired}]
 ### List Files [GET]
 Lists all files uploaded by your token. If the `canReadAllFileUploads` permission is set for your token,
 all file uploads for project will be returned.
@@ -5749,8 +5750,8 @@ Development branches allow you to prepare changes to configuration and tables in
 
 ### Create branch [POST]
 
-+ Parameters
-    + name (string) - name of the branch
++ Attributes
+    + name (required, string) - name of the branch
 
 + Request (application/x-www-form-urlencoded)
 
@@ -5758,37 +5759,41 @@ Development branches allow you to prepare changes to configuration and tables in
 
             X-StorageApi-Token: your_token
 
+    + Body
+
+            name=Refactor+DB+extractors
+
 + Response 202
 
     + Body
 
-        {
-            "id": 347,
-            "status": "waiting",
-            "url": "https:\/\/connection.keboola.com\/\/v2\/storage\/jobs\/347",
-            "tableId": null,
-            "operationName": "devBranchCreate",
-            "operationParams": {
-                "queue": "main",
-                "values": {
-                    "name": "Refactor DB extractors"
+            {
+                "id": 347,
+                "status": "waiting",
+                "url": "https:\/\/connection.keboola.com\/\/v2\/storage\/jobs\/347",
+                "tableId": null,
+                "operationName": "devBranchCreate",
+                "operationParams": {
+                    "queue": "main",
+                    "values": {
+                        "name": "Refactor DB extractors"
+                    }
+                },
+                "createdTime": "2020-09-05T15:29:45+0200",
+                "startTime": null,
+                "endTime": null,
+                "runId": null,
+                "results": null,
+                "creatorToken": {
+                    "id": "1",
+                    "description": "dev@keboola.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
                 }
-            },
-            "createdTime": "2020-09-05T15:29:45+0200",
-            "startTime": null,
-            "endTime": null,
-            "runId": null,
-            "results": null,
-            "creatorToken": {
-                "id": "1",
-                "description": "dev@keboola.com"
-            },
-            "metrics": {
-                "inCompressed": false,
-                "inBytes": 0,
-                "inBytesUncompressed": 0,
-                "outCompressed": false,
-                "outBytes": 0,
-                "outBytesUncompressed": 0
             }
-        }
