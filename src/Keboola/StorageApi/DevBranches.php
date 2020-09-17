@@ -27,4 +27,17 @@ class DevBranches
     {
         return $this->client->apiDelete('storage/dev-branches/' . $branchId);
     }
+
+    /**
+     * @param int $branchId
+     */
+    public function getBranch($branchId)
+    {
+        return $this->client->apiGet('storage/dev-branches/' . $branchId);
+    }
+
+    public function listBranches()
+    {
+        return $this->client->apiGet('storage/dev-branches/');
+    }
 }
