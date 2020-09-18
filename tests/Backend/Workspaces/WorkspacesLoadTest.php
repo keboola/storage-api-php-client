@@ -1331,7 +1331,7 @@ class WorkspacesLoadTest extends WorkspacesTestCase
         }
     }
 
-    public function testTableAlreadyExistsShouldThrowUserError()
+    public function testTableAlreadyExistsAndOverwrite()
     {
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
@@ -1356,10 +1356,10 @@ class WorkspacesLoadTest extends WorkspacesTestCase
                             [
                                 'source' => 'name',
                                 'type' => 'VARCHAR',
-                            ]
-                        ]
-                    ]
-                ]
+                            ],
+                        ],
+                    ],
+                ],
             ]
         );
         // first load
@@ -1382,9 +1382,9 @@ class WorkspacesLoadTest extends WorkspacesTestCase
                             [
                                 'source' => 'name',
                                 'type' => 'VARCHAR',
-                            ]
-                        ]
-                    ]
+                            ],
+                        ],
+                    ],
                 ],
                 'preserve' => true,
             ]
@@ -1398,6 +1398,71 @@ class WorkspacesLoadTest extends WorkspacesTestCase
             $this->fail('table should not be created');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.duplicateTable', $e->getStringCode());
+        }
+
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            [
+                'input' => [
+                    [
+                        'source' => $tableId,
+                        'destination' => 'Langs',
+                        'columns' => [
+                            [
+                                'source' => 'id',
+                                'type' => 'INTEGER',
+                            ],
+                            [
+                                'source' => 'name',
+                                'type' => 'VARCHAR',
+                            ],
+                        ],
+                    ],
+                ],
+                'preserve' => true,
+                'overwrite' => true,
+            ]
+        );
+
+        // third load with overwrite
+        $workspaces->loadWorkspaceData(
+            $workspace['id'],
+            $options
+        );
+
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            [
+                'input' => [
+                    [
+                        'source' => $tableId,
+                        'destination' => 'Langs',
+                        'columns' => [
+                            [
+                                'source' => 'id',
+                                'type' => 'INTEGER',
+                            ],
+                            [
+                                'source' => 'name',
+                                'type' => 'VARCHAR',
+                            ],
+                        ],
+                    ],
+                ],
+                'preserve' => false,
+                'overwrite' => true,
+            ]
+        );
+
+        // fourth load with invalid options
+        try {
+            $workspaces->loadWorkspaceData(
+                $workspace['id'],
+                $options
+            );
+            $this->fail('table should not be created');
+        } catch (ClientException $e) {
+            $this->assertEquals('workspace.loadRequestLogicalException', $e->getStringCode());
         }
     }
 
