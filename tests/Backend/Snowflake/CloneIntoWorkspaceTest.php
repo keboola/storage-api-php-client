@@ -9,6 +9,7 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Exception;
 use Keboola\StorageApi\Workspaces;
+use Keboola\Test\Backend\Workspaces\Backend\SnowflakeWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\WorkspacesTestCase;
 
@@ -297,15 +298,15 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         );
     }
 
-    public function testTableAlreadyExistsShouldThrowUserError()
+    public function testTableAlreadyExistsAndOverwrite()
     {
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
 
-        $tableId = $this->_client->createTable(
+        $tableId = $this->createTableFromFile(
+            $this->_client,
             $this->getTestBucketId(self::STAGE_IN),
-            'Languages',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            self::IMPORT_FILE_PATH
         );
 
         // first load
@@ -339,6 +340,39 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         } catch (ClientException $e) {
             $this->assertEquals('workspace.duplicateTable', $e->getStringCode());
         }
+
+        try {
+            // Invalid option combination
+            $workspaces->cloneIntoWorkspace($workspace['id'], [
+                'input' => [
+                    [
+                        'source' => $tableId,
+                        'destination' => 'Langs',
+                    ],
+                ],
+                'overwrite' => true,
+                'preserve' => false,
+            ]);
+            $this->fail('table should not be created');
+        } catch (ClientException $e) {
+            $this->assertEquals('workspace.loadRequestLogicalException', $e->getStringCode());
+        }
+
+        // third load of same table with preserve and force
+        $workspaces->cloneIntoWorkspace($workspace['id'], [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'Langs',
+                ],
+            ],
+            'overwrite' => true,
+            'preserve' => true,
+        ]);
+
+        $backend = new SnowflakeWorkspaceBackend($workspace);
+        $workspaceTableData = $backend->fetchAll('Langs');
+        $this->assertCount(5, $workspaceTableData);
     }
 
     public function aliasSettingsProvider()
