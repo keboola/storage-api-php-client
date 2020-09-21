@@ -5748,6 +5748,31 @@ Development branches allow you to prepare changes to configuration and tables in
 
 ## Branches [/v2/storage/dev-branches/]
 
+### List branches [GET]
+
++ Request (application/x-www-form-urlencoded)
+
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+
+    + Body
+
+            [
+                {
+                  "id": 123
+                  "name": "My branch"
+                  "created": "2020-09-17T12:17:32+0200"
+                },
+                {
+                  "id": 124
+                  "name": "My second branch"
+                  "created": "2020-09-17T10:03:16+0200"
+                }
+            ]
+
 ### Create branch [POST]
 
 + Attributes
@@ -5800,10 +5825,31 @@ Development branches allow you to prepare changes to configuration and tables in
 
 ## Branch manipulation [/v2/storage/dev-branches/{id}]
 
+### Branch detail [GET]
+
++ Parameters
+    + id (required, number) - id of the branch
+
++ Request (application/x-www-form-urlencoded)
+
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+
+    + Body
+
+            {
+              "id": 123
+              "name": "My branch",
+              "created": "2020-09-17T12:17:32+0200"
+            }
+
 ### Delete branch [DELETE]
 
 + Parameters
-    + id (int) - id of the branch
+    + id (required, number) - id of the branch
 
 + Request (application/x-www-form-urlencoded)
 
@@ -5815,33 +5861,33 @@ Development branches allow you to prepare changes to configuration and tables in
 
     + Body
 
-        {
-            "id": 366,
-            "status": "waiting",
-            "url": "https:\/\/connection.keboola.com\/\/v2\/storage\/jobs\/366",
-            "tableId": null,
-            "operationName": "devBranchDelete",
-            "operationParams": {
-                "queue": "main",
-                "values": {
-                    "id": 14
+                {
+                    "id": 366,
+                    "status": "waiting",
+                    "url": "https:\/\/connection.keboola.com\/\/v2\/storage\/jobs\/366",
+                    "tableId": null,
+                    "operationName": "devBranchDelete",
+                    "operationParams": {
+                        "queue": "main",
+                        "values": {
+                            "id": 14
+                        }
+                    },
+                    "createdTime": "2020-09-05T18:58:11+0200",
+                    "startTime": null,
+                    "endTime": null,
+                    "runId": "994",
+                    "results": null,
+                    "creatorToken": {
+                        "id": "1",
+                        "description": "dev@keboola.com"
+                    },
+                    "metrics": {
+                        "inCompressed": false,
+                        "inBytes": 0,
+                        "inBytesUncompressed": 0,
+                        "outCompressed": false,
+                        "outBytes": 0,
+                        "outBytesUncompressed": 0
+                    }
                 }
-            },
-            "createdTime": "2020-09-05T18:58:11+0200",
-            "startTime": null,
-            "endTime": null,
-            "runId": "994",
-            "results": null,
-            "creatorToken": {
-                "id": "1",
-                "description": "dev@keboola.com"
-            },
-            "metrics": {
-                "inCompressed": false,
-                "inBytes": 0,
-                "inBytesUncompressed": 0,
-                "outCompressed": false,
-                "outBytes": 0,
-                "outBytesUncompressed": 0
-            }
-        }

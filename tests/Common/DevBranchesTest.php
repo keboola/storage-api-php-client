@@ -14,32 +14,60 @@ class DevBranchesTest extends StorageApiTestCase
     private static $cleanupAfterClassTokenId;
 
     private static $teardownClient;
+
     /**
      * @dataProvider provideValidClients
      */
     public function testCreateBranch(Client $providedClient)
     {
-        $providedClient->verifyToken();
+        $providedToken = $providedClient->verifyToken();
         $branches = new DevBranches($providedClient);
 
-        $branchName = __CLASS__ . ' příliš žluťoučký kůň' . microtime();
+        // cleanup
+        $branchesList = $branches->listBranches();
+        $branchName = __CLASS__ . '\\' . $this->getName() . '\\' . $providedToken['id'];
+        $branchesCreatedByThisTestMethod = array_filter(
+            $branchesList,
+            function ($branch) use ($branchName) {
+                return strpos($branch['name'], $branchName) === 0;
+            }
+        );
+        foreach ($branchesCreatedByThisTestMethod as $branch) {
+            $branches->deleteBranch($branch['id']);
+        }
+
+        // test
+
+        // can create branch
         $branch = $branches->createBranch($branchName);
-
-        $this->assertArrayHasKey('created', $branch);
-        unset($branch['created']);
         $this->assertArrayHasKey('id', $branch);
-        $branchId = $branch['id'];
-        unset($branch['id']);
+        $this->assertArrayHasKey('name', $branch);
+        $this->assertArrayHasKey('created', $branch);
+        $this->assertArrayNotHasKey('admin', $branch);
         $this->assertSame($branchName, $branch['name']);
+        $branchId = $branch['id'];
 
-        // test branch create event
+        // event is created for created branch
         $event = $this->findLastEvent($providedClient, [
             'event' => 'storage.devBranchCreated',
-            'objectId' => $branchId
+            'objectId' => $branchId,
         ]);
         $this->assertSame($branchName, $event['objectName']);
         $this->assertSame('devBranch', $event['objectType']);
 
+        // can get branch detail
+        $branchFromDetail = $branches->getBranch($branchId);
+        $this->assertArrayHasKey('id', $branchFromDetail);
+        $this->assertArrayHasKey('name', $branchFromDetail);
+        $this->assertArrayHasKey('created', $branchFromDetail);
+        $this->assertArrayNotHasKey('admin', $branchFromDetail);
+
+        // can list branches and see created branch
+        $branchList = $branches->listBranches();
+        $this->assertGreaterThanOrEqual(1, count($branchList));
+        $this->assertContains($branchFromDetail, $branchList);
+
+        // cannot create branch with same name
         try {
             $branches->createBranch($branchName);
         } catch (ClientException $e) {
@@ -50,13 +78,16 @@ class DevBranchesTest extends StorageApiTestCase
             $this->assertSame('devBranch.duplicateName', $e->getStringCode());
         }
 
+        // can delete branch
         $branches->deleteBranch($branchId);
 
+        // there is event for deleted branch
         $this->findLastEvent($providedClient, [
             'event' => 'storage.devBranchDeleted',
-            'objectId' => $branchId
+            'objectId' => $branchId,
         ]);
 
+        // cannot delete nonexistent branch
         try {
             $branches->deleteBranch($branchId);
         } catch (ClientException $e) {
@@ -66,10 +97,8 @@ class DevBranchesTest extends StorageApiTestCase
             );
         }
 
-        // now branch can be created
+        // now branch can be created with same name as deleted branch
         $newBranch = $branches->createBranch($branchName);
-
-        $branches->deleteBranch($newBranch['id']);
     }
 
     public function testOrgAdminCanDeleteBranchCreatedByAdmin()
@@ -116,7 +145,7 @@ class DevBranchesTest extends StorageApiTestCase
         $guest = ClientsProvider::getGuestStorageApiClient();
         return [
             'admin' => [ClientsProvider::getClient()],
-            'guest' => [$guest]
+            'guest' => [$guest],
         ];
     }
 
