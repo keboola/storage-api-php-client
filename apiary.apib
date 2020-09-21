@@ -5762,14 +5762,16 @@ Development branches allow you to prepare changes to configuration and tables in
 
             [
                 {
-                  "id": 123
-                  "name": "My branch"
-                  "created": "2020-09-17T12:17:32+0200"
+                  "id": 123,
+                  "name": "Main",
+                  "created": "2020-09-17T12:17:32+0200",
+                  "isDefault": true
                 },
                 {
-                  "id": 124
-                  "name": "My second branch"
-                  "created": "2020-09-17T10:03:16+0200"
+                  "id": 124,
+                  "name": "My second branch",
+                  "created": "2020-09-17T10:03:16+0200",
+                  "isDefault": false
                 }
             ]
 
@@ -5841,9 +5843,10 @@ Development branches allow you to prepare changes to configuration and tables in
     + Body
 
             {
-              "id": 123
+              "id": 123,
               "name": "My branch",
-              "created": "2020-09-17T12:17:32+0200"
+              "created": "2020-09-17T12:17:32+0200",
+              "isDefault": false
             }
 
 ### Delete branch [DELETE]
