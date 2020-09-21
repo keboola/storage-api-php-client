@@ -43,6 +43,7 @@ class DevBranchesTest extends StorageApiTestCase
         $this->assertArrayHasKey('id', $branch);
         $this->assertArrayHasKey('name', $branch);
         $this->assertArrayHasKey('created', $branch);
+        $this->assertArrayHasKey('isDefault', $branch);
         $this->assertArrayNotHasKey('admin', $branch);
         $this->assertSame($branchName, $branch['name']);
         $branchId = $branch['id'];
@@ -60,6 +61,7 @@ class DevBranchesTest extends StorageApiTestCase
         $this->assertArrayHasKey('id', $branchFromDetail);
         $this->assertArrayHasKey('name', $branchFromDetail);
         $this->assertArrayHasKey('created', $branchFromDetail);
+        $this->assertArrayHasKey('isDefault', $branch);
         $this->assertArrayNotHasKey('admin', $branchFromDetail);
 
         // can list branches and see created branch
@@ -67,9 +69,19 @@ class DevBranchesTest extends StorageApiTestCase
         $this->assertGreaterThanOrEqual(1, count($branchList));
         $this->assertContains($branchFromDetail, $branchList);
 
+        $defaultBranchCount = 0;
+        foreach ($branchesList as $branch) {
+            if ($branch['isDefault'] === true) {
+                $defaultBranchCount ++;
+            }
+        }
+
+        $this->assertSame(1, $defaultBranchCount);
+
         // cannot create branch with same name
         try {
             $branches->createBranch($branchName);
+            $this->fail('Sharing bucket to non organization member should fail.');
         } catch (ClientException $e) {
             $this->assertSame(
                 sprintf('There already is a branch with name "%s"', $branchName),
