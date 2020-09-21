@@ -321,6 +321,9 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
                 ]
             ]
         );
+        $backend = new SnowflakeWorkspaceBackend($workspace);
+        $workspaceTableData = $backend->fetchAll('Langs');
+        $this->assertCount(5, $workspaceTableData);
 
         // second load of same table with preserve
         try {
@@ -370,7 +373,6 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
             'preserve' => true,
         ]);
 
-        $backend = new SnowflakeWorkspaceBackend($workspace);
         $workspaceTableData = $backend->fetchAll('Langs');
         $this->assertCount(5, $workspaceTableData);
     }
