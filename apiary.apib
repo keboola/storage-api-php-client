@@ -3293,9 +3293,9 @@ when any of the row values were changed during an incremental import.
                 + Properties
                     + source (required) - Full table identifier of the source table (e.g.: in.c-bucket.mytable)
                     + destination (required) - Destination table name
+                    + overwrite (optional, boolean) - When preserve is true duplicate tables will be overwritten
+                        Default: false
     + preserve (optional, boolean) - Keep existing tables in the workspace, otherwise the workspace will be purged before loading
-        Default: false
-    + overwrite (optional, boolean) - When preserve is true duplicate tables will be overwritten
         Default: false
 
 + Request (application/x-www-form-urlencoded)
