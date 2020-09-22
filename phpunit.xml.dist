@@ -19,12 +19,10 @@
 		<directory>tests/Downloader</directory>
 		<file>tests/File/AwsFileTest.php</file>
 		<file>tests/File/CommonFileTests.php</file>
-		<exclude>tests/Common/DevBranchesTest.php</exclude>
 	</testsuite>
 
 	<testsuite name="paratest-common">
 		<directory>tests/Options</directory>
-		<file>tests/Common/DevBranchesTest.php</file>
 	</testsuite>
 
 	<testsuite name="file-storage-azure">
