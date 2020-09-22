@@ -309,6 +309,14 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
             self::IMPORT_FILE_PATH
         );
 
+        $tableSecondId = $this->createTableFromFile(
+            $this->_client,
+            $this->getTestBucketId(self::STAGE_IN),
+            __DIR__ . '/../../_data/languages.more-rows.csv',
+            'id',
+            'languagesDetails2'
+        );
+
         // first load
         $workspaces->cloneIntoWorkspace(
             $workspace['id'],
@@ -321,6 +329,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
                 ]
             ]
         );
+
         $backend = new SnowflakeWorkspaceBackend($workspace);
         $workspaceTableData = $backend->fetchAll('Langs');
         $this->assertCount(5, $workspaceTableData);
@@ -351,9 +360,9 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
                     [
                         'source' => $tableId,
                         'destination' => 'Langs',
+                        'overwrite' => true,
                     ],
                 ],
-                'overwrite' => true,
                 'preserve' => false,
             ]);
             $this->fail('table should not be created');
@@ -361,20 +370,20 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
             $this->assertEquals('workspace.loadRequestLogicalException', $e->getStringCode());
         }
 
-        // third load of same table with preserve and force
+        // third load table with more rows, preserve and overwrite
         $workspaces->cloneIntoWorkspace($workspace['id'], [
             'input' => [
                 [
-                    'source' => $tableId,
+                    'source' => $tableSecondId,
                     'destination' => 'Langs',
+                    'overwrite' => true,
                 ],
             ],
-            'overwrite' => true,
             'preserve' => true,
         ]);
 
         $workspaceTableData = $backend->fetchAll('Langs');
-        $this->assertCount(5, $workspaceTableData);
+        $this->assertCount(6, $workspaceTableData);
     }
 
     public function aliasSettingsProvider()
@@ -403,18 +412,20 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
      * @param string $bucketId
      * @param string $importFilePath
      * @param string|array $primaryKey
+     * @param string $tableName
      * @return string
      */
     private function createTableFromFile(
         Client $client,
         $bucketId,
         $importFilePath,
-        $primaryKey = 'id'
+        $primaryKey = 'id',
+        $tableName = 'languagesDetails'
     ) {
 
         return $client->createTable(
             $bucketId,
-            'languagesDetails',
+            $tableName,
             new CsvFile($importFilePath),
             ['primaryKey' => $primaryKey]
         );
