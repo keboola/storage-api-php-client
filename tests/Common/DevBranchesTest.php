@@ -45,6 +45,11 @@ class DevBranchesTest extends StorageApiTestCase
         $this->assertArrayHasKey('created', $branch);
         $this->assertArrayHasKey('isDefault', $branch);
         $this->assertArrayNotHasKey('admin', $branch);
+        $this->assertArrayHasKey('creatorToken', $branch);
+        $this->assertArrayHasKey('id', $branch['creatorToken']);
+        $this->assertEquals($providedToken['id'], $branch['creatorToken']['id']);
+        $this->assertArrayHasKey('name', $branch['creatorToken']);
+        $this->assertSame($providedToken['description'], $branch['creatorToken']['name']);
         $this->assertSame($branchName, $branch['name']);
         $branchId = $branch['id'];
 
@@ -63,6 +68,11 @@ class DevBranchesTest extends StorageApiTestCase
         $this->assertArrayHasKey('created', $branchFromDetail);
         $this->assertArrayHasKey('isDefault', $branch);
         $this->assertArrayNotHasKey('admin', $branchFromDetail);
+        $this->assertArrayHasKey('creatorToken', $branchFromDetail);
+        $this->assertArrayHasKey('id', $branchFromDetail['creatorToken']);
+        $this->assertEquals($providedToken['id'], $branchFromDetail['creatorToken']['id']);
+        $this->assertArrayHasKey('name', $branchFromDetail['creatorToken']);
+        $this->assertSame($providedToken['description'], $branchFromDetail['creatorToken']['name']);
 
         // can list branches and see created branch
         $branchList = $branches->listBranches();
