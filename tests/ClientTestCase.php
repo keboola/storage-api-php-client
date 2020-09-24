@@ -31,6 +31,6 @@ class ClientTestCase extends TestCase
      */
     protected function getTestName()
     {
-        return get_class($this) . '//' . $this->getName();
+        return get_class($this) . '::' . $this->getName();
     }
 }
