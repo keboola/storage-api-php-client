@@ -114,7 +114,7 @@ abstract class StorageApiTestCase extends ClientTestCase
                         try {
                             $this->_client->dropBucket($linkedBucket['id'], ['force' => true]);
                         } catch (\Keboola\StorageApi\ClientException $e) {
-                            $this->throwExceptionIfDeleted($e);
+                            $this->throwExceptionIfNotDeleted($e);
                         }
                     }
                 }
@@ -134,7 +134,7 @@ abstract class StorageApiTestCase extends ClientTestCase
                 try {
                     $this->_client->dropTable($table['id']);
                 } catch (\Keboola\StorageApi\ClientException $e) {
-                    $this->throwExceptionIfDeleted($e);
+                    $this->throwExceptionIfNotDeleted($e);
                 }
             }
             $metadataApi = new Metadata($this->_client);
@@ -143,7 +143,7 @@ abstract class StorageApiTestCase extends ClientTestCase
                 try {
                     $metadataApi->deleteBucketMetadata($bucket['id'], $md['id']);
                 } catch (\Keboola\StorageApi\ClientException $e) {
-                    $this->throwExceptionIfDeleted($e);
+                    $this->throwExceptionIfNotDeleted($e);
                 }
             }
             return $bucket['id'];
@@ -492,7 +492,7 @@ abstract class StorageApiTestCase extends ClientTestCase
     /**
      * @throws \Keboola\StorageApi\ClientException
      */
-    private function throwExceptionIfDeleted(\Keboola\StorageApi\ClientException $e)
+    private function throwExceptionIfNotDeleted(\Keboola\StorageApi\ClientException $e)
     {
         // this could take backoff and second run will be 404
         // we don't care is table dont exists
