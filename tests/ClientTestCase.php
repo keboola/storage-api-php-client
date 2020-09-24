@@ -7,14 +7,19 @@ use PHPUnit\Framework\TestCase;
 
 class ClientTestCase extends TestCase
 {
-    public function getClient(array $options)
+    protected function getClient(array $options)
     {
         $buildId = '';
         if (getenv('TRAVIS_BUILD_ID')) {
             $buildId = sprintf('Build id: ' . getenv('TRAVIS_BUILD_ID'));
         }
 
-        $options['userAgent'] = sprintf('%s Test: %s\\%s', $buildId, get_class($this), $this->getName());
+        $options['userAgent'] = sprintf('%s Test: %s', $buildId, $this->getTestName());
         return new Client($options);
+    }
+
+    protected function getTestName()
+    {
+        return get_class($this) . '//' . $this->getName();
     }
 }
