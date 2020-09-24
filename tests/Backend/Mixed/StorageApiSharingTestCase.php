@@ -26,19 +26,19 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
         parent::setUp();
 
 
-        $this->_client2 = new Client([
+        $this->_client2 = $this->getClient([
             'token' => STORAGE_API_LINKING_TOKEN,
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
         ]);
 
-        $this->clientAdmin2InSameOrg = new Client([
+        $this->clientAdmin2InSameOrg = $this->getClient([
             'token' => STORAGE_API_TOKEN_ADMIN_2_IN_SAME_ORGANIZATION,
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
         ]);
 
-        $this->clientAdmin3InOtherOrg = new Client([
+        $this->clientAdmin3InOtherOrg = $this->getClient([
             'token' => STORAGE_API_TOKEN_ADMIN_3_IN_OTHER_ORGANIZATION,
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,

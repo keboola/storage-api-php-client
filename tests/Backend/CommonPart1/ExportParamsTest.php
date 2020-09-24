@@ -212,7 +212,7 @@ class ExportParamsTest extends StorageApiTestCase
 
         $newTokenId = $this->_client->createToken($tokenOptions);
         $newToken = $this->_client->getToken($newTokenId);
-        $client = new Client([
+        $client = $this->getClient([
             'token' => $newToken['token'],
             'url' => STORAGE_API_URL,
         ]);

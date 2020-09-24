@@ -59,7 +59,7 @@ class SharingTest extends StorageApiSharingTestCase
         $tokenId = $this->_client2->createToken($tokenOptions);
         $token = $this->_client2->getToken($tokenId);
 
-        $client = new Client([
+        $client = $this->getClient([
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
         ]);
@@ -320,7 +320,7 @@ class SharingTest extends StorageApiSharingTestCase
         $tokenId = $this->_client->createToken($tokenOptions);
         $token = $this->_client->getToken($tokenId);
 
-        $client = new Client([
+        $client = $this->getClient([
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
         ]);
@@ -699,7 +699,7 @@ class SharingTest extends StorageApiSharingTestCase
         $tokenId = $this->_client2->createToken($tokenOptions);
         $token = $this->_client2->getToken($tokenId);
 
-        $client = new Client([
+        $client = $this->getClient([
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
         ]);

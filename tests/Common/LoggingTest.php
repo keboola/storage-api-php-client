@@ -23,7 +23,7 @@ class LoggingTest extends StorageApiTestCase
         $logger->expects($this->once())
             ->method('log');
 
-        $client = new \Keboola\StorageApi\Client(array(
+        $client = $this->getClient(array(
             'token' => STORAGE_API_TOKEN,
             'url' => STORAGE_API_URL,
             'logger' => $logger,
@@ -45,7 +45,7 @@ class LoggingTest extends StorageApiTestCase
                 return true;
             }));
 
-        $client = new \Keboola\StorageApi\Client(array(
+        $client = $this->getClient(array(
             'token' => STORAGE_API_TOKEN,
             'url' => STORAGE_API_URL,
             'logger' => $logger,
