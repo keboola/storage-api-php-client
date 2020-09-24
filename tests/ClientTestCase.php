@@ -33,4 +33,50 @@ class ClientTestCase extends TestCase
     {
         return get_class($this) . '::' . $this->getName();
     }
+
+    /**
+     * @return Client
+     */
+    protected function getDefaultClient()
+    {
+        return $this->getClient([
+            'token' => STORAGE_API_TOKEN,
+            'url' => STORAGE_API_URL,
+            'backoffMaxTries' => 1,
+            'jobPollRetryDelay' => function () {
+                return 1;
+            },
+        ]);
+    }
+
+    /**
+     * @return Client
+     */
+    protected function getGuestStorageApiClient()
+    {
+        return $this->getClient([
+            'token' => STORAGE_API_GUEST_TOKEN,
+            'url' => STORAGE_API_URL,
+            'backoffMaxTries' => 1,
+            'jobPollRetryDelay' => function () {
+                return 1;
+            },
+        ]);
+    }
+
+    /**
+     * @param string $token
+     * @return Client
+     */
+    public function getClientForToken($token)
+    {
+        return $this->getClient([
+            'token' => $token,
+            'url' => STORAGE_API_URL,
+            'backoffMaxTries' => 1,
+            'jobPollRetryDelay' => function () {
+                return 1;
+            },
+        ]);
+    }
 }

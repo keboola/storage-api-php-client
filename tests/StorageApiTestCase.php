@@ -78,14 +78,7 @@ abstract class StorageApiTestCase extends ClientTestCase
 
     public function setUp()
     {
-        $this->_client = $this->getClient([
-            'token' => STORAGE_API_TOKEN,
-            'url' => STORAGE_API_URL,
-            'backoffMaxTries' => 1,
-            'jobPollRetryDelay' => function () {
-                return 1;
-            },
-        ]);
+        $this->_client = $this->getDefaultClient();
     }
 
     protected function _initEmptyTestBuckets($stages = [self::STAGE_OUT, self::STAGE_IN])
