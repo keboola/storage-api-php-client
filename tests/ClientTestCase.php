@@ -14,12 +14,12 @@ class ClientTestCase extends TestCase
     {
         $testSuiteName = '';
         if (SUITE_NAME) {
-            $testSuiteName = sprintf('Suite: %s, ', getenv('SUITE_NAME'));
+            $testSuiteName = sprintf('Suite: %s, ', SUITE_NAME);
         }
 
         $buildId = '';
         if (TRAVIS_BUILD_ID) {
-            $buildId = sprintf('Build id: %s, ', getenv('TRAVIS_BUILD_ID'));
+            $buildId = sprintf('Build id: %s, ', TRAVIS_BUILD_ID);
         }
 
         $tokenParts = explode('-', $options['token']);
