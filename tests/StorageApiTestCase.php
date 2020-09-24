@@ -144,6 +144,9 @@ abstract class StorageApiTestCase extends TestCase
             }
             return $bucket['id'];
         } catch (\Keboola\StorageApi\ClientException $e) {
+            if ($e->getCode() === 500) {
+                throw $e;
+            }
             return $this->_client->createBucket($name, $stage, $description);
         }
     }
