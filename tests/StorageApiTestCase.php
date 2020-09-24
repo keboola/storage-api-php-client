@@ -111,7 +111,11 @@ abstract class StorageApiTestCase extends ClientTestCase
             if ($this->_client->isSharedBucket($bucket['id'])) {
                 if (array_key_exists('linkedBy', $bucket)) {
                     foreach ($bucket['linkedBy'] as $linkedBucket) {
-                        $this->_client->dropBucket($linkedBucket['id'], ['force' => true]);
+                        try {
+                            $this->_client->dropBucket($linkedBucket['id'], ['force' => true]);
+                        } catch (\Keboola\StorageApi\ClientException $e) {
+                            $this->throwExceptionIfNotDeleted($e);
+                        }
                     }
                 }
                 $this->_client->unshareBucket($bucket['id']);
@@ -127,12 +131,20 @@ abstract class StorageApiTestCase extends ClientTestCase
                 return ($timestamp1 < $timestamp2) ? -1 : 1;
             });
             foreach (array_reverse($tables) as $table) {
-                $this->_client->dropTable($table['id']);
+                try {
+                    $this->_client->dropTable($table['id']);
+                } catch (\Keboola\StorageApi\ClientException $e) {
+                    $this->throwExceptionIfNotDeleted($e);
+                }
             }
             $metadataApi = new Metadata($this->_client);
             $metadata = $metadataApi->listBucketMetadata($bucket['id']);
             foreach ($metadata as $md) {
-                $metadataApi->deleteBucketMetadata($bucket['id'], $md['id']);
+                try {
+                    $metadataApi->deleteBucketMetadata($bucket['id'], $md['id']);
+                } catch (\Keboola\StorageApi\ClientException $e) {
+                    $this->throwExceptionIfNotDeleted($e);
+                }
             }
             return $bucket['id'];
         } catch (\Keboola\StorageApi\ClientException $e) {
@@ -475,5 +487,17 @@ abstract class StorageApiTestCase extends ClientTestCase
             return $event;
         }
         $this->fail(sprintf('Event for filter "%s" does not exist', (string) json_encode($filter)));
+    }
+
+    /**
+     * @throws \Keboola\StorageApi\ClientException
+     */
+    private function throwExceptionIfNotDeleted(\Keboola\StorageApi\ClientException $e)
+    {
+        // this could take backoff and second run will be 404
+        // we don't care is table dont exists
+        if ($e->getCode() !== 404) {
+            throw $e;
+        }
     }
 }
