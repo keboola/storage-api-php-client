@@ -16,9 +16,8 @@ use Keboola\StorageApi\Event;
 use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Options\ListFilesOptions;
-use PHPUnit\Framework\TestCase;
 
-abstract class StorageApiTestCase extends TestCase
+abstract class StorageApiTestCase extends ClientTestCase
 {
     const BACKEND_REDSHIFT = 'redshift';
     const BACKEND_SNOWFLAKE = 'snowflake';
@@ -79,14 +78,14 @@ abstract class StorageApiTestCase extends TestCase
 
     public function setUp()
     {
-        $this->_client = new \Keboola\StorageApi\Client(array(
+        $this->_client = $this->getClient([
             'token' => STORAGE_API_TOKEN,
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
             'jobPollRetryDelay' => function () {
                 return 1;
             },
-        ));
+        ]);
     }
 
     protected function _initEmptyTestBuckets($stages = [self::STAGE_OUT, self::STAGE_IN])

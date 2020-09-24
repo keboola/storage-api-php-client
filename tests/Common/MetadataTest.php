@@ -172,7 +172,7 @@ class MetadataTest extends StorageApiTestCase
         );
 
 
-        $readClient = new Client([
+        $readClient = $this->getClient([
             'token' => $this->prepareTokenWithReadPrivilegeForBucket($bucketId),
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
@@ -404,7 +404,7 @@ class MetadataTest extends StorageApiTestCase
         );
 
 
-        $readClient = new Client([
+        $readClient = $this->getClient([
             'token' => $this->prepareTokenWithReadPrivilegeForBucket($bucketId),
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
@@ -693,7 +693,7 @@ class MetadataTest extends StorageApiTestCase
         );
 
 
-        $readClient = new Client([
+        $readClient = $this->getClient([
             'token' => $this->prepareTokenWithReadPrivilegeForBucket($bucketId),
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,

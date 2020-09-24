@@ -852,7 +852,7 @@ class TokensTest extends StorageApiTestCase
 
         $this->expectException(ClientException::class);
         while ($tries < 7) {
-            $client = new Client([
+            $client = $this->getClient([
                 'token' => $token['token'],
                 'url' => STORAGE_API_URL,
             ]);
