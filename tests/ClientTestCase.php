@@ -12,12 +12,17 @@ class ClientTestCase extends TestCase
      */
     protected function getClient(array $options)
     {
-        $buildId = '';
-        if (getenv('TRAVIS_BUILD_ID')) {
-            $buildId = sprintf('Build id: ' . getenv('TRAVIS_BUILD_ID'));
+        $testSuiteName = '';
+        if (getenv('SUITE_NAME')) {
+            $testSuiteName = sprintf('Suite: %s ', getenv('SUITE_NAME'));
         }
 
-        $options['userAgent'] = sprintf('%s Test: %s', $buildId, $this->getTestName());
+        $buildId = '';
+        if (getenv('TRAVIS_BUILD_ID')) {
+            $buildId = sprintf('Build id: %s ', getenv('TRAVIS_BUILD_ID'));
+        }
+
+        $options['userAgent'] = sprintf('%s%sTest: %s', $buildId, $testSuiteName, $this->getTestName());
         return new Client($options);
     }
 
