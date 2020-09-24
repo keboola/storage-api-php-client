@@ -23,7 +23,7 @@ class JobPollDelayTest extends StorageApiTestCase
             return (int) $tries;
         };
 
-        $client = new \Keboola\StorageApi\Client(array(
+        $client = $this->getClient(array(
             'token' => STORAGE_API_TOKEN,
             'url' => STORAGE_API_URL,
             'jobPollRetryDelay' => $linearDelay
@@ -42,7 +42,7 @@ class JobPollDelayTest extends StorageApiTestCase
     {
         $dumbDelay = 'wait for 30 seconds';
 
-        $client = new \Keboola\StorageApi\Client(array(
+        $client = $this->getClient(array(
             'token' => STORAGE_API_TOKEN,
             'url' => STORAGE_API_URL,
             'jobPollRetryDelay' => $dumbDelay
