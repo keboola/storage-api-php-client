@@ -19,6 +19,8 @@ services:
       - REDSHIFT_HOSTNAME
       - REDSHIFT_USER
       - REDSHIFT_PASSWORD
+      - SUITE_NAME
+      - TRAVIS_BUILD_ID
   dev: &dev
     <<: *base
     volumes:
