@@ -13,12 +13,12 @@ class ClientTestCase extends TestCase
     protected function getClient(array $options)
     {
         $testSuiteName = '';
-        if (getenv('SUITE_NAME')) {
+        if (SUITE_NAME) {
             $testSuiteName = sprintf('Suite: %s ', getenv('SUITE_NAME'));
         }
 
         $buildId = '';
-        if (getenv('TRAVIS_BUILD_ID')) {
+        if (TRAVIS_BUILD_ID) {
             $buildId = sprintf('Build id: %s ', getenv('TRAVIS_BUILD_ID'));
         }
 

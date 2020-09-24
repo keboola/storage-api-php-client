@@ -12,6 +12,8 @@ define('STORAGE_API_TOKEN_ADMIN_3_IN_OTHER_ORGANIZATION', getenv('STORAGE_API_TO
 define('REDSHIFT_HOSTNAME', getenv('REDSHIFT_HOSTNAME'));
 define('REDSHIFT_USER', getenv('REDSHIFT_USER'));
 define('REDSHIFT_PASSWORD', getenv('REDSHIFT_PASSWORD'));
+define('SUITE_NAME', getenv('SUITE_NAME'));
+define('TRAVIS_BUILD_ID', getenv('TRAVIS_BUILD_ID'));
 
 $revisionFilePath = realpath(__DIR__ . '/../REVISION');
 
