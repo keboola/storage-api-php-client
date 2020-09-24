@@ -1174,7 +1174,7 @@ class ComponentsTest extends StorageApiTestCase
         $tokenId = $this->_client->createToken($tokenOptions);
         $token = $this->_client->getToken($tokenId);
 
-        $client = new \Keboola\StorageApi\Client([
+        $client = $this->getClient([
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
         ]);
@@ -1201,7 +1201,7 @@ class ComponentsTest extends StorageApiTestCase
         $tokenId = $this->_client->createToken($tokenOptions);
         $token = $this->_client->getToken($tokenId);
 
-        $client = new \Keboola\StorageApi\Client([
+        $client = $this->getClient([
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
         ]);
@@ -1241,7 +1241,7 @@ class ComponentsTest extends StorageApiTestCase
         $tokenId = $this->_client->createToken($tokenOptions);
 
         $token = $this->_client->getToken($tokenId);
-        $client = new \Keboola\StorageApi\Client([
+        $client = $this->getClient([
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
         ]);
@@ -1745,7 +1745,7 @@ class ComponentsTest extends StorageApiTestCase
         $newTokenId = $this->_client->createToken($tokenOptions);
         $newToken = $this->_client->getToken($newTokenId);
 
-        $newClient = new \Keboola\StorageApi\Client([
+        $newClient = $this->getClient([
             'token' => $newToken['token'],
             'url' => STORAGE_API_URL,
         ]);

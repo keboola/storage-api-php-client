@@ -1535,7 +1535,7 @@ class WorkspacesLoadTest extends WorkspacesTestCase
         $tokenId = $this->_client->createToken($tokenOptions);
         $token = $this->_client->getToken($tokenId);
 
-        $testClient = new \Keboola\StorageApi\Client([
+        $testClient = $this->getClient([
             'token' => $token['token'],
             'url' => STORAGE_API_URL
         ]);
