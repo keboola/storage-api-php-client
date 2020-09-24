@@ -14,19 +14,20 @@ class ClientTestCase extends TestCase
     {
         $testSuiteName = '';
         if (SUITE_NAME) {
-            $testSuiteName = sprintf('Suite: %s ', getenv('SUITE_NAME'));
+            $testSuiteName = sprintf('Suite: %s, ', getenv('SUITE_NAME'));
         }
 
         $buildId = '';
         if (TRAVIS_BUILD_ID) {
-            $buildId = sprintf('Build id: %s ', getenv('TRAVIS_BUILD_ID'));
+            $buildId = sprintf('Build id: %s, ', getenv('TRAVIS_BUILD_ID'));
         }
 
         $tokenParts = explode('-', $options['token']);
         $options['userAgent'] = sprintf(
-            '%s%sProject: %s Token: %s Test: %s',
+            '%s%sStack: %s, Project: %s, Token: %s, Test: %s',
             $buildId,
             $testSuiteName,
+            $options['url'],
             $tokenParts[1],
             $tokenParts[0],
             $this->getTestName()
