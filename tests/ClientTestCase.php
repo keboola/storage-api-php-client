@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 
 class ClientTestCase extends TestCase
 {
+    /**
+     * @return Client
+     */
     protected function getClient(array $options)
     {
         $buildId = '';
@@ -18,6 +21,9 @@ class ClientTestCase extends TestCase
         return new Client($options);
     }
 
+    /**
+     * @return string
+     */
     protected function getTestName()
     {
         return get_class($this) . '//' . $this->getName();
