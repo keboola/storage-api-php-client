@@ -27,7 +27,7 @@ class TimeTravelTest extends StorageApiTestCase
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
 
         $sourceTable = 'languages_' . date('Ymd_His');
-        
+
         $sourceTableId = $this->_client->createTable(
             $this->getTestBucketId(),
             $sourceTable,
@@ -206,7 +206,7 @@ class TimeTravelTest extends StorageApiTestCase
         $outputBucketTokenId = $this->_client->createToken($outputBucketTokenOptions);
         $outputBucketToken = $this->_client->getToken($outputBucketTokenId);
 
-        $outputBucketClient = new Client([
+        $outputBucketClient = $this->getClient([
             'token' => $outputBucketToken['token'],
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
@@ -223,7 +223,7 @@ class TimeTravelTest extends StorageApiTestCase
         $inputBucketTokenId = $this->_client->createToken($inputBucketTokenOptions);
         $inputBucketToken = $this->_client->getToken($inputBucketTokenId);
 
-        $inputBucketClient = new Client([
+        $inputBucketClient = $this->getClient([
             'token' => $inputBucketToken['token'],
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
@@ -241,7 +241,7 @@ class TimeTravelTest extends StorageApiTestCase
         $minimalTokenId = $this->_client->createToken($minimalTokenOptions);
         $minimalToken = $this->_client->getToken($minimalTokenId);
 
-        $minimalClient = new Client([
+        $minimalClient = $this->getClient([
             'token' => $minimalToken['token'],
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,

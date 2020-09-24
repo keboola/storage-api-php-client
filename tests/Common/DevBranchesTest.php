@@ -103,7 +103,7 @@ class DevBranchesTest extends StorageApiTestCase
 
     public function testOrgAdminCanDeleteBranchCreatedByAdmin()
     {
-        $guestClient = ClientsProvider::getGuestStorageApiClient();
+        $guestClient = $this->getGuestStorageApiClient();
 
         $branches = new DevBranches($guestClient);
         $branchName = __CLASS__ . ' příliš žluťoučký kůň' . microtime();
@@ -112,7 +112,7 @@ class DevBranchesTest extends StorageApiTestCase
 
         $branchId = $branch['id'];
 
-        $orgAdminClient = ClientsProvider::getClient();
+        $orgAdminClient = $this->getDefaultClient();
         $branches = new DevBranches($orgAdminClient);
 
         $branches->deleteBranch($branchId);
@@ -122,7 +122,7 @@ class DevBranchesTest extends StorageApiTestCase
 
     public function testCannotDeleteNotOwnedBranch()
     {
-        $orgAdminClient = ClientsProvider::getClient();
+        $orgAdminClient = $this->getDefaultClient();
         $branches = new DevBranches($orgAdminClient);
 
         $branchName = __CLASS__ . ' příliš žluťoučký kůň' . microtime();
@@ -131,7 +131,7 @@ class DevBranchesTest extends StorageApiTestCase
 
         $branchId = $branch['id'];
 
-        $guestClient = ClientsProvider::getGuestStorageApiClient();
+        $guestClient = $this->getGuestStorageApiClient();
         $branches = new DevBranches($guestClient);
 
         $this->expectException(ClientException::class);
@@ -142,9 +142,9 @@ class DevBranchesTest extends StorageApiTestCase
 
     public function provideValidClients()
     {
-        $guest = ClientsProvider::getGuestStorageApiClient();
+        $guest = $this->getGuestStorageApiClient();
         return [
-            'admin' => [ClientsProvider::getClient()],
+            'admin' => [$this->getDefaultClient()],
             'guest' => [$guest],
         ];
     }
@@ -166,12 +166,12 @@ class DevBranchesTest extends StorageApiTestCase
 
     public function provideInvalidClients()
     {
-        self::$teardownClient = ClientsProvider::getClient();
+        self::$teardownClient = $this->getDefaultClient();
         $tokenId = self::$teardownClient->createToken(new TokenCreateOptions());
         $token = self::$teardownClient->getToken($tokenId);
         self::$cleanupAfterClassTokenId = $token['id'];
 
-        $notAdminClient = ClientsProvider::getClientForToken($token['token']);
+        $notAdminClient = $this->getClientForToken($token['token']);
 
         return [
             'not admin' => [$notAdminClient],

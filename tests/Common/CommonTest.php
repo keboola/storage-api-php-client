@@ -65,7 +65,7 @@ class CommonTest extends StorageApiTestCase
     public function testAwsRetries()
     {
         $retriesCount = 234;
-        $client = new \Keboola\StorageApi\Client(array(
+        $client = $this->getClient(array(
             'token' => STORAGE_API_TOKEN,
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,

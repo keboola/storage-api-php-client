@@ -265,7 +265,7 @@ class CommonFileTest extends StorageApiTestCase
         $this->assertNotEmpty($totalFilesCount);
 
         // new token should not have access to any files
-        $newTokenClient = new \Keboola\StorageApi\Client([
+        $newTokenClient = $this->getClient([
             'token' => $newToken['token'],
             'url' => STORAGE_API_URL
         ]);
@@ -300,7 +300,7 @@ class CommonFileTest extends StorageApiTestCase
         $newToken = $this->_client->getToken($newTokenId);
 
         // new token should not have access to any files
-        $newTokenClient = new \Keboola\StorageApi\Client([
+        $newTokenClient = $this->getClient([
             'token' => $newToken['token'],
             'url' => STORAGE_API_URL
         ]);
