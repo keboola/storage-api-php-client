@@ -22,7 +22,15 @@ class ClientTestCase extends TestCase
             $buildId = sprintf('Build id: %s ', getenv('TRAVIS_BUILD_ID'));
         }
 
-        $options['userAgent'] = sprintf('%s%sTest: %s', $buildId, $testSuiteName, $this->getTestName());
+        $tokenParts = explode('-', $options['token']);
+        $options['userAgent'] = sprintf(
+            '%s%sProject: %s Token: %s Test: %s',
+            $buildId,
+            $testSuiteName,
+            $tokenParts[1],
+            $tokenParts[0],
+            $this->getTestName()
+        );
         return new Client($options);
     }
 
