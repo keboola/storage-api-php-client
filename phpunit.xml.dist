@@ -117,5 +117,12 @@
 		<directory>tests/Backend/Synapse</directory>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>
+
+	<testsuite name="backend-synapse-managed-identity">
+		<!-- subset of test to test import and export -->
+		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
+		<file>tests/Backend/Workspaces/SynapseWorkspacesUnloadTest.php</file>
+		<file>tests/Backend/CommonPart1/ImportExportCommonTest.php</file>
+	</testsuite>
 </testsuites>
 </phpunit>
