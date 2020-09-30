@@ -9,6 +9,7 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Exception;
 use Keboola\StorageApi\Workspaces;
+use Keboola\Test\Backend\Workspaces\Backend\SnowflakeWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\WorkspacesTestCase;
 
@@ -297,15 +298,23 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         );
     }
 
-    public function testTableAlreadyExistsShouldThrowUserError()
+    public function testTableAlreadyExistsAndOverwrite()
     {
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
 
-        $tableId = $this->_client->createTable(
+        $tableId = $this->createTableFromFile(
+            $this->_client,
             $this->getTestBucketId(self::STAGE_IN),
-            'Languages',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            self::IMPORT_FILE_PATH
+        );
+
+        $tableSecondId = $this->createTableFromFile(
+            $this->_client,
+            $this->getTestBucketId(self::STAGE_IN),
+            __DIR__ . '/../../_data/languages.more-rows.csv',
+            'id',
+            'languagesDetails2'
         );
 
         // first load
@@ -320,6 +329,10 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
                 ]
             ]
         );
+
+        $backend = new SnowflakeWorkspaceBackend($workspace);
+        $workspaceTableData = $backend->fetchAll('Langs');
+        $this->assertCount(5, $workspaceTableData);
 
         // second load of same table with preserve
         try {
@@ -339,6 +352,38 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         } catch (ClientException $e) {
             $this->assertEquals('workspace.duplicateTable', $e->getStringCode());
         }
+
+        try {
+            // Invalid option combination
+            $workspaces->cloneIntoWorkspace($workspace['id'], [
+                'input' => [
+                    [
+                        'source' => $tableId,
+                        'destination' => 'Langs',
+                        'overwrite' => true,
+                    ],
+                ],
+                'preserve' => false,
+            ]);
+            $this->fail('table should not be created');
+        } catch (ClientException $e) {
+            $this->assertEquals('workspace.loadRequestLogicalException', $e->getStringCode());
+        }
+
+        // third load table with more rows, preserve and overwrite
+        $workspaces->cloneIntoWorkspace($workspace['id'], [
+            'input' => [
+                [
+                    'source' => $tableSecondId,
+                    'destination' => 'Langs',
+                    'overwrite' => true,
+                ],
+            ],
+            'preserve' => true,
+        ]);
+
+        $workspaceTableData = $backend->fetchAll('Langs');
+        $this->assertCount(6, $workspaceTableData);
     }
 
     public function aliasSettingsProvider()
@@ -367,18 +412,20 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
      * @param string $bucketId
      * @param string $importFilePath
      * @param string|array $primaryKey
+     * @param string $tableName
      * @return string
      */
     private function createTableFromFile(
         Client $client,
         $bucketId,
         $importFilePath,
-        $primaryKey = 'id'
+        $primaryKey = 'id',
+        $tableName = 'languagesDetails'
     ) {
 
         return $client->createTable(
             $bucketId,
-            'languagesDetails',
+            $tableName,
             new CsvFile($importFilePath),
             ['primaryKey' => $primaryKey]
         );
