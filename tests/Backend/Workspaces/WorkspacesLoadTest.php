@@ -1331,7 +1331,7 @@ class WorkspacesLoadTest extends WorkspacesTestCase
         }
     }
 
-    public function testTableAlreadyExistsShouldThrowUserError()
+    public function testTableAlreadyExistsAndOverwrite()
     {
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
@@ -1341,6 +1341,13 @@ class WorkspacesLoadTest extends WorkspacesTestCase
             'Languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
+        $secondTableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'Languages2',
+            new CsvFile(__DIR__ . '/../../_data/languages.more-rows.csv')
+        );
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
             [
@@ -1356,10 +1363,10 @@ class WorkspacesLoadTest extends WorkspacesTestCase
                             [
                                 'source' => 'name',
                                 'type' => 'VARCHAR',
-                            ]
-                        ]
-                    ]
-                ]
+                            ],
+                        ],
+                    ],
+                ],
             ]
         );
         // first load
@@ -1367,29 +1374,11 @@ class WorkspacesLoadTest extends WorkspacesTestCase
             $workspace['id'],
             $options
         );
-        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
-            $workspace['connection']['backend'],
-            [
-                'input' => [
-                    [
-                        'source' => $tableId,
-                        'destination' => 'Langs',
-                        'columns' => [
-                            [
-                                'source' => 'id',
-                                'type' => 'INTEGER',
-                            ],
-                            [
-                                'source' => 'name',
-                                'type' => 'VARCHAR',
-                            ]
-                        ]
-                    ]
-                ],
-                'preserve' => true,
-            ]
-        );
-        // second load of same table with preserve
+        $workspaceTableData = $backend->fetchAll('Langs');
+        $this->assertCount(5, $workspaceTableData);
+
+        // load of same table with preserve
+        $options['preserve'] = true;
         try {
             $workspaces->loadWorkspaceData(
                 $workspace['id'],
@@ -1399,6 +1388,43 @@ class WorkspacesLoadTest extends WorkspacesTestCase
         } catch (ClientException $e) {
             $this->assertEquals('workspace.duplicateTable', $e->getStringCode());
         }
+
+        // load with overwrite and incremental
+        $options['input'][0]['overwrite'] = true;
+        $options['input'][0]['incremental'] = true;
+        try {
+            $workspaces->loadWorkspaceData(
+                $workspace['id'],
+                $options
+            );
+            $this->fail('table should not be created');
+        } catch (ClientException $e) {
+            $this->assertEquals('workspace.loadRequestLogicalException', $e->getStringCode());
+        }
+
+        // load with overwrite and not preserved
+        $options['preserve'] = false;
+        $options['input'][0]['incremental'] = false;
+        try {
+            $workspaces->loadWorkspaceData(
+                $workspace['id'],
+                $options
+            );
+            $this->fail('table should not be created');
+        } catch (ClientException $e) {
+            $this->assertEquals('workspace.loadRequestLogicalException', $e->getStringCode());
+        }
+
+        // load with overwrite and preserve, second table with more rows
+        $options['preserve'] = true;
+        $options['input'][0]['overwrite'] = true;
+        $options['input'][0]['source'] = $secondTableId;
+        $workspaces->loadWorkspaceData(
+            $workspace['id'],
+            $options
+        );
+        $workspaceTableData = $backend->fetchAll('Langs');
+        $this->assertCount(7, $workspaceTableData);
     }
 
     public function testSourceTableNotFound()

@@ -3215,6 +3215,8 @@ Loads tables from Storage into a Workspace.
                     + distKey (optional) - Redshift only - Column to use for the key distribution style
                     + incremental (optional, boolean) - Rows will be appended to an existing table
                         Default: false
+                    + overwrite (optional, boolean) - When preserve is true duplicate tables will be overwritten
+                        Default: false
     + preserve (optional, boolean) - Keep existing tables in the workspace, otherwise the workspace will be purged before loading
         Default: false
 
