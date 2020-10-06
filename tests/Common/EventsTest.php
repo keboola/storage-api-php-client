@@ -10,6 +10,7 @@
 
 namespace Keboola\Test\Common;
 
+use GuzzleHttp\Exception\ServerException;
 use Keboola\StorageApi\ClientException;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\Event;
@@ -39,6 +40,14 @@ class EventsTest extends StorageApiTestCase
         $this->assertEquals($event->getMessage(), $savedEvent['message']);
         $this->assertEquals($event->getDescription(), $savedEvent['description']);
         $this->assertEquals($event->getType(), $savedEvent['type']);
+
+        // Client don't have dev branches now
+        $client = $this->getGuzzleClientForClient($this->_client);
+        try {
+            $client->get('/v2/storage/branch/123/events/' . $savedEvent['id']);
+        } catch (ServerException $e) {
+            $this->assertEquals(501, $e->getCode());
+        }
     }
 
     public function testEventCreateWithoutParams()
@@ -52,15 +61,9 @@ class EventsTest extends StorageApiTestCase
 
         // to check if params is object we have to convert received json to objects instead of assoc array
         // so we have to use raw Http Client
-        $client = new \GuzzleHttp\Client([
-            'base_uri' => $this->_client->getApiUrl(),
-        ]);
+        $client = $this->getGuzzleClientForClient($this->_client);
 
-        $response = $client->get('/v2/storage/events/' . $event['id'], array(
-            'headers' => array(
-                'X-StorageApi-Token' => $this->_client->getTokenString(),
-            ),
-        ));
+        $response = $client->get('/v2/storage/events/' . $event['id']);
 
         $response = json_decode((string)$response->getBody());
 
