@@ -142,7 +142,7 @@ class DevBranchesTest extends StorageApiTestCase
         $this->expectNotToPerformAssertions();
     }
 
-    public function testCannotDeleteNotOwnedBranch()
+    public function testGuestCannotDeleteNotOwnedBranch()
     {
         $orgAdminClient = $this->getDefaultClient();
         $branches = new DevBranches($orgAdminClient);
@@ -157,7 +157,7 @@ class DevBranchesTest extends StorageApiTestCase
         $branches = new DevBranches($guestClient);
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Only owner or organization admin can manipulate a development branch');
+        $this->expectExceptionMessage('You don\'t have access to resource.');
 
         $branches->deleteBranch($branchId);
     }
