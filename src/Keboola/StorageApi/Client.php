@@ -210,8 +210,11 @@ class Client
      *
      * @return array
      */
-    public function listBuckets($options = array())
+    public function listBuckets($options = array(), $branchId = null)
     {
+        if ($branchId !== null) {
+            return $this->apiGet("storage/branch/" . $branchId . "/buckets?" . http_build_query($options));
+        }
         return $this->apiGet("storage/buckets?" . http_build_query($options));
     }
 
