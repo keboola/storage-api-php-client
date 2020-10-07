@@ -6,7 +6,6 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Options\TokenCreateOptions;
-use Keboola\Test\Helpers\ClientsProvider;
 use Keboola\Test\StorageApiTestCase;
 
 class DevBranchesTest extends StorageApiTestCase
@@ -73,6 +72,9 @@ class DevBranchesTest extends StorageApiTestCase
         $this->assertEquals($providedToken['id'], $branchFromDetail['creatorToken']['id']);
         $this->assertArrayHasKey('name', $branchFromDetail['creatorToken']);
         $this->assertSame($providedToken['description'], $branchFromDetail['creatorToken']['name']);
+
+        $buckets = $this->_client->listBuckets([], $branchId);
+        $this->assertCount(0, $buckets);
 
         // can list branches and see created branch
         $branchList = $branches->listBranches();

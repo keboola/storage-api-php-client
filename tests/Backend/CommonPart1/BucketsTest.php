@@ -9,6 +9,7 @@
 namespace Keboola\Test\Backend\CommonPart1;
 
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\Options\BucketUpdateOptions;
 use Keboola\Test\StorageApiTestCase;
@@ -24,7 +25,18 @@ class BucketsTest extends StorageApiTestCase
 
     public function testBucketsList()
     {
-        $buckets = $this->_client->listBuckets();
+        $branches = new DevBranches($this->_client);
+
+        $branches = $branches->listBranches();
+
+        $mainBranchId = null;
+        foreach ($branches as $branch) {
+            if ($branch['isDefault'] === true) {
+                $mainBranchId = $branch['id'];
+            }
+        }
+
+        $buckets = $this->_client->listBuckets([], $mainBranchId);
 
         $this->assertTrue(count($buckets) >= 2);
 
