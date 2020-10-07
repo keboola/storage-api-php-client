@@ -658,6 +658,55 @@ All buckets with their attributes are returned.
                     }
                 }
             ]
+### List all buckets for Development Branch[GET /v2/storage/branch/{branchId}/buckets?include={include}]
+
+All buckets for [Development Branch](#reference/development-branches/list-branches) with their attributes are returned.
+
++ Parameters
+    + branchId (required) - Id of Development Branch
+    + include (optional) - Comma-separated list of resources to include for each table. Available resources: 'attributes, metadata, linkedBuckets'.
+        + Default: 'attributes'
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+    + Body
+
+            [
+                {
+                    "uri": "https://connection.keboola.com/v2/storage/branch/1234/buckets/in.c-main",
+                    "id": "in.c-main",
+                    "name": "c-main",
+                    "displayName": "main",
+                    "stage": "in",
+                    "description": "Main user storage",
+                    "tables": "https://connection.keboola.com/v2/storage/branch/1234/buckets/in.c-main/tables",
+                    "backend": "snowflake"
+                },
+                {
+                    "uri": "https://connection.keboola.com/v2/storage/branch/1234/buckets/in.c-organizationData",
+                    "id": "in.c-organizationData",
+                    "name": "c-organizationData",
+                    "displayName": "organization",
+                    "stage": "in",
+                    "description": "Source bucket description",
+                    "tables": "https://connection.keboola.com/v2/storage/branch/1234/buckets/in.c-organizationData/tables",
+                    "backend": "snowflake",
+                    "isReadonly": true,
+                    "sourceBucket": {
+                        "id": "in.c-main",
+                        "name": "c-main",
+                        "description": "Organization shared data"
+                        "project": {
+                            "id": 123,
+                            "name": "Project name"
+                        }
+                    }
+                }
+            ]
 
 ### Create Bucket [POST]
 Using this API call, you can either create a new bucket in the project, or you can link an
