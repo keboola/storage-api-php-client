@@ -45,6 +45,9 @@
 		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>
+		<file>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</file>
+		<file>tests/Backend/Snowflake/TimestampTest.php</file>
+		<file>tests/Backend/Snowflake/DirectAccessTest.php</file>
 	</testsuite>
 
 	<testsuite name="paratest-backend-snowflake-abs-part-1">
