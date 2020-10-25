@@ -48,6 +48,7 @@
 		<file>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</file>
 		<file>tests/Backend/Snowflake/TimestampTest.php</file>
 		<file>tests/Backend/Snowflake/DirectAccessTest.php</file>
+		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>
 
 	<testsuite name="paratest-backend-snowflake-abs-part-1">
@@ -55,7 +56,6 @@
 		<exclude>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</exclude>
 		<exclude>tests/Backend/Snowflake/TimestampTest.php</exclude>
 		<exclude>tests/Backend/Snowflake/DirectAccessTest.php</exclude>
-		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-redshift-part-1">
@@ -103,7 +103,6 @@
 		<exclude>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</exclude>
 		<exclude>tests/Backend/Snowflake/TimestampTest.php</exclude>
 		<exclude>tests/Backend/Snowflake/DirectAccessTest.php</exclude>
-		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-mixed">
