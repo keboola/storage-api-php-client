@@ -121,10 +121,10 @@ class TokensTest extends StorageApiTestCase
         $this->assertInternalType('boolean', $owner['hasRedshift']);
 
         $admin = $currentToken['admin'];
-        $this->assertInternalType('string', $admin['name']);
-        $this->assertInternalType('integer', $admin['id']);
-        $this->assertInternalType('array', $admin['features']);
-        $this->assertInternalType('boolean', $admin['isOrganizationMember']);
+        $this->assertIsString($admin['name']);
+        $this->assertIsInt($admin['id']);
+        $this->assertIsArray($admin['features']);
+        $this->assertIsBool($admin['isOrganizationMember']);
         $this->assertEquals('admin', $admin['role']);
 
         $this->assertArrayHasKey('limits', $owner);
@@ -148,9 +148,9 @@ class TokensTest extends StorageApiTestCase
             $this->assertArrayHasKey('admin', $token);
 
             $admin = $token['admin'];
-            $this->assertInternalType('integer', $admin['id']);
-            $this->assertInternalType('string', $admin['name']);
-            $this->assertInternalType('string', $admin['role']);
+            $this->assertIsInt($admin['id']);
+            $this->assertIsString($admin['name']);
+            $this->assertIsString($admin['role']);
             $this->assertEquals('admin', $admin['role']);
 
             $tokenFound = true;
