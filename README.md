@@ -99,6 +99,8 @@ Tests are divided into multiple test suites.
 This test suite expects following environment variables set:
  - `STORAGE_API_URL` - URL of Keboola Storage API (https://connection.keboola.com/)
  - `STORAGE_API_TOKEN` - Storage API token associated to user (Admin master token) with all permissions. There are no special requirements for project storage backend.
+ - `STORAGE_API_GUEST_TOKEN` - Storage API token associated to user (Admin master token) with guest role in same project as `STORAGE_API_TOKEN`.
+ - `STORAGE_API_READ_ONLY_TOKEN` - Storage API token associated to user (Admin master token) with readOnly role in same project as `STORAGE_API_TOKEN`.
  - `STORAGE_API_MAINTENANCE_URL` - URL for maintenance testing (https://maintenance-testing.keboola.com/)
 
 
