@@ -6,10 +6,9 @@ use Keboola\StorageApi\Workspaces;
 
 class ReadOnlyUserTest extends WorkspacesTestCase
 {
-    const EXPECTED_ERROR_MESSAGE = 'Your user role "readOnly" does not have access to the resource.';
-
     public function testWorkspaceRestrictionsForReadOnlyUser()
     {
+        $expectedError = 'Your user role "readOnly" does not have access to the resource.';
         $readOnlyClient = $this->getClientForToken(STORAGE_API_READ_ONLY_TOKEN);
 
         $workspaces = new Workspaces($this->_client);
@@ -25,7 +24,7 @@ class ReadOnlyUserTest extends WorkspacesTestCase
         } catch (ClientException $e) {
             $this->assertSame(403, $e->getCode());
             $this->assertSame('accessDenied', $e->getStringCode());
-            $this->assertSame(self::EXPECTED_ERROR_MESSAGE, $e->getMessage());
+            $this->assertSame($expectedError, $e->getMessage());
         }
 
         try {
@@ -34,7 +33,7 @@ class ReadOnlyUserTest extends WorkspacesTestCase
         } catch (ClientException $e) {
             $this->assertSame(403, $e->getCode());
             $this->assertSame('accessDenied', $e->getStringCode());
-            $this->assertSame(self::EXPECTED_ERROR_MESSAGE, $e->getMessage());
+            $this->assertSame($expectedError, $e->getMessage());
         }
 
         try {
@@ -43,7 +42,7 @@ class ReadOnlyUserTest extends WorkspacesTestCase
         } catch (ClientException $e) {
             $this->assertSame(403, $e->getCode());
             $this->assertSame('accessDenied', $e->getStringCode());
-            $this->assertSame(self::EXPECTED_ERROR_MESSAGE, $e->getMessage());
+            $this->assertSame($expectedError, $e->getMessage());
         }
 
         $this->assertSame($workspace, $workspaces->getWorkspace($workspace['id']));
