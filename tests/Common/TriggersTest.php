@@ -377,7 +377,7 @@ class TriggersTest extends StorageApiTestCase
 
         try {
             $readOnlyClient->updateTrigger($trigger['id'], ['configurationId' => 987]);
-            $this->fail('Files API PUT request should be restricted for readOnly user');
+            $this->fail('Triggers API PUT request should be restricted for readOnly user');
         } catch (ClientException $e) {
             $this->assertSame(403, $e->getCode());
             $this->assertSame('accessDenied', $e->getStringCode());
@@ -386,7 +386,7 @@ class TriggersTest extends StorageApiTestCase
 
         try {
             $readOnlyClient->deleteTrigger($trigger['id']);
-            $this->fail('Workspace request should be restricted for readOnly user');
+            $this->fail('Triggers request should be restricted for readOnly user');
         } catch (ClientException $e) {
             $this->assertSame(403, $e->getCode());
             $this->assertSame('accessDenied', $e->getStringCode());
