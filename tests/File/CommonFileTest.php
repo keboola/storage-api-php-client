@@ -410,11 +410,13 @@ class CommonFileTest extends StorageApiTestCase
 
     public function testReadOnlyRoleFilesPermissions()
     {
+        $expectedError = 'File manipulation is restricted for your user role "readOnly".';
         $readOnlyClient = $this->getClientForToken(STORAGE_API_READ_ONLY_TOKEN);
 
         $options = new FileUploadOptions();
         $fileId = $this->createAndWaitForFile(__DIR__ . '/../_data/files.upload.txt', $options);
-        $file = $this->_client->getFile($fileId);
+        $originalFile = $this->_client->getFile($fileId);
+        unset($originalFile['url']);
 
         $filesCount = count($this->_client->listFiles(new ListFilesOptions()));
         $this->assertGreaterThan(0, $filesCount);
@@ -427,7 +429,7 @@ class CommonFileTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame(403, $e->getCode());
             $this->assertSame('accessDenied', $e->getStringCode());
-            $this->assertContains('File manipulation is restricted for your user role', $e->getMessage());
+            $this->assertSame($expectedError, $e->getMessage());
         }
 
         try {
@@ -436,10 +438,13 @@ class CommonFileTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame(403, $e->getCode());
             $this->assertSame('accessDenied', $e->getStringCode());
-            $this->assertContains('File manipulation is restricted for your user role', $e->getMessage());
+            $this->assertSame($expectedError, $e->getMessage());
         }
 
-        $this->assertSame($file, $this->_client->getFile($fileId));
+
+        $file = $this->_client->getFile($fileId);
+        unset($file['url']);
+        $this->assertSame($originalFile, $file);
     }
 
 
