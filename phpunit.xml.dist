@@ -16,6 +16,7 @@
 	<testsuite name="common">
 		<directory>tests/Common</directory>
 		<file>tests/File/CommonFileTests.php</file>
+		<file>tests/Backend/Workspaces/ReadOnlyUserTest.php</file>
 	</testsuite>
 
 	<testsuite name="paratest-common">
