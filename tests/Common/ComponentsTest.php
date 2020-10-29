@@ -305,7 +305,7 @@ class ComponentsTest extends StorageApiTestCase
     public function testConfigurationNameShouldBeRequired()
     {
         try {
-            $this->_client->apiPost('storage/components/wr-db/configs', []);
+            $this->_client->apiPost('components/wr-db/configs', []);
             $this->fail('Params should be invalid');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.components.validation', $e->getStringCode());
@@ -315,7 +315,7 @@ class ComponentsTest extends StorageApiTestCase
 
     public function testConfigurationDescriptionDefault()
     {
-        $resp = $this->_client->apiPost('storage/components/wr-db/configs', [
+        $resp = $this->_client->apiPost('components/wr-db/configs', [
             'name' => 'neco'
         ]);
         $components = new \Keboola\StorageApi\Components($this->_client);
@@ -326,7 +326,7 @@ class ComponentsTest extends StorageApiTestCase
     public function testNonJsonConfigurationShouldNotBeAllowed()
     {
         try {
-            $this->_client->apiPost('storage/components/wr-db/configs', array(
+            $this->_client->apiPost('components/wr-db/configs', array(
                 'name' => 'neco',
                 'description' => 'some',
                 'configuration' => '{sdf}',
@@ -341,7 +341,7 @@ class ComponentsTest extends StorageApiTestCase
     public function testNonJsonStateShouldNotBeAllowed()
     {
         try {
-            $this->_client->apiPost('storage/components/wr-db/configs', array(
+            $this->_client->apiPost('components/wr-db/configs', array(
                 'name' => 'neco',
                 'description' => 'some',
                 'state' => '{sdf}',

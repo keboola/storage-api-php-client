@@ -64,7 +64,7 @@ class GetToFileTest extends StorageApiTestCase
         }
 
         // download
-        $this->_client->apiGet('storage/components?include=configuration,rows,state', $this->downloadPath);
+        $this->_client->apiGet('components?include=configuration,rows,state', $this->downloadPath);
 
         $configurations =  \GuzzleHttp\json_decode(file_get_contents($this->downloadPath));
         $this->assertCount($configurationRowsCount, $configurations[0]->configurations[0]->rows);
