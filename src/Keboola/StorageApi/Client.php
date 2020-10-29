@@ -2030,7 +2030,7 @@ class Client
      */
     public function apiGet($url, $fileName = null)
     {
-        return $this->request('GET', $this->versionUrl($url), array(), $fileName);
+        return $this->request('GET', $url, array(), $fileName);
     }
 
     /**
@@ -2043,17 +2043,17 @@ class Client
      */
     public function apiPost($url, $postData = null, $handleAsyncTask = true)
     {
-        return $this->request('post', $this->versionUrl($url), array('form_params' => $postData), null, $handleAsyncTask);
+        return $this->request('post', $url, array('form_params' => $postData), null, $handleAsyncTask);
     }
 
     public function apiPostMultipart($url, $postData = null, $handleAsyncTask = true)
     {
-        return $this->request('post', $this->versionUrl($url), array('multipart' => $postData), null, $handleAsyncTask);
+        return $this->request('post', $url, array('multipart' => $postData), null, $handleAsyncTask);
     }
 
     private function apiPostJson($url, $data = [])
     {
-        return $this->request('POST', $this->versionUrl($url), [
+        return $this->request('POST', $url, [
             'json' => $data,
         ]);
     }
@@ -2068,7 +2068,7 @@ class Client
      */
     public function apiPut($url, $postData = null)
     {
-        return $this->request('put', $this->versionUrl($url), [
+        return $this->request('put', $url, [
             'form_params' => $postData,
         ]);
     }
@@ -2082,7 +2082,7 @@ class Client
      */
     public function apiDelete($url)
     {
-        return $this->request('delete', $this->versionUrl($url));
+        return $this->request('delete', $url);
     }
 
     public function apiDeleteParams($url, $data)
@@ -2090,16 +2090,12 @@ class Client
         $options = array();
         $options['headers']['Content-Type'] = 'application/x-www-form-urlencoded';
         $options['body'] = http_build_query($data, '', '&');
-        return $this->request('delete', $this->versionUrl($url), $options);
-    }
-
-    private function versionUrl($path)
-    {
-        return sprintf("%s/%s", self::API_VERSION, $path);
+        return $this->request('delete', $url, $options);
     }
 
     protected function request($method, $url, $options = array(), $responseFileName = null, $handleAsyncTask = true)
     {
+        $url = self::API_VERSION . "/storage/" . $url;
         $requestOptions = array_merge($options, [
             'timeout' => $this->getTimeout(),
         ]);
