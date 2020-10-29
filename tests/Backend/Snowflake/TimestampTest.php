@@ -160,7 +160,7 @@ class TimestampTest extends WorkspacesTestCase
      */
     public function testTimestampCopyImport()
     {
-        $table = $this->_client->apiPost("storage/buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(
+        $table = $this->_client->apiPost("buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(
             'dataString' => 'Id,Name,update',
             'name' => 'languages',
             'primaryKey' => 'Id',
