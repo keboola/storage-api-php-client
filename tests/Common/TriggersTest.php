@@ -346,7 +346,8 @@ class TriggersTest extends StorageApiTestCase
         $readOnlyClient = $this->getClientForToken(STORAGE_API_READ_ONLY_TOKEN);
 
         $table1 = $this->createTableWithRandomData("watched-1");
-        $newTokenId = $this->_client->createToken((new TokenCreateOptions())
+        $newTokenId = $this->_client->createToken(
+            (new TokenCreateOptions())
             ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
         );
 
