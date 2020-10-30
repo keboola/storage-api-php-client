@@ -9,6 +9,10 @@ class DevBranches
 
     public function __construct(Client $client)
     {
+        if ($client instanceof BranchAwareClient) {
+            throw new \LogicException('Cannot use BranchAwareClient for DevBranches');
+        }
+
         $this->client = $client;
     }
 
