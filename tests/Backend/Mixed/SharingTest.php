@@ -50,13 +50,7 @@ class SharingTest extends StorageApiSharingTestCase
 
         $this->assertArrayHasKey('displayName', $response);
 
-        $tokenOptions = (new TokenCreateOptions())
-            ->setDescription('Test Token')
-            ->setCanManageBuckets(true)
-            ->setExpiresIn(3600)
-        ;
-
-        $tokenId = $this->_client2->createToken($tokenOptions);
+        $tokenId = $this->_client2->createToken($this->createTestTokenOptions(true));
         $token = $this->_client2->getToken($tokenId);
 
         $client = $this->getClient([
@@ -290,6 +284,46 @@ class SharingTest extends StorageApiSharingTestCase
         $client->dropBucket($linkedBucketId);
     }
 
+    public function testOnlyTokensHavingCanManagePermissionsCanUnlinkBucket()
+    {
+        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
+        $bucketId = reset($this->_bucketIds);
+
+        $response = $this->_client->shareBucket($bucketId, [
+            'sharing' => 'organization-project',
+        ]);
+
+        $this->assertArrayHasKey('displayName', $response);
+
+        $tokenId = $this->_client2->createToken($this->createTestTokenOptions(true));
+        $canManageBucketsClient = $this->getClientForToken($this->_client2->getToken($tokenId)['token']);
+
+        $linkedBucketId = $canManageBucketsClient->linkBucket(
+            'organization-project-test',
+            self::STAGE_IN,
+            $this->_client->verifyToken()['owner']['id'],
+            $bucketId,
+            'linked-displayName'
+        );
+
+        $tokenId = $this->_client2->createToken($this->createTestTokenOptions(false));
+        $cannotManageBucketsClient = $this->getClientForToken($this->_client2->getToken($tokenId)['token']);
+
+        try {
+            $cannotManageBucketsClient->dropBucket($linkedBucketId);
+            $this->fail('Bucket unlink should be restrictred for tokens without canManageBuckets permission');
+        } catch (ClientException $e) {
+            $this->assertEquals(403, $e->getCode());
+            $this->assertEquals('accessDenied', $e->getStringCode());
+        }
+
+        $this->assertTrue($this->_client2->bucketExists($linkedBucketId));
+
+        $canManageBucketsClient->dropBucket($linkedBucketId);
+
+        $this->assertFalse($this->_client2->bucketExists($linkedBucketId));
+    }
+
     public function testNonOrganizationAdminInToken()
     {
         $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
@@ -311,13 +345,7 @@ class SharingTest extends StorageApiSharingTestCase
         );
 
         // new token creation
-        $tokenOptions = (new TokenCreateOptions())
-            ->setDescription('Test Token')
-            ->setCanManageBuckets(true)
-            ->setExpiresIn(3600)
-        ;
-
-        $tokenId = $this->_client->createToken($tokenOptions);
+        $tokenId = $this->_client->createToken($this->createTestTokenOptions(true));
         $token = $this->_client->getToken($tokenId);
 
         $client = $this->getClient([
@@ -690,13 +718,7 @@ class SharingTest extends StorageApiSharingTestCase
 
         $linkedBucketId = $this->_client2->linkBucket("linked-" . time(), 'out', $sharedBucket['project']['id'], $sharedBucket['id']);
 
-        $tokenOptions = (new TokenCreateOptions())
-            ->setDescription('Test Token')
-            ->setExpiresIn(3600)
-            ->setCanManageBuckets(true)
-        ;
-
-        $tokenId = $this->_client2->createToken($tokenOptions);
+        $tokenId = $this->_client2->createToken($this->createTestTokenOptions(true));
         $token = $this->_client2->getToken($tokenId);
 
         $client = $this->getClient([
@@ -1376,5 +1398,14 @@ class SharingTest extends StorageApiSharingTestCase
                 'specific-users',
             ],
         ];
+    }
+
+    private function createTestTokenOptions($canManageBuckets)
+    {
+        return (new TokenCreateOptions())
+            ->setDescription('Test Token')
+            ->setCanManageBuckets($canManageBuckets)
+            ->setExpiresIn(3600)
+        ;
     }
 }
