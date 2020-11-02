@@ -4754,6 +4754,64 @@ marked as `currentVersion`.
                 }
             }
 
+### Update Developmnet Branch Configuration [PUT /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}]
+Updates an existing configuration for [Development Branch](#reference/development-branches). When the configuration is updated, a `currentVersion` is still marked as first version.
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + component_id (required) - Id of the component
+    + config_id (required) - Id of the configuration
+
++ Attributes
+    + name (required) - Configuration name
+    + description (optional) - Configuration description
+    + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB
+    + state (optional) - Serialized configuration state JSON; the maximum allowed size is 4MB
+    + changeDescription (optional) - Description of the configuration modification
+    + rowsSortOrder (optional) - Array of row ids in desired order, you have to specify all row ids
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            configuration=%7B%22key%22%3A%22value%22%2C+%22key2%22%3A%22value2%22%2C+%22key3%22%3A+%22value3%22%7D&changeDescription=Added+new+key
+
+
++ Response 200 (application/json)
+    + Body
+
+            {
+                "id": "236606822",
+                "name": "My new configuration",
+                "description": "",
+                "created": "2017-02-14T14:38:26+0100",
+                "creatorToken": {
+                    "id": 27978,
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "version": 2,
+                "changeDescription": "Added new key",
+                "isDeleted": false,
+                "configuration": {
+                    "key": "value",
+                    "key2": "value2",
+                    "key3": "value3"
+                },
+                "rowsSortOrder": [],
+                "rows": [],
+                "state": {},
+                "currentVersion": {
+                    "created": "2017-02-14T14:48:41+0100",
+                    "creatorToken": {
+                        "id": 27978,
+                        "description": "ondrej.popelka@keboola.com"
+                    },
+                    "changeDescription": "Added new key"
+                }
+            }
 
 ### Delete Configuration [DELETE]
 Deletes a configuration. When a configuration is deleted, it is only marked as deleted and remains still available in the system.
