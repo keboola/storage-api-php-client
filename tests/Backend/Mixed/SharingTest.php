@@ -8,7 +8,9 @@ use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Metadata;
+use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
+use Keboola\StorageApi\Options\TokenUpdateOptions;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
@@ -280,34 +282,17 @@ class SharingTest extends StorageApiSharingTestCase
             $displayName
         );
 
-        // user should be also able to delete the linked bucket
-        $client->dropBucket($linkedBucketId);
-    }
+        // bucket unlink with token without canManage permission
+        $tokenId = $this->_client2->createToken($this->createTestTokenOptions(false));
 
-    public function testOnlyTokensHavingCanManagePermissionsCanUnlinkBucket()
-    {
-        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
-        $bucketId = reset($this->_bucketIds);
-
-        $response = $this->_client->shareBucket($bucketId, [
-            'sharing' => 'organization-project',
-        ]);
-
-        $this->assertArrayHasKey('displayName', $response);
-
-        $tokenId = $this->_client2->createToken($this->createTestTokenOptions(true));
-        $canManageBucketsClient = $this->getClientForToken($this->_client2->getToken($tokenId)['token']);
-
-        $linkedBucketId = $canManageBucketsClient->linkBucket(
-            'organization-project-test',
-            self::STAGE_IN,
-            $this->_client->verifyToken()['owner']['id'],
-            $bucketId,
-            'linked-displayName'
+        $this->_client2->updateToken(
+            (new TokenUpdateOptions($tokenId))
+                ->addBucketPermission($linkedBucketId, TokenAbstractOptions::BUCKET_PERMISSION_READ)
         );
 
-        $tokenId = $this->_client2->createToken($this->createTestTokenOptions(false));
         $cannotManageBucketsClient = $this->getClientForToken($this->_client2->getToken($tokenId)['token']);
+
+        $this->assertTrue($cannotManageBucketsClient->bucketExists($linkedBucketId));
 
         try {
             $cannotManageBucketsClient->dropBucket($linkedBucketId);
@@ -319,7 +304,8 @@ class SharingTest extends StorageApiSharingTestCase
 
         $this->assertTrue($this->_client2->bucketExists($linkedBucketId));
 
-        $canManageBucketsClient->dropBucket($linkedBucketId);
+        // user should be also able to delete the linked bucket
+        $client->dropBucket($linkedBucketId);
 
         $this->assertFalse($this->_client2->bucketExists($linkedBucketId));
     }
