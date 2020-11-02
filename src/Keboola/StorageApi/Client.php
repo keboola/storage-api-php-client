@@ -183,7 +183,7 @@ class Client
      */
     public function indexAction()
     {
-        return $this->apiGet("storage");
+        return $this->apiGet("");
     }
 
     public function webalizeDisplayName($displayName)
