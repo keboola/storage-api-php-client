@@ -50,11 +50,14 @@ class BranchComponentTest extends StorageApiTestCase
 
         $branchComponents = new \Keboola\StorageApi\Components($this->getBranchAwareDefaultClient($branch['id']));
         $componentId = 'transformation';
-        $configs = $branchComponents->listComponentConfigurations(
+        $branchConfigs = $branchComponents->listComponentConfigurations(
             (new ListComponentConfigurationsOptions())->setComponentId($componentId)
         );
-        $this->assertEmpty($configs);
 
+        // empty because creating new dev branch doesn't clone configuration from main branch yet.
+        $this->assertEmpty($branchConfigs);
+
+        // create new configurations in main branch
         $components = new \Keboola\StorageApi\Components($this->_client);
         $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId($componentId)
@@ -68,11 +71,14 @@ class BranchComponentTest extends StorageApiTestCase
         $configs = $components->listComponentConfigurations(
             (new ListComponentConfigurationsOptions())->setComponentId($componentId)
         );
+        // two configuration was created in main branch
         $this->assertCount(2, $configs);
 
         $configs = $branchComponents->listComponentConfigurations(
             (new ListComponentConfigurationsOptions())->setComponentId($componentId)
         );
+
+        // creating new configuration in main branch shouldn't create new configuration in dev branch
         $this->assertEmpty($configs);
 
         $mainComponentDetail = $components->getConfiguration($componentId, 'main-1');
@@ -80,7 +86,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         try {
             $branchComponents->getConfiguration($componentId, 'main-1');
-            $this->fail('Components API POST request should be restricted for readOnly user');
+            $this->fail('Configuration created in main branch shouldn\'t exist in dev branch');
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
             $this->assertSame('notFound', $e->getStringCode());
