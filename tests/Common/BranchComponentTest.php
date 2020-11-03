@@ -128,5 +128,55 @@ class BranchComponentTest extends StorageApiTestCase
             $this->assertSame('notFound', $e->getStringCode());
             $this->assertContains('Configuration main-branch-1 not found', $e->getMessage());
         }
+
+        //Update
+        $newName = 'neco';
+        $newDesc = 'some desc';
+        $configurationData = ['x' => 'y'];
+        $config->setName($newName)
+            ->setDescription($newDesc)
+            ->setConfiguration($configurationData);
+        $branchComponents->updateConfiguration($config);
+
+        $configuration = $branchComponents->getConfiguration($config->getComponentId(), $config->getConfigurationId());
+
+        $this->assertEquals($newName, $configuration['name']);
+        $this->assertEquals($newDesc, $configuration['description']);
+        $this->assertEquals($config->getConfiguration(), $configuration['configuration']);
+        $this->assertEquals(1, $configuration['version']);
+        $this->assertEmpty($configuration['changeDescription']);
+
+        $state = [
+            'cache' => true,
+        ];
+        $config = (new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId('transformation')
+            ->setConfigurationId('main-branch-1')
+            ->setDescription('neco')
+            ->setState($state);
+
+        $updatedConfig = $branchComponents->updateConfiguration($config);
+        $this->assertEquals($newName, $updatedConfig['name'], 'Name should not be changed after description update');
+        $this->assertEquals('neco', $updatedConfig['description']);
+        $this->assertEquals($configurationData, $updatedConfig['configuration']);
+        $this->assertEquals($state, $updatedConfig['state']);
+        $this->assertEmpty($updatedConfig['changeDescription']);
+
+        $configuration = $branchComponents->getConfiguration($config->getComponentId(), $config->getConfigurationId());
+
+        $this->assertEquals($newName, $configuration['name'], 'Name should not be changed after description update');
+        $this->assertEquals('neco', $configuration['description']);
+        $this->assertEquals($configurationData, $configuration['configuration']);
+        $this->assertEquals($state, $configuration['state']);
+        $this->assertEmpty($configuration['changeDescription']);
+
+        $config = (new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId('transformation')
+            ->setConfigurationId('main-branch-1')
+            ->setDescription('');
+
+        $branchComponents->updateConfiguration($config);
+        $configuration = $branchComponents->getConfiguration($config->getComponentId(), $config->getConfigurationId());
+        $this->assertEquals('', $configuration['description'], 'Description can be set empty');
     }
 }
