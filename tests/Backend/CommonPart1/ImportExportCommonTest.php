@@ -223,7 +223,7 @@ class ImportExportCommonTest extends StorageApiTestCase
     public function testTableImportInvalidCsvParams()
     {
         try {
-            $this->_client->apiPost("storage/buckets/{$this->getTestBucketId(self::STAGE_IN)}/tables", [
+            $this->_client->apiPost("buckets/{$this->getTestBucketId(self::STAGE_IN)}/tables", [
                 'dataString' => 'id,name',
                 'delimiter' => '/t',
             ]);
@@ -233,7 +233,7 @@ class ImportExportCommonTest extends StorageApiTestCase
 
         $fileId = $this->_client->uploadFile(__DIR__ . '/../../_data/languages.csv', (new \Keboola\StorageApi\Options\FileUploadOptions())->setFileName('test.csv'));
         try {
-            $this->_client->apiPost("storage/buckets/{$this->getTestBucketId(self::STAGE_IN)}/tables-async", [
+            $this->_client->apiPost("buckets/{$this->getTestBucketId(self::STAGE_IN)}/tables-async", [
                 'dataFileId' => $fileId,
                 'delimiter' => '/t',
             ]);
@@ -243,7 +243,7 @@ class ImportExportCommonTest extends StorageApiTestCase
 
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile(__DIR__ . '/../../_data/languages.csv'));
         try {
-            $this->_client->apiPost("storage/tables/{$tableId}/import", [
+            $this->_client->apiPost("tables/{$tableId}/import", [
                 'dataString' => 'id,name',
                 'delimiter' => '/t',
             ]);
@@ -252,7 +252,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         }
 
         try {
-            $this->_client->apiPost("storage/tables/{$tableId}/import-async", [
+            $this->_client->apiPost("tables/{$tableId}/import-async", [
                 'dataFileId' => $fileId,
                 'delimiter' => '/t',
                 'incremental' => true,
@@ -364,7 +364,7 @@ class ImportExportCommonTest extends StorageApiTestCase
 
         $lines = '"id","name"';
         $lines .= "\n" . '"first","second"' . "\n";
-        $this->_client->apiPost("storage/tables/$tableId/import", array(
+        $this->_client->apiPost("tables/$tableId/import", array(
             'dataString' => $lines,
         ));
 

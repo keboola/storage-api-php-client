@@ -33,7 +33,7 @@ class Components
 
     public function addConfiguration(Configuration $options)
     {
-        return $this->client->apiPost("storage/components/{$options->getComponentId()}/configs", array(
+        return $this->client->apiPost("components/{$options->getComponentId()}/configs", array(
             'name' => $options->getName(),
             'description' => $options->getDescription(),
             'configurationId' => $options->getConfigurationId(),
@@ -75,7 +75,7 @@ class Components
         }
 
         return $this->client->apiPut(
-            "storage/components/{$options->getComponentId()}/configs/{$options->getConfigurationId()}",
+            "components/{$options->getComponentId()}/configs/{$options->getConfigurationId()}",
             $data
         );
     }
@@ -83,7 +83,7 @@ class Components
     public function publishConfiguration($componentId, $configurationId, $description)
     {
         return $this->client->apiPost(
-            "storage/components/{$componentId}/configs/{$configurationId}/publish",
+            "components/{$componentId}/configs/{$configurationId}/publish",
             [
                 'description' => $description,
             ]
@@ -92,12 +92,12 @@ class Components
 
     public function getConfiguration($componentId, $configurationId)
     {
-        return $this->client->apiGet("storage/components/{$componentId}/configs/{$configurationId}");
+        return $this->client->apiGet("components/{$componentId}/configs/{$configurationId}");
     }
 
     public function deleteConfiguration($componentId, $configurationId)
     {
-        return $this->client->apiDelete("storage/components/{$componentId}/configs/{$configurationId}");
+        return $this->client->apiDelete("components/{$componentId}/configs/{$configurationId}");
     }
 
     public function listComponents(ListComponentsOptions $options = null)
@@ -105,34 +105,34 @@ class Components
         if (!$options) {
             $options = new ListComponentsOptions();
         }
-        return $this->client->apiGet("storage/components?" . http_build_query($options->toParamsArray()));
+        return $this->client->apiGet("components?" . http_build_query($options->toParamsArray()));
     }
 
     public function listComponentConfigurations(ListComponentConfigurationsOptions $options)
     {
-        return $this->client->apiGet("storage/components/{$options->getComponentId()}/configs?" . http_build_query($options->toParamsArray()));
+        return $this->client->apiGet("components/{$options->getComponentId()}/configs?" . http_build_query($options->toParamsArray()));
     }
 
     public function restoreComponentConfiguration($componentId, $configurationId)
     {
-        return $this->client->apiPost("storage/components/{$componentId}/configs/{$configurationId}/restore");
+        return $this->client->apiPost("components/{$componentId}/configs/{$configurationId}/restore");
     }
 
     public function listConfigurationVersions(ListConfigurationVersionsOptions $options)
     {
-        return $this->client->apiGet("storage/components/{$options->getComponentId()}/configs/"
+        return $this->client->apiGet("components/{$options->getComponentId()}/configs/"
             . "{$options->getConfigurationId()}/versions?" . http_build_query($options->toParamsArray()));
     }
 
     public function getConfigurationVersion($componentId, $configurationId, $version)
     {
-        return $this->client->apiGet("storage/components/{$componentId}/configs/{$configurationId}/versions/{$version}");
+        return $this->client->apiGet("components/{$componentId}/configs/{$configurationId}/versions/{$version}");
     }
 
     public function rollbackConfiguration($componentId, $configurationId, $version, $changeDescription = null)
     {
         return $this->client->apiPost(
-            "storage/components/{$componentId}/configs/{$configurationId}/versions/{$version}/rollback",
+            "components/{$componentId}/configs/{$configurationId}/versions/{$version}/rollback",
             array('changeDescription' => $changeDescription)
         );
     }
@@ -140,7 +140,7 @@ class Components
     public function createConfigurationFromVersion($componentId, $configurationId, $version, $name, $description = null, $changeDescription = null)
     {
         return $this->client->apiPost(
-            "storage/components/{$componentId}/configs/{$configurationId}/versions/{$version}/create",
+            "components/{$componentId}/configs/{$configurationId}/versions/{$version}/create",
             array('name' => $name, 'description' => $description, 'changeDescription' => $changeDescription)
         );
     }
@@ -148,7 +148,7 @@ class Components
     public function getConfigurationRow($componentId, $configurationId, $rowId)
     {
         return $this->client->apiGet(sprintf(
-            "storage/components/%s/configs/%s/rows/%s",
+            "components/%s/configs/%s/rows/%s",
             $componentId,
             $configurationId,
             $rowId
@@ -160,7 +160,7 @@ class Components
         if (!$options) {
             $options = new ListConfigurationRowsOptions();
         }
-        return $this->client->apiGet("storage/components/{$options->getComponentId()}/configs/"
+        return $this->client->apiGet("components/{$options->getComponentId()}/configs/"
             . "{$options->getConfigurationId()}/rows");
     }
 
@@ -169,7 +169,7 @@ class Components
         if (!$options) {
             $options = new ListConfigurationWorkspacesOptions();
         }
-        return $this->client->apiGet("storage/components/{$options->getComponentId()}/configs/"
+        return $this->client->apiGet("components/{$options->getComponentId()}/configs/"
             . "{$options->getConfigurationId()}/workspaces");
     }
 
@@ -177,7 +177,7 @@ class Components
     {
         return $this->client->apiPost(
             sprintf(
-                "storage/components/%s/configs/%s/rows",
+                "components/%s/configs/%s/rows",
                 $options->getComponentConfiguration()->getComponentId(),
                 $options->getComponentConfiguration()->getConfigurationId()
             ),
@@ -196,7 +196,7 @@ class Components
     public function deleteConfigurationRow($componentId, $configurationId, $rowId, $changeDescription = null)
     {
         return $this->client->apiDeleteParams(
-            "storage/components/{$componentId}/configs/{$configurationId}/rows/{$rowId}",
+            "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}",
             array(
                 'changeDescription' => $changeDescription
             )
@@ -241,7 +241,7 @@ class Components
 
         return $this->client->apiPut(
             sprintf(
-                "storage/components/%s/configs/%s/rows/%s",
+                "components/%s/configs/%s/rows/%s",
                 $options->getComponentConfiguration()->getComponentId(),
                 $options->getComponentConfiguration()->getConfigurationId(),
                 $options->getRowId()
@@ -254,7 +254,7 @@ class Components
     {
         return $this->client->apiGet(
             sprintf(
-                "storage/components/%s/configs/%s/rows/%s/versions?%s",
+                "components/%s/configs/%s/rows/%s/versions?%s",
                 $options->getComponentId(),
                 $options->getConfigurationId(),
                 $options->getRowId(),
@@ -265,13 +265,13 @@ class Components
 
     public function getConfigurationRowVersion($componentId, $configurationId, $rowId, $version)
     {
-        return $this->client->apiGet("storage/components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/versions/{$version}");
+        return $this->client->apiGet("components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/versions/{$version}");
     }
 
     public function rollbackConfigurationRow($componentId, $configurationId, $rowId, $version, $changeDescription = null)
     {
         return $this->client->apiPost(
-            "storage/components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/versions/{$version}/rollback",
+            "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/versions/{$version}/rollback",
             array("changeDescription" => $changeDescription)
         );
     }
@@ -279,7 +279,7 @@ class Components
     public function createConfigurationRowFromVersion($componentId, $configurationId, $rowId, $version, $targetConfigurationId = null, $changeDescription = null)
     {
         return $this->client->apiPost(
-            "storage/components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/versions/{$version}/create",
+            "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/versions/{$version}/create",
             array('targetConfigId' => $targetConfigurationId, 'changeDescription' => $changeDescription)
         );
     }
@@ -287,7 +287,7 @@ class Components
     public function createConfigurationWorkspace($componentId, $configurationId, array $options = [])
     {
         return $this->client->apiPost(
-            "storage/components/{$componentId}/configs/{$configurationId}/workspaces",
+            "components/{$componentId}/configs/{$configurationId}/workspaces",
             $options
         );
     }
