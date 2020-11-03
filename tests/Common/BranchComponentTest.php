@@ -29,7 +29,7 @@ class BranchComponentTest extends StorageApiTestCase
         }
     }
 
-    public function testGetComponentConfigurations()
+    public function testManipulationWithComponentConfigurations()
     {
         $providedToken = $this->_client->verifyToken();
         $devBranch = new DevBranches($this->_client);
@@ -95,5 +95,38 @@ class BranchComponentTest extends StorageApiTestCase
 
         $mainComponentDetail  = $components->getConfiguration($componentId, 'main-1');
         $this->assertSame('main-1', $mainComponentDetail['id']);
+
+        //create
+        $config = (new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId('transformation')
+            ->setConfigurationId('main-branch-1')
+            ->setName('Main Branch 1')
+            ->setDescription('Configuration created');
+
+        // create new configuration in dev branch
+        $branchComponents->addConfiguration($config);
+
+        // new configuration must exist in dev branch
+        $branchComponentDetail = $branchComponents->getConfiguration('transformation', 'main-branch-1');
+        $this->assertEquals('Main Branch 1', $branchComponentDetail['name']);
+        $this->assertEmpty($branchComponentDetail['configuration']);
+        $this->assertSame('Configuration created', $branchComponentDetail['description']);
+        $this->assertEquals(1, $branchComponentDetail['version']);
+        $this->assertIsInt($branchComponentDetail['version']);
+        $this->assertIsInt($branchComponentDetail['creatorToken']['id']);
+
+        $configs = $branchComponents->listComponentConfigurations(
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
+        );
+        $this->assertCount(1, $configs);
+
+        try {
+            $components->getConfiguration('transformation', 'main-branch-1');
+            $this->fail('Configuration created in dev branch shouldn\'t exist in main branch');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+            $this->assertSame('notFound', $e->getStringCode());
+            $this->assertContains('Configuration main-branch-1 not found', $e->getMessage());
+        }
     }
 }
