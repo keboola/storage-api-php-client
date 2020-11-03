@@ -3102,6 +3102,9 @@ Creates a new workspace and return its credentials.
             + redshift
             + snowflake
     the system. Supported only for Snowflake workspaces.
+            + synapse
+            + abs
+    Azure blob storage file workspace
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -3379,6 +3382,7 @@ Generates new password for the given workspace
 
 + id: 234 (number)
 + name: `boring_wozniak` (string) - working schema name
++ type: `file|table` (string) - workspace type
 + component: `wr-db` (string) - name of the [registered component](#reference/miscellaneous/api-index/component-list) that created the workspace
 + configurationId: `aws-1` (string) - id of a [configuration](#reference/component-configurations/component-list) used to create workspace
 + created: `2016-05-17T11:11:20+0200` (string)
@@ -3389,6 +3393,7 @@ Generates new password for the given workspace
     + schema:  `boring_wozniak` (string)
     + warehouse: `SAPI_PROD` (string)
     + user: `xzy` (string)
+    + container: file workspace containerName (string) - Only for file workspaces
 + creatorToken
     + id: 234 (number)
     + description: `martin@keboola.com` (string)
@@ -3406,6 +3411,8 @@ Generates new password for the given workspace
     + warehouse: SAPI_PROD (string)
     + user: xzy (string)
     + password: abc (string) - Password is not stored and is returned only after workspace creation
+    + connectionString: `BlobEndpoint=https://<account>.blob.core.windows.net;SharedAccessSignature=sv=2017-11-09&sr=c&st=2020-11-03T10:31:36Z&se=2020-11-04T10:31:36Z&sp=rwl&sig=<SAS signature>` (string) only for file workspaces
+    + container: file workspace containerName (string) - Only for file workspaces
 
 # Group Events
 Virtually every interaction of the client (an API call) creates an Event. Apart from that, external events may
