@@ -40,7 +40,7 @@ class MetricsTest extends StorageApiTestCase
         );
 
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
-        $job = $this->_client->apiPost("storage/buckets/{$bucketId}/tables-async", [
+        $job = $this->_client->apiPost("buckets/{$bucketId}/tables-async", [
             'name' => 'languages',
             'dataFileId' => $fileId,
         ], false);
@@ -76,7 +76,7 @@ class MetricsTest extends StorageApiTestCase
                 ->setCompress(false)
                 ->setTags(array('table-import'))
         );
-        $job = $this->_client->apiPost("storage/tables/{$tableId}/import-async", [
+        $job = $this->_client->apiPost("tables/{$tableId}/import-async", [
             'dataFileId' => $fileId
         ], false);
         $job = $this->_client->waitForJob($job['id']);
@@ -98,7 +98,7 @@ class MetricsTest extends StorageApiTestCase
         $csvFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', $csvFile);
 
-        $job = $this->_client->apiPost("storage/tables/{$tableId}/export-async", [], false);
+        $job = $this->_client->apiPost("tables/{$tableId}/export-async", [], false);
         $job = $this->_client->waitForJob($job['id']);
 
         $metrics = $job['metrics'];
@@ -113,7 +113,7 @@ class MetricsTest extends StorageApiTestCase
         $previousMetrics = $metrics;
 
         // compress
-        $job = $this->_client->apiPost("storage/tables/{$tableId}/export-async", ['gzip' => true], false);
+        $job = $this->_client->apiPost("tables/{$tableId}/export-async", ['gzip' => true], false);
         $job = $this->_client->waitForJob($job['id']);
 
         $metrics = $job['metrics'];
