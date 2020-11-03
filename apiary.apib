@@ -4754,8 +4754,8 @@ marked as `currentVersion`.
                 }
             }
 
-### Update Developmnet Branch Configuration [PUT /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}]
-Updates an existing configuration for [Development Branch](#reference/development-branches). When the configuration is updated, a `currentVersion` is still marked as first version.
+### Update Development Branch Configuration [PUT /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}]
+Updates an existing configuration for [Development Branch](#reference/development-branches). When the configuration is updated in a development branch, it does not affect `currentVersion` of the configuration.
 
 + Parameters
     + branch_id (required) - Id of the development branch
