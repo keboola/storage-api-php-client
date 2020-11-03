@@ -296,7 +296,7 @@ class SharingTest extends StorageApiSharingTestCase
 
         try {
             $cannotManageBucketsClient->dropBucket($linkedBucketId);
-            $this->fail('Bucket unlink should be restrictred for tokens without canManageBuckets permission');
+            $this->fail('Bucket unlink should be restricted for tokens without canManageBuckets permission');
         } catch (ClientException $e) {
             $this->assertEquals(403, $e->getCode());
             $this->assertEquals('accessDenied', $e->getStringCode());
