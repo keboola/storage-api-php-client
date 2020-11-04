@@ -2,6 +2,7 @@
 
 namespace Keboola\Test\Backend\FileWorkspace;
 
+use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\FileWorkspace\Backend\Abs;
 use Keboola\Test\Backend\Workspaces\WorkspacesTestCase;
@@ -100,15 +101,6 @@ class WorkspacesTest extends WorkspacesTestCase
             $this->assertEquals('workspaceDrop', $job['operationName']);
             $this->assertEquals($workspace['id'], $job['operationParams']['workspaceId']);
         }
-    }
-
-    /**
-     * @dataProvider dropOptions
-     * @param $dropOptions
-     */
-    public function testDropNonExistingWorkspace($dropOptions)
-    {
-        $this->markTestIncomplete('TODO add test');
     }
 
     public function dropOptions()
