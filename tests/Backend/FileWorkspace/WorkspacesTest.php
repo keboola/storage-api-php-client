@@ -65,16 +65,8 @@ class WorkspacesTest extends WorkspacesTestCase
         $this->assertSame('storage', $workspaceDeletedEvent['component']);
         $backend = new Abs($connection);
         $this->expectException(ServiceException::class);
+        $this->expectExceptionMessage('The specified container does not exist');
         $backend->listFiles();
-    }
-
-    /**
-     * @param array $connection
-     * @throws \Exception
-     */
-    private function assertCredentialsShouldNotWork($connection)
-    {
-        $this->markTestIncomplete('TODO add test');
     }
 
     public function testWorkspacePasswordReset()
