@@ -7,6 +7,7 @@ use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
+use Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions;
 use Keboola\Test\StorageApiTestCase;
 
 class BranchComponentTest extends StorageApiTestCase
@@ -61,9 +62,28 @@ class BranchComponentTest extends StorageApiTestCase
                 ->setRowId('main-1-row-1')
         );
 
+        // dummy branch to highlight potentially forgotten where on branch
+        $devBranch->createBranch($branchName . '-dummy');
+
         $branch = $devBranch->createBranch($branchName);
 
         $branchComponents = new \Keboola\StorageApi\Components($this->getBranchAwareDefaultClient($branch['id']));
+
+        $rows = $branchComponents->listConfigurationRows((new ListConfigurationRowsOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId('main-1'));
+
+        // Create new dev branch should clone all configurations and theirs config row
+        // in this case is one row in main configuration
+        $this->assertCount(1, $rows);
+
+        $row = $branchComponents->getConfigurationRow(
+            $componentId,
+            'main-1',
+            'main-1-row-1'
+        );
+
+        $this->assertEquals('main-1-row-1', $row['id']);
 
         $branchConfigs = $branchComponents->listComponentConfigurations(
             (new ListComponentConfigurationsOptions())->setComponentId($componentId)
@@ -77,6 +97,19 @@ class BranchComponentTest extends StorageApiTestCase
             ->setConfigurationId('main-2')
             ->setName('Main 2'));
 
+        // Add new configuration row to main branch shouldn't create new configuration row in dev branch
+        $components->addConfigurationRow(
+            (new ConfigurationRow($configurationOptions))
+                ->setName('Main 1 Row 2')
+                ->setRowId('main-1-row-2')
+        );
+
+        // Check new config rows added to main branch
+        $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId('main-1'));
+        $this->assertCount(2, $rows);
+
         $configs = $components->listComponentConfigurations(
             (new ListComponentConfigurationsOptions())->setComponentId($componentId)
         );
@@ -87,6 +120,33 @@ class BranchComponentTest extends StorageApiTestCase
             (new ListComponentConfigurationsOptions())->setComponentId($componentId)
         );
 
+        // Creating new configuration row in main branch shouldn't create new configuration row in dev branch
+        $rows = $branchComponents->listConfigurationRows((new ListConfigurationRowsOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId('main-1'));
+        $this->assertCount(1, $rows);
+
+        $row = $branchComponents->getConfigurationRow(
+            $componentId,
+            'main-1',
+            'main-1-row-1'
+        );
+
+        $this->assertEquals('main-1-row-1', $row['id']);
+
+        try {
+            $branchComponents->getConfigurationRow(
+                $componentId,
+                'main-1',
+                'main-1-row-2'
+            );
+            $this->fail('Configuration row created in main branch shouldn\'t exist in dev branch');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+            $this->assertSame('notFound', $e->getStringCode());
+            $this->assertContains('Row main-1-row-2 not found', $e->getMessage());
+        }
+
         // there should be the one config existing in production before creating the branch
         $this->assertCount(1, $branchConfigs);
 
@@ -96,7 +156,7 @@ class BranchComponentTest extends StorageApiTestCase
         $branchMain1Detail = $branchComponents->getConfiguration($componentId, 'main-1');
         $this->assertNotEmpty($branchMain1Detail);
         // versions are reset to 1 when copied to dev branch
-        $this->assertSame(2, $mainComponentDetail['version']);
+        $this->assertSame(3, $mainComponentDetail['version']);
         $this->assertSame(1, $branchMain1Detail['version']);
 
         try {
