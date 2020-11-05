@@ -34,11 +34,12 @@ class DevBranchesTest extends StorageApiTestCase
 
         $this->assertSame(true, $branch['isDefault']);
 
-        $this->expectException(ClientException::class);
-        $this->expectExceptionCode(400);
-        $this->expectExceptionMessage('Cannot delete Main branch');
-
-        $branches->deleteBranch($branch['id']);
+        try {
+            $branches->deleteBranch($branch['id']);
+        } catch (ClientException $e) {
+            $this->assertSame(400, $e->getCode());
+            $this->assertSame('Cannot delete Main branch', $e->getMessage());
+        }
 
         $this->assertCount(1, $branches->listBranches());
     }
