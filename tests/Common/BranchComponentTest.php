@@ -4,6 +4,7 @@ namespace Keboola\Test\Common;
 
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\DevBranches;
+use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\Test\StorageApiTestCase;
@@ -46,23 +47,31 @@ class BranchComponentTest extends StorageApiTestCase
             $devBranch->deleteBranch($branch['id']);
         }
 
+        // create new configurations in main branch
+        $componentId = 'transformation';
+        $components = new \Keboola\StorageApi\Components($this->_client);
+        $configurationOptions = (new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId('main-1')
+            ->setName('Main 1');
+        $components->addConfiguration($configurationOptions);
+        $components->addConfigurationRow(
+            (new ConfigurationRow($configurationOptions))
+                ->setName('Main 1 Row 1')
+                ->setRowId('main-1-row-1')
+        );
+
         $branch = $devBranch->createBranch($branchName);
 
         $branchComponents = new \Keboola\StorageApi\Components($this->getBranchAwareDefaultClient($branch['id']));
-        $componentId = 'transformation';
+
         $branchConfigs = $branchComponents->listComponentConfigurations(
             (new ListComponentConfigurationsOptions())->setComponentId($componentId)
         );
 
-        // empty because creating new dev branch doesn't clone configuration from main branch yet.
-        $this->assertEmpty($branchConfigs);
+        // There is only the one configuration that was copied from production
+        $this->assertCount(1, $branchConfigs);
 
-        // create new configurations in main branch
-        $components = new \Keboola\StorageApi\Components($this->_client);
-        $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
-            ->setComponentId($componentId)
-            ->setConfigurationId('main-1')
-            ->setName('Main 1'));
         $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId($componentId)
             ->setConfigurationId('main-2')
@@ -74,23 +83,29 @@ class BranchComponentTest extends StorageApiTestCase
         // two configuration was created in main branch
         $this->assertCount(2, $configs);
 
-        $configs = $branchComponents->listComponentConfigurations(
+        $branchConfigs = $branchComponents->listComponentConfigurations(
             (new ListComponentConfigurationsOptions())->setComponentId($componentId)
         );
 
-        // creating new configuration in main branch shouldn't create new configuration in dev branch
-        $this->assertEmpty($configs);
+        // there should be the one config existing in production before creating the branch
+        $this->assertCount(1, $branchConfigs);
 
         $mainComponentDetail = $components->getConfiguration($componentId, 'main-1');
         $this->assertNotEmpty($mainComponentDetail);
 
+        $branchMain1Detail = $branchComponents->getConfiguration($componentId, 'main-1');
+        $this->assertNotEmpty($branchMain1Detail);
+        // versions are reset to 1 when copied to dev branch
+        $this->assertSame(2, $mainComponentDetail['version']);
+        $this->assertSame(1, $branchMain1Detail['version']);
+
         try {
-            $branchComponents->getConfiguration($componentId, 'main-1');
-            $this->fail('Configuration created in main branch shouldn\'t exist in dev branch');
+            $branchComponents->getConfiguration($componentId, 'main-2');
+            $this->fail('Configuration created in main branch after branching shouldn\'t exist in dev branch');
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
             $this->assertSame('notFound', $e->getStringCode());
-            $this->assertContains('Configuration main-1 not found', $e->getMessage());
+            $this->assertContains('Configuration main-2 not found', $e->getMessage());
         }
 
         $mainComponentDetail  = $components->getConfiguration($componentId, 'main-1');
@@ -118,7 +133,8 @@ class BranchComponentTest extends StorageApiTestCase
         $configs = $branchComponents->listComponentConfigurations(
             (new ListComponentConfigurationsOptions())->setComponentId($componentId)
         );
-        $this->assertCount(1, $configs);
+
+        $this->assertCount(2, $configs);
 
         try {
             $components->getConfiguration('transformation', 'main-branch-1');
