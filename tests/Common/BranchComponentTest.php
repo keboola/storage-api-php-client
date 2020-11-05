@@ -62,6 +62,9 @@ class BranchComponentTest extends StorageApiTestCase
                 ->setRowId('main-1-row-1')
         );
 
+        // dummy branch to highlight potentially forgotten where on branch
+        $devBranch->createBranch($branchName . '-dummy');
+
         $branch = $devBranch->createBranch($branchName);
 
         $branchComponents = new \Keboola\StorageApi\Components($this->getBranchAwareDefaultClient($branch['id']));
