@@ -179,7 +179,7 @@ class DevBranchesTest extends StorageApiTestCase
         try {
             $branches->deleteBranch($branch['id']);
         } catch (ClientException $e) {
-            $this->validateAccessForbiddenException($e);
+            $this->assertAccessForbiddenException($e);
         }
 
         $this->assertCount(3, $adminDevBranches->listBranches());
@@ -206,7 +206,7 @@ class DevBranchesTest extends StorageApiTestCase
         try {
             $branches->createBranch($description);
         } catch (ClientException $e) {
-            $this->validateAccessForbiddenException($e);
+            $this->assertAccessForbiddenException($e);
         }
 
         $this->assertCount(2, $adminDevBranches->listBranches());
@@ -214,19 +214,19 @@ class DevBranchesTest extends StorageApiTestCase
         try {
             $branches->getBranch($branch['id']);
         } catch (ClientException $e) {
-            $this->validateAccessForbiddenException($e);
+            $this->assertAccessForbiddenException($e);
         }
 
         try {
             $branches->listBranches();
         } catch (ClientException $e) {
-            $this->validateAccessForbiddenException($e);
+            $this->assertAccessForbiddenException($e);
         }
 
         try {
             $branches->deleteBranch($branch['id']);
         } catch (ClientException $e) {
-            $this->validateAccessForbiddenException($e);
+            $this->assertAccessForbiddenException($e);
         }
 
         $this->assertCount(2, $adminDevBranches->listBranches());
@@ -246,7 +246,7 @@ class DevBranchesTest extends StorageApiTestCase
         try {
             $branches->createBranch($description);
         } catch (ClientException $e) {
-            $this->validateAccessForbiddenException($e);
+            $this->assertAccessForbiddenException($e);
         }
 
         $this->assertCount(2, $branches->listBranches());
@@ -256,13 +256,13 @@ class DevBranchesTest extends StorageApiTestCase
         try {
             $branches->deleteBranch($branch['id']);
         } catch (ClientException $e) {
-            $this->validateAccessForbiddenException($e);
+            $this->assertAccessForbiddenException($e);
         }
 
         $this->assertCount(2, $adminDevBranches->listBranches());
     }
 
-    private function validateAccessForbiddenException(ClientException $exception)
+    private function assertAccessForbiddenException(ClientException $exception)
     {
         $this->assertSame(403, $exception->getCode());
         $this->assertSame('You don\'t have access to resource.', $exception->getMessage());
