@@ -1276,6 +1276,20 @@ class TokensTest extends StorageApiTestCase
         $this->assertSame([], $token['bucketPermissions']);
     }
 
+    /**
+     * @dataProvider limitedTokenOptionsData
+     */
+    public function testReadOnlyUserCannotCreateLimitedToken(TokenCreateOptions $options)
+    {
+        $client = $this->getClientForToken(STORAGE_API_READ_ONLY_TOKEN);
+
+        $this->expectExceptionCode(403);
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('You don\'t have access to the resource.');
+
+        $client->createToken($options);
+    }
+
     public function limitedTokenOptionsData()
     {
         return [
