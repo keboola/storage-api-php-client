@@ -174,16 +174,16 @@ class BranchComponentTest extends StorageApiTestCase
         //create
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('transformation')
-            ->setConfigurationId('main-branch-1')
-            ->setName('Main Branch 1')
+            ->setConfigurationId('dev-branch-1')
+            ->setName('Dev Branch 1')
             ->setDescription('Configuration created');
 
         // create new configuration in dev branch
         $branchComponents->addConfiguration($config);
 
         // new configuration must exist in dev branch
-        $branchComponentDetail = $branchComponents->getConfiguration('transformation', 'main-branch-1');
-        $this->assertEquals('Main Branch 1', $branchComponentDetail['name']);
+        $branchComponentDetail = $branchComponents->getConfiguration('transformation', 'dev-branch-1');
+        $this->assertEquals('Dev Branch 1', $branchComponentDetail['name']);
         $this->assertEmpty($branchComponentDetail['configuration']);
         $this->assertSame('Configuration created', $branchComponentDetail['description']);
         $this->assertEquals(1, $branchComponentDetail['version']);
@@ -197,12 +197,12 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertCount(2, $configs);
 
         try {
-            $components->getConfiguration('transformation', 'main-branch-1');
+            $components->getConfiguration('transformation', 'dev-branch-1');
             $this->fail('Configuration created in dev branch shouldn\'t exist in main branch');
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
             $this->assertSame('notFound', $e->getStringCode());
-            $this->assertContains('Configuration main-branch-1 not found', $e->getMessage());
+            $this->assertContains('Configuration dev-branch-1 not found', $e->getMessage());
         }
 
         //Update
@@ -227,7 +227,7 @@ class BranchComponentTest extends StorageApiTestCase
         ];
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('transformation')
-            ->setConfigurationId('main-branch-1')
+            ->setConfigurationId('dev-branch-1')
             ->setDescription('neco')
             ->setState($state);
 
@@ -248,7 +248,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('transformation')
-            ->setConfigurationId('main-branch-1')
+            ->setConfigurationId('dev-branch-1')
             ->setDescription('');
 
         $branchComponents->updateConfiguration($config);
