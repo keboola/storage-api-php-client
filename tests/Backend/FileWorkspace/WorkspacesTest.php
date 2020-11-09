@@ -25,11 +25,11 @@ class WorkspacesTest extends FileWorkspaceTestCase
 
         $connection = $workspace['connection'];
         $backend = new Abs($workspace['connection']);
-        $this->assertCount(0, $backend->listFiles());
+        $this->assertCount(0, $backend->listFiles(null));
 
         $fileName = $backend->uploadTestingFile();
 
-        $files = $backend->listFiles();
+        $files = $backend->listFiles(null);
         $this->assertCount(1, $files);
         $this->assertEquals($files[0]->getName(), $fileName);
 
@@ -65,7 +65,7 @@ class WorkspacesTest extends FileWorkspaceTestCase
         $backend = new Abs($connection);
         $this->expectException(ServiceException::class);
         $this->expectExceptionMessage('The specified container does not exist');
-        $backend->listFiles();
+        $backend->listFiles(null);
     }
 
     public function testWorkspacePasswordReset()
@@ -84,9 +84,9 @@ class WorkspacesTest extends FileWorkspaceTestCase
         $this->assertEquals($backend, $workspace['connection']['backend']);
 
         $backend = new Abs($workspace['connection']);
-        $this->assertCount(0, $backend->listFiles());
+        $this->assertCount(0, $backend->listFiles(null));
         $fileName = $backend->uploadTestingFile();
-        $files = $backend->listFiles();
+        $files = $backend->listFiles(null);
         $this->assertCount(1, $files);
         $this->assertEquals($files[0]->getName(), $fileName);
 
@@ -109,7 +109,7 @@ class WorkspacesTest extends FileWorkspaceTestCase
 
         $workspace['connection']['connectionString'] = $newCredentials['connectionString'];
         $backend2 = new Abs($workspace['connection']);
-        $files = $backend2->listFiles();
+        $files = $backend2->listFiles(null);
         $this->assertCount(1, $files);
         $this->assertEquals($files[0]->getName(), $fileName);
     }
@@ -130,7 +130,7 @@ class WorkspacesTest extends FileWorkspaceTestCase
         // sync delete
         $workspaces->deleteWorkspace($workspace['id'], $dropOptions);
         try {
-            $backend->listFiles();
+            $backend->listFiles(null);
         } catch (ServiceException $e) {
             $this->assertEquals(404, $e->getCode(), $e->getMessage());
         }
@@ -155,6 +155,4 @@ class WorkspacesTest extends FileWorkspaceTestCase
             ],
         ];
     }
-
-
 }
