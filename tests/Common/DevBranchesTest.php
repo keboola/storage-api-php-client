@@ -36,6 +36,7 @@ class DevBranchesTest extends StorageApiTestCase
 
         try {
             $branches->deleteBranch($branch['id']);
+            $this->fail('Removing default branch should be restricted.');
         } catch (ClientException $e) {
             $this->assertSame(400, $e->getCode());
             $this->assertSame('Cannot delete Main branch', $e->getMessage());
@@ -150,6 +151,7 @@ class DevBranchesTest extends StorageApiTestCase
         // cannot delete nonexistent branch
         try {
             $branches->deleteBranch($branchId);
+            $this->fail('Delete non-existing branch should fail.');
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
             $this->assertSame(sprintf('Branch not found'), $e->getMessage());
@@ -178,6 +180,7 @@ class DevBranchesTest extends StorageApiTestCase
 
         try {
             $branches->deleteBranch($branch['id']);
+            $this->fail('Branch delete with guest role token should fail.');
         } catch (ClientException $e) {
             $this->assertAccessForbiddenException($e);
         }
@@ -205,6 +208,7 @@ class DevBranchesTest extends StorageApiTestCase
 
         try {
             $branches->createBranch($description);
+            $this->fail('Creating a new branch with non-admin token should fail.');
         } catch (ClientException $e) {
             $this->assertAccessForbiddenException($e);
         }
@@ -213,18 +217,21 @@ class DevBranchesTest extends StorageApiTestCase
 
         try {
             $branches->getBranch($branch['id']);
+            $this->fail('Branch detail with non-admin token should fail.');
         } catch (ClientException $e) {
             $this->assertAccessForbiddenException($e);
         }
 
         try {
             $branches->listBranches();
+            $this->fail('List of branches with non-admin token should fail.');
         } catch (ClientException $e) {
             $this->assertAccessForbiddenException($e);
         }
 
         try {
             $branches->deleteBranch($branch['id']);
+            $this->fail('Branch delete with non-admin token should fail.');
         } catch (ClientException $e) {
             $this->assertAccessForbiddenException($e);
         }
@@ -245,6 +252,7 @@ class DevBranchesTest extends StorageApiTestCase
 
         try {
             $branches->createBranch($description);
+            $this->fail('Creating a new branch with readOnly role token should fail.');
         } catch (ClientException $e) {
             $this->assertAccessForbiddenException($e);
         }
@@ -255,6 +263,7 @@ class DevBranchesTest extends StorageApiTestCase
 
         try {
             $branches->deleteBranch($branch['id']);
+            $this->fail('Branch delete with readOnly role token should fail.');
         } catch (ClientException $e) {
             $this->assertAccessForbiddenException($e);
         }
