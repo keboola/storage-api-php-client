@@ -116,6 +116,7 @@
 		<file>tests/Backend/Workspaces/MetadataFromSynapseWorkspaceTest.php</file>
 		<directory>tests/Backend/CommonPart1</directory>
 		<file>tests/Backend/FileWorkspace/WorkspacesTest.php</file>
+		<file>tests/Backend/FileWorkspace/WorkspacesLoadTest.php</file>
 <!--	DataPreviewLimitsTest is in tests/Backend/Synapse -->
 		<exclude>tests/Backend/CommonPart1/DataPreviewLimitsTest.php</exclude>
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
