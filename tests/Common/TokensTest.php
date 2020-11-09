@@ -1189,7 +1189,8 @@ class TokensTest extends StorageApiTestCase
 
     public function testShareRoleTokenSettings()
     {
-        $token = $this->getClientForToken(STORAGE_API_SHARE_TOKEN);
+        $client = $this->getClientForToken(STORAGE_API_SHARE_TOKEN);
+        $token = $client->verifyToken();
 
         $this->assertArrayHasKey('admin', $token);
         $this->assertArrayHasKey('role', $token['admin']);
