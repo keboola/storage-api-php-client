@@ -4,10 +4,9 @@ namespace Keboola\Test\Backend\FileWorkspace;
 
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\FileWorkspace\Backend\Abs;
-use Keboola\Test\Backend\Workspaces\WorkspacesTestCase;
 use MicrosoftAzure\Storage\Common\Exceptions\ServiceException;
 
-class WorkspacesTest extends WorkspacesTestCase
+class WorkspacesTest extends FileWorkspaceTestCase
 {
     public function testWorkspaceCreate()
     {
@@ -157,19 +156,5 @@ class WorkspacesTest extends WorkspacesTestCase
         ];
     }
 
-    /**
-     * @return string
-     */
-    private function resolveFileWorkspaceBackend()
-    {
-        $tokenInfo = $this->_client->verifyToken();
 
-        switch ($tokenInfo['owner']['fileStorageProvider']) {
-            case 'azure':
-                return 'abs';
-            case 'aws':
-            default:
-                $this->markTestIncomplete(sprintf('Other file workspace provider than abs not supported'));
-        }
-    }
 }
