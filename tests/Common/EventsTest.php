@@ -94,6 +94,7 @@ class EventsTest extends StorageApiTestCase
             [10000],
             [50000],
             [64000],
+            [128000],
         ];
     }
 
