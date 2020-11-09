@@ -3177,7 +3177,7 @@ Loads tables from Storage into a Workspace.
             + (object)
                 + Properties
                     + source (required) - Full table identifier of the source table (e.g.: in.c-bucket.mytable)
-                    + destination (required) - Destination table name
+                    + destination (required) - Destination table name or folder for file workspace
                     + rows (optional, number) - Limits the number of returned rows
                     + days (optional, number) - `DEPRECATED will be removed in the future.` Return rows created or updated in the last X days.
                     + seconds (optional, number) - Returns rows created or updated in the last X seconds.
@@ -3221,11 +3221,11 @@ Loads tables from Storage into a Workspace.
                             + all
                             + key
                     + distKey (optional) - Redshift only - Column to use for the key distribution style
-                    + incremental (optional, boolean) - Rows will be appended to an existing table
+                    + incremental (optional, boolean) - Rows will be appended to an existing table, not supported in file workspaces
                         Default: false
-                    + overwrite (optional, boolean) - When preserve is true duplicate tables will be overwritten
+                    + overwrite (optional, boolean) - When preserve is true duplicate tables will be overwritten, not supported in file workspaces data are always overwritten
                         Default: false
-    + preserve (optional, boolean) - Keep existing tables in the workspace, otherwise the workspace will be purged before loading
+    + preserve (optional, boolean) - Keep existing tables in the workspace, otherwise the workspace will be purged before loading, not supported in file worksapces data are always preserved
         Default: false
 
 + Request (application/x-www-form-urlencoded)
