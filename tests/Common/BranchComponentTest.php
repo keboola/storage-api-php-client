@@ -254,5 +254,46 @@ class BranchComponentTest extends StorageApiTestCase
         $branchComponents->updateConfiguration($config);
         $configuration = $branchComponents->getConfiguration($config->getComponentId(), $config->getConfigurationId());
         $this->assertEquals('', $configuration['description'], 'Description can be set empty');
+
+        // List components test
+        $configs = $branchComponents->listComponents();
+        $this->assertCount(1, $configs);
+
+        $branchComponents->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId('wr-db')
+            ->setConfigurationId('branch-1')
+            ->setName('Dev Branch'));
+        $branchComponents->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId('wr-db')
+            ->setConfigurationId('branch-2')
+            ->setConfiguration(array('x' => 'y'))
+            ->setName('Dev branch'));
+        $branchComponents->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId('provisioning')
+            ->setConfigurationId('branch-1')
+            ->setName('Dev Branch'));
+
+        $configs = $branchComponents->listComponents();
+        $this->assertCount(3, $configs);
+
+        $configs = $branchComponents->listComponents((new ListComponentsOptions())
+            ->setComponentType('writer'));
+
+        $this->assertCount(2, $configs[0]['configurations']);
+        $this->assertCount(1, $configs);
+
+        $configuration = $configs[0]['configurations'][0];
+        $this->assertArrayNotHasKey('configuration', $configuration);
+
+        // list with configuration body
+        $configs = $branchComponents->listComponents((new ListComponentsOptions())
+            ->setComponentType('writer')
+            ->setInclude(array('configuration')));
+
+        $this->assertCount(2, $configs[0]['configurations']);
+        $this->assertCount(1, $configs);
+
+        $configuration = $configs[0]['configurations'][0];
+        $this->assertArrayHasKey('configuration', $configuration);
     }
 }
