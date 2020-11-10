@@ -101,6 +101,7 @@ This test suite expects following environment variables set:
  - `STORAGE_API_TOKEN` - Storage API token associated to user (Admin master token) with all permissions. There are no special requirements for project storage backend.
  - `STORAGE_API_GUEST_TOKEN` - Storage API token associated to user (Admin master token) with guest role in same project as `STORAGE_API_TOKEN`.
  - `STORAGE_API_READ_ONLY_TOKEN` - Storage API token associated to user (Admin master token) with readOnly role in same project as `STORAGE_API_TOKEN`.
+ - `STORAGE_API_SHARE_TOKEN` - Storage API token associated to user (Admin master token) with share role in same project as `STORAGE_API_TOKEN`.
  - `STORAGE_API_MAINTENANCE_URL` - URL for maintenance testing (https://maintenance-testing.keboola.com/)
 
 
@@ -144,6 +145,7 @@ This test suite expects following environment variables set:
  - `STORAGE_API_URL` - URL of Keboola Storage API (https://connection.keboola.com/)
  - `STORAGE_API_TOKEN` and `STORAGE_API_LINKING_TOKEN` - Storage API token associated to user (Admin master token) with all permissions. Project must have assigned `snowflake` and `redshift` backend. STORAGE_API_TOKEN and STORAGE_API_LINKING_TOKEN have to be tokens to different project in same organization.
  - `STORAGE_API_GUEST_TOKEN` - Storage API token associated to user (Admin master token) with guest role in same project as `STORAGE_API_TOKEN`.
+ - `STORAGE_API_SHARE_TOKEN` - Storage API token associated to user (Admin master token) with share role in same project as `STORAGE_API_TOKEN`.
  - `STORAGE_API_MAINTENANCE_URL` - URL for maintenance testing (https://maintenance-testing.keboola.com/)
  - `STORAGE_API_TOKEN_ADMIN_2_IN_SAME_ORGANIZATION` - Storage API token associated to project in the same organization as `STORAGE_API_TOKEN` but with different admin as `STORAGE_API_TOKEN`.
  - `STORAGE_API_TOKEN_ADMIN_3_IN_OTHER_ORGANIZATION` - Storage API token associated to other admin as `STORAGE_API_TOKEN` and project in the other organization as `STORAGE_API_TOKEN`.
