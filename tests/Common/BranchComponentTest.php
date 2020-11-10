@@ -62,12 +62,44 @@ class BranchComponentTest extends StorageApiTestCase
                 ->setRowId('main-1-row-1')
         );
 
+        $deletedConfigurationOptions = (new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId('deleted-main')
+            ->setName('Deleted Main');
+        $components->addConfiguration($deletedConfigurationOptions);
+        $components->addConfigurationRow(
+            (new ConfigurationRow($deletedConfigurationOptions))
+                ->setName('Deleted Main Row 1')
+                ->setRowId('deleted-main-row-1')
+        );
+        // configuration exists
+        $components->getConfiguration($componentId, 'deleted-main');
+        $components->deleteConfiguration($componentId, 'deleted-main');
+        // configuration is deleted
+        try {
+            $components->getConfiguration($componentId, 'deleted-main');
+            $this->fail('Configuration should be deleted in the main branch');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+            $this->assertSame('notFound', $e->getStringCode());
+            $this->assertContains('Configuration deleted-main not found', $e->getMessage());
+        }
+
         // dummy branch to highlight potentially forgotten where on branch
         $devBranch->createBranch($branchName . '-dummy');
 
         $branch = $devBranch->createBranch($branchName);
 
         $branchComponents = new \Keboola\StorageApi\Components($this->getBranchAwareDefaultClient($branch['id']));
+
+        try {
+            $branchComponents->getConfiguration($componentId, 'deleted-main');
+            $this->fail('Configuration deleted in the main branch shouldn\'t exist in dev branch');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+            $this->assertSame('notFound', $e->getStringCode());
+            $this->assertContains('Configuration deleted-main not found', $e->getMessage());
+        }
 
         $rows = $branchComponents->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId($componentId)
