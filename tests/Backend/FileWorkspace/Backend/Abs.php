@@ -4,6 +4,7 @@ namespace Keboola\Test\Backend\FileWorkspace\Backend;
 
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Blob\Models\Blob;
+use MicrosoftAzure\Storage\Common\Middlewares\RetryMiddlewareFactory;
 
 class Abs
 {
@@ -33,7 +34,9 @@ class Abs
      */
     public function getClient()
     {
-        return BlobRestProxy::createBlobService($this->connectionString);
+        $blobClient = BlobRestProxy::createBlobService($this->connectionString);
+        $blobClient->pushMiddleware(RetryMiddlewareFactory::create());
+        return $blobClient;
     }
 
     /**

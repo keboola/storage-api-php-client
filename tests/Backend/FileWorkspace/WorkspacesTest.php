@@ -2,7 +2,6 @@
 
 namespace Keboola\Test\Backend\FileWorkspace;
 
-use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\FileWorkspace\Backend\Abs;
 use Keboola\Test\Backend\Workspaces\WorkspacesTestCase;
@@ -72,7 +71,48 @@ class WorkspacesTest extends WorkspacesTestCase
 
     public function testWorkspacePasswordReset()
     {
-        $this->markTestIncomplete('TODO add test');
+        $workspaces = new Workspaces($this->_client);
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        $backend = $this->resolveFileWorkspaceBackend();
+
+        $workspace = $workspaces->createWorkspace([
+            'backend' => $backend,
+        ]);
+
+        $this->assertEquals($backend, $workspace['connection']['backend']);
+
+        $backend = new Abs($workspace['connection']);
+        $this->assertCount(0, $backend->listFiles());
+        $fileName = $backend->uploadTestingFile();
+        $files = $backend->listFiles();
+        $this->assertCount(1, $files);
+        $this->assertEquals($files[0]->getName(), $fileName);
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        $newCredentials = $workspaces->resetWorkspacePassword($workspace['id']);
+        $this->assertArrayHasKey("connectionString", $newCredentials);
+
+        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
+
+        $events = $this->_client->listEvents([
+            'runId' => $runId,
+        ]);
+
+        $workspaceCreatedEvent = array_pop($events);
+        $this->assertSame($runId, $workspaceCreatedEvent['runId']);
+        $this->assertSame('storage.workspacePasswordReset', $workspaceCreatedEvent['event']);
+        $this->assertSame('storage', $workspaceCreatedEvent['component']);
+
+        $workspace['connection']['connectionString'] = $newCredentials['connectionString'];
+        $backend2 = new Abs($workspace['connection']);
+        $files = $backend2->listFiles();
+        $this->assertCount(1, $files);
+        $this->assertEquals($files[0]->getName(), $fileName);
     }
 
     /**
