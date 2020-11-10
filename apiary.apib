@@ -3358,7 +3358,7 @@ when any of the row values were changed during an incremental import.
 
 ## Password reset [/v2/storage/workspaces/{workspace_id}/password]
 ### Password reset  [POST]
-Generates new password for the given workspace
+Generates new password for the given workspace, for file workspace new token with 24hours expiration is issued previously created tokens has to expire and can't be reset.
 
 + Parameters
     + workspace_id (number)
