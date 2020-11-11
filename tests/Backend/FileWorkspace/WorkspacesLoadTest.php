@@ -93,6 +93,19 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $blobs = $backend->listFiles('numbersLoaded');
         $this->assertCount(0, $blobs);
         $this->assertManifest($backend, 'second');
+
+        // load table again to same destination with preserve
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Table second already exists in workspace');
+        $workspaces->loadWorkspaceData($workspace['id'], [
+            "input" => [
+                [
+                    "source" => $table1Id,
+                    "destination" => "second",
+                ],
+            ],
+            'preserve' => true,
+        ]);
     }
 
     public function testWorkspaceLoadAliasTable()
