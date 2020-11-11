@@ -5278,12 +5278,96 @@ Gets configuration rows.
                 }
             ]
 
+### Row List For Development Branch [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows]
+Gets configuration rows for [Development Branch](#reference/development-branches).
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+
++ Response 200 (application/json)
+
+            [
+                {
+                    "id": "236781529",
+                    "configuration": {},
+                    "state": {},
+                    "name": "",
+                    "description": "",
+                    "isDisabled": false,
+                    "version": 1,
+                    "created": "2017-02-15T00:04:42+0100",
+                    "creatorToken": {
+                        "id": 27978,
+                        "description": "ondrej.popelka@keboola.com"
+                    },
+                    "changeDescription": "Row 236781529 added"
+                },
+                {
+                    "id": "236781639",
+                    "configuration": {
+                        "host": "localhost",
+                        "port": 4406
+                    },
+                    "state": {},
+                    "name": "",
+                    "description": "",
+                    "isDisabled": false,
+                    "version": 1,
+                    "created": "2017-02-15T00:05:29+0100",
+                    "creatorToken": {
+                        "id": 27978,
+                        "description": "ondrej.popelka@keboola.com"
+                    },
+                    "changeDescription": "Added new row"
+                }
+            ]
 
 ## Manage Configuration Rows [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}]
 ### Row detail [GET]
 Gets configuration rows.
 
 + Parameters
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration
+    + row_id (required) - Id of the configuration row
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+
++ Response 200 (application/json)
+
+            {
+                "id": "236781529",
+                "configuration": {},
+                "state": {},
+                "name": "",
+                "description": "",
+                "isDisabled": false,
+                "version": 1,
+                "created": "2017-02-15T00:04:42+0100",
+                "creatorToken": {
+                    "id": 27978,
+                    "description": "name@example.com"
+                },
+                "changeDescription": "Row 236781529 added"
+            }
+
+### Row detail for Development Branch [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}]
+Gets configuration rows for [Development Branch](#reference/development-branches).
+
++ Parameters
+    + branch_id (required) - Id of the development branch
     + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
     + config_id (required) - Id of the configuration
     + row_id (required) - Id of the configuration row
