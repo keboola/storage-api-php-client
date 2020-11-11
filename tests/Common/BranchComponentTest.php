@@ -62,12 +62,44 @@ class BranchComponentTest extends StorageApiTestCase
                 ->setRowId('main-1-row-1')
         );
 
+        $deletedConfigurationOptions = (new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId('deleted-main')
+            ->setName('Deleted Main');
+        $components->addConfiguration($deletedConfigurationOptions);
+        $components->addConfigurationRow(
+            (new ConfigurationRow($deletedConfigurationOptions))
+                ->setName('Deleted Main Row 1')
+                ->setRowId('deleted-main-row-1')
+        );
+        // configuration exists
+        $components->getConfiguration($componentId, 'deleted-main');
+        $components->deleteConfiguration($componentId, 'deleted-main');
+        // configuration is deleted
+        try {
+            $components->getConfiguration($componentId, 'deleted-main');
+            $this->fail('Configuration should be deleted in the main branch');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+            $this->assertSame('notFound', $e->getStringCode());
+            $this->assertContains('Configuration deleted-main not found', $e->getMessage());
+        }
+
         // dummy branch to highlight potentially forgotten where on branch
         $devBranch->createBranch($branchName . '-dummy');
 
         $branch = $devBranch->createBranch($branchName);
 
         $branchComponents = new \Keboola\StorageApi\Components($this->getBranchAwareDefaultClient($branch['id']));
+
+        try {
+            $branchComponents->getConfiguration($componentId, 'deleted-main');
+            $this->fail('Configuration deleted in the main branch shouldn\'t exist in dev branch');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+            $this->assertSame('notFound', $e->getStringCode());
+            $this->assertContains('Configuration deleted-main not found', $e->getMessage());
+        }
 
         $rows = $branchComponents->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId($componentId)
@@ -171,19 +203,64 @@ class BranchComponentTest extends StorageApiTestCase
         $mainComponentDetail  = $components->getConfiguration($componentId, 'main-1');
         $this->assertSame('main-1', $mainComponentDetail['id']);
 
+        // add two config rows to test rowsSortOrder
+        $branchComponents->addConfigurationRow(
+            (new ConfigurationRow($configurationOptions))
+                ->setName('Dev 1 Row 1')
+                ->setRowId('dev-1-row-1')
+        );
+
+        $configurationOptions->setRowsSortOrder(['main-1-row-1', 'dev-1-row-1']);
+        $branchComponents->updateConfiguration($configurationOptions);
+
+        $branchComponents->addConfigurationRow(
+            (new ConfigurationRow($configurationOptions))
+                ->setName('Dev 1 Row 3')
+                ->setRowId('dev-1-row-3')
+        );
+
+        $rows = $branchComponents->listConfigurationRows((new ListConfigurationRowsOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId('main-1'));
+
+        $this->assertEquals('main-1-row-1', $rows[0]['id']);
+        $this->assertEquals('dev-1-row-1', $rows[1]['id']);
+        $this->assertEquals('dev-1-row-3', $rows[2]['id']);
+        $this->assertCount(3, $rows);
+
+        // all version should be 1 until we implement versioning for dev branch
+        $this->assertEquals(1, $rows[0]['version']);
+        $this->assertEquals(1, $rows[1]['version']);
+        $this->assertEquals(1, $rows[2]['version']);
+        $devBranchConfiguration = $branchComponents->getConfiguration($componentId, 'main-1');
+        $this->assertEquals(1, $devBranchConfiguration['version']);
+
+        try {
+            $components->getConfigurationRow(
+                $componentId,
+                'main-1',
+                'dev-1-row-1'
+            );
+            $this->fail('Configuration row created in dev branch shouldn\'t exist in main branch');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+            $this->assertSame('notFound', $e->getStringCode());
+            $this->assertContains('Row dev-1-row-1 not found', $e->getMessage());
+        }
+
         //create
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('transformation')
-            ->setConfigurationId('main-branch-1')
-            ->setName('Main Branch 1')
+            ->setConfigurationId('dev-branch-1')
+            ->setName('Dev Branch 1')
             ->setDescription('Configuration created');
 
         // create new configuration in dev branch
         $branchComponents->addConfiguration($config);
 
         // new configuration must exist in dev branch
-        $branchComponentDetail = $branchComponents->getConfiguration('transformation', 'main-branch-1');
-        $this->assertEquals('Main Branch 1', $branchComponentDetail['name']);
+        $branchComponentDetail = $branchComponents->getConfiguration('transformation', 'dev-branch-1');
+        $this->assertEquals('Dev Branch 1', $branchComponentDetail['name']);
         $this->assertEmpty($branchComponentDetail['configuration']);
         $this->assertSame('Configuration created', $branchComponentDetail['description']);
         $this->assertEquals(1, $branchComponentDetail['version']);
@@ -197,12 +274,12 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertCount(2, $configs);
 
         try {
-            $components->getConfiguration('transformation', 'main-branch-1');
+            $components->getConfiguration('transformation', 'dev-branch-1');
             $this->fail('Configuration created in dev branch shouldn\'t exist in main branch');
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
             $this->assertSame('notFound', $e->getStringCode());
-            $this->assertContains('Configuration main-branch-1 not found', $e->getMessage());
+            $this->assertContains('Configuration dev-branch-1 not found', $e->getMessage());
         }
 
         //Update
@@ -212,6 +289,7 @@ class BranchComponentTest extends StorageApiTestCase
         $config->setName($newName)
             ->setDescription($newDesc)
             ->setConfiguration($configurationData);
+        $config->setRowsSortOrder([]);
         $branchComponents->updateConfiguration($config);
 
         $configuration = $branchComponents->getConfiguration($config->getComponentId(), $config->getConfigurationId());
@@ -227,7 +305,7 @@ class BranchComponentTest extends StorageApiTestCase
         ];
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('transformation')
-            ->setConfigurationId('main-branch-1')
+            ->setConfigurationId('dev-branch-1')
             ->setDescription('neco')
             ->setState($state);
 
@@ -248,7 +326,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('transformation')
-            ->setConfigurationId('main-branch-1')
+            ->setConfigurationId('dev-branch-1')
             ->setDescription('');
 
         $branchComponents->updateConfiguration($config);
