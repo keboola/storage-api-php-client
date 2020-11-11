@@ -79,6 +79,20 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
             $data,
             0
         );
+        // load table again to new destination to test if workspace was cleared
+        $workspaces->loadWorkspaceData($workspace['id'], [
+            "input" => [
+                [
+                    "source" => $table1Id,
+                    "destination" => "second",
+                ],
+            ],
+        ]);
+        $blobs = $backend->listFiles('languagesLoaded');
+        $this->assertCount(0, $blobs);
+        $blobs = $backend->listFiles('numbersLoaded');
+        $this->assertCount(0, $blobs);
+        $this->assertManifest($backend, 'second');
     }
 
     public function testWorkspaceLoadAliasTable()
