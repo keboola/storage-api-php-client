@@ -5612,6 +5612,53 @@ independently on the configurations.
                 "changeDescription": "change description"
             }
 
+### Update Row For Development Branch [PUT /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}]
+Modifies the content of a single row in [Development Branch](#reference/development-branches). Note that configuration rows are versioned
+independently on the configurations.
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration
+    + row_id (required) - Id of the configuration row
+
++ Attributes
+    + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB
+    + state (optional) - Serialized configuration state JSON; the maximum allowed size is 4MB
+    + name (optional, string) - Row name
+    + description (optional, string) - Row description
+    + isDisabled (optional, boolean) - Disabled flag
+    + changeDescription (optional) - Version change description
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            configuration=%7B%22host%22%3A+%22localhost%22%2C+%22port%22%3A+null%7D&changeDescription=change+description
+
++ Response 200 (application/json)
+
+            {
+                "id": "236781529",
+                "configuration": {
+                    "host": "localhost",
+                    "port": null
+                },
+                "state": {},
+                "name": "",
+                "description": "",
+                "isDisabled": false,
+                "version": 2,
+                "created": "2017-02-15T00:04:42+0100",
+                "creatorToken": {
+                    "id": 27978,
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "changeDescription": "change description"
+            }
 
 ### Delete Row [DELETE]
 Deletes a configuration row. A configuration row is deleted permanently and cannot be restored.
