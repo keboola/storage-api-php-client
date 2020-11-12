@@ -73,6 +73,48 @@ class EventsTest extends StorageApiTestCase
     }
 
     /**
+     * @dataProvider largeEventWithinMaxSizeLimitDataProvider
+     * @param $messageLength
+     * @throws \Exception
+     */
+    public function testLargeEventWithinMaxSizeLimit($messageLength)
+    {
+        $largeMessage = str_repeat('x', $messageLength);
+        $event = new Event();
+        $event->setComponent('ex-sfdc')
+            ->setMessage($largeMessage);
+
+        $savedEvent = $this->createAndWaitForEvent($event);
+        $this->assertEquals($largeMessage, $savedEvent['message']);
+    }
+
+    public function largeEventWithinMaxSizeLimitDataProvider()
+    {
+        return [
+            [10000],
+            [50000],
+            [64000],
+            [128000],
+            [190000],
+        ];
+    }
+
+    public function testLargeEventOverLimitShouldNotBeCreated()
+    {
+        $largeMessage = str_repeat('x', 250000);
+        $event = new Event();
+        $event->setComponent('ex-sfdc')
+            ->setMessage($largeMessage);
+
+        try {
+            $this->createAndWaitForEvent($event);
+            $this->fail('event should not be created');
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertEquals('requestTooLarge', $e->getStringCode());
+        }
+    }
+
+    /**
      * @expectedException \Keboola\StorageApi\Exception
      */
     public function testInvalidType()
