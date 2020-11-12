@@ -4,10 +4,9 @@ namespace Keboola\Test\Backend\FileWorkspace;
 
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\FileWorkspace\Backend\Abs;
-use Keboola\Test\Backend\Workspaces\WorkspacesTestCase;
 use MicrosoftAzure\Storage\Common\Exceptions\ServiceException;
 
-class WorkspacesTest extends WorkspacesTestCase
+class WorkspacesTest extends FileWorkspaceTestCase
 {
     public function testWorkspaceCreate()
     {
@@ -26,11 +25,11 @@ class WorkspacesTest extends WorkspacesTestCase
 
         $connection = $workspace['connection'];
         $backend = new Abs($workspace['connection']);
-        $this->assertCount(0, $backend->listFiles());
+        $this->assertCount(0, $backend->listFiles(null));
 
         $fileName = $backend->uploadTestingFile();
 
-        $files = $backend->listFiles();
+        $files = $backend->listFiles(null);
         $this->assertCount(1, $files);
         $this->assertEquals($files[0]->getName(), $fileName);
 
@@ -66,7 +65,7 @@ class WorkspacesTest extends WorkspacesTestCase
         $backend = new Abs($connection);
         $this->expectException(ServiceException::class);
         $this->expectExceptionMessage('The specified container does not exist');
-        $backend->listFiles();
+        $backend->listFiles(null);
     }
 
     public function testWorkspacePasswordReset()
@@ -85,9 +84,9 @@ class WorkspacesTest extends WorkspacesTestCase
         $this->assertEquals($backend, $workspace['connection']['backend']);
 
         $backend = new Abs($workspace['connection']);
-        $this->assertCount(0, $backend->listFiles());
+        $this->assertCount(0, $backend->listFiles(null));
         $fileName = $backend->uploadTestingFile();
-        $files = $backend->listFiles();
+        $files = $backend->listFiles(null);
         $this->assertCount(1, $files);
         $this->assertEquals($files[0]->getName(), $fileName);
 
@@ -110,7 +109,7 @@ class WorkspacesTest extends WorkspacesTestCase
 
         $workspace['connection']['connectionString'] = $newCredentials['connectionString'];
         $backend2 = new Abs($workspace['connection']);
-        $files = $backend2->listFiles();
+        $files = $backend2->listFiles(null);
         $this->assertCount(1, $files);
         $this->assertEquals($files[0]->getName(), $fileName);
     }
@@ -131,7 +130,7 @@ class WorkspacesTest extends WorkspacesTestCase
         // sync delete
         $workspaces->deleteWorkspace($workspace['id'], $dropOptions);
         try {
-            $backend->listFiles();
+            $backend->listFiles(null);
         } catch (ServiceException $e) {
             $this->assertEquals(404, $e->getCode(), $e->getMessage());
         }
@@ -155,21 +154,5 @@ class WorkspacesTest extends WorkspacesTestCase
                 ],
             ],
         ];
-    }
-
-    /**
-     * @return string
-     */
-    private function resolveFileWorkspaceBackend()
-    {
-        $tokenInfo = $this->_client->verifyToken();
-
-        switch ($tokenInfo['owner']['fileStorageProvider']) {
-            case 'azure':
-                return 'abs';
-            case 'aws':
-            default:
-                $this->markTestIncomplete(sprintf('Other file workspace provider than abs not supported'));
-        }
     }
 }
