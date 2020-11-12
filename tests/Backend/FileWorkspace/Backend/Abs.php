@@ -117,8 +117,6 @@ class Abs
     private function exportFile($prefix, $isCompressed, $columns)
     {
         $client = $this->getClient();
-        var_export($this->container);
-        var_export($prefix . 'manifest');
         $manifest = $client->getBlob(
             $this->container,
             $prefix . 'manifest'
