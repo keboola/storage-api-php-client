@@ -244,6 +244,23 @@ class BranchComponentTest extends StorageApiTestCase
         $devBranchConfiguration = $branchComponents->getConfiguration($componentId, 'main-1');
         $this->assertEquals(1, $devBranchConfiguration['version']);
 
+        $branchComponents->updateConfigurationRow(
+            (new ConfigurationRow($configurationOptions))
+                ->setRowId('dev-1-row-1')
+                ->setName('Renamed Dev 1 Row 1')
+                ->setConfiguration('{"id":"10","stuff":"true"}')
+        );
+
+        $updatedRow = $branchComponents->getConfigurationRow(
+            $componentId,
+            'main-1',
+            'dev-1-row-1'
+        );
+
+        $this->assertEquals('Renamed Dev 1 Row 1', $updatedRow['name']);
+        $this->assertEquals('{"id":"10","stuff":"true"}', $updatedRow['configuration'][0]);
+        $this->assertEquals(1, $updatedRow['version']);
+
         try {
             $components->getConfigurationRow(
                 $componentId,
