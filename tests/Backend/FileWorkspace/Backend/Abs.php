@@ -93,10 +93,19 @@ class Abs
     {
         $filePath = tempnam(sys_get_temp_dir(), 'abs-file-upload');
         file_put_contents($filePath, 'We fight for data');
-        $content = fopen($filePath, "rb");
-        $this->getClient()->createBlockBlob($this->container, basename($filePath), $content);
+        $this->uploadFile($filePath, basename($filePath));
 
         return basename($filePath);
+    }
+
+    /**
+     * @param string $filePath
+     * @param string $destinationName
+     */
+    public function uploadFile($filePath, $destinationName)
+    {
+        $content = fopen($filePath, "rb");
+        $this->getClient()->createBlockBlob($this->container, $destinationName, $content);
     }
 
     /**
