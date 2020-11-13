@@ -9,6 +9,7 @@ use GuzzleHttp\Psr7\Response;
 use Keboola\StorageApi\Options\BucketUpdateOptions;
 use Keboola\StorageApi\Options\FileUploadTransferOptions;
 use Keboola\StorageApi\Options\GetFileOptions;
+use Keboola\StorageApi\Options\IndexOptions;
 use Keboola\StorageApi\Options\ListFilesOptions;
 use Keboola\StorageApi\Options\SearchTablesOptions;
 use Keboola\StorageApi\Options\StatsOptions;
@@ -181,9 +182,14 @@ class Client
      * API index with available components list
      * @return array
      */
-    public function indexAction()
+    public function indexAction(IndexOptions $options = null)
     {
-        return $this->apiGet("");
+        $url = '';
+
+        if ($options !== null) {
+            $url .= '?' . http_build_query($options->toArray());
+        }
+        return $this->apiGet($url);
     }
 
     public function webalizeDisplayName($displayName)
