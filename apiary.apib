@@ -1543,7 +1543,7 @@ The actual data must be provided in one of the following attributes:
 
 - `dataFileId`,
 - `snapshotId`,
-- `dataWorkspaceId` and `dataTableName`
+- `dataWorkspaceId` and `dataObject`
 - `sourceTableId`
 
 + Parameters
@@ -1554,7 +1554,8 @@ The actual data must be provided in one of the following attributes:
     + dataFileId (optional) - Id of the file stored in [File Uploads](#reference/files)
     + snapshotId (optional) - Id of a table snapshot - a table will be created from the snapshot.
     + dataWorkspaceId (optional) - Load from the table [workspace](#reference/workspaces). Use with the **dataTableName** attribute.
-    + dataTableName (optional) - Load from a table in [workspace](#reference/workspaces).
+    + dataTableName (optional) - (deprecated use dataObject) Load from the table in the [workspace](#reference/workspaces).
+    + dataObject (optional) - Load from the table/file in the [workspace](#reference/workspaces).
     + sourceTableId (optional) - Create time travel snapshot of this table.
     + timestamp (optional) - Datetime string to be used for the time travel snapshot. Use with the **sourceTableId** attribute. The preferred format is `YYYY-MM-DD hh:mm:ss Z`, other formats may also work, but time zone is required.
     + delimiter (optional) - Field delimiter used in the CSV file. The default value is ','.  Use '\t' or type the tab char for the tabulator.
@@ -1669,7 +1670,7 @@ The actual data must be provided in one of the following attributes:
 
 - **dataFileId**,
 - **snapshotId**,
-- **dataWorkspaceId** and **dataTableName**
+- **dataWorkspaceId** and **dataObject** (older "dataTableName" is deprecated)
 
 An imported file can be sliced into multiple chunks; the conditions described in [File Uploads](#reference/files) must be satisfied.
 The CSV file can be raw or gzipped. Gzipped files must have the extension `.gz`. A typical asynchronous import negotiation consists of these steps:
@@ -1677,6 +1678,15 @@ The CSV file can be raw or gzipped. Gzipped files must have the extension `.gz`.
 1. Upload a CSV file using [File Upload](#reference/files).
 2. Submit an [asynchronous import request](#reference/tables/load-data-asynchronously/imports-data) with `dataFileId` set to the File Id returned in the previous step.
 3. Poll job resource returned in the previous step until the `status` is `success` or `error`.
+
+Import from table and file workspace is supported.
+
+- For table workspace use dataWorkspaceId and set dataObject with name of source table.
+- For file workspace use dataWorkspaceId and dataObject can be:
+  - single file `file.csv`
+  - folder `folder/` (mind the trailing slash)
+  - manifest `file.csvmanifest`
+- For file workspace always use `columns[]` attribute with lost of imported columns
 
 Further information can be found in the [Developers Documentation](https://developers.keboola.com/integrate/storage/api/import-export/).
 
@@ -1687,7 +1697,8 @@ Further information can be found in the [Developers Documentation](https://devel
     + dataFileId (optional) - Id of the file stored in [File Uploads](#reference/files); all gzipped and sliced files are supported.
     + snapshotId (optional) - Id of a table snapshot - a table will be created from the snapshot.
     + dataWorkspaceId (optional) - Load from the table [workspace](#reference/workspaces). Use with the **dataTableName** attribute.
-    + dataTableName (optional) - Load from the table in the [workspace](#reference/workspaces).
+    + dataTableName (optional) - (deprecated use dataObject) Load from the table in the [workspace](#reference/workspaces).
+    + dataObject (optional) - Load from the table/file in the [workspace](#reference/workspaces).
     + incremental (optional, number) - If incremental is set to 0, the target table is truncated before each import.
         Default: 0
     + delimiter (optional) - Field delimiter used in the CSV file. The default value is ','.  Use '\t' or type the tab char for tabulator.

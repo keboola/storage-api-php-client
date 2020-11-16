@@ -966,23 +966,6 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
     }
 
     /**
-     * @param Workspaces $workspaces
-     * @return array
-     */
-    private function createFileWorkspace(Workspaces $workspaces)
-    {
-        $runId = $this->_client->generateRunId();
-        $this->_client->setRunId($runId);
-
-        $backendType = $this->resolveFileWorkspaceBackend();
-
-        $workspace = $workspaces->createWorkspace([
-            'backend' => $backendType,
-        ]);
-        return $workspace;
-    }
-
-    /**
      * @param Abs $backend
      * @param string $destination
      */
