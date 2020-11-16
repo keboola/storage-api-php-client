@@ -37,6 +37,11 @@ final class HandlerStack
             ResponseInterface $response = null,
             $error = null
         ) use ($maxRetries) {
+            // don't do retry if server returns 501 not implemented
+            if ($response && $response->getStatusCode() === 501) {
+                return false;
+            }
+
             if ($retries >= $maxRetries) {
                 return false;
             } elseif ($response && $response->getStatusCode() > 499) {
