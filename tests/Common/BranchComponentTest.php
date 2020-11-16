@@ -321,6 +321,22 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertEquals([], $configuration['state']);
         $this->assertEmpty($configuration['changeDescription']);
 
+        $state = [
+            'cache' => false,
+        ];
+
+        $configState = (new \Keboola\StorageApi\Options\Components\ConfigurationState())
+            ->setComponentId('transformation')
+            ->setConfigurationId('dev-branch-1')
+            ->setState($state)
+        ;
+
+        $updatedConfig = $branchComponents->updateConfigurationState($configState);
+        $this->assertEquals($state, $updatedConfig['state']);
+
+        $configuration = $branchComponents->getConfiguration($config->getComponentId(), $config->getConfigurationId());
+        $this->assertEquals($state, $configuration['state']);
+
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('transformation')
             ->setConfigurationId('dev-branch-1')
@@ -374,15 +390,13 @@ class BranchComponentTest extends StorageApiTestCase
         // restrict state change on configuration update
         $configuration = $branchComponents->getConfiguration($config->getComponentId(), $config->getConfigurationId());
 
-        $state = [
-            'cache' => true,
-        ];
-
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('transformation')
             ->setConfigurationId('dev-branch-1')
             ->setChangeDescription('updated state')
-            ->setState($state)
+            ->setState([
+                'cache' => true,
+            ])
         ;
 
         try {
