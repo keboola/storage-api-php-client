@@ -923,6 +923,7 @@ class Client
             'escapedBy',
             'dataFileId',
             'dataTableName',
+            'dataObject',
             'dataWorkspaceId',
             'data',
             'withoutHeaders',
