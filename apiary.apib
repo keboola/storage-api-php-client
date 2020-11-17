@@ -4837,7 +4837,7 @@ marked as `currentVersion`.
     + name (required) - Configuration name
     + description (optional) - Configuration description
     + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB
-    + state (optional) - Serialized configuration state JSON; the maximum allowed size is 4MB
+    + state (optional) - **DEPRECATED will be removed in the future. For state updates use [state endpoint](#reference/component-configurations/manage-configurations/update-configuration-state).**  Serialized configuration state JSON; the maximum allowed size is 4MB.
     + changeDescription (optional) - Description of the configuration modification
     + rowsSortOrder (optional) - Array of row ids in desired order, you have to specify all row ids
 
@@ -4896,7 +4896,6 @@ Updates an existing configuration for [Development Branch](#reference/developmen
     + name (required) - Configuration name
     + description (optional) - Configuration description
     + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB
-    + state (optional) - Serialized configuration state JSON; the maximum allowed size is 4MB
     + changeDescription (optional) - Description of the configuration modification
     + rowsSortOrder (optional) - Array of row ids in desired order, you have to specify all row ids
 
@@ -4908,6 +4907,113 @@ Updates an existing configuration for [Development Branch](#reference/developmen
     + Body
 
             configuration=%7B%22key%22%3A%22value%22%2C+%22key2%22%3A%22value2%22%2C+%22key3%22%3A+%22value3%22%7D&changeDescription=Added+new+key
+
+
++ Response 200 (application/json)
+    + Body
+
+            {
+                "id": "236606822",
+                "name": "My new configuration",
+                "description": "",
+                "created": "2017-02-14T14:38:26+0100",
+                "creatorToken": {
+                    "id": 27978,
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "version": 2,
+                "changeDescription": "Added new key",
+                "isDeleted": false,
+                "configuration": {
+                    "key": "value",
+                    "key2": "value2",
+                    "key3": "value3"
+                },
+                "rowsSortOrder": [],
+                "rows": [],
+                "state": {},
+                "currentVersion": {
+                    "created": "2017-02-14T14:48:41+0100",
+                    "creatorToken": {
+                        "id": 27978,
+                        "description": "ondrej.popelka@keboola.com"
+                    },
+                    "changeDescription": "Added new key"
+                }
+            }
+
+### Update Configuration State [PUT /v2/storage/components/{component_id}/configs/{config_id}/state]
+Updates state of an existing configuration.
+
++ Parameters
+    + component_id (required) - Id of the component
+    + config_id (required) - Id of the configuration
+
++ Attributes
+    + required (optional) - Serialized configuration state JSON; the maximum allowed size is 4MB
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            state%3D%7B%22lastId%22%3A123%7D
+
+
++ Response 200 (application/json)
+    + Body
+
+            {
+                "id": "236606822",
+                "name": "My new configuration",
+                "description": "",
+                "created": "2017-02-14T14:38:26+0100",
+                "creatorToken": {
+                    "id": 27978,
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "version": 2,
+                "changeDescription": "Added new key",
+                "isDeleted": false,
+                "configuration": {
+                    "key": "value",
+                    "key2": "value2",
+                    "key3": "value3"
+                },
+                "rowsSortOrder": [],
+                "rows": [],
+                "state": {},
+                "currentVersion": {
+                    "created": "2017-02-14T14:48:41+0100",
+                    "creatorToken": {
+                        "id": 27978,
+                        "description": "ondrej.popelka@keboola.com"
+                    },
+                    "changeDescription": "Added new key"
+                }
+            }
+
+### Update Development Branch Configuration State [PUT /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/state]
+Updates state of an existing configuration for [Development Branch](#reference/development-branches).
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + component_id (required) - Id of the component
+    + config_id (required) - Id of the configuration
+
++ Attributes
+    + state (required) - Serialized configuration state JSON; the maximum allowed size is 4MB
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            state%3D%7B%22lastId%22%3A123%7D
 
 
 + Response 200 (application/json)
