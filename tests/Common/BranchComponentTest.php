@@ -101,6 +101,15 @@ class BranchComponentTest extends StorageApiTestCase
             $this->assertContains('Configuration deleted-main not found', $e->getMessage());
         }
 
+        try {
+            $branchComponents->deleteConfigurationRow($componentId, 'main-1', 'main-1-row-1');
+            $this->fail('Configuration row cannot be deleted in dev branch');
+        } catch (ClientException $e) {
+            $this->assertSame(501, $e->getCode());
+            $this->assertSame('notImplemented', $e->getStringCode());
+            $this->assertContains('Not implemented', $e->getMessage());
+        }
+
         $rows = $branchComponents->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId($componentId)
             ->setConfigurationId('main-1'));
