@@ -22,9 +22,9 @@ class SharingTest extends StorageApiSharingTestCase
     public function workspaceMixedBackendData()
     {
         return [
-            [self::BACKEND_SNOWFLAKE, self::BACKEND_SNOWFLAKE],
-            [self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE],
-            [self::BACKEND_SYNAPSE, self::BACKEND_SNOWFLAKE],
+            //[self::BACKEND_SNOWFLAKE, self::BACKEND_SNOWFLAKE],
+            //[self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE],
+            //[self::BACKEND_SYNAPSE, self::BACKEND_SNOWFLAKE],
             [self::BACKEND_SYNAPSE, self::BACKEND_SYNAPSE],
         ];
     }
@@ -52,13 +52,13 @@ class SharingTest extends StorageApiSharingTestCase
         $table1Id = $this->_client->createTable(
             $bucketId,
             'languages',
-            new CsvFile(__DIR__ . '/../../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
 
         $table2Id = $this->_client->createTable(
             $bucketId,
             'numbers',
-            new CsvFile(__DIR__ . '/../../../_data/numbers.csv')
+            new CsvFile(__DIR__ . '/../../_data/numbers.csv')
         );
 
         $table3Id = $this->_client->createAliasTable(
@@ -155,7 +155,7 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertArrayHasKey('id', $data[0]);
         $this->assertArrayHasKey('name', $data[0]);
         $this->assertArrayEqualsSorted(
-            Client::parseCsv(file_get_contents(__DIR__ . '/../../../_data/languages.csv'), true, ",", '"'),
+            Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ",", '"'),
             $data,
             'id'
         );
@@ -165,7 +165,7 @@ class SharingTest extends StorageApiSharingTestCase
         $table3Id = $this->_client->createTable(
             $bucketId,
             'numbersLater',
-            new CsvFile(__DIR__ . '/../../../_data/numbers.csv')
+            new CsvFile(__DIR__ . '/../../_data/numbers.csv')
         );
 
         $mapping3 = array("source" => str_replace($bucketId, $linkedId, $table3Id), "destination" => "table3");
