@@ -22,9 +22,9 @@ class SharingTest extends StorageApiSharingTestCase
     public function workspaceMixedBackendData()
     {
         return [
-            //[self::BACKEND_SNOWFLAKE, self::BACKEND_SNOWFLAKE],
-            //[self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE],
-            //[self::BACKEND_SYNAPSE, self::BACKEND_SNOWFLAKE],
+            [self::BACKEND_SNOWFLAKE, self::BACKEND_SNOWFLAKE],
+            [self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE],
+            [self::BACKEND_SYNAPSE, self::BACKEND_SNOWFLAKE],
             [self::BACKEND_SYNAPSE, self::BACKEND_SYNAPSE],
         ];
     }
@@ -194,17 +194,25 @@ class SharingTest extends StorageApiSharingTestCase
         $backend = null; // force disconnect of same SNFLK connection
         $db = $this->getDbConnection($connection);
 
-        $db->query("create table \"test.Languages3\" (
+        if ($db instanceof \Doctrine\DBAL\Connection) {
+            $db->query("create table [Languages3] (
+			[Id] integer not null,
+			[Name] varchar(10) not null
+		);");
+            $db->query("insert into [Languages3] ([Id], [Name]) values (1, 'cz');");
+            $db->query("insert into [Languages3] ([Id], [Name]) values (2, 'en');");
+        } else {
+            $db->query("create table \"test.Languages3\" (
 			\"Id\" integer not null,
 			\"Name\" varchar not null
 		);");
-        $db->query("insert into \"test.Languages3\" (\"Id\", \"Name\") values (1, 'cz'), (2, 'en');");
-
+            $db->query("insert into \"test.Languages3\" (\"Id\", \"Name\") values (1, 'cz'), (2, 'en');");
+        }
         try {
             $this->_client2->createTableAsyncDirect($linkedId, array(
                 'name' => 'languages3',
                 'dataWorkspaceId' => $workspace['id'],
-                'dataTableName' => 'test.Languages3',
+                'dataTableName' => 'Languages3',
             ));
 
             $this->fail('Unload to liked bucket should fail with access exception');
