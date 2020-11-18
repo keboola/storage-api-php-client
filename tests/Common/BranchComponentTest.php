@@ -309,20 +309,17 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertEquals(1, $configuration['version']);
         $this->assertEmpty($configuration['changeDescription']);
 
-        $state = [
-            'cache' => true,
-        ];
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('transformation')
             ->setConfigurationId('dev-branch-1')
             ->setDescription('neco')
-            ->setState($state);
+        ;
 
         $updatedConfig = $branchComponents->updateConfiguration($config);
         $this->assertEquals($newName, $updatedConfig['name'], 'Name should not be changed after description update');
         $this->assertEquals('neco', $updatedConfig['description']);
         $this->assertEquals($configurationData, $updatedConfig['configuration']);
-        $this->assertEquals($state, $updatedConfig['state']);
+        $this->assertEquals([], $updatedConfig['state']);
         $this->assertEmpty($updatedConfig['changeDescription']);
 
         $configuration = $branchComponents->getConfiguration($config->getComponentId(), $config->getConfigurationId());
@@ -330,8 +327,24 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertEquals($newName, $configuration['name'], 'Name should not be changed after description update');
         $this->assertEquals('neco', $configuration['description']);
         $this->assertEquals($configurationData, $configuration['configuration']);
-        $this->assertEquals($state, $configuration['state']);
+        $this->assertEquals([], $configuration['state']);
         $this->assertEmpty($configuration['changeDescription']);
+
+        $state = [
+            'cache' => false,
+        ];
+
+        $configState = (new \Keboola\StorageApi\Options\Components\ConfigurationState())
+            ->setComponentId('transformation')
+            ->setConfigurationId('dev-branch-1')
+            ->setState($state)
+        ;
+
+        $updatedConfig = $branchComponents->updateConfigurationState($configState);
+        $this->assertEquals($state, $updatedConfig['state']);
+
+        $configuration = $branchComponents->getConfiguration($config->getComponentId(), $config->getConfigurationId());
+        $this->assertEquals($state, $configuration['state']);
 
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('transformation')
@@ -382,5 +395,33 @@ class BranchComponentTest extends StorageApiTestCase
 
         $configuration = $configs[0]['configurations'][0];
         $this->assertArrayHasKey('configuration', $configuration);
+
+        // restrict state change on configuration update
+        $configuration = $branchComponents->getConfiguration($config->getComponentId(), $config->getConfigurationId());
+
+        $config = (new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId('transformation')
+            ->setConfigurationId('dev-branch-1')
+            ->setChangeDescription('updated state')
+            ->setState([
+                'cache' => true,
+            ])
+        ;
+
+        try {
+            $branchComponents->updateConfiguration($config);
+            $this->fail('Update of configuration state should be restricted.');
+        } catch (ClientException $e) {
+            $this->assertEquals(400, $e->getCode());
+            $this->assertEquals(
+                'Using \'state\' parameter on configuration update is restricted for dev/branch context. Use direct API call.',
+                $e->getMessage()
+            );
+        }
+
+        $this->assertEquals(
+            $configuration,
+            $branchComponents->getConfiguration($config->getComponentId(), $config->getConfigurationId())
+        );
     }
 }
