@@ -2707,6 +2707,83 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertArrayEqualsExceptKeys($originalConfigRow, $rollbackedConfigRow, ['version', 'changeDescription']);
     }
 
+    public function testConfigurationStateUpdate()
+    {
+        $componentId = 'wr-db';
+        $configurationId = 'main-1';
+
+        $components = new \Keboola\StorageApi\Components($this->_client);
+
+        $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setName('Main')
+            ->setDescription('some desc'));
+
+        $state = [
+            'my' => 'test',
+        ];
+
+        $configState = (new \Keboola\StorageApi\Options\Components\ConfigurationState())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setState($state)
+        ;
+
+        $configuration = $components->updateConfigurationState($configState);
+
+        $this->assertSame($state, $configuration['state']);
+        $this->assertSame(1, $configuration['version']);
+        $this->assertSame($configuration, $components->getConfiguration($componentId, $configurationId));
+
+        $stateEndpoint = "components/{$componentId}/configs/{$configurationId}/state";
+
+        try {
+            $this->_client->apiPut($stateEndpoint, [
+                'state' => '{sdf}',
+            ]);
+            $this->fail('Post invalid json should not be allowed.');
+        } catch (ClientException $e) {
+            $this->assertEquals(400, $e->getCode());
+            $this->assertEquals('storage.components.validation', $e->getStringCode());
+            $this->assertEquals('Invalid parameters - state: This value should be valid JSON.', $e->getMessage());
+        }
+
+        try {
+            $this->_client->apiPut($stateEndpoint, [
+                'description' => 'Test',
+                'state' => json_encode('{}')
+            ]);
+            $this->fail('Post additional fileds should not be allowed.');
+        } catch (ClientException $e) {
+            $this->assertEquals(400, $e->getCode());
+            $this->assertEquals('storage.components.validation', $e->getStringCode());
+            $this->assertEquals('Invalid parameters - description: This field was not expected.', $e->getMessage());
+        }
+
+        try {
+            $this->_client->apiPut($stateEndpoint, [
+                'state' => ''
+            ]);
+            $this->fail('Post empty state should not be allowed.');
+        } catch (ClientException $e) {
+            $this->assertEquals(400, $e->getCode());
+            $this->assertEquals('storage.components.validation', $e->getStringCode());
+            $this->assertEquals('Invalid parameters - state: This value should not be blank.', $e->getMessage());
+        }
+
+        try {
+            $this->_client->apiPut($stateEndpoint, []);
+            $this->fail('Post without state should not be allowed.');
+        } catch (ClientException $e) {
+            $this->assertEquals(400, $e->getCode());
+            $this->assertEquals('storage.components.validation', $e->getStringCode());
+            $this->assertEquals('Invalid parameters - state: This field is missing.', $e->getMessage());
+        }
+
+        $this->assertSame($configuration, $components->getConfiguration($componentId, $configurationId));
+    }
+
     private function dumpTable($tableData, $expandNestedTables = 'table', $out = true)
     {
         if (!is_array(reset($tableData))) {
