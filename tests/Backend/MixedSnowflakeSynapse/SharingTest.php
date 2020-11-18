@@ -24,7 +24,7 @@ class SharingTest extends StorageApiSharingTestCase
         return [
             [self::BACKEND_SNOWFLAKE, self::BACKEND_SNOWFLAKE],
             [self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE],
-            [self::BACKEND_SYNAPSE, self::BACKEND_SNOWFLAKE],
+            //[self::BACKEND_SYNAPSE, self::BACKEND_SNOWFLAKE],
             [self::BACKEND_SYNAPSE, self::BACKEND_SYNAPSE],
         ];
     }
