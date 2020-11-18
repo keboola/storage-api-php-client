@@ -108,8 +108,8 @@
 	</testsuite>
 
 	<testsuite name="backend-mixed">
-		<directory>tests/Backend/Mixed</directory>
-		<exclude>tests/Backend/Mixed/Workspaces/S3WorkspacesTest.php</exclude>
+		<directory>tests/Backend/Mixed/SnowflakeRedshift</directory>
+		<exclude>tests/Backend/Mixed/SnowflakeRedshift/Workspaces/S3WorkspacesTest.php</exclude>
 	</testsuite>
 
 	<testsuite name="backend-synapse-part-1">

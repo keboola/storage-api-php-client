@@ -1,10 +1,10 @@
 <?php
 
-namespace Keboola\Test\Backend\Mixed;
+namespace Keboola\Test\Backend\Mixed\SnowflakeRedshift;
 
 use Keboola\StorageApi\ClientException;
 
-class SharingToSpecificUsersTest extends StorageApiSharingTestCase
+class SharingToSpecificUsersTest extends SnowflakeRedshiftBaseCase
 {
     /**
      * @dataProvider sharingBackendData

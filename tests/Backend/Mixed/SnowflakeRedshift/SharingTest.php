@@ -1,6 +1,6 @@
 <?php
 
-namespace Keboola\Test\Backend\Mixed;
+namespace Keboola\Test\Backend\Mixed\SnowflakeRedshift;
 
 use DateInterval;
 use DateTimeImmutable;
@@ -14,7 +14,7 @@ use Keboola\StorageApi\Options\TokenUpdateOptions;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
-class SharingTest extends StorageApiSharingTestCase
+class SharingTest extends SnowflakeRedshiftBaseCase
 {
     public function testOrganizationAdminInTokenVerify()
     {
@@ -518,7 +518,7 @@ class SharingTest extends StorageApiSharingTestCase
         $tableId = $this->_client->createTable(
             $bucketId,
             $tableName,
-            new CsvFile(__DIR__ . '/../../_data/numbers.csv')
+            new CsvFile(__DIR__ . '/../../../_data/numbers.csv')
         );
 
         // ensure that sharing data is not output for unshared bucket
@@ -610,7 +610,7 @@ class SharingTest extends StorageApiSharingTestCase
         $tableId = $this->_client->createTable(
             $bucketId,
             $tableName,
-            new CsvFile(__DIR__ . '/../../_data/numbers.csv')
+            new CsvFile(__DIR__ . '/../../../_data/numbers.csv')
         );
 
         $metadataClient = new Metadata($this->_client);
@@ -823,7 +823,7 @@ class SharingTest extends StorageApiSharingTestCase
         $tableId = $this->_client->createTableAsync(
             $bucketId,
             'first',
-            new CsvFile(__DIR__ . '/../../_data/pk.simple.csv'),
+            new CsvFile(__DIR__ . '/../../../_data/pk.simple.csv'),
             [
                 'primaryKey' => 'id',
             ]
@@ -835,7 +835,7 @@ class SharingTest extends StorageApiSharingTestCase
         $table2Id = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_OUT),
             'languages-out',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../../_data/languages.csv')
         );
 
         $metadataApi = new Metadata($this->_client);
@@ -890,7 +890,7 @@ class SharingTest extends StorageApiSharingTestCase
         // new import
         $this->_client->writeTable(
             $tableId,
-            new CsvFile(__DIR__ . '/../../_data/pk.simple.increment.csv'),
+            new CsvFile(__DIR__ . '/../../../_data/pk.simple.increment.csv'),
             [
                 'primaryKey' => 'id',
                 'incremental' => true,
@@ -922,7 +922,7 @@ class SharingTest extends StorageApiSharingTestCase
         $this->_client->createTableAsync(
             $bucketId,
             'second',
-            new CsvFile(__DIR__ . '/../../_data/pk.simple.csv'),
+            new CsvFile(__DIR__ . '/../../../_data/pk.simple.csv'),
             [
                 'primaryKey' => 'id',
             ]
@@ -950,7 +950,7 @@ class SharingTest extends StorageApiSharingTestCase
         $tableId = $this->_client->createTableAsync(
             $bucketId,
             'first',
-            new CsvFile(__DIR__ . '/../../_data/pk.simple.csv'),
+            new CsvFile(__DIR__ . '/../../../_data/pk.simple.csv'),
             [
                 'primaryKey' => 'id',
             ]
@@ -1015,7 +1015,7 @@ class SharingTest extends StorageApiSharingTestCase
         $tableId = $this->_client->createTableAsync(
             $bucketId,
             'first',
-            new CsvFile(__DIR__ . '/../../_data/pk.simple.csv'),
+            new CsvFile(__DIR__ . '/../../../_data/pk.simple.csv'),
             [
                 'primaryKey' => 'id',
             ]
@@ -1075,13 +1075,13 @@ class SharingTest extends StorageApiSharingTestCase
         $table1Id = $this->_client->createTable(
             $bucketId,
             'languages',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../../_data/languages.csv')
         );
 
         $table2Id = $this->_client->createTable(
             $bucketId,
             'numbers',
-            new CsvFile(__DIR__ . '/../../_data/numbers.csv')
+            new CsvFile(__DIR__ . '/../../../_data/numbers.csv')
         );
 
         $table3Id = $this->_client->createAliasTable(
@@ -1178,7 +1178,7 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertArrayHasKey('id', $data[0]);
         $this->assertArrayHasKey('name', $data[0]);
         $this->assertArrayEqualsSorted(
-            Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ",", '"'),
+            Client::parseCsv(file_get_contents(__DIR__ . '/../../../_data/languages.csv'), true, ",", '"'),
             $data,
             'id'
         );
@@ -1188,7 +1188,7 @@ class SharingTest extends StorageApiSharingTestCase
         $table3Id = $this->_client->createTable(
             $bucketId,
             'numbersLater',
-            new CsvFile(__DIR__ . '/../../_data/numbers.csv')
+            new CsvFile(__DIR__ . '/../../../_data/numbers.csv')
         );
 
         $mapping3 = array("source" => str_replace($bucketId, $linkedId, $table3Id), "destination" => "table3");
@@ -1246,21 +1246,21 @@ class SharingTest extends StorageApiSharingTestCase
         $table1Id = $this->_client->createTable(
             $this->getTestBucketId(),
             'languagesDetails',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../../_data/languages.csv')
         );
         $this->_client->shareBucket($sourceBucketId);
 
         $table2Id = $this->_client->createTable(
             $this->getTestBucketId(),
             'numbers',
-            new CsvFile(__DIR__ . '/../../_data/numbers.csv')
+            new CsvFile(__DIR__ . '/../../../_data/numbers.csv')
         );
 
 
         $table3Id = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_OUT),
             'languages-out',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../../_data/languages.csv')
         );
 
         $table4Id = $this->_client->createAliasTable(

@@ -206,21 +206,7 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
         }
     }
 
-    public function sharingBackendData()
-    {
-        return [
-            [self::BACKEND_SNOWFLAKE],
-            [self::BACKEND_REDSHIFT],
-        ];
-    }
+    abstract public function sharingBackendData();
 
-    public function workspaceMixedBackendData()
-    {
-        return [
-            [self::BACKEND_SNOWFLAKE, self::BACKEND_SNOWFLAKE],
-            [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT],
-            [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE],
-            [self::BACKEND_REDSHIFT, self::BACKEND_REDSHIFT],
-        ];
-    }
+    abstract public function workspaceMixedBackendData();
 }

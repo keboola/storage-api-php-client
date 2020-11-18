@@ -1,11 +1,12 @@
 <?php
 
-namespace Keboola\Test\Backend\Mixed\Workspaces;
+namespace Keboola\Test\Backend\Mixed\SnowflakeRedshift\Workspaces;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
+use Keboola\Test\Backend\Mixed\BaseWorkSpacesTestCase;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class S3WorkspacesTest extends BaseWorkSpacesTestCase
@@ -89,7 +90,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
 
-        $importFile = __DIR__ . '/../../../_data/languages.csv';
+        $importFile = __DIR__ . '/../../../../_data/languages.csv';
         $tableId = $this->_client->createTable(
             $bucketId,
             'languages',
@@ -151,7 +152,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
 
-        $importFile = __DIR__ . '/../../../_data/languages.with-state.csv';
+        $importFile = __DIR__ . '/../../../../_data/languages.with-state.csv';
         $tableId = $this->_client->createTable(
             $bucketId,
             'languages',
@@ -267,7 +268,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
 
-        $importFile = __DIR__ . '/../../../_data/languages.with-state.csv';
+        $importFile = __DIR__ . '/../../../../_data/languages.with-state.csv';
         $tableId = $this->_client->createTable(
             $bucketId,
             'languages',
@@ -374,7 +375,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
         $this->_client->createTable(
             $bucketId,
             'dates',
-            new CsvFile(__DIR__ . '/../../../_data/dates.csv')
+            new CsvFile(__DIR__ . '/../../../../_data/dates.csv')
         );
 
         $workspaces = new Workspaces($this->_client);
@@ -438,7 +439,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
         $table1Id = $this->_client->createTable(
             $bucketId,
             'languages',
-            new CsvFile(__DIR__ . '/../../../_data/languages.csv'),
+            new CsvFile(__DIR__ . '/../../../../_data/languages.csv'),
             [
                 'primaryKey' => 'id',
             ]
@@ -514,18 +515,18 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
         // test first table
         $data = $workspaceBackend->fetchAll("{$bucketBackend}_Languages", \PDO::FETCH_ASSOC);
 
-        $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../../_data/languages.csv'), true, ",", '"'), $data, 'id');
+        $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../../../_data/languages.csv'), true, ",", '"'), $data, 'id');
 
         // second table
         $data = $workspaceBackend->fetchAll("languagesAlias", \PDO::FETCH_ASSOC);
-        $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../../_data/languages.csv'), true, ",", '"'), $data, 'id');
+        $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../../../_data/languages.csv'), true, ",", '"'), $data, 'id');
 
         // third table
         $data = $workspaceBackend->fetchAll("languagesOneColumn", \PDO::FETCH_ASSOC);
 
         $this->assertCount(1, $data[0], 'there should be one column');
         $this->assertArrayHasKey('id', $data[0]);
-        $expected = Client::parseCsv(file_get_contents(__DIR__ . '/../../../_data/languages.csv'), true, ",", '"');
+        $expected = Client::parseCsv(file_get_contents(__DIR__ . '/../../../../_data/languages.csv'), true, ",", '"');
         $expected = array_map(function ($row) {
             return [
                 'id' => $row['id'],

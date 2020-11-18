@@ -1,6 +1,6 @@
 <?php
 
-namespace Keboola\Test\Backend\Mixed\Workspaces;
+namespace Keboola\Test\Backend\Mixed;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\ClientException;
@@ -52,7 +52,7 @@ abstract class BaseWorkSpacesTestCase extends WorkspacesTestCase
         $sourceTableId = $this->_client->createTable(
             $bucketId,
             'transactions',
-            new CsvFile(__DIR__ . '/../../../_data/transactions.csv')
+            new CsvFile(__DIR__ . '/../../_data/transactions.csv')
         );
 
         $workspaces = new Workspaces($this->_client);
@@ -95,7 +95,7 @@ abstract class BaseWorkSpacesTestCase extends WorkspacesTestCase
         $sourceTableId = $this->_client->createTable(
             $bucketId,
             'transactions',
-            new CsvFile(__DIR__ . '/../../../_data/transactions-nullify.csv')
+            new CsvFile(__DIR__ . '/../../_data/transactions-nullify.csv')
         );
 
         $workspaces = new Workspaces($this->_client);

@@ -9,7 +9,7 @@ use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\WorkspacesTestCase;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
-class WorkspacesRenameTest extends WorkspacesTestCase
+abstract class WorkspacesRenameBaseCase extends WorkspacesTestCase
 {
     /**
      * @dataProvider workspaceMixedBackendData
@@ -266,11 +266,5 @@ class WorkspacesRenameTest extends WorkspacesTestCase
         $this->assertEquals($expectedData, $workspaceData);
     }
 
-    public function workspaceMixedBackendData()
-    {
-        return [
-            [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT],
-            [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE],
-        ];
-    }
+    abstract public function workspaceMixedBackendData();
 }

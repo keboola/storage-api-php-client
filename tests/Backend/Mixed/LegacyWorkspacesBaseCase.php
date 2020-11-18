@@ -13,74 +13,8 @@ use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\WorkspacesTestCase;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
-class LegacyWorkspacesTest extends WorkspacesTestCase
+abstract class LegacyWorkspacesBaseCase extends WorkspacesTestCase
 {
-
-    /**
-     * @dataProvider loadToRedshiftDataTypes
-     * @param $dataTypesDefinition
-     */
-    public function testDataTypesLoadToRedshift($dataTypesDefinition)
-    {
-
-        $bucketBackend = self::BACKEND_SNOWFLAKE;
-
-        if ($this->_client->bucketExists("out.c-mixed-test-" . $bucketBackend)) {
-            $this->_client->dropBucket(
-                "out.c-mixed-test-{$bucketBackend}",
-                [
-                    'force' => true,
-                ]
-            );
-        }
-
-        if ($this->_client->bucketExists("in.c-mixed-test-" . $bucketBackend)) {
-            $this->_client->dropBucket("in.c-mixed-test-{$bucketBackend}", [
-                'force' => true,
-            ]);
-        }
-        $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", "in", "", $bucketBackend);
-
-        //setup test table
-        $this->_client->createTable(
-            $bucketId,
-            'dates',
-            new CsvFile(__DIR__ . '/../../_data/dates.csv')
-        );
-
-        $workspaces = new Workspaces($this->_client);
-
-        $workspace = $workspaces->createWorkspace([
-            'backend' => self::BACKEND_REDSHIFT,
-        ]);
-
-        $options = [
-            "input" => [
-                [
-                    "source" => "in.c-mixed-test-{$bucketBackend}.dates",
-                    "destination" => "dates",
-                    "datatypes" => $dataTypesDefinition
-                ]
-            ]
-        ];
-
-        // exception should not be thrown, date conversion should be applied
-        $workspaces->loadWorkspaceData($workspace['id'], $options);
-
-        $wsBackend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-
-        $data = $wsBackend->fetchAll("dates", \PDO::FETCH_ASSOC);
-        $this->assertCount(3, $data);
-    }
-
-    public function loadToRedshiftDataTypes()
-    {
-        return [
-            [['valid_from' => "TIMESTAMP"]],
-            [[['column' => 'valid_from', 'type' => "TIMESTAMP"]]]
-        ];
-    }
-
     /**
      * @dataProvider workspaceMixedBackendData
      * @param $backend
@@ -401,40 +335,9 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
         $this->assertEquals(null, $data[0]['item']);
     }
 
-    public function workspaceMixedBackendData()
-    {
-        return [
-            [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT],
-            [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE],
-        ];
-    }
+    abstract public function workspaceMixedBackendData();
 
-    public function workspaceMixedAndSameBackendData()
-    {
-        return [
-            [self::BACKEND_SNOWFLAKE, self::BACKEND_SNOWFLAKE],
-            [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT],
-            [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE],
-            [self::BACKEND_REDSHIFT, self::BACKEND_REDSHIFT],
-        ];
-    }
+    abstract public function workspaceMixedAndSameBackendData();
 
-    public function workspaceMixedAndSameBackendDataWithDataTypes()
-    {
-        $simpleDataTypesDefinitionSnowflake = ["price" => "VARCHAR", "quantity" => "NUMBER"];
-        $simpleDataTypesDefinitionRedshift = ["price" => "VARCHAR", "quantity" => "INTEGER"];
-        $extendedDataTypesDefinitionSnowflake = [["column" => "price", "type" => "VARCHAR"], ["column" => "quantity", "type" => "NUMBER"]];
-        $extendedDataTypesDefinitionRedshift = [["column" => "price", "type" => "VARCHAR"], ["column" => "quantity", "type" => "INTEGER"]];
-        return [
-            [self::BACKEND_SNOWFLAKE, self::BACKEND_SNOWFLAKE, $simpleDataTypesDefinitionSnowflake],
-            [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT, $simpleDataTypesDefinitionSnowflake],
-            [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, $simpleDataTypesDefinitionRedshift],
-            [self::BACKEND_REDSHIFT, self::BACKEND_REDSHIFT, $simpleDataTypesDefinitionRedshift],
-            [self::BACKEND_SNOWFLAKE, self::BACKEND_SNOWFLAKE, $extendedDataTypesDefinitionSnowflake],
-            [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT, $extendedDataTypesDefinitionSnowflake],
-            [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, $extendedDataTypesDefinitionRedshift],
-            [self::BACKEND_REDSHIFT, self::BACKEND_REDSHIFT, $extendedDataTypesDefinitionRedshift],
-
-        ];
-    }
+    abstract public function workspaceMixedAndSameBackendDataWithDataTypes();
 }

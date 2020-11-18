@@ -1,6 +1,8 @@
 <?php
 
-namespace Keboola\Test\Backend\Mixed\Workspaces;
+namespace Keboola\Test\Backend\Mixed\SnowflakeRedshift\Workspaces;
+
+use Keboola\Test\Backend\Mixed\BaseWorkSpacesTestCase;
 
 class AbsWorkspacesTest extends BaseWorkSpacesTestCase
 {
