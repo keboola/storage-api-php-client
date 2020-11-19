@@ -175,7 +175,7 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
 
     /**
      * @param $connection
-     * @return Connection|\PDO
+     * @return Connection|\PDO|\Doctrine\DBAL\Connection
      * @throws \Exception
      */
     protected function getDbConnection($connection)
@@ -201,6 +201,20 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
             $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
             return $pdo;
+        } else if ($connection['backend'] === parent::BACKEND_SYNAPSE) {
+            return \Doctrine\DBAL\DriverManager::getConnection([
+                'user' => $connection['user'],
+                'password' => $connection['password'],
+                'host' => $connection['host'],
+                'dbname' => $connection['database'],
+                'port' => 1433,
+                'driver' => 'pdo_sqlsrv',
+                'driverOptions' => [
+                    'LoginTimeout' => 30,
+                    'ConnectRetryCount' => 5,
+                    'ConnectRetryInterval' => 10,
+                ],
+            ]);
         } else {
             throw new \Exception("Unsupported Backend for workspaces");
         }
