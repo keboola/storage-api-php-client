@@ -112,6 +112,10 @@
 		<exclude>tests/Backend/Mixed/Workspaces/S3WorkspacesTest.php</exclude>
 	</testsuite>
 
+	<testsuite name="backend-mixed-synapse">
+		<directory>tests/Backend/MixedSnowflakeSynapse</directory>
+	</testsuite>
+
 	<testsuite name="backend-synapse-part-1">
 		<file>tests/Backend/Workspaces/MetadataFromSynapseWorkspaceTest.php</file>
 		<directory>tests/Backend/CommonPart1</directory>
