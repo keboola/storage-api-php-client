@@ -1281,6 +1281,7 @@ class SharingTest extends StorageApiSharingTestCase
         $workspacesClient = new Workspaces($this->_client2);
         $workspace = $workspacesClient->createWorkspace([
             'name' => 'clone',
+            'backend' => self::BACKEND_SNOWFLAKE,
         ]);
 
         $workspacesClient->cloneIntoWorkspace($workspace['id'], [
