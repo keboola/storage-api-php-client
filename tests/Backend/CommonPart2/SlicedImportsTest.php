@@ -10,10 +10,9 @@
 namespace Keboola\Test\Backend\CommonPart2;
 
 use Keboola\StorageApi\Client;
+use Keboola\StorageApi\Downloader\BlobClientFactory;
 use Keboola\Test\StorageApiTestCase;
-
 use Keboola\Csv\CsvFile;
-use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 
 class SlicedImportsTest extends StorageApiTestCase
 {
@@ -170,10 +169,9 @@ class SlicedImportsTest extends StorageApiTestCase
         if ($slicedFile['provider'] === Client::FILE_PROVIDER_AZURE) {
             $uploadParams = $slicedFile['absUploadParams'];
 
-            $blobClient = BlobRestProxy::createBlobService(
+            $blobClient = BlobClientFactory::createClientFromConnectionString(
                 $uploadParams['absCredentials']['SASConnectionString']
             );
-
             $blobClient->createBlockBlob(
                 $uploadParams['container'],
                 sprintf(
@@ -277,7 +275,7 @@ class SlicedImportsTest extends StorageApiTestCase
         if ($slicedFile['provider'] === Client::FILE_PROVIDER_AZURE) {
             $uploadParams = $slicedFile['absUploadParams'];
 
-            $blobClient = BlobRestProxy::createBlobService(
+            $blobClient = BlobClientFactory::createClientFromConnectionString(
                 $uploadParams['absCredentials']['SASConnectionString']
             );
 
@@ -323,7 +321,7 @@ class SlicedImportsTest extends StorageApiTestCase
         if ($slicedFile['provider'] === Client::FILE_PROVIDER_AZURE) {
             $uploadParams = $slicedFile['absUploadParams'];
 
-            $blobClient = BlobRestProxy::createBlobService(
+            $blobClient = BlobClientFactory::createClientFromConnectionString(
                 $uploadParams['absCredentials']['SASConnectionString']
             );
 
