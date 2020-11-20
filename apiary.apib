@@ -3193,7 +3193,8 @@ Loads tables from Storage into a Workspace.
         + Items
             + (object)
                 + Properties
-                    + source (required) - Full table identifier of the source table (e.g.: in.c-bucket.mytable)
+                    + source (optional) - Required for loading table. Full table identifier of the source table (e.g.: in.c-bucket.mytable)
+                    + dataFileId (optional, number) - Required for loading file. File upload id. Can be used only to load file to file workspace.
                     + destination (required) - Destination table name or folder for file workspace
                     + rows (optional, number) - Limits the number of returned rows
                     + days (optional, number) - `DEPRECATED will be removed in the future.` Return rows created or updated in the last X days.
