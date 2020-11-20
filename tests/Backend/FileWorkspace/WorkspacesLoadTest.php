@@ -3,6 +3,7 @@
 namespace Keboola\Test\Backend\FileWorkspace;
 
 use Keboola\Csv\CsvFile;
+use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Workspaces;
@@ -32,6 +33,16 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
             new CsvFile($table2Csv)
         );
 
+        $file1Csv = __DIR__ . '/../../_data/languages.more-rows.csv';
+        $fileId = $this->_client->uploadFile(
+            (new CsvFile($file1Csv))->getPathname(),
+            (new FileUploadOptions())
+                ->setNotify(false)
+                ->setIsPublic(false)
+                ->setCompress(true)
+                ->setTags(['test-file-1'])
+        );
+
         $mapping1 = [
             "source" => $table1Id,
             "destination" => "languagesLoaded",
@@ -40,8 +51,12 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
             "source" => $table2Id,
             "destination" => "numbersLoaded",
         ];
+        $mapping3 = [
+            "dataFileId" => $fileId,
+            "destination" => "languagesLoadedMore",
+        ];
 
-        $input = [$mapping1, $mapping2];
+        $input = [$mapping1, $mapping2, $mapping3];
 
         // test if job is created and listed
         $initialJobs = $this->_client->listJobs();
@@ -79,6 +94,12 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
             $data,
             0
         );
+        $data = $backend->fetchAll('languagesLoadedMore', ["id", "name"], true, true, false);
+        $this->assertArrayEqualsSorted(
+            $this->_readCsv($file1Csv),
+            $data,
+            0
+        );
         // load table again to new destination to test if workspace was cleared
         $workspaces->loadWorkspaceData($workspace['id'], [
             "input" => [
@@ -91,6 +112,8 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $blobs = $backend->listFiles('languagesLoaded');
         $this->assertCount(0, $blobs);
         $blobs = $backend->listFiles('numbersLoaded');
+        $this->assertCount(0, $blobs);
+        $blobs = $backend->listFiles('languagesLoadedMore');
         $this->assertCount(0, $blobs);
         $this->assertManifest($backend, 'second');
 
