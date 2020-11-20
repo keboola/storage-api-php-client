@@ -2,7 +2,6 @@
 
 namespace Keboola\StorageApi\Downloader;
 
-use Keboola\FileStorage\Abs\RetryMiddlewareFactory;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 
 class BlobClientFactory
@@ -15,7 +14,7 @@ class BlobClientFactory
         $connectionString
     ) {
         $client = BlobRestProxy::createBlobService($connectionString);
-        $client->pushMiddleware(RetryMiddlewareFactory::create());
+        $client->pushMiddleware(BlobStorageRetryMiddleware::create());
 
         return $client;
     }
