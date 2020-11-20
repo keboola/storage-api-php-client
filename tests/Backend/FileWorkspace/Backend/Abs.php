@@ -67,11 +67,22 @@ class Abs
      * @param string[] $columns
      * @param bool $isCompressed
      * @param bool $skipHeader
+     * @param bool $isSliced
      * @return array
      */
-    public function fetchAll($prefix, $columns, $isCompressed, $skipHeader)
-    {
-        $destination = $this->exportFile($prefix, $isCompressed, $columns);
+    public function fetchAll(
+        $prefix,
+        $columns,
+        $isCompressed,
+        $skipHeader,
+        $isSliced = true
+    ) {
+        $destination = $this->exportFile(
+            $prefix,
+            $isCompressed,
+            $columns,
+            $isSliced
+        );
         $file = new CsvFile($destination);
 
         $data = [];
@@ -112,22 +123,15 @@ class Abs
      * @param string $prefix
      * @param bool $isCompressed
      * @param string[] $columns
+     * @param bool $isSliced
      * @return string
      */
-    private function exportFile($prefix, $isCompressed, $columns)
+    private function exportFile($prefix, $isCompressed, $columns, $isSliced)
     {
         $client = $this->getClient();
-        $manifest = $client->getBlob(
-            $this->container,
-            $prefix . 'manifest'
-        );
-        $manifest = json_decode(stream_get_contents($manifest->getContentStream()), true);
-        $files = [];
-
         $workingDir = sys_get_temp_dir() . '/sapi-php-client';
         $tmpFilePath = $workingDir . '/' . uniqid('sapi-abs-workspace-', true);
         $destination = $workingDir . '/' . uniqid('sapi-abs-workspace-dest-', true) . '.csv';
-
         $fs = new Filesystem();
         if (!$fs->exists($workingDir)) {
             $fs->mkdir($workingDir);
@@ -137,17 +141,38 @@ class Abs
             $fs->remove($destination);
         }
 
-        foreach ($manifest["entries"] as $entry) {
-            list($protocol, $account, $container, $file) = AbsUrlParser::parseAbsUrl($entry['url']);
-
-            $filePath = $tmpFilePath . '_' . md5(str_replace('/', '_', $file));
-
-            $result = $client->getBlob(
-                $container,
-                $file
+        $files = [];
+        if ($isSliced) {
+            $blob = $client->getBlob(
+                $this->container,
+                $prefix . 'manifest'
             );
-            file_put_contents($filePath, $result->getContentStream());
-            $files[] = $filePath;
+            $blob = json_decode(stream_get_contents($blob->getContentStream()), true);
+            foreach ($blob["entries"] as $entry) {
+                list($protocol, $account, $container, $file) = AbsUrlParser::parseAbsUrl($entry['url']);
+
+                $filePath = $tmpFilePath . '_' . md5(str_replace('/', '_', $file));
+
+                $result = $client->getBlob(
+                    $container,
+                    $file
+                );
+                file_put_contents($filePath, $result->getContentStream());
+                $files[] = $filePath;
+            }
+        } else {
+            $options = new ListBlobsOptions();
+            $options->setPrefix($prefix);
+            $blobs = $client->listBlobs($this->container, $options);
+            foreach ($blobs->getBlobs() as $blob) {
+                $filePath = $tmpFilePath . '_' . md5(str_replace('/', '_', $blob->getName()));
+                $blobResult = $client->getBlob(
+                    $this->container,
+                    $blob->getName()
+                );
+                file_put_contents($filePath, $blobResult->getContentStream());
+                $files[] = $filePath;
+            }
         }
 
         // Create file with header
@@ -175,15 +200,8 @@ class Abs
             $fs->remove($file);
         }
 
-        // Compress the file afterwards if required
         if ($isCompressed) {
-            $gZipCmd = "gzip " . escapeshellarg($destination) . ".tmp --fast";
-            $process = ProcessPolyfill::createProcess($gZipCmd);
-            $process->setTimeout(null);
-            if (0 !== $process->run()) {
-                throw new ProcessFailedException($process);
-            }
-            $fs->rename($destination . '.tmp.gz', $destination);
+            $fs->rename($destination . '.tmp', $destination);
         }
         return $destination;
     }
