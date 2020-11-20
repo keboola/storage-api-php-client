@@ -6,6 +6,7 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\MessageFormatter;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
+use Keboola\StorageApi\Downloader\BlobClientFactory;
 use Keboola\StorageApi\Options\BucketUpdateOptions;
 use Keboola\StorageApi\Options\FileUploadTransferOptions;
 use Keboola\StorageApi\Options\GetFileOptions;
@@ -15,7 +16,6 @@ use Keboola\StorageApi\Options\SearchTablesOptions;
 use Keboola\StorageApi\Options\StatsOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
-use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Blob\Models\CreateBlockBlobOptions;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
@@ -24,7 +24,6 @@ use Psr\Log\NullLogger;
 use Symfony\Component\Filesystem\Filesystem;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Options\FileUploadOptions;
-use Symfony\Component\Process\Process;
 
 class Client
 {
@@ -1428,7 +1427,7 @@ class Client
         $options->setContentDisposition(
             sprintf('attachment; filename=%s', $prepareResult['name'])
         );
-        $blobClient = BlobRestProxy::createBlobService(
+        $blobClient = BlobClientFactory::createClientFromConnectionString(
             $prepareResult['absUploadParams']['absCredentials']['SASConnectionString']
         );
         $blobClient->createBlockBlob(
@@ -1582,7 +1581,7 @@ class Client
         array $prepareResult,
         array $slices
     ) {
-        $blobClient = BlobRestProxy::createBlobService(
+        $blobClient = BlobClientFactory::createClientFromConnectionString(
             $prepareResult['absUploadParams']['absCredentials']['SASConnectionString']
         );
 
@@ -1697,7 +1696,7 @@ class Client
 
     private function downloadAbsFile(array $fileInfo, $destination)
     {
-        $blobClient = BlobRestProxy::createBlobService(
+        $blobClient = BlobClientFactory::createClientFromConnectionString(
             $fileInfo['absCredentials']['SASConnectionString']
         );
         $getResult = $blobClient->getBlob($fileInfo['absPath']['container'], $fileInfo['absPath']['name']);
@@ -1735,10 +1734,9 @@ class Client
 
     private function downloadAbsSlicedFile(array $fileInfo, $destinationFolder)
     {
-        $blobClient = BlobRestProxy::createBlobService(
+        $blobClient = BlobClientFactory::createClientFromConnectionString(
             $fileInfo['absCredentials']['SASConnectionString']
         );
-
         if (!file_exists($destinationFolder)) {
             $fs = new Filesystem();
             $fs->mkdir($destinationFolder);
