@@ -804,6 +804,36 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         }
     }
 
+    public function testDataFileIdNotFound()
+    {
+        $workspaces = new Workspaces($this->_client);
+
+        $workspace = $this->createFileWorkspace($workspaces);
+
+        // let's try loading from a table that doesn't exist
+        $mappingInvalidSource = [
+            'dataFileId' => 'this-is-for-sure-not-file',
+            'destination' => 'whatever',
+            'columns' => [
+                [
+                    'source' => 'fake',
+                    'type' => 'fake',
+                ],
+            ],
+        ];
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            ['input' => [$mappingInvalidSource]]
+        );
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], $options);
+            $this->fail('Source does not exist, this should fail');
+        } catch (ClientException $e) {
+            $this->assertEquals(404, $e->getCode());
+            $this->assertEquals('workspace.dataFileIdNotFound', $e->getStringCode());
+        }
+    }
+
     public function testInvalidInputs()
     {
         $workspaces = new Workspaces($this->_client);
