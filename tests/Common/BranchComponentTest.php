@@ -5,6 +5,7 @@ namespace Keboola\Test\Common;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
+use Keboola\StorageApi\Options\Components\ConfigurationRowState;
 use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions;
@@ -260,6 +261,46 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertEquals('Renamed Dev 1 Row 1', $updatedRow['name']);
         $this->assertEquals('{"id":"10","stuff":"true"}', $updatedRow['configuration'][0]);
         $this->assertEquals(1, $updatedRow['version']);
+
+        // restrict row state change on configuration update
+        try {
+            $branchComponents->updateConfigurationRow(
+                (new ConfigurationRow($configurationOptions))
+                    ->setRowId('dev-1-row-1')
+                    ->setChangeDescription('state update')
+                    ->setState([
+                        'cache' => true,
+                    ])
+            );
+            $this->fail('Update of row state should be restricted.');
+        } catch (ClientException $e) {
+            $this->assertEquals(400, $e->getCode());
+            $this->assertEquals(
+                'Using \'state\' parameter on configuration row update is restricted for dev/branch context. Use direct API call.',
+                $e->getMessage()
+            );
+        }
+
+        // row state update
+        $state = [
+            'cache' => false,
+        ];
+
+        $rowState = (new ConfigurationRowState($configurationOptions))
+            ->setRowId('dev-1-row-1')
+            ->setState($state)
+        ;
+
+        $updatedRow = $branchComponents->updateConfigurationRowState($rowState);
+        $this->assertEquals($state, $updatedRow['state']);
+
+        $row = $branchComponents->getConfigurationRow(
+            $rowState->getComponentConfiguration()->getComponentId(),
+            $rowState->getComponentConfiguration()->getConfigurationId(),
+            $rowState->getRowId()
+        );
+
+        $this->assertEquals($state, $row['state']);
 
         try {
             $components->getConfigurationRow(
