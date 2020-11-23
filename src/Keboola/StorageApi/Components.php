@@ -3,6 +3,7 @@ namespace Keboola\StorageApi;
 
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
+use Keboola\StorageApi\Options\Components\ConfigurationRowState;
 use Keboola\StorageApi\Options\Components\ConfigurationState;
 use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions;
@@ -253,6 +254,29 @@ class Components
         return $this->client->apiPut(
             sprintf(
                 "components/%s/configs/%s/rows/%s",
+                $options->getComponentConfiguration()->getComponentId(),
+                $options->getComponentConfiguration()->getConfigurationId(),
+                $options->getRowId()
+            ),
+            $data
+        );
+    }
+
+    public function updateConfigurationRowState(ConfigurationRowState $options)
+    {
+        $data = [];
+
+        if ($options->getState() !== null) {
+            if ($options->getState() === []) {
+                $data['state'] = '{}';
+            } else {
+                $data['state'] = json_encode($options->getState());
+            }
+        }
+
+        return $this->client->apiPut(
+            sprintf(
+                "components/%s/configs/%s/rows/%s/state",
                 $options->getComponentConfiguration()->getComponentId(),
                 $options->getComponentConfiguration()->getConfigurationId(),
                 $options->getRowId()
