@@ -1,12 +1,4 @@
 <?php
-/**
- * Created by JetBrains PhpStorm.
- * User: martinhalamicek
- * Date: 16/09/14
- * Time: 01:48
- * To change this template use File | Settings | File Templates.
- */
-
 namespace Keboola\StorageApi;
 
 use Keboola\StorageApi\Options\Components\Configuration;
@@ -83,11 +75,19 @@ class Components
 
     public function updateConfigurationState(ConfigurationState $options)
     {
+        $data = [];
+
+        if ($options->getState() !== null) {
+            if ($options->getState() === []) {
+                $data['state'] = '{}';
+            } else {
+                $data['state'] = json_encode($options->getState());
+            }
+        }
+
         return $this->client->apiPut(
             "components/{$options->getComponentId()}/configs/{$options->getConfigurationId()}/state",
-            [
-                'state' => json_encode($options->getState()),
-            ]
+            $data
         );
     }
 
