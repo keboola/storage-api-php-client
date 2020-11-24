@@ -6,6 +6,7 @@ use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
+use Keboola\StorageApi\Options\TokenUpdateOptions;
 use Keboola\StorageApi\Workspaces;
 use Keboola\StorageApi\ClientException;
 use Keboola\Test\Backend\FileWorkspace\Backend\Abs;
@@ -129,6 +130,64 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
             ],
             'preserve' => true,
         ]);
+    }
+
+    public function testWorkspaceLoadFilePermissionsCanReadAllFiles()
+    {
+        $fileCsv = __DIR__ . '/../../_data/languages.more-rows.csv';
+        $fileId = $this->_client->uploadFile(
+            (new CsvFile($fileCsv))->getPathname(),
+            (new FileUploadOptions())
+                ->setNotify(false)
+                ->setIsPublic(false)
+                ->setCompress(true)
+                ->setTags(['test-file-1'])
+        );
+
+        // non admin token having canReadAllFileUploads permission
+        $tokenOptions = (new TokenCreateOptions())
+            ->setDescription('Files test')
+            ->setCanReadAllFileUploads(true)
+        ;
+
+        $newTokenId = $this->_client->createToken($tokenOptions);
+        $newToken = $this->_client->getToken($newTokenId);
+        $newTokenClient = $this->getClient([
+            'token' => $newToken['token'],
+            'url' => STORAGE_API_URL
+        ]);
+
+        $workspaces = new Workspaces($newTokenClient);
+        $workspace = $this->createFileWorkspace($workspaces);
+
+        $mapping = [
+            "dataFileId" => $fileId,
+            "destination" => "languagesLoadedMore",
+        ];
+
+        $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping]]);
+
+        $backend = new Abs($workspace['connection']);
+        $data = $backend->fetchAll('languagesLoadedMore', ["id", "name"], true, true, false);
+        $this->assertArrayEqualsSorted(
+            $this->_readCsv($fileCsv),
+            $data,
+            0
+        );
+
+        // non admin token without canReadAllFileUploads permission
+        $this->_client->updateToken(
+            (new TokenUpdateOptions($newTokenId))
+                ->setCanReadAllFileUploads(false)
+        );
+
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping]]);
+        } catch (ClientException $e) {
+            $this->assertSame(403, $e->getCode());
+            $this->assertSame('You don\'t have access to resource.', $e->getMessage());
+            $this->assertSame('accessDenied', $e->getStringCode());
+        }
     }
 
     public function testWorkspaceLoadAliasTable()
