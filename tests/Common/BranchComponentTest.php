@@ -196,7 +196,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         $branchMain1Detail = $branchComponents->getConfiguration($componentId, 'main-1');
         $this->assertNotEmpty($branchMain1Detail);
-        // versions are reset to 1 when copied to dev branch
+        // versions are reset to 0 when copied to dev branch
         $this->assertSame(3, $mainComponentDetail['version']);
         $this->assertSame(0, $branchMain1Detail['version']);
 
@@ -237,7 +237,7 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertEquals('dev-1-row-3', $rows[2]['id']);
         $this->assertCount(3, $rows);
 
-        // all version should be 1 until we implement versioning for dev branch
+        // updated rows should has version 1, if rows wasn't updated version should be 0
         $this->assertEquals(0, $rows[0]['version']);
         $this->assertEquals(1, $rows[1]['version']);
         $this->assertEquals(1, $rows[2]['version']);
@@ -335,7 +335,7 @@ class BranchComponentTest extends StorageApiTestCase
         $config->setRowsSortOrder([]);
         $branchComponents->updateConfiguration($config);
 
-        // if update two times version is still 1
+        // if updated twice, version is still 1
         $newName = 'neco-nove';
         $config->setName($newName)
             ->setDescription($newDesc)
