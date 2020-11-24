@@ -237,7 +237,7 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertEquals('dev-1-row-3', $rows[2]['id']);
         $this->assertCount(3, $rows);
 
-        // updated rows should has version 1, if rows wasn't updated version should be 0
+        // updated rows should have version 1, if rows weren't updated version should be 0
         $this->assertEquals(0, $rows[0]['version']);
         $this->assertEquals(1, $rows[1]['version']);
         $this->assertEquals(1, $rows[2]['version']);
@@ -258,23 +258,6 @@ class BranchComponentTest extends StorageApiTestCase
         );
 
         $this->assertEquals('Renamed Dev 1 Row 1', $updatedRow['name']);
-        $this->assertEquals('{"id":"10","stuff":"true"}', $updatedRow['configuration'][0]);
-        $this->assertEquals(1, $updatedRow['version']);
-
-        $branchComponents->updateConfigurationRow(
-            (new ConfigurationRow($configurationOptions))
-                ->setRowId('main-1-row-1')
-                ->setName('Renamed Main 1 Row 1')
-                ->setConfiguration('{"id":"10","stuff":"true"}')
-        );
-
-        $updatedRow = $branchComponents->getConfigurationRow(
-            $componentId,
-            'main-1',
-            'main-1-row-1'
-        );
-
-        $this->assertEquals('Renamed Main 1 Row 1', $updatedRow['name']);
         $this->assertEquals('{"id":"10","stuff":"true"}', $updatedRow['configuration'][0]);
         $this->assertEquals(1, $updatedRow['version']);
 
