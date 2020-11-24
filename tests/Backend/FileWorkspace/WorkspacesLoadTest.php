@@ -3,8 +3,10 @@
 namespace Keboola\Test\Backend\FileWorkspace;
 
 use Keboola\Csv\CsvFile;
+use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
+use Keboola\StorageApi\Options\TokenUpdateOptions;
 use Keboola\StorageApi\Workspaces;
 use Keboola\StorageApi\ClientException;
 use Keboola\Test\Backend\FileWorkspace\Backend\Abs;
@@ -32,6 +34,16 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
             new CsvFile($table2Csv)
         );
 
+        $file1Csv = __DIR__ . '/../../_data/languages.more-rows.csv';
+        $fileId = $this->_client->uploadFile(
+            (new CsvFile($file1Csv))->getPathname(),
+            (new FileUploadOptions())
+                ->setNotify(false)
+                ->setIsPublic(false)
+                ->setCompress(true)
+                ->setTags(['test-file-1'])
+        );
+
         $mapping1 = [
             "source" => $table1Id,
             "destination" => "languagesLoaded",
@@ -40,8 +52,12 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
             "source" => $table2Id,
             "destination" => "numbersLoaded",
         ];
+        $mapping3 = [
+            "dataFileId" => $fileId,
+            "destination" => "languagesLoadedMore",
+        ];
 
-        $input = [$mapping1, $mapping2];
+        $input = [$mapping1, $mapping2, $mapping3];
 
         // test if job is created and listed
         $initialJobs = $this->_client->listJobs();
@@ -79,6 +95,12 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
             $data,
             0
         );
+        $data = $backend->fetchAll('languagesLoadedMore', ["id", "name"], true, true, false);
+        $this->assertArrayEqualsSorted(
+            $this->_readCsv($file1Csv),
+            $data,
+            0
+        );
         // load table again to new destination to test if workspace was cleared
         $workspaces->loadWorkspaceData($workspace['id'], [
             "input" => [
@@ -91,6 +113,8 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $blobs = $backend->listFiles('languagesLoaded');
         $this->assertCount(0, $blobs);
         $blobs = $backend->listFiles('numbersLoaded');
+        $this->assertCount(0, $blobs);
+        $blobs = $backend->listFiles('languagesLoadedMore');
         $this->assertCount(0, $blobs);
         $this->assertManifest($backend, 'second');
 
@@ -106,6 +130,64 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
             ],
             'preserve' => true,
         ]);
+    }
+
+    public function testWorkspaceLoadFilePermissionsCanReadAllFiles()
+    {
+        $fileCsv = __DIR__ . '/../../_data/languages.more-rows.csv';
+        $fileId = $this->_client->uploadFile(
+            (new CsvFile($fileCsv))->getPathname(),
+            (new FileUploadOptions())
+                ->setNotify(false)
+                ->setIsPublic(false)
+                ->setCompress(true)
+                ->setTags(['test-file-1'])
+        );
+
+        // non admin token having canReadAllFileUploads permission
+        $tokenOptions = (new TokenCreateOptions())
+            ->setDescription('Files test')
+            ->setCanReadAllFileUploads(true)
+        ;
+
+        $newTokenId = $this->_client->createToken($tokenOptions);
+        $newToken = $this->_client->getToken($newTokenId);
+        $newTokenClient = $this->getClient([
+            'token' => $newToken['token'],
+            'url' => STORAGE_API_URL
+        ]);
+
+        $workspaces = new Workspaces($newTokenClient);
+        $workspace = $this->createFileWorkspace($workspaces);
+
+        $mapping = [
+            "dataFileId" => $fileId,
+            "destination" => "languagesLoadedMore",
+        ];
+
+        $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping]]);
+
+        $backend = new Abs($workspace['connection']);
+        $data = $backend->fetchAll('languagesLoadedMore', ["id", "name"], true, true, false);
+        $this->assertArrayEqualsSorted(
+            $this->_readCsv($fileCsv),
+            $data,
+            0
+        );
+
+        // non admin token without canReadAllFileUploads permission
+        $this->_client->updateToken(
+            (new TokenUpdateOptions($newTokenId))
+                ->setCanReadAllFileUploads(false)
+        );
+
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping]]);
+        } catch (ClientException $e) {
+            $this->assertSame(403, $e->getCode());
+            $this->assertSame('You don\'t have access to resource.', $e->getMessage());
+            $this->assertSame('accessDenied', $e->getStringCode());
+        }
     }
 
     public function testWorkspaceLoadAliasTable()
@@ -778,6 +860,36 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         } catch (ClientException $e) {
             $this->assertEquals(404, $e->getCode());
             $this->assertEquals('workspace.sourceNotFound', $e->getStringCode());
+        }
+    }
+
+    public function testDataFileIdNotFound()
+    {
+        $workspaces = new Workspaces($this->_client);
+
+        $workspace = $this->createFileWorkspace($workspaces);
+
+        // let's try loading from a table that doesn't exist
+        $mappingInvalidSource = [
+            'dataFileId' => 'this-is-for-sure-not-file',
+            'destination' => 'whatever',
+            'columns' => [
+                [
+                    'source' => 'fake',
+                    'type' => 'fake',
+                ],
+            ],
+        ];
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            ['input' => [$mappingInvalidSource]]
+        );
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], $options);
+            $this->fail('Source does not exist, this should fail');
+        } catch (ClientException $e) {
+            $this->assertEquals(404, $e->getCode());
+            $this->assertEquals('workspace.dataFileIdNotFound', $e->getStringCode());
         }
     }
 
