@@ -198,7 +198,7 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertNotEmpty($branchMain1Detail);
         // versions are reset to 1 when copied to dev branch
         $this->assertSame(3, $mainComponentDetail['version']);
-        $this->assertSame(1, $branchMain1Detail['version']);
+        $this->assertSame(0, $branchMain1Detail['version']);
 
         try {
             $branchComponents->getConfiguration($componentId, 'main-2');
@@ -238,7 +238,7 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertCount(3, $rows);
 
         // all version should be 1 until we implement versioning for dev branch
-        $this->assertEquals(1, $rows[0]['version']);
+        $this->assertEquals(0, $rows[0]['version']);
         $this->assertEquals(1, $rows[1]['version']);
         $this->assertEquals(1, $rows[2]['version']);
         $devBranchConfiguration = $branchComponents->getConfiguration($componentId, 'main-1');
@@ -258,6 +258,23 @@ class BranchComponentTest extends StorageApiTestCase
         );
 
         $this->assertEquals('Renamed Dev 1 Row 1', $updatedRow['name']);
+        $this->assertEquals('{"id":"10","stuff":"true"}', $updatedRow['configuration'][0]);
+        $this->assertEquals(1, $updatedRow['version']);
+
+        $branchComponents->updateConfigurationRow(
+            (new ConfigurationRow($configurationOptions))
+                ->setRowId('main-1-row-1')
+                ->setName('Renamed Main 1 Row 1')
+                ->setConfiguration('{"id":"10","stuff":"true"}')
+        );
+
+        $updatedRow = $branchComponents->getConfigurationRow(
+            $componentId,
+            'main-1',
+            'main-1-row-1'
+        );
+
+        $this->assertEquals('Renamed Main 1 Row 1', $updatedRow['name']);
         $this->assertEquals('{"id":"10","stuff":"true"}', $updatedRow['configuration'][0]);
         $this->assertEquals(1, $updatedRow['version']);
 
@@ -312,6 +329,14 @@ class BranchComponentTest extends StorageApiTestCase
         $newName = 'neco';
         $newDesc = 'some desc';
         $configurationData = ['x' => 'y'];
+        $config->setName($newName)
+            ->setDescription($newDesc)
+            ->setConfiguration($configurationData);
+        $config->setRowsSortOrder([]);
+        $branchComponents->updateConfiguration($config);
+
+        // if update two times version is still 1
+        $newName = 'neco-nove';
         $config->setName($newName)
             ->setDescription($newDesc)
             ->setConfiguration($configurationData);
