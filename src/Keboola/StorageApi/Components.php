@@ -120,6 +120,11 @@ class Components
         return $this->client->apiGet("components?" . http_build_query($options->toParamsArray()));
     }
 
+    public function getComponent($componentId)
+    {
+        return $this->client->apiGet("components/{$componentId}");
+    }
+
     public function listComponentConfigurations(ListComponentConfigurationsOptions $options)
     {
         return $this->client->apiGet("components/{$options->getComponentId()}/configs?" . http_build_query($options->toParamsArray()));
