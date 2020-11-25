@@ -3,6 +3,7 @@ namespace Keboola\Test\Common;
 
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
+use Keboola\StorageApi\Options\Components\ConfigurationRowState;
 use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions;
@@ -1822,6 +1823,107 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertNotEmpty($version['created']);
         $this->assertEquals($newToken['id'], $version['creatorToken']['id']);
         $this->assertEquals($newToken['description'], $version['creatorToken']['description']);
+    }
+
+    public function testComponentConfigRowStateUpdate()
+    {
+        $componentId = 'wr-db';
+        $configurationId = 'main-1';
+        $rowId = 'main-1-1';
+
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setName('Main')
+            ->setDescription('some desc');
+
+        $originalToken = $this->_client->verifyToken();
+
+        $components = new \Keboola\StorageApi\Components($this->_client);
+
+        $components->addConfiguration($configuration);
+
+        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRow->setRowId($rowId);
+
+        $components->addConfigurationRow($configurationRow);
+
+        $state = [
+            'my' => 'test',
+        ];
+
+        $rowState = (new ConfigurationRowState($configuration))
+            ->setRowId($rowId)
+            ->setState($state)
+        ;
+
+        $row = $components->updateConfigurationRowState($rowState);
+
+        $this->assertSame($state, $row['state']);
+        $this->assertSame(1, $row['version']);
+        $this->assertSame(
+            $row,
+            $components->getConfigurationRow(
+                $rowState->getComponentConfiguration()->getComponentId(),
+                $rowState->getComponentConfiguration()->getConfigurationId(),
+                $rowState->getRowId()
+            )
+        );
+
+        $stateEndpoint = "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/state";
+
+        try {
+            $this->_client->apiPut($stateEndpoint, [
+                'state' => '{sdf}',
+            ]);
+            $this->fail('Post invalid json should not be allowed.');
+        } catch (ClientException $e) {
+            $this->assertEquals(400, $e->getCode());
+            $this->assertEquals('validation.invalidStateFormat', $e->getStringCode());
+            $this->assertEquals('Invalid state body format: This value should be valid JSON.', $e->getMessage());
+        }
+
+        try {
+            $this->_client->apiPut($stateEndpoint, [
+                'description' => 'Test',
+                'state' => json_encode('{}')
+            ]);
+            $this->fail('Post additional fileds should not be allowed.');
+        } catch (ClientException $e) {
+            $this->assertEquals(400, $e->getCode());
+            $this->assertEquals('storage.componentsRows.validation', $e->getStringCode());
+            $this->assertEquals('Invalid parameters - description: This field was not expected.', $e->getMessage());
+        }
+
+        try {
+            $this->_client->apiPut($stateEndpoint, [
+                'state' => ''
+            ]);
+            $this->fail('Post empty state should not be allowed.');
+        } catch (ClientException $e) {
+            $this->assertEquals(400, $e->getCode());
+            $this->assertEquals('validation.invalidStateFormat', $e->getStringCode());
+            $this->assertEquals('Invalid state body format: This value should not be blank.', $e->getMessage());
+        }
+
+        try {
+            $this->_client->apiPut($stateEndpoint, []);
+            $this->fail('Post without state should not be allowed.');
+        } catch (ClientException $e) {
+            $this->assertEquals(400, $e->getCode());
+            $this->assertEquals('validation.invalidStateFormat', $e->getStringCode());
+            $this->assertEquals('Invalid state body format: This field is missing.', $e->getMessage());
+        }
+
+        $this->assertSame(
+            $row,
+            $components->getConfigurationRow(
+                $rowState->getComponentConfiguration()->getComponentId(),
+                $rowState->getComponentConfiguration()->getConfigurationId(),
+                $rowState->getRowId()
+            )
+        );
     }
 
     public function testComponentConfigRowDelete()
