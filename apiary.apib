@@ -4985,7 +4985,9 @@ Updates state of an existing configuration.
                 },
                 "rowsSortOrder": [],
                 "rows": [],
-                "state": {},
+                "state": {
+                    "lastId": 123
+                },
                 "currentVersion": {
                     "created": "2017-02-14T14:48:41+0100",
                     "creatorToken": {
@@ -5039,7 +5041,9 @@ Updates state of an existing configuration for [Development Branch](#reference/d
                 },
                 "rowsSortOrder": [],
                 "rows": [],
-                "state": {},
+                "state": {
+                    "lastId": 123
+                },
                 "currentVersion": {
                     "created": "2017-02-14T14:48:41+0100",
                     "creatorToken": {
@@ -5578,6 +5582,7 @@ independently on the configurations.
 + Attributes
     + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB
     + state (optional) - Serialized configuration state JSON; the maximum allowed size is 4MB
+    + state (optional) - **DEPRECATED will be removed in the future. For state updates use [state endpoint](/#reference/component-configurations/manage-configuration-rows/update-row-state).**  Serialized configuration state JSON; the maximum allowed size is 4MB.
     + name (optional, string) - Row name
     + description (optional, string) - Row description
     + isDisabled (optional, boolean) - Disabled flag
@@ -5625,7 +5630,6 @@ independently on the configurations.
 
 + Attributes
     + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB
-    + state (optional) - Serialized configuration state JSON; the maximum allowed size is 4MB
     + name (optional, string) - Row name
     + description (optional, string) - Row description
     + isDisabled (optional, boolean) - Disabled flag
@@ -5660,6 +5664,94 @@ independently on the configurations.
                 },
                 "changeDescription": "change description"
             }
+
+### Update Row State [PUT /v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/state]
+Updates state of an existing row.
+
++ Parameters
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration
+    + row_id (required) - Id of the configuration row
+
++ Attributes
+    + state (required) - Serialized configuration state JSON; the maximum allowed size is 4MB
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            state%3D%7B%22lastId%22%3A123%7D
+
++ Response 200 (application/json)
+
+            {
+                "id": "236781529",
+                "configuration": {
+                    "host": "localhost",
+                    "port": null
+                },
+                "state": {
+                    "lastId": 123
+                },
+                "name": "",
+                "description": "",
+                "isDisabled": false,
+                "version": 2,
+                "created": "2017-02-15T00:04:42+0100",
+                "creatorToken": {
+                    "id": 27978,
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "changeDescription": "change description"
+            }
+
+### Update Row State For Development Branch [PUT /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}/state]
+Updates state of an existing configuration for [Development Branch](#reference/development-branches).
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration
+    + row_id (required) - Id of the configuration row
+
++ Attributes
+    + state (required) - Serialized configuration state JSON; the maximum allowed size is 4MB
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            state%3D%7B%22lastId%22%3A123%7D
+
++ Response 200 (application/json)
+
+            {
+                "id": "236781529",
+                "configuration": {
+                    "host": "localhost",
+                    "port": null
+                },
+                "state": {
+                    "lastId": 123
+                },
+                "name": "",
+                "description": "",
+                "isDisabled": false,
+                "version": 2,
+                "created": "2017-02-15T00:04:42+0100",
+                "creatorToken": {
+                    "id": 27978,
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "changeDescription": "change description"
+            }
+
 
 ### Delete Row [DELETE]
 Deletes a configuration row. A configuration row is deleted permanently and cannot be restored.

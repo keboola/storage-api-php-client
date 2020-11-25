@@ -1,16 +1,9 @@
 <?php
-/**
- * Created by JetBrains PhpStorm.
- * User: martinhalamicek
- * Date: 16/09/14
- * Time: 01:48
- * To change this template use File | Settings | File Templates.
- */
-
 namespace Keboola\StorageApi;
 
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
+use Keboola\StorageApi\Options\Components\ConfigurationRowState;
 use Keboola\StorageApi\Options\Components\ConfigurationState;
 use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions;
@@ -83,11 +76,19 @@ class Components
 
     public function updateConfigurationState(ConfigurationState $options)
     {
+        $data = [];
+
+        if ($options->getState() !== null) {
+            if ($options->getState() === []) {
+                $data['state'] = '{}';
+            } else {
+                $data['state'] = json_encode($options->getState());
+            }
+        }
+
         return $this->client->apiPut(
             "components/{$options->getComponentId()}/configs/{$options->getConfigurationId()}/state",
-            [
-                'state' => json_encode($options->getState()),
-            ]
+            $data
         );
     }
 
@@ -253,6 +254,29 @@ class Components
         return $this->client->apiPut(
             sprintf(
                 "components/%s/configs/%s/rows/%s",
+                $options->getComponentConfiguration()->getComponentId(),
+                $options->getComponentConfiguration()->getConfigurationId(),
+                $options->getRowId()
+            ),
+            $data
+        );
+    }
+
+    public function updateConfigurationRowState(ConfigurationRowState $options)
+    {
+        $data = [];
+
+        if ($options->getState() !== null) {
+            if ($options->getState() === []) {
+                $data['state'] = '{}';
+            } else {
+                $data['state'] = json_encode($options->getState());
+            }
+        }
+
+        return $this->client->apiPut(
+            sprintf(
+                "components/%s/configs/%s/rows/%s/state",
                 $options->getComponentConfiguration()->getComponentId(),
                 $options->getComponentConfiguration()->getConfigurationId(),
                 $options->getRowId()
