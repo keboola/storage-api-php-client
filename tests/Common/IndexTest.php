@@ -38,6 +38,7 @@ class IndexTest extends StorageApiTestCase
 
     public function testIndexExclude()
     {
+        // exclude=components
         $index = $this->_client->indexAction((new IndexOptions())->setExclude(['components']));
         $this->assertEquals('storage', $index['api']);
         $this->assertEquals('v2', $index['version']);
@@ -50,6 +51,27 @@ class IndexTest extends StorageApiTestCase
 
         $urlTemplates = $index['urlTemplates'];
         $this->assertArrayHasKey('orchestrationJob', $urlTemplates);
+
+        // exclude=componentDetails
+        $indexWithoutComponentDetails = $this->_client->indexAction((new IndexOptions())->setExclude(['componentDetails']));
+        $this->assertArrayHasKey('components', $indexWithoutComponentDetails);
+        $this->assertIsArray($indexWithoutComponentDetails['components']);
+
+        $componentsWithoutDetails = $indexWithoutComponentDetails['components'];
+        $this->assertIsArray($componentsWithoutDetails);
+        $this->assertArrayHasKey(0, $componentsWithoutDetails);
+
+        $firstComponent = $componentsWithoutDetails[0];
+        $this->assertIsArray($firstComponent);
+        $this->assertSame(4, count($firstComponent));
+        $this->assertArrayHasKey('id', $firstComponent);
+        $this->assertArrayHasKey('name', $firstComponent);
+        $this->assertArrayHasKey('type', $firstComponent);
+        $this->assertArrayHasKey('ico64', $firstComponent);
+
+        // exclude=components,componentDetails
+        $indexWithoutComponents = $this->_client->indexAction((new IndexOptions())->setExclude(['components', 'componentDetails']));
+        $this->assertArrayNotHasKey('components', $indexWithoutComponents);
     }
 
     public function testSuccessfullyWebalizeDisplayName()
