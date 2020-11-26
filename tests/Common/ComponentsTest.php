@@ -37,6 +37,22 @@ class ComponentsTest extends StorageApiTestCase
         }
     }
 
+    public function testGetComponentDetail()
+    {
+        $componentId = 'wr-db';
+        $componentsClient = new \Keboola\StorageApi\Components($this->_client);
+        $component = $componentsClient->getComponent($componentId);
+
+        $this->assertEquals('wr-db', $component['id']);
+
+        $this->assertArrayHasKey('name', $component);
+        $this->assertArrayHasKey('type', $component);
+        $this->assertArrayHasKey('description', $component);
+        $this->assertArrayHasKey('uri', $component);
+
+        $this->assertArrayNotHasKey('configurations', $component);
+    }
+
     public function testComponentConfigRenew()
     {
         $componentId = 'wr-db';
