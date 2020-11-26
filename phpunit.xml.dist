@@ -122,6 +122,7 @@
 		<file>tests/Backend/FileWorkspace/WorkspacesTest.php</file>
 		<file>tests/Backend/FileWorkspace/WorkspacesLoadTest.php</file>
 		<file>tests/Backend/FileWorkspace/WorkspacesUnloadTest.php</file>
+		<file>tests/Backend/FileWorkspace/ComponentsWorkspacesTest.php</file>
 <!--	DataPreviewLimitsTest is in tests/Backend/Synapse -->
 		<exclude>tests/Backend/CommonPart1/DataPreviewLimitsTest.php</exclude>
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
