@@ -547,16 +547,23 @@ This method can be executed by all tokens.
             }
 
 # Group Miscellaneous
+
 ## API Index [/v2/storage]
+
 ### Component List [GET /v2/storage?exclude={exclude}]
+
 Use this API call to obtain definitions of all components, services and stack features available in KBC. For more information about
 the KBC Component architecture, see the [Developers documentation](https://developers.keboola.com/overview/).
 
+- `?exclude=components` - the `components` field won't be present in a response
+- `?exclude=componentDetails` - the `components` field will include only `id`, `name`, `type` and
+`ico64` properties for each component
+
 + Parameters
-    + exclude (optional, enum[string]) - Comma-separated list of resources to exclude from response
+    + exclude (optional, enum[string]) - Comma-separated list of resources or parts to exclude from response
         + Members
             + components
-        + Default: ''
+            + componentDetails
 
 + Response 200 (application/json)
     + Body
