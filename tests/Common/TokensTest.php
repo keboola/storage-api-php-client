@@ -1187,28 +1187,6 @@ class TokensTest extends StorageApiTestCase
         $this->assertSame(true, $token['canUseDirectAccess']);
     }
 
-    public function testShareRoleTokenSettings()
-    {
-        $client = $this->getClientForToken(STORAGE_API_SHARE_TOKEN);
-        $token = $client->verifyToken();
-
-        $this->assertArrayHasKey('admin', $token);
-        $this->assertArrayHasKey('role', $token['admin']);
-
-        $this->assertSame('share', $token['admin']['role']);
-
-        $this->assertArrayHasKey('canManageBuckets', $token);
-        $this->assertSame(true, $token['canManageBuckets']);
-        $this->assertArrayHasKey('canManageTokens', $token);
-        $this->assertSame(true, $token['canManageTokens']);
-        $this->assertArrayHasKey('canReadAllFileUploads', $token);
-        $this->assertSame(true, $token['canReadAllFileUploads']);
-        $this->assertArrayHasKey('canPurgeTrash', $token);
-        $this->assertSame(true, $token['canPurgeTrash']);
-        $this->assertArrayHasKey('canUseDirectAccess', $token);
-        $this->assertSame(true, $token['canUseDirectAccess']);
-    }
-
     public function testReadOnlyRoleTokenSettings()
     {
         $client = $this->getClientForToken(STORAGE_API_READ_ONLY_TOKEN);
@@ -1296,20 +1274,6 @@ class TokensTest extends StorageApiTestCase
         $this->assertArrayNotHasKey('componentAccess', $token);
         $this->assertNotEmpty($token['expires']);
         $this->assertSame([], $token['bucketPermissions']);
-    }
-
-    /**
-     * @dataProvider limitedTokenOptionsData
-     */
-    public function testReadOnlyUserCannotCreateLimitedToken(TokenCreateOptions $options)
-    {
-        $client = $this->getClientForToken(STORAGE_API_READ_ONLY_TOKEN);
-
-        $this->expectExceptionCode(403);
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('You don\'t have access to the resource.');
-
-        $client->createToken($options);
     }
 
     public function limitedTokenOptionsData()

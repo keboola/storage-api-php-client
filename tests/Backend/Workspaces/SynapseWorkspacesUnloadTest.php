@@ -111,7 +111,7 @@ class SynapseWorkspacesUnloadTest extends WorkspacesTestCase
         $db->query("insert into $quotedTableId ([Id], [Name], [_update]) values (1, 'cz', 'x');");
         $db->query("insert into $quotedTableId ([Id], [Name], [_update]) values (2, 'en', 'z');");
 
-        $table = $this->_client->apiPost("buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(
+        $table = $this->_client->apiPost("storage/buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(
             'dataString' => 'Id,Name',
             'name' => 'languages',
             'primaryKey' => 'Id',
@@ -132,7 +132,7 @@ class SynapseWorkspacesUnloadTest extends WorkspacesTestCase
 
     public function testCopyImport()
     {
-        $table = $this->_client->apiPost("buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(
+        $table = $this->_client->apiPost("storage/buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(
             'dataString' => 'Id,Name,update',
             'name' => 'languages',
             'primaryKey' => 'Id',

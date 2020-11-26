@@ -176,7 +176,7 @@ class WorkspacesTest extends WorkspacesTestCase
         $workspaces = new Workspaces($this->_client);
 
         try {
-            $workspaces->deleteWorkspace(0, $dropOptions);
+            $workspaces->deleteWorkspace('fake', $dropOptions);
             $this->fail('exception should be thrown');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.workspaceNotFound', $e->getStringCode());

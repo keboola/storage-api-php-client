@@ -22,10 +22,10 @@ class LegacyIndexedColumnsTest extends StorageApiTestCase
 
 
         $indexedColumnName = 'id';
-        $this->_client->apiPost("tables/$tableId/indexed-columns", [
+        $this->_client->apiPost("storage/tables/$tableId/indexed-columns", [
             'name' => $indexedColumnName,
         ]);
-        $this->_client->apiDelete("tables/$tableId/indexed-columns/$indexedColumnName");
+        $this->_client->apiDelete("storage/tables/$tableId/indexed-columns/$indexedColumnName");
 
         $table = $this->_client->getTable($tableId);
         $this->assertArrayHasKey('indexedColumns', $table, 'indexedColumns should still be present in response');

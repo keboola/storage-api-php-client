@@ -6,16 +6,15 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\MessageFormatter;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
-use Keboola\StorageApi\Downloader\BlobClientFactory;
 use Keboola\StorageApi\Options\BucketUpdateOptions;
 use Keboola\StorageApi\Options\FileUploadTransferOptions;
 use Keboola\StorageApi\Options\GetFileOptions;
-use Keboola\StorageApi\Options\IndexOptions;
 use Keboola\StorageApi\Options\ListFilesOptions;
 use Keboola\StorageApi\Options\SearchTablesOptions;
 use Keboola\StorageApi\Options\StatsOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
+use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Blob\Models\CreateBlockBlobOptions;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
@@ -24,6 +23,7 @@ use Psr\Log\NullLogger;
 use Symfony\Component\Filesystem\Filesystem;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Options\FileUploadOptions;
+use Symfony\Component\Process\Process;
 
 class Client
 {
@@ -181,20 +181,15 @@ class Client
      * API index with available components list
      * @return array
      */
-    public function indexAction(IndexOptions $options = null)
+    public function indexAction()
     {
-        $url = '';
-
-        if ($options !== null) {
-            $url .= '?' . http_build_query($options->toArray());
-        }
-        return $this->apiGet($url);
+        return $this->apiGet("storage");
     }
 
     public function webalizeDisplayName($displayName)
     {
         return $this->apiPostJson(
-            'webalize/display-name',
+            'storage/webalize/display-name',
             ['displayName' => $displayName]
         );
     }
@@ -217,7 +212,7 @@ class Client
      */
     public function listBuckets($options = array())
     {
-        return $this->apiGet("buckets?" . http_build_query($options));
+        return $this->apiGet("storage/buckets?" . http_build_query($options));
     }
 
     /**
@@ -248,7 +243,7 @@ class Client
      */
     public function getBucket($bucketId)
     {
-        return $this->apiGet("buckets/" . $bucketId);
+        return $this->apiGet("storage/buckets/" . $bucketId);
     }
 
     /**
@@ -257,7 +252,7 @@ class Client
      */
     public function updateBucket(BucketUpdateOptions $options)
     {
-        return $this->apiPut('buckets/' . $options->getBucketId(), $options->toParamsArray());
+        return $this->apiPut('storage/buckets/' . $options->getBucketId(), $options->toParamsArray());
     }
 
     /**
@@ -292,7 +287,7 @@ class Client
             return $bucketId;
         }
 
-        $result = $this->apiPost("buckets", $options);
+        $result = $this->apiPost("storage/buckets", $options);
 
         $this->log("Bucket {$result["id"]} created", array("options" => $options, "result" => $result));
 
@@ -322,7 +317,7 @@ class Client
             $options['displayName'] = $displayName;
         }
 
-        $result = $this->apiPost("buckets", $options);
+        $result = $this->apiPost("storage/buckets", $options);
 
         $this->log("Shared bucket {$result["id"]} linked to the project", array("options" => $options, "result" => $result));
 
@@ -339,7 +334,7 @@ class Client
      */
     public function dropBucket($bucketId, $options = array())
     {
-        $url = "buckets/" . $bucketId;
+        $url = "storage/buckets/" . $bucketId;
 
         $allowedOptions = array(
             'force',
@@ -355,7 +350,7 @@ class Client
 
     public function shareBucket($bucketId, $options = [])
     {
-        $url = "buckets/" . $bucketId . "/share";
+        $url = "storage/buckets/" . $bucketId . "/share";
         $url .= '?' . http_build_query($options);
 
         $result = $this->apiPost($url, [], false);
@@ -367,7 +362,7 @@ class Client
 
     public function shareOrganizationBucket($bucketId)
     {
-        $url = "buckets/" . $bucketId . "/share-organization";
+        $url = "storage/buckets/" . $bucketId . "/share-organization";
 
         $result = $this->apiPost($url, [], false);
 
@@ -378,7 +373,7 @@ class Client
 
     public function shareOrganizationProjectBucket($bucketId)
     {
-        $url = "buckets/" . $bucketId . "/share-organization-project";
+        $url = "storage/buckets/" . $bucketId . "/share-organization-project";
 
         $result = $this->apiPost($url, [], false);
 
@@ -389,7 +384,7 @@ class Client
 
     public function shareBucketToProjects($bucketId, $targetProjectIds)
     {
-        $url = "buckets/" . $bucketId . "/share-to-projects";
+        $url = "storage/buckets/" . $bucketId . "/share-to-projects";
         $url .= '?' . http_build_query(['targetProjectIds' => $targetProjectIds]);
 
         $result = $this->apiPost($url, [], false);
@@ -401,7 +396,7 @@ class Client
 
     public function shareBucketToUsers($bucketId, $targetUsers = [])
     {
-        $url = "buckets/" . $bucketId . "/share-to-users";
+        $url = "storage/buckets/" . $bucketId . "/share-to-users";
         $url .= '?' . http_build_query(['targetUsers' => $targetUsers]);
 
         $result = $this->apiPost($url, [], false);
@@ -413,7 +408,7 @@ class Client
 
     public function changeBucketSharing($bucketId, $sharing)
     {
-        $url = "buckets/" . $bucketId . "/share";
+        $url = "storage/buckets/" . $bucketId . "/share";
 
         $result = $this->apiPut($url, ['sharing' => $sharing]);
 
@@ -424,7 +419,7 @@ class Client
 
     public function unshareBucket($bucketId)
     {
-        $url = "buckets/" . $bucketId . "/share";
+        $url = "storage/buckets/" . $bucketId . "/share";
 
         return $this->apiDelete($url);
     }
@@ -432,7 +427,7 @@ class Client
     public function forceUnlinkBucket($bucketId, $projectId, $options = [])
     {
 
-        $url = "buckets/" . $bucketId . "/links/" . $projectId;
+        $url = "storage/buckets/" . $bucketId . "/links/" . $projectId;
 
         $allowedOptions = [
             'async',
@@ -447,7 +442,7 @@ class Client
 
     public function isSharedBucket($bucketId)
     {
-        $url = "buckets/" . $bucketId;
+        $url = "storage/buckets/" . $bucketId;
 
         $result = $this->apiGet($url);
 
@@ -456,7 +451,7 @@ class Client
 
     public function listSharedBuckets($options = [])
     {
-        $url = "shared-buckets";
+        $url = "storage/shared-buckets";
 
         $allowedOptions = [
             'include',
@@ -489,7 +484,7 @@ class Client
         if ($protected !== null) {
             $data['protected'] = (bool)$protected;
         }
-        $this->apiPost("buckets/$bucketId/attributes/$key", $data);
+        $this->apiPost("storage/buckets/$bucketId/attributes/$key", $data);
     }
 
     /**
@@ -503,7 +498,7 @@ class Client
         if (!empty($attributes)) {
             $params['attributes'] = $attributes;
         }
-        $this->apiPost("buckets/$bucketId/attributes", $params);
+        $this->apiPost("storage/buckets/$bucketId/attributes", $params);
     }
 
 
@@ -518,7 +513,7 @@ class Client
      */
     public function deleteBucketAttribute($bucketId, $key)
     {
-        $result = $this->apiDelete("buckets/$bucketId/attributes/$key");
+        $result = $this->apiDelete("storage/buckets/$bucketId/attributes/$key");
         $this->log("Bucket $bucketId attribute $key deleted");
         return $result;
     }
@@ -572,7 +567,7 @@ class Client
         if ($tableId) {
             return $tableId;
         }
-        $result = $this->apiPostMultipart("buckets/" . $bucketId . "/tables", $this->prepareMultipartData($options));
+        $result = $this->apiPostMultipart("storage/buckets/" . $bucketId . "/tables", $this->prepareMultipartData($options));
 
         $this->log("Table {$result["id"]} created", array("options" => $options, "result" => $result));
 
@@ -636,7 +631,7 @@ class Client
      */
     public function createTableAsyncDirect($bucketId, $options = array())
     {
-        $createdTable = $this->apiPost("buckets/{$bucketId}/tables-async", $options);
+        $createdTable = $this->apiPost("storage/buckets/{$bucketId}/tables-async", $options);
         return $createdTable['id'];
     }
 
@@ -696,7 +691,7 @@ class Client
             $filteredOptions['aliasColumns'] = (array)$options['aliasColumns'];
         }
 
-        $result = $this->apiPost("buckets/" . $bucketId . "/table-aliases", $filteredOptions);
+        $result = $this->apiPost("storage/buckets/" . $bucketId . "/table-aliases", $filteredOptions);
         $this->log("Table alias {$result["id"]}  created", array("options" => $filteredOptions, "result" => $result));
         return $result["id"];
     }
@@ -707,7 +702,7 @@ class Client
      */
     public function createTableSnapshot($tableId, $snapshotDescription = null)
     {
-        $result = $this->apiPost("tables/{$tableId}/snapshots", array(
+        $result = $this->apiPost("storage/tables/{$tableId}/snapshots", array(
             'description' => $snapshotDescription,
         ));
         $this->log("Snapthos {$result['id']} of table {$tableId} created.");
@@ -728,7 +723,7 @@ class Client
 
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
 
-        $result = $this->apiPut('tables/' . $tableId, $filteredOptions);
+        $result = $this->apiPut('storage/tables/' . $tableId, $filteredOptions);
         $this->log("Table {$tableId} updated");
         return $result['id'];
     }
@@ -739,7 +734,7 @@ class Client
      */
     public function listTableSnapshots($tableId, $options = array())
     {
-        return $this->apiGet("tables/{$tableId}/snapshots?" . http_build_query($options));
+        return $this->apiGet("storage/tables/{$tableId}/snapshots?" . http_build_query($options));
     }
 
     /**
@@ -749,7 +744,7 @@ class Client
      */
     public function setAliasTableFilter($tableId, array $filter)
     {
-        $result = $this->apiPost("tables/$tableId/alias-filter", $filter);
+        $result = $this->apiPost("storage/tables/$tableId/alias-filter", $filter);
         $this->log("Table $tableId  filter set", array(
             'filter' => $filter,
             'result' => $result,
@@ -759,7 +754,7 @@ class Client
 
     public function removeAliasTableFilter($tableId)
     {
-        $this->apiDelete("tables/$tableId/alias-filter");
+        $this->apiDelete("storage/tables/$tableId/alias-filter");
     }
 
     /**
@@ -767,7 +762,7 @@ class Client
      */
     public function enableAliasTableColumnsAutoSync($tableId)
     {
-        $this->apiPost("tables/{$tableId}/alias-columns-auto-sync");
+        $this->apiPost("storage/tables/{$tableId}/alias-columns-auto-sync");
     }
 
     /**
@@ -775,7 +770,7 @@ class Client
      */
     public function disableAliasTableColumnsAutoSync($tableId)
     {
-        $this->apiDelete("tables/{$tableId}/alias-columns-auto-sync");
+        $this->apiDelete("storage/tables/{$tableId}/alias-columns-auto-sync");
     }
 
     /**
@@ -789,9 +784,9 @@ class Client
     public function listTables($bucketId = null, $options = array())
     {
         if ($bucketId) {
-            return $this->apiGet("buckets/{$bucketId}/tables?" . http_build_query($options));
+            return $this->apiGet("storage/buckets/{$bucketId}/tables?" . http_build_query($options));
         }
-        return $this->apiGet("tables?" . http_build_query($options));
+        return $this->apiGet("storage/tables?" . http_build_query($options));
     }
 
     /**
@@ -844,7 +839,7 @@ class Client
             throw new ClientException("Failed to open temporary data file " . $csvFile->getRealPath(), null, null, 'fileNotReadable');
         }
 
-        $result = $this->apiPostMultipart("tables/{$tableId}/import", $this->prepareMultipartData($optionsExtended));
+        $result = $this->apiPostMultipart("storage/tables/{$tableId}/import", $this->prepareMultipartData($optionsExtended));
 
         $this->log("Data written to table {$tableId}", array("options" => $optionsExtended, "result" => $result));
         return $result;
@@ -889,7 +884,7 @@ class Client
      */
     public function writeTableAsyncDirect($tableId, $options = array())
     {
-        return $this->apiPost("tables/{$tableId}/import-async", $this->writeTableOptionsPrepare($options));
+        return $this->apiPost("storage/tables/{$tableId}/import-async", $this->writeTableOptionsPrepare($options));
     }
 
     /**
@@ -899,7 +894,7 @@ class Client
      */
     public function queueTableImport($tableId, $options = array())
     {
-        $job = $this->apiPost("tables/{$tableId}/import-async", $this->writeTableOptionsPrepare($options), false);
+        $job = $this->apiPost("storage/tables/{$tableId}/import-async", $this->writeTableOptionsPrepare($options), false);
         return $job["id"];
     }
 
@@ -910,7 +905,7 @@ class Client
      */
     public function queueTableExport($tableId, $options = array())
     {
-        $job = $this->apiPost("tables/{$tableId}/export-async", $this->prepareExportOptions($options), false);
+        $job = $this->apiPost("storage/tables/{$tableId}/export-async", $this->prepareExportOptions($options), false);
         return $job["id"];
     }
 
@@ -922,7 +917,6 @@ class Client
             'escapedBy',
             'dataFileId',
             'dataTableName',
-            'dataObject',
             'dataWorkspaceId',
             'data',
             'withoutHeaders',
@@ -945,7 +939,7 @@ class Client
      */
     public function getTable($tableId)
     {
-        return $this->apiGet("tables/" . $tableId);
+        return $this->apiGet("storage/tables/" . $tableId);
     }
 
     /**
@@ -958,7 +952,7 @@ class Client
      */
     public function dropTable($tableId, $options = array())
     {
-        $url = "tables/" . $tableId;
+        $url = "storage/tables/" . $tableId;
 
         $allowedOptions = array(
             'force',
@@ -991,7 +985,7 @@ class Client
         if ($protected !== null) {
             $data['protected'] = (bool)$protected;
         }
-        $this->apiPost("tables/$tableId/attributes/$key", $data);
+        $this->apiPost("storage/tables/$tableId/attributes/$key", $data);
     }
 
     /**
@@ -1005,7 +999,7 @@ class Client
         if (!empty($attributes)) {
             $params['attributes'] = $attributes;
         }
-        $this->apiPost("tables/$tableId/attributes", $params);
+        $this->apiPost("storage/tables/$tableId/attributes", $params);
     }
 
     /**
@@ -1019,7 +1013,7 @@ class Client
      */
     public function deleteTableAttribute($tableId, $key)
     {
-        $result = $this->apiDelete("tables/$tableId/attributes/$key");
+        $result = $this->apiDelete("storage/tables/$tableId/attributes/$key");
         $this->log("Table $tableId attribute $key deleted");
         return $result;
     }
@@ -1036,7 +1030,7 @@ class Client
         $data = array(
             'name' => $name,
         );
-        $this->apiPost("tables/$tableId/columns", $data);
+        $this->apiPost("storage/tables/$tableId/columns", $data);
     }
 
 
@@ -1051,7 +1045,7 @@ class Client
      */
     public function deleteTableColumn($tableId, $name, $options = array())
     {
-        $url = "tables/$tableId/columns/$name";
+        $url = "storage/tables/$tableId/columns/$name";
 
         $allowedOptions = array(
             'force',
@@ -1094,7 +1088,7 @@ class Client
      */
     public function searchTables(SearchTablesOptions $options)
     {
-        return $this->apiGet("search/tables?" . http_build_query($options->toArray()));
+        return $this->apiGet("storage/search/tables?" . http_build_query($options->toArray()));
     }
 
     /**
@@ -1103,12 +1097,12 @@ class Client
      */
     public function getJob($jobId)
     {
-        return $this->apiGet("jobs/" . $jobId);
+        return $this->apiGet("storage/jobs/" . $jobId);
     }
 
     public function listJobs($options = [])
     {
-        return $this->apiGet("jobs?" . http_build_query($options));
+        return $this->apiGet("storage/jobs?" . http_build_query($options));
     }
 
     /**
@@ -1119,7 +1113,7 @@ class Client
      */
     public function listTokens()
     {
-        return $this->apiGet("tokens");
+        return $this->apiGet("storage/tokens");
     }
 
     /**
@@ -1131,7 +1125,7 @@ class Client
      */
     public function getToken($tokenId)
     {
-        return $this->apiGet("tokens/" . $tokenId);
+        return $this->apiGet("storage/tokens/" . $tokenId);
     }
 
     /**
@@ -1153,7 +1147,7 @@ class Client
      */
     public function verifyToken()
     {
-        return $this->apiGet("tokens/verify");
+        return $this->apiGet("storage/tokens/verify");
     }
 
     /**
@@ -1167,7 +1161,7 @@ class Client
 
     public function createToken(TokenCreateOptions $options)
     {
-        $result = $this->apiPost("tokens", $options->toParamsArray());
+        $result = $this->apiPost("storage/tokens", $options->toParamsArray());
 
         $this->log("Token {$result["id"]} created", ["options" => $options->toParamsArray(), "result" => $result]);
 
@@ -1183,7 +1177,7 @@ class Client
      */
     public function updateToken(TokenUpdateOptions $options)
     {
-        $result = $this->apiPut("tokens/" . $options->getTokenId(), $options->toParamsArray());
+        $result = $this->apiPut("storage/tokens/" . $options->getTokenId(), $options->toParamsArray());
 
         $this->log("Token {$options->getTokenId()} updated", [
             "options" => $options->toParamsArray(),
@@ -1199,7 +1193,7 @@ class Client
      */
     public function dropToken($tokenId)
     {
-        $result = $this->apiDelete("tokens/" . $tokenId);
+        $result = $this->apiDelete("storage/tokens/" . $tokenId);
         $this->log("Token {$tokenId} deleted");
         return $result;
     }
@@ -1218,7 +1212,7 @@ class Client
             $tokenId = $currentToken["id"];
         }
 
-        $result = $this->apiPost("tokens/" . $tokenId . "/refresh");
+        $result = $this->apiPost("storage/tokens/" . $tokenId . "/refresh");
 
         if ($currentToken["id"] == $result["id"]) {
             $this->token = $result['token'];
@@ -1236,7 +1230,7 @@ class Client
      */
     public function shareToken($tokenId, $recipientEmail, $message)
     {
-        $this->apiPost("tokens/$tokenId/share", array(
+        $this->apiPost("storage/tokens/$tokenId/share", array(
             'recipientEmail' => $recipientEmail,
             'message' => $message,
         ));
@@ -1258,7 +1252,7 @@ class Client
      */
     public function getTableDataPreview($tableId, $options = array())
     {
-        $url = "tables/{$tableId}/data-preview";
+        $url = "storage/tables/{$tableId}/data-preview";
         $url .= '?' . http_build_query($this->prepareExportOptions($options));
 
         return $this->apiGet($url);
@@ -1280,7 +1274,7 @@ class Client
     public function exportTableAsync($tableId, $options = array())
     {
         return $this->apiPost(
-            "tables/{$tableId}/export-async",
+            "storage/tables/{$tableId}/export-async",
             $this->prepareExportOptions($options)
         );
     }
@@ -1321,7 +1315,7 @@ class Client
      */
     public function deleteTableRows($tableId, $options = array())
     {
-        $url = "tables/{$tableId}/rows";
+        $url = "storage/tables/{$tableId}/rows";
 
         $allowedOptions = array(
             'changedSince',
@@ -1427,7 +1421,7 @@ class Client
         $options->setContentDisposition(
             sprintf('attachment; filename=%s', $prepareResult['name'])
         );
-        $blobClient = BlobClientFactory::createClientFromConnectionString(
+        $blobClient = BlobRestProxy::createBlobService(
             $prepareResult['absUploadParams']['absCredentials']['SASConnectionString']
         );
         $blobClient->createBlockBlob(
@@ -1581,7 +1575,7 @@ class Client
         array $prepareResult,
         array $slices
     ) {
-        $blobClient = BlobClientFactory::createClientFromConnectionString(
+        $blobClient = BlobRestProxy::createBlobService(
             $prepareResult['absUploadParams']['absCredentials']['SASConnectionString']
         );
 
@@ -1696,7 +1690,7 @@ class Client
 
     private function downloadAbsFile(array $fileInfo, $destination)
     {
-        $blobClient = BlobClientFactory::createClientFromConnectionString(
+        $blobClient = BlobRestProxy::createBlobService(
             $fileInfo['absCredentials']['SASConnectionString']
         );
         $getResult = $blobClient->getBlob($fileInfo['absPath']['container'], $fileInfo['absPath']['name']);
@@ -1734,9 +1728,10 @@ class Client
 
     private function downloadAbsSlicedFile(array $fileInfo, $destinationFolder)
     {
-        $blobClient = BlobClientFactory::createClientFromConnectionString(
+        $blobClient = BlobRestProxy::createBlobService(
             $fileInfo['absCredentials']['SASConnectionString']
         );
+
         if (!file_exists($destinationFolder)) {
             $fs = new Filesystem();
             $fs->mkdir($destinationFolder);
@@ -1809,7 +1804,7 @@ class Client
      */
     public function prepareFileUpload(FileUploadOptions $options)
     {
-        return $this->apiPost("files/prepare", array(
+        return $this->apiPost("storage/files/prepare", array(
             'isPublic' => $options->getIsPublic(),
             'isPermanent' => $options->getIsPermanent(),
             'isEncrypted' => $options->getIsEncrypted(),
@@ -1829,7 +1824,7 @@ class Client
      */
     public function deleteFile($fileId)
     {
-        return $this->apiDelete("files/$fileId");
+        return $this->apiDelete("storage/files/$fileId");
     }
 
 
@@ -1843,7 +1838,7 @@ class Client
         if (empty($fileId)) {
             throw new ClientException('File id cannot be empty');
         }
-        return $this->apiGet("files/$fileId?" . http_build_query($options ? $options->toArray() : array()));
+        return $this->apiGet("storage/files/$fileId?" . http_build_query($options ? $options->toArray() : array()));
     }
 
     /**
@@ -1853,12 +1848,12 @@ class Client
      */
     public function deleteFileTag($fileId, $tagName)
     {
-        $this->apiDelete("files/$fileId/tags/$tagName");
+        $this->apiDelete("storage/files/$fileId/tags/$tagName");
     }
 
     public function addFileTag($fileId, $tagName)
     {
-        $this->apiPost("files/$fileId/tags", array(
+        $this->apiPost("storage/files/$fileId/tags", array(
             'tag' => $tagName,
         ));
     }
@@ -1871,7 +1866,7 @@ class Client
      */
     public function listFiles(ListFilesOptions $options = null)
     {
-        return $this->apiGet('files?' . http_build_query($options ? $options->toArray() : array()));
+        return $this->apiGet('storage/files?' . http_build_query($options ? $options->toArray() : array()));
     }
 
 
@@ -1883,7 +1878,7 @@ class Client
      */
     public function createEvent(Event $event)
     {
-        $result = $this->apiPost('events', array(
+        $result = $this->apiPost('storage/events', array(
             'component' => $event->getComponent(),
             'configurationId' => $event->getConfigurationId(),
             'runId' => $event->getRunId(),
@@ -1903,7 +1898,7 @@ class Client
      */
     public function getEvent($id)
     {
-        return $this->apiGet('events/' . $id);
+        return $this->apiGet('storage/events/' . $id);
     }
 
     /**
@@ -1929,7 +1924,7 @@ class Client
         }
 
         $queryParams = array_merge($defaultParams, $params);
-        return $this->apiGet('events?' . http_build_query($queryParams));
+        return $this->apiGet('storage/events?' . http_build_query($queryParams));
     }
 
     /**
@@ -1945,7 +1940,7 @@ class Client
         );
 
         $queryParams = array_merge($defaultParams, $params);
-        return $this->apiGet("tables/{$tableId}/events?" . http_build_query($queryParams));
+        return $this->apiGet("storage/tables/{$tableId}/events?" . http_build_query($queryParams));
     }
 
     /**
@@ -1961,7 +1956,7 @@ class Client
         );
 
         $queryParams = array_merge($defaultParams, $params);
-        return $this->apiGet("buckets/{$bucketId}/events?" . http_build_query($queryParams));
+        return $this->apiGet("storage/buckets/{$bucketId}/events?" . http_build_query($queryParams));
     }
 
     /**
@@ -1977,7 +1972,7 @@ class Client
         );
 
         $queryParams = array_merge($defaultParams, $params);
-        return $this->apiGet("tokens/{$tokenId}/events?" . http_build_query($queryParams));
+        return $this->apiGet("storage/tokens/{$tokenId}/events?" . http_build_query($queryParams));
     }
 
     /**
@@ -1986,7 +1981,7 @@ class Client
      */
     public function getSnapshot($id)
     {
-        return $this->apiGet("snapshots/$id");
+        return $this->apiGet("storage/snapshots/$id");
     }
 
     /**
@@ -1994,7 +1989,7 @@ class Client
      */
     public function deleteSnapshot($id)
     {
-        $result = $this->apiDelete("snapshots/$id");
+        $result = $this->apiDelete("storage/snapshots/$id");
         $this->log("Snapshot $id deleted");
     }
 
@@ -2004,7 +1999,7 @@ class Client
      */
     public function generateId()
     {
-        $result = $this->apiPost('tickets');
+        $result = $this->apiPost('storage/tickets');
         return $result['id'];
     }
 
@@ -2035,7 +2030,7 @@ class Client
      */
     public function apiGet($url, $fileName = null)
     {
-        return $this->request('GET', $url, array(), $fileName);
+        return $this->request('GET', $this->versionUrl($url), array(), $fileName);
     }
 
     /**
@@ -2048,17 +2043,17 @@ class Client
      */
     public function apiPost($url, $postData = null, $handleAsyncTask = true)
     {
-        return $this->request('post', $url, array('form_params' => $postData), null, $handleAsyncTask);
+        return $this->request('post', $this->versionUrl($url), array('form_params' => $postData), null, $handleAsyncTask);
     }
 
     public function apiPostMultipart($url, $postData = null, $handleAsyncTask = true)
     {
-        return $this->request('post', $url, array('multipart' => $postData), null, $handleAsyncTask);
+        return $this->request('post', $this->versionUrl($url), array('multipart' => $postData), null, $handleAsyncTask);
     }
 
     private function apiPostJson($url, $data = [])
     {
-        return $this->request('POST', $url, [
+        return $this->request('POST', $this->versionUrl($url), [
             'json' => $data,
         ]);
     }
@@ -2073,7 +2068,7 @@ class Client
      */
     public function apiPut($url, $postData = null)
     {
-        return $this->request('put', $url, [
+        return $this->request('put', $this->versionUrl($url), [
             'form_params' => $postData,
         ]);
     }
@@ -2087,7 +2082,7 @@ class Client
      */
     public function apiDelete($url)
     {
-        return $this->request('delete', $url);
+        return $this->request('delete', $this->versionUrl($url));
     }
 
     public function apiDeleteParams($url, $data)
@@ -2095,12 +2090,16 @@ class Client
         $options = array();
         $options['headers']['Content-Type'] = 'application/x-www-form-urlencoded';
         $options['body'] = http_build_query($data, '', '&');
-        return $this->request('delete', $url, $options);
+        return $this->request('delete', $this->versionUrl($url), $options);
+    }
+
+    private function versionUrl($path)
+    {
+        return sprintf("%s/%s", self::API_VERSION, $path);
     }
 
     protected function request($method, $url, $options = array(), $responseFileName = null, $handleAsyncTask = true)
     {
-        $url = self::API_VERSION . "/storage/" . $url;
         $requestOptions = array_merge($options, [
             'timeout' => $this->getTimeout(),
         ]);
@@ -2394,7 +2393,7 @@ class Client
 
     public function getStats(StatsOptions $options)
     {
-        return $this->apiGet('stats?' . http_build_query($options->toArray()));
+        return $this->apiGet('storage/stats?' . http_build_query($options->toArray()));
     }
 
     private function prepareMultipartData($data)
@@ -2416,7 +2415,7 @@ class Client
      */
     public function removeTablePrimaryKey($tableId)
     {
-        $this->apiDelete("tables/$tableId/primary-key");
+        $this->apiDelete("storage/tables/$tableId/primary-key");
         $this->log("Table $tableId primary key deleted");
     }
 
@@ -2431,32 +2430,32 @@ class Client
         $data = array(
             'columns' => $columns,
         );
-        $this->apiPost("tables/$tableId/primary-key", $data);
+        $this->apiPost("storage/tables/$tableId/primary-key", $data);
     }
 
     public function createTrigger($option)
     {
-        return $this->apiPost("triggers/", $option);
+        return $this->apiPost("storage/triggers/", $option);
     }
 
     public function updateTrigger($triggerId, $options)
     {
-        return $this->apiPut('triggers/' . $triggerId .'/', $options);
+        return $this->apiPut('storage/triggers/' . $triggerId .'/', $options);
     }
 
     public function getTrigger($triggerId)
     {
-        return $this->apiGet('triggers/' . $triggerId .'/');
+        return $this->apiGet('storage/triggers/' . $triggerId .'/');
     }
 
     public function deleteTrigger($triggerId)
     {
-        return $this->apiDelete('triggers/' . $triggerId .'/');
+        return $this->apiDelete('storage/triggers/' . $triggerId .'/');
     }
 
     public function listTriggers($filter = [])
     {
-        return $this->apiGet('triggers/?' . http_build_query($filter));
+        return $this->apiGet('storage/triggers/?' . http_build_query($filter));
     }
 
     /**

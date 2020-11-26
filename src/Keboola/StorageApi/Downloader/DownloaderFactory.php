@@ -5,6 +5,7 @@ namespace Keboola\StorageApi\Downloader;
 use Aws\S3\S3Client;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\Exception;
+use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 
 class DownloaderFactory
 {
@@ -33,7 +34,7 @@ class DownloaderFactory
                 ]);
                 return new S3Downloader($s3Client);
             case Client::FILE_PROVIDER_AZURE:
-                $blobClient = BlobClientFactory::createClientFromConnectionString(
+                $blobClient = BlobRestProxy::createBlobService(
                     $getFileResponse['absCredentials']['SASConnectionString']
                 );
                 return new AbsDownloader($blobClient);

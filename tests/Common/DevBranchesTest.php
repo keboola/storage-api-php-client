@@ -11,68 +11,32 @@ use Keboola\Test\StorageApiTestCase;
 
 class DevBranchesTest extends StorageApiTestCase
 {
-    public function setUp()
-    {
-        parent::setUp();
+    private static $cleanupAfterClassTokenId;
 
-        // branches cleanup
-        $branches = new DevBranches($this->_client);
-        foreach ($branches->listBranches() as $branch) {
-            if ($branch['isDefault'] !== true) {
-                $branches->deleteBranch($branch['id']);
-            }
-        }
-    }
+    private static $teardownClient;
 
-    public function testCannotDeleteDefaultBranch()
+    /**
+     * @dataProvider provideValidClients
+     */
+    public function testCreateBranch(Client $providedClient)
     {
-        $branches = new DevBranches($this->_client);
+        $providedToken = $providedClient->verifyToken();
+        $branches = new DevBranches($providedClient);
+
+        // cleanup
         $branchesList = $branches->listBranches();
-
-        $this->assertCount(1, $branchesList);
-        $branch = reset($branchesList);
-
-        $this->assertSame(true, $branch['isDefault']);
-
-        try {
+        $branchName = __CLASS__ . '\\' . $this->getName() . '\\' . $providedToken['id'];
+        $branchesCreatedByThisTestMethod = array_filter(
+            $branchesList,
+            function ($branch) use ($branchName) {
+                return strpos($branch['name'], $branchName) === 0;
+            }
+        );
+        foreach ($branchesCreatedByThisTestMethod as $branch) {
             $branches->deleteBranch($branch['id']);
-            $this->fail('Removing default branch should be restricted.');
-        } catch (ClientException $e) {
-            $this->assertSame(400, $e->getCode());
-            $this->assertSame('Cannot delete Main branch', $e->getMessage());
         }
 
-        $this->assertCount(1, $branches->listBranches());
-    }
-
-    public function testAdminRoleBranchesPermissions()
-    {
-        $description = __CLASS__ . '\\' . $this->getName();
-
-        $adminDevBranches = new DevBranches($this->_client);
-        $branch = $adminDevBranches->createBranch($description);
-
-
-        $branches = new DevBranches($this->getClientForToken(STORAGE_API_GUEST_TOKEN));
-        $guestBranch = $branches->createBranch($description . '\\GuestRole');
-
-        $this->assertCount(3, $adminDevBranches->listBranches());
-
-        $this->assertSame($branch, $adminDevBranches->getBranch($branch['id']));
-        $this->assertSame($guestBranch, $adminDevBranches->getBranch($guestBranch['id']));
-
-        $adminDevBranches->deleteBranch($branch['id']);
-        $adminDevBranches->deleteBranch($guestBranch['id']);
-
-        $this->assertCount(1, $adminDevBranches->listBranches());
-    }
-
-    public function testBranchCreateAndDelete()
-    {
-        $token = $this->_client->verifyToken();
-        $branches = new DevBranches($this->_client);
-
-        $branchName = __CLASS__ . '\\' . $this->getName();
+        // test
 
         // can create branch
         $branch = $branches->createBranch($branchName);
@@ -83,15 +47,14 @@ class DevBranchesTest extends StorageApiTestCase
         $this->assertArrayNotHasKey('admin', $branch);
         $this->assertArrayHasKey('creatorToken', $branch);
         $this->assertArrayHasKey('id', $branch['creatorToken']);
-        $this->assertEquals($token['id'], $branch['creatorToken']['id']);
+        $this->assertEquals($providedToken['id'], $branch['creatorToken']['id']);
         $this->assertArrayHasKey('name', $branch['creatorToken']);
-        $this->assertSame($token['description'], $branch['creatorToken']['name']);
+        $this->assertSame($providedToken['description'], $branch['creatorToken']['name']);
         $this->assertSame($branchName, $branch['name']);
-        $this->assertSame(false, $branch['isDefault']);
         $branchId = $branch['id'];
 
         // event is created for created branch
-        $event = $this->findLastEvent($this->_client, [
+        $event = $this->findLastEvent($providedClient, [
             'event' => 'storage.devBranchCreated',
             'objectId' => $branchId,
         ]);
@@ -107,15 +70,14 @@ class DevBranchesTest extends StorageApiTestCase
         $this->assertArrayNotHasKey('admin', $branchFromDetail);
         $this->assertArrayHasKey('creatorToken', $branchFromDetail);
         $this->assertArrayHasKey('id', $branchFromDetail['creatorToken']);
-        $this->assertEquals($token['id'], $branchFromDetail['creatorToken']['id']);
+        $this->assertEquals($providedToken['id'], $branchFromDetail['creatorToken']['id']);
         $this->assertArrayHasKey('name', $branchFromDetail['creatorToken']);
-        $this->assertSame($token['description'], $branchFromDetail['creatorToken']['name']);
-        $this->assertSame(false, $branch['isDefault']);
+        $this->assertSame($providedToken['description'], $branchFromDetail['creatorToken']['name']);
 
         // can list branches and see created branch
-        $branchesList = $branches->listBranches();
-        $this->assertCount(2, $branchesList);
-        $this->assertContains($branchFromDetail, $branchesList);
+        $branchList = $branches->listBranches();
+        $this->assertGreaterThanOrEqual(1, count($branchList));
+        $this->assertContains($branchFromDetail, $branchList);
 
         $defaultBranchCount = 0;
         foreach ($branchesList as $branch) {
@@ -131,7 +93,6 @@ class DevBranchesTest extends StorageApiTestCase
             $branches->createBranch($branchName);
             $this->fail('Sharing bucket to non organization member should fail.');
         } catch (ClientException $e) {
-            $this->assertSame(400, $e->getCode());
             $this->assertSame(
                 sprintf('There already is a branch with name "%s"', $branchName),
                 $e->getMessage()
@@ -143,7 +104,7 @@ class DevBranchesTest extends StorageApiTestCase
         $branches->deleteBranch($branchId);
 
         // there is event for deleted branch
-        $this->findLastEvent($this->_client, [
+        $this->findLastEvent($providedClient, [
             'event' => 'storage.devBranchDeleted',
             'objectId' => $branchId,
         ]);
@@ -151,129 +112,100 @@ class DevBranchesTest extends StorageApiTestCase
         // cannot delete nonexistent branch
         try {
             $branches->deleteBranch($branchId);
-            $this->fail('Delete non-existing branch should fail.');
         } catch (ClientException $e) {
-            $this->assertSame(404, $e->getCode());
-            $this->assertSame(sprintf('Branch not found'), $e->getMessage());
+            $this->assertSame(
+                sprintf('Branch not found'),
+                $e->getMessage()
+            );
         }
 
         // now branch can be created with same name as deleted branch
+        $newBranch = $branches->createBranch($branchName);
+    }
+
+    public function testOrgAdminCanDeleteBranchCreatedByAdmin()
+    {
+        $guestClient = $this->getGuestStorageApiClient();
+
+        $branches = new DevBranches($guestClient);
+        $branchName = __CLASS__ . ' příliš žluťoučký kůň' . microtime();
+
+        $branch = $branches->createBranch($branchName);
+
+        $branchId = $branch['id'];
+
+        $orgAdminClient = $this->getDefaultClient();
+        $branches = new DevBranches($orgAdminClient);
+
+        $branches->deleteBranch($branchId);
+
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testGuestCannotDeleteNotOwnedBranch()
+    {
+        $orgAdminClient = $this->getDefaultClient();
+        $branches = new DevBranches($orgAdminClient);
+
+        $branchName = __CLASS__ . ' příliš žluťoučký kůň' . microtime();
+
+        $branch = $branches->createBranch($branchName);
+
+        $branchId = $branch['id'];
+
+        $guestClient = $this->getGuestStorageApiClient();
+        $branches = new DevBranches($guestClient);
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('You don\'t have access to resource.');
+
+        $branches->deleteBranch($branchId);
+    }
+
+    public function provideValidClients()
+    {
+        $guest = $this->getGuestStorageApiClient();
+        return [
+            'admin' => [$this->getDefaultClient()],
+            'guest' => [$guest],
+        ];
+    }
+
+    /**
+     * @dataProvider provideInvalidClients
+     */
+    public function testInsufficientClientCannotCreateBranch(Client $providedClient)
+    {
+        $branches = new DevBranches($providedClient);
+
+        $branchName = __CLASS__ . time();
+
+        $this->expectExceptionMessage('You don\'t have access to resource.');
+        $this->expectException(ClientException::class);
+
         $branches->createBranch($branchName);
     }
 
-
-    public function testGuestRoleBranchesPermissions()
+    public function provideInvalidClients()
     {
-        $description = __CLASS__ . '\\' . $this->getName();
+        self::$teardownClient = $this->getDefaultClient();
+        $tokenId = self::$teardownClient->createToken(new TokenCreateOptions());
+        $token = self::$teardownClient->getToken($tokenId);
+        self::$cleanupAfterClassTokenId = $token['id'];
 
-        $adminDevBranches = new DevBranches($this->_client);
-        $branch = $adminDevBranches->createBranch($description);
+        $notAdminClient = $this->getClientForToken($token['token']);
 
-        $this->assertCount(2, $adminDevBranches->listBranches());
-
-        $branches = new DevBranches($this->getClientForToken(STORAGE_API_GUEST_TOKEN));
-        $branches->createBranch($description . '\\GuestRole');
-
-        $this->assertCount(3, $branches->listBranches());
-
-        $this->assertSame($branch, $branches->getBranch($branch['id']));
-
-        try {
-            $branches->deleteBranch($branch['id']);
-            $this->fail('Branch delete with guest role token should fail.');
-        } catch (ClientException $e) {
-            $this->assertAccessForbiddenException($e);
-        }
-
-        $this->assertCount(3, $adminDevBranches->listBranches());
+        return [
+            'not admin' => [$notAdminClient],
+        ];
     }
 
-    public function testNonAdminTokenRestrictions()
+    public static function tearDownAfterClass()
     {
-        $description = __CLASS__ . '\\' . $this->getName();
-
-        $adminDevBranches = new DevBranches($this->_client);
-        $branch = $adminDevBranches->createBranch($description);
-
-        $options = (new TokenCreateOptions())
-            ->setDescription($description)
-            ->setCanManageBuckets(true)
-            ->setExpiresIn(3600)
-        ;
-
-        $tokenId = $this->_client->createToken($options);
-        $token = $this->_client->getToken($tokenId);
-
-        $branches = new DevBranches($this->getClientForToken($token['token']));
-
-        try {
-            $branches->createBranch($description);
-            $this->fail('Creating a new branch with non-admin token should fail.');
-        } catch (ClientException $e) {
-            $this->assertAccessForbiddenException($e);
+        parent::tearDownAfterClass();
+        if (self::$cleanupAfterClassTokenId) {
+            self::$teardownClient->dropToken(self::$cleanupAfterClassTokenId);
         }
-
-        $this->assertCount(2, $adminDevBranches->listBranches());
-
-        try {
-            $branches->getBranch($branch['id']);
-            $this->fail('Branch detail with non-admin token should fail.');
-        } catch (ClientException $e) {
-            $this->assertAccessForbiddenException($e);
-        }
-
-        try {
-            $branches->listBranches();
-            $this->fail('List of branches with non-admin token should fail.');
-        } catch (ClientException $e) {
-            $this->assertAccessForbiddenException($e);
-        }
-
-        try {
-            $branches->deleteBranch($branch['id']);
-            $this->fail('Branch delete with non-admin token should fail.');
-        } catch (ClientException $e) {
-            $this->assertAccessForbiddenException($e);
-        }
-
-        $this->assertCount(2, $adminDevBranches->listBranches());
-    }
-
-    public function testReadOnlyRoleBranchesPermissions()
-    {
-        $description = __CLASS__ . '\\' . $this->getName();
-
-        $adminDevBranches = new DevBranches($this->_client);
-        $branch = $adminDevBranches->createBranch($description);
-
-        $this->assertCount(2, $adminDevBranches->listBranches());
-
-        $branches = new DevBranches($this->getClientForToken(STORAGE_API_READ_ONLY_TOKEN));
-
-        try {
-            $branches->createBranch($description);
-            $this->fail('Creating a new branch with readOnly role token should fail.');
-        } catch (ClientException $e) {
-            $this->assertAccessForbiddenException($e);
-        }
-
-        $this->assertCount(2, $branches->listBranches());
-
-        $this->assertSame($branch, $branches->getBranch($branch['id']));
-
-        try {
-            $branches->deleteBranch($branch['id']);
-            $this->fail('Branch delete with readOnly role token should fail.');
-        } catch (ClientException $e) {
-            $this->assertAccessForbiddenException($e);
-        }
-
-        $this->assertCount(2, $adminDevBranches->listBranches());
-    }
-
-    private function assertAccessForbiddenException(ClientException $exception)
-    {
-        $this->assertSame(403, $exception->getCode());
-        $this->assertSame('You don\'t have access to resource.', $exception->getMessage());
+        self::$teardownClient = null;
     }
 }

@@ -9,10 +9,6 @@ class DevBranches
 
     public function __construct(Client $client)
     {
-        if ($client instanceof BranchAwareClient) {
-            throw new \LogicException('Cannot use BranchAwareClient for DevBranches');
-        }
-
         $this->client = $client;
     }
 
@@ -21,7 +17,7 @@ class DevBranches
      */
     public function createBranch($branchName)
     {
-        return $this->client->apiPost("dev-branches/", ['name' => $branchName]);
+        return $this->client->apiPost("storage/dev-branches/", ['name' => $branchName]);
     }
 
     /**
@@ -29,7 +25,7 @@ class DevBranches
      */
     public function deleteBranch($branchId)
     {
-        return $this->client->apiDelete('dev-branches/' . $branchId);
+        return $this->client->apiDelete('storage/dev-branches/' . $branchId);
     }
 
     /**
@@ -37,11 +33,11 @@ class DevBranches
      */
     public function getBranch($branchId)
     {
-        return $this->client->apiGet('dev-branches/' . $branchId);
+        return $this->client->apiGet('storage/dev-branches/' . $branchId);
     }
 
     public function listBranches()
     {
-        return $this->client->apiGet('dev-branches/');
+        return $this->client->apiGet('storage/dev-branches/');
     }
 }

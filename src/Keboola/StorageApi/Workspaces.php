@@ -29,22 +29,22 @@ class Workspaces
      */
     public function createWorkspace(array $options = [])
     {
-        return $this->client->apiPost("workspaces", $options);
+        return $this->client->apiPost("storage/workspaces", $options);
     }
 
     public function listWorkspaces()
     {
-        return $this->client->apiGet("workspaces");
+        return $this->client->apiGet("storage/workspaces");
     }
 
     public function getWorkspace($id)
     {
-        return $this->client->apiGet("workspaces/{$id}");
+        return $this->client->apiGet("storage/workspaces/{$id}");
     }
 
     public function deleteWorkspace($id, array $options = [])
     {
-        $this->client->apiDelete("workspaces/{$id}?" . http_build_query($options));
+        $this->client->apiDelete("storage/workspaces/{$id}?" . http_build_query($options));
     }
 
     /**
@@ -54,7 +54,7 @@ class Workspaces
      */
     public function loadWorkspaceData($id, array $options = [])
     {
-        return $this->client->apiPost("workspaces/{$id}/load", $options);
+        return $this->client->apiPost("storage/workspaces/{$id}/load", $options);
     }
 
     /**
@@ -64,11 +64,11 @@ class Workspaces
      */
     public function cloneIntoWorkspace($id, array $options = [])
     {
-        return $this->client->apiPost("workspaces/{$id}/load-clone", $options);
+        return $this->client->apiPost("storage/workspaces/{$id}/load-clone", $options);
     }
 
     public function resetWorkspacePassword($id)
     {
-        return $this->client->apiPost("workspaces/{$id}/password");
+        return $this->client->apiPost("storage/workspaces/{$id}/password");
     }
 }

@@ -7,10 +7,10 @@
  */
 namespace Keboola\Test\Backend\Export;
 
-use Keboola\StorageApi\Downloader\BlobClientFactory;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
+use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use Symfony\Component\Filesystem\Filesystem;
 
 class ExportParamsTest extends StorageApiTestCase
@@ -62,9 +62,10 @@ class ExportParamsTest extends StorageApiTestCase
 
         if ($exportedFile['provider'] === Client::FILE_PROVIDER_AZURE) {
             // Check ABC ACL and listing blobs
-            $blobClient = BlobClientFactory::createClientFromConnectionString(
+            $blobClient = BlobRestProxy::createBlobService(
                 $exportedFile['absCredentials']['SASConnectionString']
             );
+
             $listResult = $blobClient->listBlobs($exportedFile['absPath']['container']);
             $table = $this->_client->getTable($tableId);
             if ($table['bucket']['backend'] !== self::BACKEND_SYNAPSE) {
