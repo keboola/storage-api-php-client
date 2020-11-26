@@ -548,9 +548,15 @@ This method can be executed by all tokens.
 
 # Group Miscellaneous
 ## API Index [/v2/storage]
-### Component List [GET]
+### Component List [GET /v2/storage?exclude={exclude}]
 Use this API call to obtain definitions of all components, services and stack features available in KBC. For more information about
 the KBC Component architecture, see the [Developers documentation](https://developers.keboola.com/overview/).
+
++ Parameters
+    + exclude (optional, enum[string]) - Comma-separated list of resources to exclude from response
+        + Members
+            + components
+        + Default: ''
 
 + Response 200 (application/json)
     + Body
@@ -1543,7 +1549,7 @@ The actual data must be provided in one of the following attributes:
 
 - `dataFileId`,
 - `snapshotId`,
-- `dataWorkspaceId` and `dataTableName`
+- `dataWorkspaceId` and `dataObject`
 - `sourceTableId`
 
 + Parameters
@@ -1554,7 +1560,8 @@ The actual data must be provided in one of the following attributes:
     + dataFileId (optional) - Id of the file stored in [File Uploads](#reference/files)
     + snapshotId (optional) - Id of a table snapshot - a table will be created from the snapshot.
     + dataWorkspaceId (optional) - Load from the table [workspace](#reference/workspaces). Use with the **dataTableName** attribute.
-    + dataTableName (optional) - Load from a table in [workspace](#reference/workspaces).
+    + dataTableName (optional) - (deprecated use dataObject) Load from the table in the [workspace](#reference/workspaces).
+    + dataObject (optional) - Load from the table/file in the [workspace](#reference/workspaces).
     + sourceTableId (optional) - Create time travel snapshot of this table.
     + timestamp (optional) - Datetime string to be used for the time travel snapshot. Use with the **sourceTableId** attribute. The preferred format is `YYYY-MM-DD hh:mm:ss Z`, other formats may also work, but time zone is required.
     + delimiter (optional) - Field delimiter used in the CSV file. The default value is ','.  Use '\t' or type the tab char for the tabulator.
@@ -1669,7 +1676,7 @@ The actual data must be provided in one of the following attributes:
 
 - **dataFileId**,
 - **snapshotId**,
-- **dataWorkspaceId** and **dataTableName**
+- **dataWorkspaceId** and **dataObject** (older "dataTableName" is deprecated)
 
 An imported file can be sliced into multiple chunks; the conditions described in [File Uploads](#reference/files) must be satisfied.
 The CSV file can be raw or gzipped. Gzipped files must have the extension `.gz`. A typical asynchronous import negotiation consists of these steps:
@@ -1677,6 +1684,15 @@ The CSV file can be raw or gzipped. Gzipped files must have the extension `.gz`.
 1. Upload a CSV file using [File Upload](#reference/files).
 2. Submit an [asynchronous import request](#reference/tables/load-data-asynchronously/imports-data) with `dataFileId` set to the File Id returned in the previous step.
 3. Poll job resource returned in the previous step until the `status` is `success` or `error`.
+
+Import from table and file workspace is supported.
+
+- For table workspace use dataWorkspaceId and set dataObject with name of source table.
+- For file workspace use dataWorkspaceId and dataObject can be:
+  - single file `file.csv`
+  - folder `folder/` (mind the trailing slash)
+  - manifest `file.csvmanifest`
+- For file workspace always use `columns[]` attribute with lost of imported columns
 
 Further information can be found in the [Developers Documentation](https://developers.keboola.com/integrate/storage/api/import-export/).
 
@@ -1687,7 +1703,8 @@ Further information can be found in the [Developers Documentation](https://devel
     + dataFileId (optional) - Id of the file stored in [File Uploads](#reference/files); all gzipped and sliced files are supported.
     + snapshotId (optional) - Id of a table snapshot - a table will be created from the snapshot.
     + dataWorkspaceId (optional) - Load from the table [workspace](#reference/workspaces). Use with the **dataTableName** attribute.
-    + dataTableName (optional) - Load from the table in the [workspace](#reference/workspaces).
+    + dataTableName (optional) - (deprecated use dataObject) Load from the table in the [workspace](#reference/workspaces).
+    + dataObject (optional) - Load from the table/file in the [workspace](#reference/workspaces).
     + incremental (optional, number) - If incremental is set to 0, the target table is truncated before each import.
         Default: 0
     + delimiter (optional) - Field delimiter used in the CSV file. The default value is ','.  Use '\t' or type the tab char for tabulator.
@@ -3102,6 +3119,9 @@ Creates a new workspace and return its credentials.
             + redshift
             + snowflake
     the system. Supported only for Snowflake workspaces.
+            + synapse
+            + abs
+    Azure blob storage file workspace
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -3173,8 +3193,9 @@ Loads tables from Storage into a Workspace.
         + Items
             + (object)
                 + Properties
-                    + source (required) - Full table identifier of the source table (e.g.: in.c-bucket.mytable)
-                    + destination (required) - Destination table name
+                    + source (optional) - Required for loading table. Full table identifier of the source table (e.g.: in.c-bucket.mytable)
+                    + dataFileId (optional, number) - Required for loading file. File upload id. Can be used only to load file to file workspace.
+                    + destination (required) - Destination table name or folder for file workspace
                     + rows (optional, number) - Limits the number of returned rows
                     + days (optional, number) - `DEPRECATED will be removed in the future.` Return rows created or updated in the last X days.
                     + seconds (optional, number) - Returns rows created or updated in the last X seconds.
@@ -3218,7 +3239,7 @@ Loads tables from Storage into a Workspace.
                             + all
                             + key
                     + distKey (optional) - Redshift only - Column to use for the key distribution style
-                    + incremental (optional, boolean) - Rows will be appended to an existing table
+                    + incremental (optional, boolean) - Rows will be appended to an existing table, not supported in file workspaces (load is always full)
                         Default: false
                     + overwrite (optional, boolean) - When preserve is true duplicate tables will be overwritten
                         Default: false
@@ -3355,7 +3376,7 @@ when any of the row values were changed during an incremental import.
 
 ## Password reset [/v2/storage/workspaces/{workspace_id}/password]
 ### Password reset  [POST]
-Generates new password for the given workspace
+Generates new password for the given workspace, for file workspace new token with 24hours expiration is issued previously created tokens has to expire and can't be reset.
 
 + Parameters
     + workspace_id (number)
@@ -3379,6 +3400,7 @@ Generates new password for the given workspace
 
 + id: 234 (number)
 + name: `boring_wozniak` (string) - working schema name
++ type: `file|table` (string) - workspace type
 + component: `wr-db` (string) - name of the [registered component](#reference/miscellaneous/api-index/component-list) that created the workspace
 + configurationId: `aws-1` (string) - id of a [configuration](#reference/component-configurations/component-list) used to create workspace
 + created: `2016-05-17T11:11:20+0200` (string)
@@ -3389,6 +3411,7 @@ Generates new password for the given workspace
     + schema:  `boring_wozniak` (string)
     + warehouse: `SAPI_PROD` (string)
     + user: `xzy` (string)
+    + container: file workspace containerName (string) - Only for file workspaces
 + creatorToken
     + id: 234 (number)
     + description: `martin@keboola.com` (string)
@@ -3406,6 +3429,8 @@ Generates new password for the given workspace
     + warehouse: SAPI_PROD (string)
     + user: xzy (string)
     + password: abc (string) - Password is not stored and is returned only after workspace creation
+    + connectionString: `BlobEndpoint=https://<account>.blob.core.windows.net;SharedAccessSignature=sv=2017-11-09&sr=c&st=2020-11-03T10:31:36Z&se=2020-11-04T10:31:36Z&sp=rwl&sig=<SAS signature>` (string) only for file workspaces
+    + container: file workspace containerName (string) - Only for file workspaces
 
 # Group Events
 Virtually every interaction of the client (an API call) creates an Event. Apart from that, external events may
@@ -4277,7 +4302,113 @@ KBC Component architecture, see the [Developers documentation](https://developer
 
 + Parameters
     + componentType (optional) - Component type - `extractor`, `writer`, `application`, etc.
-    + include (optional) - Comma separated list of resources to include. Available resources: `configuration` and `rows`.
+    + include (optional) - Comma separated list of resources to include. Available resources: `configuration` and `state`.
+    + isDeleted (optional, boolean) - If true, it returns only components with deleted configurations.
+        Default: false
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            [
+                {
+                    "id": "keboola.app-tree",
+                    "type": "application",
+                    "name": "Tree depth",
+                    "description": "Application which computes a tree depth.",
+                    "longDescription": "This application computes levels in a table representing a tree (e.g. product categories). The tree data must be stored in a child-parent relationship. A column named **levels** will be added to the table (root nodes will have number 1). Additionally, a column named **root** will be added, containing the ID of the root item.",
+                    "hasUI": false,
+                    "hasRun": false,
+                    "ico32": "https://d3iz2gfan5zufq.cloudfront.net/images/cloud-services/keboola.app-tree-32-1.png",
+                    "ico64": "https://d3iz2gfan5zufq.cloudfront.net/images/cloud-services/keboola.app-tree-64-1.png",
+                    "data": {
+                        "definition": {
+                            "type": "aws-ecr",
+                            "uri": "147946154733.dkr.ecr.us-east-1.amazonaws.com/keboola/app-tree",
+                            "tag": "latest",
+                            "repository": {
+                                "region": "us-east-1"
+                            }
+                        },
+                        "cpu_shares": 1024,
+                        "memory": "8024m",
+                        "configuration_format": "json",
+                        "process_timeout": 10800
+                    },
+                    "flags": [
+                        "genericDockerUI",
+                        "genericDockerUI-tableInput",
+                        "genericDockerUI-tableOutput",
+                        "excludeFromNewList"
+                    ],
+                    "configurationSchema": {
+                        "title": "Parameters",
+                        "type": "object",
+                        "properties": {
+                            "idColumn": {
+                                "type": "string",
+                                "title": "ID Column",
+                                "description": "Name of the column containing row identifier",
+                                "default": "categoryId"
+                            },
+                            "parentColumn": {
+                                "type": "string",
+                                "title": "Parent Column",
+                                "description": "Name of the column containing parent identifier",
+                                "default": "categoryParentId"
+                            }
+                        },
+                        "required": [
+                            "idColumn",
+                            "parentColumn"
+                        ]
+                    },
+                    "emptyConfiguration": {},
+                    "uiOptions": {},
+                    "configurationDescription": "The tree data must be stored in a child-parent relationship. A column named **levels** will be added to the table (root nodes will have number 1). Additionally, a column named **root** will be added, containing the ID of the root item.\n\nSample input \n-------------------\n\ncategoryId | categoryParentId\t| title\n--- | --- | --- \n1 |\t0 | foo\n2 | 1 | bar\n3 | 1 | baz\n4 | 2 | buzz\n\n\nSample output\n-------------------\n\ncategoryId | categoryParentId | title | levels | root\n--- | --- | --- | --- | --- |\n1 |\t0 | foo | 1 | 1 |\n2 | 1 | bar | 2 | 1 |\n3 | 1 | baz | 2 | 1 |\n4 | 2 | buzz | 3 | 1 |",
+                    "uri": "https://syrup.keboola.com/docker/keboola.app-tree",
+                    "configurations": [
+                        {
+                            "id": "236552566",
+                            "name": "teest2",
+                            "description": "",
+                            "created": "2017-02-14T12:12:30+0100",
+                            "creatorToken": {
+                                "id": 27978,
+                                "description": "ondrej.popelka@keboola.com"
+                            },
+                            "version": 2,
+                            "changeDescription": "Configuration deleted",
+                            "isDeleted": true,
+                            "currentVersion": {
+                                "created": "2017-02-14T12:12:45+0100",
+                                "creatorToken": {
+                                    "id": 27978,
+                                    "description": "ondrej.popelka@keboola.com"
+                                },
+                                "changeDescription": "Configuration deleted"
+                            }
+                        }
+                    ]
+                }
+            ]
+
+### Get development branch components [GET /v2/storage/branch/{branch_id}/components?include={include}&componentType={componentType}&isDeleted={isDeleted}]
+Use this API call to obtain the definitions of all components in [Development Branch](#reference/development-branches). For more information about the
+KBC Component architecture, see the [Developers documentation](https://developers.keboola.com/overview/)
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + componentType (optional) - Component type - `extractor`, `writer`, `application`, etc.
+    + include (optional) - Comma separated list of resources to include. Available resources: `configuration` and `state`.
     + isDeleted (optional, boolean) - If true, it returns only components with deleted configurations.
         Default: false
 
@@ -4438,10 +4569,126 @@ Lists all configurations for a component including all config rows.
                 }
             ]
 
+### List development branch configurations [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs?isDeleted={isDeleted}]
+Lists all configurations for a component including all config rows in [Development Branch](#reference/development-branches).
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + component_id (required) - Id of the component
+    + isDeleted (optional, boolean) - When true, only deleted configurations will be returned. When false, only current configurations will be returned.
+        + Default: false
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+    + Body
+
+            [
+                {
+                    "id": "main-1",
+                    "name": "Main 1",
+                    "description": "",
+                    "created": "2016-05-11T14:33:50+0200",
+                    "creatorToken": {
+                        "id": 67,
+                        "description": "dev@keboola.com"
+                    },
+                    "version": 2,
+                    "changeDescription": "Row row1 added",
+                    "isDeleted": false,
+                    "configuration": {
+                        "key1": "val1"
+                    },
+                    "currentVersion": {
+                        "created": "2016-05-11T14:33:50+0200",
+                        "creatorToken": {
+                            "id": 67,
+                            "description": "dev@keboola.com"
+                        },
+                        "changeDescription": "Row row1 added"
+                    },
+                    "rowsSortOrder": [],
+                    "rows": [
+                        {
+                            "id": "row1",
+                            "configuration": {
+                                "key2": "val2"
+                            },
+                            "state": {},
+                            "version": 1,
+                            "created": "2016-05-11T14:33:50+0200",
+                            "creatorToken": {
+                                "id": 67,
+                                "description": "dev@keboola.com"
+                            },
+                            "changeDescription": null
+                        }
+                    ],
+                    "state": {}
+                }
+            ]
+
 ### Create Configuration [POST]
 Creates a new component configuration.
 
 + Parameters
+    + component_id (required) - Id of the Component
+
++ Attributes
+    + name (required) - Configuration name
+    + configurationId (optional) - Configuration Id (must be unique for each component type). If not set, it will be auto-generated.
+    + description (optional) - Configuration description
+    + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB
+    + state (optional) - Serialized state configuration JSON; the maximum allowed size is 4MB
+    + changeDescription (optional) - Description of the configuration modification
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            name=My+new+configuration&configuration=%7B%22key%22%3A%22value%22%2C+%22key2%22%3A%22value2%22%7D&changeDescription=Initial+configuration
+
++ Response 201 (application/json)
+    + Body
+
+            {
+                "id": "236606822",
+                "name": "My new configuration",
+                "description": "",
+                "created": "2017-02-14T14:38:26+0100",
+                "creatorToken": {
+                    "id": 27978,
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "version": 1,
+                "changeDescription": "Initial configuration",
+                "isDeleted": false,
+                "configuration": {
+                    "key": "value",
+                    "key2": "value2"
+                },
+                "state": {},
+                "currentVersion": {
+                    "created": "2017-02-14T14:38:26+0100",
+                    "creatorToken": {
+                        "id": 27978,
+                        "description": "ondrej.popelka@keboola.com"
+                    },
+                    "changeDescription": "Initial configuration"
+                }
+            }
+
+### Create Development Branch Configuration [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs]
+Creates a new component configuration for [Development Branch](#reference/development-branches).
+
++ Parameters
+    + branch_id (required) - Id of the development branch
     + component_id (required) - Id of the Component
 
 + Attributes
@@ -4535,6 +4782,50 @@ Gets the component configuration detail.
                 }
             }
 
+### Development Branch Configuration Detail [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}]
+Gets the component configuration detail for [Development Branch](#reference/development-branches).
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + component_id (required) - Id of the component
+    + config_id (required) - Id of the configuration
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+
+            {
+                "id": "236606822",
+                "name": "My new configuration",
+                "description": "",
+                "created": "2017-02-14T14:38:26+0100",
+                "creatorToken": {
+                    "id": 27978,
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "version": 1,
+                "changeDescription": "Initial configuration",
+                "isDeleted": false,
+                "configuration": {
+                    "key": "value",
+                    "key2": "value2"
+                },
+                "rowsSortOrder": [],
+                "rows": [],
+                "state": {},
+                "currentVersion": {
+                    "created": "2017-02-14T14:38:26+0100",
+                    "creatorToken": {
+                        "id": 27978,
+                        "description": "ondrej.popelka@keboola.com"
+                    },
+                    "changeDescription": "Initial configuration"
+                }
+            }
+
 ### Update Configuration [PUT]
 Updates an existing configuration. When the configuration is updated, a new version is automatically created and
 marked as `currentVersion`.
@@ -4547,7 +4838,7 @@ marked as `currentVersion`.
     + name (required) - Configuration name
     + description (optional) - Configuration description
     + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB
-    + state (optional) - Serialized configuration state JSON; the maximum allowed size is 4MB
+    + state (optional) - **DEPRECATED will be removed in the future. For state updates use [state endpoint](#reference/component-configurations/manage-configurations/update-configuration-state).**  Serialized configuration state JSON; the maximum allowed size is 4MB.
     + changeDescription (optional) - Description of the configuration modification
     + rowsSortOrder (optional) - Array of row ids in desired order, you have to specify all row ids
 
@@ -4594,6 +4885,174 @@ marked as `currentVersion`.
                 }
             }
 
+### Update Development Branch Configuration [PUT /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}]
+Updates an existing configuration for [Development Branch](#reference/development-branches). When the configuration is updated in a development branch, it does not affect `currentVersion` of the configuration.
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + component_id (required) - Id of the component
+    + config_id (required) - Id of the configuration
+
++ Attributes
+    + name (required) - Configuration name
+    + description (optional) - Configuration description
+    + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB
+    + changeDescription (optional) - Description of the configuration modification
+    + rowsSortOrder (optional) - Array of row ids in desired order, you have to specify all row ids
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            configuration=%7B%22key%22%3A%22value%22%2C+%22key2%22%3A%22value2%22%2C+%22key3%22%3A+%22value3%22%7D&changeDescription=Added+new+key
+
+
++ Response 200 (application/json)
+    + Body
+
+            {
+                "id": "236606822",
+                "name": "My new configuration",
+                "description": "",
+                "created": "2017-02-14T14:38:26+0100",
+                "creatorToken": {
+                    "id": 27978,
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "version": 2,
+                "changeDescription": "Added new key",
+                "isDeleted": false,
+                "configuration": {
+                    "key": "value",
+                    "key2": "value2",
+                    "key3": "value3"
+                },
+                "rowsSortOrder": [],
+                "rows": [],
+                "state": {},
+                "currentVersion": {
+                    "created": "2017-02-14T14:48:41+0100",
+                    "creatorToken": {
+                        "id": 27978,
+                        "description": "ondrej.popelka@keboola.com"
+                    },
+                    "changeDescription": "Added new key"
+                }
+            }
+
+### Update Configuration State [PUT /v2/storage/components/{component_id}/configs/{config_id}/state]
+Updates state of an existing configuration.
+
++ Parameters
+    + component_id (required) - Id of the component
+    + config_id (required) - Id of the configuration
+
++ Attributes
+    + state (required) - Serialized configuration state JSON; the maximum allowed size is 4MB
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            state%3D%7B%22lastId%22%3A123%7D
+
+
++ Response 200 (application/json)
+    + Body
+
+            {
+                "id": "236606822",
+                "name": "My new configuration",
+                "description": "",
+                "created": "2017-02-14T14:38:26+0100",
+                "creatorToken": {
+                    "id": 27978,
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "version": 2,
+                "changeDescription": "Added new key",
+                "isDeleted": false,
+                "configuration": {
+                    "key": "value",
+                    "key2": "value2",
+                    "key3": "value3"
+                },
+                "rowsSortOrder": [],
+                "rows": [],
+                "state": {
+                    "lastId": 123
+                },
+                "currentVersion": {
+                    "created": "2017-02-14T14:48:41+0100",
+                    "creatorToken": {
+                        "id": 27978,
+                        "description": "ondrej.popelka@keboola.com"
+                    },
+                    "changeDescription": "Added new key"
+                }
+            }
+
+### Update Development Branch Configuration State [PUT /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/state]
+Updates state of an existing configuration for [Development Branch](#reference/development-branches).
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + component_id (required) - Id of the component
+    + config_id (required) - Id of the configuration
+
++ Attributes
+    + state (required) - Serialized configuration state JSON; the maximum allowed size is 4MB
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            state%3D%7B%22lastId%22%3A123%7D
+
+
++ Response 200 (application/json)
+    + Body
+
+            {
+                "id": "236606822",
+                "name": "My new configuration",
+                "description": "",
+                "created": "2017-02-14T14:38:26+0100",
+                "creatorToken": {
+                    "id": 27978,
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "version": 2,
+                "changeDescription": "Added new key",
+                "isDeleted": false,
+                "configuration": {
+                    "key": "value",
+                    "key2": "value2",
+                    "key3": "value3"
+                },
+                "rowsSortOrder": [],
+                "rows": [],
+                "state": {
+                    "lastId": 123
+                },
+                "currentVersion": {
+                    "created": "2017-02-14T14:48:41+0100",
+                    "creatorToken": {
+                        "id": 27978,
+                        "description": "ondrej.popelka@keboola.com"
+                    },
+                    "changeDescription": "Added new key"
+                }
+            }
 
 ### Delete Configuration [DELETE]
 Deletes a configuration. When a configuration is deleted, it is only marked as deleted and remains still available in the system.
@@ -4899,6 +5358,52 @@ Creates a new row (item) of an existing configuration.
                 "changeDescription": "Added new row"
             }
 
+### Create Development Branch Configuration Row [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows]
+Creates a new row (item) of an existing configuration in [Development Branch](#reference/development-branches).
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration
+
++ Attributes
+    + rowId (optional) - Row id (must be unique for each configuration); if not set, it will be generated
+    + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB
+    + state (optional) - Serialized configuration state JSON; the maximum allowed size is 4MB
+    + name (optional, string) - Row name
+    + description (optional, string) - Row description
+    + isDisabled (optional, boolean) - Disabled flag
+    + changeDescription (optional) - Version change description
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            configuration=%7B%22host%22%3A+%22localhost%22%2C+%22port%22%3A+4406%7D&changeDescription=Added+new+row
+
++ Response 201 (application/json)
+
+            {
+                "id": "236781646",
+                "configuration": {
+                    "host": "localhost",
+                    "port": 4406
+                },
+                "state": {},
+                "name": "",
+                "description": "",
+                "isDisabled": false,
+                "version": 1,
+                "created": "2017-02-15T00:05:32+0100",
+                "creatorToken": {
+                    "id": 27978,
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "changeDescription": "Added new row"
+            }
 
 ### Row List [GET]
 Gets configuration rows.
@@ -4947,12 +5452,96 @@ Gets configuration rows.
                 }
             ]
 
+### Row List For Development Branch [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows]
+Gets configuration rows for [Development Branch](#reference/development-branches).
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+
++ Response 200 (application/json)
+
+            [
+                {
+                    "id": "236781529",
+                    "configuration": {},
+                    "state": {},
+                    "name": "",
+                    "description": "",
+                    "isDisabled": false,
+                    "version": 1,
+                    "created": "2017-02-15T00:04:42+0100",
+                    "creatorToken": {
+                        "id": 27978,
+                        "description": "ondrej.popelka@keboola.com"
+                    },
+                    "changeDescription": "Row 236781529 added"
+                },
+                {
+                    "id": "236781639",
+                    "configuration": {
+                        "host": "localhost",
+                        "port": 4406
+                    },
+                    "state": {},
+                    "name": "",
+                    "description": "",
+                    "isDisabled": false,
+                    "version": 1,
+                    "created": "2017-02-15T00:05:29+0100",
+                    "creatorToken": {
+                        "id": 27978,
+                        "description": "ondrej.popelka@keboola.com"
+                    },
+                    "changeDescription": "Added new row"
+                }
+            ]
 
 ## Manage Configuration Rows [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}]
 ### Row detail [GET]
 Gets configuration rows.
 
 + Parameters
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration
+    + row_id (required) - Id of the configuration row
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+
++ Response 200 (application/json)
+
+            {
+                "id": "236781529",
+                "configuration": {},
+                "state": {},
+                "name": "",
+                "description": "",
+                "isDisabled": false,
+                "version": 1,
+                "created": "2017-02-15T00:04:42+0100",
+                "creatorToken": {
+                    "id": 27978,
+                    "description": "name@example.com"
+                },
+                "changeDescription": "Row 236781529 added"
+            }
+
+### Row detail for Development Branch [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}]
+Gets configuration rows for [Development Branch](#reference/development-branches).
+
++ Parameters
+    + branch_id (required) - Id of the development branch
     + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
     + config_id (required) - Id of the configuration
     + row_id (required) - Id of the configuration row
@@ -4993,6 +5582,7 @@ independently on the configurations.
 + Attributes
     + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB
     + state (optional) - Serialized configuration state JSON; the maximum allowed size is 4MB
+    + state (optional) - **DEPRECATED will be removed in the future. For state updates use [state endpoint](/#reference/component-configurations/manage-configuration-rows/update-row-state).**  Serialized configuration state JSON; the maximum allowed size is 4MB.
     + name (optional, string) - Row name
     + description (optional, string) - Row description
     + isDisabled (optional, boolean) - Disabled flag
@@ -5016,6 +5606,140 @@ independently on the configurations.
                     "port": null
                 },
                 "state": {},
+                "name": "",
+                "description": "",
+                "isDisabled": false,
+                "version": 2,
+                "created": "2017-02-15T00:04:42+0100",
+                "creatorToken": {
+                    "id": 27978,
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "changeDescription": "change description"
+            }
+
+### Update Row For Development Branch [PUT /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}]
+Modifies the content of a single row in [Development Branch](#reference/development-branches). Note that configuration rows are versioned
+independently on the configurations.
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration
+    + row_id (required) - Id of the configuration row
+
++ Attributes
+    + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB
+    + name (optional, string) - Row name
+    + description (optional, string) - Row description
+    + isDisabled (optional, boolean) - Disabled flag
+    + changeDescription (optional) - Version change description
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            configuration=%7B%22host%22%3A+%22localhost%22%2C+%22port%22%3A+null%7D&changeDescription=change+description
+
++ Response 200 (application/json)
+
+            {
+                "id": "236781529",
+                "configuration": {
+                    "host": "localhost",
+                    "port": null
+                },
+                "state": {},
+                "name": "",
+                "description": "",
+                "isDisabled": false,
+                "version": 2,
+                "created": "2017-02-15T00:04:42+0100",
+                "creatorToken": {
+                    "id": 27978,
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "changeDescription": "change description"
+            }
+
+### Update Row State [PUT /v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/state]
+Updates state of an existing row.
+
++ Parameters
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration
+    + row_id (required) - Id of the configuration row
+
++ Attributes
+    + state (required) - Serialized configuration state JSON; the maximum allowed size is 4MB
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            state%3D%7B%22lastId%22%3A123%7D
+
++ Response 200 (application/json)
+
+            {
+                "id": "236781529",
+                "configuration": {
+                    "host": "localhost",
+                    "port": null
+                },
+                "state": {
+                    "lastId": 123
+                },
+                "name": "",
+                "description": "",
+                "isDisabled": false,
+                "version": 2,
+                "created": "2017-02-15T00:04:42+0100",
+                "creatorToken": {
+                    "id": 27978,
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "changeDescription": "change description"
+            }
+
+### Update Row State For Development Branch [PUT /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}/state]
+Updates state of an existing configuration for [Development Branch](#reference/development-branches).
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration
+    + row_id (required) - Id of the configuration row
+
++ Attributes
+    + state (required) - Serialized configuration state JSON; the maximum allowed size is 4MB
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            state%3D%7B%22lastId%22%3A123%7D
+
++ Response 200 (application/json)
+
+            {
+                "id": "236781529",
+                "configuration": {
+                    "host": "localhost",
+                    "port": null
+                },
+                "state": {
+                    "lastId": 123
+                },
                 "name": "",
                 "description": "",
                 "isDisabled": false,

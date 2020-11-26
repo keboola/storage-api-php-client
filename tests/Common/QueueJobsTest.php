@@ -40,6 +40,7 @@ class QueueJobsTest extends StorageApiTestCase
         $this->assertEquals('tableImport', $job['operationName']);
         $this->assertEquals('myWorkspace', $job['operationParams']['source']['workspaceId']);
         $this->assertEquals('myTable', $job['operationParams']['source']['tableName']);
+        $this->assertEquals('myTable', $job['operationParams']['source']['dataObject']);
         $this->assertEquals('workspace', $job['operationParams']['source']['type']);
     }
 

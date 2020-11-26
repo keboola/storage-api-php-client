@@ -2,6 +2,7 @@
 
 namespace Keboola\Test;
 
+use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\Client;
 use PHPUnit\Framework\TestCase;
 
@@ -20,6 +21,18 @@ class ClientTestCase extends TestCase
     }
 
     /**
+     * @return BranchAwareClient
+     */
+    protected function getBranchAwareClient($branchId, array $options)
+    {
+        $options['userAgent'] = $this->buildUserAgentString(
+            $options['token'],
+            $options['url']
+        );
+        return new BranchAwareClient($branchId, $options);
+    }
+
+    /**
      * @return string
      */
     protected function getTestName()
@@ -33,6 +46,21 @@ class ClientTestCase extends TestCase
     protected function getDefaultClient()
     {
         return $this->getClient([
+            'token' => STORAGE_API_TOKEN,
+            'url' => STORAGE_API_URL,
+            'backoffMaxTries' => 1,
+            'jobPollRetryDelay' => function () {
+                return 1;
+            },
+        ]);
+    }
+
+    /**
+     * @return BranchAwareClient
+     */
+    protected function getBranchAwareDefaultClient($branchId)
+    {
+        return $this->getBranchAwareClient($branchId, [
             'token' => STORAGE_API_TOKEN,
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,

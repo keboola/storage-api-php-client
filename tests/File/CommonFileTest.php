@@ -64,7 +64,7 @@ class CommonFileTest extends StorageApiTestCase
     public function testFilesListFilterByInvalidValues()
     {
         try {
-            $this->_client->apiGet('storage/files?' . http_build_query([
+            $this->_client->apiGet('files?' . http_build_query([
                     'tags' => 'tag',
                 ]));
             $this->fail('Validation error should be thrown');

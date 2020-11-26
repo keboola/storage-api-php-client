@@ -12,47 +12,49 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
 {
     const TEST_METADATA_PROVIDER = 'test-metadata-provider';
 
-    /**
-     * @var Client
-     */
+    /** @var Client */
     protected $_client2;
 
     /** @var Client */
     protected $clientAdmin2InSameOrg;
+
+    /** @var Client */
     protected $clientAdmin3InOtherOrg;
+
+    /** @var Client */
+    protected $shareRoleClient;
 
     public function setUp()
     {
         parent::setUp();
 
+        $this->_client2 = $this->getClientForToken(
+            STORAGE_API_LINKING_TOKEN
+        );
 
-        $this->_client2 = $this->getClient([
-            'token' => STORAGE_API_LINKING_TOKEN,
-            'url' => STORAGE_API_URL,
-            'backoffMaxTries' => 1,
-        ]);
+        $this->clientAdmin2InSameOrg = $this->getClientForToken(
+            STORAGE_API_TOKEN_ADMIN_2_IN_SAME_ORGANIZATION
+        );
 
-        $this->clientAdmin2InSameOrg = $this->getClient([
-            'token' => STORAGE_API_TOKEN_ADMIN_2_IN_SAME_ORGANIZATION,
-            'url' => STORAGE_API_URL,
-            'backoffMaxTries' => 1,
-        ]);
+        $this->clientAdmin3InOtherOrg = $this->getClientForToken(
+            STORAGE_API_TOKEN_ADMIN_3_IN_OTHER_ORGANIZATION
+        );
 
-        $this->clientAdmin3InOtherOrg = $this->getClient([
-            'token' => STORAGE_API_TOKEN_ADMIN_3_IN_OTHER_ORGANIZATION,
-            'url' => STORAGE_API_URL,
-            'backoffMaxTries' => 1,
-        ]);
+        $this->shareRoleClient = $this->getClientForToken(
+            STORAGE_API_SHARE_TOKEN
+        );
 
         $tokenData = $this->_client->verifyToken();
         $tokenAdmin2InSameOrgData = $this->clientAdmin2InSameOrg->verifyToken();
         $tokenAdmin3InOtherOrg = $this->clientAdmin3InOtherOrg->verifyToken();
+        $shareRoleTokenData = $this->shareRoleClient->verifyToken();
 
         // not same admins validation
         $adminIds = [
             'STORAGE_API_TOKEN' => $tokenData['admin']['id'],
             'STORAGE_API_TOKEN_ADMIN_2_IN_SAME_ORGANIZATION' => $tokenAdmin2InSameOrgData['admin']['id'],
             'STORAGE_API_TOKEN_ADMIN_3_IN_OTHER_ORGANIZATION' => $tokenAdmin3InOtherOrg['admin']['id'],
+            'STORAGE_API_SHARE_TOKEN' => $shareRoleTokenData['admin']['id'],
         ];
 
         if (count(array_unique($adminIds)) !== count($adminIds)) {
@@ -173,7 +175,7 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
 
     /**
      * @param $connection
-     * @return Connection|\PDO
+     * @return Connection|\PDO|\Doctrine\DBAL\Connection
      * @throws \Exception
      */
     protected function getDbConnection($connection)
@@ -199,6 +201,20 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
             $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
             return $pdo;
+        } else if ($connection['backend'] === parent::BACKEND_SYNAPSE) {
+            return \Doctrine\DBAL\DriverManager::getConnection([
+                'user' => $connection['user'],
+                'password' => $connection['password'],
+                'host' => $connection['host'],
+                'dbname' => $connection['database'],
+                'port' => 1433,
+                'driver' => 'pdo_sqlsrv',
+                'driverOptions' => [
+                    'LoginTimeout' => 30,
+                    'ConnectRetryCount' => 5,
+                    'ConnectRetryInterval' => 10,
+                ],
+            ]);
         } else {
             throw new \Exception("Unsupported Backend for workspaces");
         }

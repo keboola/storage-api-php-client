@@ -410,6 +410,42 @@ class SharingTest extends StorageApiSharingTestCase
     }
 
     /**
+     * @throws ClientException
+     */
+    public function testAdminWithShareRoleSharesBucket()
+    {
+        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
+        $bucketId = reset($this->_bucketIds);
+
+        $tokenData = $this->shareRoleClient->verifyToken();
+        $this->assertSame('share', $tokenData['admin']['role']);
+
+        $targetUser = $this->clientAdmin2InSameOrg->verifyToken();
+
+        $bucket = $this->shareRoleClient->shareBucket($bucketId);
+        $this->assertSame('organization', $bucket['sharing']);
+
+        $bucket = $this->shareRoleClient->shareOrganizationProjectBucket($bucketId);
+        $this->assertSame('organization-project', $bucket['sharing']);
+
+        $bucket = $this->shareRoleClient->shareBucketToUsers($bucketId, [
+            $targetUser['admin']['id'],
+        ]);
+        $this->assertSame('specific-users', $bucket['sharing']);
+
+        $bucket = $this->shareRoleClient->shareBucketToProjects($bucketId, [
+            $targetUser['owner']['id'],
+        ]);
+        $this->assertSame('specific-projects', $bucket['sharing']);
+
+        $bucket = $this->shareRoleClient->shareOrganizationBucket($bucketId);
+        $this->assertSame('organization', $bucket['sharing']);
+
+        $this->shareRoleClient->unshareBucket($bucketId);
+        $this->assertFalse($this->shareRoleClient->isSharedBucket($bucketId));
+    }
+
+    /**
      * @dataProvider sharingBackendData
      * @throws ClientException
      */
@@ -1245,6 +1281,7 @@ class SharingTest extends StorageApiSharingTestCase
         $workspacesClient = new Workspaces($this->_client2);
         $workspace = $workspacesClient->createWorkspace([
             'name' => 'clone',
+            'backend' => self::BACKEND_SNOWFLAKE,
         ]);
 
         $workspacesClient->cloneIntoWorkspace($workspace['id'], [

@@ -34,6 +34,7 @@
 	<testsuite name="backend-snowflake-abs-part-1">
 		<file>tests/Backend/Workspaces/MetadataFromSnowflakeWorkspaceTest.php</file>
 		<directory>tests/Backend/CommonPart1</directory>
+		<file>tests/Backend/FileWorkspace/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesSnowflakeTest.php</file>
@@ -111,9 +112,16 @@
 		<exclude>tests/Backend/Mixed/Workspaces/S3WorkspacesTest.php</exclude>
 	</testsuite>
 
+	<testsuite name="backend-mixed-synapse">
+		<directory>tests/Backend/MixedSnowflakeSynapse</directory>
+	</testsuite>
+
 	<testsuite name="backend-synapse-part-1">
 		<file>tests/Backend/Workspaces/MetadataFromSynapseWorkspaceTest.php</file>
 		<directory>tests/Backend/CommonPart1</directory>
+		<file>tests/Backend/FileWorkspace/WorkspacesTest.php</file>
+		<file>tests/Backend/FileWorkspace/WorkspacesLoadTest.php</file>
+		<file>tests/Backend/FileWorkspace/WorkspacesUnloadTest.php</file>
 <!--	DataPreviewLimitsTest is in tests/Backend/Synapse -->
 		<exclude>tests/Backend/CommonPart1/DataPreviewLimitsTest.php</exclude>
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
