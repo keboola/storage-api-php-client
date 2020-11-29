@@ -3516,6 +3516,30 @@ Lists all events in the project.
 + Response 200 (application/json)
     + Attributes (array[Event])
 
+### Development Branch Events list [GET /v2/storage/branch/{branch_id}/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}]
+Lists all events in the project for [Development Branch](#reference/development-branches).
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + sinceId (optional) - Shows only events after the specified Id.
+    + maxId (optional) - Shows only events before the passed Id.
+    + component (optional) - Shows only events emitted by the specified component.
+    + configurationId (optional) - Show only events related to given configuration Id.
+    + runId (optional) - Shows only events with the specified run Id.
+    + q (optional) - Searches events using advanced [Query string syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax).
+    + limit (optional, number) - Pagination limit. Maximum allowed value is `10000`
+        + Default: 100
+    + offset (optional, number) - Pagination offset
+        + Default: 0
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+    + Attributes (array[Event])
+
 ## List Bucket Events [/v2/storage/buckets/{bucket_id}/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}]
 ### Bucket events list [GET]
 Lists all events associated with a particular bucket.
