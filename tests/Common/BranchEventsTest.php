@@ -86,6 +86,28 @@ class BranchEventsTest extends StorageApiTestCase
         $this->assertCount(1, $bucketsListedEvents);
         $this->assertSame('storage.bucketCreated', $bucketsListedEvents[0]['event']);
 
+        // test create external event shows in branch aware events
+        $event = new Event();
+        $event->setComponent('ex-sfdc')
+            ->setConfigurationId('sys.c-sfdc.account-'.$branch['id'])
+            ->setDuration(200)
+            ->setType('info')
+            ->setRunId('ddddssss')
+            ->setMessage('Table Opportunity fetched.')
+            ->setDescription('Some longer description of event')
+            ->setParams(array(
+                'accountName' => 'Keboola',
+                'configuration' => 'sys.c-sfdc.sfdc-01',
+            ));
+        $this->createAndWaitForEvent($event);
+
+        $bucketsListedEvents = $this->waitForListEvents(
+            $branchAwareClient,
+            'event:ext.ex-sfdc.sys.c-sfdc.account-'.$branch['id']
+        );
+
+        $this->assertCount(1, $bucketsListedEvents);
+
         // check if there no exist componentConfigurationCreated event for main branch
         // to validate only main branch events will be returned
         $componentConfigCreateEvents = $this->_client->listEvents([
