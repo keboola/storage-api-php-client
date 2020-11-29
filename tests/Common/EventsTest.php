@@ -40,14 +40,6 @@ class EventsTest extends StorageApiTestCase
         $this->assertEquals($event->getMessage(), $savedEvent['message']);
         $this->assertEquals($event->getDescription(), $savedEvent['description']);
         $this->assertEquals($event->getType(), $savedEvent['type']);
-
-        // Client don't have dev branches now
-        $client = $this->getGuzzleClientForClient($this->_client);
-        try {
-            $client->get('/v2/storage/branch/123/events/' . $savedEvent['id']);
-        } catch (ServerException $e) {
-            $this->assertEquals(501, $e->getCode());
-        }
     }
 
     public function testEventCreateWithoutParams()
