@@ -15,15 +15,14 @@
 <testsuites>
 	<testsuite name="common">
 		<directory>tests/Common</directory>
-		<file>tests/File/CommonFileTest.php</file>
-		<file>tests/Backend/Workspaces/ReadOnlyUserTest.php</file>
+		<directory>tests/S3Uploader</directory>
+		<directory>tests/Downloader</directory>
+		<file>tests/File/AwsFileTest.php</file>
+		<file>tests/File/CommonFileTests.php</file>
 	</testsuite>
 
 	<testsuite name="paratest-common">
 		<directory>tests/Options</directory>
-		<directory>tests/S3Uploader</directory>
-		<directory>tests/Downloader</directory>
-		<file>tests/File/AwsFileTest.php</file>
 	</testsuite>
 
 	<testsuite name="file-storage-azure">
@@ -34,7 +33,6 @@
 	<testsuite name="backend-snowflake-abs-part-1">
 		<file>tests/Backend/Workspaces/MetadataFromSnowflakeWorkspaceTest.php</file>
 		<directory>tests/Backend/CommonPart1</directory>
-		<file>tests/Backend/FileWorkspace/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesSnowflakeTest.php</file>
@@ -47,17 +45,8 @@
 		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>
-		<file>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</file>
-		<file>tests/Backend/Snowflake/TimestampTest.php</file>
-		<file>tests/Backend/Snowflake/DirectAccessTest.php</file>
-		<file>tests/Backend/Export/ExportParamsTest.php</file>
-	</testsuite>
-
-	<testsuite name="paratest-backend-snowflake-abs-part-1">
 		<directory>tests/Backend/Snowflake</directory>
-		<exclude>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</exclude>
-		<exclude>tests/Backend/Snowflake/TimestampTest.php</exclude>
-		<exclude>tests/Backend/Snowflake/DirectAccessTest.php</exclude>
+		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-redshift-part-1">
@@ -94,17 +83,13 @@
 		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>
-		<file>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</file>
-		<file>tests/Backend/Snowflake/TimestampTest.php</file>
-		<file>tests/Backend/Snowflake/DirectAccessTest.php</file>
+		<directory>tests/Backend/Snowflake</directory>
+		<exclude>tests/Backend/Snowflake/OrderByTest.php</exclude>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>
 
-	<testsuite name="paratest-backend-snowflake-part-1">
-		<directory>tests/Backend/Snowflake</directory>
-		<exclude>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</exclude>
-		<exclude>tests/Backend/Snowflake/TimestampTest.php</exclude>
-		<exclude>tests/Backend/Snowflake/DirectAccessTest.php</exclude>
+	<testsuite name="paratest-backend-snowflake-part-2">
+		<file>tests/Backend/Snowflake/OrderByTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-mixed">
@@ -115,9 +100,6 @@
 	<testsuite name="backend-synapse-part-1">
 		<file>tests/Backend/Workspaces/MetadataFromSynapseWorkspaceTest.php</file>
 		<directory>tests/Backend/CommonPart1</directory>
-		<file>tests/Backend/FileWorkspace/WorkspacesTest.php</file>
-		<file>tests/Backend/FileWorkspace/WorkspacesLoadTest.php</file>
-		<file>tests/Backend/FileWorkspace/WorkspacesUnloadTest.php</file>
 <!--	DataPreviewLimitsTest is in tests/Backend/Synapse -->
 		<exclude>tests/Backend/CommonPart1/DataPreviewLimitsTest.php</exclude>
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
@@ -134,13 +116,6 @@
 		<file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>
 		<directory>tests/Backend/Synapse</directory>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
-	</testsuite>
-
-	<testsuite name="backend-synapse-managed-identity">
-		<!-- subset of test to test import and export -->
-		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
-		<file>tests/Backend/Workspaces/SynapseWorkspacesUnloadTest.php</file>
-		<file>tests/Backend/CommonPart1/ImportExportCommonTest.php</file>
 	</testsuite>
 </testsuites>
 </phpunit>

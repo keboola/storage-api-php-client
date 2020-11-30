@@ -64,7 +64,7 @@ class CommonFileTest extends StorageApiTestCase
     public function testFilesListFilterByInvalidValues()
     {
         try {
-            $this->_client->apiGet('files?' . http_build_query([
+            $this->_client->apiGet('storage/files?' . http_build_query([
                     'tags' => 'tag',
                 ]));
             $this->fail('Validation error should be thrown');
@@ -407,46 +407,6 @@ class CommonFileTest extends StorageApiTestCase
         $file = $this->_client->getFile($fileId);
         $this->assertEquals(array('image', 'new'), $file['tags'], 'duplicate tag add is ignored');
     }
-
-    public function testReadOnlyRoleFilesPermissions()
-    {
-        $expectedError = 'File manipulation is restricted for your user role "readOnly".';
-        $readOnlyClient = $this->getClientForToken(STORAGE_API_READ_ONLY_TOKEN);
-
-        $options = new FileUploadOptions();
-        $fileId = $this->createAndWaitForFile(__DIR__ . '/../_data/files.upload.txt', $options);
-        $originalFile = $this->_client->getFile($fileId);
-        unset($originalFile['url']);
-
-        $filesCount = count($this->_client->listFiles(new ListFilesOptions()));
-        $this->assertGreaterThan(0, $filesCount);
-
-        $this->assertCount($filesCount, $readOnlyClient->listFiles(new ListFilesOptions()));
-
-        try {
-            $readOnlyClient->addFileTag($fileId, 'test');
-            $this->fail('Files API POST request should be restricted for readOnly user');
-        } catch (ClientException $e) {
-            $this->assertSame(403, $e->getCode());
-            $this->assertSame('accessDenied', $e->getStringCode());
-            $this->assertSame($expectedError, $e->getMessage());
-        }
-
-        try {
-            $readOnlyClient->deleteFile($fileId);
-            $this->fail('Files API DELETE request should be restricted for readOnly user');
-        } catch (ClientException $e) {
-            $this->assertSame(403, $e->getCode());
-            $this->assertSame('accessDenied', $e->getStringCode());
-            $this->assertSame($expectedError, $e->getMessage());
-        }
-
-
-        $file = $this->_client->getFile($fileId);
-        unset($file['url']);
-        $this->assertSame($originalFile, $file);
-    }
-
 
     /** @dataProvider invalidIdDataProvider */
     public function testInvalidFileId($fileId)

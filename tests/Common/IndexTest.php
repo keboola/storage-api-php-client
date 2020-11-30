@@ -10,7 +10,6 @@
 namespace Keboola\Test\Common;
 
 use Keboola\StorageApi\ClientException;
-use Keboola\StorageApi\Options\IndexOptions;
 use Keboola\Test\StorageApiTestCase;
 
 class IndexTest extends StorageApiTestCase
@@ -29,22 +28,6 @@ class IndexTest extends StorageApiTestCase
         $component = reset($index['components']);
         $this->assertArrayHasKey('id', $component);
         $this->assertArrayHasKey('uri', $component);
-
-        $this->assertArrayHasKey('urlTemplates', $index);
-
-        $urlTemplates = $index['urlTemplates'];
-        $this->assertArrayHasKey('orchestrationJob', $urlTemplates);
-    }
-
-    public function testIndexExclude()
-    {
-        $index = $this->_client->indexAction((new IndexOptions())->setExclude(['components']));
-        $this->assertEquals('storage', $index['api']);
-        $this->assertEquals('v2', $index['version']);
-        $this->assertArrayHasKey('revision', $index);
-
-        $this->assertArrayNotHasKey('components', $index);
-        $this->assertInternalType('array', $index['features']);
 
         $this->assertArrayHasKey('urlTemplates', $index);
 

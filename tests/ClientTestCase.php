@@ -2,7 +2,6 @@
 
 namespace Keboola\Test;
 
-use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\Client;
 use PHPUnit\Framework\TestCase;
 
@@ -13,23 +12,34 @@ class ClientTestCase extends TestCase
      */
     protected function getClient(array $options)
     {
-        $options['userAgent'] = $this->buildUserAgentString(
-            $options['token'],
-            $options['url']
+        $testSuiteName = '';
+        if (SUITE_NAME) {
+            $testSuiteName = sprintf('Suite: %s, ', SUITE_NAME);
+        }
+
+        $buildId = '';
+        if (TRAVIS_BUILD_ID) {
+            $buildId = sprintf('Build id: %s, ', TRAVIS_BUILD_ID);
+        }
+
+        $tokenParts = explode('-', $options['token']);
+        $tokenAgentString = '';
+        if (count($tokenParts) === 3) {
+            $tokenAgentString = sprintf(
+                'Project: %s, Token: %s, ',
+                $tokenParts[1],
+                $tokenParts[0]
+            );
+        }
+        $options['userAgent'] = sprintf(
+            '%s%sStack: %s, %sTest: %s',
+            $buildId,
+            $testSuiteName,
+            $options['url'],
+            $tokenAgentString,
+            $this->getTestName()
         );
         return new Client($options);
-    }
-
-    /**
-     * @return BranchAwareClient
-     */
-    protected function getBranchAwareClient($branchId, array $options)
-    {
-        $options['userAgent'] = $this->buildUserAgentString(
-            $options['token'],
-            $options['url']
-        );
-        return new BranchAwareClient($branchId, $options);
     }
 
     /**
@@ -52,38 +62,6 @@ class ClientTestCase extends TestCase
             'jobPollRetryDelay' => function () {
                 return 1;
             },
-        ]);
-    }
-
-    /**
-     * @return BranchAwareClient
-     */
-    protected function getBranchAwareDefaultClient($branchId)
-    {
-        return $this->getBranchAwareClient($branchId, [
-            'token' => STORAGE_API_TOKEN,
-            'url' => STORAGE_API_URL,
-            'backoffMaxTries' => 1,
-            'jobPollRetryDelay' => function () {
-                return 1;
-            },
-        ]);
-    }
-
-    /**
-     * @return  \GuzzleHttp\Client
-     */
-    protected function getGuzzleClientForClient(Client $client)
-    {
-        return new \GuzzleHttp\Client([
-            'base_uri' => $client->getApiUrl(),
-            'headers' => [
-                'X-StorageApi-Token' => $client->getTokenString(),
-                'User-agent' => $this->buildUserAgentString(
-                    $client->getTokenString(),
-                    $client->getApiUrl()
-                )
-            ],
         ]);
     }
 
@@ -116,41 +94,5 @@ class ClientTestCase extends TestCase
                 return 1;
             },
         ]);
-    }
-
-    /**
-     * @param string $token
-     * @param string $url
-     * @return string
-     */
-    protected function buildUserAgentString($token, $url)
-    {
-        $testSuiteName = '';
-        if (SUITE_NAME) {
-            $testSuiteName = sprintf('Suite: %s, ', SUITE_NAME);
-        }
-
-        $buildId = '';
-        if (TRAVIS_BUILD_ID) {
-            $buildId = sprintf('Build id: %s, ', TRAVIS_BUILD_ID);
-        }
-
-        $tokenParts = explode('-', $token);
-        $tokenAgentString = '';
-        if (count($tokenParts) === 3) {
-            $tokenAgentString = sprintf(
-                'Project: %s, Token: %s, ',
-                $tokenParts[1],
-                $tokenParts[0]
-            );
-        }
-        return sprintf(
-            '%s%sStack: %s, %sTest: %s',
-            $buildId,
-            $testSuiteName,
-            $url,
-            $tokenAgentString,
-            $this->getTestName()
-        );
     }
 }

@@ -23,7 +23,7 @@ class Metadata
      */
     public function listBucketMetadata($bucketId)
     {
-        return $this->client->apiGet("buckets/{$bucketId}/metadata");
+        return $this->client->apiGet("storage/buckets/{$bucketId}/metadata");
     }
 
     /**
@@ -32,7 +32,7 @@ class Metadata
      */
     public function listTableMetadata($tableId)
     {
-        return $this->client->apiGet("tables/{$tableId}/metadata");
+        return $this->client->apiGet("storage/tables/{$tableId}/metadata");
     }
 
     /**
@@ -41,7 +41,7 @@ class Metadata
      */
     public function listColumnMetadata($columnId)
     {
-        return $this->client->apiGet("columns/{$columnId}/metadata");
+        return $this->client->apiGet("storage/columns/{$columnId}/metadata");
     }
 
     /**
@@ -51,7 +51,7 @@ class Metadata
      */
     public function deleteBucketMetadata($bucketId, $metadataId)
     {
-        return $this->client->apiDelete("buckets/{$bucketId}/metadata/{$metadataId}");
+        return $this->client->apiDelete("storage/buckets/{$bucketId}/metadata/{$metadataId}");
     }
 
     /**
@@ -61,7 +61,7 @@ class Metadata
      */
     public function deleteTableMetadata($tableId, $metadataId)
     {
-        return $this->client->apiDelete("tables/{$tableId}/metadata/{$metadataId}");
+        return $this->client->apiDelete("storage/tables/{$tableId}/metadata/{$metadataId}");
     }
 
     /**
@@ -71,7 +71,7 @@ class Metadata
      */
     public function deleteColumnMetadata($columnId, $metadataId)
     {
-        return $this->client->apiDelete("columns/{$columnId}/metadata/{$metadataId}");
+        return $this->client->apiDelete("storage/columns/{$columnId}/metadata/{$metadataId}");
     }
 
     /**
@@ -86,7 +86,7 @@ class Metadata
         if (!is_array($metadata) || count($metadata) === 0) {
             throw new ClientException("Third argument must be a non-empty array of metadata objects");
         }
-        return $this->client->apiPost("buckets/{$bucketId}/metadata", array(
+        return $this->client->apiPost("storage/buckets/{$bucketId}/metadata", array(
             "provider" => $provider,
             "metadata" => $metadata
         ));
@@ -104,7 +104,7 @@ class Metadata
         if (!is_array($metadata) || count($metadata) === 0) {
             throw new ClientException("Third argument must be a non-empty array of Metadata objects");
         }
-        return $this->client->apiPost("tables/{$tableId}/metadata", array(
+        return $this->client->apiPost("storage/tables/{$tableId}/metadata", array(
             "provider" => $provider,
             "metadata" => $metadata
         ));
@@ -122,7 +122,7 @@ class Metadata
         if (!is_array($metadata) || count($metadata) === 0) {
             throw new ClientException("Third argument must be a non-empty array of Metadata objects");
         }
-        return $this->client->apiPost("columns/{$columnId}/metadata", array(
+        return $this->client->apiPost("storage/columns/{$columnId}/metadata", array(
             "provider" => $provider,
             "metadata" => $metadata
         ));
