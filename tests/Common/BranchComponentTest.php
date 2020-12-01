@@ -263,9 +263,11 @@ class BranchComponentTest extends StorageApiTestCase
             'main-1',
             'dev-1-row-1'
         );
+        $configurationAssociatedWithUpdatedRow = $branchComponents->getConfiguration('transformation', 'main-1');
 
         $this->assertEquals('Renamed Dev 1 Row 1', $updatedRow['name']);
         $this->assertEquals('Test change dev-1-row-1', $updatedRow['changeDescription']);
+        $this->assertEquals('Test change dev-1-row-1', $configurationAssociatedWithUpdatedRow['changeDescription']);
         $this->assertEquals('{"id":"10","stuff":"true"}', $updatedRow['configuration'][0]);
         $this->assertEquals(1, $updatedRow['version']);
 
@@ -281,9 +283,11 @@ class BranchComponentTest extends StorageApiTestCase
             'main-1',
             'dev-1-row-1'
         );
+        $configurationAssociatedWithUpdatedRow = $branchComponents->getConfiguration('transformation', 'main-1');
 
         $this->assertEquals('Renamed Dev 1 Row 1', $updatedRow['name']);
         $this->assertEquals('Row dev-1-row-1 changed', $updatedRow['changeDescription']);
+        $this->assertEquals('Row dev-1-row-1 changed', $configurationAssociatedWithUpdatedRow['changeDescription']);
         $this->assertEquals('{"id":"10","stuff":"true"}', $updatedRow['configuration'][0]);
         $this->assertEquals(1, $updatedRow['version']);
 
