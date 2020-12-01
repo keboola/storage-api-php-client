@@ -1791,6 +1791,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $originalRow = reset($rows);
         $this->assertEquals('main-1-1', $originalRow['id']);
+        $this->assertEquals('Row main-1-1 added', $originalRow['changeDescription']);
 
         $component = $components->getConfiguration('wr-db', 'main-1');
         $this->assertEquals(2, $component['version']);
@@ -1839,6 +1840,19 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertNotEmpty($version['created']);
         $this->assertEquals($newToken['id'], $version['creatorToken']['id']);
         $this->assertEquals($newToken['description'], $version['creatorToken']['description']);
+
+        $components->updateConfigurationRow(
+            $configurationRow
+                ->setName('Renamed Main 1')
+                ->setChangeDescription('')
+        );
+
+        $updatedRow = $components->getConfigurationRow(
+            'wr-db',
+            'main-1',
+            'main-1-1'
+        );
+        $this->assertEquals('Row main-1-1 changed', $updatedRow['changeDescription']);
     }
 
     public function testComponentConfigRowStateUpdate()

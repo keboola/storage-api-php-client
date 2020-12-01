@@ -30,41 +30,6 @@ class ConfigurationRowTest extends StorageApiTestCase
         }
     }
 
-    public function testConfigurationRowUpdateChangeDescription()
-    {
-        $components = new Components($this->_client);
-        $configuration = new Configuration();
-        $configuration
-            ->setComponentId('wr-db')
-            ->setConfigurationId('main-1')
-            ->setName('Main');
-        $components->addConfiguration($configuration);
-
-        $configurationRow1 = new ConfigurationRow($configuration);
-        $configurationRow1->setRowId('main-1-1');
-        $components->addConfigurationRow($configurationRow1);
-
-        $updatedRow = $components->getConfigurationRow(
-            'wr-db',
-            'main-1',
-            'main-1-1'
-        );
-        $this->assertEquals('Row main-1-1 added', $updatedRow['changeDescription']);
-
-        $components->updateConfigurationRow(
-            (new ConfigurationRow($configuration))
-                ->setRowId('main-1-1')
-                ->setName('Renamed Main 1')
-        );
-
-        $updatedRow = $components->getConfigurationRow(
-            'wr-db',
-            'main-1',
-            'main-1-1'
-        );
-        $this->assertEquals('Row main-1-1 changed', $updatedRow['changeDescription']);
-    }
-
     public function testConfigurationRowReturnsSingleRow()
     {
         $components = new Components($this->_client);
