@@ -10,7 +10,6 @@
 
 namespace Keboola\Test\Common;
 
-use GuzzleHttp\Exception\ServerException;
 use Keboola\StorageApi\ClientException;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\Event;
@@ -40,14 +39,6 @@ class EventsTest extends StorageApiTestCase
         $this->assertEquals($event->getMessage(), $savedEvent['message']);
         $this->assertEquals($event->getDescription(), $savedEvent['description']);
         $this->assertEquals($event->getType(), $savedEvent['type']);
-
-        // Client don't have dev branches now
-        $client = $this->getGuzzleClientForClient($this->_client);
-        try {
-            $client->get('/v2/storage/branch/123/events/' . $savedEvent['id']);
-        } catch (ServerException $e) {
-            $this->assertEquals(501, $e->getCode());
-        }
     }
 
     public function testEventCreateWithoutParams()
@@ -61,57 +52,21 @@ class EventsTest extends StorageApiTestCase
 
         // to check if params is object we have to convert received json to objects instead of assoc array
         // so we have to use raw Http Client
-        $client = $this->getGuzzleClientForClient($this->_client);
+        $client = new \GuzzleHttp\Client([
+            'base_uri' => $this->_client->getApiUrl(),
+        ]);
 
-        $response = $client->get('/v2/storage/events/' . $event['id']);
+        $response = $client->get('/v2/storage/events/' . $event['id'], array(
+            'headers' => array(
+                'X-StorageApi-Token' => $this->_client->getTokenString(),
+            ),
+        ));
 
         $response = json_decode((string)$response->getBody());
 
         $this->assertInstanceOf('stdclass', $response->params);
         $this->assertInstanceOf('stdclass', $response->results);
         $this->assertInstanceOf('stdclass', $response->performance);
-    }
-
-    /**
-     * @dataProvider largeEventWithinMaxSizeLimitDataProvider
-     * @param $messageLength
-     * @throws \Exception
-     */
-    public function testLargeEventWithinMaxSizeLimit($messageLength)
-    {
-        $largeMessage = str_repeat('x', $messageLength);
-        $event = new Event();
-        $event->setComponent('ex-sfdc')
-            ->setMessage($largeMessage);
-
-        $savedEvent = $this->createAndWaitForEvent($event);
-        $this->assertEquals($largeMessage, $savedEvent['message']);
-    }
-
-    public function largeEventWithinMaxSizeLimitDataProvider()
-    {
-        return [
-            [10000],
-            [50000],
-            [64000],
-            [128000],
-            [190000],
-        ];
-    }
-
-    public function testLargeEventOverLimitShouldNotBeCreated()
-    {
-        $largeMessage = str_repeat('x', 250000);
-        $event = new Event();
-        $event->setComponent('ex-sfdc')
-            ->setMessage($largeMessage);
-
-        try {
-            $this->createAndWaitForEvent($event);
-            $this->fail('event should not be created');
-        } catch (\Keboola\StorageApi\ClientException $e) {
-            $this->assertEquals('requestTooLarge', $e->getStringCode());
-        }
     }
 
     /**

@@ -1,7 +1,6 @@
 <?php
 namespace Keboola\Test\Common;
 
-use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
@@ -250,62 +249,10 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals('some desc', $configuration['description']);
     }
 
-    public function testComponentConfigRestrictionsForReadOnlyUser()
-    {
-        $readOnlyClient = $this->getClientForToken(STORAGE_API_READ_ONLY_TOKEN);
-
-        $configuration = (new \Keboola\StorageApi\Options\Components\Configuration())
-            ->setComponentId('wr-db')
-            ->setConfigurationId('main-1')
-            ->setName('Main')
-            ->setDescription('some desc')
-        ;
-
-        $componentsForAdmin = new \Keboola\StorageApi\Components($this->_client);
-        $componentsForAdmin->addConfiguration($configuration);
-
-        $components = $componentsForAdmin->listComponents();
-        $this->assertCount(1, $components);
-
-        $componentsForReadOnlyUser = new \Keboola\StorageApi\Components($readOnlyClient);
-
-        $this->assertSame($components, $componentsForReadOnlyUser->listComponents());
-
-        try {
-            $componentsForReadOnlyUser->addConfiguration($configuration);
-            $this->fail('Components API POST request should be restricted for readOnly user');
-        } catch (ClientException $e) {
-            $this->assertSame(403, $e->getCode());
-            $this->assertSame('accessDenied', $e->getStringCode());
-            $this->assertContains('Configuration manipulation is restricted for your user role', $e->getMessage());
-        }
-
-        try {
-            $configuration->setName('Renamed');
-            $componentsForReadOnlyUser->updateConfiguration($configuration);
-            $this->fail('Components API PUT request should be restricted for readOnly user');
-        } catch (ClientException $e) {
-            $this->assertSame(403, $e->getCode());
-            $this->assertSame('accessDenied', $e->getStringCode());
-            $this->assertContains('Configuration manipulation is restricted for your user role', $e->getMessage());
-        }
-
-        try {
-            $componentsForReadOnlyUser->deleteConfiguration($configuration->getComponentId(), $configuration->getConfigurationId());
-            $this->fail('Components API PUT request should be restricted for readOnly user');
-        } catch (ClientException $e) {
-            $this->assertSame(403, $e->getCode());
-            $this->assertSame('accessDenied', $e->getStringCode());
-            $this->assertContains('Configuration manipulation is restricted for your user role', $e->getMessage());
-        }
-
-        $this->assertSame($components, $componentsForAdmin->listComponents());
-    }
-
     public function testConfigurationNameShouldBeRequired()
     {
         try {
-            $this->_client->apiPost('components/wr-db/configs', []);
+            $this->_client->apiPost('storage/components/wr-db/configs', []);
             $this->fail('Params should be invalid');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.components.validation', $e->getStringCode());
@@ -315,7 +262,7 @@ class ComponentsTest extends StorageApiTestCase
 
     public function testConfigurationDescriptionDefault()
     {
-        $resp = $this->_client->apiPost('components/wr-db/configs', [
+        $resp = $this->_client->apiPost('storage/components/wr-db/configs', [
             'name' => 'neco'
         ]);
         $components = new \Keboola\StorageApi\Components($this->_client);
@@ -326,7 +273,7 @@ class ComponentsTest extends StorageApiTestCase
     public function testNonJsonConfigurationShouldNotBeAllowed()
     {
         try {
-            $this->_client->apiPost('components/wr-db/configs', array(
+            $this->_client->apiPost('storage/components/wr-db/configs', array(
                 'name' => 'neco',
                 'description' => 'some',
                 'configuration' => '{sdf}',
@@ -341,7 +288,7 @@ class ComponentsTest extends StorageApiTestCase
     public function testNonJsonStateShouldNotBeAllowed()
     {
         try {
-            $this->_client->apiPost('components/wr-db/configs', array(
+            $this->_client->apiPost('storage/components/wr-db/configs', array(
                 'name' => 'neco',
                 'description' => 'some',
                 'state' => '{sdf}',

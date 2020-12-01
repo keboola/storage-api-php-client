@@ -32,7 +32,7 @@ class OptimizeTest extends StorageApiTestCase
             ]
         );
 
-        $this->_client->apiPost("tables/{$tableId}/optimize");
+        $this->_client->apiPost("storage/tables/{$tableId}/optimize");
 
         $this->assertLinesEqualsSorted(file_get_contents(__DIR__ . '/../../_data/pk.simple.loaded.csv'), $this->_client->getTableDataPreview($tableId));
 

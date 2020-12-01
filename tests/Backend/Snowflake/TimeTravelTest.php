@@ -18,7 +18,7 @@ class TimeTravelTest extends StorageApiTestCase
     public function setUp()
     {
         parent::setUp();
-        $this->initEmptyTestBucketsForParallelTests();
+        $this->_initEmptyTestBuckets();
         $this->downloadPath = __DIR__ . '/../../_tmp/';
     }
 

@@ -120,13 +120,6 @@ class TokensTest extends StorageApiTestCase
         $this->assertInternalType('integer', $owner['rowsCount']);
         $this->assertInternalType('boolean', $owner['hasRedshift']);
 
-        $admin = $currentToken['admin'];
-        $this->assertIsString($admin['name']);
-        $this->assertIsInt($admin['id']);
-        $this->assertIsArray($admin['features']);
-        $this->assertIsBool($admin['isOrganizationMember']);
-        $this->assertEquals('admin', $admin['role']);
-
         $this->assertArrayHasKey('limits', $owner);
         $this->assertArrayHasKey('metrics', $owner);
         $this->assertArrayHasKey('defaultBackend', $owner);
@@ -148,22 +141,13 @@ class TokensTest extends StorageApiTestCase
             $this->assertArrayHasKey('admin', $token);
 
             $admin = $token['admin'];
-            $this->assertIsInt($admin['id']);
-            $this->assertIsString($admin['name']);
-            $this->assertIsString($admin['role']);
-            $this->assertEquals('admin', $admin['role']);
+            $this->assertArrayHasKey('id', $admin);
+            $this->assertArrayHasKey('name', $admin);
 
             $tokenFound = true;
         }
 
         $this->assertTrue($tokenFound);
-
-        // check role of guest user
-        $guestUserToken = $this->getGuestClient()->verifyToken();
-
-        $this->assertArrayHasKey('admin', $guestUserToken);
-        $admin = $guestUserToken['admin'];
-        $this->assertEquals('guest', $admin['role']);
     }
 
     public function testGetToken()
@@ -1144,127 +1128,6 @@ class TokensTest extends StorageApiTestCase
         }
     }
 
-    public function testGuestRoleTokenSettings()
-    {
-        $client = $this->getGuestClient();
-        $token = $client->verifyToken();
-
-        $this->assertArrayHasKey('admin', $token);
-        $this->assertArrayHasKey('role', $token['admin']);
-
-        $this->assertSame('guest', $token['admin']['role']);
-
-        $this->assertArrayHasKey('canManageBuckets', $token);
-        $this->assertSame(true, $token['canManageBuckets']);
-        $this->assertArrayHasKey('canManageTokens', $token);
-        $this->assertSame(false, $token['canManageTokens']);
-        $this->assertArrayHasKey('canReadAllFileUploads', $token);
-        $this->assertSame(true, $token['canReadAllFileUploads']);
-        $this->assertArrayHasKey('canPurgeTrash', $token);
-        $this->assertSame(false, $token['canPurgeTrash']);
-        $this->assertArrayHasKey('canUseDirectAccess', $token);
-        $this->assertSame(false, $token['canUseDirectAccess']);
-    }
-
-    public function testAdminRoleTokenSettings()
-    {
-        $token = $this->_client->verifyToken();
-
-        $this->assertArrayHasKey('admin', $token);
-        $this->assertArrayHasKey('role', $token['admin']);
-
-        $this->assertSame('admin', $token['admin']['role']);
-
-        $this->assertArrayHasKey('canManageBuckets', $token);
-        $this->assertSame(true, $token['canManageBuckets']);
-        $this->assertArrayHasKey('canManageTokens', $token);
-        $this->assertSame(true, $token['canManageTokens']);
-        $this->assertArrayHasKey('canReadAllFileUploads', $token);
-        $this->assertSame(true, $token['canReadAllFileUploads']);
-        $this->assertArrayHasKey('canPurgeTrash', $token);
-        $this->assertSame(true, $token['canPurgeTrash']);
-        $this->assertArrayHasKey('canUseDirectAccess', $token);
-        $this->assertSame(true, $token['canUseDirectAccess']);
-    }
-
-    public function testShareRoleTokenSettings()
-    {
-        $client = $this->getClientForToken(STORAGE_API_SHARE_TOKEN);
-        $token = $client->verifyToken();
-
-        $this->assertArrayHasKey('admin', $token);
-        $this->assertArrayHasKey('role', $token['admin']);
-
-        $this->assertSame('share', $token['admin']['role']);
-
-        $this->assertArrayHasKey('canManageBuckets', $token);
-        $this->assertSame(true, $token['canManageBuckets']);
-        $this->assertArrayHasKey('canManageTokens', $token);
-        $this->assertSame(true, $token['canManageTokens']);
-        $this->assertArrayHasKey('canReadAllFileUploads', $token);
-        $this->assertSame(true, $token['canReadAllFileUploads']);
-        $this->assertArrayHasKey('canPurgeTrash', $token);
-        $this->assertSame(true, $token['canPurgeTrash']);
-        $this->assertArrayHasKey('canUseDirectAccess', $token);
-        $this->assertSame(true, $token['canUseDirectAccess']);
-    }
-
-    public function testReadOnlyRoleTokenSettings()
-    {
-        $client = $this->getClientForToken(STORAGE_API_READ_ONLY_TOKEN);
-        $token = $client->verifyToken();
-
-        $this->assertArrayHasKey('admin', $token);
-        $this->assertArrayHasKey('role', $token['admin']);
-
-        $this->assertSame('readOnly', $token['admin']['role']);
-
-        $this->assertArrayHasKey('canManageBuckets', $token);
-        $this->assertSame(false, $token['canManageBuckets']);
-        $this->assertArrayHasKey('canManageTokens', $token);
-        $this->assertSame(false, $token['canManageTokens']);
-        $this->assertArrayHasKey('canReadAllFileUploads', $token);
-        $this->assertSame(true, $token['canReadAllFileUploads']);
-        $this->assertArrayHasKey('canPurgeTrash', $token);
-        $this->assertSame(false, $token['canPurgeTrash']);
-        $this->assertArrayHasKey('canUseDirectAccess', $token);
-        $this->assertSame(false, $token['canUseDirectAccess']);
-    }
-
-    public function testReadOnlyRoleBucketsPermissions()
-    {
-        $client = $this->getClientForToken(STORAGE_API_READ_ONLY_TOKEN);
-        $bucketsInitialCount = count($this->_client->listBuckets());
-
-        $token = $client->verifyToken();
-
-        $this->assertCount($bucketsInitialCount, $token['bucketPermissions']);
-        foreach ($token['bucketPermissions'] as $bucketId => $permission) {
-            $this->assertEquals('read', $permission);
-        }
-
-        // check assigned buckets
-        $buckets = $client->listBuckets();
-        $this->assertCount($bucketsInitialCount, $buckets);
-
-        // create new bucket with master token
-        $newBucketId = $this->_client->createBucket('test', 'in', 'testing');
-
-        // check if new token has access to token
-        $buckets = $client->listBuckets();
-        $this->assertCount($bucketsInitialCount + 1, $buckets);
-
-        $token = $client->verifyToken();
-        $this->assertCount($bucketsInitialCount + 1, $token['bucketPermissions']);
-        foreach ($token['bucketPermissions'] as $bucketId => $permission) {
-            $this->assertEquals('read', $permission);
-        }
-
-        $client->getBucket($newBucketId);
-        $this->_client->dropBucket($newBucketId);
-    }
-
-
     /**
      * @dataProvider limitedTokenOptionsData
      */
@@ -1296,20 +1159,6 @@ class TokensTest extends StorageApiTestCase
         $this->assertArrayNotHasKey('componentAccess', $token);
         $this->assertNotEmpty($token['expires']);
         $this->assertSame([], $token['bucketPermissions']);
-    }
-
-    /**
-     * @dataProvider limitedTokenOptionsData
-     */
-    public function testReadOnlyUserCannotCreateLimitedToken(TokenCreateOptions $options)
-    {
-        $client = $this->getClientForToken(STORAGE_API_READ_ONLY_TOKEN);
-
-        $this->expectExceptionCode(403);
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('You don\'t have access to the resource.');
-
-        $client->createToken($options);
     }
 
     public function limitedTokenOptionsData()
