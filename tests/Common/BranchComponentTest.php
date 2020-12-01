@@ -111,6 +111,8 @@ class BranchComponentTest extends StorageApiTestCase
             $this->assertContains('Not implemented', $e->getMessage());
         }
 
+        $configFromMain = $branchComponents->getConfiguration($componentId, 'main-1');
+        $this->assertSame(1, $configFromMain['version']);
         $rows = $branchComponents->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId($componentId)
             ->setConfigurationId('main-1'));
@@ -126,6 +128,7 @@ class BranchComponentTest extends StorageApiTestCase
         );
 
         $this->assertEquals('main-1-row-1', $row['id']);
+        $this->assertEquals(1, $row['version']);
 
         $branchConfigs = $branchComponents->listComponentConfigurations(
             (new ListComponentConfigurationsOptions())->setComponentId($componentId)
@@ -197,9 +200,9 @@ class BranchComponentTest extends StorageApiTestCase
 
         $branchMain1Detail = $branchComponents->getConfiguration($componentId, 'main-1');
         $this->assertNotEmpty($branchMain1Detail);
-        // versions are reset to 0 when copied to dev branch
+        // versions are reset to 1 when copied to dev branch
         $this->assertSame(3, $mainComponentDetail['version']);
-        $this->assertSame(0, $branchMain1Detail['version']);
+        $this->assertSame(1, $branchMain1Detail['version']);
 
         try {
             $branchComponents->getConfiguration($componentId, 'main-2');
@@ -238,17 +241,15 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertEquals('dev-1-row-3', $rows[2]['id']);
         $this->assertCount(3, $rows);
 
-        // updated rows should have version 1, if rows weren't updated version should be 0
-        $this->assertEquals(0, $rows[0]['version']);
+        // updated rows should have version 2, if rows weren't updated version should be 1
         $this->assertEquals('Row main-1-row-1 added', $rows[0]['changeDescription']);
-        $this->assertEquals(1, $rows[1]['version']);
+        $this->assertEquals(1, $rows[0]['version']);
+        $this->assertEquals(2, $rows[1]['version']);
         $this->assertEquals('Row dev-1-row-1 added', $rows[1]['changeDescription']);
-        $this->assertEquals(1, $rows[2]['version']);
+        $this->assertEquals(2, $rows[2]['version']);
         $this->assertEquals('Row dev-1-row-3 added', $rows[2]['changeDescription']);
         $devBranchConfiguration = $branchComponents->getConfiguration($componentId, 'main-1');
-        $this->assertEquals(1, $devBranchConfiguration['version']);
-
-        $this->assertEquals(1, $rows[2]['version']);
+        $this->assertEquals(4, $devBranchConfiguration['version']); // add rows should update config version
 
         $branchComponents->updateConfigurationRow(
             (new ConfigurationRow($configurationOptions))
@@ -269,7 +270,7 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertEquals('Test change dev-1-row-1', $updatedRow['changeDescription']);
         $this->assertEquals('Test change dev-1-row-1', $configurationAssociatedWithUpdatedRow['changeDescription']);
         $this->assertEquals('{"id":"10","stuff":"true"}', $updatedRow['configuration'][0]);
-        $this->assertEquals(1, $updatedRow['version']);
+        $this->assertEquals(3, $updatedRow['version']);
 
         $branchComponents->updateConfigurationRow(
             (new ConfigurationRow($configurationOptions))
@@ -289,7 +290,7 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertEquals('Row dev-1-row-1 changed', $updatedRow['changeDescription']);
         $this->assertEquals('Row dev-1-row-1 changed', $configurationAssociatedWithUpdatedRow['changeDescription']);
         $this->assertEquals('{"id":"10","stuff":"true"}', $updatedRow['configuration'][0]);
-        $this->assertEquals(1, $updatedRow['version']);
+        $this->assertEquals(4, $updatedRow['version']); // update row should update version for row
 
         // restrict row state change on configuration update
         try {
@@ -330,6 +331,7 @@ class BranchComponentTest extends StorageApiTestCase
         );
 
         $this->assertEquals($state, $row['state']);
+        $this->assertEquals(4, $row['version']); // update state shouldn't update version
 
         $updatedConfiguration = $branchComponents->getConfiguration(
             $componentId,
@@ -365,7 +367,7 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertEquals('Dev Branch 1', $branchComponentDetail['name']);
         $this->assertEmpty($branchComponentDetail['configuration']);
         $this->assertSame('Configuration created', $branchComponentDetail['description']);
-        $this->assertEquals(1, $branchComponentDetail['version']);
+        $this->assertEquals(2, $branchComponentDetail['version']); // create new config set version to 2
         $this->assertIsInt($branchComponentDetail['version']);
         $this->assertIsInt($branchComponentDetail['creatorToken']['id']);
 
@@ -394,7 +396,7 @@ class BranchComponentTest extends StorageApiTestCase
         $config->setRowsSortOrder([]);
         $branchComponents->updateConfiguration($config);
 
-        // if updated twice, version is still 1
+        // test update version is increment
         $newName = 'neco-nove';
         $config->setName($newName)
             ->setDescription($newDesc)
@@ -407,7 +409,7 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertEquals($newName, $configuration['name']);
         $this->assertEquals($newDesc, $configuration['description']);
         $this->assertEquals($config->getConfiguration(), $configuration['configuration']);
-        $this->assertEquals(1, $configuration['version']);
+        $this->assertEquals(4, $configuration['version']);
         $this->assertEmpty($configuration['changeDescription']);
 
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
@@ -430,6 +432,7 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertEquals($configurationData, $configuration['configuration']);
         $this->assertEquals([], $configuration['state']);
         $this->assertEmpty($configuration['changeDescription']);
+        $this->assertEquals(5, $configuration['version']);
 
         $state = [
             'cache' => false,
@@ -446,6 +449,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         $configuration = $branchComponents->getConfiguration($config->getComponentId(), $config->getConfigurationId());
         $this->assertEquals($state, $configuration['state']);
+        $this->assertEquals(5, $configuration['version']); // update state shouldn't change version
 
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('transformation')
@@ -455,6 +459,7 @@ class BranchComponentTest extends StorageApiTestCase
         $branchComponents->updateConfiguration($config);
         $configuration = $branchComponents->getConfiguration($config->getComponentId(), $config->getConfigurationId());
         $this->assertEquals('', $configuration['description'], 'Description can be set empty');
+        $this->assertEquals(6, $configuration['version']);
 
         // List components test
         $configs = $branchComponents->listComponents();
