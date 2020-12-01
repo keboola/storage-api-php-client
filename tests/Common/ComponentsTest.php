@@ -1823,10 +1823,16 @@ class ComponentsTest extends StorageApiTestCase
 
         $newComponents = new \Keboola\StorageApi\Components($newClient);
         $row = $newComponents->updateConfigurationRow($configurationRow);
+        $configurationAssociatedWithUpdatedRow = $newComponents->getConfiguration('wr-db', 'main-1');
 
         $this->assertEquals(2, $row['version']);
         $this->assertEquals($configurationData, $row['configuration']);
         $this->assertEquals($originalRow['created'], $row['created'], 'row created data should not be changed');
+        $this->assertEquals($configurationChangeDescription, $row['changeDescription']);
+        $this->assertEquals(
+            $configurationChangeDescription,
+            $configurationAssociatedWithUpdatedRow['changeDescription']
+        );
 
         $version = $components->getConfigurationRowVersion(
             $configurationRow->getComponentConfiguration()->getComponentId(),
@@ -1844,7 +1850,7 @@ class ComponentsTest extends StorageApiTestCase
         $components->updateConfigurationRow(
             $configurationRow
                 ->setName('Renamed Main 1')
-                ->setChangeDescription('')
+                ->setChangeDescription(null)
         );
 
         $updatedRow = $components->getConfigurationRow(
@@ -1852,7 +1858,10 @@ class ComponentsTest extends StorageApiTestCase
             'main-1',
             'main-1-1'
         );
+        $configurationAssociatedWithUpdatedRow = $newComponents->getConfiguration('wr-db', 'main-1');
+
         $this->assertEquals('Row main-1-1 changed', $updatedRow['changeDescription']);
+        $this->assertEquals('Row main-1-1 changed', $configurationAssociatedWithUpdatedRow['changeDescription']);
     }
 
     public function testComponentConfigRowStateUpdate()
