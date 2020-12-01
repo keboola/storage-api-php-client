@@ -3540,6 +3540,37 @@ Lists all events in the project for [Development Branch](#reference/development-
 + Response 200 (application/json)
     + Attributes (array[Event])
 
+### Event detail [GET /v2/storage/events/{event_id}]
+Obtains information about a event in the project.
+
++ Parameters
+    + event_id (required) - Event Id
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+    + Attributes (Event)
+
+
+### Development Branch Event detail [GET /v2/storage/branch/{branch_id}/events/{event_id}]
+Obtains information about a event for [Development Branch](#reference/development-branches) in the project.
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + event_id (required) - Event Id
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+    + Attributes (Event)
+
+
 ## List Bucket Events [/v2/storage/buckets/{bucket_id}/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}]
 ### Bucket events list [GET]
 Lists all events associated with a particular bucket.
