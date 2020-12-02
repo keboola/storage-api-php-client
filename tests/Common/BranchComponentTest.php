@@ -113,6 +113,9 @@ class BranchComponentTest extends StorageApiTestCase
 
         $configFromMain = $branchComponents->getConfiguration($componentId, 'main-1');
         $this->assertSame(1, $configFromMain['version']);
+        $currentVersion = $configFromMain['currentVersion'];
+        $this->assertEquals('copied', $currentVersion['changeDescription']);
+
         $rows = $branchComponents->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId($componentId)
             ->setConfigurationId('main-1'));
