@@ -2709,7 +2709,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals($createdRow["id"], $row1["id"]);
         $this->assertEquals("name", $row1["name"]);
         $this->assertEquals("description", $row1["description"]);
-        $this->assertEquals("", $row1["changeDescription"]);
+        $this->assertEquals("Row {$createdRow["id"]} changed", $row1["changeDescription"]);
         $this->assertEquals(true, $row1["isDisabled"]);
         $this->assertNotEmpty($row1['state']);
 
@@ -2730,7 +2730,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals($createdRow["id"], $row1["id"]);
         $this->assertEquals("name", $row1["name"]);
         $this->assertEquals("description", $row1["description"]);
-        $this->assertEquals("", $row1["changeDescription"]);
+        $this->assertEquals("Row {$createdRow["id"]} changed", $row1["changeDescription"]);
         $this->assertEquals(true, $row1["isDisabled"]);
         $this->assertNotEmpty($row1['state']);
 
