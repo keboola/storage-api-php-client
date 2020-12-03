@@ -36,7 +36,7 @@ class BranchEventsTest extends StorageApiTestCase
 
         // event for main branch dispatched
         $branch = $devBranch->createBranch($branchName);
-        $configurationId = 'dev-branch-' . $branch['id'];
+        $configurationId = 'config-id-dev-branch-' . $branch['id'];
 
         $branchAwareClient = $this->getBranchAwareDefaultClient($branch['id']);
 
@@ -54,7 +54,7 @@ class BranchEventsTest extends StorageApiTestCase
         // create dummy config to test only one event return from $branchAwareClient
         $dummyBranch = $devBranch->createBranch($branchName . '-dummy');
         $dummyBranchAwareClient = $this->getBranchAwareDefaultClient($dummyBranch['id']);
-        $dummyConfigurationId = 'dummy-dev-branch-' . $branch['id'];
+        $dummyConfigurationId = 'dummy-config-id-dev-branch-' . $branch['id'];
 
         $dummyBranchComponents = new \Keboola\StorageApi\Components($dummyBranchAwareClient);
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
@@ -75,6 +75,10 @@ class BranchEventsTest extends StorageApiTestCase
 
         $this->assertCount(1, $branchAwareEvents);
 
+        $createConfigEventDetail = $branchAwareClient->getEvent($branchAwareEvents[0]['id']);
+
+        $this->assertSame('config-id-dev-branch-'.$branch['id'], $createConfigEventDetail['objectId']);
+
         // test allowed non branch aware event - create bucket detail event in main branch
         $testBucketId = $this->_client->createBucket($configurationId, self::STAGE_IN);
 
@@ -85,6 +89,10 @@ class BranchEventsTest extends StorageApiTestCase
         );
         $this->assertCount(1, $bucketsListedEvents);
         $this->assertSame('storage.bucketCreated', $bucketsListedEvents[0]['event']);
+
+        $bucketEventDetail = $branchAwareClient->getEvent($bucketsListedEvents[0]['id']);
+
+        $this->assertSame($testBucketId, $bucketEventDetail['objectId']);
 
         // test create external event shows in branch aware events
         $event = new Event();
@@ -126,6 +134,30 @@ class BranchEventsTest extends StorageApiTestCase
         $this->assertCount(1, $bucketClientEventList);
 
         $this->assertTrue(count($this->_client->listEvents()) > 1);
+
+
+        $components = new \Keboola\StorageApi\Components($this->_client);
+        $config = (new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId('transformation')
+            ->setConfigurationId('main-config-created-'.$branch['id'])
+            ->setName('Main Branch 1')
+            ->setDescription('Main Configuration created');
+
+        // event for main branch dispatched
+        $components->addConfiguration($config);
+
+        $componentCreateInMainBranchListedEvents = $this->waitForListEvents(
+            $this->_client,
+            'objectId:main-config-created-'.$branch['id']
+        );
+
+        try {
+            $branchAwareClient->getEvent($componentCreateInMainBranchListedEvents[0]['id']);
+            $this->fail('Main branch aware event should not show for dev branch event');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+            $this->assertSame('Event not found', $e->getMessage());
+        }
     }
 
     private function waitForListEvents(Client $client, $query)
