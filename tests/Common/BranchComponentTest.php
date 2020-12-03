@@ -113,6 +113,11 @@ class BranchComponentTest extends StorageApiTestCase
 
         $configFromMain = $branchComponents->getConfiguration($componentId, 'main-1');
         $this->assertSame(1, $configFromMain['version']);
+
+        // test config time created is different for branch config
+        $configMain = $components->getConfiguration($componentId, 'main-1');
+        $this->assertNotEquals($configMain['created'], $configFromMain['created']);
+
         $currentVersion = $configFromMain['currentVersion'];
         $this->assertEquals('copied', $currentVersion['changeDescription']);
         $tokenInfo = $this->_client->verifyToken();
@@ -135,6 +140,15 @@ class BranchComponentTest extends StorageApiTestCase
 
         $this->assertEquals('main-1-row-1', $row['id']);
         $this->assertEquals(1, $row['version']);
+
+        $mainBranchRow = $components->getConfigurationRow(
+            $componentId,
+            'main-1',
+            'main-1-row-1'
+        );
+
+        // test config row time created is different for branch config
+        $this->assertNotEquals($mainBranchRow['created'], $row['created']);
 
         $branchConfigs = $branchComponents->listComponentConfigurations(
             (new ListComponentConfigurationsOptions())->setComponentId($componentId)
