@@ -119,7 +119,7 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertNotEquals($configMain['created'], $configFromMain['created']);
 
         $currentVersion = $configFromMain['currentVersion'];
-        $this->assertEquals('copied', $currentVersion['changeDescription']);
+        $this->assertEquals('Copied from default branch configuration "Main 1" (main-1) version 2', $currentVersion['changeDescription']);
         $tokenInfo = $this->_client->verifyToken();
         $this->assertEquals($tokenInfo['id'], $currentVersion['creatorToken']['id']);
         $this->assertEquals($tokenInfo['description'], $currentVersion['creatorToken']['description']);
@@ -255,7 +255,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         $configFromMain = $branchComponents->getConfiguration($componentId, 'main-1');
         $currentVersion = $configFromMain['currentVersion'];
-        $this->assertEquals('updated', $currentVersion['changeDescription']);
+        $this->assertEquals('Configuration updated', $currentVersion['changeDescription']);
         $tokenInfo = $this->_client->verifyToken();
         $this->assertEquals($tokenInfo['id'], $currentVersion['creatorToken']['id']);
         $this->assertEquals($tokenInfo['description'], $currentVersion['creatorToken']['description']);
@@ -410,7 +410,7 @@ class BranchComponentTest extends StorageApiTestCase
             ->setComponentId('transformation')
             ->setConfigurationId('dev-branch-1')
             ->setName('Dev Branch 1')
-            ->setDescription('Configuration created');
+            ->setDescription('Test configuration created');
 
         // create new configuration in dev branch
         $branchComponents->addConfiguration($config);
@@ -419,13 +419,13 @@ class BranchComponentTest extends StorageApiTestCase
         $branchComponentDetail = $branchComponents->getConfiguration('transformation', 'dev-branch-1');
         $this->assertEquals('Dev Branch 1', $branchComponentDetail['name']);
         $this->assertEmpty($branchComponentDetail['configuration']);
-        $this->assertSame('Configuration created', $branchComponentDetail['description']);
+        $this->assertSame('Test configuration created', $branchComponentDetail['description']);
         $this->assertEquals(1, $branchComponentDetail['version']);
         $this->assertIsInt($branchComponentDetail['version']);
         $this->assertIsInt($branchComponentDetail['creatorToken']['id']);
 
         $currentVersion = $branchComponentDetail['currentVersion'];
-        $this->assertEquals('created', $currentVersion['changeDescription']);
+        $this->assertEquals('Configuration created', $currentVersion['changeDescription']);
         $tokenInfo = $this->_client->verifyToken();
         $this->assertEquals($tokenInfo['id'], $currentVersion['creatorToken']['id']);
         $this->assertEquals($tokenInfo['description'], $currentVersion['creatorToken']['description']);
