@@ -1791,6 +1791,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $originalRow = reset($rows);
         $this->assertEquals('main-1-1', $originalRow['id']);
+        $this->assertEquals('Row main-1-1 added', $originalRow['changeDescription']);
 
         $component = $components->getConfiguration('wr-db', 'main-1');
         $this->assertEquals(2, $component['version']);
@@ -1822,10 +1823,16 @@ class ComponentsTest extends StorageApiTestCase
 
         $newComponents = new \Keboola\StorageApi\Components($newClient);
         $row = $newComponents->updateConfigurationRow($configurationRow);
+        $configurationAssociatedWithUpdatedRow = $newComponents->getConfiguration('wr-db', 'main-1');
 
         $this->assertEquals(2, $row['version']);
         $this->assertEquals($configurationData, $row['configuration']);
         $this->assertEquals($originalRow['created'], $row['created'], 'row created data should not be changed');
+        $this->assertEquals($configurationChangeDescription, $row['changeDescription']);
+        $this->assertEquals(
+            $configurationChangeDescription,
+            $configurationAssociatedWithUpdatedRow['changeDescription']
+        );
 
         $version = $components->getConfigurationRowVersion(
             $configurationRow->getComponentConfiguration()->getComponentId(),
@@ -1839,6 +1846,22 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertNotEmpty($version['created']);
         $this->assertEquals($newToken['id'], $version['creatorToken']['id']);
         $this->assertEquals($newToken['description'], $version['creatorToken']['description']);
+
+        $components->updateConfigurationRow(
+            $configurationRow
+                ->setName('Renamed Main 1')
+                ->setChangeDescription(null)
+        );
+
+        $updatedRow = $components->getConfigurationRow(
+            'wr-db',
+            'main-1',
+            'main-1-1'
+        );
+        $configurationAssociatedWithUpdatedRow = $newComponents->getConfiguration('wr-db', 'main-1');
+
+        $this->assertEquals('Row main-1-1 changed', $updatedRow['changeDescription']);
+        $this->assertEquals('Row main-1-1 changed', $configurationAssociatedWithUpdatedRow['changeDescription']);
     }
 
     public function testComponentConfigRowStateUpdate()
@@ -2686,7 +2709,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals($createdRow["id"], $row1["id"]);
         $this->assertEquals("name", $row1["name"]);
         $this->assertEquals("description", $row1["description"]);
-        $this->assertEquals("", $row1["changeDescription"]);
+        $this->assertEquals("Row {$createdRow["id"]} changed", $row1["changeDescription"]);
         $this->assertEquals(true, $row1["isDisabled"]);
         $this->assertNotEmpty($row1['state']);
 
@@ -2707,7 +2730,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals($createdRow["id"], $row1["id"]);
         $this->assertEquals("name", $row1["name"]);
         $this->assertEquals("description", $row1["description"]);
-        $this->assertEquals("", $row1["changeDescription"]);
+        $this->assertEquals("Row {$createdRow["id"]} changed", $row1["changeDescription"]);
         $this->assertEquals(true, $row1["isDisabled"]);
         $this->assertNotEmpty($row1['state']);
 
