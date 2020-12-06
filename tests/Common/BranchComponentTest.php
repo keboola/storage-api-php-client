@@ -117,6 +117,7 @@ class BranchComponentTest extends StorageApiTestCase
         // test config time created is different for branch config
         $configMain = $components->getConfiguration($componentId, 'main-1');
         $this->assertNotEquals($configMain['created'], $configFromMain['created']);
+        $this->assertEquals('Copied from default branch configuration "Main 1" (main-1) version 2', $configFromMain['changeDescription']);
 
         $currentVersion = $configFromMain['currentVersion'];
         $this->assertEquals('Copied from default branch configuration "Main 1" (main-1) version 2', $currentVersion['changeDescription']);
@@ -140,6 +141,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         $this->assertEquals('main-1-row-1', $row['id']);
         $this->assertEquals(1, $row['version']);
+        $this->assertEquals('Copied from default branch configuration row "Main 1 Row 1" (main-1-row-1) version 1', $row['changeDescription']);
 
         $mainBranchRow = $components->getConfigurationRow(
             $componentId,
@@ -244,6 +246,9 @@ class BranchComponentTest extends StorageApiTestCase
         );
 
         $configFromMain = $branchComponents->getConfiguration($componentId, 'main-1');
+        $this->assertEquals('Row dev-1-row-1 added', $configFromMain['changeDescription']);
+        $this->assertSame(2, $configFromMain['version']);
+
         $currentVersion = $configFromMain['currentVersion'];
         $this->assertEquals('Row dev-1-row-1 added', $currentVersion['changeDescription']);
         $tokenInfo = $this->_client->verifyToken();
@@ -254,6 +259,7 @@ class BranchComponentTest extends StorageApiTestCase
         $branchComponents->updateConfiguration($configurationOptions);
 
         $configFromMain = $branchComponents->getConfiguration($componentId, 'main-1');
+        $this->assertSame(3, $configFromMain['version']);
         $currentVersion = $configFromMain['currentVersion'];
         $this->assertEquals('Configuration updated', $currentVersion['changeDescription']);
         $tokenInfo = $this->_client->verifyToken();
@@ -268,6 +274,8 @@ class BranchComponentTest extends StorageApiTestCase
         );
 
         $configFromMain = $branchComponents->getConfiguration($componentId, 'main-1');
+        $this->assertEquals('Custom change desc', $configFromMain['changeDescription']);
+        $this->assertSame(4, $configFromMain['version']);
         $currentVersion = $configFromMain['currentVersion'];
         $this->assertEquals('Custom change desc', $currentVersion['changeDescription']);
         $tokenInfo = $this->_client->verifyToken();
@@ -283,7 +291,7 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertEquals('dev-1-row-3', $rows[2]['id']);
         $this->assertCount(3, $rows);
 
-        $this->assertEquals('Row main-1-row-1 added', $rows[0]['changeDescription']);
+        $this->assertEquals('Copied from default branch configuration row "Main 1 Row 1" (main-1-row-1) version 1', $rows[0]['changeDescription']);
         $this->assertEquals(1, $rows[0]['version']);
         $this->assertEquals(1, $rows[1]['version']);
         $this->assertEquals('Row dev-1-row-1 added', $rows[1]['changeDescription']);
@@ -420,6 +428,7 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertEquals('Dev Branch 1', $branchComponentDetail['name']);
         $this->assertEmpty($branchComponentDetail['configuration']);
         $this->assertSame('Test configuration created', $branchComponentDetail['description']);
+        $this->assertEquals('Configuration created', $branchComponentDetail['changeDescription']);
         $this->assertEquals(1, $branchComponentDetail['version']);
         $this->assertIsInt($branchComponentDetail['version']);
         $this->assertIsInt($branchComponentDetail['creatorToken']['id']);
@@ -455,7 +464,7 @@ class BranchComponentTest extends StorageApiTestCase
         $config->setRowsSortOrder([]);
         $branchComponents->updateConfiguration($config);
 
-        // test update version is increment
+        // if updated twice, the version is incremented each time by 1
         $newName = 'neco-nove';
         $config->setName($newName)
             ->setDescription($newDesc)
@@ -538,6 +547,8 @@ class BranchComponentTest extends StorageApiTestCase
             ->setName('Dev Branch'));
 
         $configurationCustomDesc = $branchComponents->getConfiguration('wr-db', 'branch-1');
+        $this->assertEquals('create custom desc', $configurationCustomDesc['changeDescription']);
+
         $currentVersion = $configurationCustomDesc['currentVersion'];
         $this->assertEquals('create custom desc', $currentVersion['changeDescription']);
         $tokenInfo = $this->_client->verifyToken();
