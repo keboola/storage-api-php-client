@@ -259,6 +259,8 @@ class BranchComponentTest extends StorageApiTestCase
         $branchComponents->updateConfiguration($configurationOptions);
 
         $configFromMain = $branchComponents->getConfiguration($componentId, 'main-1');
+        $this->assertEquals('Configuration updated', $configFromMain['changeDescription']);
+
         $this->assertSame(3, $configFromMain['version']);
         $currentVersion = $configFromMain['currentVersion'];
         $this->assertEquals('Configuration updated', $currentVersion['changeDescription']);
@@ -478,7 +480,7 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertEquals($newDesc, $configuration['description']);
         $this->assertEquals($config->getConfiguration(), $configuration['configuration']);
         $this->assertEquals(3, $configuration['version']);
-        $this->assertEmpty($configuration['changeDescription']);
+        $this->assertEquals('Configuration updated', $configuration['changeDescription']);
 
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('transformation')
