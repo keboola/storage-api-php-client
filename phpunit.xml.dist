@@ -138,7 +138,7 @@
 <!--		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>-->
 <!--		<file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>-->
 		<directory>tests/Backend/Synapse</directory>
-<!--		<file>tests/Backend/Export/ExportParamsTest.php</file>-->
+		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-synapse-part-3">
@@ -150,8 +150,6 @@
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>
-		<!--EXPORT-->
-		<file>tests/Backend/Export/ExportParamsTest.php</file>
 		<!--FILE WORKSPACE-->
 		<file>tests/Backend/FileWorkspace/WorkspacesTest.php</file>
 		<file>tests/Backend/FileWorkspace/WorkspacesLoadTest.php</file>
