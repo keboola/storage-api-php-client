@@ -125,6 +125,15 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertEquals($tokenInfo['id'], $currentVersion['creatorToken']['id']);
         $this->assertEquals($tokenInfo['description'], $currentVersion['creatorToken']['description']);
 
+        try {
+            $branchComponents->deleteConfiguration($componentId, 'main-1');
+            $this->fail('Configuration cannot be deleted in dev branch');
+        } catch (ClientException $e) {
+            $this->assertSame(501, $e->getCode());
+            $this->assertSame('notImplemented', $e->getStringCode());
+            $this->assertContains('Not implemented', $e->getMessage());
+        }
+
         $rows = $branchComponents->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId($componentId)
             ->setConfigurationId('main-1'));
