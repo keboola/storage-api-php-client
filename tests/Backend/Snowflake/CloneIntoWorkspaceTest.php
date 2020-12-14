@@ -303,18 +303,34 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
 
+        $client2 = $this->getClientForToken(
+            STORAGE_API_LINKING_TOKEN
+        );
+
         $tableId = $this->createTableFromFile(
             $this->_client,
             $this->getTestBucketId(self::STAGE_IN),
             self::IMPORT_FILE_PATH
         );
 
-        $tableSecondId = $this->createTableFromFile(
-            $this->_client,
-            $this->getTestBucketId(self::STAGE_IN),
+        $bucket = $client2->createBucket('shared-'. uniqid(), 'in');
+
+        $this->createTableFromFile(
+            $client2,
+            $bucket,
             __DIR__ . '/../../_data/languages.more-rows.csv',
             'id',
             'languagesDetails2'
+        );
+
+        $client2->shareBucket($bucket);
+
+        $sourceProjectId = $client2->verifyToken()['owner']['id'];
+        $linkedBucketId = $this->_client->linkBucket(
+            "linked-" . uniqid(),
+            'out',
+            $sourceProjectId,
+            $bucket
         );
 
         // first load
@@ -374,7 +390,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         $workspaces->cloneIntoWorkspace($workspace['id'], [
             'input' => [
                 [
-                    'source' => $tableSecondId,
+                    'source' => $linkedBucketId . '.languagesDetails2',
                     'destination' => 'Langs',
                     'overwrite' => true,
                 ],
@@ -384,6 +400,9 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
 
         $workspaceTableData = $backend->fetchAll('Langs');
         $this->assertCount(6, $workspaceTableData);
+
+        $this->_client->dropBucket($linkedBucketId);
+        $client2->dropBucket($bucket, ['force' => true]);
     }
 
     public function aliasSettingsProvider()
