@@ -313,7 +313,10 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
             self::IMPORT_FILE_PATH
         );
 
-        $bucket = $client2->createBucket('shared-'. uniqid(), 'in');
+        $this->dropBucketIfExists($this->_client, 'out.c-linked-bucket');
+        $this->dropBucketIfExists($client2, 'in.c-shared-bucket');
+
+        $bucket = $client2->createBucket('shared-bucket', 'in');
 
         $this->createTableFromFile(
             $client2,
@@ -327,7 +330,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
 
         $sourceProjectId = $client2->verifyToken()['owner']['id'];
         $linkedBucketId = $this->_client->linkBucket(
-            "linked-" . uniqid(),
+            "linked-bucket",
             'out',
             $sourceProjectId,
             $bucket
@@ -400,9 +403,6 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
 
         $workspaceTableData = $backend->fetchAll('Langs');
         $this->assertCount(6, $workspaceTableData);
-
-        $this->_client->dropBucket($linkedBucketId);
-        $client2->dropBucket($bucket, ['force' => true]);
     }
 
     public function aliasSettingsProvider()
