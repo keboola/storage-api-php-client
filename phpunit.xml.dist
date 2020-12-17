@@ -19,6 +19,11 @@
 		<file>tests/Backend/Workspaces/ReadOnlyUserTest.php</file>
 	</testsuite>
 
+    <testsuite name="azure-common">
+        <file>tests/Common/QueueJobsTest.php</file>
+        <file>tests/Common/BranchEventsTest.php</file>
+    </testsuite>
+
 	<testsuite name="paratest-common">
 		<directory>tests/Options</directory>
 		<directory>tests/S3Uploader</directory>
