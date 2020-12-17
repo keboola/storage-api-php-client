@@ -5,6 +5,8 @@ namespace Keboola\StorageApi\Downloader;
 use MicrosoftAzure\Storage\Common\Internal\Resources;
 use MicrosoftAzure\Storage\Common\Internal\Validate;
 use MicrosoftAzure\Storage\Common\Middlewares\RetryMiddleware;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\ConnectException;
 
 class BlobStorageRetryMiddleware
 {
@@ -18,6 +20,14 @@ class BlobStorageRetryMiddleware
     const GENERAL_RETRY_TYPE = 'General';
     const DEFAULT_NUMBER_OF_RETRIES = 5;
     const DEFAULT_RETRY_INTERVAL = Resources::DEFAULT_RETRY_INTERVAL;
+
+    // Only these classes are retried, not subclasses.
+    // ServerException and ClientException are subclassed of the RequestException,
+    // but they are covered by retried HTTP codes, see generalRetryDecider method.
+    const RETRIED_EXCEPTIONS = [
+        RequestException::class, // eg. cURL error 56: OpenSSL SSL_read:
+        ConnectException::class  // eg. error 7: Failed to connect to ... port 443: Connection refused
+    ];
 
     /**
      * @param int $numberOfRetries The maximum number of retries.
@@ -146,6 +156,7 @@ class BlobStorageRetryMiddleware
 
             return static::generalRetryDecider(
                 $response->getStatusCode(),
+                $exception,
                 $isSecondary
             );
         };
@@ -155,12 +166,19 @@ class BlobStorageRetryMiddleware
      * Decide if the given status code indicate the request should be retried.
      *
      * @param int $statusCode Status code of the previous request.
+     * @param \Exception|null $exception
      * @param bool $isSecondary Whether the request is sent to secondary endpoint.
      *
      * @return bool            true if the request should be retried.
      */
-    protected static function generalRetryDecider($statusCode, $isSecondary)
+    protected static function generalRetryDecider($statusCode, $exception, $isSecondary)
     {
+        if ($exception instanceof \Exception &&
+            in_array(get_class($exception), self::RETRIED_EXCEPTIONS, true)
+        ) {
+            return true;
+        }
+
         if ($statusCode === 408) {
             return true;
         }
