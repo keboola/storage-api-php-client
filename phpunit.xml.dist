@@ -104,14 +104,15 @@
 	</testsuite>
 
 	<testsuite name="paratest-backend-snowflake-part-2">
-		<directory>tests/Backend/CommonPart2</directory>
-		<directory>tests/Backend/Snowflake</directory>
-		<exclude>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</exclude>
-		<exclude>tests/Backend/Snowflake/TimestampTest.php</exclude>
-		<exclude>tests/Backend/Snowflake/DirectAccessTest.php</exclude>
-		<file>tests/Backend/Export/ExportParamsTest.php</file>
-		<file>tests/Backend/Workspaces/WorkspacesSnowflakeTest.php</file>
-		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
+<!--		<directory>tests/Backend/CommonPart2</directory>-->
+<!--		<directory>tests/Backend/Snowflake</directory>-->
+<!--		<exclude>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</exclude>-->
+<!--		<exclude>tests/Backend/Snowflake/TimestampTest.php</exclude>-->
+<!--		<exclude>tests/Backend/Snowflake/DirectAccessTest.php</exclude>-->
+<!--		<file>tests/Backend/Export/ExportParamsTest.php</file>-->
+<!--		<file>tests/Backend/Workspaces/WorkspacesSnowflakeTest.php</file>-->
+<!--		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>-->
+		<file>tests/Backend/Snowflake/TimestampTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-mixed">
