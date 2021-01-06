@@ -107,6 +107,7 @@
 
 	<testsuite name="paratest-backend-snowflake-part-1">
 		<directory>tests/Backend/Snowflake</directory>
+        <directory>tests/Backend/CommonPart2</directory>
 		<exclude>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</exclude>
 		<exclude>tests/Backend/Snowflake/TimestampTest.php</exclude>
 		<exclude>tests/Backend/Snowflake/DirectAccessTest.php</exclude>
