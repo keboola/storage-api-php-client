@@ -46,7 +46,6 @@
 	</testsuite>
 
 	<testsuite name="backend-snowflake-abs-part-2">
-		<directory>tests/Backend/CommonPart2</directory>
 		<file>tests/Backend/Workspaces/WorkspacesSnowflakeTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
@@ -60,6 +59,7 @@
 
 	<testsuite name="paratest-backend-snowflake-abs-part-1">
 		<directory>tests/Backend/Snowflake</directory>
+		<directory>tests/Backend/CommonPart2</directory>
 		<exclude>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</exclude>
 		<exclude>tests/Backend/Snowflake/TimestampTest.php</exclude>
 		<exclude>tests/Backend/Snowflake/DirectAccessTest.php</exclude>
@@ -93,7 +93,6 @@
 	</testsuite>
 
 	<testsuite name="backend-snowflake-part-2">
-		<directory>tests/Backend/CommonPart2</directory>
         <file>tests/Backend/Workspaces/WorkspacesSnowflakeTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
@@ -107,6 +106,7 @@
 
 	<testsuite name="paratest-backend-snowflake-part-1">
 		<directory>tests/Backend/Snowflake</directory>
+		<directory>tests/Backend/CommonPart2</directory>
 		<exclude>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</exclude>
 		<exclude>tests/Backend/Snowflake/TimestampTest.php</exclude>
 		<exclude>tests/Backend/Snowflake/DirectAccessTest.php</exclude>
