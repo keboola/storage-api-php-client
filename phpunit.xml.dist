@@ -37,7 +37,6 @@
 	</testsuite>
 
 	<testsuite name="backend-snowflake-abs-part-1">
-		<file>tests/Backend/Workspaces/MetadataFromSnowflakeWorkspaceTest.php</file>
 		<directory>tests/Backend/CommonPart1</directory>
 		<file>tests/Backend/FileWorkspace/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
@@ -89,7 +88,6 @@
 	</testsuite>
 
 	<testsuite name="backend-snowflake-part-1">
-		<file>tests/Backend/Workspaces/MetadataFromSnowflakeWorkspaceTest.php</file>
 		<directory>tests/Backend/CommonPart1</directory>
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesSnowflakeTest.php</file>
