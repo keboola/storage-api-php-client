@@ -62,7 +62,6 @@
 		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/MetadataFromSnowflakeWorkspaceTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
-		<file>tests/Backend/Workspaces/WorkspacesSnowflakeTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-redshift-part-1">
@@ -112,7 +111,6 @@
 		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/MetadataFromSnowflakeWorkspaceTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
-		<file>tests/Backend/Workspaces/WorkspacesSnowflakeTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-mixed">
