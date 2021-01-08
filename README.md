@@ -105,9 +105,9 @@ This test suite expects following environment variables set:
  - `STORAGE_API_MAINTENANCE_URL` - URL for maintenance testing (https://maintenance-testing.keboola.com/)
 
 
-You can export variables manually or you can create and fill file `set-env.sh` as copy of attached `set-env.template.sh`.
+You can export variables manually, or you can create and fill file `set-env.sh` as copy of attached `set-env.template.sh`.
 
-Than  you can run tests:
+Then you can run tests:
 
 `source ./set-env.sh &&  docker-compose run --rm dev vendor/bin/phpunit --testsuite common`
 
@@ -118,10 +118,10 @@ This test suite expects following environment variables set:
 - `STORAGE_API_URL` - URL of Keboola Storage API (https://connection.keboola.com/)
 - `STORAGE_API_TOKEN` - Storage API token associated to user (Admin master token) with all permissions. **Project must have `Redshift` set as default backend.**
 
-You can export variables manually or you can create and fill file `set-env.redshift.sh`
+You can export variables manually, or you can create and fill file `set-env.redshift.sh`
 as copy of attached `set-env.redshift.template.sh`.
 
-Than  you can run tests:
+Then you can run tests:
 
 `source ./set-env.redshift.sh && docker-compose run --rm dev vendor/bin/phpunit --testsuite backend-redshift-part-1`
 `source ./set-env.redshift.sh && docker-compose run --rm dev vendor/bin/phpunit --testsuite backend-redshift-part-2`
@@ -151,11 +151,24 @@ This test suite expects following environment variables set:
  - `STORAGE_API_TOKEN_ADMIN_3_IN_OTHER_ORGANIZATION` - Storage API token associated to other admin as `STORAGE_API_TOKEN` and project in the other organization as `STORAGE_API_TOKEN`.
 You can export variables manually or you can create and fill file `set-env.mixed.sh` as copy of attached `set-env.mixed.template.sh`.
 
-Than  you can run tests:
+Then you can run tests:
 
 `source ./set-env.mixed.sh && docker-compose run --rm dev vendor/bin/phpunit --testsuite backend-mixed'`
 
+## Running test from PHPStorm
 
+The whole test suite is quite big and it can take few hours. So it is a good idea to run just a testcase which you are interested in from PHPStorm, or you can run them from a console (using `--filter` option). 
+
+**How to set up PHPStorm for running tests:**
+- go to Settings / Languages & Frameworks / PHP
+- row CLI -> three dots
+- Plus button -> `From Docker, Vagrant, VM, WSL, Remote...`
+- Select `Docker Compose`; Service `dev-xdebug`; Environment variables define value from your `set-env.php`
+    - an easy way how to do it is copy content of `set-env.php` without `export ` prefix -> click on the icon in  Env. vars. -> click on the paste icon. It should pass all the key=value entries in the window. If it doesn't work, set them manually.
+- Set Path mappings to `<Project root> -> /code` (`<Project root>` is an absolute path to the project directory) 
+- hint: create different interpreters for different environments
+
+_Note: see [this link](https://www.jetbrains.com/help/phpstorm/configuring-remote-interpreters.html) for more information and screenshots about the description above._
 
 ## Versioning
 [semver.org](http://semver.org/) is followed.
