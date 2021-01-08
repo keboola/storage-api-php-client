@@ -10,11 +10,11 @@ use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\LegacyInputMappingConverter;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
-class LegacyWorkspacesLoadTest extends WorkspacesTestCase
+class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
 {
     public function testWorkspaceTablesPermissions()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
 
         $workspace = $workspaces->createWorkspace();
 
@@ -53,7 +53,7 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
 
     public function testWorkspaceLoadData()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
 
         $workspace = $workspaces->createWorkspace();
 
@@ -79,6 +79,7 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
         $initialJobs = $this->_client->listJobs();
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
+        $this->workspaceSapiClient->setRunId($runId);
         $workspaces->loadWorkspaceData($workspace['id'], array("input" => $input));
         $afterJobs = $this->_client->listJobs();
 
@@ -124,6 +125,7 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
 
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
+        $this->workspaceSapiClient->setRunId($runId);
 
         // now we'll try the same load, but it should clear the workspace first (preserve is false by default)
         $workspaces->loadWorkspaceData($workspace['id'], array("input" => array($mapping3)));
@@ -146,7 +148,7 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
         $this->assertSame($runId, $loadEvent['runId']);
         $this->assertSame('storage', $loadEvent['component']);
         $this->assertArrayHasKey('params', $loadEvent);
-        $this->assertSame('in.c-API-tests.languages', $loadEvent['params']['source']);
+        $this->assertSame($table1_id, $loadEvent['params']['source']);
         $this->assertSame('table3', $loadEvent['params']['destination']);
         $this->assertArrayHasKey('columns', $loadEvent['params']);
         $this->assertArrayHasKey('workspace', $loadEvent['params']);
@@ -245,7 +247,7 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
 
     public function testWorkspaceLoadColumns()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
@@ -306,7 +308,7 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
@@ -356,7 +358,7 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
 
     public function testIncrementalAdditionalColumns()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -406,7 +408,7 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
 
     public function testIncrementalMissingColumns()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -458,7 +460,7 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
      */
     public function testIncrementalDataTypesDiff($table, $firstLoadDataTypes, $secondLoadDataTypes)
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $importFile = __DIR__ . "/../../_data/$table.more-columns.csv";
@@ -513,7 +515,7 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
 
     public function testSecondsFilter()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -552,7 +554,7 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
 
     public function testRowsParameter()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -618,7 +620,7 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
      */
     public function testDataTypes($dataTypesDefinition)
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -665,7 +667,7 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
      */
     public function testDataTypeConversionUserError($dataTypesDefinition)
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -731,7 +733,7 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
      */
     public function testDataTypeForNotExistingColumnUserError($dataTypesDefinition)
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $importFile = __DIR__ . '/../../_data/languages.camel-case-columns.csv';
@@ -788,7 +790,7 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
 
     public function testInvalidDataTypeUserError()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -822,7 +824,7 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
 
     public function testInvalidExtendedDataTypeUserError()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -862,7 +864,7 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
 
     public function testDuplicateDestination()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         //setup test tables
@@ -892,7 +894,7 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
 
     public function testTableAlreadyExistsShouldThrowUserError()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $tableId = $this->_client->createTable(
@@ -936,7 +938,7 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
 
     public function testSourceTableNotFound()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         // let's try loading from a table that doesn't exist
@@ -953,7 +955,7 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
 
     public function testInvalidInputs()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
 
         $workspace = $workspaces->createWorkspace();
 
@@ -1050,7 +1052,7 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
 
     public function testDottedDestination()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         // Create a table of sample data
@@ -1079,7 +1081,7 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
 
     public function testInvalidColumnsStringIgnore()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         // Create a table of sample data
@@ -1117,7 +1119,7 @@ class LegacyWorkspacesLoadTest extends WorkspacesTestCase
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));
 
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
