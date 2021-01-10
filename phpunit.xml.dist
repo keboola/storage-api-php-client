@@ -82,10 +82,10 @@
 		<directory>tests/Backend/Redshift</directory>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>
-
-    <testsuite name="paratest-backend-redshift-part-1">
-        <directory>tests/Backend/CommonPart2</directory>
-    </testsuite>
+	
+	<testsuite name="paratest-backend-redshift-part-1">
+		<directory>tests/Backend/CommonPart2</directory>
+	</testsuite>
 
 	<testsuite name="backend-snowflake-part-1">
 		<file>tests/Backend/Workspaces/MetadataFromSnowflakeWorkspaceTest.php</file>
@@ -139,7 +139,6 @@
 	</testsuite>
 
 	<testsuite name="backend-synapse-part-2">
-		<directory>tests/Backend/CommonPart2</directory>
 <!--		<file>tests/Backend/Workspaces/WorkspacesSynapseTest.php</file>-->
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 <!--		<file>tests/Backend/Workspaces/SynapseWorkspacesUnloadTest.php</file>-->
@@ -162,6 +161,10 @@
 		<file>tests/Backend/FileWorkspace/WorkspacesLoadTest.php</file>
 		<file>tests/Backend/FileWorkspace/WorkspacesUnloadTest.php</file>
 		<file>tests/Backend/FileWorkspace/ComponentsWorkspacesTest.php</file>
+	</testsuite>
+	
+	<testsuite name="paratest-backend-synapse-part-1">
+		<directory>tests/Backend/CommonPart2</directory>
 	</testsuite>
 
 	<testsuite name="backend-synapse-managed-identity">
