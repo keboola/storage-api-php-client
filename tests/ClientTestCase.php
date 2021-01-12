@@ -138,10 +138,11 @@ class ClientTestCase extends TestCase
         $tokenParts = explode('-', $token);
         $tokenAgentString = '';
         if (count($tokenParts) === 3) {
+            // token comes in from of <projectId>-<tokenId>-<hash>
             $tokenAgentString = sprintf(
                 'Project: %s, Token: %s, ',
-                $tokenParts[1],
-                $tokenParts[0]
+                $tokenParts[0],
+                $tokenParts[1]
             );
         }
         return sprintf(
