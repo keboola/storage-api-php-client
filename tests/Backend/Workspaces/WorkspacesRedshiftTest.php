@@ -159,7 +159,10 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
             $this->assertEquals(1, (int)$row['distkey']);
         }
 
-        $statement = $db->prepare("select relname, reldiststyle from pg_class where relname = 'languages';");
+        $statement = $db->prepare(sprintf(
+            'SELECT TRIM(nspname) AS schemaname,TRIM(relname) AS tablename,reldiststyle FROM pg_class_info a LEFT JOIN pg_namespace b ON a.relnamespace=b.oid WHERE schemaname LIKE \'%s\'',
+            $workspace['connection']['schema']
+        ));
         $statement->execute();
         $row = $statement->fetch();
         if (is_array($dist)) {
