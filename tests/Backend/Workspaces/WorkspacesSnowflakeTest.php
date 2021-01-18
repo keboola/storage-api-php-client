@@ -7,12 +7,12 @@ use Keboola\StorageApi\Workspaces;
 use Keboola\Csv\CsvFile;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
-class WorkspacesSnowflakeTest extends WorkspacesTestCase
+class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
 {
 
     public function testCreateNotSupportedBackend()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         try {
             $workspaces->createWorkspace(["backend" => "redshift"]);
             $this->fail("should not be able to create WS for unsupported backend");
@@ -23,7 +23,7 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
 
     public function testLoadDataTypesDefaults()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         // Create a table of sample data
@@ -105,7 +105,7 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
 
     public function testStatementTimeout()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $this->assertGreaterThan(0, $workspace['statementTimeoutSeconds']);
@@ -118,7 +118,7 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
 
     public function testClientSessionKeepAlive()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $db = $this->getDbConnection($workspace['connection']);
@@ -132,7 +132,7 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
 
     public function testTransientTables()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         // Create a table of sample data
@@ -217,7 +217,7 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
             "destination" => "languages-pk"
         ];
 
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -267,7 +267,7 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -349,7 +349,7 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -422,7 +422,7 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -519,7 +519,7 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -611,7 +611,7 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
      */
     public function testsIncrementalDataTypesDiff($table, $firstLoadColumns, $secondLoadColumns, $shouldFail)
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $importFile = __DIR__ . "/../../_data/$table.csv";
@@ -662,7 +662,7 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
 
     public function testOutBytesMetricsWithLoadWorkspaceWithRows()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         // Create a table of sample data
@@ -711,7 +711,7 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
 
     public function testOutBytesMetricsWithLoadWorkspaceWithSeconds()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         // Create a table of sample data
