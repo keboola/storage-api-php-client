@@ -23,6 +23,7 @@ services:
       - REDSHIFT_PASSWORD
       - SUITE_NAME
       - TRAVIS_BUILD_ID
+      - IS_VERSIONS_LIST_IMPLEMENTED_FOR_DEV_BRANCH
   dev: &dev
     <<: *base
     volumes:
