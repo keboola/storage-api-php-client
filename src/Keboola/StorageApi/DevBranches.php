@@ -26,6 +26,24 @@ class DevBranches
     }
 
     /**
+     * @param string $branchName
+     * @param string $branchDescription
+     */
+    public function updateBranch(
+        $branchId,
+        $branchName,
+        $branchDescription = ''
+    ) {
+        return $this->client->apiPut(
+            'dev-branches/' . $branchId,
+            [
+                'name' => $branchName,
+                'description' => $branchDescription,
+            ]
+        );
+    }
+
+    /**
      * @param int $branchId
      */
     public function deleteBranch($branchId)

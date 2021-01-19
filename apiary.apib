@@ -6746,6 +6746,37 @@ Development branches allow you to prepare changes to configuration and tables in
                 }
             }
 
+### Branch update [PUT]
+
++ Parameters
+    + id (required, number) - id of the branch
+
++ Attributes
+    + name (optional, string) - new name
+    + description (optional, string) - new description
+
++ Request (application/x-www-form-urlencoded)
+
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+
+    + Body
+
+            {
+                "id": 123,
+                "name": "My branch",
+                "description": "",
+                "created": "2020-09-17T12:17:32+0200",
+                "isDefault": false,
+                "creatorToken": {
+                    "id": 267,
+                    "name": "dev@keboola.com"
+                }
+            }
+
 ### Delete branch [DELETE]
 
 + Parameters
