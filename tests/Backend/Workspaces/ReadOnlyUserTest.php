@@ -4,14 +4,14 @@ namespace Keboola\Test\Backend\Workspaces;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 
-class ReadOnlyUserTest extends WorkspacesTestCase
+class ReadOnlyUserTest extends ParallelWorkspacesTestCase
 {
     public function testWorkspaceRestrictionsForReadOnlyUser()
     {
         $expectedError = 'Your user role "readOnly" does not have access to the resource.';
         $readOnlyClient = $this->getClientForToken(STORAGE_API_READ_ONLY_TOKEN);
 
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
 
         $workspace = $workspaces->createWorkspace();
         $workspace = $workspaces->getWorkspace($workspace['id']);
