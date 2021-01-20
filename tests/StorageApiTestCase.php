@@ -500,4 +500,10 @@ abstract class StorageApiTestCase extends ClientTestCase
             throw $e;
         }
     }
+
+    protected function getExportFilePathForTest($fileName)
+    {
+        $testName = get_class($this) . '\\' . $this->getName();
+        return __DIR__ . '/_tmp/' . sha1($testName) . '.' . $fileName;
+    }
 }
