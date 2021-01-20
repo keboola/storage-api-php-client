@@ -11,7 +11,7 @@ class LegacyIndexedColumnsTest extends StorageApiTestCase
     public function setUp()
     {
         parent::setUp();
-        $this->_initEmptyTestBuckets([self::STAGE_SYS, self::STAGE_IN, self::STAGE_OUT]);
+        $this->initEmptyTestBucketsForParallelTests([self::STAGE_SYS, self::STAGE_IN, self::STAGE_OUT]);
     }
 
 

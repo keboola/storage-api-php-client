@@ -28,9 +28,9 @@ class TableExporterTest extends StorageApiTestCase
     public function setUp()
     {
         parent::setUp();
-        $this->_initEmptyTestBuckets();
-        $this->downloadPath = __DIR__ . '/../../_tmp/languages.sliced.csv';
-        $this->downloadPathGZip = __DIR__ . '/../../_tmp/languages.sliced.csv.gz';
+        $this->initEmptyTestBucketsForParallelTests();
+        $this->downloadPath = $this->getExportFilePathForTest('languages.sliced.csv');
+        $this->downloadPathGZip = $this->getExportFilePathForTest('languages.sliced.csv.gz');
     }
 
     /**
@@ -122,8 +122,8 @@ class TableExporterTest extends StorageApiTestCase
         $this->_client->setRunId($runId);
 
         $exporter = new TableExporter($this->_client);
-        $file1 = __DIR__ . '/../../_tmp/languages1.csv';
-        $file2 = __DIR__ . '/../../_tmp/languages2.csv';
+        $file1 = $this->getExportFilePathForTest('languages1.csv');
+        $file2 = $this->getExportFilePathForTest('languages2.csv');
         $exports = [
             [
                 'tableId' => $table1Id,
@@ -146,7 +146,8 @@ class TableExporterTest extends StorageApiTestCase
         // check that columns has been set in export job params
         $table1Job = null;
         $table2Job = null;
-        foreach ($this->_client->listJobs(['limit' => 2]) as $job) {
+        $jobs = $this->loadJobsByRunId($runId);
+        foreach ($jobs as $job) {
             $this->assertSame($runId, $job['runId']);
             $this->assertSame('tableExport', $job['operationName']);
 
@@ -174,7 +175,7 @@ class TableExporterTest extends StorageApiTestCase
         $this->_client->setRunId($runId);
 
         $exporter = new TableExporter($this->_client);
-        $file1 = __DIR__ . '/../../_tmp/languages1.csv';
+        $file1 = $this->getExportFilePathForTest('languages2.csv');
         $exports = [
             [
                 'tableId' => $table1Id,
@@ -204,7 +205,7 @@ class TableExporterTest extends StorageApiTestCase
         $this->assertEquals(['- unchecked -', '0'], $csvFile->current());
 
         // check that columns has been set in export job params
-        $jobs = $this->_client->listJobs(['limit' => 1]);
+        $jobs = $this->loadJobsByRunId($runId);
         $table1Job = reset($jobs);
 
         $this->assertSame($runId, $table1Job['runId']);
@@ -212,6 +213,16 @@ class TableExporterTest extends StorageApiTestCase
         $this->assertSame($table1Id, $table1Job['tableId']);
         $this->assertNotEmpty($table1Job['operationParams']['export']['columns']);
         $this->assertSame(['name', 'id'], $table1Job['operationParams']['export']['columns']);
+    }
+
+    private function loadJobsByRunId($runId)
+    {
+        return array_filter(
+            $this->_client->listJobs(['limit' => 100]),
+            function (array $job) use ($runId) {
+                return $job['runId'] === $runId;
+            }
+        );
     }
 
     public function testExportTablesMissingTableId()
