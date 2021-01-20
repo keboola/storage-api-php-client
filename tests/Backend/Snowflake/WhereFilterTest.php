@@ -66,12 +66,22 @@ class WhereFilterTest extends StorageApiTestCase
                 'column' => 'column_string_number',
                 'operator' => 'ge',
                 'values' => ['6'],
-                'dataType' => 'non-existing'
+                'dataType' => 'non-existing',
             ],
         ];
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessageRegExp('~Data type non-existing not recognized~');
-        $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
+
+        try {
+            $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
+        } catch (ClientException $clientException) {
+            $this->assertSame('Invalid request', $clientException->getMessage());
+            $this->assertSame([
+                [
+                    'key' => 'whereFilters[0][dataType]',
+                    'message' => "The value you selected is not a valid choice. Use any of ['INTEGER', 'DOUBLE']",
+                ],
+            ], $clientException->getContextParams()['errors']);
+            $this->assertEquals('validation.failed', $clientException->getContextParams()['code']);
+        }
     }
 
     public function testTableExportWithNonExistingDataType()
@@ -142,16 +152,26 @@ class WhereFilterTest extends StorageApiTestCase
         $tableId = $this->prepareTable();
 
         $where = [
-          [
-              'column' => 'column_double',
-              'operator' => 'non-existing',
-              'values' => [123]
-          ]
+            [
+                'column' => 'column_double',
+                'operator' => 'non-existing',
+                'values' => [123],
+            ],
         ];
 
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessageRegExp('~Invalid where operator non-existing~');
-        $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
+        try {
+            $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
+        } catch (ClientException $clientException) {
+            $this->assertSame('Invalid request', $clientException->getMessage());
+            $this->assertSame([
+                [
+                    'key' => 'whereFilters[0][operator]',
+                    'message' =>
+                        "The value you selected is not a valid choice. Use any of ['eq', 'ne', 'gt', 'ge', 'lt', 'le']",
+                ],
+            ], $clientException->getContextParams()['errors']);
+            $this->assertEquals('validation.failed', $clientException->getContextParams()['code']);
+        }
     }
 
     public function testExportTableInvalidComparingOperator()
@@ -199,9 +219,18 @@ class WhereFilterTest extends StorageApiTestCase
 
         $where = "string";
 
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage("Parameter \"whereFilters\" should be an array, but parameter contains:\n" . json_encode($where));
-        $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
+        try {
+            $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
+        } catch (ClientException $clientException) {
+            $this->assertSame('Invalid request', $clientException->getMessage());
+            $this->assertSame([
+                [
+                    'key' => 'whereFilters',
+                    'message' => 'This value should be of type iterable.',
+                ],
+            ], $clientException->getContextParams()['errors']);
+            $this->assertEquals('validation.failed', $clientException->getContextParams()['code']);
+        }
     }
 
     public function testNonArrayParamsShouldReturnErrorInDataPreview()
@@ -210,9 +239,18 @@ class WhereFilterTest extends StorageApiTestCase
 
         $where = ['column' => 'column'];
 
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage("All items in param \"whereFilters\" should be an arrays, but parameter contains:\n" . json_encode($where));
-        $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
+        try {
+            $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
+        } catch (ClientException $clientException) {
+            $this->assertSame('Invalid request', $clientException->getMessage());
+            $this->assertSame([
+                [
+                    'key' => 'whereFilters[column]',
+                    'message' => 'This value should be of type array|(Traversable&ArrayAccess).',
+                ],
+            ], $clientException->getContextParams()['errors']);
+            $this->assertEquals('validation.failed', $clientException->getContextParams()['code']);
+        }
     }
 
     private function getExportedTable($tableId, $exportOptions)
