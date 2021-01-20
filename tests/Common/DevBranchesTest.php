@@ -73,11 +73,13 @@ class DevBranchesTest extends StorageApiTestCase
         $branches = new DevBranches($this->_client);
 
         $branchName = __CLASS__ . '\\' . $this->getName();
+        $branchDescription = __CLASS__ . '\\' . $this->getName() . ' - description';
 
         // can create branch
-        $branch = $branches->createBranch($branchName);
+        $branch = $branches->createBranch($branchName, $branchDescription);
         $this->assertArrayHasKey('id', $branch);
         $this->assertArrayHasKey('name', $branch);
+        $this->assertArrayHasKey('description', $branch);
         $this->assertArrayHasKey('created', $branch);
         $this->assertArrayHasKey('isDefault', $branch);
         $this->assertArrayNotHasKey('admin', $branch);
@@ -87,6 +89,7 @@ class DevBranchesTest extends StorageApiTestCase
         $this->assertArrayHasKey('name', $branch['creatorToken']);
         $this->assertSame($token['description'], $branch['creatorToken']['name']);
         $this->assertSame($branchName, $branch['name']);
+        $this->assertSame($branchDescription, $branch['description']);
         $this->assertSame(false, $branch['isDefault']);
         $branchId = $branch['id'];
 
