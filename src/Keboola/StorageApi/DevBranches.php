@@ -18,10 +18,11 @@ class DevBranches
 
     /**
      * @param string $branchName
+     * @param string $branchDescription
      */
-    public function createBranch($branchName)
+    public function createBranch($branchName, $branchDescription = '')
     {
-        return $this->client->apiPost("dev-branches/", ['name' => $branchName]);
+        return $this->client->apiPost("dev-branches/", ['name' => $branchName, 'description' => $branchDescription]);
     }
 
     /**
