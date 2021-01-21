@@ -10,13 +10,13 @@ use Keboola\StorageApi\ClientException;
 use Keboola\Test\Backend\Workspaces\Backend\InputMappingConverter;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
-class WorkspacesRenameLoadTest extends WorkspacesTestCase
+class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
 {
     public function testLoadIncremental()
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
@@ -135,7 +135,7 @@ class WorkspacesRenameLoadTest extends WorkspacesTestCase
 
     public function testDottedDestination()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         // Create a table of sample data
@@ -190,7 +190,7 @@ class WorkspacesRenameLoadTest extends WorkspacesTestCase
 
     public function testIncrementalAdditionalColumns()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -274,7 +274,7 @@ class WorkspacesRenameLoadTest extends WorkspacesTestCase
 
     public function testIncrementalMissingColumns()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -351,7 +351,7 @@ class WorkspacesRenameLoadTest extends WorkspacesTestCase
      */
     public function testIncrementalDataTypesDiff($table, $firstLoadDataColumns, $secondLoadDataColumns)
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $importFile = __DIR__ . "/../../_data/$table.csv";
@@ -408,7 +408,7 @@ class WorkspacesRenameLoadTest extends WorkspacesTestCase
      */
     public function testDataTypes($columnsDefinition)
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
