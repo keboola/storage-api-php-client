@@ -43,6 +43,15 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
                 ->setCompress(true)
                 ->setTags(['test-file-1'])
         );
+        // upload file again to get new fileId
+        $file2Id = $this->_client->uploadFile(
+            (new CsvFile($file1Csv))->getPathname(),
+            (new FileUploadOptions())
+                ->setNotify(false)
+                ->setIsPublic(false)
+                ->setCompress(true)
+                ->setTags(['test-file-1'])
+        );
 
         $mapping1 = [
             "source" => $table1Id,
@@ -101,12 +110,32 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
             $data,
             0
         );
+
+        $blobs = $backend->listFiles('languagesLoadedMore');
+        $this->assertCount(1, $blobs); // one file upload in folder
+        // load table again with second file into same destination with preserve
+        $workspaces->loadWorkspaceData($workspace['id'], [
+            "input" => [
+                [
+                    "dataFileId" => $file2Id,
+                    "destination" => "languagesLoadedMore",
+                ],
+            ],
+            'preserve' => true,
+        ]);
+        $blobs = $backend->listFiles('languagesLoadedMore');
+        $this->assertCount(2, $blobs); // two file uploads in folder
+
         // load table again to new destination to test if workspace was cleared
         $workspaces->loadWorkspaceData($workspace['id'], [
             "input" => [
                 [
                     "source" => $table1Id,
                     "destination" => "second",
+                ],
+                [
+                    "dataFileId" => $file2Id,
+                    "destination" => "fileUploadNew",
                 ],
             ],
         ]);
@@ -118,18 +147,41 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $this->assertCount(0, $blobs);
         $this->assertManifest($backend, 'second');
 
-        // load table again to same destination with preserve
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Table second already exists in workspace');
-        $workspaces->loadWorkspaceData($workspace['id'], [
-            "input" => [
-                [
-                    "source" => $table1Id,
-                    "destination" => "second",
+        try {
+            // load table again to same destination with preserve
+            $workspaces->loadWorkspaceData($workspace['id'], [
+                "input" => [
+                    [
+                        "source" => $table1Id,
+                        "destination" => "second",
+                    ],
                 ],
-            ],
-            'preserve' => true,
-        ]);
+                'preserve' => true,
+            ]);
+        } catch (ClientException $e) {
+            $this->assertEquals(
+                'Table second already exists in workspace',
+                $e->getMessage()
+            );
+        }
+
+        try {
+            // load file upload again to same destination with preserve
+            $workspaces->loadWorkspaceData($workspace['id'], [
+                "input" => [
+                    [
+                        "dataFileId" => $file2Id,
+                        "destination" => "fileUploadNew",
+                    ],
+                ],
+                'preserve' => true,
+            ]);
+        } catch (ClientException $e) {
+            $this->assertEquals(
+                "File fileUploadNew/{$file2Id} already exists in workspace",
+                $e->getMessage()
+            );
+        }
     }
 
     public function testWorkspaceLoadFilePermissionsCanReadAllFiles()
