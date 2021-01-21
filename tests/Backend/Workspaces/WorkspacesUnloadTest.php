@@ -10,13 +10,10 @@
 namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\Csv\CsvFile;
-use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\StorageApi\ClientException;
-use Keboola\StorageApi\Exception;
 use Keboola\StorageApi\Workspaces;
-use Keboola\Test\StorageApiTestCase;
 
-class WorkspacesUnloadTest extends WorkspacesTestCase
+class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 {
     public function testTableCloneCaseSensitiveThrowsUserError()
     {
@@ -29,7 +26,7 @@ class WorkspacesUnloadTest extends WorkspacesTestCase
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages-case-sensitive', $importFile);
 
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $connection = $workspace['connection'];
@@ -56,7 +53,7 @@ class WorkspacesUnloadTest extends WorkspacesTestCase
     public function testCreateTableFromWorkspace()
     {
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $connection = $workspace['connection'];
@@ -90,7 +87,7 @@ class WorkspacesUnloadTest extends WorkspacesTestCase
     public function testCreateTableFromWorkspaceWithInvalidColumnNames()
     {
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $connection = $workspace['connection'];
@@ -119,7 +116,7 @@ class WorkspacesUnloadTest extends WorkspacesTestCase
     public function testImportFromWorkspaceWithInvalidColumnNames()
     {
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $connection = $workspace['connection'];
@@ -161,7 +158,7 @@ class WorkspacesUnloadTest extends WorkspacesTestCase
         ));
 
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $connection = $workspace['connection'];
