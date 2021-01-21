@@ -7,42 +7,13 @@ use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\Workspaces\Backend\SnowflakeWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
-use Keboola\Test\Backend\Workspaces\WorkspacesTestCase;
-use Keboola\Test\StorageApiTestCase;
+use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
 
-class TimestampTest extends WorkspacesTestCase
+class TimestampTest extends ParallelWorkspacesTestCase
 {
     use WorkspaceConnectionTrait;
 
     const TIMESTAMP_FORMAT = '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/';
-
-    /** @var Workspaces */
-    private static $workspaceApi;
-    /** @var array */
-    private static $workspace;
-
-    public function setUp()
-    {
-        StorageApiTestCase::setUp();
-        $this->_initEmptyTestBuckets();
-    }
-
-    public static function setUpBeforeClass()
-    {
-        $client = new \Keboola\StorageApi\Client([
-            'token' => STORAGE_API_TOKEN,
-            'url' => STORAGE_API_URL,
-            'backoffMaxTries' => 1,
-            'jobPollRetryDelay' => function () {
-                return 1;
-            },
-        ]);
-        self::$workspaceApi = new Workspaces($client);
-        foreach (self::$workspaceApi->listWorkspaces() as $workspace) {
-            self::$workspaceApi->deleteWorkspace($workspace['id']);
-        }
-        self::$workspace = self::$workspaceApi->createWorkspace();
-    }
 
     /**
      * Originally this is ImportExportCommonTest::testTableAsyncImportExport but only works in snowflake
@@ -170,7 +141,9 @@ class TimestampTest extends WorkspacesTestCase
         ));
 
         // create workspace and source table in workspace
-        $workspace = self::$workspaceApi->createWorkspace();
+        $workspacesClient = new Workspaces($this->workspaceSapiClient);
+        $workspace = $workspacesClient->createWorkspace();
+
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
         $db->query("create table \"test.Languages3\" (
@@ -219,9 +192,12 @@ class TimestampTest extends WorkspacesTestCase
      */
     private function assertDataInTable($tableId, $workspaceTableName, $expectedRows)
     {
+        $workspacesClient = new Workspaces($this->workspaceSapiClient);
+        $workspace = $workspacesClient->createWorkspace();
+
         /** @var SnowflakeWorkspaceBackend $backend */
-        $backend = WorkspaceBackendFactory::createWorkspaceBackend(self::$workspace);
-        self::$workspaceApi->cloneIntoWorkspace(self::$workspace['id'], [
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $workspacesClient->cloneIntoWorkspace($workspace['id'], [
             'input' => [
                 [
                     'source' => $tableId,
