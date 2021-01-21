@@ -40,7 +40,6 @@
 		<directory>tests/Backend/CommonPart1</directory>
 		<file>tests/Backend/FileWorkspace/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
-		<file>tests/Backend/Workspaces/LegacyWorkspacesSnowflakeTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-snowflake-abs-part-2">
@@ -62,6 +61,8 @@
 		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/MetadataFromSnowflakeWorkspaceTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesSnowflakeTest.php</file>
+		<file>tests/Backend/Workspaces/LegacyWorkspacesSnowflakeTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-redshift-part-1">
@@ -89,7 +90,6 @@
 	<testsuite name="backend-snowflake-part-1">
 		<directory>tests/Backend/CommonPart1</directory>
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
-		<file>tests/Backend/Workspaces/LegacyWorkspacesSnowflakeTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-snowflake-part-2">
@@ -111,6 +111,8 @@
 		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/MetadataFromSnowflakeWorkspaceTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesSnowflakeTest.php</file>
+		<file>tests/Backend/Workspaces/LegacyWorkspacesSnowflakeTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-mixed">
