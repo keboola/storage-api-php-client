@@ -55,15 +55,15 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
 
         $mapping1 = [
             "source" => $table1Id,
-            "destination" => "languagesLoaded",
+            "destination" => "tableLanguagesLoaded",
         ];
         $mapping2 = [
             "source" => $table2Id,
-            "destination" => "numbersLoaded",
+            "destination" => "tableNumbersLoaded",
         ];
         $mapping3 = [
             "dataFileId" => $fileId,
-            "destination" => "languagesLoadedMore",
+            "destination" => "fileLanguagesLoaded",
         ];
 
         $input = [$mapping1, $mapping2, $mapping3];
@@ -89,41 +89,41 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
 
         $backend = new Abs($workspace['connection']);
 
-        $this->assertManifest($backend, 'languagesLoaded');
-        $this->assertManifest($backend, 'numbersLoaded');
+        $this->assertManifest($backend, 'tableLanguagesLoaded');
+        $this->assertManifest($backend, 'tableNumbersLoaded');
 
-        $data = $backend->fetchAll('languagesLoaded', ["id", "name"], false, false);
+        $data = $backend->fetchAll('tableLanguagesLoaded', ["id", "name"], false, false);
         $this->assertArrayEqualsSorted(
             $this->_readCsv($table1Csv),
             $data,
             0
         );
-        $data = $backend->fetchAll('numbersLoaded', ["0","1","2","3","45"], false, false);
+        $data = $backend->fetchAll('tableNumbersLoaded', ["0","1","2","3","45"], false, false);
         $this->assertArrayEqualsSorted(
             $this->_readCsv($table2Csv),
             $data,
             0
         );
-        $data = $backend->fetchAll('languagesLoadedMore', ["id", "name"], true, true, false);
+        $data = $backend->fetchAll('fileLanguagesLoaded', ["id", "name"], true, true, false);
         $this->assertArrayEqualsSorted(
             $this->_readCsv($file1Csv),
             $data,
             0
         );
 
-        $blobs = $backend->listFiles('languagesLoadedMore');
+        $blobs = $backend->listFiles('fileLanguagesLoaded/');
         $this->assertCount(1, $blobs); // one file upload in folder
         // load table again with second file into same destination with preserve
         $workspaces->loadWorkspaceData($workspace['id'], [
             "input" => [
                 [
                     "dataFileId" => $file2Id,
-                    "destination" => "languagesLoadedMore",
+                    "destination" => "fileLanguagesLoaded",
                 ],
             ],
             'preserve' => true,
         ]);
-        $blobs = $backend->listFiles('languagesLoadedMore');
+        $blobs = $backend->listFiles('fileLanguagesLoaded/');
         $this->assertCount(2, $blobs); // two file uploads in folder
 
         // load table again to new destination to test if workspace was cleared
@@ -131,21 +131,21 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
             "input" => [
                 [
                     "source" => $table1Id,
-                    "destination" => "second",
+                    "destination" => "tableLoadAgain",
                 ],
                 [
                     "dataFileId" => $file2Id,
-                    "destination" => "fileUploadNew",
+                    "destination" => "fileLanguagesLoaded2",
                 ],
             ],
         ]);
-        $blobs = $backend->listFiles('languagesLoaded');
+        $blobs = $backend->listFiles('tableLanguagesLoaded/');
         $this->assertCount(0, $blobs);
-        $blobs = $backend->listFiles('numbersLoaded');
+        $blobs = $backend->listFiles('tableNumbersLoaded/');
         $this->assertCount(0, $blobs);
-        $blobs = $backend->listFiles('languagesLoadedMore');
+        $blobs = $backend->listFiles('fileLanguagesLoaded/');
         $this->assertCount(0, $blobs);
-        $this->assertManifest($backend, 'second');
+        $this->assertManifest($backend, 'tableLoadAgain');
 
         try {
             // load table again to same destination with preserve
@@ -153,14 +153,14 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
                 "input" => [
                     [
                         "source" => $table1Id,
-                        "destination" => "second",
+                        "destination" => "tableLoadAgain",
                     ],
                 ],
                 'preserve' => true,
             ]);
         } catch (ClientException $e) {
             $this->assertEquals(
-                'Table second already exists in workspace',
+                'Table tableLoadAgain already exists in workspace',
                 $e->getMessage()
             );
         }
@@ -171,14 +171,14 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
                 "input" => [
                     [
                         "dataFileId" => $file2Id,
-                        "destination" => "fileUploadNew",
+                        "destination" => "fileLanguagesLoaded2",
                     ],
                 ],
                 'preserve' => true,
             ]);
         } catch (ClientException $e) {
             $this->assertEquals(
-                "File fileUploadNew/{$file2Id} already exists in workspace",
+                "File fileLanguagesLoaded2/{$file2Id} already exists in workspace",
                 $e->getMessage()
             );
         }
