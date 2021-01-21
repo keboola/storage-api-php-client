@@ -3,6 +3,7 @@
 namespace Keboola\Test\Common;
 
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Components;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ConfigurationRowState;
@@ -39,6 +40,87 @@ class BranchComponentTest extends StorageApiTestCase
         } else {
             return false;
         }
+    }
+
+    public function testResetToDefault()
+    {
+        $providedToken = $this->_client->verifyToken();
+        $devBranchClient = new DevBranches($this->_client);
+        $branchName = __CLASS__ . '\\' . $this->getName() . '\\' . $providedToken['id'];
+        $branch = $this->deleteBranchesByPrefix($devBranchClient, $branchName);
+
+        // create new configurations in main branch
+        $componentId = 'transformation';
+        $configurationId = 'main-1';
+        $components = new \Keboola\StorageApi\Components($this->_client);
+        $configurationOptions = (new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setName('Main 1')
+            ->setConfiguration(['test' => 'false']);
+
+        $components->addConfiguration($configurationOptions);
+        $components->addConfigurationRow(
+            (new ConfigurationRow($configurationOptions))
+                ->setName('Main 1 Row 1')
+                ->setRowId('main-1-row-1')
+        );
+        $originalConfiguration = $components->getConfiguration($componentId, $configurationId);
+
+        $branch = $devBranchClient->createBranch($branchName);
+        $branchClient = $this->getBranchAwareDefaultClient($branch['id']);
+        $branchComponents = new Components($branchClient);
+        $originalConfigurationInBranch = $branchComponents->getConfiguration($componentId, $configurationId);
+
+        $this->assertEquals(
+            $this->withoutKeysChangingInBranch($originalConfiguration),
+            $this->withoutKeysChangingInBranch($originalConfigurationInBranch)
+        );
+
+        $components->updateConfiguration(
+            $configurationOptions
+                ->setName('Main updated')
+                ->setConfiguration(['test' => 'true'])
+        );
+
+        $updatedConfiguration = $components->getConfiguration($componentId, $configurationId);
+
+        $this->assertNotEquals(
+            $this->withoutKeysChangingInBranch($originalConfigurationInBranch),
+            $this->withoutKeysChangingInBranch($updatedConfiguration)
+        );
+
+        try {
+            $components->resetToDefault($componentId, $configurationId);
+        } catch (ClientException $e) {
+            $this->assertSame('Reset to default branch is not implemented for default branch', $e->getMessage());
+        }
+
+        $branchComponents->resetToDefault($componentId, $configurationId);
+
+        $resetConfigurationInBranch = $branchComponents->getConfiguration($componentId, $configurationId);
+
+        $this->assertSame(
+            $this->withoutKeysChangingInBranch($updatedConfiguration),
+            $this->withoutKeysChangingInBranch($resetConfigurationInBranch)
+        );
+    }
+
+    private function withoutKeysChangingInBranch($branch)
+    {
+        unset(
+            $branch['created'],
+            $branch['version'],
+            $branch['changeDescription'],
+            $branch['currentVersion']['changeDescription']
+        );
+        foreach ($branch['rows'] as &$row) {
+            unset(
+                $row['created'],
+                $row['changeDescription']
+            );
+        }
+        return $branch;
     }
 
     public function testManipulationWithComponentConfigurations()

@@ -5194,6 +5194,55 @@ Updates state of an existing configuration for [Development Branch](#reference/d
                 }
             }
 
+### Reset Development Branch Configuration to Main [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/reset-to-default]
+Updates an existing configuration for [Development Branch](#reference/development-branches) to a version that is currently in projects default branch.
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + component_id (required) - Id of the component
+    + config_id (required) - Id of the configuration
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+
++ Response 200 (application/json)
+    + Body
+
+            {
+                "id": "236606822",
+                "name": "My new configuration",
+                "description": "",
+                "created": "2017-02-14T14:38:26+0100",
+                "creatorToken": {
+                    "id": 27978,
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "version": 2,
+                "changeDescription": "Added new key",
+                "isDeleted": false,
+                "configuration": {
+                    "key": "value",
+                    "key2": "value2",
+                    "key3": "value3"
+                },
+                "rowsSortOrder": [],
+                "rows": [],
+                "state": {
+                    "lastId": 123
+                },
+                "currentVersion": {
+                    "created": "2017-02-14T14:48:41+0100",
+                    "creatorToken": {
+                        "id": 27978,
+                        "description": "ondrej.popelka@keboola.com"
+                    },
+                    "changeDescription": "Added new key"
+                }
+            }
+
 ### Delete Configuration [DELETE]
 Deletes a configuration. When a configuration is deleted, it is only marked as deleted and remains still available in the system.
 You can [list deleted](#reference/component-configurations/component-configs/list-configs) configurations, or
