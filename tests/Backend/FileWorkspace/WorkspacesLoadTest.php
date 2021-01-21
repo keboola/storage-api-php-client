@@ -960,6 +960,40 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
 
+        //  test invalid destination double /
+        try {
+            $workspaces->loadWorkspaceData(
+                $workspace['id'],
+                [
+                    'input' => [
+                        [
+                            "source" => $table1_id,
+                            "destination" => "languages//Loaded",
+                        ],
+                    ],
+                ]
+            );
+        } catch (ClientException $e) {
+            $this->assertEquals('workspace.loadRequestBadInput', $e->getStringCode());
+        }
+
+        //  test invalid destination special characters
+        try {
+            $workspaces->loadWorkspaceData(
+                $workspace['id'],
+                [
+                    'input' => [
+                        [
+                            "source" => $table1_id,
+                            "destination" => "languages*(&#$@(Loaded",
+                        ],
+                    ],
+                ]
+            );
+        } catch (ClientException $e) {
+            $this->assertEquals('workspace.loadRequestBadInput', $e->getStringCode());
+        }
+
         $mapping1 = [
             "source" => $table1_id,
             "destination" => "languagesLoaded",
@@ -974,6 +1008,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
                 ],
             ],
         ];
+
         $input = [$mapping1];
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
@@ -990,6 +1025,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
             $workspace['connection']['backend'],
             ['input' => $input]
         );
+
         // test for invalid workspace id
         try {
             $workspaces->loadWorkspaceData(0, $options);
