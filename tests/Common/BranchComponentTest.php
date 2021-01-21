@@ -45,18 +45,8 @@ class BranchComponentTest extends StorageApiTestCase
     {
         $providedToken = $this->_client->verifyToken();
         $devBranch = new DevBranches($this->_client);
-        // cleanup
-        $branchesList = $devBranch->listBranches();
         $branchName = __CLASS__ . '\\' . $this->getName() . '\\' . $providedToken['id'];
-        $branchesCreatedByThisTestMethod = array_filter(
-            $branchesList,
-            function ($branch) use ($branchName) {
-                return strpos($branch['name'], $branchName) === 0;
-            }
-        );
-        foreach ($branchesCreatedByThisTestMethod as $branch) {
-            $devBranch->deleteBranch($branch['id']);
-        }
+        $branch = $this->deleteBranchesByPrefix($devBranch, $branchName);
 
         // create new configurations in main branch
         $componentId = 'transformation';
@@ -855,5 +845,22 @@ class BranchComponentTest extends StorageApiTestCase
             $configuration,
             $branchComponents->getConfiguration($config->getComponentId(), $config->getConfigurationId())
         );
+    }
+
+    /**
+     * @param string $branchPrefix
+     */
+    protected function deleteBranchesByPrefix(DevBranches $devBranches, $branchPrefix)
+    {
+        $branchesList = $devBranches->listBranches();
+        $branchesCreatedByThisTestMethod = array_filter(
+            $branchesList,
+            function ($branch) use ($branchPrefix) {
+                return strpos($branch['name'], $branchPrefix) === 0;
+            }
+        );
+        foreach ($branchesCreatedByThisTestMethod as $branch) {
+            $devBranches->deleteBranch($branch['id']);
+        }
     }
 }
