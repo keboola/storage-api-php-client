@@ -7,7 +7,7 @@ use Keboola\StorageApi\Workspaces;
 use Keboola\Csv\CsvFile;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
-class LegacyWorkspacesSnowflakeTest extends WorkspacesTestCase
+class LegacyWorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
 {
 
     public function testLoadedPrimaryKeys()
@@ -27,7 +27,7 @@ class LegacyWorkspacesSnowflakeTest extends WorkspacesTestCase
             "destination" => "languages-pk"
         ];
 
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -68,7 +68,7 @@ class LegacyWorkspacesSnowflakeTest extends WorkspacesTestCase
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -159,7 +159,7 @@ class LegacyWorkspacesSnowflakeTest extends WorkspacesTestCase
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -257,7 +257,7 @@ class LegacyWorkspacesSnowflakeTest extends WorkspacesTestCase
      */
     public function testsIncrementalDataTypesDiff($table, $firstLoadDataTypes, $secondLoadDataTypes, $shouldFail)
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $importFile = __DIR__ . "/../../_data/$table.csv";
