@@ -44,7 +44,6 @@
 
 	<testsuite name="backend-snowflake-abs-part-2">
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
-		<file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>
 		<file>tests/Backend/Snowflake/TimestampTest.php</file>
 		<file>tests/Backend/Snowflake/DirectAccessTest.php</file>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
@@ -61,6 +60,7 @@
 		<file>tests/Backend/Workspaces/WorkspacesSnowflakeTest.php</file>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesSnowflakeTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-redshift-part-1">
@@ -73,7 +73,6 @@
 	<testsuite name="backend-redshift-part-2">
 		<file>tests/Backend/Workspaces/WorkspacesRedshiftTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
-		<file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>
 		<directory>tests/Backend/Redshift</directory>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>
@@ -83,6 +82,7 @@
 		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-snowflake-part-1">
@@ -92,7 +92,6 @@
 
 	<testsuite name="backend-snowflake-part-2">
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
-		<file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>
 		<file>tests/Backend/Snowflake/DirectAccessTest.php</file>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>
@@ -107,6 +106,7 @@
 		<file>tests/Backend/Workspaces/WorkspacesSnowflakeTest.php</file>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesSnowflakeTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-mixed">
@@ -136,7 +136,6 @@
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 <!--		<file>tests/Backend/Workspaces/SynapseWorkspacesUnloadTest.php</file>-->
 <!--		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>-->
-		<file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>
 		<directory>tests/Backend/Synapse</directory>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
 
@@ -161,6 +160,7 @@
 		<directory>tests/Backend/CommonPart2</directory>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-synapse-managed-identity">
