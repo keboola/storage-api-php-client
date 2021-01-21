@@ -112,6 +112,11 @@ class Components
         return $this->client->apiDelete("components/{$componentId}/configs/{$configurationId}");
     }
 
+    public function resetToDefault($componentId, $configurationId)
+    {
+        return $this->client->apiPost("components/{$componentId}/configs/{$configurationId}/reset-to-default");
+    }
+
     public function listComponents(ListComponentsOptions $options = null)
     {
         if (!$options) {
