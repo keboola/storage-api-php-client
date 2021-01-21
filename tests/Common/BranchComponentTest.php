@@ -446,7 +446,7 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertEquals($tokenInfo['description'], $currentVersion['creatorToken']['description']);
 
         if ($this->isVersionsListImplementedForDevBranch()) {
-            // test is version created for devBranch after add new config row with custom change description
+            // test is version created for devBranch after update config row with custom change description
             $configurationVersions = $branchComponents->listConfigurationVersions(
                 (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
                     ->setComponentId('transformation')
