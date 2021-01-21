@@ -11,9 +11,10 @@ use Keboola\StorageApi\Exception;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\SnowflakeWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
+use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
 use Keboola\Test\Backend\Workspaces\WorkspacesTestCase;
 
-class CloneIntoWorkspaceTest extends WorkspacesTestCase
+class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
 {
     const IMPORT_FILE_PATH = __DIR__ . '/../../_data/languages.csv';
 
@@ -33,7 +34,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
 
         $sourceTableId = $this->createTableAliasChain($sourceTableId, $aliasNestingLevel, 'languages');
 
-        $workspacesClient = new Workspaces($this->_client);
+        $workspacesClient = new Workspaces($this->workspaceSapiClient);
 
         $workspace = $workspacesClient->createWorkspace([
             'name' => 'clone',
@@ -41,6 +42,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
 
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
+        $this->workspaceSapiClient->setRunId($runId);
 
         $workspacesClient->cloneIntoWorkspace($workspace['id'], [
             'input' => [
@@ -141,7 +143,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
             new CsvFile(__DIR__ . '/../../_data/rates.csv')
         );
 
-        $workspacesClient = new Workspaces($this->_client);
+        $workspacesClient = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspacesClient->createWorkspace([
             'name' => 'clone',
         ]);
@@ -197,7 +199,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
             $aliasSettings
         );
 
-        $workspacesClient = new Workspaces($this->_client);
+        $workspacesClient = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspacesClient->createWorkspace([
             'name' => 'cloning',
         ]);
@@ -222,7 +224,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
             self::IMPORT_FILE_PATH
         );
 
-        $workspacesClient = new Workspaces($this->_client);
+        $workspacesClient = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspacesClient->createWorkspace([
             'name' => 'cloning',
         ]);
@@ -261,7 +263,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
             self::IMPORT_FILE_PATH
         );
 
-        $workspacesClient = new Workspaces($this->_client);
+        $workspacesClient = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspacesClient->createWorkspace([
             'name' => 'cloning',
         ]);
@@ -300,7 +302,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
 
     public function testTableAlreadyExistsAndOverwrite()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $client2 = $this->getClientForToken(
