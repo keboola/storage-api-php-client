@@ -144,7 +144,6 @@
 
 	<testsuite name="backend-synapse-part-3">
 		<!--WORKSPACE-->
-		<file>tests/Backend/Workspaces/WorkspacesSynapseTest.php</file>
 		<file>tests/Backend/Workspaces/SynapseWorkspacesUnloadTest.php</file>
 		<!--FILE WORKSPACE-->
 		<file>tests/Backend/FileWorkspace/WorkspacesTest.php</file>
@@ -161,6 +160,7 @@
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/MetadataFromSynapseWorkspaceTest.php</file>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesSynapseTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesSynapseTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-synapse-managed-identity">
