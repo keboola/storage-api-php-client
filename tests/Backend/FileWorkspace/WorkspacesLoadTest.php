@@ -158,6 +158,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
                 ],
                 'preserve' => true,
             ]);
+            $this->fail('Loading table to same destination must throw exception.');
         } catch (ClientException $e) {
             $this->assertEquals(
                 'Table tableLoadAgain already exists in workspace',
@@ -176,6 +177,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
                 ],
                 'preserve' => true,
             ]);
+            $this->fail('Loading same file to same destination must throw exception.');
         } catch (ClientException $e) {
             $this->assertEquals(
                 "File \"fileLanguagesLoaded2/{$file2Id}\" already exists in workspace",
