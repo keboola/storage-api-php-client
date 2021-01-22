@@ -76,7 +76,7 @@ class DevBranchesTest extends StorageApiTestCase
         $branchDescription = __CLASS__ . '\\' . $this->getName() . ' - description';
 
         // can create branch
-        $branch = $branches->createBranch($branchName, $branchDescription);
+        $branch = $branches->createBranch($branchName . '-original', $branchDescription . '-original');
         $this->assertArrayHasKey('id', $branch);
         $this->assertArrayHasKey('name', $branch);
         $this->assertArrayHasKey('description', $branch);
@@ -88,8 +88,8 @@ class DevBranchesTest extends StorageApiTestCase
         $this->assertEquals($token['id'], $branch['creatorToken']['id']);
         $this->assertArrayHasKey('name', $branch['creatorToken']);
         $this->assertSame($token['description'], $branch['creatorToken']['name']);
-        $this->assertSame($branchName, $branch['name']);
-        $this->assertSame($branchDescription, $branch['description']);
+        $this->assertSame($branchName . '-original', $branch['name']);
+        $this->assertSame($branchDescription . '-original', $branch['description']);
         $this->assertSame(false, $branch['isDefault']);
         $branchId = $branch['id'];
 
@@ -98,8 +98,23 @@ class DevBranchesTest extends StorageApiTestCase
             'event' => 'storage.devBranchCreated',
             'objectId' => $branchId,
         ]);
-        $this->assertSame($branchName, $event['objectName']);
+        $this->assertSame($branchName . '-original', $event['objectName']);
         $this->assertSame('devBranch', $event['objectType']);
+
+        // update name and description
+        $branch = $branches->updateBranch($branchId, $branchName, $branchDescription);
+        $this->assertSame($branchName, $branch['name']);
+        $this->assertSame($branchDescription, $branch['description']);
+
+        // event is created for updated branch
+        $event = $this->findLastEvent($this->_client, [
+            'event' => 'storage.devBranchUpdated',
+            'objectId' => $branchId,
+        ]);
+        $this->assertSame($branchName . '-original', $event['objectName']);
+        $this->assertSame('devBranch', $event['objectType']);
+        $this->assertSame($branchName, $event['params']['devBranchName']);
+
 
         // can get branch detail
         $branchFromDetail = $branches->getBranch($branchId);
@@ -113,7 +128,9 @@ class DevBranchesTest extends StorageApiTestCase
         $this->assertEquals($token['id'], $branchFromDetail['creatorToken']['id']);
         $this->assertArrayHasKey('name', $branchFromDetail['creatorToken']);
         $this->assertSame($token['description'], $branchFromDetail['creatorToken']['name']);
-        $this->assertSame(false, $branch['isDefault']);
+        $this->assertSame(false, $branchFromDetail['isDefault']);
+        $this->assertSame($branchName, $branchFromDetail['name']);
+        $this->assertSame($branchDescription, $branchFromDetail['description']);
 
         // can list branches and see created branch
         $branchesList = $branches->listBranches();
