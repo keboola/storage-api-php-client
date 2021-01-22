@@ -7,7 +7,7 @@ use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 
-class MetadataFromRedshiftWorkspaceTest extends WorkspacesTestCase
+class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
 {
     public function setUp()
     {
@@ -23,7 +23,7 @@ class MetadataFromRedshiftWorkspaceTest extends WorkspacesTestCase
     public function testCreateTableFromWorkspace()
     {
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace(["backend" => "redshift"]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
@@ -156,7 +156,7 @@ class MetadataFromRedshiftWorkspaceTest extends WorkspacesTestCase
         );
 
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace(["backend" => "redshift"]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
@@ -222,7 +222,7 @@ class MetadataFromRedshiftWorkspaceTest extends WorkspacesTestCase
         );
 
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace(["backend" => "redshift"]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
@@ -254,7 +254,7 @@ class MetadataFromRedshiftWorkspaceTest extends WorkspacesTestCase
     public function testCreateTableFromWorkspaceWithUnsupportedDataType()
     {
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace(["backend" => "redshift"]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
