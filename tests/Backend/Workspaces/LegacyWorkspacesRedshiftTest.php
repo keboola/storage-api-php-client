@@ -7,7 +7,7 @@ use Keboola\StorageApi\Workspaces;
 use Keboola\Csv\CsvFile;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
-class LegacyWorkspacesRedshiftTest extends WorkspacesTestCase
+class LegacyWorkspacesRedshiftTest extends ParallelWorkspacesTestCase
 {
 
     /**
@@ -16,7 +16,7 @@ class LegacyWorkspacesRedshiftTest extends WorkspacesTestCase
      */
     public function testColumnCompression($dataTypesDefinition)
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         // Create a table of sample data
@@ -93,7 +93,7 @@ class LegacyWorkspacesRedshiftTest extends WorkspacesTestCase
             "destination" => "languages-pk"
         ];
 
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -134,7 +134,7 @@ class LegacyWorkspacesRedshiftTest extends WorkspacesTestCase
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -225,7 +225,7 @@ class LegacyWorkspacesRedshiftTest extends WorkspacesTestCase
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
