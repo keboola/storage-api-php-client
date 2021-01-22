@@ -83,7 +83,7 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
         }
 
         $this->assertArrayHasKey('metrics', $actualJobId);
-        $this->assertEquals(2560, $actualJobId['metrics']['outBytes']);
+        $this->assertEquals(3072, $actualJobId['metrics']['outBytes']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $table = $backend->describeTableColumns('languages');
@@ -172,7 +172,7 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
         }
 
         $this->assertArrayHasKey('metrics', $actualJobId);
-        $this->assertEquals(2048, $actualJobId['metrics']['outBytes']);
+        $this->assertEquals(3072, $actualJobId['metrics']['outBytes']);
 
         $db = $this->getDbConnection($workspace['connection']);
 
@@ -192,7 +192,7 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
 
         $tables = $db->fetchAll("SHOW TABLES IN SCHEMA " . $db->quoteIdentifier($workspaceSchema['name']));
         $this->assertCount(2, $tables);
-        
+
         $this->assertEquals('languages', $tables[0]['name']);
         $this->assertEquals('TRANSIENT', $tables[0]['kind']);
 
@@ -316,7 +316,7 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
         }
 
         $this->assertArrayHasKey('metrics', $actualJobId);
-        $this->assertEquals(2048, $actualJobId['metrics']['outBytes']);
+        $this->assertEquals(3072, $actualJobId['metrics']['outBytes']);
 
         $this->assertEquals(2, $backend->countRows("languages"));
         $this->assertEquals(5, $backend->countRows("languagesDetails"));
@@ -702,7 +702,7 @@ class WorkspacesSnowflakeTest extends WorkspacesTestCase
         }
 
         $this->assertArrayHasKey('metrics', $actualJobId);
-        $this->assertEquals(7168, $actualJobId['metrics']['outBytes']);
+        $this->assertEquals(16896, $actualJobId['metrics']['outBytes']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $this->assertEquals(5, $backend->countRows('languages'));
