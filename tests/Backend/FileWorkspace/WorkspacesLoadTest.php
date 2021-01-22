@@ -178,7 +178,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
             ]);
         } catch (ClientException $e) {
             $this->assertEquals(
-                "File fileLanguagesLoaded2/{$file2Id} already exists in workspace",
+                "File \"fileLanguagesLoaded2/{$file2Id}\" already exists in workspace",
                 $e->getMessage()
             );
         }
