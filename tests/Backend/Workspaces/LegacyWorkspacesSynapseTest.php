@@ -8,7 +8,7 @@ use Keboola\Csv\CsvFile;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
-class LegacyWorkspacesSynapseTest extends WorkspacesTestCase
+class LegacyWorkspacesSynapseTest extends ParallelWorkspacesTestCase
 {
 
     public function testLoadedPrimaryKeys()
@@ -28,7 +28,7 @@ class LegacyWorkspacesSynapseTest extends WorkspacesTestCase
             'destination' => 'languages-pk'
         ];
 
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -73,7 +73,7 @@ class LegacyWorkspacesSynapseTest extends WorkspacesTestCase
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -164,7 +164,7 @@ class LegacyWorkspacesSynapseTest extends WorkspacesTestCase
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -262,7 +262,7 @@ class LegacyWorkspacesSynapseTest extends WorkspacesTestCase
      */
     public function testsIncrementalDataTypesDiff($table, $firstLoadDataTypes, $secondLoadDataTypes, $shouldFail)
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $importFile = __DIR__ . "/../../_data/$table.csv";
