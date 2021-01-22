@@ -69,7 +69,6 @@
 	</testsuite>
 
 	<testsuite name="backend-redshift-part-2">
-		<file>tests/Backend/Workspaces/WorkspacesRedshiftTest.php</file>
 		<directory>tests/Backend/Redshift</directory>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>
@@ -83,6 +82,7 @@
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/MetadataFromRedshiftWorkspaceTest.php</file>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesRedshiftTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesRedshiftTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-snowflake-part-1">
