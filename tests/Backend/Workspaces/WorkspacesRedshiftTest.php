@@ -8,13 +8,13 @@ use Keboola\Csv\CsvFile;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
-class WorkspacesRedshiftTest extends WorkspacesTestCase
+class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
 {
     use WorkspaceConnectionTrait;
 
     public function testCreateNotSupportedBackend()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         try {
             $workspaces->createWorkspace(["backend" => "snowflake"]);
             $this->fail("should not be able to create WS for unsupported backend");
@@ -29,7 +29,7 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
      */
     public function testColumnCompression($columnsDefinition)
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         // Create a table of sample data
@@ -64,7 +64,7 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
 
     public function testLoadedSortKey()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $db = $this->getDbConnection($workspace['connection']);
 
@@ -127,7 +127,7 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
      */
     public function testLoadedDist($dist)
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $db = $this->getDbConnection($workspace['connection']);
 
@@ -177,7 +177,7 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
 
     public function testLoadDataTypesDefaults()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         // Create a table of sample data
@@ -275,7 +275,7 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
             "destination" => "languages-pk"
         ];
 
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -355,7 +355,7 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -437,7 +437,7 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -510,7 +510,7 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
@@ -608,7 +608,7 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -697,7 +697,7 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
 
     public function testOutBytesMetricsWithLoadWorkspaceWithRows()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         // Create a table of sample data
@@ -746,7 +746,7 @@ class WorkspacesRedshiftTest extends WorkspacesTestCase
 
     public function testOutBytesMetricsWithLoadWorkspaceWithSeconds()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         // Create a table of sample data
