@@ -170,7 +170,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
 
         $this->assertNotNull($actualJob);
         $this->assertArrayHasKey('metrics', $actualJob);
-        $this->assertEquals(34304, $actualJob['metrics']['outBytes']);
+        $this->assertEquals(44544, $actualJob['metrics']['outBytes']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $backendTables = $backend->getTables();
