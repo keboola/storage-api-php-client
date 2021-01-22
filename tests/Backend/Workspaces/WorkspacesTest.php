@@ -14,17 +14,18 @@ use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\Workspaces\Backend\SynapseWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
-class WorkspacesTest extends WorkspacesTestCase
+class WorkspacesTest extends ParallelWorkspacesTestCase
 {
     use WorkspaceConnectionTrait;
 
     public function testWorkspaceCreate()
     {
 
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
 
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
+        $this->workspaceSapiClient->setRunId($runId);
 
         $workspace = $workspaces->createWorkspace();
         $connection = $workspace['connection'];
@@ -75,7 +76,7 @@ class WorkspacesTest extends WorkspacesTestCase
 
     public function testWorkspacePasswordReset()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
 
         $workspace = $workspaces->createWorkspace();
 
@@ -94,6 +95,7 @@ class WorkspacesTest extends WorkspacesTestCase
 
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
+        $this->workspaceSapiClient->setRunId($runId);
 
         $newCredentials = $workspaces->resetWorkspacePassword($workspace['id']);
         $this->assertArrayHasKey("password", $newCredentials);
@@ -138,7 +140,7 @@ class WorkspacesTest extends WorkspacesTestCase
      */
     public function testDropWorkspace($dropOptions)
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
 
         $workspace = $workspaces->createWorkspace();
         $connection = $workspace['connection'];
@@ -175,7 +177,7 @@ class WorkspacesTest extends WorkspacesTestCase
      */
     public function testDropNonExistingWorkspace($dropOptions)
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
 
         try {
             $workspaces->deleteWorkspace(0, $dropOptions);
