@@ -32,6 +32,15 @@ class BranchComponentTest extends StorageApiTestCase
         }
     }
 
+    private function isVersionsListImplementedForDevBranch()
+    {
+        if (IS_VERSIONS_LIST_IMPLEMENTED_FOR_DEV_BRANCH === "true") {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public function testManipulationWithComponentConfigurations()
     {
         $providedToken = $this->_client->verifyToken();
@@ -52,10 +61,13 @@ class BranchComponentTest extends StorageApiTestCase
         // create new configurations in main branch
         $componentId = 'transformation';
         $components = new \Keboola\StorageApi\Components($this->_client);
+        $configurationData = ['x' => 'y'];
         $configurationOptions = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId($componentId)
             ->setConfigurationId('main-1')
-            ->setName('Main 1');
+            ->setName('Main 1')
+            ->setConfiguration($configurationData);
+
         $components->addConfiguration($configurationOptions);
         $components->addConfigurationRow(
             (new ConfigurationRow($configurationOptions))
@@ -113,6 +125,51 @@ class BranchComponentTest extends StorageApiTestCase
 
         $configFromMain = $branchComponents->getConfiguration($componentId, 'main-1');
         $this->assertSame(1, $configFromMain['version']);
+
+        if ($this->isVersionsListImplementedForDevBranch()) {
+            // test is version created for devBranch configuration after create branch
+            $configurationVersions = $branchComponents->listConfigurationVersions(
+                (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
+                    ->setComponentId($componentId)
+                    ->setConfigurationId('main-1')
+            );
+
+            $this->assertCount(1, $configurationVersions);
+            $configurationVersion = $branchComponents->getConfigurationVersion($componentId, 'main-1', 1);
+
+            $this->assertArrayHasKey('version', $configurationVersion);
+            $this->assertSame(1, $configurationVersion['version']);
+            $this->assertIsInt($configurationVersion['creatorToken']['id']);
+            $this->assertArrayNotHasKey('state', $configurationVersion);
+            $this->assertArrayHasKey('configuration', $configurationVersion);
+            $this->assertSame($configurationData, $configurationVersion['configuration']);
+            $this->assertSame(
+                'Copied from default branch configuration version "Main 1" (configuration id: main-1) version 2',
+                $configurationVersion['changeDescription']
+            );
+        } else {
+            try {
+                $branchComponents->listConfigurationVersions(
+                    (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
+                        ->setComponentId($componentId)
+                        ->setConfigurationId('main-1')
+                );
+                $this->fail('Configuration versions list should not be implemented');
+            } catch (ClientException $e) {
+                $this->assertSame(501, $e->getCode());
+                $this->assertSame('notImplemented', $e->getStringCode());
+                $this->assertContains('Not implemented', $e->getMessage());
+            }
+
+            try {
+                $branchComponents->getConfigurationVersion($componentId, 'main-1', 1);
+                $this->fail('Configuration versions detail should not be implemented');
+            } catch (ClientException $e) {
+                $this->assertSame(501, $e->getCode());
+                $this->assertSame('notImplemented', $e->getStringCode());
+                $this->assertContains('Not implemented', $e->getMessage());
+            }
+        }
 
         // test config time created is different for branch config
         $configMain = $components->getConfiguration($componentId, 'main-1');
@@ -450,6 +507,28 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertEquals($tokenInfo['id'], $currentVersion['creatorToken']['id']);
         $this->assertEquals($tokenInfo['description'], $currentVersion['creatorToken']['description']);
 
+        if ($this->isVersionsListImplementedForDevBranch()) {
+            // test create new config create new version for configuration
+            $configurationVersions = $branchComponents->listConfigurationVersions(
+                (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
+                    ->setComponentId($componentId)
+                    ->setConfigurationId('dev-branch-1')
+            );
+            $this->assertCount(1, $configurationVersions);
+
+            $configurationVersion = $branchComponents->getConfigurationVersion($componentId, 'dev-branch-1', 1);
+
+            $this->assertArrayHasKey('version', $configurationVersion);
+            $this->assertSame(1, $configurationVersion['version']);
+            $this->assertIsInt($configurationVersion['creatorToken']['id']);
+            $this->assertArrayNotHasKey('state', $configurationVersion);
+            $this->assertEmpty($branchComponentDetail['configuration']);
+            $this->assertSame(
+                'Configuration created',
+                $configurationVersion['changeDescription']
+            );
+        }
+
         $configs = $branchComponents->listComponentConfigurations(
             (new ListComponentConfigurationsOptions())->setComponentId($componentId)
         );
@@ -565,6 +644,28 @@ class BranchComponentTest extends StorageApiTestCase
         $tokenInfo = $this->_client->verifyToken();
         $this->assertEquals($tokenInfo['id'], $currentVersion['creatorToken']['id']);
         $this->assertEquals($tokenInfo['description'], $currentVersion['creatorToken']['description']);
+
+        if ($this->isVersionsListImplementedForDevBranch()) {
+            // test is version created for devBranch configuration after create new config
+            $configurationVersions = $branchComponents->listConfigurationVersions(
+                (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
+                    ->setComponentId('wr-db')
+                    ->setConfigurationId('branch-1')
+            );
+
+            $this->assertCount(1, $configurationVersions);
+            $configurationVersion = $branchComponents->getConfigurationVersion('wr-db', 'branch-1', 1);
+
+            $this->assertArrayHasKey('version', $configurationVersion);
+            $this->assertSame(1, $configurationVersion['version']);
+            $this->assertIsInt($configurationVersion['creatorToken']['id']);
+            $this->assertArrayNotHasKey('state', $configurationVersion);
+            $this->assertArrayHasKey('configuration', $configurationVersion);
+            $this->assertSame(
+                'create custom desc',
+                $configurationVersion['changeDescription']
+            );
+        }
 
         $branchComponents->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
