@@ -43,18 +43,27 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
                 ->setCompress(true)
                 ->setTags(['test-file-1'])
         );
+        // upload file again to get new fileId
+        $file2Id = $this->_client->uploadFile(
+            (new CsvFile($file1Csv))->getPathname(),
+            (new FileUploadOptions())
+                ->setNotify(false)
+                ->setIsPublic(false)
+                ->setCompress(true)
+                ->setTags(['test-file-1'])
+        );
 
         $mapping1 = [
             "source" => $table1Id,
-            "destination" => "languagesLoaded",
+            "destination" => "tableLanguagesLoaded",
         ];
         $mapping2 = [
             "source" => $table2Id,
-            "destination" => "numbersLoaded",
+            "destination" => "tableNumbersLoaded",
         ];
         $mapping3 = [
             "dataFileId" => $fileId,
-            "destination" => "languagesLoadedMore",
+            "destination" => "fileLanguagesLoaded",
         ];
 
         $input = [$mapping1, $mapping2, $mapping3];
@@ -80,56 +89,101 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
 
         $backend = new Abs($workspace['connection']);
 
-        $this->assertManifest($backend, 'languagesLoaded');
-        $this->assertManifest($backend, 'numbersLoaded');
+        $this->assertManifest($backend, 'tableLanguagesLoaded');
+        $this->assertManifest($backend, 'tableNumbersLoaded');
 
-        $data = $backend->fetchAll('languagesLoaded', ["id", "name"], false, false);
+        $data = $backend->fetchAll('tableLanguagesLoaded', ["id", "name"], false, false);
         $this->assertArrayEqualsSorted(
             $this->_readCsv($table1Csv),
             $data,
             0
         );
-        $data = $backend->fetchAll('numbersLoaded', ["0","1","2","3","45"], false, false);
+        $data = $backend->fetchAll('tableNumbersLoaded', ["0","1","2","3","45"], false, false);
         $this->assertArrayEqualsSorted(
             $this->_readCsv($table2Csv),
             $data,
             0
         );
-        $data = $backend->fetchAll('languagesLoadedMore', ["id", "name"], true, true, false);
+        $data = $backend->fetchAll('fileLanguagesLoaded', ["id", "name"], true, true, false);
         $this->assertArrayEqualsSorted(
             $this->_readCsv($file1Csv),
             $data,
             0
         );
+
+        $blobs = $backend->listFiles('fileLanguagesLoaded/');
+        $this->assertCount(1, $blobs); // one file upload in folder
+        // load table again with second file into same destination with preserve
+        $workspaces->loadWorkspaceData($workspace['id'], [
+            "input" => [
+                [
+                    "dataFileId" => $file2Id,
+                    "destination" => "fileLanguagesLoaded",
+                ],
+            ],
+            'preserve' => true,
+        ]);
+        $blobs = $backend->listFiles('fileLanguagesLoaded/');
+        $this->assertCount(2, $blobs); // two file uploads in folder
+
         // load table again to new destination to test if workspace was cleared
         $workspaces->loadWorkspaceData($workspace['id'], [
             "input" => [
                 [
                     "source" => $table1Id,
-                    "destination" => "second",
+                    "destination" => "tableLoadAgain",
                 ],
-            ],
-        ]);
-        $blobs = $backend->listFiles('languagesLoaded');
-        $this->assertCount(0, $blobs);
-        $blobs = $backend->listFiles('numbersLoaded');
-        $this->assertCount(0, $blobs);
-        $blobs = $backend->listFiles('languagesLoadedMore');
-        $this->assertCount(0, $blobs);
-        $this->assertManifest($backend, 'second');
-
-        // load table again to same destination with preserve
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Table second already exists in workspace');
-        $workspaces->loadWorkspaceData($workspace['id'], [
-            "input" => [
                 [
-                    "source" => $table1Id,
-                    "destination" => "second",
+                    "dataFileId" => $file2Id,
+                    "destination" => "fileLanguagesLoaded2",
                 ],
             ],
-            'preserve' => true,
         ]);
+        $blobs = $backend->listFiles('tableLanguagesLoaded/');
+        $this->assertCount(0, $blobs);
+        $blobs = $backend->listFiles('tableNumbersLoaded/');
+        $this->assertCount(0, $blobs);
+        $blobs = $backend->listFiles('fileLanguagesLoaded/');
+        $this->assertCount(0, $blobs);
+        $this->assertManifest($backend, 'tableLoadAgain');
+
+        try {
+            // load table again to same destination with preserve
+            $workspaces->loadWorkspaceData($workspace['id'], [
+                "input" => [
+                    [
+                        "source" => $table1Id,
+                        "destination" => "tableLoadAgain",
+                    ],
+                ],
+                'preserve' => true,
+            ]);
+            $this->fail('Loading table to same destination must throw exception.');
+        } catch (ClientException $e) {
+            $this->assertEquals(
+                'Table tableLoadAgain already exists in workspace',
+                $e->getMessage()
+            );
+        }
+
+        try {
+            // load file upload again to same destination with preserve
+            $workspaces->loadWorkspaceData($workspace['id'], [
+                "input" => [
+                    [
+                        "dataFileId" => $file2Id,
+                        "destination" => "fileLanguagesLoaded2",
+                    ],
+                ],
+                'preserve' => true,
+            ]);
+            $this->fail('Loading same file to same destination must throw exception.');
+        } catch (ClientException $e) {
+            $this->assertEquals(
+                "File \"fileLanguagesLoaded2/{$file2Id}\" already exists in workspace",
+                $e->getMessage()
+            );
+        }
     }
 
     public function testWorkspaceLoadFilePermissionsCanReadAllFiles()
