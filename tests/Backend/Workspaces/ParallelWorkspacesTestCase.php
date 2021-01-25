@@ -46,7 +46,9 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
         );
 
         foreach ($oldTestWorkspaces as $workspace) {
-            $workspaces->deleteWorkspace($workspace['id']);
+            $workspaces->deleteWorkspace($workspace['id'], [
+                'async' => true,
+            ]);
         }
     }
 
