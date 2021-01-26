@@ -102,16 +102,23 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $input = [$mapping1, $mapping2];
 
         // test if job is created and listed
-        $initialJobs = $this->_client->listJobs();
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
         $this->workspaceSapiClient->setRunId($runId);
+
         $workspaces->loadWorkspaceData($workspace['id'], ["input" => $input]);
-        $afterJobs = $this->_client->listJobs();
 
+        $afterJobs = array_filter(
+            $this->_client->listJobs(),
+            function ($job) use ($runId) {
+                return $job['runId'] === $runId;
+            }
+        );
 
-        $this->assertEquals('workspaceLoad', $afterJobs[0]['operationName']);
-        $this->assertNotEquals($initialJobs[0]['id'], $afterJobs[0]['id']);
+        $this->assertCount(1, $afterJobs);
+
+        $lastJob = reset($afterJobs);
+        $this->assertEquals('workspaceLoad', $lastJob['operationName']);
 
         // block until async events are processed, processing in order is not guaranteed but it should work most of time
         $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
