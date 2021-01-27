@@ -70,7 +70,7 @@ class WhereFilterTest extends StorageApiTestCase
             ],
         ];
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessageRegExp('~Data type non-existing not recognized~');
+        $this->expectExceptionMessageRegExp('~Invalid parameters - Data type non-existing not recognized~');
         $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
     }
 
@@ -150,7 +150,7 @@ class WhereFilterTest extends StorageApiTestCase
         ];
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessageRegExp('~Invalid where operator non-existing~');
+        $this->expectExceptionMessageRegExp('~Invalid parameters - Invalid where operator non-existing~');
         $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
     }
 
@@ -200,7 +200,7 @@ class WhereFilterTest extends StorageApiTestCase
         $where = "string";
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessage("Parameter \"whereFilters\" should be an array, but parameter contains:\n" . json_encode($where));
+        $this->expectExceptionMessage("Invalid parameters - Parameter \"whereFilters\" should be an array, but parameter contains:\n" . json_encode($where));
         $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
     }
 
@@ -208,10 +208,14 @@ class WhereFilterTest extends StorageApiTestCase
     {
         $tableId = $this->prepareTable();
 
+        // 'column' isn't important in this case,
+        // whereFilters should contain array of arrays, but now it contains just 1D array
         $where = ['column' => 'column'];
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessage("All items in param \"whereFilters\" should be an arrays, but parameter contains:\n" . json_encode($where));
+        $this->expectExceptionMessage(
+            "Invalid parameters - All items in param \"whereFilters\" should be an arrays, but parameter contains:\n" . json_encode($where)
+        );
         $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
     }
 
