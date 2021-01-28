@@ -100,14 +100,14 @@ class OrderByTest extends StorageApiTestCase
                 [
                     'column' => 'non-existing',
                 ],
-                'Can\'t filter by column non-existing, column does not exist',
+                'Invalid parameters - Can\'t filter by column non-existing, column does not exist',
             ],
             [
                 [
                     'column' => 'column_string',
                     'order' => 'non-existing'
                 ],
-                'Invalid sort order non-existing. Available orders are [DESC|ASC]',
+                'Invalid parameters - Invalid sort order non-existing. Available orders are [DESC|ASC]',
             ],
             [
                 [
@@ -115,7 +115,8 @@ class OrderByTest extends StorageApiTestCase
                     'order' => 'DESC',
                     'dataType' => 'non-existing'
                 ],
-                'Data type non-existing not recognized. Possible datatypes are [INTEGER|DOUBLE]',
+                // TODO update by backend [INTEGER|DOUBLE] [BIGINT|REAL]
+                'Invalid parameters - Data type non-existing not recognized. Possible values are [INTEGER|DOUBLE]',
             ]
         ];
     }
@@ -150,7 +151,7 @@ class OrderByTest extends StorageApiTestCase
         $orderBy = ['column' => 'column'];
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessage("All items in param \"orderBy\" should be an arrays, but parameter contains:\n" . json_encode($orderBy));
+        $this->expectExceptionMessage("Invalid parameters - All items in param \"orderBy\" should be an arrays, but parameter contains:\n" . json_encode($orderBy));
         $this->_client->getTableDataPreview($tableId, ['orderBy' => $orderBy]);
     }
 
@@ -162,7 +163,7 @@ class OrderByTest extends StorageApiTestCase
         $orderBy = "string";
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessage("Parameter \"orderBy\" should be an array, but parameter contains:\n" . json_encode($orderBy));
+        $this->expectExceptionMessage("Invalid parameters - Parameter \"orderBy\" should be an array, but parameter contains:\n" . json_encode($orderBy));
         $this->_client->getTableDataPreview($tableId, ['orderBy' => $orderBy]);
     }
 

@@ -53,7 +53,7 @@ class FulltextSearchTest extends StorageApiTestCase
             ]
         ];
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Cannot use fulltextSearch and whereFilters at the same time');
+        $this->expectExceptionMessage('Invalid parameters - Cannot use fulltextSearch and whereFilters at the same time');
         $this->_client->getTableDataPreview($tableId, $params);
     }
 
