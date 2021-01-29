@@ -96,6 +96,22 @@ class BranchComponentTest extends StorageApiTestCase
             $this->assertSame('Reset to default branch is not implemented for default branch', $e->getMessage());
         }
 
+        if ($this->isVersionsListImplementedForDevBranch()) {
+            $branchComponents->updateConfiguration(
+                $configurationOptions
+                    ->setName('Main updated')
+                    ->setConfiguration(['test' => 'true'])
+            );
+
+            $configurationVersionsInBranch = $branchComponents->listConfigurationVersions(
+                (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
+                    ->setComponentId($componentId)
+                    ->setConfigurationId($configurationId)
+            );
+
+            $this->assertCount(2, $configurationVersionsInBranch);
+        }
+
         $branchComponents->resetToDefault($componentId, $configurationId);
 
         $resetConfigurationInBranch = $branchComponents->getConfiguration($componentId, $configurationId);
@@ -104,6 +120,16 @@ class BranchComponentTest extends StorageApiTestCase
             $this->withoutKeysChangingInBranch($updatedConfiguration),
             $this->withoutKeysChangingInBranch($resetConfigurationInBranch)
         );
+
+        if ($this->isVersionsListImplementedForDevBranch()) {
+            $resetConfigurationVersionsInBranch = $branchComponents->listConfigurationVersions(
+                (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
+                    ->setComponentId($componentId)
+                    ->setConfigurationId($configurationId)
+            );
+
+            $this->assertCount(1, $resetConfigurationVersionsInBranch);
+        }
     }
 
     private function withoutKeysChangingInBranch($branch)
