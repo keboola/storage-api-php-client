@@ -127,7 +127,7 @@ class BranchComponentTest extends StorageApiTestCase
             // can get configuration version 2
             $branchComponents->getConfigurationVersion($componentId, $configurationId, 2);
 
-            $this->assertCount(2, $configurationVersionsInBranch);
+            $this->assertCount(3, $configurationVersionsInBranch);
         }
 
         $resetConfigurationInBranchResult = $branchComponents->resetToDefault($componentId, $configurationId);
@@ -151,12 +151,12 @@ class BranchComponentTest extends StorageApiTestCase
 
         $this->assertSame(1, $resetConfigurationInBranch['version']);
         $this->assertSame('Copied from default branch configuration "Main updated" (main-1) version 3', $resetConfigurationInBranch['changeDescription']);
-        $this->assertSame('y', $resetConfigurationInBranch['currentVersion']['changeDescription']);
+        $this->assertSame('Copied from default branch configuration "Main updated" (main-1) version 3', $resetConfigurationInBranch['currentVersion']['changeDescription']);
 
-        foreach ($resetConfigurationInBranch['rows'] as $row) {
-            $this->assertArrayHasKey('created', $row);
-            $this->assertStringContainsString('xxxxx', $row['changeDescription']);
-        }
+        $this->assertCount(1, $resetConfigurationInBranch['rows']);
+        $row = $resetConfigurationInBranch['rows'][0];
+        $this->assertArrayHasKey('created', $row);
+        $this->assertSame('Copied from default branch configuration row "Main 1 Row 1" (main-1-row-1) version 1', $row['changeDescription']);
 
         $this->assertSame(
             $this->withoutKeysChangingInBranch($updatedConfiguration),
