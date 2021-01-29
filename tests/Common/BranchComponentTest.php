@@ -66,6 +66,7 @@ class BranchComponentTest extends StorageApiTestCase
                 ->setRowId('main-1-row-1')
         );
         $originalConfiguration = $components->getConfiguration($componentId, $configurationId);
+        $this->assertSame(2, $originalConfiguration['version']);
 
         $branch = $devBranchClient->createBranch($branchName);
         $branchClient = $this->getBranchAwareDefaultClient($branch['id']);
@@ -83,15 +84,29 @@ class BranchComponentTest extends StorageApiTestCase
                 ->setConfiguration(['test' => 'true'])
         );
 
-        $updatedConfiguration = $components->getConfiguration($componentId, $configurationId);
+        $branchComponents->updateConfiguration(
+            $configurationOptions
+                ->setName('Main updated in branch')
+                ->setConfiguration(['test' => 'true in branch'])
+        );
 
+        $updatedConfiguration = $components->getConfiguration($componentId, $configurationId);
+        $updatedConfigurationInBranch = $branchComponents->getConfiguration($componentId, $configurationId);
+
+        $this->assertSame(3, $updatedConfiguration['version']);
+        $this->assertSame(2, $updatedConfigurationInBranch['version']);
         $this->assertNotEquals(
             $this->withoutKeysChangingInBranch($originalConfigurationInBranch),
+            $this->withoutKeysChangingInBranch($updatedConfiguration)
+        );
+        $this->assertNotEquals(
+            $this->withoutKeysChangingInBranch($updatedConfigurationInBranch),
             $this->withoutKeysChangingInBranch($updatedConfiguration)
         );
 
         try {
             $components->resetToDefault($componentId, $configurationId);
+            $this->fail('Reset should not work for main branch');
         } catch (ClientException $e) {
             $this->assertSame('Reset to default branch is not implemented for default branch', $e->getMessage());
         }
@@ -109,12 +124,39 @@ class BranchComponentTest extends StorageApiTestCase
                     ->setConfigurationId($configurationId)
             );
 
+            // can get configuration version 2
+            $branchComponents->getConfigurationVersion($componentId, $configurationId, 2);
+
             $this->assertCount(2, $configurationVersionsInBranch);
         }
 
-        $branchComponents->resetToDefault($componentId, $configurationId);
+        $resetConfigurationInBranchResult = $branchComponents->resetToDefault($componentId, $configurationId);
 
         $resetConfigurationInBranch = $branchComponents->getConfiguration($componentId, $configurationId);
+
+        $this->assertSame($resetConfigurationInBranch, $resetConfigurationInBranchResult);
+        $this->assertSame(1, $resetConfigurationInBranch['version']);
+
+        if ($this->isVersionsListImplementedForDevBranch()) {
+            try {
+                $branchComponents->getConfigurationVersion($componentId, $configurationId, 2);
+                $this->fail('Configuration version 2 should not be present, as it was reset to v1');
+            } catch (ClientException $e) {
+                $this->assertSame('Version 2 not found', $e->getMessage());
+            }
+        }
+
+        $this->assertArrayHasKey('created', $resetConfigurationInBranch);
+        $this->assertNotEquals($updatedConfiguration['created'], $resetConfigurationInBranch['created']);
+
+        $this->assertSame(1, $resetConfigurationInBranch['version']);
+        $this->assertSame('Copied from default branch configuration "Main updated" (main-1) version 3', $resetConfigurationInBranch['changeDescription']);
+        $this->assertSame('y', $resetConfigurationInBranch['currentVersion']['changeDescription']);
+
+        foreach ($resetConfigurationInBranch['rows'] as $row) {
+            $this->assertArrayHasKey('created', $row);
+            $this->assertStringContainsString('xxxxx', $row['changeDescription']);
+        }
 
         $this->assertSame(
             $this->withoutKeysChangingInBranch($updatedConfiguration),
