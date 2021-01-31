@@ -108,13 +108,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
 
         $workspaces->loadWorkspaceData($workspace['id'], ["input" => $input]);
 
-        $afterJobs = array_filter(
-            $this->_client->listJobs(),
-            function ($job) use ($runId) {
-                return $job['runId'] === $runId;
-            }
-        );
-
+        $afterJobs = $this->listJobsByRunId($runId);
         $this->assertCount(1, $afterJobs);
 
         $lastJob = reset($afterJobs);
