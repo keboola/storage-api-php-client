@@ -24,7 +24,7 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
 
         $this->deleteOldTestWorkspaces($description);
 
-        $this->workspaceSapiClient = new Client([
+        $this->workspaceSapiClient = $this->getClient([
             'token' => $this->initTestToken($description),
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
