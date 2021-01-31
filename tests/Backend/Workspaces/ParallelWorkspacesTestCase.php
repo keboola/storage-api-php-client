@@ -128,4 +128,14 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
 
         throw new \Exception("Unsupported Backend for workspaces");
     }
+
+    protected function listJobsByRunId($runId)
+    {
+        return array_filter(
+            $this->_client->listJobs(),
+            function ($job) use ($runId) {
+                return $job['runId'] === $runId;
+            }
+        );
+    }
 }

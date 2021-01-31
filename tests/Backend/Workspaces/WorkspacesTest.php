@@ -139,6 +139,9 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
+        $runId = $this->_client->generateRunId();
+        $this->workspaceSapiClient->setRunId($runId);
+
         $workspace = $workspaces->createWorkspace();
         $connection = $workspace['connection'];
 
@@ -162,7 +165,10 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         }
 
         if (!empty($dropOptions['async'])) {
-            $job = $this->_client->listJobs()[0];
+            $afterJobs = $this->listJobsByRunId($runId);
+            $this->assertCount(1, $afterJobs);
+
+            $job = reset($afterJobs);
             $this->assertEquals('workspaceDrop', $job['operationName']);
             $this->assertEquals($workspace['id'], $job['operationParams']['workspaceId']);
         }
