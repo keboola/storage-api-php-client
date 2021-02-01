@@ -101,7 +101,7 @@ class DataPreviewLimitsTest extends StorageApiTestCase
             $this->fail('limit 1200 should not be allowed');
         } catch (ClientException $e) {
             $this->assertEquals(400, $e->getCode());
-            $this->assertEquals('storage.tables.validation', $e->getStringCode());
+            $this->assertEquals('storage.tables.validation.', $e->getStringCode());
             $this->assertContains('1000', $e->getMessage());
         }
     }
