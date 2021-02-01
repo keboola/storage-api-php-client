@@ -3,6 +3,7 @@
 namespace Keboola\Test\Common;
 
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Components;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ConfigurationRowState;
@@ -41,22 +42,161 @@ class BranchComponentTest extends StorageApiTestCase
         }
     }
 
+    public function testResetToDefault()
+    {
+        $providedToken = $this->_client->verifyToken();
+        $devBranchClient = new DevBranches($this->_client);
+        $branchName = __CLASS__ . '\\' . $this->getName() . '\\' . $providedToken['id'];
+        $branch = $this->deleteBranchesByPrefix($devBranchClient, $branchName);
+
+        // create new configurations in main branch
+        $componentId = 'transformation';
+        $configurationId = 'main-1';
+        $components = new \Keboola\StorageApi\Components($this->_client);
+        $configurationOptions = (new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setName('Main 1')
+            ->setConfiguration(['test' => 'false']);
+
+        $components->addConfiguration($configurationOptions);
+        $components->addConfigurationRow(
+            (new ConfigurationRow($configurationOptions))
+                ->setName('Main 1 Row 1')
+                ->setRowId('main-1-row-1')
+        );
+        $originalConfiguration = $components->getConfiguration($componentId, $configurationId);
+        $this->assertSame(2, $originalConfiguration['version']);
+
+        $branch = $devBranchClient->createBranch($branchName);
+        $branchClient = $this->getBranchAwareDefaultClient($branch['id']);
+        $branchComponents = new Components($branchClient);
+        $originalConfigurationInBranch = $branchComponents->getConfiguration($componentId, $configurationId);
+
+        $this->assertEquals(
+            $this->withoutKeysChangingInBranch($originalConfiguration),
+            $this->withoutKeysChangingInBranch($originalConfigurationInBranch)
+        );
+
+        $components->updateConfiguration(
+            $configurationOptions
+                ->setName('Main updated')
+                ->setConfiguration(['test' => 'true'])
+        );
+
+        $branchComponents->updateConfiguration(
+            $configurationOptions
+                ->setName('Main updated in branch')
+                ->setConfiguration(['test' => 'true in branch'])
+        );
+
+        $updatedConfiguration = $components->getConfiguration($componentId, $configurationId);
+        $updatedConfigurationInBranch = $branchComponents->getConfiguration($componentId, $configurationId);
+
+        $this->assertSame(3, $updatedConfiguration['version']);
+        $this->assertSame(2, $updatedConfigurationInBranch['version']);
+        $this->assertNotEquals(
+            $this->withoutKeysChangingInBranch($originalConfigurationInBranch),
+            $this->withoutKeysChangingInBranch($updatedConfiguration)
+        );
+        $this->assertNotEquals(
+            $this->withoutKeysChangingInBranch($updatedConfigurationInBranch),
+            $this->withoutKeysChangingInBranch($updatedConfiguration)
+        );
+
+        try {
+            $components->resetToDefault($componentId, $configurationId);
+            $this->fail('Reset should not work for main branch');
+        } catch (ClientException $e) {
+            $this->assertSame('Reset to default branch is not implemented for default branch', $e->getMessage());
+        }
+
+        if ($this->isVersionsListImplementedForDevBranch()) {
+            $branchComponents->updateConfiguration(
+                $configurationOptions
+                    ->setName('Main updated')
+                    ->setConfiguration(['test' => 'true'])
+            );
+
+            $configurationVersionsInBranch = $branchComponents->listConfigurationVersions(
+                (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
+                    ->setComponentId($componentId)
+                    ->setConfigurationId($configurationId)
+            );
+
+            // can get configuration version 2
+            $branchComponents->getConfigurationVersion($componentId, $configurationId, 2);
+
+            $this->assertCount(3, $configurationVersionsInBranch);
+        }
+
+        $resetConfigurationInBranchResult = $branchComponents->resetToDefault($componentId, $configurationId);
+
+        $resetConfigurationInBranch = $branchComponents->getConfiguration($componentId, $configurationId);
+
+        $this->assertSame($resetConfigurationInBranch, $resetConfigurationInBranchResult);
+        $this->assertSame(1, $resetConfigurationInBranch['version']);
+
+        if ($this->isVersionsListImplementedForDevBranch()) {
+            try {
+                $branchComponents->getConfigurationVersion($componentId, $configurationId, 2);
+                $this->fail('Configuration version 2 should not be present, as it was reset to v1');
+            } catch (ClientException $e) {
+                $this->assertSame('Version 2 not found', $e->getMessage());
+            }
+        }
+
+        $this->assertArrayHasKey('created', $resetConfigurationInBranch);
+        $this->assertNotEquals($updatedConfiguration['created'], $resetConfigurationInBranch['created']);
+
+        $this->assertSame(1, $resetConfigurationInBranch['version']);
+        $this->assertSame('Copied from default branch configuration "Main updated" (main-1) version 3', $resetConfigurationInBranch['changeDescription']);
+        $this->assertSame('Copied from default branch configuration "Main updated" (main-1) version 3', $resetConfigurationInBranch['currentVersion']['changeDescription']);
+
+        $this->assertCount(1, $resetConfigurationInBranch['rows']);
+        $row = $resetConfigurationInBranch['rows'][0];
+        $this->assertArrayHasKey('created', $row);
+        $this->assertSame('Copied from default branch configuration row "Main 1 Row 1" (main-1-row-1) version 1', $row['changeDescription']);
+
+        $this->assertSame(
+            $this->withoutKeysChangingInBranch($updatedConfiguration),
+            $this->withoutKeysChangingInBranch($resetConfigurationInBranch)
+        );
+
+        if ($this->isVersionsListImplementedForDevBranch()) {
+            $resetConfigurationVersionsInBranch = $branchComponents->listConfigurationVersions(
+                (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
+                    ->setComponentId($componentId)
+                    ->setConfigurationId($configurationId)
+            );
+
+            $this->assertCount(1, $resetConfigurationVersionsInBranch);
+        }
+    }
+
+    private function withoutKeysChangingInBranch($branch)
+    {
+        unset(
+            $branch['created'],
+            $branch['version'],
+            $branch['changeDescription'],
+            $branch['currentVersion']['changeDescription']
+        );
+        foreach ($branch['rows'] as &$row) {
+            unset(
+                $row['created'],
+                $row['changeDescription']
+            );
+        }
+        return $branch;
+    }
+
     public function testManipulationWithComponentConfigurations()
     {
         $providedToken = $this->_client->verifyToken();
         $devBranch = new DevBranches($this->_client);
-        // cleanup
-        $branchesList = $devBranch->listBranches();
         $branchName = __CLASS__ . '\\' . $this->getName() . '\\' . $providedToken['id'];
-        $branchesCreatedByThisTestMethod = array_filter(
-            $branchesList,
-            function ($branch) use ($branchName) {
-                return strpos($branch['name'], $branchName) === 0;
-            }
-        );
-        foreach ($branchesCreatedByThisTestMethod as $branch) {
-            $devBranch->deleteBranch($branch['id']);
-        }
+        $branch = $this->deleteBranchesByPrefix($devBranch, $branchName);
 
         // create new configurations in main branch
         $componentId = 'transformation';
@@ -855,5 +995,22 @@ class BranchComponentTest extends StorageApiTestCase
             $configuration,
             $branchComponents->getConfiguration($config->getComponentId(), $config->getConfigurationId())
         );
+    }
+
+    /**
+     * @param string $branchPrefix
+     */
+    protected function deleteBranchesByPrefix(DevBranches $devBranches, $branchPrefix)
+    {
+        $branchesList = $devBranches->listBranches();
+        $branchesCreatedByThisTestMethod = array_filter(
+            $branchesList,
+            function ($branch) use ($branchPrefix) {
+                return strpos($branch['name'], $branchPrefix) === 0;
+            }
+        );
+        foreach ($branchesCreatedByThisTestMethod as $branch) {
+            $devBranches->deleteBranch($branch['id']);
+        }
     }
 }
