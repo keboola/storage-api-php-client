@@ -2,7 +2,6 @@
 
 namespace Keboola\Test\Backend\Mixed;
 
-use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
@@ -171,53 +170,6 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
         }
 
         return $this->_bucketIds;
-    }
-
-    /**
-     * @param $connection
-     * @return Connection|\PDO|\Doctrine\DBAL\Connection
-     * @throws \Exception
-     */
-    protected function getDbConnection($connection)
-    {
-        if ($connection['backend'] === parent::BACKEND_SNOWFLAKE) {
-            $db = new Connection([
-                'host' => $connection['host'],
-                'database' => $connection['database'],
-                'warehouse' => $connection['warehouse'],
-                'user' => $connection['user'],
-                'password' => $connection['password'],
-            ]);
-            // set connection to use workspace schema
-            $db->query(sprintf("USE SCHEMA %s;", $db->quoteIdentifier($connection['schema'])));
-
-            return $db;
-        } else if ($connection['backend'] === parent::BACKEND_REDSHIFT) {
-            $pdo = new \PDO(
-                "pgsql:dbname={$connection['database']};port=5439;host=" . $connection['host'],
-                $connection['user'],
-                $connection['password']
-            );
-            $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-
-            return $pdo;
-        } else if ($connection['backend'] === parent::BACKEND_SYNAPSE) {
-            return \Doctrine\DBAL\DriverManager::getConnection([
-                'user' => $connection['user'],
-                'password' => $connection['password'],
-                'host' => $connection['host'],
-                'dbname' => $connection['database'],
-                'port' => 1433,
-                'driver' => 'pdo_sqlsrv',
-                'driverOptions' => [
-                    'LoginTimeout' => 30,
-                    'ConnectRetryCount' => 5,
-                    'ConnectRetryInterval' => 10,
-                ],
-            ]);
-        } else {
-            throw new \Exception("Unsupported Backend for workspaces");
-        }
     }
 
     public function sharingBackendData()
