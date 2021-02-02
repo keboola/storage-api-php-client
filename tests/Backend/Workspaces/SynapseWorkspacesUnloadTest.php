@@ -4,9 +4,12 @@ namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
+use Keboola\Test\Backend\WorkspaceConnectionTrait;
 
 class SynapseWorkspacesUnloadTest extends WorkspacesTestCase
 {
+    use WorkspaceConnectionTrait;
+
     public function testCreateTableFromWorkspace()
     {
         // create workspace and source table in workspace

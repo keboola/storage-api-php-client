@@ -14,10 +14,13 @@ use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Exception;
 use Keboola\StorageApi\Workspaces;
+use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\StorageApiTestCase;
 
 class WorkspacesUnloadTest extends WorkspacesTestCase
 {
+    use WorkspaceConnectionTrait;
+
     public function testTableCloneCaseSensitiveThrowsUserError()
     {
         $tokenData = $this->_client->verifyToken();

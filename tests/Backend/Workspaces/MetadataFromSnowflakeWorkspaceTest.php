@@ -5,9 +5,12 @@ namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Workspaces;
+use Keboola\Test\Backend\WorkspaceConnectionTrait;
 
 class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
 {
+    use WorkspaceConnectionTrait;
+
     public function setUp()
     {
         parent::setUp();

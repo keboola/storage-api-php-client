@@ -6,9 +6,12 @@ namespace Keboola\Test\Backend\Workspaces;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
+use Keboola\Test\Backend\WorkspaceConnectionTrait;
 
 class MetadataFromRedshiftWorkspaceTest extends WorkspacesTestCase
 {
+    use WorkspaceConnectionTrait;
+
     public function setUp()
     {
         parent::setUp();

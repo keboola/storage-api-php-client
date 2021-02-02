@@ -12,10 +12,13 @@ use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
 use Keboola\StorageApi\Workspaces;
+use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class SharingTest extends StorageApiSharingTestCase
 {
+    use WorkspaceConnectionTrait;
+
     public function testOrganizationAdminInTokenVerify()
     {
         $token = $this->_client->verifyToken();

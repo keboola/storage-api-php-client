@@ -7,10 +7,13 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Mixed\StorageApiSharingTestCase;
+use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class SharingTest extends StorageApiSharingTestCase
 {
+    use WorkspaceConnectionTrait;
+
     public function sharingBackendData()
     {
         return [

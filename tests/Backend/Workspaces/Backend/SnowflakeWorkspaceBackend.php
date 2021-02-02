@@ -3,28 +3,15 @@
 namespace Keboola\Test\Backend\Workspaces\Backend;
 
 use Keboola\Db\Import\Snowflake\Connection;
+use Keboola\Test\Backend\WorkspaceConnectionTrait;
 
 class SnowflakeWorkspaceBackend implements WorkspaceBackend
 {
+    use WorkspaceConnectionTrait;
 
     private $db;
 
     private $schema;
-
-    private function getDbConnection($connection)
-    {
-        $db = new Connection([
-            'host' => $connection['host'],
-            'database' => $connection['database'],
-            'warehouse' => $connection['warehouse'],
-            'user' => $connection['user'],
-            'password' => $connection['password'],
-        ]);
-        // set connection to use workspace schema
-        $db->query(sprintf("USE SCHEMA %s;", $db->quoteIdentifier($connection['schema'])));
-
-        return $db;
-    }
     
     public function __construct($workspace)
     {

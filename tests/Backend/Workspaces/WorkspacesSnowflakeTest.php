@@ -5,10 +5,12 @@ namespace Keboola\Test\Backend\Workspaces;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Csv\CsvFile;
+use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
 {
+    use WorkspaceConnectionTrait;
 
     public function testCreateNotSupportedBackend()
     {
