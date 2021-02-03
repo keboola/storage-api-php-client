@@ -5,9 +5,12 @@ namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Workspaces;
+use Keboola\Test\Backend\WorkspaceConnectionTrait;
 
-class MetadataFromSnowflakeWorkspaceTest extends WorkspacesTestCase
+class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
 {
+    use WorkspaceConnectionTrait;
+
     public function setUp()
     {
         parent::setUp();
@@ -22,7 +25,7 @@ class MetadataFromSnowflakeWorkspaceTest extends WorkspacesTestCase
     public function testIncrementalLoadUpdateDataType()
     {
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace(["backend" => "snowflake"]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
@@ -102,7 +105,7 @@ class MetadataFromSnowflakeWorkspaceTest extends WorkspacesTestCase
         $this->assertSame('storage', $notUpdateColumnTypeEvent['component']);
         $this->assertSame('warn', $notUpdateColumnTypeEvent['type']);
         $this->assertArrayHasKey('params', $notUpdateColumnTypeEvent);
-        $this->assertSame('in.c-API-tests.metadata_columns', $notUpdateColumnTypeEvent['objectId']);
+        $this->assertSame($tableId, $notUpdateColumnTypeEvent['objectId']);
         $this->assertSame('id', $notUpdateColumnTypeEvent['params']['column']);
 
         $table = $this->_client->getTable($tableId);
@@ -119,7 +122,7 @@ class MetadataFromSnowflakeWorkspaceTest extends WorkspacesTestCase
         $this->assertSame('storage', $notUpdateLengthEvent['component']);
         $this->assertSame('warn', $notUpdateLengthEvent['type']);
         $this->assertArrayHasKey('params', $notUpdateLengthEvent);
-        $this->assertSame('in.c-API-tests.metadata_columns', $notUpdateLengthEvent['objectId']);
+        $this->assertSame($tableId, $notUpdateLengthEvent['objectId']);
         $this->assertSame('name', $notUpdateLengthEvent['params']['column']);
 
         $table = $this->_client->getTable($tableId);
@@ -136,7 +139,7 @@ class MetadataFromSnowflakeWorkspaceTest extends WorkspacesTestCase
         $this->assertSame('storage', $notUpdateNullableColumnEvent['component']);
         $this->assertSame('warn', $notUpdateNullableColumnEvent['type']);
         $this->assertArrayHasKey('params', $notUpdateNullableColumnEvent);
-        $this->assertSame('in.c-API-tests.metadata_columns', $notUpdateNullableColumnEvent['objectId']);
+        $this->assertSame($tableId, $notUpdateNullableColumnEvent['objectId']);
         $this->assertSame('name', $notUpdateNullableColumnEvent['params']['column']);
 
         $table = $this->_client->getTable($tableId);
@@ -220,7 +223,7 @@ class MetadataFromSnowflakeWorkspaceTest extends WorkspacesTestCase
     {
 
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace(["backend" => "snowflake"]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
@@ -360,7 +363,7 @@ class MetadataFromSnowflakeWorkspaceTest extends WorkspacesTestCase
         );
 
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace(["backend" => "snowflake"]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
@@ -455,7 +458,7 @@ class MetadataFromSnowflakeWorkspaceTest extends WorkspacesTestCase
         );
 
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace(["backend" => "snowflake"]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
@@ -481,7 +484,7 @@ class MetadataFromSnowflakeWorkspaceTest extends WorkspacesTestCase
     public function testCreateTableFromWorkspaceWithSnowflakeBug()
     {
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace(["backend" => "snowflake"]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);

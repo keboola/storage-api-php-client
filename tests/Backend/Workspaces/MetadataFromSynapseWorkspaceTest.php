@@ -4,9 +4,12 @@ namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Workspaces;
+use Keboola\Test\Backend\WorkspaceConnectionTrait;
 
 class MetadataFromSynapseWorkspaceTest extends WorkspacesTestCase
 {
+    use WorkspaceConnectionTrait;
+
     public function setUp()
     {
         parent::setUp();

@@ -4,6 +4,7 @@ namespace Keboola\Test\Backend\Snowflake;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Workspaces;
+use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\Workspaces\Backend\SnowflakeWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\WorkspacesTestCase;
@@ -11,6 +12,8 @@ use Keboola\Test\StorageApiTestCase;
 
 class TimestampTest extends WorkspacesTestCase
 {
+    use WorkspaceConnectionTrait;
+
     const TIMESTAMP_FORMAT = '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/';
 
     /** @var Workspaces */
