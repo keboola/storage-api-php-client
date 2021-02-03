@@ -10,9 +10,12 @@ use Keboola\TableBackendUtils\Column\SynapseColumn;
 use Keboola\TableBackendUtils\Schema\SynapseSchemaReflection;
 use Keboola\TableBackendUtils\Table\SynapseTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\SynapseTableReflection;
+use Keboola\Test\Backend\WorkspaceConnectionTrait;
 
 class SynapseWorkspaceBackend implements WorkspaceBackend
 {
+    use WorkspaceConnectionTrait;
+
     /** @var Connection */
     private $db;
 
@@ -27,23 +30,6 @@ class SynapseWorkspaceBackend implements WorkspaceBackend
         $this->db = $this->getDbConnection($workspace['connection']);
         $this->platform = $this->db->getDatabasePlatform();
         $this->schema = $workspace['connection']['schema'];
-    }
-
-    private function getDbConnection($connection)
-    {
-        return \Doctrine\DBAL\DriverManager::getConnection([
-            'user' => $connection['user'],
-            'password' => $connection['password'],
-            'host' => $connection['host'],
-            'dbname' => $connection['database'],
-            'port' => 1433,
-            'driver' => 'pdo_sqlsrv',
-            'driverOptions' => [
-                'LoginTimeout' => 30,
-                'ConnectRetryCount' => 5,
-                'ConnectRetryInterval' => 10,
-            ],
-        ]);
     }
 
     /**

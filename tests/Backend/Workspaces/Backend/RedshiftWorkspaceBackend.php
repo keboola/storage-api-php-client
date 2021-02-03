@@ -2,24 +2,15 @@
 
 namespace Keboola\Test\Backend\Workspaces\Backend;
 
+use Keboola\Test\Backend\WorkspaceConnectionTrait;
+
 class RedshiftWorkspaceBackend implements WorkspaceBackend
 {
+    use WorkspaceConnectionTrait;
 
     private $db;
     
     private $schema;
-
-    private function getDbConnection($connection)
-    {
-        $pdo = new \PDO(
-            "pgsql:dbname={$connection['database']};port=5439;host=" . $connection['host'],
-            $connection['user'],
-            $connection['password']
-        );
-        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-
-        return $pdo;
-    }
     
     public function __construct($workspace)
     {
