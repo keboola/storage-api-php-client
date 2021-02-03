@@ -134,7 +134,6 @@
 		<exclude>tests/Backend/CommonPart1/CreateTableTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/DeleteTableTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/ImportExportCommonTest.php</exclude>
-		<exclude>tests/Backend/CommonPart1/TableExporterTest.php</exclude>
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
 <!--		<file>tests/Backend/Workspaces/LegacyWorkspacesSynapseTest.php</file>-->
 	</testsuite>
@@ -146,6 +145,7 @@
 		<exclude>tests/Backend/CommonPart1/DeleteRowsTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/ExportParamsTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/LegacyIndexedColumnsTest.php</exclude>
+		<exclude>tests/Backend/CommonPart1/TableExporterTest.php</exclude>
 <!--		<file>tests/Backend/Workspaces/WorkspacesSynapseTest.php</file>-->
 <!--		<file>tests/Backend/Workspaces/SynapseWorkspacesUnloadTest.php</file>-->
 <!--		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>-->
