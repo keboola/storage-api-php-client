@@ -82,12 +82,13 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
         return $tokenData['token'];
     }
 
-    protected function listJobsByRunId($runId)
+    protected function listWorkspaceJobs($workspaceId)
     {
         return array_filter(
             $this->_client->listJobs(),
-            function ($job) use ($runId) {
-                return $job['runId'] === $runId;
+            function ($job) use ($workspaceId) {
+                $workspaceIdParam = isset($job['operationParams']['workspaceId']) ? (int) $job['operationParams']['workspaceId'] : 0;
+                return (int) $workspaceIdParam === $workspaceId;
             }
         );
     }
