@@ -161,16 +161,10 @@ class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
            ]
         ]);
 
-        $actualJob = null;
-        foreach ($this->_client->listJobs() as $job) {
-            if ($job['operationName'] === 'workspaceLoadClone') {
-                if ((int) $job['operationParams']['workspaceId'] === $workspace['id']) {
-                    $actualJob = $job;
-                }
-            }
-        }
+        $workspaceJobs = $this->listWorkspaceJobs($workspace['id']);
 
-        $this->assertNotNull($actualJob);
+        $actualJob = reset($workspaceJobs);
+        $this->assertEquals('workspaceLoadClone', $actualJob['operationName']);
         $this->assertArrayHasKey('metrics', $actualJob);
         $this->assertEquals(44544, $actualJob['metrics']['outBytes']);
 
