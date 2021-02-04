@@ -607,6 +607,7 @@ class Client
             "enclosure" => $csvFile->getEnclosure(),
             "escapedBy" => $csvFile->getEscapedBy(),
             "primaryKey" => isset($options['primaryKey']) ? $options['primaryKey'] : null,
+            "distributionKey" => isset($options['distributionKey']) ? $options['distributionKey'] : null,
             "transactional" => isset($options['transactional']) ? $options['transactional'] : false,
             'columns' => isset($options['columns']) ? $options['columns'] : null,
             'syntheticPrimaryKeyEnabled' => isset($options['syntheticPrimaryKeyEnabled']) ? $options['syntheticPrimaryKeyEnabled'] : null,
