@@ -1574,7 +1574,8 @@ The actual data must be provided in one of the following attributes:
     + delimiter (optional) - Field delimiter used in the CSV file. The default value is ','.  Use '\t' or type the tab char for the tabulator.
     + enclosure (optional) - Field enclosure used in the CSV file. The default value is '"'. (Note: you can specify either the `enclosure` or `escapedBy` parameter, not both.)
     + escapedBy (optional) - Escape character used in the CSV file. The default value is an empty value - no escape character is used. (Note: you can specify either the `enclosure` or `escapedBy` parameter, not both.)
-    + primaryKey (optional) - Primary key of a table. If the primary key is set, updates can be done on the table. See CSV incremental import. The primary key can be also composed by multiple columns; the columns must be separated by a comma.
+    + primaryKey (optional) - Primary key of a table. If the primary key is set, updates can be done on the table. See CSV incremental import. The primary key can be also composed by multiple columns; the columns must be separated by a comma. For Synapse if single primary key is set, it's also used as distribution key, if distribution key option is empty.
+    + distributionKey (optional) - (Synapse only) Distribution key of a table. If the distribution key is set, table will use HASH distribution.
 
 + Request (application/x-www-form-urlencoded)
     + Headers
