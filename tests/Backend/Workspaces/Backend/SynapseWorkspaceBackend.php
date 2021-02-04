@@ -128,6 +128,15 @@ class SynapseWorkspaceBackend implements WorkspaceBackend
         return $ref->getColumnsDefinitions();
     }
 
+    /**
+     * @param string $tableName
+     * @return SynapseTableReflection
+     */
+    public function getTableReflection($tableName)
+    {
+        return new SynapseTableReflection($this->db, $this->schema, $tableName);
+    }
+
     public function disconnect()
     {
         $this->db->close();

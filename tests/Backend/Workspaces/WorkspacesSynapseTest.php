@@ -22,6 +22,72 @@ class WorkspacesSynapseTest extends WorkspacesTestCase
         }
     }
 
+    public function testTableDistributionKey()
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $tableId = $this->_client->createTableAsync(
+            $bucketId,
+            'languages',
+            new CsvFile($importFile),
+            [
+                'primaryKey' => 'id',
+                'distributionKey' => 'name',
+            ]
+        );
+        // legacy IM
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                    'whereColumn' => 'name',
+                    'whereValues' => ['czech', 'french'],
+                ],
+            ],
+        ];
+
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+
+        $ref = $backend->getTableReflection('languages');
+        // one primary keys is used as HASH key
+        $this->assertEquals('HASH', $ref->getTableDistribution());
+        $this->assertEquals(['name'], $ref->getTableDistributionColumnsNames());
+
+        // new IM
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages2',
+                    'whereColumn' => 'name',
+                    'whereValues' => ['czech', 'french'],
+                    'columns' => [
+                        [
+                            'source' => 'id',
+                            'type' => 'int',
+                        ],
+                        [
+                            'source' => 'name',
+                            'type' => 'varchar',
+                        ],
+                    ]
+                ],
+            ],
+        ];
+
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+
+        $ref = $backend->getTableReflection('languages2');
+        // one primary keys is used as HASH key
+        $this->assertEquals('HASH', $ref->getTableDistribution());
+        $this->assertEquals(['name'], $ref->getTableDistributionColumnsNames());
+    }
+
     public function testLoadDataTypesDefaults()
     {
         $workspaces = new Workspaces($this->_client);
@@ -106,12 +172,16 @@ class WorkspacesSynapseTest extends WorkspacesTestCase
 
         $this->assertEquals('SKK', $table[1]->getColumnName());
         $this->assertEquals('VARCHAR(8000)', $table[1]->getColumnDefinition()->getSQLDefinition());
+
+        $ref = $backend->getTableReflection('rates');
+        // no PK ROUND_ROBIN is used
+        $this->assertEquals('ROUND_ROBIN', $ref->getTableDistribution());
     }
 
     public function testLoadedPrimaryKeys()
     {
         $primaries = ['Paid_Search_Engine_Account','Date','Paid_Search_Campaign','Paid_Search_Ad_ID','Site__DFA'];
-        $pkTableId = $this->_client->createTable(
+        $pkTableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages-pk',
             new CsvFile(__DIR__ . '/../../_data/multiple-columns-pk.csv'),
@@ -130,6 +200,10 @@ class WorkspacesSynapseTest extends WorkspacesTestCase
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $workspaces->loadWorkspaceData($workspace['id'], ['input' => [$mapping]]);
+
+        $ref = $backend->getTableReflection('languages-pk');
+        // multiple PK ROUND_ROBIN is used
+        $this->assertEquals('ROUND_ROBIN', $ref->getTableDistribution());
 
         /** @var ColumnCollection $cols */
         $cols = $backend->describeTableColumns('languages-pk');
@@ -186,7 +260,7 @@ class WorkspacesSynapseTest extends WorkspacesTestCase
 
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $bucketId,
             'languages',
             new CsvFile($importFile),
@@ -218,6 +292,11 @@ class WorkspacesSynapseTest extends WorkspacesTestCase
         ];
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
+
+        $ref = $backend->getTableReflection('languages');
+        // one primary keys is used as HASH key
+        $this->assertEquals('HASH', $ref->getTableDistribution());
+        $this->assertEquals(['Id'], $ref->getTableDistributionColumnsNames());
 
         $actualJobId = null;
         foreach ($this->_client->listJobs() as $job) {
