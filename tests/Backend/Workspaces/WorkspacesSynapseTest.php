@@ -74,17 +74,12 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
             ]
         ]);
 
-        $actualJobId = null;
-        foreach ($this->_client->listJobs() as $job) {
-            if ($job['operationName'] === 'workspaceLoad') {
-                if ((int) $job['operationParams']['workspaceId'] === $workspace['id']) {
-                    $actualJobId = $job;
-                }
-            }
-        }
+        $jobs = $this->listWorkspaceJobs($workspace['id']);
+        $actualJob = reset($jobs);
 
-        $this->assertArrayHasKey('metrics', $actualJobId);
-        $this->assertGreaterThan(0, $actualJobId['metrics']['outBytes']);
+        $this->assertSame('workspaceLoad', $actualJob['operationName']);
+        $this->assertArrayHasKey('metrics', $actualJob);
+        $this->assertGreaterThan(0, $actualJob['metrics']['outBytes']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         /** @var ColumnCollection $table */
@@ -219,17 +214,12 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
-        $actualJobId = null;
-        foreach ($this->_client->listJobs() as $job) {
-            if ($job['operationName'] === 'workspaceLoad') {
-                if ((int) $job['operationParams']['workspaceId'] === $workspace['id']) {
-                    $actualJobId = $job;
-                }
-            }
-        }
+        $jobs = $this->listWorkspaceJobs($workspace['id']);
+        $actualJob = reset($jobs);
 
-        $this->assertArrayHasKey('metrics', $actualJobId);
-        $this->assertGreaterThan(0, $actualJobId['metrics']['outBytes']);
+        $this->assertSame('workspaceLoad', $actualJob['operationName']);
+        $this->assertArrayHasKey('metrics', $actualJob);
+        $this->assertGreaterThan(0, $actualJob['metrics']['outBytes']);
 
         $this->assertEquals(2, $backend->countRows('languages'));
         $this->assertEquals(5, $backend->countRows('languagesDetails'));
@@ -605,17 +595,12 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
             ]
         ]);
 
-        $actualJobId = null;
-        foreach ($this->_client->listJobs() as $job) {
-            if ($job['operationName'] === 'workspaceLoad') {
-                if ((int) $job['operationParams']['workspaceId'] === $workspace['id']) {
-                    $actualJobId = $job;
-                }
-            }
-        }
+        $jobs = $this->listWorkspaceJobs($workspace['id']);
+        $actualJob = reset($jobs);
 
-        $this->assertArrayHasKey('metrics', $actualJobId);
-        $this->assertGreaterThan(0, $actualJobId['metrics']['outBytes']);
+        $this->assertSame('workspaceLoad', $actualJob['operationName']);
+        $this->assertArrayHasKey('metrics', $actualJob);
+        $this->assertGreaterThan(0, $actualJob['metrics']['outBytes']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $this->assertEquals(5, $backend->countRows('languages'));
@@ -663,17 +648,12 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
             ]
         ]);
 
-        $actualJobId = null;
-        foreach ($this->_client->listJobs() as $job) {
-            if ($job['operationName'] === 'workspaceLoad') {
-                if ((int) $job['operationParams']['workspaceId'] === $workspace['id']) {
-                    $actualJobId = $job;
-                }
-            }
-        }
+        $jobs = $this->listWorkspaceJobs($workspace['id']);
+        $actualJob = reset($jobs);
 
-        $this->assertArrayHasKey('metrics', $actualJobId);
-        $this->assertGreaterThan(0, $actualJobId['metrics']['outBytes']);
+        $this->assertSame('workspaceLoad', $actualJob['operationName']);
+        $this->assertArrayHasKey('metrics', $actualJob);
+        $this->assertGreaterThan(0, $actualJob['metrics']['outBytes']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $this->assertEquals(5, $backend->countRows('languages'));

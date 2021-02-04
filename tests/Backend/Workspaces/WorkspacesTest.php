@@ -168,12 +168,9 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         }
 
         if (!empty($dropOptions['async'])) {
-            $afterJobs = $this->listJobsByRunId($runId);
-            $this->assertCount(1, $afterJobs);
-
+            $afterJobs = $this->listWorkspaceJobs($workspace['id']);
             $job = reset($afterJobs);
             $this->assertEquals('workspaceDrop', $job['operationName']);
-            $this->assertEquals($workspace['id'], $job['operationParams']['workspaceId']);
         }
     }
 

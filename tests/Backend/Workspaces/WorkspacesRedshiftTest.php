@@ -98,17 +98,12 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         ]);
 
 
-        $actualJobId = null;
-        foreach ($this->_client->listJobs() as $job) {
-            if ($job['operationName'] === 'workspaceLoad') {
-                if ((int) $job['operationParams']['workspaceId'] === $workspace['id']) {
-                    $actualJobId = $job;
-                }
-            }
-        }
+        $jobs = $this->listWorkspaceJobs($workspace['id']);
+        $actualJob = reset($jobs);
 
-        $this->assertArrayHasKey('metrics', $actualJobId);
-        $this->assertEquals(35651584, $actualJobId['metrics']['outBytes']);
+        $this->assertSame('workspaceLoad', $actualJob['operationName']);
+        $this->assertArrayHasKey('metrics', $actualJob);
+        $this->assertEquals(35651584, $actualJob['metrics']['outBytes']);
 
         $statement = $db->prepare("SELECT \"column\", sortkey FROM pg_table_def WHERE schemaname = ? AND tablename = ? AND \"column\" = ?;");
         $statement->execute([$workspace['connection']['schema'], "languages-rs", "name"]);
@@ -227,17 +222,12 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
             ]
         ]);
 
-        $actualJobId = null;
-        foreach ($this->_client->listJobs() as $job) {
-            if ($job['operationName'] === 'workspaceLoad') {
-                if ((int) $job['operationParams']['workspaceId'] === $workspace['id']) {
-                    $actualJobId = $job;
-                }
-            }
-        }
+        $jobs = $this->listWorkspaceJobs($workspace['id']);
+        $actualJob = reset($jobs);
 
-        $this->assertArrayHasKey('metrics', $actualJobId);
-        $this->assertEquals(20971520, $actualJobId['metrics']['outBytes']);
+        $this->assertSame('workspaceLoad', $actualJob['operationName']);
+        $this->assertArrayHasKey('metrics', $actualJob);
+        $this->assertEquals(20971520, $actualJob['metrics']['outBytes']);
 
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
@@ -394,17 +384,12 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
-        $actualJobId = null;
-        foreach ($this->_client->listJobs() as $job) {
-            if ($job['operationName'] === 'workspaceLoad') {
-                if ((int) $job['operationParams']['workspaceId'] === $workspace['id']) {
-                    $actualJobId = $job;
-                }
-            }
-        }
+        $jobs = $this->listWorkspaceJobs($workspace['id']);
+        $actualJob = reset($jobs);
 
-        $this->assertArrayHasKey('metrics', $actualJobId);
-        $this->assertEquals(25165824, $actualJobId['metrics']['outBytes']);
+        $this->assertSame('workspaceLoad', $actualJob['operationName']);
+        $this->assertArrayHasKey('metrics', $actualJob);
+        $this->assertEquals(25165824, $actualJob['metrics']['outBytes']);
 
         $this->assertEquals(2, $backend->countRows("languages"));
         $this->assertEquals(5, $backend->countRows("languagesDetails"));
@@ -727,17 +712,12 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
             ]
         ]);
 
-        $actualJobId = null;
-        foreach ($this->_client->listJobs() as $job) {
-            if ($job['operationName'] === 'workspaceLoad') {
-                if ((int) $job['operationParams']['workspaceId'] === $workspace['id']) {
-                    $actualJobId = $job;
-                }
-            }
-        }
+        $jobs = $this->listWorkspaceJobs($workspace['id']);
+        $actualJob = reset($jobs);
 
-        $this->assertArrayHasKey('metrics', $actualJobId);
-        $this->assertEquals(106954752, $actualJobId['metrics']['outBytes']);
+        $this->assertSame('workspaceLoad', $actualJob['operationName']);
+        $this->assertArrayHasKey('metrics', $actualJob);
+        $this->assertEquals(106954752, $actualJob['metrics']['outBytes']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $this->assertEquals(5, $backend->countRows('languages'));
@@ -785,17 +765,12 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
             ]
         ]);
 
-        $actualJobId = null;
-        foreach ($this->_client->listJobs() as $job) {
-            if ($job['operationName'] === 'workspaceLoad') {
-                if ((int) $job['operationParams']['workspaceId'] === $workspace['id']) {
-                    $actualJobId = $job;
-                }
-            }
-        }
+        $jobs = $this->listWorkspaceJobs($workspace['id']);
+        $actualJob = reset($jobs);
 
-        $this->assertArrayHasKey('metrics', $actualJobId);
-        $this->assertEquals(10485760, $actualJobId['metrics']['outBytes']);
+        $this->assertSame('workspaceLoad', $actualJob['operationName']);
+        $this->assertArrayHasKey('metrics', $actualJob);
+        $this->assertEquals(10485760, $actualJob['metrics']['outBytes']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $this->assertEquals(5, $backend->countRows('languages'));
