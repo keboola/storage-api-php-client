@@ -6,14 +6,14 @@ use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 
-class SynapseWorkspacesUnloadTest extends WorkspacesTestCase
+class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
 {
     use WorkspaceConnectionTrait;
 
     public function testCreateTableFromWorkspace()
     {
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $connection = $workspace['connection'];
@@ -55,7 +55,7 @@ class SynapseWorkspacesUnloadTest extends WorkspacesTestCase
     public function testCreateTableFromWorkspaceWithInvalidColumnNames()
     {
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $connection = $workspace['connection'];
@@ -92,7 +92,7 @@ class SynapseWorkspacesUnloadTest extends WorkspacesTestCase
     public function testImportFromWorkspaceWithInvalidColumnNames()
     {
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $connection = $workspace['connection'];
@@ -142,7 +142,7 @@ class SynapseWorkspacesUnloadTest extends WorkspacesTestCase
         ));
 
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $connection = $workspace['connection'];
