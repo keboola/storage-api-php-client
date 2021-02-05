@@ -8,12 +8,12 @@ use Keboola\Csv\CsvFile;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
-class WorkspacesSynapseTest extends WorkspacesTestCase
+class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
 {
 
     public function testCreateNotSupportedBackend()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         try {
             $workspaces->createWorkspace(['backend' => 'redshift']);
             $this->fail('should not be able to create WS for unsupported backend');
@@ -24,7 +24,7 @@ class WorkspacesSynapseTest extends WorkspacesTestCase
 
     public function testLoadDataTypesDefaults()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         // Create a table of sample data
@@ -74,17 +74,12 @@ class WorkspacesSynapseTest extends WorkspacesTestCase
             ]
         ]);
 
-        $actualJobId = null;
-        foreach ($this->_client->listJobs() as $job) {
-            if ($job['operationName'] === 'workspaceLoad') {
-                if ((int) $job['operationParams']['workspaceId'] === $workspace['id']) {
-                    $actualJobId = $job;
-                }
-            }
-        }
+        $jobs = $this->listWorkspaceJobs($workspace['id']);
+        $actualJob = reset($jobs);
 
-        $this->assertArrayHasKey('metrics', $actualJobId);
-        $this->assertGreaterThan(0, $actualJobId['metrics']['outBytes']);
+        $this->assertSame('workspaceLoad', $actualJob['operationName']);
+        $this->assertArrayHasKey('metrics', $actualJob);
+        $this->assertGreaterThan(0, $actualJob['metrics']['outBytes']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         /** @var ColumnCollection $table */
@@ -125,7 +120,7 @@ class WorkspacesSynapseTest extends WorkspacesTestCase
             'destination' => 'languages-pk'
         ];
 
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -180,7 +175,7 @@ class WorkspacesSynapseTest extends WorkspacesTestCase
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -219,17 +214,12 @@ class WorkspacesSynapseTest extends WorkspacesTestCase
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
-        $actualJobId = null;
-        foreach ($this->_client->listJobs() as $job) {
-            if ($job['operationName'] === 'workspaceLoad') {
-                if ((int) $job['operationParams']['workspaceId'] === $workspace['id']) {
-                    $actualJobId = $job;
-                }
-            }
-        }
+        $jobs = $this->listWorkspaceJobs($workspace['id']);
+        $actualJob = reset($jobs);
 
-        $this->assertArrayHasKey('metrics', $actualJobId);
-        $this->assertGreaterThan(0, $actualJobId['metrics']['outBytes']);
+        $this->assertSame('workspaceLoad', $actualJob['operationName']);
+        $this->assertArrayHasKey('metrics', $actualJob);
+        $this->assertGreaterThan(0, $actualJob['metrics']['outBytes']);
 
         $this->assertEquals(2, $backend->countRows('languages'));
         $this->assertEquals(5, $backend->countRows('languagesDetails'));
@@ -262,7 +252,7 @@ class WorkspacesSynapseTest extends WorkspacesTestCase
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -335,7 +325,7 @@ class WorkspacesSynapseTest extends WorkspacesTestCase
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -432,7 +422,7 @@ class WorkspacesSynapseTest extends WorkspacesTestCase
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -524,7 +514,7 @@ class WorkspacesSynapseTest extends WorkspacesTestCase
      */
     public function testsIncrementalDataTypesDiff($table, $firstLoadColumns, $secondLoadColumns, $shouldFail)
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         $importFile = __DIR__ . "/../../_data/$table.csv";
@@ -575,7 +565,7 @@ class WorkspacesSynapseTest extends WorkspacesTestCase
 
     public function testOutBytesMetricsWithLoadWorkspaceWithRows()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         // Create a table of sample data
@@ -605,17 +595,12 @@ class WorkspacesSynapseTest extends WorkspacesTestCase
             ]
         ]);
 
-        $actualJobId = null;
-        foreach ($this->_client->listJobs() as $job) {
-            if ($job['operationName'] === 'workspaceLoad') {
-                if ((int) $job['operationParams']['workspaceId'] === $workspace['id']) {
-                    $actualJobId = $job;
-                }
-            }
-        }
+        $jobs = $this->listWorkspaceJobs($workspace['id']);
+        $actualJob = reset($jobs);
 
-        $this->assertArrayHasKey('metrics', $actualJobId);
-        $this->assertGreaterThan(0, $actualJobId['metrics']['outBytes']);
+        $this->assertSame('workspaceLoad', $actualJob['operationName']);
+        $this->assertArrayHasKey('metrics', $actualJob);
+        $this->assertGreaterThan(0, $actualJob['metrics']['outBytes']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $this->assertEquals(5, $backend->countRows('languages'));
@@ -624,7 +609,7 @@ class WorkspacesSynapseTest extends WorkspacesTestCase
 
     public function testOutBytesMetricsWithLoadWorkspaceWithSeconds()
     {
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
 
         // Create a table of sample data
@@ -663,17 +648,12 @@ class WorkspacesSynapseTest extends WorkspacesTestCase
             ]
         ]);
 
-        $actualJobId = null;
-        foreach ($this->_client->listJobs() as $job) {
-            if ($job['operationName'] === 'workspaceLoad') {
-                if ((int) $job['operationParams']['workspaceId'] === $workspace['id']) {
-                    $actualJobId = $job;
-                }
-            }
-        }
+        $jobs = $this->listWorkspaceJobs($workspace['id']);
+        $actualJob = reset($jobs);
 
-        $this->assertArrayHasKey('metrics', $actualJobId);
-        $this->assertGreaterThan(0, $actualJobId['metrics']['outBytes']);
+        $this->assertSame('workspaceLoad', $actualJob['operationName']);
+        $this->assertArrayHasKey('metrics', $actualJob);
+        $this->assertGreaterThan(0, $actualJob['metrics']['outBytes']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $this->assertEquals(5, $backend->countRows('languages'));
