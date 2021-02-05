@@ -29,7 +29,7 @@ class CreateTableTest extends StorageApiTestCase
         );
 
         $table = $this->_client->getTable($tableId);
-        $this->assertEquals(['name'], $table['distributionKey']);
+        self::assertEquals(['name'], $table['distributionKey']);
 
         // create table with primaryKey
         $tableId = $this->_client->createTableAsync(
@@ -42,20 +42,49 @@ class CreateTableTest extends StorageApiTestCase
         );
 
         $table = $this->_client->getTable($tableId);
-        $this->assertEquals(['name'], $table['distributionKey']);
+        self::assertEquals(['name'], $table['distributionKey']);
 
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage(
-        // phpcs:ignore
-            'distributionKey must be string. Use comma as separator for multiple distribution keys.'
-        );
-        $this->_client->createTableAsync(
-            $bucketId,
-            'languages',
-            new CsvFile($importFile),
-            [
-                'distributionKey' => ['name', 'id'],
-            ]
-        );
+        try {
+            $this->_client->createTableAsync(
+                $bucketId,
+                'languages',
+                new CsvFile($importFile),
+                [
+                    'distributionKey' => ['name', 'id'],
+                ]
+            );
+            self::fail('distributions keys send as array should throw exception');
+        } catch (ClientException $e) {
+            self::assertEquals(
+            // phpcs:ignore
+                'distributionKey must be string. Use comma as separator for multiple distribution keys.',
+                $e->getMessage()
+            );
+            self::assertEquals(
+                'storage.validation.distributionKey',
+                $e->getStringCode()
+            );
+        }
+
+        try {
+            $this->_client->createTableAsync(
+                $bucketId,
+                'languages',
+                new CsvFile($importFile),
+                [
+                    'distributionKey' => 'name,id',
+                ]
+            );
+            self::fail('Multiple distributions keys should throw exception');
+        } catch (ClientException $e) {
+            self::assertEquals(
+                'Synapse backend only supports one distributionKey.',
+                $e->getMessage()
+            );
+            self::assertEquals(
+                'storage.validation.distributionKey',
+                $e->getStringCode()
+            );
+        }
     }
 }
