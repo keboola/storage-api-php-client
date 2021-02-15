@@ -122,11 +122,10 @@ class BranchComponentTest extends StorageApiTestCase
 
         $this->assertCount(3, $configurationVersionsInBranch);
 
-        $resetConfigurationInBranchResult = $branchComponents->resetToDefault($componentId, $configurationId);
+        $branchComponents->resetToDefault($componentId, $configurationId);
 
         $resetConfigurationInBranch = $branchComponents->getConfiguration($componentId, $configurationId);
 
-        $this->assertSame($resetConfigurationInBranch, $resetConfigurationInBranchResult);
         $this->assertSame(1, $resetConfigurationInBranch['version']);
 
         try {
@@ -171,7 +170,9 @@ class BranchComponentTest extends StorageApiTestCase
 
         // delete row in production and reset branch version
         $components->deleteConfigurationRow($componentId, $configurationId, $rowId);
-        $configurationAfterReset = $branchComponents->resetToDefault($componentId, $configurationId);
+        $branchComponents->resetToDefault($componentId, $configurationId);
+        $configurationAfterReset = $branchComponents->getConfiguration($componentId, $configurationId);
+
         $this->assertCount(0, $configurationAfterReset['rows']);
 
         // make configuration in branch updated again and test reset to deleted production configuration
