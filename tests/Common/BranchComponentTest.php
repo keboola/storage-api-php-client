@@ -52,11 +52,13 @@ class BranchComponentTest extends StorageApiTestCase
             ->setConfiguration(['test' => 'false']);
 
         $components->addConfiguration($configurationOptions);
-        $components->addConfigurationRow(
+        $row = $components->addConfigurationRow(
             (new ConfigurationRow($configurationOptions))
                 ->setName('Main 1 Row 1')
                 ->setRowId('main-1-row-1')
         );
+        $rowId = $row['id'];
+
         $originalConfiguration = $components->getConfiguration($componentId, $configurationId);
         $this->assertSame(2, $originalConfiguration['version']);
 
@@ -158,6 +160,34 @@ class BranchComponentTest extends StorageApiTestCase
         );
 
         $this->assertCount(1, $resetConfigurationVersionsInBranch);
+
+        // delete config in production
+
+        // assert there is a row in both
+        $row = $components->getConfigurationRow($componentId, $configurationId, $rowId);
+        $this->assertSame($row['id'], $rowId);
+        $branchRow = $branchComponents->getConfigurationRow($componentId, $configurationId, $rowId);
+        $this->assertSame($row['id'], $rowId);
+
+        // delete row in production and reset branch version
+        $components->deleteConfigurationRow($componentId, $configurationId, $rowId);
+        $configurationAfterReset = $branchComponents->resetToDefault($componentId, $configurationId);
+        $this->assertCount(0, $configurationAfterReset['rows']);
+
+        // make configuration in branch updated again and test reset to deleted production configuration
+        $options = $configurationOptions->setName('Main updated in branch second time')
+            ->setConfiguration(['test' => 'true in branch second time']);
+        $branchComponents->updateConfiguration($options);
+        $updatedConfigurationInBranch = $branchComponents->getConfiguration($componentId, $configurationId);
+        $this->assertSame(2, $updatedConfigurationInBranch['version']);
+        $components->deleteConfiguration($componentId, $configurationId);
+        $branchComponents->resetToDefault($componentId, $configurationId);
+        try {
+            $updatedConfigurationInBranch = $branchComponents->getConfiguration($componentId, $configurationId);
+            $this->fail('Should have thrown');
+        } catch (ClientException $e) {
+            $this->assertSame('Configuration main-1 not found', $e->getMessage());
+        }
     }
 
     private function withoutKeysChangingInBranch($branch)
