@@ -5210,6 +5210,9 @@ Updates an existing configuration for [Development Branch](#reference/developmen
 
 
 + Response 200 (application/json)
+
+    In case the configuration exists in main branch
+
     + Body
 
             {
@@ -5243,6 +5246,12 @@ Updates an existing configuration for [Development Branch](#reference/developmen
                     "changeDescription": "Added new key"
                 }
             }
+
++ Response 204 (application/json)
+
+    In case the configuration was deleted in main branch
+
+    + Body
 
 ### Delete Configuration [DELETE]
 Deletes a configuration. When a configuration is deleted, it is only marked as deleted and remains still available in the system.
