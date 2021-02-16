@@ -1798,7 +1798,7 @@ To enable compression of API response traffic, please include the following HTTP
         Examples: `-2 days`, `1360138863`, `2013-02-12T15:19:21+00:00`
     + columns (optional) - Comma separated list of columns to export; by default all columns are exported.
     + whereColumn (optional) - **Deprecated** (use whereFilters instead). Column for exporting only matching rows; see more in the rows filtering section.
-    + whereValues[] (optional) - **Deprecated** (use whereFilters instead). Values for exporting only matching rows; see more in the rows filtering section.
+    + whereValues[] (optional, array) - **Deprecated** (use whereFilters instead). Values for exporting only matching rows; see more in the rows filtering section.
     + whereOperator (optional, enum[string]) - **Deprecated** (use whereFilters instead). Operator for value comparison.
         + Members
             + eq - Equals - can be used with multiple values.
@@ -1806,19 +1806,19 @@ To enable compression of API response traffic, please include the following HTTP
         + Default: eq
     + format (optional, enum[string]) - output format of preview
         + Members
-            + rfc - will returns CSV formated output
-            + json - will return JSON formated ouput
+            + rfc - will returns CSV formatted output
+            + json - will return JSON formatted output
         + Default: rfc
     + whereFilters[] (optional)
         + column (required) - column which should be matched
-        + operator (required, enum[string]) - operator for value comparision
+        + operator (required, enum[string]) - operator for value comparison
             + Members
                 + eq - Equals - can be used with multiple values
                 + ne - Not equals  - case be used with multiple values
-                + gt - Greater than - Snowflake only
-                + ge - Greater than or equals - Snowflake only
-                + lt - Less than - Snowflake only
-                + le - Less than or equals  - Snowflake only
+                + gt - Greater than - Snowflake/Synapse only
+                + ge - Greater than or equals - Snowflake/Synapse only
+                + lt - Less than - Snowflake/Synapse only
+                + le - Less than or equals  - Snowflake/Synapse only
             + Default: eq
         + values[] (required, array) - array of variables to compare
         + dataType (optional, enum[string]) - Snowflake only - for comparing ([gt|lt|le|ge]) numeric values you have to specify data type
@@ -1834,9 +1834,11 @@ To enable compression of API response traffic, please include the following HTTP
             + Default ASC
         + dataType (optional, enum[string]) - required when sorting by column contains numeric value
             + Members
-                + INTEGER - for numbers without a decimal point
-                + DOUBLE - for number with a decimal point
-    + fulltextSearch (optional, string) - Snowflake only. Makes fulltext search over all data in table. It cannot be combined with `whereFilters`.
+                + INTEGER - for numbers without a decimal point (Snowflake)
+                + DOUBLE - for number with a decimal point (Snowflake)
+                + BIGINT - for number without a decimal point (Synapse)
+                + REAL - for number with a decimal point (Synapse)
+    + fulltextSearch (optional, string) - Makes fulltext search over all data in table. It cannot be combined with `whereFilters`. Snowflake/Synapse only
 
 + Request
     + Headers
