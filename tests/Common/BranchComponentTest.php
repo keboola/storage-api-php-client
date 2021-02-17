@@ -948,11 +948,7 @@ class BranchComponentTest extends StorageApiTestCase
         $providedToken = $this->_client->verifyToken();
         $devBranch = new DevBranches($this->_client);
         $branchName = __CLASS__ . '\\' . $this->getName() . '\\' . $providedToken['id'];
-        $dummyBranchName = $branchName . '-dummy';
-        $this->deleteBranchesByPrefix($devBranch, $dummyBranchName);
         $this->deleteBranchesByPrefix($devBranch, $branchName);
-        // dummy branch to highlight potentially forgotten where on branch
-        $devBranch->createBranch($dummyBranchName);
         $branch = $devBranch->createBranch($branchName);
 
         $componentsApi = new \Keboola\StorageApi\Components($this->getBranchAwareDefaultClient($branch['id']));
@@ -988,11 +984,7 @@ class BranchComponentTest extends StorageApiTestCase
         $providedToken = $this->_client->verifyToken();
         $devBranch = new DevBranches($this->_client);
         $branchName = __CLASS__ . '\\' . $this->getName() . '\\' . $providedToken['id'];
-        $dummyBranchName = $branchName . '-dummy';
-        $this->deleteBranchesByPrefix($devBranch, $dummyBranchName);
         $this->deleteBranchesByPrefix($devBranch, $branchName);
-        // dummy branch to highlight potentially forgotten where on branch
-        $devBranch->createBranch($dummyBranchName);
         $branch = $devBranch->createBranch($branchName);
 
         $componentsApi = new \Keboola\StorageApi\Components($this->getBranchAwareDefaultClient($branch['id']));
@@ -1096,11 +1088,7 @@ class BranchComponentTest extends StorageApiTestCase
         $providedToken = $this->_client->verifyToken();
         $devBranch = new DevBranches($this->_client);
         $branchName = __CLASS__ . '\\' . $this->getName() . '\\' . $providedToken['id'];
-        $dummyBranchName = $branchName . '-dummy';
-        $this->deleteBranchesByPrefix($devBranch, $dummyBranchName);
         $this->deleteBranchesByPrefix($devBranch, $branchName);
-        // dummy branch to highlight potentially forgotten where on branch
-        $devBranch->createBranch($dummyBranchName);
         $branch = $devBranch->createBranch($branchName);
 
         $componentsApi = new \Keboola\StorageApi\Components($this->getBranchAwareDefaultClient($branch['id']));
