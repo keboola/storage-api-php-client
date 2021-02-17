@@ -10,6 +10,7 @@ use Keboola\StorageApi\Options\Components\ConfigurationRowState;
 use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions;
+use Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions;
 use Keboola\Test\StorageApiTestCase;
 
 class BranchComponentTest extends StorageApiTestCase
@@ -940,6 +941,227 @@ class BranchComponentTest extends StorageApiTestCase
             $configuration,
             $branchComponents->getConfiguration($config->getComponentId(), $config->getConfigurationId())
         );
+    }
+
+    public function testComponentConfigRowUpdateNoNewVersionIsCreatedIfNothingChanged()
+    {
+        $providedToken = $this->_client->verifyToken();
+        $devBranch = new DevBranches($this->_client);
+        $branchName = __CLASS__ . '\\' . $this->getName() . '\\' . $providedToken['id'];
+        $dummyBranchName = $branchName . '-dummy';
+        $this->deleteBranchesByPrefix($devBranch, $dummyBranchName);
+        $this->deleteBranchesByPrefix($devBranch, $branchName);
+        // dummy branch to highlight potentially forgotten where on branch
+        $devBranch->createBranch($dummyBranchName);
+        $branch = $devBranch->createBranch($branchName);
+
+        $componentsApi = new \Keboola\StorageApi\Components($this->getBranchAwareDefaultClient($branch['id']));
+
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('main')
+        ;
+
+        $componentsApi->addConfiguration($configuration);
+
+        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRow->setRowId('main-1-1');
+        $componentsApi->addConfigurationRow($configurationRow);
+
+        // nothing is changed
+        $componentsApi->updateConfigurationRow($configurationRow);
+
+        $rows = $componentsApi->listConfigurationRowVersions(
+            (new ListConfigurationRowVersionsOptions())
+                ->setComponentId('wr-db')
+                ->setConfigurationId('main-1')
+                ->setRowId($configurationRow->getRowId())
+        );
+        $this->assertCount(1, $rows);
+        $this->assertSame(1, $rows[0]['version']);
+    }
+
+    public function testComponentConfigRowsListAndConfigRowVersionsList()
+    {
+        $providedToken = $this->_client->verifyToken();
+        $devBranch = new DevBranches($this->_client);
+        $branchName = __CLASS__ . '\\' . $this->getName() . '\\' . $providedToken['id'];
+        $dummyBranchName = $branchName . '-dummy';
+        $this->deleteBranchesByPrefix($devBranch, $dummyBranchName);
+        $this->deleteBranchesByPrefix($devBranch, $branchName);
+        // dummy branch to highlight potentially forgotten where on branch
+        $devBranch->createBranch($dummyBranchName);
+        $branch = $devBranch->createBranch($branchName);
+
+        $componentsApi = new \Keboola\StorageApi\Components($this->getBranchAwareDefaultClient($branch['id']));
+
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main')
+            ->setDescription('some desc');
+        $componentsApi->addConfiguration($configuration);
+
+        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRow->setRowId('main-1-1');
+        $row1 = $componentsApi->addConfigurationRow($configurationRow);
+
+        $rows = $componentsApi->listConfigurationRows(
+            (new ListConfigurationRowsOptions())
+                ->setComponentId('wr-db')
+                ->setConfigurationId('main-1')
+        );
+
+        $this->assertCount(1, $rows);
+        $this->assertEquals($row1, $rows[0]);
+
+        $configurationData = array('test' => 1);
+        $configurationRow->setConfiguration($configurationData);
+        $row2 = $componentsApi->updateConfigurationRow($configurationRow);
+
+        $versions = $componentsApi->listConfigurationRowVersions(
+            (new \Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions())
+                ->setComponentId('wr-db')
+                ->setConfigurationId('main-1')
+                ->setRowId($configurationRow->getRowId())
+        );
+
+        $this->assertCount(2, $versions);
+        $exceptKeys = [
+            'id', // is not in the response
+            'created', // in version it shows when version was created, not row
+            'configuration', // not included
+            'state', // not included
+        ];
+        $this->assertArrayEqualsIgnoreKeys($row2, $versions[0], $exceptKeys);
+        $this->assertArrayEqualsIgnoreKeys($row1, $versions[1], $exceptKeys);
+
+        $versionsWithConfiguration = $componentsApi->listConfigurationRowVersions(
+            (new \Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions())
+                ->setComponentId('wr-db')
+                ->setConfigurationId('main-1')
+                ->setRowId($configurationRow->getRowId())
+                // intentionally added "state" that is not supported
+                // it should be silently dropped
+                ->setInclude(['configuration', 'state'])
+        );
+
+        $this->assertCount(2, $versionsWithConfiguration);
+
+        $exceptKeys = [
+            'id', // is not in the response
+            'created', // in version it shows when version was created, not row
+            'state', // not included
+        ];
+        $this->assertArrayEqualsIgnoreKeys($row2, $versionsWithConfiguration[0], $exceptKeys);
+        $this->assertArrayEqualsIgnoreKeys($row1, $versionsWithConfiguration[1], $exceptKeys);
+
+        foreach ($versionsWithConfiguration as $version) {
+            $rowVersion = $componentsApi->getConfigurationRowVersion(
+                'wr-db',
+                'main-1',
+                $configurationRow->getRowId(),
+                $version['version']
+            );
+
+            $this->assertEquals($rowVersion, $version);
+        }
+
+        $versionsWithLimitAndOffset = $componentsApi->listConfigurationRowVersions(
+            (new \Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions())
+                ->setComponentId('wr-db')
+                ->setConfigurationId('main-1')
+                ->setRowId($configurationRow->getRowId())
+                ->setInclude(['configuration'])
+                ->setLimit(1)
+                ->setOffset(1)
+        );
+
+        $this->assertCount(1, $versionsWithLimitAndOffset);
+
+        $rowVersion = $componentsApi->getConfigurationRowVersion(
+            'wr-db',
+            'main-1',
+            $configurationRow->getRowId(),
+            1
+        );
+        $this->assertEquals($rowVersion, $versionsWithLimitAndOffset[0]);
+    }
+
+    public function testComponentConfigRowVersionRollback()
+    {
+        $providedToken = $this->_client->verifyToken();
+        $devBranch = new DevBranches($this->_client);
+        $branchName = __CLASS__ . '\\' . $this->getName() . '\\' . $providedToken['id'];
+        $dummyBranchName = $branchName . '-dummy';
+        $this->deleteBranchesByPrefix($devBranch, $dummyBranchName);
+        $this->deleteBranchesByPrefix($devBranch, $branchName);
+        // dummy branch to highlight potentially forgotten where on branch
+        $devBranch->createBranch($dummyBranchName);
+        $branch = $devBranch->createBranch($branchName);
+
+        $componentsApi = new \Keboola\StorageApi\Components($this->getBranchAwareDefaultClient($branch['id']));
+
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main')
+            ->setDescription('some desc');
+        $componentsApi->addConfiguration($configuration);
+
+        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRow->setRowId('main-1-1');
+        $configurationRow->setConfiguration([
+            'my-value' => 666,
+        ]);
+        $componentsApi->addConfigurationRow($configurationRow);
+
+        $component = $componentsApi->getConfiguration('wr-db', 'main-1');
+
+        // update row 1st - without change
+        $configuration1 = $componentsApi->updateConfigurationRow($configurationRow);
+
+        $configurationRow
+            ->setConfiguration([
+                'test' => 1,
+            ])
+            ->setChangeDescription('some change');
+        $configuration2 = $componentsApi->updateConfigurationRow($configurationRow);
+
+        $configurationRow
+            ->setConfiguration([
+                'test' => 2
+            ])
+            ->setChangeDescription(null);
+        $configuration3 = $componentsApi->updateConfigurationRow($configurationRow);
+
+        try {
+            // rollback to version 2
+            $configuration4 = $componentsApi->rollbackConfigurationRow(
+                'wr-db',
+                'main-1',
+                $configurationRow->getRowId(),
+                2
+            );
+            $this->fail('Configuration row rollback should not be implemented');
+        } catch (ClientException $e) {
+            $this->assertSame(501, $e->getCode());
+            $this->assertSame('notImplemented', $e->getStringCode());
+            $this->assertContains('Not implemented', $e->getMessage());
+        }
+
+        $versions = $componentsApi->listConfigurationRowVersions(
+            (new \Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions())
+                ->setComponentId('wr-db')
+                ->setConfigurationId('main-1')
+                ->setRowId($configurationRow->getRowId())
+        );
+
+        $this->assertCount(3, $versions);
     }
 
     /**
