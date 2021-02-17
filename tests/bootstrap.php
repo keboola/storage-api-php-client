@@ -16,7 +16,6 @@ define('REDSHIFT_USER', getenv('REDSHIFT_USER'));
 define('REDSHIFT_PASSWORD', getenv('REDSHIFT_PASSWORD'));
 define('SUITE_NAME', getenv('SUITE_NAME'));
 define('TRAVIS_BUILD_ID', getenv('TRAVIS_BUILD_ID'));
-define('IS_VERSIONS_LIST_IMPLEMENTED_FOR_DEV_BRANCH', getenv('IS_VERSIONS_LIST_IMPLEMENTED_FOR_DEV_BRANCH'));
 
 $revisionFilePath = realpath(__DIR__ . '/../REVISION');
 
