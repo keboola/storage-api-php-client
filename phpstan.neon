@@ -3,6 +3,5 @@ parameters:
         - '#Constant STORAGE_API_[_A-Z0-9]+ not found.#'
         - '#Constant SUITE_NAME not found.#'
         - '#Constant TRAVIS_BUILD_ID not found.#'
-        - '#Constant IS_VERSIONS_LIST_IMPLEMENTED_FOR_DEV_BRANCH not found.#'
     excludes_analyse:
         - vendor
