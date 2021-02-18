@@ -5410,11 +5410,93 @@ Lists all versions of a component configuration.
                 }
             ]
 
+### Versions list for Development Branch [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/versions?include={include}&limit={limit}&offset={offset}]
+
+Lists all versions of a component configuration for [Development Branch](#reference/development-branches).
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + include (optional) - Comma separated list of information to be retrieved; possible fields are `name`, `description` and `configuration`.
+        Default: `name,description`
+    + limit (optional, number) - Pagination limit
+        Default: 100
+    + offset (optional, number) - Pagination offset
+        Default: 0
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+    + Body
+
+            [
+                {
+                    "version": 2,
+                    "created": "2017-02-09T21:11:02+0100",
+                    "creatorToken": {
+                        "id": 27978,
+                        "description": "ondrej.popelka@keboola.com"
+                    },
+                    "changeDescription": "Add input table in.c-afnhk.tree-test",
+                    "isDeleted": false,
+                    "name": "test",
+                    "description": ""
+                },
+                {
+                    "version": 1,
+                    "created": "2017-02-09T21:10:31+0100",
+                    "creatorToken": {
+                        "id": 27978,
+                        "description": "ondrej.popelka@keboola.com"
+                    },
+                    "changeDescription": "",
+                    "isDeleted": false,
+                    "name": "test",
+                    "description": ""
+                }
+            ]
+
 ## Manage Configuration Versions [/v2/storage/components/{component_id}/configs/{config_id}/versions/{version_id}]
 ### Version Detail [GET]
 Gets configuration version.
 
 + Parameters
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration
+    + version_id (required, string) - Version number or `latestPublished` to retrieve the latest published version
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+    + Body
+
+            {
+                "version": 1,
+                "created": "2017-02-09T21:10:31+0100",
+                "creatorToken": {
+                    "id": 27978,
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "changeDescription": "",
+                "isDeleted": false,
+                "name": "test",
+                "description": "",
+                "configuration": {},
+                "rowsSortOrder": [],
+                "rows": []
+            }
+
+### Version Detail for Development Branch [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/versions/{version_id}]
+
+Gets configuration version for [Development Branch](#reference/development-branches).
+
++ Parameters
+    + branch_id (required) - Id of the development branch
     + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
     + config_id (required) - Id of the configuration
     + version_id (required, string) - Version number or `latestPublished` to retrieve the latest published version
@@ -6013,6 +6095,60 @@ List versions of a given configuration Row of a given Configuration.
                 }
             ]
 
+### Versions list for Development Branch [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}/versions?include={include}&limit={limit}&offset={offset}]
+List versions of a given configuration Row of a given Configuration for [Development Branch](#reference/development-branches)
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration
+    + row_id (required) - Id of the configuration row
+    + include (optional) - Comma separated list of information to retrieve; it may contain: `configuration`
+        Default: `configuration`
+    + limit (optional, number) - Pagination limit
+        Default: 100
+    + offset (optional, number) - Pagination offset
+        Default: 0
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+    + Headers
+
+            Content-type: application/json
+
+    + Body
+
+            [
+                {
+                    "version": 2,
+                    "name": "",
+                    "description": "",
+                    "isDisabled": false,
+                    "created": "2015-08-12T12:33:04+0200",
+                    "creatorToken": {
+                        "id": 1392,
+                        "description": "martin@keboola.com"
+                    },
+                    "changeDescription": "Cause of the change"
+                },
+                {
+                    "version": 1,
+                    "name": "",
+                    "description": "",
+                    "isDisabled": false,
+                    "created": "2015-08-10T22:00:55+0200",
+                    "creatorToken": {
+                        "id": 1392,
+                        "description": "martin@keboola.com"
+                    },
+                    "changeDescription": "Some other cause of the change"
+                }
+            ]
+
 ## Manage Configuration Row Versions [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/versions/{version_id}]
 ### Version detail [GET]
 Gets details about the Configuration Row version.
@@ -6045,6 +6181,37 @@ Gets details about the Configuration Row version.
                 "configuration": {}
             }
 
+### Version detail for Development Branch [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}/versions/{version_id}]
+Gets details about the Configuration Row version.
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration
+    + row_id (required) - Id of the configuration row
+    + version_id (required) - Id of the configuration row version
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+    + Body
+
+            {
+                "name": "",
+                "description": "",
+                "isDisabled": false,
+                "version": 1,
+                "created": "2015-08-10T22:00:55+0200",
+                "creatorToken": {
+                    "id": 1392,
+                    "description": "martin@keboola.com"
+                },
+                "changeDescription": "Some other cause of the change"
+                "configuration": {}
+            }
 
 ## Rollback Configuration Row Version [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/versions/{version_id}/rollback]
 ### Rollback Version [POST]
