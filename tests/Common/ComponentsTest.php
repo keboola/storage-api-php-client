@@ -53,6 +53,126 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertArrayNotHasKey('configurations', $component);
     }
 
+    public function testListComponents()
+    {
+        $componentId = 'wr-db';
+        $configurationId = 'main-1';
+
+        $componentsClient = new \Keboola\StorageApi\Components($this->_client);
+        $components = $componentsClient->listComponents(new ListComponentsOptions());
+
+        $this->assertSame([], $components);
+
+        // invalid include
+        try {
+            $componentsClient->listComponents((new ListComponentsOptions())->setInclude(['invalid']));
+            $this->fail('List components with invalid include should fail');
+        } catch (ClientException $e) {
+            $this->assertSame(400, $e->getCode());
+            $this->assertSame('Invalid request', $e->getMessage());
+
+            $params = $e->getContextParams();
+            $this->assertArrayHasKey('errors', $params);
+
+            $this->assertCount(1, $params['errors']);
+            $error = reset($params['errors']);
+
+            $this->assertSame(
+                [
+                    'key' => 'include',
+                    'message' => 'Invalid include parameters: "invalid". Only following are allowed: configuration, rows, state.',
+                ],
+                $error
+            );
+        }
+
+        // create test configuration
+        $configuration = (new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setName('Main')
+            ->setState(['stateValue' => 'some-value'])
+            ->setConfiguration(['value' => 1])
+            ->setDescription('some desc')
+        ;
+
+        $componentsClient->addConfiguration($configuration);
+        $componentsClient->addConfigurationRow(
+            (new ConfigurationRow($configuration))
+                ->setRowId('firstRow')
+                ->setState(['rowStateValue' => 'some-value'])
+                ->setConfiguration(['value' => 2])
+        );
+
+        // list components without include
+        $components = $componentsClient->listComponents(new ListComponentsOptions());
+
+        $this->assertCount(1, $components);
+        $component = reset($components);
+
+        $configuration = reset($component['configurations']);
+        $this->assertArrayNotHasKey('configuration', $configuration);
+        $this->assertArrayNotHasKey('rows', $configuration);
+        $this->assertArrayNotHasKey('state', $configuration);
+
+        // list components - rows include
+        $components = $componentsClient->listComponents((new ListComponentsOptions())->setInclude(['rows']));
+
+        $this->assertCount(1, $components);
+        $component = reset($components);
+
+        $configuration = reset($component['configurations']);
+        $this->assertArrayNotHasKey('configuration', $configuration);
+        $this->assertArrayHasKey('rows', $configuration);
+        $this->assertArrayNotHasKey('state', $configuration);
+
+        $row = reset($configuration['rows']);
+        $this->assertArrayHasKey('configuration', $row);
+        $this->assertArrayNotHasKey('state', $row);
+        $this->assertSame(['value' => 2], $row['configuration']);
+
+        // list components - rows + state include
+        $components = $componentsClient->listComponents((new ListComponentsOptions())->setInclude([
+            'rows',
+            'state',
+        ]));
+
+        $this->assertCount(1, $components);
+        $component = reset($components);
+
+        $configuration = reset($component['configurations']);
+        $this->assertArrayNotHasKey('configuration', $configuration);
+        $this->assertArrayHasKey('rows', $configuration);
+        $this->assertArrayHasKey('state', $configuration);
+        $this->assertSame(['stateValue' => 'some-value'], $configuration['state']);
+
+        $row = reset($configuration['rows']);
+        $this->assertArrayHasKey('configuration', $row);
+        $this->assertArrayHasKey('state', $row);
+        $this->assertSame(['rowStateValue' => 'some-value'], $row['state']);
+        $this->assertSame(['value' => 2], $row['configuration']);
+
+        // list components - rows + configuration include
+        $components = $componentsClient->listComponents((new ListComponentsOptions())->setInclude([
+            'rows',
+            'configuration',
+        ]));
+
+        $this->assertCount(1, $components);
+        $component = reset($components);
+
+        $configuration = reset($component['configurations']);
+        $this->assertArrayHasKey('configuration', $configuration);
+        $this->assertArrayHasKey('rows', $configuration);
+        $this->assertArrayNotHasKey('state', $configuration);
+        $this->assertSame(['value' => 1], $configuration['configuration']);
+
+        $row = reset($configuration['rows']);
+        $this->assertArrayHasKey('configuration', $row);
+        $this->assertArrayNotHasKey('state', $row);
+        $this->assertSame(['value' => 2], $row['configuration']);
+    }
+
     public function testComponentConfigRenew()
     {
         $componentId = 'wr-db';
