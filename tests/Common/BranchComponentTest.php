@@ -203,6 +203,22 @@ class BranchComponentTest extends StorageApiTestCase
         $branchComponents->resetToDefault($componentId, $configurationId);
         // assert that exists in branch (won't throw 404)
         $branchComponents->getConfiguration($componentId, $configurationId);
+
+        // purge the deleted configuration
+        // delete
+        $components->deleteConfiguration($componentId, $configurationId);
+        // purge
+        $components->deleteConfiguration($componentId, $configurationId);
+
+        // reset to purged version
+        $branchComponents->resetToDefault($componentId, $configurationId);
+
+        try {
+            $updatedConfigurationInBranch = $branchComponents->getConfiguration($componentId, $configurationId);
+            $this->fail('Should have thrown as reset to purged means deleted');
+        } catch (ClientException $e) {
+            $this->assertSame('Configuration main-1 not found', $e->getMessage());
+        }
     }
 
     private function withoutKeysChangingInBranch($branch)
