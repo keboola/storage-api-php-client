@@ -244,7 +244,7 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
         }
     }
 
-    public function testReorderVersionIncrease()
+    public function testVersionChangeWhenRowsSortOrderIsManipulated()
     {
         $components = new \Keboola\StorageApi\Components($this->_client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
@@ -276,6 +276,17 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
         $this->assertEquals(4, $configurationResponse['version']);
         $this->assertEquals(1, $configurationResponse['rows'][0]['version']);
         $this->assertEquals(1, $configurationResponse['rows'][1]['version']);
+
+        // running one more update without any change. The version should stay on 4
+        $updateConfig = new Configuration();
+        $updateConfig
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setRowsSortOrder(['main-1-2', 'main-1-1']);
+        $components->updateConfiguration($updateConfig);
+
+        $configurationResponseAfterChange = $components->getConfiguration('wr-db', 'main-1');
+        $this->assertEquals(4, $configurationResponseAfterChange['version']);
     }
 
     public function testVersionRollbackToUnsorted()
