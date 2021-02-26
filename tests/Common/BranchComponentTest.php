@@ -1245,13 +1245,16 @@ class BranchComponentTest extends StorageApiTestCase
         ]);
         $componentsApi->addConfigurationRow($configurationRow);
 
+        $componentConfiguration = $componentsApi->getConfiguration('wr-db', 'main-1');
+
+        $this->assertEquals(3, $componentConfiguration['version']);
+
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
             ->setRowsSortOrder(['main-1-1', 'main-1-2']);
         $componentsApi->updateConfiguration($configuration);
-
 
         $componentConfiguration = $componentsApi->getConfiguration('wr-db', 'main-1');
 
