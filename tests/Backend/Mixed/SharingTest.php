@@ -1426,6 +1426,77 @@ class SharingTest extends StorageApiSharingTestCase
         ];
     }
 
+    public function testDevBranchBucketCannotBeShared()
+    {
+        $metadataProvider = 'system';
+        $metadataKey = 'KBC.createdBy.branch.id';
+
+        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
+        $bucketId = reset($this->_bucketIds);
+
+        $tableName = 'languages';
+        $tableId = $this->_client->createTable(
+            $bucketId,
+            $tableName,
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+
+        $metadata = new Metadata($this->_client);
+
+        // check that validation ignores table/columns metadata
+        $metadata->postColumnMetadata(
+            sprintf('%s.%s', $tableId, 'id'),
+            $metadataProvider,
+            [
+                [
+                    'key' => $metadataKey,
+                    'value' => '1234',
+                ],
+            ]
+        );
+
+        $metadata->postTableMetadata(
+            $tableId,
+            $metadataProvider,
+            [
+                [
+                    'key' => $metadataKey,
+                    'value' => '1234',
+                ],
+            ]
+        );
+
+        $this->_client->shareBucket($bucketId);
+
+        $bucket = $this->_client->getBucket($bucketId);
+        $this->assertSame('organization', $bucket['sharing']);
+
+        $this->_client->unshareBucket($bucketId);
+
+        // validate restrictions
+        $metadata->postBucketMetadata(
+            $bucketId,
+            $metadataProvider,
+            [
+                [
+                    'key' => $metadataKey,
+                    'value' => '1234',
+                ],
+            ]
+        );
+
+        try {
+            $this->_client->shareBucket($bucketId);
+            $this->fail('Sharing buckets from Dev/Branch should fail');
+        } catch (ClientException $e) {
+            $this->assertSame(400, $e->getCode());
+            $this->assertSame('Sharing Dev/Branch buckets is not supported yet.', $e->getMessage());
+        }
+
+        $bucket = $this->_client->getBucket($bucketId);
+        $this->assertEmpty($bucket['sharing']);
+    }
+
     private function createTestTokenOptions($canManageBuckets)
     {
         return (new TokenCreateOptions())
