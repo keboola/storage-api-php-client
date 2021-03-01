@@ -1213,6 +1213,66 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertCount(3, $versions);
     }
 
+
+    public function testVersionIncreaseWhenUpdate()
+    {
+        $providedToken = $this->_client->verifyToken();
+        $devBranch = new DevBranches($this->_client);
+        $branchName = __CLASS__ . '\\' . $this->getName() . '\\' . $providedToken['id'];
+        $this->deleteBranchesByPrefix($devBranch, $branchName);
+        $branch = $devBranch->createBranch($branchName);
+
+        $componentsApi = new \Keboola\StorageApi\Components($this->getBranchAwareDefaultClient($branch['id']));
+
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main');
+        $componentsApi->addConfiguration($configuration);
+
+        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRow->setRowId('main-1-1');
+        $configurationRow->setConfiguration([
+            'my-value' => 666,
+        ]);
+        $componentsApi->addConfigurationRow($configurationRow);
+
+        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRow->setRowId('main-1-2');
+        $configurationRow->setConfiguration([
+            'my-value' => 666,
+        ]);
+        $componentsApi->addConfigurationRow($configurationRow);
+
+        $componentConfiguration = $componentsApi->getConfiguration('wr-db', 'main-1');
+
+        $this->assertEquals(3, $componentConfiguration['version']);
+
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setRowsSortOrder(['main-1-1', 'main-1-2']);
+        $componentsApi->updateConfiguration($configuration);
+
+        $componentConfiguration = $componentsApi->getConfiguration('wr-db', 'main-1');
+
+        $this->assertEquals(4, $componentConfiguration['version']);
+
+        // calling the update once again without any change, the version should remain
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setRowsSortOrder(['main-1-1', 'main-1-2']);
+        $componentsApi->updateConfiguration($configuration);
+
+        $componentConfiguration = $componentsApi->getConfiguration('wr-db', 'main-1');
+
+        $this->assertEquals(4, $componentConfiguration['version']);
+    }
+
     /**
      * @param string $branchPrefix
      */
