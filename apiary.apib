@@ -1821,10 +1821,12 @@ To enable compression of API response traffic, please include the following HTTP
                 + le - Less than or equals  - Snowflake/Synapse only
             + Default: eq
         + values[] (required, array) - array of variables to compare
-        + dataType (optional, enum[string]) - Snowflake only - for comparing ([gt|lt|le|ge]) numeric values you have to specify data type
+        + dataType (optional, enum[string]) - Snowflake/Synapse only - for comparing (`[gt|lt|le|ge]`) numeric values you have to specify data type
             + Members
-                + INTEGER - for numbers without a decimal point
-                + DOUBLE - for number with a decimal point
+                + INTEGER - for numbers without a decimal point (Snowflake)
+                + DOUBLE - for number with a decimal point (Snowflake)
+                + BIGINT - for number without a decimal point (Synapse)
+                + REAL - for number with a decimal point (Synapse)
     + orderBy[] (optional) - Snowflake only
         + column (required) - name of column used for sorting
         + order (optional, enum[string])
