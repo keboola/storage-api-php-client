@@ -7,6 +7,7 @@
  */
 namespace Keboola\Test\Backend\CommonPart2;
 
+use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\TableExporter;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
@@ -805,5 +806,77 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Aliasing an advanced alias is not allowed.');
         $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $aliasTableId, 'users_alias');
+    }
+
+    public function testTableAliasFromDevBranchBucketCannotBeCreated()
+    {
+        $metadataProvider = 'system';
+        $metadataKey = 'KBC.createdBy.branch.id';
+
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+
+        // create and import data into source table
+        $sourceTableId = $this->_client->createTable(
+            $this->getTestBucketId(),
+            'languages',
+            new CsvFile($importFile),
+            array(
+                'primaryKey' => 'id'
+            )
+        );
+
+        $metadata = new Metadata($this->_client);
+
+        // check that validation ignores table/columns metadata
+        $metadata->postColumnMetadata(
+            sprintf('%s.%s', $sourceTableId, 'id'),
+            $metadataProvider,
+            [
+                [
+                    'key' => $metadataKey,
+                    'value' => '1234',
+                ],
+            ]
+        );
+
+        $metadata->postTableMetadata(
+            $sourceTableId,
+            $metadataProvider,
+            [
+                [
+                    'key' => $metadataKey,
+                    'value' => '1234',
+                ],
+            ]
+        );
+
+        $aliasName = 'languages-alias-1';
+        $aliasBucketId = $this->getTestBucketId(self::STAGE_OUT);
+        $aliasTableId = $this->_client->createAliasTable($aliasBucketId, $sourceTableId, $aliasName);
+
+        $this->assertTrue($this->_client->tableExists($aliasTableId));
+        $this->_client->dropTable($aliasTableId);
+
+        // validate restrictions
+        $metadata->postBucketMetadata(
+            $this->getTestBucketId(),
+            $metadataProvider,
+            [
+                [
+                    'key' => $metadataKey,
+                    'value' => '1234',
+                ],
+            ]
+        );
+
+        try {
+            $this->_client->createAliasTable($aliasBucketId, $sourceTableId, $aliasName);
+            $this->fail('Create table aliases from Dev/Branch should fail');
+        } catch (ClientException $e) {
+            $this->assertSame(400, $e->getCode());
+            $this->assertSame('Creating aliases from Dev/Branch tables is not supported yet.', $e->getMessage());
+        }
+
+        $this->assertFalse($this->_client->tableExists($aliasTableId));
     }
 }
