@@ -1188,20 +1188,34 @@ class BranchComponentTest extends StorageApiTestCase
             ->setChangeDescription(null);
         $configuration3 = $componentsApi->updateConfigurationRow($configurationRow);
 
-        try {
-            // rollback to version 2
-            $configuration4 = $componentsApi->rollbackConfigurationRow(
-                'wr-db',
-                'main-1',
-                $configurationRow->getRowId(),
-                2
-            );
-            $this->fail('Configuration row rollback should not be implemented');
-        } catch (ClientException $e) {
-            $this->assertSame(501, $e->getCode());
-            $this->assertSame('notImplemented', $e->getStringCode());
-            $this->assertContains('Not implemented', $e->getMessage());
-        }
+        // rollback to version 2
+        $configuration4 = $componentsApi->rollbackConfigurationRow(
+            'wr-db',
+            'main-1',
+            $configurationRow->getRowId(),
+            2
+        );
+
+
+        $this->assertEquals(4, $configuration4['version'], 'Rollback creates new version of the configuration');
+        $this->assertEquals('Rollback to version 2', $configuration4['changeDescription'], 'Rollback creates automatic description');
+        $this->assertArrayEqualsExceptKeys($configuration2, $configuration4, [
+            'version',
+            'changeDescription'
+        ]);
+
+        // rollback to version 3
+        $configuration5 = $componentsApi->rollbackConfigurationRow(
+            'wr-db',
+            'main-1',
+            $configurationRow->getRowId(),
+            3,
+            'Custom rollback message'
+        );
+
+        $this->assertEquals(5, $configuration5['version'], 'Rollback creates new version of the row');
+        $this->assertEquals('Custom rollback message', $configuration5['changeDescription']);
+        $this->assertArrayEqualsExceptKeys($configuration3, $configuration5, ['version', 'changeDescription']);
 
         $versions = $componentsApi->listConfigurationRowVersions(
             (new \Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions())
@@ -1210,7 +1224,7 @@ class BranchComponentTest extends StorageApiTestCase
                 ->setRowId($configurationRow->getRowId())
         );
 
-        $this->assertCount(3, $versions);
+        $this->assertCount(5, $versions);
     }
 
 
