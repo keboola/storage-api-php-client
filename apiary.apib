@@ -6227,6 +6227,49 @@ content to be rollbacked to.
                 "changeDescription": "Rollback to previous version"
             }
 
+### Rollback Version for Development Branch [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}/versions/{version_id}/rollback]
+Rollbacks row to a previous version. This operation actually creates a new Row version with identical
+content to be rollbacked to.
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration
+    + row_id (required) - Id of the configuration row
+    + version_id (required) - Id of the configuration row version to rollback to
+
++ Attributes
+    + changeDescription (optional) - Version change description
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            changeDescription=Rollback+to+previous+version
+
++ Response 201 (application/json)
+
+            {
+                "id": "236781646",
+                "configuration": {
+                    "host": "localhost",
+                    "port": 4406
+                },
+                "state": {},
+                "name": "",
+                "description": "",
+                "isDisabled": false,
+                "version": 2,
+                "created": "2017-02-15T00:05:32+0100",
+                "creatorToken": {
+                    "id": 27978,
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "changeDescription": "Rollback to previous version"
+            }
 
 ## Copy Configuration Rows [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/versions/{version_id}/create]
 ### Create Configuration Row copy [POST]
