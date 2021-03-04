@@ -1162,66 +1162,75 @@ class BranchComponentTest extends StorageApiTestCase
             ->setDescription('some desc');
         $componentsApi->addConfiguration($configuration);
 
-        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
-        $configurationRow->setRowId('main-1-1');
-        $configurationRow->setConfiguration([
+        $configurationRowV1 = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRowV1->setRowId('main-1-1');
+        $configurationRowV1->setConfiguration([
             'my-value' => 666,
         ]);
-        $componentsApi->addConfigurationRow($configurationRow);
+        $componentsApi->addConfigurationRow($configurationRowV1);
 
-        $component = $componentsApi->getConfiguration('wr-db', 'main-1');
+        $componentsApi->getConfiguration('wr-db', 'main-1');
 
         // update row 1st - without change
-        $configuration1 = $componentsApi->updateConfigurationRow($configurationRow);
+        $componentsApi->updateConfigurationRow($configurationRowV1);
 
-        $configurationRow
+        // update row V2
+        $configurationRowV1
             ->setConfiguration([
                 'test' => 1,
             ])
             ->setChangeDescription('some change');
-        $configuration2 = $componentsApi->updateConfigurationRow($configurationRow);
+        $configurationRowV2 = $componentsApi->updateConfigurationRow($configurationRowV1);
 
-        $configurationRow
+        // update row V3
+        $configurationRowV1
             ->setConfiguration([
                 'test' => 2
             ])
             ->setChangeDescription(null);
-        $configuration3 = $componentsApi->updateConfigurationRow($configurationRow);
+        $configurationRowV3 = $componentsApi->updateConfigurationRow($configurationRowV1);
 
-        // rollback to version 2
-        $configuration4 = $componentsApi->rollbackConfigurationRow(
+        // rollback to V2 -> V4
+        $configurationRowV4 = $componentsApi->rollbackConfigurationRow(
             'wr-db',
             'main-1',
-            $configurationRow->getRowId(),
+            $configurationRowV1->getRowId(),
             2
         );
 
-
-        $this->assertEquals(4, $configuration4['version'], 'Rollback creates new version of the configuration');
-        $this->assertEquals('Rollback to version 2', $configuration4['changeDescription'], 'Rollback creates automatic description');
-        $this->assertArrayEqualsExceptKeys($configuration2, $configuration4, [
+        $this->assertEquals(4, $configurationRowV4['version'], 'Rollback creates new version of the configuration');
+        $this->assertEquals('Rollback to version 2', $configurationRowV4['changeDescription'], 'Rollback creates automatic description');
+        $this->assertArrayEqualsExceptKeys($configurationRowV2, $configurationRowV4, [
             'version',
             'changeDescription'
         ]);
 
+        $configuration = $componentsApi->getConfiguration('wr-db', 'main-1');
+        $this->assertEquals(5, $configuration['version']);
+        $this->assertEquals('Row main-1-1 version 2 rollback', $configuration['changeDescription'], 'Rollback creates automatic description');
+
         // rollback to version 3
-        $configuration5 = $componentsApi->rollbackConfigurationRow(
+        $configurationRowV5 = $componentsApi->rollbackConfigurationRow(
             'wr-db',
             'main-1',
-            $configurationRow->getRowId(),
+            $configurationRowV1->getRowId(),
             3,
             'Custom rollback message'
         );
 
-        $this->assertEquals(5, $configuration5['version'], 'Rollback creates new version of the row');
-        $this->assertEquals('Custom rollback message', $configuration5['changeDescription']);
-        $this->assertArrayEqualsExceptKeys($configuration3, $configuration5, ['version', 'changeDescription']);
+        $this->assertEquals(5, $configurationRowV5['version'], 'Rollback creates new version of the row');
+        $this->assertEquals('Custom rollback message', $configurationRowV5['changeDescription']);
+        $this->assertArrayEqualsExceptKeys($configurationRowV3, $configurationRowV5, ['version', 'changeDescription']);
+
+        $configuration = $componentsApi->getConfiguration('wr-db', 'main-1');
+        $this->assertEquals(6, $configuration['version']);
+        $this->assertEquals('Custom rollback message', $configuration['changeDescription'], 'Rollback creates automatic description');
 
         $versions = $componentsApi->listConfigurationRowVersions(
             (new \Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions())
                 ->setComponentId('wr-db')
                 ->setConfigurationId('main-1')
-                ->setRowId($configurationRow->getRowId())
+                ->setRowId($configurationRowV1->getRowId())
         );
 
         $this->assertCount(5, $versions);
