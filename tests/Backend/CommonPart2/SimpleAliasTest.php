@@ -879,4 +879,77 @@ class SimpleAliasTest extends StorageApiTestCase
 
         $this->assertFalse($this->_client->tableExists($aliasTableId));
     }
+
+    public function testTableAliasInDevBranchBucketCannotBeCreated()
+    {
+        $metadataProvider = 'system';
+        $metadataKey = 'KBC.createdBy.branch.id';
+
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+
+        $bucketId = $this->getTestBucketId();
+
+        // create and import data into source table
+        $sourceTableId = $this->_client->createTable(
+            $bucketId,
+            'languages',
+            new CsvFile($importFile),
+            array(
+                'primaryKey' => 'id'
+            )
+        );
+
+        $metadata = new Metadata($this->_client);
+
+        // check that validation ignores table/columns metadata
+        $metadata->postColumnMetadata(
+            sprintf('%s.%s', $sourceTableId, 'id'),
+            $metadataProvider,
+            [
+                [
+                    'key' => $metadataKey,
+                    'value' => '1234',
+                ],
+            ]
+        );
+
+        $metadata->postTableMetadata(
+            $sourceTableId,
+            $metadataProvider,
+            [
+                [
+                    'key' => $metadataKey,
+                    'value' => '1234',
+                ],
+            ]
+        );
+
+        $aliasName = 'languages-alias-1';
+        $aliasTableId = $this->_client->createAliasTable($bucketId, $sourceTableId, $aliasName);
+
+        $this->assertTrue($this->_client->tableExists($aliasTableId));
+        $this->_client->dropTable($aliasTableId);
+
+        // validate restrictions
+        $metadata->postBucketMetadata(
+            $bucketId,
+            $metadataProvider,
+            [
+                [
+                    'key' => $metadataKey,
+                    'value' => '1234',
+                ],
+            ]
+        );
+
+        try {
+            $this->_client->createAliasTable($bucketId, $sourceTableId, $aliasName);
+            $this->fail('Create table aliases in Dev/Branch bucket should fail');
+        } catch (ClientException $e) {
+            $this->assertSame(400, $e->getCode());
+            $this->assertSame('Creating aliases in Dev/Branch buckets is not supported yet.', $e->getMessage());
+        }
+
+        $this->assertFalse($this->_client->tableExists($aliasTableId));
+    }
 }
