@@ -3,6 +3,7 @@
 namespace Keboola\Test\Backend\Synapse;
 
 use Keboola\Csv\CsvFile;
+use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\Test\StorageApiTestCase;
 
@@ -86,5 +87,20 @@ class CreateTableTest extends StorageApiTestCase
                 $e->getStringCode()
             );
         }
+    }
+
+    public function testCreateTableWithCrlfLineEndings()
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $importFile = __DIR__ . '/../../_data/languages.crlf.csv';
+        // create table with distributionKey
+        $tableId = $this->_client->createTableAsync(
+            $bucketId,
+            'languages',
+            new CsvFile($importFile)
+        );
+
+        $importedData = $this->_client->getTableDataPreview($tableId);
+        $this->assertCount(5, Client::parseCsv($importedData));
     }
 }
