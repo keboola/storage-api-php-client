@@ -1205,6 +1205,19 @@ class BranchComponentTest extends StorageApiTestCase
             'changeDescription'
         ]);
 
+        // try same assert but load row from api
+        $configurationRowV4 = $componentsApi->getConfigurationRow(
+            'wr-db',
+            'main-1',
+            $configurationRowV1->getRowId()
+        );
+        $this->assertEquals(4, $configurationRowV4['version'], 'Rollback creates new version of the configuration');
+        $this->assertEquals('Rollback to version 2', $configurationRowV4['changeDescription'], 'Rollback creates automatic description');
+        $this->assertArrayEqualsExceptKeys($configurationRowV2, $configurationRowV4, [
+            'version',
+            'changeDescription',
+        ]);
+
         $configuration = $componentsApi->getConfiguration('wr-db', 'main-1');
         $this->assertEquals(5, $configuration['version']);
         $this->assertEquals('Row main-1-1 version 2 rollback', $configuration['changeDescription'], 'Rollback creates automatic description');
