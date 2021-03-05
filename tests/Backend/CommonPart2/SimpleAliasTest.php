@@ -887,11 +887,12 @@ class SimpleAliasTest extends StorageApiTestCase
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
 
-        $bucketId = $this->getTestBucketId();
+        $sourceBucketId = $this->getTestBucketId();
+        $destinationBucketId = $this->getTestBucketId(self::STAGE_OUT);
 
         // create and import data into source table
         $sourceTableId = $this->_client->createTable(
-            $bucketId,
+            $sourceBucketId,
             'languages',
             new CsvFile($importFile),
             array(
@@ -925,14 +926,14 @@ class SimpleAliasTest extends StorageApiTestCase
         );
 
         $aliasName = 'languages-alias-1';
-        $aliasTableId = $this->_client->createAliasTable($bucketId, $sourceTableId, $aliasName);
+        $aliasTableId = $this->_client->createAliasTable($destinationBucketId, $sourceTableId, $aliasName);
 
         $this->assertTrue($this->_client->tableExists($aliasTableId));
         $this->_client->dropTable($aliasTableId);
 
         // validate restrictions
         $metadata->postBucketMetadata(
-            $bucketId,
+            $destinationBucketId,
             $metadataProvider,
             [
                 [
@@ -943,7 +944,7 @@ class SimpleAliasTest extends StorageApiTestCase
         );
 
         try {
-            $this->_client->createAliasTable($bucketId, $sourceTableId, $aliasName);
+            $this->_client->createAliasTable($destinationBucketId, $sourceTableId, $aliasName);
             $this->fail('Create table aliases in Dev/Branch bucket should fail');
         } catch (ClientException $e) {
             $this->assertSame(400, $e->getCode());
