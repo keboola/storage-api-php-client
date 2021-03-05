@@ -1356,6 +1356,81 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertEquals(4, $componentConfiguration['version']);
     }
 
+    public function testConfigurationRollback()
+    {
+        $providedToken = $this->_client->verifyToken();
+        $devBranch = new DevBranches($this->_client);
+        $branchName = __CLASS__ . '\\' . $this->getName() . '\\' . $providedToken['id'];
+        $this->deleteBranchesByPrefix($devBranch, $branchName);
+        $branch = $devBranch->createBranch($branchName);
+
+        $componentsApi = new \Keboola\StorageApi\Components($this->getBranchAwareDefaultClient($branch['id']));
+
+        // create configuration
+        $configuration = (new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setConfiguration(['a' => 'b'])
+            ->setName('Main')
+        ;
+        $configurationV1 = $componentsApi->addConfiguration($configuration);
+
+        // add first row - conf V2
+        $configurationRowOptions = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRowOptions->setConfiguration(['first' => 1]);
+        $configurationRowV1 = $componentsApi->addConfigurationRow($configurationRowOptions);
+
+        $configurationV2 = $componentsApi->getConfiguration('wr-db', $configurationV1['id']);
+
+        // add another row  - conf V3
+        $configurationRowOptions = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRowOptions->setConfiguration(['second' => 1]);
+        $configurationRowV2 = $componentsApi->addConfigurationRow($configurationRowOptions);
+
+        // update first row - conf V4
+        $configurationRowOptions = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRowOptions->setConfiguration(['first' => 22])->setRowId($configurationRowV1['id']);
+        $configurationRowV3 = $componentsApi->updateConfigurationRow($configurationRowOptions);
+
+        // update config - conf V5
+        $componentsApi->updateConfiguration($configuration->setConfiguration(['d' => 'b']));
+
+        // wait a moment, rollbacked version should have different created date
+        sleep(2);
+
+        // rollback to version 2 - conf V6
+        // second row should be missing, and first row should be rolled back to first version
+        $componentsApi->rollbackConfiguration('wr-db', $configurationV1['id'], 2);
+
+        $rollbackedConfiguration = $componentsApi->getConfiguration('wr-db', $configurationV1['id']);
+
+        // asserts about the configuration itself
+        $this->assertEquals(6, $rollbackedConfiguration['version'], 'Rollback added new configuration version');
+        $this->assertEquals('Rollback to version 2', $rollbackedConfiguration['changeDescription']);
+        $this->assertCount(1, $rollbackedConfiguration['rows']);
+        $this->assertEquals('Rollback to version 2', $rollbackedConfiguration['currentVersion']['changeDescription']);
+        $this->assertArrayEqualsExceptKeys($configurationV2['currentVersion'], $rollbackedConfiguration['currentVersion'], [
+            'created',
+            'changeDescription',
+        ]);
+        $this->assertArrayEqualsExceptKeys($configurationV2, $rollbackedConfiguration, [
+            'version',
+            'changeDescription',
+            'rows',
+            'currentVersion',
+        ]);
+
+        // asserts about configuration's rows
+        $this->assertCount(1, $rollbackedConfiguration['rows']);
+        $rollbackedRow = $rollbackedConfiguration['rows'][0];
+        $this->assertEquals(3, $rollbackedRow['version']);
+        $this->assertEquals('Rollback to version 1 (via configuration rollback to version 2)', $rollbackedRow['changeDescription']);
+        $this->assertArrayEqualsExceptKeys($configurationRowV1, $rollbackedRow, [
+            'version',
+            'changeDescription',
+        ]);
+    }
+
     /**
      * @param string $branchPrefix
      */
