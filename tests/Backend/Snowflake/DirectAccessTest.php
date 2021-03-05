@@ -7,6 +7,7 @@ use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\DirectAccess;
+use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\Options\BucketUpdateOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\Test\StorageApiTestCase;
@@ -719,6 +720,74 @@ class DirectAccessTest extends StorageApiTestCase
 
         $this->assertCount(1, $schemas, 'There should be INFORMATION SCHEMA');
         $this->assertNotSame('DA_IN_API-LINKED-TESTS', $schemas[0]['name']);
+
+        // validate direct access for dev buckets
+        $metadataProvider = 'system';
+        $metadataKey = 'KBC.createdBy.branch.id';
+
+        $this->prepareDirectAccess($bucketId);
+
+        $tableName = 'languages';
+        $tableId = $this->_client->createTable(
+            $bucketId,
+            $tableName,
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+
+        $metadata = new Metadata($this->_client);
+
+        // check that validation ignores table/columns metadata
+        $metadata->postColumnMetadata(
+            sprintf('%s.%s', $tableId, 'id'),
+            $metadataProvider,
+            [
+                [
+                    'key' => $metadataKey,
+                    'value' => '1234',
+                ],
+            ]
+        );
+
+        $metadata->postTableMetadata(
+            $tableId,
+            $metadataProvider,
+            [
+                [
+                    'key' => $metadataKey,
+                    'value' => '1234',
+                ],
+            ]
+        );
+
+        $directAccess->enableForBucket($bucketId);
+
+        $bucket = $this->_client->getBucket($bucketId);
+        $this->assertTrue($bucket['directAccessEnabled']);
+
+        $directAccess->disableForBucket($bucketId);
+
+        // validate restrictions
+        $metadata->postBucketMetadata(
+            $bucketId,
+            $metadataProvider,
+            [
+                [
+                    'key' => $metadataKey,
+                    'value' => '1234',
+                ],
+            ]
+        );
+
+        try {
+            $directAccess->enableForBucket($bucketId);
+            $this->fail('Enabling Direct Access for Dev/Branch bucket should fail');
+        } catch (ClientException $e) {
+            $this->assertSame(400, $e->getCode());
+            $this->assertSame('Direct Access for Dev/Branch buckets is not supported yet.', $e->getMessage());
+        }
+
+        $bucket = $this->_client->getBucket($bucketId);
+        $this->assertFalse($bucket['directAccessEnabled']);
     }
 
     /** @return DirectAccess */
