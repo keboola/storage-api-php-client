@@ -9,4 +9,11 @@ use Keboola\Test\StorageApiTestCase;
 
 class BranchBucketsTest extends StorageApiTestCase
 {
+
+    public function setUp()
+    {
+        parent::setUp();
+        $this->initEmptyTestBucketsForParallelTests();
+    }
+
 }
