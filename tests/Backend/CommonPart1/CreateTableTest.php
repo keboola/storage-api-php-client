@@ -21,12 +21,12 @@ class CreateTableTest extends StorageApiTestCase
     public function setUp()
     {
         parent::setUp();
-        $this->_initEmptyTestBuckets();
+        $this->initEmptyTestBucketsForParallelTests();
     }
 
     public function testSyntheticPrimaryKey()
     {
-        $testBucketName = $this->getTestBucketName(__METHOD__);
+        $testBucketName = $this->getTestBucketName($this->getTestBucketId());
         $testBucketStage = self::STAGE_IN;
         $testBucketId = $testBucketStage . '.c-' . $testBucketName;
         $tableName = 'testSynthPk';
@@ -90,7 +90,7 @@ class CreateTableTest extends StorageApiTestCase
             $this->fail('Should have thrown');
         } catch (ClientException $e) {
             $this->assertSame(
-                'Cannot alter primary key of table "in.c-testSyntheticPrimaryKey.testSynthPk" ' .
+                sprintf('Cannot alter primary key of table "%s.testSynthPk" ', $testBucketId) .
                 'with synthetic primary key enabled',
                 $e->getMessage()
             );
@@ -100,7 +100,7 @@ class CreateTableTest extends StorageApiTestCase
             $this->fail('Should have thrown');
         } catch (ClientException $e) {
             $this->assertSame(
-                'Cannot alter primary key of table "in.c-testSyntheticPrimaryKey.testSynthPk" ' .
+                sprintf('Cannot alter primary key of table "%s.testSynthPk" ', $testBucketId) .
                 'with synthetic primary key enabled',
                 $e->getMessage()
             );
@@ -527,14 +527,5 @@ class CreateTableTest extends StorageApiTestCase
                 'other',
             ],
         ];
-    }
-
-    /**
-     * @param $testName
-     * @return false|string
-     */
-    public function getTestBucketName($testName)
-    {
-        return substr($testName, strpos($testName, '::') + 2);
     }
 }

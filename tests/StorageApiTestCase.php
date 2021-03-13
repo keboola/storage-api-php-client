@@ -40,6 +40,15 @@ abstract class StorageApiTestCase extends ClientTestCase
     protected $_client;
 
     /**
+     * @param $testName
+     * @return string
+     */
+    public static function getTestBucketName($testName)
+    {
+        return sprintf('API-tests-' . sha1($testName));
+    }
+
+    /**
      * Checks that two arrays are same except some keys, which MUST be different
      *
      * @param array $expected
@@ -91,9 +100,8 @@ abstract class StorageApiTestCase extends ClientTestCase
     protected function initEmptyTestBucketsForParallelTests($stages = [self::STAGE_OUT, self::STAGE_IN])
     {
         $description = get_class($this) . '\\' . $this->getName();
-        $bucketName = sprintf('API-tests-' . sha1($description));
         foreach ($stages as $stage) {
-            $this->_bucketIds[$stage] = $this->initEmptyBucket($bucketName, $stage, $description);
+            $this->_bucketIds[$stage] = $this->initEmptyBucket($this->getTestBucketName($description), $stage, $description);
         }
     }
 
