@@ -29,8 +29,8 @@ class TableExporterTest extends StorageApiTestCase
     {
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();
-        $this->downloadPath = __DIR__ . '/../../_tmp/languages.sliced.csv';
-        $this->downloadPathGZip = __DIR__ . '/../../_tmp/languages.sliced.csv.gz';
+        $this->downloadPath = $this->getExportFilePathForTest('languages.sliced.csv');
+        $this->downloadPathGZip = $this->getExportFilePathForTest('languages.sliced.csv.gz');
     }
 
     /**
@@ -122,8 +122,8 @@ class TableExporterTest extends StorageApiTestCase
         $this->_client->setRunId($runId);
 
         $exporter = new TableExporter($this->_client);
-        $file1 = __DIR__ . '/../../_tmp/languages1.csv';
-        $file2 = __DIR__ . '/../../_tmp/languages2.csv';
+        $file1 = $this->getExportFilePathForTest('languages1.csv');
+        $file2 = $this->getExportFilePathForTest('languages2.csv');
         $exports = [
             [
                 'tableId' => $table1Id,
@@ -174,7 +174,7 @@ class TableExporterTest extends StorageApiTestCase
         $this->_client->setRunId($runId);
 
         $exporter = new TableExporter($this->_client);
-        $file1 = __DIR__ . '/../../_tmp/languages1.csv';
+        $file1 = $this->getExportFilePathForTest('languages1.csv');
         $exports = [
             [
                 'tableId' => $table1Id,
