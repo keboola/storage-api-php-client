@@ -514,4 +514,14 @@ abstract class StorageApiTestCase extends ClientTestCase
         $testName = get_class($this) . '\\' . $this->getName();
         return __DIR__ . '/_tmp/' . sha1($testName) . '.' . $fileName;
     }
+
+    protected function listJobsByRunId($runId)
+    {
+        return array_filter(
+            $this->_client->listJobs(),
+            function ($job) use ($runId) {
+                return $job['runId'] === $runId;
+            }
+        );
+    }
 }
