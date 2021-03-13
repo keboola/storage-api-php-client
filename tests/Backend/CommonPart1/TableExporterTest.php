@@ -82,7 +82,7 @@ class TableExporterTest extends StorageApiTestCase
         $this->assertLinesEqualsSorted(file_get_contents($expectationsFile), file_get_contents($this->downloadPath), 'imported data comparison');
 
         // check that columns has been set in export job params
-        $jobs = $this->_client->listJobs(['limit' => 1]);
+        $jobs = $this->listJobsByRunId($runId);
         $job = reset($jobs);
 
         $this->assertSame($runId, $job['runId']);
@@ -146,7 +146,8 @@ class TableExporterTest extends StorageApiTestCase
         // check that columns has been set in export job params
         $table1Job = null;
         $table2Job = null;
-        foreach ($this->_client->listJobs(['limit' => 2]) as $job) {
+
+        foreach ($this->listJobsByRunId($runId) as $job) {
             $this->assertSame($runId, $job['runId']);
             $this->assertSame('tableExport', $job['operationName']);
 
@@ -204,7 +205,7 @@ class TableExporterTest extends StorageApiTestCase
         $this->assertEquals(['- unchecked -', '0'], $csvFile->current());
 
         // check that columns has been set in export job params
-        $jobs = $this->_client->listJobs(['limit' => 1]);
+        $jobs = $this->listJobsByRunId($runId);
         $table1Job = reset($jobs);
 
         $this->assertSame($runId, $table1Job['runId']);
