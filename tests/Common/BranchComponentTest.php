@@ -1355,21 +1355,4 @@ class BranchComponentTest extends StorageApiTestCase
 
         $this->assertEquals(4, $componentConfiguration['version']);
     }
-
-    /**
-     * @param string $branchPrefix
-     */
-    protected function deleteBranchesByPrefix(DevBranches $devBranches, $branchPrefix)
-    {
-        $branchesList = $devBranches->listBranches();
-        $branchesCreatedByThisTestMethod = array_filter(
-            $branchesList,
-            function ($branch) use ($branchPrefix) {
-                return strpos($branch['name'], $branchPrefix) === 0;
-            }
-        );
-        foreach ($branchesCreatedByThisTestMethod as $branch) {
-            $devBranches->deleteBranch($branch['id']);
-        }
-    }
 }
