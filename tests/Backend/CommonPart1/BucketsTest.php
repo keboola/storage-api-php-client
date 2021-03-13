@@ -19,7 +19,7 @@ class BucketsTest extends StorageApiTestCase
     public function setUp()
     {
         parent::setUp();
-        $this->_initEmptyTestBuckets();
+        $this->initEmptyTestBucketsForParallelTests();
     }
 
     public function testBucketsList()
@@ -50,7 +50,7 @@ class BucketsTest extends StorageApiTestCase
     public function testBucketDetail()
     {
         $displayName = "Romanov-Bucket";
-        $bucketName = 'BucketsTest_testBucketDetail';
+        $bucketName = $this->getTestBucketName($this->getTestBucketId());
 
         $tokenData = $this->_client->verifyToken();
         $this->dropBucketIfExists($this->_client, 'in.c-' . $bucketName);
