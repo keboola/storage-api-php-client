@@ -73,7 +73,7 @@ class DataPreviewLimitsTest extends StorageApiTestCase
 
         $tableExporter = new TableExporter($this->_client);
 
-        $fullTableExportPath = tempnam(sys_get_temp_dir(), 'keboola');
+        $fullTableExportPath = $this->getExportFilePathForTest('users.csv');
         $tableExporter->exportTable($tableId, $fullTableExportPath, []);
         $this->assertCount(2000, Client::parseCsv(file_get_contents($fullTableExportPath)));
     }
