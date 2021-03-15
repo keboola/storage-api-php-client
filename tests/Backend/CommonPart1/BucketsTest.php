@@ -129,9 +129,15 @@ class BucketsTest extends StorageApiTestCase
 
     public function testBucketsListWithIncludeMetadata()
     {
-        $buckets = $this->_client->listBuckets(array(
-            'include' => 'metadata',
-        ));
+        $bucketId = $this->getTestBucketId();
+        $buckets = array_filter(
+            $this->_client->listBuckets([
+                'include' => 'metadata',
+            ]),
+            function ($bucket) use ($bucketId) {
+                return $bucket['id'] === $bucketId;
+            }
+        );
 
         $firstBucket = reset($buckets);
         $this->assertArrayNotHasKey('attributes', $firstBucket);
@@ -146,9 +152,15 @@ class BucketsTest extends StorageApiTestCase
             ]
         ]);
 
-        $buckets = $this->_client->listBuckets(array(
-            'include' => 'metadata',
-        ));
+        $buckets = array_filter(
+            $this->_client->listBuckets([
+                'include' => 'metadata',
+            ]),
+            function ($bucket) use ($bucketId) {
+                return $bucket['id'] === $bucketId;
+            }
+        );
+
         $firstBucket = reset($buckets);
         $this->assertArrayHasKey('metadata', $firstBucket);
         $this->assertCount(1, $firstBucket['metadata']);
@@ -171,9 +183,10 @@ class BucketsTest extends StorageApiTestCase
     public function testBucketManipulation()
     {
         $tokenData = $this->_client->verifyToken();
+        $bucketName = $this->getTestBucketName($this->getTestBucketId());
 
         $bucketData = [
-            'name' => 'test',
+            'name' => $bucketName,
             'displayName' => 'test-display-name',
             'stage' => 'in',
             'description' => 'this is just a test',
@@ -305,7 +318,10 @@ class BucketsTest extends StorageApiTestCase
 
     public function testBucketCreateWithoutDescription()
     {
-        $bucketId = $this->_client->createBucket('something', self::STAGE_IN);
+        $bucketName = $this->getTestBucketName($this->getTestBucketId());
+        $this->dropBucketIfExists($this->_client, 'in.c-' . $bucketName);
+
+        $bucketId = $this->_client->createBucket($bucketName, self::STAGE_IN);
         $bucket = $this->_client->getBucket($bucketId);
         $this->assertEmpty($bucket['description']);
         $this->_client->dropBucket($bucket['id']);
