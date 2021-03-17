@@ -3,6 +3,7 @@
 namespace Keboola\Test\Common;
 
 use Keboola\Csv\CsvFile;
+use Keboola\StorageApi\Client;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Metadata;
 use Keboola\Test\StorageApiTestCase;
@@ -41,18 +42,14 @@ class BranchBucketsTest extends StorageApiTestCase
 
         $description = get_class($this) . '\\' . $this->getName();
         $devBucketName1 = sprintf('Dev-Branch-Bucket-' . sha1($description));
-        $devBucketId1 = 'in.c-' . $devBucketName1;
+
+        $devBranchBucketId1 = $this->initEmptyBucket($devBucketName1, Client::STAGE_IN, $description);
 
         $branch2 = $devBranchClient->createBranch($branchName2);
 
         $devBucketName2 = sprintf('Second-Dev-Branch-Bucket-' . sha1($description));
-        $devBucketId2 = 'in.c-' . $devBucketName2;
 
-        foreach ([$devBucketId1, $devBucketId2] as $devBranchBucketId) {
-            if ($this->_client->bucketExists($devBranchBucketId)) {
-                $this->_client->dropBucket($devBranchBucketId);
-            }
-        }
+        $devBranchBucketId2 = $this->initEmptyBucket($devBucketName2, Client::STAGE_IN, $description);
 
         $importFile = __DIR__ . '/../_data/languages.csv';
 
@@ -79,9 +76,6 @@ class BranchBucketsTest extends StorageApiTestCase
             $branch1TestMetadata
         );
 
-        // create test bucket
-        $devBranchBucketId1 = $this->_client->createBucket($devBucketName1, self::STAGE_IN);
-
         // add bucket metadata to make devBranch bucket
         $metadata->postBucketMetadata($devBranchBucketId1, $metadataProvider, $branch1TestMetadata);
 
@@ -92,9 +86,6 @@ class BranchBucketsTest extends StorageApiTestCase
             'languages',
             new CsvFile($importFile)
         );
-
-        // create test bucket2 to test, bucket will be dropped only for branch1 devBranch
-        $devBranchBucketId2 = $this->_client->createBucket($devBucketName2, self::STAGE_IN);
 
         // add bucket metadata to make devBranch bucket2
         $metadata->postBucketMetadata(
