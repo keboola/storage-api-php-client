@@ -57,8 +57,8 @@ class BranchBucketsTest extends StorageApiTestCase
             )
         );
 
-        $metadataKey = 'KBC.createdBy.branch.id';
-        $metadataProvider = 'system';
+        $metadataKey = Metadata::BUCKET_METADATA_KEY_ID_BRANCH;
+        $metadataProvider = Metadata::PROVIDER_SYSTEM;
 
         $metadata = new Metadata($this->_client);
 

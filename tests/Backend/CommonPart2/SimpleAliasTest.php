@@ -810,8 +810,8 @@ class SimpleAliasTest extends StorageApiTestCase
 
     public function testTableAliasFromDevBranchBucketCannotBeCreated()
     {
-        $metadataProvider = 'system';
-        $metadataKey = 'KBC.createdBy.branch.id';
+        $metadataProvider = Metadata::PROVIDER_SYSTEM;
+        $metadataKey = Metadata::BUCKET_METADATA_KEY_ID_BRANCH;
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
 
@@ -882,8 +882,8 @@ class SimpleAliasTest extends StorageApiTestCase
 
     public function testTableAliasInDevBranchBucketCannotBeCreated()
     {
-        $metadataProvider = 'system';
-        $metadataKey = 'KBC.createdBy.branch.id';
+        $metadataProvider = Metadata::PROVIDER_SYSTEM;
+        $metadataKey = Metadata::BUCKET_METADATA_KEY_ID_BRANCH;
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
 
