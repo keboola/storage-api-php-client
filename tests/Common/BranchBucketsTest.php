@@ -17,6 +17,9 @@ class BranchBucketsTest extends StorageApiTestCase
 
     public function testDropAllDevBucketsWhenDropBranch()
     {
+        $metadataKey = Metadata::BUCKET_METADATA_KEY_ID_BRANCH;
+        $metadataProvider = Metadata::PROVIDER_SYSTEM;
+
         $devBranchClient = new DevBranches($this->_client);
         $metadata = new Metadata($this->_client);
 
@@ -28,11 +31,19 @@ class BranchBucketsTest extends StorageApiTestCase
         $this->deleteBranchesByPrefix($devBranchClient, $branchName2);
 
         $branch1 = $devBranchClient->createBranch($branchName1);
-        $branch2 = $devBranchClient->createBranch($branchName2);
+
+        $branch1TestMetadata = [
+            [
+                'key' => Metadata::BUCKET_METADATA_KEY_ID_BRANCH,
+                'value' => $branch1['id'],
+            ]
+        ];
 
         $description = get_class($this) . '\\' . $this->getName();
         $devBucketName1 = sprintf('Dev-Branch-Bucket-' . sha1($description));
         $devBucketId1 = 'in.c-' . $devBucketName1;
+
+        $branch2 = $devBranchClient->createBranch($branchName2);
 
         $devBucketName2 = sprintf('Second-Dev-Branch-Bucket-' . sha1($description));
         $devBucketId2 = 'in.c-' . $devBucketName2;
@@ -54,41 +65,25 @@ class BranchBucketsTest extends StorageApiTestCase
             )
         );
 
-        $metadataKey = Metadata::BUCKET_METADATA_KEY_ID_BRANCH;
-        $metadataProvider = Metadata::PROVIDER_SYSTEM;
 
         // create column and table with the same metadata to test delete dev branch don't delete table in main bucket
         $metadata->postColumnMetadata(
             sprintf('%s.%s', $sourceTableId, 'id'),
             $metadataProvider,
-            [
-                [
-                    'key' => $metadataKey,
-                    'value' => $branch1['id'],
-                ],
-            ]
+            $branch1TestMetadata
         );
 
         $metadata->postTableMetadata(
             $sourceTableId,
             $metadataProvider,
-            [
-                [
-                    'key' => $metadataKey,
-                    'value' => $branch1['id'],
-                ],
-            ]
+            $branch1TestMetadata
         );
 
         // create test bucket
         $devBranchBucketId1 = $this->_client->createBucket($devBucketName1, self::STAGE_IN);
-        $testMetadata = [
-            'key' => $metadataKey,
-            'value' => $branch1['id']
-        ];
 
         // add bucket metadata to make devBranch bucket
-        $metadata->postBucketMetadata($devBranchBucketId1, $metadataProvider, [$testMetadata]);
+        $metadata->postBucketMetadata($devBranchBucketId1, $metadataProvider, $branch1TestMetadata);
 
         // add table to devBranch 1 bucket to test drop non empty bucket
 
@@ -100,13 +95,18 @@ class BranchBucketsTest extends StorageApiTestCase
 
         // create test bucket2 to test, bucket will be dropped only for branch1 devBranch
         $devBranchBucketId2 = $this->_client->createBucket($devBucketName2, self::STAGE_IN);
-        $testMetadata = [
-            'key' => $metadataKey,
-            'value' => $branch2['id']
-        ];
 
         // add bucket metadata to make devBranch bucket2
-        $metadata->postBucketMetadata($devBranchBucketId2, $metadataProvider, [$testMetadata]);
+        $metadata->postBucketMetadata(
+            $devBranchBucketId2,
+            $metadataProvider,
+            [
+                [
+                    'key' => $metadataKey,
+                    'value' => $branch2['id'],
+                ],
+            ]
+        );
 
         // test there is buckets for each dev branch
         $this->assertTrue($this->_client->bucketExists($devBranchBucketId1));
@@ -128,9 +128,9 @@ class BranchBucketsTest extends StorageApiTestCase
         $table = $this->_client->getTable($sourceTableId);
         $columnMetadata = reset($table['columnMetadata']['id']);
 
-        $testMetadata = reset($table['metadata']);
-        $this->assertSame('KBC.createdBy.branch.id', $testMetadata['key']);
-        $this->assertSame('system', $testMetadata['provider']);
+        $tableMetadata = reset($table['metadata']);
+        $this->assertSame('KBC.createdBy.branch.id', $tableMetadata['key']);
+        $this->assertSame('system', $tableMetadata['provider']);
 
         $this->assertSame('KBC.createdBy.branch.id', $columnMetadata['key']);
         $this->assertSame('system', $columnMetadata['provider']);
