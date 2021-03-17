@@ -46,19 +46,58 @@ class BranchBucketsTest extends StorageApiTestCase
         } catch (ClientException $e) {
         }
 
+        $importFile = __DIR__ . '/../_data/languages.csv';
+
+        $sourceTableId = $this->_client->createTable(
+            $this->getTestBucketId(),
+            'languages',
+            new CsvFile($importFile),
+            array(
+                'primaryKey' => 'id'
+            )
+        );
+
+        $metadataKey = 'KBC.createdBy.branch.id';
+        $metadataProvider = 'system';
+
+        $metadata = new Metadata($this->_client);
+
+        // create column and table with the same metadata to test delete dev branch don't delete table in main bucket
+        $metadata->postColumnMetadata(
+            sprintf('%s.%s', $sourceTableId, 'id'),
+            $metadataProvider,
+            [
+                [
+                    'key' => $metadataKey,
+                    'value' => $branch1['id'],
+                ],
+            ]
+        );
+
+        $metadata->postTableMetadata(
+            $sourceTableId,
+            $metadataProvider,
+            [
+                [
+                    'key' => $metadataKey,
+                    'value' => $branch1['id'],
+                ],
+            ]
+        );
+
         // create test bucket
         $devBranchBucketId1 = $this->_client->createBucket($devBucketName1, self::STAGE_IN);
         $metadataClient = new Metadata($this->_client);
         $metadata = [
-            'key' => 'KBC.createdBy.branch.id',
+            'key' => $metadataKey,
             'value' => $branch1['id']
         ];
 
         // add bucket metadata to make devBranch bucket
-        $metadataClient->postBucketMetadata($devBranchBucketId1, 'system', [$metadata]);
+        $metadataClient->postBucketMetadata($devBranchBucketId1, $metadataProvider, [$metadata]);
 
         // add table to devBranch 1 bucket to test drop non empty bucket
-        $importFile = __DIR__ . '/../_data/languages.csv';
+
         $devBranchTable1 = $this->_client->createTable(
             $devBranchBucketId1,
             'languages',
@@ -69,12 +108,12 @@ class BranchBucketsTest extends StorageApiTestCase
         $devBranchBucketId2 = $this->_client->createBucket($devBucketName2, self::STAGE_IN);
         $metadataClient = new Metadata($this->_client);
         $metadata = [
-            'key' => 'KBC.createdBy.branch.id',
+            'key' => $metadataKey,
             'value' => $branch2['id']
         ];
 
         // add bucket metadata to make devBranch bucket2
-        $metadataClient->postBucketMetadata($devBranchBucketId2, 'system', [$metadata]);
+        $metadataClient->postBucketMetadata($devBranchBucketId2, $metadataProvider, [$metadata]);
 
         // test there is buckets for each dev branch
         $this->assertNotEmpty($this->_client->getBucket($devBranchBucketId1)['name']);
@@ -91,6 +130,17 @@ class BranchBucketsTest extends StorageApiTestCase
 
         // test main branch buckets exist
         $this->assertCount(2, $this->listTestBucketsForParallelTests());
+
+        // table and column with the same metadata should exist too
+        $table = $this->_client->getTable($sourceTableId);
+        $columnMetadata = reset($table['columnMetadata']['id']);
+
+        $metadata = reset($table['metadata']);
+        $this->assertSame('KBC.createdBy.branch.id', $metadata['key']);
+        $this->assertSame('system', $metadata['provider']);
+
+        $this->assertSame('KBC.createdBy.branch.id', $columnMetadata['key']);
+        $this->assertSame('system', $columnMetadata['provider']);
 
         try {
             // test delete branch 1 remove bucket for this branch
