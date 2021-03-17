@@ -265,6 +265,36 @@ class TokensTest extends StorageApiTestCase
         }
     }
 
+    public function testInvalidTokenWhenTokenIsFalse()
+    {
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Request parameter "id" is missing.');
+        // false is not event sent, because "string" . false = "string"
+        $this->_client->dropToken(false);
+    }
+
+    public function testInvalidTokenWhenTokenIsString()
+    {
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Argument "id" is expected to be type "int", value "foo" given.');
+        $this->_client->dropToken('foo');
+    }
+
+    public function testTokenRefreshWhenTokenIsString()
+    {
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Argument "id" is expected to be type "int", value "foo" given.');
+        $this->_client->refreshToken('foo');
+    }
+
+    public function testTokenGetWhenTokenIsString()
+    {
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Argument "id" is expected to be type "int", value "foo" given.');
+        $this->_client->getToken('foo');
+    }
+
+
     public function testBucketPermissionUpdate()
     {
         $options = (new TokenCreateOptions())
