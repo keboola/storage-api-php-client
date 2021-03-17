@@ -24,14 +24,18 @@ class BranchBucketsTest extends StorageApiTestCase
         $devBranchClient = new DevBranches($this->_client);
         $metadata = new Metadata($this->_client);
 
+        $description = get_class($this) . '\\' . $this->getName();
+
         $branchName1 = $this->generateBranchNameForParallelTest();
+        $devBucketName1 = sprintf('Dev-Branch-Bucket-' . sha1($description));
+
         $branchName2 = $this->generateBranchNameForParallelTest('second');
+        $devBucketName2 = sprintf('Second-Dev-Branch-Bucket-' . sha1($description));
 
         // cleanup
         $this->deleteBranchesByPrefix($devBranchClient, $branchName1);
-        $this->deleteBranchesByPrefix($devBranchClient, $branchName2);
-
         $branch1 = $devBranchClient->createBranch($branchName1);
+        $devBranchBucketId1 = $this->initEmptyBucket($devBucketName1, Client::STAGE_IN, $description);
 
         $branch1TestMetadata = [
             [
@@ -40,17 +44,12 @@ class BranchBucketsTest extends StorageApiTestCase
             ]
         ];
 
-        $description = get_class($this) . '\\' . $this->getName();
-        $devBucketName1 = sprintf('Dev-Branch-Bucket-' . sha1($description));
-
-        $devBranchBucketId1 = $this->initEmptyBucket($devBucketName1, Client::STAGE_IN, $description);
-
+        $this->deleteBranchesByPrefix($devBranchClient, $branchName2);
         $branch2 = $devBranchClient->createBranch($branchName2);
-
-        $devBucketName2 = sprintf('Second-Dev-Branch-Bucket-' . sha1($description));
-
         $devBranchBucketId2 = $this->initEmptyBucket($devBucketName2, Client::STAGE_IN, $description);
 
+        // init data in non-dev bucket
+        // create table and column with the same metadata to test delete dev branch don't delete table in main bucket
         $importFile = __DIR__ . '/../_data/languages.csv';
 
         $sourceTableId = $this->_client->createTable(
@@ -62,8 +61,6 @@ class BranchBucketsTest extends StorageApiTestCase
             )
         );
 
-
-        // create column and table with the same metadata to test delete dev branch don't delete table in main bucket
         $metadata->postColumnMetadata(
             sprintf('%s.%s', $sourceTableId, 'id'),
             $metadataProvider,
@@ -76,10 +73,8 @@ class BranchBucketsTest extends StorageApiTestCase
             $branch1TestMetadata
         );
 
-        // add bucket metadata to make devBranch bucket
+        // init data in branch1 bucket
         $metadata->postBucketMetadata($devBranchBucketId1, $metadataProvider, $branch1TestMetadata);
-
-        // add table to devBranch 1 bucket to test drop non empty bucket
 
         $devBranchTable1 = $this->_client->createTable(
             $devBranchBucketId1,
@@ -87,7 +82,7 @@ class BranchBucketsTest extends StorageApiTestCase
             new CsvFile($importFile)
         );
 
-        // add bucket metadata to make devBranch bucket2
+        // init metadata for branch2 bucket
         $metadata->postBucketMetadata(
             $devBranchBucketId2,
             $metadataProvider,
