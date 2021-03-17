@@ -3,7 +3,6 @@
 namespace Keboola\Test\Common;
 
 use Keboola\Csv\CsvFile;
-use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Metadata;
 use Keboola\Test\StorageApiTestCase;
@@ -38,13 +37,10 @@ class BranchBucketsTest extends StorageApiTestCase
         $devBucketName2 = sprintf('Second-Dev-Branch-Bucket-' . sha1($description));
         $devBucketId2 = 'in.c-' . $devBucketName2;
 
-        try {
-            foreach ([$devBucketId1, $devBucketId2] as $devBranchBucketId) {
-                if ($this->_client->getBucket($devBranchBucketId)) {
-                    $this->_client->dropBucket($devBranchBucketId);
-                }
+        foreach ([$devBucketId1, $devBucketId2] as $devBranchBucketId) {
+            if ($this->_client->bucketExists($devBranchBucketId)) {
+                $this->_client->dropBucket($devBranchBucketId);
             }
-        } catch (ClientException $e) {
         }
 
         $importFile = __DIR__ . '/../_data/languages.csv';
@@ -113,9 +109,9 @@ class BranchBucketsTest extends StorageApiTestCase
         $metadata->postBucketMetadata($devBranchBucketId2, $metadataProvider, [$testMetadata]);
 
         // test there is buckets for each dev branch
-        $this->assertNotEmpty($this->_client->getBucket($devBranchBucketId1)['name']);
-        $this->assertNotEmpty($this->_client->getTable($devBranchTable1));
-        $this->assertNotEmpty($this->_client->getBucket($devBranchBucketId2));
+        $this->assertTrue($this->_client->bucketExists($devBranchBucketId1));
+        $this->assertTrue($this->_client->tableExists($devBranchTable1));
+        $this->assertTrue($this->_client->bucketExists($devBranchBucketId2));
 
         // test there is two test buckets for main branch
         $this->assertCount(2, $this->listTestBucketsForParallelTests());
@@ -139,12 +135,7 @@ class BranchBucketsTest extends StorageApiTestCase
         $this->assertSame('KBC.createdBy.branch.id', $columnMetadata['key']);
         $this->assertSame('system', $columnMetadata['provider']);
 
-        try {
-            // test delete branch 1 remove bucket for this branch
-            $this->_client->getBucket($devBranchBucketId1);
-            $this->fail('should fail');
-        } catch (ClientException $e) {
-            $this->assertSame(404, $e->getCode());
-        }
+        // test delete branch 1 remove bucket for this branch
+        $this->assertFalse($this->_client->bucketExists($devBranchBucketId1));
     }
 }
