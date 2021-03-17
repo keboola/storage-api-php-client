@@ -5523,6 +5523,34 @@ one you specified. `state` attributes of the config and rows is preserved, if an
             "version": 3
         }
 
+### Rollback Version for Development Branch [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/versions/{version_id}/rollback]
+Rollbacking a configuration version actually creates a new configuration version identical to the
+one you specified. `state` attributes of the config and rows is preserved, if any row is recreated, it will have the last existing state.
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration
+    + version_id (required, number) - Version number to rollback to
+
++ Attributes
+    + changeDescription (optional) - Description of a version change
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            changeDescription=change+description
+
++ Response 201 (application/json)
+
+        {
+            "version": 3
+        }
+
 ## Copy Configurations [/v2/storage/components/{component_id}/configs/{config_id}/versions/{version_id}/create]
 ### Create Configuration Copy [POST]
 Creates a new configuration from the specified configuration version.
