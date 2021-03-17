@@ -19,6 +19,7 @@ class BranchBucketsTest extends StorageApiTestCase
     public function testDropAllDevBucketsWhenDropBranch()
     {
         $devBranchClient = new DevBranches($this->_client);
+        $metadata = new Metadata($this->_client);
 
         $branchName1 = $this->generateBranchNameForParallelTest();
         $branchName2 = $this->generateBranchNameForParallelTest('second');
@@ -60,8 +61,6 @@ class BranchBucketsTest extends StorageApiTestCase
         $metadataKey = Metadata::BUCKET_METADATA_KEY_ID_BRANCH;
         $metadataProvider = Metadata::PROVIDER_SYSTEM;
 
-        $metadata = new Metadata($this->_client);
-
         // create column and table with the same metadata to test delete dev branch don't delete table in main bucket
         $metadata->postColumnMetadata(
             sprintf('%s.%s', $sourceTableId, 'id'),
@@ -87,14 +86,13 @@ class BranchBucketsTest extends StorageApiTestCase
 
         // create test bucket
         $devBranchBucketId1 = $this->_client->createBucket($devBucketName1, self::STAGE_IN);
-        $metadataClient = new Metadata($this->_client);
-        $metadata = [
+        $testMetadata = [
             'key' => $metadataKey,
             'value' => $branch1['id']
         ];
 
         // add bucket metadata to make devBranch bucket
-        $metadataClient->postBucketMetadata($devBranchBucketId1, $metadataProvider, [$metadata]);
+        $metadata->postBucketMetadata($devBranchBucketId1, $metadataProvider, [$testMetadata]);
 
         // add table to devBranch 1 bucket to test drop non empty bucket
 
@@ -106,14 +104,13 @@ class BranchBucketsTest extends StorageApiTestCase
 
         // create test bucket2 to test, bucket will be dropped only for branch1 devBranch
         $devBranchBucketId2 = $this->_client->createBucket($devBucketName2, self::STAGE_IN);
-        $metadataClient = new Metadata($this->_client);
-        $metadata = [
+        $testMetadata = [
             'key' => $metadataKey,
             'value' => $branch2['id']
         ];
 
         // add bucket metadata to make devBranch bucket2
-        $metadataClient->postBucketMetadata($devBranchBucketId2, $metadataProvider, [$metadata]);
+        $metadata->postBucketMetadata($devBranchBucketId2, $metadataProvider, [$testMetadata]);
 
         // test there is buckets for each dev branch
         $this->assertNotEmpty($this->_client->getBucket($devBranchBucketId1)['name']);
@@ -135,9 +132,9 @@ class BranchBucketsTest extends StorageApiTestCase
         $table = $this->_client->getTable($sourceTableId);
         $columnMetadata = reset($table['columnMetadata']['id']);
 
-        $metadata = reset($table['metadata']);
-        $this->assertSame('KBC.createdBy.branch.id', $metadata['key']);
-        $this->assertSame('system', $metadata['provider']);
+        $testMetadata = reset($table['metadata']);
+        $this->assertSame('KBC.createdBy.branch.id', $testMetadata['key']);
+        $this->assertSame('system', $testMetadata['provider']);
 
         $this->assertSame('KBC.createdBy.branch.id', $columnMetadata['key']);
         $this->assertSame('system', $columnMetadata['provider']);
