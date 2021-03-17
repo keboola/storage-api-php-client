@@ -1371,8 +1371,7 @@ class BranchComponentTest extends StorageApiTestCase
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
             ->setConfiguration(['a' => 'b'])
-            ->setName('Main')
-        ;
+            ->setName('Main');
         $configurationV1 = $componentsApi->addConfiguration($configuration);
 
         // add first row - conf V2
@@ -1394,6 +1393,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         // update config - conf V5
         $componentsApi->updateConfiguration($configuration->setConfiguration(['d' => 'b']));
+        $configurationV5 = $componentsApi->getConfiguration('wr-db', $configurationV1['id']);
 
         // wait a moment, rollbacked version should have different created date
         sleep(2);
@@ -1428,6 +1428,25 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertArrayEqualsExceptKeys($configurationRowV1, $rollbackedRow, [
             'version',
             'changeDescription',
+        ]);
+
+        // rollback to version 5 - conf V7
+        $componentsApi->rollbackConfiguration('wr-db', $configurationV1['id'], 5, 'custom description');
+        $rollbackedConfiguration = $componentsApi->getConfiguration('wr-db', $configurationV1['id']);
+        // asserts about the configuration itself
+        $this->assertEquals(7, $rollbackedConfiguration['version'], 'Rollback added new configuration version');
+        $this->assertEquals('custom description', $rollbackedConfiguration['changeDescription']);
+        $this->assertCount(2, $rollbackedConfiguration['rows']);
+        $this->assertEquals('custom description', $rollbackedConfiguration['currentVersion']['changeDescription']);
+        $this->assertArrayEqualsExceptKeys($configurationV5['currentVersion'], $rollbackedConfiguration['currentVersion'], [
+            'created',
+            'changeDescription',
+        ]);
+        $this->assertArrayEqualsExceptKeys($configurationV5, $rollbackedConfiguration, [
+            'version',
+            'changeDescription',
+            'rows',
+            'currentVersion',
         ]);
     }
 
