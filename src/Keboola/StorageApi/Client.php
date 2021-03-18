@@ -178,6 +178,36 @@ class Client
     }
 
     /**
+     * Return URL of the service from API index.
+     *
+     * @param string $serviceName
+     * @return string
+     * @throws ClientException
+     */
+    public function getServiceUrl($serviceName)
+    {
+        $indexResult = $this->indexAction();
+
+        if (!isset($indexResult['services']) || !is_array($indexResult['services'])) {
+            throw new ClientException('API index is missing "services" section');
+        }
+
+        foreach ($indexResult['services'] as $service) {
+            if (!isset($service['id']) || $service['id'] !== $serviceName) {
+                continue;
+            }
+
+            if (!isset($service['url'])) {
+                throw new ClientException(sprintf('Definition of service "%s" is missing URL', $serviceName));
+            }
+
+            return $service['url'];
+        }
+
+        throw new ClientException(sprintf('No service with ID "%s" found', $serviceName));
+    }
+
+    /**
      * API index with available components list
      * @return array
      */
