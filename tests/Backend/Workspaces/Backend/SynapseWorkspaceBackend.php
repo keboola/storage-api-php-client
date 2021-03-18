@@ -10,6 +10,7 @@ use Keboola\TableBackendUtils\Column\SynapseColumn;
 use Keboola\TableBackendUtils\Schema\SynapseSchemaReflection;
 use Keboola\TableBackendUtils\Table\SynapseTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\SynapseTableReflection;
+use Keboola\TableBackendUtils\View\SynapseViewReflection;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 
 class SynapseWorkspaceBackend implements WorkspaceBackend
@@ -135,6 +136,23 @@ class SynapseWorkspaceBackend implements WorkspaceBackend
     public function getTableReflection($tableName)
     {
         return new SynapseTableReflection($this->db, $this->schema, $tableName);
+    }
+
+    /**
+     * @param string $tableName
+     * @return SynapseViewReflection
+     */
+    public function getViewReflection($tableName)
+    {
+        return new SynapseViewReflection($this->db, $this->schema, $tableName);
+    }
+
+    /**
+     * @return SynapseSchemaReflection
+     */
+    public function getSchemaReflection()
+    {
+        return new SynapseSchemaReflection($this->db, $this->schema);
     }
 
     public function disconnect()
