@@ -722,8 +722,8 @@ class DirectAccessTest extends StorageApiTestCase
         $this->assertNotSame('DA_IN_API-LINKED-TESTS', $schemas[0]['name']);
 
         // validate direct access for dev buckets
-        $metadataProvider = 'system';
-        $metadataKey = 'KBC.createdBy.branch.id';
+        $metadataProvider = Metadata::PROVIDER_SYSTEM;
+        $metadataKey = Metadata::BUCKET_METADATA_KEY_ID_BRANCH;
 
         $this->prepareDirectAccess($bucketId);
 
