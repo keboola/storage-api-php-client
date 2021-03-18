@@ -809,7 +809,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
                 [
                     'source' => $tableId,
                     'destination' => 'languages',
-                    'useView' => true
+                    'useView' => true,
                 ],
             ],
         ];
@@ -841,7 +841,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
                     'useView' => true,
                 ],
             ],
-            'preserve' => true
+            'preserve' => true,
         ];
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
@@ -858,9 +858,39 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
                     'destination' => 'languages',
                     'useView' => true,
                 ],
-            ]
+            ],
         ];
         $workspaces->loadWorkspaceData($workspace['id'], $options);
+
+        // do full load to source table
+        $this->_client->writeTableAsync(
+            $tableId,
+            new CsvFile($importFile)
+        );
+        // test view is still working
+        $tableRef = $backend->getTableReflection('languages');
+        self::assertEquals(['id', 'name', '_timestamp'], $tableRef->getColumnsNames());
+
+        // test workspace load incremental to view
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                    'incremental' => true,
+                    'useView' => false,
+                ],
+            ],
+            'preserve' => true,
+        ];
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], $options);
+            self::fail('Incremental load to view cannot work.');
+        } catch (ClientException $e) {
+            // this is expected edge case, view has also _timestamp col
+            // which is ignored when validation incremental load
+            self::assertStringStartsWith('Some columns are missing in source table', $e->getMessage());
+        }
 
         // test drop table
         $this->_client->dropTable($tableId);
