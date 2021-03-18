@@ -117,7 +117,7 @@ abstract class StorageApiTestCase extends ClientTestCase
      * @param $stage
      * @return bool|string
      */
-    private function initEmptyBucket($name, $stage, $description)
+    protected function initEmptyBucket($name, $stage, $description)
     {
         try {
             $bucket = $this->_client->getBucket("$stage.c-$name");

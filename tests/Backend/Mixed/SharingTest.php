@@ -1428,8 +1428,8 @@ class SharingTest extends StorageApiSharingTestCase
 
     public function testDevBranchBucketCannotBeShared()
     {
-        $metadataProvider = 'system';
-        $metadataKey = 'KBC.createdBy.branch.id';
+        $metadataProvider = Metadata::PROVIDER_SYSTEM;
+        $metadataKey = Metadata::BUCKET_METADATA_KEY_ID_BRANCH;
 
         $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
         $bucketId = reset($this->_bucketIds);
