@@ -16,6 +16,7 @@
 	<testsuite name="common">
 		<directory>tests/Common</directory>
 		<file>tests/File/CommonFileTest.php</file>
+        <exclude>tests/Common/BranchBucketsTest.php</exclude>
 	</testsuite>
 
     <testsuite name="azure-common">
@@ -29,6 +30,7 @@
 		<directory>tests/Downloader</directory>
 		<file>tests/File/AwsFileTest.php</file>
 		<file>tests/Backend/Workspaces/ReadOnlyUserTest.php</file>
+		<file>tests/Common/BranchBucketsTest.php</file>
 	</testsuite>
 
 	<testsuite name="file-storage-azure">
