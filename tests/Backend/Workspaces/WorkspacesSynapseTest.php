@@ -789,4 +789,83 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
             ],
         ];
     }
+
+    public function testTableLoadAsView()
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $workspaces = new Workspaces($this->workspaceSapiClient);
+        $workspace = $workspaces->createWorkspace();
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $tableId = $this->_client->createTableAsync(
+            $bucketId,
+            'languages',
+            new CsvFile($importFile)
+        );
+
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                    'useView' => true
+                ],
+            ],
+        ];
+
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+
+        $tableRef = $backend->getTableReflection('languages');
+        $viewRef = $backend->getViewReflection('languages');
+        // View definition should be available
+        self::assertStringStartsWith('CREATE VIEW', $viewRef->getViewDefinition());
+        self::assertEquals(['id', 'name', '_timestamp'], $tableRef->getColumnsNames());
+
+        // test if view is refreshed after column add
+        $this->_client->addTableColumn($tableId, 'newGuy');
+        $tableRef = $backend->getTableReflection('languages');
+        self::assertEquals(['id', 'name', '_timestamp', 'newGuy'], $tableRef->getColumnsNames());
+
+        // test if view is refreshed after column remove
+        $this->_client->deleteTableColumn($tableId, 'newGuy');
+        $tableRef = $backend->getTableReflection('languages');
+        self::assertEquals(['id', 'name', '_timestamp'], $tableRef->getColumnsNames());
+
+        // test preserve load
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                    'useView' => true,
+                ],
+            ],
+            'preserve' => true
+        ];
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], $options);
+            self::fail('Must throw exception view exists');
+        } catch (ClientException $e) {
+            self::assertEquals('Table languages already exists in workspace', $e->getMessage());
+        }
+
+        // test workspace is cleared load works
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                    'useView' => true,
+                ],
+            ]
+        ];
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+
+        // test drop table
+        $this->_client->dropTable($tableId);
+        $schemaRef = $backend->getSchemaReflection();
+        self::assertCount(0, $schemaRef->getTablesNames());
+        self::assertCount(0, $schemaRef->getViewsNames());
+    }
 }
