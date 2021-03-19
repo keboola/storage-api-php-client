@@ -3,6 +3,7 @@
 namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Csv\CsvFile;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
@@ -795,7 +796,11 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
         $currentToken = $this->_client->verifyToken();
         self::assertArrayHasKey('owner', $currentToken);
         if (!in_array('workspace-view-load', $currentToken['owner']['features'])) {
-            self::fail('Project is missing feature "workspace-view-load"');
+            self::fail(sprintf(
+                'Project "%s" id:"%s" is missing feature "workspace-view-load"',
+                $currentToken['owner']['name'],
+                $currentToken['owner']['id']
+            ));
         }
 
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
@@ -808,6 +813,14 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
             $bucketId,
             'languages',
             new CsvFile($importFile)
+        );
+        $fileId = $this->workspaceSapiClient->uploadFile(
+            (new CsvFile($importFile))->getPathname(),
+            (new FileUploadOptions())
+                ->setNotify(false)
+                ->setIsPublic(false)
+                ->setCompress(true)
+                ->setTags(['test-file-1'])
         );
 
         $options = [
@@ -868,15 +881,6 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
         ];
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
-        // do full load to source table
-        $this->_client->writeTableAsync(
-            $tableId,
-            new CsvFile($importFile)
-        );
-        // test view is still working
-        $tableRef = $backend->getTableReflection('languages');
-        self::assertEquals(['id', 'name', '_timestamp'], $tableRef->getColumnsNames());
-
         // test workspace load incremental to view
         $options = [
             'input' => [
@@ -897,6 +901,62 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
             // which is ignored when validation incremental load
             self::assertStringStartsWith('Some columns are missing in source table', $e->getMessage());
         }
+
+        // do incremental load from file to source table
+        $this->_client->writeTableAsync(
+            $tableId,
+            new CsvFile($importFile),
+            ['incremental' => true]
+        );
+        // test view is still working
+        $tableRef = $backend->getTableReflection('languages');
+        self::assertEquals(['id', 'name', '_timestamp'], $tableRef->getColumnsNames());
+
+        // load data from workspace to table
+        $workspace2 = $workspaces->createWorkspace();
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                ],
+            ],
+        ];
+        $workspaces->loadWorkspaceData($workspace2['id'], $options);
+        $this->_client->writeTableAsyncDirect(
+            $tableId,
+            [
+                'dataWorkspaceId' => $workspace2['id'],
+                'dataObject' => 'languages',
+            ]
+        );
+        // test view is still working
+        $tableRef = $backend->getTableReflection('languages');
+        self::assertEquals(['id', 'name', '_timestamp'], $tableRef->getColumnsNames());
+
+        // load data from file workspace
+        $fileWorkspace = $workspaces->createWorkspace([
+            'backend' => 'abs',
+        ]);
+        $options = [
+            'input' => [
+                [
+                    "dataFileId" => $fileId,
+                    "destination" => "languages",
+                ],
+            ],
+        ];
+        $workspaces->loadWorkspaceData($fileWorkspace['id'], $options);
+        $this->_client->writeTableAsyncDirect(
+            $tableId,
+            [
+                'dataWorkspaceId' => $fileWorkspace['id'],
+                'dataObject' => 'languages/',
+            ]
+        );
+        // test view is still working
+        $tableRef = $backend->getTableReflection('languages');
+        self::assertEquals(['id', 'name', '_timestamp'], $tableRef->getColumnsNames());
 
         // test drop table
         $this->_client->dropTable($tableId);
