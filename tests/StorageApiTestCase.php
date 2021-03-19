@@ -9,6 +9,7 @@
 
 namespace Keboola\Test;
 
+use Keboola\StorageApi\DevBranches;
 use function array_key_exists;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
@@ -97,13 +98,26 @@ abstract class StorageApiTestCase extends ClientTestCase
         }
     }
 
+    protected function listTestBucketsForParallelTests($stages = [self::STAGE_OUT, self::STAGE_IN])
+    {
+        $description = get_class($this) . '\\' . $this->getName();
+        $bucketName = sprintf('API-tests-' . sha1($description));
+        $buckets = [];
+        foreach ($stages as $stage) {
+            $bucketId = $stage . '.c-' . $bucketName;
+            $buckets[] = $this->_client->getBucket($bucketId);
+        }
+
+        return $buckets;
+    }
+
     /**
      * Init empty bucket test helper
      * @param $name
      * @param $stage
      * @return bool|string
      */
-    private function initEmptyBucket($name, $stage, $description)
+    protected function initEmptyBucket($name, $stage, $description)
     {
         try {
             $bucket = $this->_client->getBucket("$stage.c-$name");
@@ -505,5 +519,35 @@ abstract class StorageApiTestCase extends ClientTestCase
     {
         $testName = get_class($this) . '\\' . $this->getName();
         return __DIR__ . '/_tmp/' . sha1($testName) . '.' . $fileName;
+    }
+
+    /**
+     * @param string $branchPrefix
+     */
+    protected function deleteBranchesByPrefix(DevBranches $devBranches, $branchPrefix)
+    {
+        $branchesList = $devBranches->listBranches();
+        $branchesCreatedByThisTestMethod = array_filter(
+            $branchesList,
+            function ($branch) use ($branchPrefix) {
+                return strpos($branch['name'], $branchPrefix) === 0;
+            }
+        );
+        foreach ($branchesCreatedByThisTestMethod as $branch) {
+            $devBranches->deleteBranch($branch['id']);
+        }
+    }
+
+    protected function generateBranchNameForParallelTest($suffix = null)
+    {
+        $providedToken = $this->_client->verifyToken();
+
+        $name = __CLASS__ . '\\' . $this->getName() . '\\' . $providedToken['id'];
+
+        if ($suffix && $suffix !== '') {
+            $name .= '\\' . $suffix;
+        }
+
+        return $name;
     }
 }

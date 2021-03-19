@@ -112,7 +112,7 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
      * @param $stage
      * @return bool|string
      */
-    private function initEmptyBucket($name, $stage, $backend)
+    protected function initEmptyBucket($name, $stage, $backend)
     {
         if ($this->_client->bucketExists("$stage.c-$name")) {
             $this->_client->dropBucket(
