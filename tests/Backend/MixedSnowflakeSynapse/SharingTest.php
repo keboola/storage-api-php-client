@@ -8,6 +8,7 @@ use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Mixed\StorageApiSharingTestCase;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
+use Keboola\Test\Backend\Workspaces\Backend\SynapseWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class SharingTest extends StorageApiSharingTestCase
@@ -56,8 +57,12 @@ class SharingTest extends StorageApiSharingTestCase
 
     /**
      * @dataProvider workspaceMixedBackendData
+     *
+     * @param string $sharingBackend
+     * @param string $workspaceBackend
+     * @param string $expectedLoadType
      * @throws ClientException
-     * @throws \Exception
+     * @throws \Doctrine\DBAL\DBALException
      * @throws \Keboola\StorageApi\Exception
      */
     public function testWorkspaceLoadData(
@@ -71,23 +76,38 @@ class SharingTest extends StorageApiSharingTestCase
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
         $secondBucketId = $this->getTestBucketId(self::STAGE_OUT);
 
-        $table1Id = $this->_client->createTable(
+        $table1Id = $this->_client->createTableAsync(
             $bucketId,
             'languages',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
+            [
+                'primaryKey' => 'name',
+            ]
         );
+        if ($this->isSynapseTestCase($sharingBackend, $workspaceBackend)) {
+            $this->assertExpectedDistributionKeyColumn($table1Id, 'name');
+        }
 
-        $table2Id = $this->_client->createTable(
+        $table2Id = $this->_client->createTableAsync(
             $bucketId,
             'numbers',
-            new CsvFile(__DIR__ . '/../../_data/numbers.csv')
+            new CsvFile(__DIR__ . '/../../_data/numbers.csv'),
+            [
+                'primaryKey' => '1',
+            ]
         );
+        if ($this->isSynapseTestCase($sharingBackend, $workspaceBackend)) {
+            $this->assertExpectedDistributionKeyColumn($table2Id, '1');
+        }
 
         $table3Id = $this->_client->createAliasTable(
             $bucketId,
             $table2Id,
             'numbers-alias'
         );
+        if ($this->isSynapseTestCase($sharingBackend, $workspaceBackend)) {
+            $this->assertExpectedDistributionKeyColumn($table3Id, '1');
+        }
 
         // share and link bucket
         $this->_client->shareBucket($bucketId);
@@ -103,6 +123,20 @@ class SharingTest extends StorageApiSharingTestCase
             $sharedBucket['project']['id'],
             $sharedBucket['id']
         );
+        if ($this->isSynapseTestCase($sharingBackend, $workspaceBackend)) {
+            $tables = $this->_client2->listTables($linkedId);
+            foreach ($tables as $table) {
+                switch ($table['sourceTable']) {
+                    case $table1Id:
+                        $this->assertExpectedDistributionKeyColumn($table1Id, 'name');
+                        break;
+                    case $table2Id:
+                    case $table3Id:
+                        $this->assertExpectedDistributionKeyColumn($table3Id, '1');
+                        break;
+                }
+            }
+        }
 
         // share and unshare second bucket - test that it doesn't break permissions of first linked bucket
         $this->_client->shareBucket($secondBucketId);
@@ -196,6 +230,20 @@ class SharingTest extends StorageApiSharingTestCase
             'id'
         );
 
+        if ($this->isSynapseTestCase($sharingBackend, $workspaceBackend)
+            && $backend instanceof SynapseWorkspaceBackend
+        ) {
+            $ref = $backend->getTableReflection('languagesLoaded');
+            self::assertEquals('HASH', $ref->getTableDistribution());
+            self::assertSame(['name'], $ref->getTableDistributionColumnsNames());
+            $ref = $backend->getTableReflection('numbersLoaded');
+            self::assertEquals('HASH', $ref->getTableDistribution());
+            self::assertSame(['1'], $ref->getTableDistributionColumnsNames());
+            $ref = $backend->getTableReflection('numbersAliasLoaded');
+            self::assertEquals('HASH', $ref->getTableDistribution());
+            self::assertSame(['1'], $ref->getTableDistributionColumnsNames());
+        }
+
         // now we'll load another table and use the preserve parameters to check that all tables are present
         // lets create it now to see if the table permissions are correctly propagated
         $table3Id = $this->_client->createTable(
@@ -279,5 +327,27 @@ class SharingTest extends StorageApiSharingTestCase
         } catch (ClientException $e) {
             $this->assertEquals('accessDenied', $e->getStringCode());
         }
+    }
+
+    /**
+     * @param string $sharingBackend
+     * @param string $workspaceBackend
+     * @return bool
+     */
+    private function isSynapseTestCase(
+        $sharingBackend,
+        $workspaceBackend
+    ) {
+        return $sharingBackend === self::BACKEND_SYNAPSE && $workspaceBackend === self::BACKEND_SYNAPSE;
+    }
+
+    /**
+     * @param string $tableId
+     * @param string $columnName
+     */
+    private function assertExpectedDistributionKeyColumn($tableId, $columnName)
+    {
+        $table = $this->_client->getTable($tableId);
+        self::assertSame([$columnName], $table['distributionKey']);
     }
 }
