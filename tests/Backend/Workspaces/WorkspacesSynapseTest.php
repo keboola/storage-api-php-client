@@ -792,6 +792,12 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
 
     public function testTableLoadAsView()
     {
+        $currentToken = $this->_client->verifyToken();
+        self::assertArrayHasKey('owner', $currentToken);
+        if (!in_array('workspace-view-load', $currentToken['owner']['features'])) {
+            self::fail('Project is missing feature "workspace-view-load"');
+        }
+
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
