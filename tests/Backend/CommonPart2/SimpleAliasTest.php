@@ -27,7 +27,7 @@ class SimpleAliasTest extends StorageApiTestCase
         $importFile = __DIR__ . '/../../_data/languages.csv';
 
         // create and import data into source table
-        $sourceTableId = $this->_client->createTable(
+        $sourceTableId = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'languages',
             new CsvFile($importFile),
@@ -122,7 +122,7 @@ class SimpleAliasTest extends StorageApiTestCase
     public function testTableWithAliasShouldNotBeDeletableWithoutForce()
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
-        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+        $sourceTableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
         $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users');
 
@@ -135,7 +135,7 @@ class SimpleAliasTest extends StorageApiTestCase
     public function testTableWithAliasShouldBeForceDeletable()
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
-        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+        $sourceTableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
         $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users-1');
         $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $firstAliasTableId, 'users-2');
@@ -153,7 +153,7 @@ class SimpleAliasTest extends StorageApiTestCase
     public function testAliasWithAliasesShouldBeForceDeletable()
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
-        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+        $sourceTableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
         $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users-1');
         $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $firstAliasTableId, 'users-1-1');
@@ -172,7 +172,7 @@ class SimpleAliasTest extends StorageApiTestCase
     public function testTableAliasFilterModifications()
     {
         // source table
-        $sourceTableId = $this->_client->createTable(
+        $sourceTableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'users',
             new CsvFile(__DIR__ . '/../../_data/users.csv')
@@ -224,7 +224,7 @@ class SimpleAliasTest extends StorageApiTestCase
     public function testAliasColumnWithoutAutoSyncShouldBeDeletable()
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
-        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+        $sourceTableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
         $aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users', array(
             'aliasColumns' => array(
@@ -243,7 +243,7 @@ class SimpleAliasTest extends StorageApiTestCase
     public function testAliasColumnWithoutAutoSyncCanBeAdded()
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
-        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+        $sourceTableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
         $aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users', array(
             'aliasColumns' => array(
@@ -261,7 +261,7 @@ class SimpleAliasTest extends StorageApiTestCase
     public function testSourceTableColumnDeleteWithAutoSyncAliases()
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
-        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+        $sourceTableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
         $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users-1');
         $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $firstAliasTableId, 'users-2');
@@ -277,7 +277,7 @@ class SimpleAliasTest extends StorageApiTestCase
     public function testSourceTableColumnAddWithAutoSyncAliases()
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
-        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+        $sourceTableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
         $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users-1');
         $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $firstAliasTableId, 'users-2');
@@ -293,7 +293,7 @@ class SimpleAliasTest extends StorageApiTestCase
     public function testAliasColumnsAutoSync()
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
-        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+        $sourceTableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
         $aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users');
 
@@ -332,7 +332,7 @@ class SimpleAliasTest extends StorageApiTestCase
     public function testColumnAssignedToAliasWithAutoSyncShouldNotBeDeletable()
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
-        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+        $sourceTableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
         $aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users');
 
@@ -356,7 +356,7 @@ class SimpleAliasTest extends StorageApiTestCase
     public function testColumnUsedInFilteredAliasShouldNotBeDeletable()
     {
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile($importFile));
+        $sourceTableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile($importFile));
 
         $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'languages', array(
             'aliasFilter' => array(
@@ -376,7 +376,7 @@ class SimpleAliasTest extends StorageApiTestCase
     public function testColumnUsedInFilteredAliasShouldNotBeForceDeletable()
     {
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile($importFile));
+        $sourceTableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile($importFile));
 
         $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'languages', array(
             'aliasFilter' => array(
@@ -396,7 +396,7 @@ class SimpleAliasTest extends StorageApiTestCase
     public function testColumnAssignedToAliasWithoutAutoSyncShouldNotBeDeletable()
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
-        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+        $sourceTableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
         $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users', array(
             'aliasColumns' => array(
@@ -417,7 +417,7 @@ class SimpleAliasTest extends StorageApiTestCase
     public function testColumnAssignedToAliasWithoutAutoSyncShouldNotBeForceDeletable()
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
-        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+        $sourceTableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
         $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users', array(
             'aliasColumns' => array(
@@ -438,7 +438,7 @@ class SimpleAliasTest extends StorageApiTestCase
     public function testColumnNotUsedInAnyAliasShouldBeDeletable()
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
-        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+        $sourceTableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
         $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users', array(
             'aliasColumns' => array(
@@ -457,7 +457,7 @@ class SimpleAliasTest extends StorageApiTestCase
     public function testAliasColumns()
     {
         // source table
-        $sourceTableId = $this->_client->createTable(
+        $sourceTableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'users',
             new CsvFile(__DIR__ . '/../../_data/users.csv')
@@ -491,7 +491,7 @@ class SimpleAliasTest extends StorageApiTestCase
     public function testTableWithAliasWithoutAutoSyncShouldBeForceDeletable()
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
-        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+        $sourceTableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
         $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users', array(
             'aliasColumns' => array(
@@ -518,7 +518,7 @@ class SimpleAliasTest extends StorageApiTestCase
     public function testFilteredAliases($filterOptions, $expectedResult)
     {
         // source table
-        $sourceTableId = $this->_client->createTable(
+        $sourceTableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'users',
             new CsvFile(__DIR__ . '/../../_data/users.csv')
@@ -564,7 +564,7 @@ class SimpleAliasTest extends StorageApiTestCase
      */
     public function testFilteredAliasWithColumnsListed()
     {
-        $sourceTableId = $this->_client->createTable(
+        $sourceTableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'users',
             new CsvFile(__DIR__ . '/../../_data/users.csv')
@@ -624,7 +624,7 @@ class SimpleAliasTest extends StorageApiTestCase
     public function testFilterOnFilteredAlias()
     {
         // source table
-        $sourceTableId = $this->_client->createTable(
+        $sourceTableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'users',
             new CsvFile(__DIR__ . '/../../_data/users.csv')
@@ -694,7 +694,7 @@ class SimpleAliasTest extends StorageApiTestCase
 
     public function testAliasingBetweenInAndOutShouldBeAllowed()
     {
-        $inTableId = $this->_client->createTable(
+        $inTableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'users',
             new CsvFile(__DIR__ . '/../../_data/users.csv')
@@ -708,7 +708,7 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->assertNotEmpty($aliasId, 'in -> in');
         $this->_client->dropTable($aliasId);
 
-        $outTableId = $this->_client->createTable(
+        $outTableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_OUT),
             'users',
             new CsvFile(__DIR__ . '/../../_data/users.csv')
@@ -726,7 +726,7 @@ class SimpleAliasTest extends StorageApiTestCase
     public function testAliasAutoSyncCannotBeChangedIfDependentAliases()
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
-        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+        $sourceTableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
         $aliasTableId = $this->_client->createAliasTable(
             $this->getTestBucketId(self::STAGE_OUT),
             $sourceTableId,
@@ -748,7 +748,7 @@ class SimpleAliasTest extends StorageApiTestCase
     public function testAliasFilterCannotBeChangedIfDependentAliases()
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
-        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+        $sourceTableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
         $aliasTableId = $this->_client->createAliasTable(
             $this->getTestBucketId(self::STAGE_OUT),
             $sourceTableId,
@@ -771,7 +771,7 @@ class SimpleAliasTest extends StorageApiTestCase
     public function testAliasingAliasWithoutAutoSyncShouldFail()
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
-        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+        $sourceTableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
         $aliasTableId = $this->_client->createAliasTable(
             $this->getTestBucketId(self::STAGE_OUT),
             $sourceTableId,
@@ -790,7 +790,7 @@ class SimpleAliasTest extends StorageApiTestCase
     public function testAliasingAliasWithFilterShouldFail()
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
-        $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+        $sourceTableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
         $aliasTableId = $this->_client->createAliasTable(
             $this->getTestBucketId(self::STAGE_OUT),
             $sourceTableId,
@@ -816,7 +816,7 @@ class SimpleAliasTest extends StorageApiTestCase
         $importFile = __DIR__ . '/../../_data/languages.csv';
 
         // create and import data into source table
-        $sourceTableId = $this->_client->createTable(
+        $sourceTableId = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'languages',
             new CsvFile($importFile),
@@ -891,7 +891,7 @@ class SimpleAliasTest extends StorageApiTestCase
         $destinationBucketId = $this->getTestBucketId(self::STAGE_OUT);
 
         // create and import data into source table
-        $sourceTableId = $this->_client->createTable(
+        $sourceTableId = $this->_client->createTableAsync(
             $sourceBucketId,
             'languages',
             new CsvFile($importFile),

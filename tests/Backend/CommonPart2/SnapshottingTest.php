@@ -22,7 +22,7 @@ class SnapshottingTest extends StorageApiTestCase
 
     public function testTableSnapshotCreate()
     {
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),
@@ -51,7 +51,7 @@ class SnapshottingTest extends StorageApiTestCase
 
     public function testTableSnapshotDelete()
     {
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),
@@ -82,7 +82,7 @@ class SnapshottingTest extends StorageApiTestCase
 
     public function testCreateTableFromSnapshotWithDifferentName()
     {
-        $sourceTableId = $this->_client->createTable(
+        $sourceTableId = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.camel-case-columns.csv'),
@@ -101,7 +101,7 @@ class SnapshottingTest extends StorageApiTestCase
 
     public function testGetTableSnapshot()
     {
-        $sourceTableId = $this->_client->createTable(
+        $sourceTableId = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),
@@ -129,7 +129,7 @@ class SnapshottingTest extends StorageApiTestCase
      */
     public function testSnapshotPermissions()
     {
-        $sourceTableId = $this->_client->createTable(
+        $sourceTableId = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),

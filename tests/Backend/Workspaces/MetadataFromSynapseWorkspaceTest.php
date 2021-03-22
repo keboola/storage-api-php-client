@@ -135,7 +135,7 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
 
     public function testCopyImport()
     {
-        $table_id = $this->_client->createTable(
+        $table_id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages3',
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),
