@@ -1363,8 +1363,8 @@ class BranchComponentTest extends StorageApiTestCase
         $branchName = __CLASS__ . '\\' . $this->getName() . '\\' . $providedToken['id'];
         $this->deleteBranchesByPrefix($devBranch, $branchName);
         $branch = $devBranch->createBranch($branchName);
-
-        $componentsApi = new \Keboola\StorageApi\Components($this->getBranchAwareDefaultClient($branch['id']));
+        $branchClient = $this->getBranchAwareDefaultClient($branch['id']);
+        $componentsApi = new \Keboola\StorageApi\Components($branchClient);
 
         // create configuration
         $configuration = (new \Keboola\StorageApi\Options\Components\Configuration())
@@ -1401,7 +1401,13 @@ class BranchComponentTest extends StorageApiTestCase
         // rollback to version 2 - conf V6
         // second row should be missing, and first row should be rolled back to first version
         $componentsApi->rollbackConfiguration('wr-db', $configurationV1['id'], 2);
-
+        sleep(1); // wait to propagate the event to elastic
+        $events = $branchClient->listEvents([
+            'component' => 'storage',
+            'q' => 'storage.componentConfigurationRolledBack',
+        ]);
+        $lastEvent = $events[0];
+        $this->assertEquals($branch['id'], $lastEvent['idBranch']);
         $rollbackedConfiguration = $componentsApi->getConfiguration('wr-db', $configurationV1['id']);
 
         // asserts about the configuration itself
@@ -1432,6 +1438,14 @@ class BranchComponentTest extends StorageApiTestCase
 
         // rollback to version 5 - conf V7
         $componentsApi->rollbackConfiguration('wr-db', $configurationV1['id'], 5, 'custom description');
+        sleep(1); // wait to propagate the event to elastic
+        $events = $branchClient->listEvents([
+            'component' => 'storage',
+            'q' => 'storage.componentConfigurationRolledBack',
+            'sinceId' => $lastEvent['id'],
+        ]);
+        $lastEvent = $events[0];
+        $this->assertEquals($branch['id'], $lastEvent['idBranch']);
         $rollbackedConfiguration = $componentsApi->getConfiguration('wr-db', $configurationV1['id']);
         // asserts about the configuration itself
         $this->assertEquals(7, $rollbackedConfiguration['version'], 'Rollback added new configuration version');
