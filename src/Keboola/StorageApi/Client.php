@@ -576,6 +576,7 @@ class Client
     }
 
     /**
+     * @deprecated Syncronous table creating is deprecated, use Client::createTableAsync()
      * @param $bucketId
      * @param $name
      * @param CsvFile $csvFile
@@ -585,31 +586,7 @@ class Client
      */
     public function createTable($bucketId, $name, CsvFile $csvFile, $options = array())
     {
-        $options = array(
-            "bucketId" => $bucketId,
-            "name" => $name,
-            "delimiter" => $csvFile->getDelimiter(),
-            "enclosure" => $csvFile->getEnclosure(),
-            "escapedBy" => $csvFile->getEscapedBy(),
-            "primaryKey" => isset($options['primaryKey']) ? $options['primaryKey'] : null,
-            "columns" => isset($options['columns']) ? $options['columns'] : null,
-            "data" => fopen($csvFile->getPathname(), 'r'),
-            'syntheticPrimaryKeyEnabled' => isset($options['syntheticPrimaryKeyEnabled']) ? $options['syntheticPrimaryKeyEnabled'] : null,
-        );
-
-
-        $tableId = $this->getTableId($name, $bucketId);
-        if ($tableId) {
-            return $tableId;
-        }
-        $result = $this->apiPostMultipart("buckets/" . $bucketId . "/tables", $this->prepareMultipartData($options));
-
-        $this->log("Table {$result["id"]} created", array("options" => $options, "result" => $result));
-
-        if (!empty($options['data']) && is_resource($options['data'])) {
-            fclose($options['data']);
-        }
-        return $result["id"];
+        return $this->createTableAsync($bucketId, $name, $csvFile, $options);
     }
 
     /**
