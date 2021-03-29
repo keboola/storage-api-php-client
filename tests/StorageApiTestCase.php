@@ -10,6 +10,7 @@
 namespace Keboola\Test;
 
 use Keboola\StorageApi\DevBranches;
+use Keboola\StorageApi\Tokens;
 use function array_key_exists;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
@@ -35,10 +36,11 @@ abstract class StorageApiTestCase extends ClientTestCase
 
     protected $_bucketIds = array();
 
-    /**
-     * @var \Keboola\StorageApi\Client
-     */
+    /** @var Client */
     protected $_client;
+
+    /** @var Tokens */
+    protected $tokens;
 
     /**
      * Checks that two arrays are same except some keys, which MUST be different
@@ -80,6 +82,7 @@ abstract class StorageApiTestCase extends ClientTestCase
     public function setUp()
     {
         $this->_client = $this->getDefaultClient();
+        $this->tokens = new Tokens($this->_client);
     }
 
     protected function _initEmptyTestBuckets($stages = [self::STAGE_OUT, self::STAGE_IN])
