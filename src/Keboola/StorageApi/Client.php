@@ -1147,6 +1147,7 @@ class Client
      * returns all tokens
      *
      * @return array
+     * @deprecated Will be removed in next major release. Use Tokens::listTokens()
      */
     public function listTokens()
     {

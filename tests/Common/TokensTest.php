@@ -12,6 +12,7 @@ use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
+use Keboola\StorageApi\Tokens;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Client;
@@ -45,7 +46,7 @@ class TokensTest extends StorageApiTestCase
 
     private function initTokens()
     {
-        foreach ($this->_client->listTokens() as $token) {
+        foreach ($this->tokens->listTokens() as $token) {
             if ($token['isMasterToken']) {
                 continue;
             }
@@ -140,7 +141,7 @@ class TokensTest extends StorageApiTestCase
         $this->assertEquals($firstLimit['name'], $limitKeys[0]);
 
         $tokenFound = false;
-        foreach ($this->_client->listTokens() as $token) {
+        foreach ($this->tokens->listTokens() as $token) {
             if ($token['id'] !== $currentToken['id']) {
                 continue;
             }
@@ -206,7 +207,7 @@ class TokensTest extends StorageApiTestCase
         $this->assertEquals($firstLimit['name'], $limitKeys[0]);
 
         $tokenFound = false;
-        foreach ($this->_client->listTokens() as $token) {
+        foreach ($this->tokens->listTokens() as $token) {
             if ($token['id'] !== $currentToken['id']) {
                 continue;
             }
@@ -375,16 +376,16 @@ class TokensTest extends StorageApiTestCase
 
     public function testTokenDrop()
     {
-        $initialTokens = $this->_client->listTokens();
+        $initialTokens = $this->tokens->listTokens();
 
         $tokenId = $this->_client->createToken(new TokenCreateOptions());
 
-        $tokens = $this->_client->listTokens();
+        $tokens = $this->tokens->listTokens();
         $this->assertCount(count($initialTokens) + 1, $tokens);
 
         $this->_client->dropToken($tokenId);
 
-        $tokens = $this->_client->listTokens();
+        $tokens = $this->tokens->listTokens();
         $this->assertCount(count($initialTokens), $tokens);
     }
 
@@ -978,7 +979,7 @@ class TokensTest extends StorageApiTestCase
 
     public function testTokenWithoutTokensManagePermissionCanListAndViewOnlySelf()
     {
-        $initialTokens = $this->_client->listTokens();
+        $initialTokens = $this->tokens->listTokens();
 
         $options = (new TokenCreateOptions())
             ->setDescription('Token without canManageTokens permission')
@@ -986,7 +987,7 @@ class TokensTest extends StorageApiTestCase
 
         $tokenId = $this->_client->createToken($options);
 
-        $tokens = $this->_client->listTokens();
+        $tokens = $this->tokens->listTokens();
         $this->assertCount(count($initialTokens) + 1, $tokens);
 
         $token = $this->_client->getToken($tokenId);
@@ -999,7 +1000,8 @@ class TokensTest extends StorageApiTestCase
 
         $verifiedToken = $client->verifyToken();
 
-        $tokens = $client->listTokens();
+        $tokens = new Tokens($client);
+        $tokens = $tokens->listTokens();
         $this->assertCount(1, $tokens);
 
         $token = reset($tokens);

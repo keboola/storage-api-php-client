@@ -58,7 +58,7 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
     private function initTestToken($testName)
     {
         $oldTestTokens = array_filter(
-            $this->_client->listTokens(),
+            $this->tokens->listTokens(),
             function (array $token) use ($testName) {
                 return $token['description'] === $testName;
             }
