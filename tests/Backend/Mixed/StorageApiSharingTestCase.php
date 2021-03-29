@@ -4,6 +4,7 @@ namespace Keboola\Test\Backend\Mixed;
 
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Tokens;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\StorageApiTestCase;
 
@@ -13,6 +14,9 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
 
     /** @var Client */
     protected $_client2;
+
+    /** @var Tokens */
+    protected $tokensInLinkingProject;
 
     /** @var Client */
     protected $clientAdmin2InSameOrg;
@@ -30,6 +34,8 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
         $this->_client2 = $this->getClientForToken(
             STORAGE_API_LINKING_TOKEN
         );
+
+        $this->tokensInLinkingProject = new Tokens($this->_client2);
 
         $this->clientAdmin2InSameOrg = $this->getClientForToken(
             STORAGE_API_TOKEN_ADMIN_2_IN_SAME_ORGANIZATION

@@ -222,7 +222,7 @@ class DevBranchesTest extends StorageApiTestCase
         ;
 
         $tokenId = $this->_client->createToken($options);
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->getToken($tokenId);
 
         $branches = new DevBranches($this->getClientForToken($token['token']));
 

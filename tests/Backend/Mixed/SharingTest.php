@@ -56,7 +56,7 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertArrayHasKey('displayName', $response);
 
         $tokenId = $this->_client2->createToken($this->createTestTokenOptions(true));
-        $token = $this->_client2->getToken($tokenId);
+        $token = $this->tokensInLinkingProject->getToken($tokenId);
 
         $client = $this->getClient([
             'token' => $token['token'],
@@ -293,7 +293,7 @@ class SharingTest extends StorageApiSharingTestCase
                 ->addBucketPermission($linkedBucketId, TokenAbstractOptions::BUCKET_PERMISSION_READ)
         );
 
-        $cannotManageBucketsClient = $this->getClientForToken($this->_client2->getToken($tokenId)['token']);
+        $cannotManageBucketsClient = $this->getClientForToken($this->tokensInLinkingProject->getToken($tokenId)['token']);
 
         $this->assertTrue($cannotManageBucketsClient->bucketExists($linkedBucketId));
 
@@ -335,7 +335,7 @@ class SharingTest extends StorageApiSharingTestCase
 
         // new token creation
         $tokenId = $this->_client->createToken($this->createTestTokenOptions(true));
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->getToken($tokenId);
 
         $client = $this->getClient([
             'token' => $token['token'],
@@ -744,7 +744,7 @@ class SharingTest extends StorageApiSharingTestCase
         $linkedBucketId = $this->_client2->linkBucket("linked-" . time(), 'out', $sharedBucket['project']['id'], $sharedBucket['id']);
 
         $tokenId = $this->_client2->createToken($this->createTestTokenOptions(true));
-        $token = $this->_client2->getToken($tokenId);
+        $token = $this->tokensInLinkingProject->getToken($tokenId);
 
         $client = $this->getClient([
             'token' => $token['token'],

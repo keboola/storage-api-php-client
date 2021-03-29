@@ -205,7 +205,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         ;
 
         $newTokenId = $this->_client->createToken($tokenOptions);
-        $newToken = $this->_client->getToken($newTokenId);
+        $newToken = $this->tokens->getToken($newTokenId);
         $newTokenClient = $this->getClient([
             'token' => $newToken['token'],
             'url' => STORAGE_API_URL
@@ -1085,7 +1085,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
             ->addBucketPermission($this->getTestBucketId(self::STAGE_OUT), TokenAbstractOptions::BUCKET_PERMISSION_READ);
 
         $tokenId = $this->_client->createToken($tokenOptions);
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->getToken($tokenId);
 
         $testClient = $this->getClient([
             'token' => $token['token'],

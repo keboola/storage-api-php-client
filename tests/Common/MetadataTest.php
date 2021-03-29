@@ -817,7 +817,7 @@ class MetadataTest extends StorageApiTestCase
         ;
 
         $tokenId = $this->_client->createToken($options);
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->getToken($tokenId);
         return $token['token'];
     }
 }

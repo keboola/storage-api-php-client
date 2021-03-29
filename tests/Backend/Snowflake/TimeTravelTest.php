@@ -204,7 +204,7 @@ class TimeTravelTest extends StorageApiTestCase
         ;
 
         $outputBucketTokenId = $this->_client->createToken($outputBucketTokenOptions);
-        $outputBucketToken = $this->_client->getToken($outputBucketTokenId);
+        $outputBucketToken = $this->tokens->getToken($outputBucketTokenId);
 
         $outputBucketClient = $this->getClient([
             'token' => $outputBucketToken['token'],
@@ -221,7 +221,7 @@ class TimeTravelTest extends StorageApiTestCase
         ;
 
         $inputBucketTokenId = $this->_client->createToken($inputBucketTokenOptions);
-        $inputBucketToken = $this->_client->getToken($inputBucketTokenId);
+        $inputBucketToken = $this->tokens->getToken($inputBucketTokenId);
 
         $inputBucketClient = $this->getClient([
             'token' => $inputBucketToken['token'],
@@ -239,7 +239,7 @@ class TimeTravelTest extends StorageApiTestCase
         ;
 
         $minimalTokenId = $this->_client->createToken($minimalTokenOptions);
-        $minimalToken = $this->_client->getToken($minimalTokenId);
+        $minimalToken = $this->tokens->getToken($minimalTokenId);
 
         $minimalClient = $this->getClient([
             'token' => $minimalToken['token'],
