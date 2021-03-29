@@ -1160,6 +1160,7 @@ class Client
      *
      * @param string $tokenId token id
      * @return array
+     * @deprecated Will be removed in next major release. Use Tokens::getToken()
      */
     public function getToken($tokenId)
     {

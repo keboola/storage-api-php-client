@@ -1558,7 +1558,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         ;
 
         $tokenId = $this->_client->createToken($tokenOptions);
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->getToken($tokenId);
 
         $testClient = $this->getClient([
             'token' => $token['token'],

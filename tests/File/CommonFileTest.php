@@ -257,7 +257,7 @@ class CommonFileTest extends StorageApiTestCase
         ;
 
         $newTokenId = $this->_client->createToken($tokenOptions);
-        $newToken = $this->_client->getToken($newTokenId);
+        $newToken = $this->tokens->getToken($newTokenId);
 
         $this->createAndWaitForFile($filePath, $uploadOptions);
 
@@ -297,7 +297,7 @@ class CommonFileTest extends StorageApiTestCase
         ;
 
         $newTokenId = $this->_client->createToken($tokenOptions);
-        $newToken = $this->_client->getToken($newTokenId);
+        $newToken = $this->tokens->getToken($newTokenId);
 
         // new token should not have access to any files
         $newTokenClient = $this->getClient([
@@ -313,7 +313,7 @@ class CommonFileTest extends StorageApiTestCase
                 ->setCanReadAllFileUploads(false)
         );
 
-        $token = $this->_client->getToken($newTokenId);
+        $token = $this->tokens->getToken($newTokenId);
         $this->assertFalse($token['canReadAllFileUploads']);
 
         try {

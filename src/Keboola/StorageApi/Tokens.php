@@ -15,4 +15,12 @@ class Tokens
     {
         return $this->client->apiGet("tokens");
     }
+
+    /**
+     * @return array
+     */
+    public function getToken($id)
+    {
+        return $this->client->apiGet("tokens/{$id}");
+    }
 }

@@ -1362,7 +1362,7 @@ class ComponentsTest extends StorageApiTestCase
         ;
 
         $tokenId = $this->_client->createToken($tokenOptions);
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->getToken($tokenId);
 
         $client = $this->getClient([
             'token' => $token['token'],
@@ -1389,7 +1389,7 @@ class ComponentsTest extends StorageApiTestCase
         ;
 
         $tokenId = $this->_client->createToken($tokenOptions);
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->getToken($tokenId);
 
         $client = $this->getClient([
             'token' => $token['token'],
@@ -1430,7 +1430,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $tokenId = $this->_client->createToken($tokenOptions);
 
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->getToken($tokenId);
         $client = $this->getClient([
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
@@ -1934,7 +1934,7 @@ class ComponentsTest extends StorageApiTestCase
         ;
 
         $newTokenId = $this->_client->createToken($tokenOptions);
-        $newToken = $this->_client->getToken($newTokenId);
+        $newToken = $this->tokens->getToken($newTokenId);
 
         $newClient = $this->getClient([
             'token' => $newToken['token'],

@@ -111,7 +111,7 @@ class DirectAccessTest extends StorageApiTestCase
     {
         $backend = self::BACKEND_SNOWFLAKE;
         $newTokenId = $this->_client->createToken(new TokenCreateOptions());
-        $newToken = $this->_client->getToken($newTokenId);
+        $newToken = $this->tokens->getToken($newTokenId);
         $client = $this->getClient([
             'token' => $newToken['token'],
             'url' => STORAGE_API_URL,
