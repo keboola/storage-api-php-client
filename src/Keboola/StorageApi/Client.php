@@ -1248,6 +1248,7 @@ class Client
      *
      * @param string $tokenId If not set, defaults to self
      * @return string new token
+     * @deprecated $tokenId parameter will be removed in next major release. Use Tokens::refreshToken()
      */
     public function refreshToken($tokenId = null)
     {

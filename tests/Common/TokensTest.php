@@ -285,7 +285,7 @@ class TokensTest extends StorageApiTestCase
     {
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Argument "id" is expected to be type "int", value "foo" given.');
-        $this->_client->refreshToken('foo');
+        $this->tokens->refreshToken('foo');
     }
 
     public function testTokenGetWhenTokenIsString()
@@ -481,7 +481,7 @@ class TokensTest extends StorageApiTestCase
 
         sleep(1);
 
-        $this->_client->refreshToken($token['id']);
+        $this->tokens->refreshToken($token['id']);
         $token = $this->tokens->getToken($token['id']);
 
         $refreshed = new \DateTime($token['refreshed']);
@@ -507,7 +507,8 @@ class TokensTest extends StorageApiTestCase
         $this->expectException(ClientException::class);
         $this->expectExceptionCode(403);
 
-        $limitAccessTokenClient->refreshToken($otherToken['id']);
+        $limitAccessTokens = new Tokens($limitAccessTokenClient);
+        $limitAccessTokens->refreshToken($otherToken['id']);
         $this->assertEquals($limitedAccessToken, $this->tokens->getToken($limitedAccessToken['id']));
     }
 
