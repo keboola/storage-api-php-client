@@ -12,7 +12,7 @@ class TokensShareTest extends StorageApiTestCase
     {
         try {
             $token = $this->_client->verifyToken();
-            $this->_client->shareToken($token['id'], 'test@devel.keboola.com', 'Hi');
+            $this->tokens->shareToken($token['id'], 'test@devel.keboola.com', 'Hi');
             $this->fail('Master token should not be shareable');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.token.cannotShareMasterToken', $e->getStringCode());
@@ -22,6 +22,6 @@ class TokensShareTest extends StorageApiTestCase
     public function testTokenShare()
     {
         $newToken = $this->tokens->createToken(new TokenCreateOptions());
-        $this->_client->shareToken($newToken['id'], 'test@devel.keboola.com', 'Hi');
+        $this->tokens->shareToken($newToken['id'], 'test@devel.keboola.com', 'Hi');
     }
 }
