@@ -1216,6 +1216,7 @@ class Client
      *
      * @param TokenUpdateOptions $options
      * @return int token id
+     * @deprecated Will be removed in next major release. Use Tokens::updateToken()
      */
     public function updateToken(TokenUpdateOptions $options)
     {

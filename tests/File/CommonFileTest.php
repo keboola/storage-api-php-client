@@ -306,12 +306,11 @@ class CommonFileTest extends StorageApiTestCase
         $file = $newTokenClient->getFile($file['id']);
         $this->assertNotEmpty($file);
 
-        $this->_client->updateToken(
+        $token = $this->tokens->updateToken(
             (new TokenUpdateOptions($newToken['id']))
                 ->setCanReadAllFileUploads(false)
         );
 
-        $token = $this->tokens->getToken($newToken['id']);
         $this->assertFalse($token['canReadAllFileUploads']);
 
         try {

@@ -313,8 +313,7 @@ class TokensTest extends StorageApiTestCase
             ->addBucketPermission($this->outBucketId, $permission)
         ;
 
-        $this->_client->updateToken($options);
-        $token = $this->tokens->getToken($token['id']);
+        $token = $this->tokens->updateToken($options);
 
         $bucketPermissions = $token['bucketPermissions'];
         $this->assertCount(1, $bucketPermissions);
@@ -328,8 +327,7 @@ class TokensTest extends StorageApiTestCase
             ->addBucketPermission($this->outBucketId, $permission)
         ;
 
-        $this->_client->updateToken($options);
-        $token = $this->tokens->getToken($token['id']);
+        $token = $this->tokens->updateToken($options);
 
         $bucketPermissions = $token['bucketPermissions'];
         $this->assertCount(1, $bucketPermissions);
@@ -343,7 +341,7 @@ class TokensTest extends StorageApiTestCase
         ;
 
         try {
-            $this->_client->updateToken($options);
+            $this->tokens->updateToken($options);
             $this->fail('Manage permissions should not be allowed to set');
         } catch (ClientException $e) {
             $this->assertEquals('storage.tokens.invalidPermissions', $e->getStringCode());
@@ -630,7 +628,7 @@ class TokensTest extends StorageApiTestCase
             ->addComponentAccess('provisioning')
         ;
 
-        $this->_client->updateToken($options);
+        $this->tokens->updateToken($options);
 
         $componentList = $components->listComponents();
         $this->assertCount(1, $componentList);
@@ -930,9 +928,7 @@ class TokensTest extends StorageApiTestCase
             ->addBucketPermission($this->outBucketId, TokenAbstractOptions::BUCKET_PERMISSION_READ)
         ;
 
-        $this->_client->updateToken($options);
-
-        $token = $this->tokens->getToken($token['id']);
+        $token = $this->tokens->updateToken($options);
 
         $this->assertTrue($token['canManageBuckets']);
 
@@ -948,9 +944,7 @@ class TokensTest extends StorageApiTestCase
             ->setDescription('CanManageBuckets update 2')
         ;
 
-        $this->_client->updateToken($options);
-
-        $token = $this->tokens->getToken($token['id']);
+        $token = $this->tokens->updateToken($options);
 
         $this->assertTrue($token['canManageBuckets']);
 
@@ -1076,9 +1070,8 @@ class TokensTest extends StorageApiTestCase
             ->setCanPurgeTrash(true)
         ;
 
-        $this->_client->updateToken($options);
+        $token = $this->tokens->updateToken($options);
 
-        $token = $this->tokens->getToken($token['id']);
         $this->assertTrue($token['canPurgeTrash']);
 
         $components->deleteConfiguration('provisioning', 'for-delete');

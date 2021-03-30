@@ -229,8 +229,8 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         );
 
         // non admin token without canReadAllFileUploads permission
-        $this->_client->updateToken(
-            (new TokenUpdateOptions($newTokenId))
+        $this->tokens->updateToken(
+            (new TokenUpdateOptions($newToken['id']))
                 ->setCanReadAllFileUploads(false)
         );
 

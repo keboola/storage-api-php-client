@@ -287,12 +287,12 @@ class SharingTest extends StorageApiSharingTestCase
         // bucket unlink with token without canManage permission
         $token = $this->tokensInLinkingProject->createToken($this->createTestTokenOptions(false));
 
-        $this->_client2->updateToken(
+        $this->tokensInLinkingProject->updateToken(
             (new TokenUpdateOptions($token['id']))
                 ->addBucketPermission($linkedBucketId, TokenAbstractOptions::BUCKET_PERMISSION_READ)
         );
 
-        $cannotManageBucketsClient = $this->getClientForToken($this->tokensInLinkingProject->getToken($tokenId)['token']);
+        $cannotManageBucketsClient = $this->getClientForToken($token['token']);
 
         $this->assertTrue($cannotManageBucketsClient->bucketExists($linkedBucketId));
 
