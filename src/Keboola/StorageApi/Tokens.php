@@ -50,4 +50,12 @@ class Tokens
     {
         $this->client->apiDelete("tokens/" . $id);
     }
+
+    public function shareToken($id, $recipientEmail, $message)
+    {
+        $this->client->apiPost("tokens/$id/share", [
+            'recipientEmail' => $recipientEmail,
+            'message' => $message,
+        ]);
+    }
 }

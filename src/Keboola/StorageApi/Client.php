@@ -1271,6 +1271,7 @@ class Client
      * @param $tokenId
      * @param $recipientEmail
      * @param $message
+     * @deprecated Will be removed in next major release. Use Tokens::shareToken()
      */
     public function shareToken($tokenId, $recipientEmail, $message)
     {
