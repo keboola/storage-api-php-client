@@ -840,16 +840,19 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
         // View definition should be available
         self::assertStringStartsWith('CREATE VIEW', $viewRef->getViewDefinition());
         self::assertEquals(['id', 'name', '_timestamp'], $tableRef->getColumnsNames());
+        self::assertCount(5, $backend->fetchAll('languages'));
 
         // test if view is refreshed after column add
         $this->_client->addTableColumn($tableId, 'newGuy');
         $tableRef = $backend->getTableReflection('languages');
         self::assertEquals(['id', 'name', '_timestamp', 'newGuy'], $tableRef->getColumnsNames());
+        self::assertCount(5, $backend->fetchAll('languages'));
 
         // test if view is refreshed after column remove
         $this->_client->deleteTableColumn($tableId, 'newGuy');
         $tableRef = $backend->getTableReflection('languages');
         self::assertEquals(['id', 'name', '_timestamp'], $tableRef->getColumnsNames());
+        self::assertCount(5, $backend->fetchAll('languages'));
 
         // test preserve load
         $options = [
@@ -911,6 +914,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
         // test view is still working
         $tableRef = $backend->getTableReflection('languages');
         self::assertEquals(['id', 'name', '_timestamp'], $tableRef->getColumnsNames());
+        self::assertCount(10, $backend->fetchAll('languages'));
 
         // load data from workspace to table
         $workspace2 = $workspaces->createWorkspace();
@@ -933,6 +937,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
         // test view is still working
         $tableRef = $backend->getTableReflection('languages');
         self::assertEquals(['id', 'name', '_timestamp'], $tableRef->getColumnsNames());
+        self::assertCount(10, $backend->fetchAll('languages'));
 
         // load data from file workspace
         $fileWorkspace = $workspaces->createWorkspace([
@@ -957,6 +962,9 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
         // test view is still working
         $tableRef = $backend->getTableReflection('languages');
         self::assertEquals(['id', 'name', '_timestamp'], $tableRef->getColumnsNames());
+        // data are not loaded right due to KBC-1418
+        $backend->fetchAll('languages');
+        //self::assertCount(5, $backend->fetchAll('languages'));
 
         // test drop table
         $this->_client->dropTable($tableId);
