@@ -14,6 +14,9 @@ class Tokens
         $this->client = $client;
     }
 
+    /**
+     * @return array
+     */
     public function listTokens()
     {
         return $this->client->apiGet("tokens");
