@@ -1198,6 +1198,9 @@ class Client
         throw new ClientException('Api endpoint \'storage/tokens/keen\' was removed from KBC');
     }
 
+    /**
+     * @deprecated Will be removed in next major release. Use Tokens::createToken()
+     */
     public function createToken(TokenCreateOptions $options)
     {
         $result = $this->apiPost("tokens", $options->toParamsArray());

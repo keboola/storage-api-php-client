@@ -1,6 +1,8 @@
 <?php
 namespace Keboola\StorageApi;
 
+use Keboola\StorageApi\Options\TokenCreateOptions;
+
 class Tokens
 {
     /** @var Client */
@@ -22,5 +24,13 @@ class Tokens
     public function getToken($id)
     {
         return $this->client->apiGet("tokens/{$id}");
+    }
+
+    /**
+     * @return array
+     */
+    public function createToken(TokenCreateOptions $options)
+    {
+        return $this->client->apiPost("tokens", $options->toParamsArray());
     }
 }
