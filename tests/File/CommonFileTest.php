@@ -256,8 +256,7 @@ class CommonFileTest extends StorageApiTestCase
             ->setDescription('Files test')
         ;
 
-        $newTokenId = $this->_client->createToken($tokenOptions);
-        $newToken = $this->tokens->getToken($newTokenId);
+        $newToken = $this->tokens->createToken($tokenOptions);
 
         $this->createAndWaitForFile($filePath, $uploadOptions);
 
@@ -281,7 +280,7 @@ class CommonFileTest extends StorageApiTestCase
         $files = $this->_client->listFiles();
         $this->assertEquals($newFileId, reset($files)['id']);
 
-        $this->_client->dropToken($newTokenId);
+        $this->_client->dropToken($newToken['id']);
     }
 
     public function testFilesPermissionsCanReadAllFiles()
@@ -296,8 +295,7 @@ class CommonFileTest extends StorageApiTestCase
             ->setCanReadAllFileUploads(true)
         ;
 
-        $newTokenId = $this->_client->createToken($tokenOptions);
-        $newToken = $this->tokens->getToken($newTokenId);
+        $newToken = $this->tokens->createToken($tokenOptions);
 
         // new token should not have access to any files
         $newTokenClient = $this->getClient([
@@ -309,11 +307,11 @@ class CommonFileTest extends StorageApiTestCase
         $this->assertNotEmpty($file);
 
         $this->_client->updateToken(
-            (new TokenUpdateOptions($newTokenId))
+            (new TokenUpdateOptions($newToken['id']))
                 ->setCanReadAllFileUploads(false)
         );
 
-        $token = $this->tokens->getToken($newTokenId);
+        $token = $this->tokens->getToken($newToken['id']);
         $this->assertFalse($token['canReadAllFileUploads']);
 
         try {

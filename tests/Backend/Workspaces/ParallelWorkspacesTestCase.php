@@ -77,8 +77,7 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
             ->setDescription($testName)
         ;
 
-        $tokenId = $this->_client->createToken($tokenOptions);
-        $tokenData = $this->tokens->getToken($tokenId);
+        $tokenData = $this->tokens->createToken($tokenOptions);
         return $tokenData['token'];
     }
 

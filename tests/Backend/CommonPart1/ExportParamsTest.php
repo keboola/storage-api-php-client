@@ -210,8 +210,7 @@ class ExportParamsTest extends StorageApiTestCase
             ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
         ;
 
-        $newTokenId = $this->_client->createToken($tokenOptions);
-        $newToken = $this->tokens->getToken($newTokenId);
+        $newToken = $this->tokens->createToken($tokenOptions);
         $client = $this->getClient([
             'token' => $newToken['token'],
             'url' => STORAGE_API_URL,

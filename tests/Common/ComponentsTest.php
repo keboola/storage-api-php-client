@@ -1361,8 +1361,7 @@ class ComponentsTest extends StorageApiTestCase
             ->setDescription('test')
         ;
 
-        $tokenId = $this->_client->createToken($tokenOptions);
-        $token = $this->tokens->getToken($tokenId);
+        $token = $this->tokens->createToken($tokenOptions);
 
         $client = $this->getClient([
             'token' => $token['token'],
@@ -1388,8 +1387,7 @@ class ComponentsTest extends StorageApiTestCase
             ->addComponentAccess('provisioning')
         ;
 
-        $tokenId = $this->_client->createToken($tokenOptions);
-        $token = $this->tokens->getToken($tokenId);
+        $token = $this->tokens->createToken($tokenOptions);
 
         $client = $this->getClient([
             'token' => $token['token'],
@@ -1428,9 +1426,8 @@ class ComponentsTest extends StorageApiTestCase
             ->setCanManageBuckets(true)
         ;
 
-        $tokenId = $this->_client->createToken($tokenOptions);
+        $token = $this->tokens->createToken($tokenOptions);
 
-        $token = $this->tokens->getToken($tokenId);
         $client = $this->getClient([
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
@@ -1449,7 +1446,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertCount(1, $componentsList);
 
         $this->assertEquals($config['id'], $componentsList[0]['configurations'][0]['id']);
-        $this->_client->dropToken($tokenId);
+        $this->_client->dropToken($token['id']);
     }
 
     public function testComponentConfigRowCreate()
@@ -1933,8 +1930,7 @@ class ComponentsTest extends StorageApiTestCase
             ->addComponentAccess('wr-db')
         ;
 
-        $newTokenId = $this->_client->createToken($tokenOptions);
-        $newToken = $this->tokens->getToken($newTokenId);
+        $newToken = $this->tokens->createToken($tokenOptions);
 
         $newClient = $this->getClient([
             'token' => $newToken['token'],
