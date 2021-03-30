@@ -2,6 +2,7 @@
 namespace Keboola\StorageApi;
 
 use Keboola\StorageApi\Options\TokenCreateOptions;
+use Keboola\StorageApi\Options\TokenUpdateOptions;
 
 class Tokens
 {
@@ -33,4 +34,13 @@ class Tokens
     {
         return $this->client->apiPost("tokens", $options->toParamsArray());
     }
+
+    /**
+     * @return array
+     */
+    public function updateToken(TokenUpdateOptions $options)
+    {
+        return $this->client->apiPut("tokens/" . $options->getTokenId(), $options->toParamsArray());
+    }
+
 }
