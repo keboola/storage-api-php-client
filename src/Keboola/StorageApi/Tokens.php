@@ -58,4 +58,12 @@ class Tokens
             'message' => $message,
         ]);
     }
+
+    /**
+     * @return array
+     */
+    public function refreshToken($id)
+    {
+        return $this->client->apiPost("tokens/$id/refresh");
+    }
 }
