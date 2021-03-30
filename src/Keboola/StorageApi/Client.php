@@ -81,6 +81,9 @@ class Client
      */
     public $connectionTimeout = 7200;
 
+    /** @var Tokens */
+    private $tokens;
+
     /**
      * Clients accept an array of constructor parameters.
      *
@@ -143,6 +146,7 @@ class Client
         }
 
         $this->initClient();
+        $this->tokens = new Tokens($this);
     }
 
     private function initClient()
@@ -1151,7 +1155,7 @@ class Client
      */
     public function listTokens()
     {
-        return $this->apiGet("tokens");
+        return $this->tokens->listTokens();
     }
 
     /**
@@ -1164,7 +1168,7 @@ class Client
      */
     public function getToken($tokenId)
     {
-        return $this->apiGet("tokens/" . $tokenId);
+        return $this->tokens->getToken($tokenId);
     }
 
     /**
@@ -1203,7 +1207,7 @@ class Client
      */
     public function createToken(TokenCreateOptions $options)
     {
-        $result = $this->apiPost("tokens", $options->toParamsArray());
+        $result = $this->tokens->createToken($options);
 
         $this->log("Token {$result["id"]} created", ["options" => $options->toParamsArray(), "result" => $result]);
 
@@ -1220,7 +1224,7 @@ class Client
      */
     public function updateToken(TokenUpdateOptions $options)
     {
-        $result = $this->apiPut("tokens/" . $options->getTokenId(), $options->toParamsArray());
+        $result = $this->tokens->updateToken($options);
 
         $this->log("Token {$options->getTokenId()} updated", [
             "options" => $options->toParamsArray(),
@@ -1232,14 +1236,13 @@ class Client
 
     /**
      * @param string $tokenId
-     * @return mixed|string
      * @deprecated Will be removed in next major release. Use Tokens::dropToken()
      */
     public function dropToken($tokenId)
     {
-        $result = $this->apiDelete("tokens/" . $tokenId);
+        $this->tokens->dropToken($tokenId);
         $this->log("Token {$tokenId} deleted");
-        return $result;
+        return ''; // BC
     }
 
     /**
@@ -1257,7 +1260,7 @@ class Client
             $tokenId = $currentToken["id"];
         }
 
-        $result = $this->apiPost("tokens/" . $tokenId . "/refresh");
+        $result = $this->tokens->refreshToken($tokenId);
 
         if ($currentToken["id"] == $result["id"]) {
             $this->token = $result['token'];
@@ -1276,10 +1279,7 @@ class Client
      */
     public function shareToken($tokenId, $recipientEmail, $message)
     {
-        $this->apiPost("tokens/$tokenId/share", array(
-            'recipientEmail' => $recipientEmail,
-            'message' => $message,
-        ));
+        $this->tokens->shareToken($tokenId, $recipientEmail, $message);
     }
 
 
