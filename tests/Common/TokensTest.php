@@ -1370,6 +1370,37 @@ class TokensTest extends StorageApiTestCase
         $guestTokens->createToken($invalidOptions);
     }
 
+    public function testTokenRefreshesSelf()
+    {
+        $options = (new TokenCreateOptions())
+            ->setDescription(__METHOD__)
+            ->setExpiresIn(60 * 5)
+        ;
+
+        $token = $this->tokens->createToken($options);
+
+        $client = $this->getClientForToken($token['token']);
+
+        $oldTokenData = $client->verifyToken();
+        $this->assertTrue($token['token'] === $oldTokenData['token']);
+        $this->assertSame($token['id'], $oldTokenData['id']);
+
+        $client->refreshToken();
+
+        $newTokenData = $client->verifyToken();
+        $this->assertTrue($token['token'] !== $newTokenData['token']);
+        $this->assertNotSame($oldTokenData['refreshed'], $newTokenData['refreshed']);
+        $this->assertSame($token['id'], $newTokenData['id']);
+
+        // Token refresh via Tokens class does not affects current token in Client
+        $tokens = new Tokens($client);
+        $tokens->refreshToken($token['id']);
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionCode(401);
+        $client->verifyToken();
+    }
+
     public function provideInvalidOptionsForGuestUser()
     {
         yield 'missing required' => [
