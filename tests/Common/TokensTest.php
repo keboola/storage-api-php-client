@@ -1401,6 +1401,53 @@ class TokensTest extends StorageApiTestCase
         $client->verifyToken();
     }
 
+    public function testDeprecatedMethods()
+    {
+        $initialTokens = $this->_client->listTokens();
+
+        // token create
+        $options = (new TokenCreateOptions())
+            ->setDescription(__METHOD__)
+            ->setExpiresIn(60 * 5)
+        ;
+
+        $tokenId = $this->_client->createToken($options);
+
+        // tokens list
+        $tokens = $this->_client->listTokens();
+        $this->assertCount(count($initialTokens) + 1, $tokens);
+
+        // token detail
+        $oldTokenData = $this->_client->getToken($tokenId);
+        $this->assertSame($tokenId, $oldTokenData['id']);
+
+        // token update
+        $options = (new TokenUpdateOptions($tokenId))
+            ->setDescription(__METHOD__ . ' updated');
+
+        $tokenId = $this->_client->updateToken($options);
+        $this->assertSame($oldTokenData['id'], $tokenId);
+
+        $newTokenData = $this->_client->getToken($tokenId);
+        $this->assertNotSame($oldTokenData['description'], $newTokenData['description']);
+
+        // token share
+        $this->_client->shareToken($tokenId, 'test@devel.keboola.com', 'Hi');
+
+        // token refresh
+        $newToken = $this->_client->refreshToken($tokenId);
+
+        $client = $this->getClientForToken($newToken);
+        $client->verifyToken();
+
+        // token drop
+        $result = $this->_client->dropToken($tokenId);
+        $this->assertSame('', $result);
+
+        $tokens = $this->_client->listTokens();
+        $this->assertCount(count($initialTokens), $tokens);
+    }
+
     public function provideInvalidOptionsForGuestUser()
     {
         yield 'missing required' => [
