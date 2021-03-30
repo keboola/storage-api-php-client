@@ -278,7 +278,7 @@ class TriggersTest extends StorageApiTestCase
     public function testInvalidToken()
     {
         $token = $this->tokens->createToken(new TokenCreateOptions());
-        $this->_client->dropToken($token['id']);
+        $this->tokens->dropToken($token['id']);
 
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage("Token with id \"{$token['id']}\" was not found.");
@@ -308,7 +308,7 @@ class TriggersTest extends StorageApiTestCase
             ],
         ]);
         try {
-            $this->_client->dropToken($newToken['id']);
+            $this->tokens->dropToken($newToken['id']);
             $this->fail("Token should not be deleted");
         } catch (ClientException $e) {
             $this->assertEquals(400, $e->getCode());
@@ -319,7 +319,7 @@ class TriggersTest extends StorageApiTestCase
             );
         }
         $this->_client->deleteTrigger($trigger['id']);
-        $this->_client->dropToken($newToken['id']);
+        $this->tokens->dropToken($newToken['id']);
     }
 
     public function testTokenWithExpiration()

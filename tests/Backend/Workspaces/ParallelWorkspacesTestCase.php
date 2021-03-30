@@ -66,7 +66,7 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
 
         foreach ($oldTestTokens as $oldTestToken) {
             if ($oldTestToken['canManageBuckets'] !== true) {
-                $this->_client->dropToken($oldTestToken['id']);
+                $this->tokens->dropToken($oldTestToken['id']);
             } else {
                 return $oldTestToken['token'];
             }
