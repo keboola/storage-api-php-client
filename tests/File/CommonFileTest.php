@@ -280,7 +280,7 @@ class CommonFileTest extends StorageApiTestCase
         $files = $this->_client->listFiles();
         $this->assertEquals($newFileId, reset($files)['id']);
 
-        $this->_client->dropToken($newToken['id']);
+        $this->tokens->dropToken($newToken['id']);
     }
 
     public function testFilesPermissionsCanReadAllFiles()

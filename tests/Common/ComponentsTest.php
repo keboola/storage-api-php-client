@@ -1416,7 +1416,7 @@ class ComponentsTest extends StorageApiTestCase
             $this->assertEquals('accessDenied', $e->getStringCode());
         }
 
-        $this->_client->dropToken($tokenId);
+        $this->tokens->dropToken($token['id']);
     }
 
     public function testTokenWithManageAllBucketsShouldHaveAccessToComponents()
@@ -1446,7 +1446,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertCount(1, $componentsList);
 
         $this->assertEquals($config['id'], $componentsList[0]['configurations'][0]['id']);
-        $this->_client->dropToken($token['id']);
+        $this->tokens->dropToken($token['id']);
     }
 
     public function testComponentConfigRowCreate()

@@ -43,4 +43,8 @@ class Tokens
         return $this->client->apiPut("tokens/" . $options->getTokenId(), $options->toParamsArray());
     }
 
+    public function dropToken($id)
+    {
+        $this->client->apiDelete("tokens/" . $id);
+    }
 }

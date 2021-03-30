@@ -1233,6 +1233,7 @@ class Client
     /**
      * @param string $tokenId
      * @return mixed|string
+     * @deprecated Will be removed in next major release. Use Tokens::dropToken()
      */
     public function dropToken($tokenId)
     {
