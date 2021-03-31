@@ -4,7 +4,6 @@
 namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\Csv\CsvFile;
-use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 
 class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
@@ -25,8 +24,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
     public function testIncrementalLoadUpdateDataType()
     {
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace(["backend" => "snowflake"]);
+        $workspace = $this->recreateTestWorkspace(["backend" => "snowflake"]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
         $db->query("create table \"test.metadata_columns\" (
@@ -223,8 +221,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
     {
 
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace(["backend" => "snowflake"]);
+        $workspace = $this->recreateTestWorkspace(["backend" => "snowflake"]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
         $db->query("create table \"test.metadata_columns\" (
@@ -363,8 +360,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         );
 
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace(["backend" => "snowflake"]);
+        $workspace = $this->recreateTestWorkspace(["backend" => "snowflake"]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
         $db->query("create table \"test.Languages3\" (
@@ -458,8 +454,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         );
 
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace(["backend" => "snowflake"]);
+        $workspace = $this->recreateTestWorkspace(["backend" => "snowflake"]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
         $db->query("CREATE OR REPLACE TABLE \"test.metadata_columns\" AS SELECT
@@ -484,8 +479,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
     public function testCreateTableFromWorkspaceWithSnowflakeBug()
     {
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace(["backend" => "snowflake"]);
+        $workspace = $this->recreateTestWorkspace(["backend" => "snowflake"]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
         $db->query("CREATE OR REPLACE TABLE \"test.metadata_columns\" AS SELECT

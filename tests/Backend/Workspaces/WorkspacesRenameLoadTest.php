@@ -17,7 +17,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->recreateTestWorkspace();
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -136,7 +136,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
     public function testDottedDestination()
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->recreateTestWorkspace();
 
         // Create a table of sample data
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -191,7 +191,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
     public function testIncrementalAdditionalColumns()
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->recreateTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -275,7 +275,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
     public function testIncrementalMissingColumns()
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->recreateTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -352,7 +352,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
     public function testIncrementalDataTypesDiff($table, $firstLoadDataColumns, $secondLoadDataColumns)
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->recreateTestWorkspace();
 
         $importFile = __DIR__ . "/../../_data/$table.csv";
 
@@ -409,7 +409,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
     public function testDataTypes($columnsDefinition)
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->recreateTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../_data/languages.camel-case-columns.csv';

@@ -5,7 +5,6 @@ namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\ClientException;
-use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 
 class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
@@ -26,8 +25,7 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
     public function testCreateTableFromWorkspace()
     {
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace(["backend" => "redshift"]);
+        $workspace = $this->recreateTestWorkspace(["backend" => "redshift"]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
         $db->query("create table \"test.metadata_columns\" (
@@ -159,8 +157,7 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
         );
 
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace(["backend" => "redshift"]);
+        $workspace = $this->recreateTestWorkspace(["backend" => "redshift"]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
         $db->query("create table \"test.Languages3\" (
@@ -225,8 +222,7 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
         );
 
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace(["backend" => "redshift"]);
+        $workspace = $this->recreateTestWorkspace(["backend" => "redshift"]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
 
@@ -257,8 +253,7 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
     public function testCreateTableFromWorkspaceWithUnsupportedDataType()
     {
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace(["backend" => "redshift"]);
+        $workspace = $this->recreateTestWorkspace(["backend" => "redshift"]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
 
