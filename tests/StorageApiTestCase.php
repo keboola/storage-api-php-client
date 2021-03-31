@@ -91,7 +91,7 @@ abstract class StorageApiTestCase extends ClientTestCase
 
     protected function initEmptyTestBucketsForParallelTests($stages = [self::STAGE_OUT, self::STAGE_IN])
     {
-        $description = get_class($this) . '\\' . $this->getName();
+        $description = $this->generateDescriptionForTestObject();
         $bucketName = sprintf('API-tests-' . sha1($description));
         foreach ($stages as $stage) {
             $this->_bucketIds[$stage] = $this->initEmptyBucket($bucketName, $stage, $description);
@@ -100,7 +100,7 @@ abstract class StorageApiTestCase extends ClientTestCase
 
     protected function listTestBucketsForParallelTests($stages = [self::STAGE_OUT, self::STAGE_IN])
     {
-        $description = get_class($this) . '\\' . $this->getName();
+        $description = $this->generateDescriptionForTestObject();
         $bucketName = sprintf('API-tests-' . sha1($description));
         $buckets = [];
         foreach ($stages as $stage) {
@@ -517,7 +517,7 @@ abstract class StorageApiTestCase extends ClientTestCase
 
     protected function getExportFilePathForTest($fileName)
     {
-        $testName = get_class($this) . '\\' . $this->getName();
+        $testName = $this->generateDescriptionForTestObject();
         return __DIR__ . '/_tmp/' . sha1($testName) . '.' . $fileName;
     }
 
@@ -549,5 +549,13 @@ abstract class StorageApiTestCase extends ClientTestCase
         }
 
         return $name;
+    }
+
+    /**
+     * @return string
+     */
+    protected function generateDescriptionForTestObject()
+    {
+        return get_class($this) . '\\' . $this->getName();
     }
 }
