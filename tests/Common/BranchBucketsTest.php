@@ -24,7 +24,7 @@ class BranchBucketsTest extends StorageApiTestCase
         $devBranchClient = new DevBranches($this->_client);
         $metadata = new Metadata($this->_client);
 
-        $description = get_class($this) . '\\' . $this->getName();
+        $description = $this->generateDescriptionForTestObject();
 
         $branchName1 = $this->generateBranchNameForParallelTest();
         $devBucketName1 = sprintf('Dev-Branch-Bucket-' . sha1($description));

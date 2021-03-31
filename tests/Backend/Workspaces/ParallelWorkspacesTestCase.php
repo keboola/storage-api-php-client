@@ -19,7 +19,7 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();
 
-        $description = get_class($this) . '\\' . $this->getName();
+        $description = $this->generateDescriptionForTestObject();
 
         $this->deleteOldTestWorkspaces($description);
 
