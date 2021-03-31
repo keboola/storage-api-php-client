@@ -19,12 +19,10 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();
 
-        $description = $this->generateDescriptionForTestObject();
-
-        $this->deleteOldTestWorkspaces($description);
+        $this->deleteOldTestWorkspaces();
 
         $this->workspaceSapiClient = $this->getClient([
-            'token' => $this->initTestToken($description),
+            'token' => $this->initTestToken(),
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
             'jobPollRetryDelay' => function () {
@@ -33,18 +31,11 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
         ]);
     }
 
-    private function deleteOldTestWorkspaces($testName)
+    private function deleteOldTestWorkspaces()
     {
         $workspaces = new Workspaces($this->_client);
 
-        $oldTestWorkspaces = array_filter(
-            $workspaces->listWorkspaces(),
-            function (array $workspace) use ($testName) {
-                return $workspace['creatorToken']['description'] === $testName;
-            }
-        );
-
-        foreach ($oldTestWorkspaces as $workspace) {
+        foreach ($this->listTestWorkspaces() as $workspace) {
             $workspaces->deleteWorkspace($workspace['id'], [
                 'async' => true,
             ]);
@@ -52,15 +43,16 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
     }
 
     /**
-     * @param string $testName
      * @return string
      */
-    private function initTestToken($testName)
+    private function initTestToken()
     {
+        $description = $this->generateDescriptionForTestObject();
+
         $oldTestTokens = array_filter(
             $this->_client->listTokens(),
-            function (array $token) use ($testName) {
-                return $token['description'] === $testName;
+            function (array $token) use ($description) {
+                return $token['description'] === $description;
             }
         );
 
@@ -74,7 +66,7 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
 
         $tokenOptions = (new TokenCreateOptions())
             ->setCanManageBuckets(true)
-            ->setDescription($testName)
+            ->setDescription($this->generateDescriptionForTestObject())
         ;
 
         $tokenId = $this->_client->createToken($tokenOptions);
@@ -89,6 +81,19 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
             function ($job) use ($workspaceId) {
                 $workspaceIdParam = isset($job['operationParams']['workspaceId']) ? (int) $job['operationParams']['workspaceId'] : 0;
                 return (int) $workspaceIdParam === $workspaceId;
+            }
+        );
+    }
+
+    private function listTestWorkspaces()
+    {
+        $description = $this->generateDescriptionForTestObject();
+        $workspaces = new Workspaces($this->_client);
+
+        return array_filter(
+            $workspaces->listWorkspaces(),
+            function (array $workspace) use ($description) {
+                return $workspace['creatorToken']['description'] === $description;
             }
         );
     }
