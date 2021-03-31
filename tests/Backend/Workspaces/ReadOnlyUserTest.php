@@ -13,7 +13,7 @@ class ReadOnlyUserTest extends ParallelWorkspacesTestCase
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
         $workspace = $workspaces->getWorkspace($workspace['id']);
 
         $readOnlyWorkspaces = new Workspaces($readOnlyClient);

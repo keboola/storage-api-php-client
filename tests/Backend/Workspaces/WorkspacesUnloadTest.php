@@ -28,7 +28,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages-case-sensitive', $importFile);
 
         // create workspace and source table in workspace
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         $connection = $workspace['connection'];
 
@@ -54,7 +54,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
     public function testCreateTableFromWorkspace()
     {
         // create workspace and source table in workspace
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         $connection = $workspace['connection'];
 
@@ -87,7 +87,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
     public function testCreateTableFromWorkspaceWithInvalidColumnNames()
     {
         // create workspace and source table in workspace
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         $connection = $workspace['connection'];
 
@@ -115,7 +115,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
     public function testImportFromWorkspaceWithInvalidColumnNames()
     {
         // create workspace and source table in workspace
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         $connection = $workspace['connection'];
 
@@ -156,7 +156,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         ));
 
         // create workspace and source table in workspace
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         $connection = $workspace['connection'];
 

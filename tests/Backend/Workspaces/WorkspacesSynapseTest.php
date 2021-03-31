@@ -26,7 +26,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTableAsync(
@@ -90,7 +90,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
     public function testLoadDataTypesDefaults()
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         // Create a table of sample data
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -190,7 +190,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
         ];
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $workspaces->loadWorkspaceData($workspace['id'], ['input' => [$mapping]]);
@@ -249,7 +249,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
 
@@ -326,7 +326,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
 
@@ -399,7 +399,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
 
@@ -496,7 +496,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
 
@@ -588,7 +588,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
     public function testsIncrementalDataTypesDiff($table, $firstLoadColumns, $secondLoadColumns, $shouldFail)
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         $importFile = __DIR__ . "/../../_data/$table.csv";
 
@@ -639,7 +639,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
     public function testOutBytesMetricsWithLoadWorkspaceWithRows()
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         // Create a table of sample data
         $table1Id = $this->_client->createTable(
@@ -683,7 +683,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
     public function testOutBytesMetricsWithLoadWorkspaceWithSeconds()
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         // Create a table of sample data
         $table1Id = $this->_client->createTable(

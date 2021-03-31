@@ -12,7 +12,7 @@ class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
     public function testCreateTableFromWorkspace()
     {
         // create workspace and source table in workspace
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         $connection = $workspace['connection'];
 
@@ -53,7 +53,7 @@ class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
     public function testCreateTableFromWorkspaceWithInvalidColumnNames()
     {
         // create workspace and source table in workspace
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         $connection = $workspace['connection'];
 
@@ -89,7 +89,7 @@ class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
     public function testImportFromWorkspaceWithInvalidColumnNames()
     {
         // create workspace and source table in workspace
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         $connection = $workspace['connection'];
 
@@ -138,7 +138,7 @@ class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         ));
 
         // create workspace and source table in workspace
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         $connection = $workspace['connection'];
 
