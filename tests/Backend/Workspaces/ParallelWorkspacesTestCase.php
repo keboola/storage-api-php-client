@@ -42,6 +42,27 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
         return $workspaces->createWorkspace($options);
     }
 
+    /**
+     * Creates a new workspace for current test. If workspace already exist, resets its password
+     *
+     * @return array workspace detail
+     */
+    protected function initTestWorkspace()
+    {
+        $oldWorkspaces = $this->listTestWorkspaces();
+
+        $workspaces = new Workspaces($this->workspaceSapiClient);
+
+        if ($oldWorkspaces) {
+            $oldWorkspace = reset($oldWorkspaces);
+            $result = $workspaces->resetWorkspacePassword($oldWorkspace['id']);
+            $oldWorkspace['connection']['password'] = $result['password'];
+            return $oldWorkspace;
+        } else {
+            return $workspaces->createWorkspace();
+        }
+    }
+
     private function deleteOldTestWorkspaces()
     {
         $workspaces = new Workspaces($this->_client);

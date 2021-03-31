@@ -29,7 +29,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
     public function testColumnCompression($columnsDefinition)
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         // Create a table of sample data
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -64,7 +64,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
     public function testLoadedSortKey()
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
         $db = $this->getDbConnection($workspace['connection']);
 
         // Create a table of sample data
@@ -122,7 +122,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
     public function testLoadedDist($dist)
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
         $db = $this->getDbConnection($workspace['connection']);
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -172,7 +172,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
     public function testLoadDataTypesDefaults()
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         // Create a table of sample data
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -265,7 +265,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         ];
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping]]);
@@ -345,7 +345,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
 
@@ -422,7 +422,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
 
@@ -495,7 +495,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -593,7 +593,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
 
@@ -682,7 +682,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
     public function testOutBytesMetricsWithLoadWorkspaceWithRows()
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         // Create a table of sample data
         $table1Id = $this->_client->createTable(
@@ -726,7 +726,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
     public function testOutBytesMetricsWithLoadWorkspaceWithSeconds()
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         // Create a table of sample data
         $table1Id = $this->_client->createTable(
