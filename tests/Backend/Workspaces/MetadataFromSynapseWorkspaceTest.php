@@ -3,7 +3,6 @@
 namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\Csv\CsvFile;
-use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 
 class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
@@ -24,8 +23,7 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
     public function testCreateTableFromWorkspace()
     {
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace(['backend' => 'synapse']);
+        $workspace = $this->recreateTestWorkspace(['backend' => 'synapse']);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
 
@@ -143,8 +141,7 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
         );
 
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace(['backend' => 'synapse']);
+        $workspace = $this->recreateTestWorkspace(['backend' => 'synapse']);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
 

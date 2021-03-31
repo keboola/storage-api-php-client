@@ -19,8 +19,6 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();
 
-        $this->deleteOldTestWorkspaces();
-
         $this->workspaceSapiClient = $this->getClient([
             'token' => $this->initTestToken(),
             'url' => STORAGE_API_URL,
@@ -29,6 +27,19 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
                 return 1;
             },
         ]);
+    }
+
+    /**
+     * Drops all workspaces created by current test and creates a new one
+     *
+     * @param array $options
+     * @return array workspace detail
+     */
+    protected function recreateTestWorkspace($options = [])
+    {
+        $this->deleteOldTestWorkspaces();
+        $workspaces = new Workspaces($this->workspaceSapiClient);
+        return $workspaces->createWorkspace($options);
     }
 
     private function deleteOldTestWorkspaces()

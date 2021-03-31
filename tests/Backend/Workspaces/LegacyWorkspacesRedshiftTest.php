@@ -17,7 +17,7 @@ class LegacyWorkspacesRedshiftTest extends ParallelWorkspacesTestCase
     public function testColumnCompression($dataTypesDefinition)
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->recreateTestWorkspace();
 
         // Create a table of sample data
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -94,7 +94,7 @@ class LegacyWorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         ];
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->recreateTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping]]);
@@ -135,7 +135,7 @@ class LegacyWorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->recreateTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
 
@@ -226,7 +226,7 @@ class LegacyWorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->recreateTestWorkspace();
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
