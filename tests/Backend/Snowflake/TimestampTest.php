@@ -141,11 +141,11 @@ class TimestampTest extends ParallelWorkspacesTestCase
         ));
 
         // create workspace and source table in workspace
-        $workspacesClient = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspacesClient->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
+        $db->query("drop table if exists \"test.Languages3\";");
         $db->query("create table \"test.Languages3\" (
 			\"Id\" integer not null,
 			\"Name\" varchar not null,
@@ -193,7 +193,7 @@ class TimestampTest extends ParallelWorkspacesTestCase
     private function assertDataInTable($tableId, $workspaceTableName, $expectedRows)
     {
         $workspacesClient = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspacesClient->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         /** @var SnowflakeWorkspaceBackend $backend */
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
