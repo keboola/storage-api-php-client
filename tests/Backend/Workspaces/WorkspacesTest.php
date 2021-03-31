@@ -27,7 +27,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $this->_client->setRunId($runId);
         $this->workspaceSapiClient->setRunId($runId);
 
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
         $connection = $workspace['connection'];
 
         $tokenInfo = $this->_client->verifyToken();
@@ -78,7 +78,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         $connection = $workspace['connection'];
 
@@ -145,7 +145,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $runId = $this->_client->generateRunId();
         $this->workspaceSapiClient->setRunId($runId);
 
-        $workspace = $this->recreateTestWorkspace();
+        $workspace = $this->initTestWorkspace();
         $connection = $workspace['connection'];
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
