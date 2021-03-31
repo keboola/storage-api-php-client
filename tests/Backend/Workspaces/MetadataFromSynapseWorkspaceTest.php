@@ -34,6 +34,7 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
             $tableId
         ));
 
+        $db->query("drop table if exists $quotedTableId;");
         $db->query("create table $quotedTableId (
                     \"string\" varchar(16) not null default 'string',
                     \"char\" char null,
@@ -152,6 +153,7 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
             $tableId
         ));
 
+        $db->query("drop table if exists $quotedTableId;");
         $db->query("create table $quotedTableId (
                 \"id\" integer not null,
                 \"name\" varchar(50) not null default 'honza'

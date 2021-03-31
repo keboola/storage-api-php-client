@@ -28,6 +28,7 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
         $workspace = $this->recreateTestWorkspace(["backend" => "redshift"]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
+        $db->query("drop table if exists \"test.metadata_columns\";");
         $db->query("create table \"test.metadata_columns\" (
                     \"string\" varchar(16) not null default 'string',
                     \"char\" char null,
@@ -160,6 +161,7 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
         $workspace = $this->recreateTestWorkspace(["backend" => "redshift"]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
+        $db->query("drop table if exists \"test.Languages3\";");
         $db->query("create table \"test.Languages3\" (
                 \"id\" integer not null,
                 \"name\" varchar not null default 'honza'
@@ -226,6 +228,7 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
 
+         $db->query("drop table if exists \"test.metadata_columns\";");
          $db->query("create table \"test.metadata_columns\" (
                 \"id\" integer not null,
                 \"name\" geometry
@@ -257,6 +260,7 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
 
+        $db->query("drop table if exists \"test.metadata_columns\";");
         $db->query("create table \"test.metadata_columns\" (
                 \"id\" integer not null,
                 \"name\" geometry
