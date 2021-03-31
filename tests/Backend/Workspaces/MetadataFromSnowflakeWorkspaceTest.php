@@ -27,7 +27,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         $workspace = $this->recreateTestWorkspace(["backend" => "snowflake"]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
-        $db->query("create table \"test.metadata_columns\" (
+        $db->query("create or replace table \"test.metadata_columns\" (
                     \"id\" varchar(16),
                     \"name\" varchar
                 );");
@@ -224,7 +224,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         $workspace = $this->recreateTestWorkspace(["backend" => "snowflake"]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
-        $db->query("create table \"test.metadata_columns\" (
+        $db->query("create or replace table \"test.metadata_columns\" (
                     \"string\" varchar(16) not null default 'string',
                     \"char\" char null,
                     \"integer\" integer not null default 4,
@@ -363,7 +363,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         $workspace = $this->recreateTestWorkspace(["backend" => "snowflake"]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
-        $db->query("create table \"test.Languages3\" (
+        $db->query("create or replace table \"test.Languages3\" (
                 \"id\" integer not null,
                 \"name\" varchar not null default 'honza'
             );");

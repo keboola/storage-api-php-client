@@ -25,7 +25,7 @@ class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
             $tableId
         ));
 
-        $db->query("create table $quotedTableId (
+        $db->query("create or replace table $quotedTableId (
 			[Id] integer not null,
 			[Name] varchar(50) not null
 		);");
@@ -66,7 +66,7 @@ class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
             $tableId
         ));
 
-        $db->query("create table $quotedTableId (
+        $db->query("create or replace table $quotedTableId (
 			[_Id] integer not null,
 			[Name] varchar(50) not null
 		);");
@@ -102,7 +102,7 @@ class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
             $tableId
         ));
 
-        $db->query("create table $quotedTableId (
+        $db->query("create or replace table $quotedTableId (
 			[Id] integer not null,
 			[Name] varchar(50) not null,
 			[_update] varchar(50) not null
@@ -151,7 +151,7 @@ class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
             $tableId
         ));
 
-        $db->query("create table $quotedTableId (
+        $db->query("create or replace table $quotedTableId (
 			[Id] integer not null,
 			[Name] varchar(50) not null,
 			[update] varchar(50)

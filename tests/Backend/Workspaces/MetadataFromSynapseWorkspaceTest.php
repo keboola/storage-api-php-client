@@ -34,7 +34,7 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
             $tableId
         ));
 
-        $db->query("create table $quotedTableId (
+        $db->query("create or replace table $quotedTableId (
                     \"string\" varchar(16) not null default 'string',
                     \"char\" char null,
                     \"integer\" integer not null default 4,
@@ -152,7 +152,7 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
             $tableId
         ));
 
-        $db->query("create table $quotedTableId (
+        $db->query("create or replace table $quotedTableId (
                 \"id\" integer not null,
                 \"name\" varchar(50) not null default 'honza'
             );");

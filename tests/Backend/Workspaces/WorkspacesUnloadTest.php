@@ -34,7 +34,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
         $db = $this->getDbConnection($connection);
 
-        $db->query("create table \"test.Languages3\" (
+        $db->query("create or replace table \"test.Languages3\" (
 			\"id\" integer not null,
 			\"Name\" varchar not null
 		);");
@@ -60,7 +60,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
         $db = $this->getDbConnection($connection);
 
-        $db->query("create table \"test.Languages3\" (
+        $db->query("create or replace table \"test.Languages3\" (
 			\"Id\" integer not null,
 			\"Name\" varchar not null
 		);");
@@ -93,7 +93,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
         $db = $this->getDbConnection($connection);
 
-        $db->query("create table \"test.Languages3\" (
+        $db->query("create or replace table \"test.Languages3\" (
 			\"_Id\" integer not null,
 			\"Name\" varchar not null
 		);");
@@ -121,7 +121,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
         $db = $this->getDbConnection($connection);
 
-        $db->query("create table \"test.Languages3\" (
+        $db->query("create or replace table \"test.Languages3\" (
 			\"Id\" integer not null,
 			\"Name\" varchar not null,
 			\"_update\" varchar not null 
@@ -162,7 +162,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
         $db = $this->getDbConnection($connection);
 
-        $db->query("create table \"test.Languages3\" (
+        $db->query("create or replace table \"test.Languages3\" (
 			\"Id\" integer not null,
 			\"Name\" varchar not null,
 			\"update\" varchar

@@ -146,7 +146,7 @@ class TimestampTest extends ParallelWorkspacesTestCase
 
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
-        $db->query("create table \"test.Languages3\" (
+        $db->query("create or replace table \"test.Languages3\" (
 			\"Id\" integer not null,
 			\"Name\" varchar not null,
 			\"update\" varchar
