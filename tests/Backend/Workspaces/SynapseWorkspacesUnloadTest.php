@@ -25,6 +25,7 @@ class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
             $tableId
         ));
 
+        $db->query("drop table if exists $quotedTableId;");
         $db->query("create table $quotedTableId (
 			[Id] integer not null,
 			[Name] varchar(50) not null
@@ -66,6 +67,7 @@ class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
             $tableId
         ));
 
+        $db->query("drop table if exists $quotedTableId;");
         $db->query("create table $quotedTableId (
 			[_Id] integer not null,
 			[Name] varchar(50) not null
@@ -102,6 +104,7 @@ class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
             $tableId
         ));
 
+        $db->query("drop table if exists $quotedTableId;");
         $db->query("create table $quotedTableId (
 			[Id] integer not null,
 			[Name] varchar(50) not null,
@@ -151,6 +154,7 @@ class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
             $tableId
         ));
 
+        $db->query("drop table if exists $quotedTableId;");
         $db->query("create table $quotedTableId (
 			[Id] integer not null,
 			[Name] varchar(50) not null,
