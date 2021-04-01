@@ -12,6 +12,7 @@ namespace Keboola\Test\Backend\Workspaces;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\ClientException;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 {
@@ -30,11 +31,11 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace();
 
-        $connection = $workspace['connection'];
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists('test.Languages3');
 
-        $db = $this->getDbConnection($connection);
+        $db = $this->getDbConnection($workspace['connection']);
 
-        $db->query("drop table if exists \"test.Languages3\";");
         $db->query("create table \"test.Languages3\" (
 			\"id\" integer not null,
 			\"Name\" varchar not null
@@ -57,11 +58,13 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace();
 
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists('test.Languages3');
+
         $connection = $workspace['connection'];
 
         $db = $this->getDbConnection($connection);
 
-        $db->query("drop table if exists \"test.Languages3\";");
         $db->query("create table \"test.Languages3\" (
 			\"Id\" integer not null,
 			\"Name\" varchar not null
@@ -91,11 +94,11 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace();
 
-        $connection = $workspace['connection'];
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists('test.Languages3');
 
-        $db = $this->getDbConnection($connection);
+        $db = $this->getDbConnection($workspace['connection']);
 
-        $db->query("drop table if exists \"test.Languages3\";");
         $db->query("create table \"test.Languages3\" (
 			\"_Id\" integer not null,
 			\"Name\" varchar not null
@@ -120,11 +123,11 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace();
 
-        $connection = $workspace['connection'];
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists('test.Languages3');
 
-        $db = $this->getDbConnection($connection);
+        $db = $this->getDbConnection($workspace['connection']);
 
-        $db->query("drop table if exists \"test.Languages3\";");
         $db->query("create table \"test.Languages3\" (
 			\"Id\" integer not null,
 			\"Name\" varchar not null,
@@ -162,11 +165,11 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace();
 
-        $connection = $workspace['connection'];
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists('test.Languages3');
 
-        $db = $this->getDbConnection($connection);
+        $db = $this->getDbConnection($workspace['connection']);
 
-        $db->query("drop table if exists \"test.Languages3\";");
         $db->query("create table \"test.Languages3\" (
 			\"Id\" integer not null,
 			\"Name\" varchar not null,
