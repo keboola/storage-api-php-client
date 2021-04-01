@@ -107,4 +107,13 @@ class SnowflakeWorkspaceBackend implements WorkspaceBackend
     {
         return $this->db->fetchAll(sprintf('DESC TABLE %s.%s', $this->db->quoteIdentifier($this->schema), $this->db->quoteIdentifier($tableName)));
     }
+
+    public function dropTableIfExists($table)
+    {
+        $this->db->query(sprintf(
+            'DROP TABLE IF EXISTS %s.%s;',
+            $this->db->quoteIdentifier($this->schema),
+            $this->db->quoteIdentifier($table)
+        ));
+    }
 }
