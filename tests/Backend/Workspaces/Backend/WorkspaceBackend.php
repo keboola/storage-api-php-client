@@ -18,6 +18,8 @@ interface WorkspaceBackend
     
     public function dropTable($table);
 
+    public function dropTableIfExists($table);
+
     public function dropTableColumn($table, $column);
 
     public function countRows($table);
