@@ -4,6 +4,7 @@ namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\StorageApi\ClientException;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
 {
@@ -14,18 +15,21 @@ class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace();
 
+        $tableId = 'Languages3';
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists($tableId);
+
         $connection = $workspace['connection'];
 
         $db = $this->getDbConnection($connection);
 
-        $tableId = 'Languages3';
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
             $connection['schema'],
             $tableId
         ));
 
-        $db->query("drop table if exists $quotedTableId;");
         $db->query("create table $quotedTableId (
 			[Id] integer not null,
 			[Name] varchar(50) not null
@@ -56,18 +60,21 @@ class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace();
 
+        $tableId = 'Languages3';
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists($tableId);
+
         $connection = $workspace['connection'];
 
         $db = $this->getDbConnection($connection);
 
-        $tableId = 'Languages3';
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
             $connection['schema'],
             $tableId
         ));
 
-        $db->query("drop table if exists $quotedTableId;");
         $db->query("create table $quotedTableId (
 			[_Id] integer not null,
 			[Name] varchar(50) not null
@@ -93,18 +100,21 @@ class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace();
 
+        $tableId = 'Languages3';
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists($tableId);
+
         $connection = $workspace['connection'];
 
         $db = $this->getDbConnection($connection);
 
-        $tableId = 'Languages3';
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
             $connection['schema'],
             $tableId
         ));
 
-        $db->query("drop table if exists $quotedTableId;");
         $db->query("create table $quotedTableId (
 			[Id] integer not null,
 			[Name] varchar(50) not null,
@@ -143,18 +153,21 @@ class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace();
 
+        $tableId = 'Languages3';
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists($tableId);
+
         $connection = $workspace['connection'];
 
         $db = $this->getDbConnection($connection);
 
-        $tableId = 'Languages3';
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
             $connection['schema'],
             $tableId
         ));
 
-        $db->query("drop table if exists $quotedTableId;");
         $db->query("create table $quotedTableId (
 			[Id] integer not null,
 			[Name] varchar(50) not null,
