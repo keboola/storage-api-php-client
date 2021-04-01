@@ -141,4 +141,15 @@ class SynapseWorkspaceBackend implements WorkspaceBackend
     {
         $this->db->close();
     }
+
+    public function dropTableIfExists($table)
+    {
+        $this->db->exec(sprintf(
+            "IF OBJECT_ID (N'%s.%s', N'U') IS NOT NULL DROP TABLE %s.%s;",
+            $this->platform->quoteSingleIdentifier($this->schema),
+            $this->platform->quoteSingleIdentifier($table),
+            $this->platform->quoteSingleIdentifier($this->schema),
+            $this->platform->quoteSingleIdentifier($table)
+        ));
+    }
 }
