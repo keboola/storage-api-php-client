@@ -27,7 +27,6 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         $workspace = $this->recreateTestWorkspace(["backend" => "snowflake"]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
-        $db->query("drop table if exists \"test.metadata_columns\";");
         $db->query("create table \"test.metadata_columns\" (
                     \"id\" varchar(16),
                     \"name\" varchar
@@ -64,8 +63,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertArrayHasKey('name', $table['columnMetadata']);
         $this->assertMetadata($expectedNameMetadata, $table['columnMetadata']['name']);
 
-        $db->query("drop table if exists \"test.metadata_columns\";");
-        $db->query("create table \"test.metadata_columns\" (
+        $db->query("create or replace table \"test.metadata_columns\" (
                     \"id\" integer,
                     \"name\" char not null
                 );");
@@ -182,8 +180,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertArrayHasKey('name', $table['columnMetadata']);
         $this->assertMetadata($expectedNameMetadata, $table['columnMetadata']['name']);
 
-        $db->query("drop table if exists \"test.metadata_columns\";");
-        $db->query("create table \"test.metadata_columns\" (
+        $db->query("create or replace table \"test.metadata_columns\" (
                     \"id\" integer,
                     \"name\" varchar(32)
                 );");
@@ -227,7 +224,6 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         $workspace = $this->recreateTestWorkspace(["backend" => "snowflake"]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
-        $db->query("drop table if exists \"test.metadata_columns\";");
         $db->query("create table \"test.metadata_columns\" (
                     \"string\" varchar(16) not null default 'string',
                     \"char\" char null,
@@ -367,7 +363,6 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         $workspace = $this->recreateTestWorkspace(["backend" => "snowflake"]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
-        $db->query("drop table if exists \"test.Languages3\";");
         $db->query("create table \"test.Languages3\" (
                 \"id\" integer not null,
                 \"name\" varchar not null default 'honza'
@@ -462,7 +457,6 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         $workspace = $this->recreateTestWorkspace(["backend" => "snowflake"]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
-        $db->query("DROP TABLE IF EXISTS \"test.metadata_columns\";");
         $db->query("CREATE TABLE \"test.metadata_columns\" AS SELECT
                         '1'::integer AS \"id\",
                         'roman'::string AS \"name\",
@@ -488,7 +482,6 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         $workspace = $this->recreateTestWorkspace(["backend" => "snowflake"]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
-        $db->query("DROP TABLE IF EXISTS \"test.metadata_columns\";");
         $db->query("CREATE TABLE \"test.metadata_columns\" AS SELECT
                         '1'::integer AS \"id\",
                         'roman'::string AS \"name\",
