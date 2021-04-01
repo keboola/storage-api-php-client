@@ -188,8 +188,8 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
     {
         $this->db->query(sprintf(
             'DROP TABLE IF EXISTS %s.%s;',
-            $this->db->quoteIdentifier($this->schema),
-            $this->db->quoteIdentifier($table)
+            $this->db->quote($this->schema),
+            $this->db->quote($table)
         ));
     }
 }
