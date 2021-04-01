@@ -117,7 +117,7 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
         );
     }
 
-    private function listTestWorkspaces()
+    protected function listTestWorkspaces()
     {
         $description = $this->generateDescriptionForTestObject();
         $workspaces = new Workspaces($this->_client);
