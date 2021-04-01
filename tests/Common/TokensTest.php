@@ -965,12 +965,12 @@ class TokensTest extends StorageApiTestCase
             ->setDescription('Token without canManageTokens permission')
         ;
 
-        $token = $this->_client->createToken($options);
+        $token = $this->tokens->createToken($options);
 
         $this->assertFalse($token['canManageTokens']);
 
-        $tokens = $this->tokens->listTokens();
-        $this->assertCount(count($initialTokens) + 1, $tokens);
+        $tokensList = $this->tokens->listTokens();
+        $this->assertCount(count($initialTokens) + 1, $tokensList);
 
         $client = $this->getClient([
             'token' => $token['token'],
@@ -980,10 +980,10 @@ class TokensTest extends StorageApiTestCase
         $verifiedToken = $client->verifyToken();
 
         $tokens = new Tokens($client);
-        $tokens = $tokens->listTokens();
-        $this->assertCount(1, $tokens);
+        $tokensList = $tokens->listTokens();
+        $this->assertCount(1, $tokensList);
 
-        $token = reset($tokens);
+        $token = reset($tokensList);
         $this->assertSame($verifiedToken['id'], $token['id']);
 
         $token = $tokens->getToken($token['id']);
@@ -993,10 +993,10 @@ class TokensTest extends StorageApiTestCase
             ->setDescription('Token without canManageTokens permission')
         ;
 
-        $tokenId = $this->_client->createToken($options);
+        $token = $this->tokens->createToken($options);
 
         try {
-            $tokens->getToken($tokenId);
+            $tokens->getToken($token['id']);
             $this->fail('Other token detail with no permissions');
         } catch (ClientException $e) {
             $this->assertEquals(403, $e->getCode());
