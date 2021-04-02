@@ -33,6 +33,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $backend->dropTableIfExists('test.Languages3');
+        unset($backend);
 
         $db = $this->getDbConnection($workspace['connection']);
 
@@ -40,6 +41,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 			\"id\" integer not null,
 			\"Name\" varchar not null
 		);");
+
 
         $db->query("insert into \"test.Languages3\" (\"id\", \"Name\") values (1, 'cz'), (2, 'en');");
 
@@ -60,6 +62,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $backend->dropTableIfExists('test.Languages3');
+        unset($backend);
 
         $connection = $workspace['connection'];
 
@@ -96,6 +99,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $backend->dropTableIfExists('test.Languages3');
+        unset($backend);
 
         $db = $this->getDbConnection($workspace['connection']);
 
@@ -125,6 +129,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $backend->dropTableIfExists('test.Languages3');
+        unset($backend);
 
         $db = $this->getDbConnection($workspace['connection']);
 
@@ -167,6 +172,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $backend->dropTableIfExists('test.Languages3');
+        unset($backend);
 
         $db = $this->getDbConnection($workspace['connection']);
 
