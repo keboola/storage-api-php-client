@@ -20,6 +20,8 @@ class TimestampTest extends ParallelWorkspacesTestCase
      */
     public function testTimestampCSVImportAsync()
     {
+        $workspace = $this->initTestWorkspace();
+
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
         // count - header
         $count = iterator_count($importFile) - 1;
@@ -33,14 +35,24 @@ class TimestampTest extends ParallelWorkspacesTestCase
 
         $this->_client->writeTableAsync($tableId, $importFile);
 
-        $this->assertDataInTable($tableId, 'timestampCSVImportAsyncFull', $count);
+        $this->assertDataInTable(
+            $tableId,
+            $workspace,
+            'timestampCSVImportAsyncFull',
+            $count
+        );
 
         // incremental
         $this->_client->writeTableAsync($tableId, $importFile, [
             'incremental' => true,
         ]);
 
-        $this->assertDataInTable($tableId, 'timestampCSVImportAsyncInc', $count + $count);
+        $this->assertDataInTable(
+            $tableId,
+            $workspace,
+            'timestampCSVImportAsyncInc',
+            $count + $count
+        );
     }
 
     /**
@@ -48,6 +60,8 @@ class TimestampTest extends ParallelWorkspacesTestCase
      */
     public function testTimestampCSVImportSync()
     {
+        $workspace = $this->initTestWorkspace();
+
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
         // count - header
         $count = iterator_count($importFile) - 1;
@@ -61,14 +75,24 @@ class TimestampTest extends ParallelWorkspacesTestCase
 
         $this->_client->writeTable($tableId, $importFile);
 
-        $this->assertDataInTable($tableId, 'timestampCSVImportSyncFull', $count);
+        $this->assertDataInTable(
+            $tableId,
+            $workspace,
+            'timestampCSVImportSyncFull',
+            $count
+        );
 
         // incremental
         $this->_client->writeTable($tableId, $importFile, [
             'incremental' => true,
         ]);
 
-        $this->assertDataInTable($tableId, 'timestampCSVImportSyncInc', $count + $count);
+        $this->assertDataInTable(
+            $tableId,
+            $workspace,
+            'timestampCSVImportSyncInc',
+            $count + $count
+        );
     }
 
     /**
@@ -76,6 +100,8 @@ class TimestampTest extends ParallelWorkspacesTestCase
      */
     public function testTimestampSlicedImport()
     {
+        $workspace = $this->initTestWorkspace();
+
         $slices = [
             __DIR__ . '/../../_data/languages.no-headers.csv',
         ];
@@ -111,7 +137,12 @@ class TimestampTest extends ParallelWorkspacesTestCase
 
         $count = iterator_count(new CsvFile(__DIR__ . '/../../_data/languages.no-headers.csv'));
 
-        $this->assertDataInTable($tableId, 'timestampSlicedImportFull', $count);
+        $this->assertDataInTable(
+            $tableId,
+            $workspace,
+            'timestampSlicedImportFull',
+            $count
+        );
 
         // incremental
         $this->_client->writeTableAsyncDirect($tableId, [
@@ -126,7 +157,12 @@ class TimestampTest extends ParallelWorkspacesTestCase
             ],
         ]);
 
-        $this->assertDataInTable($tableId, 'timestampSlicedImportInc', $count + $count);
+        $this->assertDataInTable(
+            $tableId,
+            $workspace,
+            'timestampSlicedImportInc',
+            $count + $count
+        );
     }
 
     /**
@@ -134,6 +170,8 @@ class TimestampTest extends ParallelWorkspacesTestCase
      */
     public function testTimestampCopyImport()
     {
+        $workspace = $this->initTestWorkspace();
+
         $table = $this->_client->apiPost("buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(
             'dataString' => 'Id,Name,update',
             'name' => 'languages',
@@ -141,8 +179,6 @@ class TimestampTest extends ParallelWorkspacesTestCase
         ));
 
         // create workspace and source table in workspace
-        $workspace = $this->initTestWorkspace();
-
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
         $db->query("drop table if exists \"test.Languages3\";");
@@ -159,10 +195,20 @@ class TimestampTest extends ParallelWorkspacesTestCase
         ));
         unset($db);
         // test timestamp
-        $this->assertDataInTable($table['id'], 'timestampCopyImportFull', 2);
+        $this->assertDataInTable(
+            $table['id'],
+            $workspace,
+            'timestampCopyImportFull',
+            2
+        );
 
         $db = $this->getDbConnection($connection);
-        $db->query("truncate \"test.Languages3\"");
+        $db->query("drop table if exists \"test.Languages3\";");
+        $db->query("create table \"test.Languages3\" (
+			\"Id\" integer not null,
+			\"Name\" varchar not null,
+			\"update\" varchar
+		);");
         $db->query("insert into \"test.Languages3\" values (1, 'cz', '1'), (3, 'sk', '1');");
 
         $this->_client->writeTableAsyncDirect($table['id'], array(
@@ -171,8 +217,13 @@ class TimestampTest extends ParallelWorkspacesTestCase
             'incremental' => true,
         ));
 
-        $db->query("truncate table \"test.Languages3\"");
-        $db->query("alter table \"test.Languages3\" ADD COLUMN \"new_col\" varchar");
+        $db->query("drop table if exists \"test.Languages3\";");
+        $db->query("create table \"test.Languages3\" (
+			\"Id\" integer not null,
+			\"Name\" varchar not null,
+			\"update\" varchar,
+			\"new_col\" varchar
+		);");
         $db->query("insert into \"test.Languages3\" values (1, 'cz', '1', null), (3, 'sk', '1', 'newValue');");
 
         $this->_client->writeTableAsyncDirect($table['id'], array(
@@ -182,18 +233,23 @@ class TimestampTest extends ParallelWorkspacesTestCase
         ));
         unset($db);
 
-        $this->assertDataInTable($table['id'], 'timestampCopyImportInc', 3);
+        $this->assertDataInTable(
+            $table['id'],
+            $workspace,
+            'timestampCopyImportInc',
+            3
+        );
     }
 
     /**
      * @param string $tableId
+     * @param array $workspace
      * @param string $workspaceTableName
      * @param int $expectedRows
      */
-    private function assertDataInTable($tableId, $workspaceTableName, $expectedRows)
+    private function assertDataInTable($tableId, array $workspace, $workspaceTableName, $expectedRows)
     {
         $workspacesClient = new Workspaces($this->workspaceSapiClient);
-        $workspace = $this->initTestWorkspace();
 
         /** @var SnowflakeWorkspaceBackend $backend */
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
