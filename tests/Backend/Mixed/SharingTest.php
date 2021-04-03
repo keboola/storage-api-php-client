@@ -55,8 +55,7 @@ class SharingTest extends StorageApiSharingTestCase
 
         $this->assertArrayHasKey('displayName', $response);
 
-        $tokenId = $this->_client2->createToken($this->createTestTokenOptions(true));
-        $token = $this->_client2->getToken($tokenId);
+        $token = $this->tokensInLinkingProject->createToken($this->createTestTokenOptions(true));
 
         $client = $this->getClient([
             'token' => $token['token'],
@@ -286,14 +285,14 @@ class SharingTest extends StorageApiSharingTestCase
         );
 
         // bucket unlink with token without canManage permission
-        $tokenId = $this->_client2->createToken($this->createTestTokenOptions(false));
+        $token = $this->tokensInLinkingProject->createToken($this->createTestTokenOptions(false));
 
-        $this->_client2->updateToken(
-            (new TokenUpdateOptions($tokenId))
+        $this->tokensInLinkingProject->updateToken(
+            (new TokenUpdateOptions($token['id']))
                 ->addBucketPermission($linkedBucketId, TokenAbstractOptions::BUCKET_PERMISSION_READ)
         );
 
-        $cannotManageBucketsClient = $this->getClientForToken($this->_client2->getToken($tokenId)['token']);
+        $cannotManageBucketsClient = $this->getClientForToken($token['token']);
 
         $this->assertTrue($cannotManageBucketsClient->bucketExists($linkedBucketId));
 
@@ -334,8 +333,7 @@ class SharingTest extends StorageApiSharingTestCase
         );
 
         // new token creation
-        $tokenId = $this->_client->createToken($this->createTestTokenOptions(true));
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->createToken($this->createTestTokenOptions(true));
 
         $client = $this->getClient([
             'token' => $token['token'],
@@ -743,8 +741,7 @@ class SharingTest extends StorageApiSharingTestCase
 
         $linkedBucketId = $this->_client2->linkBucket("linked-" . time(), 'out', $sharedBucket['project']['id'], $sharedBucket['id']);
 
-        $tokenId = $this->_client2->createToken($this->createTestTokenOptions(true));
-        $token = $this->_client2->getToken($tokenId);
+        $token = $this->tokensInLinkingProject->createToken($this->createTestTokenOptions(true));
 
         $client = $this->getClient([
             'token' => $token['token'],
