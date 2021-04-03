@@ -816,8 +816,7 @@ class MetadataTest extends StorageApiTestCase
             ->addBucketPermission($bucketId, TokenAbstractOptions::BUCKET_PERMISSION_READ)
         ;
 
-        $tokenId = $this->_client->createToken($options);
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->createToken($options);
         return $token['token'];
     }
 }

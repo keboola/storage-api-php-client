@@ -12,6 +12,7 @@ use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
+use Keboola\StorageApi\Tokens;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Client;
@@ -45,12 +46,12 @@ class TokensTest extends StorageApiTestCase
 
     private function initTokens()
     {
-        foreach ($this->_client->listTokens() as $token) {
+        foreach ($this->tokens->listTokens() as $token) {
             if ($token['isMasterToken']) {
                 continue;
             }
 
-            $this->_client->dropToken($token['id']);
+            $this->tokens->dropToken($token['id']);
         }
     }
 
@@ -140,7 +141,7 @@ class TokensTest extends StorageApiTestCase
         $this->assertEquals($firstLimit['name'], $limitKeys[0]);
 
         $tokenFound = false;
-        foreach ($this->_client->listTokens() as $token) {
+        foreach ($this->tokens->listTokens() as $token) {
             if ($token['id'] !== $currentToken['id']) {
                 continue;
             }
@@ -169,7 +170,7 @@ class TokensTest extends StorageApiTestCase
     public function testGetToken()
     {
         $verifiedToken = $this->_client->verifyToken();
-        $currentToken = $this->_client->getToken($verifiedToken['id']);
+        $currentToken = $this->tokens->getToken($verifiedToken['id']);
 
         $this->assertArrayHasKey('created', $currentToken);
         $this->assertArrayHasKey('refreshed', $currentToken);
@@ -206,7 +207,7 @@ class TokensTest extends StorageApiTestCase
         $this->assertEquals($firstLimit['name'], $limitKeys[0]);
 
         $tokenFound = false;
-        foreach ($this->_client->listTokens() as $token) {
+        foreach ($this->tokens->listTokens() as $token) {
             if ($token['id'] !== $currentToken['id']) {
                 continue;
             }
@@ -270,28 +271,28 @@ class TokensTest extends StorageApiTestCase
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Request parameter "id" is missing.');
         // false is not event sent, because "string" . false = "string"
-        $this->_client->dropToken(false);
+        $this->tokens->dropToken(false);
     }
 
     public function testInvalidTokenWhenTokenIsString()
     {
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Argument "id" is expected to be type "int", value "foo" given.');
-        $this->_client->dropToken('foo');
+        $this->tokens->dropToken('foo');
     }
 
     public function testTokenRefreshWhenTokenIsString()
     {
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Argument "id" is expected to be type "int", value "foo" given.');
-        $this->_client->refreshToken('foo');
+        $this->tokens->refreshToken('foo');
     }
 
     public function testTokenGetWhenTokenIsString()
     {
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Argument "id" is expected to be type "int", value "foo" given.');
-        $this->_client->getToken('foo');
+        $this->tokens->getToken('foo');
     }
 
 
@@ -301,20 +302,18 @@ class TokensTest extends StorageApiTestCase
             ->setDescription('Some description')
         ;
 
-        $tokenId = $this->_client->createToken($options);
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->createToken($options);
 
         $bucketPermissions = $token['bucketPermissions'];
         $this->assertCount(0, $bucketPermissions);
 
         // read permissions
         $permission = TokenAbstractOptions::BUCKET_PERMISSION_READ;
-        $options = (new TokenUpdateOptions($tokenId))
+        $options = (new TokenUpdateOptions($token['id']))
             ->addBucketPermission($this->outBucketId, $permission)
         ;
 
-        $this->_client->updateToken($options);
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->updateToken($options);
 
         $bucketPermissions = $token['bucketPermissions'];
         $this->assertCount(1, $bucketPermissions);
@@ -324,12 +323,11 @@ class TokensTest extends StorageApiTestCase
 
         // read permissions
         $permission = TokenAbstractOptions::BUCKET_PERMISSION_WRITE;
-        $options = (new TokenUpdateOptions($tokenId))
+        $options = (new TokenUpdateOptions($token['id']))
             ->addBucketPermission($this->outBucketId, $permission)
         ;
 
-        $this->_client->updateToken($options);
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->updateToken($options);
 
         $bucketPermissions = $token['bucketPermissions'];
         $this->assertCount(1, $bucketPermissions);
@@ -338,18 +336,18 @@ class TokensTest extends StorageApiTestCase
         $this->assertEquals($permission, reset($bucketPermissions));
 
         // invalid permission
-        $options = (new TokenUpdateOptions($tokenId))
+        $options = (new TokenUpdateOptions($token['id']))
             ->addBucketPermission($this->outBucketId, self::BUCKET_PERMISSION_MANAGE)
         ;
 
         try {
-            $this->_client->updateToken($options);
+            $this->tokens->updateToken($options);
             $this->fail('Manage permissions should not be allowed to set');
         } catch (ClientException $e) {
             $this->assertEquals('storage.tokens.invalidPermissions', $e->getStringCode());
         }
 
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->getToken($token['id']);
 
         $bucketPermissions = $token['bucketPermissions'];
         $this->assertCount(1, $bucketPermissions);
@@ -366,7 +364,7 @@ class TokensTest extends StorageApiTestCase
         ;
 
         try {
-            $this->_client->createToken($options);
+            $this->tokens->createToken($options);
             $this->fail('Invalid permissions exception should be thrown');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.tokens.invalidPermissions', $e->getStringCode());
@@ -375,16 +373,16 @@ class TokensTest extends StorageApiTestCase
 
     public function testTokenDrop()
     {
-        $initialTokens = $this->_client->listTokens();
+        $initialTokens = $this->tokens->listTokens();
 
-        $tokenId = $this->_client->createToken(new TokenCreateOptions());
+        $token = $this->tokens->createToken(new TokenCreateOptions());
 
-        $tokens = $this->_client->listTokens();
+        $tokens = $this->tokens->listTokens();
         $this->assertCount(count($initialTokens) + 1, $tokens);
 
-        $this->_client->dropToken($tokenId);
+        $this->tokens->dropToken($token['id']);
 
-        $tokens = $this->_client->listTokens();
+        $tokens = $this->tokens->listTokens();
         $this->assertCount(count($initialTokens), $tokens);
     }
 
@@ -392,8 +390,7 @@ class TokensTest extends StorageApiTestCase
     {
         $currentToken = $this->_client->verifyToken();
 
-        $tokenId = $this->_client->createToken(new TokenCreateOptions());
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->createToken(new TokenCreateOptions());
 
         $this->assertNull($token['expires']);
 
@@ -434,8 +431,7 @@ class TokensTest extends StorageApiTestCase
             ->addComponentAccess('wr-db')
         ;
 
-        $tokenId = $this->_client->createToken($options);
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->createToken($options);
 
         $this->assertNotNull($token['expires']);
 
@@ -478,16 +474,15 @@ class TokensTest extends StorageApiTestCase
             ->setDescription('Out read token')
         ;
 
-        $tokenId = $this->_client->createToken($options);
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->createToken($options);
 
         $tokenString = $token['token'];
         $created = new \DateTime($token['created']);
 
         sleep(1);
 
-        $this->_client->refreshToken($tokenId);
-        $token = $this->_client->getToken($tokenId);
+        $this->tokens->refreshToken($token['id']);
+        $token = $this->tokens->getToken($token['id']);
 
         $refreshed = new \DateTime($token['refreshed']);
 
@@ -501,20 +496,20 @@ class TokensTest extends StorageApiTestCase
             ->setDescription('Out read token')
         ;
 
-        $limitedAccessTokenId = $this->_client->createToken($options);
-        $limitedAccessToken = $this->_client->getToken($limitedAccessTokenId);
+        $limitedAccessToken = $this->tokens->createToken($options);
         $limitAccessTokenClient = $this->getClient([
             'token' => $limitedAccessToken['token'],
             'url' => STORAGE_API_URL
         ]);
 
-        $otherTokenId = $this->_client->createToken($options);
+        $otherToken = $this->tokens->createToken($options);
 
         $this->expectException(ClientException::class);
         $this->expectExceptionCode(403);
 
-        $limitAccessTokenClient->refreshToken($otherTokenId);
-        $this->assertEquals($limitedAccessToken, $this->_client->getToken($limitedAccessTokenId));
+        $limitAccessTokens = new Tokens($limitAccessTokenClient);
+        $limitAccessTokens->refreshToken($otherToken['id']);
+        $this->assertEquals($limitedAccessToken, $this->tokens->getToken($limitedAccessToken['id']));
     }
 
     public function testTokenComponentAccess()
@@ -527,8 +522,7 @@ class TokensTest extends StorageApiTestCase
             ->addComponentAccess('wr-db')
         ;
 
-        $tokenId = $this->_client->createToken($options);
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->createToken($options);
 
         $client = $this->getClient([
             'token' => $token['token'],
@@ -586,8 +580,7 @@ class TokensTest extends StorageApiTestCase
             ->setDescription('Component Access Test Token')
         ;
 
-        $tokenId = $this->_client->createToken($options);
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->createToken($options);
 
         $client = $this->getClient([
             'token' => $token['token'],
@@ -632,11 +625,11 @@ class TokensTest extends StorageApiTestCase
         }
 
         // grant permission to component
-        $options = (new TokenUpdateOptions($tokenId))
+        $options = (new TokenUpdateOptions($token['id']))
             ->addComponentAccess('provisioning')
         ;
 
-        $this->_client->updateToken($options);
+        $this->tokens->updateToken($options);
 
         $componentList = $components->listComponents();
         $this->assertCount(1, $componentList);
@@ -659,8 +652,7 @@ class TokensTest extends StorageApiTestCase
             ->addBucketPermission($this->outBucketId, TokenAbstractOptions::BUCKET_PERMISSION_READ)
         ;
 
-        $tokenId = $this->_client->createToken($options);
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->createToken($options);
 
         $client = $this->getClient(array(
             'token' => $token['token'],
@@ -715,8 +707,7 @@ class TokensTest extends StorageApiTestCase
             ->addBucketPermission($this->outBucketId, TokenAbstractOptions::BUCKET_PERMISSION_WRITE)
         ;
 
-        $tokenId = $this->_client->createToken($options);
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->createToken($options);
 
         $client = $this->getClient(array(
             'token' => $token['token'],
@@ -760,8 +751,7 @@ class TokensTest extends StorageApiTestCase
             ->setDescription('No bucket permission token')
         ;
 
-        $tokenId = $this->_client->createToken($options);
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->createToken($options);
 
         $client = $this->getClient(array(
             'token' => $token['token'],
@@ -809,7 +799,7 @@ class TokensTest extends StorageApiTestCase
         ;
 
         try {
-            $this->_client->createToken($options);
+            $this->tokens->createToken($options);
             $this->fail('Invalid permissions exception should be thrown');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.tokens.invalidPermissions', $e->getStringCode());
@@ -825,8 +815,7 @@ class TokensTest extends StorageApiTestCase
             ->setCanManageBuckets(true)
         ;
 
-        $tokenId = $this->_client->createToken($options);
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->createToken($options);
 
         $client = $this->getClient(array(
             'token' => $token['token'],
@@ -854,7 +843,7 @@ class TokensTest extends StorageApiTestCase
         $buckets = $client->listBuckets();
         $this->assertCount($bucketsInitialCount + 1, $buckets);
 
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->getToken($token['id']);
         $this->assertCount($bucketsInitialCount + 1, $token['bucketPermissions']);
         foreach ($token['bucketPermissions'] as $bucketId => $permission) {
             $this->assertEquals(self::BUCKET_PERMISSION_MANAGE, $permission);
@@ -871,8 +860,7 @@ class TokensTest extends StorageApiTestCase
             ->setExpiresIn(2 * 60)
         ;
 
-        $tokenId = $this->_client->createToken($options);
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->createToken($options);
 
         $client = $this->getClient(array(
             'token' => $token['token'],
@@ -892,8 +880,7 @@ class TokensTest extends StorageApiTestCase
             ->setExpiresIn(1)
         ;
 
-        $tokenId = $this->_client->createToken($options);
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->createToken($options);
         $tries = 0;
 
         $this->expectException(ClientException::class);
@@ -925,9 +912,7 @@ class TokensTest extends StorageApiTestCase
             ->setCanManageBuckets(true)
         ;
 
-        $tokenId = $this->_client->createToken($options);
-
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->createToken($options);
 
         $this->assertTrue($token['canManageBuckets']);
 
@@ -939,14 +924,12 @@ class TokensTest extends StorageApiTestCase
         }
 
         // update token and set buckets permissions
-        $options = (new TokenUpdateOptions($tokenId))
+        $options = (new TokenUpdateOptions($token['id']))
             ->setDescription('CanManageBuckets update 1')
             ->addBucketPermission($this->outBucketId, TokenAbstractOptions::BUCKET_PERMISSION_READ)
         ;
 
-        $this->_client->updateToken($options);
-
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->updateToken($options);
 
         $this->assertTrue($token['canManageBuckets']);
 
@@ -958,13 +941,11 @@ class TokensTest extends StorageApiTestCase
         }
 
         // update token without setting permissions
-        $options = (new TokenUpdateOptions($tokenId))
+        $options = (new TokenUpdateOptions($token['id']))
             ->setDescription('CanManageBuckets update 2')
         ;
 
-        $this->_client->updateToken($options);
-
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->updateToken($options);
 
         $this->assertTrue($token['canManageBuckets']);
 
@@ -978,19 +959,18 @@ class TokensTest extends StorageApiTestCase
 
     public function testTokenWithoutTokensManagePermissionCanListAndViewOnlySelf()
     {
-        $initialTokens = $this->_client->listTokens();
+        $initialTokens = $this->tokens->listTokens();
 
         $options = (new TokenCreateOptions())
             ->setDescription('Token without canManageTokens permission')
         ;
 
-        $tokenId = $this->_client->createToken($options);
+        $token = $this->tokens->createToken($options);
 
-        $tokens = $this->_client->listTokens();
-        $this->assertCount(count($initialTokens) + 1, $tokens);
-
-        $token = $this->_client->getToken($tokenId);
         $this->assertFalse($token['canManageTokens']);
+
+        $tokensList = $this->tokens->listTokens();
+        $this->assertCount(count($initialTokens) + 1, $tokensList);
 
         $client = $this->getClient([
             'token' => $token['token'],
@@ -999,23 +979,24 @@ class TokensTest extends StorageApiTestCase
 
         $verifiedToken = $client->verifyToken();
 
-        $tokens = $client->listTokens();
-        $this->assertCount(1, $tokens);
+        $tokens = new Tokens($client);
+        $tokensList = $tokens->listTokens();
+        $this->assertCount(1, $tokensList);
 
-        $token = reset($tokens);
+        $token = reset($tokensList);
         $this->assertSame($verifiedToken['id'], $token['id']);
 
-        $token = $client->getToken($tokenId);
+        $token = $tokens->getToken($token['id']);
         $this->assertSame($verifiedToken['id'], $token['id']);
 
         $options = (new TokenCreateOptions())
             ->setDescription('Token without canManageTokens permission')
         ;
 
-        $tokenId = $this->_client->createToken($options);
+        $token = $this->tokens->createToken($options);
 
         try {
-            $client->getToken($tokenId);
+            $tokens->getToken($token['id']);
             $this->fail('Other token detail with no permissions');
         } catch (ClientException $e) {
             $this->assertEquals(403, $e->getCode());
@@ -1032,9 +1013,8 @@ class TokensTest extends StorageApiTestCase
             ->setDescription('Token without canPurgeTrash permission')
         ;
 
-        $tokenId = $this->_client->createToken($options);
+        $token = $this->tokens->createToken($options);
 
-        $token = $this->_client->getToken($tokenId);
         $this->assertFalse($token['canPurgeTrash']);
 
         $client = $this->getClient([
@@ -1087,13 +1067,12 @@ class TokensTest extends StorageApiTestCase
         $this->assertCount(1, $configurations);
 
         // update token permission
-        $options = (new TokenUpdateOptions($tokenId))
+        $options = (new TokenUpdateOptions($token['id']))
             ->setCanPurgeTrash(true)
         ;
 
-        $this->_client->updateToken($options);
+        $token = $this->tokens->updateToken($options);
 
-        $token = $this->_client->getToken($tokenId);
         $this->assertTrue($token['canPurgeTrash']);
 
         $components->deleteConfiguration('provisioning', 'for-delete');
@@ -1109,9 +1088,7 @@ class TokensTest extends StorageApiTestCase
             ->setDescription('Token with canManageBuckets permission')
         ;
 
-        $tokenId = $this->_client->createToken($options);
-
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->createToken($options);
 
         $client = $this->getClient([
             'token' => $token['token'],
@@ -1124,7 +1101,7 @@ class TokensTest extends StorageApiTestCase
 
         $event = $this->createAndWaitForEvent($event, $client);
 
-        $tokenEvents = $this->_client->listTokenEvents($tokenId);
+        $tokenEvents = $this->_client->listTokenEvents($token['id']);
         $this->assertCount(2, $tokenEvents); // token created + sample event
 
         $this->assertSame($event, reset($tokenEvents));
@@ -1140,8 +1117,7 @@ class TokensTest extends StorageApiTestCase
             ->setDescription('Token with canManageBuckets permission')
         ;
 
-        $tokenId = $this->_client->createToken($options);
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->createToken($options);
 
         $client = $this->getClient([
             'token' => $token['token'],
@@ -1155,7 +1131,7 @@ class TokensTest extends StorageApiTestCase
 
         $event = $this->createAndWaitForEvent($event, $client);
 
-        $tokenEvents = $client->listTokenEvents($tokenId);
+        $tokenEvents = $client->listTokenEvents($token['id']);
         $this->assertCount(2, $tokenEvents); // token created + sample event
 
         $this->assertSame($event, reset($tokenEvents));
@@ -1307,9 +1283,10 @@ class TokensTest extends StorageApiTestCase
         $this->assertTrue($creatorToken['isMasterToken']);
         $this->assertFalse($creatorToken['canManageTokens']);
 
-        $tokenId = $client->createToken($options);
+        $guestTokens = new Tokens($client);
+        $token = $guestTokens->createToken($options);
 
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->getToken($token['id']);
 
         if ($options->getDescription()) {
             $this->assertSame($options->getDescription(), $token['description']);
@@ -1339,7 +1316,8 @@ class TokensTest extends StorageApiTestCase
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('You don\'t have access to the resource.');
 
-        $client->createToken($options);
+        $tokens = new Tokens($client);
+        $tokens->createToken($options);
     }
 
     public function limitedTokenOptionsData()
@@ -1388,7 +1366,86 @@ class TokensTest extends StorageApiTestCase
         $this->expectException($expectedExceptionClass);
         $this->expectExceptionMessage($expectedExceptionMessage);
 
-        $tokenId = $client->createToken($invalidOptions);
+        $guestTokens = new Tokens($client);
+        $guestTokens->createToken($invalidOptions);
+    }
+
+    public function testTokenRefreshesSelf()
+    {
+        $options = (new TokenCreateOptions())
+            ->setDescription(__METHOD__)
+            ->setExpiresIn(60 * 5)
+        ;
+
+        $token = $this->tokens->createToken($options);
+
+        $client = $this->getClientForToken($token['token']);
+
+        $oldTokenData = $client->verifyToken();
+        $this->assertTrue($token['token'] === $oldTokenData['token']);
+        $this->assertSame($token['id'], $oldTokenData['id']);
+
+        $client->refreshToken();
+
+        $newTokenData = $client->verifyToken();
+        $this->assertTrue($token['token'] !== $newTokenData['token']);
+        $this->assertNotSame($oldTokenData['refreshed'], $newTokenData['refreshed']);
+        $this->assertSame($token['id'], $newTokenData['id']);
+
+        // Token refresh via Tokens class does not affects current token in Client
+        $tokens = new Tokens($client);
+        $tokens->refreshToken($token['id']);
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionCode(401);
+        $client->verifyToken();
+    }
+
+    public function testDeprecatedMethods()
+    {
+        $initialTokens = $this->_client->listTokens();
+
+        // token create
+        $options = (new TokenCreateOptions())
+            ->setDescription(__METHOD__)
+            ->setExpiresIn(60 * 5)
+        ;
+
+        $tokenId = $this->_client->createToken($options);
+
+        // tokens list
+        $tokens = $this->_client->listTokens();
+        $this->assertCount(count($initialTokens) + 1, $tokens);
+
+        // token detail
+        $oldTokenData = $this->_client->getToken($tokenId);
+        $this->assertSame($tokenId, $oldTokenData['id']);
+
+        // token update
+        $options = (new TokenUpdateOptions($tokenId))
+            ->setDescription(__METHOD__ . ' updated');
+
+        $tokenId = $this->_client->updateToken($options);
+        $this->assertSame($oldTokenData['id'], $tokenId);
+
+        $newTokenData = $this->_client->getToken($tokenId);
+        $this->assertNotSame($oldTokenData['description'], $newTokenData['description']);
+
+        // token share
+        $this->_client->shareToken($tokenId, 'test@devel.keboola.com', 'Hi');
+
+        // token refresh
+        $newToken = $this->_client->refreshToken($tokenId);
+
+        $client = $this->getClientForToken($newToken);
+        $client->verifyToken();
+
+        // token drop
+        $result = $this->_client->dropToken($tokenId);
+        $this->assertSame('', $result);
+
+        $tokens = $this->_client->listTokens();
+        $this->assertCount(count($initialTokens), $tokens);
     }
 
     public function provideInvalidOptionsForGuestUser()

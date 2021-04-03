@@ -110,8 +110,7 @@ class DirectAccessTest extends StorageApiTestCase
     public function testWithNonAdminToken()
     {
         $backend = self::BACKEND_SNOWFLAKE;
-        $newTokenId = $this->_client->createToken(new TokenCreateOptions());
-        $newToken = $this->_client->getToken($newTokenId);
+        $newToken = $this->tokens->createToken(new TokenCreateOptions());
         $client = $this->getClient([
             'token' => $newToken['token'],
             'url' => STORAGE_API_URL,

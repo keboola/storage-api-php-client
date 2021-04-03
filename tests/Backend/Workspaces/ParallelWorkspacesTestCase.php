@@ -58,7 +58,7 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
     private function initTestToken($testName)
     {
         $oldTestTokens = array_filter(
-            $this->_client->listTokens(),
+            $this->tokens->listTokens(),
             function (array $token) use ($testName) {
                 return $token['description'] === $testName;
             }
@@ -66,7 +66,7 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
 
         foreach ($oldTestTokens as $oldTestToken) {
             if ($oldTestToken['canManageBuckets'] !== true) {
-                $this->_client->dropToken($oldTestToken['id']);
+                $this->tokens->dropToken($oldTestToken['id']);
             } else {
                 return $oldTestToken['token'];
             }
@@ -77,8 +77,7 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
             ->setDescription($testName)
         ;
 
-        $tokenId = $this->_client->createToken($tokenOptions);
-        $tokenData = $this->_client->getToken($tokenId);
+        $tokenData = $this->tokens->createToken($tokenOptions);
         return $tokenData['token'];
     }
 

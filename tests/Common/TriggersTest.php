@@ -29,12 +29,12 @@ class TriggersTest extends StorageApiTestCase
         $options = (new TokenCreateOptions())
             ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
         ;
-        $newTokenId = $this->_client->createToken($options);
+        $newToken = $this->tokens->createToken($options);
         $trigger = $this->_client->createTrigger([
             'component' => 'orchestrator',
             'configurationId' => 123,
             'coolDownPeriodMinutes' => 10,
-            'runWithTokenId' => $newTokenId,
+            'runWithTokenId' => $newToken['id'],
             'tableIds' => [
                 $table1,
             ],
@@ -43,7 +43,7 @@ class TriggersTest extends StorageApiTestCase
         $this->assertEquals('orchestrator', $trigger['component']);
         $this->assertEquals(123, $trigger['configurationId']);
         $this->assertEquals(10, $trigger['coolDownPeriodMinutes']);
-        $this->assertEquals($newTokenId, $trigger['runWithTokenId']);
+        $this->assertEquals($newToken['id'], $trigger['runWithTokenId']);
         $this->assertNotNull($trigger['lastRun']);
         $this->assertLessThan((new \DateTime()), (new \DateTime($trigger['lastRun'])));
         $this->assertEquals(
@@ -52,7 +52,7 @@ class TriggersTest extends StorageApiTestCase
             ],
             $trigger['tables']
         );
-        $token = $this->_client->verifyToken($newTokenId);
+        $token = $this->_client->verifyToken();
         $this->assertEquals(
             [
                 'id' => $token['id'],
@@ -71,13 +71,13 @@ class TriggersTest extends StorageApiTestCase
             ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
         ;
 
-        $newTokenId = $this->_client->createToken($options);
+        $newToken = $this->tokens->createToken($options);
 
         $trigger = $this->_client->createTrigger([
             'component' => 'orchestrator',
             'configurationId' => 123,
             'coolDownPeriodMinutes' => 10,
-            'runWithTokenId' => $newTokenId,
+            'runWithTokenId' => $newToken['id'],
             'tableIds' => [
                 $table1,
                 $table2,
@@ -88,13 +88,13 @@ class TriggersTest extends StorageApiTestCase
             ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
         ;
 
-        $brandNewTokenId = $this->_client->createToken($options);
+        $brandNewToken = $this->tokens->createToken($options);
 
         $updateData = [
             'component' => 'keboola.ex-1',
             'configurationId' => 111,
             'coolDownPeriodMinutes' => 20,
-            'runWithTokenId' => $brandNewTokenId,
+            'runWithTokenId' => $brandNewToken['id'],
             'tableIds' => [$table1],
         ];
 
@@ -103,7 +103,7 @@ class TriggersTest extends StorageApiTestCase
         $this->assertEquals('keboola.ex-1', $updateTrigger['component']);
         $this->assertEquals(111, $updateTrigger['configurationId']);
         $this->assertEquals(20, $updateTrigger['coolDownPeriodMinutes']);
-        $this->assertEquals($brandNewTokenId, $updateTrigger['runWithTokenId']);
+        $this->assertEquals($brandNewToken['id'], $updateTrigger['runWithTokenId']);
         $this->assertEquals([['tableId' => 'in.c-API-tests.watched-1']], $updateTrigger['tables']);
     }
 
@@ -144,13 +144,13 @@ class TriggersTest extends StorageApiTestCase
             ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
         ;
 
-        $newTokenId = $this->_client->createToken($options);
+        $newToken = $this->tokens->createToken($options);
 
         $trigger = $this->_client->createTrigger([
             'component' => 'orchestrator',
             'configurationId' => 123,
             'coolDownPeriodMinutes' => 10,
-            'runWithTokenId' => $newTokenId,
+            'runWithTokenId' => $newToken['id'],
             'tableIds' => [
                 $table,
             ],
@@ -174,7 +174,7 @@ class TriggersTest extends StorageApiTestCase
         $options = (new TokenCreateOptions())
             ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
         ;
-        $newTokenId = $this->_client->createToken($options);
+        $newToken = $this->tokens->createToken($options);
 
         $trigger1ConfigurationId = time();
         $componentName = uniqid('test');
@@ -182,7 +182,7 @@ class TriggersTest extends StorageApiTestCase
             'component' => $componentName,
             'configurationId' => $trigger1ConfigurationId,
             'coolDownPeriodMinutes' => 10,
-            'runWithTokenId' => $newTokenId,
+            'runWithTokenId' => $newToken['id'],
             'tableIds' => [
                 $table1,
             ],
@@ -192,7 +192,7 @@ class TriggersTest extends StorageApiTestCase
             'component' => 'keboola.ex-manzelka',
             'configurationId' => 123,
             'coolDownPeriodMinutes' => 10,
-            'runWithTokenId' => $newTokenId,
+            'runWithTokenId' => $newToken['id'],
             'tableIds' => [
                 $table2,
             ],
@@ -227,7 +227,7 @@ class TriggersTest extends StorageApiTestCase
             ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
         ;
 
-        $newTokenId = $this->_client->createToken($options);
+        $newToken = $this->tokens->createToken($options);
 
         $trigger1ConfigurationId = time();
         $componentName = uniqid('test');
@@ -235,7 +235,7 @@ class TriggersTest extends StorageApiTestCase
             'component' => $componentName,
             'configurationId' => $trigger1ConfigurationId,
             'coolDownPeriodMinutes' => 10,
-            'runWithTokenId' => $newTokenId,
+            'runWithTokenId' => $newToken['id'],
             'tableIds' => [
                 $table,
             ],
@@ -244,7 +244,7 @@ class TriggersTest extends StorageApiTestCase
             'component' => 'keboola.ex-manzelka',
             'configurationId' => 123,
             'coolDownPeriodMinutes' => 10,
-            'runWithTokenId' => $newTokenId,
+            'runWithTokenId' => $newToken['id'],
             'tableIds' => [
                 $table,
             ],
@@ -277,16 +277,16 @@ class TriggersTest extends StorageApiTestCase
 
     public function testInvalidToken()
     {
-        $tokenId = $this->_client->createToken(new TokenCreateOptions());
-        $this->_client->dropToken($tokenId);
+        $token = $this->tokens->createToken(new TokenCreateOptions());
+        $this->tokens->dropToken($token['id']);
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessage("Token with id \"$tokenId\" was not found.");
+        $this->expectExceptionMessage("Token with id \"{$token['id']}\" was not found.");
         $this->_client->createTrigger([
             'component' => 'keboola.ex-manzelka',
             'configurationId' => 123,
             'coolDownPeriodMinutes' => 10,
-            'runWithTokenId' => $tokenId,
+            'runWithTokenId' => $token['id'],
             'tableIds' => [''],
         ]);
     }
@@ -297,18 +297,18 @@ class TriggersTest extends StorageApiTestCase
         $options = (new TokenCreateOptions())
             ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
         ;
-        $newTokenId = $this->_client->createToken($options);
+        $newToken = $this->tokens->createToken($options);
         $trigger = $this->_client->createTrigger([
             'component' => 'orchestrator',
             'configurationId' => 123,
             'coolDownPeriodMinutes' => 10,
-            'runWithTokenId' => $newTokenId,
+            'runWithTokenId' => $newToken['id'],
             'tableIds' => [
                 $table1,
             ],
         ]);
         try {
-            $this->_client->dropToken($newTokenId);
+            $this->tokens->dropToken($newToken['id']);
             $this->fail("Token should not be deleted");
         } catch (ClientException $e) {
             $this->assertEquals(400, $e->getCode());
@@ -319,12 +319,12 @@ class TriggersTest extends StorageApiTestCase
             );
         }
         $this->_client->deleteTrigger($trigger['id']);
-        $this->_client->dropToken($newTokenId);
+        $this->tokens->dropToken($newToken['id']);
     }
 
     public function testTokenWithExpiration()
     {
-        $tokenId = $this->_client->createToken(
+        $token = $this->tokens->createToken(
             (new TokenCreateOptions())->setExpiresIn(5)
         );
 
@@ -335,7 +335,7 @@ class TriggersTest extends StorageApiTestCase
             'component' => 'keboola.ex-manzelka',
             'configurationId' => 123,
             'coolDownPeriodMinutes' => 10,
-            'runWithTokenId' => $tokenId,
+            'runWithTokenId' => $token['id'],
             'tableIds' => [''],
         ]);
     }
@@ -346,7 +346,7 @@ class TriggersTest extends StorageApiTestCase
         $readOnlyClient = $this->getClientForToken(STORAGE_API_READ_ONLY_TOKEN);
 
         $table1 = $this->createTableWithRandomData("watched-1");
-        $newTokenId = $this->_client->createToken(
+        $newToken = $this->tokens->createToken(
             (new TokenCreateOptions())
             ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
         );
@@ -355,7 +355,7 @@ class TriggersTest extends StorageApiTestCase
             'component' => 'orchestrator',
             'configurationId' => 123,
             'coolDownPeriodMinutes' => 10,
-            'runWithTokenId' => $newTokenId,
+            'runWithTokenId' => $newToken['id'],
             'tableIds' => [
                 $table1,
             ],

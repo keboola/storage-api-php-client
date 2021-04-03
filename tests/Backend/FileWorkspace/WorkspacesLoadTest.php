@@ -204,8 +204,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
             ->setCanReadAllFileUploads(true)
         ;
 
-        $newTokenId = $this->_client->createToken($tokenOptions);
-        $newToken = $this->_client->getToken($newTokenId);
+        $newToken = $this->tokens->createToken($tokenOptions);
         $newTokenClient = $this->getClient([
             'token' => $newToken['token'],
             'url' => STORAGE_API_URL
@@ -230,8 +229,8 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         );
 
         // non admin token without canReadAllFileUploads permission
-        $this->_client->updateToken(
-            (new TokenUpdateOptions($newTokenId))
+        $this->tokens->updateToken(
+            (new TokenUpdateOptions($newToken['id']))
                 ->setCanReadAllFileUploads(false)
         );
 
@@ -1084,8 +1083,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
             ->setDescription('workspaceLoadTest: Out read token')
             ->addBucketPermission($this->getTestBucketId(self::STAGE_OUT), TokenAbstractOptions::BUCKET_PERMISSION_READ);
 
-        $tokenId = $this->_client->createToken($tokenOptions);
-        $token = $this->_client->getToken($tokenId);
+        $token = $this->tokens->createToken($tokenOptions);
 
         $testClient = $this->getClient([
             'token' => $token['token'],
