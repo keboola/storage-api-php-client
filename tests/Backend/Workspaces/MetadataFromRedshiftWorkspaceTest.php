@@ -6,6 +6,7 @@ namespace Keboola\Test\Backend\Workspaces;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\ClientException;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
 {
@@ -25,9 +26,12 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
     public function testCreateTableFromWorkspace()
     {
         // create workspace and source table in workspace
-        $workspace = $this->recreateTestWorkspace(["backend" => self::BACKEND_REDSHIFT]);
-        $connection = $workspace['connection'];
-        $db = $this->getDbConnection($connection);
+        $workspace = $this->initTestWorkspace(self::BACKEND_REDSHIFT);
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists('test.metadata_columns');
+
+        $db = $this->getDbConnection($workspace['connection']);
         $db->query("create table \"test.metadata_columns\" (
                     \"string\" varchar(16) not null default 'string',
                     \"char\" char null,
@@ -157,9 +161,12 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
         );
 
         // create workspace and source table in workspace
-        $workspace = $this->recreateTestWorkspace(["backend" => self::BACKEND_REDSHIFT]);
-        $connection = $workspace['connection'];
-        $db = $this->getDbConnection($connection);
+        $workspace = $this->initTestWorkspace(self::BACKEND_REDSHIFT);
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists('test.Languages3');
+
+        $db = $this->getDbConnection($workspace['connection']);
         $db->query("create table \"test.Languages3\" (
                 \"id\" integer not null,
                 \"name\" varchar not null default 'honza'
@@ -222,9 +229,12 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
         );
 
         // create workspace and source table in workspace
-        $workspace = $this->recreateTestWorkspace(["backend" => self::BACKEND_REDSHIFT]);
-        $connection = $workspace['connection'];
-        $db = $this->getDbConnection($connection);
+        $workspace = $this->initTestWorkspace(self::BACKEND_REDSHIFT);
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists('test.metadata_columns');
+
+        $db = $this->getDbConnection($workspace['connection']);
 
          $db->query("create table \"test.metadata_columns\" (
                 \"id\" integer not null,
@@ -253,9 +263,12 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
     public function testCreateTableFromWorkspaceWithUnsupportedDataType()
     {
         // create workspace and source table in workspace
-        $workspace = $this->recreateTestWorkspace(["backend" => self::BACKEND_REDSHIFT]);
-        $connection = $workspace['connection'];
-        $db = $this->getDbConnection($connection);
+        $workspace = $this->initTestWorkspace(self::BACKEND_REDSHIFT);
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists('test.metadata_columns');
+
+        $db = $this->getDbConnection($workspace['connection']);
 
         $db->query("create table \"test.metadata_columns\" (
                 \"id\" integer not null,
