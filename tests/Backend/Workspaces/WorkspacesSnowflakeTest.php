@@ -14,8 +14,9 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
 
     public function testCreateNotSupportedBackend()
     {
+        $workspaces = new Workspaces($this->workspaceSapiClient);
         try {
-            $this->recreateTestWorkspace(["backend" => self::BACKEND_REDSHIFT]);
+            $workspaces->createWorkspace(['backend' => self::BACKEND_REDSHIFT]);
             $this->fail("should not be able to create WS for unsupported backend");
         } catch (ClientException $e) {
             $this->assertEquals($e->getStringCode(), "workspace.backendNotSupported");
