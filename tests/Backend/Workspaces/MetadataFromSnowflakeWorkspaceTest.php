@@ -24,7 +24,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
     public function testIncrementalLoadUpdateDataType()
     {
         // create workspace and source table in workspace
-        $workspace = $this->recreateTestWorkspace(["backend" => "snowflake"]);
+        $workspace = $this->recreateTestWorkspace(["backend" => self::BACKEND_SNOWFLAKE]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
         $db->query("create table \"test.metadata_columns\" (
@@ -221,7 +221,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
     {
 
         // create workspace and source table in workspace
-        $workspace = $this->recreateTestWorkspace(["backend" => "snowflake"]);
+        $workspace = $this->recreateTestWorkspace(["backend" => self::BACKEND_SNOWFLAKE]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
         $db->query("create table \"test.metadata_columns\" (
@@ -360,7 +360,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         );
 
         // create workspace and source table in workspace
-        $workspace = $this->recreateTestWorkspace(["backend" => "snowflake"]);
+        $workspace = $this->recreateTestWorkspace(["backend" => self::BACKEND_SNOWFLAKE]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
         $db->query("create table \"test.Languages3\" (
@@ -454,7 +454,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         );
 
         // create workspace and source table in workspace
-        $workspace = $this->recreateTestWorkspace(["backend" => "snowflake"]);
+        $workspace = $this->recreateTestWorkspace(["backend" => self::BACKEND_SNOWFLAKE]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
         $db->query("CREATE TABLE \"test.metadata_columns\" AS SELECT
@@ -479,7 +479,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
     public function testCreateTableFromWorkspaceWithSnowflakeBug()
     {
         // create workspace and source table in workspace
-        $workspace = $this->recreateTestWorkspace(["backend" => "snowflake"]);
+        $workspace = $this->recreateTestWorkspace(["backend" => self::BACKEND_SNOWFLAKE]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
         $db->query("CREATE TABLE \"test.metadata_columns\" AS SELECT

@@ -23,7 +23,7 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
     public function testCreateTableFromWorkspace()
     {
         // create workspace and source table in workspace
-        $workspace = $this->recreateTestWorkspace(['backend' => 'synapse']);
+        $workspace = $this->recreateTestWorkspace(['backend' => self::BACKEND_SYNAPSE]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
 
@@ -141,7 +141,7 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
         );
 
         // create workspace and source table in workspace
-        $workspace = $this->recreateTestWorkspace(['backend' => 'synapse']);
+        $workspace = $this->recreateTestWorkspace(['backend' => self::BACKEND_SYNAPSE]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
 

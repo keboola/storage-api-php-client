@@ -15,7 +15,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
     public function testCreateNotSupportedBackend()
     {
         try {
-            $this->recreateTestWorkspace(["backend" => "snowflake"]);
+            $this->recreateTestWorkspace(["backend" => self::BACKEND_SNOWFLAKE]);
             $this->fail("should not be able to create WS for unsupported backend");
         } catch (ClientException $e) {
             $this->assertEquals($e->getStringCode(), "workspace.backendNotSupported");
