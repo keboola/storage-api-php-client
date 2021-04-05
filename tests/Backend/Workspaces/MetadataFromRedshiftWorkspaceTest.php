@@ -25,7 +25,7 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
     public function testCreateTableFromWorkspace()
     {
         // create workspace and source table in workspace
-        $workspace = $this->recreateTestWorkspace(["backend" => "redshift"]);
+        $workspace = $this->recreateTestWorkspace(["backend" => self::BACKEND_REDSHIFT]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
         $db->query("create table \"test.metadata_columns\" (
@@ -157,7 +157,7 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
         );
 
         // create workspace and source table in workspace
-        $workspace = $this->recreateTestWorkspace(["backend" => "redshift"]);
+        $workspace = $this->recreateTestWorkspace(["backend" => self::BACKEND_REDSHIFT]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
         $db->query("create table \"test.Languages3\" (
@@ -222,7 +222,7 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
         );
 
         // create workspace and source table in workspace
-        $workspace = $this->recreateTestWorkspace(["backend" => "redshift"]);
+        $workspace = $this->recreateTestWorkspace(["backend" => self::BACKEND_REDSHIFT]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
 
@@ -253,7 +253,7 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
     public function testCreateTableFromWorkspaceWithUnsupportedDataType()
     {
         // create workspace and source table in workspace
-        $workspace = $this->recreateTestWorkspace(["backend" => "redshift"]);
+        $workspace = $this->recreateTestWorkspace(["backend" => self::BACKEND_REDSHIFT]);
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
 
