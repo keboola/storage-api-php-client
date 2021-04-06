@@ -1385,6 +1385,8 @@ class TokensTest extends StorageApiTestCase
         $this->assertTrue($token['token'] === $oldTokenData['token']);
         $this->assertSame($token['id'], $oldTokenData['id']);
 
+        sleep(2);
+
         $client->refreshToken();
 
         $newTokenData = $client->verifyToken();
