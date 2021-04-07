@@ -3,8 +3,8 @@
 namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\StorageApi\ClientException;
-use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
 {
@@ -13,14 +13,17 @@ class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
     public function testCreateTableFromWorkspace()
     {
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
+
+        $tableId = 'Languages3';
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists($tableId);
 
         $connection = $workspace['connection'];
 
         $db = $this->getDbConnection($connection);
 
-        $tableId = 'Languages3';
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
             $connection['schema'],
@@ -55,14 +58,17 @@ class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
     public function testCreateTableFromWorkspaceWithInvalidColumnNames()
     {
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
+
+        $tableId = 'Languages3';
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists($tableId);
 
         $connection = $workspace['connection'];
 
         $db = $this->getDbConnection($connection);
 
-        $tableId = 'Languages3';
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
             $connection['schema'],
@@ -92,14 +98,17 @@ class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
     public function testImportFromWorkspaceWithInvalidColumnNames()
     {
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
+
+        $tableId = 'Languages3';
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists($tableId);
 
         $connection = $workspace['connection'];
 
         $db = $this->getDbConnection($connection);
 
-        $tableId = 'Languages3';
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
             $connection['schema'],
@@ -142,14 +151,17 @@ class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         ));
 
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
+
+        $tableId = 'Languages3';
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists($tableId);
 
         $connection = $workspace['connection'];
 
         $db = $this->getDbConnection($connection);
 
-        $tableId = 'Languages3';
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
             $connection['schema'],

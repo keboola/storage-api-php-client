@@ -16,7 +16,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         try {
-            $workspaces->createWorkspace(["backend" => "redshift"]);
+            $workspaces->createWorkspace(['backend' => self::BACKEND_REDSHIFT]);
             $this->fail("should not be able to create WS for unsupported backend");
         } catch (ClientException $e) {
             $this->assertEquals($e->getStringCode(), "workspace.backendNotSupported");
@@ -26,7 +26,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
     public function testLoadDataTypesDefaults()
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         // Create a table of sample data
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -107,8 +107,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
 
     public function testStatementTimeout()
     {
-        $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         $this->assertGreaterThan(0, $workspace['statementTimeoutSeconds']);
 
@@ -120,8 +119,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
 
     public function testClientSessionKeepAlive()
     {
-        $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         $db = $this->getDbConnection($workspace['connection']);
 
@@ -135,7 +133,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
     public function testTransientTables()
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         // Create a table of sample data
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -220,7 +218,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         ];
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping]]);
@@ -270,7 +268,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
 
@@ -352,7 +350,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
 
@@ -425,7 +423,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
 
@@ -522,7 +520,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
 
@@ -614,7 +612,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
     public function testsIncrementalDataTypesDiff($table, $firstLoadColumns, $secondLoadColumns, $shouldFail)
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         $importFile = __DIR__ . "/../../_data/$table.csv";
 

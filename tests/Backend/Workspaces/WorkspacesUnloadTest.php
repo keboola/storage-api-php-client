@@ -11,9 +11,8 @@ namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\ClientException;
-use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
-use Keboola\Test\StorageApiTestCase;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 {
@@ -30,17 +29,19 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages-case-sensitive', $importFile);
 
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
-        $connection = $workspace['connection'];
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists('test.Languages3');
+        unset($backend);
 
-        $db = $this->getDbConnection($connection);
+        $db = $this->getDbConnection($workspace['connection']);
 
         $db->query("create table \"test.Languages3\" (
 			\"id\" integer not null,
 			\"Name\" varchar not null
 		);");
+
 
         $db->query("insert into \"test.Languages3\" (\"id\", \"Name\") values (1, 'cz'), (2, 'en');");
 
@@ -57,8 +58,11 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
     public function testCreateTableFromWorkspace()
     {
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists('test.Languages3');
+        unset($backend);
 
         $connection = $workspace['connection'];
 
@@ -91,12 +95,13 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
     public function testCreateTableFromWorkspaceWithInvalidColumnNames()
     {
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
-        $connection = $workspace['connection'];
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists('test.Languages3');
+        unset($backend);
 
-        $db = $this->getDbConnection($connection);
+        $db = $this->getDbConnection($workspace['connection']);
 
         $db->query("create table \"test.Languages3\" (
 			\"_Id\" integer not null,
@@ -120,12 +125,13 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
     public function testImportFromWorkspaceWithInvalidColumnNames()
     {
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
-        $connection = $workspace['connection'];
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists('test.Languages3');
+        unset($backend);
 
-        $db = $this->getDbConnection($connection);
+        $db = $this->getDbConnection($workspace['connection']);
 
         $db->query("create table \"test.Languages3\" (
 			\"Id\" integer not null,
@@ -162,12 +168,13 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         ));
 
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
-        $connection = $workspace['connection'];
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists('test.Languages3');
+        unset($backend);
 
-        $db = $this->getDbConnection($connection);
+        $db = $this->getDbConnection($workspace['connection']);
 
         $db->query("create table \"test.Languages3\" (
 			\"Id\" integer not null,

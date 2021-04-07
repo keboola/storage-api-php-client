@@ -3,8 +3,8 @@
 namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\Csv\CsvFile;
-use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
 {
@@ -24,12 +24,16 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
     public function testCreateTableFromWorkspace()
     {
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace(['backend' => 'synapse']);
+        $workspace = $this->initTestWorkspace(self::BACKEND_SYNAPSE);
+
+        $tableId = 'metadata_columns';
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists($tableId);
+
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
 
-        $tableId = 'metadata_columns';
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
             $connection['schema'],
@@ -143,12 +147,16 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
         );
 
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace(['backend' => 'synapse']);
+        $workspace = $this->initTestWorkspace(self::BACKEND_SYNAPSE);
+
+        $tableId = 'Languages3';
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists($tableId);
+
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
 
-        $tableId = 'Languages3';
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
             $connection['schema'],
