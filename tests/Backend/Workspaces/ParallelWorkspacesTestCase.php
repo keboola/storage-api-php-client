@@ -19,12 +19,8 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();
 
-        $description = get_class($this) . '\\' . $this->getName();
-
-        $this->deleteOldTestWorkspaces($description);
-
         $this->workspaceSapiClient = $this->getClient([
-            'token' => $this->initTestToken($description),
+            'token' => $this->initTestToken(),
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
             'jobPollRetryDelay' => function () {
@@ -33,18 +29,37 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
         ]);
     }
 
-    private function deleteOldTestWorkspaces($testName)
+    /**
+     * Creates a new workspace for current test. If workspace already exist, resets its password.
+     *
+     * @param null|string $backend
+     * @return array workspace detail
+     */
+    protected function initTestWorkspace($backend = null)
+    {
+        $options = $backend ? ['backend' => $backend] : [];
+
+        $oldWorkspaces = $this->listTestWorkspaces();
+        $workspaces = new Workspaces($this->workspaceSapiClient);
+
+        $oldWorkspace = $oldWorkspaces ? reset($oldWorkspaces) : null;
+        if (!$oldWorkspace) {
+            return $workspaces->createWorkspace($options);
+        } elseif (!$options || $oldWorkspace['connection']['backend'] === $options['backend']) {
+            $result = $workspaces->resetWorkspacePassword($oldWorkspace['id']);
+            $oldWorkspace['connection']['password'] = $result['password'];
+            return $oldWorkspace;
+        }
+
+        $this->deleteOldTestWorkspaces();
+        return $workspaces->createWorkspace($options);
+    }
+
+    private function deleteOldTestWorkspaces()
     {
         $workspaces = new Workspaces($this->_client);
 
-        $oldTestWorkspaces = array_filter(
-            $workspaces->listWorkspaces(),
-            function (array $workspace) use ($testName) {
-                return $workspace['creatorToken']['description'] === $testName;
-            }
-        );
-
-        foreach ($oldTestWorkspaces as $workspace) {
+        foreach ($this->listTestWorkspaces() as $workspace) {
             $workspaces->deleteWorkspace($workspace['id'], [
                 'async' => true,
             ]);
@@ -52,15 +67,16 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
     }
 
     /**
-     * @param string $testName
      * @return string
      */
-    private function initTestToken($testName)
+    private function initTestToken()
     {
+        $description = $this->generateDescriptionForTestObject();
+
         $oldTestTokens = array_filter(
             $this->tokens->listTokens(),
-            function (array $token) use ($testName) {
-                return $token['description'] === $testName;
+            function (array $token) use ($description) {
+                return $token['description'] === $description;
             }
         );
 
@@ -74,7 +90,7 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
 
         $tokenOptions = (new TokenCreateOptions())
             ->setCanManageBuckets(true)
-            ->setDescription($testName)
+            ->setDescription($this->generateDescriptionForTestObject())
         ;
 
         $tokenData = $this->tokens->createToken($tokenOptions);
@@ -88,6 +104,19 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
             function ($job) use ($workspaceId) {
                 $workspaceIdParam = isset($job['operationParams']['workspaceId']) ? (int) $job['operationParams']['workspaceId'] : 0;
                 return (int) $workspaceIdParam === $workspaceId;
+            }
+        );
+    }
+
+    protected function listTestWorkspaces()
+    {
+        $description = $this->generateDescriptionForTestObject();
+        $workspaces = new Workspaces($this->_client);
+
+        return array_filter(
+            $workspaces->listWorkspaces(),
+            function (array $workspace) use ($description) {
+                return $workspace['creatorToken']['description'] === $description;
             }
         );
     }

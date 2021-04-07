@@ -16,7 +16,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         //setup test tables
         $tableId = $this->_client->createTable(
@@ -55,7 +55,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         //setup test tables
         $table1_id = $this->_client->createTable(
@@ -247,7 +247,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
     public function testWorkspaceLoadColumns()
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -308,7 +308,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -358,7 +358,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
     public function testIncrementalAdditionalColumns()
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -408,7 +408,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
     public function testIncrementalMissingColumns()
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -460,7 +460,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
     public function testIncrementalDataTypesDiff($table, $firstLoadDataTypes, $secondLoadDataTypes)
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         $importFile = __DIR__ . "/../../_data/$table.more-columns.csv";
      //   $importFile = __DIR__ . "/../../_data/$table.csv";
@@ -515,7 +515,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
     public function testSecondsFilter()
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -554,7 +554,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
     public function testRowsParameter()
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -620,7 +620,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
     public function testDataTypes($dataTypesDefinition)
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../_data/languages.camel-case-columns.csv';
@@ -667,7 +667,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
     public function testDataTypeConversionUserError($dataTypesDefinition)
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable(
@@ -733,7 +733,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
     public function testDataTypeForNotExistingColumnUserError($dataTypesDefinition)
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         $importFile = __DIR__ . '/../../_data/languages.camel-case-columns.csv';
         $tableId = $this->_client->createTable(
@@ -790,7 +790,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
     public function testInvalidDataTypeUserError()
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable(
@@ -824,7 +824,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
     public function testInvalidExtendedDataTypeUserError()
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable(
@@ -864,7 +864,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
     public function testDuplicateDestination()
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         //setup test tables
         $table1_id = $this->_client->createTable(
@@ -894,7 +894,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
     public function testTableAlreadyExistsShouldThrowUserError()
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         $tableId = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),

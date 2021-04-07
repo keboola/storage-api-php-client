@@ -4,8 +4,8 @@
 namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\Csv\CsvFile;
-use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
 {
@@ -25,11 +25,10 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
     public function testIncrementalLoadUpdateDataType()
     {
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace(["backend" => "snowflake"]);
-        $connection = $workspace['connection'];
-        $db = $this->getDbConnection($connection);
-        $db->query("create table \"test.metadata_columns\" (
+        $workspace = $this->initTestWorkspace(self::BACKEND_SNOWFLAKE);
+
+        $db = $this->getDbConnection($workspace['connection']);
+        $db->query("create or replace table \"test.metadata_columns\" (
                     \"id\" varchar(16),
                     \"name\" varchar
                 );");
@@ -221,13 +220,11 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
 
     public function testCreateTableFromWorkspace()
     {
-
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace(["backend" => "snowflake"]);
-        $connection = $workspace['connection'];
-        $db = $this->getDbConnection($connection);
-        $db->query("create table \"test.metadata_columns\" (
+        $workspace = $this->initTestWorkspace(self::BACKEND_SNOWFLAKE);
+
+        $db = $this->getDbConnection($workspace['connection']);
+        $db->query("create or replace table \"test.metadata_columns\" (
                     \"string\" varchar(16) not null default 'string',
                     \"char\" char null,
                     \"integer\" integer not null default 4,
@@ -363,11 +360,10 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         );
 
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace(["backend" => "snowflake"]);
-        $connection = $workspace['connection'];
-        $db = $this->getDbConnection($connection);
-        $db->query("create table \"test.Languages3\" (
+        $workspace = $this->initTestWorkspace(self::BACKEND_SNOWFLAKE);
+
+        $db = $this->getDbConnection($workspace['connection']);
+        $db->query("create or replace table \"test.Languages3\" (
                 \"id\" integer not null,
                 \"name\" varchar not null default 'honza'
             );");
@@ -458,10 +454,9 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         );
 
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace(["backend" => "snowflake"]);
-        $connection = $workspace['connection'];
-        $db = $this->getDbConnection($connection);
+        $workspace = $this->initTestWorkspace(self::BACKEND_SNOWFLAKE);
+
+        $db = $this->getDbConnection($workspace['connection']);
         $db->query("CREATE OR REPLACE TABLE \"test.metadata_columns\" AS SELECT
                         '1'::integer AS \"id\",
                         'roman'::string AS \"name\",
@@ -484,10 +479,9 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
     public function testCreateTableFromWorkspaceWithSnowflakeBug()
     {
         // create workspace and source table in workspace
-        $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace(["backend" => "snowflake"]);
-        $connection = $workspace['connection'];
-        $db = $this->getDbConnection($connection);
+        $workspace = $this->initTestWorkspace(self::BACKEND_SNOWFLAKE);
+
+        $db = $this->getDbConnection($workspace['connection']);
         $db->query("CREATE OR REPLACE TABLE \"test.metadata_columns\" AS SELECT
                         '1'::integer AS \"id\",
                         'roman'::string AS \"name\",

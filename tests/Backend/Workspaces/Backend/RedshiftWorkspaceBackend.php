@@ -183,4 +183,13 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
         }
         return $desc;
     }
+
+    public function dropTableIfExists($table)
+    {
+        $this->db->query(sprintf(
+            'DROP TABLE IF EXISTS "%s"."%s";',
+            $this->schema,
+            $table
+        ));
+    }
 }

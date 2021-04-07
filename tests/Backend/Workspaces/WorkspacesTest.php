@@ -20,8 +20,11 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
 
     public function testWorkspaceCreate()
     {
-
         $workspaces = new Workspaces($this->workspaceSapiClient);
+
+        foreach ($this->listTestWorkspaces() as $workspace) {
+            $workspaces->deleteWorkspace($workspace['id']);
+        }
 
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
@@ -34,7 +37,6 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $this->assertEquals($tokenInfo['owner']['defaultBackend'], $connection['backend']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-
         $backend->createTable("mytable", ["amount" => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? "NUMBER" : "VARCHAR"]);
 
         $tableNames = $backend->getTables();
@@ -78,7 +80,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         $connection = $workspace['connection'];
 
@@ -86,7 +88,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $this->assertEquals($tokenInfo['owner']['defaultBackend'], $connection['backend']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-
+        $backend->dropTableIfExists('mytable');
         $backend->createTable("mytable", ["amount" => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? "NUMBER" : "VARCHAR"]);
 
         $tableNames = $backend->getTables();
@@ -141,6 +143,10 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
     public function testDropWorkspace($dropOptions)
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
+
+        foreach ($this->listTestWorkspaces() as $workspace) {
+            $workspaces->deleteWorkspace($workspace['id']);
+        }
 
         $runId = $this->_client->generateRunId();
         $this->workspaceSapiClient->setRunId($runId);
