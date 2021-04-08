@@ -12,6 +12,18 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
 {
     use WorkspaceConnectionTrait;
 
+    /**
+     * @return int
+     */
+    private function getRedshiftNodeCount()
+    {
+        if (REDSHIFT_NODE_COUNT) {
+            return (int) REDSHIFT_NODE_COUNT;
+        }
+
+        return 1;
+    }
+
     public function testCreateNotSupportedBackend()
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
@@ -45,9 +57,9 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
                 [
                     "source" => $tableId,
                     "destination" => "languages-rs",
-                    "columns" => $columnsDefinition
-                ]
-            ]
+                    "columns" => $columnsDefinition,
+                ],
+            ],
         ]);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
@@ -82,35 +94,33 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
             new CsvFile(__DIR__ . '/../../_data/users.csv')
         );
 
-
         $workspaces->loadWorkspaceData($workspace['id'], [
             "input" => [
                 [
                     "source" => $table1Id,
                     "destination" => "languages-rs",
-                    "sortKey" => "name"
+                    "sortKey" => "name",
                 ],
                 [
                     "source" => $table2Id,
                     "destination" => "users",
-                ]
-            ]
+                ],
+            ],
         ]);
-
 
         $jobs = $this->listWorkspaceJobs($workspace['id']);
         $actualJob = reset($jobs);
 
         $this->assertSame('workspaceLoad', $actualJob['operationName']);
         $this->assertArrayHasKey('metrics', $actualJob);
-        $this->assertEquals(35651584, $actualJob['metrics']['outBytes']);
+        $this->assertEquals(35651584 * $this->getRedshiftNodeCount(), $actualJob['metrics']['outBytes']);
 
         $statement = $db->prepare("SELECT \"column\", sortkey FROM pg_table_def WHERE schemaname = ? AND tablename = ? AND \"column\" = ?;");
         $statement->execute([$workspace['connection']['schema'], "languages-rs", "name"]);
 
         $row = $statement->fetch();
 
-        $this->assertEquals(1, (int)$row['sortkey']);
+        $this->assertEquals(1, (int) $row['sortkey']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $this->assertEquals(5, $backend->countRows('users'));
@@ -134,7 +144,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         );
         $mapping = [
             "source" => $tableId,
-            "destination" => "languages"
+            "destination" => "languages",
         ];
         if (is_array($dist)) {
             $mapping['distKey'] = $dist['key'];
@@ -144,15 +154,15 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         }
         $workspaces->loadWorkspaceData($workspace['id'], [
             "input" => [
-                $mapping
-            ]
+                $mapping,
+            ],
         ]);
 
         if (is_array($dist)) {
             $statement = $db->prepare("SELECT \"column\", distkey FROM pg_table_def WHERE schemaname = ? AND tablename = ? AND \"column\" = ?;");
             $statement->execute([$workspace['connection']['schema'], "languages", "id"]);
             $row = $statement->fetch();
-            $this->assertEquals(1, (int)$row['distkey']);
+            $this->assertEquals(1, (int) $row['distkey']);
         }
 
         $statement = $db->prepare(sprintf(
@@ -162,11 +172,15 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         $statement->execute();
         $row = $statement->fetch();
         if (is_array($dist)) {
-            $this->assertEquals(1, (int)$row['reldiststyle'], "key diststyle doesn't check out.");
-        } else if ($dist === 'even') {
-            $this->assertEquals(0, (int)$row['reldiststyle'], "even diststyle doesn't check out.");
-        } else if ($dist === "all") {
-            $this->assertEquals(8, (int)$row['reldiststyle'], "all diststyle doesn't check out.");
+            $this->assertEquals(1, (int) $row['reldiststyle'], "key diststyle doesn't check out.");
+        } else {
+            if ($dist === 'even') {
+                $this->assertEquals(0, (int) $row['reldiststyle'], "even diststyle doesn't check out.");
+            } else {
+                if ($dist === "all") {
+                    $this->assertEquals(8, (int) $row['reldiststyle'], "all diststyle doesn't check out.");
+                }
+            }
         }
     }
 
@@ -202,8 +216,8 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
                         [
                             'source' => 'name',
                             'type' => 'varchar',
-                        ]
-                    ]
+                        ],
+                    ],
                 ],
                 [
                     "source" => $table2Id,
@@ -217,9 +231,9 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
                             'source' => 'SKK',
                             'type' => 'varchar',
                         ],
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ]);
 
         $jobs = $this->listWorkspaceJobs($workspace['id']);
@@ -227,8 +241,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
 
         $this->assertSame('workspaceLoad', $actualJob['operationName']);
         $this->assertArrayHasKey('metrics', $actualJob);
-        $this->assertEquals(20971520, $actualJob['metrics']['outBytes']);
-
+        $this->assertEquals(20971520 * $this->getRedshiftNodeCount(), $actualJob['metrics']['outBytes']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $table = $backend->describeTableColumns('languages-rs');
@@ -255,14 +268,14 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
             $this->getTestBucketId(self::STAGE_IN),
             'languages-pk',
             new CsvFile(__DIR__ . '/../../_data/multiple-columns-pk.csv'),
-            array(
+            [
                 'primaryKey' => implode(",", $primaries),
-            )
+            ]
         );
 
         $mapping = [
             "source" => $pkTableId,
-            "destination" => "languages-pk"
+            "destination" => "languages-pk",
         ];
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
@@ -316,7 +329,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         return [
             ["all"],
             ["even"],
-            [["key" => "id"]]
+            [["key" => "id"]],
         ];
     }
 
@@ -336,7 +349,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
                         'length' => 255,
                         'compression' => 'BYTEDICT',
                     ],
-                ]
+                ],
             ],
         ];
     }
@@ -348,7 +361,6 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable(
@@ -389,7 +401,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
 
         $this->assertSame('workspaceLoad', $actualJob['operationName']);
         $this->assertArrayHasKey('metrics', $actualJob);
-        $this->assertEquals(25165824, $actualJob['metrics']['outBytes']);
+        $this->assertEquals(25165824 * $this->getRedshiftNodeCount(), $actualJob['metrics']['outBytes']);
 
         $this->assertEquals(2, $backend->countRows("languages"));
         $this->assertEquals(5, $backend->countRows("languagesDetails"));
@@ -425,7 +437,6 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable(
@@ -500,7 +511,6 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-
         $importFile = __DIR__ . '/../../_data/languages.with-state.csv';
         $tableId = $this->_client->createTable(
             $bucketId,
@@ -519,9 +529,9 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
                     'whereValues' => [0, 26, 1],
                     'columns' => [
                         [
-                          'source' => 'id',
-                          'type' => 'SMALLINT',
-                          'nullable' => false,
+                            'source' => 'id',
+                            'type' => 'SMALLINT',
+                            'nullable' => false,
                         ],
                         [
                             'source' => 'name',
@@ -534,7 +544,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
                             'nullable' => true,
-                        ]
+                        ],
                     ],
                 ],
             ],
@@ -569,7 +579,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
                             'nullable' => true,
-                        ]
+                        ],
                     ],
                 ],
             ],
@@ -596,7 +606,6 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-
 
         $importFile = __DIR__ . '/../../_data/languages.with-state.csv';
         $tableId = $this->_client->createTable(
@@ -631,7 +640,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
                             'nullable' => false,
-                        ]
+                        ],
                     ],
                 ],
             ],
@@ -666,7 +675,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
                             'nullable' => false,
-                        ]
+                        ],
                     ],
                 ],
             ],
@@ -708,8 +717,8 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
                     "source" => $table2Id,
                     "destination" => "rates",
                     'rows' => 15,
-                ]
-            ]
+                ],
+            ],
         ]);
 
         $jobs = $this->listWorkspaceJobs($workspace['id']);
@@ -717,7 +726,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
 
         $this->assertSame('workspaceLoad', $actualJob['operationName']);
         $this->assertArrayHasKey('metrics', $actualJob);
-        $this->assertEquals(106954752, $actualJob['metrics']['outBytes']);
+        $this->assertEquals(106954752 * $this->getRedshiftNodeCount(), $actualJob['metrics']['outBytes']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $this->assertEquals(5, $backend->countRows('languages'));
@@ -746,9 +755,9 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         $startTime = time();
 
         $importCsv = new CsvFile(__DIR__ . '/../../_data/languages.csv');
-        $this->_client->writeTable($table1Id, $importCsv, array(
+        $this->_client->writeTable($table1Id, $importCsv, [
             'incremental' => true,
-        ));
+        ]);
 
         $workspaces->loadWorkspaceData($workspace['id'], [
             "input" => [
@@ -761,8 +770,8 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
                     "source" => $table2Id,
                     "destination" => "users",
                     'seconds' => floor(time() - $startTime) + 30,
-                ]
-            ]
+                ],
+            ],
         ]);
 
         $jobs = $this->listWorkspaceJobs($workspace['id']);
@@ -770,7 +779,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
 
         $this->assertSame('workspaceLoad', $actualJob['operationName']);
         $this->assertArrayHasKey('metrics', $actualJob);
-        $this->assertEquals(10485760, $actualJob['metrics']['outBytes']);
+        $this->assertEquals(10485760 * $this->getRedshiftNodeCount(), $actualJob['metrics']['outBytes']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $this->assertEquals(5, $backend->countRows('languages'));
