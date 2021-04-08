@@ -117,6 +117,7 @@ Then you can run tests:
 This test suite expects following environment variables set:
 - `STORAGE_API_URL` - URL of Keboola Storage API (https://connection.keboola.com/)
 - `STORAGE_API_TOKEN` - Storage API token associated to user (Admin master token) with all permissions. **Project must have `Redshift` set as default backend.**
+- `REDSHIFT_NODE_COUNT` - (optional) Set Redshift node count `default=1`
 
 You can export variables manually, or you can create and fill file `set-env.redshift.sh`
 as copy of attached `set-env.redshift.template.sh`.
