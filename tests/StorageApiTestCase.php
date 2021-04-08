@@ -561,4 +561,16 @@ abstract class StorageApiTestCase extends ClientTestCase
     {
         return get_class($this) . '\\' . $this->getName();
     }
+
+    /**
+     * @return int
+     */
+    protected function getRedshiftNodeCount()
+    {
+        if (REDSHIFT_NODE_COUNT) {
+            return (int) REDSHIFT_NODE_COUNT;
+        }
+
+        return 1;
+    }
 }
