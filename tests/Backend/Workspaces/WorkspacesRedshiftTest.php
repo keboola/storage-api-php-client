@@ -12,18 +12,6 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
 {
     use WorkspaceConnectionTrait;
 
-    /**
-     * @return int
-     */
-    private function getRedshiftNodeCount()
-    {
-        if (REDSHIFT_NODE_COUNT) {
-            return (int) REDSHIFT_NODE_COUNT;
-        }
-
-        return 1;
-    }
-
     public function testCreateNotSupportedBackend()
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
