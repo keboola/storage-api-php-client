@@ -23,7 +23,9 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
         foreach ($this->listTestWorkspaces() as $workspace) {
-            $workspaces->deleteWorkspace($workspace['id']);
+            $workspaces->deleteWorkspace($workspace['id'], [
+                'async' => true,
+            ]);
         }
 
         $runId = $this->_client->generateRunId();
@@ -55,8 +57,6 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
 
         $this->assertArrayHasKey($workspace['id'], array_flip($workspacesIds));
 
-        $workspaces->deleteWorkspace($workspace['id']);
-
         // block until async events are processed, processing in order is not guaranteed but it should work most of time
         $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
 
@@ -68,12 +68,6 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $this->assertSame($runId, $workspaceCreatedEvent['runId']);
         $this->assertSame('storage.workspaceCreated', $workspaceCreatedEvent['event']);
         $this->assertSame('storage', $workspaceCreatedEvent['component']);
-
-        $workspaceDeletedEvent = array_pop($events);
-        $this->assertSame($runId, $workspaceDeletedEvent['runId']);
-        $this->assertSame('storage.workspaceDeleted', $workspaceDeletedEvent['event']);
-        $this->assertSame('storage', $workspaceDeletedEvent['component']);
-        $this->assertCredentialsShouldNotWork($connection);
     }
 
     public function testWorkspacePasswordReset()
@@ -145,7 +139,9 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
         foreach ($this->listTestWorkspaces() as $workspace) {
-            $workspaces->deleteWorkspace($workspace['id']);
+            $workspaces->deleteWorkspace($workspace['id'], [
+                'async' => true,
+            ]);
         }
 
         $runId = $this->_client->generateRunId();
@@ -173,11 +169,27 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
             $this->assertEquals(2, $e->getCode(), $e->getMessage());
         }
 
+        unset($backend);
+
         if (!empty($dropOptions['async'])) {
             $afterJobs = $this->listWorkspaceJobs($workspace['id']);
             $job = reset($afterJobs);
             $this->assertEquals('workspaceDrop', $job['operationName']);
         }
+
+        // block until async events are processed, processing in order is not guaranteed but it should work most of time
+        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
+
+        $events = $this->_client->listEvents([
+            'runId' => $runId,
+        ]);
+
+        $workspaceDeletedEvent = reset($events);
+        $this->assertSame($runId, $workspaceDeletedEvent['runId']);
+        $this->assertSame('storage.workspaceDeleted', $workspaceDeletedEvent['event']);
+        $this->assertSame('storage', $workspaceDeletedEvent['component']);
+
+        $this->assertCredentialsShouldNotWork($connection);
     }
 
     /**
