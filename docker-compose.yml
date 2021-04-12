@@ -21,6 +21,7 @@ services:
       - REDSHIFT_HOSTNAME
       - REDSHIFT_USER
       - REDSHIFT_PASSWORD
+      - REDSHIFT_NODE_COUNT
       - SUITE_NAME
       - TRAVIS_BUILD_ID
   dev: &dev
