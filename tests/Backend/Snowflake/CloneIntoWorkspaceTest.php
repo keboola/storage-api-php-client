@@ -35,9 +35,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
 
         $workspacesClient = new Workspaces($this->_client);
 
-        $workspace = $workspacesClient->createWorkspace([
-            'name' => 'clone',
-        ]);
+        $workspace = $workspacesClient->createWorkspace();
 
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
@@ -142,9 +140,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         );
 
         $workspacesClient = new Workspaces($this->_client);
-        $workspace = $workspacesClient->createWorkspace([
-            'name' => 'clone',
-        ]);
+        $workspace = $workspacesClient->createWorkspace();
 
         $workspacesClient->cloneIntoWorkspace($workspace['id'], [
            'input' => [
@@ -198,9 +194,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         );
 
         $workspacesClient = new Workspaces($this->_client);
-        $workspace = $workspacesClient->createWorkspace([
-            'name' => 'cloning',
-        ]);
+        $workspace = $workspacesClient->createWorkspace();
 
         $this->expectException(Exception::class);
         $workspacesClient->cloneIntoWorkspace($workspace['id'], [
@@ -223,9 +217,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         );
 
         $workspacesClient = new Workspaces($this->_client);
-        $workspace = $workspacesClient->createWorkspace([
-            'name' => 'cloning',
-        ]);
+        $workspace = $workspacesClient->createWorkspace();
 
         // first load
         $workspacesClient->cloneIntoWorkspace($workspace['id'], [
@@ -262,9 +254,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         );
 
         $workspacesClient = new Workspaces($this->_client);
-        $workspace = $workspacesClient->createWorkspace([
-            'name' => 'cloning',
-        ]);
+        $workspace = $workspacesClient->createWorkspace();
 
         // first load
         $workspacesClient->cloneIntoWorkspace($workspace['id'], [
