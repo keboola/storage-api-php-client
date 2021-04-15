@@ -24,7 +24,6 @@ class Workspaces
 
     /**
      * @param array $options
-     *  - name (optional)
      *  - backend (optional)
      */
     public function createWorkspace(array $options = [])
