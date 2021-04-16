@@ -315,22 +315,28 @@ class SharingTest extends StorageApiSharingTestCase
                     "useView" => true,
                 ],
             ];
-            $workspaces->loadWorkspaceData($workspace['id'], ["input" => $inputAsView]);
-            // check that the tables are in the workspace
-            $views = ($backend->getSchemaReflection())->getViewsNames();
-            self::assertCount(3, $views);
-            self::assertCount(0, $backend->getTables());
-            self::assertContains($backend->toIdentifier("languagesLoaded"), $views);
-            self::assertContains($backend->toIdentifier("numbersLoaded"), $views);
-            self::assertContains($backend->toIdentifier("numbersAliasLoaded"), $views);
-
-            // check table structure and data
-            $data = $backend->fetchAll("languagesLoaded", \PDO::FETCH_ASSOC);
-            self::assertCount(5, $data, 'there should be 5 rows');
-            self::assertCount(3, $data[0], 'there should be two columns');
-            self::assertArrayHasKey('id', $data[0]);
-            self::assertArrayHasKey('name', $data[0]);
-            self::assertArrayHasKey('_timestamp', $data[0]);
+            try {
+                $workspaces->loadWorkspaceData($workspace['id'], ["input" => $inputAsView]);
+                self::fail('View load with linked tables must fail.');
+            } catch (ClientException $e) {
+                self::assertSame('View load is not supported, table "languages" is alias or linked.', $e->getMessage());
+                self::assertEquals('workspace.loadRequestLogicalException', $e->getStringCode());
+            }
+            //// check that the tables are in the workspace
+            //$views = ($backend->getSchemaReflection())->getViewsNames();
+            //self::assertCount(3, $views);
+            //self::assertCount(0, $backend->getTables());
+            //self::assertContains($backend->toIdentifier("languagesLoaded"), $views);
+            //self::assertContains($backend->toIdentifier("numbersLoaded"), $views);
+            //self::assertContains($backend->toIdentifier("numbersAliasLoaded"), $views);
+            //
+            //// check table structure and data
+            //$data = $backend->fetchAll("languagesLoaded", \PDO::FETCH_ASSOC);
+            //self::assertCount(5, $data, 'there should be 5 rows');
+            //self::assertCount(3, $data[0], 'there should be two columns');
+            //self::assertArrayHasKey('id', $data[0]);
+            //self::assertArrayHasKey('name', $data[0]);
+            //self::assertArrayHasKey('_timestamp', $data[0]);
         }
 
         // unload validation
