@@ -3255,7 +3255,7 @@ Loads tables from Storage into a Workspace.
                         Default: false
                     + overwrite (optional, boolean) - When preserve is true duplicate tables will be overwritten
                         Default: false
-                    + useView (optional, boolean) - (experimental,Azure Synapse only) view will be created in workspace instead of loading table (only source and destination options are allowed)
+                    + useView (optional, boolean) - (experimental, Azure Synapse only) view will be created in workspace instead of loading table (only source and destination options are allowed, aliases and linked bucket don't work)
                         Default: false
     + preserve (optional, boolean) - Keep existing tables in the workspace, otherwise the workspace will be purged before loading
         Default: false
