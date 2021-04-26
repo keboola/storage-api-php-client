@@ -6,6 +6,7 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Options\TokenCreateOptions;
+use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Helpers\ClientsProvider;
 use Keboola\Test\StorageApiTestCase;
 
@@ -288,6 +289,38 @@ class DevBranchesTest extends StorageApiTestCase
         }
 
         $this->assertCount(2, $adminDevBranches->listBranches());
+    }
+
+    public function testCreateAndDeleteBranchWithWorkspace()
+    {
+        $this->_client->verifyToken();
+        $branches = new DevBranches($this->_client);
+
+        $branchName = __CLASS__ . '\\' . $this->getName();
+        $branchDescription = __CLASS__ . '\\' . $this->getName() . ' - description';
+
+        // can create branch
+        $branch = $branches->createBranch($branchName . '-originalXX', $branchDescription . '-originalXX');
+        $branchClient = $this->getBranchAwareDefaultClient($branch['id']);
+        $workspaceApi = new Workspaces($branchClient);
+        $workSpaceData = $workspaceApi->createWorkspace();
+        // delete branch and it should also delete the workspace
+        $branches->deleteBranch($branch['id']);
+
+        // there is event for deleted branch
+        $this->findLastEvent($this->_client, [
+            'event' => 'storage.devBranchDeleted',
+            'objectId' => $branch['id'],
+        ]);
+
+        // check that the workspace is deleted now
+        try {
+            $workspaceApi->getWorkspace($workSpaceData['id']);
+            $this->fail('Test should reach this line because workspace should be deleted');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+            $this->assertSame(sprintf('Workspace "%s" not found.', $workSpaceData['id']), $e->getMessage());
+        }
     }
 
     private function assertAccessForbiddenException(ClientException $exception)
