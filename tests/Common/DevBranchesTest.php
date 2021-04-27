@@ -294,30 +294,40 @@ class DevBranchesTest extends StorageApiTestCase
     public function testCreateAndDeleteBranchWithWorkspace()
     {
         $this->_client->verifyToken();
-        $branches = new DevBranches($this->_client);
+        $branchesApi = new DevBranches($this->_client);
 
         $branchName = __CLASS__ . '\\' . $this->getName();
         $branchDescription = __CLASS__ . '\\' . $this->getName() . ' - description';
 
         // create branch
-        $branch = $branches->createBranch($branchName . '-originalXX', $branchDescription . '-originalXX');
+        $branchData = $branchesApi->createBranch($branchName . '-originalXX', $branchDescription . '-originalXX');
 
         // create workspace
-        $workspaceBranchApi = new Workspaces($this->getBranchAwareDefaultClient($branch['id']));
+        $workspaceBranchApi = new Workspaces($this->getBranchAwareDefaultClient($branchData['id']));
         $workspaceBranchApi->createWorkspace();
 
         // delete branch and it should also delete the workspace
-        $branches->deleteBranch($branch['id']);
+        $branchesApi->deleteBranch($branchData['id']);
 
         // there is event for deleted branch
         $this->findLastEvent($this->_client, [
             'event' => 'storage.devBranchDeleted',
-            'objectId' => $branch['id'],
+            'objectId' => $branchData['id'],
         ]);
+
         /*
          this just tested, that the branch was successfully deleted. But there is no way how to check the workspace was
          also deleted. Check it manually
         */
+
+        // check that the branch is deleted now
+        try {
+            $branchesApi->getBranch($branchData['id']);
+            $this->fail('Test should reach this line because workspace should be deleted');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+            $this->assertSame('Branch not found', $e->getMessage());
+        }
     }
 
     private function assertAccessForbiddenException(ClientException $exception)
