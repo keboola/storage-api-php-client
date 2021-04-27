@@ -407,6 +407,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
             $this->fail('Test should not reach this line');
         } catch (ClientException $e) {
             $this->assertEquals(400, $e->getCode());
+            $this->assertEquals('workspace.loadRequestBadInput', $e->getStringCode());
             $this->assertEquals(
                 'Argument "input" is expected to be type "array", value "this is not array" given.',
                 $e->getMessage()
