@@ -7,11 +7,14 @@ use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Workspaces;
+use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Helpers\ClientsProvider;
 use Keboola\Test\StorageApiTestCase;
 
 class DevBranchesTest extends StorageApiTestCase
 {
+    use WorkspaceConnectionTrait;
+
     public function setUp()
     {
         parent::setUp();
@@ -296,15 +299,16 @@ class DevBranchesTest extends StorageApiTestCase
         $this->_client->verifyToken();
         $branchesApi = new DevBranches($this->_client);
 
-        $branchName = __CLASS__ . '\\' . $this->getName();
-        $branchDescription = __CLASS__ . '\\' . $this->getName() . ' - description';
+        $branchName = $this->generateBranchNameForParallelTest();
+        $branchDescription = $this->generateDescriptionForTestObject();
 
         // create branch
-        $branchData = $branchesApi->createBranch($branchName . '-originalXX', $branchDescription . '-originalXX');
+        $branchData = $branchesApi->createBranch($branchName, $branchDescription);
 
         // create workspace
         $workspaceBranchApi = new Workspaces($this->getBranchAwareDefaultClient($branchData['id']));
-        $workspaceBranchApi->createWorkspace();
+        $workspace = $workspaceBranchApi->createWorkspace();
+        $connection = $workspace['connection'];
 
         // delete branch and it should also delete the workspace
         $branchesApi->deleteBranch($branchData['id']);
@@ -315,11 +319,6 @@ class DevBranchesTest extends StorageApiTestCase
             'objectId' => $branchData['id'],
         ]);
 
-        /*
-         this just tested, that the branch was successfully deleted. But there is no way how to check the workspace was
-         also deleted. Check it manually
-        */
-
         // check that the branch is deleted now
         try {
             $branchesApi->getBranch($branchData['id']);
@@ -328,6 +327,9 @@ class DevBranchesTest extends StorageApiTestCase
             $this->assertSame(404, $e->getCode());
             $this->assertSame('Branch not found', $e->getMessage());
         }
+
+        // check that the workspace isn't available/accessible on the backend
+        $this->assertCredentialsShouldNotWork($connection);
     }
 
     private function assertAccessForbiddenException(ClientException $exception)
