@@ -61,7 +61,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         // block until async events are processed, processing in order is not guaranteed but it should work most of time
         $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
 
-        $events = $this->_client->listEvents([
+        $events = $this->workspaceSapiClient->listEvents([
             'runId' => $runId,
         ]);
 
@@ -105,7 +105,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
 
         $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
 
-        $events = $this->_client->listEvents([
+        $events = $this->workspaceSapiClient->listEvents([
             'runId' => $runId,
         ]);
 
