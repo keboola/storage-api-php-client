@@ -18,6 +18,7 @@
 		<file>tests/File/CommonFileTest.php</file>
         <exclude>tests/Common/BranchBucketsTest.php</exclude>
         <exclude>tests/Common/BranchWorkspacesTest.php</exclude>
+        <file>tests/Backend/Workspaces/BranchComponentsWorkspacesTest.php</file>
 	</testsuite>
 
     <testsuite name="azure-common">
