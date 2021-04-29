@@ -11,12 +11,13 @@ use Doctrine\DBAL\DBALException;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
-use Keboola\Test\Backend\Workspaces\Backend\SynapseWorkspaceBackend;
+use Keboola\Test\Backend\WorkspaceCredentialsAssertTrait;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class WorkspacesTest extends ParallelWorkspacesTestCase
 {
     use WorkspaceConnectionTrait;
+    use WorkspaceCredentialsAssertTrait;
 
     public function testWorkspaceCreate()
     {

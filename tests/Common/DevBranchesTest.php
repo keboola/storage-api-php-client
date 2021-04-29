@@ -8,12 +8,14 @@ use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
+use Keboola\Test\Backend\WorkspaceCredentialsAssertTrait;
 use Keboola\Test\Helpers\ClientsProvider;
 use Keboola\Test\StorageApiTestCase;
 
 class DevBranchesTest extends StorageApiTestCase
 {
     use WorkspaceConnectionTrait;
+    use WorkspaceCredentialsAssertTrait;
 
     public function setUp()
     {
