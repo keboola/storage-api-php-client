@@ -14,7 +14,10 @@ class BranchAwareClient extends Client
 
     public function request($method, $url, $options = array(), $responseFileName = null, $handleAsyncTask = true)
     {
-        $url = 'branch/' . $this->branch . '/' . $url;
+        if (strpos($url, 'jobs/') !== 0) {
+            $url = 'branch/' . $this->branch . '/' . $url;
+        }
+
         return parent::request($method, $url, $options, $responseFileName, $handleAsyncTask);
     }
 }
