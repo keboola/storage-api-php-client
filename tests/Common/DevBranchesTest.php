@@ -313,12 +313,6 @@ class DevBranchesTest extends StorageApiTestCase
         // delete branch and it should also delete the workspace
         $branchesApi->deleteBranch($branchData['id']);
 
-        // there is event for deleted branch
-        $this->findLastEvent($this->_client, [
-            'event' => 'storage.devBranchDeleted',
-            'objectId' => $branchData['id'],
-        ]);
-
         // check that the branch is deleted now
         try {
             $branchesApi->getBranch($branchData['id']);
