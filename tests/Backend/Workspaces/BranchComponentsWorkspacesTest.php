@@ -20,15 +20,9 @@ class BranchComponentsWorkspacesTest extends ComponentsWorkspacesTest
         parent::setUp();
 
         $branches = new DevBranches($this->_client);
+        $this->deleteBranchesByPrefix($branches, $this->generateBranchNameForParallelTest());
+        $branch = $branches->createBranch($this->generateBranchNameForParallelTest());
 
-        $branchId = null;
-        foreach ($branches->listBranches() as $branch) {
-            if ($branch['isDefault'] !== true) {
-                $branches->deleteBranch($branch['id']);
-            }
-        }
-
-        $branch = $branches->createBranch($this->getTestName());
         $this->branchAwareClient = $this->getBranchAwareDefaultClient($branch['id']);
     }
 

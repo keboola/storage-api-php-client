@@ -8,24 +8,15 @@ use Keboola\Test\Backend\Workspaces\WorkspacesTest;
 
 class BranchWorkspacesTest extends WorkspacesTest
 {
-
     public function setUp()
     {
         parent::setUp();
 
         $branches = new DevBranches($this->_client);
+        $this->deleteBranchesByPrefix($branches, $this->generateBranchNameForParallelTest());
 
-        $branchId = null;
-        foreach ($branches->listBranches() as $branch) {
-            if ($branch['name'] === $this->getTestName()) {
-                $branchId = $branch['id'];
-            }
-        }
-
-        if (!$branchId) {
-            $branch = $branches->createBranch($this->getTestName());
-            $branchId = $branch['id'];
-        }
+        $branch = $branches->createBranch($this->generateBranchNameForParallelTest());
+        $branchId = $branch['id'];
 
         $this->workspaceSapiClient = new BranchAwareClient(
             $branchId,
