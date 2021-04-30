@@ -1,6 +1,7 @@
 <?php
 namespace Keboola\Test\Backend\Workspaces;
 
+use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\DevBranches;
@@ -31,7 +32,7 @@ class BranchComponentsWorkspacesTest extends ComponentsWorkspacesTest
         $this->branchAwareClient = $this->getBranchAwareDefaultClient($branch['id']);
     }
 
-    public function testWorkspaceCreate()
+    public function testWorkspace()
     {
         $componentId = 'wr-db';
         $configurationId = 'main-1';
@@ -85,15 +86,54 @@ class BranchComponentsWorkspacesTest extends ComponentsWorkspacesTest
         $this->assertCount(2, $componentWorkspacesIds);
         $this->assertEquals($workspacesIds, $componentWorkspacesIds);
 
-        // create table
+        // load tables into workspace
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages',
+            new CsvFile($importFile)
+        );
+
+        $workspaces->loadWorkspaceData($workspace['id'], [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                ],
+            ],
+        ]);
+
+        $workspaces->cloneIntoWorkspace($workspace['id'], [
+            'preserve' => true,
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languagesCloned',
+                ],
+            ],
+        ]);
+
+        // create table in workspace
         $connection = $workspace['connection'];
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $backend->createTable("mytable", ["amount" => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? "NUMBER" : "VARCHAR"]);
 
+        // tables validation
         $tableNames = $backend->getTables();
-        $backend = null; // force odbc disconnect
+        sort($tableNames);
 
-        $this->assertArrayHasKey("mytable", array_flip($tableNames));
+        $this->assertCount(3, $tableNames);
+
+        $this->assertSame('languages', $tableNames[0]);
+        $this->assertSame('languagesCloned', $tableNames[1]);
+        $this->assertSame('mytable', $tableNames[2]);
+
+        // table unload
+        $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), array(
+            'name' => 'mytable',
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => 'mytable',
+        ));
     }
 }
