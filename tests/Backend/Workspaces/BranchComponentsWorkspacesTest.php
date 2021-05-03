@@ -32,53 +32,85 @@ class BranchComponentsWorkspacesTest extends ComponentsWorkspacesTest
         $configurationId = 'main-1';
 
         // create configuration
-        $components = new Components($this->branchAwareClient);
-        $components->addConfiguration((new Configuration())
+        $branchComponents = new Components($this->branchAwareClient);
+        $branchComponents->addConfiguration((new Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
             ->setName('Main')
             ->setDescription('some desc'));
 
         // create workspace
-        $workspace = $components->createConfigurationWorkspace($componentId, $configurationId);
-        $this->assertEquals($componentId, $workspace['component']);
-        $this->assertEquals($configurationId, $workspace['configurationId']);
-        $this->assertArrayHasKey('password', $workspace['connection']);
+        $branchWorkspace = $branchComponents->createConfigurationWorkspace($componentId, $configurationId);
+        $this->assertEquals($componentId, $branchWorkspace['component']);
+        $this->assertEquals($configurationId, $branchWorkspace['configurationId']);
+        $this->assertArrayHasKey('password', $branchWorkspace['connection']);
 
         // list workspaces
-        $workspaces = new Workspaces($this->branchAwareClient);
+        $branchWorkspaces = new Workspaces($this->branchAwareClient);
 
-        $workspacesIds = array_map(function ($workspace) {
+        $branchWorkspacesIds = array_map(function ($workspace) {
             return $workspace['id'];
-        }, $workspaces->listWorkspaces());
+        }, $branchWorkspaces->listWorkspaces());
 
-        $this->assertCount(1, $workspacesIds);
-        $this->assertArrayHasKey($workspace['id'], array_flip($workspacesIds));
+        $this->assertCount(1, $branchWorkspacesIds);
+        $this->assertArrayHasKey($branchWorkspace['id'], array_flip($branchWorkspacesIds));
 
-        // create second workspace
-        $workspace = $components->createConfigurationWorkspace($componentId, $configurationId);
+        // create production configuration workspace
+        $compnents = new Components($this->_client);
+        $compnents->addConfiguration((new Configuration())
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main')
+            ->setDescription('some desc'));
+
+        // create production  workspace
+        $workspace = $compnents->createConfigurationWorkspace($componentId, $configurationId);
         $this->assertEquals($componentId, $workspace['component']);
         $this->assertEquals($configurationId, $workspace['configurationId']);
         $this->assertArrayHasKey('password', $workspace['connection']);
 
-        $workspacesIds = array_map(function ($workspace) {
+        // test that production workspace is not shown in branch workspace list
+        $branchWorkspacesIds = array_map(function ($branchWorkspace) {
+            return $branchWorkspace['id'];
+        }, $branchWorkspaces->listWorkspaces());
+
+        // there is still only one workspace in branch, production is not shown
+        $this->assertCount(1, $branchWorkspacesIds);
+        // the production workspace is not in the branch workspace list
+        $this->assertArrayNotHasKey($workspace['id'], array_flip($branchWorkspacesIds));
+
+        // list production workspaces
+        $workspaces = new Workspaces($this->_client);
+        // test that branch workspaces are not shown in production workspace list
+        $workspaceIds = array_map(function ($workspace) {
             return $workspace['id'];
         }, $workspaces->listWorkspaces());
+        $this->assertArrayNotHasKey($branchWorkspace['id'], array_flip($workspaceIds));
 
-        $this->assertCount(2, $workspacesIds);
-        $this->assertArrayHasKey($workspace['id'], array_flip($workspacesIds));
+        // create second workspace
+        $branchWorkspace = $branchComponents->createConfigurationWorkspace($componentId, $configurationId);
+        $this->assertEquals($componentId, $branchWorkspace['component']);
+        $this->assertEquals($configurationId, $branchWorkspace['configurationId']);
+        $this->assertArrayHasKey('password', $branchWorkspace['connection']);
+
+        $branchWorkspacesIds = array_map(function ($workspace) {
+            return $workspace['id'];
+        }, $branchWorkspaces->listWorkspaces());
+
+        $this->assertCount(2, $branchWorkspacesIds);
+        $this->assertArrayHasKey($branchWorkspace['id'], array_flip($branchWorkspacesIds));
 
         // list configuration workspace
         $componentWorkspacesIds = array_map(function ($workspace) {
             return $workspace['id'];
-        }, $components->listConfigurationWorkspaces(
+        }, $branchComponents->listConfigurationWorkspaces(
             (new ListConfigurationWorkspacesOptions())
             ->setComponentId($componentId)
             ->setConfigurationId($configurationId)
         ));
 
         $this->assertCount(2, $componentWorkspacesIds);
-        $this->assertEquals($workspacesIds, $componentWorkspacesIds);
+        $this->assertEquals($branchWorkspacesIds, $componentWorkspacesIds);
 
         // load tables into workspace
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -88,7 +120,7 @@ class BranchComponentsWorkspacesTest extends ComponentsWorkspacesTest
             new CsvFile($importFile)
         );
 
-        $workspaces->loadWorkspaceData($workspace['id'], [
+        $branchWorkspaces->loadWorkspaceData($branchWorkspace['id'], [
             'input' => [
                 [
                     'source' => $tableId,
@@ -97,7 +129,7 @@ class BranchComponentsWorkspacesTest extends ComponentsWorkspacesTest
             ],
         ]);
 
-        $workspaces->cloneIntoWorkspace($workspace['id'], [
+        $branchWorkspaces->cloneIntoWorkspace($branchWorkspace['id'], [
             'preserve' => true,
             'input' => [
                 [
@@ -108,8 +140,8 @@ class BranchComponentsWorkspacesTest extends ComponentsWorkspacesTest
         ]);
 
         // create table in workspace
-        $connection = $workspace['connection'];
-        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $connection = $branchWorkspace['connection'];
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($branchWorkspace);
 
         $backend->createTable("mytable", ["amount" => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? "NUMBER" : "VARCHAR"]);
 
@@ -126,7 +158,7 @@ class BranchComponentsWorkspacesTest extends ComponentsWorkspacesTest
         // table unload
         $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), array(
             'name' => 'mytable',
-            'dataWorkspaceId' => $workspace['id'],
+            'dataWorkspaceId' => $branchWorkspace['id'],
             'dataTableName' => 'mytable',
         ));
     }
