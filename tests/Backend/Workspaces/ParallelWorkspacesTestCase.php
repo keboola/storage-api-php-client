@@ -69,7 +69,7 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
     /**
      * @return string
      */
-    private function initTestToken()
+    protected function initTestToken()
     {
         $description = $this->generateDescriptionForTestObject();
 
