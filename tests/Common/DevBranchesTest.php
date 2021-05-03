@@ -6,11 +6,17 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Options\TokenCreateOptions;
+use Keboola\StorageApi\Workspaces;
+use Keboola\Test\Backend\WorkspaceConnectionTrait;
+use Keboola\Test\Backend\WorkspaceCredentialsAssertTrait;
 use Keboola\Test\Helpers\ClientsProvider;
 use Keboola\Test\StorageApiTestCase;
 
 class DevBranchesTest extends StorageApiTestCase
 {
+    use WorkspaceConnectionTrait;
+    use WorkspaceCredentialsAssertTrait;
+
     public function setUp()
     {
         parent::setUp();
@@ -288,6 +294,38 @@ class DevBranchesTest extends StorageApiTestCase
         }
 
         $this->assertCount(2, $adminDevBranches->listBranches());
+    }
+
+    public function testCreateAndDeleteBranchWithWorkspace()
+    {
+        $this->_client->verifyToken();
+        $branchesApi = new DevBranches($this->_client);
+
+        $branchName = $this->generateBranchNameForParallelTest();
+        $branchDescription = $this->generateDescriptionForTestObject();
+
+        // create branch
+        $branchData = $branchesApi->createBranch($branchName, $branchDescription);
+
+        // create workspace
+        $workspaceBranchApi = new Workspaces($this->getBranchAwareDefaultClient($branchData['id']));
+        $workspace = $workspaceBranchApi->createWorkspace();
+        $connection = $workspace['connection'];
+
+        // delete branch and it should also delete the workspace
+        $branchesApi->deleteBranch($branchData['id']);
+
+        // check that the branch is deleted now
+        try {
+            $branchesApi->getBranch($branchData['id']);
+            $this->fail('Test should reach this line because workspace should be deleted');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+            $this->assertSame('Branch not found', $e->getMessage());
+        }
+
+        // check that the workspace isn't available/accessible on the backend
+        $this->assertCredentialsShouldNotWork($connection);
     }
 
     private function assertAccessForbiddenException(ClientException $exception)
