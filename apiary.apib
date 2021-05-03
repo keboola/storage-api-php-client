@@ -3122,7 +3122,7 @@ backend with permissions to write to the workspace specific database schema.
 
 ## Workspaces Collection [/v2/storage/workspaces]
 
-### Create new workspace [POST]
+### Create Workspace [POST]
 Creates a new workspace and return its credentials.
 
 + Attributes
@@ -3149,7 +3149,37 @@ Creates a new workspace and return its credentials.
    + Attributes (WorkspaceCreated)
 
 
-### List workspaces [GET]
+### Create Development Branch Workspace [POST /v2/storage/branch/{branch_id}/workspaces]
+Creates a new workspace for [Development Branch](#reference/development-branches) and return its credentials.
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+
++ Attributes
+    + backend: snowflake (optional, enum[string]) - Workspace backend. When omitted, the default backend is used.
+        + Members
+            + redshift
+            + snowflake
+    the system. Supported only for Snowflake workspaces.
+            + synapse
+            + abs
+    Azure blob storage file workspace
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            backend=snowflake
+
++ Response 201 (application/json)
+
+   + Attributes (WorkspaceCreated)
+
+
+### List Workspaces [GET]
 Returns all workspaces for the project.
 
 + Request
@@ -3161,8 +3191,24 @@ Returns all workspaces for the project.
 
    + Attributes (array[Workspace])
 
+### List Development Branch Workspaces [GET /v2/storage/branch/{branch_id}/workspaces]
+Returns all workspaces for the project in [Development Branch](#reference/development-branches).
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+
+   + Attributes (array[Workspace])
+
 ## Manage Workspace [/v2/storage/workspaces/{workspace_id}]
-### Workspace detail [GET]
+
+### Workspace Detail [GET]
 Retrieves information about a given workspace. Note that the password to the workspace can be retrieved only when the workspace is created.
 
 + Parameters
@@ -3177,7 +3223,23 @@ Retrieves information about a given workspace. Note that the password to the wor
 
     + Attributes (Workspace)
 
-### Delete workspace [DELETE /v2/storage/workspaces/{workspace_id}/?async={async}]
+### Development Branch Workspace Detail [GET /v2/storage/branch/{branch_id}/workspaces/{workspace_id}]
+Retrieves information about a given workspace in [Development Branch](#reference/development-branches). Note that the password to the workspace can be retrieved only when the workspace is created.
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + workspace_id (number)
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+
+    + Attributes (Workspace)
+
+### Delete Workspace [DELETE /v2/storage/workspaces/{workspace_id}/?async={async}]
 Deletes a workspace. This also irreversibly removes the workspace content.
 
 + Parameters
@@ -3191,14 +3253,147 @@ Deletes a workspace. This also irreversibly removes the workspace content.
 
 + Response 204
 
-## Load Data [/v2/storage/workspaces/{workspace_id}/load]
+### Delete Development Branch Workspace [DELETE /v2/storage/branch/{branch_id}/workspaces/{workspace_id}/?async={async}]
+Deletes a workspace in [Development Branch](#reference/development-branches). This also irreversibly removes the workspace content.
 
 + Parameters
-
+    + branch_id (required) - Id of the development branch
     + workspace_id (required, number)
+    + async (optional, boolean) - Workspace will be deleted [asynchronously](#introduction/synchronous-and-asynchronous-calls). A job will be created and enqueued.
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 204
+
+## Load Data [/v2/storage/workspaces/{workspace_id}/load]
 
 ### Load Data [POST]
 Loads tables from Storage into a Workspace.
+
++ Parameters
+    + workspace_id (required, number)
+
++ Attributes
+    + input[] (required, array) - Mappings of source tables with destinations to be loaded into the workspace
+        + Items
+            + (object)
+                + Properties
+                    + source (optional) - Required for loading table. Full table identifier of the source table (e.g.: in.c-bucket.mytable)
+                    + dataFileId (optional, number) - Required for loading file. File upload id. Can be used only to load file to file workspace.
+                    + destination (required) - Destination table name or folder for file workspace
+                    + rows (optional, number) - Limits the number of returned rows
+                    + days (optional, number) - `DEPRECATED will be removed in the future.` Return rows created or updated in the last X days.
+                    + seconds (optional, number) - Returns rows created or updated in the last X seconds.
+                    + columns[] (optional, array) - Array of column definition; by default all columns are exported.
+                        + Items
+                            + (object)
+                                + Properties
+                                    + source (required, string) - Column name
+                                    + destination (optional, string) - Destination column name. If not set, source column name will be used.
+                                    + type (required, string) - Data type, eg. VARCHAR
+                                    + length (optional, string) - Data type size, where applicable, eg. 255 for VARCHAR or 10,2 for NUMBER
+                                    + nullable (optional, boolean) - Allow NULL values in destination table
+                                        Default: true
+                                    + convertEmptyValuesToNull (optional, boolean) - Empty values replaced by NULL
+                                        Default: false
+                                    + compression (optional, enum[string]) - For Redshift only
+                                        + Members
+                                            + RAW
+                                            + BYTEDICT
+                                            + DELTA
+                                            + DELTA32K
+                                            + LZO
+                                            + MOSTLY8
+                                            + MOSTLY16
+                                            + MOSTLY32
+                                            + RUNLENGTH
+                                            + TEXT255
+                                            + TEXT32K
+                                            + ZSTD
+                    + whereColumn (optional) - Column for [filtering](#reference/tables/unload-data-asynchronously/asynchronous-export)
+                    + whereValues[] (optional) - Values for filtering
+                    + whereOperator (optional, enum[string]) - Comparison operator
+                        + Members
+                            + eq - Equal to
+                            + ne - Not equal to
+                        + Default: eq
+                    + sortKey[] (optional, array) - Redshift only - Column(s) to be used as a sort key
+                    + distStyle (optional, enum[string]) - Redshift only - Distribution style (even, all, or key)
+                        + Members
+                            + even
+                            + all
+                            + key
+                    + distKey (optional) - Redshift only - Column to use for the key distribution style
+                    + incremental (optional, boolean) - Rows will be appended to an existing table, not supported in file workspaces (load is always full)
+                        Default: false
+                    + overwrite (optional, boolean) - When preserve is true duplicate tables will be overwritten
+                        Default: false
+                    + useView (optional, boolean) - (experimental, Azure Synapse only) view will be created in workspace instead of loading table (only source and destination options are allowed, aliases and linked bucket don't work)
+                        Default: false
+    + preserve (optional, boolean) - Keep existing tables in the workspace, otherwise the workspace will be purged before loading
+        Default: false
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            input%5B0%5D%5Bsource%5D=in.c-application-testing.carseats&input%5B0%5D%5Bdestination%5D=table1&input%5B1%5D%5Bsource%5D=in.c-application-testing.cashier-data&input%5B1%5D%5Bdestination%5D=table2
+
++ Response 201 (application/json)
+    + Body
+
+            {
+                "id": 75682259,
+                "status": "waiting",
+                "url": "https://connection.keboola.com/v2/storage/jobs/75682259",
+                "tableId": null,
+                "operationName": "workspaceLoad",
+                "operationParams": {
+                    "workspaceId": "504345774",
+                    "preserve": false,
+                    "input": [
+                        {
+                            "source": "in.c-application-testing.carseats",
+                            "destination": "table1"
+                        },
+                        {
+                            "source": "in.c-application-testing.cashier-data",
+                            "destination": "table2"
+                        }
+                    ],
+                    "queue": "main"
+                },
+                "createdTime": "2019-05-13T21:15:52+0200",
+                "startTime": null,
+                "endTime": null,
+                "runId": null,
+                "results": null,
+                "creatorToken": {
+                    "id": "27978",
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
+                }
+            }
+
+### Load Data into Development Branch Workspace [POST /v2/storage/branch/{branch_id}/workspaces/{workspace_id}/load]
+Loads tables from Storage into a Workspace in [Development Branch](#reference/development-branches).
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + workspace_id (required, number)
 
 + Attributes
     + input[] (required, array) - Mappings of source tables with destinations to be loaded into the workspace
@@ -3315,10 +3510,6 @@ Loads tables from Storage into a Workspace.
 
 ## Load Data using CLONE [/v2/storage/workspaces/{workspace_id}/load-clone]
 
-+ Parameters
-
-    + workspace_id (required, number)
-
 ### Load Data using CLONE [POST]
 Load tables from Storage into a Workspace using zero-copy cloning functionality in Snowflake. This load type does not
 support any filtering or processing parameters. Only tables stored in Snowflake are supported.
@@ -3327,6 +3518,10 @@ The cloned table will contain all columns of the source table (all of them as `V
 and a `_timestamp` system column.
 This column contains a unix timestamp value (`TIMESTAMP_NTZ(9)`) when the row was added to the table or
 when any of the row values were changed during an incremental import.
+
++ Parameters
+
+    + workspace_id (required, number)
 
 + Attributes
     + input[] (required, array) - Mappings of source tables with destinations to be loaded into the workspace
@@ -3388,11 +3583,107 @@ when any of the row values were changed during an incremental import.
                 }
             }
 
-## Password reset [/v2/storage/workspaces/{workspace_id}/password]
-### Password reset  [POST]
+
+### Load Data using CLONE into Development Branch Workspace [POST /v2/storage/branch/{branch_id}/workspaces/{workspace_id}/load-clone]
+
+Load tables from Storage into a Workspace in [Development Branch](#reference/development-branches) using zero-copy cloning functionality in Snowflake. This load type does not
+support any filtering or processing parameters. Only tables stored in Snowflake are supported.
+
+The cloned table will contain all columns of the source table (all of them as `VARCHAR(1048576)`)
+and a `_timestamp` system column.
+This column contains a unix timestamp value (`TIMESTAMP_NTZ(9)`) when the row was added to the table or
+when any of the row values were changed during an incremental import.
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + workspace_id (required, number)
+
++ Attributes
+    + input[] (required, array) - Mappings of source tables with destinations to be loaded into the workspace
+        + Items
+            + (object)
+                + Properties
+                    + source (required) - Full table identifier of the source table (e.g.: in.c-bucket.mytable)
+                    + destination (required) - Destination table name
+                    + overwrite (optional, boolean) - When preserve is true duplicate tables will be overwritten
+                        Default: false
+    + preserve (optional, boolean) - Keep existing tables in the workspace, otherwise the workspace will be purged before loading
+        Default: false
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            input%5B0%5D%5Bsource%5D=in.c-application-testing.cashier-data&input%5B0%5D%5Bdestination%5D=my-table
+
++ Response 201 (application/json)
+    + Body
+
+            {
+                "id": 22077337,
+                "status": "waiting",
+                "url": "https://connection.keboola.com/v2/storage/jobs/22077337",
+                "tableId": null,
+                "operationName": "workspaceLoad",
+                "operationParams": {
+                    "workspaceId": "78423",
+                    "preserve": false,
+                    "input": [
+                        {
+                            "source": "in.c-application-testing.cashier-data",
+                            "destination": "my-table"
+                        }
+                    ],
+                    "queue": "main_fast"
+                },
+                "createdTime": "2017-02-13T16:41:18+0100",
+                "startTime": null,
+                "endTime": null,
+                "runId": null,
+                "results": null,
+                "creatorToken": {
+                    "id": "27978",
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
+                }
+            }
+
+## Password Reset [/v2/storage/workspaces/{workspace_id}/password]
+### Password Reset  [POST]
 Generates new password for the given workspace, for file workspace new token with 24hours expiration is issued previously created tokens has to expire and can't be reset.
 
 + Parameters
+    + workspace_id (number)
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 201 (application/json)
+
+    + Body
+
+            {
+                "password": "2Fd4e1c67a2d28fced849ee1bb76e7391b93eb12",
+            }
+
+
+### Development Branch Workspace Password Reset [POST /v2/storage/branch/{branch_id}/workspaces/{workspace_id}/password]
+Generates new password for the given workspace in [Development Branch](#reference/development-branches), for file workspace new token with 24hours expiration is issued previously created tokens has to expire and can't be reset.
+
++ Parameters
+    + branch_id (required) - Id of the development branch
     + workspace_id (number)
 
 + Request
@@ -6346,6 +6637,7 @@ Creates a new configuration row from an existing row version.
             }
 
 ## Create or List Configuration Workspaces [/v2/storage/components/{component_id}/configs/{config_id}/workspaces]
+
 ### Create Configuration Workspaces [POST]
 Creates a new workspace for an existing configuration.
 
@@ -6373,8 +6665,57 @@ Creates a new workspace for an existing configuration.
    + Attributes (WorkspaceCreated)
 
 
+### Create Development Branch Configuration Workspaces [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/workspaces]
+Creates a new workspace for an existing configuration in [Development Branch](#reference/development-branches).
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration
+
++ Attributes
+    + backend: snowflake (optional, enum[string]) - Workspace backend. When omitted, the default backend is used.
+        + Members
+            + redshift
+            + snowflake
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            backend=snowflake
+
++ Response 201 (application/json)
+
+   + Attributes (WorkspaceCreated)
+
+
 ### Workspace List [GET]
 Returns all workspaces for the component configuration.
+
++ Parameters
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+
+   + Attributes (array[Workspace])
+
+### Development Branch Workspace List [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/workspaces]
+Returns all workspaces for the component configuration in [Development Branch](#reference/development-branches).
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration
 
 + Request
     + Headers
