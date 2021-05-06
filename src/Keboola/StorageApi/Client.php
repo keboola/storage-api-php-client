@@ -1470,10 +1470,12 @@ class Client
         $blobClient = BlobClientFactory::createClientFromConnectionString(
             $prepareResult['absUploadParams']['absCredentials']['SASConnectionString']
         );
-        $blobClient->createBlockBlob(
+
+        $uploader = new ABSUploader($blobClient);
+        $uploader->uploadFile(
             $prepareResult['absUploadParams']['container'],
             $prepareResult['absUploadParams']['blobName'],
-            fopen($filePath, 'r'),
+            $filePath,
             $options
         );
     }
@@ -1625,17 +1627,12 @@ class Client
             $prepareResult['absUploadParams']['absCredentials']['SASConnectionString']
         );
 
-        foreach ($slices as $slice) {
-            $blobClient->createBlockBlob(
-                $prepareResult['absUploadParams']['container'],
-                sprintf(
-                    '%s%s',
-                    $prepareResult['absUploadParams']['blobName'],
-                    basename($slice)
-                ),
-                fopen($slice, 'r')
-            );
-        }
+        $uploader = new ABSUploader($blobClient);
+        $uploader->uploadSlicedFile(
+            $prepareResult['absUploadParams']['container'],
+            $prepareResult['absUploadParams']['blobName'],
+            $slices
+        );
 
         $manifest = [
             'entries' => [],
