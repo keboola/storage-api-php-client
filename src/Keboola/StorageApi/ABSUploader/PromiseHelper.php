@@ -18,10 +18,12 @@ class PromiseHelper
             try {
                 $promise->wait();
             } catch (ServiceException $e) {
-                $rejected = $e;
+                $rejected[] = $e;
             }
         }
-        self::throwException($rejected);
+        if (count($rejected)) {
+            self::throwException($rejected);
+        }
     }
 
     /**
