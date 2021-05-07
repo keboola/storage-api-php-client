@@ -47,13 +47,12 @@ class ABSUploader
         if ($options === null) {
             $options = new CreateBlockBlobOptions();
         }
-        $wait = \Closure::bind(function () use ($container, $blobName, $file, $options) {
+        $promise = new Promise(\Closure::bind(function () use (&$promise, $container, $blobName, $file, $options) {
             list($promises, $blockIds) = $this->uploadByBlocks($container, $blobName, $file);
             PromiseHelper::all($promises);
-            return $this->blobClient->commitBlobBlocks($container, $blobName, $blockIds, $options);
-        }, $this);
-
-        return new Promise($wait);
+            $promise->resolve($this->blobClient->commitBlobBlocks($container, $blobName, $blockIds/*, $options*/));
+        }, $this));
+        return $promise;
     }
 
     private function uploadByBlocks($container, $blobName, $file)
