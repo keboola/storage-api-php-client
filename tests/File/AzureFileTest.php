@@ -88,7 +88,51 @@ class AzureFileTest extends StorageApiTestCase
                     ->setIsPermanent(true)
                     ->setTags(array('sapi-import', 'martin'))
             ),
+            'large file' => array(
+                sys_get_temp_dir() . '/large_abs_upload.txt',
+                (new FileUploadOptions())
+                    ->setIsPublic(true)
+                    ->setIsPermanent(true)
+                    ->setTags(array('sapi-import', 'martin'))
+            ),
         );
+    }
+
+    public function uploadSlicedData()
+    {
+        $part1 = sys_get_temp_dir() . '/slice.csv.part_1';
+        $part2 = sys_get_temp_dir() . '/slice.csv.part_2';
+        $parts = [$part1, $part2];
+        $this->generateFile($part1, 100);
+        $this->generateFile($part2, 100);
+
+        return [
+            [
+                $parts,
+                (new FileUploadOptions())
+                    ->setIsSliced(true)
+                    ->setFileName("slice.csv")
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider uploadSlicedData
+     */
+    public function testUploadSlicedFile(array $slices, FileUploadOptions $options)
+    {
+        $fileId = $this->_client->uploadSlicedFile($slices, $options);
+        $file = $this->_client->getFile($fileId, (new GetFileOptions())->setFederationToken(true));
+
+        $this->assertEquals($options->getIsPublic(), $file['isPublic']);
+        $this->assertEquals($options->getFileName(), $file['name']);
+        $fileSize = 0;
+        foreach ($slices as $filePath) {
+            $fileSize += filesize($filePath);
+        }
+        $this->assertEquals($fileSize, $file['sizeBytes']);
+        $manifest = json_decode(file_get_contents($file['url']), true);
+        $this->assertCount(count($slices), $manifest["entries"]);
     }
 
     /**
