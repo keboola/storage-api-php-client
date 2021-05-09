@@ -62,13 +62,12 @@ class ABSUploader
         $blockIds = [];
         $counter = 1;
         $promises = [];
-        while (!feof($handle)) {
+        while ($data = fread($handle, self::CHUNK_SIZE)) {
             $blockId = base64_encode(str_pad($counter, self::PADLENGTH, '0', STR_PAD_LEFT));
             $block = new \MicrosoftAzure\Storage\Blob\Models\Block();
             $block->setBlockId($blockId);
             $block->setType('Uncommitted');
             $blockIds[] = $block;
-            $data = fread($handle, self::CHUNK_SIZE);
             // Upload the block.
             $promises[] = $this->blobClient->createBlobBlockAsync($container, $blobName, $blockId, $data);
             $counter++;
