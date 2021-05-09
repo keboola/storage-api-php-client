@@ -52,6 +52,8 @@ class AzureFileTest extends StorageApiTestCase
     public function uploadData()
     {
         $path = __DIR__ . '/../_data/files.upload.txt';
+        $this->generateFile(sys_get_temp_dir() . '/large_abs_upload.txt', 50);
+
         return array(
             array(
                 $path,
@@ -87,5 +89,22 @@ class AzureFileTest extends StorageApiTestCase
                     ->setTags(array('sapi-import', 'martin'))
             ),
         );
+    }
+
+    /**
+     * @param string $largePath
+     * @param int $fileSizeMegabytes
+     */
+    private function generateFile($largePath, $fileSizeMegabytes)
+    {
+        if (file_exists($largePath)) {
+            unlink($largePath);
+        }
+        $fp = fopen($largePath, 'a+');
+        $i = 0;
+        while ($i++ < $fileSizeMegabytes) {
+            fwrite($fp, str_repeat('X', 1024 * 1024));
+        }
+        fclose($fp);
     }
 }
