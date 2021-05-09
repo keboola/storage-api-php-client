@@ -52,7 +52,8 @@ class AzureFileTest extends StorageApiTestCase
     public function uploadData()
     {
         $path = __DIR__ . '/../_data/files.upload.txt';
-        $this->generateFile(sys_get_temp_dir() . '/large_abs_upload.txt', 50);
+        $largeFilePath = sys_get_temp_dir() . '/large_abs_upload.txt';
+        $this->generateFile($largeFilePath, 16);
 
         return array(
             array(
@@ -89,7 +90,7 @@ class AzureFileTest extends StorageApiTestCase
                     ->setTags(array('sapi-import', 'martin'))
             ),
             'large file' => array(
-                sys_get_temp_dir() . '/large_abs_upload.txt',
+                $largeFilePath,
                 (new FileUploadOptions())
                     ->setIsPublic(true)
                     ->setIsPermanent(true)
@@ -103,8 +104,8 @@ class AzureFileTest extends StorageApiTestCase
         $part1 = sys_get_temp_dir() . '/slice.csv.part_1';
         $part2 = sys_get_temp_dir() . '/slice.csv.part_2';
         $parts = [$part1, $part2];
-        $this->generateFile($part1, 100);
-        $this->generateFile($part2, 100);
+        $this->generateFile($part1, 16);
+        $this->generateFile($part2, 16);
 
         return [
             [
@@ -136,15 +137,15 @@ class AzureFileTest extends StorageApiTestCase
     }
 
     /**
-     * @param string $largePath
+     * @param string $filepath
      * @param int $fileSizeMegabytes
      */
-    private function generateFile($largePath, $fileSizeMegabytes)
+    private function generateFile($filepath, $fileSizeMegabytes)
     {
-        if (file_exists($largePath)) {
-            unlink($largePath);
+        if (file_exists($filepath)) {
+            unlink($filepath);
         }
-        $fp = fopen($largePath, 'a+');
+        $fp = fopen($filepath, 'a+');
         $i = 0;
         while ($i++ < $fileSizeMegabytes) {
             fwrite($fp, str_repeat('X', 1024 * 1024));
