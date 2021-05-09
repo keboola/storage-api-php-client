@@ -38,8 +38,8 @@ class PromiseHelper
 
         throw new ClientException(
             $message,
-            $e[0]->getCode(),
-            $e[0]
+            $exceptions[0]->getCode(),
+            $exceptions[0]
         );
     }
 }
