@@ -25,6 +25,7 @@ class AzureFileTest extends StorageApiTestCase
         $this->assertEquals(filesize($filePath), $file['sizeBytes']);
         $this->assertArrayHasKey('absCredentials', $file);
         $this->assertArrayHasKey('absPath', $file);
+        sleep(1); // tests sometimes return 403, but file can be downloaded just a few seconds later
         $this->assertEquals(file_get_contents($filePath), file_get_contents($file['url']));
 
         $tags = $options->getTags();
@@ -132,6 +133,7 @@ class AzureFileTest extends StorageApiTestCase
             $fileSize += filesize($filePath);
         }
         $this->assertEquals($fileSize, $file['sizeBytes']);
+        sleep(1); // tests sometimes return 403, but file can be downloaded just a few seconds later
         $manifest = json_decode(file_get_contents($file['url']), true);
         $this->assertCount(count($slices), $manifest["entries"]);
     }
