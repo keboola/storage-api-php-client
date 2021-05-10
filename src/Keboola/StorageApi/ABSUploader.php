@@ -6,6 +6,7 @@ use Aws\S3\S3Client;
 use GuzzleHttp\Promise\Promise;
 use Keboola\StorageApi\ABSUploader\PromiseHelper;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
+use MicrosoftAzure\Storage\Blob\Models\CommitBlobBlocksOptions;
 use MicrosoftAzure\Storage\Blob\Models\CreateBlockBlobOptions;
 
 class ABSUploader
@@ -28,7 +29,7 @@ class ABSUploader
      * @param string $container
      * @param string $blobName
      * @param string $file
-     * @param CreateBlockBlobOptions $options
+     * @param CommitBlobBlocksOptions $options
      */
     public function uploadFile($container, $blobName, $file, $options)
     {
@@ -39,18 +40,18 @@ class ABSUploader
      * @param string $container
      * @param string $blobName
      * @param string $file
-     * @param CreateBlockBlobOptions|null $options
+     * @param CommitBlobBlocksOptions|null $options
      * @return Promise
      */
     private function uploadAsync($container, $blobName, $file, $options = null)
     {
         if ($options === null) {
-            $options = new CreateBlockBlobOptions();
+            $options = new CommitBlobBlocksOptions();
         }
         $promise = new Promise(\Closure::bind(function () use (&$promise, $container, $blobName, $file, $options) {
             list($promises, $blockIds) = $this->uploadByBlocks($container, $blobName, $file);
             PromiseHelper::all($promises);
-            $promise->resolve($this->blobClient->commitBlobBlocks($container, $blobName, $blockIds/*, $options*/));
+            $promise->resolve($this->blobClient->commitBlobBlocks($container, $blobName, $blockIds, $options));
         }, $this));
         return $promise;
     }
