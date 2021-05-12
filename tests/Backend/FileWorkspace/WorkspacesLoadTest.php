@@ -1180,4 +1180,159 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         }
         $this->assertTrue($manifestExists);
     }
+
+    public function testLoadWorkspaceWithOverwrite()
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $this->createFileWorkspace($workspaces);
+
+        $table1Csv = __DIR__ . '/../../_data/languages.csv';
+        $table1Id = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages',
+            new CsvFile($table1Csv)
+        );
+
+        $table2Csv = __DIR__ . '/../../_data/users.csv';
+        $table2Id = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'users',
+            new CsvFile($table2Csv)
+        );
+
+        $backend = new Abs($workspace['connection']);
+
+        $file1Csv = __DIR__ . '/../../_data/languages.csv';
+        $file1Id = $this->_client->uploadFile(
+            (new CsvFile($file1Csv))->getPathname(),
+            (new FileUploadOptions())
+                ->setNotify(false)
+                ->setIsPublic(false)
+                ->setCompress(true)
+                ->setTags(['test-file-1'])
+        );
+
+        $file2Csv = __DIR__ . '/../../_data/users.csv';
+        $file2Id = $this->_client->uploadFile(
+            (new CsvFile($file2Csv))->getPathname(),
+            (new FileUploadOptions())
+                ->setNotify(false)
+                ->setIsPublic(false)
+                ->setCompress(true)
+                ->setTags(['test-file-2'])
+        );
+
+        $options = [
+            'input' => [
+                [
+                    'source' => $table1Id,
+                    'destination' => 'tableLanguages',
+                ],
+                [
+                    'source' => $table2Id,
+                    'destination' => 'tableUsers',
+                ],
+                [
+                    "dataFileId" => $file1Id,
+                    "destination" => "fileLanguages",
+                ],
+                [
+                    'dataFileId' => $file2Id,
+                    'destination' => 'fileUsers',
+                ],
+            ],
+        ];
+
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+
+        $data = $backend->fetchAll('tableLanguages', ["id","name"], false, false);
+        $this->assertCount(6, $data);
+        $this->assertArrayEqualsSorted(
+            $this->_readCsv($table1Csv),
+            $data,
+            0
+        );
+
+        $data = $backend->fetchAll('tableUsers', ["id","name", "city", "sex"], false, false);
+        $this->assertArrayEqualsSorted(
+            $this->_readCsv($table2Csv),
+            $data,
+            0
+        );
+
+        $data = $backend->fetchAll('fileLanguages', ["id", "name"], true, true, false);
+        $this->assertCount(6, $data);
+        $this->assertArrayEqualsSorted(
+            $this->_readCsv($file1Csv),
+            $data,
+            0
+        );
+
+        $data = $backend->fetchAll('fileUsers', ["id","name", "city", "sex"], true, true, false);
+        $this->assertArrayEqualsSorted(
+            $this->_readCsv($file2Csv),
+            $data,
+            0
+        );
+
+        $table3Csv = __DIR__ . '/../../_data/languages.more-rows.csv';
+        $table3Id = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'languagesMoreRows',
+            new CsvFile($table3Csv)
+        );
+
+        $file3Csv = __DIR__ . '/../../_data/languages.more-rows.csv';
+        $file3Id = $this->_client->uploadFile(
+            (new CsvFile($file3Csv))->getPathname(),
+            (new FileUploadOptions())
+                ->setNotify(false)
+                ->setIsPublic(false)
+                ->setCompress(true)
+                ->setTags(['test-file-2'])
+        );
+
+        $options = [
+            'preserve' => true,
+            'input' => [
+                [
+                    'source' => $table3Id,
+                    'destination' => 'tableLanguages',
+                    'overwrite' => true,
+                ],
+                [
+                    "dataFileId" => $file3Id,
+                    "destination" => "fileLanguages",
+                    'overwrite' => true,
+                ],
+            ],
+        ];
+
+        // load should overwrite existing tables with new values
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+
+        // test load from table overwrite existing data instead of add new data
+        $data = $backend->fetchAll('tableLanguages', ["id", "name"], false, false);
+        $this->assertCount(8, $data);
+
+        // test load from file overwrite existing data instead of add new data
+        $data = $backend->fetchAll('fileLanguages', ["id", "name"], true, true, false);
+        $this->assertCount(8, $data);
+
+        // test table created from table before overwrite should be preserved
+        $data = $backend->fetchAll('tableUsers', ["id","name", "city", "sex"], false, false);
+        $this->assertArrayEqualsSorted(
+            $this->_readCsv($table2Csv),
+            $data,
+            0
+        );
+
+        // test table created from file before overwrite table should be preserved
+        $data = $backend->fetchAll('fileUsers', ["id","name", "city", "sex"], true, true, false);
+        $this->assertArrayEqualsSorted(
+            $this->_readCsv($file2Csv),
+            $data,
+            0
+        );
+    }
 }
