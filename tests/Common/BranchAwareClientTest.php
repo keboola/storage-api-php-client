@@ -2,6 +2,8 @@
 
 namespace Keboola\Test\Common;
 
+use InvalidArgumentException;
+use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Options\Components\Configuration;
@@ -67,5 +69,24 @@ class BranchAwareClientTest extends StorageApiTestCase
             $components->listComponents(),
             $branchComponents->listComponents()
         );
+    }
+
+    public function testInvalidBranch()
+    {
+        $options = [
+            'token' => STORAGE_API_TOKEN,
+            'url' => STORAGE_API_URL,
+            'backoffMaxTries' => 1,
+            'jobPollRetryDelay' => function () {
+                return 1;
+            },
+        ];
+        $options['userAgent'] = $this->buildUserAgentString(
+            $options['token'],
+            $options['url']
+        );
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Branch "" is not valid.');
+        new BranchAwareClient('', $options);
     }
 }

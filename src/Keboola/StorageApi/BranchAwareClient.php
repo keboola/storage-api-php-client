@@ -9,6 +9,9 @@ class BranchAwareClient extends Client
     public function __construct($branch, array $config = [])
     {
         parent::__construct($config);
+        if (empty($branch)) {
+            throw new \InvalidArgumentException(sprintf('Branch "%s" is not valid.', $branch));
+        }
         $this->branch = $branch;
     }
 
