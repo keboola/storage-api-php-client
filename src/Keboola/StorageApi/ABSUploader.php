@@ -8,6 +8,7 @@ use Keboola\StorageApi\ABSUploader\PromiseHelper;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Blob\Models\CommitBlobBlocksOptions;
 use MicrosoftAzure\Storage\Blob\Models\CreateBlockBlobOptions;
+use MicrosoftAzure\Storage\Common\Models\ServiceOptions;
 
 class ABSUploader
 {
@@ -29,22 +30,46 @@ class ABSUploader
      * @param string $container
      * @param string $blobName
      * @param string $file
-     * @param CommitBlobBlocksOptions $options
+     * @param CommitBlobBlocksOptions|CreateBlockBlobOptions|null $options
+     * @param bool $parallel
      */
-    public function uploadFile($container, $blobName, $file, $options)
+    public function uploadFile($container, $blobName, $file, $options, $parallel)
     {
-        $this->uploadAsync($container, $blobName, $file, $options)->wait();
+        if ($parallel) {
+            if (!$options instanceof CommitBlobBlocksOptions) {
+                throw new ClientException('Parallel upload needs CommitBlobBlocksOptions');
+            }
+        } else {
+            if (!$options instanceof CreateBlockBlobOptions) {
+                throw new ClientException('Single thread upload needs CreateBlockBlobOptions');
+
+            }
+        }
+        $this->uploadAsync($container, $file, $blobName, $parallel, $options)->wait();
     }
 
     /**
      * @param string $container
-     * @param string $blobName
      * @param string $file
-     * @param CommitBlobBlocksOptions|null $options
+     * @param string $blobName
+     * @param bool $parallel
+     * @param CommitBlobBlocksOptions|CreateBlockBlobOptions|null $options
      * @return Promise
      */
-    private function uploadAsync($container, $blobName, $file, $options = null)
+    private function uploadAsync($container, $file, $blobName, $parallel, $options = null)
     {
+        if (!$parallel) {
+            $promise = new Promise(\Closure::bind(function () use (&$promise, $container, $blobName, $file, $options) {
+                $promise->resolve($this->blobClient->createBlockBlob(
+                    $container,
+                    $blobName,
+                    fopen($file, 'r'),
+                    $options
+                ));
+            }, $this));
+            return $promise;
+        }
+
         if ($options === null) {
             $options = new CommitBlobBlocksOptions();
         }
@@ -87,7 +112,11 @@ class ABSUploader
     {
         $promises = [];
         foreach ($slices as $slice) {
-            $promises[] = $this->uploadAsync($container, $blobName, $slice);
+            $parallel = true;
+            if (filesize($slice) === 0) {
+                $parallel = false;
+            }
+            $promises[] = $this->uploadAsync($container, $slice, $blobName, $parallel);
         }
         PromiseHelper::all($promises);
     }

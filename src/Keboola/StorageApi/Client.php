@@ -18,6 +18,7 @@ use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
 use MicrosoftAzure\Storage\Blob\Models\CommitBlobBlocksOptions;
 use MicrosoftAzure\Storage\Blob\Models\CreateBlockBlobOptions;
+use MicrosoftAzure\Storage\Common\Models\ServiceOptions;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
@@ -1426,9 +1427,10 @@ class Client
             }
             $filePath = $gzFilePath;
         }
+        $sizeBytes = filesize($filePath);
         $newOptions
             ->setFileName(basename($filePath))
-            ->setSizeBytes(filesize($filePath))
+            ->setSizeBytes($sizeBytes)
             ->setFederationToken(true);
 
         $prepareResult = $this->prepareFileUpload($newOptions);
@@ -1464,12 +1466,19 @@ class Client
         array $prepareResult,
         $filePath
     ) {
-        $options = new CommitBlobBlocksOptions();
-        $options->setContentDisposition(
-            sprintf('attachment; filename=%s', $prepareResult['name'])
-        );
         $blobClient = BlobClientFactory::createClientFromConnectionString(
             $prepareResult['absUploadParams']['absCredentials']['SASConnectionString']
+        );
+
+        $parallel = true;
+        $options = new CommitBlobBlocksOptions();
+        if (!$prepareResult['sizeBytes']) {
+            // cannot upload empty file in parallel, needs to be created directly
+            $options = new CreateBlockBlobOptions();
+            $parallel = false;
+        }
+        $options->setContentDisposition(
+            sprintf('attachment; filename=%s', $prepareResult['name'])
         );
 
         $uploader = new ABSUploader($blobClient);
@@ -1477,7 +1486,8 @@ class Client
             $prepareResult['absUploadParams']['container'],
             $prepareResult['absUploadParams']['blobName'],
             $filePath,
-            $options
+            $options,
+            $parallel
         );
     }
 
