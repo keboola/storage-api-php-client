@@ -105,10 +105,10 @@ class ComponentsTest extends StorageApiTestCase
         );
 
         // list components without include
-        $components = $componentsClient->listComponents(new ListComponentsOptions());
+        $componentsNoInclude = $componentsClient->listComponents(new ListComponentsOptions());
 
-        $this->assertCount(1, $components);
-        $component = reset($components);
+        $this->assertCount(1, $componentsNoInclude);
+        $component = reset($componentsNoInclude);
 
         $configuration = reset($component['configurations']);
         $this->assertArrayNotHasKey('configuration', $configuration);
@@ -116,10 +116,10 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertArrayNotHasKey('state', $configuration);
 
         // list components - rows include
-        $components = $componentsClient->listComponents((new ListComponentsOptions())->setInclude(['rows']));
+        $componentsRows = $componentsClient->listComponents((new ListComponentsOptions())->setInclude(['rows']));
 
-        $this->assertCount(1, $components);
-        $component = reset($components);
+        $this->assertCount(1, $componentsRows);
+        $component = reset($componentsRows);
 
         $configuration = reset($component['configurations']);
         $this->assertArrayNotHasKey('configuration', $configuration);
@@ -127,18 +127,17 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertArrayNotHasKey('state', $configuration);
 
         $row = reset($configuration['rows']);
-        $this->assertArrayHasKey('configuration', $row);
+        $this->assertArrayNotHasKey('configuration', $row);
         $this->assertArrayNotHasKey('state', $row);
-        $this->assertSame(['value' => 2], $row['configuration']);
 
         // list components - rows + state include
-        $components = $componentsClient->listComponents((new ListComponentsOptions())->setInclude([
+        $componentsRowsAndState = $componentsClient->listComponents((new ListComponentsOptions())->setInclude([
             'rows',
             'state',
         ]));
 
-        $this->assertCount(1, $components);
-        $component = reset($components);
+        $this->assertCount(1, $componentsRowsAndState);
+        $component = reset($componentsRowsAndState);
 
         $configuration = reset($component['configurations']);
         $this->assertArrayNotHasKey('configuration', $configuration);
@@ -147,19 +146,18 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertSame(['stateValue' => 'some-value'], $configuration['state']);
 
         $row = reset($configuration['rows']);
-        $this->assertArrayHasKey('configuration', $row);
+        $this->assertArrayNotHasKey('configuration', $row);
         $this->assertArrayHasKey('state', $row);
         $this->assertSame(['rowStateValue' => 'some-value'], $row['state']);
-        $this->assertSame(['value' => 2], $row['configuration']);
 
         // list components - rows + configuration include
-        $components = $componentsClient->listComponents((new ListComponentsOptions())->setInclude([
+        $componentsRowsAndConfigurations = $componentsClient->listComponents((new ListComponentsOptions())->setInclude([
             'rows',
             'configuration',
         ]));
 
-        $this->assertCount(1, $components);
-        $component = reset($components);
+        $this->assertCount(1, $componentsRowsAndConfigurations);
+        $component = reset($componentsRowsAndConfigurations);
 
         $configuration = reset($component['configurations']);
         $this->assertArrayHasKey('configuration', $configuration);
