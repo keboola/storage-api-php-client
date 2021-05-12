@@ -16,6 +16,7 @@ use Keboola\StorageApi\Options\SearchTablesOptions;
 use Keboola\StorageApi\Options\StatsOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
+use MicrosoftAzure\Storage\Blob\Models\CommitBlobBlocksOptions;
 use MicrosoftAzure\Storage\Blob\Models\CreateBlockBlobOptions;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
@@ -1463,17 +1464,19 @@ class Client
         array $prepareResult,
         $filePath
     ) {
-        $options = new CreateBlockBlobOptions();
+        $options = new CommitBlobBlocksOptions();
         $options->setContentDisposition(
             sprintf('attachment; filename=%s', $prepareResult['name'])
         );
         $blobClient = BlobClientFactory::createClientFromConnectionString(
             $prepareResult['absUploadParams']['absCredentials']['SASConnectionString']
         );
-        $blobClient->createBlockBlob(
+
+        $uploader = new ABSUploader($blobClient);
+        $uploader->uploadFile(
             $prepareResult['absUploadParams']['container'],
             $prepareResult['absUploadParams']['blobName'],
-            fopen($filePath, 'r'),
+            $filePath,
             $options
         );
     }
@@ -1625,17 +1628,12 @@ class Client
             $prepareResult['absUploadParams']['absCredentials']['SASConnectionString']
         );
 
-        foreach ($slices as $slice) {
-            $blobClient->createBlockBlob(
-                $prepareResult['absUploadParams']['container'],
-                sprintf(
-                    '%s%s',
-                    $prepareResult['absUploadParams']['blobName'],
-                    basename($slice)
-                ),
-                fopen($slice, 'r')
-            );
-        }
+        $uploader = new ABSUploader($blobClient);
+        $uploader->uploadSlicedFile(
+            $prepareResult['absUploadParams']['container'],
+            $prepareResult['absUploadParams']['blobName'],
+            $slices
+        );
 
         $manifest = [
             'entries' => [],
