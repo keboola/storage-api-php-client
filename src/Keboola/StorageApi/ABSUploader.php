@@ -42,7 +42,6 @@ class ABSUploader
         } else {
             if (!$options instanceof CreateBlockBlobOptions) {
                 throw new ClientException('Single thread upload needs CreateBlockBlobOptions');
-
             }
         }
         $this->uploadAsync($container, $file, $blobName, $parallel, $options)->wait();
