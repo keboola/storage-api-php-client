@@ -105,10 +105,10 @@ class ABSUploader
 
     /**
      * @param string $container
-     * @param string $blobName
+     * @param string $blobPrefix
      * @param string[] $slices
      */
-    public function uploadSlicedFile($container, $blobName, $slices)
+    public function uploadSlicedFile($container, $blobPrefix, $slices)
     {
         $promises = [];
         foreach ($slices as $slice) {
@@ -116,6 +116,11 @@ class ABSUploader
             if (filesize($slice) === 0) {
                 $parallel = false;
             }
+            $blobName = sprintf(
+                '%s%s',
+                $blobPrefix,
+                basename($slice)
+            );
             $promises[] = $this->uploadAsync($container, $slice, $blobName, $parallel);
         }
         PromiseHelper::all($promises);
