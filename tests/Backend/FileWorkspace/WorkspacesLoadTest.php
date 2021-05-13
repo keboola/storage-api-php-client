@@ -1314,10 +1314,20 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         // test load from table overwrite existing data instead of add new data
         $data = $backend->fetchAll('tableLanguages', ["id", "name"], false, false);
         $this->assertCount(8, $data);
+        $this->assertArrayEqualsSorted(
+            $this->_readCsv($table3Csv),
+            $data,
+            0
+        );
 
         // test load from file overwrite existing data instead of add new data
         $data = $backend->fetchAll('fileLanguages', ["id", "name"], true, true, false);
         $this->assertCount(8, $data);
+        $this->assertArrayEqualsSorted(
+            $this->_readCsv($file3Csv),
+            $data,
+            0
+        );
 
         // test table created from table before overwrite should be preserved
         $data = $backend->fetchAll('tableUsers', ["id","name", "city", "sex"], false, false);
