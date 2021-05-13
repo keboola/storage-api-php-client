@@ -1275,21 +1275,11 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
             0
         );
 
-        $table3Csv = __DIR__ . '/../../_data/languages.more-rows.csv';
+        $table3Csv = __DIR__ . '/../../_data/languages.more-rows-no-duplicates.csv';
         $table3Id = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),
             'languagesMoreRows',
             new CsvFile($table3Csv)
-        );
-
-        $file3Csv = __DIR__ . '/../../_data/languages.more-rows.csv';
-        $file3Id = $this->_client->uploadFile(
-            (new CsvFile($file3Csv))->getPathname(),
-            (new FileUploadOptions())
-                ->setNotify(false)
-                ->setIsPublic(false)
-                ->setCompress(true)
-                ->setTags(['test-file-2'])
         );
 
         $options = [
@@ -1301,7 +1291,33 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
                     'overwrite' => true,
                 ],
                 [
-                    "dataFileId" => $file3Id,
+                    "dataFileId" => $file1Id,
+                    "destination" => "fileLanguages",
+                ],
+            ],
+        ];
+
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], $options);
+            $this->fail('Loading same file to same destination must throw exception.');
+        } catch (ClientException $e) {
+            $this->assertEquals(
+                "File \"fileLanguages/{$file1Id}\" already exists in workspace",
+                $e->getMessage()
+            );
+        }
+
+
+        $options = [
+            'preserve' => true,
+            'input' => [
+                [
+                    'source' => $table3Id,
+                    'destination' => 'tableLanguages',
+                    'overwrite' => true,
+                ],
+                [
+                    "dataFileId" => $file1Id,
                     "destination" => "fileLanguages",
                     'overwrite' => true,
                 ],
@@ -1313,7 +1329,6 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
 
         // test load from table overwrite existing data instead of add new data
         $data = $backend->fetchAll('tableLanguages', ["id", "name"], false, false);
-        $this->assertCount(8, $data);
         $this->assertArrayEqualsSorted(
             $this->_readCsv($table3Csv),
             $data,
@@ -1322,9 +1337,8 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
 
         // test load from file overwrite existing data instead of add new data
         $data = $backend->fetchAll('fileLanguages', ["id", "name"], true, true, false);
-        $this->assertCount(8, $data);
         $this->assertArrayEqualsSorted(
-            $this->_readCsv($file3Csv),
+            $this->_readCsv($file1Csv),
             $data,
             0
         );
