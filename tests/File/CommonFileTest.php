@@ -204,7 +204,6 @@ class CommonFileTest extends StorageApiTestCase
 
     public function testFileUploadLargeFile()
     {
-        $this->markTestSkipped();
         $filePath = __DIR__ . '/../_tmp/files.upload.large.csv';
         $fileHandle = fopen($filePath, "w+");
         for ($i = 0; $i < 5000000; $i++) {
