@@ -3,6 +3,8 @@
 namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\Csv\CsvFile;
+use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Metadata;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
@@ -18,6 +20,10 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
 
         if (!in_array('storage-types', $token['owner']['features'])) {
             $this->fail(sprintf('Metadata from workspaces are not enabled for project "%s"', $token['owner']['id']));
+        }
+
+        if (!in_array('tables-definition', $token['owner']['features'])) {
+            $this->fail(sprintf('Table definitions are not enabled for project "%s"', $token['owner']['id']));
         }
     }
 
@@ -222,6 +228,89 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertEquals([], $table['columnMetadata']);
     }
 
+    public function testMetadataManipulationRestrictions()
+    {
+        // create workspace and source table in workspace
+        $workspace = $this->initTestWorkspace(self::BACKEND_SYNAPSE);
+
+        $tableId = 'metadata_columns';
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists($tableId);
+
+        $connection = $workspace['connection'];
+        $db = $this->getDbConnection($connection);
+
+        $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
+            '%s.%s',
+            $connection['schema'],
+            $tableId
+        ));
+
+        $db->query("create table $quotedTableId (
+                    \"string\" varchar(16) not null default 'string'
+                );");
+
+        // create table from workspace
+        $tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), array(
+            'name' => 'metadata_columns',
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => $tableId,
+        ));
+
+        $expectedStringMetadata = [
+            'KBC.datatype.type' => 'VARCHAR',
+            'KBC.datatype.nullable' => '',
+            'KBC.datatype.basetype' => 'STRING',
+            'KBC.datatype.length' => '16',
+            'KBC.datatype.default' => '\'string\'',
+        ];
+
+        $metadata = new Metadata($this->_client);
+
+        $columnId = sprintf('%s.%s', $tableId, 'string');
+
+        $columnMetadataArray = $metadata->listColumnMetadata($columnId);
+        $this->assertCount(5, $columnMetadataArray);
+
+        $this->assertMetadata($expectedStringMetadata, $columnMetadataArray);
+
+        $columnMetadata = reset($columnMetadataArray);
+
+        // check that metadata from storage provider cannot be deleted
+        try {
+            $metadata->deleteColumnMetadata($columnId, $columnMetadata['id']);
+        } catch (ClientException $e) {
+            $this->assertSame(403, $e->getCode());
+            $this->assertSame('Metadata with "storage" provider cannot be deleted by user.', $e->getMessage());
+            $this->assertSame('storage.metadata.invalidProvider', $e->getStringCode());
+        }
+
+        // check that metadata with storage provider cannot be changed
+        try {
+            $metadata->postColumnMetadata(
+                $columnId,
+                Metadata::PROVIDER_STORAGE,
+                [
+                    [
+                        'key' => 'test',
+                        'value' => '1234',
+                    ],
+                    [
+                        'key' => $columnMetadata['key'],
+                        'value' => '1234',
+                    ],
+                ]
+            );
+        } catch (ClientException $e) {
+            $this->assertSame(403, $e->getCode());
+            $this->assertSame('Metadata with "storage" provider cannot be edited by user.', $e->getMessage());
+            $this->assertSame('storage.metadata.invalidProvider', $e->getStringCode());
+        }
+
+        $this->assertSame($columnMetadataArray, $metadata->listColumnMetadata($columnId));
+    }
+
     private function assertMetadata($expectedKeyValues, $metadata)
     {
         $this->assertEquals(count($expectedKeyValues), count($metadata));
@@ -232,7 +321,7 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
             $this->assertArrayHasKey("provider", $data);
             $this->assertArrayHasKey("timestamp", $data);
             $this->assertRegExp(self::ISO8601_REGEXP, $data['timestamp']);
-            $this->assertEquals('storage', $data['provider']);
+            $this->assertEquals(Metadata::PROVIDER_STORAGE, $data['provider']);
         }
     }
 }
