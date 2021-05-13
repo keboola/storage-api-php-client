@@ -368,6 +368,7 @@ class CommonFileTest extends StorageApiTestCase
         $slices = [
             __DIR__ . '/../_data/sliced/neco_0000_part_00',
             __DIR__ . '/../_data/sliced/neco_0001_part_00',
+            __DIR__ . '/../_data/sliced/neco_0002_part_00',
         ];
         $fileId = $this->_client->uploadSlicedFile($slices, $uploadOptions);
         $tmpDestinationFolder = __DIR__ . '/../_tmp/slicedUpload/';
@@ -380,6 +381,7 @@ class CommonFileTest extends StorageApiTestCase
         $donwloadFiles = $this->_client->downloadSlicedFile($fileId, $tmpDestinationFolder);
         $this->assertFileEquals($slices[0], $donwloadFiles[0]);
         $this->assertFileEquals($slices[1], $donwloadFiles[1]);
+        $this->assertFileEquals($slices[2], $donwloadFiles[2]);
     }
 
     public function testTagging()
