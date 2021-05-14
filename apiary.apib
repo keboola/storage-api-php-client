@@ -1545,6 +1545,77 @@ Lists tables in a given bucket.
                 }
             ]
 
+## Create Typed Table [/v2/storage/buckets/{bucket_id}/tables-definition]
+
+### Create new table definition [POST]
+
+
++ Parameters
+    + bucket_id (required) - The bucket Id
+
++ Request (application/json)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+        {
+            "name": String,
+            "primaryKeysNames": String[], // has to be subset of column names
+            "columns": [
+                {
+                    "name": String
+                    "definition": {
+                        "type": Enum<String>
+                        "length": String|null (optional, default: depends on type)
+                        "nullable": bool (optional, default: true)
+                        "default": String|null (optional, default: null)
+                    }
+            ],
+            "distribution": {
+                "type": HASH|REPLICATE|ROUND_ROBIN  // expects just one column when HASH
+                "distributionColumnsNames": String[]  // has to be subset of column names
+            },
+        }
+
++ Response 202 (application/json)
+
+        {
+            "id": 11,
+            "status": "waiting",
+            "url": "https://connection.keboola.com/v2/storage/jobs/11",
+            "operationName": "tableCreate",
+            "operationParams": {
+                "params": {
+                    "enclosure": "\"",
+                    "delimiter": ",",
+                    "escapedBy": "",
+                },
+                "source": {
+                    "fileId": "234",
+                    "type": "file"
+                }
+            },
+            "createdTime": "2013-05-31T16:11:05+0200",
+            "startTime": null,
+            "endTime": null,
+            "runId": null,
+            "results": null,
+            "creatorToken": {
+                "id": "27978",
+                "description": "ondrej.popelka@keboola.com"
+            },
+            "metrics": {
+                "inCompressed": false,
+                "inBytes": 0,
+                "inBytesUncompressed": 0,
+                "outCompressed": false,
+                "outBytes": 0,
+                "outBytesUncompressed": 0
+            }
+        }
+
 
 ## Create Table Asynchronously [/v2/storage/buckets/{bucket_id}/tables-async]
 
