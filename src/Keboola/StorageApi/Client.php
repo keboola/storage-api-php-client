@@ -678,6 +678,18 @@ class Client
     }
 
     /**
+     * Starts and waits for async creation of table definition
+     *
+     * @param $bucketId
+     * @param array $data JSON table definition
+     * @return string - created table id
+     */
+    public function createTableDefinition($bucketId, $data = [])
+    {
+        return $this->apiPostJson("buckets/{$bucketId}/tables-definition", $data);
+    }
+
+    /**
      * @param $bucketId destination bucket
      * @param $snapshotId source snapshot
      * @param null $name table name (optional) otherwise fetched from snapshot
