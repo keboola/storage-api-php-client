@@ -134,7 +134,7 @@ class CreateTableTest extends StorageApiTestCase
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
 
-        $this->_client->createTableDefinition($bucketId, $data);
+        $tableId = $this->_client->createTableDefinition($bucketId, $data);
 
         // block until async events are processed, processing in order is not guaranteed but it should work most of time
         $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
@@ -146,8 +146,65 @@ class CreateTableTest extends StorageApiTestCase
 
         $workspaceCreatedEvent = array_pop($events);
         $this->assertSame($runId, $workspaceCreatedEvent['runId']);
-        $this->assertSame('storage.tableDefinitionCreated', $workspaceCreatedEvent['event']);
+        $this->assertSame('storage.tableCreated', $workspaceCreatedEvent['event']);
         $this->assertSame('storage', $workspaceCreatedEvent['component']);
+
+        // event params validation
+        $eventParams = $workspaceCreatedEvent['params'];
+
+        $this->assertSame(['id'], $eventParams['primaryKey']);
+        $this->assertSame(
+            [
+                'id',
+                'name',
+            ],
+            $eventParams['columns']
+        );
+        $this->assertSame(
+            [
+                'id' => [
+                    'type' => 'INT',
+                    'length' => null,
+                    'nullable' => true,
+                ],
+                'name' => [
+                    'type' => 'NVARCHAR',
+                    'length' => null,
+                    'nullable' => true,
+                ],
+            ],
+            $eventParams['columnsTypes']
+        );
+        $this->assertSame(false, $eventParams['syntheticPrimaryKeyEnabled']);
+        $this->assertSame(['id'], $eventParams['distributionKey']);
+        $this->assertSame('HASH', $eventParams['distribution']);
+
+        // table properties validation
+        $table = $this->_client->getTable($tableId);
+
+        $this->assertSame('my-new-table', $table['name']);
+        $this->assertSame('my-new-table', $table['displayName']);
+
+        $this->assertSame(['id'], $table['primaryKey']);
+        $this->assertSame(['id'], $table['distributionKey']);
+        $this->assertSame(['id'], $table['indexedColumns']);
+
+        $this->assertSame(false, $table['syntheticPrimaryKeyEnabled']);
+
+        $this->assertSame(
+            [
+                'id',
+                'name'
+            ],
+            $table['columns']
+        );
+
+        $this->assertCount(1, $table['metadata']);
+
+        $metadata = reset($table['metadata']);
+        $this->assertSame('storage', $metadata['provider']);
+        $this->assertSame('KBC.dataTypesEnabled', $metadata['key']);
+        $this->assertSame('true', $metadata['value']);
     }
 
     public function testCreateTableDefinitionWithWrongInput()
