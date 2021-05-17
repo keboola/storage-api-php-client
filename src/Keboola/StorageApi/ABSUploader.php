@@ -109,7 +109,6 @@ class ABSUploader
      */
     public function uploadSlicedFile($container, $blobPrefix, $slices)
     {
-        $promises = [];
         foreach ($slices as $slice) {
             $parallel = true;
             if (filesize($slice) === 0) {
@@ -120,8 +119,9 @@ class ABSUploader
                 $blobPrefix,
                 basename($slice)
             );
-            $promises[] = $this->uploadAsync($container, $slice, $blobName, $parallel);
+            $promise = $this->uploadAsync($container, $slice, $blobName, $parallel);
+            // wait for slice to upload
+            $promise->wait();
         }
-        PromiseHelper::all($promises);
     }
 }
