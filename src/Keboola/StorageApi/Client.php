@@ -16,7 +16,9 @@ use Keboola\StorageApi\Options\SearchTablesOptions;
 use Keboola\StorageApi\Options\StatsOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
+use MicrosoftAzure\Storage\Blob\Models\CommitBlobBlocksOptions;
 use MicrosoftAzure\Storage\Blob\Models\CreateBlockBlobOptions;
+use MicrosoftAzure\Storage\Common\Models\ServiceOptions;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
@@ -1425,9 +1427,10 @@ class Client
             }
             $filePath = $gzFilePath;
         }
+        $sizeBytes = filesize($filePath);
         $newOptions
             ->setFileName(basename($filePath))
-            ->setSizeBytes(filesize($filePath))
+            ->setSizeBytes($sizeBytes)
             ->setFederationToken(true);
 
         $prepareResult = $this->prepareFileUpload($newOptions);
@@ -1463,18 +1466,28 @@ class Client
         array $prepareResult,
         $filePath
     ) {
-        $options = new CreateBlockBlobOptions();
-        $options->setContentDisposition(
-            sprintf('attachment; filename=%s', $prepareResult['name'])
-        );
         $blobClient = BlobClientFactory::createClientFromConnectionString(
             $prepareResult['absUploadParams']['absCredentials']['SASConnectionString']
         );
-        $blobClient->createBlockBlob(
+
+        $parallel = true;
+        $options = new CommitBlobBlocksOptions();
+        if (!$prepareResult['sizeBytes']) {
+            // cannot upload empty file in parallel, needs to be created directly
+            $options = new CreateBlockBlobOptions();
+            $parallel = false;
+        }
+        $options->setContentDisposition(
+            sprintf('attachment; filename=%s', $prepareResult['name'])
+        );
+
+        $uploader = new ABSUploader($blobClient);
+        $uploader->uploadFile(
             $prepareResult['absUploadParams']['container'],
             $prepareResult['absUploadParams']['blobName'],
-            fopen($filePath, 'r'),
-            $options
+            $filePath,
+            $options,
+            $parallel
         );
     }
 
@@ -1625,17 +1638,12 @@ class Client
             $prepareResult['absUploadParams']['absCredentials']['SASConnectionString']
         );
 
-        foreach ($slices as $slice) {
-            $blobClient->createBlockBlob(
-                $prepareResult['absUploadParams']['container'],
-                sprintf(
-                    '%s%s',
-                    $prepareResult['absUploadParams']['blobName'],
-                    basename($slice)
-                ),
-                fopen($slice, 'r')
-            );
-        }
+        $uploader = new ABSUploader($blobClient);
+        $uploader->uploadSlicedFile(
+            $prepareResult['absUploadParams']['container'],
+            $prepareResult['absUploadParams']['blobName'],
+            $slices
+        );
 
         $manifest = [
             'entries' => [],

@@ -5,6 +5,7 @@ namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Metadata;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
@@ -305,7 +306,7 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
             $this->assertArrayHasKey("provider", $data);
             $this->assertArrayHasKey("timestamp", $data);
             $this->assertRegExp(self::ISO8601_REGEXP, $data['timestamp']);
-            $this->assertEquals('storage', $data['provider']);
+            $this->assertEquals(Metadata::PROVIDER_STORAGE, $data['provider']);
         }
     }
 }
