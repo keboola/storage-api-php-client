@@ -2,11 +2,10 @@
 
 namespace Keboola\StorageApi;
 
-use \Keboola\StorageApi\Options\Metadata\Metadatum;
-
 class Metadata
 {
     const PROVIDER_SYSTEM = 'system';
+    const PROVIDER_STORAGE = 'storage';
 
     const BUCKET_METADATA_KEY_ID_BRANCH = 'KBC.createdBy.branch.id';
 

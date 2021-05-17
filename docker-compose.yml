@@ -33,6 +33,7 @@ services:
     build:
       context: docker/xdebug
     image: keboola/storage-api-tests-xdebug
+    command: tail -f /dev/null
 
 networks:
   default:
