@@ -1552,16 +1552,19 @@ Lists tables in a given bucket.
 **EXPERIMENTAL**
 
 Creates a table with typed columns. *Synapse only.*
+
+Request is handled asynchronously which means that the create request is created and added to a queue and the job resource URL for status polling is returned.
+
 + Parameters
     + bucket_id (required) - The bucket Id
 
 + Attributes
     + name (required) - New table name
-    + primaryKeysNames[] (string) - has to be subset of column names
-    + columns[] (required)
-       + name
-       + definition (object)
-            + type (required) - datatype of this column, choose one from https://bit.ly/3uZjN60
+    + primaryKeysNames[] (required, string) - has to be subset of column names
+    + columns[] (required) - definition of table columns
+       + name (required, string) - column name
+       + definition (object) - column settings
+            + type (required, string) - datatype of this column, choose one from https://bit.ly/3uZjN60
             + length (string) - optional, default: depends on type
             + nullable (boolean) - optional, default: true
             + default (string) - optional, default value for column
