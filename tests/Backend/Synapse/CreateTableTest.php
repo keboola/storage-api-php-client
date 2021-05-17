@@ -12,6 +12,13 @@ class CreateTableTest extends StorageApiTestCase
     public function setUp()
     {
         parent::setUp();
+
+        $token = $this->_client->verifyToken();
+
+        if (!in_array('tables-definition', $token['owner']['features'])) {
+            $this->fail(sprintf('Tables definition feature is not enabled for project "%s"', $token['owner']['id']));
+        }
+
         $this->initEmptyTestBucketsForParallelTests();
     }
 
