@@ -103,4 +103,77 @@ class CreateTableTest extends StorageApiTestCase
         $importedData = $this->_client->getTableDataPreview($tableId);
         $this->assertCount(5, Client::parseCsv($importedData));
     }
+
+    public function testCreateTableDefinition()
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $data = [
+            'name' => 'my-new-table',
+            'primaryKeysNames' => ['id'],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'INT',
+                    ],
+                ],
+                [
+                    'name' => 'name',
+                    'definition' => [
+                        'type' => 'NVARCHAR',
+                    ],
+                ],
+            ],
+            'distribution' => [
+                'type' => 'HASH',
+                'distributionColumnsNames' => ['id'],
+            ],
+        ];
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        $this->_client->createTableDefinition($bucketId, $data);
+
+        // block until async events are processed, processing in order is not guaranteed but it should work most of time
+        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
+
+        //check that the job has started
+        $events = $this->_client->listEvents([
+            'runId' => $runId,
+        ]);
+
+        $workspaceCreatedEvent = array_pop($events);
+        $this->assertSame($runId, $workspaceCreatedEvent['runId']);
+        $this->assertSame('storage.tableDefinitionCreated', $workspaceCreatedEvent['event']);
+        $this->assertSame('storage', $workspaceCreatedEvent['component']);
+    }
+
+    public function testCreateTableDefinitionWithWrongInput()
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $data = [
+            'name' => 'my-new-table',
+            'primaryKeysNames' => ['notInColumns'],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'INT',
+                    ],
+                ],
+            ],
+            'distribution' => [
+                'type' => 'HASH',
+                'distributionColumnsNames' => ['id'],
+            ],
+        ];
+        try {
+            $this->_client->createTableDefinition($bucketId, $data);
+        } catch (ClientException $exception) {
+            $this->assertEquals($exception->getStringCode(), 'validation.failed');
+        }
+    }
 }
