@@ -1545,11 +1545,13 @@ Lists tables in a given bucket.
                 }
             ]
 
-## Create Typed Table [/v2/storage/buckets/{bucket_id}/tables-definition]
+## Create table definition [/v2/storage/buckets/{bucket_id}/tables-definition]
 
 ### Create new table definition [POST]
 
+**EXPERIMENTAL**
 
+Creates a table with typed columns. *Synapse only.*
 + Parameters
     + bucket_id (required) - The bucket Id
 
@@ -1559,14 +1561,14 @@ Lists tables in a given bucket.
     + columns[] (required)
        + name
        + definition (object)
-            + type (required)
+            + type (required) - datatype of this column, choose one from https://bit.ly/3uZjN60
             + length (string) - optional, default: depends on type
             + nullable (boolean) - optional, default: true
-            + default
+            + default (string) - optional, default value for column
     + distribution
         + type (required, enum[string])
             + Members
-                + HASH
+                + HASH - requires just on column in `distributionColumnsNames`
                 + REPLICATE
                 + ROUND_ROBIN
         + distributionColumnsNames[] (required) - has to be subset of column names
