@@ -686,7 +686,8 @@ class Client
      */
     public function createTableDefinition($bucketId, $data = [])
     {
-        return $this->apiPostJson("buckets/{$bucketId}/tables-definition", $data);
+        $createdTable = $this->apiPostJson("buckets/{$bucketId}/tables-definition", $data);
+        return $createdTable['id'];
     }
 
     /**
