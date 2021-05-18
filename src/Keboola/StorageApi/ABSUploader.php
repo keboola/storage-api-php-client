@@ -12,7 +12,8 @@ use MicrosoftAzure\Storage\Common\Models\ServiceOptions;
 
 class ABSUploader
 {
-    const CHUNK_SIZE = 4 * 1024 * 1024;
+    const CHUNK_SIZE = 4 * 1024 * 1024; // 4MiB
+    const MAX_PARALLEL_CHUNKS = 125;
     const PADLENGTH = 5; // Size of the string used for the block ID, modify if needed.
 
     /** @var BlobRestProxy */
@@ -87,6 +88,7 @@ class ABSUploader
         $blockIds = [];
         $counter = 1;
         $promises = [];
+        $currentChunksUploading = 0;
         while ($data = fread($handle, self::CHUNK_SIZE)) {
             $blockId = base64_encode(str_pad($counter, self::PADLENGTH, '0', STR_PAD_LEFT));
             $block = new \MicrosoftAzure\Storage\Blob\Models\Block();
@@ -96,6 +98,15 @@ class ABSUploader
             // Upload the block.
             $promises[] = $this->blobClient->createBlobBlockAsync($container, $blobName, $blockId, $data);
             $counter++;
+            $currentChunksUploading++;
+            if ($currentChunksUploading === self::MAX_PARALLEL_CHUNKS) {
+                // as all chunks are read asynchronously at same time a lot of memory is used during upload
+                // ex. 10GiB file is chunked to 2500 chunks even few KiB read will cause big memory peak
+                // this will wait for chunks upload after certain limit
+                PromiseHelper::all($promises);
+                $promises = [];
+                $currentChunksUploading = 0;
+            }
         }
         fclose($handle);
         // wait for promisse
