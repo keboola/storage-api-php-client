@@ -1571,7 +1571,7 @@ Request is handled asynchronously which means that the create request is created
     + distribution
         + type (required, enum[string])
             + Members
-                + HASH - requires just on column in `distributionColumnsNames`
+                + HASH - requires exactly one column in `distributionColumnsNames`
                 + REPLICATE
                 + ROUND_ROBIN
         + distributionColumnsNames[] (required) - has to be subset of column names
