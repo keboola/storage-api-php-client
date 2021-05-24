@@ -1583,33 +1583,32 @@ Request is handled asynchronously which means that the create request is created
 
     + Body
 
-            {
-                "name": "table_name",
-                "primaryKeysNames": [],
-                "columns": [
-                    {
-                        "name": "id",
-                        "definition": {
-                            "type": "INT",
-                            "length": null,
-                            "nullable": false
-                        }
-                    },
-                    {
-                        "name": "name",
-                        "definition": {
-                            "type": "VARCHAR",
-                            "length": 12,
-                            "nullable": false,
-                            "default": "John Doe"
-                        }
-                    }
-                ],
-                "distribution": {
-                    "type": "HASH",
-                    "distributionColumnsNames": ["id"]
-                }
-            }
+           {
+               "name": "my-new-table",
+               "primaryKeysNames": [
+                   "id"
+               ],
+               "columns": [
+                   {
+                       "name": "id",
+                       "definition": {
+                           "type": "INT"
+                       }
+                   },
+                   {
+                       "name": "name",
+                       "definition": {
+                           "type": "NVARCHAR"
+                       }
+                   }
+               ],
+               "distribution": {
+                   "type": "HASH",
+                   "distributionColumnsNames": [
+                       "id"
+                   ]
+               }
+           }
 
 + Response 202 (application/json)
 
