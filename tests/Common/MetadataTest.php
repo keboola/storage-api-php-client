@@ -2,7 +2,6 @@
 
 namespace Keboola\Test\Common;
 
-use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
@@ -19,6 +18,11 @@ class MetadataTest extends StorageApiTestCase
 
 
     const ISO8601_REGEXP = '/^([0-9]{4})-(1[0-2]|0[1-9])-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})\+([0-9]{4})$/';
+
+    // constants used for data providers in order to run it on all endpoints but also represents part of URL
+    const ENDPOINT_TYPE_COLUMNS = 'columns';
+    const ENDPOINT_TYPE_TABLES = 'tables';
+    const ENDPOINT_TYPE_BUCKETS = 'buckets';
 
     public function setUp()
     {
@@ -550,17 +554,16 @@ class MetadataTest extends StorageApiTestCase
 
     /**
      * @dataProvider apiEndpoints
-     * @param $apiEndpoint
      */
     public function testInvalidMetadata($apiEndpoint, $object)
     {
         $bucketId = self::getTestBucketId();
-        $object = ($apiEndpoint === "bucket") ? $bucketId : $bucketId . $object;
+        $object = ($apiEndpoint === self::ENDPOINT_TYPE_BUCKETS) ? $bucketId : $bucketId . $object;
 
-        $md = array(
+        $md = [
             "key" => "%invalidKey", // invalid char %
-            "value" => "testval"
-        );
+            "value" => "testval",
+        ];
 
         try {
             // this should fail because metadata objects must be provided in an array
@@ -568,6 +571,10 @@ class MetadataTest extends StorageApiTestCase
             $this->fail("metadata must be an array of key-value objects.");
         } catch (ClientException $e) {
             $this->assertEquals("storage.metadata.invalidStructure", $e->getStringCode());
+            $this->assertEquals(
+                "Invalid structure. Metadata must be provided as an array of objects with 'key' and 'value' members",
+                $e->getMessage()
+            );
         }
 
         try {
@@ -575,34 +582,81 @@ class MetadataTest extends StorageApiTestCase
             $this->fail("Should throw invalid key exception");
         } catch (ClientException $e) {
             $this->assertEquals("storage.metadata.invalidKey", $e->getStringCode());
+            $this->assertEquals("Invalid Metadata Key (%invalidKey)", $e->getMessage());
         }
 
-        $md = array(
-            "key" => str_pad("validKey", 260, "+"), // length > 255
-            "value" => "testval"
-        );
+        // length > 255
+        $invalidKey = str_pad("validKey", 260, "+");
+        $md = [
+            "key" => $invalidKey,
+            "value" => "testval",
+        ];
         try {
             $this->postMetadata($apiEndpoint, $object, [$md]);
             $this->fail("Should throw invalid key exception");
         } catch (ClientException $e) {
             $this->assertEquals("storage.metadata.invalidKey", $e->getStringCode());
+            $this->assertEquals("Invalid Metadata Key ({$invalidKey})", $e->getMessage());
         }
 
-        $md = array(
+        $md = [
             "key" => "", // empty key
-            "value" => "testval"
-        );
+            "value" => "testval",
+        ];
         try {
             $this->postMetadata($apiEndpoint, $object, [$md]);
             $this->fail("Should throw invalid key exception");
         } catch (ClientException $e) {
             $this->assertEquals("storage.metadata.invalidKey", $e->getStringCode());
+            $this->assertEquals("Invalid Metadata Key ()", $e->getMessage());
+        }
+    }
+
+    /**
+     * $apiEndpoint represents part of URl because it has to call apiPost() directly without postMetadata() because
+     * postMetadata() checks input in on client side, but this test should call it with wrong data in order to test it
+     * in connection
+     *
+     * @dataProvider apiEndpoints
+     */
+    public function testInvalidMetadataWhenMetadataIsNotArray($apiEndpoint, $object)
+    {
+        $bucketId = self::getTestBucketId();
+        $objectId = $bucketId . $object;
+
+        try {
+            $this->_client->apiPost("{$apiEndpoint}/{$objectId}/metadata", [
+                "provider" => 'valid',
+                "metadata" => 'not an array',
+            ]);
+            $this->fail("Should throw invalid key exception");
+        } catch (ClientException $e) {
+            $this->assertEquals("storage.metadata.invalidParameter", $e->getStringCode());
+            $this->assertEquals("The metadata parameter must be an array.", $e->getMessage());
         }
     }
 
     /**
      * @dataProvider apiEndpoints
-     * @param $apiEndpoint
+     */
+    public function testInvalidMetadataWhenMetadataIsNotPresent($apiEndpoint, $object)
+    {
+        $bucketId = self::getTestBucketId();
+        $objectId = $bucketId . $object;
+
+        try {
+            $this->_client->apiPost("{$apiEndpoint}/{$objectId}/metadata", [
+                "provider" => 'valid',
+            ]);
+            $this->fail("Should throw invalid key exception");
+        } catch (ClientException $e) {
+            $this->assertEquals("storage.metadata.invalidParameter", $e->getStringCode());
+            $this->assertEquals("The metadata parameter must be an array.", $e->getMessage());
+        }
+    }
+
+    /**
+     * @dataProvider apiEndpoints
      */
     public function testMetadata404s($apiEndpoint, $object)
     {
@@ -620,11 +674,11 @@ class MetadataTest extends StorageApiTestCase
     public function testInvalidProvider()
     {
         $metadataApi = new Metadata($this->_client);
-        $tableId = $this->getTestBucketId() . '.table';
-        $md = array(
+        $this->getTestBucketId() . '.table';
+        $md = [
             "key" => "validKey",
-            "value" => "testval"
-        );
+            "value" => "testval",
+        ];
 
         try {
             // provider null should be rejected
@@ -632,12 +686,16 @@ class MetadataTest extends StorageApiTestCase
             $this->fail("provider is required");
         } catch (ClientException $e) {
             $this->assertEquals("storage.metadata.invalidProvider", $e->getStringCode());
+            $this->assertEquals("Provider is required.", $e->getMessage());
         }
+
+        // invalid characters in provider
         try {
             $metadataApi->postBucketMetadata($this->getTestBucketId(), "%invalidCharacter$", [$md]);
             $this->fail("Invalid metadata provider");
         } catch (ClientException $e) {
             $this->assertEquals("storage.metadata.invalidProvider", $e->getStringCode());
+            $this->assertEquals("Invalid metadata provider: %invalidCharacter$", $e->getMessage());
         }
     }
 
@@ -769,23 +827,24 @@ class MetadataTest extends StorageApiTestCase
         $tableId = '.table';
         $columnId = $tableId . '.id';
         return [
-            ["column", $columnId],
-            ["table", $tableId],
-            ["bucket", ""]
+            'columnEndpoint' => [self::ENDPOINT_TYPE_COLUMNS, $columnId],
+            'tableEndpoint' => [self::ENDPOINT_TYPE_TABLES, $tableId],
+            'bucketEndpoint' => [self::ENDPOINT_TYPE_BUCKETS, ""],
         ];
     }
+
 
     private function postMetadata($apiEndpoint, $objId, $metadata)
     {
         $metadataApi = new Metadata($this->_client);
         switch ($apiEndpoint) {
-            case "column":
+            case self::ENDPOINT_TYPE_COLUMNS:
                 $res = $metadataApi->postColumnMetadata($objId, self::TEST_PROVIDER, $metadata);
                 break;
-            case "table":
+            case self::ENDPOINT_TYPE_TABLES:
                 $res = $metadataApi->postTableMetadata($objId, self::TEST_PROVIDER, $metadata);
                 break;
-            case "bucket":
+            case self::ENDPOINT_TYPE_BUCKETS:
                 $res = $metadataApi->postBucketMetadata($objId, self::TEST_PROVIDER, $metadata);
                 break;
         }
@@ -795,13 +854,13 @@ class MetadataTest extends StorageApiTestCase
     {
         $metadataApi = new Metadata($this->_client);
         switch ($apiEndpoint) {
-            case "column":
+            case self::ENDPOINT_TYPE_COLUMNS:
                 $res = $metadataApi->deleteColumnMetadata($objId, $metadataId);
                 break;
-            case "table":
+            case self::ENDPOINT_TYPE_TABLES:
                 $res = $metadataApi->deleteTableMetadata($objId, $metadataId);
                 break;
-            case "bucket":
+            case self::ENDPOINT_TYPE_BUCKETS:
                 $res = $metadataApi->deleteBucketMetadata($objId, $metadataId);
                 break;
         }
