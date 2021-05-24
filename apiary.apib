@@ -1545,6 +1545,127 @@ Lists tables in a given bucket.
                 }
             ]
 
+## Create Table Definition [/v2/storage/buckets/{bucket_id}/tables-definition]
+
+### Create new table definition [POST]
+
+**EXPERIMENTAL**
+
+Creates a table with typed columns. *Synapse only.*
+
+Request is handled asynchronously which means that the create request is created and added to a queue and the job resource URL for status polling is returned.
+
++ Parameters
+    + bucket_id (required) - The bucket Id
+
++ Attributes
+    + name (required) - New table name
+    + primaryKeysNames[] (required, string) - has to be subset of column names
+    + columns[] (required) - definition of table columns
+       + name (required, string) - column name
+       + definition (object) - column settings
+            + type (required, string) - datatype of this column, choose one from https://bit.ly/3uZjN60
+            + length (string) - optional, default: depends on type
+            + nullable (boolean) - optional, default: true
+            + default (string) - optional, default value for column
+    + distribution
+        + type (required, enum[string])
+            + Members
+                + HASH - requires exactly one column in `distributionColumnsNames`
+                + REPLICATE
+                + ROUND_ROBIN
+        + distributionColumnsNames[] (required) - has to be subset of column names
+
++ Request (application/json)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            {
+                "name": "my-new-table",
+                "primaryKeysNames": [
+                    "id"
+                ],
+                "columns": [
+                    {
+                        "name": "id",
+                        "definition": {
+                            "type": "INT"
+                        }
+                    },
+                    {
+                        "name": "name",
+                        "definition": {
+                            "type": "NVARCHAR"
+                        }
+                    }
+                ],
+                "distribution": {
+                    "type": "HASH",
+                    "distributionColumnsNames": [
+                        "id"
+                    ]
+                }
+            }
+
++ Response 202 (application/json)
+
+        {
+            "id": 356,
+            "status": "waiting",
+            "url": "https:\/\/localhost:8700\/v2\/storage\/jobs\/356",
+            "tableId": null,
+            "operationName": "tableDefinitionCreate",
+            "operationParams": {
+                "name": "my-new-table",
+                "primaryKeysNames": [
+                    "id"
+                ],
+                "columns": [
+                    {
+                        "name": "id",
+                        "definition": {
+                            "type": "INT",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "name",
+                        "definition": {
+                            "type": "NVARCHAR",
+                            "nullable": true
+                        }
+                    }
+                ],
+                "distribution": {
+                    "type": "HASH",
+                    "distributionColumnsNames": [
+                        "id"
+                    ]
+                },
+                "queue": "main"
+            },
+            "createdTime": "2021-05-24T11:09:47+0200",
+            "startTime": null,
+            "endTime": null,
+            "runId": "5107",
+            "results": null,
+            "creatorToken": {
+                "id": "553",
+                "description": "devel+test-backend_admin@keboola.com"
+            },
+            "metrics": {
+                "inCompressed": false,
+                "inBytes": 0,
+                "inBytesUncompressed": 0,
+                "outCompressed": false,
+                "outBytes": 0,
+                "outBytesUncompressed": 0
+            }
+        }
+
 
 ## Create Table Asynchronously [/v2/storage/buckets/{bucket_id}/tables-async]
 
