@@ -109,6 +109,11 @@ class DataPreviewLimitsTest extends StorageApiTestCase
 
     public function testJsonTruncationLimit()
     {
+        $tokenData = $this->_client->verifyToken();
+        if ($tokenData['owner']['defaultBackend'] === self::BACKEND_SYNAPSE) {
+            $this->markTestSkipped('Columns with large length for Synapse backend is not supported yet');
+        }
+
         $columnCount = 5;
         $rowCount = 5;
         $csvFile = $this->generateCsv($rowCount - 1, $columnCount);
