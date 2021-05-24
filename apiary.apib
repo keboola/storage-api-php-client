@@ -1614,39 +1614,48 @@ Request is handled asynchronously which means that the create request is created
 + Response 202 (application/json)
 
         {
-            "id": 11,
-            "status": "waiting",
-            "url": "https://connection.keboola.com/v2/storage/jobs/11",
-            "operationName": "tableCreate",
-            "operationParams": {
-                "params": {
-                    "enclosure": "\"",
-                    "delimiter": ",",
-                    "escapedBy": "",
-                },
-                "source": {
-                    "fileId": "234",
-                    "type": "file"
-                }
-            },
-            "createdTime": "2013-05-31T16:11:05+0200",
-            "startTime": null,
-            "endTime": null,
-            "runId": null,
-            "results": null,
-            "creatorToken": {
-                "id": "27978",
-                "description": "ondrej.popelka@keboola.com"
-            },
-            "metrics": {
-                "inCompressed": false,
-                "inBytes": 0,
-                "inBytesUncompressed": 0,
-                "outCompressed": false,
-                "outBytes": 0,
-                "outBytesUncompressed": 0
+   "id":255,
+   "status":"waiting",
+   "url":"https:\/\/localhost:8700\/v2\/storage\/jobs\/255",
+   "tableId":null,
+   "operationName":"tableDefinitionCreate",
+   "operationParams":{
+      "name":"test",
+      "columns":[
+         {
+            "name":"test",
+            "definition":{
+               "type":"INT",
+               "nullable":true
             }
-        }
+         }
+      ],
+      "distribution":{
+         "type":"ROUND_ROBIN",
+         "distributionColumnsNames":[
+            
+         ]
+      },
+      "queue":"main"
+   },
+   "createdTime":"2021-05-24T08:40:47+0200",
+   "startTime":null,
+   "endTime":null,
+   "runId":"1480",
+   "results":null,
+   "creatorToken":{
+      "id":"2260",
+      "description":"devel+test-common_admin@keboola.com"
+   },
+   "metrics":{
+      "inCompressed":false,
+      "inBytes":0,
+      "inBytesUncompressed":0,
+      "outCompressed":false,
+      "outBytes":0,
+      "outBytesUncompressed":0
+   }
+}
 
 
 ## Create Table Asynchronously [/v2/storage/buckets/{bucket_id}/tables-async]
