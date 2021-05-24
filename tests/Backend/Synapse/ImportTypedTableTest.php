@@ -5,9 +5,12 @@ namespace Keboola\Test\Backend\Synapse;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
-use Keboola\Test\StorageApiTestCase;
+use Keboola\StorageApi\Workspaces;
+use Keboola\TableBackendUtils\Column\SynapseColumn;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
+use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
 
-class ImportTypedTableTest extends StorageApiTestCase
+class ImportTypedTableTest extends ParallelWorkspacesTestCase
 {
     public function setUp()
     {
@@ -26,8 +29,8 @@ class ImportTypedTableTest extends StorageApiTestCase
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
-        $data = [
-            'name' => 'tw-accounts',
+        $payload = [
+            'name' => 'tw-accountsFull',
             'primaryKeysNames' => ['id'],
             'columns' => [
                 ['name' => 'id', 'definition' => ['type' => 'INT']],
@@ -51,7 +54,7 @@ class ImportTypedTableTest extends StorageApiTestCase
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
 
-        $tableId = $this->_client->createTableDefinition($bucketId, $data);
+        $tableId = $this->_client->createTableDefinition($bucketId, $payload);
 
         // block until async events are processed, processing in order is not guaranteed but it should work most of time
         $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
@@ -72,8 +75,8 @@ class ImportTypedTableTest extends StorageApiTestCase
         }
 
         // import data using full load
-        $fullLoadInputFile= __DIR__ . '/../../_data/tw_accounts.csv';
-        $fullLoadExpectationFile= __DIR__ . '/../../_data/tw_accounts.expectation.full.csv';
+        $fullLoadInputFile = __DIR__ . '/../../_data/tw_accounts.csv';
+        $fullLoadExpectationFile = __DIR__ . '/../../_data/tw_accounts.expectation.full.csv';
         $this->_client->writeTableAsync(
             $tableId,
             new CsvFile($fullLoadInputFile),
@@ -84,19 +87,205 @@ class ImportTypedTableTest extends StorageApiTestCase
 
         $this->assertLinesEqualsSorted(file_get_contents($fullLoadExpectationFile), $this->_client->getTableDataPreview($tableId, [
             'format' => 'rfc',
-        ]), 'imported data comparsion');
+        ]), 'imported data comparison');
 
         // import data using incremental load
+        $incLoadInputFile = __DIR__ . '/../../_data/tw_accounts.increment.csv';
+        $incLoadExpectationFile = __DIR__ . '/../../_data/tw_accounts.expectation.increment.csv';
         $this->_client->writeTableAsync(
             $tableId,
-            new CsvFile(__DIR__ . '/../../_data/tw_accounts.increment.csv'),
+            new CsvFile($incLoadInputFile),
             [
                 'incremental' => true,
             ]
         );
 
-        $this->assertLinesEqualsSorted(file_get_contents(__DIR__ . '/../../_data/tw_accounts.expectation.increment.csv'), $this->_client->getTableDataPreview($tableId, [
+        $this->assertLinesEqualsSorted(file_get_contents($incLoadExpectationFile), $this->_client->getTableDataPreview($tableId, [
             'format' => 'rfc',
-        ]), 'imported data comparsion');
+        ]), 'imported data comparison');
+    }
+
+    public function testLoadTypedTables()
+    {
+        $fullLoadExpectationFile = __DIR__ . '/../../_data/tw_accounts.expectation.full.csv';
+        $incLoadExpectationFile = __DIR__ . '/../../_data/tw_accounts.expectation.increment.csv';
+
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $payload = [
+            'name' => 'tw-accountsFull',
+            'primaryKeysNames' => ['id'],
+            'columns' => [
+                ['name' => 'id', 'definition' => ['type' => 'INT']],
+                ['name' => 'idTwitter', 'definition' => ['type' => 'BIGINT']],
+                ['name' => 'name', 'definition' => ['type' => 'NVARCHAR']],
+                ['name' => 'import', 'definition' => ['type' => 'INT']],
+                ['name' => 'isImported', 'definition' => ['type' => 'TINYINT']],
+                ['name' => 'apiLimitExceededDatetime', 'definition' => ['type' => 'DATETIME2']],
+                ['name' => 'analyzeSentiment', 'definition' => ['type' => 'TINYINT']],
+                ['name' => 'importKloutScore', 'definition' => ['type' => 'INT']],
+                ['name' => 'timestamp', 'definition' => ['type' => 'DATETIME2']],
+                ['name' => 'oauthToken', 'definition' => ['type' => 'NVARCHAR']],
+                ['name' => 'oauthSecret', 'definition' => ['type' => 'NVARCHAR']],
+                ['name' => 'idApp', 'definition' => ['type' => 'INT']],
+            ],
+            'distribution' => [
+                'type' => 'HASH',
+                'distributionColumnsNames' => ['id'],
+            ],
+        ];
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        // create table
+        $tableId = $this->_client->createTableDefinition($bucketId, $payload);
+
+        // block until async events are processed, processing in order is not guaranteed but it should work most of time
+        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
+
+        // import data
+        $inputFile = __DIR__ . '/../../_data/tw_accounts.csv';
+        $this->_client->writeTableAsync(
+            $tableId,
+            new CsvFile($inputFile),
+            [
+                'incremental' => false,
+            ]
+        );
+
+        $workspaces = new Workspaces($this->workspaceSapiClient);
+        $workspace = $this->initTestWorkspace();
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'tw_loaded',
+                    'columns' => [
+                        ['source' => 'id', 'type' => 'INT'],
+                        ['source' => 'idTwitter', 'type' => 'BIGINT'],
+                        ['source' => 'name', 'type' => 'NVARCHAR'],
+                        ['source' => 'import', 'type' => 'INT'],
+                        ['source' => 'isImported', 'type' => 'TINYINT'],
+                        ['source' => 'apiLimitExceededDatetime', 'type' => 'DATETIME2'],
+                        ['source' => 'analyzeSentiment', 'type' => 'TINYINT'],
+                        ['source' => 'importKloutScore', 'type' => 'INT'],
+                        ['source' => 'timestamp', 'type' => 'DATETIME2'],
+                        ['source' => 'oauthToken', 'type' => 'NVARCHAR'],
+                        ['source' => 'oauthSecret', 'type' => 'NVARCHAR'],
+                        ['source' => 'idApp', 'type' => 'INT'],
+                    ],
+                ],
+            ],
+        ];
+        $expectedColumnsInWorkspace = [
+            'id',
+            'idTwitter',
+            'name',
+            'import',
+            'isImported',
+            'apiLimitExceededDatetime',
+            'analyzeSentiment',
+            'importKloutScore',
+            'timestamp',
+            'oauthToken',
+            'oauthSecret',
+            'idApp',
+        ];
+
+        $expectedTableTypesInWorkspace = [
+            'INT',
+            'BIGINT',
+            'NVARCHAR',
+            'INT',
+            'TINYINT',
+            'DATETIME2',
+            'TINYINT',
+            'INT',
+            'DATETIME2',
+            'NVARCHAR',
+            'NVARCHAR',
+            'INT',
+        ];
+
+        // load table to WS
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+        $ref = $backend->getTableReflection('tw_loaded');
+        self::assertSame($expectedColumnsInWorkspace, $ref->getColumnsNames());
+        self::assertSame(3, $ref->getRowsCount());
+        $this->assertArrayEqualsSorted(
+            Client::parseCsv(file_get_contents($fullLoadExpectationFile)),
+            $backend->fetchAll('tw_loaded', \PDO::FETCH_ASSOC),
+            'id',
+            'imported data comparison'
+        );
+        $types = array_map(function ($columnDefinition) {
+            /** @var $columnDefinition SynapseColumn */
+            return $columnDefinition->getColumnDefinition()->getType();
+        }, iterator_to_array($ref->getColumnsDefinitions()));
+        self::assertSame($expectedTableTypesInWorkspace, $types);
+
+        // import empty csv (truncate table)
+        $inputFile = __DIR__ . '/../../_data/tw_accounts.empty.csv';
+        $this->_client->writeTableAsync(
+            $tableId,
+            new CsvFile($inputFile),
+            [
+                'incremental' => false,
+            ]
+        );
+        // write data from WS back to storage
+        $this->_client->writeTableAsyncDirect($tableId, [
+            'dataWorkspaceId' => $workspace['id'],
+            'dataObject' => 'tw_loaded',
+            'incremental' => false,
+            'columns' => $expectedColumnsInWorkspace
+        ]);
+
+        $this->assertLinesEqualsSorted(
+            file_get_contents($fullLoadExpectationFile),
+            $this->_client->getTableDataPreview($tableId, [
+                'format' => 'rfc',
+            ]),
+            'imported data comparison'
+        );
+
+        // import incremental data with full load to storage
+        $inputFile = __DIR__ . '/../../_data/tw_accounts.increment.csv';
+        $this->_client->writeTableAsync(
+            $tableId,
+            new CsvFile($inputFile),
+            [
+                'incremental' => false,
+            ]
+        );
+        // load table to WS incrementally
+        $options['input'][0]['incremental'] = true;
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+        self::assertSame($expectedColumnsInWorkspace, $ref->getColumnsNames());
+        self::assertSame(4, $ref->getRowsCount());
+        $this->assertArrayEqualsSorted(
+            Client::parseCsv(file_get_contents($incLoadExpectationFile)),
+            $backend->fetchAll('tw_loaded', \PDO::FETCH_ASSOC),
+            'id',
+            'imported data comparison'
+        );
+
+        // write data back to storage incrementally
+        $this->_client->writeTableAsyncDirect($tableId, [
+            'dataWorkspaceId' => $workspace['id'],
+            'dataObject' => 'tw_loaded',
+            'incremental' => true,
+            'columns' => $expectedColumnsInWorkspace
+        ]);
+
+        $incLoadExpectationFile = __DIR__ . '/../../_data/tw_accounts.expectation.increment.csv';
+        $this->assertLinesEqualsSorted(
+            file_get_contents($incLoadExpectationFile),
+            $this->_client->getTableDataPreview($tableId, [
+                'format' => 'rfc',
+            ]),
+            'imported data comparison'
+        );
     }
 }
