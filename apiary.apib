@@ -1614,47 +1614,57 @@ Request is handled asynchronously which means that the create request is created
 + Response 202 (application/json)
 
         {
-   "id":255,
-   "status":"waiting",
-   "url":"https:\/\/localhost:8700\/v2\/storage\/jobs\/255",
-   "tableId":null,
-   "operationName":"tableDefinitionCreate",
-   "operationParams":{
-      "name":"test",
-      "columns":[
-         {
-            "name":"test",
-            "definition":{
-               "type":"INT",
-               "nullable":true
+    "id": 356,
+    "status": "waiting",
+    "url": "https:\/\/localhost:8700\/v2\/storage\/jobs\/356",
+    "tableId": null,
+    "operationName": "tableDefinitionCreate",
+    "operationParams": {
+        "name": "my-new-table",
+        "primaryKeysNames": [
+            "id"
+        ],
+        "columns": [
+            {
+                "name": "id",
+                "definition": {
+                    "type": "INT",
+                    "nullable": true
+                }
+            },
+            {
+                "name": "name",
+                "definition": {
+                    "type": "NVARCHAR",
+                    "nullable": true
+                }
             }
-         }
-      ],
-      "distribution":{
-         "type":"ROUND_ROBIN",
-         "distributionColumnsNames":[
-            
-         ]
-      },
-      "queue":"main"
-   },
-   "createdTime":"2021-05-24T08:40:47+0200",
-   "startTime":null,
-   "endTime":null,
-   "runId":"1480",
-   "results":null,
-   "creatorToken":{
-      "id":"2260",
-      "description":"devel+test-common_admin@keboola.com"
-   },
-   "metrics":{
-      "inCompressed":false,
-      "inBytes":0,
-      "inBytesUncompressed":0,
-      "outCompressed":false,
-      "outBytes":0,
-      "outBytesUncompressed":0
-   }
+        ],
+        "distribution": {
+            "type": "HASH",
+            "distributionColumnsNames": [
+                "id"
+            ]
+        },
+        "queue": "main"
+    },
+    "createdTime": "2021-05-24T11:09:47+0200",
+    "startTime": null,
+    "endTime": null,
+    "runId": "5107",
+    "results": null,
+    "creatorToken": {
+        "id": "553",
+        "description": "devel+test-backend_admin@keboola.com"
+    },
+    "metrics": {
+        "inCompressed": false,
+        "inBytes": 0,
+        "inBytesUncompressed": 0,
+        "outCompressed": false,
+        "outBytes": 0,
+        "outBytesUncompressed": 0
+    }
 }
 
 
