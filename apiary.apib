@@ -1583,88 +1583,88 @@ Request is handled asynchronously which means that the create request is created
 
     + Body
 
-           {
-               "name": "my-new-table",
-               "primaryKeysNames": [
-                   "id"
-               ],
-               "columns": [
-                   {
-                       "name": "id",
-                       "definition": {
-                           "type": "INT"
-                       }
-                   },
-                   {
-                       "name": "name",
-                       "definition": {
-                           "type": "NVARCHAR"
-                       }
-                   }
-               ],
-               "distribution": {
-                   "type": "HASH",
-                   "distributionColumnsNames": [
-                       "id"
-                   ]
-               }
-           }
+            {
+                "name": "my-new-table",
+                "primaryKeysNames": [
+                    "id"
+                ],
+                "columns": [
+                    {
+                        "name": "id",
+                        "definition": {
+                            "type": "INT"
+                        }
+                    },
+                    {
+                        "name": "name",
+                        "definition": {
+                            "type": "NVARCHAR"
+                        }
+                    }
+                ],
+                "distribution": {
+                    "type": "HASH",
+                    "distributionColumnsNames": [
+                        "id"
+                    ]
+                }
+            }
 
 + Response 202 (application/json)
 
         {
-    "id": 356,
-    "status": "waiting",
-    "url": "https:\/\/localhost:8700\/v2\/storage\/jobs\/356",
-    "tableId": null,
-    "operationName": "tableDefinitionCreate",
-    "operationParams": {
-        "name": "my-new-table",
-        "primaryKeysNames": [
-            "id"
-        ],
-        "columns": [
-            {
-                "name": "id",
-                "definition": {
-                    "type": "INT",
-                    "nullable": true
-                }
+            "id": 356,
+            "status": "waiting",
+            "url": "https:\/\/localhost:8700\/v2\/storage\/jobs\/356",
+            "tableId": null,
+            "operationName": "tableDefinitionCreate",
+            "operationParams": {
+                "name": "my-new-table",
+                "primaryKeysNames": [
+                    "id"
+                ],
+                "columns": [
+                    {
+                        "name": "id",
+                        "definition": {
+                            "type": "INT",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "name",
+                        "definition": {
+                            "type": "NVARCHAR",
+                            "nullable": true
+                        }
+                    }
+                ],
+                "distribution": {
+                    "type": "HASH",
+                    "distributionColumnsNames": [
+                        "id"
+                    ]
+                },
+                "queue": "main"
             },
-            {
-                "name": "name",
-                "definition": {
-                    "type": "NVARCHAR",
-                    "nullable": true
-                }
+            "createdTime": "2021-05-24T11:09:47+0200",
+            "startTime": null,
+            "endTime": null,
+            "runId": "5107",
+            "results": null,
+            "creatorToken": {
+                "id": "553",
+                "description": "devel+test-backend_admin@keboola.com"
+            },
+            "metrics": {
+                "inCompressed": false,
+                "inBytes": 0,
+                "inBytesUncompressed": 0,
+                "outCompressed": false,
+                "outBytes": 0,
+                "outBytesUncompressed": 0
             }
-        ],
-        "distribution": {
-            "type": "HASH",
-            "distributionColumnsNames": [
-                "id"
-            ]
-        },
-        "queue": "main"
-    },
-    "createdTime": "2021-05-24T11:09:47+0200",
-    "startTime": null,
-    "endTime": null,
-    "runId": "5107",
-    "results": null,
-    "creatorToken": {
-        "id": "553",
-        "description": "devel+test-backend_admin@keboola.com"
-    },
-    "metrics": {
-        "inCompressed": false,
-        "inBytes": 0,
-        "inBytesUncompressed": 0,
-        "outCompressed": false,
-        "outBytes": 0,
-        "outBytesUncompressed": 0
-    }
-}
+        }
 
 
 ## Create Table Asynchronously [/v2/storage/buckets/{bucket_id}/tables-async]
