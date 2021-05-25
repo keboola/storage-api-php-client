@@ -2614,6 +2614,8 @@ attributes and information about the containing bucket.
 ### Add Column to Table [POST]
 Adds a new column to an existing table. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 
+*This endpoint is not available for Synapse typed tables created via [table definition](#reference/tables/create-table-definition)*
+
 + Parameters
     + table_id (required) - Table Id
 
@@ -2655,6 +2657,8 @@ Adds a new column to an existing table. This request is [asynchronous](#introduc
 Deletes an existing column from an existing table. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 Use the optional `force` parameter to delete the column from table aliases too.
 
+*This endpoint is not available for Synapse typed tables created via [table definition](#reference/tables/create-table-definition)*
+
 + Parameters
     + table_id (required) - Table Id
     + column_name (required) - Column Name
@@ -2693,6 +2697,8 @@ Use the optional `force` parameter to delete the column from table aliases too.
 ### Create Primary Key [POST]
 If a primary key is set, updates can be done on the table. A primary key can be composed of multiple columns.
 This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
+
+*This endpoint is not available for Synapse typed tables created via [table definition](#reference/tables/create-table-definition)*
 
 + Parameters
     + table_id (required) - Table Id
@@ -2734,6 +2740,8 @@ This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls)
 
 ### Remove Primary Key [DELETE]
 Removes the primary key from a table. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
+
+*This endpoint is not available for Synapse typed tables created via [table definition](#reference/tables/create-table-definition)*
 
 + Parameters
     + table_id (required) - Table Id
@@ -3051,6 +3059,8 @@ A table snapshot will contain:
 - Table attributes.
 
 Snapshots of an alias table contain only alias settings, actual data are not stored with the snapshot.
+
+*This endpoint is not available for Synapse typed tables created via [table definition](#reference/tables/create-table-definition)*
 
 + Parameters
     + table_id (required) - Id of a table
