@@ -658,16 +658,42 @@ class MetadataTest extends StorageApiTestCase
     /**
      * @dataProvider apiEndpoints
      */
-    public function testMetadata404s($apiEndpoint, $object)
+    public function testMetadata40xs($apiEndpoint, $object)
     {
         $bucketId = self::getTestBucketId();
         $object = ($apiEndpoint === "bucket") ? $bucketId : $bucketId . $object;
 
+        // test invalid number
         try {
             $this->deleteMetadata($apiEndpoint, $object, 9999999);
             $this->fail("Invalid metadataId");
         } catch (ClientException $e) {
             $this->assertEquals(404, $e->getCode());
+            $this->assertEquals('storage.metadata.notFound', $e->getStringCode());
+            $this->assertEquals('The supplied metadata ID was not found', $e->getMessage());
+        }
+
+        // test null
+        try {
+            $this->deleteMetadata($apiEndpoint, $object, null);
+            $this->fail("Invalid metadataId");
+        } catch (ClientException $e) {
+            $this->assertEquals(400, $e->getCode());
+            $this->assertEquals('APPLICATION_ERROR', $e->getStringCode());
+            $this->assertEquals('exceptions.storage.metadata.invalidDelete', $e->getMessage());
+        }
+
+        // not numeric value
+        try {
+            $this->deleteMetadata($apiEndpoint, $object, 'notNumber');
+            $this->fail("Invalid metadataId");
+        } catch (ClientException $e) {
+            $this->assertEquals(400, $e->getCode());
+            $this->assertEquals('APPLICATION_ERROR', $e->getStringCode());
+            $this->assertEquals(
+                'Argument "subResource" is expected to be type "int", value "notNumber" given.',
+                $e->getMessage()
+            );
         }
     }
 
