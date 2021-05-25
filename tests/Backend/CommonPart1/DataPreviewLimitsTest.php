@@ -21,7 +21,7 @@ class DataPreviewLimitsTest extends StorageApiTestCase
     public function setUp()
     {
         parent::setUp();
-        $this->_initEmptyTestBuckets();
+        $this->initEmptyTestBucketsForParallelTests();
     }
 
     public function testSimplePreview()
@@ -73,7 +73,7 @@ class DataPreviewLimitsTest extends StorageApiTestCase
 
         $tableExporter = new TableExporter($this->_client);
 
-        $fullTableExportPath = tempnam(sys_get_temp_dir(), 'keboola');
+        $fullTableExportPath = $this->getExportFilePathForTest('users.csv');
         $tableExporter->exportTable($tableId, $fullTableExportPath, []);
         $this->assertCount(2000, Client::parseCsv(file_get_contents($fullTableExportPath)));
     }
@@ -109,6 +109,11 @@ class DataPreviewLimitsTest extends StorageApiTestCase
 
     public function testJsonTruncationLimit()
     {
+        $tokenData = $this->_client->verifyToken();
+        if ($tokenData['owner']['defaultBackend'] === self::BACKEND_SYNAPSE) {
+            $this->markTestSkipped('Columns with large length for Synapse backend is not supported yet');
+        }
+
         $columnCount = 5;
         $rowCount = 5;
         $csvFile = $this->generateCsv($rowCount - 1, $columnCount);

@@ -126,6 +126,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $backend = null; // force odbc disconnect
 
         // old password should not work anymore
+        sleep(5);
         $this->assertCredentialsShouldNotWork($connection);
 
         $workspace['connection']['password'] = $newCredentials['password'];
