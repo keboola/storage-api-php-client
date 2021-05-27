@@ -329,5 +329,18 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
         } catch (ClientException $e) {
             self::assertSame($e->getMessage(), '[SQL Server]Bulk load data conversion error (type mismatch or invalid character for the specified codepage) for row 2, column 4 (sex) in data file /users.csv.gz.');
         }
+
+        try {
+            // try import data with wrong types with full load
+            $this->_client->writeTableAsync(
+                $tableId,
+                new CsvFile($fullLoadFile),
+                [
+                    'incremental' => true,
+                ]
+            );
+        } catch (ClientException $e) {
+            self::assertSame($e->getMessage(), '[SQL Server]Bulk load data conversion error (type mismatch or invalid character for the specified codepage) for row 2, column 4 (sex) in data file /users.csv.gz.');
+        }
     }
 }
