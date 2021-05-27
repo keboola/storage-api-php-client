@@ -288,4 +288,59 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
             'imported data comparison'
         );
     }
+
+    public function testLoadTypedTablesConversionError()
+    {
+        $fullLoadFile = __DIR__ . '/../../_data/users.csv';
+
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $payload = [
+            'name' => 'users-types',
+            'primaryKeysNames' => ['id'],
+            'columns' => [
+                ['name' => 'id', 'definition' => ['type' => 'INT']],
+                ['name' => 'name', 'definition' => ['type' => 'NVARCHAR']],
+                ['name' => 'city', 'definition' => ['type' => 'NVARCHAR']],
+                ['name' => 'sex', 'definition' => ['type' => 'INT']],
+            ],
+            'distribution' => [
+                'type' => 'HASH',
+                'distributionColumnsNames' => ['id'],
+            ],
+        ];
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        // create table
+        $tableId = $this->_client->createTableDefinition($bucketId, $payload);
+
+        // block until async events are processed, processing in order is not guaranteed but it should work most of time
+        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
+
+        try {
+            // try import data with wrong types with full load
+            $this->_client->writeTableAsync(
+                $tableId,
+                new CsvFile($fullLoadFile),
+                [
+                    'incremental' => false,
+                ]
+            );
+        } catch (ClientException $e) {
+            self::assertSame($e->getMessage(), '[SQL Server]Bulk load data conversion error (type mismatch or invalid character for the specified codepage) for row 2, column 4 (sex) in data file /users.csv.gz.');
+        }
+
+        try {
+            // try import data with wrong types with full load
+            $this->_client->writeTableAsync(
+                $tableId,
+                new CsvFile($fullLoadFile),
+                [
+                    'incremental' => true,
+                ]
+            );
+        } catch (ClientException $e) {
+            self::assertSame($e->getMessage(), '[SQL Server]Bulk load data conversion error (type mismatch or invalid character for the specified codepage) for row 2, column 4 (sex) in data file /users.csv.gz.');
+        }
+    }
 }
