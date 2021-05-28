@@ -5,10 +5,34 @@ namespace Keboola\Test\Backend\Synapse;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Metadata;
 use Keboola\Test\StorageApiTestCase;
 
 class CreateTableTest extends StorageApiTestCase
 {
+    private $tableDefinition = [
+        'name' => 'my-new-table',
+        'primaryKeysNames' => ['id'],
+        'columns' => [
+            [
+                'name' => 'id',
+                'definition' => [
+                    'type' => 'INT',
+                ],
+            ],
+            [
+                'name' => 'name',
+                'definition' => [
+                    'type' => 'NVARCHAR',
+                ],
+            ],
+        ],
+        'distribution' => [
+            'type' => 'HASH',
+            'distributionColumnsNames' => ['id'],
+        ],
+    ];
+
     public function setUp()
     {
         parent::setUp();
@@ -115,33 +139,10 @@ class CreateTableTest extends StorageApiTestCase
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
-        $data = [
-            'name' => 'my-new-table',
-            'primaryKeysNames' => ['id'],
-            'columns' => [
-                [
-                    'name' => 'id',
-                    'definition' => [
-                        'type' => 'INT',
-                    ],
-                ],
-                [
-                    'name' => 'name',
-                    'definition' => [
-                        'type' => 'NVARCHAR',
-                    ],
-                ],
-            ],
-            'distribution' => [
-                'type' => 'HASH',
-                'distributionColumnsNames' => ['id'],
-            ],
-        ];
-
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
 
-        $tableId = $this->_client->createTableDefinition($bucketId, $data);
+        $tableId = $this->_client->createTableDefinition($bucketId, $this->tableDefinition);
 
         // block until async events are processed, processing in order is not guaranteed but it should work most of time
         $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
@@ -212,6 +213,58 @@ class CreateTableTest extends StorageApiTestCase
         $this->assertSame('storage', $metadata['provider']);
         $this->assertSame('KBC.dataTypesEnabled', $metadata['key']);
         $this->assertSame('true', $metadata['value']);
+    }
+
+    public function testColumnTypesInTableDefinition()
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        $tableId = $this->_client->createTableDefinition($bucketId, $this->tableDefinition);
+
+        // check that the new table has correct datypes in metadata
+        $metadataClient = new Metadata($this->_client);
+        $idColumnMetadata = $metadataClient->listColumnMetadata("{$tableId}.id");
+        $nameColumnMetadata = $metadataClient->listColumnMetadata("{$tableId}.name");
+
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.type',
+            'value' => 'INT',
+            'provider' => 'storage',
+        ], $idColumnMetadata[0], ['id', 'timestamp']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.nullable',
+            'value' => '1',
+            'provider' => 'storage',
+        ], $idColumnMetadata[1], ['id', 'timestamp']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.basetype',
+            'value' => 'INTEGER',
+            'provider' => 'storage',
+        ], $idColumnMetadata[2], ['id', 'timestamp']);
+
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.type',
+            'value' => 'NVARCHAR',
+            'provider' => 'storage',
+        ], $nameColumnMetadata[0], ['id', 'timestamp']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.nullable',
+            'value' => '1',
+            'provider' => 'storage',
+        ], $nameColumnMetadata[1], ['id', 'timestamp']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.basetype',
+            'value' => 'STRING',
+            'provider' => 'storage',
+        ], $nameColumnMetadata[2], ['id', 'timestamp']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.length',
+            'value' => '4000',
+            'provider' => 'storage',
+        ], $nameColumnMetadata[3], ['id', 'timestamp']);
     }
 
     public function testCreateTableDefinitionWithWrongInput()
