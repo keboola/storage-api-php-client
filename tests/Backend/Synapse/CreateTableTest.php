@@ -10,7 +10,7 @@ use Keboola\Test\StorageApiTestCase;
 
 class CreateTableTest extends StorageApiTestCase
 {
-    private $tableDefinition = [
+    const TABLE_DEFINITION = [
         'name' => 'my-new-table',
         'primaryKeysNames' => ['id'],
         'columns' => [
@@ -142,7 +142,7 @@ class CreateTableTest extends StorageApiTestCase
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
 
-        $tableId = $this->_client->createTableDefinition($bucketId, $this->tableDefinition);
+        $tableId = $this->_client->createTableDefinition($bucketId, self::TABLE_DEFINITION);
 
         // block until async events are processed, processing in order is not guaranteed but it should work most of time
         $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
@@ -215,6 +215,55 @@ class CreateTableTest extends StorageApiTestCase
         $this->assertSame('true', $metadata['value']);
     }
 
+    public function testCreateTableDefinitionNoPrimaryKey()
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        $definition = self::TABLE_DEFINITION;
+        // remove primaryKeysNames, try if request is validated
+        unset($definition['primaryKeysNames']);
+
+        try {
+            $this->_client->createTableDefinition($bucketId, $definition);
+            self::fail('Table should not be created.');
+        } catch (ClientException $e) {
+            self::assertSame('Invalid request', $e->getMessage());
+        }
+
+        $definition = self::TABLE_DEFINITION;
+        $definition['primaryKeysNames'] = [];
+        $definition['distribution'] = [
+            'type' => 'ROUND_ROBIN',
+            'distributionColumnsNames' => [],
+        ];
+
+        $this->_client->createTableDefinition($bucketId, $definition);
+
+        // block until async events are processed, processing in order is not guaranteed but it should work most of time
+        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
+
+        //check that the job has started
+        $events = $this->_client->listEvents([
+            'runId' => $runId,
+        ]);
+
+        $workspaceCreatedEvent = array_pop($events);
+        self::assertSame($runId, $workspaceCreatedEvent['runId']);
+        self::assertSame('storage.tableCreated', $workspaceCreatedEvent['event']);
+        self::assertSame('storage', $workspaceCreatedEvent['component']);
+
+        // event params validation
+        $eventParams = $workspaceCreatedEvent['params'];
+
+        // empty PK's
+        self::assertSame([], $eventParams['primaryKey']);
+        self::assertSame([], $eventParams['distributionKey']);
+        self::assertSame('ROUND_ROBIN', $eventParams['distribution']);
+    }
+
     public function testColumnTypesInTableDefinition()
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
@@ -222,7 +271,7 @@ class CreateTableTest extends StorageApiTestCase
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
 
-        $tableId = $this->_client->createTableDefinition($bucketId, $this->tableDefinition);
+        $tableId = $this->_client->createTableDefinition($bucketId, self::TABLE_DEFINITION);
 
         // check that the new table has correct datypes in metadata
         $metadataClient = new Metadata($this->_client);
