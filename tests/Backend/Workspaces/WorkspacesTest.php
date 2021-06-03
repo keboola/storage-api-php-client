@@ -120,10 +120,6 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $newCredentials = $workspaces->resetWorkspacePassword($workspace['id']);
         $this->assertArrayHasKey("password", $newCredentials);
 
-        if ($connection['backend'] === self::BACKEND_SNOWFLAKE) {
-            $this->assertNotEmpty($workspace['warehouse']);
-        }
-
         $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
 
         $events = $this->_client->listEvents([
