@@ -34,11 +34,17 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $workspace = $workspaces->createWorkspace();
         $connection = $workspace['connection'];
 
+        $workspaceWithSnowflakeBackend = $connection['backend'] === self::BACKEND_SNOWFLAKE;
+
+        if ($workspaceWithSnowflakeBackend) {
+            $this->assertNotEmpty($connection['warehouse']);
+        }
+
         $tokenInfo = $this->_client->verifyToken();
         $this->assertEquals($tokenInfo['owner']['defaultBackend'], $connection['backend']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-        $backend->createTable("mytable", ["amount" => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? "NUMBER" : "VARCHAR"]);
+        $backend->createTable("mytable", ["amount" => ($workspaceWithSnowflakeBackend) ? "NUMBER" : "VARCHAR"]);
 
         $tableNames = $backend->getTables();
         $backend = null; // force odbc disconnect
@@ -49,12 +55,23 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $workspace = $workspaces->getWorkspace($workspace['id']);
         $this->assertArrayNotHasKey('password', $workspace['connection']);
 
-        // list workspaces
-        $workspacesIds = array_map(function ($workspace) {
-            return $workspace['id'];
-        }, $workspaces->listWorkspaces());
+        if ($workspaceWithSnowflakeBackend) {
+            $this->assertNotEmpty($workspace['connection']['warehouse']);
+        }
 
-        $this->assertArrayHasKey($workspace['id'], array_flip($workspacesIds));
+        // list workspaces
+        $workspacesIds = [];
+        $testWorkspaceInfo = null;
+        foreach ($workspaces->listWorkspaces() as $workspaceInfo) {
+            $workspacesIds[] = $workspaceInfo['id'];
+
+            if ($workspaceInfo['id'] === $workspace['id']) {
+                $testWorkspaceInfo = $workspaceInfo;
+            }
+        }
+
+        $this->assertNotNull($testWorkspaceInfo);
+        $this->assertSame($workspace, $testWorkspaceInfo);
 
         $workspaces->deleteWorkspace($workspace['id']);
 
@@ -102,6 +119,10 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
 
         $newCredentials = $workspaces->resetWorkspacePassword($workspace['id']);
         $this->assertArrayHasKey("password", $newCredentials);
+
+        if ($connection['backend'] === self::BACKEND_SNOWFLAKE) {
+            $this->assertNotEmpty($workspace['warehouse']);
+        }
 
         $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
 
