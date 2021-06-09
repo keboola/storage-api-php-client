@@ -567,7 +567,12 @@ abstract class StorageApiTestCase extends ClientTestCase
      */
     protected function generateDescriptionForTestObject()
     {
-        return get_class($this) . '\\' . $this->getName();
+        $testSuiteName = '';
+        if (SUITE_NAME) {
+            $testSuiteName = sprintf('%s::', SUITE_NAME);
+        }
+
+        return $testSuiteName . get_class($this) . '\\' . $this->getName();
     }
 
     /**
