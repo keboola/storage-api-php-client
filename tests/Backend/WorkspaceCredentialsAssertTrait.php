@@ -2,17 +2,28 @@
 
 namespace Keboola\Test\Backend;
 
+use Retry\BackOff\ExponentialBackOffPolicy;
+use Retry\Policy\CallableRetryPolicy;
+use Retry\RetryProxy;
+
 trait WorkspaceCredentialsAssertTrait
 {
+    private static $RETRY_FAIL_MESSAGE = 'Credentials should be invalid';
     /**
      * @param array $connection
      * @throws \Exception
      */
     private function assertCredentialsShouldNotWork($connection)
     {
+        $retryPolicy = new CallableRetryPolicy(function (\Exception $e) {
+            return $e->getMessage() === self::$RETRY_FAIL_MESSAGE;
+        });
         try {
-            $this->getDbConnection($connection);
-            $this->fail('Credentials should be invalid');
+            $proxy = new RetryProxy($retryPolicy, new ExponentialBackOffPolicy());
+            $proxy->call(function () use ($connection) {
+                $this->getDbConnection($connection);
+                throw new \Exception(self::$RETRY_FAIL_MESSAGE);
+            });
         } catch (\Doctrine\DBAL\Driver\PDOException $e) {
             // Synapse
             if (!in_array(
