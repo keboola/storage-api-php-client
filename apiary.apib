@@ -3261,11 +3261,15 @@ Creates a new workspace and return its credentials.
         + Members
             + redshift
             + snowflake
-    the system. Supported only for Snowflake workspaces.
             + synapse
             + abs
     Azure blob storage file workspace
-
+    + backendSize: small (optional, enum[string]) - Workspace backend size. Available only for `snowflake` backend and projects having `workspace-snowflake-dynamic-backend-size` feature enabled.
+        + Members
+            + xsmall
+            + small
+            + medium
+            + large
 + Request (application/x-www-form-urlencoded)
     + Headers
 
@@ -3295,6 +3299,12 @@ Creates a new workspace for [Development Branch](#reference/development-branches
             + synapse
             + abs
     Azure blob storage file workspace
+    + backendSize: small (optional, enum[string]) - Workspace backend size. Available only for `snowflake` backend and projects having `workspace-snowflake-dynamic-backend-size` feature enabled.
+        + Members
+            + xsmall
+            + small
+            + medium
+            + large
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -6781,6 +6791,12 @@ Creates a new workspace for an existing configuration.
         + Members
             + redshift
             + snowflake
+    + backendSize: small (optional, enum[string]) - Workspace backend size. Available only for `snowflake` backend and projects having `workspace-snowflake-dynamic-backend-size` feature enabled.
+        + Members
+            + xsmall
+            + small
+            + medium
+            + large
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -6809,6 +6825,12 @@ Creates a new workspace for an existing configuration in [Development Branch](#r
         + Members
             + redshift
             + snowflake
+    + backendSize: small (optional, enum[string]) - Workspace backend size. Available only for `snowflake` backend and projects having `workspace-snowflake-dynamic-backend-size` feature enabled.
+        + Members
+            + xsmall
+            + small
+            + medium
+            + large
 
 + Request (application/x-www-form-urlencoded)
     + Headers
