@@ -128,16 +128,20 @@ abstract class StorageApiTestCase extends ClientTestCase
      * @param $stage
      * @return bool|string
      */
-    protected function initEmptyBucket($name, $stage, $description)
+    protected function initEmptyBucket($name, $stage, $description, Client $client = null)
     {
+        if (!$client) {
+            $client = $this->_client;
+        }
+
         try {
-            $bucket = $this->_client->getBucket("$stage.c-$name");
+            $bucket = $client->getBucket("$stage.c-$name");
             // unlink and unshare buckets if they exist
-            if ($this->_client->isSharedBucket($bucket['id'])) {
+            if ($client->isSharedBucket($bucket['id'])) {
                 if (array_key_exists('linkedBy', $bucket)) {
                     foreach ($bucket['linkedBy'] as $linkedBucket) {
                         try {
-                            $this->_client->forceUnlinkBucket(
+                            $client->forceUnlinkBucket(
                                 $bucket['id'],
                                 $linkedBucket['project']['id']
                             );
@@ -146,9 +150,9 @@ abstract class StorageApiTestCase extends ClientTestCase
                         }
                     }
                 }
-                $this->_client->unshareBucket($bucket['id']);
+                $client->unshareBucket($bucket['id']);
             }
-            $tables = $this->_client->listTables($bucket['id']);
+            $tables = $client->listTables($bucket['id']);
             // iterate in reverse creation order to be able to delete aliases
             usort($tables, function ($table1, $table2) {
                 $timestamp1 = strtotime($table1['created']);
@@ -160,12 +164,12 @@ abstract class StorageApiTestCase extends ClientTestCase
             });
             foreach (array_reverse($tables) as $table) {
                 try {
-                    $this->_client->dropTable($table['id']);
+                    $client->dropTable($table['id']);
                 } catch (\Keboola\StorageApi\ClientException $e) {
                     $this->throwExceptionIfNotDeleted($e);
                 }
             }
-            $metadataApi = new Metadata($this->_client);
+            $metadataApi = new Metadata($client);
             $metadata = $metadataApi->listBucketMetadata($bucket['id']);
             foreach ($metadata as $md) {
                 try {
@@ -179,7 +183,7 @@ abstract class StorageApiTestCase extends ClientTestCase
             if ($e->getCode() === 500) {
                 throw $e;
             }
-            return $this->_client->createBucket($name, $stage, $description);
+            return $client->createBucket($name, $stage, $description);
         }
     }
 
