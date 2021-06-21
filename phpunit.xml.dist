@@ -162,6 +162,10 @@
 		<file>tests/Backend/Workspaces/SynapseWorkspacesUnloadTest.php</file>
 	</testsuite>
 
+	<testsuite name="paratest-snowflake-dynamic-backend">
+		<file>tests/Backend/Workspaces/SnowflakeDynamicBackendsTest.php</file>
+	</testsuite>
+
 	<testsuite name="backend-synapse-managed-identity">
 		<!-- subset of test to test import and export -->
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
