@@ -44,7 +44,7 @@ class BranchWorkspacesTest extends WorkspacesTest
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
-        foreach ($this->listTestWorkspaces() as $workspace) {
+        foreach ($this->listTestWorkspaces($this->_client) as $workspace) {
             $workspaces->deleteWorkspace($workspace['id']);
         }
 
