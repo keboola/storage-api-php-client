@@ -39,7 +39,7 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
     {
         $options = $backend ? ['backend' => $backend] : [];
 
-        $oldWorkspaces = $this->listTestWorkspaces();
+        $oldWorkspaces = $this->listTestWorkspaces($this->_client);
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
         $oldWorkspace = $oldWorkspaces ? reset($oldWorkspaces) : null;
@@ -59,7 +59,7 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
     {
         $workspaces = new Workspaces($this->_client);
 
-        foreach ($this->listTestWorkspaces() as $workspace) {
+        foreach ($this->listTestWorkspaces($this->_client) as $workspace) {
             $workspaces->deleteWorkspace($workspace['id'], [
                 'async' => true,
             ]);
@@ -108,10 +108,10 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
         );
     }
 
-    protected function listTestWorkspaces()
+    protected function listTestWorkspaces(Client $client)
     {
         $description = $this->generateDescriptionForTestObject();
-        $workspaces = new Workspaces($this->_client);
+        $workspaces = new Workspaces($client);
 
         return array_filter(
             $workspaces->listWorkspaces(),
