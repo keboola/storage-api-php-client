@@ -56,7 +56,7 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
         return $workspaces->createWorkspace($options);
     }
 
-    private function deleteOldTestWorkspaces()
+    protected function deleteOldTestWorkspaces()
     {
         $workspaces = new Workspaces($this->_client);
 
