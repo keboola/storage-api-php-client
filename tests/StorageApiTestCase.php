@@ -137,7 +137,10 @@ abstract class StorageApiTestCase extends ClientTestCase
                 if (array_key_exists('linkedBy', $bucket)) {
                     foreach ($bucket['linkedBy'] as $linkedBucket) {
                         try {
-                            $this->_client->dropBucket($linkedBucket['id'], ['force' => true]);
+                            $this->_client->forceUnlinkBucket(
+                                $bucket['id'],
+                                $linkedBucket['project']['id']
+                            );
                         } catch (\Keboola\StorageApi\ClientException $e) {
                             $this->throwExceptionIfNotDeleted($e);
                         }
