@@ -30,7 +30,7 @@ class BranchWorkspacesTest extends WorkspacesTest
         $this->workspaceSapiClient = new BranchAwareClient(
             $this->branchId,
             [
-                'token' => $this->initTestToken(),
+                'token' => $this->initTestToken($this->tokens),
                 'url' => STORAGE_API_URL,
                 'backoffMaxTries' => 1,
                 'jobPollRetryDelay' => function () {
