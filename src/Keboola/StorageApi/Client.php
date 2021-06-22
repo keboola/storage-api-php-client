@@ -2245,7 +2245,6 @@ class Client
      */
     private function getBody(ResponseInterface $response)
     {
-        var_export($response->getHeaderLine('Content-Encoding'));
         $responseBodyStream = $response->getBody();
 
         // Curl does not support Brotli compression - use Brotli extension
