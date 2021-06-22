@@ -1,8 +1,11 @@
 <?php
 
-namespace Keboola\StorageApi;
+namespace Keboola\StorageApi\Brotli;
 
+use GuzzleHttp\Psr7\NoSeekStream;
+use GuzzleHttp\Psr7\Stream;
 use GuzzleHttp\Psr7\StreamDecoratorTrait;
+use GuzzleHttp\Psr7\StreamWrapper;
 use Psr\Http\Message\StreamInterface;
 
 /**
@@ -22,15 +25,16 @@ class BrotliStream implements StreamInterface
 {
     use StreamDecoratorTrait;
 
+    const FILTER_NAME = 'keboola.brotli';
+
     public function __construct(StreamInterface $stream)
     {
         // read the first 10 bytes, ie. gzip header
-        $header = $stream->read(10);
-        $filenameHeaderLength = $this->getLengthOfPossibleFilenameHeader($stream, $header);
-        // Skip the header, that is 10 + length of filename + 1 (nil) bytes
-        $stream = new LimitStream($stream, -1, 10 + $filenameHeaderLength);
         $resource = StreamWrapper::getResource($stream);
-        stream_filter_append($resource, 'compress.brotli', STREAM_FILTER_READ);
+        if (!in_array(self::FILTER_NAME, stream_get_filters())) {
+            stream_filter_register(self::FILTER_NAME, BrotliStreamFilter::class);
+        }
+        stream_filter_append($resource, self::FILTER_NAME, STREAM_FILTER_READ);
         $this->stream = $stream->isSeekable() ? new Stream($resource) : new NoSeekStream(new Stream($resource));
     }
 
