@@ -51,6 +51,16 @@ RUN set -ex; \
     docker-php-ext-install odbc; \
     docker-php-source delete
 
+# install Brotli extension
+RUN git clone --recursive --depth=1 https://github.com/kjdev/php-ext-brotli.git ~/php-ext-brotli \
+    && cd ~/php-ext-brotli \
+    && phpize \
+    && ./configure \
+    && make \
+    && make install \
+    && cd - \
+    && rm -rf ~/php-ext-brotli \
+    && echo "extension=brotli.so" > /usr/local/etc/php/conf.d/90-brotli.ini
 
 ## install snowflake drivers
 COPY ./docker/snowflake/generic.pol /etc/debsig/policies/$SNOWFLAKE_GPG_KEY/generic.pol
@@ -64,7 +74,9 @@ RUN mkdir -p ~/.gnupg \
     && chmod 700 ~/.gnupg \
     && echo "disable-ipv6" >> ~/.gnupg/dirmngr.conf \
     && mkdir -p /usr/share/debsig/keyrings/$SNOWFLAKE_GPG_KEY \
-    && gpg --keyserver hkp://keys.gnupg.net --recv-keys $SNOWFLAKE_GPG_KEY \
+    && if ! gpg --keyserver hkp://keys.gnupg.net --recv-keys $SNOWFLAKE_GPG_KEY; then \
+        gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys $SNOWFLAKE_GPG_KEY;  \
+    fi \
     && gpg --export $SNOWFLAKE_GPG_KEY > /usr/share/debsig/keyrings/$SNOWFLAKE_GPG_KEY/debsig.gpg \
     && debsig-verify /tmp/snowflake-odbc.deb \
     && gpg --batch --delete-key --yes $SNOWFLAKE_GPG_KEY \
