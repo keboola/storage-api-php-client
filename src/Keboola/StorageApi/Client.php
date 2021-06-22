@@ -6,8 +6,11 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\MessageFormatter;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
+use Keboola\Csv\CsvFile;
+use Keboola\StorageApi\Brotli\BrotliStream;
 use Keboola\StorageApi\Downloader\BlobClientFactory;
 use Keboola\StorageApi\Options\BucketUpdateOptions;
+use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Options\FileUploadTransferOptions;
 use Keboola\StorageApi\Options\GetFileOptions;
 use Keboola\StorageApi\Options\IndexOptions;
@@ -18,14 +21,12 @@ use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
 use MicrosoftAzure\Storage\Blob\Models\CommitBlobBlocksOptions;
 use MicrosoftAzure\Storage\Blob\Models\CreateBlockBlobOptions;
-use MicrosoftAzure\Storage\Common\Models\ServiceOptions;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
 use Symfony\Component\Filesystem\Filesystem;
-use Keboola\Csv\CsvFile;
-use Keboola\StorageApi\Options\FileUploadOptions;
 
 class Client
 {
@@ -2239,26 +2240,22 @@ class Client
 
     /**
      * @param ResponseInterface $response
-     * @return string
+     * @return StreamInterface Returns the body as a stream.
      * @throws ClientException
      */
     private function getBody(ResponseInterface $response)
     {
-        var_export($response->getHeaderLine('Content-Encoding'));
-        $rawBody = $response->getBody()->getContents();
+        $responseBodyStream = $response->getBody();
 
         // Curl does not support Brotli compression - use Brotli extension
         if (extension_loaded('brotli') && $response->getHeaderLine('Content-Encoding') === 'br') {
-            $body = \Brotli\uncompress($rawBody);
-            if ($body === false) {
-                throw new ClientException('Unable to uncompress brotli.');
-            }
-            // return decoded content by extension
-            return $body;
+            return new BrotliStream(
+                \GuzzleHttp\Psr7\Utils::streamFor($responseBodyStream)
+            );
         }
 
         // return decoded contents by Curl
-        return $rawBody;
+        return $responseBodyStream;
     }
 
     private function fixRequestBody(array $body)
