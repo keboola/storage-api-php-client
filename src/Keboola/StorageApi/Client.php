@@ -2183,7 +2183,7 @@ class Client
         }
         if (extension_loaded('brotli')) {
             // Curl does not support Brotli compression - use Brotli extension
-            $requestOptions['headers']['Accept-Encoding'] = 'br, gzip';
+            $requestOptions['headers']['Accept-Encoding'] = 'br';
             $requestOptions['decode_content'] = false;
         }
 
