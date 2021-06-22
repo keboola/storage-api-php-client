@@ -20,6 +20,7 @@ use MicrosoftAzure\Storage\Blob\Models\CommitBlobBlocksOptions;
 use MicrosoftAzure\Storage\Blob\Models\CreateBlockBlobOptions;
 use MicrosoftAzure\Storage\Common\Models\ServiceOptions;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
@@ -2239,26 +2240,23 @@ class Client
 
     /**
      * @param ResponseInterface $response
-     * @return string
+     * @return StreamInterface Returns the body as a stream.
      * @throws ClientException
      */
     private function getBody(ResponseInterface $response)
     {
         var_export($response->getHeaderLine('Content-Encoding'));
-        $rawBody = $response->getBody()->getContents();
+        $responseBodyStream = $response->getBody();
 
         // Curl does not support Brotli compression - use Brotli extension
         if (extension_loaded('brotli') && $response->getHeaderLine('Content-Encoding') === 'br') {
-            $body = \Brotli\uncompress($rawBody);
-            if ($body === false) {
-                throw new ClientException('Unable to uncompress brotli.');
-            }
-            // return decoded content by extension
-            return $body;
+            return new BrotliStream(
+                Psr7\stream_for($responseBodyStream)
+            );
         }
 
         // return decoded contents by Curl
-        return $rawBody;
+        return $responseBodyStream;
     }
 
     private function fixRequestBody(array $body)
