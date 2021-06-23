@@ -54,8 +54,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
             },
         ]));
 
-        foreach ($this->listTestWorkspaces($this->client2) as $workspace)
-        {
+        foreach ($this->listTestWorkspaces($this->client2) as $workspace) {
             $this->workspaces2->deleteWorkspace($workspace['id'], [
                 'async' => true,
             ]);
@@ -105,7 +104,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
 
         $sharedBuckets = array_filter(
             $this->client2->listSharedBuckets(),
-            function($sharedBucket) use ($bucketId) {
+            function ($sharedBucket) use ($bucketId) {
                 return $bucketId === $sharedBucket['id'];
             }
         );
@@ -172,7 +171,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
 
         $sharedBuckets = array_filter(
             $this->_client->listSharedBuckets(),
-            function($sharedBucket) use ($bucketId) {
+            function ($sharedBucket) use ($bucketId) {
                 return $bucketId === $sharedBucket['id'];
             }
         );
