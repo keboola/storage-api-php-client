@@ -90,7 +90,12 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
             new CsvFile(self::SOURCE_DATA_FILE_PATH)
         );
 
-        $this->_client->shareBucket($bucketId, ['project-users']);
+        $this->_client->shareBucket(
+            $bucketId,
+            [
+                'sharing' => 'organization-project',
+            ]
+        );
 
         $workspace = $this->workspaces2->createWorkspace([
             'backend' => StorageApiTestCase::BACKEND_SNOWFLAKE
@@ -104,6 +109,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
                 return $bucketId === $sharedBucket['id'];
             }
         );
+
         $this->assertCount(1, $sharedBuckets);
         $sharedBucket = reset($sharedBuckets);
 
@@ -150,7 +156,12 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
             new CsvFile(self::SOURCE_DATA_FILE_PATH)
         );
 
-        $this->client2->shareBucket($bucketId, ['project-users']);
+        $this->client2->shareBucket(
+            $bucketId,
+            [
+                'sharing' => 'organization-project',
+            ]
+        );
 
         $workspace = $this->workspaces->createWorkspace([
             'backend' => StorageApiTestCase::BACKEND_SNOWFLAKE,
