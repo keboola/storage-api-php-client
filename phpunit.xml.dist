@@ -162,7 +162,7 @@
 		<file>tests/Backend/Workspaces/SynapseWorkspacesUnloadTest.php</file>
 	</testsuite>
 
-	<testsuite name="paratest-snowflake-dynamic-backend">
+	<testsuite name="paratest-dynamic-backend-snowflake">
 		<file>tests/Backend/Workspaces/SnowflakeDynamicBackendsTest.php</file>
 	</testsuite>
 
