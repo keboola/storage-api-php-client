@@ -30,7 +30,7 @@ class BranchWorkspacesTest extends WorkspacesTest
         $this->workspaceSapiClient = new BranchAwareClient(
             $this->branchId,
             [
-                'token' => $this->initTestToken(),
+                'token' => $this->initTestToken($this->tokens),
                 'url' => STORAGE_API_URL,
                 'backoffMaxTries' => 1,
                 'jobPollRetryDelay' => function () {
@@ -44,7 +44,7 @@ class BranchWorkspacesTest extends WorkspacesTest
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
-        foreach ($this->listTestWorkspaces() as $workspace) {
+        foreach ($this->listTestWorkspaces($this->_client) as $workspace) {
             $workspaces->deleteWorkspace($workspace['id']);
         }
 
