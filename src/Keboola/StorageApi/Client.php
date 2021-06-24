@@ -2250,7 +2250,7 @@ class Client
         // Curl does not support Brotli compression - use Brotli extension
         if (extension_loaded('brotli') && $response->getHeaderLine('Content-Encoding') === 'br') {
             return new BrotliStream(
-                \GuzzleHttp\Psr7\stream_for($responseBodyStream)
+                \GuzzleHttp\Psr7\Utils::streamFor($responseBodyStream)
             );
         }
 
