@@ -26,6 +26,9 @@ class BrotliStream implements StreamInterface
 
     const FILTER_NAME = 'keboola.brotli';
 
+    /** @var StreamInterface */
+    private $stream;
+
     public function __construct(StreamInterface $stream)
     {
         $resource = StreamWrapper::getResource($stream);
