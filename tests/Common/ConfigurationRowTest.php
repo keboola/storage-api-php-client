@@ -214,7 +214,7 @@ class ConfigurationRowTest extends StorageApiTestCase
         $command = "curl '" . STORAGE_API_URL . "/v2/storage/components/wr-db/configs/main-1/rows/{$response->id}' \
                     -sS \
                     -X PUT \
-                    -H 'accept-encoding: gzip, deflate, br' \
+                    -H 'accept-encoding: gzip, deflate' \
                     -H 'accept-language: en-US,en;q=0.9,de;q=0.8,sk;q=0.7' \
                     -H 'content-type: application/x-www-form-urlencoded' \
                     -H 'accept: */*' \
