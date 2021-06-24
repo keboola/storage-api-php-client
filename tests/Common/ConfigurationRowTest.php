@@ -212,6 +212,7 @@ class ConfigurationRowTest extends StorageApiTestCase
         $response = json_decode((string)$response->getBody());
 
         $command = "curl '" . STORAGE_API_URL . "/v2/storage/components/wr-db/configs/main-1/rows/{$response->id}' \
+                    -sS \
                     -X PUT \
                     -H 'accept-encoding: gzip, deflate, br' \
                     -H 'accept-language: en-US,en;q=0.9,de;q=0.8,sk;q=0.7' \
@@ -224,7 +225,7 @@ class ConfigurationRowTest extends StorageApiTestCase
         $process = ProcessPolyfill::createProcess($command);
         $process->run();
         if (!$process->isSuccessful()) {
-            $this->fail("Config Row PUT request should not produce an error.");
+            $this->fail(sprintf('Config Row PUT request should not produce an error, but did return "%s"', trim($process->getErrorOutput())));
         }
 
         $result = json_decode($process->getOutput());
