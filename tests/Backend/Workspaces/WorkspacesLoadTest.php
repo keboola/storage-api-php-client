@@ -77,6 +77,56 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $this->assertEquals('langs', $tables[0]);
     }
 
+    public function testIncident()
+    {
+        $workspaces = new Workspaces($this->workspaceSapiClient);
+
+        $workspace = $this->initTestWorkspace();
+
+        //setup test tables
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages',
+            new CsvFile(__DIR__ . '/../../_data/languages-empty-row.csv'),
+            ['primaryKey' => 'id,name']
+        );
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                    'columns' => [
+                        [
+                            'source' => 'id',
+                            'type' => 'INTEGER',
+                            'nullable' => true,
+                            'convertEmptyValuesToNull' => true
+                        ],
+                        [
+                            'source' => 'name',
+                            'type' => 'VARCHAR',
+                            'nullable' => true,
+                            'convertEmptyValuesToNull' => true
+                        ]
+                    ]
+                ],
+            ],
+        ];
+
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options
+        );
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $tables = $backend->getTables();
+        $this->assertCount(1, $tables);
+        $this->assertEquals('languages', $tables[0]);
+    }
+
+
     public function testWorkspaceLoadData()
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
@@ -1292,35 +1342,9 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                 ],
             ],
         ];
-        $mapping2 = [
-            'source' => $table2_id,
-            'destination' => 'languagesLoaded',
-            'columns' => [
-                [
-                    'source' => '0',
-                    'type' => 'VARCHAR',
-                ],
-                [
-                    'source' => '1',
-                    'type' => 'VARCHAR',
-                ],
-                [
-                    'source' => '2',
-                    'type' => 'VARCHAR',
-                ],
-                [
-                    'source' => '3',
-                    'type' => 'VARCHAR',
-                ],
-                [
-                    'source' => '5',
-                    'type' => 'VARCHAR',
-                ],
-            ],
-        ];
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
-            ['input' => [$mapping1, $mapping2]]
+            ['input' => [$mapping1]]
         );
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
