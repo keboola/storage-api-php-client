@@ -1401,7 +1401,7 @@ class BranchComponentTest extends StorageApiTestCase
         // rollback to version 2 - conf V6
         // second row should be missing, and first row should be rolled back to first version
         $componentsApi->rollbackConfiguration('wr-db', $configurationV1['id'], 2);
-        sleep(1); // wait to propagate the event to elastic
+        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
         $events = $branchClient->listEvents([
             'component' => 'storage',
             'q' => 'storage.componentConfigurationRolledBack',
@@ -1438,7 +1438,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         // rollback to version 5 - conf V7
         $componentsApi->rollbackConfiguration('wr-db', $configurationV1['id'], 5, 'custom description');
-        sleep(1); // wait to propagate the event to elastic
+        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
         $events = $branchClient->listEvents([
             'component' => 'storage',
             'q' => 'storage.componentConfigurationRolledBack',
