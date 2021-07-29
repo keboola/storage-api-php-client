@@ -176,5 +176,9 @@
 		<file>tests/Backend/Workspaces/SynapseWorkspacesUnloadTest.php</file>
 		<file>tests/Backend/CommonPart1/ImportExportCommonTest.php</file>
 	</testsuite>
+
+	<testsuite name="backend-exasol">
+		<directory>tests/Backend/Exasol</directory>
+	</testsuite>
 </testsuites>
 </phpunit>
