@@ -183,6 +183,9 @@ abstract class StorageApiTestCase extends ClientTestCase
             if ($e->getCode() === 500) {
                 throw $e;
             }
+            if ($e->getCode() === 403) {
+                throw $e;
+            }
             return $client->createBucket($name, $stage, $description);
         }
     }
