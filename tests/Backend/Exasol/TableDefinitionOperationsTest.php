@@ -1,13 +1,13 @@
 <?php
 
-namespace Keboola\Test\Backend\Synapse;
+namespace Keboola\Test\Backend\Exasol;
 
 use Keboola\Test\StorageApiTestCase;
 
 class TableDefinitionOperationsTest extends StorageApiTestCase
 {
     private $tableId;
-    
+
     public function setUp()
     {
         parent::setUp();
@@ -19,7 +19,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         }
 
         $this->initEmptyTestBucketsForParallelTests();
-        
+
         $this->tableId = $this->createTableDefinition();
     }
 
@@ -44,11 +44,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                         'type' => 'NVARCHAR',
                     ],
                 ],
-            ],
-            'distribution' => [
-                'type' => 'HASH',
-                'distributionColumnsNames' => ['id'],
-            ],
+            ]
         ];
 
         $runId = $this->_client->generateRunId();
