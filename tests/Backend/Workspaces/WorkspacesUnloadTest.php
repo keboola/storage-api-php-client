@@ -122,6 +122,40 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         }
     }
 
+    public function testImportFromWorkspaceWithInvalidTableNames()
+    {
+        $tokenData = $this->_client->verifyToken();
+        if (in_array($tokenData['owner']['defaultBackend'], [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE])) {
+            $this->markTestIncomplete("Test import from invalid table name is ready only for Synapse");
+        }
+
+        // create workspace and source table in workspace
+        $workspace = $this->initTestWorkspace();
+
+        $table = $this->_client->apiPost("buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(
+            'dataString' => 'Id,Name',
+            'name' => 'languages',
+            'primaryKey' => 'Id',
+        ));
+
+        try {
+            $this->_client->writeTableAsyncDirect($table['id'], array(
+                'dataWorkspaceId' => $workspace['id'],
+                'dataTableName' => 'thisTableDoesNotExist',
+            ));
+            $this->fail('Table should not be imported');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.tableNotFound', $e->getStringCode());
+            $this->assertEquals(
+                sprintf(
+                    'Table "thisTableDoesNotExist" not found in schema "%s"',
+                    $workspace['connection']['schema']
+                ),
+                $e->getMessage()
+            );
+        }
+    }
+
     public function testImportFromWorkspaceWithInvalidColumnNames()
     {
         // create workspace and source table in workspace
