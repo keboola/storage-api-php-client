@@ -47,6 +47,7 @@
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
 		<file>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</file>
 		<file>tests/Backend/Snowflake/DirectAccessTest.php</file>
+		<file>tests/Backend/Snowflake/CopyIntoWorkspaceTest.php</file>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>
 
@@ -57,6 +58,7 @@
 		<directory>tests/Backend/CommonPart2</directory>
 		<exclude>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</exclude>
 		<exclude>tests/Backend/Snowflake/DirectAccessTest.php</exclude>
+		<exclude>tests/Backend/Snowflake/CopyIntoWorkspaceTest.php</exclude>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/MetadataFromSnowflakeWorkspaceTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
@@ -93,6 +95,7 @@
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
 		<file>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</file>
 		<file>tests/Backend/Snowflake/DirectAccessTest.php</file>
+		<file>tests/Backend/Snowflake/CopyIntoWorkspaceTest.php</file>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>
 
@@ -103,6 +106,7 @@
 		<directory>tests/Backend/CommonPart2</directory>
 		<exclude>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</exclude>
 		<exclude>tests/Backend/Snowflake/DirectAccessTest.php</exclude>
+		<exclude>tests/Backend/Snowflake/CopyIntoWorkspaceTest.php</exclude>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/MetadataFromSnowflakeWorkspaceTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
