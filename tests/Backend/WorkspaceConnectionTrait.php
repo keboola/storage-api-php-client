@@ -3,6 +3,7 @@
 namespace Keboola\Test\Backend;
 
 use Keboola\Db\Import\Snowflake\Connection;
+use Keboola\TableBackendUtils\Connection\Exasol\ExasolConnection;
 use Keboola\Test\StorageApiTestCase;
 
 trait WorkspaceConnectionTrait
@@ -48,6 +49,15 @@ trait WorkspaceConnectionTrait
                         'ConnectRetryInterval' => 10,
                     ],
                 ]);
+                $db->connect();
+
+                return $db;
+            case StorageApiTestCase::BACKEND_EXASOL:
+                $db = ExasolConnection::getConnection(
+                    $connection['host'],
+                    $connection['user'],
+                    $connection['password']
+                );
                 $db->connect();
 
                 return $db;
