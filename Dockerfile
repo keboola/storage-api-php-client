@@ -78,6 +78,18 @@ RUN set -ex; \
     docker-php-ext-enable sqlsrv pdo_sqlsrv; \
     docker-php-source delete
 
+# Exasol
+RUN set -ex; \
+    mkdir -p /tmp/exasol/odbc /opt/exasol ;\
+    curl https://www.exasol.com/support/secure/attachment/153765/EXASOL_ODBC-7.1.rc1.tar.gz --output /tmp/exasol/odbc.tar.gz; \
+    tar -xzf /tmp/exasol/odbc.tar.gz -C /tmp/exasol/odbc --strip-components 1; \
+    cp /tmp/exasol/odbc/lib/linux/x86_64/libexaodbc-uo2214lv2.so /opt/exasol/;\
+    echo "\n[exasol]\nDriver=/opt/exasol/libexaodbc-uo2214lv2.so\n" >> /etc/odbcinst.ini;\
+    rm -rf /tmp/exasol;
+
+RUN docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr \
+  && docker-php-ext-install pdo_odbc
+
 WORKDIR /code
 
 ## Composer - deps always cached unless changed
