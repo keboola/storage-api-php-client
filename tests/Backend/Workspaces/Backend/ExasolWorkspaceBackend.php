@@ -50,7 +50,7 @@ class ExasolWorkspaceBackend implements WorkspaceBackend
 
     public function dropTable($table)
     {
-        $qb = new ExasolTableQueryBuilder($this->db);
+        $qb = new ExasolTableQueryBuilder();
         $this->db->executeStatement($qb->getDropTableCommand($this->schema, $table));
     }
 
@@ -81,7 +81,7 @@ class ExasolWorkspaceBackend implements WorkspaceBackend
             $cols[] = new ExasolColumn($column, new Exasol($dataType));
         }
 
-        $qb = new ExasolTableQueryBuilder($this->db);
+        $qb = new ExasolTableQueryBuilder();
         $this->db->executeStatement($qb->getCreateTableCommand(
             $this->schema,
             $tableName,
