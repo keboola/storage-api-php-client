@@ -54,7 +54,7 @@ class SynapseWorkspaceBackend implements WorkspaceBackend
 
     public function dropTable($table)
     {
-        $qb = new SynapseTableQueryBuilder($this->db);
+        $qb = new SynapseTableQueryBuilder();
         $this->db->exec($qb->getDropTableCommand($this->schema, $table));
     }
 
@@ -85,7 +85,7 @@ class SynapseWorkspaceBackend implements WorkspaceBackend
             $cols[] = new SynapseColumn($column, new Synapse($dataType));
         }
 
-        $qb = new SynapseTableQueryBuilder($this->db);
+        $qb = new SynapseTableQueryBuilder();
         $this->db->exec($qb->getCreateTableCommand(
             $this->schema,
             $tableName,
