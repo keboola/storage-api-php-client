@@ -25,7 +25,7 @@ trait WorkspaceCredentialsAssertTrait
                 throw new \Exception(self::$RETRY_FAIL_MESSAGE);
             });
         } catch (\Doctrine\DBAL\Driver\PDOException $e) {
-            // Synapse
+            // Synapse|Exasol
             if (!in_array(
                 $e->getCode(),
                 [
@@ -42,6 +42,9 @@ trait WorkspaceCredentialsAssertTrait
             $this->assertEquals(7, $e->getCode());
         } catch (\Keboola\Db\Import\Exception $e) {
             $this->assertContains('Incorrect username or password was specified', $e->getMessage());
+        } catch (\Exception $e) {
+            // Exasol authentication failed
+            $this->assertEquals(-373252, $e->getCode(), 'Unexpected error code, expected code for Exasol is -373252.');
         }
     }
 }
