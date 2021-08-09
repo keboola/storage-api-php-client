@@ -30,6 +30,50 @@ class ConfigurationRowTest extends StorageApiTestCase
         }
     }
 
+    public function testConfigurationCopyCreateWithSameRowId()
+    {
+        $components = new \Keboola\StorageApi\Components($this->_client);
+
+        $config = (new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName("Main 1")
+            ->setDescription("description");
+        $components->addConfiguration($config);
+
+        $rowConfig = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config);
+        $rowConfig->setRowId('main-1-1');
+        $rowConfig->setState(['key' => 'main-1-1']);
+        $components->addConfigurationRow($rowConfig);
+
+        $rowConfig = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config);
+        $rowConfig->setRowId('main-1-2');
+        $rowConfig->setState(['key' => 'main-1-2']);
+        $components->addConfigurationRow($rowConfig);
+
+        $config2 = (new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-2')
+            ->setName("Main 2")
+            ->setDescription("description");
+        $components->addConfiguration($config2);
+
+        $rowConfig2 = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config2);
+        $rowConfig2->setRowId('main-1-1'); // same rowId to test create correct copy
+        $rowConfig2->setState(['key' => 'main-2-1']);
+        $components->addConfigurationRow($rowConfig2);
+
+        $copiedConfig = $components->createConfigurationFromVersion(
+            'wr-db',
+            $config2->getConfigurationId(),
+            2,
+            'copy-main'
+        );
+        $response = $components->getConfiguration('wr-db', $copiedConfig["id"]);
+
+        $this->assertSame(['key' => 'main-2-1'], $response['rows'][0]['state']);
+    }
+
     public function testConfigurationRowReturnsSingleRow()
     {
         $components = new Components($this->_client);
