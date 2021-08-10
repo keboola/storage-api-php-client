@@ -180,6 +180,7 @@
 	<testsuite name="backend-exasol">
 		<directory>tests/Backend/Exasol</directory>
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
+		<file>tests/Backend/CommonPart1/BucketsTest.php</file>
 	</testsuite>
 </testsuites>
 </phpunit>
