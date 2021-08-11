@@ -5668,6 +5668,25 @@ you have to delete it twice (call twice this API resource). The `canPurgeTrash` 
 
 + Response 204
 
+### Delete Development Branch Configuration [DELETE /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}]
+Deletes a development branch configuration. When a configuration is deleted, it is only marked as deleted and remains still available in the system.
+You can [list deleted](#reference/components-and-configurations/component-configurations/list-development-branch-configurations) configurations.
+Other operations with deleted configurations are restricted.
+
+Calling this API call on a deleted configuration will return error. Development branch configuration cannot be permanently removed.
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + component_id (required) - Id of the component
+    + config_id (required) - Id of the configuration
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 204
+
 
 ## Configuration Restore [/v2/storage/components/{component_id}/configs/{config_id}/restore]
 ### Restore Deleted Configuration [POST]
