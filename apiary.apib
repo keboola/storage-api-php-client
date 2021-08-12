@@ -3848,7 +3848,7 @@ Generates new password for the given workspace in [Development Branch](#referenc
 + name: `boring_wozniak` (string) - working schema name
 + type: `file|table` (string) - workspace type
 + component: `wr-db` (string) - name of the [registered component](#reference/miscellaneous/api-index/component-list) that created the workspace
-+ configurationId: `aws-1` (string) - id of a [configuration](#reference/component-configurations/component-list) used to create workspace
++ configurationId: `aws-1` (string) - id of a [configuration](#reference/components-and-configurations/component-configurations/list-configurations) used to create workspace
 + created: `2016-05-17T11:11:20+0200` (string)
 + connection
     + backend: `snowflake` (string)
@@ -4099,7 +4099,7 @@ Lists all events associated with a particular token.
         + error
 + runId: null - Id of an associated job.
 + created: `2017-02-13T16:42:00+0100` - Datetime when the event was created.
-+ configurationId: null - Id of a [configuration](#reference/component-configurations/component-list) used by an external component.
++ configurationId: null - Id of a [configuration](#reference/components-and-configurations/component-list) used by an external component.
 + objectId: `in.c-application-testing.cashier-data` - Id of the target object of the event - e.g. *id* of table for `storage.tableImportDone event`.
 + objectName: `cashier-data` - Name of the target object - e.g. a *table name* for a `storage.tableImportDone` event.
 + objectType: table - Type of the target object - e.g. *table* for the `storage.tableImportDone` event.
@@ -5417,7 +5417,7 @@ marked as `currentVersion`.
     + name (required) - Configuration name
     + description (optional) - Configuration description
     + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB
-    + state (optional) - **DEPRECATED will be removed in the future. For state updates use [state endpoint](#reference/component-configurations/manage-configurations/update-configuration-state).**  Serialized configuration state JSON; the maximum allowed size is 4MB.
+    + state (optional) - **DEPRECATED will be removed in the future. For state updates use [state endpoint](#reference/components-and-configurations/manage-configurations/update-configuration-state).**  Serialized configuration state JSON; the maximum allowed size is 4MB.
     + changeDescription (optional) - Description of the configuration modification
     + rowsSortOrder (optional) - Array of row ids in desired order, you have to specify all row ids
 
@@ -5650,8 +5650,8 @@ Updates an existing configuration for [Development Branch](#reference/developmen
 
 ### Delete Configuration [DELETE]
 Deletes a configuration. When a configuration is deleted, it is only marked as deleted and remains still available in the system.
-You can [list deleted](#reference/component-configurations/component-configs/list-configs) configurations, or
-[restore deleted](#reference/component-configurations/manage-configs/restore-deleted-config) configurations.
+You can [list deleted](#reference/components-and-configurations/component-configurations/list-configurations) configurations, or
+[restore deleted](#reference/components-and-configurations/configuration-restore/restore-deleted-configuration) configurations.
 Other operations with deleted configurations are restricted.
 
 Calling this API call on a deleted configuration will remove it permanently. I.e. to permanently remove a configuration
@@ -5710,9 +5710,9 @@ and the configuration becomes available for other API calls.
 
 ## Publishing [/v2/storage/components/{component_id}/configs/{config_id}/publish]
 A configuration can be in the `published` or `draft` mode. The
-[configuration detail API call](#reference/component-configurations/manage-configs/config-detail) returns
+[configuration detail API call](#reference/components-and-configurations/manage-configurations/config-detail) returns
 the latest version of a configuration. The latest published version can be retrieved by the
-[Configuration version API call](#reference/component-configurations/manage-configs-versions/version-detail) with
+[Configuration version API call](#reference/components-and-configurations/manage-configurations-versions/version-detail) with
 the version `latestPublished`.
 
 ### Publish Configuration [POST]
@@ -6286,7 +6286,7 @@ independently on the configurations.
 + Attributes
     + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB
     + state (optional) - Serialized configuration state JSON; the maximum allowed size is 4MB
-    + state (optional) - **DEPRECATED will be removed in the future. For state updates use [state endpoint](/#reference/component-configurations/manage-configuration-rows/update-row-state).**  Serialized configuration state JSON; the maximum allowed size is 4MB.
+    + state (optional) - **DEPRECATED will be removed in the future. For state updates use [state endpoint](/#reference/components-and-configurations/manage-configuration-rows/update-row-state).**  Serialized configuration state JSON; the maximum allowed size is 4MB.
     + name (optional, string) - Row name
     + description (optional, string) - Row description
     + isDisabled (optional, boolean) - Disabled flag
