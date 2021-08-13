@@ -45,7 +45,7 @@ class TableExporter
         );
 
         // Temporary folder to save downloaded files
-        $workingDir = sys_get_temp_dir() . '/sapi-php-client';
+        $workingDir = sys_get_temp_dir();
         $tmpFilePath = $workingDir . '/' . uniqid('sapi-export-', true);
 
         $fs = new Filesystem();
