@@ -275,17 +275,17 @@ class TableExporterTest extends StorageApiTestCase
         $filesBasePath = __DIR__ . '/../../_data/';
         return array(
             array([self::BACKEND_SNOWFLAKE], new CsvFile($filesBasePath . '1200.csv'), '1200.csv'),
-            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE], new CsvFile($filesBasePath . 'languages.csv.gz'), 'languages.csv'),
-            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE], new CsvFile($filesBasePath . 'languages.encoding.csv'), 'languages.encoding.csv'),
-            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE], new CsvFile($filesBasePath . 'languages.csv.gz'), 'languages.csv', array('gzip' => true)),
-            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE], new CsvFile($filesBasePath . 'numbers.csv'), 'numbers.csv'),
-            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE], new CsvFile($filesBasePath . 'numbers.csv'), 'numbers.two-cols.csv', array('columns' => array('0', '45'))),
+            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . 'languages.csv.gz'), 'languages.csv'),
+            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . 'languages.encoding.csv'), 'languages.encoding.csv'),
+            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . 'languages.csv.gz'), 'languages.csv', array('gzip' => true)),
+            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . 'numbers.csv'), 'numbers.csv'),
+            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . 'numbers.csv'), 'numbers.two-cols.csv', array('columns' => array('0', '45'))),
 
             // tests the redshift data too long bug https://github.com/keboola/connection/issues/412
-            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile($filesBasePath . 'languages.64k.csv'), 'languages.64k.csv'),
-            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile($filesBasePath . 'languages.64k.csv'), 'languages.64k.csv',  array('gzip' => true)),
-            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile($filesBasePath . '64K.csv'), '64K.csv'),
-            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE], new CsvFile($filesBasePath . '64K.csv'), '64K.csv',  array('gzip' => true)),
+            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . 'languages.64k.csv'), 'languages.64k.csv'),
+            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . 'languages.64k.csv'), 'languages.64k.csv',  array('gzip' => true)),
+            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . '64K.csv'), '64K.csv'),
+            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . '64K.csv'), '64K.csv',  array('gzip' => true)),
 
             array([self::BACKEND_REDSHIFT], new CsvFile($filesBasePath . 'escaping.csv'), 'escaping.standard.out.csv', array('gzip' => true)),
             array([self::BACKEND_REDSHIFT], new CsvFile($filesBasePath . 'numbers.csv'), 'numbers.csv', array('gzip' => true)),

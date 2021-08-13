@@ -181,6 +181,15 @@
 		<directory>tests/Backend/Exasol</directory>
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/CommonPart1/BucketsTest.php</file>
+		<file>tests/Backend/CommonPart1/DataPreviewLimitsTest.php</file>
+		<file>tests/Backend/CommonPart1/DeleteTableTest.php</file>
+		<file>tests/Backend/CommonPart1/LegacyIndexedColumnsTest.php</file>
+		<file>tests/Backend/CommonPart1/TableExporterTest.php</file>
+		<file>tests/Backend/CommonPart1/DeleteRowsTest.php</file>
+		<file>tests/Backend/CommonPart2/UploadSlicedFileTest.php</file>
+		<file>tests/Backend/CommonPart2/MetricsTest.php</file>
+		<file>tests/Backend/CommonPart2/SnapshottingTest.php</file>
+		<file>tests/Backend/Export/ExportParamsTest.php</file>
 	</testsuite>
 </testsuites>
 </phpunit>

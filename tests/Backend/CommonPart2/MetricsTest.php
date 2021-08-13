@@ -51,6 +51,7 @@ class MetricsTest extends StorageApiTestCase
                 self::BACKEND_REDSHIFT,
                 self::BACKEND_SNOWFLAKE,
                 self::BACKEND_SYNAPSE,
+                self::BACKEND_EXASOL,
             ])
             && $expectedMetrics['inCompressed']) {
             $expectedMetrics['inBytesUncompressed'] = 0; // We don't know uncompressed size of file
@@ -85,6 +86,7 @@ class MetricsTest extends StorageApiTestCase
                 self::BACKEND_REDSHIFT,
                 self::BACKEND_SNOWFLAKE,
                 self::BACKEND_SYNAPSE,
+                self::BACKEND_EXASOL,
             ]) && $expectedMetrics['inCompressed']) {
             $expectedMetrics['inBytesUncompressed'] = 0; // We don't know uncompressed size of file
         }
