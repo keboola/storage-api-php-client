@@ -1415,7 +1415,7 @@ class Client
         $currentUploadDir = null;
         if ($newOptions->getCompress() && !in_array(strtolower(pathinfo($filePath, PATHINFO_EXTENSION)), array("gzip", "gz", "zip"))) {
             $fs = new Filesystem();
-            $sapiClientTempDir = sys_get_temp_dir() . '/sapi-php-client';
+            $sapiClientTempDir = sys_get_temp_dir();
             if (!$fs->exists($sapiClientTempDir)) {
                 $fs->mkdir($sapiClientTempDir);
             }
@@ -1580,7 +1580,7 @@ class Client
         $fs = null;
         $currentUploadDir = null;
         $fs = new Filesystem();
-        $sapiClientTempDir = sys_get_temp_dir() . '/sapi-php-client';
+        $sapiClientTempDir = sys_get_temp_dir();
         if (!$fs->exists($sapiClientTempDir)) {
             $fs->mkdir($sapiClientTempDir);
         }
