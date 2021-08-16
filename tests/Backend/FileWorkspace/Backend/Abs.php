@@ -129,7 +129,7 @@ class Abs
     private function exportFile($prefix, $isCompressed, $columns, $isSliced)
     {
         $client = $this->getClient();
-        $workingDir = sys_get_temp_dir() . '/sapi-php-client';
+        $workingDir = sys_get_temp_dir();
         $tmpFilePath = $workingDir . '/' . uniqid('sapi-abs-workspace-', true);
         $destination = $workingDir . '/' . uniqid('sapi-abs-workspace-dest-', true) . '.csv';
         $fs = new Filesystem();
