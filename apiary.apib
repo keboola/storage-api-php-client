@@ -3110,11 +3110,15 @@ Snapshots of an alias table contain only alias settings, actual data are not sto
             }
 
 
-### List Table Snapshots [GET]
+### List Table Snapshots [GET /v2/storage/tables/{table_id}/snapshots?limit={limit}&offset={offset}]
 Retrieves a list of all snapshots of a table.
 
 + Parameters
     + table_id (required) - Id of a table
+    + limit (number, optional) - Pagination limit
+        + Default: 20
+    + offset (number, optional) - Pagination offset
+        + Default: 0
 
 + Request
     + Headers
