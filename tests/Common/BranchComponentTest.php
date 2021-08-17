@@ -301,15 +301,6 @@ class BranchComponentTest extends StorageApiTestCase
             $this->assertContains('Configuration deleted-main not found', $e->getMessage());
         }
 
-        try {
-            $branchComponents->deleteConfigurationRow($componentId, 'main-1', 'main-1-row-1');
-            $this->fail('Configuration row cannot be deleted in dev branch');
-        } catch (ClientException $e) {
-            $this->assertSame(501, $e->getCode());
-            $this->assertSame('notImplemented', $e->getStringCode());
-            $this->assertContains('Not implemented', $e->getMessage());
-        }
-
         $configFromMain = $branchComponents->getConfiguration($componentId, 'main-1');
         $this->assertSame(1, $configFromMain['version']);
 
@@ -1229,6 +1220,136 @@ class BranchComponentTest extends StorageApiTestCase
             1
         );
         $this->assertEquals($rowVersion, $versionsWithLimitAndOffset[0]);
+    }
+
+    public function testDeleteBranchConfigurationRow()
+    {
+        $providedToken = $this->_client->verifyToken();
+        $devBranch = new DevBranches($this->_client);
+        $branchName = __CLASS__ . '\\' . $this->getName() . '\\' . $providedToken['id'];
+        $this->deleteBranchesByPrefix($devBranch, $branchName);
+
+        // create new configurations in main branch
+        $componentId = 'transformation';
+        $components = new \Keboola\StorageApi\Components($this->_client);
+
+        $configurationData = ['x' => 'y'];
+        $configurationOptions = (new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId('main-1')
+            ->setName('Main 1')
+            ->setConfiguration($configurationData);
+
+        $components->addConfiguration($configurationOptions);
+        $components->addConfigurationRow(
+            (new ConfigurationRow($configurationOptions))
+                ->setName('Main 1 Row 1')
+                ->setRowId('main-1-row-1')
+        );
+
+        $mainConfig = $components->getConfiguration($componentId, 'main-1');
+        $this->assertSame(2, $mainConfig['version']);
+
+        $mainConfigRow = $components->getConfigurationRow($componentId, 'main-1', 'main-1-row-1');
+        $this->assertSame(1, $mainConfigRow['version']);
+
+        // dummy branch to highlight potentially forgotten where on branch
+        $devBranch->createBranch($branchName . '-dummy');
+
+        // create dev branch
+        $branch = $devBranch->createBranch($branchName);
+
+        $branchComponents = new \Keboola\StorageApi\Components($this->getBranchAwareDefaultClient($branch['id']));
+
+        $branchConfig = $branchComponents->getConfiguration($componentId, 'main-1');
+        $this->assertSame(1, $branchConfig['version']);
+
+        $branchConfigRow = $branchComponents->getConfigurationRow($componentId, 'main-1', 'main-1-row-1');
+        $this->assertSame(1, $branchConfigRow['version']);
+
+        $branchConfigRows = $branchComponents->listConfigurationRows((new ListConfigurationRowsOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId('main-1'));
+        $this->assertCount(1, $branchConfigRows);
+
+        $branchConfig = $branchComponents->listComponentConfigurations(
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
+        );
+        $this->assertCount(1, $branchConfig);
+
+        // delete dev branch configuration row
+        $branchComponents->deleteConfigurationRow($componentId, 'main-1', 'main-1-row-1');
+
+        // check dev branch
+        $branchConfig = $branchComponents->getConfiguration($componentId, 'main-1');
+        $this->assertSame(2, $branchConfig['version']);
+
+        try {
+            $branchComponents->getConfigurationRow($componentId, 'main-1', 'main-1-row-1');
+            $this->fail('Configuration row should be deleted in the dev branch');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+            $this->assertSame('notFound', $e->getStringCode());
+            $this->assertContains('Row main-1-row-1 not found', $e->getMessage());
+        }
+
+        $branchConfigRows = $branchComponents->listConfigurationRows((new ListConfigurationRowsOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId('main-1'));
+        $this->assertCount(0, $branchConfigRows);
+
+        // check main branch
+        $mainConfig = $components->getConfigurationRow($componentId, 'main-1', 'main-1-row-1');
+        $this->assertSame(1, $mainConfig['version']);
+
+        $mainConfigRows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId('main-1'));
+        $this->assertCount(1, $mainConfigRows);
+
+        // delete already deleted dev branch configuration row
+        try {
+            $branchComponents->deleteConfigurationRow($componentId, 'main-1', 'main-1-row-1');
+            $this->fail('Configuration row should not be deleted in the dev branch');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+            $this->assertSame('notFound', $e->getStringCode());
+            $this->assertContains('Row main-1-row-1 not found', $e->getMessage());
+        }
+
+        // create second configuration row
+        $configurationData = ['x' => 'y'];
+        $configurationOptions = (new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId('main-1')
+            ->setName('Main 1')
+            ->setConfiguration($configurationData);
+
+        $branchComponents->addConfigurationRow(
+            (new ConfigurationRow($configurationOptions))
+                ->setName('Main 1 Row 2')
+                ->setRowId('main-1-row-2')
+        );
+
+        $mainConfig = $branchComponents->getConfiguration($componentId, 'main-1');
+        $this->assertSame(3, $mainConfig['version']);
+
+        $mainConfigRow = $branchComponents->getConfigurationRow($componentId, 'main-1', 'main-1-row-2');
+        $this->assertSame(1, $mainConfigRow['version']);
+
+        // delete dev branch configuration row with change description
+        $deleteRowChangeDescription = 'Delete a row...';
+        $branchComponents->deleteConfigurationRow($componentId, 'main-1', 'main-1-row-2', $deleteRowChangeDescription);
+
+        // check dev branch
+        $branchConfig = $branchComponents->getConfiguration($componentId, 'main-1');
+        $this->assertSame(4, $branchConfig['version']);
+        $this->assertSame($deleteRowChangeDescription, $branchConfig['changeDescription']);
+
+        $branchConfigRows = $branchComponents->listConfigurationRows((new ListConfigurationRowsOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId('main-1'));
+        $this->assertCount(0, $branchConfigRows);
     }
 
     public function testComponentConfigRowVersionRollback()
