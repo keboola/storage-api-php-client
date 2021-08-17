@@ -6484,11 +6484,41 @@ Deletes a configuration row. A configuration row is deleted permanently and cann
     + config_id (required) - Id of the configuration
     + row_id (required) - Id of the configuration row
 
++ Attributes
+    + changeDescription (optional) - Version change description
+
 + Request
     + Headers
 
             X-StorageApi-Token: your_token
 
+    + Body
+
+            changeDescription=change+description
+
++ Response 204
+
+### Delete Row for Development Branch [DELETE /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}]
+Deletes a configuration row for [Development Branch](#reference/development-branches).
+A configuration row is deleted permanently and cannot be restored.
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration
+    + row_id (required) - Id of the configuration row
+
++ Attributes
+    + changeDescription (optional) - Version change description
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            changeDescription=change+description
 
 + Response 204
 
