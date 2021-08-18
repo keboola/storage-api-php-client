@@ -11,8 +11,6 @@ namespace Keboola\StorageApi\Options\Components;
 
 class Configuration
 {
-    const LATEST_PUBLISHED_VERSION = 'latestPublished';
-
     private $componentId;
 
     private $configurationId;
