@@ -5731,65 +5731,6 @@ and the configuration becomes available for other API calls.
             }
 
 
-## Publishing [/v2/storage/components/{component_id}/configs/{config_id}/publish]
-A configuration can be in the `published` or `draft` mode. The
-[configuration detail API call](#reference/components-and-configurations/manage-configurations/config-detail) returns
-the latest version of a configuration. The latest published version can be retrieved by the
-[Configuration version API call](#reference/components-and-configurations/manage-configurations-versions/version-detail) with
-the version `latestPublished`.
-
-### Publish Configuration [POST]
-Marks the latest version of a configuration as published.
-
-+ Parameters
-    + component_id (required) - Component Id
-    + config_id (required) - Configuration Id
-
-+ Attributes
-    + description (required) - Version description
-
-+ Request (application/x-www-form-urlencoded)
-    + Headers
-
-            X-StorageApi-Token: your_token
-
-    + Body
-
-            description=publishing+configuration
-
-+ Response 200 (application/json)
-
-            {
-                "id": "236606822",
-                "name": "My new configuration",
-                "description": "",
-                "created": "2017-02-14T14:38:26+0100",
-                "creatorToken": {
-                    "id": 27978,
-                    "description": "ondrej.popelka@keboola.com"
-                },
-                "version": 4,
-                "changeDescription": "Configuration restored",
-                "isDeleted": false,
-                "published": {
-                    "date": "2017-02-14T23:15:52+0100",
-                    "description": "publishing configuration",
-                    "token": {
-                        "id": 27978,
-                        "description": "ondrej.popelka@keboola.com"
-                    }
-                },
-                "currentVersion": {
-                    "created": "2017-02-14T15:48:39+0100",
-                    "creatorToken": {
-                        "id": 27978,
-                        "description": "ondrej.popelka@keboola.com"
-                    },
-                    "changeDescription": "Configuration restored"
-                }
-            }
-
-
 ## List Configuration Versions [/v2/storage/components/{component_id}/configs/{config_id}/versions]
 ### Versions list [GET /v2/storage/components/{component_id}/configs/{config_id}/versions?include={include}&limit={limit}&offset={offset}]
 Lists all versions of a component configuration.
@@ -5892,7 +5833,7 @@ Gets configuration version.
 + Parameters
     + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
     + config_id (required) - Id of the configuration
-    + version_id (required, string) - Version number or `latestPublished` to retrieve the latest published version
+    + version_id (required, string) - Version number
 
 + Request
     + Headers
@@ -5926,7 +5867,7 @@ Gets configuration version for [Development Branch](#reference/development-branc
     + branch_id (required) - Id of the development branch
     + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
     + config_id (required) - Id of the configuration
-    + version_id (required, string) - Version number or `latestPublished` to retrieve the latest published version
+    + version_id (required, string) - Version number
 
 + Request
     + Headers
