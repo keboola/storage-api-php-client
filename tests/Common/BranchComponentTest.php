@@ -1085,6 +1085,115 @@ class BranchComponentTest extends StorageApiTestCase
         }
     }
 
+    public function testRestoreBranchConfiguration()
+    {
+        $providedToken = $this->_client->verifyToken();
+        $devBranch = new DevBranches($this->_client);
+        $branchName = __CLASS__ . '\\' . $this->getName() . '\\' . $providedToken['id'];
+        $this->deleteBranchesByPrefix($devBranch, $branchName);
+
+        // create new configurations in main branch
+        $componentId = 'transformation';
+        $components = new Components($this->_client);
+
+        $configurationOptions = (new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId('main-1')
+            ->setName('Main 1')
+            ->setConfiguration(['x' => 'y']);
+        $components->addConfiguration($configurationOptions);
+        $components->addConfigurationRow(
+            (new ConfigurationRow($configurationOptions))
+                ->setName('Main 1 Row 1')
+                ->setRowId('main-1-row-1')
+        );
+
+        // dummy branch to highlight potentially forgotten where on branch
+        $devBranch->createBranch($branchName . '-dummy');
+
+        // create dev branch
+        $branch = $devBranch->createBranch($branchName);
+
+        $branchComponents = new Components($this->getBranchAwareDefaultClient($branch['id']));
+
+        $rows = $branchComponents->listConfigurationRows((new ListConfigurationRowsOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId('main-1'));
+        $this->assertCount(1, $rows);
+
+        $configurations = $branchComponents->listComponentConfigurations(
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
+        );
+        $this->assertCount(1, $configurations);
+
+        // delete dev branch configuration
+        $branchComponents->deleteConfiguration($componentId, 'main-1');
+
+        $listConfigurationOptions = (new ListComponentConfigurationsOptions())->setComponentId($componentId);
+        $configurations = $branchComponents->listComponentConfigurations($listConfigurationOptions);
+        $this->assertCount(0, $configurations);
+
+        $listConfigurationOptions->setIsDeleted(true);
+        $configurations = $branchComponents->listComponentConfigurations($listConfigurationOptions);
+        $this->assertCount(1, $configurations);
+
+        // restore dev branch configuration
+        $branchComponents->restoreComponentConfiguration($componentId, 'main-1');
+
+        $listConfigurationOptions = (new ListComponentConfigurationsOptions())->setComponentId($componentId);
+        $configurations = $branchComponents->listComponentConfigurations($listConfigurationOptions);
+        $this->assertCount(1, $configurations);
+
+        $listConfigurationOptions->setIsDeleted(true);
+        $configurations = $branchComponents->listComponentConfigurations($listConfigurationOptions);
+        $this->assertCount(0, $configurations);
+
+        // try to restore again
+        try {
+            $branchComponents->restoreComponentConfiguration($componentId, 'main-1');
+            $this->fail('Configuration should not be restored again in the dev branch');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+            $this->assertSame('notFound', $e->getStringCode());
+            $this->assertContains('Deleted configuration main-1 not found', $e->getMessage());
+        }
+
+        // delete dev branch configuration
+        $branchComponents->deleteConfiguration($componentId, 'main-1');
+
+        $listConfigurationOptions = (new ListComponentConfigurationsOptions())->setComponentId($componentId);
+        $configurations = $branchComponents->listComponentConfigurations($listConfigurationOptions);
+        $this->assertCount(0, $configurations);
+
+        $listConfigurationOptions->setIsDeleted(true);
+        $configurations = $branchComponents->listComponentConfigurations($listConfigurationOptions);
+        $this->assertCount(1, $configurations);
+
+        // restore dev branch configuration with create same configuration id
+        $configurationOptions = (new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId('main-1')
+            ->setName('Main 1 restored')
+            ->setConfiguration(['a' => 'b'])
+            ->setChangeDescription('Config restored...');
+        $branchComponents->addConfiguration($configurationOptions);
+
+        $listConfigurationOptions = (new ListComponentConfigurationsOptions())->setComponentId($componentId);
+        $configurations = $branchComponents->listComponentConfigurations($listConfigurationOptions);
+        $this->assertCount(1, $configurations);
+
+        $listConfigurationOptions->setIsDeleted(true);
+        $configurations = $branchComponents->listComponentConfigurations($listConfigurationOptions);
+        $this->assertCount(0, $configurations);
+
+        $configuration = $branchComponents->getConfiguration($componentId, 'main-1');
+        $this->assertSame('main-1', $configuration['id']);
+        $this->assertSame('Main 1 restored', $configuration['name']);
+        $this->assertSame(['a' => 'b'], $configuration['configuration']);
+        $this->assertSame('Config restored...', $configuration['changeDescription']);
+        $this->assertSame(5, $configuration['version']);
+    }
+
     public function testComponentConfigRowUpdateNoNewVersionIsCreatedIfNothingChanged()
     {
         $providedToken = $this->_client->verifyToken();
