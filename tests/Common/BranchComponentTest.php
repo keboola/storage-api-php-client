@@ -5,12 +5,16 @@ namespace Keboola\Test\Common;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\DevBranches;
+use Keboola\StorageApi\Event;
+use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ConfigurationRowState;
+use Keboola\StorageApi\Options\Components\ConfigurationState;
 use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions;
+use Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions;
 use Keboola\Test\StorageApiTestCase;
 
 class BranchComponentTest extends StorageApiTestCase
@@ -19,7 +23,7 @@ class BranchComponentTest extends StorageApiTestCase
     {
         parent::setUp();
 
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new Components($this->_client);
         foreach ($components->listComponents() as $component) {
             foreach ($component['configurations'] as $configuration) {
                 $components->deleteConfiguration($component['id'], $configuration['id']);
@@ -37,15 +41,15 @@ class BranchComponentTest extends StorageApiTestCase
     public function testResetToDefault()
     {
         $providedToken = $this->_client->verifyToken();
-        $devBranchClient = new DevBranches($this->_client);
+        $devBranchClient = new \Keboola\StorageApi\DevBranches($this->_client);
         $branchName = __CLASS__ . '\\' . $this->getName() . '\\' . $providedToken['id'];
         $branch = $this->deleteBranchesByPrefix($devBranchClient, $branchName);
 
         // create new configurations in main branch
         $componentId = 'transformation';
         $configurationId = 'main-1';
-        $components = new \Keboola\StorageApi\Components($this->_client);
-        $configurationOptions = (new \Keboola\StorageApi\Options\Components\Configuration())
+        $components = new Components($this->_client);
+        $configurationOptions = (new Configuration())
             ->setComponentId($componentId)
             ->setConfigurationId($configurationId)
             ->setName('Main 1')
@@ -112,7 +116,7 @@ class BranchComponentTest extends StorageApiTestCase
         );
 
         $configurationVersionsInBranch = $branchComponents->listConfigurationVersions(
-            (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
+            (new ListConfigurationVersionsOptions())
                 ->setComponentId($componentId)
                 ->setConfigurationId($configurationId)
         );
@@ -153,7 +157,7 @@ class BranchComponentTest extends StorageApiTestCase
         );
 
         $resetConfigurationVersionsInBranch = $branchComponents->listConfigurationVersions(
-            (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
+            (new ListConfigurationVersionsOptions())
                 ->setComponentId($componentId)
                 ->setConfigurationId($configurationId)
         );
@@ -247,9 +251,9 @@ class BranchComponentTest extends StorageApiTestCase
 
         // create new configurations in main branch
         $componentId = 'transformation';
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new Components($this->_client);
         $configurationData = ['x' => 'y'];
-        $configurationOptions = (new \Keboola\StorageApi\Options\Components\Configuration())
+        $configurationOptions = (new Configuration())
             ->setComponentId($componentId)
             ->setConfigurationId('main-1')
             ->setName('Main 1')
@@ -262,7 +266,7 @@ class BranchComponentTest extends StorageApiTestCase
                 ->setRowId('main-1-row-1')
         );
 
-        $deletedConfigurationOptions = (new \Keboola\StorageApi\Options\Components\Configuration())
+        $deletedConfigurationOptions = (new Configuration())
             ->setComponentId($componentId)
             ->setConfigurationId('deleted-main')
             ->setName('Deleted Main');
@@ -290,7 +294,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         $branch = $devBranch->createBranch($branchName);
 
-        $branchComponents = new \Keboola\StorageApi\Components($this->getBranchAwareDefaultClient($branch['id']));
+        $branchComponents = new Components($this->getBranchAwareDefaultClient($branch['id']));
 
         try {
             $branchComponents->getConfiguration($componentId, 'deleted-main');
@@ -306,7 +310,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         // test is version created for devBranch configuration after create branch
         $configurationVersions = $branchComponents->listConfigurationVersions(
-            (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
+            (new ListConfigurationVersionsOptions())
                 ->setComponentId($componentId)
                 ->setConfigurationId('main-1')
         );
@@ -370,7 +374,7 @@ class BranchComponentTest extends StorageApiTestCase
         // There is only the one configuration that was copied from production
         $this->assertCount(1, $branchConfigs);
 
-        $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
+        $components->addConfiguration((new Configuration())
             ->setComponentId($componentId)
             ->setConfigurationId('main-2')
             ->setName('Main 2'));
@@ -458,7 +462,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         // test is version created for devBranch after add new config row
         $configurationVersions = $branchComponents->listConfigurationVersions(
-            (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
+            (new ListConfigurationVersionsOptions())
                 ->setComponentId($componentId)
                 ->setConfigurationId('main-1')
         );
@@ -526,7 +530,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         // test is version created for devBranch after add new config row with custom change description
         $configurationVersions = $branchComponents->listConfigurationVersions(
-            (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
+            (new ListConfigurationVersionsOptions())
                 ->setComponentId($componentId)
                 ->setConfigurationId('main-1')
         );
@@ -588,7 +592,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         // test is version created for devBranch after update config row with custom change description
         $configurationVersions = $branchComponents->listConfigurationVersions(
-            (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
+            (new ListConfigurationVersionsOptions())
                 ->setComponentId('transformation')
                 ->setConfigurationId('main-1')
         );
@@ -631,7 +635,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         // test is version created for devBranch after add new config row with custom change description
         $configurationVersions = $branchComponents->listConfigurationVersions(
-            (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
+            (new ListConfigurationVersionsOptions())
                 ->setComponentId('transformation')
                 ->setConfigurationId('main-1')
         );
@@ -707,7 +711,7 @@ class BranchComponentTest extends StorageApiTestCase
         }
 
         //create
-        $config = (new \Keboola\StorageApi\Options\Components\Configuration())
+        $config = (new Configuration())
             ->setComponentId('transformation')
             ->setConfigurationId('dev-branch-1')
             ->setName('Dev Branch 1')
@@ -734,7 +738,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         // test create new config create new version for configuration
         $configurationVersions = $branchComponents->listConfigurationVersions(
-            (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
+            (new ListConfigurationVersionsOptions())
                 ->setComponentId($componentId)
                 ->setConfigurationId('dev-branch-1')
         );
@@ -795,7 +799,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         // test is version created for devBranch after update configuration
         $configurationVersions = $branchComponents->listConfigurationVersions(
-            (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
+            (new ListConfigurationVersionsOptions())
                 ->setComponentId($config->getComponentId())
                 ->setConfigurationId($config->getConfigurationId())
         );
@@ -811,7 +815,7 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertSame($configurationData, $configurationVersion['configuration']);
         $this->assertSame('Configuration updated', $configurationVersion['changeDescription']);
 
-        $config = (new \Keboola\StorageApi\Options\Components\Configuration())
+        $config = (new Configuration())
             ->setComponentId('transformation')
             ->setConfigurationId('dev-branch-1')
             ->setDescription('neco')
@@ -842,7 +846,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         // test is version created for devBranch after config update with custom change description
         $configurationVersions = $branchComponents->listConfigurationVersions(
-            (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
+            (new ListConfigurationVersionsOptions())
                 ->setComponentId('transformation')
                 ->setConfigurationId('dev-branch-1')
         );
@@ -862,7 +866,7 @@ class BranchComponentTest extends StorageApiTestCase
             'cache' => false,
         ];
 
-        $configState = (new \Keboola\StorageApi\Options\Components\ConfigurationState())
+        $configState = (new ConfigurationState())
             ->setComponentId('transformation')
             ->setConfigurationId('dev-branch-1')
             ->setState($state)
@@ -875,7 +879,7 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertEquals($state, $configuration['state']);
         $this->assertEquals(4, $configuration['version']); // update state shouldn't change version
 
-        $config = (new \Keboola\StorageApi\Options\Components\Configuration())
+        $config = (new Configuration())
             ->setComponentId('transformation')
             ->setConfigurationId('dev-branch-1')
             ->setDescription('');
@@ -889,7 +893,7 @@ class BranchComponentTest extends StorageApiTestCase
         $configs = $branchComponents->listComponents();
         $this->assertCount(1, $configs);
 
-        $branchComponents->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
+        $branchComponents->addConfiguration((new Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('branch-1')
             ->setChangeDescription('create custom desc')
@@ -906,7 +910,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         // test is version created for devBranch configuration after create new config
         $configurationVersions = $branchComponents->listConfigurationVersions(
-            (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
+            (new ListConfigurationVersionsOptions())
                 ->setComponentId('wr-db')
                 ->setConfigurationId('branch-1')
         );
@@ -924,12 +928,12 @@ class BranchComponentTest extends StorageApiTestCase
             $configurationVersion['changeDescription']
         );
 
-        $branchComponents->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
+        $branchComponents->addConfiguration((new Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('branch-2')
             ->setConfiguration(array('x' => 'y'))
             ->setName('Dev branch'));
-        $branchComponents->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
+        $branchComponents->addConfiguration((new Configuration())
             ->setComponentId('provisioning')
             ->setConfigurationId('branch-1')
             ->setName('Dev Branch'));
@@ -960,7 +964,7 @@ class BranchComponentTest extends StorageApiTestCase
         // restrict state change on configuration update
         $configuration = $branchComponents->getConfiguration($config->getComponentId(), $config->getConfigurationId());
 
-        $config = (new \Keboola\StorageApi\Options\Components\Configuration())
+        $config = (new Configuration())
             ->setComponentId('transformation')
             ->setConfigurationId('dev-branch-1')
             ->setChangeDescription('updated state')
@@ -995,10 +999,10 @@ class BranchComponentTest extends StorageApiTestCase
 
         // create new configurations in main branch
         $componentId = 'transformation';
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new Components($this->_client);
 
         $configurationData = ['x' => 'y'];
-        $configurationOptions = (new \Keboola\StorageApi\Options\Components\Configuration())
+        $configurationOptions = (new Configuration())
             ->setComponentId($componentId)
             ->setConfigurationId('main-1')
             ->setName('Main 1')
@@ -1017,7 +1021,7 @@ class BranchComponentTest extends StorageApiTestCase
         // create dev branch
         $branch = $devBranch->createBranch($branchName);
 
-        $branchComponents = new \Keboola\StorageApi\Components($this->getBranchAwareDefaultClient($branch['id']));
+        $branchComponents = new Components($this->getBranchAwareDefaultClient($branch['id']));
 
         $rows = $branchComponents->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId($componentId)
@@ -1027,7 +1031,6 @@ class BranchComponentTest extends StorageApiTestCase
         $configurations = $branchComponents->listComponentConfigurations(
             (new ListComponentConfigurationsOptions())->setComponentId($componentId)
         );
-
         $this->assertCount(1, $configurations);
 
         // delete dev branch configuration
@@ -1090,9 +1093,9 @@ class BranchComponentTest extends StorageApiTestCase
         $this->deleteBranchesByPrefix($devBranch, $branchName);
         $branch = $devBranch->createBranch($branchName);
 
-        $componentsApi = new \Keboola\StorageApi\Components($this->getBranchAwareDefaultClient($branch['id']));
+        $componentsApi = new Components($this->getBranchAwareDefaultClient($branch['id']));
 
-        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration = new Configuration();
         $configuration
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
@@ -1101,7 +1104,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         $componentsApi->addConfiguration($configuration);
 
-        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRow = new ConfigurationRow($configuration);
         $configurationRow->setRowId('main-1-1');
         $componentsApi->addConfigurationRow($configurationRow);
 
@@ -1126,9 +1129,9 @@ class BranchComponentTest extends StorageApiTestCase
         $this->deleteBranchesByPrefix($devBranch, $branchName);
         $branch = $devBranch->createBranch($branchName);
 
-        $componentsApi = new \Keboola\StorageApi\Components($this->getBranchAwareDefaultClient($branch['id']));
+        $componentsApi = new Components($this->getBranchAwareDefaultClient($branch['id']));
 
-        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration = new Configuration();
         $configuration
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
@@ -1136,7 +1139,7 @@ class BranchComponentTest extends StorageApiTestCase
             ->setDescription('some desc');
         $componentsApi->addConfiguration($configuration);
 
-        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRow = new ConfigurationRow($configuration);
         $configurationRow->setRowId('main-1-1');
         $row1 = $componentsApi->addConfigurationRow($configurationRow);
 
@@ -1154,7 +1157,7 @@ class BranchComponentTest extends StorageApiTestCase
         $row2 = $componentsApi->updateConfigurationRow($configurationRow);
 
         $versions = $componentsApi->listConfigurationRowVersions(
-            (new \Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions())
+            (new ListConfigurationRowVersionsOptions())
                 ->setComponentId('wr-db')
                 ->setConfigurationId('main-1')
                 ->setRowId($configurationRow->getRowId())
@@ -1171,7 +1174,7 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertArrayEqualsIgnoreKeys($row1, $versions[1], $exceptKeys);
 
         $versionsWithConfiguration = $componentsApi->listConfigurationRowVersions(
-            (new \Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions())
+            (new ListConfigurationRowVersionsOptions())
                 ->setComponentId('wr-db')
                 ->setConfigurationId('main-1')
                 ->setRowId($configurationRow->getRowId())
@@ -1202,7 +1205,7 @@ class BranchComponentTest extends StorageApiTestCase
         }
 
         $versionsWithLimitAndOffset = $componentsApi->listConfigurationRowVersions(
-            (new \Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions())
+            (new ListConfigurationRowVersionsOptions())
                 ->setComponentId('wr-db')
                 ->setConfigurationId('main-1')
                 ->setRowId($configurationRow->getRowId())
@@ -1231,10 +1234,10 @@ class BranchComponentTest extends StorageApiTestCase
 
         // create new configurations in main branch
         $componentId = 'transformation';
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new Components($this->_client);
 
         $configurationData = ['x' => 'y'];
-        $configurationOptions = (new \Keboola\StorageApi\Options\Components\Configuration())
+        $configurationOptions = (new Configuration())
             ->setComponentId($componentId)
             ->setConfigurationId('main-1')
             ->setName('Main 1')
@@ -1259,7 +1262,7 @@ class BranchComponentTest extends StorageApiTestCase
         // create dev branch
         $branch = $devBranch->createBranch($branchName);
 
-        $branchComponents = new \Keboola\StorageApi\Components($this->getBranchAwareDefaultClient($branch['id']));
+        $branchComponents = new Components($this->getBranchAwareDefaultClient($branch['id']));
 
         $branchConfig = $branchComponents->getConfiguration($componentId, 'main-1');
         $this->assertSame(1, $branchConfig['version']);
@@ -1319,7 +1322,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         // create second configuration row
         $configurationData = ['x' => 'y'];
-        $configurationOptions = (new \Keboola\StorageApi\Options\Components\Configuration())
+        $configurationOptions = (new Configuration())
             ->setComponentId($componentId)
             ->setConfigurationId('main-1')
             ->setName('Main 1')
@@ -1360,9 +1363,9 @@ class BranchComponentTest extends StorageApiTestCase
         $this->deleteBranchesByPrefix($devBranch, $branchName);
         $branch = $devBranch->createBranch($branchName);
 
-        $componentsApi = new \Keboola\StorageApi\Components($this->getBranchAwareDefaultClient($branch['id']));
+        $componentsApi = new Components($this->getBranchAwareDefaultClient($branch['id']));
 
-        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration = new Configuration();
         $configuration
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
@@ -1370,7 +1373,7 @@ class BranchComponentTest extends StorageApiTestCase
             ->setDescription('some desc');
         $componentsApi->addConfiguration($configuration);
 
-        $configurationRowV1 = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRowV1 = new ConfigurationRow($configuration);
         $configurationRowV1->setRowId('main-1-1');
         $configurationRowV1->setConfiguration([
             'my-value' => 666,
@@ -1448,7 +1451,7 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertEquals('Custom rollback message', $configuration['changeDescription'], 'Rollback creates automatic description');
 
         $versions = $componentsApi->listConfigurationRowVersions(
-            (new \Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions())
+            (new ListConfigurationRowVersionsOptions())
                 ->setComponentId('wr-db')
                 ->setConfigurationId('main-1')
                 ->setRowId($configurationRowV1->getRowId())
@@ -1468,10 +1471,10 @@ class BranchComponentTest extends StorageApiTestCase
         $this->deleteBranchesByPrefix($devBranch, $branchName);
         $branch = $devBranch->createBranch($branchName);
 
-        $componentsApi = new \Keboola\StorageApi\Components($this->getBranchAwareDefaultClient($branch['id']));
+        $componentsApi = new Components($this->getBranchAwareDefaultClient($branch['id']));
 
         // config version 1
-        $config = (new \Keboola\StorageApi\Options\Components\Configuration())
+        $config = (new Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
             ->setName("name")
@@ -1479,11 +1482,11 @@ class BranchComponentTest extends StorageApiTestCase
         $componentsApi->addConfiguration($config);
 
         // config version 2, row version 1
-        $rowConfig = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config);
+        $rowConfig = new ConfigurationRow($config);
         $createdRow = $componentsApi->addConfigurationRow($rowConfig);
 
         // config version 3, row version 2
-        $rowConfig = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config);
+        $rowConfig = new ConfigurationRow($config);
         $rowConfig->setRowId($createdRow["id"]);
         $rowConfig->setName("name");
         $rowConfig->setDescription("description");
@@ -1513,23 +1516,23 @@ class BranchComponentTest extends StorageApiTestCase
         $this->deleteBranchesByPrefix($devBranch, $branchName);
         $branch = $devBranch->createBranch($branchName);
 
-        $componentsApi = new \Keboola\StorageApi\Components($this->getBranchAwareDefaultClient($branch['id']));
+        $componentsApi = new Components($this->getBranchAwareDefaultClient($branch['id']));
 
-        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration = new Configuration();
         $configuration
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
             ->setName('Main');
         $componentsApi->addConfiguration($configuration);
 
-        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRow = new ConfigurationRow($configuration);
         $configurationRow->setRowId('main-1-1');
         $configurationRow->setConfiguration([
             'my-value' => 666,
         ]);
         $componentsApi->addConfigurationRow($configurationRow);
 
-        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRow = new ConfigurationRow($configuration);
         $configurationRow->setRowId('main-1-2');
         $configurationRow->setConfiguration([
             'my-value' => 666,
@@ -1540,7 +1543,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         $this->assertEquals(3, $componentConfiguration['version']);
 
-        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration = new Configuration();
         $configuration
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
@@ -1552,7 +1555,7 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertEquals(4, $componentConfiguration['version']);
 
         // calling the update once again without any change, the version should remain
-        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration = new Configuration();
         $configuration
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
@@ -1572,10 +1575,10 @@ class BranchComponentTest extends StorageApiTestCase
         $this->deleteBranchesByPrefix($devBranch, $branchName);
         $branch = $devBranch->createBranch($branchName);
         $branchClient = $this->getBranchAwareDefaultClient($branch['id']);
-        $componentsApi = new \Keboola\StorageApi\Components($branchClient);
+        $componentsApi = new Components($branchClient);
 
         // create configuration
-        $configuration = (new \Keboola\StorageApi\Options\Components\Configuration())
+        $configuration = (new Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
             ->setConfiguration(['a' => 'b'])
@@ -1583,19 +1586,19 @@ class BranchComponentTest extends StorageApiTestCase
         $configurationV1 = $componentsApi->addConfiguration($configuration);
 
         // add first row - conf V2
-        $configurationRowOptions = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRowOptions = new ConfigurationRow($configuration);
         $configurationRowOptions->setConfiguration(['first' => 1]);
         $configurationRowV1 = $componentsApi->addConfigurationRow($configurationRowOptions);
 
         $configurationV2 = $componentsApi->getConfiguration('wr-db', $configurationV1['id']);
 
         // add another row  - conf V3
-        $configurationRowOptions = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRowOptions = new ConfigurationRow($configuration);
         $configurationRowOptions->setConfiguration(['second' => 1]);
         $configurationRowV2 = $componentsApi->addConfigurationRow($configurationRowOptions);
 
         // update first row - conf V4
-        $configurationRowOptions = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRowOptions = new ConfigurationRow($configuration);
         $configurationRowOptions->setConfiguration(['first' => 22])->setRowId($configurationRowV1['id']);
         $configurationRowV3 = $componentsApi->updateConfigurationRow($configurationRowOptions);
 
@@ -1609,7 +1612,7 @@ class BranchComponentTest extends StorageApiTestCase
         // rollback to version 2 - conf V6
         // second row should be missing, and first row should be rolled back to first version
         $componentsApi->rollbackConfiguration('wr-db', $configurationV1['id'], 2);
-        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
+        $this->createAndWaitForEvent((new Event())->setComponent('dummy')->setMessage('dummy'));
         $events = $branchClient->listEvents([
             'component' => 'storage',
             'q' => 'storage.componentConfigurationRolledBack',
@@ -1646,7 +1649,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         // rollback to version 5 - conf V7
         $componentsApi->rollbackConfiguration('wr-db', $configurationV1['id'], 5, 'custom description');
-        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
+        $this->createAndWaitForEvent((new Event())->setComponent('dummy')->setMessage('dummy'));
         $events = $branchClient->listEvents([
             'component' => 'storage',
             'q' => 'storage.componentConfigurationRolledBack',
