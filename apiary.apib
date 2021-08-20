@@ -2614,7 +2614,7 @@ attributes and information about the containing bucket.
 ### Add Column to Table [POST]
 Adds a new column to an existing table. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 
-*This endpoint is not available for Synapse typed tables created via [table definition](#reference/tables/create-table-definition)*
+*This endpoint is not available for typed tables created via [table definition](#reference/tables/create-table-definition)* with Synapse or Exasol backend
 
 + Parameters
     + table_id (required) - Table Id
@@ -2657,7 +2657,7 @@ Adds a new column to an existing table. This request is [asynchronous](#introduc
 Deletes an existing column from an existing table. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 Use the optional `force` parameter to delete the column from table aliases too.
 
-*This endpoint is not available for Synapse typed tables created via [table definition](#reference/tables/create-table-definition)*
+*This endpoint is not available for typed tables created via [table definition](#reference/tables/create-table-definition)* with Synapse or Exasol backend
 
 + Parameters
     + table_id (required) - Table Id
@@ -2698,8 +2698,7 @@ Use the optional `force` parameter to delete the column from table aliases too.
 If a primary key is set, updates can be done on the table. A primary key can be composed of multiple columns.
 This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 
-*This endpoint is not available for Synapse typed tables created via [table definition](#reference/tables/create-table-definition)*
-
+*This endpoint is not available for typed tables created via [table definition](#reference/tables/create-table-definition)* with Synapse or Exasol backend
 + Parameters
     + table_id (required) - Table Id
 
@@ -2741,7 +2740,7 @@ This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls)
 ### Remove Primary Key [DELETE]
 Removes the primary key from a table. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 
-*This endpoint is not available for Synapse typed tables created via [table definition](#reference/tables/create-table-definition)*
+*This endpoint is not available for typed tables created via [table definition](#reference/tables/create-table-definition)* with Synapse or Exasol backend
 
 + Parameters
     + table_id (required) - Table Id
