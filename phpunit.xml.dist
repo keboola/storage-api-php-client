@@ -189,6 +189,7 @@
 		<file>tests/Backend/CommonPart1/TableExporterTest.php</file>
 		<file>tests/Backend/CommonPart1/DeleteRowsTest.php</file>
 		<file>tests/Backend/CommonPart1/AlterTableTest.php</file>
+		<file>tests/Backend/CommonPart1/ExportParamsTest.php</file>
 		<file>tests/Backend/CommonPart2/UploadSlicedFileTest.php</file>
 		<file>tests/Backend/CommonPart2/MetricsTest.php</file>
 		<file>tests/Backend/CommonPart2/SnapshottingTest.php</file>
@@ -201,6 +202,7 @@
 		<file>tests/Backend/Workspaces/LegacyWorkspacesExasolTest.php</file>
 		<file>tests/Backend/Workspaces/MetadataFromExasolWorkspaceTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesExasolTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
 		<!--Exasol override-->
 		<directory>tests/Backend/Exasol</directory>
 	</testsuite>
