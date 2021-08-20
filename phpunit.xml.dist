@@ -193,6 +193,7 @@
 		<file>tests/Backend/CommonPart2/MetricsTest.php</file>
 		<file>tests/Backend/CommonPart2/SnapshottingTest.php</file>
 		<file>tests/Backend/CommonPart2/SimpleAliasTest.php</file>
+		<file>tests/Backend/CommonPart2/CreateTableTest.php</file>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
 		<!--WORKSPACE-->
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
