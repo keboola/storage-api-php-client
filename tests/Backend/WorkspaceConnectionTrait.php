@@ -4,6 +4,7 @@ namespace Keboola\Test\Backend;
 
 use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\TableBackendUtils\Connection\Exasol\ExasolConnection;
+use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
 use Keboola\Test\StorageApiTestCase;
 
 trait WorkspaceConnectionTrait
@@ -59,6 +60,10 @@ trait WorkspaceConnectionTrait
                     $connection['password']
                 );
                 $db->connect();
+                    $db->executeStatement(sprintf(
+                        'OPEN SCHEMA %s',
+                        ExasolQuote::quoteSingleIdentifier($connection['schema'])
+                    ));
 
                 return $db;
         }

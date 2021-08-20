@@ -180,6 +180,13 @@
 	<testsuite name="backend-exasol">
 		<directory>tests/Backend/Exasol</directory>
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
+		<file>tests/Backend/Workspaces/ExasolWorkspacesUnloadTest.php</file>
+		<file>tests/Backend/Workspaces/LegacyWorkspacesExasolTest.php</file>
+		<file>tests/Backend/Workspaces/MetadataFromExasolWorkspaceTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesExasolTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
+		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>
 		<file>tests/Backend/CommonPart1/BucketsTest.php</file>
 		<file>tests/Backend/CommonPart1/DataPreviewLimitsTest.php</file>
 		<file>tests/Backend/CommonPart1/DeleteTableTest.php</file>

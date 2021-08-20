@@ -12,7 +12,7 @@ class SnowflakeWorkspaceBackend implements WorkspaceBackend
     private $db;
 
     private $schema;
-    
+
     public function __construct($workspace)
     {
         $this->db = $this->getDbConnection($workspace['connection']);
