@@ -21,7 +21,11 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
     public function testTableCloneCaseSensitiveThrowsUserError()
     {
         $tokenData = $this->_client->verifyToken();
-        if (in_array($tokenData['owner']['defaultBackend'], [self::BACKEND_REDSHIFT, self::BACKEND_SYNAPSE])) {
+        if (in_array($tokenData['owner']['defaultBackend'], [
+            self::BACKEND_REDSHIFT,
+            self::BACKEND_SYNAPSE,
+            self::BACKEND_EXASOL,
+        ], true)) {
             $this->markTestSkipped("Test case-sensitivity columns name only for snowflake");
         }
 
@@ -254,7 +258,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         )), 'previously null column updated');
 
         $db->query("truncate table \"test_Languages3\"");
-        $db->query("alter table \"test_Languages3\" ADD COLUMN \"new_col\" varchar");
+        $db->query("alter table \"test_Languages3\" ADD COLUMN \"new_col\" varchar(10)");
         $db->query("insert into \"test_Languages3\" values (1, 'cz', '1', null), (3, 'sk', '1', 'newValue');");
 
         $this->_client->writeTableAsyncDirect($table['id'], array(
