@@ -2,6 +2,8 @@
 
 namespace Keboola\Test\Backend\Workspaces\Backend;
 
+use Keboola\Test\StorageApiTestCase;
+
 /**
  * Convert types in input mappings for synapse
  * Actually this class now exists only because
@@ -16,7 +18,10 @@ final class InputMappingConverter
      */
     public static function convertInputColumnsTypesForBackend($backendType, $input)
     {
-        if ($backendType !== 'synapse') {
+        if (!in_array($backendType, [
+            StorageApiTestCase::BACKEND_SYNAPSE,
+            StorageApiTestCase::BACKEND_EXASOL,
+        ], true)) {
             return $input;
         }
         if (empty($input['input'])) {
@@ -24,49 +29,76 @@ final class InputMappingConverter
         }
 
         if (array_key_exists('columns', $input['input'])) {
-            $input['input'] = self::convertColumnsDefinition($input['input']);
+            $input['input'] = self::convertColumnsDefinition($input['input'], $backendType);
         } else {
-            $input['input'] = array_map(static function ($input) {
-                return self::convertColumnsDefinition($input);
+            $input['input'] = array_map(static function ($input) use ($backendType) {
+                return self::convertColumnsDefinition($input, $backendType);
             }, $input['input']);
         }
 
         return $input;
     }
 
-    private static function convertColumnsDefinition(array $input)
+    private static function convertColumnsDefinition(array $input, $backendType)
     {
         if (!array_key_exists('columns', $input)) {
             return $input;
         }
 
-        $convert = static function ($column) {
-            $column['type'] = self::convertType($column['type']);
-            return $column;
+        $convert = static function ($column, $backendType) {
+            return self::convertColumn($column, $backendType);
         };
 
         if (!empty($input['columns'])) {
             // columns are in tests also invalid with assoc arr
             $isIndexed = array_values($input['columns']) === $input['columns'];
             if ($isIndexed === true) {
-                $input['columns'] = array_map($convert, $input['columns']);
+                $input['columns'] = array_map(
+                    function ($column) use ($convert, $backendType) {
+                        return $convert($column, $backendType);
+                    },
+                    $input['columns']
+                );
             } else {
-                $input['columns'] = $convert($input['columns']);
+                $input['columns'] = $convert($input['columns'], $backendType);
             }
         }
         return $input;
     }
 
-    public static function convertType($type)
+    public static function convertColumn($column, $backendType)
     {
-        switch (strtolower($type)) {
-            case 'integer':
-                return 'int';
-                break;
-            case 'character':
-                return 'char';
-                break;
+        if ($backendType === StorageApiTestCase::BACKEND_SYNAPSE) {
+            switch (strtolower($column['type'])) {
+                case 'integer':
+                    $column['type'] = 'int';
+                    break;
+                case 'character':
+                    $column['type'] = 'char';
+                    break;
+            }
         }
-        return $type;
+
+        if ($backendType === StorageApiTestCase::BACKEND_EXASOL) {
+            switch (strtolower($column['type'])) {
+                case 'integer':
+                    $column['type'] = 'DECIMAL';
+                    $column['length'] = '3,0';
+                    break;
+                case 'varchar':
+                    if (!array_key_exists('length', $column)) {
+                        $column['length'] = '2000000';
+                    }
+                    break;
+                case 'character':
+                    $column['type'] = 'char';
+                    if (!array_key_exists('length', $column)) {
+                        $column['length'] = '2000';
+                    }
+                    break;
+            }
+        }
+
+        return $column;
     }
 }
