@@ -188,9 +188,11 @@
 		<file>tests/Backend/CommonPart1/LegacyIndexedColumnsTest.php</file>
 		<file>tests/Backend/CommonPart1/TableExporterTest.php</file>
 		<file>tests/Backend/CommonPart1/DeleteRowsTest.php</file>
+		<file>tests/Backend/CommonPart1/AlterTableTest.php</file>
 		<file>tests/Backend/CommonPart2/UploadSlicedFileTest.php</file>
 		<file>tests/Backend/CommonPart2/MetricsTest.php</file>
 		<file>tests/Backend/CommonPart2/SnapshottingTest.php</file>
+		<file>tests/Backend/CommonPart2/SimpleAliasTest.php</file>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
 		<!--WORKSPACE-->
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
