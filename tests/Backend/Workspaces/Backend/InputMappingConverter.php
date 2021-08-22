@@ -46,7 +46,7 @@ final class InputMappingConverter
         }
 
         $convert = static function ($column, $backendType) {
-            return self::convertColumn($column, $backendType);
+            return self::convertColumnOrType($column, $backendType);
         };
 
         if (!empty($input['columns'])) {
@@ -66,31 +66,48 @@ final class InputMappingConverter
         return $input;
     }
 
-    public static function convertColumn($column, $backendType)
+    public static function convertColumnOrType($column, $backendType)
     {
+        $isOnlyType = is_string($column);
+        $type = $isOnlyType ? $column : $column['type'];
         if ($backendType === StorageApiTestCase::BACKEND_SYNAPSE) {
-            switch (strtolower($column['type'])) {
+            switch (strtolower($type)) {
                 case 'integer':
+                    if ($isOnlyType) {
+                        return 'int';
+                    }
                     $column['type'] = 'int';
                     break;
                 case 'character':
+                    if ($isOnlyType) {
+                        return 'char';
+                    }
                     $column['type'] = 'char';
                     break;
             }
         }
 
         if ($backendType === StorageApiTestCase::BACKEND_EXASOL) {
-            switch (strtolower($column['type'])) {
+            switch (strtolower($type)) {
                 case 'integer':
+                    if ($isOnlyType) {
+                        return 'DECIMAL(3,0)';
+                    }
                     $column['type'] = 'DECIMAL';
                     $column['length'] = '3,0';
                     break;
-                case 'varchar':
+                case 'varchar': // convert only when no length is defined Exasol has no default value
+                    if ($isOnlyType) {
+                        return 'varchar(2000000)';
+                    }
                     if (!array_key_exists('length', $column)) {
                         $column['length'] = '2000000';
                     }
                     break;
-                case 'character':
+                case 'character': // convert only when no length is defined Exasol has no default value
+                    if ($isOnlyType) {
+                        return 'character(2000)';
+                    }
                     $column['type'] = 'char';
                     if (!array_key_exists('length', $column)) {
                         $column['length'] = '2000';
