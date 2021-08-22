@@ -31,7 +31,7 @@ final class LegacyInputMappingConverter
         if (array_key_exists('datatypes', $input['input'])) {
             $input['input'] = self::convertColumnsDefinition($input['input'], $backendType);
         } else {
-            $input['input'] = array_map(static function ($input, $backendType) {
+            $input['input'] = array_map(static function ($input) use ($backendType) {
                 return self::convertColumnsDefinition($input, $backendType);
             }, $input['input']);
         }
