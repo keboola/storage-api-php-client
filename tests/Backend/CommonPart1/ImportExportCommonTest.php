@@ -95,8 +95,8 @@ class ImportExportCommonTest extends StorageApiTestCase
                 'primaryKey' => 'id,name',
             )),
 
-            array(new CsvFile(__DIR__ . '/../../_data/languages.special-column-names.csv'), 'languages.special-column-names.csv', array('Id', 'queryId', 'columnEndingWith_'), 'rfc', array(
-                'primaryKey' => 'Id,queryId,columnEndingWith_',
+            array(new CsvFile(__DIR__ . '/../../_data/languages.special-column-names.csv'), 'languages.special-column-names.csv', array('Id', 'queryId'), 'rfc', array(
+                'primaryKey' => 'Id,queryId',
             )),
 
 
