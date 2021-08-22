@@ -64,11 +64,11 @@ final class LegacyInputMappingConverter
             // columns are in tests also invalid with assoc arr
             $isIndexed = array_values($input['datatypes']) === $input['datatypes'];
             if ($isIndexed === true) {
-                $input['columns'] = array_map(
+                $input['datatypes'] = array_map(
                     function ($column) use ($convert, $backendType) {
                         return $convert($column, $backendType);
                     },
-                    $input['columns']
+                    $input['datatypes']
                 );
             } else {
                 $input['datatypes'] = $convert($input['datatypes'], $backendType);
