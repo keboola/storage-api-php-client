@@ -47,13 +47,13 @@ final class LegacyInputMappingConverter
 
         $convert = static function ($column, $backendType) {
             if (array_key_exists('type', $column)) {
-                $column['type'] = InputMappingConverter::convertColumn($column['type'], $backendType);
+                $column['type'] = InputMappingConverter::convertColumnOrType($column['type'], $backendType);
             } else {
                 foreach ($column as $id => $type) {
                     if (is_array($type)) {
-                        $column[$id]['type'] = InputMappingConverter::convertColumn($type['type'], $backendType);
+                        $column[$id]['type'] = InputMappingConverter::convertColumnOrType($type['type'], $backendType);
                     } else {
-                        $column[$id] = InputMappingConverter::convertColumn($type, $backendType);
+                        $column[$id] = InputMappingConverter::convertColumnOrType($type, $backendType);
                     }
                 }
             }
