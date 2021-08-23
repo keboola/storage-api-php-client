@@ -176,5 +176,37 @@
 		<file>tests/Backend/Workspaces/SynapseWorkspacesUnloadTest.php</file>
 		<file>tests/Backend/CommonPart1/ImportExportCommonTest.php</file>
 	</testsuite>
+
+	<testsuite name="backend-exasol">
+		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
+		<file>tests/Backend/CommonPart1/BucketsTest.php</file>
+	</testsuite>
+
+	<testsuite name="paratest-exasol">
+		<file>tests/Backend/CommonPart1/AlterTableTest.php</file>
+		<file>tests/Backend/CommonPart1/CreateTableTest.php</file>
+		<file>tests/Backend/CommonPart1/DataPreviewLimitsTest.php</file>
+		<file>tests/Backend/CommonPart1/DeleteRowsTest.php</file>
+		<file>tests/Backend/CommonPart1/DeleteTableTest.php</file>
+		<file>tests/Backend/CommonPart1/ExportParamsTest.php</file>
+		<file>tests/Backend/CommonPart1/LegacyIndexedColumnsTest.php</file>
+		<file>tests/Backend/CommonPart1/TableExporterTest.php</file>
+		<file>tests/Backend/CommonPart2/MetricsTest.php</file>
+		<file>tests/Backend/CommonPart2/SimpleAliasTest.php</file>
+		<file>tests/Backend/CommonPart2/SlicedImportsTest.php</file>
+		<file>tests/Backend/CommonPart2/SlicedImportsWithSlicedUploadsTest.php</file>
+		<file>tests/Backend/CommonPart2/SnapshottingTest.php</file>
+		<file>tests/Backend/CommonPart2/UploadSlicedFileTest.php</file>
+		<file>tests/Backend/Export/ExportParamsTest.php</file>
+		<!--WORKSPACE-->
+		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
+		<file>tests/Backend/Workspaces/ExasolWorkspacesUnloadTest.php</file>
+		<file>tests/Backend/Workspaces/LegacyWorkspacesExasolTest.php</file>
+		<file>tests/Backend/Workspaces/MetadataFromExasolWorkspaceTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesExasolTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
+		<!--Exasol override-->
+		<directory>tests/Backend/Exasol</directory>
+	</testsuite>
 </testsuites>
 </phpunit>

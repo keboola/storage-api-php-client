@@ -9,15 +9,15 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
     use WorkspaceConnectionTrait;
 
     private $db;
-    
+
     private $schema;
-    
+
     public function __construct($workspace)
     {
         $this->db = $this->getDbConnection($workspace['connection']);
         $this->schema = $workspace['connection']['schema'];
     }
-    
+
     public function getTableColumns($table)
     {
         $stmt = $this->db->prepare("SELECT \"column\" FROM PG_TABLE_DEF WHERE tablename = ?;");
@@ -117,9 +117,9 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
                     AND a.attnum = ANY(co.conkey) AND co.contype = 'p')
                 LEFT OUTER JOIN pg_attrdef AS d ON d.adrelid = c.oid AND d.adnum = a.attnum
             WHERE a.attnum > 0 AND c.relname = " . $this->db->quote($tableName);
-        
+
         $sql .= " AND n.nspname = " . $this->db->quote($this->schema);
-        
+
         $sql .= ' ORDER BY a.attnum';
 
         $stmt = $this->db->prepare($sql);
