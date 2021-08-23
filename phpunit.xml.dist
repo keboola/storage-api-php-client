@@ -191,12 +191,9 @@
 		<file>tests/Backend/CommonPart1/ExportParamsTest.php</file>
 		<file>tests/Backend/CommonPart1/LegacyIndexedColumnsTest.php</file>
 		<file>tests/Backend/CommonPart1/TableExporterTest.php</file>
-		<file>tests/Backend/CommonPart2/MetricsTest.php</file>
-		<file>tests/Backend/CommonPart2/SimpleAliasTest.php</file>
-		<file>tests/Backend/CommonPart2/SlicedImportsTest.php</file>
-		<file>tests/Backend/CommonPart2/SlicedImportsWithSlicedUploadsTest.php</file>
-		<file>tests/Backend/CommonPart2/SnapshottingTest.php</file>
-		<file>tests/Backend/CommonPart2/UploadSlicedFileTest.php</file>
+
+		<directory>tests/Backend/CommonPart2</directory>
+
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
 		<!--WORKSPACE-->
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
