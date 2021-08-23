@@ -2,6 +2,8 @@
 
 namespace Keboola\Test\Backend\Workspaces\Backend;
 
+use Keboola\Test\StorageApiTestCase;
+
 /**
  * Convert types in input mappings for synapse
  * Actually this class now exists only because
@@ -16,7 +18,10 @@ final class LegacyInputMappingConverter
      */
     public static function convertInputColumnsTypesForBackend($backendType, $input)
     {
-        if ($backendType !== 'synapse') {
+        if (!in_array($backendType, [
+            StorageApiTestCase::BACKEND_SYNAPSE,
+            StorageApiTestCase::BACKEND_EXASOL,
+        ], true)) {
             return $input;
         }
         if (empty($input['input'])) {
@@ -24,31 +29,31 @@ final class LegacyInputMappingConverter
         }
 
         if (array_key_exists('datatypes', $input['input'])) {
-            $input['input'] = self::convertColumnsDefinition($input['input']);
+            $input['input'] = self::convertColumnsDefinition($input['input'], $backendType);
         } else {
-            $input['input'] = array_map(static function ($input) {
-                return self::convertColumnsDefinition($input);
+            $input['input'] = array_map(static function ($input) use ($backendType) {
+                return self::convertColumnsDefinition($input, $backendType);
             }, $input['input']);
         }
 
         return $input;
     }
 
-    private static function convertColumnsDefinition(array $input)
+    private static function convertColumnsDefinition(array $input, $backendType)
     {
         if (!array_key_exists('datatypes', $input)) {
             return $input;
         }
 
-        $convert = static function ($column) {
+        $convert = static function ($column, $backendType) {
             if (array_key_exists('type', $column)) {
-                $column['type'] = InputMappingConverter::convertType($column['type']);
+                $column['type'] = InputMappingConverter::convertColumnOrType($column['type'], $backendType);
             } else {
                 foreach ($column as $id => $type) {
                     if (is_array($type)) {
-                        $column[$id]['type'] = InputMappingConverter::convertType($type['type']);
+                        $column[$id]['type'] = InputMappingConverter::convertColumnOrType($type['type'], $backendType);
                     } else {
-                        $column[$id] = InputMappingConverter::convertType($type);
+                        $column[$id] = InputMappingConverter::convertColumnOrType($type, $backendType);
                     }
                 }
             }
@@ -59,9 +64,14 @@ final class LegacyInputMappingConverter
             // columns are in tests also invalid with assoc arr
             $isIndexed = array_values($input['datatypes']) === $input['datatypes'];
             if ($isIndexed === true) {
-                $input['datatypes'] = array_map($convert, $input['datatypes']);
+                $input['datatypes'] = array_map(
+                    function ($column) use ($convert, $backendType) {
+                        return $convert($column, $backendType);
+                    },
+                    $input['datatypes']
+                );
             } else {
-                $input['datatypes'] = $convert($input['datatypes']);
+                $input['datatypes'] = $convert($input['datatypes'], $backendType);
             }
         }
         return $input;

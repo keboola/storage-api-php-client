@@ -24,6 +24,7 @@ abstract class StorageApiTestCase extends ClientTestCase
     const BACKEND_REDSHIFT = 'redshift';
     const BACKEND_SNOWFLAKE = 'snowflake';
     const BACKEND_SYNAPSE = 'synapse';
+    const BACKEND_EXASOL = 'exasol';
 
     const STAGE_IN = 'in';
     const STAGE_OUT = 'out';
@@ -181,6 +182,9 @@ abstract class StorageApiTestCase extends ClientTestCase
             return $bucket['id'];
         } catch (\Keboola\StorageApi\ClientException $e) {
             if ($e->getCode() === 500) {
+                throw $e;
+            }
+            if ($e->getCode() === 403) {
                 throw $e;
             }
             return $client->createBucket($name, $stage, $description);

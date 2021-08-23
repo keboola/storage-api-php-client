@@ -13,9 +13,9 @@ interface WorkspaceBackend
     public function getTables();
 
     public function createTable($tableName, $columns);
-    
+
     public function getTableColumns($table);
-    
+
     public function dropTable($table);
 
     public function dropTableIfExists($table);

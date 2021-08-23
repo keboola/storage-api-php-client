@@ -3,17 +3,17 @@
 namespace Keboola\Test\Backend\Workspaces\Backend;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Keboola\Datatype\Definition\Synapse;
+use Keboola\Datatype\Definition\Exasol;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
-use Keboola\TableBackendUtils\Column\SynapseColumn;
-use Keboola\TableBackendUtils\Schema\SynapseSchemaReflection;
-use Keboola\TableBackendUtils\Table\SynapseTableQueryBuilder;
-use Keboola\TableBackendUtils\Table\SynapseTableReflection;
-use Keboola\TableBackendUtils\View\SynapseViewReflection;
+use Keboola\TableBackendUtils\Column\Exasol\ExasolColumn;
+use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
+use Keboola\TableBackendUtils\Schema\Exasol\ExasolSchemaReflection;
+use Keboola\TableBackendUtils\Table\Exasol\ExasolTableQueryBuilder;
+use Keboola\TableBackendUtils\Table\Exasol\ExasolTableReflection;
+use Keboola\TableBackendUtils\View\Exasol\ExasolViewReflection;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 
-class SynapseWorkspaceBackend implements WorkspaceBackend
+class ExasolWorkspaceBackend implements WorkspaceBackend
 {
     use WorkspaceConnectionTrait;
 
@@ -23,13 +23,9 @@ class SynapseWorkspaceBackend implements WorkspaceBackend
     /** @var string */
     private $schema;
 
-    /** @var AbstractPlatform */
-    private $platform;
-
     public function __construct($workspace)
     {
         $this->db = $this->getDbConnection($workspace['connection']);
-        $this->platform = $this->db->getDatabasePlatform();
         $this->schema = $workspace['connection']['schema'];
     }
 
@@ -39,7 +35,7 @@ class SynapseWorkspaceBackend implements WorkspaceBackend
      */
     public function getTableColumns($table)
     {
-        $ref = new SynapseTableReflection($this->db, $this->schema, $table);
+        $ref = new ExasolTableReflection($this->db, $this->schema, $table);
         return $ref->getColumnsNames();
     }
 
@@ -48,29 +44,29 @@ class SynapseWorkspaceBackend implements WorkspaceBackend
      */
     public function getTables()
     {
-        $ref = new SynapseSchemaReflection($this->db, $this->schema);
+        $ref = new ExasolSchemaReflection($this->db, $this->schema);
         return $ref->getTablesNames();
     }
 
     public function dropTable($table)
     {
-        $qb = new SynapseTableQueryBuilder();
-        $this->db->exec($qb->getDropTableCommand($this->schema, $table));
+        $qb = new ExasolTableQueryBuilder();
+        $this->db->executeStatement($qb->getDropTableCommand($this->schema, $table));
     }
 
     public function dropTableColumn($table, $column)
     {
-        $this->db->exec(sprintf(
+        $this->db->executeStatement(sprintf(
             "ALTER TABLE %s.%s DROP COLUMN %s;",
-            $this->platform->quoteSingleIdentifier($this->schema),
-            $this->platform->quoteSingleIdentifier($table),
-            $this->platform->quoteSingleIdentifier($column)
+            ExasolQuote::quoteSingleIdentifier($this->schema),
+            ExasolQuote::quoteSingleIdentifier($table),
+            ExasolQuote::quoteSingleIdentifier($column)
         ));
     }
 
     public function countRows($table)
     {
-        $ref = new SynapseTableReflection($this->db, $this->schema, $table);
+        $ref = new ExasolTableReflection($this->db, $this->schema, $table);
         return $ref->getRowsCount();
     }
 
@@ -82,11 +78,11 @@ class SynapseWorkspaceBackend implements WorkspaceBackend
          * @var string $dataType
          */
         foreach ($columns as $column => $dataType) {
-            $cols[] = new SynapseColumn($column, new Synapse($dataType));
+            $cols[] = new ExasolColumn($column, new Exasol($dataType));
         }
 
-        $qb = new SynapseTableQueryBuilder();
-        $this->db->exec($qb->getCreateTableCommand(
+        $qb = new ExasolTableQueryBuilder();
+        $this->db->executeStatement($qb->getCreateTableCommand(
             $this->schema,
             $tableName,
             new ColumnCollection($cols)
@@ -98,8 +94,8 @@ class SynapseWorkspaceBackend implements WorkspaceBackend
         $data = [];
         $res = $this->db->fetchAll(sprintf(
             "SELECT * FROM %s.%s %s;",
-            $this->platform->quoteSingleIdentifier($this->schema),
-            $this->platform->quoteSingleIdentifier($table),
+            ExasolQuote::quoteSingleIdentifier($this->schema),
+            ExasolQuote::quoteSingleIdentifier($table),
             $orderBy !== null ? "ORDER BY $orderBy" : null
         ));
         switch ($style) {
@@ -125,34 +121,34 @@ class SynapseWorkspaceBackend implements WorkspaceBackend
 
     public function describeTableColumns($tableName)
     {
-        $ref = new SynapseTableReflection($this->db, $this->schema, $tableName);
+        $ref = new ExasolTableReflection($this->db, $this->schema, $tableName);
         return $ref->getColumnsDefinitions();
     }
 
     /**
      * @param string $tableName
-     * @return SynapseTableReflection
+     * @return ExasolTableReflection
      */
     public function getTableReflection($tableName)
     {
-        return new SynapseTableReflection($this->db, $this->schema, $tableName);
+        return new ExasolTableReflection($this->db, $this->schema, $tableName);
     }
 
     /**
      * @param string $tableName
-     * @return SynapseViewReflection
+     * @return ExasolViewReflection
      */
     public function getViewReflection($tableName)
     {
-        return new SynapseViewReflection($this->db, $this->schema, $tableName);
+        return new ExasolViewReflection($this->db, $this->schema, $tableName);
     }
 
     /**
-     * @return SynapseSchemaReflection
+     * @return ExasolSchemaReflection
      */
     public function getSchemaReflection()
     {
-        return new SynapseSchemaReflection($this->db, $this->schema);
+        return new ExasolSchemaReflection($this->db, $this->schema);
     }
 
     public function disconnect()
@@ -162,12 +158,10 @@ class SynapseWorkspaceBackend implements WorkspaceBackend
 
     public function dropTableIfExists($table)
     {
-        $this->db->exec(sprintf(
-            "IF OBJECT_ID (N'%s.%s', N'U') IS NOT NULL DROP TABLE %s.%s;",
-            $this->platform->quoteSingleIdentifier($this->schema),
-            $this->platform->quoteSingleIdentifier($table),
-            $this->platform->quoteSingleIdentifier($this->schema),
-            $this->platform->quoteSingleIdentifier($table)
+        $this->db->executeStatement(sprintf(
+            "DROP TABLE IF EXISTS %s.%s;",
+            ExasolQuote::quoteSingleIdentifier($this->schema),
+            ExasolQuote::quoteSingleIdentifier($table)
         ));
     }
 }

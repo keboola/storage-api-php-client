@@ -24,13 +24,12 @@ class WorkspaceBackendFactory
         switch ($workspace['connection']['backend']) {
             case StorageApiTestCase::BACKEND_REDSHIFT:
                 return new RedshiftWorkspaceBackend($workspace);
-                break;
             case StorageApiTestCase::BACKEND_SNOWFLAKE:
                 return new SnowflakeWorkspaceBackend($workspace);
-                break;
             case StorageApiTestCase::BACKEND_SYNAPSE:
                 return new SynapseWorkspaceBackend($workspace);
-                break;
+            case StorageApiTestCase::BACKEND_EXASOL:
+                return new ExasolWorkspaceBackend($workspace);
             default:
                 throw new Exception($workspace['connection']['backend'] . " workspaces are not supported.");
         }

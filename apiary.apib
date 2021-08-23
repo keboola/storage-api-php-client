@@ -1551,7 +1551,7 @@ Lists tables in a given bucket.
 
 **EXPERIMENTAL**
 
-Creates a table with typed columns. *Synapse only.*
+Creates a table with typed columns. *Synapse|Exasol only.*
 
 Request is handled asynchronously which means that the create request is created and added to a queue and the job resource URL for status polling is returned.
 
@@ -1564,11 +1564,11 @@ Request is handled asynchronously which means that the create request is created
     + columns[] (required) - definition of table columns
        + name (required, string) - column name
        + definition (object) - column settings
-            + type (required, string) - datatype of this column, choose one from https://bit.ly/3uZjN60
+            + type (required, string) - datatype of this column, choose build in types for used backend [Exasol](https://bit.ly/3s2n4AP) [Synapse](https://bit.ly/3uZjN60)
             + length (string) - optional, default: depends on type
             + nullable (boolean) - optional, default: true
             + default (string) - optional, default value for column
-    + distribution
+    + distribution - Synapse only
         + type (required, enum[string])
             + Members
                 + HASH - requires exactly one column in `distributionColumnsNames`
@@ -2614,7 +2614,7 @@ attributes and information about the containing bucket.
 ### Add Column to Table [POST]
 Adds a new column to an existing table. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 
-*This endpoint is not available for Synapse typed tables created via [table definition](#reference/tables/create-table-definition)*
+*This endpoint is not available for typed tables created via [table definition](#reference/tables/create-table-definition)* with Synapse or Exasol backend
 
 + Parameters
     + table_id (required) - Table Id
@@ -2657,7 +2657,7 @@ Adds a new column to an existing table. This request is [asynchronous](#introduc
 Deletes an existing column from an existing table. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 Use the optional `force` parameter to delete the column from table aliases too.
 
-*This endpoint is not available for Synapse typed tables created via [table definition](#reference/tables/create-table-definition)*
+*This endpoint is not available for typed tables created via [table definition](#reference/tables/create-table-definition)* with Synapse or Exasol backend
 
 + Parameters
     + table_id (required) - Table Id
@@ -2698,8 +2698,7 @@ Use the optional `force` parameter to delete the column from table aliases too.
 If a primary key is set, updates can be done on the table. A primary key can be composed of multiple columns.
 This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 
-*This endpoint is not available for Synapse typed tables created via [table definition](#reference/tables/create-table-definition)*
-
+*This endpoint is not available for typed tables created via [table definition](#reference/tables/create-table-definition)* with Synapse or Exasol backend
 + Parameters
     + table_id (required) - Table Id
 
@@ -2741,7 +2740,7 @@ This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls)
 ### Remove Primary Key [DELETE]
 Removes the primary key from a table. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 
-*This endpoint is not available for Synapse typed tables created via [table definition](#reference/tables/create-table-definition)*
+*This endpoint is not available for typed tables created via [table definition](#reference/tables/create-table-definition)* with Synapse or Exasol backend
 
 + Parameters
     + table_id (required) - Table Id
