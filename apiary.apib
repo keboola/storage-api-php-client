@@ -1936,19 +1936,20 @@ To enable compression of API response traffic, please include the following HTTP
             + Members
                 + eq - Equals - can be used with multiple values
                 + ne - Not equals  - case be used with multiple values
-                + gt - Greater than - Snowflake/Synapse only
-                + ge - Greater than or equals - Snowflake/Synapse only
-                + lt - Less than - Snowflake/Synapse only
-                + le - Less than or equals  - Snowflake/Synapse only
+                + gt - Greater than - Not supported for Redshift
+                + ge - Greater than or equals - Not supported for Redshift
+                + lt - Less than - Not supported for Redshift
+                + le - Less than or equals  - Not supported for Redshift
             + Default: eq
         + values[] (required, array) - array of variables to compare
-        + dataType (optional, enum[string]) - Snowflake/Synapse only - for comparing (`[gt|lt|le|ge]`) numeric values you have to specify data type
+        + dataType (optional, enum[string]) - Not supported for Redshift - for comparing (`[gt|lt|le|ge]`) numeric values you have to specify data type
             + Members
                 + INTEGER - for numbers without a decimal point (Snowflake)
                 + DOUBLE - for number with a decimal point (Snowflake)
                 + BIGINT - for number without a decimal point (Synapse)
                 + REAL - for number with a decimal point (Synapse)
-    + orderBy[] (optional) - Snowflake only
+                + DECIMAL - for numbers (Exasol)
+    + orderBy[] (optional) - Not supported for Redshift
         + column (required) - name of column used for sorting
         + order (optional, enum[string])
             + Members
@@ -1961,6 +1962,7 @@ To enable compression of API response traffic, please include the following HTTP
                 + DOUBLE - for number with a decimal point (Snowflake)
                 + BIGINT - for number without a decimal point (Synapse)
                 + REAL - for number with a decimal point (Synapse)
+                + DECIMAL - for numbers (Exasol)
     + fulltextSearch (optional, string) - Makes fulltext search over all data in table. It cannot be combined with `whereFilters`. Snowflake/Synapse only
 
 + Request
@@ -3266,6 +3268,7 @@ Creates a new workspace and return its credentials.
             + snowflake
             + synapse
             + abs
+            + exasol
     Azure blob storage file workspace
     + backendSize: small (optional, enum[string]) - Workspace backend size. Available only for `snowflake` backend and projects having `workspace-snowflake-dynamic-backend-size` feature enabled.
         + Members
@@ -3300,6 +3303,7 @@ Creates a new workspace for [Development Branch](#reference/development-branches
             + snowflake
     the system. Supported only for Snowflake workspaces.
             + synapse
+            + exasol
             + abs
     Azure blob storage file workspace
     + backendSize: small (optional, enum[string]) - Workspace backend size. Available only for `snowflake` backend and projects having `workspace-snowflake-dynamic-backend-size` feature enabled.
