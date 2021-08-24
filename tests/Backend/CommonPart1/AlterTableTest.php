@@ -41,7 +41,7 @@ class AlterTableTest extends StorageApiTestCase
 
         $this->assertArrayHasKey('columns', $detail);
         $this->assertContains('State', $detail['columns']);
-        $this->assertEquals(array('id', 'name', 'State'), $detail['columns']);
+        $this->assertEquals(['id', 'name', 'State'], $detail['columns']);
 
         $importFileWithNewCol = $importFile = __DIR__ . '/../../_data/languages.with-state.csv';
         $this->_client->writeTable($tableId, new CsvFile($importFileWithNewCol));
@@ -50,6 +50,12 @@ class AlterTableTest extends StorageApiTestCase
             $this->_client->getTableDataPreview($tableId),
             'new column is imported'
         );
+
+        $this->_client->addTableColumn($tableId, '_iso');
+        $this->_client->addTableColumn($tableId, 'language_name_');
+
+        $detail = $this->_client->getTable($tableId);
+        $this->assertEquals(['id', 'name', 'State', 'iso', 'language_name_'], $detail['columns']);
     }
 
     /**
