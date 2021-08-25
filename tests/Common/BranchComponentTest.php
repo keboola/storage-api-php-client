@@ -465,7 +465,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         $this->assertCount(2, $configurationVersions);
 
-        $configurationVersion = $branchComponents->getConfigurationVersion($componentId, 'main-1', 'latestPublished');
+        $configurationVersion = $branchComponents->getConfigurationVersion($componentId, 'main-1', 2);
 
         $this->assertArrayHasKey('version', $configurationVersion);
         $this->assertSame(2, $configurationVersion['version']);
@@ -533,7 +533,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         $this->assertCount(4, $configurationVersions);
 
-        $configurationVersion = $branchComponents->getConfigurationVersion($componentId, 'main-1', 'latestPublished');
+        $configurationVersion = $branchComponents->getConfigurationVersion($componentId, 'main-1', 4);
 
         $this->assertArrayHasKey('version', $configurationVersion);
         $this->assertSame(4, $configurationVersion['version']);
@@ -595,7 +595,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         $this->assertCount(5, $configurationVersions);
 
-        $configurationVersion = $branchComponents->getConfigurationVersion('transformation', 'main-1', 'latestPublished');
+        $configurationVersion = $branchComponents->getConfigurationVersion('transformation', 'main-1', 5);
 
         $this->assertArrayHasKey('version', $configurationVersion);
         $this->assertSame(5, $configurationVersion['version']);
@@ -638,7 +638,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         $this->assertCount(6, $configurationVersions);
 
-        $configurationVersion = $branchComponents->getConfigurationVersion('transformation', 'main-1', 'latestPublished');
+        $configurationVersion = $branchComponents->getConfigurationVersion('transformation', 'main-1', 6);
 
         $this->assertArrayHasKey('version', $configurationVersion);
         $this->assertSame(6, $configurationVersion['version']);
@@ -801,7 +801,7 @@ class BranchComponentTest extends StorageApiTestCase
         );
 
         $this->assertCount(3, $configurationVersions);
-        $configurationVersion = $branchComponents->getConfigurationVersion($config->getComponentId(), $config->getConfigurationId(), 'latestPublished');
+        $configurationVersion = $branchComponents->getConfigurationVersion($config->getComponentId(), $config->getConfigurationId(), 3);
 
         $this->assertArrayHasKey('version', $configurationVersion);
         $this->assertSame(3, $configurationVersion['version']);
@@ -848,7 +848,7 @@ class BranchComponentTest extends StorageApiTestCase
         );
 
         $this->assertCount(4, $configurationVersions);
-        $configurationVersion = $branchComponents->getConfigurationVersion('transformation', 'dev-branch-1', 'latestPublished');
+        $configurationVersion = $branchComponents->getConfigurationVersion('transformation', 'dev-branch-1', 4);
 
         $this->assertArrayHasKey('version', $configurationVersion);
         $this->assertSame(4, $configurationVersion['version']);
