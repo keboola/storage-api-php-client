@@ -2130,7 +2130,7 @@ class Client
      *
      * @param string $url
      * @param array $postData
-     * @return mixed|stringgit d
+     * @return mixed|string
      */
     public function apiPut($url, $postData = null)
     {
