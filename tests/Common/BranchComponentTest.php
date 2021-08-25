@@ -160,6 +160,41 @@ class BranchComponentTest extends StorageApiTestCase
 
         $this->assertCount(1, $resetConfigurationVersionsInBranch);
 
+        // delete config in dev branch
+
+        $branchComponents->updateConfiguration(
+            (new \Keboola\StorageApi\Options\Components\Configuration())
+                ->setComponentId($componentId)
+                ->setConfigurationId($configurationId)
+                ->setName('Main updated')
+                ->setConfiguration(['test' => 'true in branch'])
+        );
+        $configurationVersionsInBranch = $branchComponents->listConfigurationVersions(
+            (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
+                ->setComponentId($componentId)
+                ->setConfigurationId($configurationId)
+        );
+        $this->assertCount(2, $configurationVersionsInBranch);
+        $branchComponents->getConfigurationVersion($componentId, $configurationId, 2);
+
+        $branchComponents->deleteConfiguration($componentId, $configurationId);
+        try {
+            $branchComponents->getConfiguration($componentId, $configurationId);
+            $this->fail('Should have thrown');
+        } catch (ClientException $e) {
+            $this->assertSame('Configuration main-1 not found', $e->getMessage());
+        }
+
+        $branchComponents->resetToDefault($componentId, $configurationId);
+        $configurationAfterReset = $branchComponents->getConfiguration($componentId, $configurationId);
+        $this->assertSame(1, $configurationAfterReset['version']);
+        try {
+            $branchComponents->getConfigurationVersion($componentId, $configurationId, 2);
+            $this->fail('Configuration version 2 should not be present, as it was reset to v1');
+        } catch (ClientException $e) {
+            $this->assertSame('Version 2 not found', $e->getMessage());
+        }
+
         // delete config in production
 
         // assert there is a row in both
