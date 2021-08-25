@@ -189,6 +189,7 @@
 		<file>tests/Backend/CommonPart1/DeleteRowsTest.php</file>
 		<file>tests/Backend/CommonPart1/DeleteTableTest.php</file>
 		<file>tests/Backend/CommonPart1/ExportParamsTest.php</file>
+		<file>tests/Backend/CommonPart1/ImportExportCommonTest.php</file>
 		<file>tests/Backend/CommonPart1/LegacyIndexedColumnsTest.php</file>
 		<file>tests/Backend/CommonPart1/TableExporterTest.php</file>
 
