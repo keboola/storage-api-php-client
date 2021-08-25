@@ -176,6 +176,8 @@
 	<testsuite name="paratest-exasol">
 		<directory>tests/Backend/CommonPart1</directory>
 		<directory>tests/Backend/CommonPart2</directory>
+		<exclude>tests/Backend/CommonPart2/ImportExportCommonTest.php</exclude>
+<!--	excluded, tests are included in tests/Backend/Exasol/ExasolImportExportCommonTest.php -->
 
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
 		<!--WORKSPACE-->
