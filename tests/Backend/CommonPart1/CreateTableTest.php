@@ -506,6 +506,23 @@ class CreateTableTest extends StorageApiTestCase
         }
     }
 
+    public function testCreateTableWithUnderscoresInColumnNames()
+    {
+        $csvFile = new CsvFile(__DIR__ . '/../../_data/languages.column-names-with-underscores.csv');
+        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'underscores', $csvFile);
+
+        $excpectedColumns = [
+            'id',
+            'language_name_',
+        ];
+
+        $table = $this->_client->getTable($tableId);
+        $this->assertSame($excpectedColumns, $table['columns']);
+
+        $result = $this->_client->writeTable($tableId, $csvFile);
+        $this->assertSame($excpectedColumns, $result['importedColumns']);
+    }
+
     public function invalidPrimaryKeys()
     {
         return array(
