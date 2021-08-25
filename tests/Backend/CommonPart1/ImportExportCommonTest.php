@@ -58,8 +58,21 @@ class ImportExportCommonTest extends StorageApiTestCase
      * @dataProvider tableImportData
      * @param $importFileName
      */
-    public function testTableAsyncImportExport(CsvFile $importFile, $expectationsFileName, $colNames, $format = 'rfc', $createTableOptions = array())
-    {
+    public function testTableAsyncImportExport(
+        CsvFile $importFile,
+        $expectationsFileName,
+        $colNames,
+        $format = 'rfc',
+        $createTableOptions = [],
+        $testCaseDescription = ''
+    ) {
+        if ($testCaseDescription === 'utf8BOM') {
+            $tokenData = $this->_client->verifyToken();
+            if ($tokenData['owner']['defaultBackend'] === self::BACKEND_EXASOL) {
+                self::markTestSkipped('Exasol doesnt support files with BOM');
+                return;
+            }
+        }
         $expectationsFile = __DIR__ . '/../../_data/' . $expectationsFileName;
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages-3', $importFile, $createTableOptions);
 
@@ -126,6 +139,9 @@ class ImportExportCommonTest extends StorageApiTestCase
                     new CsvFile(__DIR__ . '/../../_data/languages.utf8.bom.csv'),
                     'languages.csv',
                     ['id', 'name'],
+                    'rfc',
+                    [],
+                    'utf8BOM'
                 ],
             "gz" =>
                 [
@@ -175,20 +191,22 @@ class ImportExportCommonTest extends StorageApiTestCase
     public function incrementalImportPkDedupeData()
     {
         return [
-            [
-                new CsvFile(__DIR__ . '/../../_data/pk.simple.csv'),
-                'id',
-                new CsvFile(__DIR__ . '/../../_data/pk.simple.loaded.csv'),
-                new CsvFile(__DIR__ . '/../../_data/pk.simple.increment.csv'),
-                new CsvFile(__DIR__ . '/../../_data/pk.simple.increment.loaded.csv'),
-            ],
-            [
-                new CsvFile(__DIR__ . '/../../_data/pk.multiple.csv'),
-                'id,sub_id',
-                new CsvFile(__DIR__ . '/../../_data/pk.multiple.loaded.csv'),
-                new CsvFile(__DIR__ . '/../../_data/pk.multiple.increment.csv'),
-                new CsvFile(__DIR__ . '/../../_data/pk.multiple.increment.loaded.csv'),
-            ]
+            "simple" =>
+                [
+                    new CsvFile(__DIR__ . '/../../_data/pk.simple.csv'),
+                    'id',
+                    new CsvFile(__DIR__ . '/../../_data/pk.simple.loaded.csv'),
+                    new CsvFile(__DIR__ . '/../../_data/pk.simple.increment.csv'),
+                    new CsvFile(__DIR__ . '/../../_data/pk.simple.increment.loaded.csv'),
+                ],
+            "multiple" =>
+                [
+                    new CsvFile(__DIR__ . '/../../_data/pk.multiple.csv'),
+                    'id,sub_id',
+                    new CsvFile(__DIR__ . '/../../_data/pk.multiple.loaded.csv'),
+                    new CsvFile(__DIR__ . '/../../_data/pk.multiple.increment.csv'),
+                    new CsvFile(__DIR__ . '/../../_data/pk.multiple.increment.loaded.csv'),
+                ],
         ];
     }
 
