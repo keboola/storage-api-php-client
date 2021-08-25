@@ -63,16 +63,8 @@ class ImportExportCommonTest extends StorageApiTestCase
         $expectationsFileName,
         $colNames,
         $format = 'rfc',
-        $createTableOptions = [],
-        $testCaseDescription = ''
+        $createTableOptions = []
     ) {
-        if ($testCaseDescription === 'utf8BOM') {
-            $tokenData = $this->_client->verifyToken();
-            if ($tokenData['owner']['defaultBackend'] === self::BACKEND_EXASOL) {
-                self::markTestSkipped('Exasol doesnt support files with BOM');
-                return;
-            }
-        }
         $expectationsFile = __DIR__ . '/../../_data/' . $expectationsFileName;
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages-3', $importFile, $createTableOptions);
 
@@ -139,9 +131,6 @@ class ImportExportCommonTest extends StorageApiTestCase
                     new CsvFile(__DIR__ . '/../../_data/languages.utf8.bom.csv'),
                     'languages.csv',
                     ['id', 'name'],
-                    'rfc',
-                    [],
-                    'utf8BOM'
                 ],
             "gz" =>
                 [
