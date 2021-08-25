@@ -7,7 +7,7 @@ use Keboola\Csv\CsvFile;
 
 class ExasolImportExportCommonTest extends ImportExportCommonTest
 {
-    public function incrementalImportPkDedupeData(): array
+    public function incrementalImportPkDedupeData()
     {
         return [
             "simple" =>
@@ -29,7 +29,7 @@ class ExasolImportExportCommonTest extends ImportExportCommonTest
         ];
     }
 
-    public function tableImportData(): array
+    public function tableImportData()
     {
         $out = parent::tableImportData();
         unset($out["utf8.bom"]);
