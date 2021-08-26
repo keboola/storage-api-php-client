@@ -58,8 +58,13 @@ class ImportExportCommonTest extends StorageApiTestCase
      * @dataProvider tableImportData
      * @param $importFileName
      */
-    public function testTableAsyncImportExport(CsvFile $importFile, $expectationsFileName, $colNames, $format = 'rfc', $createTableOptions = array())
-    {
+    public function testTableAsyncImportExport(
+        CsvFile $importFile,
+        $expectationsFileName,
+        $colNames,
+        $format = 'rfc',
+        $createTableOptions = []
+    ) {
         $expectationsFile = __DIR__ . '/../../_data/' . $expectationsFileName;
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages-3', $importFile, $createTableOptions);
 
@@ -88,27 +93,65 @@ class ImportExportCommonTest extends StorageApiTestCase
 
     public function tableImportData()
     {
-        return array(
-            array(new CsvFile(__DIR__ . '/../../_data/languages.csv'), 'languages.csv', array('id', 'name')),
-            array(new CsvFile(__DIR__ . '/../../_data/languages.encoding.csv'), 'languages.encoding.csv', array('id', 'name')),
-            array(new CsvFile(__DIR__ . '/../../_data/languages.with-duplicates.csv'), 'languages.csv', array('id', 'name'), 'rfc', array(
-                'primaryKey' => 'id,name',
-            )),
+        return [
+            "simple" =>
+                [
+                    new CsvFile(__DIR__ . '/../../_data/languages.csv'),
+                    'languages.csv',
+                    ['id', 'name'],
+                ],
+            "special chars" =>
+                [
+                    new CsvFile(__DIR__ . '/../../_data/languages.encoding.csv'),
+                    'languages.encoding.csv',
+                    ['id', 'name'],
+                ],
+            "duplicates" =>
+                [
+                    new CsvFile(__DIR__ . '/../../_data/languages.with-duplicates.csv'),
+                    'languages.csv',
+                    ['id', 'name'],
+                    'rfc',
+                    [
+                        'primaryKey' => 'id,name',
+                    ],
+                ],
+            "special-column-names" =>
+                [
+                    new CsvFile(__DIR__ . '/../../_data/languages.special-column-names.csv'),
+                    'languages.special-column-names.csv',
+                    ['Id', 'queryId'],
+                    'rfc',
+                    [
+                        'primaryKey' => 'Id,queryId',
+                    ],
+                ],
+            "utf8.bom" =>
+                [
+                    new CsvFile(__DIR__ . '/../../_data/languages.utf8.bom.csv'),
+                    'languages.csv',
+                    ['id', 'name'],
+                ],
+            "gz" =>
+                [
+                    new CsvFile(__DIR__ . '/../../_data/languages.csv.gz'),
+                    'languages.csv',
+                    ['id', 'name'],
+                ],
+            "escaping" =>
+                [
+                    new CsvFile(__DIR__ . '/../../_data/escaping.csv'),
+                    'escaping.standard.out.csv',
+                    ['col1', 'col2_with_space'],
+                ],
+            "nl on last row" =>
+                [
+                    new CsvFile(__DIR__ . '/../../_data/escaping.nl-last-row.csv'),
+                    'escaping.standard.out.csv',
+                    ['col1', 'col2_with_space'],
+                ],
 
-            array(new CsvFile(__DIR__ . '/../../_data/languages.special-column-names.csv'), 'languages.special-column-names.csv', array('Id', 'queryId'), 'rfc', array(
-                'primaryKey' => 'Id,queryId',
-            )),
-
-
-            array(new CsvFile(__DIR__ . '/../../_data/languages.utf8.bom.csv'), 'languages.csv', array('id', 'name')),
-
-            array(new CsvFile(__DIR__ . '/../../_data/languages.csv.gz'), 'languages.csv', array('id', 'name')),
-
-            array(new CsvFile(__DIR__ . '/../../_data/escaping.csv'), 'escaping.standard.out.csv', array('col1', 'col2_with_space')),
-
-            array(new CsvFile(__DIR__ . '/../../_data/escaping.nl-last-row.csv'), 'escaping.standard.out.csv', array('col1', 'col2_with_space')),
-
-        );
+        ];
     }
 
     /**
@@ -137,27 +180,34 @@ class ImportExportCommonTest extends StorageApiTestCase
     public function incrementalImportPkDedupeData()
     {
         return [
-            [
-                new CsvFile(__DIR__ . '/../../_data/pk.simple.csv'),
-                'id',
-                new CsvFile(__DIR__ . '/../../_data/pk.simple.loaded.csv'),
-                new CsvFile(__DIR__ . '/../../_data/pk.simple.increment.csv'),
-                new CsvFile(__DIR__ . '/../../_data/pk.simple.increment.loaded.csv'),
-            ],
-            [
-                new CsvFile(__DIR__ . '/../../_data/pk.multiple.csv'),
-                'id,sub_id',
-                new CsvFile(__DIR__ . '/../../_data/pk.multiple.loaded.csv'),
-                new CsvFile(__DIR__ . '/../../_data/pk.multiple.increment.csv'),
-                new CsvFile(__DIR__ . '/../../_data/pk.multiple.increment.loaded.csv'),
-            ]
+            "simple" =>
+                [
+                    new CsvFile(__DIR__ . '/../../_data/pk.simple.csv'),
+                    'id',
+                    new CsvFile(__DIR__ . '/../../_data/pk.simple.loaded.csv'),
+                    new CsvFile(__DIR__ . '/../../_data/pk.simple.increment.csv'),
+                    new CsvFile(__DIR__ . '/../../_data/pk.simple.increment.loaded.csv'),
+                ],
+            "multiple" =>
+                [
+                    new CsvFile(__DIR__ . '/../../_data/pk.multiple.csv'),
+                    'id,sub_id',
+                    new CsvFile(__DIR__ . '/../../_data/pk.multiple.loaded.csv'),
+                    new CsvFile(__DIR__ . '/../../_data/pk.multiple.increment.csv'),
+                    new CsvFile(__DIR__ . '/../../_data/pk.multiple.increment.loaded.csv'),
+                ],
         ];
     }
 
     public function testTableImportColumnsCaseInsensitive()
     {
         $tokenData = $this->_client->verifyToken();
-        if (in_array($tokenData['owner']['defaultBackend'], [self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE])) {
+        if (in_array($tokenData['owner']['defaultBackend'], [
+            self::BACKEND_SNOWFLAKE,
+            self::BACKEND_SYNAPSE,
+            self::BACKEND_EXASOL,
+        ], true)) {
+            self::markTestSkipped('test available for RS only');
             return;
         }
 
@@ -173,8 +223,12 @@ class ImportExportCommonTest extends StorageApiTestCase
     public function testTableImportCaseSensitiveThrowsUserError()
     {
         $tokenData = $this->_client->verifyToken();
-        if (in_array($tokenData['owner']['defaultBackend'], [self::BACKEND_REDSHIFT, self::BACKEND_SYNAPSE])) {
-            $this->markTestSkipped("Test case-sensitivity columns name only for snowflake");
+        if (in_array($tokenData['owner']['defaultBackend'], [
+            self::BACKEND_REDSHIFT,
+            self::BACKEND_SYNAPSE,
+            self::BACKEND_EXASOL,
+        ], true)) {
+            self::markTestSkipped("Test case-sensitivity columns name only for snowflake");
         }
 
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
@@ -183,7 +237,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage(
             'Some columns are missing in the csv file. Missing columns: id,name. '
-            .'Expected columns: id,name. Please check if the expected delimiter "," is used in the csv file.'
+            . 'Expected columns: id,name. Please check if the expected delimiter "," is used in the csv file.'
         );
         
         $this->_client->writeTableAsync($tableId, new CsvFile(__DIR__ . '/../../_data/languages.camel-case-columns.csv'), ['incremental' => true]);

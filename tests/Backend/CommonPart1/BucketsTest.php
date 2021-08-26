@@ -19,7 +19,7 @@ class BucketsTest extends StorageApiTestCase
     public function setUp()
     {
         parent::setUp();
-        $this->_initEmptyTestBuckets();
+        $this->initEmptyTestBucketsForParallelTests();
     }
 
     public function testBucketsList()
@@ -132,8 +132,12 @@ class BucketsTest extends StorageApiTestCase
         $buckets = $this->_client->listBuckets(array(
             'include' => 'metadata',
         ));
+        $firstBucket = array_filter($buckets, function ($bucket) {
+            return $bucket['id'] === $this->_bucketIds[self::STAGE_IN];
+        });
 
-        $firstBucket = reset($buckets);
+        $firstBucket = reset($firstBucket);
+
         $this->assertArrayNotHasKey('attributes', $firstBucket);
         $this->assertArrayHasKey('metadata', $firstBucket);
         $this->assertEmpty($firstBucket['metadata']);
