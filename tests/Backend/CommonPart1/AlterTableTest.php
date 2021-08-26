@@ -79,7 +79,7 @@ class AlterTableTest extends StorageApiTestCase
         return [
             [
                 '_abc-def----ghi_',
-                'abc_def_ghi',
+                'abc_def_ghi_',
             ],
             [
                 'žluťoučký    kůň',
@@ -87,7 +87,7 @@ class AlterTableTest extends StorageApiTestCase
             ],
             [
                 'lot__of_____underscores____',
-                'lot__of_____underscores',
+                'lot__of_____underscores____',
             ]
         ];
     }
