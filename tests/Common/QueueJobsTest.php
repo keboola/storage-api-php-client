@@ -51,4 +51,33 @@ class QueueJobsTest extends StorageApiTestCase
         $this->assertEquals('in.c-API-tests.table1', $job['tableId']);
         $this->assertEquals('tableExport', $job['operationName']);
     }
+
+    public function testQueueCreateTableFromFile()
+    {
+        $fileId = $this->_client->uploadFile(__DIR__ . '/../_data/languages.csv', new FileUploadOptions());
+        $jobId = $this->_client->queueTableCreate('in.c-API-tests.table1', ['dataFileId' => $fileId]);
+        $job = $this->_client->getJob($jobId);
+        $this->assertNull($job['tableId']);
+        $this->assertEquals('tableCreate', $job['operationName']);
+        $this->assertEquals($fileId, $job['operationParams']['source']['fileId']);
+        $this->assertEquals('file', $job['operationParams']['source']['type']);
+    }
+
+    public function testQueueCreateTableFromWorkspace()
+    {
+        $jobId = $this->_client->queueTableCreate(
+            'in.c-API-tests.table1',
+            [
+                'dataWorkspaceId' => 'myWorkspace',
+                'dataTableName' => 'myTable',
+            ]
+        );
+        $job = $this->_client->getJob($jobId);
+        $this->assertNull($job['tableId']);
+        $this->assertEquals('tableCreate', $job['operationName']);
+        $this->assertEquals('myWorkspace', $job['operationParams']['source']['workspaceId']);
+        $this->assertEquals('myTable', $job['operationParams']['source']['tableName']);
+        $this->assertEquals('myTable', $job['operationParams']['source']['dataObject']);
+        $this->assertEquals('workspace', $job['operationParams']['source']['type']);
+    }
 }
