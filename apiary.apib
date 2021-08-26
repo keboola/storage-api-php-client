@@ -5733,6 +5733,44 @@ and the configuration becomes available for other API calls.
                 }
             }
 
+### Restore Deleted Configuration for Development Branch [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/restore]
+Removes the `isDeleted` flag of a deleted configuration for [Development Branch](#reference/development-branches). This makes a new version of the configuration
+and the configuration becomes available for other API calls.
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + component_id (required) - Id of the component
+    + config_id (required) - Id of the configuration
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+
+            {
+                "id": "236606822",
+                "name": "My new configuration",
+                "description": "",
+                "created": "2017-02-14T14:38:26+0100",
+                "creatorToken": {
+                    "id": 27978,
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "version": 4,
+                "changeDescription": "Configuration restored",
+                "isDeleted": false,
+                "currentVersion": {
+                    "created": "2017-02-14T15:48:39+0100",
+                    "creatorToken": {
+                        "id": 27978,
+                        "description": "ondrej.popelka@keboola.com"
+                    },
+                    "changeDescription": "Configuration restored"
+                }
+            }
+
 
 ## List Configuration Versions [/v2/storage/components/{component_id}/configs/{config_id}/versions]
 ### Versions list [GET /v2/storage/components/{component_id}/configs/{config_id}/versions?include={include}&limit={limit}&offset={offset}]
