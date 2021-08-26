@@ -28,11 +28,4 @@ class ExasolImportExportCommonTest extends ImportExportCommonTest
                 ],
         ];
     }
-
-    public function tableImportData()
-    {
-        $out = parent::tableImportData();
-        unset($out["utf8.bom"]);
-        return $out;
-    }
 }
