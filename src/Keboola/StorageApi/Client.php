@@ -943,6 +943,17 @@ class Client
     }
 
     /**
+     * @param string $bucketId
+     * @param array $options
+     * @return int
+     */
+    public function queueTableCreate($bucketId, $options = array())
+    {
+        $job = $this->apiPost("buckets/{$bucketId}/tables-async", $options, false);
+        return $job['id'];
+    }
+
+    /**
      * @param $tableId
      * @param array $options
      * @return int
