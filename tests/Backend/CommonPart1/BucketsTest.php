@@ -138,9 +138,9 @@ class BucketsTest extends StorageApiTestCase
 
         $firstBucket = reset($firstBucket);
 
-        $this->assertArrayNotHasKey('attributes', $firstBucket);
-        $this->assertArrayHasKey('metadata', $firstBucket);
-        $this->assertEmpty($firstBucket['metadata']);
+        self::assertArrayNotHasKey('attributes', $firstBucket);
+        self::assertArrayHasKey('metadata', $firstBucket);
+        self::assertEmpty($firstBucket['metadata']);
 
         $metadataApi = new Metadata($this->_client);
         $metadataApi->postBucketMetadata($firstBucket['id'], 'storage-php-client-test', [
@@ -153,13 +153,18 @@ class BucketsTest extends StorageApiTestCase
         $buckets = $this->_client->listBuckets(array(
             'include' => 'metadata',
         ));
-        $firstBucket = reset($buckets);
-        $this->assertArrayHasKey('metadata', $firstBucket);
-        $this->assertCount(1, $firstBucket['metadata']);
-        $this->assertArrayHasKey('key', $firstBucket['metadata'][0]);
-        $this->assertEquals('test-key', $firstBucket['metadata'][0]['key']);
-        $this->assertArrayHasKey('value', $firstBucket['metadata'][0]);
-        $this->assertEquals('test-value', $firstBucket['metadata'][0]['value']);
+
+        $filteredBuckets = array_filter($buckets, function ($bucket) {
+            return $bucket['id'] === $this->_bucketIds[self::STAGE_IN];
+        });
+
+        $firstBucket = reset($filteredBuckets);
+        self::assertArrayHasKey('metadata', $firstBucket);
+        self::assertCount(1, $firstBucket['metadata']);
+        self::assertArrayHasKey('key', $firstBucket['metadata'][0]);
+        self::assertEquals('test-key', $firstBucket['metadata'][0]['key']);
+        self::assertArrayHasKey('value', $firstBucket['metadata'][0]);
+        self::assertEquals('test-value', $firstBucket['metadata'][0]['value']);
     }
 
     public function testBucketCreateWithInvalidBackend()
