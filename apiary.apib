@@ -6776,11 +6776,53 @@ Creates a new configuration row from an existing row version.
     + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
     + config_id (required) - Id of the configuration
     + row_id (required) - Id of the configuration row
-    + version_id (required) - Id of the configuration row version to rollback to
+    + version_id (required) - Id of the configuration row version to copy from
 
 + Attributes
-    + targetConfigId (optional) - Copy the row to another existing configuration. If not provided, the row will be copied
-    to the original configuration.
+    + targetConfigId (optional) - Copy the row to another existing configuration. If not provided, the row will be copied to the original configuration.
+    + changeDescription (optional) - Version change description
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            changeDescription=Copy+to+another+row&targetConfigId=236606822
+
++ Response 201 (application/json)
+
+            {
+                "id": "236791247",
+                "configuration": {
+                    "host": "localhost",
+                    "port": 4406
+                },
+                "name": "",
+                "description": "",
+                "isDisabled": false,
+                "version": 1,
+                "created": "2017-02-15T00:38:58+0100",
+                "creatorToken": {
+                    "id": 27978,
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "changeDescription": "Copy to another row"
+            }
+
+### Create Configuration Row copy for Development Branch [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}/versions/{version_id}/create]
+Creates a new configuration row from an existing row version in [Development Branch](#reference/development-branches).
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration
+    + row_id (required) - Id of the configuration row
+    + version_id (required) - Id of the configuration row version to copy from
+
++ Attributes
+    + targetConfigId (optional) - Copy the row to another existing configuration. If not provided, the row will be copied to the original configuration.
     + changeDescription (optional) - Version change description
 
 + Request (application/x-www-form-urlencoded)
