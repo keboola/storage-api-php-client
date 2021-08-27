@@ -42,6 +42,7 @@
 	</testsuite>
 
 	<testsuite name="backend-snowflake-abs-part-2">
+		<file>tests/Backend/CommonPart1/BucketsTest.php</file>
 		<file>tests/Backend/FileWorkspace/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
 		<file>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</file>
@@ -53,6 +54,7 @@
 	<testsuite name="paratest-backend-snowflake-abs-part-1">
 		<directory>tests/Backend/Snowflake</directory>
 		<directory>tests/Backend/CommonPart1</directory>
+		<exclude>tests/Backend/CommonPart1/BucketsTest.php</exclude>
 		<directory>tests/Backend/CommonPart2</directory>
 		<exclude>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</exclude>
 		<exclude>tests/Backend/Snowflake/DirectAccessTest.php</exclude>
@@ -68,6 +70,7 @@
 	</testsuite>
 
 	<testsuite name="backend-redshift-part-2">
+		<file>tests/Backend/CommonPart1/BucketsTest.php</file>
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
 		<directory>tests/Backend/Redshift</directory>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
@@ -75,6 +78,7 @@
 
 	<testsuite name="paratest-backend-redshift-part-1">
 		<directory>tests/Backend/CommonPart1</directory>
+		<exclude>tests/Backend/CommonPart1/BucketsTest.php</exclude>
 		<directory>tests/Backend/CommonPart2</directory>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
@@ -87,6 +91,7 @@
 	</testsuite>
 
 	<testsuite name="backend-snowflake-part-2">
+		<file>tests/Backend/CommonPart1/BucketsTest.php</file>
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
 		<file>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</file>
 		<file>tests/Backend/Snowflake/DirectAccessTest.php</file>
@@ -97,6 +102,7 @@
 	<testsuite name="paratest-backend-snowflake-part-1">
 		<directory>tests/Backend/Snowflake</directory>
 		<directory>tests/Backend/CommonPart1</directory>
+		<exclude>tests/Backend/CommonPart1/BucketsTest.php</exclude>
 		<directory>tests/Backend/CommonPart2</directory>
 		<exclude>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</exclude>
 		<exclude>tests/Backend/Snowflake/DirectAccessTest.php</exclude>
@@ -121,6 +127,7 @@
 	</testsuite>
 
 	<testsuite name="backend-synapse-part-2">
+		<file>tests/Backend/CommonPart1/BucketsTest.php</file>
 <!--		<file>tests/Backend/FileWorkspace/WorkspacesTest.php</file>-->
 <!--		<file>tests/Backend/FileWorkspace/WorkspacesLoadTest.php</file>-->
 <!--		<file>tests/Backend/FileWorkspace/WorkspacesUnloadTest.php</file>-->
@@ -146,6 +153,7 @@
 
 	<testsuite name="paratest-backend-synapse-part-1">
 		<directory>tests/Backend/CommonPart1</directory>
+		<exclude>tests/Backend/CommonPart1/BucketsTest.php</exclude>
 		<directory>tests/Backend/CommonPart2</directory>
 		<!--WORKSPACE-->
 		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
@@ -171,10 +179,12 @@
 
 	<testsuite name="backend-exasol">
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
+		<file>tests/Backend/CommonPart1/BucketsTest.php</file>
 	</testsuite>
 
 	<testsuite name="paratest-exasol">
 		<directory>tests/Backend/CommonPart1</directory>
+		<exclude>tests/Backend/CommonPart1/BucketsTest.php</exclude>
 		<directory>tests/Backend/CommonPart2</directory>
 		<exclude>tests/Backend/CommonPart2/ImportExportCommonTest.php</exclude>
 <!--	excluded, tests are included in tests/Backend/Exasol/ExasolImportExportCommonTest.php -->
