@@ -239,7 +239,7 @@ class ImportExportCommonTest extends StorageApiTestCase
             'Some columns are missing in the csv file. Missing columns: id,name. '
             . 'Expected columns: id,name. Please check if the expected delimiter "," is used in the csv file.'
         );
-        
+
         $this->_client->writeTableAsync($tableId, new CsvFile(__DIR__ . '/../../_data/languages.camel-case-columns.csv'), ['incremental' => true]);
     }
 
@@ -278,6 +278,7 @@ class ImportExportCommonTest extends StorageApiTestCase
     {
         try {
             $this->_client->apiPost("buckets/{$this->getTestBucketId(self::STAGE_IN)}/tables", [
+                'name' => 'invalidTable',
                 'dataString' => 'id,name',
                 'delimiter' => '/t',
             ]);
@@ -288,6 +289,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         $fileId = $this->_client->uploadFile(__DIR__ . '/../../_data/languages.csv', (new \Keboola\StorageApi\Options\FileUploadOptions())->setFileName('test.csv'));
         try {
             $this->_client->apiPost("buckets/{$this->getTestBucketId(self::STAGE_IN)}/tables-async", [
+                'name' => 'invalidTable',
                 'dataFileId' => $fileId,
                 'delimiter' => '/t',
             ]);
@@ -298,6 +300,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile(__DIR__ . '/../../_data/languages.csv'));
         try {
             $this->_client->apiPost("tables/{$tableId}/import", [
+                'name' => 'invalidTable',
                 'dataString' => 'id,name',
                 'delimiter' => '/t',
             ]);
@@ -307,6 +310,7 @@ class ImportExportCommonTest extends StorageApiTestCase
 
         try {
             $this->_client->apiPost("tables/{$tableId}/import-async", [
+                'name' => 'invalidTable',
                 'dataFileId' => $fileId,
                 'delimiter' => '/t',
                 'incremental' => true,
