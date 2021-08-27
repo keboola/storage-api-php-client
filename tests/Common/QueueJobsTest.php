@@ -3,6 +3,7 @@ namespace Keboola\Test\Common;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
+use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\Test\StorageApiTestCase;
 
@@ -52,10 +53,39 @@ class QueueJobsTest extends StorageApiTestCase
         $this->assertEquals('tableExport', $job['operationName']);
     }
 
+    /**
+     * @dataProvider invalidQueueCreateTableOptions
+     * @param array $options
+     */
+    public function testQueueCreateTableInvalidName($options)
+    {
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Table create option "name" is required and cannot be empty.');
+        $this->_client->queueTableCreate('in.c-API-tests.table1', $options);
+    }
+
+    public function invalidQueueCreateTableOptions()
+    {
+        return [
+            'name missing' => [
+                []
+            ],
+            'name is null' => [
+                ['name' => null,]
+            ],
+            'name is empty' => [
+                ['name' => '',]
+            ],
+        ];
+    }
+
     public function testQueueCreateTableFromFile()
     {
         $fileId = $this->_client->uploadFile(__DIR__ . '/../_data/languages.csv', new FileUploadOptions());
-        $jobId = $this->_client->queueTableCreate('in.c-API-tests.table1', ['dataFileId' => $fileId]);
+        $jobId = $this->_client->queueTableCreate('in.c-API-tests.table1', [
+            'dataFileId' => $fileId,
+            'name' => 'my-new-queued-table',
+        ]);
         $job = $this->_client->getJob($jobId);
         $this->assertNull($job['tableId']);
         $this->assertEquals('tableCreate', $job['operationName']);
@@ -70,6 +100,7 @@ class QueueJobsTest extends StorageApiTestCase
             [
                 'dataWorkspaceId' => 'myWorkspace',
                 'dataTableName' => 'myTable',
+                'name' => 'my-new-queued-table',
             ]
         );
         $job = $this->_client->getJob($jobId);
