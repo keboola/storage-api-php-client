@@ -128,11 +128,6 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
     public function testImportFromWorkspaceWithInvalidTableNames()
     {
-        $tokenData = $this->_client->verifyToken();
-        if (in_array($tokenData['owner']['defaultBackend'], [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE])) {
-            $this->markTestIncomplete("Test import from invalid table name is ready only for Synapse");
-        }
-
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace();
 
