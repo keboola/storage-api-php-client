@@ -153,6 +153,24 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
                 $e->getMessage()
             );
         }
+
+        try {
+            $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), array(
+                'name' => 'thisTableDoesNotExist',
+                'dataWorkspaceId' => $workspace['id'],
+                'dataTableName' => 'thisTableDoesNotExist',
+            ));
+            $this->fail('Table should not be imported');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.tableNotFound', $e->getStringCode());
+            $this->assertEquals(
+                sprintf(
+                    'Table "thisTableDoesNotExist" not found in schema "%s"',
+                    $workspace['connection']['schema']
+                ),
+                $e->getMessage()
+            );
+        }
     }
 
     public function testImportFromWorkspaceWithInvalidColumnNames()
