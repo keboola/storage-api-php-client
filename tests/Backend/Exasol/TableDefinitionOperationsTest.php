@@ -2,6 +2,7 @@
 
 namespace Keboola\Test\Backend\Exasol;
 
+use Keboola\Csv\CsvFile;
 use Keboola\Test\StorageApiTestCase;
 
 class TableDefinitionOperationsTest extends StorageApiTestCase
@@ -51,6 +52,75 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $this->_client->setRunId($runId);
 
         return $this->_client->createTableDefinition($bucketId, $data);
+    }
+
+    public function testDataPreviewForTableDefinitionWithNumericTypes()
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $tableDefinition = [
+            'name' => 'my-new-table',
+            'primaryKeysNames' => ['id'],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'INT',
+                    ],
+                ],
+                [
+                    'name' => 'column_decimal',
+                    'definition' => [
+                        'type' => 'DECIMAL',
+                        'length' => '4,3'
+                    ],
+                ],
+            ],
+        ];
+
+        $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
+        $csvFile->writeRow(['id', 'column_decimal']);
+        $csvFile->writeRow(['1', '003.123']);
+        $csvFile->writeRow(['3', '4.321']);
+
+
+        $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
+
+        $this->_client->writeTable($tableId, $csvFile);
+
+        $data = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);
+
+        $this->assertSame(
+            [
+                [
+                    [
+                        'columnName' => 'id',
+                        'value' => '1',
+                        'isTruncated' => false,
+                    ],
+                    [
+                        'columnName' => 'column_decimal',
+                        'value' => '3.123',
+                        'isTruncated' => false,
+                    ]
+                ],
+                [
+                    [
+                        'columnName' => 'id',
+                        'value' => '3',
+                        'isTruncated' => false,
+                    ],
+                    [
+                        'columnName' => 'column_decimal',
+                        'value' => '4.321',
+                        'isTruncated' => false,
+                    ]
+                ],
+            ],
+            $data['rows']
+        );
+
+        $this->assertSame(2, count($data['rows']));
     }
 
     public function testAddColumnOnTypedTable()
