@@ -69,7 +69,13 @@ final class InputMappingConverter
     public static function convertColumnOrType($column, $backendType)
     {
         $isOnlyType = is_string($column);
-        $type = $isOnlyType ? $column : $column['type'];
+        if ($isOnlyType) {
+            $type = $column;
+        } elseif (array_key_exists('type', $column)) {
+            $type = $column['type'];
+        } else {
+            return $column;
+        }
         if ($backendType === StorageApiTestCase::BACKEND_SYNAPSE) {
             switch (strtolower($type)) {
                 case 'integer':

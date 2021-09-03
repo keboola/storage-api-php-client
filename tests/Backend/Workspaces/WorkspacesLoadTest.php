@@ -8,6 +8,8 @@ use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Workspaces;
 use Keboola\StorageApi\ClientException;
+use Keboola\TableBackendUtils\Column\ColumnCollection;
+use Keboola\TableBackendUtils\Column\ColumnInterface;
 use Keboola\Test\Backend\Workspaces\Backend\InputMappingConverter;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
@@ -38,8 +40,8 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                         [
                             'source' => 'name',
                             'type' => 'VARCHAR',
-                        ]
-                    ]
+                        ],
+                    ],
                 ],
                 [
                     'source' => $tableId,
@@ -52,9 +54,9 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                         [
                             'source' => 'name',
                             'type' => 'VARCHAR',
-                        ]
-                    ]
-                ]
+                        ],
+                    ],
+                ],
             ],
         ];
 
@@ -206,8 +208,8 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                 ],
                 'aliasFilter' => [
                     'column' => 'id',
-                    'values' => ['1']
-                ]
+                    'values' => ['1'],
+                ],
             ]
         );
 
@@ -292,13 +294,13 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                     'columns' => [
                         [
                             'source' => 'Id',
-                            'type' => 'integer'
+                            'type' => 'integer',
                         ],
                         [
                             'source' => 'iso',
-                            'type' => 'varchar'
-                        ]
-                    ]
+                            'type' => 'varchar',
+                        ],
+                    ],
                 ],
                 [
                     'source' => $tableId,
@@ -306,15 +308,15 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                     'columns' => [
                         [
                             'source' => 'Name',
-                            'type' => 'varchar'
+                            'type' => 'varchar',
                         ],
                         [
                             'source' => 'Something',
-                            'type' => 'varchar'
-                        ]
-                    ]
-                ]
-            ]
+                            'type' => 'varchar',
+                        ],
+                    ],
+                ],
+            ],
         ];
 
         $mappingColumns = [
@@ -360,15 +362,15 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                         ],
                         [
                             'source' => 'iso',
-                            'type' => 'varchar'
+                            'type' => 'varchar',
                         ],
                         [
                             'source' => 'not-a-column',
-                            'type' => 'varchar'
-                        ]
-                    ]
-                ]
-            ]
+                            'type' => 'varchar',
+                        ],
+                    ],
+                ],
+            ],
         ];
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
@@ -1093,7 +1095,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
      * @dataProvider validColumnsDefinitions
      * @param $columnsDefinition
      */
-    public function testDataTypes($columnsDefinition)
+    public function testDataTypes($columnsDefinition, $expectedColumns)
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
@@ -1123,18 +1125,27 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
 
         //check to make sure the columns have the right types
         $columnInfo = $backend->describeTableColumns($backend->toIdentifier('datatype_Test'));
-        $this->assertCount(2, $columnInfo);
-        if ($workspace['connection']['backend'] === $this::BACKEND_SNOWFLAKE) {
-            $this->assertEquals("Id", $columnInfo[0]['name']);
-            $this->assertEquals("NUMBER(38,0)", $columnInfo[0]['type']);
-            $this->assertEquals("Name", $columnInfo[1]['name']);
-            $this->assertEquals("VARCHAR(50)", $columnInfo[1]['type']);
+        $expectedColumnsForBackend = $expectedColumns[$workspace['connection']['backend']];
+        $this->assertCount(count($expectedColumnsForBackend), $columnInfo);
+        if ($columnInfo instanceof ColumnCollection) {
+            $columnsAsArray = [];
+            /** @var ColumnInterface $item */
+            foreach ($columnInfo as $item) {
+                $columnsAsArray[$item->getColumnName()] = $item->getColumnDefinition()->toArray();
+            }
+            $columnInfo = $columnsAsArray;
         }
-        if ($workspace['connection']['backend'] === $this::BACKEND_REDSHIFT) {
-            $this->assertEquals("int4", $columnInfo['id']['DATA_TYPE']);
-            $this->assertEquals("varchar", $columnInfo['name']['DATA_TYPE']);
-            $this->assertEquals(50, $columnInfo['name']['LENGTH']);
+        /** @var array $item */
+        foreach ($columnInfo as &$item) {
+            if (array_key_exists('SCHEMA_NAME', $item)) {
+                unset($item['SCHEMA_NAME']);
+            }
         }
+        unset($item);
+        $this->assertSame(
+            $expectedColumns[$workspace['connection']['backend']],
+            $columnInfo
+        );
     }
 
     /**
@@ -1561,7 +1572,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
 
         $testClient = $this->getClient([
             'token' => $token['token'],
-            'url' => STORAGE_API_URL
+            'url' => STORAGE_API_URL,
         ]);
 
         // create the workspace with the limited permission client
@@ -1580,9 +1591,9 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                     [
                         "source" => "name",
                         "type" => "VARCHAR",
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ];
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
@@ -1623,10 +1634,10 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                         [
                             "source" => "name",
                             "type" => "VARCHAR",
-                        ]
-                    ]
-                ]
-            ]
+                        ],
+                    ],
+                ],
+            ],
         ];
 
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
@@ -1704,7 +1715,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                         [
                             'source' => 'Id',
                             'type' => 'integer',
-                        ]
+                        ],
                     ],
                 ],
             ],
@@ -1720,8 +1731,8 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
     public function validColumnsDefinitions()
     {
         return [
-            [
-                [
+            'full column definition' => [
+                'columnsDefinition' => [
                     [
                         'source' => 'Id',
                         'type' => 'INTEGER',
@@ -1731,7 +1742,193 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                         'type' => 'VARCHAR',
                         'length' => '50',
                     ],
-                ]
+                ],
+                'expectedColumns' => [
+                    self::BACKEND_SNOWFLAKE => [
+                        [
+                            'name' => 'Id',
+                            'type' => 'NUMBER(38,0)',
+                            'kind' => 'COLUMN',
+                            'null?' => 'Y',
+                            'default' => null,
+                            'primary key' => 'N',
+                            'unique key' => 'N',
+                            'check' => null,
+                            'expression' => null,
+                            'comment' => null,
+                            'policy name' => null,
+                        ],
+                        [
+                            'name' => 'Name',
+                            'type' => 'VARCHAR(50)',
+                            'kind' => 'COLUMN',
+                            'null?' => 'Y',
+                            'default' => null,
+                            'primary key' => 'N',
+                            'unique key' => 'N',
+                            'check' => null,
+                            'expression' => null,
+                            'comment' => null,
+                            'policy name' => null,
+                        ],
+                    ],
+                    self::BACKEND_SYNAPSE => [
+                        'Id' => [
+                            'type' => 'INT',
+                            'length' => null,
+                            'nullable' => true,
+                        ],
+                        'Name' => [
+                            'type' => 'VARCHAR',
+                            'length' => '50',
+                            'nullable' => true,
+                        ],
+                    ],
+                    self::BACKEND_REDSHIFT => [
+                        'id' => [
+                            'TABLE_NAME' => 'datatype_test',
+                            'name' => 'id',
+                            'COLUMN_POSITION' => 1,
+                            'DATA_TYPE' => 'int4',
+                            'DEFAULT' => null,
+                            'NULLABLE' => true,
+                            'LENGTH' => 4,
+                            'SCALE' => null,
+                            'PRECISION' => null,
+                            'UNSIGNED' => null,
+                            'PRIMARY' => false,
+                            'PRIMARY_POSITION' => null,
+                            'IDENTITY' => false,
+                            'COMPRESSION' => 'az64',
+                        ],
+                        'name' => [
+                            'TABLE_NAME' => 'datatype_test',
+                            'name' => 'name',
+                            'COLUMN_POSITION' => 2,
+                            'DATA_TYPE' => 'varchar',
+                            'DEFAULT' => null,
+                            'NULLABLE' => true,
+                            'LENGTH' => '50',
+                            'SCALE' => null,
+                            'PRECISION' => null,
+                            'UNSIGNED' => null,
+                            'PRIMARY' => false,
+                            'PRIMARY_POSITION' => null,
+                            'IDENTITY' => false,
+                            'COMPRESSION' => 'lzo',
+                        ],
+                    ],
+                    self::BACKEND_EXASOL => [
+                        'Id' => [
+                            'type' => 'DECIMAL',
+                            'length' => '3,0',
+                            'nullable' => true,
+                        ],
+                        'Name' => [
+                            'type' => 'VARCHAR',
+                            'length' => '50',
+                            'nullable' => true,
+                        ],
+                    ],
+                ],
+            ],
+            'without type' => [
+                'columnsDefinition' => [
+                    [
+                        'source' => 'Id',
+                    ],
+                    [
+                        'source' => 'Name',
+                    ],
+                ],
+                'expectedColumns'=>[
+                    self::BACKEND_SNOWFLAKE => [
+                        [
+                            'name' => 'Id',
+                            'type' => 'VARCHAR(16777216)',
+                            'kind' => 'COLUMN',
+                            'null?' => 'Y',
+                            'default' => null,
+                            'primary key' => 'N',
+                            'unique key' => 'N',
+                            'check' => null,
+                            'expression' => null,
+                            'comment' => null,
+                            'policy name' => null,
+                        ],
+                        [
+                            'name' => 'Name',
+                            'type' => 'VARCHAR(16777216)',
+                            'kind' => 'COLUMN',
+                            'null?' => 'Y',
+                            'default' => null,
+                            'primary key' => 'N',
+                            'unique key' => 'N',
+                            'check' => null,
+                            'expression' => null,
+                            'comment' => null,
+                            'policy name' => null,
+                        ],
+                    ],
+                    self::BACKEND_SYNAPSE => [
+                        'Id' => [
+                            'type' => 'NVARCHAR',
+                            'length' => '4000',
+                            'nullable' => true,
+                        ],
+                        'Name' => [
+                            'type' => 'NVARCHAR',
+                            'length' => '4000',
+                            'nullable' => true,
+                        ],
+                    ],
+                    self::BACKEND_REDSHIFT => [
+                        'id' => [
+                            'TABLE_NAME' => 'datatype_test',
+                            'name' => 'id',
+                            'COLUMN_POSITION' => 1,
+                            'DATA_TYPE' => 'varchar',
+                            'DEFAULT' => null,
+                            'NULLABLE' => true,
+                            'LENGTH' => '65535',
+                            'SCALE' => null,
+                            'PRECISION' => null,
+                            'UNSIGNED' => null,
+                            'PRIMARY' => false,
+                            'PRIMARY_POSITION' => null,
+                            'IDENTITY' => false,
+                            'COMPRESSION' => 'lzo',
+                        ],
+                        'name' => [
+                            'TABLE_NAME' => 'datatype_test',
+                            'name' => 'name',
+                            'COLUMN_POSITION' => 2,
+                            'DATA_TYPE' => 'varchar',
+                            'DEFAULT' => null,
+                            'NULLABLE' => true,
+                            'LENGTH' => '65535',
+                            'SCALE' => null,
+                            'PRECISION' => null,
+                            'UNSIGNED' => null,
+                            'PRIMARY' => false,
+                            'PRIMARY_POSITION' => null,
+                            'IDENTITY' => false,
+                            'COMPRESSION' => 'lzo',
+                        ],
+                    ],
+                    self::BACKEND_EXASOL => [
+                        'Id' => [
+                            'type' => 'VARCHAR',
+                            'length' => '2000000',
+                            'nullable' => true,
+                        ],
+                        'Name' => [
+                            'type' => 'VARCHAR',
+                            'length' => '2000000',
+                            'nullable' => true,
+                        ],
+                    ],
+                ],
             ],
         ];
     }
@@ -1748,9 +1945,9 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                     [
                         'source' => 'name',
                         'type' => 'INTEGER',
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -1766,8 +1963,8 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                     'source' => 'Name',
                     'type' => 'VARCHAR',
                     'length' => '50',
-                ]
-            ]
+                ],
+            ],
         ];
     }
 
