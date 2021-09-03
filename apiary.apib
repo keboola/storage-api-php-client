@@ -1575,6 +1575,13 @@ Request is handled asynchronously which means that the create request is created
                 + REPLICATE
                 + ROUND_ROBIN
         + distributionColumnsNames[] (required) - has to be subset of column names
+    + index - Synapse only
+        + type (required, enum[string])
+            + Members
+                + CLUSTERED INDEX - requires exactly one column in `indexColumnsNames`
+                + CLUSTERED CLOUMNSTORE INDEX
+                + HEAP
+        + indexColumnsNames[] (required) - has to be subset of column names
 
 + Request (application/json)
     + Headers
@@ -1607,7 +1614,13 @@ Request is handled asynchronously which means that the create request is created
                     "distributionColumnsNames": [
                         "id"
                     ]
-                }
+                },
+                 "index": {
+                     "type": "CLUSTERED INDEX",
+                     "indexColumnsNames": [
+                         "id"
+                     ]
+                 }
             }
 
 + Response 202 (application/json)
@@ -1645,6 +1658,12 @@ Request is handled asynchronously which means that the create request is created
                         "id"
                     ]
                 },
+                "index": {
+                    "type": "CLUSTERED INDEX",
+                    "indexColumnsNames": [
+                        "id"
+                    ]
+                }
                 "queue": "main"
             },
             "createdTime": "2021-05-24T11:09:47+0200",
