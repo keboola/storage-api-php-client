@@ -1140,6 +1140,9 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
             if (array_key_exists('SCHEMA_NAME', $item)) {
                 unset($item['SCHEMA_NAME']);
             }
+            if (array_key_exists('policy name', $item)) {
+                unset($item['policy name']);
+            }
         }
         unset($item);
         $this->assertSame(
@@ -1756,7 +1759,6 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                             'check' => null,
                             'expression' => null,
                             'comment' => null,
-                            'policy name' => null,
                         ],
                         [
                             'name' => 'Name',
@@ -1769,7 +1771,6 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                             'check' => null,
                             'expression' => null,
                             'comment' => null,
-                            'policy name' => null,
                         ],
                     ],
                     self::BACKEND_SYNAPSE => [
@@ -1854,7 +1855,6 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                             'check' => null,
                             'expression' => null,
                             'comment' => null,
-                            'policy name' => null,
                         ],
                         [
                             'name' => 'Name',
@@ -1867,7 +1867,6 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                             'check' => null,
                             'expression' => null,
                             'comment' => null,
-                            'policy name' => null,
                         ],
                     ],
                     self::BACKEND_SYNAPSE => [
