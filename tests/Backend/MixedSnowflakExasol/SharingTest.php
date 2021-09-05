@@ -25,21 +25,24 @@ class SharingTest extends StorageApiSharingTestCase
     public function workspaceMixedBackendData()
     {
         return [
-//            [
-//                'sharing backend' => self::BACKEND_SNOWFLAKE,
-//                'workspace backend' => self::BACKEND_SNOWFLAKE,
-//                'load type' => 'direct',
-//            ],
-//            [
-//                'sharing backend' => self::BACKEND_SNOWFLAKE,
-//                'workspace backend' => self::BACKEND_EXASOL,
-//                'load type' => 'staging',
-//            ],
-            [
-                'sharing backend' => self::BACKEND_EXASOL,
-                'workspace backend' => self::BACKEND_EXASOL,
-                'load type' => 'direct',
-            ],
+//            works fine
+            "exa to snowflake" =>
+                [
+                    'sharing backend' => self::BACKEND_EXASOL,
+                    'workspace backend' => self::BACKEND_SNOWFLAKE,
+                    'load type' => 'staging',
+                ],
+//            problem with grants
+            /*
+             * TODO doesnt work
+             * project 346 wants to create a table in workspace XXX which belongs to project 347 -> no grants
+             */
+            "exa to exa" =>
+                [
+                    'sharing backend' => self::BACKEND_EXASOL,
+                    'workspace backend' => self::BACKEND_EXASOL,
+                    'load type' => 'direct',
+                ],
         ];
     }
 
@@ -162,10 +165,10 @@ class SharingTest extends StorageApiSharingTestCase
 
         $events = $this->_client2->listEvents(['runId' => $runId, 'q' => 'storage.workspaceLoaded',]);
         self::assertCount(3, $events);
-        // TODO does not match
-//        foreach ($events as $event) {
-//            self::assertSame($expectedLoadType, $event['results']['loadType']);
-//        }
+
+        foreach ($events as $event) {
+            self::assertSame($expectedLoadType, $event['results']['loadType']);
+        }
 
         $afterJobs = $this->_client2->listJobs();
 
