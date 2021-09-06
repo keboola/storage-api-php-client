@@ -1092,10 +1092,11 @@ class Client
      * @param string $tableId
      * @param string $name
      */
-    public function addTableColumn($tableId, $name)
+    public function addTableColumn($tableId, $name, $definition = [])
     {
         $data = array(
             'name' => $name,
+            'definition' => $definition,
         );
         $this->apiPost("tables/$tableId/columns", $data);
     }
