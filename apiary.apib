@@ -2616,10 +2616,18 @@ attributes and information about the containing bucket.
 ### Add Column to Table [POST]
 Adds a new column to an existing table. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 
-*This endpoint is not available for typed tables created via [table definition](#reference/tables/create-table-definition)* with Synapse or Exasol backend
+*Attribute definition is allowed (and rquired) only for for typed tables created via [table definition](#reference/tables/create-table-definition)* with Synapse or Exasol backend
 
 + Parameters
     + table_id (required) - Table Id
+
++ Attributes
+    + name (required, string) - column name
+    + definition (optional, object) - column settings, this object is optional when table is not typed table
+        + type (required, string) - datatype of this column, choose build in types for used backend [Exasol](https://bit.ly/3s2n4AP) [Synapse](https://bit.ly/3uZjN60)
+        + length (string) - optional, default: depends on type
+        + nullable (boolean) - optional, default: true
+        + default (string) - optional, default value for column
 
 + Request (application/x-www-form-urlencoded)
     + Headers
