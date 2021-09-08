@@ -401,8 +401,21 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
     public function testDropColumnOnTypedTable()
     {
-        $this->expectExceptionMessage("Not implemented for typed tables");
-        $this->_client->deleteTableColumn($this->tableId, 'name');
+        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $this->tableId, 'table-1');
+        $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $firstAliasTableId, 'table-2');
+
+        $expectedColumns = ['id', 'name'];
+        $this->assertEquals($expectedColumns, $this->_client->getTable($this->tableId)['columns']);
+        $this->assertEquals($expectedColumns, $this->_client->getTable($firstAliasTableId)['columns']);
+        $this->assertEquals($expectedColumns, $this->_client->getTable($secondAliasTableId)['columns']);
+
+        // force because table has aliases
+        $this->_client->deleteTableColumn($this->tableId, 'name', ['force' => true]);
+
+        $expectedColumns = ['id'];
+        $this->assertEquals($expectedColumns, $this->_client->getTable($this->tableId)['columns']);
+        $this->assertEquals($expectedColumns, $this->_client->getTable($firstAliasTableId)['columns']);
+        $this->assertEquals($expectedColumns, $this->_client->getTable($secondAliasTableId)['columns']);
     }
 
     public function testAddPrimaryKeyOnTypedTable()
