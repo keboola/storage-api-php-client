@@ -3,6 +3,8 @@
 namespace Keboola\Test\Backend\Exasol;
 
 use Keboola\Csv\CsvFile;
+use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Metadata;
 use Keboola\Test\StorageApiTestCase;
 
 class TableDefinitionOperationsTest extends StorageApiTestCase
@@ -189,8 +191,131 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
     public function testAddColumnOnTypedTable()
     {
-        $this->expectExceptionMessage("Not implemented for typed tables");
-        $this->_client->addTableColumn($this->tableId, 'newColumn');
+        $tableDefinition = [
+            'name' => 'my-new-table-add-column',
+            'primaryKeysNames' => ['id'],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'INT',
+                    ],
+                ],
+                [
+                    'name' => 'column_decimal',
+                    'definition' => [
+                        'type' => 'DECIMAL',
+                        'length' => '4,3'
+                    ],
+                ],
+            ],
+        ];
+
+        $sourceTableId = $this->_client->createTableDefinition($this->getTestBucketId(self::STAGE_IN), $tableDefinition);
+
+        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $sourceTableId, 'table-1');
+        $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $firstAliasTableId, 'table-2');
+
+        $newColumns =  [
+            [
+                'name' => 'column_float',
+                'definition' => [
+                    'type' => 'FLOAT',
+                ]
+            ],
+            [
+                'name' => 'column_boolean',
+                'definition' => [
+                    'type' => 'BOOL',
+                ],
+            ],
+            [
+                'name' => 'column_date',
+                'definition' => [
+                    'type' => 'DATE',
+                ],
+            ],
+            [
+                'name' => 'column_timestamp',
+                'definition' => [
+                    'type' => 'TIMESTAMP',
+                ],
+            ],
+            [
+                'name' => 'column_varchar',
+                'definition' => [
+                    'type' => 'VARCHAR',
+                ],
+            ],
+        ];
+
+        foreach ($newColumns as $newColumn) {
+            $this->_client->addTableColumn($sourceTableId, $newColumn['name'], $newColumn['definition']);
+        }
+
+        $expectedColumns = ['id', 'column_decimal', 'column_float', 'column_boolean', 'column_date', 'column_timestamp', 'column_varchar'];
+        $this->assertEquals($expectedColumns, $this->_client->getTable($sourceTableId)['columns']);
+        $this->assertEquals($expectedColumns, $this->_client->getTable($firstAliasTableId)['columns']);
+        $this->assertEquals($expectedColumns, $this->_client->getTable($secondAliasTableId)['columns']);
+
+        // check that the new table has correct datypes in metadata
+        $metadataClient = new Metadata($this->_client);
+        $addedColumnMetadata = $metadataClient->listColumnMetadata("{$sourceTableId}.column_float");
+        // alias tables has metadata from source table
+        $firstAliasAddedColumnMetadata = $this->_client->getTable($firstAliasTableId)['sourceTable']['columnMetadata']['column_float'];
+        $secondAliasAddedColumnMetadata = $this->_client->getTable($secondAliasTableId)['sourceTable']['columnMetadata']['column_float'];
+
+        foreach ([$addedColumnMetadata, $firstAliasAddedColumnMetadata, $secondAliasAddedColumnMetadata] as $columnMetadata) {
+            $this->assertArrayEqualsExceptKeys([
+                'key' => 'KBC.datatype.type',
+                'value' => 'DOUBLE PRECISION',
+                'provider' => 'storage',
+            ], $columnMetadata[0], ['id', 'timestamp']);
+            $this->assertArrayEqualsExceptKeys([
+                'key' => 'KBC.datatype.nullable',
+                'value' => '1',
+                'provider' => 'storage',
+            ], $columnMetadata[1], ['id', 'timestamp']);
+            $this->assertArrayEqualsExceptKeys([
+                'key' => 'KBC.datatype.basetype',
+                'value' => 'FLOAT',
+                'provider' => 'storage',
+            ], $columnMetadata[2], ['id', 'timestamp']);
+            $this->assertArrayEqualsExceptKeys([
+                'key' => 'KBC.datatype.length',
+                'value' => '64',
+                'provider' => 'storage',
+            ], $columnMetadata[3], ['id', 'timestamp']);
+        }
+    }
+
+    public function testAddTypedColumnToNonTypedTableShouldFail()
+    {
+        $tableDefinition = [
+            'name' => 'my-new-table-typed-add-column',
+            'primaryKeysNames' => ['id'],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'INT',
+                    ],
+                ],
+                [
+                    'name' => 'column_decimal',
+                    'definition' => [
+                        'type' => 'DECIMAL',
+                        'length' => '4,3'
+                    ],
+                ],
+            ],
+        ];
+
+        $sourceTableId = $this->_client->createTableDefinition($this->getTestBucketId(self::STAGE_IN), $tableDefinition);
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Invalid parameters - definition: This field is missing.');
+        $this->_client->addTableColumn($sourceTableId, 'addColumn');
     }
 
     public function testDropColumnOnTypedTable()
