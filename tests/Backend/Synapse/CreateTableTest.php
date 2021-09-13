@@ -31,6 +31,10 @@ class CreateTableTest extends StorageApiTestCase
             'type' => 'HASH',
             'distributionColumnsNames' => ['id'],
         ],
+        'index' => [
+            'type' => 'CLUSTERED INDEX',
+            'indexColumnsNames' => ['id'],
+        ],
     ];
 
     public function setUp()
@@ -186,6 +190,8 @@ class CreateTableTest extends StorageApiTestCase
         $this->assertSame(false, $eventParams['syntheticPrimaryKeyEnabled']);
         $this->assertSame(['id'], $eventParams['distributionKey']);
         $this->assertSame('HASH', $eventParams['distribution']);
+        $this->assertSame('CLUSTERED INDEX', $eventParams['indexType']);
+        $this->assertSame(['id'], $eventParams['indexKey']);
 
         // table properties validation
         $table = $this->_client->getTable($tableId);
@@ -194,8 +200,11 @@ class CreateTableTest extends StorageApiTestCase
         $this->assertSame('my-new-table', $table['displayName']);
 
         $this->assertSame(['id'], $table['primaryKey']);
+        $this->assertSame('HASH', $table['distributionType']);
         $this->assertSame(['id'], $table['distributionKey']);
         $this->assertSame(['id'], $table['indexedColumns']);
+        $this->assertSame('CLUSTERED INDEX', $table['indexType']);
+        $this->assertSame(['id'], $table['indexKey']);
 
         $this->assertSame(false, $table['syntheticPrimaryKeyEnabled']);
 
@@ -316,28 +325,82 @@ class CreateTableTest extends StorageApiTestCase
         ], $nameColumnMetadata[3], ['id', 'timestamp']);
     }
 
-    public function testCreateTableDefinitionWithWrongInput()
+    public function invalidDefinitions()
     {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
-
-        $data = [
-            'name' => 'my-new-table',
-            'primaryKeysNames' => ['notInColumns'],
-            'columns' => [
+        return [
+            'pk not in columns' => [
                 [
-                    'name' => 'id',
-                    'definition' => [
-                        'type' => 'INT',
+                    'name' => 'my-new-table',
+                    'primaryKeysNames' => ['notInColumns'],
+                    'columns' => [
+                        [
+                            'name' => 'id',
+                            'definition' => [
+                                'type' => 'INT',
+                            ],
+                        ],
+                    ],
+                    'distribution' => [
+                        'type' => 'HASH',
+                        'distributionColumnsNames' => ['id'],
                     ],
                 ],
             ],
-            'distribution' => [
-                'type' => 'HASH',
-                'distributionColumnsNames' => ['id'],
+            'wrong index ' => [
+                [
+                    'name' => 'my-new-table',
+                    'primaryKeysNames' => [],
+                    'columns' => [
+                        [
+                            'name' => 'id',
+                            'definition' => [
+                                'type' => 'INT',
+                            ],
+                        ],
+                    ],
+                    'distribution' => [
+                        'type' => 'HASH',
+                        'distributionColumnsNames' => ['id'],
+                    ],
+                    'index' => [
+                        'type' => 'wrong',
+                    ],
+                ],
+            ],
+            'wrong clustered index column' => [
+                [
+                    'name' => 'my-new-table',
+                    'primaryKeysNames' => [],
+                    'columns' => [
+                        [
+                            'name' => 'id',
+                            'definition' => [
+                                'type' => 'INT',
+                            ],
+                        ],
+                    ],
+                    'distribution' => [
+                        'type' => 'HASH',
+                        'distributionColumnsNames' => ['id'],
+                    ],
+                    'index' => [
+                        'type' => 'CLUSTERED INDEX',
+                        'indexColumnsNames' => ['wrong'],
+                    ],
+                ],
             ],
         ];
+    }
+
+    /**
+     * @dataProvider invalidDefinitions
+     */
+    public function testCreateTableDefinitionWithWrongInput(array $definition)
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
         try {
-            $this->_client->createTableDefinition($bucketId, $data);
+            $this->_client->createTableDefinition($bucketId, $definition);
         } catch (ClientException $exception) {
             $this->assertEquals($exception->getStringCode(), 'validation.failed');
         }
