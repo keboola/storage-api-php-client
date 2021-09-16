@@ -164,10 +164,10 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
 
         $workspace = $this->workspaces->createWorkspace([
             'backend' => StorageApiTestCase::BACKEND_SNOWFLAKE,
-            'backendSize' => 'xsmall',
+            'backendSize' => 'testsize',
         ]);
 
-        $this->assertSame('xsmall', $workspace['backendSize']);
+        $this->assertSame('testsize', $workspace['backendSize']);
 
         $sharedBuckets = array_filter(
             $this->_client->listSharedBuckets(),
@@ -243,10 +243,10 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
 
         $workspace = $workspaces->createWorkspace([
             'backend' => StorageApiTestCase::BACKEND_SNOWFLAKE,
-            'backendSize' => 'xsmall'
+            'backendSize' => 'testsize'
         ]);
 
-        $this->assertSame('xsmall', $workspace['backendSize']);
+        $this->assertSame('testsize', $workspace['backendSize']);
 
         $tableId = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),
@@ -285,10 +285,10 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
                 'small',
                 '_SMALL',
             ],
-            'xsmall size' => [
-                'xsmall',
-                'xsmall',
-                '_XSMALL',
+            'large size' => [
+                'testsize',
+                'testsize',
+                '_TESTSIZE',
             ],
         ];
     }
