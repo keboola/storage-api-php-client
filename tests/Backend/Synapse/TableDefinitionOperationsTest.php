@@ -422,15 +422,14 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $this->assertEquals($expectedColumns, $this->_client->getTable($secondAliasTableId)['columns']);
     }
 
-    public function testAddPrimaryKeyOnTypedTable()
+    public function testPrimaryKeyOperationsOnTypedTable()
     {
-        $this->expectExceptionMessage("Not implemented for typed tables");
-        $this->_client->createTablePrimaryKey($this->tableId, ['id']);
-    }
-    public function testRemovePrimaryKeyOnTypedTable()
-    {
-        $this->expectExceptionMessage("Not implemented for typed tables");
         $this->_client->removeTablePrimaryKey($this->tableId);
+        $this->_client->createTablePrimaryKey($this->tableId, ['id']);
+        $this->_client->removeTablePrimaryKey($this->tableId);
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('[SQL Server]Cannot define PRIMARY KEY constraint on nullable column in table \'my-new-table\'.');
+        $this->_client->createTablePrimaryKey($this->tableId, ['id','name']);
     }
 
     public function testCreateSnapshotOnTypedTable()
