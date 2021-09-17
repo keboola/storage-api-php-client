@@ -3964,6 +3964,46 @@ the HTTP 400 response code is returned.
                 "id": "13008826"
             }
 
+### Create Development Branch Event [POST /v2/storage/branch/{branch_id}/events]
+Creates a new external event for [Development Branch](#reference/development-branches). The maximum allowed size of an event is 200KB. If this is exceeded,
+the HTTP 400 response code is returned.
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+
++ Attributes
+    + message (required) - Event message
+    + component (required) - Name of a [registered component](#reference/miscellaneous/api-index/component-list)
+    + description (optional) - Event description
+    + type (optional, enum[string]) - Type of the event
+        + Members
+            + info
+            + success
+            + warn
+            + error
+        + Default: info
+    + configurationId (optional) - Id of a configuration executed by the component
+    + params (optional, string) - Serialized JSON object with custom data
+    + results (optional, string) - Serialized JSON object with custom data
+    + duration (optional, number) - Duration of the associated task in seconds
+    + runId (optional) - Id of the associated component job
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            component=keboola.test-component&message=This+is+a+word+of+warning&type=warn
+
++ Response 201 (application/json)
+    + Body
+
+            {
+                "id": "13008826"
+            }
+
 ### Events list [GET /v2/storage/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}]
 Lists all events in the project.
 
@@ -4148,6 +4188,7 @@ Lists all events associated with a particular token.
 + token (object) - Creator of the event
     + id: 1234 - Id of the token
     + name: support@keboola.com - Token owner
++ idBranch: null - Id of the development branch
 + uri: 498839405 - Event URI.
 + attachments (object) - Arbitrary list of attached files - e.g. backups for table import events
 
