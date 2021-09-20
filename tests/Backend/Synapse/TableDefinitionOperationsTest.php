@@ -10,7 +10,7 @@ use Keboola\Test\StorageApiTestCase;
 class TableDefinitionOperationsTest extends StorageApiTestCase
 {
     private $tableId;
-    
+
     public function setUp()
     {
         parent::setUp();
@@ -22,7 +22,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         }
 
         $this->initEmptyTestBucketsForParallelTests();
-        
+
         $this->tableId = $this->createTableDefinition();
     }
 
@@ -51,6 +51,10 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
             'distribution' => [
                 'type' => 'HASH',
                 'distributionColumnsNames' => ['id'],
+            ],
+            'index' => [
+                'type' => 'CLUSTERED INDEX',
+                'indexColumnsNames' => ['id'],
             ],
         ];
 
@@ -431,7 +435,76 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
     public function testCreateSnapshotOnTypedTable()
     {
-        $this->expectExceptionMessage("Not implemented for typed tables");
-        $this->_client->createTableSnapshot($this->tableId);
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $snapshotId = $this->_client->createTableSnapshot($this->tableId, 'table definition snapshot');
+
+        $newTableId = $this->_client->createTableFromSnapshot($bucketId, $snapshotId, 'restored');
+        $newTable = $this->_client->getTable($newTableId);
+        $this->assertEquals('restored', $newTable['name']);
+
+        $this->assertSame(['id'], $newTable['primaryKey']);
+        $this->assertSame('HASH', $newTable['distributionType']);
+        $this->assertSame(['id'], $newTable['distributionKey']);
+        $this->assertSame(['id'], $newTable['indexedColumns']);
+        $this->assertSame('CLUSTERED INDEX', $newTable['indexType']);
+        $this->assertSame(['id'], $newTable['indexKey']);
+
+        $this->assertSame(
+            [
+                'id',
+                'name'
+            ],
+            $newTable['columns']
+        );
+
+        $this->assertCount(1, $newTable['metadata']);
+
+        $metadata = reset($newTable['metadata']);
+        $this->assertSame('storage', $metadata['provider']);
+        $this->assertSame('KBC.dataTypesEnabled', $metadata['key']);
+        $this->assertSame('true', $metadata['value']);
+
+        // check that the new table has correct datypes in metadata
+        $metadataClient = new Metadata($this->_client);
+        $idColumnMetadata = $metadataClient->listColumnMetadata("{$newTableId}.id");
+        $nameColumnMetadata = $metadataClient->listColumnMetadata("{$newTableId}.name");
+
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.type',
+            'value' => 'INT',
+            'provider' => 'storage',
+        ], $idColumnMetadata[0], ['id', 'timestamp']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.nullable',
+            'value' => '',
+            'provider' => 'storage',
+        ], $idColumnMetadata[1], ['id', 'timestamp']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.basetype',
+            'value' => 'INTEGER',
+            'provider' => 'storage',
+        ], $idColumnMetadata[2], ['id', 'timestamp']);
+
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.type',
+            'value' => 'NVARCHAR',
+            'provider' => 'storage',
+        ], $nameColumnMetadata[0], ['id', 'timestamp']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.nullable',
+            'value' => '1',
+            'provider' => 'storage',
+        ], $nameColumnMetadata[1], ['id', 'timestamp']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.basetype',
+            'value' => 'STRING',
+            'provider' => 'storage',
+        ], $nameColumnMetadata[2], ['id', 'timestamp']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.length',
+            'value' => '4000',
+            'provider' => 'storage',
+        ], $nameColumnMetadata[3], ['id', 'timestamp']);
     }
 }
