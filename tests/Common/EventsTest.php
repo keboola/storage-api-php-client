@@ -37,9 +37,13 @@ class EventsTest extends StorageApiTestCase
 
         $this->assertEquals($event->getComponent(), $savedEvent['component']);
         $this->assertEquals($event->getConfigurationId(), $savedEvent['configurationId']);
+        $this->assertEquals($event->getDuration(), $savedEvent['performance']['duration']);
+        $this->assertEquals($event->getType(), $savedEvent['type']);
+        $this->assertEquals($event->getRunId(), $savedEvent['runId']);
         $this->assertEquals($event->getMessage(), $savedEvent['message']);
         $this->assertEquals($event->getDescription(), $savedEvent['description']);
-        $this->assertEquals($event->getType(), $savedEvent['type']);
+        $this->assertEquals($event->getParams(), $savedEvent['params']);
+        $this->assertEquals(null, $savedEvent['idBranch']);
     }
 
     public function testEventCreateWithoutParams()
