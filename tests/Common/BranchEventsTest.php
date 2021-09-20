@@ -107,14 +107,25 @@ class BranchEventsTest extends StorageApiTestCase
                 'accountName' => 'Keboola',
                 'configuration' => 'sys.c-sfdc.sfdc-01',
             ));
-        $this->createAndWaitForEvent($event);
+        $this->createAndWaitForEvent($event, $branchAwareClient);
 
         $bucketsListedEvents = $this->waitForListEvents(
             $branchAwareClient,
             'event:ext.ex-sfdc.sys.c-sfdc.account-'.$branch['id']
         );
-
         $this->assertCount(1, $bucketsListedEvents);
+        $this->assertEquals('ex-sfdc', $bucketsListedEvents[0]['component']);
+        $this->assertEquals('sys.c-sfdc.account-'.$branch['id'], $bucketsListedEvents[0]['configurationId']);
+        $this->assertEquals(200, $bucketsListedEvents[0]['performance']['duration']);
+        $this->assertEquals('info', $bucketsListedEvents[0]['type']);
+        $this->assertEquals('ddddssss', $bucketsListedEvents[0]['runId']);
+        $this->assertEquals('Table Opportunity fetched.', $bucketsListedEvents[0]['message']);
+        $this->assertEquals('Some longer description of event', $bucketsListedEvents[0]['description']);
+        $this->assertEquals([
+            'accountName' => 'Keboola',
+            'configuration' => 'sys.c-sfdc.sfdc-01',
+        ], $bucketsListedEvents[0]['params']);
+        $this->assertEquals($branch['id'], $bucketsListedEvents[0]['idBranch']);
 
         // check if there no exist componentConfigurationCreated event for main branch
         // to validate only main branch events will be returned
