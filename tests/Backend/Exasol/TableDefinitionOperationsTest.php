@@ -359,11 +359,6 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $this->assertEquals('restored', $newTable['name']);
 
         $this->assertSame(['id'], $newTable['primaryKey']);
-        $this->assertSame('HASH', $newTable['distributionType']);
-        $this->assertSame(['id'], $newTable['distributionKey']);
-        $this->assertSame(['id'], $newTable['indexedColumns']);
-        $this->assertSame('CLUSTERED INDEX', $newTable['indexType']);
-        $this->assertSame(['id'], $newTable['indexKey']);
 
         $this->assertSame(
             [
@@ -387,7 +382,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
         $this->assertArrayEqualsExceptKeys([
             'key' => 'KBC.datatype.type',
-            'value' => 'INT',
+            'value' => 'DECIMAL',
             'provider' => 'storage',
         ], $idColumnMetadata[0], ['id', 'timestamp']);
         $this->assertArrayEqualsExceptKeys([
@@ -397,13 +392,13 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         ], $idColumnMetadata[1], ['id', 'timestamp']);
         $this->assertArrayEqualsExceptKeys([
             'key' => 'KBC.datatype.basetype',
-            'value' => 'INTEGER',
+            'value' => 'NUMERIC',
             'provider' => 'storage',
         ], $idColumnMetadata[2], ['id', 'timestamp']);
 
         $this->assertArrayEqualsExceptKeys([
             'key' => 'KBC.datatype.type',
-            'value' => 'NVARCHAR',
+            'value' => 'VARCHAR',
             'provider' => 'storage',
         ], $nameColumnMetadata[0], ['id', 'timestamp']);
         $this->assertArrayEqualsExceptKeys([
@@ -418,7 +413,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         ], $nameColumnMetadata[2], ['id', 'timestamp']);
         $this->assertArrayEqualsExceptKeys([
             'key' => 'KBC.datatype.length',
-            'value' => '4000',
+            'value' => '2000000',
             'provider' => 'storage',
         ], $nameColumnMetadata[3], ['id', 'timestamp']);
     }
