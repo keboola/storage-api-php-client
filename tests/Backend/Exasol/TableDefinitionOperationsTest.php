@@ -339,6 +339,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
     public function testPrimaryKeyOperationsOnTypedTable()
     {
+        $this->expectNotToPerformAssertions();
         $this->_client->removeTablePrimaryKey($this->tableId);
         $this->_client->createTablePrimaryKey($this->tableId, ['id']);
         $this->_client->removeTablePrimaryKey($this->tableId);
