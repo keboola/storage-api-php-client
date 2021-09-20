@@ -136,7 +136,7 @@ class TableExporterTest extends StorageApiTestCase
             ]
 
         ];
-        $exporter->exportTables($exports);
+        $jobResults = $exporter->exportTables($exports);
         // compare data
         $this->assertTrue(file_exists($file1));
         $this->assertTrue(file_exists($file2));
@@ -147,7 +147,9 @@ class TableExporterTest extends StorageApiTestCase
         $table1Job = null;
         $table2Job = null;
 
-        foreach ($this->listJobsByRunId($runId) as $job) {
+        $listedJobs = $this->listJobsByRunId($runId);
+        $this->assertEquals($listedJobs, $jobResults);
+        foreach ($listedJobs as $job) {
             $this->assertSame($runId, $job['runId']);
             $this->assertSame('tableExport', $job['operationName']);
 
