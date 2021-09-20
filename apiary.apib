@@ -6044,6 +6044,35 @@ Creates a new configuration from the specified configuration version.
             "id": 4
         }
 
+### Create Development Branch Configuration Copy [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/versions/{version_id}/create]
+Creates a new configuration from the specified configuration version in [Development Branch](#reference/development-branches).
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
+    + config_id (required) - Id of the configuration to copy
+    + version_id (required, number) - Version number to copy
+
++ Attributes
+    + name (required) - Name of the new configuration
+    + description (optional) - Description of the new configuration
+    + changeDescription (optional) - Version change description
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            name=Configuration+copy&changeDescription=Testing+Copying
+
++ Response 201 (application/json)
+
+        {
+            "id": 4
+        }
+
 
 ## Create or List Configuration Rows [/v2/storage/components/{component_id}/configs/{config_id}/rows]
 ### Create Configuration Row [POST]
