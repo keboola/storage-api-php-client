@@ -68,6 +68,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                     'name' => 'id',
                     'definition' => [
                         'type' => 'INT',
+                        'nullable' => false,
                     ],
                 ],
                 [
@@ -199,6 +200,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                     'name' => 'id',
                     'definition' => [
                         'type' => 'INT',
+                        'nullable' => false,
                     ],
                 ],
                 [
@@ -299,6 +301,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                     'name' => 'id',
                     'definition' => [
                         'type' => 'INT',
+                        'nullable' => false,
                     ],
                 ],
                 [
