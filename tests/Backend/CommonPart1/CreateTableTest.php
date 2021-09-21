@@ -266,7 +266,7 @@ class CreateTableTest extends StorageApiTestCase
         try {
             $this->_client->createTable(
                 $this->getTestBucketId(self::STAGE_IN),
-                'languages',
+                'langua.ges',
                 new CsvFile(__DIR__ . '/../../_data/languages.invalid-column-name.csv')
             );
             $this->fail('Table should not be created');
@@ -413,16 +413,38 @@ class CreateTableTest extends StorageApiTestCase
         try {
             $this->_client->createTableAsync(
                 $this->getTestBucketId(self::STAGE_IN),
-                'languages',
+                'la.nguages',
                 new CsvFile(__DIR__ . '/../../_data/languages.csv'),
-                array(
+                [
                     'primaryKey' => $primaryKey,
-                )
+                ]
             );
             $this->fail('exception should be thrown');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.tables.validation.invalidPrimaryKeyColumns', $e->getStringCode());
         }
+    }
+
+    /**
+     * @param $backend
+     */
+    public function testCreateTableWithInvalidTableName()
+    {
+        $this->expectException(ClientException::class);
+        $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'tableWith.Dot',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
+            []
+        );
+
+        $this->expectException(ClientException::class);
+        $this->_client->createTableAsync(
+            $this->getTestBucketId(self::STAGE_IN),
+            'table.WithDot',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
+            []
+        );
     }
 
     public function testTableCreateInvalidPkType()
