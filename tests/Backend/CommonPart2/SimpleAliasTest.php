@@ -22,6 +22,22 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->initEmptyTestBucketsForParallelTests();
     }
 
+    public function testTableAliasWithDot()
+    {
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+
+        $sourceTableId = $this->_client->createTable(
+            $this->getTestBucketId(),
+            'languages',
+            new CsvFile($importFile),
+            []
+        );
+        // create alias tables with invalid name
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Invalid table name: Only alphanumeric characters dash and underscores are allowed.');
+        $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'aliasWithDot.');
+    }
+
     public function testTableAlias()
     {
         $importFile = __DIR__ . '/../../_data/languages.csv';

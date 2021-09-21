@@ -266,7 +266,7 @@ class CreateTableTest extends StorageApiTestCase
         try {
             $this->_client->createTable(
                 $this->getTestBucketId(self::STAGE_IN),
-                'langua.ges',
+                'languages',
                 new CsvFile(__DIR__ . '/../../_data/languages.invalid-column-name.csv')
             );
             $this->fail('Table should not be created');
@@ -413,7 +413,7 @@ class CreateTableTest extends StorageApiTestCase
         try {
             $this->_client->createTableAsync(
                 $this->getTestBucketId(self::STAGE_IN),
-                'la.nguages',
+                'languages',
                 new CsvFile(__DIR__ . '/../../_data/languages.csv'),
                 [
                     'primaryKey' => $primaryKey,
