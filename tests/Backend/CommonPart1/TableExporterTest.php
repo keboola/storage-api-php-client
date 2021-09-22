@@ -76,7 +76,6 @@ class TableExporterTest extends StorageApiTestCase
             $exporter->exportTable($tableId, $this->downloadPath, $exportOptions);
         }
 
-
         // compare data
         $this->assertTrue(file_exists($this->downloadPath));
         $this->assertLinesEqualsSorted(file_get_contents($expectationsFile), file_get_contents($this->downloadPath), 'imported data comparison');
@@ -90,6 +89,7 @@ class TableExporterTest extends StorageApiTestCase
         $this->assertSame($tableId, $job['tableId']);
         $this->assertNotEmpty($job['operationParams']['export']['columns']);
         $this->assertSame($expectedColumns, $job['operationParams']['export']['columns']);
+        $this->assertSame(true, $job['operationParams']['export']['gzipOutput']);
     }
 
     public function testLimitParameter()
