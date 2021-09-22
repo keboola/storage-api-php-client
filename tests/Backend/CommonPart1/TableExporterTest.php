@@ -148,7 +148,7 @@ class TableExporterTest extends StorageApiTestCase
         $table2Job = null;
 
         $listedJobs = $this->listJobsByRunId($runId);
-        $this->assertEquals($listedJobs, $jobResults);
+        $this->assertArrayEqualsSorted($listedJobs, $jobResults, 'id');
         foreach ($listedJobs as $job) {
             $this->assertSame($runId, $job['runId']);
             $this->assertSame('tableExport', $job['operationName']);
