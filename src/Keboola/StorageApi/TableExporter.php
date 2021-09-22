@@ -155,6 +155,7 @@ class TableExporter
 
     /**
      * @param array $tables
+     * @return array Job results
      * @throws Exception
      */
     public function exportTables(array $tables = array())
@@ -183,5 +184,6 @@ class TableExporter
             $exportJob = $exportJobs[$jobResult['id']];
             $this->handleExportedFile($exportJob['tableId'], $jobResult['results']['file']['id'], $exportJob['destination'], $exportJob['exportOptions']);
         }
+        return $jobResults;
     }
 }
