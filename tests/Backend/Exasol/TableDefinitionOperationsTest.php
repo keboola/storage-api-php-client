@@ -108,6 +108,12 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                         'type' => 'VARCHAR',
                     ],
                 ],
+                [
+                    'name' => 'column_interval_year_to_month',
+                    'definition' => [
+                        'type' => 'INTERVAL YEAR TO MONTH',
+                    ],
+                ],
             ]
         ];
 
@@ -120,8 +126,9 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
             'column_date',
             'column_timestamp',
             'column_varchar',
+            'column_interval_year_to_month',
         ]);
-        $csvFile->writeRow(['1', '003.123', '3.14', 0, '1989-08-31', '1989-08-31 00:00:00.000', 'roman']);
+        $csvFile->writeRow(['1', '003.123', '3.14', 0, '1989-08-31', '1989-08-31 00:00:00.000', 'roman', '5-3']);
 
 
         $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
