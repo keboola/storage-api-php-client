@@ -342,10 +342,17 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
     public function testPrimaryKeyOperationsOnTypedTable()
     {
-        $this->expectNotToPerformAssertions();
         $this->_client->removeTablePrimaryKey($this->tableId);
         $this->_client->createTablePrimaryKey($this->tableId, ['id']);
         $this->_client->removeTablePrimaryKey($this->tableId);
+        // create composite primary key without data
+        $this->_client->createTablePrimaryKey($this->tableId, ['id', 'name']);
+        $this->_client->removeTablePrimaryKey($this->tableId);
+        // load data with nulls
+        $this->_client->writeTableAsync($this->tableId, new CsvFile(__DIR__ . '/../../_data/languages.null.csv'));
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('[EXASOL] constraint violation - not null');
+        // try to create composite primary key on column with nulls
         $this->_client->createTablePrimaryKey($this->tableId, ['id', 'name']);
     }
 
