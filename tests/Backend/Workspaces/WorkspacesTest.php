@@ -36,11 +36,13 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
 
         $workspaceWithSnowflakeBackend = $connection['backend'] === self::BACKEND_SNOWFLAKE;
 
+        $this->assertArrayHasKey('backendSize', $workspace);
         if ($workspaceWithSnowflakeBackend) {
             $this->assertNotEmpty($connection['warehouse']);
+            $this->assertSame('small', $workspace['backendSize']);
+        } else {
+            $this->assertNull($workspace['backendSize']);
         }
-        $this->assertArrayHasKey('backendSize', $workspace);
-        $this->assertSame('small', $workspace['backendSize']);
 
         $tokenInfo = $this->_client->verifyToken();
         $this->assertEquals($tokenInfo['owner']['defaultBackend'], $connection['backend']);
