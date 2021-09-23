@@ -68,6 +68,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                     'name' => 'id',
                     'definition' => [
                         'type' => 'INT',
+                        'nullable' => false,
                     ],
                 ],
                 [
@@ -199,6 +200,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                     'name' => 'id',
                     'definition' => [
                         'type' => 'INT',
+                        'nullable' => false,
                     ],
                 ],
                 [
@@ -299,6 +301,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                     'name' => 'id',
                     'definition' => [
                         'type' => 'INT',
+                        'nullable' => false,
                     ],
                 ],
                 [
@@ -337,15 +340,20 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $this->assertEquals($expectedColumns, $this->_client->getTable($secondAliasTableId)['columns']);
     }
 
-    public function testAddPrimaryKeyOnTypedTable()
+    public function testPrimaryKeyOperationsOnTypedTable()
     {
-        $this->expectExceptionMessage("Not implemented for typed tables");
-        $this->_client->createTablePrimaryKey($this->tableId, ['id']);
-    }
-    public function testRemovePrimaryKeyOnTypedTable()
-    {
-        $this->expectExceptionMessage("Not implemented for typed tables");
         $this->_client->removeTablePrimaryKey($this->tableId);
+        $this->_client->createTablePrimaryKey($this->tableId, ['id']);
+        $this->_client->removeTablePrimaryKey($this->tableId);
+        // create composite primary key without data
+        $this->_client->createTablePrimaryKey($this->tableId, ['id', 'name']);
+        $this->_client->removeTablePrimaryKey($this->tableId);
+        // load data with nulls
+        $this->_client->writeTableAsync($this->tableId, new CsvFile(__DIR__ . '/../../_data/languages.null.csv'));
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('[EXASOL] constraint violation - not null');
+        // try to create composite primary key on column with nulls
+        $this->_client->createTablePrimaryKey($this->tableId, ['id', 'name']);
     }
 
     public function testCreateSnapshotOnTypedTable()
