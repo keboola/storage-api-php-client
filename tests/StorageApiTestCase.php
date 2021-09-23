@@ -607,4 +607,39 @@ abstract class StorageApiTestCase extends ClientTestCase
             }
         );
     }
+
+    /**
+     * DataProvider cannot use `$this->variable` because the provider run before the `setUp` method is called.
+     * Need to put `$this` as argument to anonymous function to build correct variable values and return correct client.
+     *
+     * > All data providers are executed before both the call to the setUpBeforeClass static method
+     * > and the first call to the setUp method.
+     * > Because of that you can't access any variables you create there from within a data provider.
+     * > This is required in order for PHPUnit to be able to compute the total number of tests.
+     * > https://phpunit.de/manual/6.5/en/writing-tests-for-phpunit.html#:~:text=a%20depending%20test.-,Note,-All%20data%20providers
+     */
+    public function provideComponentsClient()
+    {
+        yield 'defaultBranch' => [
+            function (self $that) {
+                return $that->_client;
+            }
+        ];
+
+        yield 'devBranch' => [
+            function (self $that) {
+                $providedToken = $that->_client->verifyToken();
+                $branchName = implode('\\', [
+                    __CLASS__,
+                    $that->getName(false),
+                    $that->dataName(),
+                    $providedToken['id'],
+                ]);
+                $devBranch = new \Keboola\StorageApi\DevBranches($that->_client);
+                $this->deleteBranchesByPrefix($devBranch, $branchName);
+                $branch = $devBranch->createBranch($branchName);
+                return $this->getBranchAwareDefaultClient($branch['id']);
+            }
+        ];
+    }
 }

@@ -1,6 +1,8 @@
 <?php
 namespace Keboola\Test\Common;
 
+use Keboola\StorageApi\BranchAwareClient;
+use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
@@ -38,10 +40,20 @@ class ComponentsTest extends StorageApiTestCase
         }
     }
 
-    public function testGetComponentDetail()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testGetComponentDetail(callable $getClient)
     {
+        /** @var Client $client */
+        $client = $getClient($this);
+        if ($client instanceof BranchAwareClient) {
+            $this->markTestIncomplete('Not implemented');
+        }
+
         $componentId = 'wr-db';
-        $componentsClient = new \Keboola\StorageApi\Components($this->_client);
+        $componentsClient = new \Keboola\StorageApi\Components($client);
+
         $component = $componentsClient->getComponent($componentId);
 
         $this->assertEquals('wr-db', $component['id']);
@@ -54,12 +66,15 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertArrayNotHasKey('configurations', $component);
     }
 
-    public function testListComponents()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testListComponents(callable $getClient)
     {
         $componentId = 'wr-db';
         $configurationId = 'main-1';
 
-        $componentsClient = new \Keboola\StorageApi\Components($this->_client);
+        $componentsClient = new \Keboola\StorageApi\Components($getClient($this));
         $components = $componentsClient->listComponents(new ListComponentsOptions());
 
         $this->assertSame([], $components);
@@ -172,11 +187,14 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertSame(['value' => 2], $row['configuration']);
     }
 
-    public function testComponentConfigRenew()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigRenew(callable $getClient)
     {
         $componentId = 'wr-db';
         $configurationId = 'main-1';
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
 
         $configuration = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId($componentId)
@@ -219,11 +237,19 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertCount(0, $component['rows']);
     }
 
-    public function testComponentConfigDelete()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigDelete(callable $getClient)
     {
+        /** @var Client $client */
+        $client = $getClient($this);
+        if ($client instanceof BranchAwareClient) {
+            $this->markTestSkipped('Deleting configuration from trash is not allowed in development branches.');
+        }
         $componentId = 'wr-db';
         $configurationId = 'main-1';
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($client);
 
         $this->assertCount(0, $components->listComponentConfigurations(
             (new ListComponentConfigurationsOptions())->setComponentId($componentId)
@@ -312,11 +338,14 @@ class ComponentsTest extends StorageApiTestCase
         ));
     }
 
-    public function testComponentConfigRestore()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigRestore(callable $getClient)
     {
         $componentId = 'wr-db';
         $configurationId = 'main-1';
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
 
         $this->assertCount(0, $components->listComponentConfigurations(
             (new ListComponentConfigurationsOptions())->setComponentId($componentId)
@@ -381,9 +410,12 @@ class ComponentsTest extends StorageApiTestCase
         ));
     }
 
-    public function testComponentConfigCreate()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigCreate(callable $getClient)
     {
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
         $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
@@ -412,6 +444,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals('some desc', $configuration['description']);
     }
 
+    // TODO vice jinych klientu
     public function testComponentConfigRestrictionsForReadOnlyUser()
     {
         $readOnlyClient = $this->getClientForToken(STORAGE_API_READ_ONLY_TOKEN);
@@ -464,10 +497,15 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertSame($components, $componentsForAdmin->listComponents());
     }
 
-    public function testConfigurationNameShouldBeRequired()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testConfigurationNameShouldBeRequired(callable $getClient)
     {
+        /** @var Client $client */
+        $client = $getClient($this);
         try {
-            $this->_client->apiPost('components/wr-db/configs', []);
+            $client->apiPost('components/wr-db/configs', []);
             $this->fail('Params should be invalid');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.components.validation', $e->getStringCode());
@@ -475,20 +513,32 @@ class ComponentsTest extends StorageApiTestCase
         }
     }
 
-    public function testConfigurationDescriptionDefault()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testConfigurationDescriptionDefault(callable $getClient)
     {
-        $resp = $this->_client->apiPost('components/wr-db/configs', [
+        /** @var Client $client */
+        $client = $getClient($this);
+        $components = new \Keboola\StorageApi\Components($client);
+
+        $resp = $client->apiPost('components/wr-db/configs', [
             'name' => 'neco'
         ]);
-        $components = new \Keboola\StorageApi\Components($this->_client);
         $configuration = $components->getConfiguration('wr-db', $resp['id']);
         $this->assertNotNull($configuration['description']);
     }
 
-    public function testNonJsonConfigurationShouldNotBeAllowed()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testNonJsonConfigurationShouldNotBeAllowed(callable $getClient)
     {
+        /** @var Client $client */
+        $client = $getClient($this);
+
         try {
-            $this->_client->apiPost('components/wr-db/configs', array(
+            $client->apiPost('components/wr-db/configs', array(
                 'name' => 'neco',
                 'description' => 'some',
                 'configuration' => '{sdf}',
@@ -500,10 +550,17 @@ class ComponentsTest extends StorageApiTestCase
         }
     }
 
-    public function testNonJsonStateShouldNotBeAllowed()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testNonJsonStateShouldNotBeAllowed(callable $getClient)
     {
+        /** @var Client $client */
+        $client = $getClient($this);
+        $components = new \Keboola\StorageApi\Components($client);
+
         try {
-            $this->_client->apiPost('components/wr-db/configs', array(
+            $client->apiPost('components/wr-db/configs', array(
                 'name' => 'neco',
                 'description' => 'some',
                 'state' => '{sdf}',
@@ -515,6 +572,7 @@ class ComponentsTest extends StorageApiTestCase
         }
     }
 
+    // TODO pouziti jineho klienta
     public function testComponentConfigurationJsonDataTypes()
     {
         // to check if params is object we have to convert received json to objects instead of assoc array
@@ -588,7 +646,10 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals($config, $response->configuration);
     }
 
-    public function testComponentConfigCreateWithConfigurationJson()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigCreateWithConfigurationJson(callable $getClient)
     {
         $configuration = array(
             'queries' => array(
@@ -599,7 +660,7 @@ class ComponentsTest extends StorageApiTestCase
             ),
         );
 
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
         $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
@@ -613,7 +674,10 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(1, $config['version']);
     }
 
-    public function testComponentConfigCreateWithStateJson()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigCreateWithStateJson(callable $getClient)
     {
         $state = array(
             'queries' => array(
@@ -623,7 +687,7 @@ class ComponentsTest extends StorageApiTestCase
                 )
             ),
         );
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
         $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
@@ -637,8 +701,17 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(1, $config['version']);
     }
 
-    public function testComponentConfigUpdateEmptyStateJson()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigUpdateEmptyStateJson(callable $getClient)
     {
+        /** @var Client $client */
+        $client = $getClient($this);
+        if ($client instanceof BranchAwareClient) {
+            $this->markTestIncomplete("Using 'state' parameter on configuration update is restricted for dev/branch context. Use direct API call.");
+        }
+
         $state = array(
             'queries' => array(
                 array(
@@ -647,7 +720,7 @@ class ComponentsTest extends StorageApiTestCase
                 )
             ),
         );
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($client);
         $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
@@ -670,9 +743,12 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(1, $config['version']);
     }
 
-    public function testComponentConfigCreateIdAutoCreate()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigCreateIdAutoCreate(callable $getClient)
     {
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
         $component = $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setName('Main')
@@ -685,13 +761,22 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertNotEmpty($component['id']);
     }
 
-    public function testComponentConfigUpdate()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigUpdate(callable $getClient)
     {
+        /** @var Client $client */
+        $client = $getClient($this);
+        if ($client instanceof BranchAwareClient) {
+            $this->markTestIncomplete('Failed asserting that a string is empty.');
+        }
+
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
             ->setName('Main');
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($client);
         $newConfiguration = $components->addConfiguration($config);
         $this->assertEquals(1, $newConfiguration['version']);
         $this->assertEmpty($newConfiguration['state']);
@@ -746,14 +831,22 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals('', $configuration['description'], 'Description can be set empty');
     }
 
-
-    public function testComponentConfigUpdateConfigEmpty()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigUpdateConfigEmpty(callable $getClient)
     {
+        /** @var Client $client */
+        $client = $getClient($this);
+        if ($client instanceof BranchAwareClient) {
+            $this->markTestIncomplete('Failed asserting that a string is empty.');
+        }
+
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
             ->setName('Main');
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($client);
         $newConfiguration = $components->addConfiguration($config);
         $this->assertEquals(1, $newConfiguration['version']);
         $this->assertEmpty($newConfiguration['state']);
@@ -783,13 +876,16 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(3, $updatedConfig['version']);
     }
 
-    public function testComponentConfigUpdateEmptyWithEmpty()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigUpdateEmptyWithEmpty(callable $getClient)
     {
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
             ->setName('Main');
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
         $newConfiguration = $components->addConfiguration($config);
         $this->assertEquals(1, $newConfiguration['version']);
         $this->assertEmpty($newConfiguration['configuration']);
@@ -805,13 +901,22 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(1, $updatedConfig['version'], 'there should not be any change');
     }
 
-    public function testComponentConfigUpdateWithRows()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigUpdateWithRows(callable $getClient)
     {
+        /** @var Client $client */
+        $client = $getClient($this);
+        if ($client instanceof BranchAwareClient) {
+            $this->markTestIncomplete("Using 'state' parameter on configuration update is restricted for dev/branch context. Use direct API call.");
+        }
+
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
             ->setName('Main');
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($client);
         $newConfiguration = $components->addConfiguration($config);
         $this->assertEquals(1, $newConfiguration['version']);
         $this->assertEmpty($newConfiguration['state']);
@@ -886,13 +991,22 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals('main-1-1', $row['id']);
     }
 
-    public function testComponentConfigUpdateVersioning()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigUpdateVersioning(callable $getClient)
     {
+        /** @var Client $client */
+        $client = $getClient($this);
+        if ($client instanceof BranchAwareClient) {
+            $this->markTestIncomplete("Using 'state' parameter on configuration update is restricted for dev/branch context. Use direct API call.");
+        }
+
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
             ->setName('Main');
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($client);
         $newConfiguration = $components->addConfiguration($config);
         $this->assertEquals(1, $newConfiguration['version']);
         $this->assertEmpty($newConfiguration['state']);
@@ -931,13 +1045,22 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(2, $lastVersion['version']);
     }
 
-    public function testComponentConfigUpdateChangeDescription()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigUpdateChangeDescription(callable $getClient)
     {
+        /** @var Client $client */
+        $client = $getClient($this);
+        if ($client instanceof BranchAwareClient) {
+            $this->markTestIncomplete('Failed asserting that two strings are equal.');
+        }
+
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
             ->setName('Main');
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($client);
         $newConfiguration = $components->addConfiguration($config);
         $this->assertEquals(1, $newConfiguration['version']);
         $this->assertEmpty($newConfiguration['state']);
@@ -975,13 +1098,16 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals('', $secondConfigLoaded['changeDescription']);
     }
 
-    public function testComponentConfigsVersionsList()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigsVersionsList(callable $getClient)
     {
         $configuration = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
             ->setName('Main');
-        $componentsApi = new \Keboola\StorageApi\Components($this->_client);
+        $componentsApi = new \Keboola\StorageApi\Components($getClient($this));
         $newConfiguration = $componentsApi->addConfiguration($configuration);
 
         // create version 2
@@ -1065,10 +1191,12 @@ class ComponentsTest extends StorageApiTestCase
 
     /**
      * Create configuration with few rows, update some row and then rollback to configuration with updated row
+     *
+     * @dataProvider provideComponentsClient
      */
-    public function testConfigurationRollback()
+    public function testConfigurationRollback(callable $getClient)
     {
-        $componentsApi = new \Keboola\StorageApi\Components($this->_client);
+        $componentsApi = new \Keboola\StorageApi\Components($getClient($this));
 
         // create configuration
         $configuration = (new \Keboola\StorageApi\Options\Components\Configuration())
@@ -1135,13 +1263,16 @@ class ComponentsTest extends StorageApiTestCase
         ]);
     }
 
-    public function testUpdateRowWithoutIdShouldNotBeAllowed()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testUpdateRowWithoutIdShouldNotBeAllowed(callable $getClient)
     {
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
             ->setName('Main');
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
         $newConfiguration = $components->addConfiguration($config);
 
         // add first row
@@ -1160,13 +1291,16 @@ class ComponentsTest extends StorageApiTestCase
         }
     }
 
-    public function testUpdateConfigWithoutIdShouldNotBeAllowed()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testUpdateConfigWithoutIdShouldNotBeAllowed(callable $getClient)
     {
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
             ->setName('Main');
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
         $newConfiguration = $components->addConfiguration($config);
 
         $config->setConfigurationId(null);
@@ -1178,14 +1312,19 @@ class ComponentsTest extends StorageApiTestCase
         }
     }
 
-
-    public function testComponentConfigsVersionsRollback()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigsVersionsRollback(callable $getClient)
     {
+        /** @var Client $client */
+        $client = $getClient($this);
+
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
             ->setName('Main');
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($client);
         $newConfiguration = $components->addConfiguration($config);
         $this->assertEquals(1, $newConfiguration['version']);
         $this->assertEmpty($newConfiguration['state']);
@@ -1215,7 +1354,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertArrayHasKey('rows', $configuration);
         $this->assertCount(2, $configuration['rows']);
 
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($client);
 
         $newName = 'neco';
         $newDesc = 'some desc';
@@ -1254,13 +1393,16 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals('main-1-1', $row['id']);
     }
 
-    public function testComponentConfigsVersionsCreate()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigsVersionsCreate(callable $getClient)
     {
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
             ->setName('Main');
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
         $newConfiguration = $components->addConfiguration($config);
         $this->assertEquals(1, $newConfiguration['version']);
         $this->assertEmpty($newConfiguration['state']);
@@ -1316,9 +1458,12 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertCount(0, $configuration['rows']);
     }
 
-    public function testListConfigs()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testListConfigs(callable $getClient)
     {
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
 
         $configs = $components->listComponents();
         $this->assertEmpty($configs);
@@ -1362,14 +1507,17 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertArrayHasKey('configuration', $configuration);
     }
 
-    public function testDuplicateConfigShouldNotBeCreated()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testDuplicateConfigShouldNotBeCreated(callable $getClient)
     {
         $options = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
             ->setName('Main');
 
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
         $components->addConfiguration($options);
 
         try {
@@ -1380,6 +1528,7 @@ class ComponentsTest extends StorageApiTestCase
         }
     }
 
+    // TODO pouziti jineho klienta
     public function testPermissions()
     {
         $tokenOptions = (new TokenCreateOptions())
@@ -1403,6 +1552,7 @@ class ComponentsTest extends StorageApiTestCase
         }
     }
 
+    // TODO pouziti jineho klienta
     public function testTokenWithComponentAccess()
     {
         $this->_initEmptyTestBuckets();
@@ -1444,6 +1594,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->tokens->dropToken($token['id']);
     }
 
+    // TODO pouziti jineho klienta
     public function testTokenWithManageAllBucketsShouldHaveAccessToComponents()
     {
         $tokenOptions = (new TokenCreateOptions())
@@ -1474,7 +1625,10 @@ class ComponentsTest extends StorageApiTestCase
         $this->tokens->dropToken($token['id']);
     }
 
-    public function testComponentConfigRowCreate()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigRowCreate(callable $getClient)
     {
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
@@ -1483,7 +1637,9 @@ class ComponentsTest extends StorageApiTestCase
             ->setName('Main')
             ->setDescription('some desc');
 
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        /** @var Client $client */
+        $client = $getClient($this);
+        $components = new \Keboola\StorageApi\Components($client);
 
         $components->addConfiguration($configuration);
 
@@ -1524,7 +1680,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals('', $row['description']);
         $this->assertEquals(false, $row['isDisabled']);
 
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($client);
 
         $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId($component['id'])
@@ -1543,7 +1699,10 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals('main-1-1', $row['id']);
     }
 
-    public function testComponentConfigRowCreateName()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigRowCreateName(callable $getClient)
     {
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
@@ -1551,7 +1710,7 @@ class ComponentsTest extends StorageApiTestCase
             ->setConfigurationId('main-1')
             ->setName('main');
 
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
         $components->addConfiguration($configuration);
 
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
@@ -1571,8 +1730,10 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals('row name', $row['name']);
     }
 
-
-    public function testComponentConfigRowCreateDescription()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigRowCreateDescription(callable $getClient)
     {
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
@@ -1580,7 +1741,7 @@ class ComponentsTest extends StorageApiTestCase
             ->setConfigurationId('main-1')
             ->setName('main');
 
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
         $components->addConfiguration($configuration);
 
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
@@ -1600,8 +1761,10 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals('row description', $row['description']);
     }
 
-
-    public function testComponentConfigRowCreateIsDisabled()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigRowCreateIsDisabled(callable $getClient)
     {
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
@@ -1609,7 +1772,7 @@ class ComponentsTest extends StorageApiTestCase
             ->setConfigurationId('main-1')
             ->setName('main');
 
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
         $components->addConfiguration($configuration);
 
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
@@ -1629,8 +1792,10 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(true, $row['isDisabled']);
     }
 
-
-    public function testComponentConfigRowUpdateName()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigRowUpdateName(callable $getClient)
     {
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
@@ -1638,7 +1803,7 @@ class ComponentsTest extends StorageApiTestCase
             ->setConfigurationId('main-1')
             ->setName('main');
 
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
         $components->addConfiguration($configuration);
 
         $rowConfigurationData = [
@@ -1675,8 +1840,10 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(3, $configuration['version']);
     }
 
-
-    public function testComponentConfigRowUpdateDescription()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigRowUpdateDescription(callable $getClient)
     {
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
@@ -1684,7 +1851,7 @@ class ComponentsTest extends StorageApiTestCase
             ->setConfigurationId('main-1')
             ->setName('main');
 
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
         $components->addConfiguration($configuration);
 
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
@@ -1713,8 +1880,10 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(3, $configuration['version']);
     }
 
-
-    public function testComponentConfigRowUpdateIsDisabled()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigRowUpdateIsDisabled(callable $getClient)
     {
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
@@ -1722,7 +1891,7 @@ class ComponentsTest extends StorageApiTestCase
             ->setConfigurationId('main-1')
             ->setName('main');
 
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
         $components->addConfiguration($configuration);
 
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
@@ -1758,8 +1927,10 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(3, $configuration['version']);
     }
 
-
-    public function testComponentConfigRowUpdateConfigEmpty()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigRowUpdateConfigEmpty(callable $getClient)
     {
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
@@ -1768,7 +1939,7 @@ class ComponentsTest extends StorageApiTestCase
             ->setName('main')
         ;
 
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
         $components->addConfiguration($configuration);
 
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
@@ -1803,7 +1974,10 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(3, $configuration['version']);
     }
 
-    public function testComponentConfigRowUpdateNoNewVersionIsCreatedIfNothingChanged()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigRowUpdateNoNewVersionIsCreatedIfNothingChanged(callable $getClient)
     {
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
@@ -1812,7 +1986,7 @@ class ComponentsTest extends StorageApiTestCase
             ->setName('main')
         ;
 
-        $componentsApi = new \Keboola\StorageApi\Components($this->_client);
+        $componentsApi = new \Keboola\StorageApi\Components($getClient($this));
         $componentsApi->addConfiguration($configuration);
 
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
@@ -1832,7 +2006,10 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertSame(1, $rows[0]['version']);
     }
 
-    public function testComponentConfigRowUpdateConfigEmptyWithEmpty()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigRowUpdateConfigEmptyWithEmpty(callable $getClient)
     {
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
@@ -1841,7 +2018,7 @@ class ComponentsTest extends StorageApiTestCase
             ->setName('main')
         ;
 
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
         $components->addConfiguration($configuration);
 
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
@@ -1874,6 +2051,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(1, $row['version']);
     }
 
+    // TODO pouziti ruznych klientu
     public function testComponentConfigRowUpdate()
     {
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
@@ -2005,7 +2183,10 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals('Row main-1-1 changed', $configurationAssociatedWithUpdatedRow['changeDescription']);
     }
 
-    public function testComponentConfigRowStateUpdate()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigRowStateUpdate(callable $getClient)
     {
         $componentId = 'wr-db';
         $configurationId = 'main-1';
@@ -2018,9 +2199,9 @@ class ComponentsTest extends StorageApiTestCase
             ->setName('Main')
             ->setDescription('some desc');
 
-        $originalToken = $this->_client->verifyToken();
-
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        /** @var Client $client */
+        $client = $getClient($this);
+        $components = new \Keboola\StorageApi\Components($client);
 
         $components->addConfiguration($configuration);
 
@@ -2054,7 +2235,7 @@ class ComponentsTest extends StorageApiTestCase
         $stateEndpoint = "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/state";
 
         try {
-            $this->_client->apiPut($stateEndpoint, [
+            $client->apiPut($stateEndpoint, [
                 'state' => '{sdf}',
             ]);
             $this->fail('Post invalid json should not be allowed.');
@@ -2065,7 +2246,7 @@ class ComponentsTest extends StorageApiTestCase
         }
 
         try {
-            $this->_client->apiPut($stateEndpoint, [
+            $client->apiPut($stateEndpoint, [
                 'description' => 'Test',
                 'state' => json_encode('{}')
             ]);
@@ -2077,7 +2258,7 @@ class ComponentsTest extends StorageApiTestCase
         }
 
         try {
-            $this->_client->apiPut($stateEndpoint, [
+            $client->apiPut($stateEndpoint, [
                 'state' => ''
             ]);
             $this->fail('Post empty state should not be allowed.');
@@ -2088,7 +2269,7 @@ class ComponentsTest extends StorageApiTestCase
         }
 
         try {
-            $this->_client->apiPut($stateEndpoint, []);
+            $client->apiPut($stateEndpoint, []);
             $this->fail('Post without state should not be allowed.');
         } catch (ClientException $e) {
             $this->assertEquals(400, $e->getCode());
@@ -2106,7 +2287,10 @@ class ComponentsTest extends StorageApiTestCase
         );
     }
 
-    public function testComponentConfigRowDelete()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigRowDelete(callable $getClient)
     {
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
@@ -2115,7 +2299,9 @@ class ComponentsTest extends StorageApiTestCase
             ->setName('Main')
             ->setDescription('some desc');
 
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        /** @var Client $client */
+        $client = $getClient($this);
+        $components = new \Keboola\StorageApi\Components($client);
 
         $components->addConfiguration($configuration);
 
@@ -2158,7 +2344,7 @@ class ComponentsTest extends StorageApiTestCase
         $row = reset($configuration['rows']);
         $this->assertEquals('main-1-1', $row['id']);
 
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($client);
 
         $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId($component['id'])
@@ -2178,7 +2364,7 @@ class ComponentsTest extends StorageApiTestCase
             $configurationRow->getRowId()
         );
 
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($client);
 
         $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId($configurationRow->getComponentConfiguration()->getComponentId())
@@ -2193,14 +2379,23 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(4, $component['version']);
     }
 
-    public function testComponentConfigDeletedRowId()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigDeletedRowId(callable $getClient)
     {
+        /** @var Client $client */
+        $client = $getClient($this);
+        if ($client instanceof BranchAwareClient) {
+            $this->markTestIncomplete("Application error: Integrity constraint violation: 1062 Duplicate entry '4-671-transformation-main-test' for key 'PRIMARY'");
+        }
+
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('transformation')
             ->setConfigurationId('main')
             ->setName("Main");
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($client);
         $components->addConfiguration($configuration);
 
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
@@ -2223,9 +2418,12 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(["key" => "newValue"], $row["configuration"]);
     }
 
-    public function testComponentConfigRowsListAndConfigRowVersionsList()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigRowsListAndConfigRowVersionsList(callable $getClient)
     {
-        $componentsApi = new \Keboola\StorageApi\Components($this->_client);
+        $componentsApi = new \Keboola\StorageApi\Components($getClient($this));
 
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
@@ -2321,9 +2519,12 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals($rowVersion, $versionsWithLimitAndOffset[0]);
     }
 
-    public function testComponentConfigRowVersionRollback()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigRowVersionRollback(callable $getClient)
     {
-        $componentsApi = new \Keboola\StorageApi\Components($this->_client);
+        $componentsApi = new \Keboola\StorageApi\Components($getClient($this));
 
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
@@ -2397,9 +2598,12 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertCount(5, $versions);
     }
 
-    public function testComponentConfigRowVersionCreate()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigRowVersionCreate(callable $getClient)
     {
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
 
         $configurationData = array('my-value' => 666);
 
@@ -2485,9 +2689,12 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertCount(1, $rows);
     }
 
-    public function testGetComponentConfigurations()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testGetComponentConfigurations(callable $getClient)
     {
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
 
         $configs = $components->listComponentConfigurations(
             (new ListComponentConfigurationsOptions())->setComponentId('transformation')
@@ -2509,9 +2716,12 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertCount(2, $configs);
     }
 
-    public function testGetComponentConfigurationsWithConfigAndRows()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testGetComponentConfigurationsWithConfigAndRows(callable $getClient)
     {
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
 
         $configs = $components->listComponentConfigurations(
             (new ListComponentConfigurationsOptions())->setComponentId('transformation')
@@ -2539,11 +2749,12 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals($configData2, $configs[0]['rows'][0]['configuration']);
     }
 
-
     /**
      * Create configuration with few rows, update some row and then rollback to configuration with updated row
+     *
+     * @dataProvider provideComponentsClient
      */
-    public function testChangeDescription()
+    public function testChangeDescription(callable $getClient)
     {
         // test 1: create config
         $createChangeDescription = 'Create configuration';
@@ -2553,7 +2764,7 @@ class ComponentsTest extends StorageApiTestCase
             ->setConfiguration(['a' => 'b'])
             ->setName('Main')
             ->setChangeDescription($createChangeDescription);
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
         $newConfiguration = $components->addConfiguration($componentConfig);
         $this->assertEquals($createChangeDescription, $newConfiguration['changeDescription']);
         $config = $components->getConfiguration('wr-db', 'main-1');
@@ -2634,9 +2845,12 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals($deleteRowChangeDescription, $config['changeDescription']);
     }
 
-    public function testConfigurationNameAndDescriptionShouldNotBeTrimmed()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testConfigurationNameAndDescriptionShouldNotBeTrimmed(callable $getClient)
     {
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
         $config = $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
@@ -2656,9 +2870,12 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals("description2\n", $config["description"]);
     }
 
-    public function testConfigurationRowNameAndDescriptionShouldNotBeTrimmed()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testConfigurationRowNameAndDescriptionShouldNotBeTrimmed(callable $getClient)
     {
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
@@ -2685,10 +2902,12 @@ class ComponentsTest extends StorageApiTestCase
 
     /**
      * tests for https://github.com/keboola/connection/issues/977
+     *
+     * @dataProvider provideComponentsClient
      */
-    public function testRowChangesAfterConfigurationRollback()
+    public function testRowChangesAfterConfigurationRollback(callable $getClient)
     {
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
 
         // config version 1
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
@@ -2727,10 +2946,12 @@ class ComponentsTest extends StorageApiTestCase
 
     /**
      * tests for https://github.com/keboola/connection/issues/977
+     *
+     * @dataProvider provideComponentsClient
      */
-    public function testRowChangesAfterConfigurationCopy()
+    public function testRowChangesAfterConfigurationCopy(callable $getClient)
     {
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
 
         // config version 1
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
@@ -2773,10 +2994,12 @@ class ComponentsTest extends StorageApiTestCase
 
     /**
      * tests for https://github.com/keboola/connection/issues/977
+     *
+     * @dataProvider provideComponentsClient
      */
-    public function testRowChangesAfterRowRollback()
+    public function testRowChangesAfterRowRollback(callable $getClient)
     {
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
 
         // config version 1
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
@@ -2815,10 +3038,12 @@ class ComponentsTest extends StorageApiTestCase
 
     /**
      * tests for https://github.com/keboola/connection/issues/977
+     *
+     * @dataProvider provideComponentsClient
      */
-    public function testRowChangesAfterRowCopy()
+    public function testRowChangesAfterRowCopy(callable $getClient)
     {
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
 
         // config version 1
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
@@ -2892,9 +3117,12 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEmpty($row3['state']);
     }
 
-    public function testStateAttributeNotPresentInVersions()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testStateAttributeNotPresentInVersions(callable $getClient)
     {
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
@@ -2905,9 +3133,17 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertArrayNotHasKey('state', $components->getConfigurationVersion('wr-db', 'main-1', 1));
     }
 
-    public function testRollbackPreservesState()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testRollbackPreservesState(callable $getClient)
     {
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $client = $getClient($this);
+        if ($client instanceof BranchAwareClient) {
+            $this->markTestIncomplete("Using 'state' parameter on configuration update is restricted for dev/branch context. Use direct API call.");
+        }
+
+        $components = new \Keboola\StorageApi\Components($client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $state = ['key' => 'val'];
         $configuration
@@ -2934,9 +3170,17 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals($state, $configurationResponse['state']);
     }
 
-    public function testCopyResetsState()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testCopyResetsState(callable $getClient)
     {
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $client = $getClient($this);
+        if ($client instanceof BranchAwareClient) {
+            $this->markTestIncomplete("Using 'state' parameter on configuration update is restricted for dev/branch context. Use direct API call.");
+        }
+
+        $components = new \Keboola\StorageApi\Components($client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $state = ['key' => 'val'];
         $configuration
@@ -2963,9 +3207,12 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEmpty($configurationResponse['state']);
     }
 
-    public function testRevertingConfigRowVersionWillNotCreateEmptyConfiguration()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testRevertingConfigRowVersionWillNotCreateEmptyConfiguration(callable $getClient)
     {
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $componentId = 'wr-db';
         $configurationId = 'main-1';
@@ -2989,12 +3236,17 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertArrayEqualsExceptKeys($originalConfigRow, $rollbackedConfigRow, ['version', 'changeDescription']);
     }
 
-    public function testConfigurationStateUpdate()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testConfigurationStateUpdate(callable $getClient)
     {
         $componentId = 'wr-db';
         $configurationId = 'main-1';
 
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        /** @var Client $client */
+        $client = $getClient($this);
+        $components = new \Keboola\StorageApi\Components($client);
 
         $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId($componentId)
@@ -3021,7 +3273,7 @@ class ComponentsTest extends StorageApiTestCase
         $stateEndpoint = "components/{$componentId}/configs/{$configurationId}/state";
 
         try {
-            $this->_client->apiPut($stateEndpoint, [
+            $client->apiPut($stateEndpoint, [
                 'state' => '{sdf}',
             ]);
             $this->fail('Post invalid json should not be allowed.');
@@ -3032,7 +3284,7 @@ class ComponentsTest extends StorageApiTestCase
         }
 
         try {
-            $this->_client->apiPut($stateEndpoint, [
+            $client->apiPut($stateEndpoint, [
                 'description' => 'Test',
                 'state' => json_encode('{}')
             ]);
@@ -3044,7 +3296,7 @@ class ComponentsTest extends StorageApiTestCase
         }
 
         try {
-            $this->_client->apiPut($stateEndpoint, [
+            $client->apiPut($stateEndpoint, [
                 'state' => ''
             ]);
             $this->fail('Post empty state should not be allowed.');
@@ -3055,7 +3307,7 @@ class ComponentsTest extends StorageApiTestCase
         }
 
         try {
-            $this->_client->apiPut($stateEndpoint, []);
+            $client->apiPut($stateEndpoint, []);
             $this->fail('Post without state should not be allowed.');
         } catch (ClientException $e) {
             $this->assertEquals(400, $e->getCode());
