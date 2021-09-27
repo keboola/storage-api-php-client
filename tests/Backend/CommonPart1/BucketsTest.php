@@ -49,7 +49,8 @@ class BucketsTest extends StorageApiTestCase
 
     public function testBucketDetail()
     {
-        $displayName = "Romanov-Bucket";
+        $displayName = $this->getTestBucketDisplayName('Romanov-Bucket', $this->getTestBucketId());
+
         $bucketName = 'BucketsTest_testBucketDetail';
 
         $tokenData = $this->_client->verifyToken();
@@ -76,7 +77,7 @@ class BucketsTest extends StorageApiTestCase
         try {
             $this->_client->createBucket($displayName, self::STAGE_IN);
         } catch (\Keboola\StorageApi\ClientException $e) {
-            $this->assertSame('The display name "Romanov-Bucket" already exists in project.', $e->getMessage());
+            $this->assertSame(sprintf('The display name "%s" already exists in project.', $displayName), $e->getMessage());
         };
 
         $this->assertEquals($displayName, $bucket['displayName']);
@@ -113,6 +114,12 @@ class BucketsTest extends StorageApiTestCase
 
     public function testBucketEvents()
     {
+        $this->_client->getBucket($this->getTestBucketId());
+
+        $bucketDisplayName = 'Romanov-Bucket-' . sha1($this->getTestBucketId());
+        $bucketUpdateOptions = new BucketUpdateOptions($this->getTestBucketId(), $bucketDisplayName);
+        $this->_client->updateBucket($bucketUpdateOptions);
+
         $events = $this->_client->listBucketEvents($this->getTestBucketId());
         $this->assertNotEmpty($events);
     }
