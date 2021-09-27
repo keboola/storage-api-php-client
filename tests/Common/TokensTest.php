@@ -31,7 +31,7 @@ class TokensTest extends StorageApiTestCase
     {
         parent::setUp();
 
-        $this->_initEmptyTestBuckets();
+        $this->initEmptyTestBucketsForParallelTests();
 
         $triggers = $this->_client->listTriggers();
         foreach ($triggers as $trigger) {

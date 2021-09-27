@@ -16,7 +16,7 @@ abstract class WorkspacesTestCase extends StorageApiTestCase
     public function setUp()
     {
         parent::setUp();
-        $this->_initEmptyTestBuckets();
+        $this->initEmptyTestBucketsForParallelTests();
         $this->deleteAllWorkspaces();
     }
 
