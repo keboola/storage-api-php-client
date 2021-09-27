@@ -26,8 +26,9 @@ class TriggersTest extends StorageApiTestCase
     public function testCreateTrigger()
     {
         $table1 = $this->createTableWithRandomData("watched-1");
+        $testBucketId = $this->getTestBucketId();
         $options = (new TokenCreateOptions())
-            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
+            ->addBucketPermission($testBucketId, TokenAbstractOptions::BUCKET_PERMISSION_READ)
         ;
         $newToken = $this->tokens->createToken($options);
         $trigger = $this->_client->createTrigger([
@@ -48,7 +49,7 @@ class TriggersTest extends StorageApiTestCase
         $this->assertLessThan((new \DateTime()), (new \DateTime($trigger['lastRun'])));
         $this->assertEquals(
             [
-                ['tableId' => 'in.c-API-tests.watched-1'],
+                ['tableId' => $testBucketId . '.watched-1'],
             ],
             $trigger['tables']
         );
@@ -67,8 +68,9 @@ class TriggersTest extends StorageApiTestCase
         $table1 = $this->createTableWithRandomData("watched-1");
         $table2 = $this->createTableWithRandomData("watched-2");
 
+        $testBucketId = $this->getTestBucketId();
         $options = (new TokenCreateOptions())
-            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
+            ->addBucketPermission($testBucketId, TokenAbstractOptions::BUCKET_PERMISSION_READ)
         ;
 
         $newToken = $this->tokens->createToken($options);
@@ -85,7 +87,7 @@ class TriggersTest extends StorageApiTestCase
         ]);
 
         $options = (new TokenCreateOptions())
-            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
+            ->addBucketPermission($testBucketId, TokenAbstractOptions::BUCKET_PERMISSION_READ)
         ;
 
         $brandNewToken = $this->tokens->createToken($options);
@@ -104,7 +106,7 @@ class TriggersTest extends StorageApiTestCase
         $this->assertEquals(111, $updateTrigger['configurationId']);
         $this->assertEquals(20, $updateTrigger['coolDownPeriodMinutes']);
         $this->assertEquals($brandNewToken['id'], $updateTrigger['runWithTokenId']);
-        $this->assertEquals([['tableId' => 'in.c-API-tests.watched-1']], $updateTrigger['tables']);
+        $this->assertEquals([['tableId' => $testBucketId . '.watched-1']], $updateTrigger['tables']);
     }
 
     /**
