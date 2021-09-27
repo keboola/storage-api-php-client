@@ -13,15 +13,17 @@ class QueueJobsTest extends StorageApiTestCase
     {
         parent::setUp();
         $this->_initEmptyTestBuckets([Client::STAGE_IN]);
-        $this->_client->createTableAsync('in.c-API-tests', 'table1', new CsvFile(__DIR__ . '/../_data/languages-headers.csv'));
+        $testBucketId = $this->getTestBucketId();
+        $this->_client->createTableAsync($testBucketId, 'table1', new CsvFile(__DIR__ . '/../_data/languages-headers.csv'));
     }
 
     public function testQueueTableImportFromFile()
     {
         $fileId = $this->_client->uploadFile(__DIR__ . '/../_data/languages.csv', new FileUploadOptions());
-        $jobId = $this->_client->queueTableImport('in.c-API-tests.table1', ['dataFileId' => $fileId]);
+        $testBucketId = $this->getTestBucketId();
+        $jobId = $this->_client->queueTableImport($testBucketId . '.table1', ['dataFileId' => $fileId]);
         $job = $this->_client->getJob($jobId);
-        $this->assertEquals('in.c-API-tests.table1', $job['tableId']);
+        $this->assertEquals($testBucketId . '.table1', $job['tableId']);
         $this->assertEquals('tableImport', $job['operationName']);
         $this->assertEquals($fileId, $job['operationParams']['source']['fileId']);
         $this->assertEquals('file', $job['operationParams']['source']['type']);
@@ -29,15 +31,16 @@ class QueueJobsTest extends StorageApiTestCase
 
     public function testQueueTableImportFromWorkspace()
     {
+        $testBucketId = $this->getTestBucketId();
         $jobId = $this->_client->queueTableImport(
-            'in.c-API-tests.table1',
+            $testBucketId . '.table1',
             [
                 'dataWorkspaceId' => 'myWorkspace',
                 'dataTableName' => 'myTable',
             ]
         );
         $job = $this->_client->getJob($jobId);
-        $this->assertEquals('in.c-API-tests.table1', $job['tableId']);
+        $this->assertEquals($testBucketId . '.table1', $job['tableId']);
         $this->assertEquals('tableImport', $job['operationName']);
         $this->assertEquals('myWorkspace', $job['operationParams']['source']['workspaceId']);
         $this->assertEquals('myTable', $job['operationParams']['source']['tableName']);
@@ -47,9 +50,10 @@ class QueueJobsTest extends StorageApiTestCase
 
     public function testQueueTableExport()
     {
-        $jobId = $this->_client->queueTableExport('in.c-API-tests.table1', []);
+        $testBucketId = $this->getTestBucketId();
+        $jobId = $this->_client->queueTableExport($testBucketId . '.table1', []);
         $job = $this->_client->getJob($jobId);
-        $this->assertEquals('in.c-API-tests.table1', $job['tableId']);
+        $this->assertEquals($testBucketId . '.table1', $job['tableId']);
         $this->assertEquals('tableExport', $job['operationName']);
     }
 
@@ -59,9 +63,10 @@ class QueueJobsTest extends StorageApiTestCase
      */
     public function testQueueCreateTableInvalidName($options)
     {
+        $testBucketId = $this->getTestBucketId();
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Table create option "name" is required and cannot be empty.');
-        $this->_client->queueTableCreate('in.c-API-tests.table1', $options);
+        $this->_client->queueTableCreate($testBucketId . '.table1', $options);
     }
 
     public function invalidQueueCreateTableOptions()
@@ -82,7 +87,8 @@ class QueueJobsTest extends StorageApiTestCase
     public function testQueueCreateTableFromFile()
     {
         $fileId = $this->_client->uploadFile(__DIR__ . '/../_data/languages.csv', new FileUploadOptions());
-        $jobId = $this->_client->queueTableCreate('in.c-API-tests.table1', [
+        $testBucketId = $this->getTestBucketId();
+        $jobId = $this->_client->queueTableCreate($testBucketId . '.table1', [
             'dataFileId' => $fileId,
             'name' => 'my-new-queued-table',
         ]);
@@ -95,8 +101,9 @@ class QueueJobsTest extends StorageApiTestCase
 
     public function testQueueCreateTableFromWorkspace()
     {
+        $testBucketId = $this->getTestBucketId();
         $jobId = $this->_client->queueTableCreate(
-            'in.c-API-tests.table1',
+            $testBucketId . '.table1',
             [
                 'dataWorkspaceId' => 'myWorkspace',
                 'dataTableName' => 'myTable',
