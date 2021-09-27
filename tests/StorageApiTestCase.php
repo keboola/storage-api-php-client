@@ -66,6 +66,16 @@ abstract class StorageApiTestCase extends ClientTestCase
     }
 
     /**
+     * @param $displayName
+     * @param $testName
+     * @return string
+     */
+    public function getTestBucketDisplayName($displayName, $testName)
+    {
+        return $displayName . sha1($testName);
+    }
+
+    /**
      * Checks that two arrays are same except some keys, which MUST be different
      *
      * @param array $expected
