@@ -27,7 +27,7 @@ class MetadataTest extends StorageApiTestCase
     public function setUp()
     {
         parent::setUp();
-        $this->_initEmptyTestBuckets();
+        $this->initEmptyTestBucketsForParallelTests();
         $metadataApi = new Metadata($this->_client);
         $metadatas = $metadataApi->listBucketMetadata($this->getTestBucketId());
         foreach ($metadatas as $md) {
