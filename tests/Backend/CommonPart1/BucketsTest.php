@@ -113,6 +113,11 @@ class BucketsTest extends StorageApiTestCase
 
     public function testBucketEvents()
     {
+        $this->_client->getBucket($this->getTestBucketId());
+
+        $bucketUpdateOptions = new BucketUpdateOptions($this->getTestBucketId(), 'Romanov-Bucket');
+        $this->_client->updateBucket($bucketUpdateOptions);
+
         $events = $this->_client->listBucketEvents($this->getTestBucketId());
         $this->assertNotEmpty($events);
     }

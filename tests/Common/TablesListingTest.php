@@ -164,11 +164,19 @@ class TablesListingTest extends StorageApiTestCase
         $this->assertEquals(array('id', 'name', 'city', 'sex'), $usersTables['columns']);
 
 
-        $tables = $this->_client->listTables(null, array(
+        $tables = $this->_client->listTables($this->getTestBucketId(self::STAGE_IN), array(
             'include' => 'columns',
         ));
-        $this->assertCount(3, $tables);
 
+
+        $outTables = $this->_client->listTables($this->getTestBucketId(self::STAGE_OUT), array(
+            'include' => 'columns',
+        ));
+
+        array_walk($outTables, function ($table) use (&$tables) {
+            $tables[] = $table;
+        });
+        
         $languagesTables = $findTable($tables, $tableId);
         $this->assertEquals($tableId, $languagesTables['id']);
         $this->assertArrayHasKey('columns', $languagesTables);
