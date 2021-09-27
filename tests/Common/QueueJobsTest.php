@@ -12,7 +12,7 @@ class QueueJobsTest extends StorageApiTestCase
     public function setUp()
     {
         parent::setUp();
-        $this->_initEmptyTestBuckets([Client::STAGE_IN]);
+        $this->initEmptyTestBucketsForParallelTests([Client::STAGE_IN]);
         $testBucketId = $this->getTestBucketId();
         $this->_client->createTableAsync($testBucketId, 'table1', new CsvFile(__DIR__ . '/../_data/languages-headers.csv'));
     }
