@@ -8,6 +8,7 @@ services:
 install:
  - echo $TRAVIS_COMMIT
  - echo $TRAVIS_COMMIT > REVISION
+ - docker login --username "$DOCKERHUB_USER" --password "$DOCKERHUB_TOKEN"
  - docker network create connection_api-tests
  - docker-compose build tests
 
