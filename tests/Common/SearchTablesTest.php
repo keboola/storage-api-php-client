@@ -26,22 +26,24 @@ class SearchTablesTest extends StorageApiTestCase
 
     public function testSearchTables()
     {
-        $metadataKey = "testkey" . sha1($this->generateDescriptionForTestObject());
-        $metadataValue = "testValue" . sha1($this->generateDescriptionForTestObject());
+        $testKey = sha1($this->generateDescriptionForTestObject());
+        $metadataKey = "testkey" . $testKey;
+        $metadataValue = "testValue" . $testKey;
+        $provider = self::TEST_PROVIDER . $testKey;
         $this->_initTable('tableX', [
             [
                 "key" => $metadataKey,
                 "value" => $metadataValue,
             ],
-        ]);
-        $this->_initTable('tableX', [], self::STAGE_OUT); // table in different bucket
+        ], self::STAGE_IN, $provider);
+        $this->_initTable('tableX', [], self::STAGE_OUT, $provider); // table in different bucket
         $this->_initTable('tableY', [
             [
                 "key" => "differentkey",
                 "value" => "differentValue",
             ],
-        ]);
-        $this->_initTable('table-nometa', []);
+        ], self::STAGE_IN, $provider);
+        $this->_initTable('table-nometa', [], self::STAGE_IN, $provider);
 
         $result = $this->_client->searchTables(
             new SearchTablesOptions($metadataKey, null, null)
@@ -58,12 +60,12 @@ class SearchTablesTest extends StorageApiTestCase
         $this->assertCount(1, $result);
 
         $result = $this->_client->searchTables(
-            new SearchTablesOptions(null, null, self::TEST_PROVIDER)
+            new SearchTablesOptions(null, null, $provider)
         );
         $this->assertCount(2, $result);
 
         $result = $this->_client->searchTables(
-            new SearchTablesOptions($metadataKey, $metadataValue, self::TEST_PROVIDER)
+            new SearchTablesOptions($metadataKey, $metadataValue, $provider)
         );
         $this->assertCount(1, $result);
     }
@@ -87,7 +89,8 @@ class SearchTablesTest extends StorageApiTestCase
     private function _initTable(
         $tableName,
         array $metadata,
-        $stage = self::STAGE_IN
+        $stage,
+        $metadataProvider
     ) {
         $metadataApi = new Metadata($this->_client);
         $tableId = $this->_client->createTable($this->getTestBucketId($stage), $tableName, new CsvFile(__DIR__ . '/../_data/languages.csv'));
@@ -95,7 +98,7 @@ class SearchTablesTest extends StorageApiTestCase
         if (!empty($metadata)) {
             $metadataApi->postTableMetadata(
                 $tableId,
-                self::TEST_PROVIDER,
+                $metadataProvider,
                 $metadata
             );
         }
