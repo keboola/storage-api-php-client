@@ -586,7 +586,7 @@ abstract class StorageApiTestCase extends ClientTestCase
             $testSuiteName = sprintf('%s::', SUITE_NAME);
         }
 
-        return $testSuiteName . get_class($this) . '\\' . $this->getName();
+        return $testSuiteName . get_class($this) . '\\' . $this->getName() . '\\' . $this->dataName();
     }
 
     /**
