@@ -2,6 +2,7 @@
 
 namespace Keboola\Test\Backend;
 
+use Keboola\Test\StorageApiTestCase;
 use Retry\BackOff\ExponentialBackOffPolicy;
 use Retry\Policy\CallableRetryPolicy;
 use Retry\RetryProxy;
@@ -43,8 +44,16 @@ trait WorkspaceCredentialsAssertTrait
         } catch (\Keboola\Db\Import\Exception $e) {
             $this->assertContains('Incorrect username or password was specified', $e->getMessage());
         } catch (\Exception $e) {
-            // Exasol authentication failed
-            $this->assertEquals(-373252, $e->getCode(), 'Unexpected error code, expected code for Exasol is -373252.');
+            if ($connection['backend'] === StorageApiTestCase::BACKEND_EXASOL) {
+                // Exasol authentication failed
+                self::assertEquals(
+                    -373252,
+                    $e->getCode(),
+                    'Unexpected error code, expected code for Exasol is -373252.'
+                );
+            } else {
+                throw new \Exception($e->getMessage(), (int) $e->getCode(), $e);
+            }
         }
     }
 }
