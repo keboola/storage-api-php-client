@@ -425,9 +425,6 @@ class CreateTableTest extends StorageApiTestCase
         }
     }
 
-    /**
-     * @param $backend
-     */
     public function testCreateTableWithInvalidTableName()
     {
         $this->expectException(ClientException::class);
