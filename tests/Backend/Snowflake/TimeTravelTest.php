@@ -161,7 +161,7 @@ class TimeTravelTest extends StorageApiTestCase
 
         // create a linked bucket in the same project
         $selfLinkedBucketId = $this->_client->linkBucket(
-            'same-project-link-test',
+            $this->getTestBucketName($this->generateDescriptionForTestObject()) . '-linked',
             self::STAGE_OUT,
             $token['owner']['id'],
             $this->getTestBucketId()
