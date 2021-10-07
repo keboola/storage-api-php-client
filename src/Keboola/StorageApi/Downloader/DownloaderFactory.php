@@ -29,6 +29,8 @@ class DownloaderFactory
                     ],
                     'http' => [
                         'decode_content' => false,
+                        'connect_timeout' => 10,
+                        'timeout' => 120,
                     ],
                 ]);
                 return new S3Downloader($s3Client);
