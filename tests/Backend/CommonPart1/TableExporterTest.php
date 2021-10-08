@@ -41,8 +41,13 @@ class TableExporterTest extends StorageApiTestCase
     {
         $expectationsFile = __DIR__ . '/../../_data/' . $expectationsFileName;
         $tokenData = $this->_client->verifyToken();
-        if (!in_array($tokenData['owner']['defaultBackend'], $supportedBackends)) {
-            return;
+        $defaultBackend = $tokenData['owner']['defaultBackend'];
+        if (!in_array($defaultBackend, $supportedBackends)) {
+            $this->markTestSkipped(sprintf(
+                'Backend "%s" is not supported in this test case (%s are allowed)',
+                $defaultBackend,
+                implode(', ', $supportedBackends)
+            ));
         }
 
         if (!isset($exportOptions['gzip'])) {
