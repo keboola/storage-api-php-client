@@ -70,11 +70,11 @@ class TableExporter
                 ]),
             ]);
             $manifest = json_decode($client->get($getFileResponse['url'])->getBody(), true);
-            $files = [];
+            $fileSlices = [];
 
             // Download all sliced files
             foreach ($manifest["entries"] as $part) {
-                $files[] = $downloader->downloadManifestEntry($getFileResponse, $part, $tmpFilePath);
+                $fileSlices[] = $downloader->downloadManifestEntry($getFileResponse, $part, $tmpFilePath);
             }
 
             // Create file with header
@@ -91,14 +91,14 @@ class TableExporter
             $fs->dumpFile($destination . '.tmp', $header);
 
             // Concat all files into one, compressed files need to be decompressed first
-            foreach ($files as $file) {
-                $catCmd = "gunzip " . escapeshellarg($file) . " --to-stdout >> " . escapeshellarg($destination) . ".tmp";
+            foreach ($fileSlices as $fileSlice) {
+                $catCmd = "gunzip " . escapeshellarg($fileSlice) . " --to-stdout >> " . escapeshellarg($destination) . ".tmp";
                 $process = ProcessPolyfill::createProcess($catCmd);
                 $process->setTimeout(null);
                 if (0 !== $process->run()) {
                     throw new ProcessFailedException($process);
                 }
-                $fs->remove($file);
+                $fs->remove($fileSlice);
             }
 
             // Compress the file afterwards if required
