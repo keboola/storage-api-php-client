@@ -1209,6 +1209,17 @@ class BranchComponentTest extends StorageApiTestCase
         $configurations = $branchComponents->listComponentConfigurations($listConfigurationOptions);
         $this->assertCount(1, $configurations);
 
+        try {
+            $rows = $branchComponents->listConfigurationRows((new ListConfigurationRowsOptions())
+                ->setComponentId($componentId)
+                ->setConfigurationId('main-1'));
+            $this->fail('Configuration rows for deleted configuration should not be listed');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+            $this->assertSame('notFound', $e->getStringCode());
+            $this->assertContains('Configuration main-1 not found', $e->getMessage());
+        }
+
         // restore dev branch configuration with create same configuration id
         $configurationOptions = (new Configuration())
             ->setComponentId($componentId)
