@@ -130,7 +130,6 @@ class TableExporter
                 $fs->remove($tmpFilePath);
             }
         }
-        $fs->remove($tmpFilePath);
     }
 
     /**
