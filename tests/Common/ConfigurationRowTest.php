@@ -30,9 +30,12 @@ class ConfigurationRowTest extends StorageApiTestCase
         }
     }
 
-    public function testConfigurationCopyCreateWithSameRowId()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testConfigurationCopyCreateWithSameRowId(callable $getClient)
     {
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
 
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
@@ -74,9 +77,12 @@ class ConfigurationRowTest extends StorageApiTestCase
         $this->assertSame(['key' => 'main-2-1'], $response['rows'][0]['state']);
     }
 
-    public function testConfigurationRowReturnsSingleRow()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testConfigurationRowReturnsSingleRow(callable $getClient)
     {
-        $components = new Components($this->_client);
+        $components = new Components($getClient($this));
         $configuration = new Configuration();
         $configuration
             ->setComponentId('wr-db')
@@ -101,12 +107,15 @@ class ConfigurationRowTest extends StorageApiTestCase
         $this->assertEquals('main-1-2', $row['id']);
     }
 
-    public function testConfigurationRowThrowsNotFoundException()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testConfigurationRowThrowsNotFoundException(callable $getClient)
     {
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Row invalidRowID not found');
 
-        $components = new Components($this->_client);
+        $components = new Components($getClient($this));
         $configuration = new Configuration();
         $configuration
             ->setComponentId('wr-db')
@@ -121,6 +130,7 @@ class ConfigurationRowTest extends StorageApiTestCase
         );
     }
 
+    // TODO vice jinych klientu
     public function testConfigurationRowJsonDataTypes()
     {
         $components = new \Keboola\StorageApi\Components($this->_client);
@@ -216,6 +226,7 @@ class ConfigurationRowTest extends StorageApiTestCase
         $this->assertFalse($response->isDisabled);
     }
 
+    // TODO vice jinych klientu
     public function testConfigurationRowIsDisabledBooleanValue()
     {
         $components = new \Keboola\StorageApi\Components($this->_client);
@@ -277,6 +288,7 @@ class ConfigurationRowTest extends StorageApiTestCase
         $this->assertEquals("Row ABCD disabled", $result->changeDescription);
     }
 
+    // TODO uz pouzity jiny provider
     /**
      * @dataProvider isDisabledProvider
      * @param $isDisabled
