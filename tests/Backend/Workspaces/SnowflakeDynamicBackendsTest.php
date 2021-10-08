@@ -100,7 +100,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
             'backend' => StorageApiTestCase::BACKEND_SNOWFLAKE
         ]);
 
-        $this->assertNull($workspace['backendSize']);
+        $this->assertNotNull($workspace['backendSize']);
 
         $sharedBuckets = array_filter(
             $this->client2->listSharedBuckets(),
