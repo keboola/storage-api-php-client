@@ -190,6 +190,27 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $this->assertSame(1, count($data['rows']));
     }
 
+    public function testTableWithDot()
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $tableDefinition = [
+            'name' => 'nameWith.Dot',
+            'primaryKeysNames' => [],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'INT',
+                    ],
+                ],
+            ],
+        ];
+
+        $this->expectException(ClientException::class);
+        $this->_client->createTableDefinition($bucketId, $tableDefinition);
+    }
+
     public function testAddColumnOnTypedTable()
     {
         $tableDefinition = [
