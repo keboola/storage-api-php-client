@@ -41,8 +41,13 @@ class TableExporterTest extends StorageApiTestCase
     {
         $expectationsFile = __DIR__ . '/../../_data/' . $expectationsFileName;
         $tokenData = $this->_client->verifyToken();
-        if (!in_array($tokenData['owner']['defaultBackend'], $supportedBackends)) {
-            return;
+        $defaultBackend = $tokenData['owner']['defaultBackend'];
+        if (!in_array($defaultBackend, $supportedBackends)) {
+            $this->markTestSkipped(sprintf(
+                'Backend "%s" is not supported in this test case (%s are allowed)',
+                $defaultBackend,
+                implode(', ', $supportedBackends)
+            ));
         }
 
         if (!isset($exportOptions['gzip'])) {
@@ -76,7 +81,6 @@ class TableExporterTest extends StorageApiTestCase
             $exporter->exportTable($tableId, $this->downloadPath, $exportOptions);
         }
 
-
         // compare data
         $this->assertTrue(file_exists($this->downloadPath));
         $this->assertLinesEqualsSorted(file_get_contents($expectationsFile), file_get_contents($this->downloadPath), 'imported data comparison');
@@ -90,6 +94,7 @@ class TableExporterTest extends StorageApiTestCase
         $this->assertSame($tableId, $job['tableId']);
         $this->assertNotEmpty($job['operationParams']['export']['columns']);
         $this->assertSame($expectedColumns, $job['operationParams']['export']['columns']);
+        $this->assertSame(true, $job['operationParams']['export']['gzipOutput']);
     }
 
     public function testLimitParameter()

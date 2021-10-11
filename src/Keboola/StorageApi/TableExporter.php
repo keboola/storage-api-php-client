@@ -32,12 +32,8 @@ class TableExporter
         $this->client = $client;
     }
 
-    private function handleExportedFile($tableId, $fileId, $destination, $exportOptions)
+    private function handleExportedFile($tableId, $fileId, $destination, $exportOptions, $gzipOutput)
     {
-        if (!isset($exportOptions['gzip'])) {
-            $exportOptions['gzip'] = false;
-        }
-
         $table = $this->client->getTable($tableId);
         $getFileResponse = $this->client->getFile(
             $fileId,
@@ -74,11 +70,11 @@ class TableExporter
                 ]),
             ]);
             $manifest = json_decode($client->get($getFileResponse['url'])->getBody(), true);
-            $files = [];
+            $fileSlices = [];
 
             // Download all sliced files
             foreach ($manifest["entries"] as $part) {
-                $files[] = $downloader->downloadManifestEntry($getFileResponse, $part, $tmpFilePath);
+                $fileSlices[] = $downloader->downloadManifestEntry($getFileResponse, $part, $tmpFilePath);
             }
 
             // Create file with header
@@ -92,29 +88,21 @@ class TableExporter
             }
 
             $header = $enclosure . join($enclosure . $delimiter . $enclosure, $columns) . $enclosure . "\n";
-            if ($exportOptions["gzip"] === true) {
-                $fs->dumpFile($destination . '.tmp', $header);
-            } else {
-                $fs->dumpFile($destination, $header);
-            }
+            $fs->dumpFile($destination . '.tmp', $header);
 
             // Concat all files into one, compressed files need to be decompressed first
-            foreach ($files as $file) {
-                if ($exportOptions["gzip"]) {
-                    $catCmd = "gunzip " . escapeshellarg($file) . " --to-stdout >> " . escapeshellarg($destination) . ".tmp";
-                } else {
-                    $catCmd = "cat " . escapeshellarg($file) . " >> " . escapeshellarg($destination);
-                }
+            foreach ($fileSlices as $fileSlice) {
+                $catCmd = "gunzip " . escapeshellarg($fileSlice) . " --to-stdout >> " . escapeshellarg($destination) . ".tmp";
                 $process = ProcessPolyfill::createProcess($catCmd);
                 $process->setTimeout(null);
                 if (0 !== $process->run()) {
                     throw new ProcessFailedException($process);
                 }
-                $fs->remove($file);
+                $fs->remove($fileSlice);
             }
 
             // Compress the file afterwards if required
-            if ($exportOptions["gzip"]) {
+            if ($gzipOutput) {
                 $gZipCmd = "gzip " . escapeshellarg($destination) . ".tmp --fast";
                 $process = ProcessPolyfill::createProcess($gZipCmd);
                 $process->setTimeout(null);
@@ -122,15 +110,26 @@ class TableExporter
                     throw new ProcessFailedException($process);
                 }
                 $fs->rename($destination . '.tmp.gz', $destination);
+            } else {
+                $fs->rename($destination . '.tmp', $destination);
             }
         } else {
             /**
              * NonSliced file, just move from temp to destination file
              */
             $downloader->downloadFileFromFileResponse($getFileResponse, $tmpFilePath);
-            $fs->rename($tmpFilePath, $destination);
+            if ($gzipOutput) {
+                $fs->rename($tmpFilePath, $destination);
+            } else {
+                $catCmd = 'gunzip ' . escapeshellarg($tmpFilePath) . ' --to-stdout >> ' . escapeshellarg($destination);
+                $process = ProcessPolyfill::createProcess($catCmd);
+                $process->setTimeout(null);
+                if (0 !== $process->run()) {
+                    throw new ProcessFailedException($process);
+                }
+                $fs->remove($tmpFilePath);
+            }
         }
-        $fs->remove($tmpFilePath);
     }
 
     /**
@@ -158,9 +157,10 @@ class TableExporter
      * @return array Job results
      * @throws Exception
      */
-    public function exportTables(array $tables = array())
+    public function exportTables(array $tables = [])
     {
         $exportJobs = [];
+        $exportOptions = [];
         foreach ($tables as $table) {
             if (empty($table['tableId'])) {
                 throw new Exception('Missing tableId');
@@ -169,20 +169,28 @@ class TableExporter
                 throw new Exception('Missing destination');
             }
             if (!isset($table['exportOptions'])) {
-                $table['exportOptions'] = array();
+                $table['exportOptions'] = [];
             }
             if (empty($table['exportOptions']['columns'])) {
                 $tableDetail = $this->client->getTable($table['tableId']);
                 $table['exportOptions']['columns'] = $tableDetail['columns'];
             }
+            $exportOptions[$table['tableId']] = $table['exportOptions'];
 
+            $table['exportOptions']['gzip'] = true;
             $jobId = $this->client->queueTableExport($table['tableId'], $table['exportOptions']);
             $exportJobs[$jobId] = $table;
         }
         $jobResults = $this->client->handleAsyncTasks(array_keys($exportJobs));
         foreach ($jobResults as $jobResult) {
             $exportJob = $exportJobs[$jobResult['id']];
-            $this->handleExportedFile($exportJob['tableId'], $jobResult['results']['file']['id'], $exportJob['destination'], $exportJob['exportOptions']);
+            $this->handleExportedFile(
+                $exportJob['tableId'],
+                $jobResult['results']['file']['id'],
+                $exportJob['destination'],
+                $exportJob['exportOptions'],
+                isset($exportOptions[$exportJob['tableId']]['gzip']) ? $exportOptions[$exportJob['tableId']]['gzip'] : false
+            );
         }
         return $jobResults;
     }
