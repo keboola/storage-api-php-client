@@ -62,7 +62,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
         $tableDefinition = [
             'name' => 'my-new-table-for-data-preview',
-            'primaryKeysNames' => ['id'],
+            'primaryKeysNames' => [],
             'columns' => [
                 [
                     'name' => 'id',
@@ -108,6 +108,46 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                         'type' => 'VARCHAR',
                     ],
                 ],
+                [
+                    'name' => 'column_interval_year_to_month',
+                    'definition' => [
+                        'type' => 'INTERVAL YEAR TO MONTH',
+                        'length' => '3',
+                    ],
+                ],
+                [
+                    'name' => 'column_interval_day_to_second',
+                    'definition' => [
+                        'type' => 'INTERVAL DAY TO SECOND',
+                        'length' => '4,5',
+                    ],
+                ],
+                [
+                    'name' => 'column_interval_year_to_month_default',
+                    'definition' => [
+                        'type' => 'INTERVAL YEAR TO MONTH',
+                    ],
+                ],
+                [
+                    'name' => 'column_interval_day_to_second_default',
+                    'definition' => [
+                        'type' => 'INTERVAL DAY TO SECOND',
+                    ],
+                ],
+                [
+                    'name' => 'column_geometry',
+                    'definition' => [
+                        'type' => 'GEOMETRY',
+                        'length' => '8000000',
+                    ],
+                ],
+                [
+                    'name' => 'column_hashtype',
+                    'definition' => [
+                        'type' => 'HASHTYPE',
+                        'length' => '16 BYTE',
+                    ],
+                ],
             ]
         ];
 
@@ -120,9 +160,30 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
             'column_date',
             'column_timestamp',
             'column_varchar',
+            'column_interval_year_to_month',
+            'column_interval_day_to_second',
+            'column_interval_year_to_month_default',
+            'column_interval_day_to_second_default',
+            'column_geometry',
+            'column_hashtype',
         ]);
-        $csvFile->writeRow(['1', '003.123', '3.14', 0, '1989-08-31', '1989-08-31 00:00:00.000', 'roman']);
-
+        $csvFile->writeRow(
+            [
+                '1',
+                '003.123',
+                '3.14',
+                0,
+                '1989-08-31',
+                '1989-08-31 00:00:00.000',
+                'roman',
+                '5-3', // 'column_interval_year_to_month',
+                '2 12:50:10.123', // 'column_interval_day_to_second',
+                '5-3', // 'column_interval_year_to_month_default',
+                '2 12:50:10.123', // 'column_interval_day_to_second_default',
+                'POINT(2 5)', // 'column_geometry',
+                '550e8400-e29b-11d4-a716-446655440000', // 'column_hashtype',
+            ]
+        );
 
         $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
 
@@ -159,12 +220,46 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 ],
                 [
                     'columnName' => 'column_timestamp',
-                    'value' =>  '1989-08-31 00:00:00.000000',
+                    'value' => '1989-08-31 00:00:00.000000',
                     'isTruncated' => false,
                 ],
                 [
                     'columnName' => 'column_varchar',
-                    'value' =>  'roman',
+                    'value' => 'roman',
+                    'isTruncated' => false,
+                ],
+                [
+                    // 3
+                    'columnName' => 'column_interval_year_to_month',
+                    'value' => '+005-03',
+                    'isTruncated' => false,
+                ],
+                [
+                    // 4,5
+                    'columnName' => 'column_interval_day_to_second',
+                    'value' => '+0002 12:50:10.12300',
+                    'isTruncated' => false,
+                ],
+                [
+                    // default is 2
+                    'columnName' => 'column_interval_year_to_month_default',
+                    'value' => '+05-03',
+                    'isTruncated' => false,
+                ],
+                [
+                    // default is 2,3
+                    'columnName' => 'column_interval_day_to_second_default',
+                    'value' => '+02 12:50:10.123',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_geometry',
+                    'value' => 'POINT (2 5)',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_hashtype',
+                    'value' => '550e8400e29b11d4a716446655440000',
                     'isTruncated' => false,
                 ],
             ],
