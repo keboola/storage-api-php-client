@@ -1532,7 +1532,7 @@ class Client
         $uploadParams = $prepareResult['uploadParams'];
         $s3options = [
             'version' => '2006-03-01',
-            'retries' => $this->getAwsRetries(),
+            'retries' => 40,
             'region' => $prepareResult['region'],
             'http' => [
                 'connect_timeout' => 10,
@@ -1701,7 +1701,7 @@ class Client
         $uploadParams = $preparedFileResult['uploadParams'];
         $options = [
             'version' => '2006-03-01',
-            'retries' => $this->getAwsRetries(),
+            'retries' => 40,
             'region' => $preparedFileResult['region'],
             'debug' => false,
             'http' => [

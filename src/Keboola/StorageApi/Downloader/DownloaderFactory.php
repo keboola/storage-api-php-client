@@ -21,7 +21,7 @@ class DownloaderFactory
                 $s3Client = new S3Client([
                     'version' => '2006-03-01',
                     'region' => $getFileResponse['region'],
-                    'retries' => $retries,
+                    'retries' => 40,
                     'credentials' => [
                         'key' => $getFileResponse["credentials"]["AccessKeyId"],
                         'secret' => $getFileResponse["credentials"]["SecretAccessKey"],
