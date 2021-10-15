@@ -1532,8 +1532,12 @@ class Client
         $uploadParams = $prepareResult['uploadParams'];
         $s3options = [
             'version' => '2006-03-01',
-            'retries' => $this->getAwsRetries(),
+            'retries' => 40,
             'region' => $prepareResult['region'],
+            'http' => [
+                'connect_timeout' => 10,
+                'timeout' => 120,
+            ],
             'debug' => false,
             'credentials' => [
                 'key' => $uploadParams['credentials']['AccessKeyId'],
@@ -1697,9 +1701,13 @@ class Client
         $uploadParams = $preparedFileResult['uploadParams'];
         $options = [
             'version' => '2006-03-01',
-            'retries' => $this->getAwsRetries(),
+            'retries' => 40,
             'region' => $preparedFileResult['region'],
             'debug' => false,
+            'http' => [
+                'connect_timeout' => 10,
+                'timeout' => 120,
+            ],
             'credentials' => [
                 'key' => $uploadParams['credentials']['AccessKeyId'],
                 'secret' => $uploadParams['credentials']['SecretAccessKey'],
@@ -1781,6 +1789,11 @@ class Client
         $s3Client = new S3Client([
             'version' => 'latest',
             'region' => $fileInfo['region'],
+            'retries' => 40,
+            'http' => [
+                'connect_timeout' => 10,
+                'timeout' => 120,
+            ],
             'credentials' => [
                 'key' => $fileInfo['credentials']['AccessKeyId'],
                 'secret' => $fileInfo['credentials']['SecretAccessKey'],
@@ -1840,6 +1853,11 @@ class Client
         $s3Client = new S3Client([
             'version' => 'latest',
             'region' => $fileInfo['region'],
+            'retries' => 40,
+            'http' => [
+                'connect_timeout' => 10,
+                'timeout' => 120,
+            ],
             'credentials' => [
                 'key' => $fileInfo['credentials']['AccessKeyId'],
                 'secret' => $fileInfo['credentials']['SecretAccessKey'],
