@@ -11,6 +11,7 @@ namespace Keboola\Test;
 
 use Keboola\StorageApi\BranchAwareGuzzleClient;
 use Keboola\StorageApi\DevBranches;
+use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\StorageApi\Tokens;
 use function array_key_exists;
 use Keboola\Csv\CsvFile;
@@ -43,6 +44,16 @@ abstract class StorageApiTestCase extends ClientTestCase
 
     /** @var Tokens */
     protected $tokens;
+
+    /**
+     * @var string
+     */
+    private $tokenId;
+
+    /**
+     * @var string
+     */
+    private $lastEventId;
 
     /**
      * @param $testName
@@ -94,6 +105,14 @@ abstract class StorageApiTestCase extends ClientTestCase
     {
         $this->_client = $this->getDefaultClient();
         $this->tokens = new Tokens($this->_client);
+
+        $this->tokenId = $this->_client->verifyToken()['id'];
+        $lastEvent = $this->_client->listTokenEvents($this->tokenId, [
+            'limit' => 1,
+        ]);
+        if (!empty($lastEvent)) {
+            $this->lastEventId = $lastEvent[0]['id'];
+        }
     }
 
     protected function _initEmptyTestBuckets($stages = [self::STAGE_OUT, self::STAGE_IN])
@@ -673,6 +692,90 @@ abstract class StorageApiTestCase extends ClientTestCase
         ];
     }
 
+    public function cleanupConfigurations()
+    {
+        $components = new Components($this->_client);
+        foreach ($components->listComponents() as $component) {
+            foreach ($component['configurations'] as $configuration) {
+                $components->deleteConfiguration($component['id'], $configuration['id']);
+            }
+        }
+
+        // erase all deleted configurations
+        foreach ($components->listComponents((new ListComponentsOptions())->setIsDeleted(true)) as $component) {
+            foreach ($component['configurations'] as $configuration) {
+                $components->deleteConfiguration($component['id'], $configuration['id']);
+            }
+        }
+    }
+
+    /**
+     * @param string $eventName
+     * @return array
+     */
+    protected function listEvents($eventName, $expectedObjectId = null)
+    {
+        return $this->retry(function () use ($expectedObjectId) {
+            $tokenEvents = $this->_client->listTokenEvents($this->tokenId, [
+                'sinceId' => $this->lastEventId,
+                'limit' => 1,
+            ]);
+
+            if ($expectedObjectId === null) {
+                return $tokenEvents;
+            }
+
+            return array_filter($tokenEvents, function ($event) use ($expectedObjectId) {
+                return $event['objectId'] === $expectedObjectId;
+            });
+        }, 10, $eventName);
+    }
+
+    /**
+     * @param callable $apiCall
+     * @param int $retries
+     * @param string $eventName
+     * @return array
+     */
+    protected function retry($apiCall, $retries, $eventName)
+    {
+        $events = [];
+        while ($retries > 0) {
+            $events = $apiCall();
+            if (empty($events) || $events[0]['event'] !== $eventName) {
+                $retries--;
+                usleep(250 * 1000);
+            } else {
+                break;
+            }
+        }
+        return $events;
+    }
+
+    protected function assertEvent(
+        $event,
+        $expectedEventName,
+        $expectedEventMessage,
+        $expectedObjectId,
+        $expectedObjectName,
+        $expectedObjectType,
+        $expectedParams
+    ) {
+        self::assertArrayHasKey('objectName', $event);
+        self::assertEquals($expectedObjectName, $event['objectName']);
+        self::assertArrayHasKey('objectType', $event);
+        self::assertEquals($expectedObjectType, $event['objectType']);
+        self::assertArrayHasKey('objectId', $event);
+        self::assertEquals($expectedObjectId, $event['objectId']);
+        self::assertArrayHasKey('event', $event);
+        self::assertEquals($expectedEventName, $event['event']);
+        self::assertArrayHasKey('message', $event);
+        self::assertEquals($expectedEventMessage, $event['message']);
+        self::assertArrayHasKey('token', $event);
+        self::assertEquals($this->tokenId, $event['token']['id']);
+        self::assertArrayHasKey('params', $event);
+        self::assertSame($expectedParams, $event['params']);
+    }
     private function createOrReuseDevBranch(self $that, $useExistingBranch = false)
     {
         $providedToken = $that->_client->verifyToken();
@@ -704,4 +807,5 @@ abstract class StorageApiTestCase extends ClientTestCase
 
         return $branch;
     }
+
 }
