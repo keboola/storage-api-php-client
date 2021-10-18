@@ -11,7 +11,7 @@ class JobPollDelayTest extends StorageApiTestCase
     public function setUp()
     {
         parent::setUp();
-        $this->initEmptyTestBucketsForParallelTests();
+        $this->_initEmptyTestBuckets();
     }
 
     public function testAlternateJobPollDelay()

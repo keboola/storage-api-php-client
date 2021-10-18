@@ -1564,7 +1564,7 @@ class ComponentsTest extends StorageApiTestCase
      */
     public function testTokenWithComponentAccess(callable $getClient)
     {
-        $this->initEmptyTestBucketsForParallelTests();
+        $this->_initEmptyTestBuckets();
 
         $tokenOptions = (new TokenCreateOptions())
             ->setDescription('test components')

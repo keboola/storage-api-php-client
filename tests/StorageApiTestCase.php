@@ -118,6 +118,13 @@ abstract class StorageApiTestCase extends ClientTestCase
         $this->tokens = new Tokens($this->_client);
     }
 
+    protected function _initEmptyTestBuckets($stages = [self::STAGE_OUT, self::STAGE_IN])
+    {
+        foreach ($stages as $stage) {
+            $this->_bucketIds[$stage] = $this->initEmptyBucket('API-tests', $stage, 'API-tests');
+        }
+    }
+
     protected function initEmptyTestBucketsForParallelTests($stages = [self::STAGE_OUT, self::STAGE_IN])
     {
         $description = $this->generateDescriptionForTestObject();

@@ -12,7 +12,7 @@ class JobsListTest extends StorageApiTestCase
     public function setUp()
     {
         parent::setUp();
-        $this->initEmptyTestBucketsForParallelTests();
+        $this->_initEmptyTestBuckets();
         // make 2 jobs
         for ($i = 0; $i < 2; $i++) {
             $this->_client->createTableAsync(

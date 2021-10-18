@@ -15,7 +15,7 @@ class CommonTest extends StorageApiTestCase
     public function setUp()
     {
         parent::setUp();
-        $this->initEmptyTestBucketsForParallelTests();
+        $this->_initEmptyTestBuckets();
     }
 
     public function testTokenProperties()
