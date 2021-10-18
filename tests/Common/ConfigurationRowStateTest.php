@@ -1,6 +1,8 @@
 <?php
 namespace Keboola\Test\Common;
 
+use Keboola\StorageApi\BranchAwareClient;
+use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
@@ -29,9 +31,12 @@ class ConfigurationRowStateTest extends StorageApiTestCase
         }
     }
 
-    public function testAttributeExists()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testAttributeExists(callable $getClient)
     {
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
         $configuration = (new \Keboola\StorageApi\Options\Components\Configuration())
                     ->setComponentId('wr-db')
                     ->setConfigurationId('main-1')
@@ -48,9 +53,12 @@ class ConfigurationRowStateTest extends StorageApiTestCase
         $this->assertInternalType('array', $configurationResponse['rows'][0]['state']);
     }
 
-    public function testAttributeValueCreate()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testAttributeValueCreate(callable $getClient)
     {
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
@@ -71,10 +79,18 @@ class ConfigurationRowStateTest extends StorageApiTestCase
         $this->assertEquals($state, $configurationResponse['rows'][0]['state']);
     }
 
-
-    public function testAttributeValueUpdate()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testAttributeValueUpdate(callable $getClient)
     {
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        /** @var Client $client */
+        $client = $getClient($this);
+        if ($client instanceof BranchAwareClient) {
+            $this->markTestIncomplete("Using 'state' parameter on configuration update is restricted for dev/branch context. Use direct API call.");
+        }
+
+        $components = new \Keboola\StorageApi\Components($client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
@@ -100,9 +116,18 @@ class ConfigurationRowStateTest extends StorageApiTestCase
         $this->assertEquals($state, $configurationResponse['rows'][0]['state']);
     }
 
-    public function testVersionUnchangedAfterSettingAttribute()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testVersionUnchangedAfterSettingAttribute(callable $getClient)
     {
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        /** @var Client $client */
+        $client = $getClient($this);
+        if ($client instanceof BranchAwareClient) {
+            $this->markTestIncomplete("Using 'state' parameter on configuration update is restricted for dev/branch context. Use direct API call.");
+        }
+
+        $components = new \Keboola\StorageApi\Components($client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
@@ -130,9 +155,12 @@ class ConfigurationRowStateTest extends StorageApiTestCase
         $this->assertEquals(2, $configurationResponse['version']);
     }
 
-    public function testAttributeNotPresentInVersions()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testAttributeNotPresentInVersions(callable $getClient)
     {
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($getClient($this));
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
@@ -150,9 +178,18 @@ class ConfigurationRowStateTest extends StorageApiTestCase
         $this->assertArrayNotHasKey('state', $components->getConfigurationRowVersion('wr-db', 'main-1', 'main-1-1', 1));
     }
 
-    public function testRollbackPreservesState()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testRollbackPreservesState(callable $getClient)
     {
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        /** @var Client $client */
+        $client = $getClient($this);
+        if ($client instanceof BranchAwareClient) {
+            $this->markTestIncomplete("Using 'state' parameter on configuration update is restricted for dev/branch context. Use direct API call.");
+        }
+
+        $components = new \Keboola\StorageApi\Components($client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
@@ -194,9 +231,18 @@ class ConfigurationRowStateTest extends StorageApiTestCase
         $this->assertEquals($state, $configurationResponse['rows'][0]['state']);
     }
 
-    public function testCopyPreservesState()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testCopyPreservesState(callable $getClient)
     {
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        /** @var Client $client */
+        $client = $getClient($this);
+        if ($client instanceof BranchAwareClient) {
+            $this->markTestIncomplete("Using 'state' parameter on configuration update is restricted for dev/branch context. Use direct API call.");
+        }
+
+        $components = new \Keboola\StorageApi\Components($client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
@@ -231,9 +277,18 @@ class ConfigurationRowStateTest extends StorageApiTestCase
         $this->assertEquals($state, $configurationResponse['rows'][0]['state']);
     }
 
-    public function testRowRollbackPreservesState()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testRowRollbackPreservesState(callable $getClient)
     {
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        /** @var Client $client */
+        $client = $getClient($this);
+        if ($client instanceof BranchAwareClient) {
+            $this->markTestIncomplete("Using 'state' parameter on configuration update is restricted for dev/branch context. Use direct API call.");
+        }
+
+        $components = new \Keboola\StorageApi\Components($client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
@@ -276,9 +331,18 @@ class ConfigurationRowStateTest extends StorageApiTestCase
         $this->assertEquals($state, $configurationResponse['rows'][0]['state']);
     }
 
-    public function testRowCopyResetsState()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testRowCopyResetsState(callable $getClient)
     {
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        /** @var Client $client */
+        $client = $getClient($this);
+        if ($client instanceof BranchAwareClient) {
+            $this->markTestIncomplete("Using 'state' parameter on configuration update is restricted for dev/branch context. Use direct API call.");
+        }
+
+        $components = new \Keboola\StorageApi\Components($client);
 
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
@@ -329,9 +393,18 @@ class ConfigurationRowStateTest extends StorageApiTestCase
         $this->assertEmpty($configurationResponse['rows'][0]['state']);
     }
 
-    public function testDeletedRowRollbackPreservesState()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testDeletedRowRollbackPreservesState(callable $getClient)
     {
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        /** @var Client $client */
+        $client = $getClient($this);
+        if ($client instanceof BranchAwareClient) {
+            $this->markTestIncomplete("Using 'state' parameter on configuration update is restricted for dev/branch context. Use direct API call.");
+        }
+
+        $components = new \Keboola\StorageApi\Components($client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
@@ -381,10 +454,18 @@ class ConfigurationRowStateTest extends StorageApiTestCase
         $this->assertEquals($state2, $configurationResponse['rows'][1]['state']);
     }
 
-
-    public function testDeletedRowCopyPreservesState()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testDeletedRowCopyPreservesState(callable $getClient)
     {
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        /** @var Client $client */
+        $client = $getClient($this);
+        if ($client instanceof BranchAwareClient) {
+            $this->markTestIncomplete("Using 'state' parameter on configuration update is restricted for dev/branch context. Use direct API call.");
+        }
+
+        $components = new \Keboola\StorageApi\Components($client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')

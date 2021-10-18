@@ -9,6 +9,7 @@
 
 namespace Keboola\Test;
 
+use Keboola\StorageApi\BranchAwareGuzzleClient;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Tokens;
 use function array_key_exists;
@@ -609,6 +610,12 @@ abstract class StorageApiTestCase extends ClientTestCase
     }
 
     /**
+     * Usage:
+     *  - `$getClient($this)` -> return default client
+     *  - `$getClient($this, [...])` -> return client with custom config
+     *  - `$getClient($this, [], true)` -> return default client which use same branch as before
+     *  - `$getClient($this, [...], true)` -> return client with custom which use same branch as before
+     *
      * DataProvider cannot use `$this->variable` because the provider run before the `setUp` method is called.
      * Need to put `$this` as argument to anonymous function to build correct variable values and return correct client.
      *
@@ -621,25 +628,79 @@ abstract class StorageApiTestCase extends ClientTestCase
     public function provideComponentsClient()
     {
         yield 'defaultBranch' => [
-            function (self $that) {
-                return $that->_client;
+            function (self $that, array $config = []) {
+                if ($config) {
+                    return $that->getClient($config);
+                } else {
+                    return $that->_client;
+                }
             }
         ];
 
         yield 'devBranch' => [
-            function (self $that) {
-                $providedToken = $that->_client->verifyToken();
-                $branchName = implode('\\', [
-                    __CLASS__,
-                    $that->getName(false),
-                    $that->dataName(),
-                    $providedToken['id'],
-                ]);
-                $devBranch = new \Keboola\StorageApi\DevBranches($that->_client);
-                $this->deleteBranchesByPrefix($devBranch, $branchName);
-                $branch = $devBranch->createBranch($branchName);
-                return $this->getBranchAwareDefaultClient($branch['id']);
+            function (self $that, array $config = [], bool $useExistingBranch = false) {
+                $branch = $this->createOrReuseDevBranch($that, $useExistingBranch);
+
+                if ($config) {
+                    return $this->getBranchAwareClient($branch['id'], $config);
+                } else {
+                    return $this->getBranchAwareDefaultClient($branch['id']);
+                }
             }
         ];
+    }
+
+    /**
+     * Usage:
+     *  - `$getGuzzleClient($this, [...])` -> return Guzzle client with custom config
+     *  - `$getGuzzleClient($this, [...], true)` -> return Guzzle client with custom which use same branch as before
+     *
+     * @see provideComponentsClient
+     */
+    public function provideComponentsGuzzleClient()
+    {
+        yield 'defaultBranch' => [
+            function (self $that, array $config) {
+                return new \GuzzleHttp\Client($config);
+            }
+        ];
+
+        yield 'devBranch' => [
+            function (self $that, array $config, bool $useExistingBranch = false) {
+                $branch = $this->createOrReuseDevBranch($that, $useExistingBranch);
+                return new BranchAwareGuzzleClient($branch['id'], $config);
+            }
+        ];
+    }
+
+    private function createOrReuseDevBranch(self $that, bool $useExistingBranch = false): array
+    {
+        $providedToken = $that->_client->verifyToken();
+        $branchName = implode('\\', [
+            __CLASS__,
+            $that->getName(false),
+            $that->dataName(),
+            $providedToken['id'],
+        ]);
+        $devBranch = new \Keboola\StorageApi\DevBranches($that->_client);
+
+        if ($useExistingBranch) {
+            $branches = $devBranch->listBranches();
+            // get branch detail
+            foreach ($branches as $branchItem) {
+                if ($branchItem['name'] === $branchName) {
+                    $branch = $branchItem;
+                }
+            }
+            if (!isset($branch)) {
+                $this->fail(sprintf('Reuse existing branch: branch %s not found.', $branchName));
+            }
+        } else {
+            // create new branch
+            $this->deleteBranchesByPrefix($devBranch, $branchName);
+            $branch = $devBranch->createBranch($branchName);
+        }
+
+        return $branch;
     }
 }
