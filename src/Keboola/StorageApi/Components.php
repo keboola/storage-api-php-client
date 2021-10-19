@@ -345,7 +345,10 @@ class Components
 
     public function listConfigurationMetadata(ListConfigurationMetadataOptions $options)
     {
-        return $this->client->apiGet("components/{$options->getComponentId()}/configs/"
-            . "{$options->getConfigurationId()}/metadata");
+        return $this->client->apiGet(sprintf(
+            "components/%s/configs/%s/metadata",
+            $options->getComponentId(),
+            $options->getConfigurationId()
+        ));
     }
 }
