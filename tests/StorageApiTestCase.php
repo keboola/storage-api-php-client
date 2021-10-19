@@ -686,6 +686,7 @@ abstract class StorageApiTestCase extends ClientTestCase
 
         if ($useExistingBranch) {
             $branches = $devBranch->listBranches();
+            $branch = null;
             // get branch detail
             foreach ($branches as $branchItem) {
                 if ($branchItem['name'] === $branchName) {
