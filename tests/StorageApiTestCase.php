@@ -673,7 +673,7 @@ abstract class StorageApiTestCase extends ClientTestCase
         ];
     }
 
-    private function createOrReuseDevBranch(self $that, $useExistingBranch = false): array
+    private function createOrReuseDevBranch(self $that, $useExistingBranch = false)
     {
         $providedToken = $that->_client->verifyToken();
         $branchName = implode('\\', [
