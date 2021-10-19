@@ -203,8 +203,8 @@ class ConfigurationMetadataTest extends StorageApiTestCase
 
             $this->assertEvent(
                 $events[0],
-                'storage.componentConfigurationMetadataUpdated',
-                'Updated component configuration metadata "Main-1" (wr-db)',
+                'storage.componentConfigurationMetadataSet',
+                'Component configuration metadata set "Main-1" (wr-db)',
                 $configurationOptions->getConfigurationId(),
                 'Main-1',
                 'componentConfiguration',
