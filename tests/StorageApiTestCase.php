@@ -776,6 +776,7 @@ abstract class StorageApiTestCase extends ClientTestCase
         self::assertArrayHasKey('params', $event);
         self::assertSame($expectedParams, $event['params']);
     }
+
     private function createOrReuseDevBranch(self $that, $useExistingBranch = false)
     {
         $providedToken = $that->_client->verifyToken();
@@ -808,4 +809,14 @@ abstract class StorageApiTestCase extends ClientTestCase
         return $branch;
     }
 
+    /**
+     * @param string $name
+     * @return string
+     */
+    public function generateUniqNameForString($name)
+    {
+        $providedToken = $this->_client->verifyToken();
+
+        return $this->getName() . '_' . $providedToken['id'] . '_' . $name;
+    }
 }
