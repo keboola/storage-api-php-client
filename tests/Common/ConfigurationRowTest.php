@@ -334,7 +334,7 @@ class ConfigurationRowTest extends StorageApiTestCase
     /**
      * @dataProvider isDisabledProvider
      */
-    public function testCreateConfigurationRowIsDisabled(callable $getClient, callable $getGuzzleClient, $isDisabled, bool $expectedIsDisabled)
+    public function testCreateConfigurationRowIsDisabled(callable $getClient, callable $getGuzzleClient, $isDisabled, $expectedIsDisabled)
     {
         /** @var Client $_client */
         $_client = $getClient($this);

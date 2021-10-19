@@ -638,7 +638,7 @@ abstract class StorageApiTestCase extends ClientTestCase
         ];
 
         yield 'devBranch' => [
-            function (self $that, array $config = [], bool $useExistingBranch = false) {
+            function (self $that, array $config = [], $useExistingBranch = false) {
                 $branch = $this->createOrReuseDevBranch($that, $useExistingBranch);
 
                 if ($config) {
@@ -666,14 +666,14 @@ abstract class StorageApiTestCase extends ClientTestCase
         ];
 
         yield 'devBranch' => [
-            function (self $that, array $config, bool $useExistingBranch = false) {
+            function (self $that, array $config, $useExistingBranch = false) {
                 $branch = $this->createOrReuseDevBranch($that, $useExistingBranch);
                 return new BranchAwareGuzzleClient($branch['id'], $config);
             }
         ];
     }
 
-    private function createOrReuseDevBranch(self $that, bool $useExistingBranch = false): array
+    private function createOrReuseDevBranch(self $that, $useExistingBranch = false): array
     {
         $providedToken = $that->_client->verifyToken();
         $branchName = implode('\\', [
