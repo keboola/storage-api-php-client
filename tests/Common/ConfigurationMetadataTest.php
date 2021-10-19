@@ -68,14 +68,14 @@ class ConfigurationMetadataTest extends StorageApiTestCase
                 ->setMetadata(self::TEST_METADATA);
             $newMetadata = $components->addConfigurationMetadata($configurationMetadataOptions);
             self::assertCount(2, $newMetadata);
-            $this->validateMetadataEquality(self::TEST_METADATA[0], $newMetadata[0]);
-            $this->validateMetadataEquality(self::TEST_METADATA[1], $newMetadata[1]);
+            $this->assertMetadataEquals(self::TEST_METADATA[0], $newMetadata[0]);
+            $this->assertMetadataEquals(self::TEST_METADATA[1], $newMetadata[1]);
             $listConfigurationMetadata = $components->listConfigurationMetadata((new ListConfigurationMetadataOptions())
                 ->setComponentId('transformation')
                 ->setConfigurationId('main-1'));
             self::assertCount(2, $listConfigurationMetadata);
-            $this->validateMetadataEquality(self::TEST_METADATA[0], $listConfigurationMetadata[0]);
-            $this->validateMetadataEquality(self::TEST_METADATA[1], $listConfigurationMetadata[1]);
+            $this->assertMetadataEquals(self::TEST_METADATA[0], $listConfigurationMetadata[0]);
+            $this->assertMetadataEquals(self::TEST_METADATA[1], $listConfigurationMetadata[1]);
 
             // test if second configuration has still 0 metadata
             $listConfigurationMetadata = $components->listConfigurationMetadata((new ListConfigurationMetadataOptions())
@@ -169,15 +169,15 @@ class ConfigurationMetadataTest extends StorageApiTestCase
                 ->setMetadata($updatedMetadata);
             $newMetadata = $components->addConfigurationMetadata($configurationMetadataOptions);
             self::assertCount(2, $newMetadata);
-            $this->validateMetadataEquality(self::TEST_METADATA[0], $newMetadata[0]);
-            $this->validateMetadataEquality($updatedMetadata[0], $newMetadata[1]);
+            $this->assertMetadataEquals(self::TEST_METADATA[0], $newMetadata[0]);
+            $this->assertMetadataEquals($updatedMetadata[0], $newMetadata[1]);
 
             $listConfigurationMetadata = $components->listConfigurationMetadata((new ListConfigurationMetadataOptions())
                 ->setComponentId('transformation')
                 ->setConfigurationId('main-1'));
             self::assertCount(2, $listConfigurationMetadata);
-            $this->validateMetadataEquality(self::TEST_METADATA[0], $listConfigurationMetadata[0]);
-            $this->validateMetadataEquality($updatedMetadata[0], $listConfigurationMetadata[1]);
+            $this->assertMetadataEquals(self::TEST_METADATA[0], $listConfigurationMetadata[0]);
+            $this->assertMetadataEquals($updatedMetadata[0], $listConfigurationMetadata[1]);
         }
     }
 
@@ -235,8 +235,8 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             ->setMetadata(self::TEST_METADATA);
         $newMetadata = $components->addConfigurationMetadata($configurationMetadataOptions);
         self::assertCount(2, $newMetadata);
-        $this->validateMetadataEquality(self::TEST_METADATA[0], $newMetadata[0]);
-        $this->validateMetadataEquality(self::TEST_METADATA[1], $newMetadata[1]);
+        $this->assertMetadataEquals(self::TEST_METADATA[0], $newMetadata[0]);
+        $this->assertMetadataEquals(self::TEST_METADATA[1], $newMetadata[1]);
 
         // create new devbranch
         $branch = $devBranch->createBranch($branchName);
@@ -247,8 +247,8 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             ->setComponentId('transformation')
             ->setConfigurationId('main-1'));
         self::assertCount(2, $listConfigurationMetadata);
-        $this->validateMetadataEquality(self::TEST_METADATA[0], $listConfigurationMetadata[0]);
-        $this->validateMetadataEquality(self::TEST_METADATA[1], $listConfigurationMetadata[1]);
+        $this->assertMetadataEquals(self::TEST_METADATA[0], $listConfigurationMetadata[0]);
+        $this->assertMetadataEquals(self::TEST_METADATA[1], $listConfigurationMetadata[1]);
 
         // if I add metadata to default branch config development branch config shouldn't be affected
         $configurationMetadataOptions = (new ConfigurationMetadata($transformationMain1Options))
@@ -310,8 +310,8 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             ->setComponentId('transformation')
             ->setConfigurationId('main-1'));
         self::assertCount(2, $listConfigurationMetadata);
-        $this->validateMetadataEquality(self::TEST_METADATA[0], $listConfigurationMetadata[0]);
-        $this->validateMetadataEquality($updatedMetadata[0], $listConfigurationMetadata[1]);
+        $this->assertMetadataEquals(self::TEST_METADATA[0], $listConfigurationMetadata[0]);
+        $this->assertMetadataEquals($updatedMetadata[0], $listConfigurationMetadata[1]);
 
         // add new metadata to the default branch
         $moreMetadata = [
@@ -342,9 +342,9 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             ->setConfigurationId('main-1'));
         self::assertCount(3, $listConfigurationMetadata);
 
-        $this->validateMetadataEquality(self::TEST_METADATA[0], $listConfigurationMetadata[0]);
-        $this->validateMetadataEquality($updatedMetadata[0], $listConfigurationMetadata[1]);
-        $this->validateMetadataEquality($moreMetadata[0], $listConfigurationMetadata[2]);
+        $this->assertMetadataEquals(self::TEST_METADATA[0], $listConfigurationMetadata[0]);
+        $this->assertMetadataEquals($updatedMetadata[0], $listConfigurationMetadata[1]);
+        $this->assertMetadataEquals($moreMetadata[0], $listConfigurationMetadata[2]);
     }
 
     public function testConfigMetadataRestrictionsForReadOnlyUser()
@@ -373,7 +373,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
         }
     }
 
-    private function validateMetadataEquality(array $expected, array $actual)
+    private function assertMetadataEquals(array $expected, array $actual)
     {
         foreach ($expected as $key => $value) {
             self::assertArrayHasKey($key, $actual);
