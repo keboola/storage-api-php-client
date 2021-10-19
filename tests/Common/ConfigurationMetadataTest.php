@@ -112,11 +112,28 @@ class ConfigurationMetadataTest extends StorageApiTestCase
 
             // test after restore component can add or list metadata
             $components->restoreComponentConfiguration('transformation', 'main-1');
-            $components->addConfigurationMetadata($configurationMetadataOptions);
+
+            // test can list metadata after restore configuration
             $metadata = $components->listConfigurationMetadata((new ListConfigurationMetadataOptions())
                 ->setComponentId('transformation')
                 ->setConfigurationId('main-1'));
             self::assertCount(2, $metadata);
+
+            // test can add metadata after restore configuration
+            $afterRestoreOptions = (new ConfigurationMetadata($transformationMain1Options))
+                ->setMetadata([
+                    [
+                        'key' => 'KBC.SomeEnity.afterRestore',
+                        'value' => 'new-value',
+                    ]
+                ]);
+            $newMetadata = $components->addConfigurationMetadata($afterRestoreOptions);
+            self::assertCount(3, $newMetadata);
+
+            $metadata = $components->listConfigurationMetadata((new ListConfigurationMetadataOptions())
+                ->setComponentId('transformation')
+                ->setConfigurationId('main-1'));
+            self::assertCount(3, $metadata);
         }
     }
 
@@ -140,11 +157,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             // add metadata to first configuration
             $configurationMetadataOptions = (new ConfigurationMetadata($transformationMain1Options))
                 ->setMetadata(self::TEST_METADATA);
-            $newMetadata = $components->addConfigurationMetadata($configurationMetadataOptions);
-            self::assertCount(2, $newMetadata);
-            $this->validateMetadataEquality(self::TEST_METADATA[0], $newMetadata[0]);
-            $this->validateMetadataEquality(self::TEST_METADATA[1], $newMetadata[1]);
-
+            $components->addConfigurationMetadata($configurationMetadataOptions);
             // add new metadata with same key but different value
             $updatedMetadata = [
                 [
@@ -190,8 +203,8 @@ class ConfigurationMetadataTest extends StorageApiTestCase
 
             $this->assertEvent(
                 $events[0],
-                'storage.componentConfigurationMetadataCreated',
-                'Created component configuration metadata "Main-1" (wr-db)',
+                'storage.componentConfigurationMetadataUpdated',
+                'Updated component configuration metadata "Main-1" (wr-db)',
                 $configurationOptions->getConfigurationId(),
                 'Main-1',
                 'componentConfiguration',
@@ -355,7 +368,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             $components->addConfigurationMetadata($configurationMetadataOptions);
             $this->fail('should fail, insufficiently permission');
         } catch (ClientException $e) {
-            $this->assertContains('Configuration manipulation is restricted for your user role ', $e->getMessage());
+            $this->assertContains('Configuration manipulation is restricted for your user role', $e->getMessage());
             $this->assertSame(403, $e->getCode());
         }
     }
@@ -388,18 +401,18 @@ class ConfigurationMetadataTest extends StorageApiTestCase
         $branchesList = $devBranch->listBranches();
 
         //get default branchId
-        $defaultBranch = null;
+        $defaultBranchId = null;
         foreach ($branchesList as $branch) {
             if ($branch['isDefault'] === true) {
-                $defaultBranch = $branch['id'];
+                $defaultBranchId = $branch['id'];
             }
         }
 
         if ($createDevBranch) {
             $developmentBranch = $devBranch->createBranch($branchName)['id'];
-            return [$defaultBranch, $developmentBranch];
+            return [$defaultBranchId, $developmentBranch];
         } else {
-            return [$defaultBranch];
+            return [$defaultBranchId];
         }
     }
 }
