@@ -48,12 +48,12 @@ abstract class StorageApiTestCase extends ClientTestCase
     /**
      * @var string
      */
-    private $tokenId;
+    protected $tokenId;
 
     /**
      * @var string
      */
-    private $lastEventId;
+    protected $lastEventId;
 
     /**
      * @param $testName
