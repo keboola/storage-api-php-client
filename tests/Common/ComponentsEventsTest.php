@@ -26,16 +26,6 @@ class ComponentsEventsTest extends StorageApiTestCase
      */
     private $components;
 
-    /**
-     * @var string
-     */
-    private $tokenId;
-
-    /**
-     * @var string
-     */
-    private $lastEventId;
-
     public function setUp()
     {
         parent::setUp();
