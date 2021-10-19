@@ -4450,6 +4450,79 @@ Deletes the specified metadata item from the column.
 
 + Response 204
 
+## Components Configurations Metadata [/v2/storage/branch/{branchId}/components/{componentId}/configs/{configId}/metadata]
+
+All requests use a call using `/branch/{branchId}` also for default(production) branch.
+You can find out the id of your default branch by calling [List Branches](#reference/development-branches/branches/list-branches)
+### Create or Update [POST]
+Sets multiple metadata with one call. If the given key and provider combination already exist
+for the configuration, the data will be updated with the new value and timestamp. All metadata associated
+with the configuration are returned in the response.
+
++ Parameters
+    + branchId (required) - Id of the development branch
+    + componentId (required) - Id of the Component
+    + configId (required) - Id of the configuration
+
++ Attributes
+    + metadata (required) - Array of metadata objects
+        + Metadata (object)
+            + key (required)
+            + value (required)
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            metadata%5B0%5D%5Bkey%5D=some-key&metadata%5B0%5D%5Bvalue%5D=Some+value
+
+
++ Response 201 (application/json)
+    + Body
+
+            [
+                {
+                    "id": "19509",
+                    "key": "some-key",
+                    "value": "Some value",
+                    "timestamp": "2017-02-13 23:36:10"
+                }
+            ]
+
+### List [GET]
+Metadata can be listed for your component configuration.
+
++ Parameters
+    + branchId (required) - Id of the development branch
+    + componentId (required) - Id of the Component
+    + configId (required) - Id of the configuration
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+    + Body
+
+            [
+                {
+                    "id": "123",
+                    "timestamp": "2016-09-19 13:02:11",
+                    "key": "attribute_key",
+                    "value": "attribute_value"
+                },
+                {
+                    "id": "124",
+                    "timestamp": "2016-09-19 13:02:11",
+                    "key": "another_attribute_key",
+                    "value": "attribute_value"
+                }
+            ]
+
 # Group Jobs
 Jobs are objects that manage asynchronous tasks, these are all potentially long-running actions such as
 loading table data, snapshotting, table structure modifications. Jobs are created by actions on target
