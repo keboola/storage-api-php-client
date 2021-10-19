@@ -343,11 +343,8 @@ class Components
         );
     }
 
-    public function listConfigurationMetadata(ListConfigurationMetadataOptions $options = null)
+    public function listConfigurationMetadata(ListConfigurationMetadataOptions $options)
     {
-        if (!$options) {
-            $options = new ListConfigurationMetadataOptions();
-        }
         return $this->client->apiGet("components/{$options->getComponentId()}/configs/"
             . "{$options->getConfigurationId()}/metadata");
     }
