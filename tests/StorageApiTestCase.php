@@ -729,7 +729,7 @@ abstract class StorageApiTestCase extends ClientTestCase
             }
         }
 
-        return null;
+        throw new \Exception('Default branch not found.');
     }
 
     public function cleanupConfigurations()
