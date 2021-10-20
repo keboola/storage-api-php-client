@@ -46,13 +46,7 @@ class ComponentsEventsTest extends StorageApiTestCase
 
         // initialize variables
         $this->configurationId = $this->_client->generateId();
-        $this->tokenId = $this->_client->verifyToken()['id'];
-        $lastEvent = $this->_client->listTokenEvents($this->tokenId, [
-            'limit' => 1,
-        ]);
-        if (!empty($lastEvent)) {
-            $this->lastEventId = $lastEvent[0]['id'];
-        }
+        $this->initEvents();
     }
 
     /**

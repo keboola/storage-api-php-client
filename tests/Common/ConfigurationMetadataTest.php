@@ -28,6 +28,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
         parent::setUp();
 
         $this->cleanupConfigurations();
+        $this->initEvents();
     }
 
     /**

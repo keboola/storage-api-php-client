@@ -106,14 +106,6 @@ abstract class StorageApiTestCase extends ClientTestCase
     {
         $this->_client = $this->getDefaultClient();
         $this->tokens = new Tokens($this->_client);
-
-        $this->tokenId = $this->_client->verifyToken()['id'];
-        $lastEvent = $this->_client->listTokenEvents($this->tokenId, [
-            'limit' => 1,
-        ]);
-        if (!empty($lastEvent)) {
-            $this->lastEventId = $lastEvent[0]['id'];
-        }
     }
 
     protected function _initEmptyTestBuckets($stages = [self::STAGE_OUT, self::STAGE_IN])
@@ -867,5 +859,16 @@ abstract class StorageApiTestCase extends ClientTestCase
         $providedToken = $this->_client->verifyToken();
 
         return $providedToken['id'] . '_' . $name;
+    }
+
+    protected function initEvents()
+    {
+        $this->tokenId = $this->_client->verifyToken()['id'];
+        $lastEvent = $this->_client->listTokenEvents($this->tokenId, [
+            'limit' => 1,
+        ]);
+        if (!empty($lastEvent)) {
+            $this->lastEventId = $lastEvent[0]['id'];
+        }
     }
 }
