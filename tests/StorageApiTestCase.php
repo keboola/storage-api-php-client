@@ -713,12 +713,13 @@ abstract class StorageApiTestCase extends ClientTestCase
      * @param string $eventName
      * @return array
      */
-    protected function listEvents($eventName, $expectedObjectId = null)
+    protected function listEvents(Client $client, $eventName, $expectedObjectId = null)
     {
-        return $this->retry(function () use ($expectedObjectId) {
-            $tokenEvents = $this->_client->listTokenEvents($this->tokenId, [
+        return $this->retry(function () use ($client, $expectedObjectId) {
+            $tokenEvents = $client->listEvents([
                 'sinceId' => $this->lastEventId,
                 'limit' => 1,
+                'q' => sprintf('token.id:%s', $this->tokenId),
             ]);
 
             if ($expectedObjectId === null) {
