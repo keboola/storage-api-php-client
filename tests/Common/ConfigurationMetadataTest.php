@@ -4,7 +4,6 @@ namespace Keboola\Test\Common;
 
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Components;
-use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationMetadata;
 use Keboola\StorageApi\Options\Components\ListConfigurationMetadataOptions;
@@ -428,6 +427,135 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             $this->assertContains('Configuration manipulation is restricted for your user role', $e->getMessage());
             $this->assertSame(403, $e->getCode());
         }
+    }
+
+    public function testDeleteMetadata()
+    {
+        $configurationNameMain1 = $this->generateUniqueNameForString('main-1');
+
+        $defaultBranchId = $this->getDefaultBranchId($this);
+        $branchClient = $this->getBranchAwareDefaultClient($defaultBranchId);
+        $components = new Components($branchClient);
+
+        $transformationMain1Options = $this->createConfiguration(
+            $components,
+            'transformation',
+            $configurationNameMain1,
+            'Main 1'
+        );
+        $wrDbMain1Options = $this->createConfiguration(
+            $components,
+            'wr-db',
+            $configurationNameMain1,
+            'Main 1'
+        );
+
+        // add metadata to first configuration
+        $configurationMetadataOptions = (new ConfigurationMetadata($transformationMain1Options))
+            ->setMetadata(self::TEST_METADATA);
+        $newMetadata = $components->addConfigurationMetadata($configurationMetadataOptions);
+        self::assertCount(2, $newMetadata);
+        $this->assertMetadataEquals(self::TEST_METADATA[0], $newMetadata[0]);
+        $this->assertMetadataEquals(self::TEST_METADATA[1], $newMetadata[1]);
+
+        $components->deleteConfigurationMetadata('transformation', $configurationNameMain1, $newMetadata[0]['id']);
+
+        $listConfigurationMetadata = $components->listConfigurationMetadata((new ListConfigurationMetadataOptions())
+            ->setComponentId('transformation')
+            ->setConfigurationId($configurationNameMain1));
+        self::assertCount(1, $listConfigurationMetadata);
+
+        // try delete notexisted metadata
+        try {
+            $components->deleteConfigurationMetadata('transformation', $configurationNameMain1, $newMetadata[0]['id']);
+            $this->fail('should fail, metadata not exist');
+        } catch (ClientException $e) {
+            $this->assertContains('Metadata with id: ', $e->getMessage());
+            $this->assertSame(404, $e->getCode());
+        }
+
+        $configurationMetadataOptions = (new ConfigurationMetadata($wrDbMain1Options))
+            ->setMetadata(self::TEST_METADATA);
+        $wrDbMetadata = $components->addConfigurationMetadata($configurationMetadataOptions);
+
+        // can't delete existing metadata for other component
+        try {
+            $components->deleteConfigurationMetadata('transformation', $configurationNameMain1, $wrDbMetadata[0]['id']);
+            $this->fail('should fail, don\'t have access to resource');
+        } catch (ClientException $e) {
+            $this->assertContains('You don\'t have access to resource.', $e->getMessage());
+            $this->assertSame(403, $e->getCode());
+        }
+
+        // cannot delete metadata in development branch
+        $branch = $this->createOrReuseDevBranch($this);
+        $devBranchComponents = new Components($this->getBranchAwareDefaultClient($branch['id']));
+
+        try {
+            $devBranchComponents->deleteConfigurationMetadata('transformation', $configurationNameMain1, $newMetadata[1]['id']);
+            $this->fail('should fail, not allowed for devBranch');
+        } catch (ClientException $e) {
+            $this->assertContains('Delete metadata is not implemented for development branch', $e->getMessage());
+            $this->assertSame(501, $e->getCode());
+        }
+
+        // if I delete metadata in default still exist in development branch
+        $components->deleteConfigurationMetadata('transformation', $configurationNameMain1, $newMetadata[1]['id']);
+
+        // non exist in default branch
+        $listConfigurationMetadata = $components->listConfigurationMetadata((new ListConfigurationMetadataOptions())
+            ->setComponentId('transformation')
+            ->setConfigurationId($configurationNameMain1));
+        self::assertCount(0, $listConfigurationMetadata);
+
+        // still exist in development branch
+        $listConfigurationMetadata = $devBranchComponents->listConfigurationMetadata((new ListConfigurationMetadataOptions())
+            ->setComponentId('transformation')
+            ->setConfigurationId($configurationNameMain1));
+        self::assertCount(1, $listConfigurationMetadata);
+    }
+
+    public function testDeleteMetadataEvent()
+    {
+        $defaultBranchId = $this->getDefaultBranchId($this);
+
+        $branchClient = $this->getBranchAwareDefaultClient($defaultBranchId);
+        $components = new Components($branchClient);
+
+        $configurationOptions = $this->createConfiguration(
+            $components,
+            'wr-db',
+            'component-metadata-events-test',
+            'Component metadata events'
+        );
+
+        $configurationMetadataOptions = (new ConfigurationMetadata($configurationOptions))
+            ->setMetadata(self::TEST_METADATA);
+        $newMetadata = $components->addConfigurationMetadata($configurationMetadataOptions);
+
+        $components->deleteConfigurationMetadata('wr-db', 'component-metadata-events-test', $newMetadata[0]['id']);
+
+        $events = $this->listEvents($branchClient, 'storage.componentConfigurationMetadataDeleted');
+
+        $this->assertEvent(
+            $events[0],
+            'storage.componentConfigurationMetadataDeleted',
+            sprintf(
+                'Deleted component configuration metadata id:"%s" with key "KBC.SomeEnity.metadataKey"',
+                (int) $newMetadata[0]['id']
+            ),
+            $configurationOptions->getConfigurationId(),
+            'Component metadata events',
+            'componentConfiguration',
+            [
+                'component' => 'wr-db',
+                'configurationId' => $configurationOptions->getConfigurationId(),
+                'name' => 'Component metadata events',
+                'version' => 1,
+                'metadataId' => (int) $newMetadata[0]['id'],
+                'key' => 'KBC.SomeEnity.metadataKey',
+            ]
+        );
     }
 
     private function assertMetadataEquals(array $expected, array $actual)
