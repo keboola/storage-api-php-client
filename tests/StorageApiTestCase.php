@@ -854,7 +854,7 @@ abstract class StorageApiTestCase extends ClientTestCase
      * @param string $name
      * @return string
      */
-    public function generateUniqNameForString($name)
+    public function generateUniqueNameForString($name)
     {
         $providedToken = $this->_client->verifyToken();
 

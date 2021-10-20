@@ -36,8 +36,8 @@ class ConfigurationMetadataTest extends StorageApiTestCase
      */
     public function testAddMetadata(callable $getClient)
     {
-        $configurationNameMain1 = $this->generateUniqNameForString('main-1');
-        $configurationNameMain2 = $this->generateUniqNameForString('main-2');
+        $configurationNameMain1 = $this->generateUniqueNameForString('main-1');
+        $configurationNameMain2 = $this->generateUniqueNameForString('main-2');
 
         $client = $getClient($this);
         $components = new Components($client);
@@ -145,7 +145,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
         $client = $getClient($this);
         $components = new Components($client);
 
-        $configurationNameMain1 = $this->generateUniqNameForString('main-1');
+        $configurationNameMain1 = $this->generateUniqueNameForString('main-1');
 
         $transformationMain1Options = $this->createConfiguration($components, 'transformation', $configurationNameMain1);
 
@@ -216,7 +216,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
 
     public function testCreateBranchCopyMetadataToTheDevBranch()
     {
-        $configurationNameMain1 = $this->generateUniqNameForString('main-1');
+        $configurationNameMain1 = $this->generateUniqueNameForString('main-1');
 
         $defaultBranchId = $this->getDefaultBranchId($this);
         $branchClient = $this->getBranchAwareDefaultClient($defaultBranchId);
@@ -263,7 +263,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
 
     public function testResetToDefault()
     {
-        $configurationNameMain1 = $this->generateUniqNameForString('main-1');
+        $configurationNameMain1 = $this->generateUniqueNameForString('main-1');
         $defaultBranchId = $this->getDefaultBranchId($this);
 
         $branchClient = $this->getBranchAwareDefaultClient($defaultBranchId);
@@ -353,7 +353,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             },
         ]);
 
-        $configurationNameMain1 = $this->generateUniqNameForString('main-1');
+        $configurationNameMain1 = $this->generateUniqueNameForString('main-1');
 
         // create new configurations in main branch
         $components = new Components($this->_client);
