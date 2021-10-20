@@ -259,6 +259,30 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             ->setComponentId('transformation')
             ->setConfigurationId($configurationNameMain1));
         self::assertCount(2, $listConfigurationMetadata);
+
+        // if I add metadata to the development branch config, default config metadata shouldn't be affected
+        $configurationMetadataOptions = (new ConfigurationMetadata($transformationMain1Options))
+            ->setMetadata([
+                [
+                    'key' => 'newDevBranchKey',
+                    'value' => 'new value'
+                ],
+            ]);
+        $newMetadata = $branchComponents->addConfigurationMetadata($configurationMetadataOptions);
+        self::assertCount(3, $newMetadata);
+
+        $listConfigurationMetadata = $components->listConfigurationMetadata((new ListConfigurationMetadataOptions())
+            ->setComponentId('transformation')
+            ->setConfigurationId($configurationNameMain1));
+        self::assertCount(3, $listConfigurationMetadata);
+
+        $keys = [];
+        foreach ($listConfigurationMetadata as $metadata) {
+            $keys[] = $metadata['key'];
+        }
+
+        $commaSeparatedKeys = implode(",", $keys);
+        self::assertNotContains('newDevBranchKey', $commaSeparatedKeys);
     }
 
     public function testResetToDefault()
