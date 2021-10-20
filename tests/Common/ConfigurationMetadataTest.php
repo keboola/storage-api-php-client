@@ -43,8 +43,18 @@ class ConfigurationMetadataTest extends StorageApiTestCase
         $components = new Components($client);
 
         // prepare two configs
-        $transformationMain1Options = $this->createConfiguration($components, 'transformation', $configurationNameMain1);
-        $this->createConfiguration($components, 'transformation', $configurationNameMain2);
+        $transformationMain1Options = $this->createConfiguration(
+            $components,
+            'transformation',
+            $configurationNameMain1,
+            'Main 1'
+        );
+        $this->createConfiguration(
+            $components,
+            'transformation',
+            $configurationNameMain2,
+            'Main 2'
+        );
 
         // test if both return 0 metadata
         $listConfigurationMetadata = $components->listConfigurationMetadata((new ListConfigurationMetadataOptions())
@@ -58,7 +68,12 @@ class ConfigurationMetadataTest extends StorageApiTestCase
         self::assertCount(0, $listConfigurationMetadata);
 
         //create second configs for other component to test add configuration metadata returns right count of metadata
-        $this->createConfiguration($components, 'wr-db', $configurationNameMain1);
+        $this->createConfiguration(
+            $components,
+            'wr-db',
+            $configurationNameMain1,
+            'Main 1'
+        );
         $listConfigurationMetadata = $components->listConfigurationMetadata((new ListConfigurationMetadataOptions())
             ->setComponentId('wr-db')
             ->setConfigurationId($configurationNameMain1));
@@ -147,7 +162,12 @@ class ConfigurationMetadataTest extends StorageApiTestCase
 
         $configurationNameMain1 = $this->generateUniqueNameForString('main-1');
 
-        $transformationMain1Options = $this->createConfiguration($components, 'transformation', $configurationNameMain1);
+        $transformationMain1Options = $this->createConfiguration(
+            $components,
+            'transformation',
+            $configurationNameMain1,
+            'Main 1'
+        );
 
         $listConfigurationMetadata = $components->listConfigurationMetadata((new ListConfigurationMetadataOptions())
             ->setComponentId('transformation')
@@ -188,7 +208,12 @@ class ConfigurationMetadataTest extends StorageApiTestCase
         $client = $getClient($this);
 
         $components = new Components($client);
-        $configurationOptions = $this->createConfiguration($components, 'wr-db', 'component-metadata-events-test');
+        $configurationOptions = $this->createConfiguration(
+            $components,
+            'wr-db',
+            'component-metadata-events-test',
+            'Component metadata event'
+        );
 
         $configurationMetadataOptions = (new ConfigurationMetadata($configurationOptions))
             ->setMetadata(self::TEST_METADATA);
@@ -201,14 +226,14 @@ class ConfigurationMetadataTest extends StorageApiTestCase
         $this->assertEvent(
             $events[0],
             'storage.componentConfigurationMetadataSet',
-            'Component configuration metadata set "New Config" (wr-db)',
+            'Component configuration metadata set "Component metadata event" (wr-db)',
             $configurationOptions->getConfigurationId(),
-            'New Config',
+            'Component metadata event',
             'componentConfiguration',
             [
                 'component' => 'wr-db',
                 'configurationId' => $configurationOptions->getConfigurationId(),
-                'name' => 'New Config',
+                'name' => 'Component metadata event',
                 'version' => 1,
             ]
         );
@@ -222,7 +247,12 @@ class ConfigurationMetadataTest extends StorageApiTestCase
         $branchClient = $this->getBranchAwareDefaultClient($defaultBranchId);
 
         $components = new Components($branchClient);
-        $transformationMain1Options = $this->createConfiguration($components, 'transformation', $configurationNameMain1);
+        $transformationMain1Options = $this->createConfiguration(
+            $components,
+            'transformation',
+            $configurationNameMain1,
+            'Main 1'
+        );
 
         // add metadata to first configuration
         $configurationMetadataOptions = (new ConfigurationMetadata($transformationMain1Options))
@@ -410,7 +440,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
         self::assertArrayHasKey('timestamp', $actual);
     }
 
-    private function createConfiguration($components, $componentId, $configurationId, $name = 'New Config')
+    private function createConfiguration($components, $componentId, $configurationId, $name)
     {
         $configurationOptions = (new Configuration())
             ->setComponentId($componentId)
