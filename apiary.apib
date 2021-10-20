@@ -4452,8 +4452,8 @@ Deletes the specified metadata item from the column.
 
 ## Components Configurations Metadata [/v2/storage/branch/{branchId}/components/{componentId}/configs/{configId}/metadata]
 
-All requests use a call using `/branch/{branchId}` also for default(production) branch.
-You can find out the id of your default branch by calling [List Branches](#reference/development-branches/branches/list-branches)
+All requests must include the branch (`/branch/{branchId}`) in the URL. This is also true for default (production) branch. You can find out the id of your default branch by calling [List Branches](#reference/development-branches/branches/list-branches) and finding branch with  attribute `isDefault` set to `true`.
+
 ### Create or Update [POST]
 Sets multiple metadata with one call. If the given key and provider combination already exist
 for the configuration, the data will be updated with the new value and timestamp. All metadata associated
