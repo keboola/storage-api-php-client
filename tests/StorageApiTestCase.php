@@ -10,6 +10,7 @@
 namespace Keboola\Test;
 
 use Keboola\StorageApi\BranchAwareGuzzleClient;
+use Keboola\StorageApi\Components;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\StorageApi\Tokens;
@@ -692,6 +693,53 @@ abstract class StorageApiTestCase extends ClientTestCase
         ];
     }
 
+    /**
+     * Usage:
+     *  - `$getClient($this)` -> return default client which use branch aware client for calling default branch
+     *  - `$getClient($this, [...])` -> return client with custom config which use branch aware client for calling default branch
+     *  - `$getClient($this, [], true)` -> return default client which use same branch as before
+     *  - `$getClient($this, [...], true)` -> return client with custom which use same branch as before
+     *
+     * @see provideComponentsClient
+     */
+    public function provideBranchAwareComponentsClient()
+    {
+        yield 'defaultBranch' => [
+            function (self $that, array $config = []) {
+                if ($config) {
+                    return $this->getBranchAwareClient($this->getDefaultBranchId($that), $config);
+                } else {
+                    return $this->getBranchAwareDefaultClient($this->getDefaultBranchId($that));
+                }
+            }
+        ];
+
+        yield 'devBranch' => [
+            function (self $that, array $config = [], $useExistingBranch = false) {
+                $branch = $this->createOrReuseDevBranch($that, $useExistingBranch);
+
+                if ($config) {
+                    return $this->getBranchAwareClient($branch['id'], $config);
+                } else {
+                    return $this->getBranchAwareDefaultClient($branch['id']);
+                }
+            }
+        ];
+    }
+
+    protected function getDefaultBranchId(self $that)
+    {
+        $devBranch = new \Keboola\StorageApi\DevBranches($that->_client);
+        $branchesList = $devBranch->listBranches();
+        foreach ($branchesList as $branch) {
+            if ($branch['isDefault'] === true) {
+                return $branch['id'];
+            }
+        }
+
+        return null;
+    }
+
     public function cleanupConfigurations()
     {
         $components = new Components($this->_client);
@@ -778,7 +826,7 @@ abstract class StorageApiTestCase extends ClientTestCase
         self::assertSame($expectedParams, $event['params']);
     }
 
-    private function createOrReuseDevBranch(self $that, $useExistingBranch = false)
+    protected function createOrReuseDevBranch(self $that, $useExistingBranch = false)
     {
         $providedToken = $that->_client->verifyToken();
         $branchName = implode('\\', [
@@ -818,6 +866,6 @@ abstract class StorageApiTestCase extends ClientTestCase
     {
         $providedToken = $this->_client->verifyToken();
 
-        return $this->getName() . '_' . $providedToken['id'] . '_' . $name;
+        return $providedToken['id'] . '_' . $name;
     }
 }
