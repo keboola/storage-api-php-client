@@ -1,6 +1,7 @@
 <?php
 namespace Keboola\Test\Common;
 
+use GuzzleHttp\Client as GuzzleClient;
 use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
@@ -572,12 +573,15 @@ class ComponentsTest extends StorageApiTestCase
         }
     }
 
-    // TODO pouziti jineho klienta
-    public function testComponentConfigurationJsonDataTypes()
+    /**
+     * @dataProvider provideComponentsGuzzleClient
+     */
+    public function testComponentConfigurationJsonDataTypes(callable $getGuzzleClient)
     {
         // to check if params is object we have to convert received json to objects instead of assoc array
         // so we have to use raw Http Client
-        $client = new \GuzzleHttp\Client([
+        /** @var GuzzleClient $client */
+        $client = $getGuzzleClient($this, [
             'base_uri' => $this->_client->getApiUrl(),
         ]);
 
@@ -1528,8 +1532,10 @@ class ComponentsTest extends StorageApiTestCase
         }
     }
 
-    // TODO pouziti jineho klienta
-    public function testPermissions()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testPermissions(callable $getClient)
     {
         $tokenOptions = (new TokenCreateOptions())
             ->setDescription('test')
@@ -1537,7 +1543,8 @@ class ComponentsTest extends StorageApiTestCase
 
         $token = $this->tokens->createToken($tokenOptions);
 
-        $client = $this->getClient([
+        /** @var Client $client */
+        $client = $getClient($this, [
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
         ]);
@@ -1552,8 +1559,10 @@ class ComponentsTest extends StorageApiTestCase
         }
     }
 
-    // TODO pouziti jineho klienta
-    public function testTokenWithComponentAccess()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testTokenWithComponentAccess(callable $getClient)
     {
         $this->_initEmptyTestBuckets();
 
@@ -1564,7 +1573,8 @@ class ComponentsTest extends StorageApiTestCase
 
         $token = $this->tokens->createToken($tokenOptions);
 
-        $client = $this->getClient([
+        /** @var Client $client */
+        $client = $getClient($this, [
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
         ]);
@@ -1594,8 +1604,10 @@ class ComponentsTest extends StorageApiTestCase
         $this->tokens->dropToken($token['id']);
     }
 
-    // TODO pouziti jineho klienta
-    public function testTokenWithManageAllBucketsShouldHaveAccessToComponents()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testTokenWithManageAllBucketsShouldHaveAccessToComponents(callable $getClient)
     {
         $tokenOptions = (new TokenCreateOptions())
             ->setDescription('test components')
@@ -1604,7 +1616,8 @@ class ComponentsTest extends StorageApiTestCase
 
         $token = $this->tokens->createToken($tokenOptions);
 
-        $client = $this->getClient([
+        /** @var Client $client */
+        $client = $getClient($this, [
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
         ]);
@@ -2051,8 +2064,10 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(1, $row['version']);
     }
 
-    // TODO pouziti ruznych klientu
-    public function testComponentConfigRowUpdate()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testComponentConfigRowUpdate(callable $getClient)
     {
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
@@ -2061,9 +2076,12 @@ class ComponentsTest extends StorageApiTestCase
             ->setName('Main')
             ->setDescription('some desc');
 
+        /** @var Client $client */
+        $client = $getClient($this);
+        // use default client for default branch because verify token is not implemented for dev branch
         $originalToken = $this->_client->verifyToken();
 
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($client);
 
         $components->addConfiguration($configuration);
 
@@ -2103,7 +2121,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals($originalToken['id'], $row['creatorToken']['id']);
         $this->assertEquals($originalToken['description'], $row['creatorToken']['description']);
 
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        $components = new \Keboola\StorageApi\Components($client);
 
         $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId($component['id'])
@@ -2135,10 +2153,11 @@ class ComponentsTest extends StorageApiTestCase
 
         $newToken = $this->tokens->createToken($tokenOptions);
 
-        $newClient = $this->getClient([
+        /** @var Client $newClient */
+        $newClient = $getClient($this, [
             'token' => $newToken['token'],
             'url' => STORAGE_API_URL,
-        ]);
+        ], true);
 
         $newComponents = new \Keboola\StorageApi\Components($newClient);
         $row = $newComponents->updateConfigurationRow($configurationRow);

@@ -1,6 +1,8 @@
 <?php
 namespace Keboola\Test\Common;
 
+use Keboola\StorageApi\BranchAwareClient;
+use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\Configuration;
@@ -130,10 +132,18 @@ class ConfigurationRowTest extends StorageApiTestCase
         );
     }
 
-    // TODO vice jinych klientu
-    public function testConfigurationRowJsonDataTypes()
+    /**
+     * @dataProvider provideComponentsClientAndGuzzleClient
+     */
+    public function testConfigurationRowJsonDataTypes(callable $getClient, callable $getGuzzleClient)
     {
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        /** @var Client $_client */
+        $_client = $getClient($this);
+        if ($_client instanceof BranchAwareClient) {
+            $this->markTestIncomplete("Using 'state' parameter on configuration update is restricted for dev/branch context. Use direct API call.");
+        }
+
+        $components = new \Keboola\StorageApi\Components($_client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
@@ -144,9 +154,10 @@ class ConfigurationRowTest extends StorageApiTestCase
 
         // to check if params is object we have to convert received json to objects instead of assoc array
         // so we have to use raw Http Client
-        $client = new \GuzzleHttp\Client([
-            'base_uri' => $this->_client->getApiUrl(),
-        ]);
+        /** @var \GuzzleHttp\Client $client */
+        $client = $getGuzzleClient($this, [
+            'base_uri' => $_client->getApiUrl(),
+        ], true);
 
         $config = (object)[
             'test' => 'neco',
@@ -170,7 +181,7 @@ class ConfigurationRowTest extends StorageApiTestCase
                 'state' => json_encode($state),
             ],
             'headers' => array(
-                'X-StorageApi-Token' => $this->_client->getTokenString(),
+                'X-StorageApi-Token' => $_client->getTokenString(),
             ),
         ]);
         $response = json_decode((string)$response->getBody());
@@ -179,7 +190,7 @@ class ConfigurationRowTest extends StorageApiTestCase
 
         $response = $client->get('/v2/storage/components/wr-db/configs/main-1/rows/' . $response->id, [
             'headers' => array(
-                'X-StorageApi-Token' => $this->_client->getTokenString(),
+                'X-StorageApi-Token' => $_client->getTokenString(),
             ),
         ]);
         $response = json_decode((string)$response->getBody());
@@ -208,7 +219,7 @@ class ConfigurationRowTest extends StorageApiTestCase
                 'state' => json_encode($state),
             ],
             'headers' => array(
-                'X-StorageApi-Token' => $this->_client->getTokenString(),
+                'X-StorageApi-Token' => $_client->getTokenString(),
             ),
         ]);
         $response = json_decode((string)$response->getBody());
@@ -217,7 +228,7 @@ class ConfigurationRowTest extends StorageApiTestCase
 
         $response = $client->get('/v2/storage/components/wr-db/configs/main-1/rows/' . $response->id, [
             'headers' => array(
-                'X-StorageApi-Token' => $this->_client->getTokenString(),
+                'X-StorageApi-Token' => $_client->getTokenString(),
             ),
         ]);
         $response = json_decode((string)$response->getBody());
@@ -226,10 +237,19 @@ class ConfigurationRowTest extends StorageApiTestCase
         $this->assertFalse($response->isDisabled);
     }
 
-    // TODO vice jinych klientu
-    public function testConfigurationRowIsDisabledBooleanValue()
+    // TODO pouziva curl!
+    /**
+     * @dataProvider provideComponentsClientAndGuzzleClient
+     */
+    public function testConfigurationRowIsDisabledBooleanValue(callable $getClient, callable $getGuzzleClient)
     {
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        /** @var Client $_client */
+        $_client = $getClient($this);
+        if ($_client instanceof BranchAwareClient) {
+            $this->markTestIncomplete("Using `curl` which doesn't support replace url for dev branch.");
+        }
+
+        $components = new \Keboola\StorageApi\Components($_client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
@@ -237,9 +257,9 @@ class ConfigurationRowTest extends StorageApiTestCase
             ->setName('Main');
         $components->addConfiguration($configuration);
 
-        $client = new \GuzzleHttp\Client([
+        $client = $getGuzzleClient($this, [
             'base_uri' => $this->_client->getApiUrl(),
-        ]);
+        ], true);
 
         $config = (object)[
             'test' => 'neco',
@@ -288,15 +308,38 @@ class ConfigurationRowTest extends StorageApiTestCase
         $this->assertEquals("Row ABCD disabled", $result->changeDescription);
     }
 
-    // TODO uz pouzity jiny provider
+    public function provideComponentsClientAndGuzzleClient()
+    {
+        $clients = [];
+        foreach ($this->provideComponentsClient() as $name => $callable) {
+            $clients[$name] = reset($callable);
+        }
+
+        $guzzleClients = [];
+        foreach ($this->provideComponentsGuzzleClient() as $name => $callable) {
+            $guzzleClients[$name] = reset($callable);
+        }
+
+        yield 'defaultBranch' => [
+            $clients['defaultBranch'],
+            $guzzleClients['defaultBranch'],
+        ];
+
+        yield 'devBranch' => [
+            $clients['devBranch'],
+            $guzzleClients['devBranch'],
+        ];
+    }
+
     /**
      * @dataProvider isDisabledProvider
-     * @param $isDisabled
-     * @param bool $expectedIsDisabled
      */
-    public function testCreateConfigurationRowIsDisabled($isDisabled, $expectedIsDisabled)
+    public function testCreateConfigurationRowIsDisabled(callable $getClient, callable $getGuzzleClient, $isDisabled, $expectedIsDisabled)
     {
-        $components = new \Keboola\StorageApi\Components($this->_client);
+        /** @var Client $_client */
+        $_client = $getClient($this);
+
+        $components = new \Keboola\StorageApi\Components($_client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
@@ -304,9 +347,9 @@ class ConfigurationRowTest extends StorageApiTestCase
             ->setName('Main');
         $components->addConfiguration($configuration);
 
-        $client = new \GuzzleHttp\Client([
+        $client = $getGuzzleClient($this, [
             'base_uri' => $this->_client->getApiUrl(),
-        ]);
+        ], true);
 
         $config = (object)[
             'test' => 'neco',
@@ -330,7 +373,7 @@ class ConfigurationRowTest extends StorageApiTestCase
                 'isDisabled' => $isDisabled,
             ],
             'headers' => array(
-                'X-StorageApi-Token' => $this->_client->getTokenString(),
+                'X-StorageApi-Token' => $_client->getTokenString(),
             ),
         ]);
         $response = json_decode((string)$response->getBody());
@@ -342,7 +385,17 @@ class ConfigurationRowTest extends StorageApiTestCase
 
     public function isDisabledProvider()
     {
-        return [
+        $clients = [];
+        foreach ($this->provideComponentsClient() as $name => $callable) {
+            $clients[$name] = reset($callable);
+        }
+
+        $guzzleClients = [];
+        foreach ($this->provideComponentsGuzzleClient() as $name => $callable) {
+            $guzzleClients[$name] = reset($callable);
+        }
+
+        $providerData = [
             'isDisabled string' => [
                 'true',
                 true,
@@ -368,5 +421,16 @@ class ConfigurationRowTest extends StorageApiTestCase
                 false,
             ],
         ];
+
+        foreach (['defaultBranch', 'devBranch'] as $branch) {
+            foreach ($providerData as $providerKey => $provider) {
+                yield sprintf('%s: %s', $branch, $providerKey) => [
+                    $clients[$branch],
+                    $guzzleClients[$branch],
+                    $provider[0],
+                    $provider[1],
+                ];
+            }
+        }
     }
 }

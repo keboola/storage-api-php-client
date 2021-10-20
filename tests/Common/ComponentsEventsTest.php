@@ -2,6 +2,8 @@
 
 namespace Keboola\Test\Common;
 
+use Keboola\StorageApi\BranchAwareClient;
+use Keboola\StorageApi\Client;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
@@ -51,6 +53,8 @@ class ComponentsEventsTest extends StorageApiTestCase
                 $this->components->deleteConfiguration($component['id'], $configuration['id']);
             }
         }
+
+        // initialize variables
         $this->configurationId = $this->_client->generateId();
         $this->tokenId = $this->_client->verifyToken()['id'];
         $lastEvent = $this->_client->listTokenEvents($this->tokenId, [
@@ -61,23 +65,33 @@ class ComponentsEventsTest extends StorageApiTestCase
         }
     }
 
-    public function testConfigurationChange()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testConfigurationChange(callable $getClient)
     {
+        /** @var Client $client */
+        $client = $getClient($this);
+        if ($client instanceof BranchAwareClient) {
+            $this->markTestIncomplete("Using 'state' parameter on configuration update is restricted for dev/branch context. Use direct API call.");
+        }
+
+        $components = new Components($client);
         $config = $this->getConfiguration();
-        $this->components->addConfiguration($config);
+        $components->addConfiguration($config);
 
         // test no change
         $config->setState([
             'cache' => true,
         ]);
-        $this->components->updateConfiguration($config);
-        $events = $this->listEvents('storage.componentConfigurationChanged');
+        $components->updateConfiguration($config);
+        $events = $this->listEvents($client, 'storage.componentConfigurationChanged');
         self::assertNotEquals('storage.componentConfigurationChanged', $events[0]['event']);
 
         $config->setDescription('new desc');
-        $this->components->updateConfiguration($config);
+        $components->updateConfiguration($config);
 
-        $events = $this->listEvents('storage.componentConfigurationChanged');
+        $events = $this->listEvents($client, 'storage.componentConfigurationChanged');
         $this->assertEvent(
             $events[0],
             'storage.componentConfigurationChanged',
@@ -110,12 +124,13 @@ class ComponentsEventsTest extends StorageApiTestCase
      * @param string $eventName
      * @return array
      */
-    private function listEvents($eventName, $expectedObjectId = null)
+    private function listEvents(Client $client, $eventName, $expectedObjectId = null)
     {
-        return $this->retry(function () use ($expectedObjectId) {
-            $tokenEvents = $this->_client->listTokenEvents($this->tokenId, [
+        return $this->retry(function () use ($client, $expectedObjectId) {
+            $tokenEvents = $client->listEvents([
                 'sinceId' => $this->lastEventId,
                 'limit' => 1,
+                'q' => sprintf('token.id:%s', $this->tokenId),
             ]);
 
             if ($expectedObjectId === null) {
@@ -174,13 +189,20 @@ class ComponentsEventsTest extends StorageApiTestCase
         self::assertSame($expectedParams, $event['params']);
     }
 
-    public function testConfigurationCreate()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testConfigurationCreate(callable $getClient)
     {
+        /** @var Client $client */
+        $client = $getClient($this);
+        $components = new Components($client);
+
         $config = $this->getConfiguration();
-        $this->components->addConfiguration($config);
+        $components->addConfiguration($config);
 
         // check create event
-        $events = $this->listEvents('storage.componentConfigurationCreated');
+        $events = $this->listEvents($client, 'storage.componentConfigurationCreated');
         $this->assertEvent(
             $events[0],
             'storage.componentConfigurationCreated',
@@ -197,10 +219,10 @@ class ComponentsEventsTest extends StorageApiTestCase
         );
 
         // check restore event on create action
-        $this->components->deleteConfiguration(self::COMPONENT_ID, $this->configurationId);
-        $this->components->addConfiguration($this->getConfiguration());
+        $components->deleteConfiguration(self::COMPONENT_ID, $this->configurationId);
+        $components->addConfiguration($this->getConfiguration());
 
-        $events = $this->listEvents('storage.componentConfigurationRestored');
+        $events = $this->listEvents($client, 'storage.componentConfigurationRestored');
         $this->assertEvent(
             $events[0],
             'storage.componentConfigurationRestored',
@@ -217,13 +239,25 @@ class ComponentsEventsTest extends StorageApiTestCase
         );
     }
 
-    public function testConfigurationDelete()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testConfigurationDelete(callable $getClient)
     {
+        /** @var Client $client */
+        $client = $getClient($this);
+        $components = new Components($client);
+
+        if ($client instanceof BranchAwareClient) {
+            $this->markTestSkipped('Deleting configuration from trash is not allowed in development branches.');
+        }
+
         $config = $this->getConfiguration();
-        $this->components->addConfiguration($config);
+        $components->addConfiguration($config);
+
         // delete
-        $this->components->deleteConfiguration(self::COMPONENT_ID, $this->configurationId);
-        $events = $this->listEvents('storage.componentConfigurationDeleted', $this->configurationId);
+        $components->deleteConfiguration(self::COMPONENT_ID, $this->configurationId);
+        $events = $this->listEvents($client, 'storage.componentConfigurationDeleted', $this->configurationId);
         $this->assertEvent(
             $events[0],
             'storage.componentConfigurationDeleted',
@@ -240,8 +274,8 @@ class ComponentsEventsTest extends StorageApiTestCase
         );
 
         // purge
-        $this->components->deleteConfiguration(self::COMPONENT_ID, $this->configurationId);
-        $events = $this->listEvents('storage.componentConfigurationPurged', $this->configurationId);
+        $components->deleteConfiguration(self::COMPONENT_ID, $this->configurationId);
+        $events = $this->listEvents($client, 'storage.componentConfigurationPurged', $this->configurationId);
         $this->assertEvent(
             $events[0],
             'storage.componentConfigurationPurged',
@@ -258,14 +292,21 @@ class ComponentsEventsTest extends StorageApiTestCase
         );
     }
 
-    public function testConfigurationRestore()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testConfigurationRestore(callable $getClient)
     {
-        $config = $this->getConfiguration();
-        $this->components->addConfiguration($config);
-        $this->components->deleteConfiguration(self::COMPONENT_ID, $this->configurationId);
+        /** @var Client $client */
+        $client = $getClient($this);
+        $components = new Components($client);
 
-        $this->components->restoreComponentConfiguration(self::COMPONENT_ID, $this->configurationId);
-        $events = $this->listEvents('storage.componentConfigurationRestored');
+        $config = $this->getConfiguration();
+        $components->addConfiguration($config);
+        $components->deleteConfiguration(self::COMPONENT_ID, $this->configurationId);
+
+        $components->restoreComponentConfiguration(self::COMPONENT_ID, $this->configurationId);
+        $events = $this->listEvents($client, 'storage.componentConfigurationRestored');
 
         $this->assertEvent(
             $events[0],
@@ -283,19 +324,26 @@ class ComponentsEventsTest extends StorageApiTestCase
         );
     }
 
-    public function testConfigurationVersionCopy()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testConfigurationVersionCopy(callable $getClient)
     {
-        $config = $this->getConfiguration();
-        $this->components->addConfiguration($config);
+        /** @var Client $client */
+        $client = $getClient($this);
+        $components = new Components($client);
 
-        $newConfig = $this->components->createConfigurationFromVersion(
+        $config = $this->getConfiguration();
+        $components->addConfiguration($config);
+
+        $newConfig = $components->createConfigurationFromVersion(
             self::COMPONENT_ID,
             $this->configurationId,
             1,
             'new'
         );
 
-        $events = $this->listEvents('storage.componentConfigurationCopied');
+        $events = $this->listEvents($client, 'storage.componentConfigurationCopied');
         $this->assertEvent(
             $events[0],
             'storage.componentConfigurationCopied',
@@ -318,14 +366,23 @@ class ComponentsEventsTest extends StorageApiTestCase
         );
     }
 
-    public function testConfigurationVersionRollback()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testConfigurationVersionRollback(callable $getClient)
     {
-        $config = $this->getConfiguration();
-        $this->components->addConfiguration($config);
-        $this->components->createConfigurationFromVersion(self::COMPONENT_ID, $this->configurationId, 1, 'v2');
-        $this->components->rollbackConfiguration(self::COMPONENT_ID, $this->configurationId, 1, 'rollback');
-        $events = $this->listEvents('storage.componentConfigurationRolledBack');
+        /** @var Client $client */
+        $client = $getClient($this);
+        $components = new Components($client);
 
+        $config = $this->getConfiguration();
+        $components->addConfiguration($config);
+
+        $components->createConfigurationFromVersion(self::COMPONENT_ID, $this->configurationId, 1, 'v2');
+
+        $components->rollbackConfiguration(self::COMPONENT_ID, $this->configurationId, 1, 'rollback');
+
+        $events = $this->listEvents($client, 'storage.componentConfigurationRolledBack');
         $this->assertEvent(
             $events[0],
             'storage.componentConfigurationRolledBack',
@@ -348,17 +405,24 @@ class ComponentsEventsTest extends StorageApiTestCase
         );
     }
 
-    public function testRowsChange()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testRowsChange(callable $getClient)
     {
+        /** @var Client $client */
+        $client = $getClient($this);
+        $components = new Components($client);
+
         $config = $this->getConfiguration();
-        $this->components->addConfiguration($config);
+        $components->addConfiguration($config);
+
         $rowOptions = $this->getConfigRowOptions();
-        $this->components->addConfigurationRow($rowOptions);
+        $components->addConfigurationRow($rowOptions);
         $rowOptions->setDescription('desc2');
+        $rowResponse = $components->updateConfigurationRow($rowOptions);
 
-        $rowResponse = $this->components->updateConfigurationRow($rowOptions);
-        $events = $this->listEvents('storage.componentConfigurationRowChanged');
-
+        $events = $this->listEvents($client, 'storage.componentConfigurationRowChanged');
         $this->assertEvent(
             $events[0],
             'storage.componentConfigurationRowChanged',
@@ -393,15 +457,22 @@ class ComponentsEventsTest extends StorageApiTestCase
         return $rowOptions;
     }
 
-    public function testRowsCreate()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testRowsCreate(callable $getClient)
     {
+        /** @var Client $client */
+        $client = $getClient($this);
+        $components = new Components($client);
+
         $config = $this->getConfiguration();
-        $this->components->addConfiguration($config);
+        $components->addConfiguration($config);
+
         $rowOptions = $this->getConfigRowOptions();
+        $rowResponse = $components->addConfigurationRow($rowOptions);
 
-        $rowResponse = $this->components->addConfigurationRow($rowOptions);
-        $events = $this->listEvents('storage.componentConfigurationRowCreated');
-
+        $events = $this->listEvents($client, 'storage.componentConfigurationRowCreated');
         $this->assertEvent(
             $events[0],
             'storage.componentConfigurationRowCreated',
@@ -423,16 +494,24 @@ class ComponentsEventsTest extends StorageApiTestCase
         );
     }
 
-    public function testRowsDelete()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testRowsDelete(callable $getClient)
     {
+        /** @var Client $client */
+        $client = $getClient($this);
+        $components = new Components($client);
+
         $config = $this->getConfiguration();
-        $this->components->addConfiguration($config);
+        $components->addConfiguration($config);
+
         $rowOptions = $this->getConfigRowOptions();
-        $rowResponse = $this->components->addConfigurationRow($rowOptions);
+        $rowResponse = $components->addConfigurationRow($rowOptions);
 
-        $this->components->deleteConfigurationRow(self::COMPONENT_ID, $this->configurationId, $rowOptions->getRowId());
-        $events = $this->listEvents('storage.componentConfigurationRowDeleted');
+        $components->deleteConfigurationRow(self::COMPONENT_ID, $this->configurationId, $rowOptions->getRowId());
 
+        $events = $this->listEvents($client, 'storage.componentConfigurationRowDeleted');
         $this->assertEvent(
             $events[0],
             'storage.componentConfigurationRowDeleted',
@@ -454,20 +533,29 @@ class ComponentsEventsTest extends StorageApiTestCase
         );
     }
 
-    public function testRowsVersionCreate()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testRowsVersionCreate(callable $getClient)
     {
-        $config = $this->getConfiguration();
-        $this->components->addConfiguration($config);
-        $rowOptions = $this->getConfigRowOptions();
-        $sourceRowResponse = $this->components->addConfigurationRow($rowOptions);
+        /** @var Client $client */
+        $client = $getClient($this);
+        $components = new Components($client);
 
-        $rowResponse = $this->components->createConfigurationRowFromVersion(
+        $config = $this->getConfiguration();
+        $components->addConfiguration($config);
+
+        $rowOptions = $this->getConfigRowOptions();
+        $sourceRowResponse = $components->addConfigurationRow($rowOptions);
+
+        $rowResponse = $components->createConfigurationRowFromVersion(
             self::COMPONENT_ID,
             $this->configurationId,
             $rowOptions->getRowId(),
             1
         );
-        $events = $this->listEvents('storage.componentConfigurationRowCopied');
+
+        $events = $this->listEvents($client, 'storage.componentConfigurationRowCopied');
         $this->assertEvent(
             $events[0],
             'storage.componentConfigurationRowCopied',
@@ -500,27 +588,36 @@ class ComponentsEventsTest extends StorageApiTestCase
         );
     }
 
-    public function testRowsVersionRollback()
+    /**
+     * @dataProvider provideComponentsClient
+     */
+    public function testRowsVersionRollback(callable $getClient)
     {
+        /** @var Client $client */
+        $client = $getClient($this);
+        $components = new Components($client);
+
         $config = $this->getConfiguration();
-        $this->components->addConfiguration($config);
+        $components->addConfiguration($config);
+
         $rowOptions = $this->getConfigRowOptions();
-        $rowToRollbackTo = $this->components->addConfigurationRow($rowOptions);
-        $this->components->createConfigurationRowFromVersion(
+        $rowToRollbackTo = $components->addConfigurationRow($rowOptions);
+
+        $components->createConfigurationRowFromVersion(
             self::COMPONENT_ID,
             $this->configurationId,
             $rowOptions->getRowId(),
             1
         );
 
-        $this->components->rollbackConfigurationRow(
+        $components->rollbackConfigurationRow(
             self::COMPONENT_ID,
             $this->configurationId,
             $rowOptions->getRowId(),
             1
         );
-        $events = $this->listEvents('storage.componentConfigurationRowRolledBack');
 
+        $events = $this->listEvents($client, 'storage.componentConfigurationRowRolledBack');
         $this->assertEvent(
             $events[0],
             'storage.componentConfigurationRowRolledBack',
