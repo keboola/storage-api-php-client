@@ -311,8 +311,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             $keys[] = $metadata['key'];
         }
 
-        $commaSeparatedKeys = implode(",", $keys);
-        self::assertNotContains('newDevBranchKey', $commaSeparatedKeys);
+        self::assertNotContains('newDevBranchKey', $keys);
     }
 
     public function testResetToDefault()
