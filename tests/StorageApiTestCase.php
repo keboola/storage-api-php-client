@@ -856,7 +856,7 @@ abstract class StorageApiTestCase extends ClientTestCase
      */
     public function generateUniqueNameForString($name)
     {
-        return sha1($this->generateDescriptionForTestObject()) . '-' . $name;
+        return sha1($this->generateDescriptionForTestObject()) . '_' . $name;
     }
 
     protected function initEvents()
