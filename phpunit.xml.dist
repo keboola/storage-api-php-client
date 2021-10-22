@@ -186,7 +186,6 @@
 		<directory>tests/Backend/CommonPart1</directory>
 		<exclude>tests/Backend/CommonPart1/BucketsTest.php</exclude>
 		<directory>tests/Backend/CommonPart2</directory>
-		<exclude>tests/Backend/CommonPart2/ImportExportCommonTest.php</exclude>
 <!--	excluded, tests are included in tests/Backend/Exasol/ExasolImportExportCommonTest.php -->
 
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
