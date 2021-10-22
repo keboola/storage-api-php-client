@@ -23,19 +23,7 @@ class BranchComponentTest extends StorageApiTestCase
     {
         parent::setUp();
 
-        $components = new Components($this->_client);
-        foreach ($components->listComponents() as $component) {
-            foreach ($component['configurations'] as $configuration) {
-                $components->deleteConfiguration($component['id'], $configuration['id']);
-            }
-        }
-
-        // erase all deleted configurations
-        foreach ($components->listComponents((new ListComponentsOptions())->setIsDeleted(true)) as $component) {
-            foreach ($component['configurations'] as $configuration) {
-                $components->deleteConfiguration($component['id'], $configuration['id']);
-            }
-        }
+        $this->cleanupConfigurations();
     }
 
     public function testResetToDefault()
@@ -43,7 +31,7 @@ class BranchComponentTest extends StorageApiTestCase
         $providedToken = $this->_client->verifyToken();
         $devBranchClient = new \Keboola\StorageApi\DevBranches($this->_client);
         $branchName = __CLASS__ . '\\' . $this->getName() . '\\' . $providedToken['id'];
-        $branch = $this->deleteBranchesByPrefix($devBranchClient, $branchName);
+        $this->deleteBranchesByPrefix($devBranchClient, $branchName);
 
         // create new configurations in main branch
         $componentId = 'transformation';
