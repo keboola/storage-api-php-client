@@ -4521,6 +4521,22 @@ Metadata can be listed for your component configuration.
                 }
             ]
 
+### Delete [DELETE /v2/storage/branch/{branchId}/components/{componentId}/configs/{configId}/metadata/{metadataId}]
+Deletes the specified metadata item from the component configuration.
+
++ Parameters
+    + branchId (required) - Id of the development branch
+    + componentId (required) - Id of the Component
+    + configId (required) - Id of the configuration
+    + metadataId (required) - Id of the metadata
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 204
+
 # Group Jobs
 Jobs are objects that manage asynchronous tasks, these are all potentially long-running actions such as
 loading table data, snapshotting, table structure modifications. Jobs are created by actions on target
