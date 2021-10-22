@@ -513,6 +513,15 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             ->setComponentId('transformation')
             ->setConfigurationId($configurationNameMain1));
         self::assertCount(1, $listConfigurationMetadata);
+
+        // can't delete metadata in development branch using default branch client
+        try {
+            $components->deleteConfigurationMetadata('transformation', $configurationNameMain1, $listConfigurationMetadata[0]['id']);
+            $this->fail('should fail, not allowed delete metadata in dev branch using default branch client');
+        } catch (ClientException $e) {
+            $this->assertContains('You don\'t have access to resource.', $e->getMessage());
+            $this->assertSame(403, $e->getCode());
+        }
     }
 
     public function testDeleteMetadataEvent()
