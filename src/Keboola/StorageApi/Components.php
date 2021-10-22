@@ -351,4 +351,14 @@ class Components
             $options->getConfigurationId()
         ));
     }
+
+    public function deleteConfigurationMetadata($componentId, $configurationId, $metadataId)
+    {
+        return $this->client->apiDelete(sprintf(
+            "components/%s/configs/%s/metadata/%s",
+            $componentId,
+            $configurationId,
+            $metadataId
+        ));
+    }
 }
