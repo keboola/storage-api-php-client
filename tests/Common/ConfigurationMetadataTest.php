@@ -468,9 +468,9 @@ class ConfigurationMetadataTest extends StorageApiTestCase
         // try delete notexisted metadata
         try {
             $components->deleteConfigurationMetadata('transformation', $configurationNameMain1, $newMetadata[0]['id']);
-            $this->fail('should fail, metadata not exist');
+            $this->fail('should fail, metadata does not exist');
         } catch (ClientException $e) {
-            $this->assertContains('Metadata with id: ', $e->getMessage());
+            $this->assertContains('Metadata with id ', $e->getMessage());
             $this->assertSame(404, $e->getCode());
         }
 
@@ -499,10 +499,10 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             $this->assertSame(501, $e->getCode());
         }
 
-        // if I delete metadata in default still exist in development branch
+        // if I delete metadata in default, it still exist in development branch
         $components->deleteConfigurationMetadata('transformation', $configurationNameMain1, $newMetadata[1]['id']);
 
-        // non exist in default branch
+        // does not exist in default branch
         $listConfigurationMetadata = $components->listConfigurationMetadata((new ListConfigurationMetadataOptions())
             ->setComponentId('transformation')
             ->setConfigurationId($configurationNameMain1));
@@ -541,7 +541,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             $events[0],
             'storage.componentConfigurationMetadataDeleted',
             sprintf(
-                'Deleted component configuration metadata id:"%s" with key "KBC.SomeEnity.metadataKey"',
+                'Deleted component configuration metadata id "%s" with key "KBC.SomeEnity.metadataKey"',
                 (int) $newMetadata[0]['id']
             ),
             $configurationOptions->getConfigurationId(),
