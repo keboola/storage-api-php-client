@@ -4,6 +4,7 @@ namespace Keboola\Test\Common;
 
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Metadata;
+use Keboola\StorageApi\Options\Components\SearchComponentsOptions;
 use Keboola\StorageApi\Options\SearchTablesOptions;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
@@ -16,6 +17,19 @@ class SearchTablesTest extends StorageApiTestCase
     {
         parent::setUp();
         $this->_initEmptyTestBuckets();
+    }
+
+    public function testSearchThrowsErrorWhenIsCalledWithBranch()
+    {
+        $defaultBranchId = $this->getDefaultBranchId($this);
+        $branchAwareClient = $this->getBranchAwareDefaultClient($defaultBranchId);
+        try {
+            $branchAwareClient->searchTables((new SearchTablesOptions()));
+            $this->fail('should fail, not implemented with branch');
+        } catch (ClientException $e) {
+            $this->assertContains('Not implemented', $e->getMessage());
+            $this->assertSame(501, $e->getCode());
+        }
     }
 
     public function testSearchTablesNoResult()
