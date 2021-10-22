@@ -2,10 +2,12 @@
 namespace Keboola\StorageApi;
 
 use Keboola\StorageApi\Options\Components\Configuration;
+use Keboola\StorageApi\Options\Components\ConfigurationMetadata;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ConfigurationRowState;
 use Keboola\StorageApi\Options\Components\ConfigurationState;
 use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
+use Keboola\StorageApi\Options\Components\ListConfigurationMetadataOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
@@ -325,5 +327,28 @@ class Components
             "components/{$componentId}/configs/{$configurationId}/workspaces",
             $options
         );
+    }
+
+    public function addConfigurationMetadata(ConfigurationMetadata $options)
+    {
+        return $this->client->apiPost(
+            sprintf(
+                "components/%s/configs/%s/metadata",
+                $options->getComponentConfiguration()->getComponentId(),
+                $options->getComponentConfiguration()->getConfigurationId()
+            ),
+            [
+                'metadata' => $options->getMetadata(),
+            ]
+        );
+    }
+
+    public function listConfigurationMetadata(ListConfigurationMetadataOptions $options)
+    {
+        return $this->client->apiGet(sprintf(
+            "components/%s/configs/%s/metadata",
+            $options->getComponentId(),
+            $options->getConfigurationId()
+        ));
     }
 }

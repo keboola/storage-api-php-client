@@ -26,16 +26,6 @@ class ComponentsEventsTest extends StorageApiTestCase
      */
     private $components;
 
-    /**
-     * @var string
-     */
-    private $tokenId;
-
-    /**
-     * @var string
-     */
-    private $lastEventId;
-
     public function setUp()
     {
         parent::setUp();
@@ -56,13 +46,7 @@ class ComponentsEventsTest extends StorageApiTestCase
 
         // initialize variables
         $this->configurationId = $this->_client->generateId();
-        $this->tokenId = $this->_client->verifyToken()['id'];
-        $lastEvent = $this->_client->listTokenEvents($this->tokenId, [
-            'limit' => 1,
-        ]);
-        if (!empty($lastEvent)) {
-            $this->lastEventId = $lastEvent[0]['id'];
-        }
+        $this->initEvents();
     }
 
     /**
@@ -118,75 +102,6 @@ class ComponentsEventsTest extends StorageApiTestCase
             ->setConfigurationId($this->configurationId)
             ->setName(self::CONFIGURATION_NAME);
         return $config;
-    }
-
-    /**
-     * @param string $eventName
-     * @return array
-     */
-    private function listEvents(Client $client, $eventName, $expectedObjectId = null)
-    {
-        return $this->retry(function () use ($client, $expectedObjectId) {
-            $tokenEvents = $client->listEvents([
-                'sinceId' => $this->lastEventId,
-                'limit' => 1,
-                'q' => sprintf('token.id:%s', $this->tokenId),
-            ]);
-
-            if ($expectedObjectId === null) {
-                return $tokenEvents;
-            }
-
-            return array_filter($tokenEvents, function ($event) use ($expectedObjectId) {
-                return $event['objectId'] === $expectedObjectId;
-            });
-        }, 10, $eventName);
-    }
-
-    /**
-     * @param callable $apiCall
-     * @param int $retries
-     * @param string $eventName
-     * @return array
-     */
-    private function retry($apiCall, $retries, $eventName)
-    {
-        $events = [];
-        while ($retries > 0) {
-            $events = $apiCall();
-            if (empty($events) || $events[0]['event'] !== $eventName) {
-                $retries--;
-                usleep(250 * 1000);
-            } else {
-                break;
-            }
-        }
-        return $events;
-    }
-
-    private function assertEvent(
-        $event,
-        $expectedEventName,
-        $expectedEventMessage,
-        $expectedObjectId,
-        $expectedObjectName,
-        $expectedObjectType,
-        $expectedParams
-    ) {
-        self::assertArrayHasKey('objectName', $event);
-        self::assertEquals($expectedObjectName, $event['objectName']);
-        self::assertArrayHasKey('objectType', $event);
-        self::assertEquals($expectedObjectType, $event['objectType']);
-        self::assertArrayHasKey('objectId', $event);
-        self::assertEquals($expectedObjectId, $event['objectId']);
-        self::assertArrayHasKey('event', $event);
-        self::assertEquals($expectedEventName, $event['event']);
-        self::assertArrayHasKey('message', $event);
-        self::assertEquals($expectedEventMessage, $event['message']);
-        self::assertArrayHasKey('token', $event);
-        self::assertEquals($this->tokenId, $event['token']['id']);
-        self::assertArrayHasKey('params', $event);
-        self::assertSame($expectedParams, $event['params']);
     }
 
     /**

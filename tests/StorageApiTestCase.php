@@ -10,7 +10,9 @@
 namespace Keboola\Test;
 
 use Keboola\StorageApi\BranchAwareGuzzleClient;
+use Keboola\StorageApi\Components;
 use Keboola\StorageApi\DevBranches;
+use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\StorageApi\Tokens;
 use function array_key_exists;
 use Keboola\Csv\CsvFile;
@@ -43,6 +45,16 @@ abstract class StorageApiTestCase extends ClientTestCase
 
     /** @var Tokens */
     protected $tokens;
+
+    /**
+     * @var string
+     */
+    protected $tokenId;
+
+    /**
+     * @var string
+     */
+    protected $lastEventId;
 
     /**
      * @param $testName
@@ -673,7 +685,140 @@ abstract class StorageApiTestCase extends ClientTestCase
         ];
     }
 
-    private function createOrReuseDevBranch(self $that, $useExistingBranch = false)
+    /**
+     * Usage:
+     *  - `$getClient($this)` -> return default client which use branch aware client for calling default branch
+     *  - `$getClient($this, [...])` -> return client with custom config which use branch aware client for calling default branch
+     *  - `$getClient($this, [], true)` -> return default client which use same branch as before
+     *  - `$getClient($this, [...], true)` -> return client with custom which use same branch as before
+     *
+     * @see provideComponentsClient
+     */
+    public function provideBranchAwareComponentsClient()
+    {
+        yield 'defaultBranch' => [
+            function (self $that, array $config = []) {
+                if ($config) {
+                    return $this->getBranchAwareClient($this->getDefaultBranchId($that), $config);
+                } else {
+                    return $this->getBranchAwareDefaultClient($this->getDefaultBranchId($that));
+                }
+            }
+        ];
+
+        yield 'devBranch' => [
+            function (self $that, array $config = [], $useExistingBranch = false) {
+                $branch = $this->createOrReuseDevBranch($that, $useExistingBranch);
+
+                if ($config) {
+                    return $this->getBranchAwareClient($branch['id'], $config);
+                } else {
+                    return $this->getBranchAwareDefaultClient($branch['id']);
+                }
+            }
+        ];
+    }
+
+    protected function getDefaultBranchId(self $that)
+    {
+        $devBranch = new \Keboola\StorageApi\DevBranches($that->_client);
+        $branchesList = $devBranch->listBranches();
+        foreach ($branchesList as $branch) {
+            if ($branch['isDefault'] === true) {
+                return $branch['id'];
+            }
+        }
+
+        throw new \Exception('Default branch not found.');
+    }
+
+    public function cleanupConfigurations()
+    {
+        $components = new Components($this->_client);
+        foreach ($components->listComponents() as $component) {
+            foreach ($component['configurations'] as $configuration) {
+                $components->deleteConfiguration($component['id'], $configuration['id']);
+            }
+        }
+
+        // erase all deleted configurations
+        foreach ($components->listComponents((new ListComponentsOptions())->setIsDeleted(true)) as $component) {
+            foreach ($component['configurations'] as $configuration) {
+                $components->deleteConfiguration($component['id'], $configuration['id']);
+            }
+        }
+    }
+
+    /**
+     * @param string $eventName
+     * @return array
+     */
+    protected function listEvents(Client $client, $eventName, $expectedObjectId = null)
+    {
+        return $this->retry(function () use ($client, $expectedObjectId) {
+            $tokenEvents = $client->listEvents([
+                'sinceId' => $this->lastEventId,
+                'limit' => 1,
+                'q' => sprintf('token.id:%s', $this->tokenId),
+            ]);
+
+            if ($expectedObjectId === null) {
+                return $tokenEvents;
+            }
+
+            return array_filter($tokenEvents, function ($event) use ($expectedObjectId) {
+                return $event['objectId'] === $expectedObjectId;
+            });
+        }, 10, $eventName);
+    }
+
+    /**
+     * @param callable $apiCall
+     * @param int $retries
+     * @param string $eventName
+     * @return array
+     */
+    protected function retry($apiCall, $retries, $eventName)
+    {
+        $events = [];
+        while ($retries > 0) {
+            $events = $apiCall();
+            if (empty($events) || $events[0]['event'] !== $eventName) {
+                $retries--;
+                usleep(250 * 1000);
+            } else {
+                break;
+            }
+        }
+        return $events;
+    }
+
+    protected function assertEvent(
+        $event,
+        $expectedEventName,
+        $expectedEventMessage,
+        $expectedObjectId,
+        $expectedObjectName,
+        $expectedObjectType,
+        $expectedParams
+    ) {
+        self::assertArrayHasKey('objectName', $event);
+        self::assertEquals($expectedObjectName, $event['objectName']);
+        self::assertArrayHasKey('objectType', $event);
+        self::assertEquals($expectedObjectType, $event['objectType']);
+        self::assertArrayHasKey('objectId', $event);
+        self::assertEquals($expectedObjectId, $event['objectId']);
+        self::assertArrayHasKey('event', $event);
+        self::assertEquals($expectedEventName, $event['event']);
+        self::assertArrayHasKey('message', $event);
+        self::assertEquals($expectedEventMessage, $event['message']);
+        self::assertArrayHasKey('token', $event);
+        self::assertEquals($this->tokenId, $event['token']['id']);
+        self::assertArrayHasKey('params', $event);
+        self::assertSame($expectedParams, $event['params']);
+    }
+
+    protected function createOrReuseDevBranch(self $that, $useExistingBranch = false)
     {
         $providedToken = $that->_client->verifyToken();
         $branchName = implode('\\', [
@@ -703,5 +848,25 @@ abstract class StorageApiTestCase extends ClientTestCase
         }
 
         return $branch;
+    }
+
+    /**
+     * @param string $name
+     * @return string
+     */
+    public function generateUniqueNameForString($name)
+    {
+        return sha1($this->generateDescriptionForTestObject()) . '_' . $name;
+    }
+
+    protected function initEvents()
+    {
+        $this->tokenId = $this->_client->verifyToken()['id'];
+        $lastEvent = $this->_client->listTokenEvents($this->tokenId, [
+            'limit' => 1,
+        ]);
+        if (!empty($lastEvent)) {
+            $this->lastEventId = $lastEvent[0]['id'];
+        }
     }
 }
