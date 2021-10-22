@@ -7276,6 +7276,64 @@ attributes and information about the containing bucket. At least one of paramete
                 }
             ]
 
+## Search Components Configurations [/v2/storage/search/components-configurations?componentId={componentId}&configurationId={configurationId}&metadataKeys={metadataKey}&include={include}]
+
+### Search Components Configurations [GET]
+Search all components configurations accessible by the token by either idBranch, idComponent, configurationId or metadataKeys. By default, all configurations are returned with their
+idBranch, idComponent, configurationId and metadata.
+
++ Parameters
+    + componentId (optional, string) - Id of the Component
+        + Default: NULL
+    + configurationId (optional, string) - Id of the configuration
+        + Default: NULL
+    + metadataKeys (optional, array) - metadataKeys (optional, array) - array of metadata keys to search with exact match - e.g. [keyOne, keyTwo] → any configuration that has either key set will be returned
+        + Default: NULL
+    + include (optional, enum[string]) - Comma separated list of resources to include for each table.
+        + Members
+            + filteredMetadata
+        + Default: filteredMetadata
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+    + Body
+
+            [
+                {
+                    "idComponent": "transformation",
+                    "configurationId": "main-1",
+                    "metadata": {
+                        [
+                            "id": "123",
+                            "key": "KBC.SomeEnity.metadataKey",
+                            "value": "some value",
+                            "timestamp": "2021-10-22T10:21:36+0200"
+                        ],
+                        [
+                            "id": "1",
+                            "key": "someMetadataKey",
+                            "value": "some value",
+                            "timestamp": "2021-10-22T10:21:36+0200"
+                        ]
+                    }
+                },
+                {
+                    "idComponent": "wr-db",
+                    "configurationId": "main-2",
+                    "metadata": {
+                        [
+                            "id": "124",
+                            "key": "KBC.SomeEnity.metadataKey",
+                            "value": "other value",
+                            "timestamp": "2021-10-22T10:21:36+0200"
+                        ]
+                    }
+                }
+            ]
 
 # Group Stats
 ## RunId [/v2/storage/stats?runId={runId}]
