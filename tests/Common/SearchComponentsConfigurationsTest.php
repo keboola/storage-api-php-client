@@ -5,7 +5,7 @@ namespace Keboola\Test\Common;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\ConfigurationMetadata;
-use Keboola\StorageApi\Options\Components\SearchComponentsOptions;
+use Keboola\StorageApi\Options\Components\SearchComponentConfigurationsOptions;
 use Keboola\Test\ComponentsUtils\ComponentsConfigurationUtils;
 use Keboola\Test\StorageApiTestCase;
 
@@ -35,7 +35,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
     public function testSearchThrowsErrorWhenIsCalledWithoutBranch()
     {
         try {
-            $this->_client->searchComponents((new SearchComponentsOptions()));
+            $this->_client->searchComponents((new SearchComponentConfigurationsOptions()));
             $this->fail('should fail, not implemented without branch');
         } catch (ClientException $e) {
             $this->assertContains('Not implemented', $e->getMessage());
@@ -99,7 +99,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
         //setup end
 
         // 1. test only componentId set
-        $listConfigurationMetadata = $client->searchComponents((new SearchComponentsOptions())
+        $listConfigurationMetadata = $client->searchComponents((new SearchComponentConfigurationsOptions())
             ->setComponentId('transformation'));
         self::assertCount(2, $listConfigurationMetadata);
         $this->assertMetadataHasKeys($listConfigurationMetadata[0]);
@@ -126,7 +126,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
         ], $listConfigurationMetadata);
 
         // 2. test only configurationId set
-        $listConfigurationMetadata = $client->searchComponents((new SearchComponentsOptions())
+        $listConfigurationMetadata = $client->searchComponents((new SearchComponentConfigurationsOptions())
             ->setConfigurationId($configurationNameMain2));
         self::assertCount(2, $listConfigurationMetadata);
 
@@ -153,7 +153,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
         ], $listConfigurationMetadata);
 
         // 3. test only metadataKeys set
-        $listConfigurationMetadata = $client->searchComponents((new SearchComponentsOptions())
+        $listConfigurationMetadata = $client->searchComponents((new SearchComponentConfigurationsOptions())
             ->setMetadataKeys(['KBC.SomeEnity.metadataKey']));
         self::assertCount(3, $listConfigurationMetadata);
 
@@ -191,7 +191,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
         ], $listConfigurationMetadata);
 
         // 4. test multiple metadataKeys sets
-        $listConfigurationMetadata = $client->searchComponents((new SearchComponentsOptions())
+        $listConfigurationMetadata = $client->searchComponents((new SearchComponentConfigurationsOptions())
             ->setMetadataKeys(['KBC.SomeEnity.metadataKey', 'transformationMain2Key']));
         self::assertCount(3, $listConfigurationMetadata);
         $this->assertSearchResponseEquals([
@@ -232,7 +232,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
         ], $listConfigurationMetadata);
 
         // 5. test with componentId, configurationId, metadataKeys sets returns exactly 1 configuration
-        $listConfigurationMetadata = $client->searchComponents((new SearchComponentsOptions())
+        $listConfigurationMetadata = $client->searchComponents((new SearchComponentConfigurationsOptions())
             ->setComponentId('transformation')
             ->setConfigurationId($configurationNameMain2)
             ->setMetadataKeys(['transformationMain2Key']));
@@ -252,13 +252,13 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
         ], $listConfigurationMetadata);
 
         // 6. test return exactly 0 configurations
-        $listConfigurationMetadata = $client->searchComponents((new SearchComponentsOptions())
+        $listConfigurationMetadata = $client->searchComponents((new SearchComponentConfigurationsOptions())
             ->setComponentId('wr-db')
             ->setMetadataKeys(['transformationMain2Key']));
         self::assertCount(0, $listConfigurationMetadata);
 
         // 7. test include
-        $listConfigurationMetadata = $client->searchComponents((new SearchComponentsOptions())
+        $listConfigurationMetadata = $client->searchComponents((new SearchComponentConfigurationsOptions())
             ->setComponentId('transformation')
             ->setConfigurationId($configurationNameMain2)
             ->setMetadataKeys(['transformationMain2Key'])
@@ -303,7 +303,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
             ->setMetadata(self::TEST_METADATA);
         $components->addConfigurationMetadata($configurationMetadataOptions);
 
-        $client->searchComponents((new SearchComponentsOptions())
+        $client->searchComponents((new SearchComponentConfigurationsOptions())
             ->setConfigurationId('component-search-metadata-events-test')
             ->setMetadataKeys(['KBC.SomeEnity.metadataKey']));
 

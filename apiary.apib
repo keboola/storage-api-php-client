@@ -7276,11 +7276,14 @@ attributes and information about the containing bucket. At least one of paramete
                 }
             ]
 
-## Search Components Configurations [/v2/storage/search/components-configurations?componentId={componentId}&configurationId={configurationId}&metadataKeys={metadataKey}&include={include}]
+## Search Components Configurations [/v2/storage/branch/{branchId}/search/component-configurations?componentId={componentId}&configurationId={configurationId}&metadataKeys={metadataKey}&include={include}]
 
-### Search Components Configurations [GET]
-Search all components configurations accessible by the token by either idBranch, idComponent, configurationId or metadataKeys. By default, all configurations are returned with their
-idBranch, idComponent, configurationId and metadata.
+### Search Component Configurations [GET]
+Search all component configurations accessible by the token by either idComponent, configurationId or metadataKeys. By default, all configurations are returned with their
+idComponent, configurationId and metadata.
+
++ Parameters
+    + branchId (required) - Id of the development branch
 
 + Parameters
     + componentId (optional, string) - Id of the Component

@@ -8,7 +8,7 @@ use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
 use Keboola\StorageApi\Downloader\BlobClientFactory;
 use Keboola\StorageApi\Options\BucketUpdateOptions;
-use Keboola\StorageApi\Options\Components\SearchComponentsOptions;
+use Keboola\StorageApi\Options\Components\SearchComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\FileUploadTransferOptions;
 use Keboola\StorageApi\Options\GetFileOptions;
 use Keboola\StorageApi\Options\IndexOptions;
@@ -1161,10 +1161,10 @@ class Client
     }
 
 
-    public function searchComponents(SearchComponentsOptions $options)
+    public function searchComponents(SearchComponentConfigurationsOptions $options)
     {
         return $this->apiGet(
-            "search/components-configurations?" . http_build_query($options->toParamsArray())
+            "search/component-configurations?" . http_build_query($options->toParamsArray())
         );
     }
 

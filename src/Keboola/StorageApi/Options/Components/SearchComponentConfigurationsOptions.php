@@ -2,7 +2,7 @@
 
 namespace Keboola\StorageApi\Options\Components;
 
-class SearchComponentsOptions
+class SearchComponentConfigurationsOptions
 {
     private $componentId;
 

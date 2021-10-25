@@ -4,7 +4,7 @@ namespace Keboola\Test\Common;
 
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Metadata;
-use Keboola\StorageApi\Options\Components\SearchComponentsOptions;
+use Keboola\StorageApi\Options\Components\SearchComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\SearchTablesOptions;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
