@@ -7,10 +7,13 @@ use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationMetadata;
 use Keboola\StorageApi\Options\Components\ListConfigurationMetadataOptions;
+use Keboola\Test\ComponentsUtils\ComponentsConfigurationUtils;
 use Keboola\Test\StorageApiTestCase;
 
 class ConfigurationMetadataTest extends StorageApiTestCase
 {
+    use ComponentsConfigurationUtils;
+
     const TEST_METADATA = [
         [
             'key' => 'KBC.SomeEnity.metadataKey',
@@ -582,16 +585,5 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             self::assertSame($value, $actual[$key]);
         }
         self::assertArrayHasKey('timestamp', $actual);
-    }
-
-    private function createConfiguration($components, $componentId, $configurationId, $name)
-    {
-        $configurationOptions = (new Configuration())
-            ->setComponentId($componentId)
-            ->setConfigurationId($configurationId)
-            ->setName($name);
-
-        $components->addConfiguration($configurationOptions);
-        return $configurationOptions;
     }
 }
