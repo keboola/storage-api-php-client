@@ -265,7 +265,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
         $this->assertMetadataEquals(self::TEST_METADATA[1], $newMetadata[1]);
 
         // create new devbranch
-        $branch = $this->createOrReuseDevBranch($this);
+        $branch = $this->createDevBranchForTestCase($this);
         $branchComponents = new Components($this->getBranchAwareDefaultClient($branch['id']));
 
         // metadata should be copied from default branch
@@ -336,7 +336,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
         $newMetadata = $components->addConfigurationMetadata($configurationMetadataOptions);
         self::assertCount(2, $newMetadata);
 
-        $branch = $this->createOrReuseDevBranch($this);
+        $branch = $this->createDevBranchForTestCase($this);
         $branchComponents = new Components($this->getBranchAwareDefaultClient($branch['id']));
 
         $updatedMetadata = [
@@ -495,7 +495,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
         }
 
         // cannot delete metadata in development branch
-        $branch = $this->createOrReuseDevBranch($this);
+        $branch = $this->createDevBranchForTestCase($this);
         $devBranchComponents = new Components($this->getBranchAwareDefaultClient($branch['id']));
 
         try {
