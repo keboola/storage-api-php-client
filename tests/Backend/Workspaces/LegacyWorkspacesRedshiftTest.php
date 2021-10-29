@@ -102,15 +102,15 @@ class LegacyWorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         $cols = $backend->describeTableColumns("languages-pk");
         $this->assertCount(6, $cols);
         $this->assertEquals("varchar", $cols['paid_search_engine_account']['DATA_TYPE']);
-        $this->assertEquals(255, $cols['paid_search_engine_account']['LENGTH']);
+        $this->assertEquals(65535, $cols['paid_search_engine_account']['LENGTH']);
         $this->assertEquals("varchar", $cols['date']['DATA_TYPE']);
-        $this->assertEquals(255, $cols['date']['LENGTH']);
+        $this->assertEquals(65535, $cols['date']['LENGTH']);
         $this->assertEquals("varchar", $cols['paid_search_campaign']['DATA_TYPE']);
-        $this->assertEquals(255, $cols['paid_search_campaign']['LENGTH']);
+        $this->assertEquals(65535, $cols['paid_search_campaign']['LENGTH']);
         $this->assertEquals("varchar", $cols['paid_search_ad_id']['DATA_TYPE']);
-        $this->assertEquals(255, $cols['paid_search_ad_id']['LENGTH']);
+        $this->assertEquals(65535, $cols['paid_search_ad_id']['LENGTH']);
         $this->assertEquals("varchar", $cols['site__dfa']['DATA_TYPE']);
-        $this->assertEquals(255, $cols['site__dfa']['LENGTH']);
+        $this->assertEquals(65535, $cols['site__dfa']['LENGTH']);
         $this->assertEquals("varchar", $cols['advertiser_id']['DATA_TYPE']);
         $this->assertEquals(65535, $cols['advertiser_id']['LENGTH']);
 
@@ -125,9 +125,9 @@ class LegacyWorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         $cols = $backend->describeTableColumns("languages-pk-skipped");
         $this->assertCount(2, $cols);
         $this->assertEquals("varchar", $cols['paid_search_engine_account']['DATA_TYPE']);
-        $this->assertEquals(255, $cols['paid_search_engine_account']['LENGTH']);
+        $this->assertEquals(65535, $cols['paid_search_engine_account']['LENGTH']);
         $this->assertEquals("varchar", $cols['date']['DATA_TYPE']);
-        $this->assertEquals(255, $cols['date']['LENGTH']);
+        $this->assertEquals(65535, $cols['date']['LENGTH']);
     }
 
     public function testLoadIncrementalNotNullable()
