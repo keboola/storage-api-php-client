@@ -97,6 +97,7 @@ class LegacyWorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
+        // there are no columns new input mapping is used, thus PK length will be 65535
         $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping]]);
 
         $cols = $backend->describeTableColumns("languages-pk");
@@ -120,14 +121,15 @@ class LegacyWorkspacesRedshiftTest extends ParallelWorkspacesTestCase
             "destination" => "languages-pk-skipped",
             "columns" => ['Paid_Search_Engine_Account', 'Date'] // missing PK columns
         ];
+        // there are columns as array of strings, legacy input mapping is used, thus PK length will be 255
         $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping2]]);
 
         $cols = $backend->describeTableColumns("languages-pk-skipped");
         $this->assertCount(2, $cols);
         $this->assertEquals("varchar", $cols['paid_search_engine_account']['DATA_TYPE']);
-        $this->assertEquals(65535, $cols['paid_search_engine_account']['LENGTH']);
+        $this->assertEquals(255, $cols['paid_search_engine_account']['LENGTH']);
         $this->assertEquals("varchar", $cols['date']['DATA_TYPE']);
-        $this->assertEquals(65535, $cols['date']['LENGTH']);
+        $this->assertEquals(255, $cols['date']['LENGTH']);
     }
 
     public function testLoadIncrementalNotNullable()
