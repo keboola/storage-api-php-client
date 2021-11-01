@@ -679,7 +679,11 @@ abstract class StorageApiTestCase extends ClientTestCase
 
         yield 'devBranch' => [
             function (self $that, array $config, $useExistingBranch = false) {
-                $branch = $this->createOrReuseDevBranch($that, $useExistingBranch);
+                if ($useExistingBranch) {
+                    $branch = $this->getExistingBranchForTestCase($that);
+                } else {
+                    $branch = $this->createDevBranchForTestCase($that);
+                }
                 return new BranchAwareGuzzleClient($branch['id'], $config);
             }
         ];
@@ -708,7 +712,11 @@ abstract class StorageApiTestCase extends ClientTestCase
 
         yield 'devBranch' => [
             function (self $that, array $config = [], $useExistingBranch = false) {
-                $branch = $this->createOrReuseDevBranch($that, $useExistingBranch);
+                if ($useExistingBranch) {
+                    $branch = $this->getExistingBranchForTestCase($that);
+                } else {
+                    $branch = $this->createDevBranchForTestCase($that);
+                }
 
                 if ($config) {
                     return $this->getBranchAwareClient($branch['id'], $config);
@@ -717,6 +725,47 @@ abstract class StorageApiTestCase extends ClientTestCase
                 }
             }
         ];
+    }
+
+    protected function getExistingBranchForTestCase(self $that)
+    {
+        $providedToken = $that->_client->verifyToken();
+        $branchName = implode('\\', [
+            __CLASS__,
+            $that->getName(false),
+            $that->dataName(),
+            $providedToken['id'],
+        ]);
+        $devBranch = new \Keboola\StorageApi\DevBranches($that->_client);
+
+        $branches = $devBranch->listBranches();
+        $branch = null;
+        // get branch detail
+        foreach ($branches as $branchItem) {
+            if ($branchItem['name'] === $branchName) {
+                $branch = $branchItem;
+            }
+        }
+        if (!isset($branch)) {
+            $this->fail(sprintf('Reuse existing branch: branch %s not found.', $branchName));
+        }
+
+        return $branch;
+    }
+
+    protected function createDevBranchForTestCase(self $that)
+    {
+        $providedToken = $that->_client->verifyToken();
+        $branchName = implode('\\', [
+            __CLASS__,
+            $that->getName(false),
+            $that->dataName(),
+            $providedToken['id'],
+        ]);
+        $devBranch = new \Keboola\StorageApi\DevBranches($that->_client);
+
+        $this->deleteBranchesByPrefix($devBranch, $branchName);
+        return $devBranch->createBranch($branchName);
     }
 
     protected function getDefaultBranchId(self $that)
