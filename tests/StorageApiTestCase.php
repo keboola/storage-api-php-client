@@ -14,6 +14,9 @@ use Keboola\StorageApi\Components;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\StorageApi\Tokens;
+use Retry\BackOff\FixedBackOffPolicy;
+use Retry\Policy\CallableRetryPolicy;
+use Retry\RetryProxy;
 use function array_key_exists;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
@@ -780,17 +783,17 @@ abstract class StorageApiTestCase extends ClientTestCase
      */
     protected function retry($apiCall, $retries, $eventName)
     {
-        $events = [];
-        while ($retries > 0) {
+        $retryPolicy = new CallableRetryPolicy(function () use ($apiCall, $eventName) {
             $events = $apiCall();
             if (empty($events) || $events[0]['event'] !== $eventName) {
-                $retries--;
-                usleep(250 * 1000);
-            } else {
-                break;
+                return true;
             }
-        }
-        return $events;
+            return false;
+        }, $retries);
+        $proxy = new RetryProxy($retryPolicy, new FixedBackOffPolicy(250));
+        return $proxy->call(function () use ($apiCall) {
+            return $apiCall();
+        });
     }
 
     protected function assertEvent(
