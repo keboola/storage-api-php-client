@@ -866,7 +866,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $updatedConfig = $components->updateConfiguration($config);
         $this->assertEquals([], $updatedConfig['configuration']);
-        $this->assertEmpty($updatedConfig['changeDescription']);
+        $this->assertSame('Configuration updated', $updatedConfig['changeDescription']);
         $this->assertEquals(3, $updatedConfig['version']);
     }
 
@@ -1087,7 +1087,7 @@ class ComponentsTest extends StorageApiTestCase
         $components->updateConfiguration($secondConfigToPut);
 
         $secondConfigLoaded = $components->getConfiguration('wr-db', 'main-1');
-        $this->assertEquals('', $secondConfigLoaded['changeDescription']);
+        $this->assertEquals('Configuration updated', $secondConfigLoaded['changeDescription']);
     }
 
     /**
