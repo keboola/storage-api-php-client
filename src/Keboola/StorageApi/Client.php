@@ -1935,7 +1935,7 @@ class Client
 
     /**
      * Get a single file
-     * @param string $fileId
+     * @param string|int $fileId
      * @return array
      */
     public function getFile($fileId, GetFileOptions $options = null)
