@@ -139,10 +139,6 @@ class ConfigurationRowTest extends StorageApiTestCase
     {
         /** @var Client $_client */
         $_client = $getClient($this);
-        if ($_client instanceof BranchAwareClient) {
-            $this->markTestIncomplete("Using 'state' parameter on configuration update is restricted for dev/branch context. Use direct API call.");
-        }
-
         $components = new \Keboola\StorageApi\Components($_client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
@@ -212,11 +208,18 @@ class ConfigurationRowTest extends StorageApiTestCase
             ]
         ];
 
+        $client->put('/v2/storage/components/wr-db/configs/main-1/rows/' . $response->id . '/state', [
+            'form_params' => [
+                'state' => json_encode($state),
+            ],
+            'headers' => array(
+                'X-StorageApi-Token' => $_client->getTokenString(),
+            ),
+        ]);
 
         $response = $client->put('/v2/storage/components/wr-db/configs/main-1/rows/' . $response->id, [
             'form_params' => [
                 'configuration' => json_encode($config),
-                'state' => json_encode($state),
             ],
             'headers' => array(
                 'X-StorageApi-Token' => $_client->getTokenString(),
