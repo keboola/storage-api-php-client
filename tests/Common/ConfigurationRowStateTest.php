@@ -6,6 +6,7 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
+use Keboola\StorageApi\Options\Components\ConfigurationRowState;
 use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\Test\StorageApiTestCase;
@@ -86,10 +87,6 @@ class ConfigurationRowStateTest extends StorageApiTestCase
     {
         /** @var Client $client */
         $client = $getClient($this);
-        if ($client instanceof BranchAwareClient) {
-            $this->markTestIncomplete("Using 'state' parameter on configuration update is restricted for dev/branch context. Use direct API call.");
-        }
-
         $components = new \Keboola\StorageApi\Components($client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
@@ -105,12 +102,9 @@ class ConfigurationRowStateTest extends StorageApiTestCase
         $state = [
             'key' => 'val'
         ];
-
-        $updateConfig = new ConfigurationRow($configuration);
-        $updateConfig
+        $components->updateConfigurationRowState((new ConfigurationRowState($configuration))
             ->setRowId($configurationRowResponse['id'])
-            ->setState($state);
-        $components->updateConfigurationRow($updateConfig);
+            ->setState($state));
 
         $configurationResponse = $components->getConfiguration('wr-db', 'main-1');
         $this->assertEquals($state, $configurationResponse['rows'][0]['state']);
@@ -123,10 +117,6 @@ class ConfigurationRowStateTest extends StorageApiTestCase
     {
         /** @var Client $client */
         $client = $getClient($this);
-        if ($client instanceof BranchAwareClient) {
-            $this->markTestIncomplete("Using 'state' parameter on configuration update is restricted for dev/branch context. Use direct API call.");
-        }
-
         $components = new \Keboola\StorageApi\Components($client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
@@ -145,11 +135,9 @@ class ConfigurationRowStateTest extends StorageApiTestCase
         $state = [
             'key' => 'val'
         ];
-        $updateConfig = new ConfigurationRow($configuration);
-        $updateConfig
+        $components->updateConfigurationRowState((new ConfigurationRowState($configuration))
             ->setRowId($configurationRowResponse['id'])
-            ->setState($state);
-        $components->updateConfigurationRow($updateConfig);
+            ->setState($state));
 
         $configurationResponse = $components->getConfiguration('wr-db', 'main-1');
         $this->assertEquals(2, $configurationResponse['version']);
@@ -185,9 +173,6 @@ class ConfigurationRowStateTest extends StorageApiTestCase
     {
         /** @var Client $client */
         $client = $getClient($this);
-        if ($client instanceof BranchAwareClient) {
-            $this->markTestIncomplete("Using 'state' parameter on configuration update is restricted for dev/branch context. Use direct API call.");
-        }
 
         $components = new \Keboola\StorageApi\Components($client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
@@ -210,11 +195,9 @@ class ConfigurationRowStateTest extends StorageApiTestCase
         $components->updateConfigurationRow($updateConfig);
 
         $state = ['key' => 'val'];
-        $updateConfig = new ConfigurationRow($configuration);
-        $updateConfig
+        $components->updateConfigurationRowState((new ConfigurationRowState($configuration))
             ->setRowId('main-1-1')
-            ->setState($state);
-        $components->updateConfigurationRow($updateConfig);
+            ->setState($state));
 
         $configurationResponse = $components->getConfiguration('wr-db', 'main-1');
         $this->assertEquals(3, $configurationResponse['version']);
@@ -238,10 +221,6 @@ class ConfigurationRowStateTest extends StorageApiTestCase
     {
         /** @var Client $client */
         $client = $getClient($this);
-        if ($client instanceof BranchAwareClient) {
-            $this->markTestIncomplete("Using 'state' parameter on configuration update is restricted for dev/branch context. Use direct API call.");
-        }
-
         $components = new \Keboola\StorageApi\Components($client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
@@ -262,11 +241,10 @@ class ConfigurationRowStateTest extends StorageApiTestCase
         $components->updateConfigurationRow($updateConfig);
 
         $state = ['key' => 'val'];
-        $updateConfig = new ConfigurationRow($configuration);
-        $updateConfig
-            ->setRowId('main-1-1')
-            ->setState($state);
         $components->updateConfigurationRow($updateConfig);
+        $components->updateConfigurationRowState((new ConfigurationRowState($configuration))
+            ->setRowId('main-1-1')
+            ->setState($state));
 
         $newConfig = $components->createConfigurationFromVersion('wr-db', 'main-1', 3, 'main-2');
         $configurationResponse = $components->getConfiguration('wr-db', $newConfig['id']);
@@ -284,10 +262,6 @@ class ConfigurationRowStateTest extends StorageApiTestCase
     {
         /** @var Client $client */
         $client = $getClient($this);
-        if ($client instanceof BranchAwareClient) {
-            $this->markTestIncomplete("Using 'state' parameter on configuration update is restricted for dev/branch context. Use direct API call.");
-        }
-
         $components = new \Keboola\StorageApi\Components($client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
@@ -308,12 +282,9 @@ class ConfigurationRowStateTest extends StorageApiTestCase
         $components->updateConfigurationRow($updateConfig);
 
         $state = ['key' => 'val'];
-        $updateConfig = new ConfigurationRow($configuration);
-        $updateConfig
+        $components->updateConfigurationRowState((new ConfigurationRowState($configuration))
             ->setRowId('main-1-1')
-            ->setState($state);
-        $components->updateConfigurationRow($updateConfig);
-
+            ->setState($state));
         $configurationResponse = $components->getConfiguration('wr-db', 'main-1');
         $this->assertCount(1, $configurationResponse['rows']);
         $this->assertEquals(3, $configurationResponse['version']);
@@ -338,10 +309,6 @@ class ConfigurationRowStateTest extends StorageApiTestCase
     {
         /** @var Client $client */
         $client = $getClient($this);
-        if ($client instanceof BranchAwareClient) {
-            $this->markTestIncomplete("Using 'state' parameter on configuration update is restricted for dev/branch context. Use direct API call.");
-        }
-
         $components = new \Keboola\StorageApi\Components($client);
 
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
@@ -378,12 +345,9 @@ class ConfigurationRowStateTest extends StorageApiTestCase
         $components->updateConfigurationRow($updateConfig);
 
         $state = ['key' => 'val'];
-        $updateConfig = new ConfigurationRow($configuration);
-        $updateConfig
+        $components->updateConfigurationRowState((new ConfigurationRowState($configuration))
             ->setRowId('main-1-1')
-            ->setState($state);
-        $components->updateConfigurationRow($updateConfig);
-
+            ->setState($state));
         $components->createConfigurationRowFromVersion('wr-db', 'main-1', 'main-1-1', 1, 'main-2');
         $configurationResponse = $components->getConfiguration('wr-db', 'main-2');
         $this->assertEmpty($configurationResponse['rows'][0]['state']);
@@ -400,10 +364,6 @@ class ConfigurationRowStateTest extends StorageApiTestCase
     {
         /** @var Client $client */
         $client = $getClient($this);
-        if ($client instanceof BranchAwareClient) {
-            $this->markTestIncomplete("Using 'state' parameter on configuration update is restricted for dev/branch context. Use direct API call.");
-        }
-
         $components = new \Keboola\StorageApi\Components($client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
@@ -430,11 +390,9 @@ class ConfigurationRowStateTest extends StorageApiTestCase
         $components->updateConfigurationRow($updateConfig);
 
         $state1 = ['key' => 'val'];
-        $updateConfig = new ConfigurationRow($configuration);
-        $updateConfig
+        $components->updateConfigurationRowState((new ConfigurationRowState($configuration))
             ->setRowId('main-1-1')
-            ->setState($state1);
-        $components->updateConfigurationRow($updateConfig);
+            ->setState($state1));
 
         $components->deleteConfigurationRow('wr-db', 'main-1', 'main-1-1');
 
@@ -461,10 +419,6 @@ class ConfigurationRowStateTest extends StorageApiTestCase
     {
         /** @var Client $client */
         $client = $getClient($this);
-        if ($client instanceof BranchAwareClient) {
-            $this->markTestIncomplete("Using 'state' parameter on configuration update is restricted for dev/branch context. Use direct API call.");
-        }
-
         $components = new \Keboola\StorageApi\Components($client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
@@ -491,11 +445,7 @@ class ConfigurationRowStateTest extends StorageApiTestCase
         $components->updateConfigurationRow($updateConfig);
 
         $state1 = ['key' => 'val'];
-        $updateConfig = new ConfigurationRow($configuration);
-        $updateConfig
-            ->setRowId('main-1-1')
-            ->setState($state1);
-        $components->updateConfigurationRow($updateConfig);
+        $components->updateConfigurationRowState((new ConfigurationRowState($configuration))->setRowId('main-1-1')->setState($state1));
 
         $components->deleteConfigurationRow('wr-db', 'main-1', 'main-1-1');
 
