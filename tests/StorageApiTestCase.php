@@ -869,4 +869,28 @@ abstract class StorageApiTestCase extends ClientTestCase
             $this->lastEventId = $lastEvent[0]['id'];
         }
     }
+
+    /**
+     * @param string $filePath
+     * @param bool $convertNulls
+     * @return array<mixed>
+     */
+    protected function parseCsv($filePath, $convertNulls = false)
+    {
+        $parsed = Client::parseCsv(file_get_contents($filePath));
+        if ($convertNulls === false) {
+            return $parsed;
+        }
+
+        foreach ($parsed as &$row) {
+            foreach ($row as $key => $value) {
+                if ($value === 'null') {
+                    $row[$key] = null;
+                }
+            }
+        }
+        unset($row);
+
+        return $parsed;
+    }
 }
