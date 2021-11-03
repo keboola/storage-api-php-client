@@ -832,9 +832,6 @@ class ComponentsTest extends StorageApiTestCase
     {
         /** @var Client $client */
         $client = $getClient($this);
-        if ($client instanceof BranchAwareClient) {
-            $this->markTestIncomplete('Failed asserting that a string is empty.');
-        }
 
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
@@ -1044,9 +1041,6 @@ class ComponentsTest extends StorageApiTestCase
     {
         /** @var Client $client */
         $client = $getClient($this);
-        if ($client instanceof BranchAwareClient) {
-            $this->markTestIncomplete('Failed asserting that two strings are equal.');
-        }
 
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
@@ -2393,9 +2387,6 @@ class ComponentsTest extends StorageApiTestCase
     {
         /** @var Client $client */
         $client = $getClient($this);
-        if ($client instanceof BranchAwareClient) {
-            $this->markTestIncomplete("Application error: Integrity constraint violation: 1062 Duplicate entry '4-671-transformation-main-test' for key 'PRIMARY'");
-        }
 
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
