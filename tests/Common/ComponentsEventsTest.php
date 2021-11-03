@@ -63,12 +63,6 @@ class ComponentsEventsTest extends StorageApiTestCase
         $components->addConfiguration($config);
 
         // test no change
-        $components->updateConfigurationState((new ConfigurationState())
-            ->setComponentId(self::COMPONENT_ID)
-            ->setConfigurationId($this->configurationId)->setState([
-                'cache' => true,
-            ]));
-
         $components->updateConfiguration($config);
         $events = $this->listEvents($client, 'storage.componentConfigurationChanged');
         self::assertNotEquals('storage.componentConfigurationChanged', $events[0]['event']);
