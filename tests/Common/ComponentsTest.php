@@ -938,18 +938,14 @@ class ComponentsTest extends StorageApiTestCase
         $row = reset($configuration['rows']);
         $this->assertEquals('main-1-1', $row['id']);
 
-        $state = [
-            'cache' => true,
-        ];
-
-        $updatedConfig = $components->updateConfigurationState((new ConfigurationState())
+        $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
-            ->setState($state));
+            ->setDescription('neco');
+
+        $updatedConfig = $components->updateConfiguration($config);
         $this->assertEquals($newName, $updatedConfig['name'], 'Name should not be changed after description update');
-        $this->assertEquals('some desc', $updatedConfig['description']);
         $this->assertEquals($configurationData, $updatedConfig['configuration']);
-        $this->assertEquals($state, $updatedConfig['state']);
 
         $this->assertArrayHasKey('rows', $updatedConfig);
         $this->assertCount(1, $updatedConfig['rows']);
@@ -960,9 +956,7 @@ class ComponentsTest extends StorageApiTestCase
         $configuration = $components->getConfiguration($config->getComponentId(), $config->getConfigurationId());
 
         $this->assertEquals($newName, $configuration['name'], 'Name should not be changed after description update');
-        $this->assertEquals('some desc', $configuration['description']);
         $this->assertEquals($configurationData, $configuration['configuration']);
-        $this->assertEquals($state, $configuration['state']);
 
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
@@ -1017,7 +1011,6 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(2, $lastVersion['version']);
 
         $state = ['cache' => true];
-        $config->setState($state);
         $components->updateConfigurationState((new ConfigurationState())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
@@ -1027,10 +1020,7 @@ class ComponentsTest extends StorageApiTestCase
         $lastVersion = reset($versions);
         $this->assertEquals(2, $lastVersion['version']);
 
-        $components->updateConfigurationState((new ConfigurationState())
-            ->setComponentId('wr-db')
-            ->setConfigurationId('main-1')
-            ->setState($state));
+        $components->updateConfiguration($config);
         $versions = $components->listConfigurationVersions($listConfig);
         $this->assertCount(2, $versions, 'Update without change should not add version');
         $lastVersion = reset($versions);
