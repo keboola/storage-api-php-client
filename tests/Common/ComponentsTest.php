@@ -42,19 +42,10 @@ class ComponentsTest extends StorageApiTestCase
         }
     }
 
-    /**
-     * @dataProvider provideComponentsClient
-     */
-    public function testGetComponentDetail(callable $getClient)
+    public function testGetComponentDetail()
     {
-        /** @var Client $client */
-        $client = $getClient($this);
-        if ($client instanceof BranchAwareClient) {
-            $this->markTestIncomplete('Not implemented');
-        }
-
         $componentId = 'wr-db';
-        $componentsClient = new \Keboola\StorageApi\Components($client);
+        $componentsClient = new \Keboola\StorageApi\Components($this->_client);
 
         $component = $componentsClient->getComponent($componentId);
 
