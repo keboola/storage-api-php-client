@@ -28,19 +28,9 @@ class SharingTest extends StorageApiSharingTestCase
         return [
             [
                 'sharing backend' => self::BACKEND_SNOWFLAKE,
-                'workspace backend' => self::BACKEND_SNOWFLAKE,
-                'load type' => 'direct',
-            ],
-            [
-                'sharing backend' => self::BACKEND_SNOWFLAKE,
                 'workspace backend' => self::BACKEND_SYNAPSE,
                 'load type' => 'staging',
             ],
-            //[
-            //    'sharing backend' => self::BACKEND_SYNAPSE,
-            //    'workspace backend' => self::BACKEND_SNOWFLAKE,
-            //    'load type' => 'staging',
-            //],
             [
                 'sharing backend' => self::BACKEND_SYNAPSE,
                 'workspace backend' => self::BACKEND_SYNAPSE,
@@ -75,7 +65,6 @@ class SharingTest extends StorageApiSharingTestCase
         $this->initTestBuckets($sharingBackend);
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
         $secondBucketId = $this->getTestBucketId(self::STAGE_OUT);
-
         $table1Id = $this->_client->createTableAsync(
             $bucketId,
             'languages',
@@ -108,7 +97,6 @@ class SharingTest extends StorageApiSharingTestCase
         if ($this->isSynapseTestCase($sharingBackend, $workspaceBackend)) {
             $this->assertExpectedDistributionKeyColumn($table3Id, '1');
         }
-
         // share and link bucket
         $this->_client->shareBucket($bucketId);
         $this->assertTrue($this->_client->isSharedBucket($bucketId));
@@ -315,28 +303,24 @@ class SharingTest extends StorageApiSharingTestCase
                     "useView" => true,
                 ],
             ];
-            try {
-                $workspaces->loadWorkspaceData($workspace['id'], ["input" => $inputAsView]);
-                self::fail('View load with linked tables must fail.');
-            } catch (ClientException $e) {
-                self::assertSame('View load is not supported, table "languages" is alias or linked.', $e->getMessage());
-                self::assertEquals('workspace.loadRequestLogicalException', $e->getStringCode());
-            }
-            //// check that the tables are in the workspace
-            //$views = ($backend->getSchemaReflection())->getViewsNames();
-            //self::assertCount(3, $views);
-            //self::assertCount(0, $backend->getTables());
-            //self::assertContains($backend->toIdentifier("languagesLoaded"), $views);
-            //self::assertContains($backend->toIdentifier("numbersLoaded"), $views);
-            //self::assertContains($backend->toIdentifier("numbersAliasLoaded"), $views);
-            //
-            //// check table structure and data
-            //$data = $backend->fetchAll("languagesLoaded", \PDO::FETCH_ASSOC);
-            //self::assertCount(5, $data, 'there should be 5 rows');
-            //self::assertCount(3, $data[0], 'there should be two columns');
-            //self::assertArrayHasKey('id', $data[0]);
-            //self::assertArrayHasKey('name', $data[0]);
-            //self::assertArrayHasKey('_timestamp', $data[0]);
+
+            $workspaces->loadWorkspaceData($workspace['id'], ["input" => $inputAsView]);
+
+            // check that the tables are in the workspace
+            $views = ($backend->getSchemaReflection())->getViewsNames();
+            self::assertCount(3, $views);
+            self::assertCount(0, $backend->getTables());
+            self::assertContains($backend->toIdentifier("languagesLoaded"), $views);
+            self::assertContains($backend->toIdentifier("numbersLoaded"), $views);
+            self::assertContains($backend->toIdentifier("numbersAliasLoaded"), $views);
+
+            // check table structure and data
+            $data = $backend->fetchAll("languagesLoaded", \PDO::FETCH_ASSOC);
+            self::assertCount(5, $data, 'there should be 5 rows');
+            self::assertCount(3, $data[0], 'there should be two columns');
+            self::assertArrayHasKey('id', $data[0]);
+            self::assertArrayHasKey('name', $data[0]);
+            self::assertArrayHasKey('_timestamp', $data[0]);
         }
 
         // unload validation
