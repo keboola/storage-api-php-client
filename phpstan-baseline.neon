@@ -13211,16 +13211,6 @@ parameters:
 			path: tests/StorageApiTestCase.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\StorageApiTestCase\\:\\:createOrReuseDevBranch\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/StorageApiTestCase.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\StorageApiTestCase\\:\\:createOrReuseDevBranch\\(\\) has parameter \\$useExistingBranch with no type specified\\.$#"
-			count: 1
-			path: tests/StorageApiTestCase.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\StorageApiTestCase\\:\\:createTableWithRandomData\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/StorageApiTestCase.php
