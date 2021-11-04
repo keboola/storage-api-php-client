@@ -16,3 +16,4 @@ set-env.sharing.sh
 .env
 snowflake_linux_x8664_odbc.tgz
 REVISION
+/cache

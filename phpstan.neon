@@ -1,8 +1,14 @@
 parameters:
+    tmpDir: cache/.phpstan
+    parallel:
+        processTimeout: 300.0
+    checkMissingIterableValueType: false
     ignoreErrors:
         - '#Constant STORAGE_API_[_A-Z0-9]+ not found.#'
         - '#Constant SUITE_NAME not found.#'
         - '#Constant TRAVIS_BUILD_ID not found.#'
         - '#Constant REDSHIFT_NODE_COUNT not found.#'
-    excludes_analyse:
+    excludePaths:
         - vendor
+includes:
+    - phpstan-baseline.neon

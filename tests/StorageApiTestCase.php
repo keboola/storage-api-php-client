@@ -731,6 +731,9 @@ abstract class StorageApiTestCase extends ClientTestCase
         ];
     }
 
+    /**
+     * @return array
+     */
     protected function getExistingBranchForTestCase(self $that)
     {
         $branchName = $this->generateDevBranchNameForDataProvider($that);
@@ -751,6 +754,9 @@ abstract class StorageApiTestCase extends ClientTestCase
         return $branch;
     }
 
+    /**
+     * @return array
+     */
     protected function createDevBranchForTestCase(self $that)
     {
         $branchName = $this->generateDevBranchNameForDataProvider($that);
@@ -879,6 +885,9 @@ abstract class StorageApiTestCase extends ClientTestCase
         }
     }
 
+    /**
+     * @return string
+     */
     private function generateDevBranchNameForDataProvider(StorageApiTestCase $that)
     {
         $providedToken = $that->_client->verifyToken();
