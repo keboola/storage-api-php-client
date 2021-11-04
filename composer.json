@@ -33,17 +33,17 @@
 		"keboola/php-csv-db-import": "^2.2",
 		"ext-pdo_pgsql": "*",
 		"phpcompatibility/php-compatibility": "*",
-		"phpstan/phpstan-shim": "^0.9.2",
 		"keboola/table-backend-utils": "^0.16",
 		"brianium/paratest": "2.*",
 		"ext-pdo": "*",
-		"keboola/retry": "^0.5.0"
+		"keboola/retry": "^0.5.0",
+		"phpstan/phpstan": "^1.0"
     },
 	"scripts": {
 		"phpcs": "phpcs -n .",
 		"phpcs-compatibility": "phpcs --config-set installed_paths vendor/phpcompatibility/php-compatibility && phpcs --ignore=*vendor/* -n . --standard=PHPCompatibility --runtime-set testVersion 5.6-7.4",
 		"phpcbf": "phpcbf -n .",
-		"phpstan": "phpstan analyse --no-progress --level=1 . -c phpstan.neon",
+		"phpstan": "phpstan analyse --no-progress --level=max . -c phpstan.neon",
 		"ci": [
 			"@phpcs",
 			"@phpcs-compatibility",
