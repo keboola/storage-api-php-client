@@ -892,7 +892,7 @@ abstract class StorageApiTestCase extends ClientTestCase
      */
     protected function parseCsv($filePath, $convertNulls = false)
     {
-        $parsed = Client::parseCsv(file_get_contents($filePath));
+        $parsed = Client::parseCsv((string) file_get_contents($filePath));
         if ($convertNulls === false) {
             return $parsed;
         }
