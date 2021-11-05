@@ -1823,7 +1823,6 @@ Asynchronous imports requested on the same table will be serialized.
 The actual data must be provided in one of the following attributes:
 
 - **dataFileId**,
-- **snapshotId**,
 - **dataWorkspaceId** and **dataObject** (older "dataTableName" is deprecated)
 
 An imported file can be sliced into multiple chunks; the conditions described in [File Uploads](#reference/files) must be satisfied.
@@ -1849,7 +1848,6 @@ Further information can be found in the [Developers Documentation](https://devel
 
 + Attributes
     + dataFileId (optional) - Id of the file stored in [File Uploads](#reference/files); all gzipped and sliced files are supported.
-    + snapshotId (optional) - Id of a table snapshot - a table will be created from the snapshot.
     + dataWorkspaceId (optional) - Load from the table [workspace](#reference/workspaces). Use with the **dataTableName** attribute.
     + dataTableName (optional) - (deprecated use dataObject) Load from the table in the [workspace](#reference/workspaces).
     + dataObject (optional) - Load from the table/file in the [workspace](#reference/workspaces).
