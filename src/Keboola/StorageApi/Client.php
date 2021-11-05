@@ -1222,11 +1222,11 @@ class Client
      *
      * Verify the token
      *
-     * @return mixed|string
+     * @return array
      */
     public function verifyToken()
     {
-        return $this->apiGet("tokens/verify");
+        return (array) $this->apiGet("tokens/verify");
     }
 
     /**
@@ -2131,7 +2131,7 @@ class Client
      *
      * @param string $url
      * @param string null $fileName
-     * @return mixed|string
+     * @return mixed|string|array
      */
     public function apiGet($url, $fileName = null)
     {
