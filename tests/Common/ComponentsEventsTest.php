@@ -10,6 +10,7 @@ use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ConfigurationState;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\Test\StorageApiTestCase;
+use PHPUnit\Framework\ExpectationFailedException;
 
 class ComponentsEventsTest extends StorageApiTestCase
 {
@@ -64,8 +65,17 @@ class ComponentsEventsTest extends StorageApiTestCase
 
         // test no change
         $components->updateConfiguration($config);
-        $events = $this->listEvents($client, 'storage.componentConfigurationChanged');
-        self::assertNotEquals('storage.componentConfigurationChanged', $events[0]['event']);
+
+        // make sure that later events are already handled
+        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
+
+        // wait for event or will fail
+        try {
+            $this->listEvents($client, 'storage.componentConfigurationChanged');
+            $this->fail('Should fail');
+        } catch (ExpectationFailedException $e) {
+            $this->assertStringContainsString('Event does not match', $e->getMessage());
+        }
 
         $config->setDescription('new desc');
         $components->updateConfiguration($config);
