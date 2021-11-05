@@ -6,6 +6,7 @@ use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
+use Keboola\TableBackendUtils\Schema\SynapseSchemaReflection;
 use Keboola\Test\Backend\Mixed\StorageApiSharingTestCase;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\Workspaces\Backend\SynapseWorkspaceBackend;
@@ -354,6 +355,32 @@ class SharingTest extends StorageApiSharingTestCase
         } catch (ClientException $e) {
             $this->assertEquals('accessDenied', $e->getStringCode());
         }
+
+        $schemaRef = (new SynapseSchemaReflection($db, $connection['schema']));
+
+        // drop second bucket without linking
+        $this->_client->unshareBucket($secondBucketId, ['force' => true]);
+        $this->_client->dropBucket($secondBucketId, ['force' => true]);
+
+        // drop first bucket
+        try {
+            $this->_client->dropBucket($bucketId, ['force' => true]);
+            $this->fail('Bucket must not be dropped as it\'s linked in other project.');
+        } catch (ClientException $e) {
+            $this->assertSame('The bucket is already linked in other projects.', $e->getMessage());
+            $this->assertSame('storage.buckets.alreadyLinked', $e->getStringCode());
+        }
+        // force unlink bucket from project
+        $projectId = $this->_client2->verifyToken()['owner']['id'];
+        $this->_client->forceUnlinkBucket($bucketId, $projectId, ['async' => true]);
+
+        if ($this->isSynapseTestCase($sharingBackend, $workspaceBackend)) {
+            // test number of views after source unlink
+            $views = $schemaRef->getViewsNames();
+            self::assertCount(0, $views);
+        }
+
+        $this->_client->dropBucket($bucketId, ['force' => true]);
     }
 
     /**
