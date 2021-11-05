@@ -221,7 +221,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             ->setMetadata(self::TEST_METADATA);
         $components->addConfigurationMetadata($configurationMetadataOptions);
 
-        $events = $this->listEvents($client, 'storage.componentConfigurationMetadataCreated');
+        $events = $this->listEvents($client, 'storage.componentConfigurationMetadataSet');
 
         self::assertSame(self::TEST_METADATA, $events[0]['results']['metadata']);
 
