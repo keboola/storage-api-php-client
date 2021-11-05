@@ -2,6 +2,7 @@
 
 namespace Keboola\Test\Backend\MixedSnowflakeSynapse;
 
+use Doctrine\DBAL\Connection;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
@@ -284,7 +285,9 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertContains($backend->toIdentifier("table3"), $tables);
 
         // now try load as view
-        if ($this->isSynapseTestCase($sharingBackend, $workspaceBackend)) {
+        if ($this->isSynapseTestCase($sharingBackend, $workspaceBackend)
+            && $backend instanceof SynapseWorkspaceBackend
+        ) {
             $inputAsView = [
                 [
                     "source" => str_replace($bucketId, $linkedId, $table1Id),
@@ -356,10 +359,8 @@ class SharingTest extends StorageApiSharingTestCase
             $this->assertEquals('accessDenied', $e->getStringCode());
         }
 
-        $schemaRef = (new SynapseSchemaReflection($db, $connection['schema']));
-
         // drop second bucket without linking
-        $this->_client->unshareBucket($secondBucketId, ['force' => true]);
+        $this->_client->unshareBucket($secondBucketId);
         $this->_client->dropBucket($secondBucketId, ['force' => true]);
 
         // drop first bucket
@@ -374,7 +375,10 @@ class SharingTest extends StorageApiSharingTestCase
         $projectId = $this->_client2->verifyToken()['owner']['id'];
         $this->_client->forceUnlinkBucket($bucketId, $projectId, ['async' => true]);
 
-        if ($this->isSynapseTestCase($sharingBackend, $workspaceBackend)) {
+        if ($this->isSynapseTestCase($sharingBackend, $workspaceBackend)
+            && $db instanceof Connection
+        ) {
+            $schemaRef = (new SynapseSchemaReflection($db, $connection['schema']));
             // test number of views after source unlink
             $views = $schemaRef->getViewsNames();
             self::assertCount(0, $views);
