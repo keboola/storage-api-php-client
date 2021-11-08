@@ -8,6 +8,7 @@ use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
+use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
 
 class ComponentsEventsTest extends StorageApiTestCase
@@ -25,6 +26,11 @@ class ComponentsEventsTest extends StorageApiTestCase
      * @var Components
      */
     private $components;
+
+    /**
+     * @var Client
+     */
+    private $client;
 
     public function setUp()
     {
@@ -46,21 +52,23 @@ class ComponentsEventsTest extends StorageApiTestCase
 
         // initialize variables
         $this->configurationId = $this->_client->generateId();
-        $this->initEvents();
+
+        $clientProvider = new ClientProvider($this);
+        $this->client = $clientProvider->createClientForCurrentTest();
+
+        $this->initEvents($this->client);
     }
 
     /**
-     * @dataProvider provideComponentsClient
+     * @dataProvider provideComponentsClientName
      */
-    public function testConfigurationChange(callable $getClient)
+    public function testConfigurationChange(string $clientName)
     {
-        /** @var Client $client */
-        $client = $getClient($this);
-        if ($client instanceof BranchAwareClient) {
+        if ($clientName === ClientProvider::DEV_BRANCH) {
             $this->markTestIncomplete("Using 'state' parameter on configuration update is restricted for dev/branch context. Use direct API call.");
         }
 
-        $components = new Components($client);
+        $components = new Components($this->client);
         $config = $this->getConfiguration();
         $components->addConfiguration($config);
 
@@ -69,13 +77,13 @@ class ComponentsEventsTest extends StorageApiTestCase
             'cache' => true,
         ]);
         $components->updateConfiguration($config);
-        $events = $this->listEvents($client, 'storage.componentConfigurationChanged');
+        $events = $this->listEvents($this->client, 'storage.componentConfigurationChanged');
         self::assertNotEquals('storage.componentConfigurationChanged', $events[0]['event']);
 
         $config->setDescription('new desc');
         $components->updateConfiguration($config);
 
-        $events = $this->listEvents($client, 'storage.componentConfigurationChanged');
+        $events = $this->listEvents($this->client, 'storage.componentConfigurationChanged');
         $this->assertEvent(
             $events[0],
             'storage.componentConfigurationChanged',

@@ -2,11 +2,13 @@
 
 namespace Keboola\Test\Common;
 
+use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationMetadata;
 use Keboola\StorageApi\Options\Components\ListConfigurationMetadataOptions;
+use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\ComponentsUtils\ComponentsConfigurationUtils;
 use Keboola\Test\StorageApiTestCase;
 
@@ -25,24 +27,32 @@ class ConfigurationMetadataTest extends StorageApiTestCase
         ]
     ];
 
+    /**
+     * @var \Keboola\StorageApi\BranchAwareClient
+     */
+    private $client;
+
     public function setUp()
     {
         parent::setUp();
 
         $this->cleanupConfigurations();
-        $this->initEvents();
+
+        $clientProvider = new ClientProvider($this);
+        $this->client = $clientProvider->createBranchAwareClientForCurrentTest();
+
+        $this->initEvents($this->client);
     }
 
     /**
-     * @dataProvider provideBranchAwareComponentsClient
+     * @dataProvider provideComponentsClientName
      */
-    public function testAddMetadata(callable $getClient)
+    public function testAddMetadata()
     {
         $configurationNameMain1 = $this->generateUniqueNameForString('main-1');
         $configurationNameMain2 = $this->generateUniqueNameForString('main-2');
 
-        $client = $getClient($this);
-        $components = new Components($client);
+        $components = new Components($this->client);
 
         // prepare two configs
         $transformationMain1Options = $this->createConfiguration(
@@ -155,12 +165,11 @@ class ConfigurationMetadataTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideBranchAwareComponentsClient
+     * @dataProvider provideComponentsClientName
      */
-    public function testUpdateMetadata(callable $getClient)
+    public function testUpdateMetadata()
     {
-        $client = $getClient($this);
-        $components = new Components($client);
+        $components = new Components($this->client);
 
         $configurationNameMain1 = $this->generateUniqueNameForString('main-1');
 
@@ -203,13 +212,11 @@ class ConfigurationMetadataTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideBranchAwareComponentsClient
+     * @dataProvider provideComponentsClientName
      */
-    public function testAddMetadataEvent(callable $getClient)
+    public function testAddMetadataEvent()
     {
-        $client = $getClient($this);
-
-        $components = new Components($client);
+        $components = new Components($this->client);
         $configurationOptions = $this->createConfiguration(
             $components,
             'wr-db',
@@ -221,7 +228,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             ->setMetadata(self::TEST_METADATA);
         $components->addConfigurationMetadata($configurationMetadataOptions);
 
-        $events = $this->listEvents($client, 'storage.componentConfigurationMetadataCreated');
+        $events = $this->listEvents($this->client, 'storage.componentConfigurationMetadataCreated');
 
         self::assertSame(self::TEST_METADATA, $events[0]['results']['metadata']);
 
