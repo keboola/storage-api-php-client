@@ -892,12 +892,21 @@ abstract class StorageApiTestCase extends ClientTestCase
         return sha1($this->generateDescriptionForTestObject()) . '_' . $name;
     }
 
-    protected function initEvents()
+    protected function initEvents(Client $client = null)
     {
+        // temporary fallback
+        if ($client === null) {
+            $client = $this->_client;
+        }
+
+        // use default _client; branch client doesn't support verifyToken call
         $this->tokenId = $this->_client->verifyToken()['id'];
-        $lastEvent = $this->_client->listTokenEvents($this->tokenId, [
+
+        $lastEvent = $client->listEvents([
             'limit' => 1,
+            'q' => sprintf('token.id:%s', $this->tokenId),
         ]);
+
         if (!empty($lastEvent)) {
             $this->lastEventId = $lastEvent[0]['id'];
         }
