@@ -562,7 +562,7 @@ abstract class StorageApiTestCase extends ClientTestCase
     /**
      * @param string $branchPrefix
      */
-    protected function deleteBranchesByPrefix(DevBranches $devBranches, $branchPrefix)
+    public function deleteBranchesByPrefix(DevBranches $devBranches, $branchPrefix)
     {
         $branchesList = $devBranches->listBranches();
         $branchesCreatedByThisTestMethod = array_filter(
@@ -735,6 +735,19 @@ abstract class StorageApiTestCase extends ClientTestCase
     }
 
     /**
+     * Useful with \Keboola\Test\ClientProvider\ClientProvider
+     *
+     * @return array
+     */
+    public function provideComponentsClientName()
+    {
+        return [
+            ['defaultBranch'],
+            ['devBranch'],
+        ];
+    }
+
+    /**
      * @return array
      */
     protected function getExistingBranchForTestCase(self $that)
@@ -769,7 +782,7 @@ abstract class StorageApiTestCase extends ClientTestCase
         return $devBranch->createBranch($branchName);
     }
 
-    protected function getDefaultBranchId(self $that)
+    public function getDefaultBranchId(self $that)
     {
         $devBranch = new \Keboola\StorageApi\DevBranches($that->_client);
         $branchesList = $devBranch->listBranches();
