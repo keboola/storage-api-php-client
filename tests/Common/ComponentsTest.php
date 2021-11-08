@@ -14,6 +14,7 @@ use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
+use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -23,6 +24,11 @@ use function var_dump;
 
 class ComponentsTest extends StorageApiTestCase
 {
+    /**
+     * @var Client
+     */
+    private $client;
+
     public function setUp()
     {
         parent::setUp();
@@ -40,6 +46,9 @@ class ComponentsTest extends StorageApiTestCase
                 $components->deleteConfiguration($component['id'], $configuration['id']);
             }
         }
+
+        $clientProvider = new ClientProvider($this);
+        $this->client = $clientProvider->createClientForCurrentTest();
     }
 
     public function testGetComponentDetail()
@@ -60,14 +69,14 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClient
+     * @dataProvider provideComponentsClientName
      */
-    public function testListComponents(callable $getClient)
+    public function testListComponents(string $clientName)
     {
         $componentId = 'wr-db';
         $configurationId = 'main-1';
 
-        $componentsClient = new \Keboola\StorageApi\Components($getClient($this));
+        $componentsClient = new \Keboola\StorageApi\Components($this->client);
         $components = $componentsClient->listComponents(new ListComponentsOptions());
 
         $this->assertSame([], $components);
