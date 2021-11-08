@@ -835,15 +835,16 @@ abstract class StorageApiTestCase extends ClientTestCase
     {
         $retryPolicy = new SimpleRetryPolicy($retries);
         $proxy = new RetryProxy($retryPolicy, new FixedBackOffPolicy(250));
-        return $proxy->call(function () use ($apiCall, $eventName) {
+        /** @var array $proxiedCallResult */
+        $proxiedCallResult = $proxy->call(function () use ($apiCall, $eventName) {
             /** @var array $events */
             $events = $apiCall();
 
             $this->assertNotEmpty($events, 'There were no events');
             $this->assertEquals($eventName, $events[0]['event'], sprintf('Event does not match'));
-
-            return (array) $events;
+            return $events;
         });
+        return $proxiedCallResult;
     }
 
     protected function assertEvent(
