@@ -2,7 +2,7 @@
 
 namespace Keboola\Test\Common;
 
-use Keboola\StorageApi\Client;
+use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\ConfigurationMetadata;
@@ -27,7 +27,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
     ];
 
     /**
-     * @var Client
+     * @var BranchAwareClient
      */
     private $client;
 
