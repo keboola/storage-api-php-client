@@ -24,6 +24,11 @@ use function var_dump;
 class ComponentsTest extends StorageApiTestCase
 {
     /**
+     * @var ClientProvider
+     */
+    private $clientProvider;
+
+    /**
      * @var Client
      */
     private $client;
@@ -46,8 +51,8 @@ class ComponentsTest extends StorageApiTestCase
             }
         }
 
-        $clientProvider = new ClientProvider($this);
-        $this->client = $clientProvider->createClientForCurrentTest();
+        $this->clientProvider = new ClientProvider($this);
+        $this->client = $this->clientProvider->createClientForCurrentTest();
     }
 
     /**
@@ -79,7 +84,7 @@ class ComponentsTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientName
      */
-    public function testListComponents(string $clientName)
+    public function testListComponents($clientName)
     {
         $componentId = 'wr-db';
         $configurationId = 'main-1';
@@ -583,16 +588,15 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsGuzzleClient
+     * @dataProvider provideComponentsClientName
      */
-    public function testComponentConfigurationJsonDataTypes(callable $getGuzzleClient)
+    public function testComponentConfigurationJsonDataTypes($clientName)
     {
         // to check if params is object we have to convert received json to objects instead of assoc array
         // so we have to use raw Http Client
-        /** @var GuzzleClient $client */
-        $client = $getGuzzleClient($this, [
+        $client = $this->clientProvider->createGuzzleClientForCurrentTest([
             'base_uri' => $this->_client->getApiUrl(),
-        ]);
+        ], true);
 
         $config = (object)[
             'test' => 'neco',

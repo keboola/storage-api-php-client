@@ -2,7 +2,6 @@
 
 namespace Keboola\Test\Common;
 
-use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\Configuration;
