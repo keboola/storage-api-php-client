@@ -282,24 +282,6 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
         self::assertArrayNotHasKey('metadata', $listConfigurationMetadata[0]);
     }
 
-    private function filterIdAndTimestampFromMetadataArray(array $data)
-    {
-        $result = [];
-        foreach ($data as $key => $item) {
-            $result[$key] = [
-                'idComponent' => $item['idComponent'],
-                'configurationId' => $item['configurationId'],
-            ];
-            foreach ($item['metadata'] as $md) {
-                $result[$key]['metadata'][] = [
-                    'key' => $md['key'],
-                    'value' => $md['value'],
-                ];
-            }
-        }
-        return $result;
-    }
-
     /**
      * @dataProvider provideComponentsClientName
      */
@@ -368,5 +350,23 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
     {
         $filteredListConfigurationMetadata = $this->filterIdAndTimestampFromMetadataArray($actual);
         $this->assertArrayEqualsSorted($expected, $filteredListConfigurationMetadata, 'configurationId');
+    }
+
+    private function filterIdAndTimestampFromMetadataArray(array $data)
+    {
+        $result = [];
+        foreach ($data as $key => $item) {
+            $result[$key] = [
+                'idComponent' => $item['idComponent'],
+                'configurationId' => $item['configurationId'],
+            ];
+            foreach ($item['metadata'] as $md) {
+                $result[$key]['metadata'][] = [
+                    'key' => $md['key'],
+                    'value' => $md['value'],
+                ];
+            }
+        }
+        return $result;
     }
 }
