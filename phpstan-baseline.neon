@@ -7311,11 +7311,6 @@ parameters:
 			path: tests/Backend/Synapse/ImportTypedTableTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$csvString of static method Keboola\\\\StorageApi\\\\Client\\:\\:parseCsv\\(\\) expects string, string\\|false given\\.$#"
-			count: 2
-			path: tests/Backend/Synapse/ImportTypedTableTest.php
-
-		-
 			message: "#^Parameter \\#2 \\$haystack of function in_array expects array, mixed given\\.$#"
 			count: 1
 			path: tests/Backend/Synapse/ImportTypedTableTest.php
