@@ -9,15 +9,12 @@
 
 namespace Keboola\Test;
 
-use ErrorException;
 use Keboola\StorageApi\BranchAwareGuzzleClient;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\DevBranches;
-use Keboola\StorageApi\Exception;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\StorageApi\Tokens;
 use Retry\BackOff\FixedBackOffPolicy;
-use Retry\Policy\CallableRetryPolicy;
 use Retry\Policy\SimpleRetryPolicy;
 use Retry\RetryProxy;
 use function array_key_exists;
@@ -841,7 +838,8 @@ abstract class StorageApiTestCase extends ClientTestCase
             $events = $apiCall();
 
             $this->assertNotEmpty($events, 'There were no events');
-            $this->assertEquals($eventName, $events[0]['event'], sprintf('Event does not match'));
+            $this->assertEquals($eventName, $events[0]['event'], sprintf('Event does not matches "%s"', $eventName));
+
             return $events;
         });
         return $proxiedCallResult;
