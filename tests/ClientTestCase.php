@@ -11,7 +11,7 @@ class ClientTestCase extends TestCase
     /**
      * @return Client
      */
-    protected function getClient(array $options)
+    public function getClient(array $options)
     {
         $options['userAgent'] = $this->buildUserAgentString(
             $options['token'],
@@ -23,7 +23,7 @@ class ClientTestCase extends TestCase
     /**
      * @return BranchAwareClient
      */
-    protected function getBranchAwareClient($branchId, array $options)
+    public function getBranchAwareClient($branchId, array $options)
     {
         $options['userAgent'] = $this->buildUserAgentString(
             $options['token'],
@@ -43,7 +43,7 @@ class ClientTestCase extends TestCase
     /**
      * @return Client
      */
-    protected function getDefaultClient()
+    public function getDefaultClient()
     {
         return $this->getClient([
             'token' => STORAGE_API_TOKEN,
@@ -58,7 +58,7 @@ class ClientTestCase extends TestCase
     /**
      * @return BranchAwareClient
      */
-    protected function getBranchAwareDefaultClient($branchId)
+    public function getBranchAwareDefaultClient($branchId)
     {
         return $this->getBranchAwareClient($branchId, [
             'token' => STORAGE_API_TOKEN,
