@@ -2,10 +2,12 @@
 
 namespace Keboola\Test\Backend\MixedSnowflakeSynapse;
 
+use Doctrine\DBAL\Connection;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
+use Keboola\TableBackendUtils\Schema\SynapseSchemaReflection;
 use Keboola\Test\Backend\Mixed\StorageApiSharingTestCase;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\Workspaces\Backend\SynapseWorkspaceBackend;
@@ -28,19 +30,9 @@ class SharingTest extends StorageApiSharingTestCase
         return [
             [
                 'sharing backend' => self::BACKEND_SNOWFLAKE,
-                'workspace backend' => self::BACKEND_SNOWFLAKE,
-                'load type' => 'direct',
-            ],
-            [
-                'sharing backend' => self::BACKEND_SNOWFLAKE,
                 'workspace backend' => self::BACKEND_SYNAPSE,
                 'load type' => 'staging',
             ],
-            //[
-            //    'sharing backend' => self::BACKEND_SYNAPSE,
-            //    'workspace backend' => self::BACKEND_SNOWFLAKE,
-            //    'load type' => 'staging',
-            //],
             [
                 'sharing backend' => self::BACKEND_SYNAPSE,
                 'workspace backend' => self::BACKEND_SYNAPSE,
@@ -75,7 +67,6 @@ class SharingTest extends StorageApiSharingTestCase
         $this->initTestBuckets($sharingBackend);
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
         $secondBucketId = $this->getTestBucketId(self::STAGE_OUT);
-
         $table1Id = $this->_client->createTableAsync(
             $bucketId,
             'languages',
@@ -108,7 +99,6 @@ class SharingTest extends StorageApiSharingTestCase
         if ($this->isSynapseTestCase($sharingBackend, $workspaceBackend)) {
             $this->assertExpectedDistributionKeyColumn($table3Id, '1');
         }
-
         // share and link bucket
         $this->_client->shareBucket($bucketId);
         $this->assertTrue($this->_client->isSharedBucket($bucketId));
@@ -295,7 +285,9 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertContains($backend->toIdentifier("table3"), $tables);
 
         // now try load as view
-        if ($this->isSynapseTestCase($sharingBackend, $workspaceBackend)) {
+        if ($this->isSynapseTestCase($sharingBackend, $workspaceBackend)
+            && $backend instanceof SynapseWorkspaceBackend
+        ) {
             $inputAsView = [
                 [
                     "source" => str_replace($bucketId, $linkedId, $table1Id),
@@ -315,28 +307,24 @@ class SharingTest extends StorageApiSharingTestCase
                     "useView" => true,
                 ],
             ];
-            try {
-                $workspaces->loadWorkspaceData($workspace['id'], ["input" => $inputAsView]);
-                self::fail('View load with linked tables must fail.');
-            } catch (ClientException $e) {
-                self::assertSame('View load is not supported, table "languages" is alias or linked.', $e->getMessage());
-                self::assertEquals('workspace.loadRequestLogicalException', $e->getStringCode());
-            }
-            //// check that the tables are in the workspace
-            //$views = ($backend->getSchemaReflection())->getViewsNames();
-            //self::assertCount(3, $views);
-            //self::assertCount(0, $backend->getTables());
-            //self::assertContains($backend->toIdentifier("languagesLoaded"), $views);
-            //self::assertContains($backend->toIdentifier("numbersLoaded"), $views);
-            //self::assertContains($backend->toIdentifier("numbersAliasLoaded"), $views);
-            //
-            //// check table structure and data
-            //$data = $backend->fetchAll("languagesLoaded", \PDO::FETCH_ASSOC);
-            //self::assertCount(5, $data, 'there should be 5 rows');
-            //self::assertCount(3, $data[0], 'there should be two columns');
-            //self::assertArrayHasKey('id', $data[0]);
-            //self::assertArrayHasKey('name', $data[0]);
-            //self::assertArrayHasKey('_timestamp', $data[0]);
+
+            $workspaces->loadWorkspaceData($workspace['id'], ["input" => $inputAsView]);
+
+            // check that the tables are in the workspace
+            $views = ($backend->getSchemaReflection())->getViewsNames();
+            self::assertCount(3, $views);
+            self::assertCount(0, $backend->getTables());
+            self::assertContains($backend->toIdentifier("languagesLoaded"), $views);
+            self::assertContains($backend->toIdentifier("numbersLoaded"), $views);
+            self::assertContains($backend->toIdentifier("numbersAliasLoaded"), $views);
+
+            // check table structure and data
+            $data = $backend->fetchAll("languagesLoaded", \PDO::FETCH_ASSOC);
+            self::assertCount(5, $data, 'there should be 5 rows');
+            self::assertCount(3, $data[0], 'there should be two columns');
+            self::assertArrayHasKey('id', $data[0]);
+            self::assertArrayHasKey('name', $data[0]);
+            self::assertArrayHasKey('_timestamp', $data[0]);
         }
 
         // unload validation
@@ -370,6 +358,33 @@ class SharingTest extends StorageApiSharingTestCase
         } catch (ClientException $e) {
             $this->assertEquals('accessDenied', $e->getStringCode());
         }
+
+        // drop second bucket without linking
+        $this->_client->unshareBucket($secondBucketId);
+        $this->_client->dropBucket($secondBucketId, ['force' => true]);
+
+        // drop first bucket
+        try {
+            $this->_client->dropBucket($bucketId, ['force' => true]);
+            $this->fail('Bucket must not be dropped as it\'s linked in other project.');
+        } catch (ClientException $e) {
+            $this->assertSame('The bucket is already linked in other projects.', $e->getMessage());
+            $this->assertSame('storage.buckets.alreadyLinked', $e->getStringCode());
+        }
+        // force unlink bucket from project
+        $projectId = $this->_client2->verifyToken()['owner']['id'];
+        $this->_client->forceUnlinkBucket($bucketId, $projectId, ['async' => true]);
+
+        if ($this->isSynapseTestCase($sharingBackend, $workspaceBackend)
+            && $db instanceof Connection
+        ) {
+            $schemaRef = (new SynapseSchemaReflection($db, $connection['schema']));
+            // test number of views after source unlink
+            $views = $schemaRef->getViewsNames();
+            self::assertCount(0, $views);
+        }
+
+        $this->_client->dropBucket($bucketId, ['force' => true]);
     }
 
     /**

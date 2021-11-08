@@ -24,7 +24,12 @@ interface WorkspaceBackend
 
     public function countRows($table);
 
-    public function fetchAll($table);
+    /**
+     * @param string $table
+     * @param int $style
+     * @param string|null $orderBy
+     */
+    public function fetchAll($table, $style = \PDO::FETCH_NUM, $orderBy = null);
 
     // This will return the identifier as it would be returned by the backend.
     public function toIdentifier($item);
