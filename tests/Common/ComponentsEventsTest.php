@@ -7,8 +7,8 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
-use Keboola\StorageApi\Options\Components\ConfigurationState;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
+use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
 use PHPUnit\Framework\ExpectationFailedException;
 
@@ -27,6 +27,11 @@ class ComponentsEventsTest extends StorageApiTestCase
      * @var Components
      */
     private $components;
+
+    /**
+     * @var Client
+     */
+    private $client;
 
     public function setUp()
     {
@@ -48,18 +53,19 @@ class ComponentsEventsTest extends StorageApiTestCase
 
         // initialize variables
         $this->configurationId = $this->_client->generateId();
-        $this->initEvents();
+
+        $clientProvider = new ClientProvider($this);
+        $this->client = $clientProvider->createClientForCurrentTest();
+
+        $this->initEvents($this->client);
     }
 
     /**
-     * @dataProvider provideComponentsClient
+     * @dataProvider provideComponentsClientName
      */
-    public function testConfigurationChange(callable $getClient)
+    public function testConfigurationChange()
     {
-        /** @var Client $client */
-        $client = $getClient($this);
-
-        $components = new Components($client);
+        $components = new Components($this->client);
         $config = $this->getConfiguration();
         $components->addConfiguration($config);
 
@@ -71,7 +77,7 @@ class ComponentsEventsTest extends StorageApiTestCase
 
         // wait for event or will fail
         try {
-            $this->listEvents($client, 'storage.componentConfigurationChanged');
+            $this->listEvents($this->client, 'storage.componentConfigurationChanged');
             $this->fail('Should fail');
         } catch (ExpectationFailedException $e) {
             $this->assertStringContainsString('Event does not match', $e->getMessage());
@@ -80,7 +86,7 @@ class ComponentsEventsTest extends StorageApiTestCase
         $config->setDescription('new desc');
         $components->updateConfiguration($config);
 
-        $events = $this->listEvents($client, 'storage.componentConfigurationChanged');
+        $events = $this->listEvents($this->client, 'storage.componentConfigurationChanged');
         $this->assertEvent(
             $events[0],
             'storage.componentConfigurationChanged',
