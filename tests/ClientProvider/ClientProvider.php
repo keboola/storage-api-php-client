@@ -21,17 +21,11 @@ class ClientProvider
     private $testCase;
 
     /**
-     * @var scalar
-     */
-    private $dataProviderKey;
-
-    /**
      * @param StorageApiTestCase $testCase
      */
-    public function __construct(StorageApiTestCase $testCase, $dataProviderKey = 0)
+    public function __construct(StorageApiTestCase $testCase)
     {
         $this->testCase = $testCase;
-        $this->dataProviderKey = $dataProviderKey;
     }
 
     // CREATORS
@@ -44,9 +38,9 @@ class ClientProvider
     public function createClientForCurrentTest($config = [], $useExistingBranch = false)
     {
         if ($this->testCase->usesDataProvider()) {
-            if ($this->testCase->getProvidedData()[$this->dataProviderKey] === self::DEFAULT_BRANCH) {
+            if ($this->testCase->getProvidedData()[0] === self::DEFAULT_BRANCH) {
                 return $this->getDefaultClient($config);
-            } elseif ($this->testCase->getProvidedData()[$this->dataProviderKey] === self::DEV_BRANCH) {
+            } elseif ($this->testCase->getProvidedData()[0] === self::DEV_BRANCH) {
                 return $this->getDevBranchClient($config, $useExistingBranch);
             }
         }
@@ -62,9 +56,9 @@ class ClientProvider
     public function createBranchAwareClientForCurrentTest($config = [], $useExistingBranch = false)
     {
         if ($this->testCase->usesDataProvider()) {
-            if ($this->testCase->getProvidedData()[$this->dataProviderKey] === self::DEFAULT_BRANCH) {
+            if ($this->testCase->getProvidedData()[0] === self::DEFAULT_BRANCH) {
                 return $this->getDefaultBranchClient($config);
-            } elseif ($this->testCase->getProvidedData()[$this->dataProviderKey] === self::DEV_BRANCH) {
+            } elseif ($this->testCase->getProvidedData()[0] === self::DEV_BRANCH) {
                 return $this->getDevBranchClient($config, $useExistingBranch);
             }
         }
@@ -80,9 +74,9 @@ class ClientProvider
     public function createGuzzleClientForCurrentTest($config, $useExistingBranch = false)
     {
         if ($this->testCase->usesDataProvider()) {
-            if ($this->testCase->getProvidedData()[$this->dataProviderKey] === self::DEFAULT_BRANCH) {
+            if ($this->testCase->getProvidedData()[0] === self::DEFAULT_BRANCH) {
                 return $this->getGuzzleClient($config);
-            } elseif ($this->testCase->getProvidedData()[$this->dataProviderKey] === self::DEV_BRANCH) {
+            } elseif ($this->testCase->getProvidedData()[0] === self::DEV_BRANCH) {
                 return $this->getBranchAwareGuzzleClient($config, $useExistingBranch);
             }
         }
