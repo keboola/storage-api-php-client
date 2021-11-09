@@ -625,51 +625,6 @@ abstract class StorageApiTestCase extends ClientTestCase
     }
 
     /**
-     * Usage:
-     *  - `$getClient($this)` -> return default client
-     *  - `$getClient($this, [...])` -> return client with custom config
-     *  - `$getClient($this, [], true)` -> return default client which use same branch as before
-     *  - `$getClient($this, [...], true)` -> return client with custom which use same branch as before
-     *
-     * DataProvider cannot use `$this->variable` because the provider run before the `setUp` method is called.
-     * Need to put `$this` as argument to anonymous function to build correct variable values and return correct client.
-     *
-     * > All data providers are executed before both the call to the setUpBeforeClass static method
-     * > and the first call to the setUp method.
-     * > Because of that you can't access any variables you create there from within a data provider.
-     * > This is required in order for PHPUnit to be able to compute the total number of tests.
-     * > https://phpunit.de/manual/6.5/en/writing-tests-for-phpunit.html#:~:text=a%20depending%20test.-,Note,-All%20data%20providers
-     */
-    public function provideComponentsClient()
-    {
-        yield 'defaultBranch' => [
-            function (self $that, array $config = []) {
-                if ($config) {
-                    return $that->getClient($config);
-                } else {
-                    return $that->_client;
-                }
-            }
-        ];
-
-        yield 'devBranch' => [
-            function (self $that, array $config = [], $useExistingBranch = false) {
-                if ($useExistingBranch) {
-                    $branch = $this->getExistingBranchForTestCase($that);
-                } else {
-                    $branch = $this->createDevBranchForTestCase($that);
-                }
-
-                if ($config) {
-                    return $this->getBranchAwareClient($branch['id'], $config);
-                } else {
-                    return $this->getBranchAwareDefaultClient($branch['id']);
-                }
-            }
-        ];
-    }
-
-    /**
      * Useful with \Keboola\Test\ClientProvider\ClientProvider
      *
      * @return array
