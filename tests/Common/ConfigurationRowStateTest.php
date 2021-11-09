@@ -89,6 +89,7 @@ class ConfigurationRowStateTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientName
+     * @param string $clientName
      */
     public function testAttributeValueUpdate($clientName)
     {
@@ -124,6 +125,7 @@ class ConfigurationRowStateTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientName
+     * @param string $clientName
      */
     public function testVersionUnchangedAfterSettingAttribute($clientName)
     {
@@ -184,6 +186,7 @@ class ConfigurationRowStateTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientName
+     * @param string $clientName
      */
     public function testRollbackPreservesState($clientName)
     {
@@ -235,6 +238,7 @@ class ConfigurationRowStateTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientName
+     * @param string $clientName
      */
     public function testCopyPreservesState($clientName)
     {
@@ -279,6 +283,7 @@ class ConfigurationRowStateTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientName
+     * @param string $clientName
      */
     public function testRowRollbackPreservesState($clientName)
     {
@@ -331,6 +336,7 @@ class ConfigurationRowStateTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientName
+     * @param string $clientName
      */
     public function testRowCopyResetsState($clientName)
     {
@@ -391,6 +397,7 @@ class ConfigurationRowStateTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientName
+     * @param string $clientName
      */
     public function testDeletedRowRollbackPreservesState($clientName)
     {
@@ -450,6 +457,7 @@ class ConfigurationRowStateTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientName
+     * @param string $clientName
      */
     public function testDeletedRowCopyPreservesState($clientName)
     {

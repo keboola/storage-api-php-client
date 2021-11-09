@@ -1,7 +1,6 @@
 <?php
 namespace Keboola\Test\Common;
 
-use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\Components\Configuration;
@@ -56,6 +55,7 @@ class ComponentsTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientName
+     * @param string $clientName
      */
     public function testGetComponentDetail($clientName)
     {
@@ -251,6 +251,7 @@ class ComponentsTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientName
+     * @param string $clientName
      */
     public function testComponentConfigDelete($clientName)
     {
@@ -574,7 +575,7 @@ class ComponentsTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientName
      */
-    public function testComponentConfigurationJsonDataTypes($clientName)
+    public function testComponentConfigurationJsonDataTypes()
     {
         // to check if params is object we have to convert received json to objects instead of assoc array
         // so we have to use raw Http Client
@@ -704,6 +705,7 @@ class ComponentsTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientName
+     * @param string $clientName
      */
     public function testComponentConfigUpdateEmptyStateJson($clientName)
     {
@@ -762,6 +764,7 @@ class ComponentsTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientName
+     * @param string $clientName
      */
     public function testComponentConfigUpdate($clientName)
     {
@@ -830,6 +833,7 @@ class ComponentsTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientName
+     * @param string $clientName
      */
     public function testComponentConfigUpdateConfigEmpty($clientName)
     {
@@ -898,6 +902,7 @@ class ComponentsTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientName
+     * @param string $clientName
      */
     public function testComponentConfigUpdateWithRows($clientName)
     {
@@ -986,6 +991,7 @@ class ComponentsTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientName
+     * @param string $clientName
      */
     public function testComponentConfigUpdateVersioning($clientName)
     {
@@ -1038,6 +1044,7 @@ class ComponentsTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientName
+     * @param string $clientName
      */
     public function testComponentConfigUpdateChangeDescription($clientName)
     {
@@ -2370,6 +2377,7 @@ class ComponentsTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientName
+     * @param string $clientName
      */
     public function testComponentConfigDeletedRowId($clientName)
     {
@@ -3122,6 +3130,7 @@ class ComponentsTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientName
+     * @param string $clientName
      */
     public function testRollbackPreservesState($clientName)
     {
@@ -3158,6 +3167,7 @@ class ComponentsTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientName
+     * @param string $clientName
      */
     public function testCopyResetsState($clientName)
     {

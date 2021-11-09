@@ -531,6 +531,7 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientName
+     * @param string $clientName
      */
     public function testVersionsAttributeValue($clientName)
     {

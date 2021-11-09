@@ -2,7 +2,6 @@
 
 namespace Keboola\Test\Common;
 
-use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\Configuration;
@@ -61,6 +60,7 @@ class ComponentsEventsTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientName
+     * @param string $clientName
      */
     public function testConfigurationChange($clientName)
     {
@@ -162,6 +162,7 @@ class ComponentsEventsTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientName
+     * @param string $clientName
      */
     public function testConfigurationDelete($clientName)
     {
