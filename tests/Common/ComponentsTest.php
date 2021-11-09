@@ -1,7 +1,6 @@
 <?php
 namespace Keboola\Test\Common;
 
-use GuzzleHttp\Client as GuzzleClient;
 use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
@@ -56,10 +55,13 @@ class ComponentsTest extends StorageApiTestCase
         $this->client = $this->clientProvider->createClientForCurrentTest();
     }
 
+    /**
+     * @dataProvider provideComponentsClientName
+     */
     public function testGetComponentDetail()
     {
         $componentId = 'wr-db';
-        $componentsClient = new \Keboola\StorageApi\Components($this->_client);
+        $componentsClient = new \Keboola\StorageApi\Components($this->client);
 
         $component = $componentsClient->getComponent($componentId);
 
@@ -76,7 +78,7 @@ class ComponentsTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientName
      */
-    public function testListComponents($clientName)
+    public function testListComponents()
     {
         $componentId = 'wr-db';
         $configurationId = 'main-1';
