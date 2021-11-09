@@ -25,6 +25,9 @@ class ClientProvider
      */
     private $dataProviderKey;
 
+    /**
+     * @param StorageApiTestCase $testCase
+     */
     public function __construct(StorageApiTestCase $testCase, $dataProviderKey = 0)
     {
         $this->testCase = $testCase;
