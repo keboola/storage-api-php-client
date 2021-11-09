@@ -10146,11 +10146,6 @@ parameters:
 			path: tests/Common/ConfigurationRowTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\ConfigurationRowTest\\:\\:provideComponentsClientAndGuzzleClient\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/ConfigurationRowTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\ConfigurationRowTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Common/ConfigurationRowTest.php
@@ -12211,21 +12206,6 @@ parameters:
 			path: tests/StorageApiTestCase.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\StorageApiTestCase\\:\\:provideBranchAwareComponentsClient\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/StorageApiTestCase.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\StorageApiTestCase\\:\\:provideComponentsClient\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/StorageApiTestCase.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\StorageApiTestCase\\:\\:provideComponentsGuzzleClient\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/StorageApiTestCase.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\StorageApiTestCase\\:\\:setUp\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/StorageApiTestCase.php
@@ -12299,4 +12279,3 @@ parameters:
 			message: "#^Parameter \\#1 \\$filename of function file_get_contents expects string, string\\|false given\\.$#"
 			count: 1
 			path: tests/bootstrap.php
-
