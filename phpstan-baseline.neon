@@ -10172,7 +10172,7 @@ parameters:
 
 		-
 			message: "#^Cannot access property \\$id on mixed\\.$#"
-			count: 4
+			count: 5
 			path: tests/Common/ConfigurationRowTest.php
 
 		-

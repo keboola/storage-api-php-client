@@ -8,6 +8,7 @@ use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ConfigurationRowState;
+use Keboola\StorageApi\Options\Components\ConfigurationState;
 use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions;
@@ -712,9 +713,6 @@ class ComponentsTest extends StorageApiTestCase
     {
         /** @var Client $client */
         $client = $getClient($this);
-        if ($client instanceof BranchAwareClient) {
-            $this->markTestIncomplete("Using 'state' parameter on configuration update is restricted for dev/branch context. Use direct API call.");
-        }
 
         $state = array(
             'queries' => array(
@@ -735,11 +733,10 @@ class ComponentsTest extends StorageApiTestCase
         $config = $components->getConfiguration('wr-db', 'main-1');
         $this->assertEquals($state, $config['state']);
         $this->assertEquals(1, $config['version']);
-        $components->updateConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
+
+        $components->updateConfigurationState((new ConfigurationState())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
-            ->setName('Main')
-            ->setDescription('some desc')
             ->setState([]));
 
         $config = $components->getConfiguration('wr-db', 'main-1');
@@ -772,10 +769,6 @@ class ComponentsTest extends StorageApiTestCase
     {
         /** @var Client $client */
         $client = $getClient($this);
-        if ($client instanceof BranchAwareClient) {
-            $this->markTestIncomplete('Failed asserting that a string is empty.');
-        }
-
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
@@ -799,31 +792,28 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals($newDesc, $configuration['description']);
         $this->assertEquals($config->getConfiguration(), $configuration['configuration']);
         $this->assertEquals(2, $configuration['version']);
-        $this->assertEmpty($configuration['changeDescription']);
+        $this->assertEquals('Configuration updated', $configuration['changeDescription']);
 
         $state = [
             'cache' => true,
         ];
-        $config = (new \Keboola\StorageApi\Options\Components\Configuration())
+        $updatedConfig = $components->updateConfigurationState((new ConfigurationState())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
-            ->setDescription('neco')
-            ->setState($state);
-
-        $updatedConfig = $components->updateConfiguration($config);
+            ->setState($state));
         $this->assertEquals($newName, $updatedConfig['name'], 'Name should not be changed after description update');
-        $this->assertEquals('neco', $updatedConfig['description']);
+        $this->assertEquals('some desc', $updatedConfig['description']);
         $this->assertEquals($configurationData, $updatedConfig['configuration']);
         $this->assertEquals($state, $updatedConfig['state']);
-        $this->assertEmpty($updatedConfig['changeDescription']);
+        $this->assertEquals('Configuration updated', $updatedConfig['changeDescription']);
 
         $configuration = $components->getConfiguration($config->getComponentId(), $config->getConfigurationId());
 
         $this->assertEquals($newName, $configuration['name'], 'Name should not be changed after description update');
-        $this->assertEquals('neco', $configuration['description']);
+        $this->assertEquals('some desc', $configuration['description']);
         $this->assertEquals($configurationData, $configuration['configuration']);
         $this->assertEquals($state, $configuration['state']);
-        $this->assertEmpty($configuration['changeDescription']);
+        $this->assertEquals('Configuration updated', $configuration['changeDescription']);
 
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
@@ -876,7 +866,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $updatedConfig = $components->updateConfiguration($config);
         $this->assertEquals([], $updatedConfig['configuration']);
-        $this->assertEmpty($updatedConfig['changeDescription']);
+        $this->assertSame('Configuration updated', $updatedConfig['changeDescription']);
         $this->assertEquals(3, $updatedConfig['version']);
     }
 
@@ -912,9 +902,6 @@ class ComponentsTest extends StorageApiTestCase
     {
         /** @var Client $client */
         $client = $getClient($this);
-        if ($client instanceof BranchAwareClient) {
-            $this->markTestIncomplete("Using 'state' parameter on configuration update is restricted for dev/branch context. Use direct API call.");
-        }
 
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
@@ -951,20 +938,14 @@ class ComponentsTest extends StorageApiTestCase
         $row = reset($configuration['rows']);
         $this->assertEquals('main-1-1', $row['id']);
 
-        $state = [
-            'cache' => true,
-        ];
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
-            ->setDescription('neco')
-            ->setState($state);
+            ->setDescription('neco');
 
         $updatedConfig = $components->updateConfiguration($config);
         $this->assertEquals($newName, $updatedConfig['name'], 'Name should not be changed after description update');
-        $this->assertEquals('neco', $updatedConfig['description']);
         $this->assertEquals($configurationData, $updatedConfig['configuration']);
-        $this->assertEquals($state, $updatedConfig['state']);
 
         $this->assertArrayHasKey('rows', $updatedConfig);
         $this->assertCount(1, $updatedConfig['rows']);
@@ -975,9 +956,7 @@ class ComponentsTest extends StorageApiTestCase
         $configuration = $components->getConfiguration($config->getComponentId(), $config->getConfigurationId());
 
         $this->assertEquals($newName, $configuration['name'], 'Name should not be changed after description update');
-        $this->assertEquals('neco', $configuration['description']);
         $this->assertEquals($configurationData, $configuration['configuration']);
-        $this->assertEquals($state, $configuration['state']);
 
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
@@ -1002,9 +981,6 @@ class ComponentsTest extends StorageApiTestCase
     {
         /** @var Client $client */
         $client = $getClient($this);
-        if ($client instanceof BranchAwareClient) {
-            $this->markTestIncomplete("Using 'state' parameter on configuration update is restricted for dev/branch context. Use direct API call.");
-        }
 
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
@@ -1035,8 +1011,10 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(2, $lastVersion['version']);
 
         $state = ['cache' => true];
-        $config->setState($state);
-        $components->updateConfiguration($config);
+        $components->updateConfigurationState((new ConfigurationState())
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setState($state));
         $versions = $components->listConfigurationVersions($listConfig);
         $this->assertCount(2, $versions, 'Update of configuration state should not add version');
         $lastVersion = reset($versions);
@@ -1099,7 +1077,7 @@ class ComponentsTest extends StorageApiTestCase
         $components->updateConfiguration($secondConfigToPut);
 
         $secondConfigLoaded = $components->getConfiguration('wr-db', 'main-1');
-        $this->assertEquals('', $secondConfigLoaded['changeDescription']);
+        $this->assertEquals('Configuration updated', $secondConfigLoaded['changeDescription']);
     }
 
     /**
@@ -3158,10 +3136,6 @@ class ComponentsTest extends StorageApiTestCase
     public function testRollbackPreservesState(callable $getClient)
     {
         $client = $getClient($this);
-        if ($client instanceof BranchAwareClient) {
-            $this->markTestIncomplete("Using 'state' parameter on configuration update is restricted for dev/branch context. Use direct API call.");
-        }
-
         $components = new \Keboola\StorageApi\Components($client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $state = ['key' => 'val'];
@@ -3172,15 +3146,18 @@ class ComponentsTest extends StorageApiTestCase
             ->setState(['unknown' => 'undefined']);
         $components->addConfiguration($configuration);
 
-        $configuration->setName("Updated name");
-        $components->updateConfiguration($configuration);
-
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
-            ->setState($state);
+            ->setName('Main')
+            ->setName("Updated name");
         $components->updateConfiguration($configuration);
+
+        $components->updateConfigurationState((new ConfigurationState())
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setState($state));
 
         $components->rollbackConfiguration('wr-db', 'main-1', 1);
 
@@ -3195,10 +3172,6 @@ class ComponentsTest extends StorageApiTestCase
     public function testCopyResetsState(callable $getClient)
     {
         $client = $getClient($this);
-        if ($client instanceof BranchAwareClient) {
-            $this->markTestIncomplete("Using 'state' parameter on configuration update is restricted for dev/branch context. Use direct API call.");
-        }
-
         $components = new \Keboola\StorageApi\Components($client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $state = ['key' => 'val'];
@@ -3209,15 +3182,17 @@ class ComponentsTest extends StorageApiTestCase
             ->setState(['unknown' => 'undefined']);
         $components->addConfiguration($configuration);
 
-        $configuration->setName("Updated name");
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main')
+            ->setName("Updated name");
         $components->updateConfiguration($configuration);
 
-        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
-        $configuration
+        $components->updateConfigurationState((new ConfigurationState())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
-            ->setState($state);
-        $components->updateConfiguration($configuration);
+            ->setState($state));
 
 
         $newConfig = $components->createConfigurationFromVersion('wr-db', 'main-1', 1, 'main-2');
