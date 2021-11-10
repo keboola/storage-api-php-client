@@ -7,6 +7,7 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
+use Keboola\StorageApi\Options\Components\ConfigurationState;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\Test\StorageApiTestCase;
 
@@ -56,18 +57,12 @@ class ComponentsEventsTest extends StorageApiTestCase
     {
         /** @var Client $client */
         $client = $getClient($this);
-        if ($client instanceof BranchAwareClient) {
-            $this->markTestIncomplete("Using 'state' parameter on configuration update is restricted for dev/branch context. Use direct API call.");
-        }
 
         $components = new Components($client);
         $config = $this->getConfiguration();
         $components->addConfiguration($config);
 
         // test no change
-        $config->setState([
-            'cache' => true,
-        ]);
         $components->updateConfiguration($config);
         $events = $this->listEvents($client, 'storage.componentConfigurationChanged');
         self::assertNotEquals('storage.componentConfigurationChanged', $events[0]['event']);
