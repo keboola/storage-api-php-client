@@ -528,9 +528,6 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
     {
         /** @var Client $client */
         $client = $getClient($this);
-        if ($client instanceof BranchAwareClient) {
-            $this->markTestIncomplete('Undefined index: id');
-        }
 
         $components = new \Keboola\StorageApi\Components($client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
