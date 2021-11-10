@@ -3132,7 +3132,6 @@ class ComponentsTest extends StorageApiTestCase
         $configuration
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
-            ->setName('Main')
             ->setName("Updated name");
         $components->updateConfiguration($configuration);
 
@@ -3167,7 +3166,6 @@ class ComponentsTest extends StorageApiTestCase
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration->setComponentId('wr-db')
             ->setConfigurationId('main-1')
-            ->setName('Main')
             ->setName("Updated name");
         $components->updateConfiguration($configuration);
 
