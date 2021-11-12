@@ -146,7 +146,6 @@ class ConfigurationRowTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientName
-     * @param string $clientName
      */
     public function testConfigurationRowJsonDataTypes()
     {
@@ -223,7 +222,7 @@ class ConfigurationRowTest extends StorageApiTestCase
                 'state' => json_encode($state),
             ],
             'headers' => array(
-                'X-StorageApi-Token' => $_client->getTokenString(),
+                'X-StorageApi-Token' => $this->client->getTokenString(),
             ),
         ]);
 
@@ -310,6 +309,8 @@ class ConfigurationRowTest extends StorageApiTestCase
     /**
      * @dataProvider isDisabledProvider
      * @param string $clientName
+     * @param mixed $isDisabled
+     * @param bool $expectedIsDisabled
      */
     public function testCreateConfigurationRowIsDisabled($clientName, $isDisabled, $expectedIsDisabled)
     {
