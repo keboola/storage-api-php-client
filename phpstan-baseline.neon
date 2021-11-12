@@ -10181,16 +10181,6 @@ parameters:
 			path: tests/Common/ConfigurationRowTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\ConfigurationRowTest\\:\\:testCreateConfigurationRowIsDisabled\\(\\) has parameter \\$expectedIsDisabled with no type specified\\.$#"
-			count: 1
-			path: tests/Common/ConfigurationRowTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\ConfigurationRowTest\\:\\:testCreateConfigurationRowIsDisabled\\(\\) has parameter \\$isDisabled with no type specified\\.$#"
-			count: 1
-			path: tests/Common/ConfigurationRowTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\ConfigurationRowsSortOrderTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Common/ConfigurationRowsSortOrderTest.php

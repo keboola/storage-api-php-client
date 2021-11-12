@@ -61,7 +61,6 @@ class ComponentsEventsTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientName
-     * @param string $clientName
      */
     public function testConfigurationChange()
     {
