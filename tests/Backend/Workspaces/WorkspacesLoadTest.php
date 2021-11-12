@@ -4,10 +4,10 @@ namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
+use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Workspaces;
-use Keboola\StorageApi\ClientException;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\ColumnInterface;
 use Keboola\Test\Backend\Workspaces\Backend\InputMappingConverter;
@@ -15,6 +15,9 @@ use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class WorkspacesLoadTest extends ParallelWorkspacesTestCase
 {
+    /** @var Client */
+    private $_linkingClient;
+
     public function testWorkspaceTablesPermissions()
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
@@ -67,7 +70,6 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-
 
         // let's try to delete some columns
         $backend->dropTableColumn('languages', 'id');
@@ -218,7 +220,6 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $mapping3 = ["source" => $table3Id, "destination" => "languagesOneColumn"];
         $mapping4 = ["source" => $table4Id, "destination" => "languagesFiltered"];
         $mapping5 = ["source" => $table2AliasedId, "destination" => "languagesNestedAlias"];
-
 
         $input = [$mapping1, $mapping2, $mapping3, $mapping4, $mapping5];
         $workspaces->loadWorkspaceData($workspace['id'], ["input" => $input]);
@@ -1568,8 +1569,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
 
         $tokenOptions = (new TokenCreateOptions())
             ->setDescription('workspaceLoadTest: Out read token')
-            ->addBucketPermission($this->getTestBucketId(self::STAGE_OUT), TokenAbstractOptions::BUCKET_PERMISSION_READ)
-        ;
+            ->addBucketPermission($this->getTestBucketId(self::STAGE_OUT), TokenAbstractOptions::BUCKET_PERMISSION_READ);
 
         $token = $this->tokens->createToken($tokenOptions);
 
@@ -1842,7 +1842,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                         'source' => 'Name',
                     ],
                 ],
-                'expectedColumns'=>[
+                'expectedColumns' => [
                     self::BACKEND_SNOWFLAKE => [
                         [
                             'name' => 'Id',
@@ -1974,14 +1974,14 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                 'languages',
                 [
                     [
-                        'source' =>  'name',
+                        'source' => 'name',
                         'type' => 'VARCHAR',
                         'convertEmptyValuesToNull' => false,
                     ],
                 ],
                 [
                     [
-                        'source' =>  'name',
+                        'source' => 'name',
                         'type' => 'CHARACTER',
                         'convertEmptyValuesToNull' => false,
                     ],
@@ -1991,30 +1991,13 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                 'languages',
                 [
                     [
-                        'source' =>  'name',
+                        'source' => 'name',
                         'type' => 'VARCHAR',
                     ],
                 ],
                 [
                     [
-                        'source' =>  'name',
-                        'type' => 'VARCHAR',
-                        'length' => 30,
-                    ],
-                ],
-            ],
-            [
-                'languages',
-                [
-                    [
-                        'source' =>  'name',
-                        'type' => 'VARCHAR',
-                        'length' => 50,
-                    ],
-                ],
-                [
-                    [
-                        'source' =>  'name',
+                        'source' => 'name',
                         'type' => 'VARCHAR',
                         'length' => 30,
                     ],
@@ -2024,7 +2007,24 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                 'languages',
                 [
                     [
-                        'source' =>  'name',
+                        'source' => 'name',
+                        'type' => 'VARCHAR',
+                        'length' => 50,
+                    ],
+                ],
+                [
+                    [
+                        'source' => 'name',
+                        'type' => 'VARCHAR',
+                        'length' => 30,
+                    ],
+                ],
+            ],
+            [
+                'languages',
+                [
+                    [
+                        'source' => 'name',
                         'type' => 'VARCHAR',
                         'length' => 50,
                         'nullable' => false,
@@ -2032,7 +2032,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                 ],
                 [
                     [
-                        'source' =>  'name',
+                        'source' => 'name',
                         'type' => 'VARCHAR',
                         'length' => 50,
                     ],
@@ -2042,7 +2042,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                 'languages',
                 [
                     [
-                        'source' =>  'name',
+                        'source' => 'name',
                         'type' => 'VARCHAR',
                         'length' => 50,
                         'nullable' => false,
@@ -2050,7 +2050,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                 ],
                 [
                     [
-                        'source' =>  'name',
+                        'source' => 'name',
                         'type' => 'VARCHAR',
                         'length' => 50,
                         'nullable' => true,
@@ -2078,5 +2078,79 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                 $e->getMessage()
             );
         }
+    }
+
+    public function testCreateWorkspaceWithIM()
+    {
+        $workspaces = new Workspaces($this->workspaceSapiClient);
+
+        $workspacesList = $this->listTestWorkspaces($this->workspaceSapiClient);
+        foreach ($workspacesList as $oneWorkspace) {
+            $workspaces->deleteWorkspace($oneWorkspace['id']);
+        }
+
+        $workspace = $this->initTestWorkspace();
+
+        $this->_linkingClient = $this->getClientForToken(
+            STORAGE_API_LINKING_TOKEN
+        );
+
+        $sharedBucketName = $this->generateUniqueNameForString('sharedBucket');
+        $linkedBucketName = $this->generateUniqueNameForString('linkedBucket');
+        $directMappedBucketName = $this->generateUniqueNameForString('directMappedBucket');
+        $sharedBucket = 'in.c-' . $sharedBucketName;
+        $linkedBucketId = 'in.c-' . $linkedBucketName;
+        $directMappedBucketId = 'in.c-' . $directMappedBucketName;
+        $this->dropBucketIfExists($this->_client, $linkedBucketId, true);
+        $this->dropBucketIfExists($this->_client, $directMappedBucketId, true);
+        $this->dropBucketIfExists($this->_linkingClient, $sharedBucket, true);
+
+        $sharedBucket = $this->_linkingClient->createBucket($sharedBucketName, 'in');
+        $this->_linkingClient->shareBucket($sharedBucket);
+        $sharingToken = $this->_linkingClient->verifyToken();
+        $token = $this->_client->verifyToken();
+        $sharingProjectId = $sharingToken['owner']['id'];
+        $projectId = $token['owner']['id'];
+        $linkedBucketId = $this->_client->linkBucket($linkedBucketName, 'in', $sharingProjectId, $sharedBucket);
+
+        $newBucketId = $this->_client->createBucket($directMappedBucketName, 'in');
+
+        //setup test tables
+        $tableId = $this->_linkingClient->createTable(
+            $sharedBucket,
+            'languages',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+
+        $tableId = $this->_client->createTable(
+            $newBucketId,
+            'directMappedTable',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $db = $backend->getDb();
+
+        $linkedBucket = $this->_client->getBucket($linkedBucketId);
+        $sourceProjectId = $linkedBucket['sourceBucket']['project']['id'];
+
+        $projectDatabase = $workspace['connection']['database'];
+        $sourceProjectDatabase = str_replace($projectId, $sourceProjectId, $projectDatabase);
+
+        $db->query(sprintf(
+            'CREATE TABLE "outTable" AS SELECT * FROM %s.%s.%s',
+            $db->quoteIdentifier($sourceProjectDatabase),
+            $db->quoteIdentifier($linkedBucket['sourceBucket']['id']),
+            $db->quoteIdentifier('languages')
+        ));
+        $this->assertCount(5, $db->fetchAll('SELECT * FROM "outTable"'));
+
+        $db->query(sprintf(
+            'CREATE TABLE "outTable2" AS SELECT * FROM %s.%s.%s',
+            $db->quoteIdentifier($projectDatabase),
+            $db->quoteIdentifier($newBucketId),
+            $db->quoteIdentifier('directMappedTable')
+        ));
+        $this->assertCount(5, $db->fetchAll('SELECT * FROM "outTable2"'));
     }
 }
