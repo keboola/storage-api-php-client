@@ -223,7 +223,7 @@ class ConfigurationRowTest extends StorageApiTestCase
                 'state' => json_encode($state),
             ],
             'headers' => array(
-                'X-StorageApi-Token' => $_client->getTokenString(),
+                'X-StorageApi-Token' => $this->client->getTokenString(),
             ),
         ]);
 
