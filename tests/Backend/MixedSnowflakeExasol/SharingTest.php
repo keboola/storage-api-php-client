@@ -14,6 +14,9 @@ class SharingTest extends StorageApiSharingTestCase
 {
     use WorkspaceConnectionTrait;
 
+    /**
+     * @return array[]
+     */
     public function sharingBackendData()
     {
         return [
@@ -22,6 +25,9 @@ class SharingTest extends StorageApiSharingTestCase
         ];
     }
 
+    /**
+     * @return array[]
+     */
     public function workspaceMixedBackendData()
     {
         return [
@@ -40,6 +46,9 @@ class SharingTest extends StorageApiSharingTestCase
         ];
     }
 
+    /**
+     * @return void
+     */
     public function testOrganizationAdminInTokenVerify()
     {
         $token = $this->_client->verifyToken();
@@ -52,6 +61,7 @@ class SharingTest extends StorageApiSharingTestCase
      * @param string $sharingBackend
      * @param string $workspaceBackend
      * @param string $expectedLoadType
+     * @return void
      * @throws ClientException
      * @throws \Doctrine\DBAL\DBALException
      * @throws \Keboola\StorageApi\Exception
@@ -99,6 +109,7 @@ class SharingTest extends StorageApiSharingTestCase
         self::assertCount(1, $response);
         $sharedBucket = reset($response);
 
+        /** @var string $linkedId */
         $linkedId = $this->_client2->linkBucket(
             "linked-" . time(),
             'out',
@@ -113,6 +124,7 @@ class SharingTest extends StorageApiSharingTestCase
         ) {
             return $bucket['id'] === $secondBucketId;
         }))[0];
+        /** @var string $linked2Id */
         $linked2Id = $this->_client2->linkBucket(
             "linked-2-" . time(),
             'out',
@@ -194,7 +206,7 @@ class SharingTest extends StorageApiSharingTestCase
         self::assertArrayHasKey('id', $data[0]);
         self::assertArrayHasKey('name', $data[0]);
         $this->assertArrayEqualsSorted(
-            Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ",", '"'),
+            Client::parseCsv((string) file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ",", '"'),
             $data,
             'id'
         );
@@ -280,27 +292,5 @@ class SharingTest extends StorageApiSharingTestCase
         } catch (ClientException $e) {
             self::assertEquals('accessDenied', $e->getStringCode());
         }
-    }
-
-    /**
-     * @param string $sharingBackend
-     * @param string $workspaceBackend
-     * @return bool
-     */
-    private function isExasolTestCase(
-        $sharingBackend,
-        $workspaceBackend
-    ) {
-        return $sharingBackend === self::BACKEND_EXASOL && $workspaceBackend === self::BACKEND_EXASOL;
-    }
-
-    /**
-     * @param string $tableId
-     * @param string $columnName
-     */
-    private function assertExpectedDistributionKeyColumn($tableId, $columnName)
-    {
-        $table = $this->_client->getTable($tableId);
-        self::assertSame([$columnName], $table['distributionKey']);
     }
 }
