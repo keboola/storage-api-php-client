@@ -1238,42 +1238,6 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertSame(5, $configuration['version']);
     }
 
-    public function testComponentConfigRowUpdateNoNewVersionIsCreatedIfNothingChanged()
-    {
-        $providedToken = $this->_client->verifyToken();
-        $devBranch = new DevBranches($this->_client);
-        $branchName = __CLASS__ . '\\' . $this->getName() . '\\' . $providedToken['id'];
-        $this->deleteBranchesByPrefix($devBranch, $branchName);
-        $branch = $devBranch->createBranch($branchName);
-
-        $componentsApi = new Components($this->getBranchAwareDefaultClient($branch['id']));
-
-        $configuration = new Configuration();
-        $configuration
-            ->setComponentId('wr-db')
-            ->setConfigurationId('main-1')
-            ->setName('main')
-        ;
-
-        $componentsApi->addConfiguration($configuration);
-
-        $configurationRow = new ConfigurationRow($configuration);
-        $configurationRow->setRowId('main-1-1');
-        $componentsApi->addConfigurationRow($configurationRow);
-
-        // nothing is changed
-        $componentsApi->updateConfigurationRow($configurationRow);
-
-        $rows = $componentsApi->listConfigurationRowVersions(
-            (new ListConfigurationRowVersionsOptions())
-                ->setComponentId('wr-db')
-                ->setConfigurationId('main-1')
-                ->setRowId($configurationRow->getRowId())
-        );
-        $this->assertCount(1, $rows);
-        $this->assertSame(1, $rows[0]['version']);
-    }
-
     public function testComponentConfigRowsListAndConfigRowVersionsList()
     {
         $providedToken = $this->_client->verifyToken();
