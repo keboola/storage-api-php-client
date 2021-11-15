@@ -54,9 +54,6 @@ class ComponentsTest extends StorageApiTestCase
         $this->client = $this->clientProvider->createClientForCurrentTest();
     }
 
-    /**
-     * @dataProvider provideComponentsClientName
-     */
     public function testGetComponentDetail()
     {
         $componentId = 'wr-db';
