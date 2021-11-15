@@ -31,10 +31,6 @@ class SharingTest extends StorageApiSharingTestCase
                     'workspace backend' => self::BACKEND_EXASOL,
                     'load type' => 'staging',
                 ],
-            /*
-             * TODO doesnt work
-             * Table out.c-linked-1636563154.languages load error: Table create error: An exception occurred while executing 'CREATE TABLE \"WORKSPACE_12915\".\"languagesLoaded\"(\n\"id\" VARCHAR (2000000),\n\"name\" VARCHAR (2000000),\nCONSTRAINT PRIMARY KEY (\"name\")\n);':\n\nSQLSTATE[42500]: <<Unknown error>>: -6818256 [EXASOL][EXASolution driver]insufficient privileges for creating table
-             */
             "exa to exa" =>
                 [
                     'sharing backend' => self::BACKEND_EXASOL,
