@@ -45,7 +45,7 @@ class ClientProvider
             }
         }
 
-        return $this->getDefaultClient();
+        return $this->getDefaultClient($config);
     }
 
     /**
@@ -63,7 +63,7 @@ class ClientProvider
             }
         }
 
-        return $this->getDefaultBranchClient();
+        return $this->getDefaultBranchClient($config);
     }
 
     /**
