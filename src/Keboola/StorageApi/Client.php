@@ -724,7 +724,7 @@ class Client
     /**
      * @param $bucketId
      * @param $sourceTableId
-     * @param null $name
+     * @param string|null $name
      * @param array $options
      *  - sourceTable
      *  - name (optional)
