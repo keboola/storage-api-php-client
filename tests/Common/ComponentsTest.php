@@ -3,6 +3,8 @@ namespace Keboola\Test\Common;
 
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Components;
+use Keboola\StorageApi\Event;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ConfigurationRowState;
@@ -1153,49 +1155,53 @@ class ComponentsTest extends StorageApiTestCase
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
             ->setConfiguration(['a' => 'b'])
-            ->setName('Main')
-        ;
-        $newConfiguration = $componentsApi->addConfiguration($configuration);
+            ->setName('Main');
+        $configurationV1 = $componentsApi->addConfiguration($configuration);
 
-        // add first row
+        // add first row - conf V2
         $configurationRowOptions = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
         $configurationRowOptions->setConfiguration(['first' => 1]);
         $configurationRow1 = $componentsApi->addConfigurationRow($configurationRowOptions);
 
-        $configuration2 = $componentsApi->getConfiguration('wr-db', $newConfiguration['id']);
+        $configurationV2 = $componentsApi->getConfiguration('wr-db', $configurationV1['id']);
 
-            // add another row
+        // add another row  - conf V3
         $configurationRowOptions = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
         $configurationRowOptions->setConfiguration(['second' => 1]);
-        $configurationRow2 = $componentsApi->addConfigurationRow($configurationRowOptions);
+        $componentsApi->addConfigurationRow($configurationRowOptions);
 
         // update first row
         $configurationRowOptions = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
         $configurationRowOptions->setConfiguration(['first' => 22])->setRowId($configurationRow1['id']);
         $componentsApi->updateConfigurationRow($configurationRowOptions);
 
-        // update config
+        // update config - conf V5
         $componentsApi->updateConfiguration($configuration->setConfiguration(['d' => 'b']));
+        $configurationV5 = $componentsApi->getConfiguration('wr-db', $configurationV1['id']);
 
         // wait a moment, rollbacked version should have different created date
         sleep(2);
 
-        // rollback to version 2
+        // rollback to version 2 - conf V6
         // second row should be missing, and first row should be rolled back to first version
-        $componentsApi->rollbackConfiguration('wr-db', $newConfiguration['id'], 2);
+        $componentsApi->rollbackConfiguration('wr-db', $configurationV1['id'], 2);
 
-        $rollbackedConfiguration = $componentsApi->getConfiguration('wr-db', $newConfiguration['id']);
+        $rollbackedConfiguration = $componentsApi->getConfiguration('wr-db', $configurationV1['id']);
 
         // asserts about the configuration itself
         $this->assertEquals(6, $rollbackedConfiguration['version'], 'Rollback added new configuration version');
         $this->assertEquals('Rollback to version 2', $rollbackedConfiguration['changeDescription']);
         $this->assertCount(1, $rollbackedConfiguration['rows']);
         $this->assertEquals('Rollback to version 2', $rollbackedConfiguration['currentVersion']['changeDescription']);
-        $this->assertArrayEqualsExceptKeys($configuration2['currentVersion'], $rollbackedConfiguration['currentVersion'], [
-            'created',
-            'changeDescription',
-        ]);
-        $this->assertArrayEqualsExceptKeys($configuration2, $rollbackedConfiguration, [
+        $this->assertArrayEqualsExceptKeys(
+            $configurationV2['currentVersion'],
+            $rollbackedConfiguration['currentVersion'],
+            [
+                'created',
+                'changeDescription',
+            ]
+        );
+        $this->assertArrayEqualsExceptKeys($configurationV2, $rollbackedConfiguration, [
             'version',
             'changeDescription',
             'rows',
@@ -1206,10 +1212,38 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertCount(1, $rollbackedConfiguration['rows']);
         $rollbackedRow = $rollbackedConfiguration['rows'][0];
         $this->assertEquals(3, $rollbackedRow['version']);
-        $this->assertEquals('Rollback to version 1 (via configuration rollback to version 2)', $rollbackedRow['changeDescription']);
+        $this->assertEquals(
+            'Rollback to version 1 (via configuration rollback to version 2)',
+            $rollbackedRow['changeDescription']
+        );
         $this->assertArrayEqualsExceptKeys($configurationRow1, $rollbackedRow, [
             'version',
             'changeDescription',
+        ]);
+
+        // rollback to version 5 - conf V7
+        $componentsApi->rollbackConfiguration('wr-db', $configurationV1['id'], 5, 'custom description');
+        $this->createAndWaitForEvent((new Event())->setComponent('dummy')->setMessage('dummy'));
+
+        $rollbackedConfiguration = $componentsApi->getConfiguration('wr-db', $configurationV1['id']);
+        // asserts about the configuration itself
+        $this->assertEquals(7, $rollbackedConfiguration['version'], 'Rollback added new configuration version');
+        $this->assertEquals('custom description', $rollbackedConfiguration['changeDescription']);
+        $this->assertCount(2, $rollbackedConfiguration['rows']);
+        $this->assertEquals('custom description', $rollbackedConfiguration['currentVersion']['changeDescription']);
+        $this->assertArrayEqualsExceptKeys(
+            $configurationV5['currentVersion'],
+            $rollbackedConfiguration['currentVersion'],
+            [
+                'created',
+                'changeDescription',
+            ]
+        );
+        $this->assertArrayEqualsExceptKeys($configurationV5, $rollbackedConfiguration, [
+            'version',
+            'changeDescription',
+            'rows',
+            'currentVersion',
         ]);
     }
 
