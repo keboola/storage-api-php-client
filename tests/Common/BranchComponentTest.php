@@ -1473,54 +1473,6 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertCount(5, $versions);
     }
 
-    /**
-     * tests for https://github.com/keboola/connection/issues/977
-     */
-    public function testRowChangesAfterRowRollback()
-    {
-        $providedToken = $this->_client->verifyToken();
-        $devBranch = new DevBranches($this->_client);
-        $branchName = __CLASS__ . '\\' . $this->getName() . '\\' . $providedToken['id'];
-        $this->deleteBranchesByPrefix($devBranch, $branchName);
-        $branch = $devBranch->createBranch($branchName);
-
-        $componentsApi = new Components($this->getBranchAwareDefaultClient($branch['id']));
-
-        // config version 1
-        $config = (new Configuration())
-            ->setComponentId('wr-db')
-            ->setConfigurationId('main-1')
-            ->setName("name")
-            ->setDescription("description");
-        $componentsApi->addConfiguration($config);
-
-        // config version 2, row version 1
-        $rowConfig = new ConfigurationRow($config);
-        $createdRow = $componentsApi->addConfigurationRow($rowConfig);
-
-        // config version 3, row version 2
-        $rowConfig = new ConfigurationRow($config);
-        $rowConfig->setRowId($createdRow["id"]);
-        $rowConfig->setName("name");
-        $rowConfig->setDescription("description");
-        $rowConfig->setIsDisabled(true);
-        $componentsApi->updateConfigurationRow($rowConfig);
-
-        // rollback row version 1
-        $componentsApi->rollbackConfigurationRow('wr-db', $config->getConfigurationId(), $createdRow["id"], 1);
-        $response = $componentsApi->getConfiguration('wr-db', $config->getConfigurationId());
-        $this->assertEquals("", $response["rows"][0]["name"]);
-        $this->assertEquals("", $response["rows"][0]["description"]);
-        $this->assertEquals(false, $response["rows"][0]["isDisabled"]);
-
-        // rollback row version 2
-        $componentsApi->rollbackConfigurationRow('wr-db', $config->getConfigurationId(), $createdRow["id"], 2);
-        $response = $componentsApi->getConfiguration('wr-db', $config->getConfigurationId());
-        $this->assertEquals("name", $response["rows"][0]["name"]);
-        $this->assertEquals("description", $response["rows"][0]["description"]);
-        $this->assertEquals(true, $response["rows"][0]["isDisabled"]);
-    }
-
     public function testVersionIncreaseWhenUpdate()
     {
         $providedToken = $this->_client->verifyToken();
