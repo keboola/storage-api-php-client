@@ -2395,7 +2395,7 @@ class ComponentsTest extends StorageApiTestCase
         $row2 = $componentsApi->updateConfigurationRow($configurationRow);
 
         $versions = $componentsApi->listConfigurationRowVersions(
-            (new \Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions())
+            (new ListConfigurationRowVersionsOptions())
                 ->setComponentId('wr-db')
                 ->setConfigurationId('main-1')
                 ->setRowId($configurationRow->getRowId())
@@ -2412,7 +2412,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertArrayEqualsIgnoreKeys($row1, $versions[1], $exceptKeys);
 
         $versionsWithConfiguration = $componentsApi->listConfigurationRowVersions(
-            (new \Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions())
+            (new ListConfigurationRowVersionsOptions())
                 ->setComponentId('wr-db')
                 ->setConfigurationId('main-1')
                 ->setRowId($configurationRow->getRowId())
@@ -2443,7 +2443,7 @@ class ComponentsTest extends StorageApiTestCase
         }
 
         $versionsWithLimitAndOffset = $componentsApi->listConfigurationRowVersions(
-            (new \Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions())
+            (new ListConfigurationRowVersionsOptions())
                 ->setComponentId('wr-db')
                 ->setConfigurationId('main-1')
                 ->setRowId($configurationRow->getRowId())
@@ -2533,7 +2533,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertArrayEqualsExceptKeys($configuration3, $configuration5, ['version', 'changeDescription']);
 
         $versions = $componentsApi->listConfigurationRowVersions(
-            (new \Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions())
+            (new ListConfigurationRowVersionsOptions())
                 ->setComponentId('wr-db')
                 ->setConfigurationId('main-1')
                 ->setRowId($configurationRow->getRowId())
