@@ -9396,17 +9396,7 @@ parameters:
 			path: tests/Common/BranchComponentTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\BranchComponentTest\\:\\:testComponentConfigRowUpdateNoNewVersionIsCreatedIfNothingChanged\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/BranchComponentTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\BranchComponentTest\\:\\:testComponentConfigRowVersionRollback\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/BranchComponentTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\BranchComponentTest\\:\\:testComponentConfigRowsListAndConfigRowVersionsList\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Common/BranchComponentTest.php
 
@@ -9445,15 +9435,6 @@ parameters:
 			count: 1
 			path: tests/Common/BranchComponentTest.php
 
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\BranchComponentTest\\:\\:testRowChangesAfterRowCopy\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/BranchComponentTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\BranchComponentTest\\:\\:testRowChangesAfterRowRollback\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/BranchComponentTest.php
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\BranchComponentTest\\:\\:testVersionIncreaseWhenUpdate\\(\\) has no return type specified\\.$#"
