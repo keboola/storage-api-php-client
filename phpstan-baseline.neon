@@ -4571,11 +4571,6 @@ parameters:
 			path: tests/Backend/CommonPart2/SimpleAliasTest.php
 
 		-
-			message: "#^Parameter \\#3 \\$name of method Keboola\\\\StorageApi\\\\Client\\:\\:createAliasTable\\(\\) expects null, string given\\.$#"
-			count: 46
-			path: tests/Backend/CommonPart2/SimpleAliasTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart2\\\\SlicedImportsTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart2/SlicedImportsTest.php
@@ -4946,11 +4941,6 @@ parameters:
 			path: tests/Backend/Exasol/TableDefinitionOperationsTest.php
 
 		-
-			message: "#^Parameter \\#3 \\$name of method Keboola\\\\StorageApi\\\\Client\\:\\:createAliasTable\\(\\) expects null, string given\\.$#"
-			count: 5
-			path: tests/Backend/Exasol/TableDefinitionOperationsTest.php
-
-		-
 			message: "#^Parameter \\#3 \\$name of method Keboola\\\\StorageApi\\\\Client\\:\\:createTableFromSnapshot\\(\\) expects null, string given\\.$#"
 			count: 1
 			path: tests/Backend/Exasol/TableDefinitionOperationsTest.php
@@ -5288,11 +5278,6 @@ parameters:
 		-
 			message: "#^PHPDoc tag @param has invalid value \\(\\$exportOptions\\)\\: Unexpected token \"\\$exportOptions\", expected type at offset 18$#"
 			count: 1
-			path: tests/Backend/FileWorkspace/WorkspacesLoadTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$name of method Keboola\\\\StorageApi\\\\Client\\:\\:createAliasTable\\(\\) expects null, string given\\.$#"
-			count: 4
 			path: tests/Backend/FileWorkspace/WorkspacesLoadTest.php
 
 		-
@@ -5693,11 +5678,6 @@ parameters:
 		-
 			message: "#^Parameter \\#2 \\$replace of function str_replace expects array\\|string, mixed given\\.$#"
 			count: 7
-			path: tests/Backend/Mixed/SharingTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$name of method Keboola\\\\StorageApi\\\\Client\\:\\:createAliasTable\\(\\) expects null, string given\\.$#"
-			count: 4
 			path: tests/Backend/Mixed/SharingTest.php
 
 		-
@@ -6106,11 +6086,6 @@ parameters:
 			path: tests/Backend/Mixed/Workspaces/S3WorkspacesTest.php
 
 		-
-			message: "#^Parameter \\#3 \\$name of method Keboola\\\\StorageApi\\\\Client\\:\\:createAliasTable\\(\\) expects null, string given\\.$#"
-			count: 3
-			path: tests/Backend/Mixed/Workspaces/S3WorkspacesTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\WorkspacesRenameTest\\:\\:testLoadIncremental\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Mixed/WorkspacesRenameTest.php
@@ -6198,11 +6173,6 @@ parameters:
 		-
 			message: "#^Parameter \\#2 \\$replace of function str_replace expects array\\|string, mixed given\\.$#"
 			count: 7
-			path: tests/Backend/MixedSnowflakeSynapse/SharingTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$name of method Keboola\\\\StorageApi\\\\Client\\:\\:createAliasTable\\(\\) expects null, string given\\.$#"
-			count: 1
 			path: tests/Backend/MixedSnowflakeSynapse/SharingTest.php
 
 		-
@@ -6396,11 +6366,6 @@ parameters:
 			path: tests/Backend/Snowflake/CloneIntoWorkspaceTest.php
 
 		-
-			message: "#^Parameter \\#3 \\$name of method Keboola\\\\StorageApi\\\\Client\\:\\:createAliasTable\\(\\) expects null, string given\\.$#"
-			count: 2
-			path: tests/Backend/Snowflake/CloneIntoWorkspaceTest.php
-
-		-
 			message: "#^Parameter \\#4 \\$sourceBucketId of method Keboola\\\\StorageApi\\\\Client\\:\\:linkBucket\\(\\) expects int, string given\\.$#"
 			count: 1
 			path: tests/Backend/Snowflake/CloneIntoWorkspaceTest.php
@@ -6433,11 +6398,6 @@ parameters:
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Snowflake\\\\DirectAccessTest\\:\\:testWithNonAdminToken\\(\\) has no return type specified\\.$#"
 			count: 1
-			path: tests/Backend/Snowflake/DirectAccessTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$name of method Keboola\\\\StorageApi\\\\Client\\:\\:createAliasTable\\(\\) expects null, string given\\.$#"
-			count: 3
 			path: tests/Backend/Snowflake/DirectAccessTest.php
 
 		-
@@ -7078,11 +7038,6 @@ parameters:
 		-
 			message: "#^Parameter \\#2 \\$actual of method Keboola\\\\Test\\\\StorageApiTestCase\\:\\:assertArrayEqualsExceptKeys\\(\\) expects array, mixed given\\.$#"
 			count: 7
-			path: tests/Backend/Synapse/TableDefinitionOperationsTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$name of method Keboola\\\\StorageApi\\\\Client\\:\\:createAliasTable\\(\\) expects null, string given\\.$#"
-			count: 5
 			path: tests/Backend/Synapse/TableDefinitionOperationsTest.php
 
 		-
@@ -8893,11 +8848,6 @@ parameters:
 		-
 			message: "#^Parameter \\#1 \\$csvString of static method Keboola\\\\StorageApi\\\\Client\\:\\:parseCsv\\(\\) expects string, string\\|false given\\.$#"
 			count: 5
-			path: tests/Backend/Workspaces/WorkspacesLoadTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$name of method Keboola\\\\StorageApi\\\\Client\\:\\:createAliasTable\\(\\) expects null, string given\\.$#"
-			count: 4
 			path: tests/Backend/Workspaces/WorkspacesLoadTest.php
 
 		-
@@ -10898,11 +10848,6 @@ parameters:
 		-
 			message: "#^Parameter \\#2 \\$string of method PHPUnit\\\\Framework\\\\Assert\\:\\:assertRegExp\\(\\) expects string, mixed given\\.$#"
 			count: 3
-			path: tests/Common/MetadataTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$name of method Keboola\\\\StorageApi\\\\Client\\:\\:createAliasTable\\(\\) expects null, string given\\.$#"
-			count: 2
 			path: tests/Common/MetadataTest.php
 
 		-
