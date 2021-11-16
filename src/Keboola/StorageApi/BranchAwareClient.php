@@ -23,4 +23,12 @@ class BranchAwareClient extends Client
 
         return parent::request($method, $url, $options, $responseFileName, $handleAsyncTask);
     }
+
+    /**
+     * @return mixed
+     */
+    public function getCurrentBranchId()
+    {
+        return $this->branchId;
+    }
 }

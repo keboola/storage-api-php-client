@@ -168,7 +168,7 @@ class ClientProvider
     {
         $providedToken = $this->getDefaultClient()->verifyToken();
         return implode('\\', [
-            __CLASS__,
+            get_class($this->testCase),
             $this->testCase->getName(false),
             $this->testCase->dataName(),
             $providedToken['id'],
@@ -176,6 +176,7 @@ class ClientProvider
     }
 
     /**
+     * Get last created branch
      * @return array
      */
     public function getExistingBranchForTestCase()
