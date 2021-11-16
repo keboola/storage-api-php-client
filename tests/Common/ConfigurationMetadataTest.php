@@ -488,7 +488,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertRegExp(
                 '/^Metadata with id "[0-9]+" not found for "transformation" configuration '.
-                '"[a-z0-9]+_main-1" in branch "[0-9]+"$/',
+                '"[a-z0-9]+\\\main-1" in branch "[0-9]+"$/',
                 $e->getMessage()
             );
             $this->assertSame(404, $e->getCode());
@@ -528,7 +528,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertRegExp(
                 '/^Metadata with id "[0-9]+" not found for "transformation" configuration '.
-                '"[a-z0-9]+_main-1" in branch "[0-9]+"$/',
+                '"[a-z0-9]+\\\+main-1" in branch "[0-9]+"$/',
                 $e->getMessage()
             );
             $this->assertSame(404, $e->getCode());
