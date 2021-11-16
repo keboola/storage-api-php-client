@@ -25,4 +25,12 @@ class BranchAwareGuzzleClient extends Client
 
         return parent::request($method, $uri, $options);
     }
+
+    /**
+     * @return mixed
+     */
+    public function getCurrentBranchId()
+    {
+        return $this->branchId;
+    }
 }
