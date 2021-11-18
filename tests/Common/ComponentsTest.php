@@ -18,7 +18,6 @@ use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\BufferedOutput;
-use Keboola\StorageApi\ProcessPolyfill;
 use function json_decode;
 use function var_dump;
 
@@ -245,10 +244,10 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientType
-     * @param string $clientType
+     * on defaultBranch only, no need devBranch because "Deleting configuration from trash is not allowed in
+     * development branches."
      */
-    public function testComponentConfigDelete($clientType)
+    public function testComponentConfigurationDelete()
     {
         $componentId = 'wr-db';
         $configurationId = 'main-1';
@@ -274,32 +273,14 @@ class ComponentsTest extends StorageApiTestCase
         ));
         $this->assertCount(0, $components->listComponents());
 
-        // test that sending string 'false' for isDeleted is supported https://github.com/keboola/connection/issues/1047
-        $command = "curl '" . STORAGE_API_URL . "/v2/storage/components/{$componentId}/configs?isDeleted=false' \
-                    -X GET \
-                    -H 'content-type: application/x-www-form-urlencoded' \
-                    -H 'accept: */*' \
-                    -H 'x-storageapi-token: " . STORAGE_API_TOKEN . "'";
-        $process = ProcessPolyfill::createProcess($command);
-        $process->run();
-        if (!$process->isSuccessful()) {
-            $this->fail("Api request failure GET component configs");
-        }
-        $result = json_decode($process->getOutput(), true);
+        $listConfigurationOptions = (new ListComponentConfigurationsOptions())
+            ->setComponentId($componentId)
+            ->setIsDeleted(false);
+
+        $result = $components->listComponentConfigurations($listConfigurationOptions);
         $this->assertCount(0, $result);
 
-        // test that sending string 'false' for isDeleted is supported https://github.com/keboola/connection/issues/1047
-        $command = "curl '" . STORAGE_API_URL . "/v2/storage/components?isDeleted=false' \
-                    -X GET \
-                    -H 'content-type: application/x-www-form-urlencoded' \
-                    -H 'accept: */*' \
-                    -H 'x-storageapi-token: " . STORAGE_API_TOKEN . "'";
-        $process = ProcessPolyfill::createProcess($command);
-        $process->run();
-        if (!$process->isSuccessful()) {
-            $this->fail("Api request failure GET component list");
-        }
-        $result = json_decode($process->getOutput(), true);
+        $result = $components->listComponents((new ListComponentsOptions())->setIsDeleted(false));
         $this->assertCount(0, $result);
 
         $componentList = $components->listComponentConfigurations(
