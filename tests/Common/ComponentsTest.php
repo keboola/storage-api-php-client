@@ -1468,6 +1468,62 @@ class ComponentsTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
+    public function testVersionIncreaseWhenUpdate()
+    {
+        $componentsApi = new \Keboola\StorageApi\Components($this->client);
+
+        $configuration = new Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main');
+        $componentsApi->addConfiguration($configuration);
+
+        $configurationRow = new ConfigurationRow($configuration);
+        $configurationRow->setRowId('main-1-1');
+        $configurationRow->setConfiguration([
+            'my-value' => 666,
+        ]);
+        $componentsApi->addConfigurationRow($configurationRow);
+
+        $configurationRow = new ConfigurationRow($configuration);
+        $configurationRow->setRowId('main-1-2');
+        $configurationRow->setConfiguration([
+            'my-value' => 666,
+        ]);
+        $componentsApi->addConfigurationRow($configurationRow);
+
+        $componentConfiguration = $componentsApi->getConfiguration('wr-db', 'main-1');
+
+        $this->assertEquals(3, $componentConfiguration['version']);
+
+        $configuration = new Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setRowsSortOrder(['main-1-1', 'main-1-2']);
+        $componentsApi->updateConfiguration($configuration);
+
+        $componentConfiguration = $componentsApi->getConfiguration('wr-db', 'main-1');
+
+        $this->assertEquals(4, $componentConfiguration['version']);
+
+        // calling the update once again without any change, the version should remain
+        $configuration = new Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setRowsSortOrder(['main-1-1', 'main-1-2']);
+        $componentsApi->updateConfiguration($configuration);
+
+        $componentConfiguration = $componentsApi->getConfiguration('wr-db', 'main-1');
+
+        $this->assertEquals(4, $componentConfiguration['version']);
+    }
+
+    /**
+     * @dataProvider provideComponentsClientType
+     */
     public function testListConfigs()
     {
         $components = new \Keboola\StorageApi\Components($this->client);
