@@ -2985,7 +2985,7 @@ class ComponentsTest extends StorageApiTestCase
      */
     public function testRowChangesAfterConfigurationCopy()
     {
-        $components = new \Keboola\StorageApi\Components($this->client);
+        $componentsApi = new \Keboola\StorageApi\Components($this->client);
 
         // config version 1
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
@@ -2993,37 +2993,80 @@ class ComponentsTest extends StorageApiTestCase
             ->setConfigurationId('main-1')
             ->setName("name")
             ->setDescription("description");
-        $components->addConfiguration($config);
+        $componentsApi->addConfiguration($config);
 
-        // config version 2
-        $rowConfig = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config);
-        $createdRow = $components->addConfigurationRow($rowConfig);
+        // config version 2 - create row 1
+        $rowConfig = new ConfigurationRow($config);
+        $firstRow = $componentsApi->addConfigurationRow($rowConfig);
 
-        // config version 3
-        $rowConfig = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config);
-        $rowConfig->setRowId($createdRow["id"]);
-        $rowConfig->setName("name");
-        $rowConfig->setDescription("description");
+        // config version 3 - update row 1
+        $rowConfig = new ConfigurationRow($config);
+        $rowConfig->setRowId($firstRow["id"]);
+        $rowConfig->setName("first name");
+        $rowConfig->setDescription("first description");
         $rowConfig->setIsDisabled(true);
-        $components->updateConfigurationRow($rowConfig);
+        $componentsApi->updateConfigurationRow($rowConfig);
+
+        // config version 4 - create row 2
+        $rowConfig = new ConfigurationRow($config);
+        $rowConfig->setName('second name');
+        $rowConfig->setDescription('second description');
+        $componentsApi->addConfigurationRow($rowConfig);
+
+        // config version 5 - delete row 1
+        $componentsApi->deleteConfigurationRow('wr-db', 'main-1', $firstRow['id']);
 
         // copy config version 2
-        $copiedConfig = $components->createConfigurationFromVersion('wr-db', $config->getConfigurationId(), 2, 'test');
-        $response = $components->getConfiguration('wr-db', $copiedConfig["id"]);
+        $copiedConfig = $componentsApi->createConfigurationFromVersion(
+            'wr-db',
+            $config->getConfigurationId(),
+            2,
+            'test'
+        );
+        $response = $componentsApi->getConfiguration('wr-db', $copiedConfig["id"]);
+        $this->assertSame('test', $response['name']);
+        $this->assertSame('description', $response['description']);
         $this->assertSame('Copied from configuration "name" (main-1) version 2', $response['changeDescription']);
-        $this->assertEquals("", $response["rows"][0]["name"]);
-        $this->assertEquals("", $response["rows"][0]["description"]);
-        $this->assertEquals('Copied from configuration "name" (main-1) version 2', $response["rows"][0]["changeDescription"]);
+        // check rows
+        $this->assertCount(1, $response['rows']);
+        $this->assertEquals('', $response["rows"][0]["name"]);
+        $this->assertEquals('', $response["rows"][0]["description"]);
+        $this->assertEquals(
+            'Copied from configuration "name" (main-1) version 2',
+            $response["rows"][0]["changeDescription"]
+        );
         $this->assertEquals(false, $response["rows"][0]["isDisabled"]);
 
-        // copy config version 3
-        $copiedConfig = $components->createConfigurationFromVersion('wr-db', $config->getConfigurationId(), 3, 'test');
-        $response = $components->getConfiguration('wr-db', $copiedConfig["id"]);
-        $this->assertSame('Copied from configuration "name" (main-1) version 3', $response['changeDescription']);
-        $this->assertEquals("name", $response["rows"][0]["name"]);
-        $this->assertEquals("description", $response["rows"][0]["description"]);
-        $this->assertEquals('Copied from configuration "name" (main-1) version 3', $response["rows"][0]["changeDescription"]);
+        // copy config version 4
+        $copiedConfig = $componentsApi->createConfigurationFromVersion(
+            'wr-db',
+            $config->getConfigurationId(),
+            4,
+            'test',
+            'some description',
+            'some change description'
+        );
+        $response = $componentsApi->getConfiguration('wr-db', $copiedConfig["id"]);
+        $this->assertSame('test', $response['name']);
+        $this->assertSame('some description', $response['description']);
+        $this->assertSame('some change description', $response['changeDescription']);
+        // check rows
+        $this->assertCount(2, $response['rows']);
+
+        $this->assertEquals('first name', $response["rows"][0]["name"]);
+        $this->assertEquals('first description', $response["rows"][0]["description"]);
+        $this->assertEquals(
+            'Copied from configuration "name" (main-1) version 4',
+            $response["rows"][0]["changeDescription"]
+        );
         $this->assertEquals(true, $response["rows"][0]["isDisabled"]);
+
+        $this->assertEquals('second name', $response["rows"][1]["name"]);
+        $this->assertEquals('second description', $response["rows"][1]["description"]);
+        $this->assertEquals(
+            'Copied from configuration "name" (main-1) version 4',
+            $response["rows"][1]["changeDescription"]
+        );
     }
 
     /**
