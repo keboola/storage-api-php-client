@@ -387,7 +387,7 @@ class ConfigurationRowTest extends StorageApiTestCase
             ],
         ];
 
-        foreach (['defaultBranch', 'devBranch'] as $clientType) {
+        foreach ([ClientProvider::DEFAULT_BRANCH, ClientProvider::DEV_BRANCH] as $clientType) {
             foreach ($providerData as $providerKey => $provider) {
                 yield sprintf('%s: %s', $clientType, $providerKey) => [
                     $clientType,
