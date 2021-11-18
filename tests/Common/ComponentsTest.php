@@ -234,6 +234,7 @@ class ComponentsTest extends StorageApiTestCase
     /**
      * on defaultBranch only, no need devBranch because "Deleting configuration from trash is not allowed in
      * development branches."
+     * @return void
      */
     public function testComponentConfigurationDelete()
     {
@@ -1436,6 +1437,7 @@ class ComponentsTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientType
+     * @return void
      */
     public function testVersionIncreaseWhenUpdate()
     {
