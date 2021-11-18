@@ -1015,11 +1015,6 @@ class BranchComponentTest extends StorageApiTestCase
 
     public function testDeleteBranchConfiguration()
     {
-        $providedToken = $this->_client->verifyToken();
-        $devBranch = new DevBranches($this->_client);
-        $branchName = __CLASS__ . '\\' . $this->getName() . '\\' . $providedToken['id'];
-        $this->deleteBranchesByPrefix($devBranch, $branchName);
-
         // create new configurations in main branch
         $componentId = 'transformation';
         $components = new Components($this->_client);
@@ -1038,11 +1033,8 @@ class BranchComponentTest extends StorageApiTestCase
                 ->setRowId('main-1-row-1')
         );
 
-        // dummy branch to highlight potentially forgotten where on branch
-        $devBranch->createBranch($branchName . '-dummy');
-
         // create dev branch
-        $branch = $devBranch->createBranch($branchName);
+        $branch = $this->createDevBranchForTestCase($this);
 
         $branchComponents = new Components($this->getBranchAwareDefaultClient($branch['id']));
 
@@ -1104,7 +1096,10 @@ class BranchComponentTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame(400, $e->getCode());
             $this->assertSame('storage.components.cannotDeleteConfiguration', $e->getStringCode());
-            $this->assertSame('Deleting configuration from trash is not allowed in development branches.', $e->getMessage());
+            $this->assertSame(
+                'Deleting configuration from trash is not allowed in development branches.',
+                $e->getMessage()
+            );
         }
     }
 
