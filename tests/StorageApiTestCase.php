@@ -14,6 +14,7 @@ use Keboola\StorageApi\Components;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\StorageApi\Tokens;
+use Keboola\Test\ClientProvider\ClientProvider;
 use Retry\BackOff\FixedBackOffPolicy;
 use Retry\Policy\SimpleRetryPolicy;
 use Retry\RetryProxy;
@@ -632,8 +633,8 @@ abstract class StorageApiTestCase extends ClientTestCase
     public function provideComponentsClientType()
     {
         return [
-            ['defaultBranch'],
-            ['devBranch'],
+            'defaultBranch' => [ClientProvider::DEFAULT_BRANCH],
+            'devBranch' => [ClientProvider::DEV_BRANCH],
         ];
     }
 
