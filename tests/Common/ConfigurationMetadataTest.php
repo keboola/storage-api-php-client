@@ -44,7 +44,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testAddMetadata()
     {
@@ -164,7 +164,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testUpdateMetadata()
     {
@@ -211,7 +211,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testAddMetadataEvent()
     {

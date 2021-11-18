@@ -45,7 +45,7 @@ class ConfigurationRowTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testConfigurationCopyCreateWithSameRowId()
     {
@@ -92,7 +92,7 @@ class ConfigurationRowTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testConfigurationRowReturnsSingleRow()
     {
@@ -122,7 +122,7 @@ class ConfigurationRowTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testConfigurationRowThrowsNotFoundException()
     {
@@ -145,7 +145,7 @@ class ConfigurationRowTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testConfigurationRowJsonDataTypes()
     {
@@ -250,7 +250,7 @@ class ConfigurationRowTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testConfigurationRowIsDisabledBooleanValue()
     {
@@ -308,11 +308,11 @@ class ConfigurationRowTest extends StorageApiTestCase
 
     /**
      * @dataProvider isDisabledProvider
-     * @param string $clientName
+     * @param string $clientType
      * @param mixed $isDisabled
      * @param bool $expectedIsDisabled
      */
-    public function testCreateConfigurationRowIsDisabled($clientName, $isDisabled, $expectedIsDisabled)
+    public function testCreateConfigurationRowIsDisabled($clientType, $isDisabled, $expectedIsDisabled)
     {
         $components = new \Keboola\StorageApi\Components($this->client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
@@ -387,10 +387,10 @@ class ConfigurationRowTest extends StorageApiTestCase
             ],
         ];
 
-        foreach (['defaultBranch', 'devBranch'] as $clientName) {
+        foreach (['defaultBranch', 'devBranch'] as $clientType) {
             foreach ($providerData as $providerKey => $provider) {
-                yield sprintf('%s: %s', $clientName, $providerKey) => [
-                    $clientName,
+                yield sprintf('%s: %s', $clientType, $providerKey) => [
+                    $clientType,
                     $provider[0],
                     $provider[1],
                 ];

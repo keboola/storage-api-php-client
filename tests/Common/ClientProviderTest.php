@@ -123,11 +123,11 @@ class ClientProviderTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideDevBranchName
-     * @param string $clientName
+     * @param string $clientType
      * @param mixed $dataName
      * @return void
      */
-    public function testGetDevBranchName($clientName, $dataName)
+    public function testGetDevBranchName($clientType, $dataName)
     {
         $branchNamePrefix = str_replace(
             '\\',

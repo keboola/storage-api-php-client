@@ -72,7 +72,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testListComponents()
     {
@@ -193,7 +193,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigRenew()
     {
@@ -243,12 +243,12 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
-     * @param string $clientName
+     * @dataProvider provideComponentsClientType
+     * @param string $clientType
      */
-    public function testComponentConfigDelete($clientName)
+    public function testComponentConfigDelete($clientType)
     {
-        if ($clientName === ClientProvider::DEV_BRANCH) {
+        if ($clientType === ClientProvider::DEV_BRANCH) {
             $this->markTestSkipped('Deleting configuration from trash is not allowed in development branches.');
         }
         $componentId = 'wr-db';
@@ -343,7 +343,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigRestore()
     {
@@ -415,7 +415,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigCreate()
     {
@@ -502,7 +502,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testConfigurationNameShouldBeRequired()
     {
@@ -516,7 +516,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testConfigurationDescriptionDefault()
     {
@@ -530,7 +530,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testNonJsonConfigurationShouldNotBeAllowed()
     {
@@ -548,7 +548,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testNonJsonStateShouldNotBeAllowed()
     {
@@ -566,7 +566,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigurationJsonDataTypes()
     {
@@ -642,7 +642,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigCreateWithConfigurationJson()
     {
@@ -670,7 +670,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigCreateWithStateJson()
     {
@@ -697,7 +697,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigUpdateEmptyStateJson()
     {
@@ -732,7 +732,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigCreateIdAutoCreate()
     {
@@ -750,7 +750,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigUpdate()
     {
@@ -811,7 +811,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigUpdateConfigEmpty()
     {
@@ -850,7 +850,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigUpdateEmptyWithEmpty()
     {
@@ -875,7 +875,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigUpdateWithRows()
     {
@@ -951,7 +951,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigUpdateVersioning()
     {
@@ -1001,7 +1001,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigUpdateChangeDescription()
     {
@@ -1048,7 +1048,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigsVersionsList()
     {
@@ -1141,7 +1141,7 @@ class ComponentsTest extends StorageApiTestCase
     /**
      * Create configuration with few rows, update some row and then rollback to configuration with updated row
      *
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testConfigurationRollback()
     {
@@ -1213,7 +1213,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testUpdateRowWithoutIdShouldNotBeAllowed()
     {
@@ -1241,7 +1241,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testUpdateConfigWithoutIdShouldNotBeAllowed()
     {
@@ -1262,7 +1262,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigsVersionsRollback()
     {
@@ -1340,7 +1340,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigsVersionsCreate()
     {
@@ -1405,7 +1405,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testListConfigs()
     {
@@ -1454,7 +1454,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testDuplicateConfigShouldNotBeCreated()
     {
@@ -1475,7 +1475,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testPermissions()
     {
@@ -1501,7 +1501,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testTokenWithComponentAccess()
     {
@@ -1545,7 +1545,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testTokenWithManageAllBucketsShouldHaveAccessToComponents()
     {
@@ -1578,7 +1578,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigRowCreate()
     {
@@ -1650,7 +1650,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigRowCreateName()
     {
@@ -1681,7 +1681,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigRowCreateDescription()
     {
@@ -1712,7 +1712,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigRowCreateIsDisabled()
     {
@@ -1743,7 +1743,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigRowUpdateName()
     {
@@ -1791,7 +1791,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigRowUpdateDescription()
     {
@@ -1831,7 +1831,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigRowUpdateIsDisabled()
     {
@@ -1878,7 +1878,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigRowUpdateConfigEmpty()
     {
@@ -1925,7 +1925,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigRowUpdateNoNewVersionIsCreatedIfNothingChanged()
     {
@@ -1957,7 +1957,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigRowUpdateConfigEmptyWithEmpty()
     {
@@ -2002,7 +2002,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigRowUpdate()
     {
@@ -2137,7 +2137,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigRowStateUpdate()
     {
@@ -2239,7 +2239,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigRowDelete()
     {
@@ -2329,7 +2329,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigDeletedRowId()
     {
@@ -2362,7 +2362,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigRowsListAndConfigRowVersionsList()
     {
@@ -2463,7 +2463,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigRowVersionRollback()
     {
@@ -2542,7 +2542,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testComponentConfigRowVersionCreate()
     {
@@ -2633,7 +2633,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testGetComponentConfigurations()
     {
@@ -2660,7 +2660,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testGetComponentConfigurationsWithConfigAndRows()
     {
@@ -2695,7 +2695,7 @@ class ComponentsTest extends StorageApiTestCase
     /**
      * Create configuration with few rows, update some row and then rollback to configuration with updated row
      *
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testChangeDescription()
     {
@@ -2789,7 +2789,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testConfigurationNameAndDescriptionShouldNotBeTrimmed()
     {
@@ -2814,7 +2814,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testConfigurationRowNameAndDescriptionShouldNotBeTrimmed()
     {
@@ -2846,7 +2846,7 @@ class ComponentsTest extends StorageApiTestCase
     /**
      * tests for https://github.com/keboola/connection/issues/977
      *
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testRowChangesAfterConfigurationRollback()
     {
@@ -2890,7 +2890,7 @@ class ComponentsTest extends StorageApiTestCase
     /**
      * tests for https://github.com/keboola/connection/issues/977
      *
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testRowChangesAfterConfigurationCopy()
     {
@@ -2938,7 +2938,7 @@ class ComponentsTest extends StorageApiTestCase
     /**
      * tests for https://github.com/keboola/connection/issues/977
      *
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testRowChangesAfterRowRollback()
     {
@@ -2982,7 +2982,7 @@ class ComponentsTest extends StorageApiTestCase
     /**
      * tests for https://github.com/keboola/connection/issues/977
      *
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testRowChangesAfterRowCopy()
     {
@@ -3061,7 +3061,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testStateAttributeNotPresentInVersions()
     {
@@ -3077,7 +3077,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testRollbackPreservesState()
     {
@@ -3111,7 +3111,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testCopyResetsState()
     {
@@ -3144,7 +3144,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testRevertingConfigRowVersionWillNotCreateEmptyConfiguration()
     {
@@ -3173,7 +3173,7 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testConfigurationStateUpdate()
     {

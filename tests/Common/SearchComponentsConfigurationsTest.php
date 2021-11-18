@@ -55,7 +55,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testSearchComponents()
     {
@@ -283,7 +283,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testSearchComponentsEvent()
     {

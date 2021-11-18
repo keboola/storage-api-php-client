@@ -60,7 +60,7 @@ class ComponentsEventsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testConfigurationChange()
     {
@@ -115,7 +115,7 @@ class ComponentsEventsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testConfigurationCreate()
     {
@@ -163,14 +163,14 @@ class ComponentsEventsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
-     * @param string $clientName
+     * @dataProvider provideComponentsClientType
+     * @param string $clientType
      */
-    public function testConfigurationDelete($clientName)
+    public function testConfigurationDelete($clientType)
     {
         $components = new Components($this->client);
 
-        if ($clientName === ClientProvider::DEV_BRANCH) {
+        if ($clientType === ClientProvider::DEV_BRANCH) {
             $this->markTestSkipped('Deleting configuration from trash is not allowed in development branches.');
         }
 
@@ -215,7 +215,7 @@ class ComponentsEventsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testConfigurationRestore()
     {
@@ -245,7 +245,7 @@ class ComponentsEventsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testConfigurationVersionCopy()
     {
@@ -285,7 +285,7 @@ class ComponentsEventsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testConfigurationVersionRollback()
     {
@@ -322,7 +322,7 @@ class ComponentsEventsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testRowsChange()
     {
@@ -372,7 +372,7 @@ class ComponentsEventsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testRowsCreate()
     {
@@ -407,7 +407,7 @@ class ComponentsEventsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testRowsDelete()
     {
@@ -444,7 +444,7 @@ class ComponentsEventsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testRowsVersionCreate()
     {
@@ -497,7 +497,7 @@ class ComponentsEventsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testRowsVersionRollback()
     {

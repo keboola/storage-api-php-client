@@ -629,7 +629,7 @@ abstract class StorageApiTestCase extends ClientTestCase
      *
      * @return array
      */
-    public function provideComponentsClientName()
+    public function provideComponentsClientType()
     {
         return [
             ['defaultBranch'],
