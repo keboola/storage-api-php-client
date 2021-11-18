@@ -40,7 +40,7 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testAttributeExists()
     {
@@ -57,7 +57,7 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testAttributeValuesForOneUnsortedRow()
     {
@@ -79,7 +79,7 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testAttributeValuesForOneSortedRow()
     {
@@ -111,7 +111,7 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testAddRowToSorted()
     {
@@ -147,7 +147,7 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testAddRowToUnsorted()
     {
@@ -175,7 +175,7 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testReorder()
     {
@@ -209,7 +209,7 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testReorderNonexistingRow()
     {
@@ -240,7 +240,7 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testReorderMissingRow()
     {
@@ -277,7 +277,7 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testVersionChangeWhenRowsSortOrderIsManipulated()
     {
@@ -325,7 +325,7 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testVersionRollbackToUnsorted()
     {
@@ -362,7 +362,7 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testVersionRollbackToSorted()
     {
@@ -406,7 +406,7 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testVersionCopy()
     {
@@ -442,7 +442,7 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testRowDeleteUnsored()
     {
@@ -474,7 +474,7 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testRowDeleteSorted()
     {
@@ -513,7 +513,7 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testVersionsAttributeExists()
     {
@@ -530,7 +530,7 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientName
+     * @dataProvider provideComponentsClientType
      */
     public function testVersionsAttributeValue()
     {
