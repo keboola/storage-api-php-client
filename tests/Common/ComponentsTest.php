@@ -37,19 +37,7 @@ class ComponentsTest extends StorageApiTestCase
     {
         parent::setUp();
 
-        $components = new \Keboola\StorageApi\Components($this->_client);
-        foreach ($components->listComponents() as $component) {
-            foreach ($component['configurations'] as $configuration) {
-                $components->deleteConfiguration($component['id'], $configuration['id']);
-            }
-        }
-
-        // erase all deleted configurations
-        foreach ($components->listComponents((new ListComponentsOptions())->setIsDeleted(true)) as $component) {
-            foreach ($component['configurations'] as $configuration) {
-                $components->deleteConfiguration($component['id'], $configuration['id']);
-            }
-        }
+        $this->cleanupConfigurations();
 
         $this->clientProvider = new ClientProvider($this);
         $this->client = $this->clientProvider->createClientForCurrentTest();
