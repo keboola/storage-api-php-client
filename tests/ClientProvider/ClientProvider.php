@@ -205,9 +205,9 @@ class ClientProvider
     public function createDevBranchForTestCase()
     {
         $branchName = $this->getDevBranchName();
-        $devBranch = new DevBranches($this->getDefaultClient());
+        $devBranches = new DevBranches($this->getDefaultClient());
 
-        $this->testCase->deleteBranchesByPrefix($devBranch, $branchName);
-        return $devBranch->createBranch($branchName);
+        $this->testCase->deleteBranchesByPrefix($devBranches, $branchName);
+        return $devBranches->createBranch($branchName);
     }
 }
