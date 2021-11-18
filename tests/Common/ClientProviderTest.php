@@ -124,7 +124,7 @@ class ClientProviderTest extends StorageApiTestCase
     /**
      * @dataProvider provideDevBranchName
      * @param string $clientType
-     * @param mixed $dataName
+     * @param int|string $dataName
      * @return void
      */
     public function testGetDevBranchName($clientType, $dataName)
@@ -159,6 +159,4 @@ class ClientProviderTest extends StorageApiTestCase
             'dev' => [ClientProvider::DEV_BRANCH, 'dev'],
         ];
     }
-
-
 }
