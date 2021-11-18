@@ -361,7 +361,11 @@ class ImportExportCommonTest extends StorageApiTestCase
             return;
         }
 
-        if (in_array($token['owner']['defaultBackend'], [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT])) {
+        if (in_array($token['owner']['defaultBackend'], [
+            self::BACKEND_SNOWFLAKE,
+            self::BACKEND_REDSHIFT,
+            self::BACKEND_EXASOL,
+        ])) {
             $this->markTestSkipped('TODO: fix issue on redshift and snflk backend.');
             return;
         }
