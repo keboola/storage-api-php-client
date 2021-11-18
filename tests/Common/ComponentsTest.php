@@ -324,12 +324,12 @@ class ComponentsTest extends StorageApiTestCase
         $configurationId = 'main-1';
         $components = new \Keboola\StorageApi\Components($this->client);
 
-        $this->assertCount(0, $components->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
-        ));
-        $this->assertCount(0, $components->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)->setIsDeleted(true)
-        ));
+        $listConfigOptions = (new ListComponentConfigurationsOptions())->setComponentId($componentId);
+        $listConfigOptionsDeleted = (new ListComponentConfigurationsOptions())
+            ->setComponentId($componentId)
+            ->setIsDeleted(true);
+        $this->assertCount(0, $components->listComponentConfigurations($listConfigOptions));
+        $this->assertCount(0, $components->listComponentConfigurations($listConfigOptionsDeleted));
 
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId($componentId)
@@ -341,23 +341,34 @@ class ComponentsTest extends StorageApiTestCase
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config);
         $components->addConfigurationRow($configurationRow);
 
+        $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId));
+        $this->assertCount(1, $rows);
+
+        $configurations = $components->listComponentConfigurations($listConfigOptions);
+        $this->assertCount(1, $configurations);
+
         $components->deleteConfiguration($componentId, $configurationId);
+
+        $listConfigurationOptions = (new ListComponentConfigurationsOptions())->setComponentId($componentId);
+        $configurations = $components->listComponentConfigurations($listConfigOptions);
+        $this->assertCount(0, $configurations);
+
+        $listConfigurationOptions->setIsDeleted(true);
+        $configurations = $components->listComponentConfigurations($listConfigOptionsDeleted);
+        $this->assertCount(1, $configurations);
 
         $components->restoreComponentConfiguration($componentId, $configurationId);
 
-        $this->assertCount(0, $components->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
-                ->setIsDeleted(true)
-        ));
+        $this->assertCount(0, $components->listComponentConfigurations($listConfigOptionsDeleted));
 
         $this->assertCount(1, $components->listConfigurationRows(
             (new ListConfigurationRowsOptions())->setComponentId($componentId)
                 ->setConfigurationId($config->getConfigurationId())
         ));
 
-        $componentList = $components->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
-        );
+        $componentList = $components->listComponentConfigurations($listConfigOptions);
         $this->assertCount(1, $componentList);
 
         $component = reset($componentList);
@@ -370,21 +381,56 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertIsInt($component['version']);
         $this->assertIsInt($component['creatorToken']['id']);
 
+        // try to restore again
+        try {
+            $components->restoreComponentConfiguration($componentId, $configurationId);
+            $this->fail('Configuration should not be restored again');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+            $this->assertSame('notFound', $e->getStringCode());
+            $this->assertContains('Deleted configuration main-1 not found', $e->getMessage());
+        }
+
         $components->deleteConfiguration($componentId, $configurationId);
+
+        $configurations = $components->listComponentConfigurations($listConfigOptions);
+        $this->assertCount(0, $configurations);
+
+
+        $configurations = $components->listComponentConfigurations($listConfigOptionsDeleted);
+        $this->assertCount(1, $configurations);
+
+        try {
+            $components->listConfigurationRows((new ListConfigurationRowsOptions())
+                ->setComponentId($componentId)
+                ->setConfigurationId($configurationId));
+            $this->fail('Configuration rows for deleted configuration should not be listed');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+            $this->assertSame('notFound', $e->getStringCode());
+            $this->assertContains('Configuration main-1 not found', $e->getMessage());
+        }
+
         // restore configuration with create same configuration id and test number of rows
         $configurationRestored = (new Configuration())
             ->setComponentId($componentId)
             ->setConfigurationId($config->getConfigurationId())
+            ->setConfiguration(['a' => 'b'])
+            ->setChangeDescription('Config restored...')
             ->setName('Main 1 restored');
         $components->addConfiguration($configurationRestored);
-        $this->assertCount(0, $components->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
-                ->setIsDeleted(true)
-        ));
+        $this->assertCount(0, $components->listComponentConfigurations($listConfigOptionsDeleted));
         $this->assertCount(0, $components->listConfigurationRows(
             (new ListConfigurationRowsOptions())->setComponentId($componentId)
                 ->setConfigurationId($configurationRestored->getConfigurationId())
         ));
+
+        $configuration = $components->getConfiguration($componentId, 'main-1');
+        $this->assertSame('main-1', $configuration['id']);
+        $this->assertSame('Main 1 restored', $configuration['name']);
+        $this->assertSame(['a' => 'b'], $configuration['configuration']);
+        $this->assertSame('Config restored...', $configuration['changeDescription']);
+        $this->assertSame(6, $configuration['version']);
     }
 
     /**
