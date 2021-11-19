@@ -14,6 +14,7 @@ use Keboola\StorageApi\Components;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\StorageApi\Tokens;
+use Keboola\Test\ClientProvider\ClientProvider;
 use Retry\BackOff\FixedBackOffPolicy;
 use Retry\Policy\SimpleRetryPolicy;
 use Retry\RetryProxy;
@@ -562,7 +563,7 @@ abstract class StorageApiTestCase extends ClientTestCase
     /**
      * @param string $branchPrefix
      */
-    protected function deleteBranchesByPrefix(DevBranches $devBranches, $branchPrefix)
+    public function deleteBranchesByPrefix(DevBranches $devBranches, $branchPrefix)
     {
         $branchesList = $devBranches->listBranches();
         $branchesCreatedByThisTestMethod = array_filter(
@@ -625,112 +626,15 @@ abstract class StorageApiTestCase extends ClientTestCase
     }
 
     /**
-     * Usage:
-     *  - `$getClient($this)` -> return default client
-     *  - `$getClient($this, [...])` -> return client with custom config
-     *  - `$getClient($this, [], true)` -> return default client which use same branch as before
-     *  - `$getClient($this, [...], true)` -> return client with custom which use same branch as before
+     * Useful with \Keboola\Test\ClientProvider\ClientProvider
      *
-     * DataProvider cannot use `$this->variable` because the provider run before the `setUp` method is called.
-     * Need to put `$this` as argument to anonymous function to build correct variable values and return correct client.
-     *
-     * > All data providers are executed before both the call to the setUpBeforeClass static method
-     * > and the first call to the setUp method.
-     * > Because of that you can't access any variables you create there from within a data provider.
-     * > This is required in order for PHPUnit to be able to compute the total number of tests.
-     * > https://phpunit.de/manual/6.5/en/writing-tests-for-phpunit.html#:~:text=a%20depending%20test.-,Note,-All%20data%20providers
+     * @return array
      */
-    public function provideComponentsClient()
+    public function provideComponentsClientType()
     {
-        yield 'defaultBranch' => [
-            function (self $that, array $config = []) {
-                if ($config) {
-                    return $that->getClient($config);
-                } else {
-                    return $that->_client;
-                }
-            }
-        ];
-
-        yield 'devBranch' => [
-            function (self $that, array $config = [], $useExistingBranch = false) {
-                if ($useExistingBranch) {
-                    $branch = $this->getExistingBranchForTestCase($that);
-                } else {
-                    $branch = $this->createDevBranchForTestCase($that);
-                }
-
-                if ($config) {
-                    return $this->getBranchAwareClient($branch['id'], $config);
-                } else {
-                    return $this->getBranchAwareDefaultClient($branch['id']);
-                }
-            }
-        ];
-    }
-
-    /**
-     * Usage:
-     *  - `$getGuzzleClient($this, [...])` -> return Guzzle client with custom config
-     *  - `$getGuzzleClient($this, [...], true)` -> return Guzzle client with custom which use same branch as before
-     *
-     * @see provideComponentsClient
-     */
-    public function provideComponentsGuzzleClient()
-    {
-        yield 'defaultBranch' => [
-            function (self $that, array $config) {
-                return new \GuzzleHttp\Client($config);
-            }
-        ];
-
-        yield 'devBranch' => [
-            function (self $that, array $config, $useExistingBranch = false) {
-                if ($useExistingBranch) {
-                    $branch = $this->getExistingBranchForTestCase($that);
-                } else {
-                    $branch = $this->createDevBranchForTestCase($that);
-                }
-                return new BranchAwareGuzzleClient($branch['id'], $config);
-            }
-        ];
-    }
-
-    /**
-     * Usage:
-     *  - `$getClient($this)` -> return default client which use branch aware client for calling default branch
-     *  - `$getClient($this, [...])` -> return client with custom config which use branch aware client for calling default branch
-     *  - `$getClient($this, [], true)` -> return default client which use same branch as before
-     *  - `$getClient($this, [...], true)` -> return client with custom which use same branch as before
-     *
-     * @see provideComponentsClient
-     */
-    public function provideBranchAwareComponentsClient()
-    {
-        yield 'defaultBranch' => [
-            function (self $that, array $config = []) {
-                if ($config) {
-                    return $this->getBranchAwareClient($this->getDefaultBranchId($that), $config);
-                } else {
-                    return $this->getBranchAwareDefaultClient($this->getDefaultBranchId($that));
-                }
-            }
-        ];
-
-        yield 'devBranch' => [
-            function (self $that, array $config = [], $useExistingBranch = false) {
-                if ($useExistingBranch) {
-                    $branch = $this->getExistingBranchForTestCase($that);
-                } else {
-                    $branch = $this->createDevBranchForTestCase($that);
-                }
-
-                if ($config) {
-                    return $this->getBranchAwareClient($branch['id'], $config);
-                } else {
-                    return $this->getBranchAwareDefaultClient($branch['id']);
-                }
-            }
+        return [
+            'defaultBranch' => [ClientProvider::DEFAULT_BRANCH],
+            'devBranch' => [ClientProvider::DEV_BRANCH],
         ];
     }
 
@@ -769,7 +673,7 @@ abstract class StorageApiTestCase extends ClientTestCase
         return $devBranch->createBranch($branchName);
     }
 
-    protected function getDefaultBranchId(self $that)
+    public function getDefaultBranchId(self $that)
     {
         $devBranch = new \Keboola\StorageApi\DevBranches($that->_client);
         $branchesList = $devBranch->listBranches();
@@ -879,12 +783,16 @@ abstract class StorageApiTestCase extends ClientTestCase
         return sha1($this->generateDescriptionForTestObject()) . '\\' . $name;
     }
 
-    protected function initEvents()
+    protected function initEvents(Client $client)
     {
+        // use default _client; branch client doesn't support verifyToken call
         $this->tokenId = $this->_client->verifyToken()['id'];
-        $lastEvent = $this->_client->listTokenEvents($this->tokenId, [
+
+        $lastEvent = $client->listEvents([
             'limit' => 1,
+            'q' => sprintf('token.id:%s', $this->tokenId),
         ]);
+
         if (!empty($lastEvent)) {
             $this->lastEventId = $lastEvent[0]['id'];
         }
