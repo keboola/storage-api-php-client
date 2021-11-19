@@ -129,17 +129,15 @@ class ClientProviderTest extends StorageApiTestCase
      */
     public function testGetDevBranchName($clientType, $dataName)
     {
-        $branchNamePrefix = str_replace(
-            '\\',
-            '\\\\',
-            sprintf(
-                '%s\\%s\\%s\\',
-                __CLASS__,
-                __FUNCTION__,
-                $dataName
-            )
-        );
-        $branchNamePattern = '/^' . $branchNamePrefix . '\d+' . '$/';
+        $branchNamePattern = '/^'
+            . 'Keboola\\\\Test\\\\ClientProvider\\\\ClientProviderTest'
+            . '\\\\'
+            . 'testGetDevBranchName'
+            . '\\\\'
+            . '(0|1|dev|default)'
+            . '\\\\'
+            . '\d+'
+            . '$/';
 
         $this->assertRegExp(
             $branchNamePattern,
