@@ -9416,16 +9416,6 @@ parameters:
 			path: tests/Common/BranchComponentTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\BranchComponentTest\\:\\:testRestoreBranchConfiguration\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/BranchComponentTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\BranchComponentTest\\:\\:testVersionIncreaseWhenUpdate\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/BranchComponentTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\BranchComponentTest\\:\\:withoutKeysChangingInBranch\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Common/BranchComponentTest.php
@@ -9635,10 +9625,6 @@ parameters:
 			count: 1
 			path: tests/Common/ComponentsTest.php
 
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\ComponentsTest\\:\\:testComponentConfigDelete\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/ComponentsTest.php
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\ComponentsTest\\:\\:testComponentConfigDeletedRowId\\(\\) has no return type specified\\.$#"
@@ -9928,11 +9914,6 @@ parameters:
 		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\ComponentsTest\\:\\:testUpdateRowWithoutIdShouldNotBeAllowed\\(\\) has no return type specified\\.$#"
 			count: 1
-			path: tests/Common/ComponentsTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, mixed given\\.$#"
-			count: 2
 			path: tests/Common/ComponentsTest.php
 
 		-
