@@ -18,7 +18,6 @@ use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\BufferedOutput;
-use Keboola\StorageApi\ProcessPolyfill;
 use function json_decode;
 use function var_dump;
 
@@ -38,19 +37,7 @@ class ComponentsTest extends StorageApiTestCase
     {
         parent::setUp();
 
-        $components = new \Keboola\StorageApi\Components($this->_client);
-        foreach ($components->listComponents() as $component) {
-            foreach ($component['configurations'] as $configuration) {
-                $components->deleteConfiguration($component['id'], $configuration['id']);
-            }
-        }
-
-        // erase all deleted configurations
-        foreach ($components->listComponents((new ListComponentsOptions())->setIsDeleted(true)) as $component) {
-            foreach ($component['configurations'] as $configuration) {
-                $components->deleteConfiguration($component['id'], $configuration['id']);
-            }
-        }
+        $this->cleanupConfigurations();
 
         $this->clientProvider = new ClientProvider($this);
         $this->client = $this->clientProvider->createClientForCurrentTest();
@@ -245,68 +232,43 @@ class ComponentsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientType
-     * @param string $clientType
+     * on defaultBranch only, no need devBranch because "Deleting configuration from trash is not allowed in
+     * development branches."
+     * @return void
      */
-    public function testComponentConfigDelete($clientType)
+    public function testComponentConfigurationDelete()
     {
         $componentId = 'wr-db';
         $configurationId = 'main-1';
         $components = new \Keboola\StorageApi\Components($this->client);
 
-        $this->assertCount(0, $components->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
-        ));
-        $this->assertCount(0, $components->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)->setIsDeleted(true)
-        ));
+        $listComponentsConfigOptions = (new ListComponentConfigurationsOptions())->setComponentId($componentId);
+        $listComponentsConfigOptionsDeleted = (new ListComponentConfigurationsOptions())
+            ->setComponentId($componentId)
+            ->setIsDeleted(true);
 
+        $this->assertCount(0, $components->listComponentConfigurations($listComponentsConfigOptions));
+        $this->assertCount(0, $components->listComponentConfigurations($listComponentsConfigOptionsDeleted));
+
+        // add configuration
         $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId($componentId)
             ->setConfigurationId($configurationId)
             ->setName('Main')
             ->setDescription('some desc'));
 
+        // delete configuration
         $components->deleteConfiguration($componentId, $configurationId);
 
-        $this->assertCount(0, $components->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
-        ));
+        // check that configurations are empty
+        $this->assertCount(0, $components->listComponentConfigurations($listComponentsConfigOptions));
         $this->assertCount(0, $components->listComponents());
 
-        // test that sending string 'false' for isDeleted is supported https://github.com/keboola/connection/issues/1047
-        $command = "curl '" . STORAGE_API_URL . "/v2/storage/components/{$componentId}/configs?isDeleted=false' \
-                    -X GET \
-                    -H 'content-type: application/x-www-form-urlencoded' \
-                    -H 'accept: */*' \
-                    -H 'x-storageapi-token: " . STORAGE_API_TOKEN . "'";
-        $process = ProcessPolyfill::createProcess($command);
-        $process->run();
-        if (!$process->isSuccessful()) {
-            $this->fail("Api request failure GET component configs");
-        }
-        $result = json_decode($process->getOutput(), true);
-        $this->assertCount(0, $result);
-
-        // test that sending string 'false' for isDeleted is supported https://github.com/keboola/connection/issues/1047
-        $command = "curl '" . STORAGE_API_URL . "/v2/storage/components?isDeleted=false' \
-                    -X GET \
-                    -H 'content-type: application/x-www-form-urlencoded' \
-                    -H 'accept: */*' \
-                    -H 'x-storageapi-token: " . STORAGE_API_TOKEN . "'";
-        $process = ProcessPolyfill::createProcess($command);
-        $process->run();
-        if (!$process->isSuccessful()) {
-            $this->fail("Api request failure GET component list");
-        }
-        $result = json_decode($process->getOutput(), true);
-        $this->assertCount(0, $result);
-
-        $componentList = $components->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)->setIsDeleted(true)
-        );
+        // check that there is one deleted configuration
+        $componentList = $components->listComponentConfigurations($listComponentsConfigOptionsDeleted);
         $this->assertCount(1, $componentList);
 
+        // check content of deleted configuration
         $component = reset($componentList);
         $this->assertEquals($configurationId, $component['id']);
         $this->assertEquals('Main', $component['name']);
@@ -325,24 +287,19 @@ class ComponentsTest extends StorageApiTestCase
 
         $componentsIndex = $components->listComponents((new ListComponentsOptions())->setIsDeleted(true));
 
+        // check content of deleted component
         $this->assertCount(1, $componentsIndex);
         $this->assertArrayHasKey('id', $componentsIndex[0]);
         $this->assertArrayHasKey('configurations', $componentsIndex[0]);
         $this->assertEquals($componentId, $componentsIndex[0]['id']);
         $this->assertCount(1, $componentsIndex[0]['configurations']);
 
-        if ($clientType === ClientProvider::DEV_BRANCH) {
-            $this->markTestSkipped('Deleting configuration from trash is not allowed in development branches.');
-        }
-
+        // purge
         $components->deleteConfiguration($componentId, $configurationId);
 
-        $this->assertCount(0, $components->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
-        ));
-        $this->assertCount(0, $components->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)->setIsDeleted(true)
-        ));
+        // it isn't present even as deleted
+        $this->assertCount(0, $components->listComponentConfigurations($listComponentsConfigOptions));
+        $this->assertCount(0, $components->listComponentConfigurations($listComponentsConfigOptionsDeleted));
     }
 
     /**
@@ -354,12 +311,12 @@ class ComponentsTest extends StorageApiTestCase
         $configurationId = 'main-1';
         $components = new \Keboola\StorageApi\Components($this->client);
 
-        $this->assertCount(0, $components->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
-        ));
-        $this->assertCount(0, $components->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)->setIsDeleted(true)
-        ));
+        $listConfigOptions = (new ListComponentConfigurationsOptions())->setComponentId($componentId);
+        $listConfigOptionsDeleted = (new ListComponentConfigurationsOptions())
+            ->setComponentId($componentId)
+            ->setIsDeleted(true);
+        $this->assertCount(0, $components->listComponentConfigurations($listConfigOptions));
+        $this->assertCount(0, $components->listComponentConfigurations($listConfigOptionsDeleted));
 
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId($componentId)
@@ -371,23 +328,34 @@ class ComponentsTest extends StorageApiTestCase
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config);
         $components->addConfigurationRow($configurationRow);
 
+        $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId));
+        $this->assertCount(1, $rows);
+
+        $configurations = $components->listComponentConfigurations($listConfigOptions);
+        $this->assertCount(1, $configurations);
+
         $components->deleteConfiguration($componentId, $configurationId);
+
+        $listConfigurationOptions = (new ListComponentConfigurationsOptions())->setComponentId($componentId);
+        $configurations = $components->listComponentConfigurations($listConfigOptions);
+        $this->assertCount(0, $configurations);
+
+        $listConfigurationOptions->setIsDeleted(true);
+        $configurations = $components->listComponentConfigurations($listConfigOptionsDeleted);
+        $this->assertCount(1, $configurations);
 
         $components->restoreComponentConfiguration($componentId, $configurationId);
 
-        $this->assertCount(0, $components->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
-                ->setIsDeleted(true)
-        ));
+        $this->assertCount(0, $components->listComponentConfigurations($listConfigOptionsDeleted));
 
         $this->assertCount(1, $components->listConfigurationRows(
             (new ListConfigurationRowsOptions())->setComponentId($componentId)
                 ->setConfigurationId($config->getConfigurationId())
         ));
 
-        $componentList = $components->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
-        );
+        $componentList = $components->listComponentConfigurations($listConfigOptions);
         $this->assertCount(1, $componentList);
 
         $component = reset($componentList);
@@ -400,21 +368,56 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertIsInt($component['version']);
         $this->assertIsInt($component['creatorToken']['id']);
 
+        // try to restore again
+        try {
+            $components->restoreComponentConfiguration($componentId, $configurationId);
+            $this->fail('Configuration should not be restored again');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+            $this->assertSame('notFound', $e->getStringCode());
+            $this->assertContains('Deleted configuration main-1 not found', $e->getMessage());
+        }
+
         $components->deleteConfiguration($componentId, $configurationId);
+
+        $configurations = $components->listComponentConfigurations($listConfigOptions);
+        $this->assertCount(0, $configurations);
+
+
+        $configurations = $components->listComponentConfigurations($listConfigOptionsDeleted);
+        $this->assertCount(1, $configurations);
+
+        try {
+            $components->listConfigurationRows((new ListConfigurationRowsOptions())
+                ->setComponentId($componentId)
+                ->setConfigurationId($configurationId));
+            $this->fail('Configuration rows for deleted configuration should not be listed');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+            $this->assertSame('notFound', $e->getStringCode());
+            $this->assertContains('Configuration main-1 not found', $e->getMessage());
+        }
+
         // restore configuration with create same configuration id and test number of rows
         $configurationRestored = (new Configuration())
             ->setComponentId($componentId)
             ->setConfigurationId($config->getConfigurationId())
+            ->setConfiguration(['a' => 'b'])
+            ->setChangeDescription('Config restored...')
             ->setName('Main 1 restored');
         $components->addConfiguration($configurationRestored);
-        $this->assertCount(0, $components->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
-                ->setIsDeleted(true)
-        ));
+        $this->assertCount(0, $components->listComponentConfigurations($listConfigOptionsDeleted));
         $this->assertCount(0, $components->listConfigurationRows(
             (new ListConfigurationRowsOptions())->setComponentId($componentId)
                 ->setConfigurationId($configurationRestored->getConfigurationId())
         ));
+
+        $configuration = $components->getConfiguration($componentId, 'main-1');
+        $this->assertSame('main-1', $configuration['id']);
+        $this->assertSame('Main 1 restored', $configuration['name']);
+        $this->assertSame(['a' => 'b'], $configuration['configuration']);
+        $this->assertSame('Config restored...', $configuration['changeDescription']);
+        $this->assertSame(6, $configuration['version']);
     }
 
     /**
@@ -1463,6 +1466,63 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEmpty($configuration['configuration']);
         $this->assertArrayHasKey('rows', $configuration);
         $this->assertCount(0, $configuration['rows']);
+    }
+
+    /**
+     * @dataProvider provideComponentsClientType
+     * @return void
+     */
+    public function testVersionIncreaseWhenUpdate()
+    {
+        $componentsApi = new \Keboola\StorageApi\Components($this->client);
+
+        $configuration = new Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main');
+        $componentsApi->addConfiguration($configuration);
+
+        $configurationRow = new ConfigurationRow($configuration);
+        $configurationRow->setRowId('main-1-1');
+        $configurationRow->setConfiguration([
+            'my-value' => 666,
+        ]);
+        $componentsApi->addConfigurationRow($configurationRow);
+
+        $configurationRow = new ConfigurationRow($configuration);
+        $configurationRow->setRowId('main-1-2');
+        $configurationRow->setConfiguration([
+            'my-value' => 666,
+        ]);
+        $componentsApi->addConfigurationRow($configurationRow);
+
+        $componentConfiguration = $componentsApi->getConfiguration('wr-db', 'main-1');
+
+        $this->assertEquals(3, $componentConfiguration['version']);
+
+        $configuration = new Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setRowsSortOrder(['main-1-1', 'main-1-2']);
+        $componentsApi->updateConfiguration($configuration);
+
+        $componentConfiguration = $componentsApi->getConfiguration('wr-db', 'main-1');
+
+        $this->assertEquals(4, $componentConfiguration['version']);
+
+        // calling the update once again without any change, the version should remain
+        $configuration = new Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setRowsSortOrder(['main-1-1', 'main-1-2']);
+        $componentsApi->updateConfiguration($configuration);
+
+        $componentConfiguration = $componentsApi->getConfiguration('wr-db', 'main-1');
+
+        $this->assertEquals(4, $componentConfiguration['version']);
     }
 
     /**
