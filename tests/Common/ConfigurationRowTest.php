@@ -1,18 +1,27 @@
 <?php
 namespace Keboola\Test\Common;
 
-use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
-use Keboola\StorageApi\ProcessPolyfill;
+use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
 
 class ConfigurationRowTest extends StorageApiTestCase
 {
+    /**
+     * @var ClientProvider
+     */
+    private $clientProvider;
+
+    /**
+     * @var Client
+     */
+    private $client;
+
     public function setUp()
     {
         parent::setUp();
@@ -30,14 +39,17 @@ class ConfigurationRowTest extends StorageApiTestCase
                 $components->deleteConfiguration($component['id'], $configuration['id']);
             }
         }
+
+        $this->clientProvider = new ClientProvider($this);
+        $this->client = $this->clientProvider->createClientForCurrentTest();
     }
 
     /**
-     * @dataProvider provideComponentsClient
+     * @dataProvider provideComponentsClientType
      */
-    public function testConfigurationCopyCreateWithSameRowId(callable $getClient)
+    public function testConfigurationCopyCreateWithSameRowId()
     {
-        $components = new \Keboola\StorageApi\Components($getClient($this));
+        $components = new \Keboola\StorageApi\Components($this->client);
 
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
@@ -80,11 +92,11 @@ class ConfigurationRowTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClient
+     * @dataProvider provideComponentsClientType
      */
-    public function testConfigurationRowReturnsSingleRow(callable $getClient)
+    public function testConfigurationRowReturnsSingleRow()
     {
-        $components = new Components($getClient($this));
+        $components = new Components($this->client);
         $configuration = new Configuration();
         $configuration
             ->setComponentId('wr-db')
@@ -110,14 +122,14 @@ class ConfigurationRowTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClient
+     * @dataProvider provideComponentsClientType
      */
-    public function testConfigurationRowThrowsNotFoundException(callable $getClient)
+    public function testConfigurationRowThrowsNotFoundException()
     {
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Row invalidRowID not found');
 
-        $components = new Components($getClient($this));
+        $components = new Components($this->client);
         $configuration = new Configuration();
         $configuration
             ->setComponentId('wr-db')
@@ -133,13 +145,11 @@ class ConfigurationRowTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientAndGuzzleClient
+     * @dataProvider provideComponentsClientType
      */
-    public function testConfigurationRowJsonDataTypes(callable $getClient, callable $getGuzzleClient)
+    public function testConfigurationRowJsonDataTypes()
     {
-        /** @var Client $_client */
-        $_client = $getClient($this);
-        $components = new \Keboola\StorageApi\Components($_client);
+        $components = new \Keboola\StorageApi\Components($this->client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
@@ -150,9 +160,8 @@ class ConfigurationRowTest extends StorageApiTestCase
 
         // to check if params is object we have to convert received json to objects instead of assoc array
         // so we have to use raw Http Client
-        /** @var \GuzzleHttp\Client $client */
-        $client = $getGuzzleClient($this, [
-            'base_uri' => $_client->getApiUrl(),
+        $guzzleClient = $this->clientProvider->createGuzzleClientForCurrentTest([
+            'base_uri' => $this->client->getApiUrl(),
         ], true);
 
         $config = (object)[
@@ -170,23 +179,23 @@ class ConfigurationRowTest extends StorageApiTestCase
         ];
 
 
-        $response = $client->post('/v2/storage/components/wr-db/configs/main-1/rows', [
+        $response = $guzzleClient->post('/v2/storage/components/wr-db/configs/main-1/rows', [
             'form_params' => [
                 'name' => 'test',
                 'configuration' => json_encode($config),
                 'state' => json_encode($state),
             ],
             'headers' => array(
-                'X-StorageApi-Token' => $_client->getTokenString(),
+                'X-StorageApi-Token' => $this->client->getTokenString(),
             ),
         ]);
         $response = json_decode((string)$response->getBody());
         $this->assertEquals($config, $response->configuration);
         $this->assertEquals($state, $response->state);
 
-        $response = $client->get('/v2/storage/components/wr-db/configs/main-1/rows/' . $response->id, [
+        $response = $guzzleClient->get('/v2/storage/components/wr-db/configs/main-1/rows/' . $response->id, [
             'headers' => array(
-                'X-StorageApi-Token' => $_client->getTokenString(),
+                'X-StorageApi-Token' => $this->client->getTokenString(),
             ),
         ]);
         $response = json_decode((string)$response->getBody());
@@ -208,30 +217,30 @@ class ConfigurationRowTest extends StorageApiTestCase
             ]
         ];
 
-        $client->put('/v2/storage/components/wr-db/configs/main-1/rows/' . $response->id . '/state', [
+        $guzzleClient->put('/v2/storage/components/wr-db/configs/main-1/rows/' . $response->id . '/state', [
             'form_params' => [
                 'state' => json_encode($state),
             ],
             'headers' => array(
-                'X-StorageApi-Token' => $_client->getTokenString(),
+                'X-StorageApi-Token' => $this->client->getTokenString(),
             ),
         ]);
 
-        $response = $client->put('/v2/storage/components/wr-db/configs/main-1/rows/' . $response->id, [
+        $response = $guzzleClient->put('/v2/storage/components/wr-db/configs/main-1/rows/' . $response->id, [
             'form_params' => [
                 'configuration' => json_encode($config),
             ],
             'headers' => array(
-                'X-StorageApi-Token' => $_client->getTokenString(),
+                'X-StorageApi-Token' => $this->client->getTokenString(),
             ),
         ]);
         $response = json_decode((string)$response->getBody());
         $this->assertEquals($config, $response->configuration);
         $this->assertEquals($state, $response->state);
 
-        $response = $client->get('/v2/storage/components/wr-db/configs/main-1/rows/' . $response->id, [
+        $response = $guzzleClient->get('/v2/storage/components/wr-db/configs/main-1/rows/' . $response->id, [
             'headers' => array(
-                'X-StorageApi-Token' => $_client->getTokenString(),
+                'X-StorageApi-Token' => $this->client->getTokenString(),
             ),
         ]);
         $response = json_decode((string)$response->getBody());
@@ -241,14 +250,11 @@ class ConfigurationRowTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientAndGuzzleClient
+     * @dataProvider provideComponentsClientType
      */
-    public function testConfigurationRowIsDisabledBooleanValue(callable $getClient, callable $getGuzzleClient)
+    public function testConfigurationRowIsDisabledBooleanValue()
     {
-        /** @var Client $_client */
-        $_client = $getClient($this);
-
-        $components = new \Keboola\StorageApi\Components($_client);
+        $components = new \Keboola\StorageApi\Components($this->client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
@@ -256,8 +262,8 @@ class ConfigurationRowTest extends StorageApiTestCase
             ->setName('Main');
         $components->addConfiguration($configuration);
 
-        $client = $getGuzzleClient($this, [
-            'base_uri' => $this->_client->getApiUrl(),
+        $guzzleClient = $this->clientProvider->createGuzzleClientForCurrentTest([
+            'base_uri' => $this->client->getApiUrl(),
         ], true);
 
         $config = (object)[
@@ -274,24 +280,24 @@ class ConfigurationRowTest extends StorageApiTestCase
             ]
         ];
 
-        $response = $client->post('/v2/storage/components/wr-db/configs/main-1/rows', [
+        $response = $guzzleClient->post('/v2/storage/components/wr-db/configs/main-1/rows', [
             'form_params' => [
                 'configuration' => json_encode($config),
                 'state' => json_encode($state),
             ],
             'headers' => array(
-                'X-StorageApi-Token' => $this->_client->getTokenString(),
+                'X-StorageApi-Token' => $this->client->getTokenString(),
             ),
         ]);
         $response = json_decode((string) $response->getBody());
 
-        $responsePut = $client->put("/v2/storage/components/wr-db/configs/main-1/rows/" . $response->id, [
+        $responsePut = $guzzleClient->put("/v2/storage/components/wr-db/configs/main-1/rows/" . $response->id, [
             'form_params' => [
                 'isDisabled' => 'true',
                 'changeDescription' => 'Row ABCD disabled',
             ],
             'headers' => [
-                'X-StorageApi-Token' => $this->_client->getTokenString(),
+                'X-StorageApi-Token' => $this->client->getTokenString(),
             ],
         ]);
 
@@ -300,38 +306,15 @@ class ConfigurationRowTest extends StorageApiTestCase
         $this->assertEquals("Row ABCD disabled", $result->changeDescription);
     }
 
-    public function provideComponentsClientAndGuzzleClient()
-    {
-        $clients = [];
-        foreach ($this->provideComponentsClient() as $name => $callable) {
-            $clients[$name] = reset($callable);
-        }
-
-        $guzzleClients = [];
-        foreach ($this->provideComponentsGuzzleClient() as $name => $callable) {
-            $guzzleClients[$name] = reset($callable);
-        }
-
-        yield 'defaultBranch' => [
-            $clients['defaultBranch'],
-            $guzzleClients['defaultBranch'],
-        ];
-
-        yield 'devBranch' => [
-            $clients['devBranch'],
-            $guzzleClients['devBranch'],
-        ];
-    }
-
     /**
      * @dataProvider isDisabledProvider
+     * @param string $clientType
+     * @param mixed $isDisabled
+     * @param bool $expectedIsDisabled
      */
-    public function testCreateConfigurationRowIsDisabled(callable $getClient, callable $getGuzzleClient, $isDisabled, $expectedIsDisabled)
+    public function testCreateConfigurationRowIsDisabled($clientType, $isDisabled, $expectedIsDisabled)
     {
-        /** @var Client $_client */
-        $_client = $getClient($this);
-
-        $components = new \Keboola\StorageApi\Components($_client);
+        $components = new \Keboola\StorageApi\Components($this->client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
@@ -339,8 +322,8 @@ class ConfigurationRowTest extends StorageApiTestCase
             ->setName('Main');
         $components->addConfiguration($configuration);
 
-        $client = $getGuzzleClient($this, [
-            'base_uri' => $this->_client->getApiUrl(),
+        $client = $this->clientProvider->createGuzzleClientForCurrentTest([
+            'base_uri' => $this->client->getApiUrl(),
         ], true);
 
         $config = (object)[
@@ -365,7 +348,7 @@ class ConfigurationRowTest extends StorageApiTestCase
                 'isDisabled' => $isDisabled,
             ],
             'headers' => array(
-                'X-StorageApi-Token' => $_client->getTokenString(),
+                'X-StorageApi-Token' => $this->client->getTokenString(),
             ),
         ]);
         $response = json_decode((string)$response->getBody());
@@ -377,16 +360,6 @@ class ConfigurationRowTest extends StorageApiTestCase
 
     public function isDisabledProvider()
     {
-        $clients = [];
-        foreach ($this->provideComponentsClient() as $name => $callable) {
-            $clients[$name] = reset($callable);
-        }
-
-        $guzzleClients = [];
-        foreach ($this->provideComponentsGuzzleClient() as $name => $callable) {
-            $guzzleClients[$name] = reset($callable);
-        }
-
         $providerData = [
             'isDisabled string' => [
                 'true',
@@ -414,11 +387,10 @@ class ConfigurationRowTest extends StorageApiTestCase
             ],
         ];
 
-        foreach (['defaultBranch', 'devBranch'] as $branch) {
+        foreach ([ClientProvider::DEFAULT_BRANCH, ClientProvider::DEV_BRANCH] as $clientType) {
             foreach ($providerData as $providerKey => $provider) {
-                yield sprintf('%s: %s', $branch, $providerKey) => [
-                    $clients[$branch],
-                    $guzzleClients[$branch],
+                yield sprintf('%s: %s', $clientType, $providerKey) => [
+                    $clientType,
                     $provider[0],
                     $provider[1],
                 ];

@@ -1,17 +1,22 @@
 <?php
 namespace Keboola\Test\Common;
 
-use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
+use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
 
 class ConfigurationRowsSortOrderTest extends StorageApiTestCase
 {
+    /**
+     * @var Client
+     */
+    private $client;
+
     public function setUp()
     {
         parent::setUp();
@@ -29,14 +34,17 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
                 $components->deleteConfiguration($component['id'], $configuration['id']);
             }
         }
+
+        $clientProvider = new ClientProvider($this);
+        $this->client = $clientProvider->createClientForCurrentTest();
     }
 
     /**
-     * @dataProvider provideComponentsClient
+     * @dataProvider provideComponentsClientType
      */
-    public function testAttributeExists(callable $getClient)
+    public function testAttributeExists()
     {
-        $components = new \Keboola\StorageApi\Components($getClient($this));
+        $components = new \Keboola\StorageApi\Components($this->client);
         $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
@@ -49,11 +57,11 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClient
+     * @dataProvider provideComponentsClientType
      */
-    public function testAttributeValuesForOneUnsortedRow(callable $getClient)
+    public function testAttributeValuesForOneUnsortedRow()
     {
-        $components = new \Keboola\StorageApi\Components($getClient($this));
+        $components = new \Keboola\StorageApi\Components($this->client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
@@ -71,11 +79,11 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClient
+     * @dataProvider provideComponentsClientType
      */
-    public function testAttributeValuesForOneSortedRow(callable $getClient)
+    public function testAttributeValuesForOneSortedRow()
     {
-        $components = new \Keboola\StorageApi\Components($getClient($this));
+        $components = new \Keboola\StorageApi\Components($this->client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
@@ -103,11 +111,11 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClient
+     * @dataProvider provideComponentsClientType
      */
-    public function testAddRowToSorted(callable $getClient)
+    public function testAddRowToSorted()
     {
-        $components = new \Keboola\StorageApi\Components($getClient($this));
+        $components = new \Keboola\StorageApi\Components($this->client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
@@ -139,11 +147,11 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClient
+     * @dataProvider provideComponentsClientType
      */
-    public function testAddRowToUnsorted(callable $getClient)
+    public function testAddRowToUnsorted()
     {
-        $components = new \Keboola\StorageApi\Components($getClient($this));
+        $components = new \Keboola\StorageApi\Components($this->client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
@@ -167,11 +175,11 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClient
+     * @dataProvider provideComponentsClientType
      */
-    public function testReorder(callable $getClient)
+    public function testReorder()
     {
-        $components = new \Keboola\StorageApi\Components($getClient($this));
+        $components = new \Keboola\StorageApi\Components($this->client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
@@ -201,11 +209,11 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClient
+     * @dataProvider provideComponentsClientType
      */
-    public function testReorderNonexistingRow(callable $getClient)
+    public function testReorderNonexistingRow()
     {
-        $components = new \Keboola\StorageApi\Components($getClient($this));
+        $components = new \Keboola\StorageApi\Components($this->client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
@@ -232,11 +240,11 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClient
+     * @dataProvider provideComponentsClientType
      */
-    public function testReorderMissingRow(callable $getClient)
+    public function testReorderMissingRow()
     {
-        $components = new \Keboola\StorageApi\Components($getClient($this));
+        $components = new \Keboola\StorageApi\Components($this->client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
@@ -269,11 +277,11 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClient
+     * @dataProvider provideComponentsClientType
      */
-    public function testVersionChangeWhenRowsSortOrderIsManipulated(callable $getClient)
+    public function testVersionChangeWhenRowsSortOrderIsManipulated()
     {
-        $components = new \Keboola\StorageApi\Components($getClient($this));
+        $components = new \Keboola\StorageApi\Components($this->client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
@@ -317,11 +325,11 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClient
+     * @dataProvider provideComponentsClientType
      */
-    public function testVersionRollbackToUnsorted(callable $getClient)
+    public function testVersionRollbackToUnsorted()
     {
-        $components = new \Keboola\StorageApi\Components($getClient($this));
+        $components = new \Keboola\StorageApi\Components($this->client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
@@ -354,11 +362,11 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClient
+     * @dataProvider provideComponentsClientType
      */
-    public function testVersionRollbackToSorted(callable $getClient)
+    public function testVersionRollbackToSorted()
     {
-        $components = new \Keboola\StorageApi\Components($getClient($this));
+        $components = new \Keboola\StorageApi\Components($this->client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
@@ -398,11 +406,11 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClient
+     * @dataProvider provideComponentsClientType
      */
-    public function testVersionCopy(callable $getClient)
+    public function testVersionCopy()
     {
-        $components = new \Keboola\StorageApi\Components($getClient($this));
+        $components = new \Keboola\StorageApi\Components($this->client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
@@ -434,11 +442,11 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClient
+     * @dataProvider provideComponentsClientType
      */
-    public function testRowDeleteUnsored(callable $getClient)
+    public function testRowDeleteUnsored()
     {
-        $components = new \Keboola\StorageApi\Components($getClient($this));
+        $components = new \Keboola\StorageApi\Components($this->client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
@@ -466,11 +474,11 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClient
+     * @dataProvider provideComponentsClientType
      */
-    public function testRowDeleteSorted(callable $getClient)
+    public function testRowDeleteSorted()
     {
-        $components = new \Keboola\StorageApi\Components($getClient($this));
+        $components = new \Keboola\StorageApi\Components($this->client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
@@ -505,11 +513,11 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClient
+     * @dataProvider provideComponentsClientType
      */
-    public function testVersionsAttributeExists(callable $getClient)
+    public function testVersionsAttributeExists()
     {
-        $components = new \Keboola\StorageApi\Components($getClient($this));
+        $components = new \Keboola\StorageApi\Components($this->client);
         $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
@@ -522,14 +530,11 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClient
+     * @dataProvider provideComponentsClientType
      */
-    public function testVersionsAttributeValue(callable $getClient)
+    public function testVersionsAttributeValue()
     {
-        /** @var Client $client */
-        $client = $getClient($this);
-
-        $components = new \Keboola\StorageApi\Components($client);
+        $components = new \Keboola\StorageApi\Components($this->client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
