@@ -248,9 +248,6 @@ class ComponentsTest extends StorageApiTestCase
      */
     public function testComponentConfigDelete($clientType)
     {
-        if ($clientType === ClientProvider::DEV_BRANCH) {
-            $this->markTestSkipped('Deleting configuration from trash is not allowed in development branches.');
-        }
         $componentId = 'wr-db';
         $configurationId = 'main-1';
         $components = new \Keboola\StorageApi\Components($this->client);
@@ -331,6 +328,10 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertArrayHasKey('configurations', $componentsIndex[0]);
         $this->assertEquals($componentId, $componentsIndex[0]['id']);
         $this->assertCount(1, $componentsIndex[0]['configurations']);
+
+        if ($clientType === ClientProvider::DEV_BRANCH) {
+            $this->markTestSkipped('Deleting configuration from trash is not allowed in development branches.');
+        }
 
         $components->deleteConfiguration($componentId, $configurationId);
 
