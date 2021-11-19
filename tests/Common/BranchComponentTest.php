@@ -267,11 +267,6 @@ class BranchComponentTest extends StorageApiTestCase
 
     public function testManipulationWithComponentConfigurations()
     {
-        $providedToken = $this->_client->verifyToken();
-        $devBranch = new DevBranches($this->_client);
-        $branchName = __CLASS__ . '\\' . $this->getName() . '\\' . $providedToken['id'];
-        $branch = $this->deleteBranchesByPrefix($devBranch, $branchName);
-
         // create new configurations in main branch
         $componentId = 'transformation';
         $components = new Components($this->_client);
@@ -312,10 +307,7 @@ class BranchComponentTest extends StorageApiTestCase
             $this->assertContains('Configuration deleted-main not found', $e->getMessage());
         }
 
-        // dummy branch to highlight potentially forgotten where on branch
-        $devBranch->createBranch($branchName . '-dummy');
-
-        $branch = $devBranch->createBranch($branchName);
+        $branch = $this->createDevBranchForTestCase($this);
 
         $branchComponents = new Components($this->getBranchAwareDefaultClient($branch['id']));
 
@@ -1105,11 +1097,6 @@ class BranchComponentTest extends StorageApiTestCase
 
     public function testDeleteBranchConfigurationRow()
     {
-        $providedToken = $this->_client->verifyToken();
-        $devBranch = new DevBranches($this->_client);
-        $branchName = __CLASS__ . '\\' . $this->getName() . '\\' . $providedToken['id'];
-        $this->deleteBranchesByPrefix($devBranch, $branchName);
-
         // create new configurations in main branch
         $componentId = 'transformation';
         $components = new Components($this->_client);
@@ -1134,11 +1121,7 @@ class BranchComponentTest extends StorageApiTestCase
         $mainConfigRow = $components->getConfigurationRow($componentId, 'main-1', 'main-1-row-1');
         $this->assertSame(1, $mainConfigRow['version']);
 
-        // dummy branch to highlight potentially forgotten where on branch
-        $devBranch->createBranch($branchName . '-dummy');
-
-        // create dev branch
-        $branch = $devBranch->createBranch($branchName);
+        $branch = $this->createDevBranchForTestCase($this);
 
         $branchComponents = new Components($this->getBranchAwareDefaultClient($branch['id']));
 
