@@ -242,41 +242,33 @@ class ComponentsTest extends StorageApiTestCase
         $configurationId = 'main-1';
         $components = new \Keboola\StorageApi\Components($this->client);
 
-        $this->assertCount(0, $components->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
-        ));
-        $this->assertCount(0, $components->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)->setIsDeleted(true)
-        ));
+        $listComponentsConfigOptions = (new ListComponentConfigurationsOptions())->setComponentId($componentId);
+        $listComponentsConfigOptionsDeleted = (new ListComponentConfigurationsOptions())
+            ->setComponentId($componentId)
+            ->setIsDeleted(true);
 
+        $this->assertCount(0, $components->listComponentConfigurations($listComponentsConfigOptions));
+        $this->assertCount(0, $components->listComponentConfigurations($listComponentsConfigOptionsDeleted));
+
+        // add configuration
         $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId($componentId)
             ->setConfigurationId($configurationId)
             ->setName('Main')
             ->setDescription('some desc'));
 
+        // delete configuration
         $components->deleteConfiguration($componentId, $configurationId);
 
-        $this->assertCount(0, $components->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
-        ));
+        // check that configurations are empty
+        $this->assertCount(0, $components->listComponentConfigurations($listComponentsConfigOptions));
         $this->assertCount(0, $components->listComponents());
 
-        $listConfigurationOptions = (new ListComponentConfigurationsOptions())
-            ->setComponentId($componentId)
-            ->setIsDeleted(false);
-
-        $result = $components->listComponentConfigurations($listConfigurationOptions);
-        $this->assertCount(0, $result);
-
-        $result = $components->listComponents((new ListComponentsOptions())->setIsDeleted(false));
-        $this->assertCount(0, $result);
-
-        $componentList = $components->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)->setIsDeleted(true)
-        );
+        // check that there is one deleted configuration
+        $componentList = $components->listComponentConfigurations($listComponentsConfigOptionsDeleted);
         $this->assertCount(1, $componentList);
 
+        // check content of deleted configuration
         $component = reset($componentList);
         $this->assertEquals($configurationId, $component['id']);
         $this->assertEquals('Main', $component['name']);
@@ -295,24 +287,19 @@ class ComponentsTest extends StorageApiTestCase
 
         $componentsIndex = $components->listComponents((new ListComponentsOptions())->setIsDeleted(true));
 
+        // check content of deleted component
         $this->assertCount(1, $componentsIndex);
         $this->assertArrayHasKey('id', $componentsIndex[0]);
         $this->assertArrayHasKey('configurations', $componentsIndex[0]);
         $this->assertEquals($componentId, $componentsIndex[0]['id']);
         $this->assertCount(1, $componentsIndex[0]['configurations']);
 
-        if ($clientType === ClientProvider::DEV_BRANCH) {
-            $this->markTestSkipped('Deleting configuration from trash is not allowed in development branches.');
-        }
-
+        // purge
         $components->deleteConfiguration($componentId, $configurationId);
 
-        $this->assertCount(0, $components->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
-        ));
-        $this->assertCount(0, $components->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)->setIsDeleted(true)
-        ));
+        // it isn't present even as deleted
+        $this->assertCount(0, $components->listComponentConfigurations($listComponentsConfigOptions));
+        $this->assertCount(0, $components->listComponentConfigurations($listComponentsConfigOptionsDeleted));
     }
 
     /**
