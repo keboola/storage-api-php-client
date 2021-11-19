@@ -3,6 +3,9 @@
 	"description": "Keboola Storage API PHP CLient",
 	"homepage": "http://keboola.com",
 	"license": "MIT",
+	"config": {
+		"lock": false
+	},
 	"autoload": {
 		"psr-0": {
 			"Keboola\\StorageApi": "src/"
