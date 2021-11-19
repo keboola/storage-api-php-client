@@ -13,7 +13,12 @@ class BlobClientFactory
     public static function createClientFromConnectionString(
         $connectionString
     ) {
-        $client = BlobRestProxy::createBlobService($connectionString);
+        $client = BlobRestProxy::createBlobService($connectionString, [
+            'http' => [
+                'connect_timeout' => 10,
+                'timeout' => 120,
+            ],
+        ]);
         $client->pushMiddleware(BlobStorageRetryMiddleware::create());
 
         return $client;
