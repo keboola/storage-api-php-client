@@ -170,10 +170,6 @@ class ComponentsEventsTest extends StorageApiTestCase
     {
         $components = new Components($this->client);
 
-        if ($clientType === ClientProvider::DEV_BRANCH) {
-            $this->markTestSkipped('Deleting configuration from trash is not allowed in development branches.');
-        }
-
         $config = $this->getConfiguration();
         $components->addConfiguration($config);
 
@@ -194,6 +190,10 @@ class ComponentsEventsTest extends StorageApiTestCase
                 'version' => 2,
             ]
         );
+
+        if ($clientType === ClientProvider::DEV_BRANCH) {
+            $this->markTestSkipped('Deleting configuration from trash is not allowed in development branches.');
+        }
 
         // purge
         $components->deleteConfiguration(self::COMPONENT_ID, $this->configurationId);
