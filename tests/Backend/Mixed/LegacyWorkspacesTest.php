@@ -340,6 +340,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
         // exception should be thrown, as quantity has empty value '' and snflk will complain.
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
+            $this->fail('Should throw exception');
         } catch (ClientException $e) {
             $this->assertEquals($e->getStringCode(), "workspace.tableLoad");
         }
