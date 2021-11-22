@@ -2,8 +2,6 @@
 
 namespace Keboola\Test\Common;
 
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Exception\ServerException;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\DevBranches;
@@ -12,35 +10,17 @@ use Keboola\StorageApi\Event;
 
 class BranchEventsTest extends StorageApiTestCase
 {
-    public function testDevBranchEventCreated()
+    /**
+     * @return void
+     */
+    public function testCreatedEventAvailableInBranchOnly()
     {
-        $providedToken = $this->_client->verifyToken();
-        $devBranch = new DevBranches($this->_client);
-        // cleanup
-        $branchesList = $devBranch->listBranches();
-        $branchName = __CLASS__ . '\\' . $this->getName() . '\\' . $providedToken['id'];
-        $branchesCreatedByThisTestMethod = array_filter(
-            $branchesList,
-            function ($branch) use ($branchName) {
-                return strpos($branch['name'], $branchName) === 0;
-            }
-        );
-        foreach ($branchesCreatedByThisTestMethod as $branch) {
-            try {
-                $this->_client->dropBucket('in.c-dev-branch-' . $branch['id']);
-            } catch (ClientException $e) {
-            }
-
-            $devBranch->deleteBranch($branch['id']);
-        }
-
-        // event for main branch dispatched
-        $branch = $devBranch->createBranch($branchName);
+        $branch = $this->createDevBranchForTestCase($this);
+        $branchName = $branch['name'];
         $configurationId = 'config-id-dev-branch-' . $branch['id'];
-
         $branchAwareClient = $this->getBranchAwareDefaultClient($branch['id']);
-
         $branchComponents = new \Keboola\StorageApi\Components($branchAwareClient);
+
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('transformation')
             ->setConfigurationId($configurationId)
@@ -50,8 +30,8 @@ class BranchEventsTest extends StorageApiTestCase
         // event for development branch dispatched
         $branchComponents->addConfiguration($config);
 
-
         // create dummy config to test only one event return from $branchAwareClient
+        $devBranch = new DevBranches($this->_client);
         $dummyBranch = $devBranch->createBranch($branchName . '-dummy');
         $dummyBranchAwareClient = $this->getBranchAwareDefaultClient($dummyBranch['id']);
         $dummyConfigurationId = 'dummy-config-id-dev-branch-' . $branch['id'];
@@ -77,27 +57,22 @@ class BranchEventsTest extends StorageApiTestCase
 
         $createConfigEventDetail = $branchAwareClient->getEvent($branchAwareEvents[0]['id']);
 
-        $this->assertSame('config-id-dev-branch-'.$branch['id'], $createConfigEventDetail['objectId']);
+        $this->assertSame('config-id-dev-branch-' . $branch['id'], $createConfigEventDetail['objectId']);
+    }
 
-        // test allowed non branch aware event - create bucket detail event in main branch
-        $testBucketId = $this->_client->createBucket($configurationId, self::STAGE_IN);
-
-        // event about bucket create should be return from branch aware event list
-        $bucketsListedEvents = $this->waitForListEvents(
-            $branchAwareClient,
-            'objectId:' . $testBucketId
-        );
-        $this->assertCount(1, $bucketsListedEvents);
-        $this->assertSame('storage.bucketCreated', $bucketsListedEvents[0]['event']);
-
-        $bucketEventDetail = $branchAwareClient->getEvent($bucketsListedEvents[0]['id']);
-
-        $this->assertSame($testBucketId, $bucketEventDetail['objectId']);
+    /**
+     * @return void
+     */
+    public function testCreateExternalEvent()
+    {
+        $branch = $this->createDevBranchForTestCase($this);
+        $configurationId = 'config-id-dev-branch-' . $branch['id'];
+        $branchAwareClient = $this->getBranchAwareDefaultClient($branch['id']);
 
         // test create external event shows in branch aware events
         $event = new Event();
         $event->setComponent('ex-sfdc')
-            ->setConfigurationId('sys.c-sfdc.account-'.$branch['id'])
+            ->setConfigurationId('sys.c-sfdc.account-' . $branch['id'])
             ->setDuration(200)
             ->setType('info')
             ->setRunId('ddddssss')
@@ -139,18 +114,13 @@ class BranchEventsTest extends StorageApiTestCase
         ]);
         $this->assertCount(0, $clientEventList);
 
-        $bucketClientEventList = $this->_client->listEvents([
-            'q' => 'objectId:' . $testBucketId
-        ]);
-        $this->assertCount(1, $bucketClientEventList);
-
         $this->assertTrue(count($this->_client->listEvents()) > 1);
 
 
         $components = new \Keboola\StorageApi\Components($this->_client);
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('transformation')
-            ->setConfigurationId('main-config-created-'.$branch['id'])
+            ->setConfigurationId('main-config-created-' . $branch['id'])
             ->setName('Main Branch 1')
             ->setDescription('Main Configuration created');
 
@@ -159,7 +129,7 @@ class BranchEventsTest extends StorageApiTestCase
 
         $componentCreateInMainBranchListedEvents = $this->waitForListEvents(
             $this->_client,
-            'objectId:main-config-created-'.$branch['id']
+            'objectId:main-config-created-' . $branch['id']
         );
 
         try {
@@ -169,6 +139,36 @@ class BranchEventsTest extends StorageApiTestCase
             $this->assertSame(404, $e->getCode());
             $this->assertSame('Event not found', $e->getMessage());
         }
+    }
+
+    /**
+     * @return void
+     */
+    public function testCreateBucketEvent()
+    {
+        $branch = $this->createDevBranchForTestCase($this);
+        $configurationId = 'config-id-dev-branch-' . $branch['id'];
+        $branchAwareClient = $this->getBranchAwareDefaultClient($branch['id']);
+
+        // test allowed non branch aware event - create bucket detail event in main branch
+        $testBucketId = $this->_client->createBucket($configurationId, self::STAGE_IN);
+
+        // event about bucket create should be return from branch aware event list
+        $bucketsListedEvents = $this->waitForListEvents(
+            $branchAwareClient,
+            'objectId:' . $testBucketId
+        );
+        $this->assertCount(1, $bucketsListedEvents);
+        $this->assertSame('storage.bucketCreated', $bucketsListedEvents[0]['event']);
+
+        $bucketEventDetail = $branchAwareClient->getEvent($bucketsListedEvents[0]['id']);
+
+        $this->assertSame($testBucketId, $bucketEventDetail['objectId']);
+
+        $bucketClientEventList = $this->_client->listEvents([
+            'q' => 'objectId:' . $testBucketId,
+        ]);
+        $this->assertCount(1, $bucketClientEventList);
     }
 
     private function waitForListEvents(Client $client, $query)
