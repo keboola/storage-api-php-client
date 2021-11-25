@@ -172,7 +172,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         }
 
         $this->assertArrayHasKey('metrics', $actualJobId);
-        $this->assertEquals(3072, $actualJobId['metrics']['outBytes']);
+        $this->assertEquals(3584, $actualJobId['metrics']['outBytes']);
 
         $db = $this->getDbConnection($workspace['connection']);
 
@@ -702,7 +702,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         }
 
         $this->assertArrayHasKey('metrics', $actualJobId);
-        $this->assertEquals(16896, $actualJobId['metrics']['outBytes']);
+        $this->assertEquals(17920, $actualJobId['metrics']['outBytes']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $this->assertEquals(5, $backend->countRows('languages'));
@@ -760,7 +760,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         }
 
         $this->assertArrayHasKey('metrics', $actualJobId);
-        $this->assertEquals(1024, $actualJobId['metrics']['outBytes']);
+        $this->assertEquals(1536, $actualJobId['metrics']['outBytes']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $this->assertEquals(5, $backend->countRows('languages'));
