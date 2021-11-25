@@ -760,7 +760,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         }
 
         $this->assertArrayHasKey('metrics', $actualJobId);
-        $this->assertEquals(1024, $actualJobId['metrics']['outBytes']);
+        $this->assertEquals(1536, $actualJobId['metrics']['outBytes']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $this->assertEquals(5, $backend->countRows('languages'));
