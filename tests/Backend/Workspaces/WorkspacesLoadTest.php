@@ -4,10 +4,10 @@ namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
+use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Workspaces;
-use Keboola\StorageApi\ClientException;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\ColumnInterface;
 use Keboola\Test\Backend\Workspaces\Backend\InputMappingConverter;
@@ -67,7 +67,6 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-
 
         // let's try to delete some columns
         $backend->dropTableColumn('languages', 'id');
@@ -218,7 +217,6 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $mapping3 = ["source" => $table3Id, "destination" => "languagesOneColumn"];
         $mapping4 = ["source" => $table4Id, "destination" => "languagesFiltered"];
         $mapping5 = ["source" => $table2AliasedId, "destination" => "languagesNestedAlias"];
-
 
         $input = [$mapping1, $mapping2, $mapping3, $mapping4, $mapping5];
         $workspaces->loadWorkspaceData($workspace['id'], ["input" => $input]);
@@ -1568,8 +1566,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
 
         $tokenOptions = (new TokenCreateOptions())
             ->setDescription('workspaceLoadTest: Out read token')
-            ->addBucketPermission($this->getTestBucketId(self::STAGE_OUT), TokenAbstractOptions::BUCKET_PERMISSION_READ)
-        ;
+            ->addBucketPermission($this->getTestBucketId(self::STAGE_OUT), TokenAbstractOptions::BUCKET_PERMISSION_READ);
 
         $token = $this->tokens->createToken($tokenOptions);
 
@@ -1842,7 +1839,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                         'source' => 'Name',
                     ],
                 ],
-                'expectedColumns'=>[
+                'expectedColumns' => [
                     self::BACKEND_SNOWFLAKE => [
                         [
                             'name' => 'Id',
@@ -1974,14 +1971,14 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                 'languages',
                 [
                     [
-                        'source' =>  'name',
+                        'source' => 'name',
                         'type' => 'VARCHAR',
                         'convertEmptyValuesToNull' => false,
                     ],
                 ],
                 [
                     [
-                        'source' =>  'name',
+                        'source' => 'name',
                         'type' => 'CHARACTER',
                         'convertEmptyValuesToNull' => false,
                     ],
@@ -1991,30 +1988,13 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                 'languages',
                 [
                     [
-                        'source' =>  'name',
+                        'source' => 'name',
                         'type' => 'VARCHAR',
                     ],
                 ],
                 [
                     [
-                        'source' =>  'name',
-                        'type' => 'VARCHAR',
-                        'length' => 30,
-                    ],
-                ],
-            ],
-            [
-                'languages',
-                [
-                    [
-                        'source' =>  'name',
-                        'type' => 'VARCHAR',
-                        'length' => 50,
-                    ],
-                ],
-                [
-                    [
-                        'source' =>  'name',
+                        'source' => 'name',
                         'type' => 'VARCHAR',
                         'length' => 30,
                     ],
@@ -2024,7 +2004,24 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                 'languages',
                 [
                     [
-                        'source' =>  'name',
+                        'source' => 'name',
+                        'type' => 'VARCHAR',
+                        'length' => 50,
+                    ],
+                ],
+                [
+                    [
+                        'source' => 'name',
+                        'type' => 'VARCHAR',
+                        'length' => 30,
+                    ],
+                ],
+            ],
+            [
+                'languages',
+                [
+                    [
+                        'source' => 'name',
                         'type' => 'VARCHAR',
                         'length' => 50,
                         'nullable' => false,
@@ -2032,7 +2029,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                 ],
                 [
                     [
-                        'source' =>  'name',
+                        'source' => 'name',
                         'type' => 'VARCHAR',
                         'length' => 50,
                     ],
@@ -2042,7 +2039,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                 'languages',
                 [
                     [
-                        'source' =>  'name',
+                        'source' => 'name',
                         'type' => 'VARCHAR',
                         'length' => 50,
                         'nullable' => false,
@@ -2050,7 +2047,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                 ],
                 [
                     [
-                        'source' =>  'name',
+                        'source' => 'name',
                         'type' => 'VARCHAR',
                         'length' => 50,
                         'nullable' => true,
