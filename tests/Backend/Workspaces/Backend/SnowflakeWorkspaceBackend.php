@@ -2,6 +2,7 @@
 
 namespace Keboola\Test\Backend\Workspaces\Backend;
 
+use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 
 class SnowflakeWorkspaceBackend implements WorkspaceBackend
@@ -11,6 +12,14 @@ class SnowflakeWorkspaceBackend implements WorkspaceBackend
     private $db;
 
     private $schema;
+
+    /**
+     * @return Connection
+     */
+    public function getDb()
+    {
+        return $this->db;
+    }
 
     public function __construct($workspace)
     {
@@ -46,6 +55,7 @@ class SnowflakeWorkspaceBackend implements WorkspaceBackend
 
     public function dropTableColumn($table, $column)
     {
+
         $this->db->query(sprintf(
             "ALTER TABLE %s DROP COLUMN %s;",
             $this->db->quoteIdentifier($table),
@@ -73,7 +83,7 @@ class SnowflakeWorkspaceBackend implements WorkspaceBackend
 
     public function fetchAll($table, $style = \PDO::FETCH_NUM, $orderBy = null)
     {
-        $data = [];
+        $data = array();
         $res = $this->db->fetchAll(sprintf(
             "SELECT * FROM %s.%s %s;",
             $this->db->quoteIdentifier($this->schema),
