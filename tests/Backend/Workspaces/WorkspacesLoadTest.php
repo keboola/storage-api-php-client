@@ -11,6 +11,7 @@ use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\ColumnInterface;
 use Keboola\Test\Backend\Workspaces\Backend\InputMappingConverter;
+use Keboola\Test\Backend\Workspaces\Backend\SnowflakeWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class WorkspacesLoadTest extends ParallelWorkspacesTestCase
@@ -2075,5 +2076,64 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                 $e->getMessage()
             );
         }
+    }
+
+    /**
+     * @return void
+     */
+    public function testCreateWorkspaceWithReadOnlyIM()
+    {
+        $token = $this->_client->verifyToken();
+
+        if (!in_array('input-mapping-read-only-storage', $token['owner']['features'])) {
+            $this->markTestSkipped(sprintf('Read only mapping is not enabled for project "%s"', $token['owner']['id']));
+        }
+
+        // prepare bucket
+        $testBucketId = $this->getTestBucketId();
+        $testBucketName = str_replace('in.c-', '', $testBucketId);
+
+        // prepare table in the bucket
+        $this->_client->createTable(
+            $testBucketId,
+            'animals',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+
+        // prepare workspace
+        $workspace = $this->initTestWorkspace();
+
+        if ($workspace['connection']['backend'] !== 'snowflake') {
+            $this->fail('This feature works only for Snowflake at the moment');
+        }
+
+        // prepare table in the bucket created after workspace created
+        $this->_client->createTable(
+            $testBucketId,
+            'trains',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+
+        /** @var SnowflakeWorkspaceBackend $backend */
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $db = $backend->getDb();
+
+        $projectDatabase = $workspace['connection']['database'];
+        $quotedProjectDatabase = $db->quoteIdentifier($projectDatabase);
+        $quotedTestBucketId = $db->quoteIdentifier($testBucketId);
+
+        $db->query(sprintf(
+            'CREATE TABLE "tableFromAnimals" AS SELECT * FROM %s.%s."animals"',
+            $quotedProjectDatabase,
+            $quotedTestBucketId
+        ));
+        $this->assertCount(5, $db->fetchAll('SELECT * FROM "tableFromAnimals"'));
+
+        $db->query(sprintf(
+            'CREATE TABLE "tableFromTrains" AS SELECT * FROM %s.%s."trains"',
+            $quotedProjectDatabase,
+            $quotedTestBucketId
+        ));
+        $this->assertCount(5, $db->fetchAll('SELECT * FROM "tableFromTrains"'));
     }
 }
