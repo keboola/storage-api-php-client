@@ -2,9 +2,9 @@
 
 namespace Keboola\Test\Backend\Workspaces;
 
+use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
-use Keboola\Csv\CsvFile;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
@@ -56,7 +56,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
                             'source' => 'name',
                             'type' => 'varchar',
                         ],
-                    ]
+                    ],
                 ],
                 [
                     "source" => $table2Id,
@@ -70,9 +70,9 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
                             'source' => 'SKK',
                             'type' => 'varchar',
                         ],
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ]);
 
         $actualJobId = null;
@@ -158,8 +158,8 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
                 [
                     "source" => $table2Id,
                     "destination" => "users",
-                ]
-            ]
+                ],
+            ],
         ]);
 
         $actualJobId = null;
@@ -199,22 +199,21 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $this->assertEquals('users', $tables[1]['name']);
     }
 
-
     public function testLoadedPrimaryKeys()
     {
-        $primaries = ['Paid_Search_Engine_Account','Date','Paid_Search_Campaign','Paid_Search_Ad_ID','Site__DFA'];
+        $primaries = ['Paid_Search_Engine_Account', 'Date', 'Paid_Search_Campaign', 'Paid_Search_Ad_ID', 'Site__DFA'];
         $pkTableId = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),
             'languages-pk',
             new CsvFile(__DIR__ . '/../../_data/multiple-columns-pk.csv'),
-            array(
+            [
                 'primaryKey' => implode(",", $primaries),
-            )
+            ]
         );
 
         $mapping = [
             "source" => $pkTableId,
-            "destination" => "languages-pk"
+            "destination" => "languages-pk",
         ];
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
@@ -270,7 +269,6 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable(
@@ -353,7 +351,6 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable(
             $bucketId,
@@ -426,7 +423,6 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-
         $importFile = __DIR__ . '/../../_data/languages.with-state.csv';
         $tableId = $this->_client->createTable(
             $bucketId,
@@ -460,7 +456,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
                             'nullable' => true,
-                        ]
+                        ],
                     ],
                 ],
             ],
@@ -495,7 +491,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
                             'nullable' => true,
-                        ]
+                        ],
                     ],
                 ],
             ],
@@ -522,7 +518,6 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-
 
         $importFile = __DIR__ . '/../../_data/languages.with-state.csv';
         $tableId = $this->_client->createTable(
@@ -557,7 +552,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
                             'nullable' => false,
-                        ]
+                        ],
                     ],
                 ],
             ],
@@ -688,8 +683,8 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
                     "source" => $table2Id,
                     "destination" => "rates",
                     'rows' => 15,
-                ]
-            ]
+                ],
+            ],
         ]);
 
         $actualJobId = null;
@@ -731,9 +726,9 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $startTime = time();
 
         $importCsv = new CsvFile(__DIR__ . '/../../_data/languages.csv');
-        $this->_client->writeTable($table1Id, $importCsv, array(
+        $this->_client->writeTable($table1Id, $importCsv, [
             'incremental' => true,
-        ));
+        ]);
 
         $workspaces->loadWorkspaceData($workspace['id'], [
             "input" => [
@@ -746,8 +741,8 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
                     "source" => $table2Id,
                     "destination" => "users",
                     'seconds' => floor(time() - $startTime) + 30,
-                ]
-            ]
+                ],
+            ],
         ]);
 
         $actualJobId = null;
@@ -774,14 +769,14 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
                 'rates',
                 [
                     [
-                        'source' =>  'Date',
+                        'source' => 'Date',
                         'type' => 'DATETIME',
                         'length' => '0',
                     ],
                 ],
                 [
                     [
-                        'source' =>  'Date',
+                        'source' => 'Date',
                         'type' => 'DATETIME',
                         'length' => '9',
                     ],
@@ -792,14 +787,14 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
                 'rates',
                 [
                     [
-                        'source' =>  'Date',
+                        'source' => 'Date',
                         'type' => 'DATETIME',
                         'length' => '3',
                     ],
                 ],
                 [
                     [
-                        'source' =>  'Date',
+                        'source' => 'Date',
                         'type' => 'TIMESTAMP_NTZ',
                         'length' => '3',
                     ],
@@ -810,13 +805,13 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
                 'languages',
                 [
                     [
-                        'source' =>  'id',
+                        'source' => 'id',
                         'type' => 'SMALLINT',
                     ],
                 ],
                 [
                     [
-                        'source' =>  'id',
+                        'source' => 'id',
                         'type' => 'NUMBER',
                     ],
                 ],
@@ -826,13 +821,13 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
                 'languages',
                 [
                     [
-                        'source' =>  'id',
+                        'source' => 'id',
                         'type' => 'DOUBLE',
                     ],
                 ],
                 [
                     [
-                        'source' =>  'id',
+                        'source' => 'id',
                         'type' => 'REAL',
                     ],
                 ],
