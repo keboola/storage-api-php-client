@@ -25,6 +25,9 @@ class Configuration
 
     private $changeDescription;
 
+    /** @var bool|null */
+    private $isDisabled;
+
     private $rowsSortOrder = [];
 
     /**
@@ -144,6 +147,24 @@ class Configuration
     public function setChangeDescription($changeDescription)
     {
         $this->changeDescription = $changeDescription;
+        return $this;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function getIsDisabled()
+    {
+        return $this->isDisabled;
+    }
+
+    /**
+     * @param bool $isDisabled
+     * @return $this
+     */
+    public function setIsDisabled($isDisabled)
+    {
+        $this->isDisabled = (bool) $isDisabled;
         return $this;
     }
 
