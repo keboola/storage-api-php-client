@@ -1573,8 +1573,9 @@ class ComponentsTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientType
+     * @param string $clientType
      */
-    public function testComponentConfigsVersionsCreate()
+    public function testComponentConfigsVersionsCreate($clientType)
     {
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
@@ -1591,7 +1592,8 @@ class ComponentsTest extends StorageApiTestCase
         $configurationData = array('x' => 'y');
         $config->setName($newName)
             ->setDescription($newDesc)
-            ->setConfiguration($configurationData);
+            ->setConfiguration($configurationData)
+            ->setIsDisabled(true);
         $components->updateConfiguration($config);
 
         // version incremented to 3
@@ -1616,6 +1618,13 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(1, $configuration['version']);
         $this->assertArrayHasKey('configuration', $configuration);
         $this->assertEquals($configurationData, $configuration['configuration']);
+        if ($clientType === ClientProvider::DEFAULT_BRANCH) {
+            // will fail after consolidate branches
+            $this->assertArrayNotHasKey('isDisabled', $configuration);
+        } else {
+            $this->assertArrayHasKey('isDisabled', $configuration);
+            $this->assertTrue($configuration['isDisabled']);
+        }
         $this->assertArrayHasKey('rows', $configuration);
         $this->assertCount(1, $configuration['rows']);
         $this->assertEquals('main-1-1', $configuration['rows'][0]['id']);
@@ -1632,6 +1641,13 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(1, $configuration['version']);
         $this->assertArrayHasKey('configuration', $configuration);
         $this->assertEmpty($configuration['configuration']);
+        if ($clientType === ClientProvider::DEFAULT_BRANCH) {
+            // will fail after consolidate branches
+            $this->assertArrayNotHasKey('isDisabled', $configuration);
+        } else {
+            $this->assertArrayHasKey('isDisabled', $configuration);
+            $this->assertFalse($configuration['isDisabled']);
+        }
         $this->assertArrayHasKey('rows', $configuration);
         $this->assertCount(0, $configuration['rows']);
     }
