@@ -885,6 +885,9 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
             'preserve' => true,
         ];
         $workspaces->loadWorkspaceData($workspace['id'], $options);
+        $tableRef = $backend->getTableReflection('languages');
+        self::assertEquals(['id', 'name', '_timestamp'], $tableRef->getColumnsNames());
+        self::assertCount(5, $backend->fetchAll('languages'));
 
         // test workspace is cleared load works
         $options = [
@@ -897,6 +900,9 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
             ],
         ];
         $workspaces->loadWorkspaceData($workspace['id'], $options);
+        $tableRef = $backend->getTableReflection('languages');
+        self::assertEquals(['id', 'name', '_timestamp'], $tableRef->getColumnsNames());
+        self::assertCount(5, $backend->fetchAll('languages'));
 
         // test workspace load incremental to view
         $options = [
