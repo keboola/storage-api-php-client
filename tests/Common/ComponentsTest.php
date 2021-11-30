@@ -603,10 +603,15 @@ class ComponentsTest extends StorageApiTestCase
         }
     }
 
-    // TODO vice jinych klientu
+    /**
+     * @dataProvider provideComponentsClientType
+     */
     public function testComponentConfigRestrictionsForReadOnlyUser()
     {
-        $readOnlyClient = $this->getClientForToken(STORAGE_API_READ_ONLY_TOKEN);
+        $readOnlyClient = $this->clientProvider->createClientForCurrentTest([
+            'token' => STORAGE_API_READ_ONLY_TOKEN,
+            'url' => STORAGE_API_URL,
+        ], true);
 
         $configuration = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
@@ -615,7 +620,7 @@ class ComponentsTest extends StorageApiTestCase
             ->setDescription('some desc')
         ;
 
-        $componentsForAdmin = new \Keboola\StorageApi\Components($this->_client);
+        $componentsForAdmin = new \Keboola\StorageApi\Components($this->client);
         $componentsForAdmin->addConfiguration($configuration);
 
         $components = $componentsForAdmin->listComponents();
