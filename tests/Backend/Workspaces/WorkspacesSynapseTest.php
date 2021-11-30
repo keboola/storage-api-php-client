@@ -872,6 +872,20 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
             self::assertEquals('Table languages already exists in workspace', $e->getMessage());
         }
 
+        // test preserve load with overwrite
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                    'useView' => true,
+                    'overwrite' => true,
+                ],
+            ],
+            'preserve' => true,
+        ];
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+
         // test workspace is cleared load works
         $options = [
             'input' => [
