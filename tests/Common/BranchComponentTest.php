@@ -53,7 +53,10 @@ class BranchComponentTest extends StorageApiTestCase
 
         $originalConfiguration = $components->getConfiguration($componentId, $configurationId);
         $this->assertSame(2, $originalConfiguration['version']);
+        // will fail after consolidate branches
+        $this->assertNotContains('isDisabled', $originalConfiguration);
 
+        // create dev branch
         $branch = $devBranchClient->createBranch($branchName);
         $branchClient = $this->getBranchAwareDefaultClient($branch['id']);
         $branchComponents = new Components($branchClient);
@@ -64,12 +67,14 @@ class BranchComponentTest extends StorageApiTestCase
             $this->withoutKeysChangingInBranch($originalConfigurationInBranch)
         );
 
+        // update configuration in main branch (version 3)
         $components->updateConfiguration(
             $configurationOptions
                 ->setName('Main updated')
                 ->setConfiguration(['test' => 'true'])
         );
 
+        // udpate configuration in dev branch (version 2)
         $branchComponents->updateConfiguration(
             $configurationOptions
                 ->setName('Main updated in branch')
@@ -90,6 +95,7 @@ class BranchComponentTest extends StorageApiTestCase
             $this->withoutKeysChangingInBranch($updatedConfiguration)
         );
 
+        // reset to default does not work for main branch
         try {
             $components->resetToDefault($componentId, $configurationId);
             $this->fail('Reset should not work for main branch');
@@ -97,6 +103,7 @@ class BranchComponentTest extends StorageApiTestCase
             $this->assertSame('Reset to default branch is not implemented for default branch', $e->getMessage());
         }
 
+        // update configuration in dev branch (version 3)
         $branchComponents->updateConfiguration(
             $configurationOptions
                 ->setName('Main updated')
@@ -114,6 +121,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         $this->assertCount(3, $configurationVersionsInBranch);
 
+        // reset to default
         $branchComponents->resetToDefault($componentId, $configurationId);
 
         $resetConfigurationInBranch = $branchComponents->getConfiguration($componentId, $configurationId);
@@ -254,6 +262,7 @@ class BranchComponentTest extends StorageApiTestCase
             $branch['created'],
             $branch['version'],
             $branch['changeDescription'],
+            $branch['isDisabled'],
             $branch['currentVersion']['changeDescription']
         );
         foreach ($branch['rows'] as &$row) {

@@ -35,7 +35,8 @@ class Components
             'configurationId' => $options->getConfigurationId(),
             'configuration' => $options->getConfiguration() ? json_encode($options->getConfiguration()) : null,
             'state' => $options->getState() ? json_encode($options->getState()) : null,
-            'changeDescription' => $options->getChangeDescription()
+            'changeDescription' => $options->getChangeDescription(),
+            'isDisabled' => $options->getIsDisabled(),
         ));
     }
 
@@ -64,6 +65,10 @@ class Components
 
         if ($options->getChangeDescription()) {
             $data['changeDescription'] = $options->getChangeDescription();
+        }
+
+        if ($options->getIsDisabled() !== null) {
+            $data['isDisabled'] = $options->getIsDisabled();
         }
 
         if (count($options->getRowsSortOrder()) > 0) {

@@ -5431,6 +5431,7 @@ Creates a new component configuration for [Development Branch](#reference/develo
     + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB
     + state (optional) - Serialized state configuration JSON; the maximum allowed size is 4MB
     + changeDescription (optional) - Description of the configuration modification
+    + isDisabled (optional, boolean) - Disabled flag
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -5455,6 +5456,7 @@ Creates a new component configuration for [Development Branch](#reference/develo
                 },
                 "version": 1,
                 "changeDescription": "Initial configuration",
+                "isDisabled": false,
                 "isDeleted": false,
                 "configuration": {
                     "key": "value",
