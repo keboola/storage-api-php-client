@@ -38,8 +38,8 @@ class SharingTest extends StorageApiSharingTestCase
                 $bucketId,
                 [
                     'sharing' => $sharingType,
-                ],
-                $isAsync
+                    'async' => $isAsync,
+                ]
             );
             $this->fail('Bucket should not be shared');
         } catch (ClientException $e) {
@@ -56,7 +56,8 @@ class SharingTest extends StorageApiSharingTestCase
 
         $response = $this->_client->shareBucket($bucketId, [
             'sharing' => 'organization-project',
-        ], $isAsync);
+            'async' => $isAsync,
+        ]);
 
         $this->assertArrayHasKey('displayName', $response);
 
@@ -323,7 +324,7 @@ class SharingTest extends StorageApiSharingTestCase
         $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
         $bucketId = reset($this->_bucketIds);
 
-        $this->_client->shareBucket($bucketId, [], $isAsync);
+        $this->_client->shareBucket($bucketId, ['async' => $isAsync]);
 
         $this->assertTrue($this->_client->isSharedBucket($bucketId));
 
@@ -351,7 +352,7 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertEmpty($client->listSharedBuckets());
 
         try {
-            $client->shareBucket($bucketId, [], $isAsync);
+            $client->shareBucket($bucketId, ['async' => $isAsync]);
             $this->fail('`shareBucket` should fail with `accessDenied` error');
         } catch (ClientException $e) {
             $this->assertEquals(403, $e->getCode());
@@ -398,17 +399,17 @@ class SharingTest extends StorageApiSharingTestCase
         $bucketId = reset($this->_bucketIds);
 
         // first share
-        $this->_client->shareBucket($bucketId, [], $isAsync);
+        $this->_client->shareBucket($bucketId, ['async' => $isAsync]);
         $this->assertTrue($this->_client->isSharedBucket($bucketId));
 
         $this->_client->unshareBucket($bucketId);
         $this->assertFalse($this->_client->isSharedBucket($bucketId));
 
         // sharing twice
-        $this->_client->shareBucket($bucketId, [], $isAsync);
+        $this->_client->shareBucket($bucketId, ['async' => $isAsync]);
 
         try {
-            $this->_client->shareBucket($bucketId, [], $isAsync);
+            $this->_client->shareBucket($bucketId, ['async' => $isAsync]);
             $this->fail("sharing twice should fail");
         } catch (ClientException $e) {
             $this->assertEquals(400, $e->getCode());
@@ -430,7 +431,7 @@ class SharingTest extends StorageApiSharingTestCase
 
         $targetUser = $this->clientAdmin2InSameOrg->verifyToken();
 
-        $bucket = $this->shareRoleClient->shareBucket($bucketId, [], $isAsync);
+        $bucket = $this->shareRoleClient->shareBucket($bucketId, ['async' => $isAsync]);
         $this->assertSame('organization', $bucket['sharing']);
 
         $bucket = $this->shareRoleClient->shareOrganizationProjectBucket($bucketId, $isAsync);
@@ -535,7 +536,7 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertArrayNotHasKey('sharedBy', $bucketBeforeSharing);
         $this->assertArrayNotHasKey('sharingParameters', $bucketBeforeSharing);
 
-        $this->_client->shareBucket($bucketId, [], $isAsync);
+        $this->_client->shareBucket($bucketId, ['async' => $isAsync]);
         $this->assertTrue($this->_client->isSharedBucket($bucketId));
 
         $verifyTokenResponse = $this->_client->verifyToken();
@@ -633,7 +634,7 @@ class SharingTest extends StorageApiSharingTestCase
             ]
         );
 
-        $this->_client->shareBucket($bucketId, [], $isAsync);
+        $this->_client->shareBucket($bucketId, ['async' => $isAsync]);
         $this->assertTrue($this->_client->isSharedBucket($bucketId));
 
         $response = $this->_client->verifyToken();
@@ -695,7 +696,7 @@ class SharingTest extends StorageApiSharingTestCase
         $bucketId = reset($this->_bucketIds);
         $sourceBucket = $this->_client->getBucket($bucketId);
 
-        $this->_client->shareBucket($bucketId, [], $isAsync);
+        $this->_client->shareBucket($bucketId, ['async' => $isAsync]);
 
         $this->assertTrue($this->_client->isSharedBucket($bucketId));
 
@@ -1499,7 +1500,7 @@ class SharingTest extends StorageApiSharingTestCase
             ]
         );
 
-        $this->_client->shareBucket($bucketId, [], $isAsync);
+        $this->_client->shareBucket($bucketId, ['async' => $isAsync]);
 
         $bucket = $this->_client->getBucket($bucketId);
         $this->assertSame('organization', $bucket['sharing']);
@@ -1519,7 +1520,7 @@ class SharingTest extends StorageApiSharingTestCase
         );
 
         try {
-            $this->_client->shareBucket($bucketId, $isAsync);
+            $this->_client->shareBucket($bucketId, ['async' => $isAsync]);
             $this->fail('Sharing buckets from Dev/Branch should fail');
         } catch (ClientException $e) {
             $this->assertSame(400, $e->getCode());

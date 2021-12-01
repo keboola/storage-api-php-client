@@ -392,17 +392,18 @@ class Client
         return $this->apiDelete($url);
     }
 
-    public function shareBucket($bucketId, $options = [], $async = false)
+    public function shareBucket($bucketId, $options = [])
     {
         $url = "buckets/" . $bucketId . "/share";
 
-        if ($async) {
-            $options = array_merge($options, ['async' => $async]);
+        $isAsync = false;
+        if (array_key_exists('async', $options)) {
+            $isAsync = $options['async'];
         }
 
         $url .= '?' . http_build_query($options);
 
-        $result = $this->apiPost($url, [], $async);
+        $result = $this->apiPost($url, [], $isAsync);
 
         $this->log("Bucket {$bucketId} shared", array("result" => $result));
 
