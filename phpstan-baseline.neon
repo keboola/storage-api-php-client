@@ -271,6 +271,11 @@ parameters:
 			path: src/Keboola/StorageApi/Client.php
 
 		-
+			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:changeBucketSharing\\(\\) has parameter \\$async with no type specified\\.$#"
+			count: 1
+			path: src/Keboola/StorageApi/Client.php
+
+		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:changeBucketSharing\\(\\) has parameter \\$bucketId with no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
@@ -991,6 +996,11 @@ parameters:
 			path: src/Keboola/StorageApi/Client.php
 
 		-
+			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:shareBucketToProjects\\(\\) has parameter \\$async with no type specified\\.$#"
+			count: 1
+			path: src/Keboola/StorageApi/Client.php
+
+		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:shareBucketToProjects\\(\\) has parameter \\$bucketId with no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
@@ -1002,6 +1012,11 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:shareBucketToUsers\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Keboola/StorageApi/Client.php
+
+		-
+			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:shareBucketToUsers\\(\\) has parameter \\$async with no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
 
@@ -1021,12 +1036,22 @@ parameters:
 			path: src/Keboola/StorageApi/Client.php
 
 		-
+			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:shareOrganizationBucket\\(\\) has parameter \\$async with no type specified\\.$#"
+			count: 1
+			path: src/Keboola/StorageApi/Client.php
+
+		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:shareOrganizationBucket\\(\\) has parameter \\$bucketId with no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
 
 		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:shareOrganizationProjectBucket\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Keboola/StorageApi/Client.php
+
+		-
+			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:shareOrganizationProjectBucket\\(\\) has parameter \\$async with no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
 
@@ -1057,6 +1082,11 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:unshareBucket\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Keboola/StorageApi/Client.php
+
+		-
+			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:unshareBucket\\(\\) has parameter \\$async with no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
 
@@ -5471,7 +5501,17 @@ parameters:
 			path: tests/Backend/Mixed/SharingTest.php
 
 		-
+			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingTest\\:\\:syncAsyncProvider\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Backend/Mixed/SharingTest.php
+
+		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingTest\\:\\:testAdminWithShareRoleSharesBucket\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Backend/Mixed/SharingTest.php
+
+		-
+			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingTest\\:\\:testAdminWithShareRoleSharesBucket\\(\\) has parameter \\$isAsync with no type specified\\.$#"
 			count: 1
 			path: tests/Backend/Mixed/SharingTest.php
 
@@ -5491,6 +5531,11 @@ parameters:
 			path: tests/Backend/Mixed/SharingTest.php
 
 		-
+			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingTest\\:\\:testDevBranchBucketCannotBeShared\\(\\) has parameter \\$isAsync with no type specified\\.$#"
+			count: 1
+			path: tests/Backend/Mixed/SharingTest.php
+
+		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingTest\\:\\:testForcedDrop\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Mixed/SharingTest.php
@@ -5506,6 +5551,11 @@ parameters:
 			path: tests/Backend/Mixed/SharingTest.php
 
 		-
+			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingTest\\:\\:testInvalidSharingType\\(\\) has parameter \\$isAsync with no type specified\\.$#"
+			count: 1
+			path: tests/Backend/Mixed/SharingTest.php
+
+		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingTest\\:\\:testInvalidSharingType\\(\\) has parameter \\$sharingType with no type specified\\.$#"
 			count: 1
 			path: tests/Backend/Mixed/SharingTest.php
@@ -5517,6 +5567,11 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingTest\\:\\:testLinkBucketDry\\(\\) has parameter \\$backend with no type specified\\.$#"
+			count: 1
+			path: tests/Backend/Mixed/SharingTest.php
+
+		-
+			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingTest\\:\\:testLinkBucketDry\\(\\) has parameter \\$isAsync with no type specified\\.$#"
 			count: 1
 			path: tests/Backend/Mixed/SharingTest.php
 
@@ -5546,12 +5601,22 @@ parameters:
 			path: tests/Backend/Mixed/SharingTest.php
 
 		-
+			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingTest\\:\\:testNonOrganizationAdminInToken\\(\\) has parameter \\$isAsync with no type specified\\.$#"
+			count: 1
+			path: tests/Backend/Mixed/SharingTest.php
+
+		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingTest\\:\\:testOrganizationAdminInTokenVerify\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Mixed/SharingTest.php
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingTest\\:\\:testOrganizationPublicSharing\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Backend/Mixed/SharingTest.php
+
+		-
+			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingTest\\:\\:testOrganizationPublicSharing\\(\\) has parameter \\$isAsync with no type specified\\.$#"
 			count: 1
 			path: tests/Backend/Mixed/SharingTest.php
 
@@ -5576,12 +5641,22 @@ parameters:
 			path: tests/Backend/Mixed/SharingTest.php
 
 		-
+			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingTest\\:\\:testShareBucket\\(\\) has parameter \\$isAsync with no type specified\\.$#"
+			count: 1
+			path: tests/Backend/Mixed/SharingTest.php
+
+		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingTest\\:\\:testShareBucketChangeType\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Mixed/SharingTest.php
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingTest\\:\\:testShareBucketChangeType\\(\\) has parameter \\$backend with no type specified\\.$#"
+			count: 1
+			path: tests/Backend/Mixed/SharingTest.php
+
+		-
+			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingTest\\:\\:testShareBucketChangeType\\(\\) has parameter \\$isASync with no type specified\\.$#"
 			count: 1
 			path: tests/Backend/Mixed/SharingTest.php
 
@@ -5596,6 +5671,11 @@ parameters:
 			path: tests/Backend/Mixed/SharingTest.php
 
 		-
+			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingTest\\:\\:testShareBucketChangeTypeOnUnsharedBucket\\(\\) has parameter \\$isAsync with no type specified\\.$#"
+			count: 1
+			path: tests/Backend/Mixed/SharingTest.php
+
+		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingTest\\:\\:testSharedBuckets\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Mixed/SharingTest.php
@@ -5606,12 +5686,22 @@ parameters:
 			path: tests/Backend/Mixed/SharingTest.php
 
 		-
+			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingTest\\:\\:testSharedBuckets\\(\\) has parameter \\$isAsync with no type specified\\.$#"
+			count: 1
+			path: tests/Backend/Mixed/SharingTest.php
+
+		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingTest\\:\\:testSharedBucketsWithInclude\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Mixed/SharingTest.php
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingTest\\:\\:testSharedBucketsWithInclude\\(\\) has parameter \\$backend with no type specified\\.$#"
+			count: 1
+			path: tests/Backend/Mixed/SharingTest.php
+
+		-
+			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingTest\\:\\:testSharedBucketsWithInclude\\(\\) has parameter \\$isAsync with no type specified\\.$#"
 			count: 1
 			path: tests/Backend/Mixed/SharingTest.php
 
@@ -5711,12 +5801,22 @@ parameters:
 			path: tests/Backend/Mixed/SharingToSpecificProjectsTest.php
 
 		-
+			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingToSpecificProjectsTest\\:\\:testShareBucketToAnotherOrganizationProject\\(\\) has parameter \\$isAsync with no type specified\\.$#"
+			count: 1
+			path: tests/Backend/Mixed/SharingToSpecificProjectsTest.php
+
+		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingToSpecificProjectsTest\\:\\:testShareBucketToProject\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Mixed/SharingToSpecificProjectsTest.php
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingToSpecificProjectsTest\\:\\:testShareBucketToProject\\(\\) has parameter \\$backend with no type specified\\.$#"
+			count: 1
+			path: tests/Backend/Mixed/SharingToSpecificProjectsTest.php
+
+		-
+			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingToSpecificProjectsTest\\:\\:testShareBucketToProject\\(\\) has parameter \\$isAsync with no type specified\\.$#"
 			count: 1
 			path: tests/Backend/Mixed/SharingToSpecificProjectsTest.php
 
@@ -5731,12 +5831,22 @@ parameters:
 			path: tests/Backend/Mixed/SharingToSpecificProjectsTest.php
 
 		-
+			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingToSpecificProjectsTest\\:\\:testShareOrganizationBucketChangeType\\(\\) has parameter \\$isAsync with no type specified\\.$#"
+			count: 1
+			path: tests/Backend/Mixed/SharingToSpecificProjectsTest.php
+
+		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingToSpecificProjectsTest\\:\\:testUpdateShareBucketToProject\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Mixed/SharingToSpecificProjectsTest.php
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingToSpecificProjectsTest\\:\\:testUpdateShareBucketToProject\\(\\) has parameter \\$backend with no type specified\\.$#"
+			count: 1
+			path: tests/Backend/Mixed/SharingToSpecificProjectsTest.php
+
+		-
+			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingToSpecificProjectsTest\\:\\:testUpdateShareBucketToProject\\(\\) has parameter \\$isAsync with no type specified\\.$#"
 			count: 1
 			path: tests/Backend/Mixed/SharingToSpecificProjectsTest.php
 
@@ -5776,12 +5886,22 @@ parameters:
 			path: tests/Backend/Mixed/SharingToSpecificUsersTest.php
 
 		-
+			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingToSpecificUsersTest\\:\\:testShareBucketToAnotherOrganizationUser\\(\\) has parameter \\$isAsync with no type specified\\.$#"
+			count: 1
+			path: tests/Backend/Mixed/SharingToSpecificUsersTest.php
+
+		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingToSpecificUsersTest\\:\\:testShareBucketToUser\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Mixed/SharingToSpecificUsersTest.php
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingToSpecificUsersTest\\:\\:testShareBucketToUser\\(\\) has parameter \\$backend with no type specified\\.$#"
+			count: 1
+			path: tests/Backend/Mixed/SharingToSpecificUsersTest.php
+
+		-
+			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingToSpecificUsersTest\\:\\:testShareBucketToUser\\(\\) has parameter \\$isAsync with no type specified\\.$#"
 			count: 1
 			path: tests/Backend/Mixed/SharingToSpecificUsersTest.php
 
@@ -5796,6 +5916,11 @@ parameters:
 			path: tests/Backend/Mixed/SharingToSpecificUsersTest.php
 
 		-
+			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingToSpecificUsersTest\\:\\:testShareBucketToUserByEmail\\(\\) has parameter \\$isAsync with no type specified\\.$#"
+			count: 1
+			path: tests/Backend/Mixed/SharingToSpecificUsersTest.php
+
+		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingToSpecificUsersTest\\:\\:testShareOrganizationBucketChangeType\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Mixed/SharingToSpecificUsersTest.php
@@ -5806,12 +5931,22 @@ parameters:
 			path: tests/Backend/Mixed/SharingToSpecificUsersTest.php
 
 		-
+			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingToSpecificUsersTest\\:\\:testShareOrganizationBucketChangeType\\(\\) has parameter \\$isAsync with no type specified\\.$#"
+			count: 1
+			path: tests/Backend/Mixed/SharingToSpecificUsersTest.php
+
+		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingToSpecificUsersTest\\:\\:testUpdateShareBucketToUser\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Mixed/SharingToSpecificUsersTest.php
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingToSpecificUsersTest\\:\\:testUpdateShareBucketToUser\\(\\) has parameter \\$backend with no type specified\\.$#"
+			count: 1
+			path: tests/Backend/Mixed/SharingToSpecificUsersTest.php
+
+		-
+			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingToSpecificUsersTest\\:\\:testUpdateShareBucketToUser\\(\\) has parameter \\$isAsync with no type specified\\.$#"
 			count: 1
 			path: tests/Backend/Mixed/SharingToSpecificUsersTest.php
 
@@ -5852,6 +5987,11 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\StorageApiSharingTestCase\\:\\:sharingBackendData\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Backend/Mixed/StorageApiSharingTestCase.php
+
+		-
+			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\StorageApiSharingTestCase\\:\\:sharingBackendDataWithAsync\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Mixed/StorageApiSharingTestCase.php
 
