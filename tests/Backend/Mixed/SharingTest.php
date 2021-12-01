@@ -1417,35 +1417,22 @@ class SharingTest extends StorageApiSharingTestCase
 
     public function invalidSharingTypeData()
     {
-        yield 'non existing type sync' => [
-            'global',
-            false,
-        ];
+        foreach ([true, false] as $async) {
+            yield sprintf('non existing type with async=%b', $async) => [
+                'global',
+                $async,
+            ];
 
-        yield 'sharing to specifix projects sync' => [
-            'specific-projects',
-            false,
-        ];
+            yield sprintf('sharing to specific projects with async=%b', $async) => [
+                'specific-projects',
+                $async,
+            ];
 
-        yield 'sharing to specifix users sync' => [
-            'specific-users',
-            false,
-        ];
-
-        yield 'non existing type async' => [
-            'global',
-            true,
-        ];
-
-        yield 'sharing to specifix projects async' => [
-            'specific-projects',
-            true,
-        ];
-
-        yield 'sharing to specifix users async' => [
-            'specific-users',
-            true,
-        ];
+            yield sprintf('sharing to specific users with async=%b', $async) => [
+                'specific-users',
+                $async,
+            ];
+        }
     }
 
     public function syncAsyncProvider()
