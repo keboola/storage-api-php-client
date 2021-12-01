@@ -7,6 +7,7 @@ use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Csv\CsvFile;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
+use Keboola\Test\Backend\Workspaces\Backend\SynapseWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
@@ -29,6 +30,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
+        /** @var SynapseWorkspaceBackend $backend */
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTableAsync(
@@ -148,6 +150,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
         $this->assertArrayHasKey('metrics', $actualJob);
         $this->assertGreaterThan(0, $actualJob['metrics']['outBytes']);
 
+        /** @var SynapseWorkspaceBackend $backend */
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         /** @var ColumnCollection $table */
         $table = $backend->describeTableColumns('languages');
@@ -193,6 +196,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
+        /** @var SynapseWorkspaceBackend $backend */
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $workspaces->loadWorkspaceData($workspace['id'], ['input' => [$mapping]]);
@@ -807,6 +811,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
+        /** @var SynapseWorkspaceBackend $backend */
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTableAsync(
