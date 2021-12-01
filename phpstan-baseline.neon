@@ -9131,21 +9131,6 @@ parameters:
 			path: tests/Backend/Workspaces/WorkspacesSnowflakeTest.php
 
 		-
-			message: "#^Call to an undefined method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\Backend\\\\WorkspaceBackend\\:\\:getSchemaReflection\\(\\)\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/WorkspacesSynapseTest.php
-
-		-
-			message: "#^Call to an undefined method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\Backend\\\\WorkspaceBackend\\:\\:getTableReflection\\(\\)\\.$#"
-			count: 10
-			path: tests/Backend/Workspaces/WorkspacesSynapseTest.php
-
-		-
-			message: "#^Call to an undefined method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\Backend\\\\WorkspaceBackend\\:\\:getViewReflection\\(\\)\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/WorkspacesSynapseTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\WorkspacesSynapseTest\\:\\:dataTypesDiffDefinitions\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/WorkspacesSynapseTest.php
@@ -9619,7 +9604,6 @@ parameters:
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\ComponentsTest\\:\\:testComponentConfigCreateWithStateJson\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Common/ComponentsTest.php
-
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\ComponentsTest\\:\\:testComponentConfigDeletedRowId\\(\\) has no return type specified\\.$#"
@@ -12210,3 +12194,4 @@ parameters:
 			message: "#^Parameter \\#1 \\$filename of function file_get_contents expects string, string\\|false given\\.$#"
 			count: 1
 			path: tests/bootstrap.php
+
