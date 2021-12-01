@@ -48,7 +48,7 @@ class SharingTest extends StorageApiSharingTestCase
         }
     }
 
-    /** @dataProvider testSyncAsyncProvider */
+    /** @dataProvider syncAsyncProvider */
     public function testOrganizationPublicSharing($isAsync)
     {
         $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
@@ -317,7 +317,7 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertFalse($this->_client2->bucketExists($linkedBucketId));
     }
 
-    /** @dataProvider testSyncAsyncProvider */
+    /** @dataProvider syncAsyncProvider */
     public function testNonOrganizationAdminInToken($isAsync)
     {
         $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
@@ -417,7 +417,7 @@ class SharingTest extends StorageApiSharingTestCase
     }
 
     /**
-     * @dataProvider testSyncAsyncProvider
+     * @dataProvider syncAsyncProvider
      * @throws ClientException
      */
     public function testAdminWithShareRoleSharesBucket($isAsync)
@@ -1447,7 +1447,7 @@ class SharingTest extends StorageApiSharingTestCase
         ];
     }
 
-    public function testSyncAsyncProvider()
+    public function syncAsyncProvider()
     {
         yield 'sync call action' => [
             false,
@@ -1458,7 +1458,7 @@ class SharingTest extends StorageApiSharingTestCase
         ];
     }
 
-    /** @dataProvider testSyncAsyncProvider */
+    /** @dataProvider syncAsyncProvider */
     public function testDevBranchBucketCannotBeShared($isAsync)
     {
         $metadataProvider = Metadata::PROVIDER_SYSTEM;
