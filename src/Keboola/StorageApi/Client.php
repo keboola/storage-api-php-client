@@ -193,7 +193,9 @@ class Client
      */
     public function getServiceUrl($serviceName)
     {
-        $indexResult = $this->indexAction();
+        $options = new IndexOptions();
+        $options->setExclude(['components']);
+        $indexResult = $this->indexAction($options);
 
         if (!isset($indexResult['services']) || !is_array($indexResult['services'])) {
             throw new ClientException('API index is missing "services" section');
