@@ -90,6 +90,43 @@ class MetadataTest extends StorageApiTestCase
 
     public function testColumnMetadataOverwrite()
     {
+        $outTestBucketId = $this->getTestBucketId(self::STAGE_OUT);
+        $outBucketTableId = $this->_client->createTable(
+            $outTestBucketId,
+            "table",
+            new CsvFile(__DIR__ . '/../_data/users.csv')
+        );
+
+        $outBucketColumnId = $outBucketTableId . '.id';
+        $metadataApi = new Metadata($this->_client);
+
+        $testMetadata = [
+            [
+                'key' => 'KBC.datatype.nullable',
+                'value' => 'testValue',
+            ]
+        ];
+        $metadata = $metadataApi->postBucketMetadata(
+            $outTestBucketId,
+            'user',
+            $testMetadata
+        );
+        $this->assertSame($metadata[0]['value'], 'testValue');
+
+        $metadata = $metadataApi->postTableMetadata(
+            $outBucketTableId,
+            'user',
+            $testMetadata
+        );
+        $this->assertSame($metadata[0]['value'], 'testValue');
+
+        $metadata = $metadataApi->postColumnMetadata(
+            $outBucketColumnId,
+            'user',
+            $testMetadata
+        );
+        $this->assertSame($metadata[0]['value'], 'testValue');
+
         $columnId = $this->getTestBucketId() . '.table.id';
         $metadataApi = new Metadata($this->_client);
 
@@ -127,6 +164,13 @@ class MetadataTest extends StorageApiTestCase
         );
         // metadata from first request should not change
         $this->assertSame($metadata[0]['value'], 'true');
+
+        $metadata = $metadataApi->listBucketMetadata($outTestBucketId);
+        $this->assertSame($metadata[0]['value'], 'testValue');
+        $metadata = $metadataApi->listTableMetadata($outBucketTableId);
+        $this->assertSame($metadata[0]['value'], 'testValue');
+        $metadata = $metadataApi->listColumnMetadata($outBucketColumnId);
+        $this->assertSame($metadata[0]['value'], 'testValue');
     }
 
     public function testTableMetadata()
