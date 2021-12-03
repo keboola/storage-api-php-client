@@ -88,6 +88,91 @@ class MetadataTest extends StorageApiTestCase
         $this->assertEquals($metadatas[1]['timestamp'], $mdList[0]['timestamp']);
     }
 
+    public function testColumnMetadataOverwrite()
+    {
+        $outTestBucketId = $this->getTestBucketId(self::STAGE_OUT);
+        $outBucketTableId = $this->_client->createTable(
+            $outTestBucketId,
+            "table",
+            new CsvFile(__DIR__ . '/../_data/users.csv')
+        );
+
+        $outBucketColumnId = $outBucketTableId . '.id';
+        $metadataApi = new Metadata($this->_client);
+
+        $testMetadata = [
+            [
+                'key' => 'KBC.datatype.nullable',
+                'value' => 'testValue',
+            ]
+        ];
+        $metadata = $metadataApi->postBucketMetadata(
+            $outTestBucketId,
+            'user',
+            $testMetadata
+        );
+        $this->assertSame($metadata[0]['value'], 'testValue');
+
+        $metadata = $metadataApi->postTableMetadata(
+            $outBucketTableId,
+            'user',
+            $testMetadata
+        );
+        $this->assertSame($metadata[0]['value'], 'testValue');
+
+        $metadata = $metadataApi->postColumnMetadata(
+            $outBucketColumnId,
+            'user',
+            $testMetadata
+        );
+        $this->assertSame($metadata[0]['value'], 'testValue');
+
+        $columnId = $this->getTestBucketId() . '.table.id';
+        $metadataApi = new Metadata($this->_client);
+
+        $testMetadata = [
+            [
+                'key' => 'KBC.datatype.nullable',
+                'value' => 'true',
+            ]
+        ];
+        $metadata = $metadataApi->postColumnMetadata(
+            $columnId,
+            'user',
+            $testMetadata
+        );
+
+        $this->assertSame($metadata[0]['value'], 'true');
+        // save same metadata with different value with different provider
+        $testMetadata = [
+            [
+                'key' => 'KBC.datatype.nullable',
+                'value' => 1,
+            ]
+        ];
+        $metadata = $metadataApi->postColumnMetadata(
+            $columnId,
+            'transformation',
+            $testMetadata
+        );
+        $this->assertSame($metadata[0]['value'], 'true');
+        // repeat previous request
+        $metadata = $metadataApi->postColumnMetadata(
+            $columnId,
+            'transformation',
+            $testMetadata
+        );
+        // metadata from first request should not change
+        $this->assertSame($metadata[0]['value'], 'true');
+
+        $metadata = $metadataApi->listBucketMetadata($outTestBucketId);
+        $this->assertSame($metadata[0]['value'], 'testValue');
+        $metadata = $metadataApi->listTableMetadata($outBucketTableId);
+        $this->assertSame($metadata[0]['value'], 'testValue');
+        $metadata = $metadataApi->listColumnMetadata($outBucketColumnId);
+        $this->assertSame($metadata[0]['value'], 'testValue');
+    }
+
     public function testTableMetadata()
     {
         $tableId = $this->getTestBucketId() . '.table';

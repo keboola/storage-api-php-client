@@ -10537,12 +10537,12 @@ parameters:
 
 		-
 			message: "#^Cannot access offset 'value' on mixed\\.$#"
-			count: 22
+			count: 31
 			path: tests/Common/MetadataTest.php
 
 		-
 			message: "#^Cannot access offset 0 on mixed\\.$#"
-			count: 45
+			count: 54
 			path: tests/Common/MetadataTest.php
 
 		-
@@ -10627,6 +10627,11 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\MetadataTest\\:\\:testColumnMetadataForTokenWithReadPrivilege\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Common/MetadataTest.php
+
+		-
+			message: "#^Method Keboola\\\\Test\\\\Common\\\\MetadataTest\\:\\:testColumnMetadataOverwrite\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Common/MetadataTest.php
 
