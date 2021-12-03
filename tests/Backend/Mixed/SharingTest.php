@@ -182,7 +182,7 @@ class SharingTest extends StorageApiSharingTestCase
         $linkedBucketId = $bucket['linkedBy'][0]['id'];
         $linkedBucketProjectId = $bucket['linkedBy'][0]['project']['id'];
 
-        $client->dropBucket($linkedBucketId);
+        $client->dropBucket($linkedBucketId, ['async' => $isAsync]);
         try {
             // cannot unlink bucket from nonexistent project
             $this->_client->forceUnlinkBucket($bucketId, 9223372036854775807);
@@ -195,7 +195,7 @@ class SharingTest extends StorageApiSharingTestCase
         $notLinkedBucketStage = 'in';
         $notLinkedBucket = $notLinkedBucketStage . '.c-' . $notLinkedBucketName . '';
         if ($client->bucketExists($notLinkedBucket)) {
-            $client->dropBucket($notLinkedBucket);
+            $client->dropBucket($notLinkedBucket, ['async' => $isAsync]);
         }
         $client->createBucket($notLinkedBucketName, $notLinkedBucketStage);
         try {
@@ -216,7 +216,7 @@ class SharingTest extends StorageApiSharingTestCase
         $notSourceBucketStage = 'in';
         $notSourceBucketId = $notSourceBucketStage . '.c-' . $notSourceBucketName . '';
         if ($this->_client->bucketExists($notSourceBucketId)) {
-            $this->_client->dropBucket($notSourceBucketId);
+            $this->_client->dropBucket($notSourceBucketId, ['async' => $isAsync]);
         }
         $this->_client->createBucket($notSourceBucketName, $notSourceBucketStage);
         try {
@@ -303,7 +303,7 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertTrue($cannotManageBucketsClient->bucketExists($linkedBucketId));
 
         try {
-            $cannotManageBucketsClient->dropBucket($linkedBucketId);
+            $cannotManageBucketsClient->dropBucket($linkedBucketId, ['async' => $isAsync]);
             $this->fail('Bucket unlink should be restricted for tokens without canManageBuckets permission');
         } catch (ClientException $e) {
             $this->assertEquals(403, $e->getCode());
@@ -313,7 +313,7 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertTrue($this->_client2->bucketExists($linkedBucketId));
 
         // user should be also able to delete the linked bucket
-        $client->dropBucket($linkedBucketId);
+        $client->dropBucket($linkedBucketId, ['async' => $isAsync]);
 
         $this->assertFalse($this->_client2->bucketExists($linkedBucketId));
     }
@@ -381,7 +381,7 @@ class SharingTest extends StorageApiSharingTestCase
         }
 
         try {
-            $client->dropBucket($linkedId);
+            $client->dropBucket($linkedId, ['async' => $isAsync]);
             $this->fail('`dropBucket` should fail with `accessDenied` error');
         } catch (ClientException $e) {
             $this->assertEquals(403, $e->getCode());
@@ -705,7 +705,7 @@ class SharingTest extends StorageApiSharingTestCase
 
         $sharedBucket = reset($response);
 
-        $id = $this->_client2->linkBucket("linked-" . time(), 'out', $sharedBucket['project']['id'], $sharedBucket['id']);
+        $id = $this->_client2->linkBucket("linked-" . time(), 'out', $sharedBucket['project']['id'], $sharedBucket['id'], null, $isAsync);
 
         $bucket = $this->_client2->getBucket($id);
 
@@ -733,21 +733,21 @@ class SharingTest extends StorageApiSharingTestCase
     }
 
     /**
-     * @dataProvider sharingBackendData
+     * @dataProvider sharingBackendDataWithAsync
      * @throws ClientException
      */
-    public function testLinkBucketToOrganizationDeletePermissions($backend)
+    public function testLinkBucketToOrganizationDeletePermissions($backend, $isAsync)
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
-        $this->_client->shareBucket($bucketId);
+        $this->_client->shareBucket($bucketId, ['async' => $isAsync]);
 
         $response = $this->_client2->listSharedBuckets();
         $this->assertCount(1, $response);
 
         $sharedBucket = reset($response);
 
-        $linkedBucketId = $this->_client2->linkBucket("linked-" . time(), 'out', $sharedBucket['project']['id'], $sharedBucket['id']);
+        $linkedBucketId = $this->_client2->linkBucket("linked-" . time(), 'out', $sharedBucket['project']['id'], $sharedBucket['id'], $isAsync);
 
         $token = $this->tokensInLinkingProject->createToken($this->createTestTokenOptions(true));
 
@@ -757,7 +757,7 @@ class SharingTest extends StorageApiSharingTestCase
         ]);
 
         try {
-            $client->dropBucket($linkedBucketId);
+            $client->dropBucket($linkedBucketId, ['async' => $isAsync]);
             $this->fail('non-organization member should not be able to delete bucket');
         } catch (ClientException $e) {
             $this->assertEquals('accessDenied', $e->getStringCode());
@@ -765,22 +765,23 @@ class SharingTest extends StorageApiSharingTestCase
         }
 
         // organization member should be able to delete linked bucket
-        $this->_client2->dropBucket($linkedBucketId);
+        $this->_client2->dropBucket($linkedBucketId, ['async' => $isAsync]);
     }
 
-    public function testBucketCannotBeLinkedMoreTimes()
+    /** @dataProvider syncAsyncProvider */
+    public function testBucketCannotBeLinkedMoreTimes($isAsync)
     {
         $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
         $bucketId = reset($this->_bucketIds);
 
-        $this->_client->shareBucket($bucketId);
+        $this->_client->shareBucket($bucketId, ['async'=>$isAsync]);
 
         $response = $this->_client2->listSharedBuckets();
         $sharedBucket = reset($response);
 
-        $id = $this->_client2->linkBucket("linked-" . uniqid(), 'out', $sharedBucket['project']['id'], $sharedBucket['id']);
+        $id = $this->_client2->linkBucket("linked-" . uniqid(), 'out', $sharedBucket['project']['id'], $sharedBucket['id'], null, $isAsync);
         try {
-            $this->_client2->linkBucket("linked-" . uniqid(), 'out', $sharedBucket['project']['id'], $sharedBucket['id']);
+            $this->_client2->linkBucket("linked-" . uniqid(), 'out', $sharedBucket['project']['id'], $sharedBucket['id'], null, $isAsync);
             $this->fail('bucket should not be linked');
         } catch (ClientException $e) {
             $this->assertEquals('storage.buckets.alreadyLinked', $e->getStringCode());
@@ -819,10 +820,10 @@ class SharingTest extends StorageApiSharingTestCase
     }
 
     /**
-     * @dataProvider sharingBackendData
+     * @dataProvider sharingBackendDataWithAsync
      * @throws ClientException
      */
-    public function testLinkedBucket($backend)
+    public function testLinkedBucket($backend, $isAsync)
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
@@ -867,7 +868,7 @@ class SharingTest extends StorageApiSharingTestCase
             'languages-alias'
         );
 
-        $this->_client->shareBucket($bucketId);
+        $this->_client->shareBucket($bucketId, ['async' => $isAsync]);
 
         // link
         $response = $this->_client2->listSharedBuckets();
@@ -879,7 +880,9 @@ class SharingTest extends StorageApiSharingTestCase
             "linked-" . time(),
             'in',
             $sharedBucket['project']['id'],
-            $sharedBucket['id']
+            $sharedBucket['id'],
+            null,
+            $isAsync
         );
 
 
@@ -946,10 +949,10 @@ class SharingTest extends StorageApiSharingTestCase
     }
 
     /**
-     * @dataProvider sharingBackendData
+     * @dataProvider sharingBackendDataWithAsync
      * @throws ClientException
      */
-    public function testRestrictedDrop($backend)
+    public function testRestrictedDrop($backend, $isAsync)
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
@@ -964,7 +967,7 @@ class SharingTest extends StorageApiSharingTestCase
             ]
         );
 
-        $this->_client->shareBucket($bucketId);
+        $this->_client->shareBucket($bucketId, ['async' => $isAsync]);
 
         // link
         $response = $this->_client2->listSharedBuckets();
@@ -976,7 +979,9 @@ class SharingTest extends StorageApiSharingTestCase
             "linked-" . time(),
             'in',
             $sharedBucket['project']['id'],
-            $sharedBucket['id']
+            $sharedBucket['id'],
+            null,
+            $isAsync
         );
 
         $tables = $this->_client->listTables($bucketId);
@@ -1001,7 +1006,7 @@ class SharingTest extends StorageApiSharingTestCase
 
         // bucket drop
         try {
-            $this->_client->dropBucket($bucketId);
+            $this->_client->dropBucket($bucketId, ['async' => $isAsync]);
             $this->fail('Shared bucket delete should fail');
         } catch (ClientException $e) {
             $this->assertEquals('storage.buckets.alreadyLinked', $e->getStringCode());
@@ -1011,10 +1016,10 @@ class SharingTest extends StorageApiSharingTestCase
     }
 
     /**
-     * @dataProvider sharingBackendData
+     * @dataProvider sharingBackendDataWithAsync
      * @throws ClientException
      */
-    public function testForcedDrop($backend)
+    public function testForcedDrop($backend, $isAsync)
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
@@ -1029,7 +1034,7 @@ class SharingTest extends StorageApiSharingTestCase
             ]
         );
 
-        $this->_client->shareBucket($bucketId);
+        $this->_client->shareBucket($bucketId, ['async' => $isAsync]);
 
         // link
         $response = $this->_client2->listSharedBuckets();
@@ -1041,7 +1046,9 @@ class SharingTest extends StorageApiSharingTestCase
             "linked-" . time(),
             'in',
             $sharedBucket['project']['id'],
-            $sharedBucket['id']
+            $sharedBucket['id'],
+            null,
+            $isAsync
         );
 
         $tables = $this->_client->listTables($bucketId);
@@ -1072,7 +1079,7 @@ class SharingTest extends StorageApiSharingTestCase
      * @throws \Exception
      * @throws \Keboola\StorageApi\Exception
      */
-    public function testWorkspaceLoadData($sharingBackend, $workspaceBackend)
+    public function testWorkspaceLoadData($sharingBackend, $workspaceBackend, $isAsync)
     {
         //setup test tables
         $this->deleteAllWorkspaces();
@@ -1099,7 +1106,7 @@ class SharingTest extends StorageApiSharingTestCase
         );
 
         // share and link bucket
-        $this->_client->shareBucket($bucketId);
+        $this->_client->shareBucket($bucketId, ['async' => $isAsync]);
         $this->assertTrue($this->_client->isSharedBucket($bucketId));
 
         $response = $this->_client2->listSharedBuckets();
@@ -1110,11 +1117,13 @@ class SharingTest extends StorageApiSharingTestCase
             "linked-" . time(),
             'out',
             $sharedBucket['project']['id'],
-            $sharedBucket['id']
+            $sharedBucket['id'],
+            null,
+            $isAsync
         );
 
         // share and unshare second bucket - test that it doesn't break permissions of first linked bucket
-        $this->_client->shareBucket($secondBucketId);
+        $this->_client->shareBucket($secondBucketId, ['async' => $isAsync]);
         $sharedBucket2 = array_values(array_filter($this->_client->listSharedBuckets(), function ($bucket) use ($secondBucketId) {
             return $bucket['id'] === $secondBucketId;
         }))[0];
@@ -1122,9 +1131,11 @@ class SharingTest extends StorageApiSharingTestCase
             "linked-2-" . time(),
             'out',
             $sharedBucket2['project']['id'],
-            $sharedBucket2['id']
+            $sharedBucket2['id'],
+            null,
+            $isAsync
         );
-        $this->_client2->dropBucket($linked2Id);
+        $this->_client2->dropBucket($linked2Id, ['async' => $isAsync]);
 
 
         $mapping1 = array(
@@ -1244,7 +1255,8 @@ class SharingTest extends StorageApiSharingTestCase
         }
     }
 
-    public function testCloneLinkedBucket()
+    /** @dataProvider syncAsyncProvider */
+    public function testCloneLinkedBucket($isAsync)
     {
         $this->deleteAllWorkspaces();
         $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
@@ -1256,7 +1268,7 @@ class SharingTest extends StorageApiSharingTestCase
             'languagesDetails',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
-        $this->_client->shareBucket($sourceBucketId);
+        $this->_client->shareBucket($sourceBucketId, ['async'=>$isAsync]);
 
         $table2Id = $this->_client->createTable(
             $this->getTestBucketId(),
@@ -1282,7 +1294,9 @@ class SharingTest extends StorageApiSharingTestCase
             "linked-" . uniqid(),
             'out',
             $sourceProjectId,
-            $sourceBucketId
+            $sourceBucketId,
+            null,
+            $isAsync
         );
 
         // load data into workspace in destination project
