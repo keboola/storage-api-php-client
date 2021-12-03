@@ -203,11 +203,30 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
 
     public function workspaceMixedBackendData()
     {
-        return [
-            [self::BACKEND_SNOWFLAKE, self::BACKEND_SNOWFLAKE],
-            [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT],
-            [self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE],
-            [self::BACKEND_REDSHIFT, self::BACKEND_REDSHIFT],
-        ];
+        foreach ([true, false] as $async) {
+            yield sprintf('snowflake sharing, snowflake workspace async=%b', $async) => [
+                self::BACKEND_SNOWFLAKE,
+                self::BACKEND_SNOWFLAKE,
+                $async
+            ];
+
+            yield sprintf('snowflake sharing, redshift workspace async=%b', $async) => [
+                self::BACKEND_SNOWFLAKE,
+                self::BACKEND_REDSHIFT,
+                $async
+            ];
+
+            yield sprintf('redshift sharing, snowflake workspace async=%b', $async) => [
+                self::BACKEND_REDSHIFT,
+                self::BACKEND_SNOWFLAKE,
+                $async
+            ];
+
+            yield sprintf('redshift sharing, redshift workspace async=%b', $async) => [
+                self::BACKEND_REDSHIFT,
+                self::BACKEND_SNOWFLAKE,
+                $async
+            ];
+        }
     }
 }

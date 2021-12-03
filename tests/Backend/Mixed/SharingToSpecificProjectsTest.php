@@ -127,10 +127,10 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
     }
 
     /**
-     * @dataProvider sharingBackendData
+     * @dataProvider sharingBackendDataWithAsync
      * @throws ClientException
      */
-    public function testLinkBucketToSpecificProject($backend)
+    public function testLinkBucketToSpecificProject($backend, $isAsync)
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
@@ -143,7 +143,8 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
             [
                 $token['owner']['id'],
                 $tokenAdmin2InSameOrg['owner']['id'],
-            ]
+            ],
+            $isAsync
         );
 
         // link
@@ -156,7 +157,9 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
             "linked-" . time(),
             'in',
             $sharedBucket['project']['id'],
-            $sharedBucket['id']
+            $sharedBucket['id'],
+            null,
+            $isAsync
         );
 
         // validate bucket
@@ -178,7 +181,9 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
             "linked-" . time(),
             'in',
             $sharedBucket['project']['id'],
-            $sharedBucket['id']
+            $sharedBucket['id'],
+            null,
+            $isAsync
         );
 
         // validate bucket
@@ -195,7 +200,8 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
             $bucketId,
             [
                 $token['owner']['id'],
-            ]
+            ],
+            $isAsync
         );
 
         $response = $this->clientAdmin2InSameOrg->listSharedBuckets();
@@ -221,16 +227,16 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
     }
 
     /**
-     * @dataProvider sharingBackendData
+     * @dataProvider sharingBackendDataWithAsync
      * @throws ClientException
      */
-    public function testNotAbleToLinkBucketToSpecificProject($backend)
+    public function testNotAbleToLinkBucketToSpecificProject($backend, $isAsync)
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
 
         $targetProjectId = $this->clientAdmin2InSameOrg->verifyToken()['owner']['id'];
-        $this->_client->shareBucketToProjects($bucketId, [$targetProjectId]);
+        $this->_client->shareBucketToProjects($bucketId, [$targetProjectId], $isAsync);
         $SharedBuckets = $this->clientAdmin2InSameOrg->listSharedBuckets();
         $this->assertCount(1, $SharedBuckets);
 
@@ -239,7 +245,9 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
                 "linked-" . time(),
                 'in',
                 $this->_client->verifyToken()['owner']['id'],
-                $bucketId
+                $bucketId,
+                null,
+                $isAsync
             );
             $this->fail('Linking bucket to unauthorized project should fail.');
         } catch (ClientException $e) {
