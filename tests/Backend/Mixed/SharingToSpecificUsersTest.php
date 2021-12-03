@@ -165,10 +165,10 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
     }
 
     /**
-     * @dataProvider sharingBackendData
+     * @dataProvider sharingBackendDataWithAsync
      * @throws ClientException
      */
-    public function testLinkBucketToSpecificUser($backend)
+    public function testLinkBucketToSpecificUser($backend, $isAsync)
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
@@ -180,7 +180,8 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
             [
                 $targetUser['id'],
                 $targetAdmin2InSameOrg['id']
-            ]
+            ],
+            $isAsync
         );
 
         // link
@@ -193,7 +194,9 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
             "linked-" . time(),
             'in',
             $sharedBucket['project']['id'],
-            $sharedBucket['id']
+            $sharedBucket['id'],
+            null,
+            $isAsync
         );
 
         // validate bucket
@@ -215,7 +218,9 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
             "linked-" . time(),
             'in',
             $sharedBucket['project']['id'],
-            $sharedBucket['id']
+            $sharedBucket['id'],
+            null,
+            $isAsync
         );
 
         // validate bucket
@@ -232,7 +237,8 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
             $bucketId,
             [
                 $targetUser['id'],
-            ]
+            ],
+            $isAsync
         );
 
         $response = $this->clientAdmin2InSameOrg->listSharedBuckets();
@@ -250,16 +256,16 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
     }
 
     /**
-     * @dataProvider sharingBackendData
+     * @dataProvider sharingBackendDataWithAsync
      * @throws ClientException
      */
-    public function testNotAbleToLinkBucketToSpecificUser($backend)
+    public function testNotAbleToLinkBucketToSpecificUser($backend, $isAsync)
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
 
         $targetUser = $this->clientAdmin2InSameOrg->verifyToken()['admin'];
-        $this->_client->shareBucketToUsers($bucketId, [$targetUser['id']]);
+        $this->_client->shareBucketToUsers($bucketId, [$targetUser['id']], $isAsync);
 
         $SharedBuckets = $this->clientAdmin2InSameOrg->listSharedBuckets();
         $this->assertCount(1, $SharedBuckets);
@@ -269,7 +275,9 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
                 "linked-" . time(),
                 'in',
                 $this->_client->verifyToken()['owner']['id'],
-                $bucketId
+                $bucketId,
+                null,
+                $isAsync
             );
             $this->fail('Linking bucket by unauthorized user should fail.');
         } catch (ClientException $e) {
