@@ -492,7 +492,7 @@ class Client
         ];
 
         if ($async) {
-            $data = array_merge($data, ['async' => $async]);
+            $url .= '?' . http_build_query(['async' => $async]);
         }
 
         $result = $this->apiPut($url, $data);
