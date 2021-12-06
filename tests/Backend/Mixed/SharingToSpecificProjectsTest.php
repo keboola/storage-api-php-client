@@ -7,17 +7,17 @@ use Keboola\StorageApi\ClientException;
 class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
 {
     /**
-     * @dataProvider sharingBackendData
+     * @dataProvider sharingBackendDataWithAsync
      * @throws ClientException
      */
-    public function testShareOrganizationBucketChangeType($backend)
+    public function testShareOrganizationBucketChangeType($backend, $isAsync)
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
 
         // first share
         $targetProjectId = $this->clientAdmin2InSameOrg->verifyToken()['owner']['id'];
-        $response = $this->_client->shareBucketToProjects($bucketId, [$targetProjectId]);
+        $response = $this->_client->shareBucketToProjects($bucketId, [$targetProjectId], $isAsync);
 
         $this->assertArrayHasKey('displayName', $response);
 
@@ -28,7 +28,7 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
         $this->assertNotEmpty($sharedBucket['sharingParameters']);
         $this->assertInternalType('array', $sharedBucket['sharingParameters']);
 
-        $response = $this->_client->shareOrganizationBucket($bucketId);
+        $response = $this->_client->shareOrganizationBucket($bucketId, $isAsync);
 
         $this->assertArrayHasKey('displayName', $response);
 
@@ -39,7 +39,7 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
         $this->assertEmpty($sharedBucket['sharingParameters']);
         $this->assertInternalType('array', $sharedBucket['sharingParameters']);
 
-        $response = $this->_client->shareOrganizationProjectBucket($bucketId);
+        $response = $this->_client->shareOrganizationProjectBucket($bucketId, $isAsync);
 
         $this->assertArrayHasKey('displayName', $response);
 
@@ -52,10 +52,10 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
     }
 
     /**
-     * @dataProvider sharingBackendData
+     * @dataProvider sharingBackendDataWithAsync
      * @throws ClientException
      */
-    public function testShareBucketToProject($backend)
+    public function testShareBucketToProject($backend, $isAsync)
     {
         $this->initTestBuckets($backend);
         $bucketIds = $this->_bucketIds;
@@ -66,7 +66,8 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
         foreach ($bucketIds as $bucketId) {
             $result = $this->_client->shareBucketToProjects(
                 $bucketId,
-                [$targetProject['id']]
+                [$targetProject['id']],
+                $isAsync
             );
 
             $this->assertArrayHasKey('sharingParameters', $result);
@@ -98,17 +99,17 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
     }
 
     /**
-     * @dataProvider sharingBackendData
+     * @dataProvider sharingBackendDataWithAsync
      * @throws ClientException
      */
-    public function testUpdateShareBucketToProject($backend)
+    public function testUpdateShareBucketToProject($backend, $isAsync)
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
 
         $targetProjectId = $this->clientAdmin2InSameOrg->verifyToken()['owner']['id'];
 
-        $this->_client->shareBucketToProjects($bucketId, [$targetProjectId]);
+        $this->_client->shareBucketToProjects($bucketId, [$targetProjectId], $isAsync);
 
         $sharedBucket = $this->_client->getBucket($bucketId);
 
@@ -119,7 +120,7 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
         $this->assertCount(0, $client2SharedBuckets);
 
         $token = $this->_client2->verifyToken();
-        $this->_client->shareBucketToProjects($bucketId, $token['owner']['id']);
+        $this->_client->shareBucketToProjects($bucketId, [$token['owner']['id']], $isAsync);
 
         $client2SharedBuckets = $this->_client2->listSharedBuckets();
         $this->assertCount(1, $client2SharedBuckets);
@@ -253,10 +254,10 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
     }
 
     /**
-     * @dataProvider sharingBackendData
+     * @dataProvider sharingBackendDataWithAsync
      * @throws ClientException
      */
-    public function testShareBucketToAnotherOrganizationProject($backend)
+    public function testShareBucketToAnotherOrganizationProject($backend, $isAsync)
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
@@ -264,7 +265,7 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
         $targetProjectIdInOtherOrg = $this->clientAdmin3InOtherOrg->verifyToken()['owner']['id'];
 
         try {
-            $this->_client->shareBucketToProjects($bucketId, [$targetProjectIdInOtherOrg]);
+            $this->_client->shareBucketToProjects($bucketId, [$targetProjectIdInOtherOrg], $isAsync);
             $this->fail('Sharing bucket to project in other organization should fail.');
         } catch (ClientException $e) {
             $this->assertEquals(
