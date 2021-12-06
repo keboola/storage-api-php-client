@@ -348,7 +348,7 @@ class Client
      * @param string|null $displayName bucket display name
      * @return mixed
      */
-    public function linkBucket($name, $stage, $sourceProjectId, $sourceBucketId, $displayName = null)
+    public function linkBucket($name, $stage, $sourceProjectId, $sourceBucketId, $displayName = null, $async = false)
     {
         $options = array(
             "name" => $name,
@@ -361,7 +361,12 @@ class Client
             $options['displayName'] = $displayName;
         }
 
-        $result = $this->apiPost("buckets", $options);
+        $url = "buckets";
+        if ($async) {
+            $url .= '?' . http_build_query(['async' => $async]);
+        }
+
+        $result = $this->apiPost($url, $options, $async);
 
         $this->log("Shared bucket {$result["id"]} linked to the project", array("options" => $options, "result" => $result));
 
