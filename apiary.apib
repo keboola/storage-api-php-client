@@ -728,11 +728,15 @@ existing bucket from another project (see below).
                 "attributes": []
             }
 
-### Link Shared Bucket [POST]
+### Link Shared Bucket [POST /v2/storage/buckets?async={async}]
 Use this API call to create a new bucket which contains contents of a
 [shared bucket](https://help.keboola.com/storage/buckets/sharing/) in a source project.
 Linking a bucket from another project is only possible if it has been
 [enabled](#reference/buckets/bucket-sharing/share-bucket) in the source project.
+
++ Parameters
+    + async (optional, boolean) - Share the bucket in a background job.
+
 
 + Attributes
     + name (required) - New bucket name; only alphanumeric characters and underscores are allowed.
@@ -754,6 +758,7 @@ Linking a bucket from another project is only possible if it has been
             name=organizationData&stage=in&sourceProjectId=123&sourceBucketId=in.c-shared-bucket
 
 + Response 201 (application/json)
+Synchronous call response (async=false)
     + Body
 
             {
@@ -774,6 +779,45 @@ Linking a bucket from another project is only possible if it has been
                         "id": 123,
                         "name": "Project name"
                     }
+                }
+            }
+
++ Response 202
+Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
+    + Body
+
+            {
+                "id": 11,
+                "status": "waiting",
+                "url": "https://connection.keboola.com/v2/storage/jobs/11",
+                "operationName": "bucketLink",
+                "operationParams": {
+                    "params": {
+                        "bucketName": "organizationData",
+                        "displayName": "organizationData",
+                        "bucketStage": "in",
+                        "sourceProjectId": 105,
+                        "sourceBucketId": "in.c-API-sharing",
+                        "devBranchId": 4230,
+                        "queue": "main"
+                    }
+                },
+                "createdTime": "2013-05-31T16:11:05+0200",
+                "startTime": null,
+                "endTime": null,
+                "runId": null,
+                "results": null,
+                "creatorToken": {
+                    "id": "27978",
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
                 }
             }
 
@@ -946,7 +990,7 @@ Asynchronous call response (async=true) that creates a new job. To see job detai
                 }
             }
 
-## Bucket Sharing [/v2/storage/buckets/{bucket_id}/share]
+## Bucket Sharing [/v2/storage/buckets/{bucket_id}/share?async={async}]
 
 
 ### Share Bucket [POST]
@@ -957,6 +1001,7 @@ This operations is available only for organization administrators.
 
 + Parameters
     + bucket_id (required) - Bucket Id
+    + async (optional, boolean) - Share the bucket in a background job.
 
 + Attributes
     + sharing (optional, enum[string]) - Sharing type
@@ -971,6 +1016,7 @@ This operations is available only for organization administrators.
             X-StorageApi-Token: your_token
 
 + Response 202 (application/json)
+Synchronous call response (async=false)
     + Body
 
             {
@@ -993,12 +1039,47 @@ This operations is available only for organization administrators.
                 "directAccessSchemaName": null
             }
 
-### Share Bucket To Organization [POST /v2/storage/buckets/{bucket_id}/share-organization]
++ Response 202
+Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
+    + Body
+
+            {
+                "id": 11,
+                "status": "waiting",
+                "url": "https://connection.keboola.com/v2/storage/jobs/11",
+                "operationName": "bucketShare",
+                "operationParams": {
+                    "params": {
+                        "sharingType": "organization",
+                        "queue": "main"
+                    }
+                },
+                "createdTime": "2013-05-31T16:11:05+0200",
+                "startTime": null,
+                "endTime": null,
+                "runId": null,
+                "results": null,
+                "creatorToken": {
+                    "id": "27978",
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
+                }
+            }
+
+### Share Bucket To Organization [POST /v2/storage/buckets/{bucket_id}/share-organization?async={async}]
 [Enables sharing](https://help.keboola.com/storage/buckets/sharing/) or **update sharing** for this bucket within the organization.
 Any organization member will be able to link to this bucket from any project within the organization.
 This operations is available only for organization administrators.
 + Parameters
     + bucket_id (required) - Bucket Id
+    + async (optional, boolean) - Share the bucket in a background job.
 
 + Request
     + Headers
@@ -1006,6 +1087,7 @@ This operations is available only for organization administrators.
             X-StorageApi-Token: your_token
 
 + Response 201 (application/json)
+Synchronous call response (async=false)
     + Body
 
             {
@@ -1034,12 +1116,46 @@ This operations is available only for organization administrators.
                 "directAccessSchemaName": null
             }
 
-### Share Bucket To Organization Project [POST /v2/storage/buckets/{bucket_id}/share-organization-project]
++ Response 202
+Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
+    + Body
+
+            {
+                "id": 11,
+                "status": "waiting",
+                "url": "https://connection.keboola.com/v2/storage/jobs/11",
+                "operationName": "bucketShareToOrganization",
+                "operationParams": {
+                    "params": {
+                        "queue": "main"
+                    }
+                },
+                "createdTime": "2013-05-31T16:11:05+0200",
+                "startTime": null,
+                "endTime": null,
+                "runId": null,
+                "results": null,
+                "creatorToken": {
+                    "id": "27978",
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
+                }
+            }
+
+### Share Bucket To Organization Project [POST /v2/storage/buckets/{bucket_id}/share-organization-project?async={async}]
 [Enables sharing](https://help.keboola.com/storage/buckets/sharing/) or **update sharing** for this bucket within the organization.
 Any member of a project within the organization will be able to link to this bucket from their project.
 This operations is available only for organization administrators.
 + Parameters
     + bucket_id (required) - Bucket Id
+    + async (optional, boolean) - Share the bucket in a background job.
 
 + Request
     + Headers
@@ -1047,6 +1163,7 @@ This operations is available only for organization administrators.
             X-StorageApi-Token: your_token
 
 + Response 201 (application/json)
+Synchronous call response (async=false)
     + Body
 
             {
@@ -1075,13 +1192,47 @@ This operations is available only for organization administrators.
                 "directAccessSchemaName": null
             }
 
-### Share Bucket To Projects [POST /v2/storage/buckets/{bucket_id}/share-to-projects]
++ Response 202
+Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
+    + Body
+
+            {
+                "id": 11,
+                "status": "waiting",
+                "url": "https://connection.keboola.com/v2/storage/jobs/11",
+                "operationName": "bucketShareToOrganizationProject",
+                "operationParams": {
+                    "params": {
+                        "queue": "main"
+                    }
+                },
+                "createdTime": "2013-05-31T16:11:05+0200",
+                "startTime": null,
+                "endTime": null,
+                "runId": null,
+                "results": null,
+                "creatorToken": {
+                    "id": "27978",
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
+                }
+            }
+
+### Share Bucket To Projects [POST /v2/storage/buckets/{bucket_id}/share-to-projects?async={async}]
 [Enables sharing](https://help.keboola.com/storage/buckets/sharing/) or **update sharing** for this bucket to a specific set of projects in the organization.
 All users who are member of one of the targeted projects will be able to link to this bucket from that specific project.
 This operations is available only for organization administrators.
 
 + Parameters
     + bucket_id (required) - Bucket Id
+    + async (optional, boolean) - Share the bucket in a background job.
 
 + Attributes
     + targetProjectIds[] (required, array) - array of projects id
@@ -1095,6 +1246,7 @@ This operations is available only for organization administrators.
             targetProjectIds%5B0%5D=1&targetProjectIds%5B1%5D=2&targetProjectIds%5B2%5D=3
 
 + Response 201 (application/json)
+Synchronous call response (async=false)
     + Body
 
             {
@@ -1138,13 +1290,50 @@ This operations is available only for organization administrators.
                 "directAccessSchemaName": null
             }
 
-### Share Bucket To Users [POST /v2/storage/buckets/{bucket_id}/share-to-users]
++ Response 202
+Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
+    + Body
+
+            {
+                "id": 11,
+                "status": "waiting",
+                "url": "https://connection.keboola.com/v2/storage/jobs/11",
+                "operationName": "bucketShareToProjects",
+                "operationParams": {
+                    "params": {
+                        "targetProjectIds": [
+                          1
+                        ],
+                        "queue": "main"
+                    }
+                },
+                "createdTime": "2013-05-31T16:11:05+0200",
+                "startTime": null,
+                "endTime": null,
+                "runId": null,
+                "results": null,
+                "creatorToken": {
+                    "id": "27978",
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
+                }
+            }
+
+### Share Bucket To Users [POST /v2/storage/buckets/{bucket_id}/share-to-users?async={async}]
 [Enables sharing](https://help.keboola.com/storage/buckets/sharing/) or **update sharing** for this bucket to a specific set of users in the organization.
 All users who are included in the targetUsers array will be able to link to this bucket.
 This operations is available only for organization administrators.
 
 + Parameters
     + bucket_id (required) - Bucket Id
+    + async (optional, boolean) - Share the bucket in a background job.
 
 + Attributes
     + targetUsers[] (required, array) - array of users id or user emails. Users must be member of at least one project in the organization.
@@ -1158,6 +1347,7 @@ This operations is available only for organization administrators.
             targetUsers%5B0%5D=dev%40keboola.com&targetUsers%5B1%5D=dev2%40keboola.com&targetUsers%5B2%5D=dev3%40keboola.com
 
 + Response 201 (application/json)
+Synchronous call response (async=false)
     + Body
 
             {
@@ -1204,6 +1394,42 @@ This operations is available only for organization administrators.
                 "directAccessSchemaName": null
             }
 
++ Response 202
+Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
+    + Body
+
+            {
+                "id": 11,
+                "status": "waiting",
+                "url": "https://connection.keboola.com/v2/storage/jobs/11",
+                "operationName": "bucketShareToAdmins",
+                "operationParams": {
+                    "params": {
+                        "targetUsers": [
+                          1
+                        ],
+                        "queue": "main"
+                    }
+                },
+                "createdTime": "2013-05-31T16:11:05+0200",
+                "startTime": null,
+                "endTime": null,
+                "runId": null,
+                "results": null,
+                "creatorToken": {
+                    "id": "27978",
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
+                }
+            }
+
 ### Change Bucket Sharing [PUT]
 Change [sharing type](https://help.keboola.com/storage/buckets/sharing/#sharing-type) of a bucket.
 This operations is available only for organization administrators.
@@ -1211,6 +1437,7 @@ This operations is available only for organization administrators.
 
 + Parameters
     + bucket_id (required) - Bucket Id
+    + async (optional, boolean) - Share the bucket in a background job.
 
 + Attributes
     + sharing (required, enum[string]) - Sharing type
@@ -1224,6 +1451,7 @@ This operations is available only for organization administrators.
             X-StorageApi-Token: your_token
 
 + Response 200 (application/json)
+Synchronous call response (async=false)
     + Body
 
             {
@@ -1252,6 +1480,40 @@ This operations is available only for organization administrators.
                 "directAccessSchemaName": null
             }
 
++ Response 202
+Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
+    + Body
+
+            {
+                "id": 11,
+                "status": "waiting",
+                "url": "https://connection.keboola.com/v2/storage/jobs/11",
+                "operationName": "bucketShareUpdate",
+                "operationParams": {
+                    "params": {
+                        "sharingType": "organization-project",
+                        "queue": "main"
+                    }
+                },
+                "createdTime": "2013-05-31T16:11:05+0200",
+                "startTime": null,
+                "endTime": null,
+                "runId": null,
+                "results": null,
+                "creatorToken": {
+                    "id": "27978",
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
+                }
+            }
+
 ### Stop Bucket Sharing [DELETE]
 Disables sharing of a bucket. A bucket must not be linked to other projects.
 To unshare an already linked bucket, you have to delete the links first - use the
@@ -1260,6 +1522,7 @@ This operations is available only for organization administrators.
 
 + Parameters
     + bucket_id (required) - Bucket Id
+    + async (optional, boolean) - Share the bucket in a background job.
 
 + Request
     + Headers
@@ -1267,6 +1530,40 @@ This operations is available only for organization administrators.
             X-StorageApi-Token: your_token
 
 + Response 204
+
++ Response 202
+Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
+    + Body
+
+            {
+                "id": 11,
+                "status": "waiting",
+                "url": "https://connection.keboola.com/v2/storage/jobs/11",
+                "operationName": "bucketRemoveShare",
+                "operationParams": {
+                    "params": {
+                        "queue": "main"
+                    }
+                },
+                "createdTime": "2013-05-31T16:11:05+0200",
+                "startTime": null,
+                "endTime": null,
+                "runId": null,
+                "results": null,
+                "creatorToken": {
+                    "id": "27978",
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
+                }
+            }
+
 
 ### Force unlink a bucket from a project  [DELETE /v2/storage/buckets/{bucket_id}/links/{linkedProjectId}?async={async}]
 
