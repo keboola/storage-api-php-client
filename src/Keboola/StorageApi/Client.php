@@ -361,11 +361,12 @@ class Client
             $options['displayName'] = $displayName;
         }
 
+        $url = "buckets";
         if ($async) {
-            $options['async'] = $async;
+            $url .= '?' . http_build_query(['async' => $async]);
         }
 
-        $result = $this->apiPost("buckets", $options, $async);
+        $result = $this->apiPost($url, $options, $async);
 
         $this->log("Shared bucket {$result["id"]} linked to the project", array("options" => $options, "result" => $result));
 
