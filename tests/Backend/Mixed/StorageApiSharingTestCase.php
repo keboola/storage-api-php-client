@@ -186,6 +186,21 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
         ];
     }
 
+    public function sharingBackendDataWithAsync()
+    {
+        foreach ([true, false] as $async) {
+            yield sprintf('snowflake backend async=%b', $async) => [
+                self::BACKEND_SNOWFLAKE,
+                $async,
+            ];
+
+            yield sprintf('redshift backend async=%b', $async) => [
+                self::BACKEND_REDSHIFT,
+                $async,
+            ];
+        }
+    }
+
     public function workspaceMixedBackendData()
     {
         return [

@@ -395,75 +395,120 @@ class Client
     public function shareBucket($bucketId, $options = [])
     {
         $url = "buckets/" . $bucketId . "/share";
+
+        $isAsync = false;
+        if (array_key_exists('async', $options)) {
+            $isAsync = $options['async'];
+        }
+
         $url .= '?' . http_build_query($options);
 
-        $result = $this->apiPost($url, [], false);
+        $result = $this->apiPost($url, [], $isAsync);
 
         $this->log("Bucket {$bucketId} shared", array("result" => $result));
 
         return $result;
     }
 
-    public function shareOrganizationBucket($bucketId)
+    public function shareOrganizationBucket($bucketId, $async = false)
     {
         $url = "buckets/" . $bucketId . "/share-organization";
 
-        $result = $this->apiPost($url, [], false);
+        if ($async) {
+            $url .= '?' . http_build_query(['async' => $async]);
+        }
+
+        $result = $this->apiPost($url, [], $async);
 
         $this->log("Bucket {$bucketId} shared", ["result" => $result]);
 
         return $result;
     }
 
-    public function shareOrganizationProjectBucket($bucketId)
+    public function shareOrganizationProjectBucket($bucketId, $async = false)
     {
         $url = "buckets/" . $bucketId . "/share-organization-project";
 
-        $result = $this->apiPost($url, [], false);
+        if ($async) {
+            $url .= '?' . http_build_query(['async' => $async]);
+        }
+
+        $result = $this->apiPost($url, [], $async);
 
         $this->log("Bucket {$bucketId} shared", ["result" => $result]);
 
         return $result;
     }
 
-    public function shareBucketToProjects($bucketId, $targetProjectIds)
+    public function shareBucketToProjects($bucketId, $targetProjectIds, $async = false)
     {
         $url = "buckets/" . $bucketId . "/share-to-projects";
-        $url .= '?' . http_build_query(['targetProjectIds' => $targetProjectIds]);
 
-        $result = $this->apiPost($url, [], false);
+
+        $data = [
+            'targetProjectIds' => $targetProjectIds
+        ];
+
+        if ($async) {
+            $data = array_merge($data, ['async' => $async]);
+        }
+
+        $url .= '?' . http_build_query($data);
+        $result = $this->apiPost($url, [], $async);
 
         $this->log("Bucket {$bucketId} shared", ["result" => $result]);
 
         return $result;
     }
 
-    public function shareBucketToUsers($bucketId, $targetUsers = [])
+    public function shareBucketToUsers($bucketId, $targetUsers = [], $async = false)
     {
         $url = "buckets/" . $bucketId . "/share-to-users";
-        $url .= '?' . http_build_query(['targetUsers' => $targetUsers]);
 
-        $result = $this->apiPost($url, [], false);
+
+        $data = [
+            'targetUsers' => $targetUsers
+        ];
+
+        if ($async) {
+            $data = array_merge($data, ['async' => $async]);
+        }
+
+        $url .= '?' . http_build_query($data);
+
+        $result = $this->apiPost($url, [], $async);
 
         $this->log("Bucket {$bucketId} shared", ["result" => $result]);
 
         return $result;
     }
 
-    public function changeBucketSharing($bucketId, $sharing)
+    public function changeBucketSharing($bucketId, $sharing, $async = false)
     {
         $url = "buckets/" . $bucketId . "/share";
 
-        $result = $this->apiPut($url, ['sharing' => $sharing]);
+        $data = [
+            'sharing' => $sharing
+        ];
+
+        if ($async) {
+            $url .= '?' . http_build_query(['async' => $async]);
+        }
+
+        $result = $this->apiPut($url, $data);
 
         $this->log("Bucket {$bucketId} sharing changed to {$sharing}", array("result" => $result));
 
         return $result;
     }
 
-    public function unshareBucket($bucketId)
+    public function unshareBucket($bucketId, $async = false)
     {
         $url = "buckets/" . $bucketId . "/share";
+
+        if ($async) {
+            $url .= '?' . http_build_query(['async' => $async]);
+        }
 
         return $this->apiDelete($url);
     }
