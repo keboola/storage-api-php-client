@@ -41,7 +41,6 @@
 		<file>tests/Common/BranchBucketsTest.php</file>
 		<file>tests/Common/BranchComponentTest.php</file>
 		<file>tests/Common/BranchEventsTest.php</file>
-		<file>tests/Common/ClientProviderTest.php</file>
 		<file>tests/Common/ComponentsEventsTest.php</file>
 		<file>tests/Common/ComponentsTest.php</file>
 		<file>tests/Common/ConfigurationMetadataTest.php</file>
@@ -49,6 +48,13 @@
 		<file>tests/Common/ConfigurationRowStateTest.php</file>
 		<file>tests/Common/ConfigurationRowTest.php</file>
 		<file>tests/Common/DevBranchesTest.php</file>
+		<file>tests/Common/EventsTest.php</file>
+		<file>tests/Common/GetToFileTest.php</file>
+		<file>tests/Common/SearchComponentsConfigurationsTest.php</file>
+		<file>tests/Common/TokensTest.php</file>
+		<file>tests/Backend/FileWorkspace/ComponentsWorkspacesTest.php</file>
+		<file>tests/Backend/Workspaces/BranchComponentsWorkspacesTest.php</file>
+		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
 	</testsuite>
 
 	<testsuite name="file-storage-azure">
