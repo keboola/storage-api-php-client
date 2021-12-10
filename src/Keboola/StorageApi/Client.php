@@ -344,7 +344,7 @@ class Client
      * @param string $name new bucket name
      * @param string $stage bucket stage
      * @param int $sourceProjectId
-     * @param int $sourceBucketId
+     * @param string $sourceBucketId
      * @param string|null $displayName bucket display name
      * @return mixed
      */
