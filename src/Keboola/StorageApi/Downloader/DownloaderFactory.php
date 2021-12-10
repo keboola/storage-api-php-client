@@ -28,7 +28,6 @@ class DownloaderFactory
                         'token' => $getFileResponse["credentials"]["SessionToken"],
                     ],
                     'http' => [
-                        'stream' => true,
                         'read_timeout' => 10,
                         'decode_content' => false,
                         'connect_timeout' => 10,
