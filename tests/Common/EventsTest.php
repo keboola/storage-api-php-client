@@ -18,6 +18,14 @@ use Keboola\StorageApi\Event;
 class EventsTest extends StorageApiTestCase
 {
 
+    /**
+     * @return bool
+     */
+    protected function shouldUseLegacyBranchServices()
+    {
+        return ! (bool) getenv('USE_DEV_BRANCH_SERVICES_ONLY');
+    }
+
     public function testEventCreate()
     {
         $event = new Event();
@@ -43,7 +51,11 @@ class EventsTest extends StorageApiTestCase
         $this->assertEquals($event->getMessage(), $savedEvent['message']);
         $this->assertEquals($event->getDescription(), $savedEvent['description']);
         $this->assertEquals($event->getParams(), $savedEvent['params']);
-        $this->assertEquals(null, $savedEvent['idBranch']);
+        if ($this->shouldUseLegacyBranchServices()) {
+            $this->assertEquals(null, $savedEvent['idBranch']);
+        } else {
+            $this->assertGreaterThan(0, $savedEvent['idBranch']);
+        }
     }
 
     public function testEventCreateWithoutParams()
