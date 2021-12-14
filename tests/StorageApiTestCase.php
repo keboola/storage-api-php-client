@@ -835,4 +835,12 @@ abstract class StorageApiTestCase extends ClientTestCase
             $providedToken['id'],
         ]);
     }
+
+    /**
+     * @return bool
+     */
+    protected function shouldUseLegacyBranchServices()
+    {
+        return ! (bool) getenv('USE_DEV_BRANCH_SERVICES_ONLY');
+    }
 }
