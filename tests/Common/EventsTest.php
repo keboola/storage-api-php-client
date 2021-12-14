@@ -18,14 +18,6 @@ use Keboola\StorageApi\Event;
 class EventsTest extends StorageApiTestCase
 {
 
-    /**
-     * @return bool
-     */
-    protected function shouldUseLegacyBranchServices()
-    {
-        return ! (bool) getenv('USE_DEV_BRANCH_SERVICES_ONLY');
-    }
-
     public function testEventCreate()
     {
         $event = new Event();

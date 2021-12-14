@@ -43,14 +43,6 @@ class ComponentsTest extends StorageApiTestCase
         $this->client = $this->clientProvider->createClientForCurrentTest();
     }
 
-    /**
-     * @return bool
-     */
-    protected function shouldUseLegacyBranchServices()
-    {
-        return ! (bool) getenv('USE_DEV_BRANCH_SERVICES_ONLY');
-    }
-
     public function testGetComponentDetail()
     {
         $componentId = 'wr-db';
