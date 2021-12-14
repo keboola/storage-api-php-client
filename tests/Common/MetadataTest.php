@@ -27,13 +27,13 @@ class MetadataTest extends StorageApiTestCase
     public function setUp()
     {
         parent::setUp();
-        $this->_initEmptyTestBuckets();
-        $metadataApi = new Metadata($this->_client);
-        $metadatas = $metadataApi->listBucketMetadata($this->getTestBucketId());
-        foreach ($metadatas as $md) {
-            $metadataApi->deleteBucketMetadata($this->getTestBucketId(), $md['id']);
-        }
-        $this->_client->createTable($this->getTestBucketId(), "table", new CsvFile(__DIR__ . '/../_data/users.csv'));
+//        $this->_initEmptyTestBuckets();
+//        $metadataApi = new Metadata($this->_client);
+//        $metadatas = $metadataApi->listBucketMetadata($this->getTestBucketId());
+//        foreach ($metadatas as $md) {
+//            $metadataApi->deleteBucketMetadata($this->getTestBucketId(), $md['id']);
+//        }
+//        $this->_client->createTable($this->getTestBucketId(), "table", new CsvFile(__DIR__ . '/../_data/users.csv'));
     }
 
     public function testBucketMetadata()
@@ -86,6 +86,383 @@ class MetadataTest extends StorageApiTestCase
         $this->assertEquals($metadatas[1]['value'], $mdList[0]['value']);
         $this->assertEquals($metadatas[1]['provider'], $mdList[0]['provider']);
         $this->assertEquals($metadatas[1]['timestamp'], $mdList[0]['timestamp']);
+    }
+
+    public function testPrepareMetadataForTest()
+    {
+        $inTestBucketId = 'in.c-API-tests';//$this->getTestBucketId();
+        $inBucketTableId = $inTestBucketId . '.table';
+        $inBucketColumnId = $inBucketTableId . '.id';
+        $inBucketColumnName = $inBucketTableId . '.name';
+
+        $metadataApi = new Metadata($this->_client);
+
+        // prepare metadata for bucket
+        $metadataApi->postBucketMetadata(
+            $inTestBucketId,
+            'wr-db',
+            [
+                [
+                    'key' => 'KBC.metadata',
+                    'value' => 'wr-db',
+                ],
+            ]
+        );
+
+        $metadataApi->postBucketMetadata(
+            $inTestBucketId,
+            'user',
+            [
+                [
+                    'key' => 'KBC.metadata',
+                    'value' => 'bucket-user-metadata',
+                ],
+            ]
+        );
+
+        // prepare metadata for table
+        $metadataApi->postTableMetadata(
+            $inBucketTableId,
+            'wr-db',
+            [
+                [
+                    'key' => 'KBC.metadata',
+                    'value' => 'wr-db',
+                ],
+            ]
+        );
+
+        $metadataApi->postTableMetadata(
+            $inBucketTableId,
+            'user',
+            [
+                [
+                    'key' => 'KBC.metadata',
+                    'value' => 'user-metadata',
+                ],
+            ]
+        );
+
+        // prepare metadata for column
+        $testMetadata = [
+            [
+                'key' => 'KBC.datatype.basetype',
+                'value' => 'STRING',
+            ],
+            [
+                'key' => 'KBC.datatype.length',
+                'value' => '255',
+            ],
+        ];
+
+        $metadataApi->postColumnMetadata(
+            $inBucketColumnId,
+            'wr-db',
+            $testMetadata
+        );
+
+        $metadataApi->postColumnMetadata(
+            $inBucketColumnName,
+            'wr-db',
+            $testMetadata
+        );
+
+        $testMetadata = [
+            [
+                'key' => 'KBC.datatype.basetype',
+                'value' => 'INTEGER',
+            ],
+            [
+                'key' => 'KBC.datatype.length',
+                'value' => '16',
+            ],
+        ];
+
+        $metadataApi->postColumnMetadata(
+            $inBucketColumnId,
+            'user',
+            $testMetadata
+        );
+
+        $testMetadata = [
+            [
+                'key' => 'KBC.datatype.basetype',
+                'value' => 'STRING',
+            ],
+            [
+                'key' => 'KBC.datatype.length',
+                'value' => '26',
+            ],
+        ];
+
+        $metadataApi->postColumnMetadata(
+            $inBucketColumnName,
+            'user',
+            $testMetadata
+        );
+
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testPartialUpdateMetadata()
+    {
+        $inTestBucketId = 'in.c-API-tests';//$this->getTestBucketId();
+        $inBucketTableId = $inTestBucketId . '.table';
+        $inBucketColumnId = $inBucketTableId . '.id';
+
+        $metadataApi = new Metadata($this->_client);
+
+        $metadataApi->postColumnMetadata(
+            $inBucketColumnId,
+            'user',
+            [
+                [
+                    'key' => 'KBC.datatype.length',
+                    'value' => '26',
+                ],
+            ]
+        );
+    }
+
+    public function testUpdateWrDbMetadataShouldCorruptUserMetadata()
+    {
+        // before this test please simulate bug
+        // comment in connection repo \Model_Metadata::generateUpdateQuery line 162
+        // and take a note time when run this test
+        $inTestBucketId = 'in.c-API-tests';
+        $inBucketTableId = $inTestBucketId . '.table';
+        $inBucketColumnId = $inBucketTableId . '.id';
+        $inBucketColumnName = $inBucketTableId . '.name';
+
+        $metadataApi = new Metadata($this->_client);
+
+        $testMetadata = [
+            [
+                'key' => 'KBC.datatype.basetype',
+                'value' => 'STRING',
+            ],
+            [
+                'key' => 'KBC.datatype.length',
+                'value' => '255',
+            ],
+        ];
+
+        $metadataApi->postColumnMetadata(
+            $inBucketColumnId,
+            'wr-db',
+            [
+                [
+                    'key' => 'KBC.datatype.basetype',
+                    'value' => 'STRING',
+                ],
+            ]
+        );
+
+        $metadataApi->postColumnMetadata(
+            $inBucketColumnId,
+            'wr-db',
+            [
+                [
+                    'key' => 'KBC.datatype.length',
+                    'value' => '255',
+                ],
+            ]
+        );
+
+        $metadataApi->postColumnMetadata(
+            $inBucketColumnName,
+            'wr-db',
+            $testMetadata
+        );
+
+        $metadataApi->postTableMetadata(
+            $inBucketTableId,
+            'wr-db',
+            [
+                [
+                    'key' => 'KBC.metadata',
+                    'value' => 'wr-db-metadata',
+                ],
+            ]
+        );
+
+        $metadataApi->postBucketMetadata(
+            $inTestBucketId,
+            'wr-db',
+            [
+                [
+                    'key' => 'KBC.metadata',
+                    'value' => 'wr-db-metadata',
+                ],
+            ]
+        );
+
+        $corruptedColumnMetadata = [
+            [
+                'key' => "KBC.datatype.basetype",
+                'value' => "STRING",
+                'provider' => "wr-db",
+            ],
+            [
+                'key' => 'KBC.datatype.length',
+                'value' => '255',
+                'provider' => "wr-db",
+            ],
+            [
+                'key' => "KBC.datatype.basetype",
+                'value' => "STRING",
+                'provider' => "user",
+            ],
+            [
+                'key' => 'KBC.datatype.length',
+                'value' => '255',
+                'provider' => "user",
+            ],
+        ];
+
+        // test is user metadata corrupted
+        $columnIdMetadata = $metadataApi->listColumnMetadata($inBucketColumnId);
+        $this->assertMetadataEquals($corruptedColumnMetadata[0], $columnIdMetadata[0]);
+        $this->assertMetadataEquals($corruptedColumnMetadata[1], $columnIdMetadata[1]);
+        $this->assertMetadataEquals($corruptedColumnMetadata[2], $columnIdMetadata[2]);
+        $this->assertMetadataEquals($corruptedColumnMetadata[3], $columnIdMetadata[3]);
+
+        $columnNameMetadata = $metadataApi->listColumnMetadata($inBucketColumnName);
+        $this->assertMetadataEquals($corruptedColumnMetadata[0], $columnNameMetadata[0]);
+        $this->assertMetadataEquals($corruptedColumnMetadata[1], $columnNameMetadata[1]);
+        $this->assertMetadataEquals($corruptedColumnMetadata[2], $columnNameMetadata[2]);
+        $this->assertMetadataEquals($corruptedColumnMetadata[3], $columnNameMetadata[3]);
+
+        $corruptedMetadata = [
+            [
+                'key' => "KBC.metadata",
+                'value' => "wr-db-metadata",
+                'provider' => "wr-db",
+            ],
+            [
+                'key' => "KBC.metadata",
+                'value' => "wr-db-metadata",
+                'provider' => "user",
+            ],
+        ];
+        $tableMetadata = $metadataApi->listTableMetadata($inBucketTableId);
+        $this->assertMetadataEquals($corruptedMetadata[0], $tableMetadata[0]);
+        $this->assertMetadataEquals($corruptedMetadata[1], $tableMetadata[1]);
+
+        $bucketMetadata = $metadataApi->listBucketMetadata($inTestBucketId);
+        $this->assertMetadataEquals($corruptedMetadata[0], $bucketMetadata[0]);
+        $this->assertMetadataEquals($corruptedMetadata[1], $bucketMetadata[1]);
+    }
+
+    public function testBackFilledMetadata()
+    {
+        $inTestBucketId = 'in.c-API-tests';
+        $inBucketTableId = $inTestBucketId . '.table';
+        $inBucketColumnId = $inBucketTableId . '.id';
+        $inBucketColumnName = $inBucketTableId . '.name';
+
+        $metadataApi = new Metadata($this->_client);
+
+        $fixedColumnIdMetadata = [
+            [
+                'key' => "KBC.datatype.basetype",
+                'value' => "STRING",
+                'provider' => "wr-db",
+            ],
+            [
+                'key' => 'KBC.datatype.length',
+                'value' => '255',
+                'provider' => "wr-db",
+            ],
+            [
+                'key' => "KBC.datatype.basetype",
+                'value' => "INTEGER",
+                'provider' => "user",
+            ],
+            [
+                'key' => 'KBC.datatype.length',
+                'value' => '16',
+                'provider' => "user",
+            ],
+        ];
+
+        $columnIdMetadata = $metadataApi->listColumnMetadata($inBucketColumnId);
+        $this->assertMetadataEquals($fixedColumnIdMetadata[0], $columnIdMetadata[0]);
+        $this->assertMetadataEquals($fixedColumnIdMetadata[1], $columnIdMetadata[1]);
+        $this->assertMetadataEquals($fixedColumnIdMetadata[2], $columnIdMetadata[2]);
+        $this->assertMetadataEquals($fixedColumnIdMetadata[3], $columnIdMetadata[3]);
+
+        $fixedColumnNameMetadata = [
+            [
+                'key' => "KBC.datatype.basetype",
+                'value' => "STRING",
+                'provider' => "wr-db",
+            ],
+            [
+                'key' => 'KBC.datatype.length',
+                'value' => '255',
+                'provider' => "wr-db",
+            ],
+            [
+                'key' => "KBC.datatype.basetype",
+                'value' => "STRING",
+                'provider' => "user",
+            ],
+            [
+                'key' => 'KBC.datatype.length',
+                'value' => '26',
+                'provider' => "user",
+            ],
+        ];
+
+        $columnNameMetadata = $metadataApi->listColumnMetadata($inBucketColumnName);
+        $this->assertMetadataEquals($fixedColumnNameMetadata[0], $columnNameMetadata[0]);
+        $this->assertMetadataEquals($fixedColumnNameMetadata[1], $columnNameMetadata[1]);
+        $this->assertMetadataEquals($fixedColumnNameMetadata[2], $columnNameMetadata[2]);
+        $this->assertMetadataEquals($fixedColumnNameMetadata[3], $columnNameMetadata[3]);
+
+        $fixedBucketMetadata = [
+            [
+                'key' => "KBC.metadata",
+                'value' => "wr-db-metadata",
+                'provider' => "wr-db",
+            ],
+            [
+                'key' => "KBC.metadata",
+                'value' => "bucket-user-metadata",
+                'provider' => "user",
+            ],
+        ];
+
+        $bucketMetadata = $metadataApi->listBucketMetadata($inTestBucketId);
+        $this->assertMetadataEquals($fixedBucketMetadata[0], $bucketMetadata[0]);
+        $this->assertMetadataEquals($fixedBucketMetadata[1], $bucketMetadata[1]);
+
+        $fixedTableMetadata = [
+            [
+                'key' => "KBC.metadata",
+                'value' => "wr-db-metadata",
+                'provider' => "wr-db",
+            ],
+            [
+                'key' => "KBC.metadata",
+                'value' => "user-metadata",
+                'provider' => "user",
+            ],
+        ];
+
+        $tableMetadata = $metadataApi->listTableMetadata($inBucketTableId);
+        $this->assertMetadataEquals($fixedTableMetadata[0], $tableMetadata[0]);
+        $this->assertMetadataEquals($fixedTableMetadata[1], $tableMetadata[1]);
+    }
+
+    private function assertMetadataEquals(array $expected, array $actual)
+    {
+        foreach ($expected as $key => $value) {
+            self::assertArrayHasKey($key, $actual);
+            self::assertSame($value, $actual[$key]);
+        }
+        self::assertArrayHasKey('timestamp', $actual);
     }
 
     public function testColumnMetadataOverwrite()
