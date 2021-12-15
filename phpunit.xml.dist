@@ -52,7 +52,6 @@
 		<file>tests/Common/GetToFileTest.php</file>
 		<file>tests/Common/SearchComponentsConfigurationsTest.php</file>
 		<file>tests/Common/TokensTest.php</file>
-		<file>tests/Backend/FileWorkspace/ComponentsWorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/BranchComponentsWorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
 	</testsuite>
