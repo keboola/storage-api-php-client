@@ -2096,7 +2096,13 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
             STORAGE_API_LINKING_TOKEN
         );
 
-
+        $tokenLinking = $this->_linkingClient->verifyToken();
+        if (!in_array('input-mapping-read-only-storage', $tokenLinking['owner']['features'])) {
+            $this->markTestSkipped(sprintf(
+                'Read only mapping is not enabled for project "%s"',
+                $tokenLinking['owner']['id']
+            ));
+        }
 
         // prepare bucket
         $testBucketId = $this->getTestBucketId();
@@ -2126,7 +2132,6 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
             'whales',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
-
 
         // prepare table in the bucket
         $this->_client->createTable(
