@@ -16,6 +16,9 @@ use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class WorkspacesLoadTest extends ParallelWorkspacesTestCase
 {
+    /** @var Client */
+    private $_linkingClient;
+
     public function testWorkspaceTablesPermissions()
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
@@ -2089,9 +2092,46 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
             $this->markTestSkipped(sprintf('Read only mapping is not enabled for project "%s"', $token['owner']['id']));
         }
 
+        $this->_linkingClient = $this->getClientForToken(
+            STORAGE_API_LINKING_TOKEN
+        );
+
+        $tokenLinking = $this->_linkingClient->verifyToken();
+        if (!in_array('input-mapping-read-only-storage', $tokenLinking['owner']['features'])) {
+            $this->markTestSkipped(sprintf(
+                'Read only mapping is not enabled for project "%s"',
+                $tokenLinking['owner']['id']
+            ));
+        }
+
         // prepare bucket
         $testBucketId = $this->getTestBucketId();
         $testBucketName = str_replace('in.c-', '', $testBucketId);
+
+        $sharedBucketName = $this->getTestBucketName($this->generateDescriptionForTestObject() . '-sharedBucket');
+        $linkedBucketName = $this->getTestBucketName($this->generateDescriptionForTestObject() . '-linkedBucket');
+        $sharedBucket = 'in.c-' . $sharedBucketName;
+        $linkedBucketId = 'in.c-' . $linkedBucketName;
+        $this->dropBucketIfExists($this->_client, $linkedBucketId, true);
+        $this->dropBucketIfExists($this->_client, $testBucketId, true);
+        $this->dropBucketIfExists($this->_linkingClient, $sharedBucket, true);
+
+        $sharedBucketId = $this->_linkingClient->createBucket($sharedBucketName, 'in');
+        $this->_linkingClient->shareBucket($sharedBucket);
+        $sharingToken = $this->_linkingClient->verifyToken();
+        $token = $this->_client->verifyToken();
+        $sharingProjectId = $sharingToken['owner']['id'];
+        $projectId = $token['owner']['id'];
+        $linkedBucketId = $this->_client->linkBucket($linkedBucketName, 'in', $sharingProjectId, $sharedBucketId);
+
+        $testBucketId = $this->_client->createBucket($testBucketName, 'in');
+
+        //setup test tables
+        $tableId = $this->_linkingClient->createTable(
+            $sharedBucket,
+            'whales',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
 
         // prepare table in the bucket
         $this->_client->createTable(
@@ -2119,21 +2159,36 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $db = $backend->getDb();
 
         $projectDatabase = $workspace['connection']['database'];
+
+        /* I know this is brittle, but the prefix is different on different stacks
+        and locally there is AFAIK no other reasonable way to get database name,
+        except maybe create a workspace there */
+        $sharingProjectDatabase = str_replace($projectId, $sharingProjectId, $projectDatabase);
+
         $quotedProjectDatabase = $db->quoteIdentifier($projectDatabase);
+        $quotedSharingProjectDatabase = $db->quoteIdentifier($sharingProjectDatabase);
         $quotedTestBucketId = $db->quoteIdentifier($testBucketId);
+        $quotedSharedBucketId = $db->quoteIdentifier($sharedBucketId);
 
         $db->query(sprintf(
-            'CREATE TABLE "tableFromAnimals" AS SELECT * FROM %s.%s."animals"',
+            'CREATE OR REPLACE TABLE "tableFromAnimals" AS SELECT * FROM %s.%s."animals"',
             $quotedProjectDatabase,
             $quotedTestBucketId
         ));
         $this->assertCount(5, $db->fetchAll('SELECT * FROM "tableFromAnimals"'));
 
         $db->query(sprintf(
-            'CREATE TABLE "tableFromTrains" AS SELECT * FROM %s.%s."trains"',
+            'CREATE OR REPLACE TABLE "tableFromTrains" AS SELECT * FROM %s.%s."trains"',
             $quotedProjectDatabase,
             $quotedTestBucketId
         ));
         $this->assertCount(5, $db->fetchAll('SELECT * FROM "tableFromTrains"'));
+
+        $db->query(sprintf(
+            'CREATE OR REPLACE TABLE "tableFromWhales" AS SELECT * FROM %s.%s."whales"',
+            $quotedSharingProjectDatabase,
+            $quotedSharedBucketId
+        ));
+        $this->assertCount(5, $db->fetchAll('SELECT * FROM "tableFromWhales"'));
     }
 }

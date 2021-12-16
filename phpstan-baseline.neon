@@ -6566,17 +6566,7 @@ parameters:
 			path: tests/Backend/Snowflake/CloneIntoWorkspaceTest.php
 
 		-
-			message: "#^Parameter \\#4 \\$sourceBucketId of method Keboola\\\\StorageApi\\\\Client\\:\\:linkBucket\\(\\) expects int, string given\\.$#"
-			count: 1
-			path: tests/Backend/Snowflake/CloneIntoWorkspaceTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Snowflake\\\\CopyIntoWorkspaceTest\\:\\:testOverwrite\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Snowflake/CopyIntoWorkspaceTest.php
-
-		-
-			message: "#^Parameter \\#4 \\$sourceBucketId of method Keboola\\\\StorageApi\\\\Client\\:\\:linkBucket\\(\\) expects int, string given\\.$#"
 			count: 1
 			path: tests/Backend/Snowflake/CopyIntoWorkspaceTest.php
 
