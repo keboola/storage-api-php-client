@@ -9,8 +9,10 @@
 namespace Keboola\Test\Backend\CommonPart1;
 
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Event;
 use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\Options\BucketUpdateOptions;
+use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 
@@ -111,10 +113,43 @@ class BucketsTest extends StorageApiTestCase
         $this->_client->dropBucket($bucket['id']);
     }
 
+    /**
+     * @return int
+     */
+    private function getLastEventId()
+    {
+        $lastEvents = $this->_client->listEvents(['limit' => 1]);
+        if (!$lastEvents || !is_array($lastEvents)) {
+            $this->fail('Cannot get last event ID.');
+        }
+        $lastEventId = $lastEvents[0]['id'];
+        $this->assertIsInt($lastEventId);
+        return $lastEventId;
+    }
+
     public function testBucketEvents()
     {
-        $events = $this->_client->listBucketEvents($this->getTestBucketId());
-        $this->assertNotEmpty($events);
+        $lastEventId = $this->getLastEventId();
+
+        $description = 'testBucketEvents';
+        $bucketId = $this->initEmptyBucket($this->getTestBucketName($description), self::STAGE_IN, $description);
+        $this->assertIsString($bucketId);
+
+        // create dummy event
+        $event = new Event();
+        $event->setComponent('dummy')
+            ->setMessage('bucket sample event');
+        $event = $this->createAndWaitForEvent($event);
+
+        // check bucket events
+        $events = $this->_client->listBucketEvents($bucketId, ['sinceId' => $lastEventId]);
+        $this->assertIsArray($events);
+        $this->assertCount(1, (array) $events);
+
+        // check dummy event is not among bucket events
+        $this->assertArrayNotHasKey($event['id'], (array) $events);
+
+        $this->_client->dropBucket((string) $bucketId);
     }
 
     public function testBucketsListWithIncludeParameter()
