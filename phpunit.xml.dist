@@ -51,7 +51,8 @@
 		<file>tests/Common/EventsTest.php</file>
 		<file>tests/Common/GetToFileTest.php</file>
 		<file>tests/Common/SearchComponentsConfigurationsTest.php</file>
-		<file>tests/Common/TokensTest.php</file>
+		<!--Disabled until KBC-1884 is fixed-->
+		<!--<file>tests/Common/TokensTest.php</file>-->
 		<file>tests/Backend/Workspaces/BranchComponentsWorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
 	</testsuite>
