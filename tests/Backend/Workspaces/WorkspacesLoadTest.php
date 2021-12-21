@@ -2117,12 +2117,12 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $this->dropBucketIfExists($this->_linkingClient, $sharedBucket, true);
 
         $sharedBucketId = $this->_linkingClient->createBucket($sharedBucketName, 'in');
-        $this->_linkingClient->shareBucket($sharedBucket);
+        $this->_linkingClient->shareOrganizationBucket($sharedBucketId, true);
         $sharingToken = $this->_linkingClient->verifyToken();
         $token = $this->_client->verifyToken();
         $sharingProjectId = $sharingToken['owner']['id'];
         $projectId = $token['owner']['id'];
-        $linkedBucketId = $this->_client->linkBucket($linkedBucketName, 'in', $sharingProjectId, $sharedBucketId);
+        $this->_client->linkBucket($linkedBucketName, 'in', $sharingProjectId, $sharedBucketId, null, true);
 
         $testBucketId = $this->_client->createBucket($testBucketName, 'in');
 
