@@ -115,7 +115,7 @@ class BranchEventsTest extends StorageApiTestCase
         ]);
         $this->assertCount(0, $clientEventList);
 
-        $this->assertTrue(count($this->_client->listEvents()) > 1);
+        $this->assertGreaterThan(1, count($this->_client->listEvents()));
 
 
         $components = new \Keboola\StorageApi\Components($this->_client);
