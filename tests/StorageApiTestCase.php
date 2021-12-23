@@ -42,6 +42,9 @@ abstract class StorageApiTestCase extends ClientTestCase
     const FILE_LONG_TERM_EXPIRATION_IN_DAYS = 15;
     const FILE_SHORT_TERM_EXPIRATION_IN_DAYS = 2;
 
+    const FEATURE_CONFIGURATIONS_USE_DEV_BRANCH_SERVICES_ONLY = 'configurations-use-dev-branch-services-only';
+    const ENV_USE_DEV_BRANCH_SERVICES_ONLY = 'USE_DEV_BRANCH_SERVICES_ONLY';
+
     protected $_bucketIds = array();
 
     /** @var Client */
@@ -837,10 +840,11 @@ abstract class StorageApiTestCase extends ClientTestCase
     }
 
     /**
+     * Should use legacy branch services or not - depends on the ENV variable
      * @return bool
      */
     protected function shouldUseLegacyBranchServices()
     {
-        return ! (bool) getenv('USE_DEV_BRANCH_SERVICES_ONLY');
+        return ! (bool) getenv(self::ENV_USE_DEV_BRANCH_SERVICES_ONLY);
     }
 }
