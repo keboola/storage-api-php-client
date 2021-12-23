@@ -119,13 +119,12 @@ class BucketsTest extends StorageApiTestCase
     private function getLastEventId()
     {
         $lastEvents = $this->_client->listEvents(['limit' => 1]);
-        if ($lastEvents && is_array($lastEvents)) {
-            /** @var int $lastEventId */
-            $lastEventId = $lastEvents[0]['id'];
-            return $lastEventId;
-        } else {
+        if (!$lastEvents || !is_array($lastEvents)) {
             $this->fail('Cannot get last event ID.');
         }
+        $lastEventId = $lastEvents[0]['id'];
+        $this->assertIsInt($lastEventId);
+        return $lastEventId;
     }
 
     public function testBucketEvents()
@@ -134,6 +133,7 @@ class BucketsTest extends StorageApiTestCase
 
         $description = 'testBucketEvents';
         $bucketId = $this->initEmptyBucket($this->getTestBucketName($description), self::STAGE_IN, $description);
+        $this->assertIsString($bucketId);
 
         // create dummy event
         $event = new Event();
@@ -149,7 +149,7 @@ class BucketsTest extends StorageApiTestCase
         // check dummy event is not among bucket events
         $this->assertArrayNotHasKey($event['id'], (array) $events);
 
-        $this->_client->dropBucket($bucketId);
+        $this->_client->dropBucket((string) $bucketId);
     }
 
     public function testBucketsListWithIncludeParameter()
