@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit backupGlobals="false"
-         backupStaticAttributes="false"
-         colors="true"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
-         processIsolation="false"
-         stopOnFailure="false"
-         stopOnError="false"
-         syntaxCheck="false"
+		 backupStaticAttributes="false"
+		 colors="true"
+		 convertErrorsToExceptions="true"
+		 convertNoticesToExceptions="true"
+		 convertWarningsToExceptions="true"
+		 processIsolation="false"
+		 stopOnFailure="false"
+		 stopOnError="false"
+		 syntaxCheck="false"
 		 verbose="true"
-         bootstrap="tests/bootstrap.php">
+		 bootstrap="tests/bootstrap.php">
 
 <testsuites>
 	<testsuite name="common">
 		<directory>tests/Common</directory>
 		<file>tests/File/CommonFileTest.php</file>
-        <exclude>tests/Common/BranchBucketsTest.php</exclude>
-        <exclude>tests/Common/BranchWorkspacesTest.php</exclude>
-        <file>tests/Backend/Workspaces/BranchComponentsWorkspacesTest.php</file>
+		<exclude>tests/Common/BranchBucketsTest.php</exclude>
+		<exclude>tests/Common/BranchWorkspacesTest.php</exclude>
+		<file>tests/Backend/Workspaces/BranchComponentsWorkspacesTest.php</file>
 	</testsuite>
 
-    <testsuite name="azure-common">
-        <file>tests/Common/QueueJobsTest.php</file>
-        <file>tests/Common/BranchEventsTest.php</file>
-    </testsuite>
+	<testsuite name="azure-common">
+		<file>tests/Common/QueueJobsTest.php</file>
+		<file>tests/Common/BranchEventsTest.php</file>
+	</testsuite>
 
 	<testsuite name="paratest-common">
 		<directory>tests/Options</directory>
