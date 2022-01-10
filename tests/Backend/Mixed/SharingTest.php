@@ -54,6 +54,7 @@ class SharingTest extends StorageApiSharingTestCase
         $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
         $bucketId = reset($this->_bucketIds);
 
+        /** @var array $response */
         $response = $this->_client->shareBucket($bucketId, [
             'sharing' => 'organization-project',
             'async' => $isAsync,
@@ -431,6 +432,7 @@ class SharingTest extends StorageApiSharingTestCase
 
         $targetUser = $this->clientAdmin2InSameOrg->verifyToken();
 
+        /** @var array $bucket */
         $bucket = $this->shareRoleClient->shareBucket($bucketId, ['async' => $isAsync]);
         $this->assertSame('organization', $bucket['sharing']);
 

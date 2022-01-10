@@ -71,11 +71,6 @@ parameters:
 			path: src/Keboola/StorageApi/ABSUploader/PromiseHelper.php
 
 		-
-			message: "#^Parameter \\#2 \\$code of class Keboola\\\\StorageApi\\\\ClientException constructor expects int\\|null, mixed given\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/ABSUploader/PromiseHelper.php
-
-		-
 			message: "#^Method Keboola\\\\StorageApi\\\\BranchAwareClient\\:\\:__construct\\(\\) has parameter \\$branchId with no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/BranchAwareClient.php
@@ -981,21 +976,6 @@ parameters:
 			path: src/Keboola/StorageApi/Client.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:shareBucket\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:shareBucket\\(\\) has parameter \\$bucketId with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:shareBucket\\(\\) has parameter \\$options with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:shareBucketToProjects\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
@@ -1447,11 +1427,6 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$str of function strtr expects string, mixed given\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Parameter \\#2 \\$code of class Keboola\\\\StorageApi\\\\ClientException constructor expects int\\|null, mixed given\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
 
@@ -9406,11 +9381,6 @@ parameters:
 			path: tests/Backend/Workspaces/WorkspacesSynapseTest.php
 
 		-
-			message: "#^Cannot cast mixed to int\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/WorkspacesTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\WorkspacesTest\\:\\:assertCredentialsShouldNotWork\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/WorkspacesTest.php
@@ -9457,11 +9427,6 @@ parameters:
 
 		-
 			message: "#^PHPDoc tag @param has invalid value \\(\\$dropOptions\\)\\: Unexpected token \"\\$dropOptions\", expected type at offset 52$#"
-			count: 1
-			path: tests/Backend/Workspaces/WorkspacesTest.php
-
-		-
-			message: "#^Parameter \\#2 \\.\\.\\.\\$values of function sprintf expects bool\\|float\\|int\\|string\\|null, mixed given\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/WorkspacesTest.php
 
@@ -9556,16 +9521,6 @@ parameters:
 			path: tests/Common/BranchBucketsTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$bucketId of method Keboola\\\\StorageApi\\\\Client\\:\\:bucketExists\\(\\) expects string, bool\\|string given\\.$#"
-			count: 3
-			path: tests/Common/BranchBucketsTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$bucketId of method Keboola\\\\StorageApi\\\\Client\\:\\:getBucket\\(\\) expects string, bool\\|string given\\.$#"
-			count: 1
-			path: tests/Common/BranchBucketsTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\BranchComponentTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Common/BranchComponentTest.php
@@ -9611,11 +9566,6 @@ parameters:
 			path: tests/Common/BranchEventsTest.php
 
 		-
-			message: "#^Cannot cast mixed to int\\.$#"
-			count: 1
-			path: tests/Common/BranchWorkspacesTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\BranchWorkspacesTest\\:\\:assertCredentialsShouldNotWork\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Common/BranchWorkspacesTest.php
@@ -9632,11 +9582,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\BranchWorkspacesTest\\:\\:testWorkspacePasswordReset\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/BranchWorkspacesTest.php
-
-		-
-			message: "#^Parameter \\#2 \\.\\.\\.\\$values of function sprintf expects bool\\|float\\|int\\|string\\|null, mixed given\\.$#"
 			count: 1
 			path: tests/Common/BranchWorkspacesTest.php
 

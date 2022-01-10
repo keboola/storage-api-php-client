@@ -144,7 +144,7 @@ abstract class StorageApiTestCase extends ClientTestCase
      * Init empty bucket test helper
      * @param $name
      * @param $stage
-     * @return bool|string
+     * @return string
      */
     protected function initEmptyBucket($name, $stage, $description, Client $client = null)
     {
