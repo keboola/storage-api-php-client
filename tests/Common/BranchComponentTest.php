@@ -292,6 +292,8 @@ class BranchComponentTest extends StorageApiTestCase
                 ->setName('Main 1 Row 1')
                 ->setRowId('main-1-row-1')
         );
+        // be sure that create time of copied row is different
+        sleep(1);
 
         $deletedConfigurationOptions = (new Configuration())
             ->setComponentId($componentId)
