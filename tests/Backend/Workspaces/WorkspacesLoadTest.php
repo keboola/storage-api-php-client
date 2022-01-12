@@ -2191,4 +2191,130 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         ));
         $this->assertCount(5, $db->fetchAll('SELECT * FROM "tableFromWhales"'));
     }
+
+    /**
+     * @return void
+     */
+    public function testCreateWorkspaceWithReadOnlyIMUnlinkUnshare()
+    {
+        $tokenConsumer = $this->_client->verifyToken();
+        $targetProjectId = $tokenConsumer['owner']['id'];
+
+        if (!in_array('input-mapping-read-only-storage', $tokenConsumer['owner']['features'])) {
+            $this->markTestSkipped(sprintf('Read only mapping is not enabled for project "%s"', $targetProjectId));
+        }
+
+        $this->_linkingClient = $this->getClientForToken(
+            STORAGE_API_LINKING_TOKEN
+        );
+
+        // aka linking token
+        $tokenProducer = $this->_linkingClient->verifyToken();
+        if (!in_array('input-mapping-read-only-storage', $tokenProducer['owner']['features'])) {
+            $this->markTestSkipped(sprintf(
+                'Read only mapping is not enabled for project "%s"',
+                $tokenProducer['owner']['id']
+            ));
+        }
+
+        // prepare bucket
+        $testBucketId = $this->getTestBucketId();
+
+        $sharedBucketName = $this->getTestBucketName($this->generateDescriptionForTestObject() . '-sharedBucket');
+        $linkedBucketName = $this->getTestBucketName($this->generateDescriptionForTestObject() . '-linkedBucket');
+        $sharedBucket = 'in.c-' . $sharedBucketName;
+        $linkedBucketId = 'in.c-' . $linkedBucketName;
+        $this->dropBucketIfExists($this->_client, $linkedBucketId, true);
+        $this->dropBucketIfExists($this->_client, $testBucketId, true);
+        $this->dropBucketIfExists($this->_linkingClient, $sharedBucket, true);
+
+        $sharedBucketId = $this->_linkingClient->createBucket($sharedBucketName, 'in');
+        $this->_linkingClient->shareBucketToProjects($sharedBucketId, [$tokenConsumer['owner']['id']], true);
+        $sharingToken = $this->_linkingClient->verifyToken();
+        $tokenConsumer = $this->_client->verifyToken();
+        $sharingProjectId = $sharingToken['owner']['id'];
+        $projectId = $tokenConsumer['owner']['id'];
+        $this->_client->linkBucket($linkedBucketName, 'in', $sharingProjectId, $sharedBucketId, null, false);
+
+        //setup test tables
+        $this->_linkingClient->createTable(
+            $sharedBucket,
+            'whales',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+
+        // prepare workspace
+        $workspace = $this->initTestWorkspace();
+
+        if ($workspace['connection']['backend'] !== 'snowflake') {
+            $this->fail('This feature works only for Snowflake at the moment');
+        }
+
+        /** @var SnowflakeWorkspaceBackend $backend */
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $db = $backend->getDb();
+
+        $projectDatabase = $workspace['connection']['database'];
+
+        $sharingProjectDatabase = str_replace($projectId, $sharingProjectId, $projectDatabase);
+        $this->_client->dropBucket($linkedBucketId, ['async' => true]);
+
+        $this->assertCannotAccessLinkedBucket($db, $sharingProjectDatabase, $sharedBucketId);
+        // link again
+        $this->_client->linkBucket($linkedBucketName, 'in', $sharingProjectId, $sharedBucketId, null, false);
+
+        // check that the sharing still works
+        $this->assertLoadDataFromLinkedBucket($db, $sharingProjectDatabase, $sharedBucketId);
+
+
+        // unshare (unlink first)
+        $this->_client->dropBucket($linkedBucketId, ['async' => true]);
+        $this->_linkingClient->unshareBucket($sharedBucketId, true);
+        $this->assertCannotAccessLinkedBucket($db, $sharingProjectDatabase, $sharedBucketId);
+
+        // force unlink
+        $this->_linkingClient->shareBucketToProjects($sharedBucketId, [$tokenConsumer['owner']['id']], true);
+        $this->_client->linkBucket($linkedBucketName, 'in', $sharingProjectId, $sharedBucketId, null, false);
+        // check that the sharing still works
+        $this->assertLoadDataFromLinkedBucket($db, $sharingProjectDatabase, $sharedBucketId);
+        $this->_linkingClient->forceUnlinkBucket($sharedBucketId, $targetProjectId, ["async" => true]);
+        $this->assertCannotAccessLinkedBucket($db, $sharingProjectDatabase, $sharedBucketId);
+    }
+
+    private function assertCannotAccessLinkedBucket($db, $sharingProjectDatabase, $sharedBucketId)
+    {
+        $quotedSharingProjectDatabase = $db->quoteIdentifier($sharingProjectDatabase);
+        $quotedSharedBucketId = $db->quoteIdentifier($sharedBucketId);
+
+        try {
+            $db->fetchAll(
+                sprintf(
+                    'SELECT * FROM %s.%s."whales"',
+                    $quotedSharingProjectDatabase,
+                    $quotedSharedBucketId
+                )
+            );
+            $this->fail('should fail');
+        } catch (\Exception $e) {
+            $this->assertEquals(sprintf("odbc_prepare(): SQL error: SQL compilation error:
+Schema '%s.%s' does not exist or not authorized., SQL state 02000 in SQLPrepare", $sharingProjectDatabase, $quotedSharedBucketId), $e->getMessage());
+        }
+    }
+
+    private function assertLoadDataFromLinkedBucket($db, $sharingProjectDatabase, $sharedBucketId)
+    {
+        $quotedSharingProjectDatabase = $db->quoteIdentifier($sharingProjectDatabase);
+        $quotedSharedBucketId = $db->quoteIdentifier($sharedBucketId);
+
+        $this->assertCount(
+            5,
+            $db->fetchAll(
+                sprintf(
+                    'SELECT * FROM %s.%s."whales"',
+                    $quotedSharingProjectDatabase,
+                    $quotedSharedBucketId
+                )
+            )
+        );
+    }
 }
