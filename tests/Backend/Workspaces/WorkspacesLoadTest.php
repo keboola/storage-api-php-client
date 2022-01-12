@@ -2250,14 +2250,13 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $db = $backend->getDb();
 
         $projectDatabase = $workspace['connection']['database'];
-
         $sharingProjectDatabase = str_replace($consumerProjectId, $sharingProjectId, $projectDatabase);
-        $this->_client->dropBucket($linkedBucketId, ['async' => true]);
 
+        // unlink
+        $this->_client->dropBucket($linkedBucketId, ['async' => true]);
         $this->assertCannotAccessLinkedBucket($db, $sharingProjectDatabase, $sharedBucketId);
         // link again
         $this->_client->linkBucket($linkedBucketName, 'in', $sharingProjectId, $sharedBucketId, null, false);
-
         // check that the sharing still works
         $this->assertLoadDataFromLinkedBucket($db, $sharingProjectDatabase, $sharedBucketId);
 
