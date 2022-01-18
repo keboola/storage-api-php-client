@@ -26,7 +26,7 @@ class BranchComponentTest extends StorageApiTestCase
         $this->cleanupConfigurations();
     }
 
-    public function testCreateFromVersionCreateRowsAndVersions()
+    public function testCreateFromVersionCreateRowsAndVersions(): void
     {
         $componentId = 'transformation';
         $configurationId = 'main-1';
@@ -67,10 +67,31 @@ class BranchComponentTest extends StorageApiTestCase
 
         $rowMain1Row1Version = $components->getConfigurationRowVersion($componentId, $newConfig['id'], 'main-1-row-1', 1);
         $this->assertNotNull($rowMain1Row1Version);
-        
         $newConfig = $components->getConfiguration($componentId, $newConfig['id']);
         $this->assertSame(1, $newConfig['version']);
 
+        $config = (new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($newConfig['id']);
+
+        $rowConfig = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config);
+        $rowConfig->setRowId('main-1-row-2');
+        $rowConfig->setDescription("Desc manually updated");
+        $components->updateConfigurationRow($rowConfig);
+
+        $rowMain1Row2 = $components->getConfigurationRow($componentId, $newConfig['id'], 'main-1-row-2');
+        $this->assertSame('Desc manually updated', $rowMain1Row2['description']);
+
+        $components->deleteConfigurationRow($componentId, $newConfig['id'], 'main-1-row-2');
+
+        try {
+            $components->getConfigurationRow($componentId, $newConfig['id'], 'main-1-row-2');
+            $this->fail('Configuration row should not be deleted in the dev branch');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+            $this->assertSame('notFound', $e->getStringCode());
+            $this->assertContains('Row main-1-row-2 not found', $e->getMessage());
+        }
     }
 
     public function testResetToDefault()
