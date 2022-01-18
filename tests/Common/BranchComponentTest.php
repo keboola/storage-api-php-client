@@ -26,6 +26,47 @@ class BranchComponentTest extends StorageApiTestCase
         $this->cleanupConfigurations();
     }
 
+    public function testCreateFromVersionCreateRowsAndVersions()
+    {
+        $componentId = 'transformation';
+        $configurationId = 'main-1';
+        $components = new Components($this->_client);
+        $configurationOptions = (new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setName('Main 1')
+            ->setConfiguration(['test' => 'false']);
+
+        $components->addConfiguration($configurationOptions);
+        $components->addConfigurationRow(
+            (new ConfigurationRow($configurationOptions))
+                ->setName('Main 1 Row 1')
+                ->setRowId('main-1-row-1')
+        );
+
+        $components->addConfigurationRow(
+            (new ConfigurationRow($configurationOptions))
+                ->setName('Main 1 Row 2')
+                ->setRowId('main-1-row-2')
+        );
+
+        $newConfig = $components->createConfigurationFromVersion($componentId, $configurationId, 3, 'Copy version 3');
+
+        $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId('main-1'));
+        $this->assertCount(2, $rows);
+
+        $rowMain1Row1 = $components->getConfigurationRow($componentId, $newConfig['id'], 'main-1-row-1');
+        $this->assertArrayHasKey('id', $rowMain1Row1);
+
+        $rowMain1Row2 = $components->getConfigurationRow($componentId, $newConfig['id'], 'main-1-row-2');
+        $this->assertArrayHasKey('id', $rowMain1Row2);
+
+        $rowMain1Row1Version = $components->getConfigurationRowVersion($componentId, $newConfig['id'], 'main-1-row-1', 1);
+        $this->assertNotNull($rowMain1Row1Version);
+    }
+
     public function testResetToDefault()
     {
         $providedToken = $this->_client->verifyToken();
