@@ -26,7 +26,10 @@ class BranchComponentTest extends StorageApiTestCase
         $this->cleanupConfigurations();
     }
 
-    public function testCreateFromVersionCreateRowsAndVersions(): void
+    /**
+     * @return void
+     */
+    public function testCreateFromVersionCreateRowsAndVersions()
     {
         $componentId = 'transformation';
         $configurationId = 'main-1';
