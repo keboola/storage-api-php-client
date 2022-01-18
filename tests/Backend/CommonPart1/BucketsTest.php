@@ -56,7 +56,7 @@ class BucketsTest extends StorageApiTestCase
 
         $tokenData = $this->_client->verifyToken();
         $this->dropBucketIfExists($this->_client, 'in.c-' . $bucketName);
-        $bucketId = $this->_client->createBucket($bucketName, self::STAGE_IN);
+        $bucketId = $this->_client->createBucket($bucketName, self::STAGE_IN, null);
 
         $bucket = $this->_client->getBucket($bucketId);
 
