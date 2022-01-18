@@ -59,12 +59,18 @@ class BranchComponentTest extends StorageApiTestCase
 
         $rowMain1Row1 = $components->getConfigurationRow($componentId, $newConfig['id'], 'main-1-row-1');
         $this->assertArrayHasKey('id', $rowMain1Row1);
+        $this->assertSame(1, $rowMain1Row1['version']);
 
         $rowMain1Row2 = $components->getConfigurationRow($componentId, $newConfig['id'], 'main-1-row-2');
         $this->assertArrayHasKey('id', $rowMain1Row2);
+        $this->assertSame(1, $rowMain1Row2['version']);
 
         $rowMain1Row1Version = $components->getConfigurationRowVersion($componentId, $newConfig['id'], 'main-1-row-1', 1);
         $this->assertNotNull($rowMain1Row1Version);
+        
+        $newConfig = $components->getConfiguration($componentId, $newConfig['id']);
+        $this->assertSame(1, $newConfig['version']);
+
     }
 
     public function testResetToDefault()
