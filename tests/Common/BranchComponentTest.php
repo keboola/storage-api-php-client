@@ -26,6 +26,85 @@ class BranchComponentTest extends StorageApiTestCase
         $this->cleanupConfigurations();
     }
 
+    /**
+     * @return void
+     */
+    public function testCreateFromVersionCreateRowsAndVersions()
+    {
+        $componentId = 'transformation';
+        $configurationId = 'main-1';
+        $components = new Components($this->_client);
+        $configurationOptions = (new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setName('Main 1')
+            ->setConfiguration(['test' => 'false']);
+
+        $components->addConfiguration($configurationOptions);
+        $components->addConfigurationRow(
+            (new ConfigurationRow($configurationOptions))
+                ->setName('Main 1 Row 1')
+                ->setRowId('main-1-row-1')
+        );
+
+        $components->addConfigurationRow(
+            (new ConfigurationRow($configurationOptions))
+                ->setName('Main 1 Row 2')
+                ->setRowId('main-1-row-2')
+        );
+
+        $newConfig = $components->createConfigurationFromVersion($componentId, $configurationId, 3, 'Copy version 3');
+
+        $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId('main-1'));
+        $this->assertCount(2, $rows);
+
+        $rowMain1Row1 = $components->getConfigurationRow($componentId, $newConfig['id'], 'main-1-row-1');
+        $this->assertArrayHasKey('id', $rowMain1Row1);
+        $this->assertSame(1, $rowMain1Row1['version']);
+
+        $rowMain1Row2 = $components->getConfigurationRow($componentId, $newConfig['id'], 'main-1-row-2');
+        $this->assertArrayHasKey('id', $rowMain1Row2);
+        $this->assertSame(1, $rowMain1Row2['version']);
+
+        $rowMain1Row1Version = $components->getConfigurationRowVersion($componentId, $newConfig['id'], 'main-1-row-1', 1);
+        $this->assertNotNull($rowMain1Row1Version);
+        $newConfig = $components->getConfiguration($componentId, $newConfig['id']);
+        $this->assertSame(1, $newConfig['version']);
+
+        $config = (new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($newConfig['id']);
+
+        $rowConfig = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config);
+        $rowConfig->setRowId('main-1-row-2');
+        $rowConfig->setDescription("Desc manually updated");
+        $components->updateConfigurationRow($rowConfig);
+
+
+        $configData = $components->getConfigurationVersion($componentId, $configurationId, 2);
+
+        $this->assertArrayHasKey('rows', $configData);
+        foreach ($configData['rows'] as $row) {
+            $this->assertArrayHasKey('configuration', $row);
+        }
+
+        $rowMain1Row2 = $components->getConfigurationRow($componentId, $newConfig['id'], 'main-1-row-2');
+        $this->assertSame('Desc manually updated', $rowMain1Row2['description']);
+
+        $components->deleteConfigurationRow($componentId, $newConfig['id'], 'main-1-row-2');
+
+        try {
+            $components->getConfigurationRow($componentId, $newConfig['id'], 'main-1-row-2');
+            $this->fail('Configuration row should not be deleted in the dev branch');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+            $this->assertSame('notFound', $e->getStringCode());
+            $this->assertContains('Row main-1-row-2 not found', $e->getMessage());
+        }
+    }
+
     public function testResetToDefault()
     {
         $providedToken = $this->_client->verifyToken();
