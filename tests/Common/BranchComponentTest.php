@@ -82,6 +82,14 @@ class BranchComponentTest extends StorageApiTestCase
         $rowConfig->setDescription("Desc manually updated");
         $components->updateConfigurationRow($rowConfig);
 
+
+        $configData = $components->getConfigurationVersion($componentId, $configurationId, 2);
+
+        $this->assertArrayHasKey('rows', $configData);
+        foreach ($configData['rows'] as $row) {
+            $this->assertArrayHasKey('configuration', $row);
+        }
+
         $rowMain1Row2 = $components->getConfigurationRow($componentId, $newConfig['id'], 'main-1-row-2');
         $this->assertSame('Desc manually updated', $rowMain1Row2['description']);
 
