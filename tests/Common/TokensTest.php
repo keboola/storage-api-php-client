@@ -238,7 +238,7 @@ class TokensTest extends StorageApiTestCase
             $this->assertArrayHasKey('payAsYouGo', $currentToken['owner']);
 
             $payAsYouGo = $currentToken['owner']['payAsYouGo'];
-            $this->assertInternalType('integer', $payAsYouGo['purchasedCredits']);
+            $this->assertInternalType('float', $payAsYouGo['purchasedCredits']);
         }
     }
 
