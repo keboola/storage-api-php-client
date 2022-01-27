@@ -207,6 +207,79 @@ Lists all tokens in the project.
                 }
             ]
 
+### List all tokens in Development branch [GET /v2/storage/branch/{branch_id}/tokens]
+Lists all tokens in the project - **same as for default branch**.
+
++ Parameters
+    + branch_id (required, number) - Id of the development branch
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+    + Body
+
+            [
+                {
+                    "id": "38",
+                    "token": "9eabdd51eaab4040f952e0e6ae6eff03",
+                    "description": "",
+                    "created": "2012-11-13T16:49:28+0100",
+                    "refreshed": "2017-11-13T16:48:28+0100",
+                    "uri": "https://connection.keboola.com/v2/storage/tokens/38",
+                    "isMasterToken": true,
+                    "canManageBuckets": true,
+                    "canManageTokens": false,
+                    "canReadAllFileUploads": false,
+                    "canPurgeTrash": false,
+                    "canUseDirectAccess": false,
+                    "expires": null,
+                    "isExpired": false,
+                    "isDisabled": false,
+                    "dailyCapacity": 5,
+                    "bucketPermissions": {
+                        "in.c-main": "manage",
+                        "out.c-main": "manage",
+                        "in.c-ga": "manage"
+                    },
+                    "admin": {
+                        "id": 124,
+                        "name": "John Doe",
+                        "role": "admin"
+                    }
+                },
+                {
+                    "id": "40",
+                    "token": "68ab920b621f159f72dcce4ae39a9a0d",
+                    "description": "",
+                    "created": "2012-11-13T16:49:28+0100",
+                    "refreshed": "2017-11-13T16:48:28+0100",
+                    "uri": "https://connection-devel.keboola.com/v2/storage/tokens/40",
+                    "isMasterToken": false,
+                    "canManageBuckets": false,
+                    "canManageTokens": false,
+                    "canReadAllFileUploads": false,
+                    "canPurgeTrash": false,
+                    "canUseDirectAccess": false,
+                    "expires": null,
+                    "isExpired": false,
+                    "isDisabled": false,
+                    "dailyCapacity": 5,
+                    "creatorToken": {
+                        "id": 1,
+                        "description": "dev@keboola.com"
+                    },
+                    "bucketPermissions": {
+                        "in.c-main": "read"
+                    },
+                    "componentAccess": [
+                        "someComponentName"
+                    ]
+                }
+            ]
+
 ### Create token [POST]
 Creates a new token in the project. Note that it is not possible to create a new master token.
 
@@ -315,6 +388,47 @@ the [Verify call](#reference/tokens-and-permissions/token/token-verification).
                 }
             }
 
+### Development branch token detail [GET /v2/storage/branch/{branch_id}/tokens/{token_id}]
+Returns all properties of a token - **same as for default branch**. You can obtain the Token Id, for example, using
+the [Verify call](#reference/tokens-and-permissions/token/token-verification).
+
++ Parameters
+    + branch_id (required, number) - Id of the development branch
+    + token_id (required, number) - Token Id
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+    + Body
+
+            {
+                "id": "44",
+                "token": "bdc4ce6a0ea85a2f4313b5b0b1800df3",
+                "description": "",
+                "created": "2017-11-13T16:48:28+0100",
+                "refreshed": "2017-11-13T16:48:28+0100",
+                "uri": "https://connection-devel.keboola.com/v2/storage/tokens/44",
+                "isMasterToken": false,
+                "canReadAllFileUploads": false,
+                "canPurgeTrash": false,
+                "canUseDirectAccess": false,
+                "expires": null,
+                "isExpired": false,
+                "isDisabled": false,
+                "dailyCapacity": 5,
+                "creatorToken": {
+                    "id": 1,
+                    "description": "dev@keboola.com"
+                },
+                "bucketPermissions": [],
+                "owner": {
+                    "name": "Buckets 5",
+                    "id": "58"
+                }
+            }
 
 ### Update Token [PUT]
 Updates Token properties. Beware that all current bucket permissions are replaced. If you want to add new
@@ -374,6 +488,121 @@ bucket permissions, don't forget to specify the previous permissions.
 ### Token verification [GET]
 Checks the token privileges and returns information about the project to which the token belongs (`owner`)
 and the associated administrator (`admin`). If the project is configured with pay as you go billing, `payAsYouGo` section with details is available under `owner` info. This call can be executed by all tokens.
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+    + Body
+
+            {
+                "id": "44",
+                "token": "your_token",
+                "description": "",
+                "created": "2017-02-13T10:27:50+0100",
+                "refreshed": "2017-11-13T16:48:28+0100",
+                "uri": "https://connection-devel.keboola.com/v2/storage/tokens/44",
+                "isMasterToken": false,
+                "canReadAllFileUploads": false,
+                "canPurgeTrash": false,
+                "canUseDirectAccess": false,
+                "expires": null,
+                "isExpired": false,
+                "isDisabled": false,
+                "dailyCapacity": 5,
+                "creatorToken": {
+                    "id": 1,
+                    "description": "dev@keboola.com"
+                },
+                "bucketPermissions": [],
+                "componentPermissions": [],
+                "owner": {
+                    "name": "Buckets 5",
+                    "id": "58",
+                    "limits": {
+                            "components.jobsParallelism": {
+                                "name": "components.jobsParallelism",
+                                "value": 10
+                            },
+                            "goodData.dataSizeBytes": {
+                                "name": "goodData.dataSizeBytes",
+                                "value": 1000000000
+                            },
+                            "goodData.demoTokenEnabled": {
+                                "name": "goodData.demoTokenEnabled",
+                                "value": 1
+                            },
+                            "goodData.prodTokenEnabled": {
+                                "name": "goodData.prodTokenEnabled",
+                                "value": 1
+                            },
+                            "goodData.usersCount": {
+                                "name": "goodData.usersCount",
+                                "value": 30
+                            },
+                            "kbc.adminsCount": {
+                                "name": "kbc.adminsCount",
+                                "value": 10
+                            },
+                            "kbc.extractorsCount": {
+                                "name": "kbc.extractorsCount",
+                                "value": 0
+                            },
+                            "kbc.writersCount": {
+                                "name": "kbc.writersCount",
+                                "value": 0
+                            },
+                            "orchestrations.count": {
+                                "name": "orchestrations.count",
+                                "value": 10
+                            },
+                            "storage.dataSizeBytes": {
+                                "name": "storage.dataSizeBytes",
+                                "value": 50000000000
+                            },
+                            "storage.jobsParallelism": {
+                                "name": "storage.jobsParallelism",
+                                "value": 10
+                            }
+                        },
+                        "metrics": {
+                            "goodData.dataSizeBytes": {
+                                "name": "goodData.dataSizeBytes",
+                                "value": 3589276
+                            },
+                            "goodData.rowsCount": {
+                                "name": "goodData.rowsCount",
+                                "value": 23898
+                            },
+                            "goodData.usersCount": {
+                                "name": "goodData.usersCount",
+                                "value": 0
+                            },
+                            "storage.dataSizeBytes": {
+                                "name": "storage.dataSizeBytes",
+                                "value": 3019882496
+                            },
+                            "storage.rowsCount": {
+                                "name": "storage.rowsCount",
+                                "value": 3316230
+                            }
+                        },
+                        "payAsYouGo": {
+                            "purchasedCredits": 123
+                        }
+                }
+            }
+
+### Development branch token verification [GET /v2/storage/branch/{branch_id}/tokens/verify]
+Checks the token privileges and returns information about the project to which the token belongs (`owner`)
+and the associated administrator (`admin`). If the project is configured with pay as you go billing, `payAsYouGo` section with details is available under `owner` info.
+This call can be executed by all tokens.
+**Same as for default branch.**
+
++ Parameters
+    + branch_id - Id of development branch
 
 + Request
     + Headers
