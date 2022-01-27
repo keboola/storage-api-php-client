@@ -13,6 +13,7 @@ use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
 use Keboola\StorageApi\Tokens;
+use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Client;
@@ -222,6 +223,45 @@ class TokensTest extends StorageApiTestCase
         }
 
         $this->assertTrue($tokenFound);
+    }
+
+    /**
+     * @return void
+     */
+    public function testVerifyTokenForDefaultVsBranch()
+    {
+        // get token for default branch
+        $defaultToken = $this->_client->verifyToken();
+
+        // prepare DEV branch client
+        $clientProvider = new ClientProvider($this);
+        $branchClient = $clientProvider->getDevBranchClient();
+
+        // get token for DEV branch
+        $branchToken = $branchClient->verifyToken();
+
+        $this->assertSame($defaultToken, $branchToken);
+    }
+
+    /**
+     * @return void
+     */
+    public function testGetTokenForDefaultVsBranch()
+    {
+        $verifiedToken = $this->_client->verifyToken();
+
+        // get token for default branch
+        $defaultToken = $this->tokens->getToken($verifiedToken['id']);
+
+        // prepare DEV branch client
+        $clientProvider = new ClientProvider($this);
+        $branchClient = $clientProvider->getDevBranchClient();
+        $branchTokens = new Tokens($branchClient);
+
+        // get token for DEV branch
+        $branchToken = $branchTokens->getToken($verifiedToken['id']);
+
+        $this->assertSame($defaultToken, $branchToken);
     }
 
     public function testPayGoTokenProperties()
