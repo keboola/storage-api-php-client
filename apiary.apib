@@ -136,6 +136,9 @@ when accessing the API programatically.
 When joining a project, each project administrator is assigned a [*master* token](https://help.keboola.com/storage/tokens/),
 which enables them to create other tokens with limited privileges for buckets and components.
 
+Selected of tokens endpoints can be used with `default` for `branch_id` parameter and emulate call endpoint without development branch.
+It means that endpoint `GET /v2/storage/tokens/verify` is the same as `GET /v2/storage/branch/default/tokens/verify`.
+
 ## Tokens Collection [/v2/storage/tokens]
 ### List all tokens [GET]
 Lists all tokens in the project.
