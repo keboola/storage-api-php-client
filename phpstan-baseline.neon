@@ -9481,21 +9481,6 @@ parameters:
 			path: tests/ClientTestCase.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\BranchAwareClientTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/BranchAwareClientTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\BranchAwareClientTest\\:\\:testClientWithDefaultBranch\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/BranchAwareClientTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\BranchAwareClientTest\\:\\:testInvalidBranch\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/BranchAwareClientTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\BranchBucketsTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Common/BranchBucketsTest.php
@@ -12304,4 +12289,3 @@ parameters:
 			message: "#^Parameter \\#1 \\$filename of function file_get_contents expects string, string\\|false given\\.$#"
 			count: 1
 			path: tests/bootstrap.php
-
