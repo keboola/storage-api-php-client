@@ -29,7 +29,6 @@ class DataPreviewLimitsTest extends StorageApiTestCase
         $tokenData = $this->_client->verifyToken();
         if ($tokenData['owner']['defaultBackend'] === self::BACKEND_REDSHIFT) {
             $this->markTestSkipped('Redshift backend doesn\'t support order in preview.');
-            return;
         }
         $csv = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
         $csv->writeRow(['Name', 'Id']);

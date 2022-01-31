@@ -273,7 +273,6 @@ class TokensTest extends StorageApiTestCase
         if (!in_array('pay-as-you-go', $currentToken['owner']['features'])) {
             $this->assertArrayNotHasKey('payAsYouGo', $currentToken['owner']);
             $this->markTestSkipped('Project is not Pay As You Go project');
-            return;
         } else {
             $this->assertArrayHasKey('payAsYouGo', $currentToken['owner']);
 
@@ -1201,15 +1200,15 @@ class TokensTest extends StorageApiTestCase
         $this->assertSame('guest', $token['admin']['role']);
 
         $this->assertArrayHasKey('canManageBuckets', $token);
-        $this->assertSame(true, $token['canManageBuckets']);
+        $this->assertTrue($token['canManageBuckets']);
         $this->assertArrayHasKey('canManageTokens', $token);
-        $this->assertSame(false, $token['canManageTokens']);
+        $this->assertFalse($token['canManageTokens']);
         $this->assertArrayHasKey('canReadAllFileUploads', $token);
-        $this->assertSame(true, $token['canReadAllFileUploads']);
+        $this->assertTrue($token['canReadAllFileUploads']);
         $this->assertArrayHasKey('canPurgeTrash', $token);
-        $this->assertSame(false, $token['canPurgeTrash']);
+        $this->assertFalse($token['canPurgeTrash']);
         $this->assertArrayHasKey('canUseDirectAccess', $token);
-        $this->assertSame(false, $token['canUseDirectAccess']);
+        $this->assertFalse($token['canUseDirectAccess']);
     }
 
     public function testAdminRoleTokenSettings()
@@ -1222,15 +1221,15 @@ class TokensTest extends StorageApiTestCase
         $this->assertSame('admin', $token['admin']['role']);
 
         $this->assertArrayHasKey('canManageBuckets', $token);
-        $this->assertSame(true, $token['canManageBuckets']);
+        $this->assertTrue($token['canManageBuckets']);
         $this->assertArrayHasKey('canManageTokens', $token);
-        $this->assertSame(true, $token['canManageTokens']);
+        $this->assertTrue($token['canManageTokens']);
         $this->assertArrayHasKey('canReadAllFileUploads', $token);
-        $this->assertSame(true, $token['canReadAllFileUploads']);
+        $this->assertTrue($token['canReadAllFileUploads']);
         $this->assertArrayHasKey('canPurgeTrash', $token);
-        $this->assertSame(true, $token['canPurgeTrash']);
+        $this->assertTrue($token['canPurgeTrash']);
         $this->assertArrayHasKey('canUseDirectAccess', $token);
-        $this->assertSame(true, $token['canUseDirectAccess']);
+        $this->assertTrue($token['canUseDirectAccess']);
     }
 
     public function testShareRoleTokenSettings()
@@ -1244,15 +1243,15 @@ class TokensTest extends StorageApiTestCase
         $this->assertSame('share', $token['admin']['role']);
 
         $this->assertArrayHasKey('canManageBuckets', $token);
-        $this->assertSame(true, $token['canManageBuckets']);
+        $this->assertTrue($token['canManageBuckets']);
         $this->assertArrayHasKey('canManageTokens', $token);
-        $this->assertSame(true, $token['canManageTokens']);
+        $this->assertTrue($token['canManageTokens']);
         $this->assertArrayHasKey('canReadAllFileUploads', $token);
-        $this->assertSame(true, $token['canReadAllFileUploads']);
+        $this->assertTrue($token['canReadAllFileUploads']);
         $this->assertArrayHasKey('canPurgeTrash', $token);
-        $this->assertSame(true, $token['canPurgeTrash']);
+        $this->assertTrue($token['canPurgeTrash']);
         $this->assertArrayHasKey('canUseDirectAccess', $token);
-        $this->assertSame(true, $token['canUseDirectAccess']);
+        $this->assertTrue($token['canUseDirectAccess']);
     }
 
     public function testReadOnlyRoleTokenSettings()
@@ -1266,15 +1265,15 @@ class TokensTest extends StorageApiTestCase
         $this->assertSame('readOnly', $token['admin']['role']);
 
         $this->assertArrayHasKey('canManageBuckets', $token);
-        $this->assertSame(false, $token['canManageBuckets']);
+        $this->assertFalse($token['canManageBuckets']);
         $this->assertArrayHasKey('canManageTokens', $token);
-        $this->assertSame(false, $token['canManageTokens']);
+        $this->assertFalse($token['canManageTokens']);
         $this->assertArrayHasKey('canReadAllFileUploads', $token);
-        $this->assertSame(true, $token['canReadAllFileUploads']);
+        $this->assertTrue($token['canReadAllFileUploads']);
         $this->assertArrayHasKey('canPurgeTrash', $token);
-        $this->assertSame(false, $token['canPurgeTrash']);
+        $this->assertFalse($token['canPurgeTrash']);
         $this->assertArrayHasKey('canUseDirectAccess', $token);
-        $this->assertSame(false, $token['canUseDirectAccess']);
+        $this->assertFalse($token['canUseDirectAccess']);
     }
 
     public function testReadOnlyRoleBucketsPermissions()

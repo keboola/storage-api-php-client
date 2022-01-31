@@ -42,7 +42,7 @@ class CreateTableTest extends StorageApiTestCase
 
         // test spk part of detail
         $table = $this->_client->getTable($testBucketId . '.' . $tableName);
-        $this->assertSame(false, $table['syntheticPrimaryKeyEnabled']);
+        $this->assertFalse($table['syntheticPrimaryKeyEnabled']);
 
         try {
             $tableId = $this->_client->createTable(
