@@ -3606,11 +3606,6 @@ parameters:
 			path: tests/Backend/CommonPart1/BucketsTest.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:removeTablePrimaryKey\\(\\) invoked with 2 parameters, 1 required\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/CreateTableTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\CreateTableTest\\:\\:createTableFromSlicedFileData\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart1/CreateTableTest.php
@@ -3776,6 +3771,11 @@ parameters:
 			path: tests/Backend/CommonPart1/CreateTableTest.php
 
 		-
+			message: "#^Unreachable statement \\- code above always terminates\\.$#"
+			count: 1
+			path: tests/Backend/CommonPart1/CreateTableTest.php
+
+		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\DataPreviewLimitsTest\\:\\:generateCsv\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart1/DataPreviewLimitsTest.php
@@ -3853,6 +3853,11 @@ parameters:
 		-
 			message: "#^Parameter \\#1 \\$jsonPreview of method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\DataPreviewLimitsTest\\:\\:getTruncatedRow\\(\\) expects array, string given\\.$#"
 			count: 1
+			path: tests/Backend/CommonPart1/DataPreviewLimitsTest.php
+
+		-
+			message: "#^You should use assertCount\\(\\$expectedCount, \\$variable\\) instead of assertSame\\(\\$expectedCount, count\\(\\$variable\\)\\)\\.$#"
+			count: 2
 			path: tests/Backend/CommonPart1/DataPreviewLimitsTest.php
 
 		-
@@ -4352,7 +4357,7 @@ parameters:
 
 		-
 			message: "#^Offset 'metrics' does not exist on array\\|null\\.$#"
-			count: 4
+			count: 2
 			path: tests/Backend/CommonPart2/MetricsTest.php
 
 		-
@@ -4661,16 +4666,6 @@ parameters:
 			path: tests/Backend/CommonPart2/SlicedImportsWithSlicedUploadsTest.php
 
 		-
-			message: "#^Cannot access offset 'description' on mixed\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart2/SnapshottingTest.php
-
-		-
-			message: "#^Cannot access offset 'id' on mixed\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart2/SnapshottingTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart2\\\\SnapshottingTest\\:\\:filterIdAndTimestampFromMetadataArray\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart2/SnapshottingTest.php
@@ -4702,16 +4697,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart2\\\\SnapshottingTest\\:\\:testTableSnapshotDelete\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart2/SnapshottingTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$array of function reset expects array\\|object, mixed given\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart2/SnapshottingTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, mixed given\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart2/SnapshottingTest.php
 
@@ -4961,6 +4946,11 @@ parameters:
 			path: tests/Backend/Exasol/TableDefinitionOperationsTest.php
 
 		-
+			message: "#^You should use assertCount\\(\\$expectedCount, \\$variable\\) instead of assertSame\\(\\$expectedCount, count\\(\\$variable\\)\\)\\.$#"
+			count: 2
+			path: tests/Backend/Exasol/TableDefinitionOperationsTest.php
+
+		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Exasol\\\\WhereFilterTest\\:\\:getExportedTable\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Exasol/WhereFilterTest.php
@@ -5189,11 +5179,6 @@ parameters:
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\FileWorkspace\\\\ComponentsWorkspacesTest\\:\\:testWorkspaceCreate\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/FileWorkspace/ComponentsWorkspacesTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\FileWorkspace\\\\FileWorkspaceTestCase\\:\\:resolveFileWorkspaceBackend\\(\\) should return string but return statement is missing\\.$#"
-			count: 1
-			path: tests/Backend/FileWorkspace/FileWorkspaceTestCase.php
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\FileWorkspace\\\\WorkspacesLoadTest\\:\\:assertManifest\\(\\) has no return type specified\\.$#"
@@ -7216,6 +7201,11 @@ parameters:
 			path: tests/Backend/Synapse/TableDefinitionOperationsTest.php
 
 		-
+			message: "#^You should use assertCount\\(\\$expectedCount, \\$variable\\) instead of assertSame\\(\\$expectedCount, count\\(\\$variable\\)\\)\\.$#"
+			count: 2
+			path: tests/Backend/Synapse/TableDefinitionOperationsTest.php
+
+		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Synapse\\\\WhereFilterTest\\:\\:getExportedTable\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Synapse/WhereFilterTest.php
@@ -7967,12 +7957,12 @@ parameters:
 
 		-
 			message: "#^Call to an undefined method Doctrine\\\\DBAL\\\\Connection\\|Keboola\\\\Db\\\\Import\\\\Snowflake\\\\Connection\\|PDO\\:\\:getDatabasePlatform\\(\\)\\.$#"
-			count: 4
+			count: 3
 			path: tests/Backend/Workspaces/ExasolWorkspacesUnloadTest.php
 
 		-
 			message: "#^Cannot access offset 'id' on mixed\\.$#"
-			count: 7
+			count: 1
 			path: tests/Backend/Workspaces/ExasolWorkspacesUnloadTest.php
 
 		-
@@ -7996,8 +7986,8 @@ parameters:
 			path: tests/Backend/Workspaces/ExasolWorkspacesUnloadTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$tableId of method Keboola\\\\StorageApi\\\\Client\\:\\:getTableDataPreview\\(\\) expects string, mixed given\\.$#"
-			count: 3
+			message: "#^Unreachable statement \\- code above always terminates\\.$#"
+			count: 1
 			path: tests/Backend/Workspaces/ExasolWorkspacesUnloadTest.php
 
 		-
@@ -8377,7 +8367,7 @@ parameters:
 
 		-
 			message: "#^Call to an undefined method Doctrine\\\\DBAL\\\\Connection\\|Keboola\\\\Db\\\\Import\\\\Snowflake\\\\Connection\\|PDO\\:\\:getDatabasePlatform\\(\\)\\.$#"
-			count: 3
+			count: 2
 			path: tests/Backend/Workspaces/MetadataFromExasolWorkspaceTest.php
 
 		-
@@ -8432,6 +8422,11 @@ parameters:
 
 		-
 			message: "#^Parameter \\#2 \\$haystack of method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, mixed given\\.$#"
+			count: 1
+			path: tests/Backend/Workspaces/MetadataFromExasolWorkspaceTest.php
+
+		-
+			message: "#^Unreachable statement \\- code above always terminates\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/MetadataFromExasolWorkspaceTest.php
 
@@ -8792,6 +8787,11 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\WorkspacesExasolTest\\:\\:testsIncrementalDataTypesDiff\\(\\) has parameter \\$table with no type specified\\.$#"
+			count: 1
+			path: tests/Backend/Workspaces/WorkspacesExasolTest.php
+
+		-
+			message: "#^Unreachable statement \\- code above always terminates\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/WorkspacesExasolTest.php
 
@@ -10511,11 +10511,6 @@ parameters:
 			path: tests/Common/FilesLegacyFormUploadsTest.php
 
 		-
-			message: "#^Call to an undefined method Keboola\\\\StorageApi\\\\Client\\|PHPUnit\\\\Framework\\\\MockObject\\\\MockObject\\:\\:getServiceUrl\\(\\)\\.$#"
-			count: 4
-			path: tests/Common/GetServiceUrlTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\GetServiceUrlTest\\:\\:testInvalidApiIndexResponseThrowsException\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Common/GetServiceUrlTest.php
@@ -10569,11 +10564,6 @@ parameters:
 			message: "#^Property Keboola\\\\Test\\\\Common\\\\GetToFileTest\\:\\:\\$downloadPath has no type specified\\.$#"
 			count: 1
 			path: tests/Common/GetToFileTest.php
-
-		-
-			message: "#^Call to an undefined method PHPUnit\\\\Framework\\\\MockObject\\\\MockObject\\:\\:handleAsyncTasks\\(\\)\\.$#"
-			count: 2
-			path: tests/Common/HandleAsyncTasksTest.php
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\HandleAsyncTasksTest\\:\\:testWriteTableAsyncError\\(\\) has no return type specified\\.$#"
@@ -10652,7 +10642,7 @@ parameters:
 
 		-
 			message: "#^Cannot access offset 'id' on mixed\\.$#"
-			count: 15
+			count: 9
 			path: tests/Common/MetadataTest.php
 
 		-
@@ -10662,17 +10652,17 @@ parameters:
 
 		-
 			message: "#^Cannot access offset 'provider' on mixed\\.$#"
-			count: 9
+			count: 6
 			path: tests/Common/MetadataTest.php
 
 		-
 			message: "#^Cannot access offset 'timestamp' on mixed\\.$#"
-			count: 15
+			count: 8
 			path: tests/Common/MetadataTest.php
 
 		-
 			message: "#^Cannot access offset 'value' on mixed\\.$#"
-			count: 31
+			count: 27
 			path: tests/Common/MetadataTest.php
 
 		-
@@ -10877,7 +10867,7 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$time of function strtotime expects string, mixed given\\.$#"
-			count: 6
+			count: 2
 			path: tests/Common/MetadataTest.php
 
 		-
@@ -10887,17 +10877,12 @@ parameters:
 
 		-
 			message: "#^Parameter \\#2 \\$array of method PHPUnit\\\\Framework\\\\Assert\\:\\:assertArrayHasKey\\(\\) expects array\\|ArrayAccess, mixed given\\.$#"
-			count: 14
+			count: 5
 			path: tests/Common/MetadataTest.php
 
 		-
 			message: "#^Parameter \\#2 \\$haystack of method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, mixed given\\.$#"
 			count: 14
-			path: tests/Common/MetadataTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$string of method PHPUnit\\\\Framework\\\\Assert\\:\\:assertRegExp\\(\\) expects string, mixed given\\.$#"
-			count: 3
 			path: tests/Common/MetadataTest.php
 
 		-

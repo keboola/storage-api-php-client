@@ -156,7 +156,6 @@ class SlicedImportsTest extends StorageApiTestCase
         $tokenData = $this->_client->verifyToken();
         if ($tokenData['owner']['defaultBackend'] == self::BACKEND_REDSHIFT) {
             $this->markTestSkipped('TODO: redshift bug to fix');
-            return;
         }
 
         $uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
