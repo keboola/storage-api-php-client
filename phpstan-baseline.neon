@@ -3856,11 +3856,6 @@ parameters:
 			path: tests/Backend/CommonPart1/DataPreviewLimitsTest.php
 
 		-
-			message: "#^You should use assertCount\\(\\$expectedCount, \\$variable\\) instead of assertSame\\(\\$expectedCount, count\\(\\$variable\\)\\)\\.$#"
-			count: 2
-			path: tests/Backend/CommonPart1/DataPreviewLimitsTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\DeleteRowsTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart1/DeleteRowsTest.php
@@ -4943,11 +4938,6 @@ parameters:
 		-
 			message: "#^Property Keboola\\\\Test\\\\Backend\\\\Exasol\\\\TableDefinitionOperationsTest\\:\\:\\$tableId has no type specified\\.$#"
 			count: 1
-			path: tests/Backend/Exasol/TableDefinitionOperationsTest.php
-
-		-
-			message: "#^You should use assertCount\\(\\$expectedCount, \\$variable\\) instead of assertSame\\(\\$expectedCount, count\\(\\$variable\\)\\)\\.$#"
-			count: 2
 			path: tests/Backend/Exasol/TableDefinitionOperationsTest.php
 
 		-
@@ -7198,11 +7188,6 @@ parameters:
 		-
 			message: "#^Property Keboola\\\\Test\\\\Backend\\\\Synapse\\\\TableDefinitionOperationsTest\\:\\:\\$tableId has no type specified\\.$#"
 			count: 1
-			path: tests/Backend/Synapse/TableDefinitionOperationsTest.php
-
-		-
-			message: "#^You should use assertCount\\(\\$expectedCount, \\$variable\\) instead of assertSame\\(\\$expectedCount, count\\(\\$variable\\)\\)\\.$#"
-			count: 2
 			path: tests/Backend/Synapse/TableDefinitionOperationsTest.php
 
 		-

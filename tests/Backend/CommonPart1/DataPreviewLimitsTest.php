@@ -125,8 +125,8 @@ class DataPreviewLimitsTest extends StorageApiTestCase
 
         $jsonPreview = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);
 
-        $this->assertSame($columnCount, count($jsonPreview['columns']));
-        $this->assertSame($rowCount, count($jsonPreview['rows']));
+        $this->assertCount($columnCount, $jsonPreview['columns']);
+        $this->assertCount($rowCount, $jsonPreview['rows']);
         $this->assertContains('col' . ($columnCount - 1), $jsonPreview['columns']);
         $truncatedRow = $this->getTruncatedRow($jsonPreview);
         $this->assertNotEmpty($truncatedRow);
