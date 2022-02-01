@@ -208,7 +208,6 @@ class ImportExportCommonTest extends StorageApiTestCase
             self::BACKEND_EXASOL,
         ], true)) {
             self::markTestSkipped('test available for RS only');
-            return;
         }
 
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
@@ -358,7 +357,6 @@ class ImportExportCommonTest extends StorageApiTestCase
         $token = $this->_client->verifyToken();
         if (in_array($token['owner']['region'], ['eu-central-1', 'ap-northeast-2'])) {
             $this->markTestSkipped('Form upload is not supported for ' . $token['owner']['region'] . ' region.');
-            return;
         }
 
         if (in_array($token['owner']['defaultBackend'], [
@@ -367,7 +365,6 @@ class ImportExportCommonTest extends StorageApiTestCase
             self::BACKEND_EXASOL,
         ])) {
             $this->markTestSkipped('TODO: fix issue on redshift and snflk backend.');
-            return;
         }
 
         $filePath = __DIR__ . '/../../_data/languages.csv';

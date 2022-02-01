@@ -94,7 +94,7 @@ class TableExporterTest extends StorageApiTestCase
         $this->assertSame($tableId, $job['tableId']);
         $this->assertNotEmpty($job['operationParams']['export']['columns']);
         $this->assertSame($expectedColumns, $job['operationParams']['export']['columns']);
-        $this->assertSame(true, $job['operationParams']['export']['gzipOutput']);
+        $this->assertTrue($job['operationParams']['export']['gzipOutput']);
     }
 
     public function testLimitParameter()

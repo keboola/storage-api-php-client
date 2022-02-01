@@ -187,7 +187,7 @@ class CreateTableTest extends StorageApiTestCase
             ],
             $eventParams['columnsTypes']
         );
-        $this->assertSame(false, $eventParams['syntheticPrimaryKeyEnabled']);
+        $this->assertFalse($eventParams['syntheticPrimaryKeyEnabled']);
         $this->assertSame(['id'], $eventParams['distributionKey']);
         $this->assertSame('HASH', $eventParams['distribution']);
         $this->assertSame('CLUSTERED INDEX', $eventParams['indexType']);
@@ -206,7 +206,7 @@ class CreateTableTest extends StorageApiTestCase
         $this->assertSame('CLUSTERED INDEX', $table['indexType']);
         $this->assertSame(['id'], $table['indexKey']);
 
-        $this->assertSame(false, $table['syntheticPrimaryKeyEnabled']);
+        $this->assertFalse($table['syntheticPrimaryKeyEnabled']);
 
         $this->assertSame(
             [

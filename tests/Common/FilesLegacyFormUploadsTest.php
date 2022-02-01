@@ -15,11 +15,9 @@ class FilesLegacyFormUploadsTest extends StorageApiTestCase
         $token = $this->_client->verifyToken();
         if (in_array($token['owner']['region'], ['eu-central-1', 'ap-northeast-2'])) {
             $this->markTestSkipped('Form upload is not supported for ' . $token['owner']['region'] . ' region.');
-            return;
         }
         if (!in_array('legacy-form-uploads', $token['owner']['features'])) {
             $this->markTestSkipped('Form upload is deprecated');
-            return;
         }
 
         $path = __DIR__ . '/../_data/files.upload.txt';
@@ -77,11 +75,9 @@ class FilesLegacyFormUploadsTest extends StorageApiTestCase
         $token = $this->_client->verifyToken();
         if (in_array($token['owner']['region'], ['eu-central-1', 'ap-northeast-2'])) {
             $this->markTestSkipped('Form upload is not supported in ' . $token['owner']['region'] . ' region.');
-            return;
         }
         if (!in_array('legacy-form-uploads', $token['owner']['features'])) {
             $this->markTestSkipped('Form upload is deprecated');
-            return;
         }
 
         $path = __DIR__ . '/../_data/files.upload.txt';
