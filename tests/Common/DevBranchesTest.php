@@ -30,7 +30,7 @@ class DevBranchesTest extends StorageApiTestCase
         $this->assertCount(1, $branchesList);
         $branch = reset($branchesList);
 
-        $this->assertSame(true, $branch['isDefault']);
+        $this->assertTrue($branch['isDefault']);
 
         try {
             $branches->deleteBranch($branch['id']);
@@ -88,7 +88,7 @@ class DevBranchesTest extends StorageApiTestCase
         $this->assertSame($token['description'], $branch['creatorToken']['name']);
         $this->assertSame($branchName . '-original', $branch['name']);
         $this->assertSame($branchDescription . '-original', $branch['description']);
-        $this->assertSame(false, $branch['isDefault']);
+        $this->assertFalse($branch['isDefault']);
         $branchId = $branch['id'];
 
         // event is created for created branch
@@ -126,7 +126,7 @@ class DevBranchesTest extends StorageApiTestCase
         $this->assertEquals($token['id'], $branchFromDetail['creatorToken']['id']);
         $this->assertArrayHasKey('name', $branchFromDetail['creatorToken']);
         $this->assertSame($token['description'], $branchFromDetail['creatorToken']['name']);
-        $this->assertSame(false, $branchFromDetail['isDefault']);
+        $this->assertFalse($branchFromDetail['isDefault']);
         $this->assertSame($branchName, $branchFromDetail['name']);
         $this->assertSame($branchDescription, $branchFromDetail['description']);
 

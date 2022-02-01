@@ -270,7 +270,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
             $data['rows']
         );
 
-        $this->assertSame(1, count($data['rows']));
+        $this->assertCount(1, $data['rows']);
 
         //test types is provided from source table for alias
         $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $tableId, 'table-1');
@@ -282,7 +282,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
             $data['rows']
         );
 
-        $this->assertSame(1, count($data['rows']));
+        $this->assertCount(1, $data['rows']);
     }
 
     public function testTableWithDot()

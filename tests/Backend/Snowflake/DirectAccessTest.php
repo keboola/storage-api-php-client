@@ -354,7 +354,7 @@ class DirectAccessTest extends StorageApiTestCase
         // other buckets does not have DA enabled
         $bucket = $this->_client->getBucket($bucket2Id);
         $this->assertFalse($bucket['directAccessEnabled']);
-        $this->assertSame(null, $bucket['directAccessSchemaName']);
+        $this->assertNull($bucket['directAccessSchemaName']);
 
 
         $credentials = $directAccess->createCredentials(self::BACKEND_SNOWFLAKE);
