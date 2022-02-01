@@ -136,6 +136,9 @@ when accessing the API programatically.
 When joining a project, each project administrator is assigned a [*master* token](https://help.keboola.com/storage/tokens/),
 which enables them to create other tokens with limited privileges for buckets and components.
 
+Selected of tokens endpoints can be used with `default` for `branch_id` parameter and emulate call endpoint without development branch.
+It means that endpoint `GET /v2/storage/tokens/verify` is the same as `GET /v2/storage/branch/default/tokens/verify`.
+
 ## Tokens Collection [/v2/storage/tokens]
 ### List all tokens [GET]
 Lists all tokens in the project.
@@ -3803,6 +3806,9 @@ Workspaces provide a playground for your data. You can load data from your stora
 and then, optionally, load it back to storage tables. A workspace is represented by access credentials to a storage
 backend with permissions to write to the workspace specific database schema.
 
+All workspaces endpoints can be used with `default` for `branch_id` parameter and emulate call endpoint without development branch.
+It means that endpoint `GET /v2/storage/workspaces` is the same as `GET /v2/storage/branch/default/workspaces`.
+
 ## Workspaces Collection [/v2/storage/workspaces]
 
 ### Create Workspace [POST]
@@ -4446,6 +4452,9 @@ Events can be filtered by various filters:
 The events pagination uses two parameters:
 - `limit` - Number of returned events. The default value: 100
 - `offset` - Pagination offset
+
+Selected of events endpoints can be used with `default` for `branch_id` parameter and emulate call endpoint without development branch.
+It means that endpoint `GET /v2/storage/events` is the same as `GET /v2/storage/branch/default/events`.
 
 ## Events [/v2/storage/events]
 ### Create Event [POST]
@@ -5479,6 +5488,9 @@ Configurations are automatically versioned. Configuration Rows are versioned sep
 changes of the configuration. The `configuration` and
 `rows.configuration` fields can contain arbitrary objects. The content and interpretation of those fields is fully
 defined by the component.
+
+All components and configurations endpoints can be used with `default` for `branch_id` parameter and emulate call endpoint without development branch.
+It means that endpoint `GET /v2/storage/components` is the same as `GET /v2/storage/branch/default/components`.
 
 ### Get component [GET /v2/storage/components/{componentId}]
 
@@ -8296,6 +8308,12 @@ From now on you won't be able to sign in to the **Direct Access** for specific p
 **EXPERIMENTAL**
 
 Development branches allow you to prepare changes to configuration and tables in isolation. When ready, you can replace the production with the development branch.
+
+You can use development branch in selected API calls by changing url.
+For example, you want to list configurations ([common](#reference/components-and-configurations/component-configurations/list-configurations) or [development branch](#reference/components-and-configurations/component-configurations/list-development-branch-configurations) version):
+- `GET /v2/storage/components/ex-foo/configs` - in default branch (common usage)
+- `GET /v2/storage/branch/default/components/ex-foo/configs` - in default branch (with `default` as branch prefix) - same result as above
+- `GET /v2/storage/branch/123/components/ex-foo/configs` - in development branch (with `ID` as branch prefix)
 
 ## Branches [/v2/storage/dev-branches/]
 

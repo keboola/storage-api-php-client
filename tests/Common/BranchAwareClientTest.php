@@ -12,6 +12,9 @@ use Keboola\Test\StorageApiTestCase;
 
 class BranchAwareClientTest extends StorageApiTestCase
 {
+    /**
+     * @return void
+     */
     public function setUp()
     {
         parent::setUp();
@@ -31,19 +34,31 @@ class BranchAwareClientTest extends StorageApiTestCase
         }
     }
 
-    public function testClientWithDefaultBranch()
+    /**
+     * @dataProvider provideDefaultBranchUsage
+     * @param string $defaultBranchUsage
+     * @return void
+     */
+    public function testClientWithDefaultBranch($defaultBranchUsage)
     {
-        $devBranch = new DevBranches($this->_client);
-
-        $defaultBranches = array_filter(
-            $devBranch->listBranches(),
-            function (array $branch) {
-                return $branch['isDefault'] === true;
-            }
-        );
-
-        $defaultBranch = reset($defaultBranches);
-        $branchClient = $this->getBranchAwareDefaultClient($defaultBranch['id']);
+        switch ($defaultBranchUsage) {
+            case 'id':
+                $devBranch = new DevBranches($this->_client);
+                $defaultBranches = array_filter(
+                    $devBranch->listBranches(),
+                    function (array $branch) {
+                        return $branch['isDefault'] === true;
+                    }
+                );
+                $defaultBranch = reset($defaultBranches);
+                $branchClient = $this->getBranchAwareDefaultClient($defaultBranch['id']);
+                break;
+            case 'placeholder':
+                $branchClient = $this->getBranchAwareDefaultClient('default');
+                break;
+            default:
+                $this->fail('Unknown type');
+        }
 
         $branchComponents = new Components($branchClient);
         $components = new Components($this->_client);
@@ -71,7 +86,23 @@ class BranchAwareClientTest extends StorageApiTestCase
         );
     }
 
-    public function testInvalidBranch()
+    /**
+     * @return array
+     */
+    public function provideDefaultBranchUsage()
+    {
+        return [
+            'use default branch by id' => ['id', null],
+            'use default branch by placeholder' => ['placeholder', 'default'],
+        ];
+    }
+
+    /**
+     * @dataProvider provideInvalidBranchId
+     * @param scalar|null $branchId
+     * @return void
+     */
+    public function testInvalidBranch($branchId)
     {
         $options = [
             'token' => STORAGE_API_TOKEN,
@@ -86,7 +117,18 @@ class BranchAwareClientTest extends StorageApiTestCase
             $options['url']
         );
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Branch "" is not valid.');
-        new BranchAwareClient('', $options);
+        $this->expectExceptionMessage(sprintf('Branch "%s" is not valid.', $branchId));
+        new BranchAwareClient($branchId, $options);
+    }
+
+    /**
+     * @return array
+     */
+    public function provideInvalidBranchId()
+    {
+        return [
+            'empty string' => [''],
+            'empty number' => [0],
+        ];
     }
 }
