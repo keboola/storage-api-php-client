@@ -2214,7 +2214,7 @@ class Client
         return $this->request('post', $url, array('multipart' => $postData), null, $handleAsyncTask);
     }
 
-    private function apiPostJson($url, $data = [])
+    public function apiPostJson($url, $data = [])
     {
         return $this->request('POST', $url, [
             'json' => $data,
