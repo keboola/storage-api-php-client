@@ -95,8 +95,8 @@ class Metadata
     }
 
     /**
-     * @param $tableId
-     * @param $provider
+     * @param string $tableId
+     * @param string $provider
      * @param array $metadata
      * @return mixed|string
      * @throws ClientException
@@ -109,6 +109,29 @@ class Metadata
         return $this->client->apiPost("tables/{$tableId}/metadata", array(
             "provider" => $provider,
             "metadata" => $metadata
+        ));
+    }
+
+    /**
+     * @param string $tableId
+     * @param string $provider
+     * @param array $metadata [['key' => 'some-key', 'value' => 'Some value'], ...]
+     * @param array $columnsMetadata ['columnName1' => [['key' => 'some-key', 'value' => 'Some value'], ...], ...]
+     * @return mixed|string
+     * @throws ClientException
+     */
+    public function postTableMetadataWithColumns($tableId, $provider, $metadata, $columnsMetadata)
+    {
+        if (!is_array($metadata) || count($metadata) === 0) {
+            throw new ClientException("Third argument must be a non-empty array of Metadata objects");
+        }
+        if (!is_array($columnsMetadata) || count($columnsMetadata) === 0) {
+            throw new ClientException("Fourth argument must be a non-empty array of Metadata objects with columns names as keys");
+        }
+        return $this->client->apiPostJson("tables/{$tableId}/metadata", array(
+            "provider" => $provider,
+            "metadata" => $metadata,
+            "columnsMetadata" => $columnsMetadata,
         ));
     }
 

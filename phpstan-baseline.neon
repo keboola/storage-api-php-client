@@ -2316,16 +2316,6 @@ parameters:
 			path: src/Keboola/StorageApi/Metadata.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Metadata\\:\\:postTableMetadata\\(\\) has parameter \\$provider with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Metadata.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Metadata\\:\\:postTableMetadata\\(\\) has parameter \\$tableId with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Metadata.php
-
-		-
 			message: "#^PHPDoc tag @param has invalid value \\(\\$bucketId\\)\\: Unexpected token \"\\$bucketId\", expected type at offset 18$#"
 			count: 3
 			path: src/Keboola/StorageApi/Metadata.php
@@ -2351,18 +2341,13 @@ parameters:
 			path: src/Keboola/StorageApi/Metadata.php
 
 		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$provider\\)\\: Unexpected token \"\\$provider\", expected type at offset 41$#"
-			count: 1
-			path: src/Keboola/StorageApi/Metadata.php
-
-		-
 			message: "#^PHPDoc tag @param has invalid value \\(\\$provider\\)\\: Unexpected token \"\\$provider\", expected type at offset 42$#"
 			count: 2
 			path: src/Keboola/StorageApi/Metadata.php
 
 		-
 			message: "#^PHPDoc tag @param has invalid value \\(\\$tableId\\)\\: Unexpected token \"\\$tableId\", expected type at offset 18$#"
-			count: 3
+			count: 2
 			path: src/Keboola/StorageApi/Metadata.php
 
 		-
@@ -12289,3 +12274,4 @@ parameters:
 			message: "#^Parameter \\#1 \\$filename of function file_get_contents expects string, string\\|false given\\.$#"
 			count: 1
 			path: tests/bootstrap.php
+

@@ -239,6 +239,121 @@ class MetadataTest extends StorageApiTestCase
         $this->assertEquals($table['bucket']['metadata'][0]['value'], $md['value']);
     }
 
+    /**
+     * @return void
+     */
+    public function testTableMetadataWithColumns()
+    {
+        $tableId = $this->getTestBucketId() . '.table';
+        $column1 = 'id';
+        $column2 = 'name';
+        $metadataApi = new Metadata($this->_client);
+
+        $md = [
+            'key' => self::TEST_METADATA_KEY_1,
+            'value' => 'testval',
+        ];
+        $md2 = [
+            'key' => self::TEST_METADATA_KEY_2,
+            'value' => 'testval',
+        ];
+        $testMetadata = [
+            $md,
+            $md2,
+        ];
+        $testColumnsMetadata = [
+            $column1 => [
+                $md,
+                $md2,
+            ],
+            $column2 => [
+                $md,
+            ],
+        ];
+
+        $provider = self::TEST_PROVIDER;
+
+        // post metadata
+        /** @var array $metadatas */
+        $metadatas = $metadataApi->postTableMetadataWithColumns($tableId, $provider, $testMetadata, $testColumnsMetadata);
+
+        $this->assertEquals(2, count($metadatas));
+        $this->assertArrayHasKey("metadata", $metadatas);
+        $this->assertArrayHasKey("columnsMetadata", $metadatas);
+        // check table metadata
+        $metadata = $metadatas['metadata'];
+        $this->assertEquals(2, count($metadata));
+        $this->assertArrayHasKey("key", $metadata[0]);
+        $this->assertArrayHasKey("value", $metadata[0]);
+        $this->assertArrayHasKey("provider", $metadata[0]);
+        $this->assertArrayHasKey("timestamp", $metadata[0]);
+        $this->assertRegExp(self::ISO8601_REGEXP, $metadata[0]['timestamp']);
+        $this->assertEquals(self::TEST_PROVIDER, $metadata[0]['provider']);
+        // check columns metadata
+        $columns = $metadatas['columnsMetadata'];
+        $this->assertEquals(2, count($columns));
+        $this->assertArrayHasKey($column1, $columns);
+        $this->assertArrayHasKey($column2, $columns);
+        // check column 1
+        $metadata = $metadatas['columnsMetadata'][$column1];
+        $this->assertEquals(2, count($metadata));
+        $this->assertArrayHasKey("key", $metadata[0]);
+        $this->assertArrayHasKey("value", $metadata[0]);
+        $this->assertArrayHasKey("provider", $metadata[0]);
+        $this->assertArrayHasKey("timestamp", $metadata[0]);
+        $this->assertRegExp(self::ISO8601_REGEXP, $metadata[0]['timestamp']);
+        $this->assertEquals(self::TEST_PROVIDER, $metadata[0]['provider']);
+        $this->assertArrayHasKey("key", $metadata[1]);
+        $this->assertArrayHasKey("value", $metadata[1]);
+        $this->assertArrayHasKey("provider", $metadata[1]);
+        $this->assertArrayHasKey("timestamp", $metadata[1]);
+        $this->assertRegExp(self::ISO8601_REGEXP, $metadata[1]['timestamp']);
+        $this->assertEquals(self::TEST_PROVIDER, $metadata[1]['provider']);
+        // check column 2
+        $metadata = $metadatas['columnsMetadata'][$column2];
+        $this->assertEquals(1, count($metadata));
+        $this->assertArrayHasKey("key", $metadata[0]);
+        $this->assertArrayHasKey("value", $metadata[0]);
+        $this->assertArrayHasKey("provider", $metadata[0]);
+        $this->assertArrayHasKey("timestamp", $metadata[0]);
+        $this->assertRegExp(self::ISO8601_REGEXP, $metadata[0]['timestamp']);
+        $this->assertEquals(self::TEST_PROVIDER, $metadata[0]['provider']);
+
+        // copy metadata
+        $mdCopy = [];
+        $mdCopy['key'] = $metadatas['metadata'][0]['key'];
+        $mdCopy['value'] = "newValue";
+
+        // copy column metadata
+        $mdColumnCopy = [];
+        $mdColumnCopy['key'] = $metadatas['columnsMetadata'][$column1][0]['key'];
+        $mdColumnCopy['value'] = "newValue";
+
+        // post copied metadata
+        /** @var array $newMetadatas */
+        $newMetadatas = $metadataApi->postTableMetadataWithColumns($tableId, $provider, [$mdCopy], [$column1 => [$mdColumnCopy]]);
+
+        // check table metadata
+        foreach ($newMetadatas['metadata'] as $metadata) {
+            if ($metadata['id'] == $metadatas['metadata'][0]['id']) {
+                $this->assertEquals("newValue", $metadata['value']);
+                $this->assertGreaterThanOrEqual(strtotime($metadatas['metadata'][0]['timestamp']), strtotime($metadata['timestamp']));
+            } else {
+                $this->assertEquals("testval", $metadata['value']);
+            }
+        }
+        // check columns metadata
+        foreach ($newMetadatas['columnsMetadata'] as $columnName => $columnMetadatas) {
+            foreach ($columnMetadatas as $metadata) {
+                if ($metadata['id'] == $metadatas['columnsMetadata'][$column1][0]['id']) {
+                    $this->assertEquals("newValue", $metadata['value']);
+                    $this->assertGreaterThanOrEqual(strtotime($metadatas['columnsMetadata'][$column1][0]['timestamp']), strtotime($metadata['timestamp']));
+                } else {
+                    $this->assertEquals("testval", $metadata['value']);
+                }
+            }
+        }
+    }
 
     public function testTableMetadataForTokenWithReadPrivilege()
     {
