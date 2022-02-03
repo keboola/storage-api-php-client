@@ -4817,44 +4817,6 @@ Deletes the specified metadata item from the bucket.
 ## Table Metadata [/v2/storage/tables/{table_id}/metadata]
 
 ### Create or Update [POST]
-Sets multiple metadata with one call. If the given key and provider combination already exist
-for the table, the data will be updated with the new value and timestamp. All metadata associated
-with the table are returned to the response.
-
-+ Parameters
-    + table_id (required) - Id of the table
-
-+ Attributes
-    + provider (required) - Id of the creating [component](#reference/miscellaneous/api-index/component-list).
-    + metadata (required, array) - Array of metadata objects
-        + (object)
-            + key (required)
-            + value (required)
-
-+ Request (application/x-www-form-urlencoded)
-    + Headers
-
-            X-StorageApi-Token: your_token
-
-    + Body
-
-            provider=test-component&metadata%5B0%5D%5Bkey%5D=some-key&metadata%5B0%5D%5Bvalue%5D=Some+value
-
-
-+ Response 201 (application/json)
-    + Body
-
-            [
-                {
-                    "id": "19509",
-                    "key": "some-key",
-                    "value": "Some value",
-                    "provider": "test-component",
-                    "timestamp": "2017-02-13 23:36:10"
-                }
-            ]
-
-### Create or Update with Columns [POST /v2/storage/tables/{table_id}/metadata]
 Sets multiple metadata for table and columns with one call. If the given key and provider combination already exist
 for the table, the data will be updated with the new value and timestamp. All metadata associated
 with the table and columns are returned to the response.
@@ -4868,7 +4830,7 @@ with the table and columns are returned to the response.
         + (object)
             + key (required)
             + value (required)
-    + columnsMetadata (required) - Object of columns with column names as key (`"id"`)
+    + columnsMetadata (optional) - Object of columns with column names as key (`"id"`)
         + `<columnName>` (required, array) - Array of metadata objects
             + (object)
                 + key (required)
@@ -4924,6 +4886,44 @@ with the table and columns are returned to the response.
                 ]
               }
             }
+
+### Create or Update (deprecated) [POST /v2/storage/tables/{table_id}/metadata]
+Sets multiple metadata with one call. If the given key and provider combination already exist
+for the table, the data will be updated with the new value and timestamp. All metadata associated
+with the table are returned to the response.
+
++ Parameters
+    + table_id (required) - Id of the table
+
++ Attributes
+    + provider (required) - Id of the creating [component](#reference/miscellaneous/api-index/component-list).
+    + metadata (required, array) - Array of metadata objects
+        + (object)
+            + key (required)
+            + value (required)
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            provider=test-component&metadata%5B0%5D%5Bkey%5D=some-key&metadata%5B0%5D%5Bvalue%5D=Some+value
+
+
++ Response 201 (application/json)
+    + Body
+
+            [
+                {
+                    "id": "19509",
+                    "key": "some-key",
+                    "value": "Some value",
+                    "provider": "test-component",
+                    "timestamp": "2017-02-13 23:36:10"
+                }
+            ]
 
 ### List [GET]
 Shows all metadata associated with the specified table.
