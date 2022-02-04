@@ -3,6 +3,7 @@
 namespace Keboola\Test\Common;
 
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Options\Metadata\TableMetadataUpdateOptions;
 use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\Test\StorageApiTestCase;
@@ -273,9 +274,8 @@ class MetadataTest extends StorageApiTestCase
 
         $provider = self::TEST_PROVIDER;
 
-        // post metadata
-        /** @var array $metadatas */
-        $metadatas = $metadataApi->postTableMetadataWithColumns($tableId, $provider, $testMetadata, $testColumnsMetadata);
+        $options = new TableMetadataUpdateOptions($tableId, $provider, $testMetadata, $testColumnsMetadata);
+        $metadatas = $metadataApi->postTableMetadata($options);
 
         $this->assertEquals(2, count($metadatas));
         $this->assertArrayHasKey("metadata", $metadatas);
@@ -330,8 +330,9 @@ class MetadataTest extends StorageApiTestCase
         $mdColumnCopy['value'] = "newValue";
 
         // post copied metadata
-        /** @var array $newMetadatas */
-        $newMetadatas = $metadataApi->postTableMetadataWithColumns($tableId, $provider, [$mdCopy], [$column1 => [$mdColumnCopy]]);
+        $options = new TableMetadataUpdateOptions($tableId, $provider, [$mdCopy], [$column1 => [$mdColumnCopy]]);
+        $newMetadatas = $metadataApi->postTableMetadata($options);
+
 
         // check table metadata
         foreach ($newMetadatas['metadata'] as $metadata) {

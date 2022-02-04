@@ -2,6 +2,11 @@
 
 namespace Keboola\StorageApi;
 
+use Keboola\StorageApi\Options\Metadata\TableMetadataUpdateOptions;
+
+/**
+ * @method array postTableMetadata(TableMetadataUpdateOptions|string $bucketId, string $provider=null, array $metadata=null)
+ */
 class Metadata
 {
     const PROVIDER_SYSTEM = 'system';
@@ -101,7 +106,7 @@ class Metadata
      * @return mixed|string
      * @throws ClientException
      */
-    public function postTableMetadata($tableId, $provider, $metadata)
+    private function legacyPostTableMetadata($tableId, $provider, $metadata)
     {
         if (!is_array($metadata) || count($metadata) === 0) {
             throw new ClientException("Third argument must be a non-empty array of Metadata objects");
@@ -113,26 +118,12 @@ class Metadata
     }
 
     /**
-     * @param string $tableId
-     * @param string $provider
-     * @param array $metadata [['key' => 'some-key', 'value' => 'Some value'], ...]
-     * @param array $columnsMetadata ['columnName1' => [['key' => 'some-key', 'value' => 'Some value'], ...], ...]
      * @return mixed|string
      * @throws ClientException
      */
-    public function postTableMetadataWithColumns($tableId, $provider, $metadata, $columnsMetadata)
+    private function jsonPostTableMetadata(TableMetadataUpdateOptions $options)
     {
-        if (!is_array($metadata) || count($metadata) === 0) {
-            throw new ClientException("Third argument must be a non-empty array of Metadata objects");
-        }
-        if (!is_array($columnsMetadata) || count($columnsMetadata) === 0) {
-            throw new ClientException("Fourth argument must be a non-empty array of Metadata objects with columns names as keys");
-        }
-        return $this->client->apiPostJson("tables/{$tableId}/metadata", array(
-            "provider" => $provider,
-            "metadata" => $metadata,
-            "columnsMetadata" => $columnsMetadata,
-        ));
+        return $this->client->apiPostJson("tables/{$options->getTableId()}/metadata", $options->toParamsArray());
     }
 
     /**
@@ -151,5 +142,23 @@ class Metadata
             "provider" => $provider,
             "metadata" => $metadata
         ));
+    }
+
+    /**
+     * @param string $method
+     * @param array $args
+     * @return false|mixed
+     */
+    public function __call($method, $args)
+    {
+        if ($method === 'postTableMetadata') {
+            if (count($args) === 1) {
+                $method = 'legacyPostTableMetadata';
+            } else {
+                $method = 'jsonPostTableMetadata';
+            }
+        }
+
+        return $this->$method($args);
     }
 }
