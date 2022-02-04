@@ -2,6 +2,8 @@
 
 namespace Keboola\StorageApi;
 
+use Keboola\StorageApi\Options\Metadata\TableMetadataUpdateOptions;
+
 class Metadata
 {
     const PROVIDER_SYSTEM = 'system';
@@ -99,7 +101,7 @@ class Metadata
      *
      * @param string $tableId
      * @param string $provider
-     * @param array $metadata [['key' => 'some-key', 'value' => 'Some value'], ...]
+     * @param array<int, array{key: string, value: string}> $metadata
      * @return mixed|string
      * @throws ClientException
      */
@@ -115,26 +117,11 @@ class Metadata
     }
 
     /**
-     * @param string $tableId
-     * @param string $provider
-     * @param array $metadata [['key' => 'some-key', 'value' => 'Some value'], ...]
-     * @param array $columnsMetadata ['columnName1' => [['key' => 'some-key', 'value' => 'Some value'], ...], ...]
      * @return mixed|string
-     * @throws ClientException
      */
-    public function postTableMetadataWithColumns($tableId, $provider, $metadata, $columnsMetadata)
+    public function postTableMetadataWithColumns(TableMetadataUpdateOptions $options)
     {
-        if (!is_array($metadata) || count($metadata) === 0) {
-            throw new ClientException("Third argument must be a non-empty array of Metadata objects");
-        }
-        if (!is_array($columnsMetadata) || count($columnsMetadata) === 0) {
-            throw new ClientException("Fourth argument must be a non-empty array of Metadata objects with columns names as keys");
-        }
-        return $this->client->apiPostJson("tables/{$tableId}/metadata", array(
-            "provider" => $provider,
-            "metadata" => $metadata,
-            "columnsMetadata" => $columnsMetadata,
-        ));
+        return $this->client->apiPostJson("tables/{$options->getTableId()}/metadata", $options->toParamsArray());
     }
 
     /**
