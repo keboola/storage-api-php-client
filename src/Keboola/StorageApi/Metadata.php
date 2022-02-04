@@ -95,9 +95,11 @@ class Metadata
     }
 
     /**
+     * @deprecated use self::postTableMetadataWithColumns() instead - beware of a bit different format of response!
+     *
      * @param string $tableId
      * @param string $provider
-     * @param array $metadata
+     * @param array $metadata [['key' => 'some-key', 'value' => 'Some value'], ...]
      * @return mixed|string
      * @throws ClientException
      */
