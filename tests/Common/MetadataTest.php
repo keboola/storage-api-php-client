@@ -127,7 +127,7 @@ class MetadataTest extends StorageApiTestCase
         );
         $this->assertSame($metadata[0]['value'], 'testValue');
 
-        $columnId = $this->getTestBucketId() . '.table.id';
+        $columnId = $this->getMetadataTestColumnId('table', 'id');
         $metadataApi = new Metadata($this->_client);
 
         $testMetadata = [
@@ -175,7 +175,7 @@ class MetadataTest extends StorageApiTestCase
 
     public function testTableMetadata()
     {
-        $tableId = $this->getTestBucketId() . '.table';
+        $tableId = $this->getMetadataTestTableId('table');
         $metadataApi = new Metadata($this->_client);
 
         $md = [
@@ -244,7 +244,7 @@ class MetadataTest extends StorageApiTestCase
      */
     public function testTableMetadataWithColumns()
     {
-        $tableId = $this->getTestBucketId() . '.table';
+        $tableId = $this->getMetadataTestTableId('table');
         $column1 = 'id';
         $column2 = 'name';
         $metadataApi = new Metadata($this->_client);
@@ -360,7 +360,7 @@ class MetadataTest extends StorageApiTestCase
         $testMetadataValue = 'testval';
 
         $bucketId = $this->getTestBucketId();
-        $tableId = $this->getTestBucketId() . '.table';
+        $tableId = $this->getMetadataTestTableId('table');
         $metadataApi = new Metadata($this->_client);
 
         $provider = self::TEST_PROVIDER;
@@ -449,8 +449,8 @@ class MetadataTest extends StorageApiTestCase
 
     public function testTableDeleteWithMetadata()
     {
-        $tableId = $this->getTestBucketId() . '.table';
-        $columnId = $this->getTestBucketId() . '.table.sex';
+        $tableId = $this->getMetadataTestTableId('table');
+        $columnId = $this->getMetadataTestColumnId('table', 'sex');
         $metadataApi = new Metadata($this->_client);
 
         $md = [
@@ -490,7 +490,7 @@ class MetadataTest extends StorageApiTestCase
 
     public function testColumnMetadata()
     {
-        $columnId = $this->getTestBucketId() . '.table.id';
+        $columnId = $this->getMetadataTestColumnId('table', 'id');
         $metadataApi = new Metadata($this->_client);
 
         $md = [
@@ -545,12 +545,12 @@ class MetadataTest extends StorageApiTestCase
         // create alias of alias
         $this->_client->createAliasTable(
             $this->getTestBucketId(),
-            $this->getTestBucketId() . '.table',
+            $this->getMetadataTestTableId('table'),
             'tableAlias'
         );
         $this->_client->createAliasTable(
             $this->getTestBucketId(),
-            $this->getTestBucketId() . '.tableAlias',
+            $this->getMetadataTestTableId('tableAlias'),
             'tableAliasAlias'
         );
 
@@ -558,7 +558,7 @@ class MetadataTest extends StorageApiTestCase
         $tables = $this->_client->listTables(null, ['include' => 'columnMetadata']);
         // call return all tables, filter the alias of alias one
 
-        $aliasAliasTableId = $this->getTestBucketId() . '.tableAliasAlias';
+        $aliasAliasTableId = $this->getMetadataTestTableId('tableAliasAlias');
         $tables = array_values(array_filter($tables, function ($table) use ($aliasAliasTableId) {
             return $table['id'] === $aliasAliasTableId;
         }));
@@ -592,7 +592,7 @@ class MetadataTest extends StorageApiTestCase
         $testMetadataValue = 'testval';
 
         $bucketId = $this->getTestBucketId();
-        $columnId = $bucketId . '.table.id';
+        $columnId = $this->getMetadataTestColumnId('table', 'id');
         $metadataApi = new Metadata($this->_client);
 
         $provider = self::TEST_PROVIDER;
@@ -681,8 +681,8 @@ class MetadataTest extends StorageApiTestCase
 
     public function testTableColumnDeleteWithMetadata()
     {
-        $tableId = $this->getTestBucketId() . '.table';
-        $columnId = $this->getTestBucketId() . '.table.sex';
+        $tableId = $this->getMetadataTestTableId('table');
+        $columnId = $this->getMetadataTestColumnId('table', 'sex');
         $metadataApi = new Metadata($this->_client);
 
         $md = [
@@ -949,7 +949,7 @@ class MetadataTest extends StorageApiTestCase
             'value' => 'magic-frog'
         ];
 
-        $tableId = $this->getTestBucketId() . '.table';
+        $tableId = $this->getMetadataTestTableId('table');
         $createdMetadata = $medataApi->postTableMetadata($tableId, 'provider', [$md]);
 
         $this->expectException(ClientException::class);
@@ -1103,5 +1103,24 @@ class MetadataTest extends StorageApiTestCase
 
         $token = $this->tokens->createToken($options);
         return $token['token'];
+    }
+
+    /**
+     * @param string $tableId
+     * @return string
+     */
+    private function getMetadataTestTableId($tableId)
+    {
+        return sprintf('%s.%s', $this->getTestBucketId(), $tableId);
+    }
+
+    /**
+     * @param string $tableId
+     * @param string $columnId
+     * @return string
+     */
+    private function getMetadataTestColumnId($tableId, $columnId)
+    {
+        return sprintf('%s.%s.%s', $this->getTestBucketId(), $tableId, $columnId);
     }
 }
