@@ -900,7 +900,6 @@ class MetadataTest extends StorageApiTestCase
     public function testInvalidProvider()
     {
         $metadataApi = new Metadata($this->_client);
-        $this->getTestBucketId() . '.table';
         $md = [
             "key" => "validKey",
             "value" => "testval",
