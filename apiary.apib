@@ -4821,12 +4821,14 @@ Sets multiple metadata for table and columns with one call. If the given key and
 for the table, the data will be updated with the new value and timestamp. All metadata associated
 with the table and columns are returned to the response.
 
+At least one of the `metadata` or `columnsMetadata` object is required.
+
 + Parameters
     + table_id (required) - Id of the table
 
 + Attributes
     + provider (required) - Id of the creating [component](#reference/miscellaneous/api-index/component-list).
-    + metadata (required, array) - Array of metadata objects
+    + metadata (optional, array) - Array of metadata objects
         + (object)
             + key (required)
             + value (required)

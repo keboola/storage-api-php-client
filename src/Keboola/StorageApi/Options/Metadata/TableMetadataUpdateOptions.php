@@ -12,30 +12,33 @@ class TableMetadataUpdateOptions
     /** @var string */
     private $provider;
 
-    /** @var array[] */
+    /** @var array<int, array{key: string, value: string}> */
     private $tableMetadata;
 
-    /** @var array[] */
+    /** @var array<string, array<int, array{key: string, value: string}>> */
     private $columnsMetadata;
 
     /**
      * @param string $tableId
      * @param string $provider
-     * @param array<int, array{key: string, value: string}> $tableMetadata
-     * @param array<string, array<int, array{key: string, value: string}>> $columnsMetadata
+     * @param array<int, array{key: string, value: string}>|null $tableMetadata
+     * @param array<string, array<int, array{key: string, value: string}>>|null $columnsMetadata
      */
-    public function __construct($tableId, $provider, array $tableMetadata, array $columnsMetadata)
+    public function __construct($tableId, $provider, $tableMetadata = null, $columnsMetadata = null)
     {
-        if (count($tableMetadata) === 0) {
+        if ($tableMetadata !== null && count($tableMetadata) === 0) {
             throw new ClientException("Third argument must be a non-empty array of Metadata objects");
         }
-        if (count($columnsMetadata) === 0) {
+        if ($columnsMetadata !== null && count($columnsMetadata) === 0) {
             throw new ClientException("Fourth argument must be a non-empty array of Metadata objects with columns names as keys");
+        }
+        if (!$tableMetadata && !$columnsMetadata) {
+            throw new ClientException("At least one of the third or fourth argument is required");
         }
         $this->tableId = $tableId;
         $this->provider = $provider;
-        $this->tableMetadata = $tableMetadata;
-        $this->columnsMetadata = $columnsMetadata;
+        $this->tableMetadata = $tableMetadata ?: [];
+        $this->columnsMetadata = $columnsMetadata ?: [];
     }
 
     /**
@@ -49,10 +52,15 @@ class TableMetadataUpdateOptions
     /** @return array */
     public function toParamsArray()
     {
-        return [
-            "provider" => $this->provider,
-            "metadata" => $this->tableMetadata,
-            "columnsMetadata" => $this->columnsMetadata,
+        $data = [
+            'provider' => $this->provider,
         ];
+        if ($this->tableMetadata) {
+            $data['metadata'] = $this->tableMetadata;
+        }
+        if ($this->columnsMetadata) {
+            $data['columnsMetadata'] = $this->columnsMetadata;
+        }
+        return $data;
     }
 }
