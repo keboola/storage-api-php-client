@@ -3,6 +3,7 @@
 namespace Keboola\Test\Common;
 
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Options\Metadata\TableMetadataUpdateOptions;
 use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\Test\StorageApiTestCase;
@@ -127,7 +128,7 @@ class MetadataTest extends StorageApiTestCase
         );
         $this->assertSame($metadata[0]['value'], 'testValue');
 
-        $columnId = $this->getTestBucketId() . '.table.id';
+        $columnId = $this->getMetadataTestColumnId('table', 'id');
         $metadataApi = new Metadata($this->_client);
 
         $testMetadata = [
@@ -175,7 +176,7 @@ class MetadataTest extends StorageApiTestCase
 
     public function testTableMetadata()
     {
-        $tableId = $this->getTestBucketId() . '.table';
+        $tableId = $this->getMetadataTestTableId('table');
         $metadataApi = new Metadata($this->_client);
 
         $md = [
@@ -239,13 +240,130 @@ class MetadataTest extends StorageApiTestCase
         $this->assertEquals($table['bucket']['metadata'][0]['value'], $md['value']);
     }
 
+    /**
+     * @return void
+     */
+    public function testTableMetadataWithColumns()
+    {
+        $tableId = $this->getMetadataTestTableId('table');
+        $column1 = 'id';
+        $column2 = 'name';
+        $metadataApi = new Metadata($this->_client);
+
+        $md = [
+            'key' => self::TEST_METADATA_KEY_1,
+            'value' => 'testval',
+        ];
+        $md2 = [
+            'key' => self::TEST_METADATA_KEY_2,
+            'value' => 'testval',
+        ];
+        $testMetadata = [
+            $md,
+            $md2,
+        ];
+        $testColumnsMetadata = [
+            $column1 => [
+                $md,
+                $md2,
+            ],
+            $column2 => [
+                $md,
+            ],
+        ];
+
+        $provider = self::TEST_PROVIDER;
+
+        // post metadata
+        $options = new TableMetadataUpdateOptions($tableId, $provider, $testMetadata, $testColumnsMetadata);
+        /** @var array $metadatas */
+        $metadatas = $metadataApi->postTableMetadataWithColumns($options);
+
+        $this->assertEquals(2, count($metadatas));
+        $this->assertArrayHasKey("metadata", $metadatas);
+        $this->assertArrayHasKey("columnsMetadata", $metadatas);
+        // check table metadata
+        $metadata = $metadatas['metadata'];
+        $this->assertEquals(2, count($metadata));
+        $this->assertArrayHasKey("key", $metadata[0]);
+        $this->assertArrayHasKey("value", $metadata[0]);
+        $this->assertArrayHasKey("provider", $metadata[0]);
+        $this->assertArrayHasKey("timestamp", $metadata[0]);
+        $this->assertRegExp(self::ISO8601_REGEXP, $metadata[0]['timestamp']);
+        $this->assertEquals(self::TEST_PROVIDER, $metadata[0]['provider']);
+        // check columns metadata
+        $columns = $metadatas['columnsMetadata'];
+        $this->assertEquals(2, count($columns));
+        $this->assertArrayHasKey($column1, $columns);
+        $this->assertArrayHasKey($column2, $columns);
+        // check column 1
+        $metadata = $metadatas['columnsMetadata'][$column1];
+        $this->assertEquals(2, count($metadata));
+        $this->assertArrayHasKey("key", $metadata[0]);
+        $this->assertArrayHasKey("value", $metadata[0]);
+        $this->assertArrayHasKey("provider", $metadata[0]);
+        $this->assertArrayHasKey("timestamp", $metadata[0]);
+        $this->assertRegExp(self::ISO8601_REGEXP, $metadata[0]['timestamp']);
+        $this->assertEquals(self::TEST_PROVIDER, $metadata[0]['provider']);
+        $this->assertArrayHasKey("key", $metadata[1]);
+        $this->assertArrayHasKey("value", $metadata[1]);
+        $this->assertArrayHasKey("provider", $metadata[1]);
+        $this->assertArrayHasKey("timestamp", $metadata[1]);
+        $this->assertRegExp(self::ISO8601_REGEXP, $metadata[1]['timestamp']);
+        $this->assertEquals(self::TEST_PROVIDER, $metadata[1]['provider']);
+        // check column 2
+        $metadata = $metadatas['columnsMetadata'][$column2];
+        $this->assertEquals(1, count($metadata));
+        $this->assertArrayHasKey("key", $metadata[0]);
+        $this->assertArrayHasKey("value", $metadata[0]);
+        $this->assertArrayHasKey("provider", $metadata[0]);
+        $this->assertArrayHasKey("timestamp", $metadata[0]);
+        $this->assertRegExp(self::ISO8601_REGEXP, $metadata[0]['timestamp']);
+        $this->assertEquals(self::TEST_PROVIDER, $metadata[0]['provider']);
+
+        // copy metadata
+        $mdCopy = [];
+        $mdCopy['key'] = $metadatas['metadata'][0]['key'];
+        $mdCopy['value'] = "newValue";
+
+        // copy column metadata
+        $mdColumnCopy = [];
+        $mdColumnCopy['key'] = $metadatas['columnsMetadata'][$column1][0]['key'];
+        $mdColumnCopy['value'] = "newValue";
+
+        // post copied metadata
+        $options = new TableMetadataUpdateOptions($tableId, $provider, [$mdCopy], [$column1 => [$mdColumnCopy]]);
+        /** @var array $newMetadatas */
+        $newMetadatas = $metadataApi->postTableMetadataWithColumns($options);
+
+        // check table metadata
+        foreach ($newMetadatas['metadata'] as $metadata) {
+            if ($metadata['id'] == $metadatas['metadata'][0]['id']) {
+                $this->assertEquals("newValue", $metadata['value']);
+                $this->assertGreaterThanOrEqual(strtotime($metadatas['metadata'][0]['timestamp']), strtotime($metadata['timestamp']));
+            } else {
+                $this->assertEquals("testval", $metadata['value']);
+            }
+        }
+        // check columns metadata
+        foreach ($newMetadatas['columnsMetadata'] as $columnName => $columnMetadatas) {
+            foreach ($columnMetadatas as $metadata) {
+                if ($metadata['id'] == $metadatas['columnsMetadata'][$column1][0]['id']) {
+                    $this->assertEquals("newValue", $metadata['value']);
+                    $this->assertGreaterThanOrEqual(strtotime($metadatas['columnsMetadata'][$column1][0]['timestamp']), strtotime($metadata['timestamp']));
+                } else {
+                    $this->assertEquals("testval", $metadata['value']);
+                }
+            }
+        }
+    }
 
     public function testTableMetadataForTokenWithReadPrivilege()
     {
         $testMetadataValue = 'testval';
 
         $bucketId = $this->getTestBucketId();
-        $tableId = $this->getTestBucketId() . '.table';
+        $tableId = $this->getMetadataTestTableId('table');
         $metadataApi = new Metadata($this->_client);
 
         $provider = self::TEST_PROVIDER;
@@ -334,8 +452,8 @@ class MetadataTest extends StorageApiTestCase
 
     public function testTableDeleteWithMetadata()
     {
-        $tableId = $this->getTestBucketId() . '.table';
-        $columnId = $this->getTestBucketId() . '.table.sex';
+        $tableId = $this->getMetadataTestTableId('table');
+        $columnId = $this->getMetadataTestColumnId('table', 'sex');
         $metadataApi = new Metadata($this->_client);
 
         $md = [
@@ -375,7 +493,7 @@ class MetadataTest extends StorageApiTestCase
 
     public function testColumnMetadata()
     {
-        $columnId = $this->getTestBucketId() . '.table.id';
+        $columnId = $this->getMetadataTestColumnId('table', 'id');
         $metadataApi = new Metadata($this->_client);
 
         $md = [
@@ -430,12 +548,12 @@ class MetadataTest extends StorageApiTestCase
         // create alias of alias
         $this->_client->createAliasTable(
             $this->getTestBucketId(),
-            $this->getTestBucketId() . '.table',
+            $this->getMetadataTestTableId('table'),
             'tableAlias'
         );
         $this->_client->createAliasTable(
             $this->getTestBucketId(),
-            $this->getTestBucketId() . '.tableAlias',
+            $this->getMetadataTestTableId('tableAlias'),
             'tableAliasAlias'
         );
 
@@ -443,7 +561,7 @@ class MetadataTest extends StorageApiTestCase
         $tables = $this->_client->listTables(null, ['include' => 'columnMetadata']);
         // call return all tables, filter the alias of alias one
 
-        $aliasAliasTableId = $this->getTestBucketId() . '.tableAliasAlias';
+        $aliasAliasTableId = $this->getMetadataTestTableId('tableAliasAlias');
         $tables = array_values(array_filter($tables, function ($table) use ($aliasAliasTableId) {
             return $table['id'] === $aliasAliasTableId;
         }));
@@ -477,7 +595,7 @@ class MetadataTest extends StorageApiTestCase
         $testMetadataValue = 'testval';
 
         $bucketId = $this->getTestBucketId();
-        $columnId = $bucketId . '.table.id';
+        $columnId = $this->getMetadataTestColumnId('table', 'id');
         $metadataApi = new Metadata($this->_client);
 
         $provider = self::TEST_PROVIDER;
@@ -566,8 +684,8 @@ class MetadataTest extends StorageApiTestCase
 
     public function testTableColumnDeleteWithMetadata()
     {
-        $tableId = $this->getTestBucketId() . '.table';
-        $columnId = $this->getTestBucketId() . '.table.sex';
+        $tableId = $this->getMetadataTestTableId('table');
+        $columnId = $this->getMetadataTestColumnId('table', 'sex');
         $metadataApi = new Metadata($this->_client);
 
         $md = [
@@ -785,7 +903,6 @@ class MetadataTest extends StorageApiTestCase
     public function testInvalidProvider()
     {
         $metadataApi = new Metadata($this->_client);
-        $this->getTestBucketId() . '.table';
         $md = [
             "key" => "validKey",
             "value" => "testval",
@@ -834,7 +951,7 @@ class MetadataTest extends StorageApiTestCase
             'value' => 'magic-frog'
         ];
 
-        $tableId = $this->getTestBucketId() . '.table';
+        $tableId = $this->getMetadataTestTableId('table');
         $createdMetadata = $medataApi->postTableMetadata($tableId, 'provider', [$md]);
 
         $this->expectException(ClientException::class);
@@ -988,5 +1105,24 @@ class MetadataTest extends StorageApiTestCase
 
         $token = $this->tokens->createToken($options);
         return $token['token'];
+    }
+
+    /**
+     * @param string $tableId
+     * @return string
+     */
+    private function getMetadataTestTableId($tableId)
+    {
+        return sprintf('%s.%s', $this->getTestBucketId(), $tableId);
+    }
+
+    /**
+     * @param string $tableId
+     * @param string $columnId
+     * @return string
+     */
+    private function getMetadataTestColumnId($tableId, $columnId)
+    {
+        return sprintf('%s.%s.%s', $this->getTestBucketId(), $tableId, $columnId);
     }
 }
