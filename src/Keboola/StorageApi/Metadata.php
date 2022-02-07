@@ -2,6 +2,8 @@
 
 namespace Keboola\StorageApi;
 
+use Keboola\StorageApi\Options\Metadata\TableMetadataUpdateOptions;
+
 class Metadata
 {
     const PROVIDER_SYSTEM = 'system';
@@ -95,9 +97,11 @@ class Metadata
     }
 
     /**
-     * @param $tableId
-     * @param $provider
-     * @param array $metadata
+     * @deprecated use self::postTableMetadataWithColumns() instead - beware of a bit different format of response!
+     *
+     * @param string $tableId
+     * @param string $provider
+     * @param array<int, array{key: string, value: string}> $metadata
      * @return mixed|string
      * @throws ClientException
      */
@@ -110,6 +114,14 @@ class Metadata
             "provider" => $provider,
             "metadata" => $metadata
         ));
+    }
+
+    /**
+     * @return mixed|string
+     */
+    public function postTableMetadataWithColumns(TableMetadataUpdateOptions $options)
+    {
+        return $this->client->apiPostJson("tables/{$options->getTableId()}/metadata", $options->toParamsArray());
     }
 
     /**
