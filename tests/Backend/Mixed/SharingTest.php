@@ -633,6 +633,11 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertSharedTable($sharedTableAlias, $expectedTableAliasName);
     }
 
+    /**
+     * @param array $sharedTable
+     * @param string $tableName
+     * @return void
+     */
     private function assertSharedTable($sharedTable, $tableName)
     {
         $this->assertArrayHasKey('id', $sharedTable);
