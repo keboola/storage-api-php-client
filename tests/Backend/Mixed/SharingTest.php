@@ -525,11 +525,31 @@ class SharingTest extends StorageApiSharingTestCase
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
 
-        $tableName = 'numbers';
+        $expectedTableName = 'numbers';
         $tableId = $this->_client->createTable(
             $bucketId,
-            $tableName,
+            $expectedTableName,
             new CsvFile(__DIR__ . '/../../_data/numbers.csv')
+        );
+
+        $expectedTableAliasName = 'numbers_alias';
+        $aliasTableId = $this->_client->createAliasTable(
+            $bucketId,
+            $tableId,
+            $expectedTableAliasName
+        );
+
+        $this->_client->createAliasTable(
+            $bucketId,
+            $tableId,
+            'numbers_filtered_alias',
+            [
+                'aliasFilter' => [
+                    'column' => '0',
+                    'values' => ['PRG'],
+                    'operator' => 'eq',
+                ],
+            ]
         );
 
         // ensure that sharing data is not output for unshared bucket
@@ -552,60 +572,83 @@ class SharingTest extends StorageApiSharingTestCase
         $response = $this->_client2->listSharedBuckets();
         $this->assertCount(1, $response);
 
-        foreach ($response as $sharedBucket) {
-            $this->assertArrayHasKey('id', $sharedBucket);
-            $this->assertArrayHasKey('description', $sharedBucket);
-            $this->assertArrayHasKey('project', $sharedBucket);
-            $this->assertArrayHasKey('tables', $sharedBucket);
-            $this->assertArrayHasKey('created', $sharedBucket);
-            $this->assertArrayHasKey('lastChangeDate', $sharedBucket);
-            $this->assertArrayHasKey('dataSizeBytes', $sharedBucket);
-            $this->assertArrayHasKey('rowsCount', $sharedBucket);
-            $this->assertArrayHasKey('backend', $sharedBucket);
+        $sharedBucket = $response[0];
+        $this->assertArrayHasKey('id', $sharedBucket);
+        $this->assertArrayHasKey('description', $sharedBucket);
+        $this->assertArrayHasKey('project', $sharedBucket);
+        $this->assertArrayHasKey('tables', $sharedBucket);
+        $this->assertArrayHasKey('created', $sharedBucket);
+        $this->assertArrayHasKey('lastChangeDate', $sharedBucket);
+        $this->assertArrayHasKey('dataSizeBytes', $sharedBucket);
+        $this->assertArrayHasKey('rowsCount', $sharedBucket);
+        $this->assertArrayHasKey('backend', $sharedBucket);
 
-            $this->assertArrayHasKey('id', $sharedBucket['project']);
-            $this->assertArrayHasKey('name', $sharedBucket['project']);
+        $this->assertArrayHasKey('id', $sharedBucket['project']);
+        $this->assertArrayHasKey('name', $sharedBucket['project']);
 
-            $this->assertEquals($sharedBucket['project']['id'], $project['id']);
-            $this->assertEquals($sharedBucket['project']['name'], $project['name']);
+        $this->assertEquals($sharedBucket['project']['id'], $project['id']);
+        $this->assertEquals($sharedBucket['project']['name'], $project['name']);
 
-            $this->assertArrayHasKey('sharingParameters', $sharedBucket);
-            $this->assertSame([], $sharedBucket['sharingParameters']);
+        $this->assertArrayHasKey('sharingParameters', $sharedBucket);
+        $this->assertSame([], $sharedBucket['sharingParameters']);
 
-            $this->assertArrayHasKey('id', $sharedBucket['sharedBy']);
-            $this->assertArrayHasKey('name', $sharedBucket['sharedBy']);
+        $this->assertArrayHasKey('id', $sharedBucket['sharedBy']);
+        $this->assertArrayHasKey('name', $sharedBucket['sharedBy']);
 
-            $this->assertEquals(
-                $verifyTokenResponse['id'],
-                $sharedBucket['sharedBy']['id']
-            );
-            $this->assertEquals(
-                $verifyTokenResponse['description'],
-                $sharedBucket['sharedBy']['name']
-            );
-            $this->assertNotNull(
-                $sharedBucket['sharedBy']['date']
-            );
-            $this->assertGreaterThan(
-                (new DateTimeImmutable())->sub(new DateInterval('PT5M')),
-                new DateTimeImmutable($sharedBucket['sharedBy']['date'])
-            );
+        $this->assertEquals(
+            $verifyTokenResponse['id'],
+            $sharedBucket['sharedBy']['id']
+        );
+        $this->assertEquals(
+            $verifyTokenResponse['description'],
+            $sharedBucket['sharedBy']['name']
+        );
+        $this->assertNotNull(
+            $sharedBucket['sharedBy']['date']
+        );
+        $this->assertGreaterThan(
+            (new DateTimeImmutable())->sub(new DateInterval('PT5M')),
+            new DateTimeImmutable($sharedBucket['sharedBy']['date'])
+        );
 
-            $this->assertCount(1, $sharedBucket['tables']);
+        // should show table and alias, but not filtered alias
+        $this->assertCount(2, $sharedBucket['tables']);
 
-            $sharedBucketTable = reset($sharedBucket['tables']);
+        $sharedTable = array_values(
+            array_filter($sharedBucket['tables'], static function (array $table) use ($tableId) {
+                return $table['id'] === $tableId;
+            })
+        );
+        $this->assertCount(1, $sharedTable);
+        $sharedTable = $sharedTable[0];
+        $this->assertSharedTable($sharedTable, $expectedTableName);
 
-            $this->assertArrayHasKey('id', $sharedBucketTable);
-            $this->assertArrayHasKey('name', $sharedBucketTable);
+        $sharedTableAlias = array_values(
+            array_filter($sharedBucket['tables'], static function (array $table) use ($aliasTableId) {
+                return $table['id'] === $aliasTableId;
+            })
+        );
+        $this->assertCount(1, $sharedTableAlias);
+        $sharedTableAlias = $sharedTableAlias[0];
+        $this->assertSharedTable($sharedTableAlias, $expectedTableAliasName);
+    }
 
-            $this->assertEquals($tableId, $sharedBucketTable['id']);
-            $this->assertEquals($tableName, $sharedBucketTable['name']);
-            $this->assertEquals(
-                $tableName,
-                $sharedBucketTable['displayName'],
-                'display name is same as name'
-            );
-        }
+    /**
+     * @param array $sharedTable
+     * @param string $tableName
+     * @return void
+     */
+    private function assertSharedTable($sharedTable, $tableName)
+    {
+        $this->assertArrayHasKey('id', $sharedTable);
+        $this->assertArrayHasKey('name', $sharedTable);
+
+        $this->assertEquals($tableName, $sharedTable['name']);
+        $this->assertEquals(
+            $tableName,
+            $sharedTable['displayName'],
+            'display name is same as name'
+        );
     }
 
     /**
