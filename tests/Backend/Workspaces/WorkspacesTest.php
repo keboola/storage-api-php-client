@@ -98,6 +98,9 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $this->assertCredentialsShouldNotWork($connection);
     }
 
+    /**
+     * @retryAttempts 3
+     */
     public function testWorkspacePasswordReset()
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
