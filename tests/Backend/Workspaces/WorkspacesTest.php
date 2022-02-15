@@ -18,6 +18,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
 {
     use WorkspaceConnectionTrait;
     use WorkspaceCredentialsAssertTrait;
+    use \PHPUnitRetry\RetryTrait;
 
     public function testWorkspaceCreate()
     {
