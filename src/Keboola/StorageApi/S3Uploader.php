@@ -193,7 +193,7 @@ class S3Uploader
             'Key' => $key,
             'ACL' => $acl,
             'concurrency' => $concurrency,
-            'before_upload' => function(\Aws\Command $command) {
+            'before_upload' => function (\Aws\Command $command) {
                 gc_collect_cycles();
             },
         ];
