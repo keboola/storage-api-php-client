@@ -439,6 +439,14 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
         $this->assertEquals(['main-1-2', 'main-1-1'], $configurationResponse['rowsSortOrder']);
         $this->assertEquals('main-1-2', $configurationResponse['rows'][0]['id']);
         $this->assertEquals('main-1-1', $configurationResponse['rows'][1]['id']);
+
+        $this->assertNotEquals('', $configurationResponse['rows'][0]['created']);
+        $this->assertNotEquals(0, $configurationResponse['rows'][0]['creatorToken']['id']);
+        $this->assertNotNull($configurationResponse['rows'][0]['creatorToken']['description']);
+
+        $this->assertNotEquals('', $configurationResponse['rows'][1]['created']);
+        $this->assertNotEquals(0, $configurationResponse['rows'][1]['creatorToken']['id']);
+        $this->assertNotNull($configurationResponse['rows'][1]['creatorToken']['description']);
     }
 
     /**
