@@ -193,6 +193,9 @@ class S3Uploader
             'Key' => $key,
             'ACL' => $acl,
             'concurrency' => $concurrency,
+            'before_upload' => function(\Aws\Command $command) {
+                gc_collect_cycles();
+            },
         ];
         if (!empty($state)) {
             $uploaderOptions['state'] = $state;
@@ -205,12 +208,13 @@ class S3Uploader
             $beforeInitiateCommands['ServerSideEncryption'] = $encryption;
         }
         if ($beforeInitiateCommands) {
-            $uploaderOptions['before_initiate'] = function ($command) use ($beforeInitiateCommands) {
+            $uploaderOptions['before_initiate'] = function (\Aws\Command $command) use ($beforeInitiateCommands) {
                 foreach ($beforeInitiateCommands as $key => $value) {
                     $command[$key] = $value;
                 }
             };
         }
+
         return new \Aws\S3\MultipartUploader($this->s3Client, $filePath, $uploaderOptions);
     }
 }
