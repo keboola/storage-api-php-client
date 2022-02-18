@@ -689,6 +689,25 @@ abstract class StorageApiTestCase extends ClientTestCase
         throw new \Exception('Default branch not found.');
     }
 
+    /**
+     * @param int $branchId
+     * @return string
+     */
+    public function getCurrentDevBranchName($branchId)
+    {
+        $devBranch = new \Keboola\StorageApi\DevBranches($this->_client);
+        $branchesList = $devBranch->listBranches();
+        foreach ($branchesList as $branch) {
+            if ($branch['id'] === $branchId) {
+                /** @var string $name */
+                $name = $branch['name'];
+                return $name;
+            }
+        }
+
+        throw new \Exception(sprintf('Branch %s not found.', $branchId));
+    }
+
     public function cleanupConfigurations()
     {
         $components = new Components($this->_client);
