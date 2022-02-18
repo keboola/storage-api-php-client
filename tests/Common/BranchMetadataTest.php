@@ -8,9 +8,12 @@ use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\DevBranchesMetadata;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
+use Keboola\Test\Utils\MetadataUtils;
 
 class BranchMetadataTest extends StorageApiTestCase
 {
+    use MetadataUtils;
+
     const TEST_METADATA = [
         [
             'key' => 'KBC.SomeEnity.metadataKey',
@@ -138,17 +141,5 @@ class BranchMetadataTest extends StorageApiTestCase
                 'metadata' => self::TEST_METADATA,
             ]
         );
-    }
-
-    /**
-     * @return void
-     */
-    private function assertMetadataEquals(array $expected, array $actual)
-    {
-        foreach ($expected as $key => $value) {
-            self::assertArrayHasKey($key, $actual);
-            self::assertSame($value, $actual[$key]);
-        }
-        self::assertArrayHasKey('timestamp', $actual);
     }
 }
