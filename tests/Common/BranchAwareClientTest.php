@@ -118,6 +118,7 @@ class BranchAwareClientTest extends StorageApiTestCase
         );
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(sprintf('Branch "%s" is not valid.', $branchId));
+        /** @phpstan-ignore-next-line */
         new BranchAwareClient($branchId, $options);
     }
 

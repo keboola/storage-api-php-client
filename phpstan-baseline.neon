@@ -71,11 +71,6 @@ parameters:
 			path: src/Keboola/StorageApi/ABSUploader/PromiseHelper.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\BranchAwareClient\\:\\:__construct\\(\\) has parameter \\$branchId with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/BranchAwareClient.php
-
-		-
 			message: "#^Method Keboola\\\\StorageApi\\\\BranchAwareClient\\:\\:request\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/BranchAwareClient.php
@@ -102,11 +97,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\StorageApi\\\\BranchAwareClient\\:\\:request\\(\\) has parameter \\$url with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/BranchAwareClient.php
-
-		-
-			message: "#^Property Keboola\\\\StorageApi\\\\BranchAwareClient\\:\\:\\$branchId has no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/BranchAwareClient.php
 

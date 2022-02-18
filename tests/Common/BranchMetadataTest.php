@@ -41,7 +41,7 @@ class BranchMetadataTest extends StorageApiTestCase
         $this->deleteBranchesByPrefix($branches, $this->generateBranchNameForParallelTest());
 
         $this->clientProvider = new ClientProvider($this);
-        $this->client = $this->clientProvider->getDefaultBranchClient();
+        $this->client = $this->clientProvider->createBranchAwareClientForCurrentTest();
 
         $this->cleanupBranchMetadata($this->client);
 
@@ -64,6 +64,7 @@ class BranchMetadataTest extends StorageApiTestCase
     }
 
     /**
+     * @dataProvider provideComponentsClientType
      * @return void
      */
     public function testCreateAndUpdateMetadata()
@@ -99,18 +100,18 @@ class BranchMetadataTest extends StorageApiTestCase
     }
 
     /**
+     * @dataProvider provideComponentsClientType
      * @return void
      */
     public function testManipulateMetadataRestrictionForReadOnlyUser()
     {
         // create read only client
-        $readOnlyClient = $this->clientProvider->getDefaultBranchClient([
+        $readOnlyClient = $this->clientProvider->createBranchAwareClientForCurrentTest([
             'token' => STORAGE_API_READ_ONLY_TOKEN,
             'url' => STORAGE_API_URL,
-        ]);
+        ], true);
         // create metadata client
         $readOnlyMdClient = new DevBranchesMetadata($readOnlyClient);
-        $defaultMdClient = new DevBranchesMetadata($this->client);
 
         // list metadata
         $metadata = $readOnlyMdClient->listBranchMetadata();
@@ -127,12 +128,14 @@ class BranchMetadataTest extends StorageApiTestCase
     }
 
     /**
+     * @dataProvider provideComponentsClientType
      * @return void
      */
     public function testSetMetadataEvent()
     {
         // create metadata client
         $defaultMdClient = new DevBranchesMetadata($this->client);
+        $currentBranchName = $this->getCurrentDevBranchName((int) $this->client->getCurrentBranchId());
 
         /** @var array $metadata */
         $metadata = $defaultMdClient->addBranchMetadata(self::TEST_METADATA);
@@ -143,9 +146,9 @@ class BranchMetadataTest extends StorageApiTestCase
         $this->assertEvent(
             $events[0],
             'storage.devBranchMetadataSet',
-            sprintf('Development branch "%s" metadata set', 'Main'),
+            sprintf('Development branch "%s" metadata set', $currentBranchName),
             $this->client->getCurrentBranchId(),
-            'Main',
+            $currentBranchName,
             'devBranch',
             [
                 'metadata' => self::TEST_METADATA,
@@ -154,6 +157,7 @@ class BranchMetadataTest extends StorageApiTestCase
     }
 
     /**
+     * @dataProvider provideComponentsClientType
      * @return void
      */
     public function testDeleteMetadata()
@@ -193,15 +197,16 @@ class BranchMetadataTest extends StorageApiTestCase
     }
 
     /**
+     * @dataProvider provideComponentsClientType
      * @return void
      */
     public function testDeleteMetadataRestrictionForReadOnlyUser()
     {
         // create read only client
-        $readOnlyClient = $this->clientProvider->getDefaultBranchClient([
+        $readOnlyClient = $this->clientProvider->createBranchAwareClientForCurrentTest([
             'token' => STORAGE_API_READ_ONLY_TOKEN,
             'url' => STORAGE_API_URL,
-        ]);
+        ], true);
         // create metadata client
         $readOnlyMdClient = new DevBranchesMetadata($readOnlyClient);
         $defaultMdClient = new DevBranchesMetadata($this->client);
@@ -227,12 +232,14 @@ class BranchMetadataTest extends StorageApiTestCase
     }
 
     /**
+     * @dataProvider provideComponentsClientType
      * @return void
      */
     public function testDeleteMetadataEvent()
     {
         // create metadata client
         $defaultMdClient = new DevBranchesMetadata($this->client);
+        $currentBranchName = $this->getCurrentDevBranchName((int) $this->client->getCurrentBranchId());
 
         // add metadata
         /** @var array $metadata */
@@ -240,21 +247,120 @@ class BranchMetadataTest extends StorageApiTestCase
         $this->assertCount(2, $metadata);
 
         // delete metadata - first
-        $defaultMdClient->deleteBranchMetadata($metadata[0]['id']);
+        $defaultMdClient->deleteBranchMetadata((int) $metadata[0]['id']);
 
         $events = $this->listEvents($this->client, 'storage.devBranchMetadataDeleted');
 
         $this->assertEvent(
             $events[0],
             'storage.devBranchMetadataDeleted',
-            sprintf('Development branch "%s" metadata with key "%s" deleted', 'Main', $metadata[0]['key']),
+            sprintf('Development branch "%s" metadata with key "%s" deleted', $currentBranchName, $metadata[0]['key']),
             $this->client->getCurrentBranchId(),
-            'Main',
+            $currentBranchName,
             'devBranch',
             [
                 'metadataId' => (int) $metadata[0]['id'],
                 'key' => self::TEST_METADATA[0]['key'],
             ]
         );
+    }
+
+    /**
+     * @return void
+     */
+    public function testCreateBranchMetadataCopyToBranch()
+    {
+        // create metadata client
+        $defaultMdClient = new DevBranchesMetadata($this->client);
+
+        // list metadata in default
+        $metadata = $defaultMdClient->listBranchMetadata();
+        $this->assertCount(0, $metadata);
+
+        // add metadata to default
+        $metadata = $defaultMdClient->addBranchMetadata(self::TEST_METADATA);
+        $this->assertCount(2, $metadata);
+        $this->assertMetadataEquals(self::TEST_METADATA[0], $metadata[0]);
+        $this->assertMetadataEquals(self::TEST_METADATA[1], $metadata[1]);
+
+        // wait for other timestamp
+        sleep(1);
+
+
+        // create new branch
+        $branchClient = $this->clientProvider->getDevBranchClient();
+        $branchMdClient = new DevBranchesMetadata($branchClient);
+
+        // list copied metadata in branch
+        $branchMetadata = $branchMdClient->listBranchMetadata();
+        $this->assertCount(2, $branchMetadata);
+        $this->assertMetadataEquals(self::TEST_METADATA[0], $branchMetadata[0]);
+        $this->assertGreaterThan($metadata[0]['timestamp'], $branchMetadata[0]['timestamp']);
+        $this->assertMetadataEquals(self::TEST_METADATA[1], $branchMetadata[1]);
+        $this->assertNotSame($metadata[0]['timestamp'], $branchMetadata[0]['timestamp']);
+        $lastBranchMetadata = $branchMetadata;
+
+
+        // add new metadata to default
+        $DEFAULT_METADATA = [
+            [
+                'key' => 'default-key',
+                'value' => 'Default value',
+            ],
+        ];
+        $metadata = $defaultMdClient->addBranchMetadata($DEFAULT_METADATA);
+        $this->assertCount(3, $metadata);
+        $this->assertMetadataEquals(self::TEST_METADATA[0], $metadata[0]);
+        $this->assertMetadataEquals(self::TEST_METADATA[1], $metadata[1]);
+        $this->assertMetadataEquals($DEFAULT_METADATA[0], $metadata[2]);
+
+        // delete some metadata from default
+        $defaultMdClient->deleteBranchMetadata((int) $metadata[0]['id']);
+
+        // list metadata in default
+        $lastDefaultMetadata = $defaultMdClient->listBranchMetadata();
+        $this->assertCount(2, $lastDefaultMetadata);
+
+        // check metadata are untouched in branch
+        $branchMetadata = $branchMdClient->listBranchMetadata();
+        $this->assertSame($lastBranchMetadata, $branchMetadata);
+
+
+        // add new metadata to branch
+        $BRANCH_METADATA = [
+            [
+                'key' => 'branch-key',
+                'value' => 'Branch value',
+            ],
+        ];
+        $branchMetadata = $branchMdClient->addBranchMetadata($BRANCH_METADATA);
+        $this->assertCount(3, $branchMetadata);
+        $this->assertMetadataEquals(self::TEST_METADATA[0], $branchMetadata[0]);
+        $this->assertMetadataEquals(self::TEST_METADATA[1], $branchMetadata[1]);
+        $this->assertMetadataEquals($BRANCH_METADATA[0], $branchMetadata[2]);
+
+        // delete some metadata from branch
+        $branchMdClient->deleteBranchMetadata((int) $branchMetadata[0]['id']);
+
+        // check metadata are untouched in default
+        $defaultMetadata = $defaultMdClient->listBranchMetadata();
+        $this->assertSame($lastDefaultMetadata, $defaultMetadata);
+
+
+        // delete branch
+        $defaultClient = new DevBranches($this->_client);
+        $defaultClient->deleteBranch((int) $branchClient->getCurrentBranchId());
+
+        // check metadata not exists in branch
+        try {
+            $branchMdClient->listBranchMetadata();
+            $this->fail('should fail');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+        }
+
+        // check metadata are untouched in default
+        $defaultMetadata = $defaultMdClient->listBranchMetadata();
+        $this->assertSame($lastDefaultMetadata, $defaultMetadata);
     }
 }
