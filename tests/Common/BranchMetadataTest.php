@@ -63,8 +63,7 @@ class BranchMetadataTest extends StorageApiTestCase
         $this->assertIsArray($metadata);
 
         // add metadata
-        /** @var array $metadata */
-        $metadata = $defaultMdClient->postBranchMetadata(self::TEST_METADATA);
+        $metadata = $defaultMdClient->addBranchMetadata(self::TEST_METADATA);
         $this->assertCount(2, $metadata);
         $this->assertMetadataEquals(self::TEST_METADATA[0], $metadata[0]);
         $this->assertMetadataEquals(self::TEST_METADATA[1], $metadata[1]);
@@ -79,8 +78,7 @@ class BranchMetadataTest extends StorageApiTestCase
                 'value' => 'some-value-2',
             ],
         ];
-        /** @var array $newMetadata */
-        $newMetadata = $defaultMdClient->postBranchMetadata($updatedMetadata);
+        $newMetadata = $defaultMdClient->addBranchMetadata($updatedMetadata);
         $this->assertCount(2, $newMetadata);
         $this->assertMetadataEquals($updatedMetadata[0], $newMetadata[0]);
         $this->assertNotSame($metadata[0]['timestamp'], $newMetadata[0]['timestamp']);
@@ -97,20 +95,20 @@ class BranchMetadataTest extends StorageApiTestCase
             'url' => STORAGE_API_URL,
         ]);
         // create metadata client
-        $defaultMdClient = new DevBranchesMetadata($readOnlyClient);
+        $readOnlyMdClient = new DevBranchesMetadata($readOnlyClient);
 
         // list metadata
-        $metadata = $defaultMdClient->listBranchMetadata();
+        $metadata = $readOnlyMdClient->listBranchMetadata();
         // TODO change after DELETE is ready
         //$this->assertCount(2, $metadata);
         $this->assertIsArray($metadata);
 
         // add metadata
         try {
-            $metadata = $defaultMdClient->postBranchMetadata(self::TEST_METADATA);
+            $readOnlyMdClient->addBranchMetadata(self::TEST_METADATA);
             $this->fail('should fail, insufficiently permission');
         } catch (ClientException $e) {
-            $this->assertContains("You don't have access to resource", $e->getMessage());
+            $this->assertStringContainsString("You don't have access to resource", $e->getMessage());
             $this->assertSame(403, $e->getCode());
         }
     }
@@ -123,7 +121,7 @@ class BranchMetadataTest extends StorageApiTestCase
         // create metadata client
         $defaultMdClient = new DevBranchesMetadata($this->client);
 
-        $metadata = $defaultMdClient->postBranchMetadata(self::TEST_METADATA);
+        $metadata = $defaultMdClient->addBranchMetadata(self::TEST_METADATA);
         // TODO change after DELETE is ready
         //$this->assertCount(2, $metadata);
         $this->assertIsArray($metadata);
