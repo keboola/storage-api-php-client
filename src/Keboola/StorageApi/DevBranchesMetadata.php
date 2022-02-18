@@ -14,21 +14,25 @@ class DevBranchesMetadata
         $this->client = $client;
     }
     /**
-     * @return mixed|string
+     * @return array{id: string|numeric, key: string, value: string, timestamp: string}[]
      */
     public function listBranchMetadata()
     {
-        return $this->client->apiGet("metadata");
+        /** @var array $response */
+        $response = $this->client->apiGet("metadata");
+        return $response;
     }
 
     /**
-     * @param array $metadata
-     * @return mixed|string
+     * @param array{key: string, value: string}[] $metadata
+     * @return array{id: string|numeric, key: string, value: string, timestamp: string}[]
      */
-    public function postBranchMetadata(array $metadata)
+    public function addBranchMetadata(array $metadata)
     {
-        return $this->client->apiPost("metadata", [
+        /** @var array $response */
+        $response = $this->client->apiPost("metadata", [
             'metadata' => $metadata,
         ]);
+        return $response;
     }
 }
