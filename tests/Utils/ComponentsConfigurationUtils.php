@@ -1,6 +1,6 @@
 <?php
 
-namespace Keboola\Test\ComponentsUtils;
+namespace Keboola\Test\Utils;
 
 use Keboola\StorageApi\Options\Components\Configuration;
 

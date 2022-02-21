@@ -9991,11 +9991,6 @@ parameters:
 			path: tests/Common/ComponentsTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\ConfigurationMetadataTest\\:\\:assertMetadataEquals\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/ConfigurationMetadataTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\ConfigurationMetadataTest\\:\\:createConfiguration\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Common/ConfigurationMetadataTest.php
@@ -12274,4 +12269,3 @@ parameters:
 			message: "#^Parameter \\#1 \\$filename of function file_get_contents expects string, string\\|false given\\.$#"
 			count: 1
 			path: tests/bootstrap.php
-
