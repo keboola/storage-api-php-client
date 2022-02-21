@@ -8,7 +8,7 @@ use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\ConfigurationMetadata;
 use Keboola\StorageApi\Options\Components\SearchComponentConfigurationsOptions;
 use Keboola\Test\ClientProvider\ClientProvider;
-use Keboola\Test\ComponentsUtils\ComponentsConfigurationUtils;
+use Keboola\Test\Utils\ComponentsConfigurationUtils;
 use Keboola\Test\StorageApiTestCase;
 
 class SearchComponentsConfigurationsTest extends StorageApiTestCase
