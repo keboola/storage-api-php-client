@@ -9,10 +9,13 @@ use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
+use Keboola\Test\Utils\EventTesterUtils;
 use PHPUnit\Framework\ExpectationFailedException;
 
 class ComponentsEventsTest extends StorageApiTestCase
 {
+    use EventTesterUtils;
+
     const COMPONENT_ID = 'wr-db';
     const CONFIGURATION_NAME = 'component-events-test';
 
