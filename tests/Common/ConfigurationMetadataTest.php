@@ -10,12 +10,14 @@ use Keboola\StorageApi\Options\Components\ListConfigurationMetadataOptions;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\Utils\ComponentsConfigurationUtils;
 use Keboola\Test\StorageApiTestCase;
+use Keboola\Test\Utils\EventTesterUtils;
 use Keboola\Test\Utils\MetadataUtils;
 
 class ConfigurationMetadataTest extends StorageApiTestCase
 {
     use ComponentsConfigurationUtils;
     use MetadataUtils;
+    use EventTesterUtils;
 
     const TEST_METADATA = [
         [

@@ -8,11 +8,13 @@ use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\DevBranchesMetadata;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
+use Keboola\Test\Utils\EventTesterUtils;
 use Keboola\Test\Utils\MetadataUtils;
 
 class BranchMetadataTest extends StorageApiTestCase
 {
     use MetadataUtils;
+    use EventTesterUtils;
 
     const TEST_METADATA = [
         [
