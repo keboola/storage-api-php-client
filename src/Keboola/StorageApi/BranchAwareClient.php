@@ -4,8 +4,13 @@ namespace Keboola\StorageApi;
 
 class BranchAwareClient extends Client
 {
+    /** @var int|string */
     private $branchId;
 
+    /**
+     * @param int|string $branchId
+     * @param array $config
+     */
     public function __construct($branchId, array $config = [])
     {
         parent::__construct($config);
@@ -25,7 +30,7 @@ class BranchAwareClient extends Client
     }
 
     /**
-     * @return mixed
+     * @return int|string
      */
     public function getCurrentBranchId()
     {
