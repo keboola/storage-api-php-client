@@ -46,8 +46,10 @@ trait EventTesterUtils
     }
 
     /**
+     * @param Client $client
      * @param string $eventName
-     * @return array
+     * @param int|string|null $expectedObjectId
+     * @return array[]
      */
     protected function listEvents(Client $client, $eventName, $expectedObjectId = null)
     {
@@ -91,6 +93,16 @@ trait EventTesterUtils
         return $proxiedCallResult;
     }
 
+    /**
+     * @param array $event
+     * @param string $expectedEventName
+     * @param string $expectedEventMessage
+     * @param mixed $expectedObjectId
+     * @param string $expectedObjectName
+     * @param string $expectedObjectType
+     * @param array $expectedParams
+     * @return void
+     */
     protected function assertEvent(
         $event,
         $expectedEventName,

@@ -306,6 +306,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
             ->setMetadataKeys(['KBC.SomeEnity.metadataKey']));
 
         $events = $this->listEvents($this->client, 'storage.componentsSearched');
+        /** @var array $event */
         $event = reset($events);
         self::assertArrayHasKey('event', $event);
         self::assertEquals('storage.componentsSearched', $event['event']);
