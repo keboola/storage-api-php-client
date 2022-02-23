@@ -415,6 +415,10 @@ abstract class StorageApiTestCase extends ClientTestCase
         return $this->_bucketIds[$stage];
     }
 
+    /**
+     * @return array
+     * @throws \Exception
+     */
     protected function createAndWaitForEvent(Event $event, Client $sapiClient = null)
     {
         $client = null !== $sapiClient ? $sapiClient : $this->_client;
