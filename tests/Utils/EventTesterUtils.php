@@ -3,10 +3,17 @@
 namespace Keboola\Test\Utils;
 
 use Keboola\StorageApi\Client;
+use Keboola\StorageApi\Event;
 use Retry\BackOff\FixedBackOffPolicy;
 use Retry\Policy\SimpleRetryPolicy;
 use Retry\RetryProxy;
 
+/**
+ * Use with \Keboola\Test\StorageApiTestCase class.
+ *
+ * - in `setUp` initialize `initTest()`
+ * - in test use `listEvent()` and `assertEvent()`
+ */
 trait EventTesterUtils
 {
     /**
@@ -19,18 +26,22 @@ trait EventTesterUtils
      */
     protected $lastEventId;
 
+    /**
+     * @uses \Keboola\Test\StorageApiTestCase::createAndWaitForEvent()
+     * @return void
+     */
     protected function initEvents(Client $client)
     {
         // use default _client; branch client doesn't support verifyToken call
-        $this->tokenId = $this->_client->verifyToken()['id'];
+        $this->tokenId = $client->verifyToken()['id'];
 
-        $lastEvent = $client->listEvents([
-            'limit' => 1,
-            'q' => sprintf('token.id:%s', $this->tokenId),
-        ]);
+        $fireEvent = (new Event())
+            ->setComponent('dummy')
+            ->setMessage('dummy');
+        $lastEvent = $this->createAndWaitForEvent($fireEvent, $client);
 
         if (!empty($lastEvent)) {
-            $this->lastEventId = $lastEvent[0]['id'];
+            $this->lastEventId = $lastEvent['id'];
         }
     }
 
@@ -63,7 +74,7 @@ trait EventTesterUtils
      * @param string $eventName
      * @return array
      */
-    protected function retry($apiCall, $retries, $eventName)
+    private function retry($apiCall, $retries, $eventName)
     {
         $retryPolicy = new SimpleRetryPolicy($retries);
         $proxy = new RetryProxy($retryPolicy, new FixedBackOffPolicy(250));
