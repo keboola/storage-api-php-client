@@ -4,9 +4,11 @@ namespace Keboola\Test\Common;
 
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\Test\StorageApiTestCase;
+use Keboola\Test\Utils\EventTesterUtils;
 
 class TokensShareTest extends StorageApiTestCase
 {
+    use EventTesterUtils;
 
     public function testMasterTokenShouldNotBeShareable()
     {

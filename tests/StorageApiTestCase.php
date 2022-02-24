@@ -9,15 +9,11 @@
 
 namespace Keboola\Test;
 
-use Keboola\StorageApi\BranchAwareGuzzleClient;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\StorageApi\Tokens;
 use Keboola\Test\ClientProvider\ClientProvider;
-use Retry\BackOff\FixedBackOffPolicy;
-use Retry\Policy\SimpleRetryPolicy;
-use Retry\RetryProxy;
 use function array_key_exists;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
@@ -52,16 +48,6 @@ abstract class StorageApiTestCase extends ClientTestCase
 
     /** @var Tokens */
     protected $tokens;
-
-    /**
-     * @var string
-     */
-    protected $tokenId;
-
-    /**
-     * @var string
-     */
-    protected $lastEventId;
 
     /**
      * @param $testName
@@ -429,6 +415,10 @@ abstract class StorageApiTestCase extends ClientTestCase
         return $this->_bucketIds[$stage];
     }
 
+    /**
+     * @return array
+     * @throws \Exception
+     */
     protected function createAndWaitForEvent(Event $event, Client $sapiClient = null)
     {
         $client = null !== $sapiClient ? $sapiClient : $this->_client;
@@ -726,98 +716,12 @@ abstract class StorageApiTestCase extends ClientTestCase
     }
 
     /**
-     * @param string $eventName
-     * @return array
-     */
-    protected function listEvents(Client $client, $eventName, $expectedObjectId = null)
-    {
-        return $this->retry(function () use ($client, $expectedObjectId) {
-            $tokenEvents = $client->listEvents([
-                'sinceId' => $this->lastEventId,
-                'limit' => 1,
-                'q' => sprintf('token.id:%s', $this->tokenId),
-            ]);
-
-            if ($expectedObjectId === null) {
-                return $tokenEvents;
-            }
-
-            return array_filter($tokenEvents, function ($event) use ($expectedObjectId) {
-                return $event['objectId'] === $expectedObjectId;
-            });
-        }, 10, $eventName);
-    }
-
-    /**
-     * @param callable $apiCall
-     * @param int $retries
-     * @param string $eventName
-     * @return array
-     */
-    protected function retry($apiCall, $retries, $eventName)
-    {
-        $retryPolicy = new SimpleRetryPolicy($retries);
-        $proxy = new RetryProxy($retryPolicy, new FixedBackOffPolicy(250));
-        /** @var array $proxiedCallResult */
-        $proxiedCallResult = $proxy->call(function () use ($apiCall, $eventName) {
-            /** @var array $events */
-            $events = $apiCall();
-
-            $this->assertNotEmpty($events, 'There were no events');
-            $this->assertEquals($eventName, $events[0]['event'], sprintf('Event does not matches "%s"', $eventName));
-
-            return $events;
-        });
-        return $proxiedCallResult;
-    }
-
-    protected function assertEvent(
-        $event,
-        $expectedEventName,
-        $expectedEventMessage,
-        $expectedObjectId,
-        $expectedObjectName,
-        $expectedObjectType,
-        $expectedParams
-    ) {
-        self::assertArrayHasKey('objectName', $event);
-        self::assertEquals($expectedObjectName, $event['objectName']);
-        self::assertArrayHasKey('objectType', $event);
-        self::assertEquals($expectedObjectType, $event['objectType']);
-        self::assertArrayHasKey('objectId', $event);
-        self::assertEquals($expectedObjectId, $event['objectId']);
-        self::assertArrayHasKey('event', $event);
-        self::assertEquals($expectedEventName, $event['event']);
-        self::assertArrayHasKey('message', $event);
-        self::assertEquals($expectedEventMessage, $event['message']);
-        self::assertArrayHasKey('token', $event);
-        self::assertEquals($this->tokenId, $event['token']['id']);
-        self::assertArrayHasKey('params', $event);
-        self::assertSame($expectedParams, $event['params']);
-    }
-
-    /**
      * @param string $name
      * @return string
      */
     public function generateUniqueNameForString($name)
     {
         return sha1($this->generateDescriptionForTestObject()) . '\\' . $name;
-    }
-
-    protected function initEvents(Client $client)
-    {
-        // use default _client; branch client doesn't support verifyToken call
-        $this->tokenId = $this->_client->verifyToken()['id'];
-
-        $lastEvent = $client->listEvents([
-            'limit' => 1,
-            'q' => sprintf('token.id:%s', $this->tokenId),
-        ]);
-
-        if (!empty($lastEvent)) {
-            $this->lastEventId = $lastEvent[0]['id'];
-        }
     }
 
     /**

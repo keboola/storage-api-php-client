@@ -64,7 +64,7 @@ class RunIdTest extends StorageApiTestCase
 
     /**
      * @param $runId
-     * @return int id
+     * @return array
      */
     private function createEvent($runId)
     {

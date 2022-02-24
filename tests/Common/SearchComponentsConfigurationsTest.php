@@ -10,10 +10,12 @@ use Keboola\StorageApi\Options\Components\SearchComponentConfigurationsOptions;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\Utils\ComponentsConfigurationUtils;
 use Keboola\Test\StorageApiTestCase;
+use Keboola\Test\Utils\EventTesterUtils;
 
 class SearchComponentsConfigurationsTest extends StorageApiTestCase
 {
     use ComponentsConfigurationUtils;
+    use EventTesterUtils;
 
     const TEST_METADATA = [
         [
@@ -304,6 +306,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
             ->setMetadataKeys(['KBC.SomeEnity.metadataKey']));
 
         $events = $this->listEvents($this->client, 'storage.componentsSearched');
+        /** @var array $event */
         $event = reset($events);
         self::assertArrayHasKey('event', $event);
         self::assertEquals('storage.componentsSearched', $event['event']);
