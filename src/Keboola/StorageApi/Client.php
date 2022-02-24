@@ -2056,12 +2056,14 @@ class Client
     }
 
     /**
-     * @param $id
+     * @param int|string $id
      * @return array
      */
     public function getEvent($id)
     {
-        return $this->apiGet('events/' . $id);
+        /** @var array $response */
+        $response = $this->apiGet('events/' . $id);
+        return $response;
     }
 
     /**
