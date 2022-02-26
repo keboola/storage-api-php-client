@@ -1603,7 +1603,7 @@ class Client
             'region' => $prepareResult['region'],
             'http' => [
                 'connect_timeout' => 10,
-                'timeout' => 120,
+                'timeout' => 500,
             ],
             'debug' => false,
             'credentials' => [
@@ -1858,8 +1858,9 @@ class Client
             'region' => $fileInfo['region'],
             'retries' => 40,
             'http' => [
+                'read_timeout' => 10,
                 'connect_timeout' => 10,
-                'timeout' => 120,
+                'timeout' => 500,
             ],
             'credentials' => [
                 'key' => $fileInfo['credentials']['AccessKeyId'],
