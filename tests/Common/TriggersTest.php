@@ -290,6 +290,63 @@ class TriggersTest extends StorageApiTestCase
         self::assertEquals([['tableId' => 'in.c-API-tests.watched-1']], $updatedTrigger['tables']);
     }
 
+    public function testDeleteTriggerWithDifferentNonMasterToken()
+    {
+        $table1 = $this->createTableWithRandomData("watched-1");
+
+        $optionsForTokenRunWith = (new TokenCreateOptions())
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
+        $optionsForMainToken = (new TokenCreateOptions())->setCanManageBuckets(true);
+
+        $tokenRunWith = $this->tokens->createToken($optionsForTokenRunWith);
+        $newNonAdminToken = $this->tokens->createToken($optionsForMainToken);
+        $clientWithoutAdminToken = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminToken['token']]);
+
+        $trigger = $clientWithoutAdminToken->createTrigger([
+            'component' => 'orchestrator',
+            'configurationId' => 123,
+            'coolDownPeriodMinutes' => 10,
+            'runWithTokenId' => $tokenRunWith['id'],
+            'tableIds' => [$table1],
+        ]);
+        $trigger2 = $clientWithoutAdminToken->createTrigger([
+            'component' => 'orchestrator',
+            'configurationId' => 123,
+            'coolDownPeriodMinutes' => 10,
+            'runWithTokenId' => $tokenRunWith['id'],
+            'tableIds' => [$table1],
+        ]);
+
+
+        $anotherToken = $this->tokens->createToken($optionsForMainToken);
+        $anotherClientWithAnotherToken = $this->getClient([
+            'url' => STORAGE_API_URL,
+            'token' => $anotherToken['token'],
+        ]);
+
+        try {
+            $anotherClientWithAnotherToken->deleteTrigger((int) $trigger['id']);
+            self::fail('should fail');
+        } catch (Exception $e) {
+            // todo exception
+            self::assertEquals('Cannot be deleted by this token', $e->getMessage());
+        }
+
+        // owner can delete it
+        $clientWithoutAdminToken->deleteTrigger((int) $trigger['id']);
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage(sprintf('Trigger with id [%d] was not found', $trigger['id']));
+        $clientWithoutAdminToken->getTrigger((int) $trigger['id']);
+
+        // master token can do anything
+        $this->_client->deleteTrigger((int) $trigger2['id']);
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage(sprintf('Trigger with id [%d] was not found', $trigger2['id']));
+        $this->_client->getTrigger((int) $trigger2['id']);
+    }
+
     /**
      * @dataProvider deleteKeyProvider
      */
