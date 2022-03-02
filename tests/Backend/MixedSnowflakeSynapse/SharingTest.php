@@ -345,6 +345,7 @@ class SharingTest extends StorageApiSharingTestCase
             self::assertArrayHasKey('_timestamp', $data[0]);
 
             $connection = $workspace['connection'];
+            /** @var Connection $db */
             $db = $this->getDbConnection($connection);
             // User in Synapse can create view from table and scheme where he don't have permission to access
             // this test can't be run in regular test suite as we don't know schema name of the bucket
