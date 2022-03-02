@@ -4,6 +4,7 @@
 
 namespace Keboola\Test\Common;
 
+use Exception;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
@@ -30,8 +31,7 @@ class TriggersTest extends StorageApiTestCase
     {
         $table1 = $this->createTableWithRandomData("watched-1");
         $options = (new TokenCreateOptions())
-            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
-        ;
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
         $newToken = $this->tokens->createToken($options);
         $trigger = $this->_client->createTrigger([
             'component' => 'orchestrator',
@@ -142,7 +142,6 @@ class TriggersTest extends StorageApiTestCase
         } catch (\Exception $e) {
             self::assertEquals($expectedException, $e->getMessage());
         }
-
     }
 
     public function testUpdateTrigger()
@@ -167,8 +166,7 @@ class TriggersTest extends StorageApiTestCase
         ]);
 
         $options = (new TokenCreateOptions())
-            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
-        ;
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
 
         $brandNewToken = $this->tokens->createToken($options);
 
@@ -187,6 +185,109 @@ class TriggersTest extends StorageApiTestCase
         $this->assertEquals(20, $updateTrigger['coolDownPeriodMinutes']);
         $this->assertEquals($brandNewToken['id'], $updateTrigger['runWithTokenId']);
         $this->assertEquals([['tableId' => 'in.c-API-tests.watched-1']], $updateTrigger['tables']);
+    }
+
+    /**
+     * @dataProvider tokenCreateOptionsProvider
+     */
+    public function testUpdateTriggerWithNonMasterToken($options)
+    {
+        $table1 = $this->createTableWithRandomData("watched-1");
+        $table2 = $this->createTableWithRandomData("watched-2");
+
+        $optionsForTokenRunWith = (new TokenCreateOptions())
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
+
+        $tokenRunWith = $this->tokens->createToken($optionsForTokenRunWith);
+        $newNonAdminToken = $this->tokens->createToken($options);
+        $clientWithoutAdminToken = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminToken['token']]);
+
+        $trigger = $clientWithoutAdminToken->createTrigger([
+            'component' => 'orchestrator',
+            'configurationId' => 123,
+            'coolDownPeriodMinutes' => 10,
+            'runWithTokenId' => $tokenRunWith['id'],
+            'tableIds' => [
+                $table1,
+                $table2,
+            ],
+        ]);
+
+        $options = (new TokenCreateOptions())
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
+
+        $brandNewToken = $this->tokens->createToken($options);
+
+        $updateData = [
+            'component' => 'keboola.ex-1',
+            'configurationId' => 111,
+            'coolDownPeriodMinutes' => 20,
+            'runWithTokenId' => $brandNewToken['id'],
+            'tableIds' => [$table1],
+        ];
+
+        $updatedTrigger = $clientWithoutAdminToken->updateTrigger((int) $trigger['id'], $updateData);
+
+        $this->assertEquals('keboola.ex-1', $updatedTrigger['component']);
+        $this->assertEquals(111, $updatedTrigger['configurationId']);
+        $this->assertEquals(20, $updatedTrigger['coolDownPeriodMinutes']);
+        $this->assertEquals($brandNewToken['id'], $updatedTrigger['runWithTokenId']);
+        $this->assertEquals([['tableId' => 'in.c-API-tests.watched-1']], $updatedTrigger['tables']);
+    }
+
+    public function testUpdateTriggerWithDifferentNonMasterToken()
+    {
+        $table1 = $this->createTableWithRandomData("watched-1");
+
+        $optionsForTokenRunWith = (new TokenCreateOptions())
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
+
+        $tokenRunWith = $this->tokens->createToken($optionsForTokenRunWith);
+        $newNonAdminToken = $this->tokens->createToken((new TokenCreateOptions())->setCanManageBuckets(true));
+        $clientWithoutAdminToken = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminToken['token']]);
+
+        $trigger = $clientWithoutAdminToken->createTrigger([
+            'component' => 'orchestrator',
+            'configurationId' => 123,
+            'coolDownPeriodMinutes' => 10,
+            'runWithTokenId' => $tokenRunWith['id'],
+            'tableIds' => [$table1],
+        ]);
+
+        $options = (new TokenCreateOptions())
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
+
+        $brandNewToken = $this->tokens->createToken($options);
+
+        $updateData = [
+            'component' => 'keboola.ex-1',
+            'configurationId' => 111,
+            'coolDownPeriodMinutes' => 20,
+            'runWithTokenId' => $brandNewToken['id'],
+            'tableIds' => [$table1],
+        ];
+
+        $anotherToken = $this->tokens->createToken((new TokenCreateOptions())->setCanManageBuckets(true));
+        $anotherClientWithAnotherToken = $this->getClient([
+            'url' => STORAGE_API_URL,
+            'token' => $anotherToken['token'],
+        ]);
+
+        try {
+            $anotherClientWithAnotherToken->updateTrigger((int) $trigger['id'], $updateData);
+            self::fail('should fail');
+        } catch (Exception $e) {
+            // todo exception
+            self::assertEquals('Cannot be updated by this token', $e->getMessage());
+        }
+
+        // master token can do anything
+        $updatedTrigger = $this->_client->updateTrigger((int) $trigger['id'], $updateData);
+        self::assertEquals('keboola.ex-1', $updatedTrigger['component']);
+        self::assertEquals(111, $updatedTrigger['configurationId']);
+        self::assertEquals(20, $updatedTrigger['coolDownPeriodMinutes']);
+        self::assertEquals($brandNewToken['id'], $updatedTrigger['runWithTokenId']);
+        self::assertEquals([['tableId' => 'in.c-API-tests.watched-1']], $updatedTrigger['tables']);
     }
 
     /**
@@ -223,8 +324,7 @@ class TriggersTest extends StorageApiTestCase
         $table = $this->createTableWithRandomData("watched-2");
 
         $options = (new TokenCreateOptions())
-            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
-        ;
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
 
         $newToken = $this->tokens->createToken($options);
 
@@ -254,8 +354,7 @@ class TriggersTest extends StorageApiTestCase
         $table2 = $this->createTableWithRandomData("watched-2");
 
         $options = (new TokenCreateOptions())
-            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
-        ;
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
         $newToken = $this->tokens->createToken($options);
 
         $trigger1ConfigurationId = time();
@@ -306,8 +405,7 @@ class TriggersTest extends StorageApiTestCase
         $table = $this->createTableWithRandomData("watched-2");
 
         $options = (new TokenCreateOptions())
-            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
-        ;
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
 
         $newToken = $this->tokens->createToken($options);
 
@@ -377,8 +475,7 @@ class TriggersTest extends StorageApiTestCase
     {
         $table1 = $this->createTableWithRandomData("watched-1");
         $options = (new TokenCreateOptions())
-            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
-        ;
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
         $newToken = $this->tokens->createToken($options);
         $trigger = $this->_client->createTrigger([
             'component' => 'orchestrator',
@@ -430,7 +527,7 @@ class TriggersTest extends StorageApiTestCase
         $table1 = $this->createTableWithRandomData("watched-1");
         $newToken = $this->tokens->createToken(
             (new TokenCreateOptions())
-            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
+                ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
         );
 
         $options = [
