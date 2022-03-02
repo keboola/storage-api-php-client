@@ -9,6 +9,9 @@ use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\Test\StorageApiTestCase;
 
+/**
+ * @retryAttempts 0
+ */
 class TriggersTest extends StorageApiTestCase
 {
     public function setUp()
@@ -62,16 +65,15 @@ class TriggersTest extends StorageApiTestCase
         );
     }
 
-    public function testCreateTriggerWithCanManageBuckets()
+    /**
+     * @dataProvider tokenCreateOptionsProvider
+     */
+    public function testCreateTriggerWithExtraPermissions($optionsForMainToken)
     {
         $table1 = $this->createTableWithRandomData("watched-1");
 
         $optionsForTokenRunWith = (new TokenCreateOptions())
             ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
-
-        $optionsForMainToken = (new TokenCreateOptions())
-            ->setCanManageBuckets(true)
-            ->addComponentAccess('keboola.orchestrator');
 
         $tokenRunWith = $this->tokens->createToken($optionsForTokenRunWith);
         $newNonAdminToken = $this->tokens->createToken($optionsForMainToken);
@@ -99,7 +101,7 @@ class TriggersTest extends StorageApiTestCase
             ],
             $trigger['tables']
         );
-        $token = $this->_client->verifyToken();
+        $token = $clientWithoutAdminToken->verifyToken();
         $this->assertEquals(
             [
                 'id' => $token['id'],
@@ -107,6 +109,40 @@ class TriggersTest extends StorageApiTestCase
             ],
             $trigger['creatorToken']
         );
+    }
+
+    /**
+     * @dataProvider tokenOptionsProviderInvalid
+     */
+    public function testCreateTriggerWithWrongPermissions($optionsForMainToken, $expectedException)
+    {
+        $table1 = $this->createTableWithRandomData("watched-1");
+
+        $optionsForTokenRunWith = (new TokenCreateOptions())
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
+
+        try {
+            $tokenRunWith = $this->tokens->createToken($optionsForTokenRunWith);
+            $newNonAdminToken = $this->tokens->createToken($optionsForMainToken);
+
+            $clientWithoutAdminToken = $this->getClient([
+                'url' => STORAGE_API_URL,
+                'token' => $newNonAdminToken['token'],
+            ]);
+            $clientWithoutAdminToken->createTrigger([
+                'component' => 'orchestrator',
+                'configurationId' => 123,
+                'coolDownPeriodMinutes' => 10,
+                'runWithTokenId' => $tokenRunWith['id'],
+                'tableIds' => [
+                    $table1,
+                ],
+            ]);
+            self::fail('should fail before');
+        } catch (\Exception $e) {
+            self::assertEquals($expectedException, $e->getMessage());
+        }
+
     }
 
     public function testUpdateTrigger()
@@ -440,5 +476,54 @@ class TriggersTest extends StorageApiTestCase
         }
 
         $this->assertSame($triggers, $this->_client->listTriggers());
+    }
+
+    public function tokenCreateOptionsProvider()
+    {
+        // run setup manually to create bucket IDs
+        $this->setUp();
+        return [
+            'can manage buckets only' => [
+                (new TokenCreateOptions())
+                    ->setCanManageBuckets(true),
+            ],
+            'component access only' => [
+                (new TokenCreateOptions())
+                    ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
+                    ->addComponentAccess('keboola.orchestrator'),
+            ],
+            'both' => [
+                (new TokenCreateOptions())
+                    ->setCanManageBuckets(true)
+                    ->addComponentAccess('keboola.orchestrator'),
+            ],
+            'access to wrong component but canManageBuckets' => [
+                (new TokenCreateOptions())
+                    ->setCanManageBuckets(true)
+                    ->addComponentAccess('keboola.invalid'),
+            ],
+        ];
+    }
+
+    public function tokenOptionsProviderInvalid()
+    {
+        $this->setUp();
+        return [
+            'component access only but cannot read bucket' => [
+                (new TokenCreateOptions())
+                    ->addComponentAccess('keboola.orchestrator'),
+                "You don't have access to the resource.",
+            ],
+            'access to wrong component only' => [
+                (new TokenCreateOptions())
+                    ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
+                    ->addComponentAccess('keboola.invalid'),
+                'Insufficient privilege. Yours token is not an admin token.',
+            ],
+            'no extra permissions, but not master token' => [
+                (new TokenCreateOptions()),
+                'Insufficient privilege. Yours token is not an admin token.',
+            ],
+        ];
     }
 }
