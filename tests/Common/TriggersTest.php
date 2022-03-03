@@ -10,6 +10,9 @@ use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\Test\StorageApiTestCase;
 
+/**
+ * @retryAttempts 0
+ */
 class TriggersTest extends StorageApiTestCase
 {
     /**
@@ -196,8 +199,7 @@ class TriggersTest extends StorageApiTestCase
             $clientWithoutAdminToken->updateTrigger((int) $trigger['id'], $updateData);
             self::fail('should fail');
         } catch (Exception $e) {
-            // todo exception
-            self::assertEquals('Cannot be updated by this token', $e->getMessage());
+            self::assertEquals('Insufficient privilege. This token cannot manipulate with this trigger', $e->getMessage());
         }
 
         $updateTrigger = $this->_client->updateTrigger((int) $trigger['id'], $updateData);
@@ -268,8 +270,7 @@ class TriggersTest extends StorageApiTestCase
             $anotherClientWithAnotherToken->updateTrigger((int) $trigger['id'], $updateData);
             self::fail('should fail');
         } catch (Exception $e) {
-            // todo exception
-            self::assertEquals('Cannot be updated by this token', $e->getMessage());
+            self::assertEquals('Insufficient privilege. This token cannot manipulate with this trigger', $e->getMessage());
         }
     }
 
@@ -318,8 +319,7 @@ class TriggersTest extends StorageApiTestCase
             $anotherClientWithAnotherToken->updateTrigger((int) $trigger['id'], $updateData);
             self::fail('should fail');
         } catch (Exception $e) {
-            // todo exception
-            self::assertEquals('Cannot be updated by this token', $e->getMessage());
+            self::assertEquals('Insufficient privilege. This token cannot manipulate with this trigger', $e->getMessage());
         }
 
         // master token can do anything
@@ -419,8 +419,7 @@ class TriggersTest extends StorageApiTestCase
             $clientWithoutAdminToken->deleteTrigger((int) $trigger['id']);
             self::fail('should fail');
         } catch (Exception $e) {
-            // todo exception
-            self::assertEquals('Cannot be deleted by this token', $e->getMessage());
+            self::assertEquals('Insufficient privilege. This token cannot manipulate with this trigger', $e->getMessage());
         }
 
         $this->_client->deleteTrigger((int) $loadedTrigger['id']);
@@ -471,8 +470,7 @@ class TriggersTest extends StorageApiTestCase
             $anotherClientWithAnotherToken->deleteTrigger((int) $trigger['id']);
             self::fail('should fail');
         } catch (Exception $e) {
-            // todo exception
-            self::assertEquals('Cannot be deleted by this token', $e->getMessage());
+            self::assertEquals('Insufficient privilege. This token cannot manipulate with this trigger', $e->getMessage());
         }
 
         // owner can delete it even isn't master token
