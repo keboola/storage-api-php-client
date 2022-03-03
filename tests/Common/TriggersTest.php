@@ -144,7 +144,7 @@ class TriggersTest extends StorageApiTestCase
         }
     }
 
-    public function testUpdateTrigger()
+    public function testUpdateTriggerWithMasterToken()
     {
         $table1 = $this->createTableWithRandomData("watched-1");
         $table2 = $this->createTableWithRandomData("watched-2");
@@ -177,6 +177,18 @@ class TriggersTest extends StorageApiTestCase
             'runWithTokenId' => $brandNewToken['id'],
             'tableIds' => [$table1],
         ];
+
+        $newNonAdminToken = $this->tokens->createToken((new TokenCreateOptions())->setCanManageBuckets(true));
+        $clientWithoutAdminToken = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminToken['token']]);
+
+        // try to update the trigger with non-master token
+        try {
+            $clientWithoutAdminToken->updateTrigger((int) $trigger['id'], $updateData);
+            self::fail('should fail');
+        } catch (Exception $e) {
+            // todo exception
+            self::assertEquals('Cannot be updated by this token', $e->getMessage());
+        }
 
         $updateTrigger = $this->_client->updateTrigger((int) $trigger['id'], $updateData);
 
@@ -233,6 +245,21 @@ class TriggersTest extends StorageApiTestCase
         $this->assertEquals(20, $updatedTrigger['coolDownPeriodMinutes']);
         $this->assertEquals($brandNewToken['id'], $updatedTrigger['runWithTokenId']);
         $this->assertEquals([['tableId' => 'in.c-API-tests.watched-1']], $updatedTrigger['tables']);
+
+        // try it even with non-master token but this token didnt create this trigger
+        $anotherToken = $this->tokens->createToken((new TokenCreateOptions())->setCanManageBuckets(true));
+        $anotherClientWithAnotherToken = $this->getClient([
+            'url' => STORAGE_API_URL,
+            'token' => $anotherToken['token'],
+        ]);
+
+        try {
+            $anotherClientWithAnotherToken->updateTrigger((int) $trigger['id'], $updateData);
+            self::fail('should fail');
+        } catch (Exception $e) {
+            // todo exception
+            self::assertEquals('Cannot be updated by this token', $e->getMessage());
+        }
     }
 
     public function testUpdateTriggerWithDifferentNonMasterToken()
@@ -290,7 +317,100 @@ class TriggersTest extends StorageApiTestCase
         self::assertEquals([['tableId' => 'in.c-API-tests.watched-1']], $updatedTrigger['tables']);
     }
 
-    public function testDeleteTriggerWithDifferentNonMasterToken()
+    public function testUpdateTwoTables()
+    {
+        $table1 = $this->createTableWithRandomData("watched-1");
+        $table2 = $this->createTableWithRandomData("watched-2");
+
+        $options = (new TokenCreateOptions())
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
+        $newToken = $this->tokens->createToken($options);
+
+        $trigger1ConfigurationId = time();
+        $componentName = uniqid('test', true);
+        $trigger1Config = [
+            'component' => $componentName,
+            'configurationId' => $trigger1ConfigurationId,
+            'coolDownPeriodMinutes' => 10,
+            'runWithTokenId' => $newToken['id'],
+            'tableIds' => [
+                $table1,
+            ],
+        ];
+        $trigger1 = $this->_client->createTrigger($trigger1Config);
+        $trigger2Config = [
+            'component' => 'keboola.ex-manzelka',
+            'configurationId' => 123,
+            'coolDownPeriodMinutes' => 10,
+            'runWithTokenId' => $newToken['id'],
+            'tableIds' => [
+                $table2,
+            ],
+        ];
+        $trigger2 = $this->_client->createTrigger($trigger2Config);
+
+        $trigger1 = $this->_client->updateTrigger($trigger1['id'], $trigger1Config);
+        $trigger2 = $this->_client->updateTrigger($trigger2['id'], $trigger2Config);
+
+        $triggers = $this->_client->listTriggers();
+        $trigger1Found = $trigger2Found = false;
+        foreach ($triggers as $trigger) {
+            if ($trigger1['id'] === $trigger['id']) {
+                $trigger1Found = true;
+                $this->assertSame($trigger1Config['tableIds'][0], $trigger['tables'][0]['tableId']);
+            }
+            if ($trigger2['id'] === $trigger['id']) {
+                $trigger2Found = true;
+                $this->assertSame($trigger2Config['tableIds'][0], $trigger['tables'][0]['tableId']);
+            }
+        }
+
+        $this->assertTrue($trigger1Found);
+        $this->assertTrue($trigger2Found);
+    }
+
+    public function testDeleteTriggerWithMasterToken()
+    {
+        $table = $this->createTableWithRandomData("watched-2");
+
+        $options = (new TokenCreateOptions())
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
+
+        $newToken = $this->tokens->createToken($options);
+
+        $trigger = $this->_client->createTrigger([
+            'component' => 'orchestrator',
+            'configurationId' => 123,
+            'coolDownPeriodMinutes' => 10,
+            'runWithTokenId' => $newToken['id'],
+            'tableIds' => [
+                $table,
+            ],
+        ]);
+
+        $loadedTrigger = $this->_client->getTrigger((int) $trigger['id']);
+        $this->assertEquals($trigger['id'], $loadedTrigger['id']);
+
+        $newNonAdminToken = $this->tokens->createToken((new TokenCreateOptions())->setCanManageBuckets(true));
+        $clientWithoutAdminToken = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminToken['token']]);
+
+        // try to delete the trigger with non-master token
+        try {
+            $clientWithoutAdminToken->deleteTrigger((int) $trigger['id']);
+            self::fail('should fail');
+        } catch (Exception $e) {
+            // todo exception
+            self::assertEquals('Cannot be deleted by this token', $e->getMessage());
+        }
+
+        $this->_client->deleteTrigger((int) $loadedTrigger['id']);
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage(sprintf('Trigger with id [%d] was not found', $loadedTrigger['id']));
+        $this->_client->getTrigger((int) $trigger['id']);
+    }
+
+    public function testDeleteTriggerWithNonMasterToken()
     {
         $table1 = $this->createTableWithRandomData("watched-1");
 
@@ -332,14 +452,14 @@ class TriggersTest extends StorageApiTestCase
             self::assertEquals('Cannot be deleted by this token', $e->getMessage());
         }
 
-        // owner can delete it
+        // owner can delete it even isn't master token
         $clientWithoutAdminToken->deleteTrigger((int) $trigger['id']);
 
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage(sprintf('Trigger with id [%d] was not found', $trigger['id']));
         $clientWithoutAdminToken->getTrigger((int) $trigger['id']);
 
-        // master token can do anything
+        // master token can delete it anyway
         $this->_client->deleteTrigger((int) $trigger2['id']);
 
         $this->expectException(ClientException::class);
@@ -365,97 +485,7 @@ class TriggersTest extends StorageApiTestCase
         $this->_client->createTrigger($data);
     }
 
-    public function deleteKeyProvider()
-    {
-        return [
-            ['component'],
-            ['configurationId'],
-            ['coolDownPeriodMinutes'],
-            ['runWithTokenId'],
-            ['tableIds'],
-        ];
-    }
 
-    public function testDeleteTrigger()
-    {
-        $table = $this->createTableWithRandomData("watched-2");
-
-        $options = (new TokenCreateOptions())
-            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
-
-        $newToken = $this->tokens->createToken($options);
-
-        $trigger = $this->_client->createTrigger([
-            'component' => 'orchestrator',
-            'configurationId' => 123,
-            'coolDownPeriodMinutes' => 10,
-            'runWithTokenId' => $newToken['id'],
-            'tableIds' => [
-                $table,
-            ],
-        ]);
-
-        $loadedTrigger = $this->_client->getTrigger((int) $trigger['id']);
-        $this->assertEquals($trigger['id'], $loadedTrigger['id']);
-
-        $this->_client->deleteTrigger((int) $loadedTrigger['id']);
-
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage(sprintf('Trigger with id [%d] was not found', $loadedTrigger['id']));
-        $this->_client->getTrigger((int) $trigger['id']);
-    }
-
-    public function testUpdateTwoTables()
-    {
-        $table1 = $this->createTableWithRandomData("watched-1");
-        $table2 = $this->createTableWithRandomData("watched-2");
-
-        $options = (new TokenCreateOptions())
-            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
-        $newToken = $this->tokens->createToken($options);
-
-        $trigger1ConfigurationId = time();
-        $componentName = uniqid('test');
-        $trigger1Config = [
-            'component' => $componentName,
-            'configurationId' => $trigger1ConfigurationId,
-            'coolDownPeriodMinutes' => 10,
-            'runWithTokenId' => $newToken['id'],
-            'tableIds' => [
-                $table1,
-            ],
-        ];
-        $trigger1 = $this->_client->createTrigger($trigger1Config);
-        $trigger2Config = [
-            'component' => 'keboola.ex-manzelka',
-            'configurationId' => 123,
-            'coolDownPeriodMinutes' => 10,
-            'runWithTokenId' => $newToken['id'],
-            'tableIds' => [
-                $table2,
-            ],
-        ];
-        $trigger2 = $this->_client->createTrigger($trigger2Config);
-
-        $trigger1 = $this->_client->updateTrigger($trigger1['id'], $trigger1Config);
-        $trigger2 = $this->_client->updateTrigger($trigger2['id'], $trigger2Config);
-
-        $triggers = $this->_client->listTriggers();
-        $trigger1Found = $trigger2Found = false;
-        foreach ($triggers as $trigger) {
-            if ($trigger1['id'] == $trigger['id']) {
-                $trigger1Found = true;
-                $this->assertSame($trigger1Config['tableIds'][0], $trigger['tables'][0]['tableId']);
-            }
-            if ($trigger2['id'] == $trigger['id']) {
-                $trigger2Found = true;
-                $this->assertSame($trigger2Config['tableIds'][0], $trigger['tables'][0]['tableId']);
-            }
-        }
-
-        $this->assertTrue($trigger1Found);
-        $this->assertTrue($trigger2Found);
-    }
 
     public function testListAction()
     {
@@ -467,7 +497,7 @@ class TriggersTest extends StorageApiTestCase
         $newToken = $this->tokens->createToken($options);
 
         $trigger1ConfigurationId = time();
-        $componentName = uniqid('test');
+        $componentName = uniqid('test', true);
         $trigger1 = $this->_client->createTrigger([
             'component' => $componentName,
             'configurationId' => $trigger1ConfigurationId,
@@ -490,10 +520,10 @@ class TriggersTest extends StorageApiTestCase
         $triggers = $this->_client->listTriggers();
         $trigger1Found = $trigger2Found = false;
         foreach ($triggers as $trigger) {
-            if ($trigger1['id'] == $trigger['id']) {
+            if ($trigger1['id'] === $trigger['id']) {
                 $trigger1Found = true;
             }
-            if ($trigger2['id'] == $trigger['id']) {
+            if ($trigger2['id'] === $trigger['id']) {
                 $trigger2Found = true;
             }
         }
@@ -678,6 +708,17 @@ class TriggersTest extends StorageApiTestCase
                 (new TokenCreateOptions()),
                 'Insufficient privilege. Yours token is not an admin token.',
             ],
+        ];
+    }
+
+    public function deleteKeyProvider()
+    {
+        return [
+            'component' => ['component'],
+            'configurationId' => ['configurationId'],
+            'coolDownPeriodMinutes' => ['coolDownPeriodMinutes'],
+            'runWithTokenId' => ['runWithTokenId'],
+            'tableIds' => ['tableIds'],
         ];
     }
 }
