@@ -75,6 +75,14 @@ class SharingTest extends StorageApiSharingTestCase
                 'primaryKey' => 'name',
             ]
         );
+        $table1SecondBucketId = $this->_client->createTableAsync(
+            $secondBucketId,
+            'languages',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
+            [
+                'primaryKey' => 'name',
+            ]
+        );
         if ($this->isSynapseTestCase($sharingBackend, $workspaceBackend)) {
             $this->assertExpectedDistributionKeyColumn($table1Id, 'name');
         }
@@ -284,6 +292,18 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertCount(1, $tables);
         $this->assertContains($backend->toIdentifier("table3"), $tables);
 
+        $unloadBucketId = 'out.c-sharing-test-unload';
+        try {
+            $this->_client2->getBucket($unloadBucketId);
+            // if bucket exists drop it
+            $this->_client2->dropBucket($unloadBucketId, ['force' => true]);
+        } catch (ClientException $e) {
+            $this->assertEquals("Bucket {$unloadBucketId} not found", $e->getMessage());
+        } finally {
+            // create unload bucket
+            $this->_client2->createBucket("sharing-test-unload", "out", "", 'synapse');
+        }
+
         // now try load as view
         if ($this->isSynapseTestCase($sharingBackend, $workspaceBackend)
             && $backend instanceof SynapseWorkspaceBackend
@@ -325,6 +345,47 @@ class SharingTest extends StorageApiSharingTestCase
             self::assertArrayHasKey('id', $data[0]);
             self::assertArrayHasKey('name', $data[0]);
             self::assertArrayHasKey('_timestamp', $data[0]);
+
+            $connection = $workspace['connection'];
+            /** @var Connection $db */
+            $db = $this->getDbConnection($connection);
+            // User in Synapse can create view from table and scheme where he don't have permission to access
+            // this test can't be run in regular test suite as we don't know schema name of the bucket
+            // if desired to run uncoment and fill real schema name
+            //$db->executeStatement('CREATE VIEW [test_transit_load] AS SELECT [id],[name] FROM [DEV_ZAJCA_1621-out_c-API-sharing].[languages]');
+            //try {
+            //    $db->fetchAll('SELECT * FROM [test_transit_load]');
+            //    $this->fail('Must fail as workspace user can\'t select from source table');
+            //} catch (\Exception $e) {
+            //    var_export($e->getMessage());
+            //}
+            //
+            //try {
+            //    $db->fetchAll('CREATE TABLE [test_ctas] WITH (DISTRIBUTION = ROUND_ROBIN) AS SELECT * FROM [test_transit_load]');
+            //    $this->fail('Must fail as workspace user can\'t select from source table');
+            //} catch (\Exception $e) {
+            //    var_export($e->getMessage());
+            //}
+            //
+            //try {
+            //    $this->_client2->createTableAsyncDirect($unloadBucketId, [
+            //        'name' => 'should-fail-on-credentials',
+            //        'dataWorkspaceId' => $workspace['id'],
+            //        'dataTableName' => 'test_transit_load',
+            //    ]);
+            //    $this->fail('Must fail as project credentials can\'t select from source table of view');
+            //} catch (ClientException $e) {
+            //    var_export($e->getMessage());
+            //}
+
+            //create view without _timestamp column
+            $db->executeStatement('CREATE VIEW [test_load_from_view] AS SELECT [id],[name] FROM [languagesLoaded]');
+            // must work unload from view
+            $this->_client2->createTableAsyncDirect($unloadBucketId, [
+                'name' => 'languagesUnLoaded',
+                'dataWorkspaceId' => $workspace['id'],
+                'dataTableName' => 'test_load_from_view',
+            ]);
         }
 
         // unload validation
@@ -359,6 +420,13 @@ class SharingTest extends StorageApiSharingTestCase
             $this->assertEquals('accessDenied', $e->getStringCode());
         }
 
+        // must work unload from workspace table
+        $this->_client2->createTableAsyncDirect($unloadBucketId, [
+            'name' => 'languages3',
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => 'languages3',
+        ]);
+
         // drop second bucket without linking
         $this->_client->unshareBucket($secondBucketId);
         $this->_client->dropBucket($secondBucketId, ['force' => true]);
@@ -381,7 +449,8 @@ class SharingTest extends StorageApiSharingTestCase
             $schemaRef = (new SynapseSchemaReflection($db, $connection['schema']));
             // test number of views after source unlink
             $views = $schemaRef->getViewsNames();
-            self::assertCount(0, $views);
+            // there is one view test_load_from_view which is not refreshed but lost binding
+            self::assertCount(1, $views);
         }
 
         $this->_client->dropBucket($bucketId, ['force' => true]);
