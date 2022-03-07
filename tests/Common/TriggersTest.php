@@ -10,9 +10,6 @@ use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\Test\StorageApiTestCase;
 
-/**
- * @retryAttempts 0
- */
 class TriggersTest extends StorageApiTestCase
 {
     /**
@@ -69,6 +66,36 @@ class TriggersTest extends StorageApiTestCase
             ],
             $trigger['creatorToken']
         );
+    }
+
+    /**
+     * @return void
+     */
+    public function testCreateTriggerAsNonAdminButWithMasterTokenAsTokenRunWith()
+    {
+        $table1 = $this->createTableWithRandomData("watched-1");
+        $options = (new TokenCreateOptions())
+            ->setCanManageBuckets(true);
+        $newToken = $this->tokens->createToken($options);
+        $clientWithoutAdminToken = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newToken['token']]);
+        try {
+            $clientWithoutAdminToken->createTrigger([
+                'component' => 'orchestrator',
+                'configurationId' => 123,
+                'coolDownPeriodMinutes' => 10,
+                // using master token as runWithTokenId but client's token isn't master
+                'runWithTokenId' => $this->_client->verifyToken()['id'],
+                'tableIds' => [
+                    $table1,
+                ],
+            ]);
+            self::fail("should fail");
+        } catch (ClientException $e) {
+            $this->assertEquals(
+                "The 'runByToken' cannot be admin's token when your main token is not admin's",
+                $e->getMessage()
+            );
+        }
     }
 
     /**
@@ -152,6 +179,44 @@ class TriggersTest extends StorageApiTestCase
         } catch (\Exception $e) {
             self::assertEquals($expectedException, $e->getMessage());
         }
+    }
+
+    /**
+     * @return void
+     */
+    public function testCreateTriggerWithMasterTokensEveryWhere()
+    {
+        $table1 = $this->createTableWithRandomData("watched-1");
+        $myTokenId = $this->_client->verifyToken()['id'];
+        $trigger = $this->_client->createTrigger([
+            'component' => 'orchestrator',
+            'configurationId' => 123,
+            'coolDownPeriodMinutes' => 10,
+            'runWithTokenId' => $myTokenId,
+            'tableIds' => [
+                $table1,
+            ],
+        ]);
+
+        $this->assertEquals('orchestrator', $trigger['component']);
+        $this->assertEquals(123, $trigger['configurationId']);
+        $this->assertEquals(10, $trigger['coolDownPeriodMinutes']);
+        $this->assertEquals($myTokenId, $trigger['runWithTokenId']);
+        $this->assertEquals([['tableId' => 'in.c-API-tests.watched-1']], $trigger['tables']);
+
+        $updateData = [
+            'component' => 'keboola.ex-1',
+            'configurationId' => 111,
+            'coolDownPeriodMinutes' => 20,
+            'runWithTokenId' => $myTokenId,
+            'tableIds' => [$table1],
+        ];
+        $updatedTrigger = $this->_client->updateTrigger((int) $trigger['id'], $updateData);
+        $this->assertEquals('keboola.ex-1', $updatedTrigger['component']);
+        $this->assertEquals(111, $updatedTrigger['configurationId']);
+        $this->assertEquals(20, $updatedTrigger['coolDownPeriodMinutes']);
+        $this->assertEquals($myTokenId, $updatedTrigger['runWithTokenId']);
+        $this->assertEquals([['tableId' => 'in.c-API-tests.watched-1']], $updatedTrigger['tables']);
     }
 
     /**
@@ -242,6 +307,25 @@ class TriggersTest extends StorageApiTestCase
             ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
 
         $brandNewToken = $this->tokens->createToken($options);
+
+        // check update trigger as non-master but my runWithToken is master
+        try {
+            $updateData = [
+                'component' => 'keboola.ex-1',
+                'configurationId' => 111,
+                'coolDownPeriodMinutes' => 20,
+                'runWithTokenId' => $this->_client->verifyToken()['id'],
+                'tableIds' => [$table1],
+            ];
+
+            $clientWithoutAdminToken->updateTrigger((int) $trigger['id'], $updateData);
+            self::fail("should fail");
+        } catch (ClientException $e) {
+            $this->assertEquals(
+                "The 'runByToken' cannot be admin's token when your main token is not admin's",
+                $e->getMessage()
+            );
+        }
 
         $updateData = [
             'component' => 'keboola.ex-1',
