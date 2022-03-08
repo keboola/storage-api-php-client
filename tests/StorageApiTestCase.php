@@ -28,6 +28,7 @@ abstract class StorageApiTestCase extends ClientTestCase
     const BACKEND_SNOWFLAKE = 'snowflake';
     const BACKEND_SYNAPSE = 'synapse';
     const BACKEND_EXASOL = 'exasol';
+    const BACKEND_TERADATA = 'teradata';
 
     const STAGE_IN = 'in';
     const STAGE_OUT = 'out';

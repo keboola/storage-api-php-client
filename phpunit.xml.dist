@@ -226,5 +226,9 @@
 		<!--Exasol override-->
 		<directory>tests/Backend/Exasol</directory>
 	</testsuite>
+
+	<testsuite name="paratest-teradata">
+		<file>tests/Backend/CommonPart1/BucketsTest.php</file>
+	</testsuite>
 </testsuites>
 </phpunit>
