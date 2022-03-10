@@ -21,6 +21,7 @@ use Keboola\StorageApi\Client;
 class TokensTest extends StorageApiTestCase
 {
     const BUCKET_PERMISSION_MANAGE = 'manage';
+    const BUCKET_PERMISSION_READ = 'read';
 
     /** @var string */
     private $inBucketId;
@@ -966,8 +967,10 @@ class TokensTest extends StorageApiTestCase
         $options = (new TokenUpdateOptions($token['id']))
             ->setDescription('CanManageBuckets update 1')
             ->addBucketPermission($this->outBucketId, TokenAbstractOptions::BUCKET_PERMISSION_READ)
+            ->addBucketPermission($this->inBucketId, TokenAbstractOptions::BUCKET_PERMISSION_READ)
         ;
 
+        // update both bucket permission
         $token = $this->tokens->updateToken($options);
 
         $this->assertTrue($token['canManageBuckets']);
@@ -976,7 +979,8 @@ class TokensTest extends StorageApiTestCase
         $this->assertEmpty(array_diff($bucketIds, array_keys($token['bucketPermissions'])));
 
         foreach ($token['bucketPermissions'] as $bucketPermission) {
-            $this->assertSame(self::BUCKET_PERMISSION_MANAGE, $bucketPermission);
+            // expect read permission because we update it before
+            $this->assertSame(self::BUCKET_PERMISSION_READ, $bucketPermission);
         }
 
         // update token without setting permissions
