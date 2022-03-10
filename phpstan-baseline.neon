@@ -11481,11 +11481,6 @@ parameters:
 			path: tests/Common/TokensTest.php
 
 		-
-			message: "#^Property Keboola\\\\Test\\\\Common\\\\TokensTest\\:\\:\\$inBucketId is never read, only written\\.$#"
-			count: 1
-			path: tests/Common/TokensTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Downloader\\\\AbsUrlParserTest\\:\\:testParseAbsUrlAzure\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Downloader/AbsUrlParserTest.php
