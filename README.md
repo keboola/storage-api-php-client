@@ -82,6 +82,9 @@ $exporter->exportTable('in.c-main.my-table', './in.c-main.my-table.csv', []);
 
 **Warning: Never run this tests on production project with real data, always create project for testing purposes!!!**
 
+*Note: For automated tests, the tests are run again three times by default if they fail. For local development this would be quite annoying,
+so you can disable this by creating new file `phpunit-retry.xml` from `phpunit-retry.xml.dist`*
+
 The main purpose of these test is "black box" test driven development of Keboola Connection. These test guards the API implementation.
 
 Tests should be executed against local dockerized version of [Keboola Connection](https://github.com/keboola/connection/) (private repo).
