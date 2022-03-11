@@ -197,7 +197,7 @@ class BranchEventsTest extends StorageApiTestCase
             ->setMessage($token['description'] . ' sample event');
         $event = $this->createAndWaitForEvent($event, $branchClient);
 
-        // test DEFULT branch
+        // test DEFAULT branch
         // check token events in default branch
         $defaultTokenEvents = $this->_client->listTokenEvents($token['id']);
         $this->assertCount(1, $defaultTokenEvents); // token created
@@ -217,7 +217,7 @@ class BranchEventsTest extends StorageApiTestCase
 
         // check events in default branch
         $branchEvents = $branchClient->listEvents();
-        $this->assertGreaterThan(1, count($branchEvents));
+        $this->assertCount(1, $branchEvents);
 
         // check dummy event is among events
         $this->assertSame($event['id'], reset($branchEvents)['id']);
