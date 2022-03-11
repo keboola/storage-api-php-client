@@ -967,7 +967,6 @@ class TokensTest extends StorageApiTestCase
         $options = (new TokenUpdateOptions($token['id']))
             ->setDescription('CanManageBuckets update 1')
             ->addBucketPermission($this->outBucketId, TokenAbstractOptions::BUCKET_PERMISSION_READ)
-            ->addBucketPermission($this->inBucketId, TokenAbstractOptions::BUCKET_PERMISSION_READ)
         ;
 
         // update both bucket permission
@@ -978,10 +977,9 @@ class TokensTest extends StorageApiTestCase
         $this->assertCount(count($bucketIds), $token['bucketPermissions']);
         $this->assertEmpty(array_diff($bucketIds, array_keys($token['bucketPermissions'])));
 
-        foreach ($token['bucketPermissions'] as $bucketPermission) {
-            // expect read permission because we update it before
-            $this->assertSame(self::BUCKET_PERMISSION_READ, $bucketPermission);
-        }
+        // expect read permission because we update it before
+        $this->assertSame(self::BUCKET_PERMISSION_READ, $token['bucketPermissions'][$this->outBucketId]);
+        $this->assertSame(self::BUCKET_PERMISSION_MANAGE, $token['bucketPermissions'][$this->inBucketId]);
 
         // update token without setting permissions
         $options = (new TokenUpdateOptions($token['id']))
