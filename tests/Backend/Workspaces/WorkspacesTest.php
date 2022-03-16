@@ -23,15 +23,11 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
-        foreach ($this->listTestWorkspaces($this->_client) as $workspace) {
-            $workspaces->deleteWorkspace($workspace['id']);
-        }
-
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
         $this->workspaceSapiClient->setRunId($runId);
 
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
         $connection = $workspace['connection'];
 
         $workspaceWithSnowflakeBackend = $connection['backend'] === self::BACKEND_SNOWFLAKE;
@@ -166,14 +162,10 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
-        foreach ($this->listTestWorkspaces($this->_client) as $workspace) {
-            $workspaces->deleteWorkspace($workspace['id']);
-        }
-
         $runId = $this->_client->generateRunId();
         $this->workspaceSapiClient->setRunId($runId);
 
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
         $connection = $workspace['connection'];
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
