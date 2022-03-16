@@ -217,7 +217,7 @@ class BranchEventsTest extends StorageApiTestCase
 
         // check events in default branch
         $branchEvents = $branchClient->listEvents();
-        $this->assertCount(1, $branchEvents);
+        $this->assertCount(1, $branchEvents, 'Non admin token should only see their events');
 
         // check dummy event is among events
         $this->assertSame($event['id'], reset($branchEvents)['id']);
