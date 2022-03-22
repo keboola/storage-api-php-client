@@ -6,6 +6,7 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Options\TokenCreateOptions;
+use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\Event;
 
@@ -185,7 +186,9 @@ class BranchEventsTest extends StorageApiTestCase
         $token = $this->tokens->createToken($tokenOptions);
 
         // create dev branch client
-        $devBranch = $this->createDevBranchForTestCase($this);
+        $clientProvider = new ClientProvider($this);
+        $devBranch = $clientProvider->createDevBranchForTestCase();
+        $masterBranchClient = ($clientProvider)->getDevBranchClient([], true);
         $branchClient = $this->getBranchAwareClient($devBranch['id'], [
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
@@ -197,7 +200,14 @@ class BranchEventsTest extends StorageApiTestCase
             ->setMessage($token['description'] . ' sample event');
         $event = $this->createAndWaitForEvent($event, $branchClient);
 
-        // test DEFULT branch
+        // create event with master token branch client
+        $eventInBranchFromMasterToken = new Event();
+        $eventInBranchFromMasterToken->setComponent('dummy')
+            ->setMessage($token['description'] . ' sample master token event');
+        $eventInBranchFromMasterToken = $this->createAndWaitForEvent($eventInBranchFromMasterToken, $masterBranchClient);
+
+
+        // test DEFAULT branch
         // check token events in default branch
         $defaultTokenEvents = $this->_client->listTokenEvents($token['id']);
         $this->assertCount(1, $defaultTokenEvents); // token created
@@ -211,16 +221,25 @@ class BranchEventsTest extends StorageApiTestCase
 
         // check dummy event is not among events in default branch
         $this->assertNotSame($event['id'], reset($defaultEvents)['id']);
+        $this->assertNotSame($eventInBranchFromMasterToken['id'], reset($defaultEvents)['id']);
 
         // test DEV branch
         // check token events in dev branch - not implemented
 
         // check events in default branch
         $branchEvents = $branchClient->listEvents();
-        $this->assertGreaterThan(1, count($branchEvents));
+        $this->assertCount(1, $branchEvents, 'Non admin token should only see their events');
 
         // check dummy event is among events
         $this->assertSame($event['id'], reset($branchEvents)['id']);
+
+        // check events in default branch for master token
+        $branchEvents = $masterBranchClient->listEvents();
+        $this->assertGreaterThan(2, $branchEvents, 'Admin token should see all events');
+
+        // check dummy event is among events
+        $this->assertSame($eventInBranchFromMasterToken['id'], $branchEvents[0]['id']);
+        $this->assertSame($event['id'], $branchEvents[1]['id']);
     }
 
     private function waitForListEvents(Client $client, $query)
