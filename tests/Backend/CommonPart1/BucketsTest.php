@@ -118,16 +118,10 @@ class BucketsTest extends StorageApiTestCase
 
     public function testBucketEvents()
     {
-        $description = $this->generateDescriptionForTestObject();
-        $bucketName = $this->getTestBucketName($description);
-
-        $this->dropBucketIfExists($this->_client, 'in.c-' . $bucketName);
-        $bucketId = $this->_client->createBucket($bucketName, self::STAGE_IN, $description);
-
         $this->initEvents($this->_client);
 
         // create bucket event
-        $this->_client->listTables($bucketId);
+        $this->_client->listTables($this->getTestBucketId());
 
         // create dummy event
         $event = new Event();
@@ -136,7 +130,7 @@ class BucketsTest extends StorageApiTestCase
         $this->createAndWaitForEvent($event);
 
         // check bucket events
-        $events = $this->_client->listBucketEvents($bucketId, ['sinceId' => $this->lastEventId]);
+        $events = $this->_client->listBucketEvents($this->getTestBucketId(), ['sinceId' => $this->lastEventId]);
         $this->assertIsArray($events);
         $this->assertCount(1, (array) $events);
     }
