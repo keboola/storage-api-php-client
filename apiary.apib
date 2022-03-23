@@ -2666,8 +2666,7 @@ will show information about the created file and caching:
     + format (optional, enum[string]) - File format
         + Members
             + rfc - According to [RFC](http://www.ietf.org/rfc/rfc4180.txt).
-            + escaped - Delimited by a comma, enclosed by a double quote, special characters (e.g. new line, tab) escaped by a backslash. Each row in the CSV file is equal to one row in Storage.
-            + raw - Delimited by tab, without an enclosure, special characters (e.g. new line, tab)  escaped by a backslash. Each row in the CSV file is equal to one row in Storage.
+            + json
         + Default: rfc
     + changedSince (optional) - Filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp or any date accepted by [strtotime](http://www.php.net/manual/en/function.strtotime.php).
     + changedUntil (optional) - Filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp or any date accepted by [strtotime](http://www.php.net/manual/en/function.strtotime.php).
