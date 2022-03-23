@@ -15,9 +15,12 @@ use Keboola\StorageApi\Options\BucketUpdateOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
+use Keboola\Test\Utils\EventTesterUtils;
 
 class BucketsTest extends StorageApiTestCase
 {
+    use EventTesterUtils;
+
     public function setUp()
     {
         parent::setUp();
@@ -113,43 +116,29 @@ class BucketsTest extends StorageApiTestCase
         $this->_client->dropBucket($bucket['id']);
     }
 
-    /**
-     * @return int
-     */
-    private function getLastEventId()
-    {
-        $lastEvents = $this->_client->listEvents(['limit' => 1]);
-        if (!$lastEvents || !is_array($lastEvents)) {
-            $this->fail('Cannot get last event ID.');
-        }
-        $lastEventId = $lastEvents[0]['id'];
-        $this->assertIsInt($lastEventId);
-        return $lastEventId;
-    }
-
     public function testBucketEvents()
     {
-        $lastEventId = $this->getLastEventId();
+        $description = $this->generateDescriptionForTestObject();
+        $bucketName = $this->getTestBucketName($description);
 
-        $description = 'testBucketEvents';
-        $bucketId = $this->initEmptyBucket($this->getTestBucketName($description), self::STAGE_IN, $description);
-        $this->assertIsString($bucketId);
+        $this->dropBucketIfExists($this->_client, 'in.c-' . $bucketName);
+        $bucketId = $this->_client->createBucket($bucketName, self::STAGE_IN, $description);
+
+        $this->initEvents($this->_client);
+
+        // create bucket event
+        $this->_client->listTables($bucketId);
 
         // create dummy event
         $event = new Event();
         $event->setComponent('dummy')
             ->setMessage('bucket sample event');
-        $event = $this->createAndWaitForEvent($event);
+        $this->createAndWaitForEvent($event);
 
         // check bucket events
-        $events = $this->_client->listBucketEvents($bucketId, ['sinceId' => $lastEventId]);
+        $events = $this->_client->listBucketEvents($bucketId, ['sinceId' => $this->lastEventId]);
         $this->assertIsArray($events);
         $this->assertCount(1, (array) $events);
-
-        // check dummy event is not among bucket events
-        $this->assertArrayNotHasKey($event['id'], (array) $events);
-
-        $this->_client->dropBucket((string) $bucketId);
     }
 
     public function testBucketsListWithIncludeParameter()
