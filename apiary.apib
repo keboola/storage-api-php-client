@@ -490,7 +490,7 @@ bucket permissions, don't forget to specify the previous permissions.
 ## Token Verification [/v2/storage/tokens/verify]
 ### Token verification [GET]
 Checks the token privileges and returns information about the project to which the token belongs (`owner`)
-and the associated administrator (`admin`). If the project is configured with pay as you go billing, `payAsYouGo` section with details is available under `owner` info. This call can be executed by all tokens.
+and the associated administrator (`admin`) with organization (if any). If the project is configured with pay as you go billing, `payAsYouGo` section with details is available under `owner` info. This call can be executed by all tokens.
 
 + Request
     + Headers
@@ -521,6 +521,16 @@ and the associated administrator (`admin`). If the project is configured with pa
                 },
                 "bucketPermissions": [],
                 "componentPermissions": [],
+                "admin": {
+                    "id": 124,
+                    "name": "John Doe",
+                    "features": [],
+                    "isOrganizationMember": true,
+                    "role": "admin"
+                },
+                "organization": {
+                    "id": 123
+                },
                 "owner": {
                     "name": "Buckets 5",
                     "id": "58",
@@ -600,7 +610,7 @@ and the associated administrator (`admin`). If the project is configured with pa
 
 ### Development branch token verification [GET /v2/storage/branch/{branch_id}/tokens/verify]
 Checks the token privileges and returns information about the project to which the token belongs (`owner`)
-and the associated administrator (`admin`). If the project is configured with pay as you go billing, `payAsYouGo` section with details is available under `owner` info.
+and the associated administrator (`admin`) with organization (if any). If the project is configured with pay as you go billing, `payAsYouGo` section with details is available under `owner` info.
 This call can be executed by all tokens.
 **Same as for default branch.**
 
@@ -636,6 +646,16 @@ This call can be executed by all tokens.
                 },
                 "bucketPermissions": [],
                 "componentPermissions": [],
+                "admin": {
+                    "id": 124,
+                    "name": "John Doe",
+                    "features": [],
+                    "isOrganizationMember": true,
+                    "role": "admin"
+                },
+                "organization": {
+                    "id": 123
+                },
                 "owner": {
                     "name": "Buckets 5",
                     "id": "58",
