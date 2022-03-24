@@ -133,6 +133,15 @@ class BucketsTest extends StorageApiTestCase
         $events = $this->_client->listBucketEvents($this->getTestBucketId(), ['sinceId' => $this->lastEventId]);
         $this->assertIsArray($events);
         $this->assertCount(1, (array) $events);
+        $this->assertEvent(
+            $events[0],
+            'storage.tablesListed',
+            'Listed tables',
+            'in.c-API-tests',
+            'c-API-tests',
+            'bucket',
+            []
+        );
     }
 
     public function testBucketsListWithIncludeParameter()
