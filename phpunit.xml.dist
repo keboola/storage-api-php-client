@@ -18,7 +18,6 @@
 		<file>tests/File/CommonFileTest.php</file>
 		<exclude>tests/Common/BranchBucketsTest.php</exclude>
 		<exclude>tests/Common/BranchWorkspacesTest.php</exclude>
-		<exclude>tests/Common/TempDevBranchOnlyTest.php</exclude>
 		<file>tests/Backend/Workspaces/BranchComponentsWorkspacesTest.php</file>
 	</testsuite>
 
@@ -52,7 +51,6 @@
 		<file>tests/Common/EventsTest.php</file>
 		<file>tests/Common/GetToFileTest.php</file>
 		<file>tests/Common/SearchComponentsConfigurationsTest.php</file>
-		<file>tests/Common/TempDevBranchOnlyTest.php</file>
 		<file>tests/Common/TokensTest.php</file>
 		<file>tests/Backend/Workspaces/BranchComponentsWorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
