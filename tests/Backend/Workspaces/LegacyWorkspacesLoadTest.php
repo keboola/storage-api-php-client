@@ -938,7 +938,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
     public function testSourceTableNotFound()
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         // let's try loading from a table that doesn't exist
         $mappingInvalidSource = array("source" => "in.c-nonExistentBucket.fakeTable", "destination" => "whatever");
@@ -956,7 +956,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         //setup test tables
         $table1_id = $this->_client->createTable(
@@ -1030,7 +1030,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
 
         // create the workspace with the limited permission client
         $workspaces = new Workspaces($testClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         $input = [
             [
@@ -1051,7 +1051,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
     public function testDottedDestination()
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         // Create a table of sample data
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -1080,7 +1080,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
     public function testInvalidColumnsStringIgnore()
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         // Create a table of sample data
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -1118,7 +1118,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $options = array(
