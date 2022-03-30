@@ -30,6 +30,8 @@ class WorkspaceBackendFactory
                 return new SynapseWorkspaceBackend($workspace);
             case StorageApiTestCase::BACKEND_EXASOL:
                 return new ExasolWorkspaceBackend($workspace);
+            case StorageApiTestCase::BACKEND_TERADATA:
+                return new TeradataWorkspaceBackend($workspace);
             default:
                 throw new Exception($workspace['connection']['backend'] . " workspaces are not supported.");
         }
