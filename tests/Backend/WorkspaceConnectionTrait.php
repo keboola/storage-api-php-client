@@ -4,6 +4,7 @@ namespace Keboola\Test\Backend;
 
 use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\TableBackendUtils\Connection\Exasol\ExasolConnection;
+use Keboola\TableBackendUtils\Connection\Teradata\TeradataConnection;
 use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
 use Keboola\Test\StorageApiTestCase;
 
@@ -64,6 +65,21 @@ trait WorkspaceConnectionTrait
                         'OPEN SCHEMA %s',
                         ExasolQuote::quoteSingleIdentifier($connection['schema'])
                     ));
+
+                return $db;
+            case StorageApiTestCase::BACKEND_TERADATA:
+                $db = TeradataConnection::getConnection([
+                    'host' => $connection['host'],
+                    'port' => 1025,
+                    'user' => $connection['user'],
+                    'password' => $connection['password'],
+                    'dbname' => $connection['schema'],
+                ]);
+                $db->connect();
+                $db->executeStatement(sprintf(
+                    'SET SESSION DATABASE %s',
+                    ExasolQuote::quoteSingleIdentifier($connection['schema'])
+                ));
 
                 return $db;
         }
