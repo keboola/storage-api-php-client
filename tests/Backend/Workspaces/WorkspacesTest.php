@@ -51,7 +51,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $backend->createTable("mytable", ["amount" => ($workspaceWithSnowflakeBackend) ? "NUMBER" : "VARCHAR"]);
 
         $tableNames = $backend->getTables();
-        $backend = null; // force odbc disconnect
+        $backend->disconnect();
 
         $this->assertArrayHasKey("mytable", array_flip($tableNames));
 
@@ -178,6 +178,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $backend->createTable("mytable", ["amount" => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? "NUMBER" : "VARCHAR"]);
+        $backend->disconnect();
 
         // sync delete
         $workspaces->deleteWorkspace($workspace['id'], $dropOptions);
