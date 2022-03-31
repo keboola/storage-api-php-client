@@ -372,12 +372,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals('Main', $component['name']);
         $this->assertEquals('some desc', $component['description']);
         $this->assertSame('Configuration restored', $component['changeDescription']);
-        if ($clientType === ClientProvider::DEFAULT_BRANCH && $this->shouldUseLegacyBranchServices()) {
-            // will fail after consolidate branches
-            $this->assertArrayNotHasKey('isDisabled', $component);
-        } else {
-            $this->assertTrue($component['isDisabled']);
-        }
+        $this->assertTrue($component['isDisabled']);
         $this->assertFalse($component['isDeleted']);
         $this->assertEquals(4, $component['version']);
         $this->assertIsInt($component['version']);
@@ -432,12 +427,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertSame('Main 1 restored', $configuration['name']);
         $this->assertSame(['a' => 'b'], $configuration['configuration']);
         $this->assertSame('Config restored...', $configuration['changeDescription']);
-        if ($clientType === ClientProvider::DEFAULT_BRANCH && $this->shouldUseLegacyBranchServices()) {
-            // will fail after consolidate branches
-            $this->assertArrayNotHasKey('isDisabled', $configuration);
-        } else {
-            $this->assertFalse($configuration['isDisabled']);
-        }
+        $this->assertFalse($configuration['isDisabled']);
         $this->assertSame(6, $configuration['version']);
     }
 
@@ -482,10 +472,6 @@ class ComponentsTest extends StorageApiTestCase
      */
     public function testComponentConfigIsDisabled($clientType)
     {
-        if ($clientType === ClientProvider::DEFAULT_BRANCH && $this->shouldUseLegacyBranchServices()) {
-            $this->markTestSkipped('Configuration isDisabled is not supported in default branch.');
-        }
-
         $components = new \Keboola\StorageApi\Components($this->client);
 
         // create configuration with isDisabled = true
@@ -538,10 +524,6 @@ class ComponentsTest extends StorageApiTestCase
      */
     public function testComponentConfigCreateIsDisabledMixed($clientType, $isDisabled, $expectedIsDisabled)
     {
-        if ($clientType === ClientProvider::DEFAULT_BRANCH && $this->shouldUseLegacyBranchServices()) {
-            $this->markTestSkipped('Configuration isDisabled is not supported in default branch.');
-        }
-
         // create config
         $client = $this->clientProvider->createGuzzleClientForCurrentTest([
             'base_uri' => $this->client->getApiUrl(),
@@ -942,12 +924,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals($config->getConfiguration(), $configuration['configuration']);
         $this->assertEquals(2, $configuration['version']);
         $this->assertEquals('Configuration updated', $configuration['changeDescription']);
-        if ($clientType === ClientProvider::DEFAULT_BRANCH && $this->shouldUseLegacyBranchServices()) {
-            // will fail after consolidate branches
-            $this->assertArrayNotHasKey('isDisabled', $configuration);
-        } else {
-            $this->assertFalse($configuration['isDisabled']);
-        }
+        $this->assertFalse($configuration['isDisabled']);
 
         $state = [
             'cache' => true,
@@ -961,12 +938,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals($configurationData, $updatedConfig['configuration']);
         $this->assertEquals($state, $updatedConfig['state']);
         $this->assertEquals('Configuration updated', $updatedConfig['changeDescription']);
-        if ($clientType === ClientProvider::DEFAULT_BRANCH && $this->shouldUseLegacyBranchServices()) {
-            // will fail after consolidate branches
-            $this->assertArrayNotHasKey('isDisabled', $updatedConfig);
-        } else {
-            $this->assertFalse($updatedConfig['isDisabled']);
-        }
+        $this->assertFalse($updatedConfig['isDisabled']);
 
         $configuration = $components->getConfiguration($config->getComponentId(), $config->getConfigurationId());
 
@@ -975,12 +947,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals($configurationData, $configuration['configuration']);
         $this->assertEquals($state, $configuration['state']);
         $this->assertEquals('Configuration updated', $configuration['changeDescription']);
-        if ($clientType === ClientProvider::DEFAULT_BRANCH && $this->shouldUseLegacyBranchServices()) {
-            // will fail after consolidate branches
-            $this->assertArrayNotHasKey('isDisabled', $configuration);
-        } else {
-            $this->assertFalse($configuration['isDisabled']);
-        }
+        $this->assertFalse($configuration['isDisabled']);
 
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
@@ -1626,13 +1593,8 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(1, $configuration['version']);
         $this->assertArrayHasKey('configuration', $configuration);
         $this->assertEquals($configurationData, $configuration['configuration']);
-        if ($clientType === ClientProvider::DEFAULT_BRANCH && $this->shouldUseLegacyBranchServices()) {
-            // will fail after consolidate branches
-            $this->assertArrayNotHasKey('isDisabled', $configuration);
-        } else {
-            $this->assertArrayHasKey('isDisabled', $configuration);
-            $this->assertTrue($configuration['isDisabled']);
-        }
+        $this->assertArrayHasKey('isDisabled', $configuration);
+        $this->assertTrue($configuration['isDisabled']);
         $this->assertArrayHasKey('rows', $configuration);
         $this->assertCount(1, $configuration['rows']);
         $this->assertEquals('main-1-1', $configuration['rows'][0]['id']);
@@ -1649,13 +1611,8 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(1, $configuration['version']);
         $this->assertArrayHasKey('configuration', $configuration);
         $this->assertEmpty($configuration['configuration']);
-        if ($clientType === ClientProvider::DEFAULT_BRANCH && $this->shouldUseLegacyBranchServices()) {
-            // will fail after consolidate branches
-            $this->assertArrayNotHasKey('isDisabled', $configuration);
-        } else {
-            $this->assertArrayHasKey('isDisabled', $configuration);
-            $this->assertFalse($configuration['isDisabled']);
-        }
+        $this->assertArrayHasKey('isDisabled', $configuration);
+        $this->assertFalse($configuration['isDisabled']);
         $this->assertArrayHasKey('rows', $configuration);
         $this->assertCount(0, $configuration['rows']);
     }
