@@ -17,8 +17,11 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
 {
     use WorkspaceConnectionTrait;
 
+    /** @var array */
+    private $connection;
+
     /** @var Connection */
-    private $db;
+    private $dbCached;
 
     /** @var string */
     private $schema;
@@ -28,8 +31,29 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
      */
     public function __construct($workspace)
     {
-        $this->db = $this->getDbConnection($workspace['connection']);
+        $this->connection = $workspace['connection'];
         $this->schema = $workspace['connection']['schema'];
+    }
+
+    /**
+     * @return Connection
+     */
+    private function getDb()
+    {
+        if (!$this->dbCached instanceof Connection) {
+            $this->dbCached = $this->getDbConnection($this->connection);
+        }
+        return $this->dbCached;
+    }
+
+    /**
+     * @return void
+     */
+    public function disconnect()
+    {
+        if ($this->dbCached instanceof Connection) {
+            $this->dbCached->close();
+        }
     }
 
     /**
@@ -38,7 +62,7 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
      */
     public function getTableColumns($table)
     {
-        $ref = new TeradataTableReflection($this->db, $this->schema, $table);
+        $ref = new TeradataTableReflection($this->getDb(), $this->schema, $table);
         return $ref->getColumnsNames();
     }
 
@@ -47,7 +71,7 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
      */
     public function getTables()
     {
-        $ref = new TeradataSchemaReflection($this->db, $this->schema);
+        $ref = new TeradataSchemaReflection($this->getDb(), $this->schema);
         return $ref->getTablesNames();
     }
 
@@ -58,7 +82,7 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
     public function dropTable($table)
     {
         $qb = new TeradataTableQueryBuilder();
-        $this->db->executeStatement($qb->getDropTableCommand($this->schema, $table));
+        $this->getDb()->executeStatement($qb->getDropTableCommand($this->schema, $table));
     }
 
     /**
@@ -69,7 +93,7 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
     public function dropTableColumn($table, $column)
     {
         throw new Exception('TODO Not implemented yet');
-        /*$this->db->executeStatement(sprintf(
+        /*$this->getDb()->executeStatement(sprintf(
             "ALTER TABLE %s.%s DROP COLUMN %s;",
             TeradataQuote::quoteSingleIdentifier($this->schema),
             TeradataQuote::quoteSingleIdentifier($table),
@@ -83,7 +107,7 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
      */
     public function countRows($table)
     {
-        $ref = new TeradataTableReflection($this->db, $this->schema, $table);
+        $ref = new TeradataTableReflection($this->getDb(), $this->schema, $table);
         return $ref->getRowsCount();
     }
 
@@ -104,7 +128,7 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
         }
 
         $qb = new TeradataTableQueryBuilder();
-        $this->db->executeStatement($qb->getCreateTableCommand(
+        $this->getDb()->executeStatement($qb->getCreateTableCommand(
             $this->schema,
             $tableName,
             new ColumnCollection($cols)
@@ -120,7 +144,7 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
     public function fetchAll($table, $style = \PDO::FETCH_NUM, $orderBy = null)
     {
         $data = [];
-        $res = $this->db->fetchAll(sprintf(
+        $res = $this->getDb()->fetchAll(sprintf(
             "SELECT * FROM %s.%s %s;",
             TeradataQuote::quoteSingleIdentifier($this->schema),
             TeradataQuote::quoteSingleIdentifier($table),
@@ -153,7 +177,7 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
      */
     public function describeTableColumns($tableName)
     {
-        $ref = new TeradataTableReflection($this->db, $this->schema, $tableName);
+        $ref = new TeradataTableReflection($this->getDb(), $this->schema, $tableName);
         return $ref->getColumnsDefinitions();
     }
 
@@ -163,7 +187,7 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
      */
     public function getTableReflection($tableName)
     {
-        return new TeradataTableReflection($this->db, $this->schema, $tableName);
+        return new TeradataTableReflection($this->getDb(), $this->schema, $tableName);
     }
 
     /**
@@ -179,15 +203,7 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
      */
     public function getSchemaReflection()
     {
-        return new TeradataSchemaReflection($this->db, $this->schema);
-    }
-
-    /**
-     * @return void
-     */
-    public function disconnect()
-    {
-        $this->db->close();
+        return new TeradataSchemaReflection($this->getDb(), $this->schema);
     }
 
     /**
@@ -197,7 +213,7 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
     public function dropTableIfExists($table)
     {
         if ($this->isTableExists($this->schema, $table)) {
-            $this->db->executeStatement(sprintf(
+            $this->getDb()->executeStatement(sprintf(
                 "DROP TABLE %s.%s;",
                 TeradataQuote::quoteSingleIdentifier($this->schema),
                 TeradataQuote::quoteSingleIdentifier($table)
@@ -212,7 +228,7 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
      */
     protected function isTableExists($databaseName, $tableName)
     {
-        $tables = $this->db->fetchAllAssociative(sprintf(
+        $tables = $this->getDb()->fetchAllAssociative(sprintf(
             'SELECT TableName FROM DBC.TablesVX WHERE DatabaseName = %s AND TableName = %s',
             TeradataQuote::quote($databaseName),
             TeradataQuote::quote($tableName)
