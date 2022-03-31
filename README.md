@@ -93,6 +93,9 @@ These APIs are available at `http://connection-apache/` endpoint from clients te
 
 
 Before executing tests please install dev dependencies:
+- Teradata driver download keys (AWS keys with access to `keboola-drivers` bucket):
+  - `export DRIVER_DOWNLOADS_ACCESS_KEY_ID=...`
+  - `export DRIVER_DOWNLOADS_SECRET_ACCESS_KEY=...`
 - `docker-compose build`
 - `docker-compose run --rm dev composer install`
 
@@ -179,4 +182,3 @@ _Note: see [this link](https://www.jetbrains.com/help/phpstorm/configuring-remot
 
 ## Release History
 See the [CHANGELOG](CHANGELOG.md).
-
