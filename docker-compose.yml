@@ -4,8 +4,8 @@ services:
     build:
       context: .
       args:
-        - AWS_ACCESS_KEY_ID
-        - AWS_SECRET_ACCESS_KEY
+        - AWS_ACCESS_KEY_ID=${DRIVER_DOWNLOADS_ACCESS_KEY_ID}
+        - AWS_SECRET_ACCESS_KEY=${DRIVER_DOWNLOADS_SECRET_ACCESS_KEY}
         - AWS_SESSION_TOKEN
     image: keboola/storage-api-tests
     environment:
