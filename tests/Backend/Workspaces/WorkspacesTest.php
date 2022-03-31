@@ -13,6 +13,7 @@ use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\WorkspaceCredentialsAssertTrait;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
+use Keboola\Test\StorageApiTestCase;
 
 class WorkspacesTest extends ParallelWorkspacesTestCase
 {
@@ -103,6 +104,10 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
         $workspace = $this->initTestWorkspace();
+
+        if ($workspace['backend'] === StorageApiTestCase::BACKEND_TERADATA) {
+            $this->markTestIncomplete('Teradata: Not implemented yet.');
+        }
 
         $connection = $workspace['connection'];
 
