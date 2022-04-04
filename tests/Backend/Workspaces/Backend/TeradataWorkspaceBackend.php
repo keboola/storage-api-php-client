@@ -13,6 +13,9 @@ use Keboola\TableBackendUtils\Table\Teradata\TeradataTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableReflection;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 
+/**
+ * @method Connection getDbConnection(array $connection)
+ */
 class TeradataWorkspaceBackend implements WorkspaceBackend
 {
     use WorkspaceConnectionTrait;
@@ -86,8 +89,8 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
     }
 
     /**
-     * @param $table
-     * @param $column
+     * @param string $table
+     * @param string $column
      * @return void
      */
     public function dropTableColumn($table, $column)
@@ -152,6 +155,7 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
         ));
         switch ($style) {
             case \PDO::FETCH_NUM:
+                /** @var array $row */
                 foreach ($res as $row) {
                     $data[] = array_values($row);
                 }
@@ -161,11 +165,14 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
                 break;
             default:
                 throw new \Exception("Unknown fetch style $style");
-                break;
         }
         return $data;
     }
 
+    /**
+     * @param mixed $item
+     * @return mixed
+     */
     public function toIdentifier($item)
     {
         return $item;
@@ -192,6 +199,7 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
 
     /**
      * @param string $tableName
+     * @return void
      */
     public function getViewReflection($tableName)
     {

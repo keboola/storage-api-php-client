@@ -6,6 +6,7 @@ use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\TableBackendUtils\Connection\Exasol\ExasolConnection;
 use Keboola\TableBackendUtils\Connection\Teradata\TeradataConnection;
 use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
+use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 use Keboola\Test\StorageApiTestCase;
 
 trait WorkspaceConnectionTrait
@@ -78,7 +79,7 @@ trait WorkspaceConnectionTrait
                 $db->connect();
                 $db->executeStatement(sprintf(
                     'SET SESSION DATABASE %s',
-                    ExasolQuote::quoteSingleIdentifier($connection['schema'])
+                    TeradataQuote::quoteSingleIdentifier($connection['schema'])
                 ));
 
                 return $db;
