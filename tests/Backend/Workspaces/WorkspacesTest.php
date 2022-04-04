@@ -12,6 +12,7 @@ use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\WorkspaceCredentialsAssertTrait;
+use Keboola\Test\Backend\Workspaces\Backend\TeradataWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\StorageApiTestCase;
 
@@ -52,7 +53,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $backend->createTable("mytable", ["amount" => ($workspaceWithSnowflakeBackend) ? "NUMBER" : "VARCHAR"]);
 
         $tableNames = $backend->getTables();
-        $backend->disconnect();
+        $backend = null; // force odbc disconnect
 
         $this->assertArrayHasKey("mytable", array_flip($tableNames));
 
@@ -183,7 +184,10 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $backend->createTable("mytable", ["amount" => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? "NUMBER" : "VARCHAR"]);
-        $backend->disconnect();
+        if ($backend instanceof TeradataWorkspaceBackend) {
+            // Teradata: cannot drop workspace if user is logged in
+            $backend->disconnect();
+        }
 
         // sync delete
         $workspaces->deleteWorkspace($workspace['id'], $dropOptions);
