@@ -20,11 +20,8 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
 {
     use WorkspaceConnectionTrait;
 
-    /** @var array */
-    private $connection;
-
     /** @var Connection */
-    private $dbCached;
+    private $db;
 
     /** @var string */
     private $schema;
@@ -34,7 +31,7 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
      */
     public function __construct($workspace)
     {
-        $this->connection = $workspace['connection'];
+        $this->db = $this->getDbConnection($workspace['connection']);
         $this->schema = $workspace['connection']['schema'];
     }
 
@@ -43,10 +40,7 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
      */
     private function getDb()
     {
-        if (!$this->dbCached instanceof Connection) {
-            $this->dbCached = $this->getDbConnection($this->connection);
-        }
-        return $this->dbCached;
+        return $this->db;
     }
 
     /**
@@ -54,9 +48,7 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
      */
     public function disconnect()
     {
-        if ($this->dbCached instanceof Connection) {
-            $this->dbCached->close();
-        }
+        $this->db->close();
     }
 
     /**
@@ -242,5 +234,10 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
             TeradataQuote::quote($tableName)
         ));
         return count($tables) === 1;
+    }
+
+    public function __destruct()
+    {
+        $this->disconnect();
     }
 }
