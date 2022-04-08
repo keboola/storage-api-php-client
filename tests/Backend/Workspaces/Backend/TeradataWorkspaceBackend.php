@@ -87,13 +87,12 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
      */
     public function dropTableColumn($table, $column)
     {
-        throw new Exception('TODO Not implemented yet');
-        /*$this->getDb()->executeStatement(sprintf(
-            "ALTER TABLE %s.%s DROP COLUMN %s;",
+        $this->getDb()->executeStatement(sprintf(
+            "ALTER TABLE %s.%s DROP %s;",
             TeradataQuote::quoteSingleIdentifier($this->schema),
             TeradataQuote::quoteSingleIdentifier($table),
             TeradataQuote::quoteSingleIdentifier($column)
-        ));*/
+        ));
     }
 
     /**
