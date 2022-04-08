@@ -186,7 +186,6 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $backend->createTable("mytable", ["amount" => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? "NUMBER" : "VARCHAR"]);
         if ($backend instanceof TeradataWorkspaceBackend) {
             // Teradata: cannot drop workspace if user is logged in
-            $backend->disconnect();
         }
 
         // sync delete
