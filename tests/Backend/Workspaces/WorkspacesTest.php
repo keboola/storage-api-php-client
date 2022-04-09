@@ -106,10 +106,6 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
 
         $workspace = $this->initTestWorkspace();
 
-        if ($workspace['backend'] === StorageApiTestCase::BACKEND_TERADATA) {
-            $this->markTestIncomplete('Teradata: Not implemented yet.');
-        }
-
         $connection = $workspace['connection'];
 
         $tokenInfo = $this->_client->verifyToken();
