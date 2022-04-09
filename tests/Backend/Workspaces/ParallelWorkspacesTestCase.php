@@ -46,7 +46,8 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
         $oldWorkspace = $oldWorkspaces ? reset($oldWorkspaces) : null;
         if (!$oldWorkspace) {
             return $workspaces->createWorkspace($options);
-        } elseif (!$options || $oldWorkspace['connection']['backend'] === $options['backend']) {
+        }
+        if (!$options || $oldWorkspace['connection']['backend'] === $options['backend']) {
             $result = $workspaces->resetWorkspacePassword($oldWorkspace['id']);
             $oldWorkspace['connection']['password'] = $result['password'];
             return $oldWorkspace;
