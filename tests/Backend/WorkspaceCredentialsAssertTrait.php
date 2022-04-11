@@ -35,6 +35,7 @@ trait WorkspaceCredentialsAssertTrait
                 ], true);
             }
             if ($connection['backend'] === StorageApiTestCase::BACKEND_TERADATA) {
+                /** @phpstan-ignore-next-line */
                 $isCorrectErrorCode = in_array($e->getCode(), [
                     1, // Failed call to Logon, aborting connection.
                     130, // TLS connection failed with The legacy port is enabled, but the client failed to connect to it.
