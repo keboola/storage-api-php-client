@@ -22,7 +22,8 @@
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"Keboola\\Test\\": "tests/"
+			"Keboola\\Test\\": "tests/",
+			"Keboola\\UnitTest\\": "tests-unit/"
 		}
 	},
 	"require": {
@@ -55,10 +56,12 @@
 		"phpcs-compatibility": "phpcs --config-set installed_paths vendor/phpcompatibility/php-compatibility && phpcs --ignore=*vendor/* -n . --standard=PHPCompatibility --runtime-set testVersion 5.6-7.4",
 		"phpcbf": "phpcbf -n .",
 		"phpstan": "phpstan analyse --no-progress --level=max . -c phpstan.neon",
+		"tests": "phpunit --testsuite=unit",
 		"ci": [
 			"@phpcs",
 			"@phpcs-compatibility",
-			"@phpstan"
+			"@phpstan",
+			"@tests"
 		]
 	}
 }
