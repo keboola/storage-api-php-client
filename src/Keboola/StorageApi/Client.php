@@ -6,10 +6,12 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\MessageFormatter;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
+use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client\RequestTimeoutMiddleware;
 use Keboola\StorageApi\Downloader\BlobClientFactory;
 use Keboola\StorageApi\Options\BucketUpdateOptions;
 use Keboola\StorageApi\Options\Components\SearchComponentConfigurationsOptions;
+use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Options\FileUploadTransferOptions;
 use Keboola\StorageApi\Options\GetFileOptions;
 use Keboola\StorageApi\Options\IndexOptions;
@@ -20,14 +22,12 @@ use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
 use MicrosoftAzure\Storage\Blob\Models\CommitBlobBlocksOptions;
 use MicrosoftAzure\Storage\Blob\Models\CreateBlockBlobOptions;
-use MicrosoftAzure\Storage\Common\Models\ServiceOptions;
+use Monolog\Handler\ErrorLogHandler;
+use Monolog\Logger;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
-use Psr\Log\NullLogger;
 use Symfony\Component\Filesystem\Filesystem;
-use Keboola\Csv\CsvFile;
-use Keboola\StorageApi\Options\FileUploadOptions;
 
 class Client
 {
@@ -143,7 +143,9 @@ class Client
         }
 
         if (!isset($config['logger'])) {
-            $config['logger'] = new NullLogger();
+            $logger = new Logger('my_logger');
+            $logger->pushHandler(new ErrorLogHandler());
+            $config['logger'] = $logger;
         }
         $this->setLogger($config['logger']);
 
@@ -163,7 +165,7 @@ class Client
             'backoffMaxTries' => $this->backoffMaxTries,
         ]);
 
-        $handlerStack->push((RequestTimeoutMiddleware::factory()));
+        $handlerStack->push((RequestTimeoutMiddleware::factory($this->logger)));
         $handlerStack->push(Middleware::log(
             $this->logger,
             new MessageFormatter("{hostname} {req_header_User-Agent} - [{ts}] \"{method} {resource} {protocol}/{version}\" {code} {res_header_Content-Length}"),

@@ -6,6 +6,7 @@ use GuzzleHttp\Psr7\Request;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\Client\RequestTimeoutMiddleware;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 
 class RequestTimeoutMiddlewareTest extends TestCase
 {
@@ -19,7 +20,7 @@ class RequestTimeoutMiddlewareTest extends TestCase
         };
         $requestMock = new Request('GET', '/lorem-ipsum');
 
-        $middleware = RequestTimeoutMiddleware::factory()($assertingHandler);
+        $middleware = RequestTimeoutMiddleware::factory(new NullLogger())($assertingHandler);
 
         $middleware($requestMock, []);
     }
@@ -34,7 +35,7 @@ class RequestTimeoutMiddlewareTest extends TestCase
         };
         $requestMock = new Request('GET', '/lorem-ipsum');
 
-        $middleware = RequestTimeoutMiddleware::factory()($assertingHandler);
+        $middleware = RequestTimeoutMiddleware::factory(new NullLogger())($assertingHandler);
 
         $middleware($requestMock, ['timeout' => 300]);
     }
@@ -49,7 +50,7 @@ class RequestTimeoutMiddlewareTest extends TestCase
         };
         $requestMock = new Request('DELETE', '/lorem-ipsum');
 
-        $middleware = RequestTimeoutMiddleware::factory()($assertingHandler);
+        $middleware = RequestTimeoutMiddleware::factory(new NullLogger())($assertingHandler);
 
         $middleware($requestMock, []);
     }
@@ -64,7 +65,7 @@ class RequestTimeoutMiddlewareTest extends TestCase
         };
         $requestMock = new Request('DELETE', '/lorem-ipsum');
 
-        $middleware = RequestTimeoutMiddleware::factory()($assertingHandler);
+        $middleware = RequestTimeoutMiddleware::factory(new NullLogger())($assertingHandler);
 
         $middleware($requestMock, [Client::REQUEST_OPTION_EXTENDED_TIMEOUT => true, 'timeout' => 123]);
     }
