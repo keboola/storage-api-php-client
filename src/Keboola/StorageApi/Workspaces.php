@@ -28,7 +28,7 @@ class Workspaces
      */
     public function createWorkspace(array $options = [])
     {
-        return $this->client->apiPost("workspaces", $options);
+        return $this->client->apiPost("workspaces", $options, true, [Client::REQUEST_OPTION_EXTENDED_TIMEOUT => true]);
     }
 
     public function listWorkspaces()
