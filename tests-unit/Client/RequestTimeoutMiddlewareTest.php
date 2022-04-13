@@ -16,7 +16,7 @@ class RequestTimeoutMiddlewareTest extends TestCase
     public function testWillSetDefaultTimeout()
     {
         $assertingHandler = function ($request, $options) {
-            $this->assertSame(60, $options['timeout']);
+            $this->assertSame(RequestTimeoutMiddleware::REQUEST_TIMEOUT_DEFAULT, $options['timeout']);
         };
         $requestMock = new Request('GET', '/lorem-ipsum');
 
@@ -31,7 +31,7 @@ class RequestTimeoutMiddlewareTest extends TestCase
     public function testWillOverrideTimeout()
     {
         $assertingHandler = function ($request, $options) {
-            $this->assertSame(60, $options['timeout']);
+            $this->assertSame(RequestTimeoutMiddleware::REQUEST_TIMEOUT_DEFAULT, $options['timeout']);
         };
         $requestMock = new Request('GET', '/lorem-ipsum');
 
@@ -46,7 +46,7 @@ class RequestTimeoutMiddlewareTest extends TestCase
     public function testWillSetDeleteTimeout()
     {
         $assertingHandler = function ($request, $options) {
-            $this->assertSame(7200, $options['timeout']);
+            $this->assertSame(RequestTimeoutMiddleware::REQUEST_TIMEOUT_EXTENDED, $options['timeout']);
         };
         $requestMock = new Request('DELETE', '/lorem-ipsum');
 
@@ -58,10 +58,10 @@ class RequestTimeoutMiddlewareTest extends TestCase
     /**
      * @return void
      */
-    public function testWillSetManualExtenededTimeout()
+    public function testWillSetManualExtendedTimeout()
     {
         $assertingHandler = function ($request, $options) {
-            $this->assertSame(7200, $options['timeout']);
+            $this->assertSame(RequestTimeoutMiddleware::REQUEST_TIMEOUT_DEFAULT, $options['timeout']);
         };
         $requestMock = new Request('DELETE', '/lorem-ipsum');
 
