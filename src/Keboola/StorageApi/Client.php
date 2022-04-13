@@ -2218,9 +2218,7 @@ class Client
      */
     public function apiPost($url, $postData = null, $handleAsyncTask = true, $requestOptions = [])
     {
-        $requestOptions = array_filter($requestOptions, function ($key) {
-            return in_array($key, self::ALLOWED_REQUEST_OPTIONS);
-        }, ARRAY_FILTER_USE_KEY);
+        $requestOptions = $this->filterRequestOptions($requestOptions);
         $requestOptions['form_params'] = $postData;
         return $this->request('post', $url, $requestOptions, null, $handleAsyncTask);
     }
@@ -2647,5 +2645,16 @@ class Client
     public function isAwsDebug()
     {
         return $this->awsDebug;
+    }
+
+    /**
+     * @param array $requestOptions
+     * @return array
+     */
+    private function filterRequestOptions($requestOptions)
+    {
+        return array_filter($requestOptions, function ($key) {
+            return in_array($key, self::ALLOWED_REQUEST_OPTIONS);
+        }, ARRAY_FILTER_USE_KEY);
     }
 }
