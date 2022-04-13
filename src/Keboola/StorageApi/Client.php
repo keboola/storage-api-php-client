@@ -1245,7 +1245,7 @@ class Client
 
     public function listJobs($options = [])
     {
-        return $this->apiGet("jobs?" . http_build_query($options));
+        return $this->apiGet("jobs?" . http_build_query($options), null, [Client::REQUEST_OPTION_EXTENDED_TIMEOUT=>true]);
     }
 
     /**
@@ -2200,11 +2200,13 @@ class Client
      *
      * @param string $url
      * @param string null $fileName
+     * @param array $requestOptions
      * @return mixed|string|array
      */
-    public function apiGet($url, $fileName = null)
+    public function apiGet($url, $fileName = null, $requestOptions = [])
     {
-        return $this->request('GET', $url, array(), $fileName);
+        $requestOptions = $this->filterRequestOptions($requestOptions);
+        return $this->request('GET', $url, $requestOptions, $fileName);
     }
 
     /**
