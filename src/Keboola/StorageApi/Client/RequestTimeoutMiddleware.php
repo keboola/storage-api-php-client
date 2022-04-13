@@ -9,7 +9,7 @@ use function GuzzleHttp\Psr7\str;
 
 class RequestTimeoutMiddleware
 {
-    const REQUEST_TIMEOUT_DEFAULT = 60;
+    const REQUEST_TIMEOUT_DEFAULT = 120;
     const REQUEST_TIMEOUT_EXTENDED = 7200;
 
     /** @var LoggerInterface */
