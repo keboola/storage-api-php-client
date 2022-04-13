@@ -330,7 +330,9 @@ class Components
     {
         return $this->client->apiPost(
             "components/{$componentId}/configs/{$configurationId}/workspaces",
-            $options
+            $options,
+            true,
+            [Client::REQUEST_OPTION_EXTENDED_TIMEOUT => true]
         );
     }
 
