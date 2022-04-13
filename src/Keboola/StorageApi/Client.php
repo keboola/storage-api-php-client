@@ -6,12 +6,10 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\MessageFormatter;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
-use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client\RequestTimeoutMiddleware;
 use Keboola\StorageApi\Downloader\BlobClientFactory;
 use Keboola\StorageApi\Options\BucketUpdateOptions;
 use Keboola\StorageApi\Options\Components\SearchComponentConfigurationsOptions;
-use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Options\FileUploadTransferOptions;
 use Keboola\StorageApi\Options\GetFileOptions;
 use Keboola\StorageApi\Options\IndexOptions;
@@ -22,12 +20,14 @@ use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
 use MicrosoftAzure\Storage\Blob\Models\CommitBlobBlocksOptions;
 use MicrosoftAzure\Storage\Blob\Models\CreateBlockBlobOptions;
-use Monolog\Handler\ErrorLogHandler;
-use Monolog\Logger;
+use MicrosoftAzure\Storage\Common\Models\ServiceOptions;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
+use Psr\Log\NullLogger;
 use Symfony\Component\Filesystem\Filesystem;
+use Keboola\Csv\CsvFile;
+use Keboola\StorageApi\Options\FileUploadOptions;
 
 class Client
 {
@@ -143,9 +143,7 @@ class Client
         }
 
         if (!isset($config['logger'])) {
-            $logger = new Logger('my_logger');
-            $logger->pushHandler(new ErrorLogHandler());
-            $config['logger'] = $logger;
+            $config['logger'] = new NullLogger();
         }
         $this->setLogger($config['logger']);
 
@@ -165,7 +163,7 @@ class Client
             'backoffMaxTries' => $this->backoffMaxTries,
         ]);
 
-        $handlerStack->push((RequestTimeoutMiddleware::factory($this->logger)));
+        $handlerStack->push((RequestTimeoutMiddleware::factory()));
         $handlerStack->push(Middleware::log(
             $this->logger,
             new MessageFormatter("{hostname} {req_header_User-Agent} - [{ts}] \"{method} {resource} {protocol}/{version}\" {code} {res_header_Content-Length}"),
@@ -1245,7 +1243,7 @@ class Client
 
     public function listJobs($options = [])
     {
-        return $this->apiGet("jobs?" . http_build_query($options));
+        return $this->apiGet("jobs?" . http_build_query($options), null, [Client::REQUEST_OPTION_EXTENDED_TIMEOUT=>true]);
     }
 
     /**
@@ -1403,7 +1401,7 @@ class Client
         $url = "tables/{$tableId}/data-preview";
         $url .= '?' . http_build_query($this->prepareExportOptions($options));
 
-        return $this->apiGet($url);
+        return $this->apiGet($url, null, [Client::REQUEST_OPTION_EXTENDED_TIMEOUT => true]);
     }
 
     /**
@@ -2200,11 +2198,13 @@ class Client
      *
      * @param string $url
      * @param string null $fileName
+     * @param array $requestOptions
      * @return mixed|string|array
      */
-    public function apiGet($url, $fileName = null)
+    public function apiGet($url, $fileName = null, $requestOptions = [])
     {
-        return $this->request('GET', $url, array(), $fileName);
+        $requestOptions = $this->filterRequestOptions($requestOptions);
+        return $this->request('GET', $url, $requestOptions, $fileName);
     }
 
     /**
@@ -2218,9 +2218,7 @@ class Client
      */
     public function apiPost($url, $postData = null, $handleAsyncTask = true, $requestOptions = [])
     {
-        $requestOptions = array_filter($requestOptions, function ($key) {
-            return in_array($key, self::ALLOWED_REQUEST_OPTIONS);
-        }, ARRAY_FILTER_USE_KEY);
+        $requestOptions = $this->filterRequestOptions($requestOptions);
         $requestOptions['form_params'] = $postData;
         return $this->request('post', $url, $requestOptions, null, $handleAsyncTask);
     }
@@ -2647,5 +2645,16 @@ class Client
     public function isAwsDebug()
     {
         return $this->awsDebug;
+    }
+
+    /**
+     * @param array $requestOptions
+     * @return array
+     */
+    private function filterRequestOptions($requestOptions)
+    {
+        return array_filter($requestOptions, function ($key) {
+            return in_array($key, self::ALLOWED_REQUEST_OPTIONS);
+        }, ARRAY_FILTER_USE_KEY);
     }
 }
