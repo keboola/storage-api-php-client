@@ -61,7 +61,7 @@ class RequestTimeoutMiddlewareTest extends TestCase
     public function testWillSetManualExtendedTimeout()
     {
         $assertingHandler = function ($request, $options) {
-            $this->assertSame(RequestTimeoutMiddleware::REQUEST_TIMEOUT_DEFAULT, $options['timeout']);
+            $this->assertSame(RequestTimeoutMiddleware::REQUEST_TIMEOUT_EXTENDED, $options['timeout']);
         };
         $requestMock = new Request('DELETE', '/lorem-ipsum');
 
