@@ -1403,7 +1403,7 @@ class Client
         $url = "tables/{$tableId}/data-preview";
         $url .= '?' . http_build_query($this->prepareExportOptions($options));
 
-        return $this->apiGet($url);
+        return $this->apiGet($url, null, [Client::REQUEST_OPTION_EXTENDED_TIMEOUT => true]);
     }
 
     /**
