@@ -2,6 +2,7 @@
 namespace Keboola\StorageApi;
 
 use Aws\S3\S3Client;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\MessageFormatter;
 use GuzzleHttp\Middleware;
@@ -2301,6 +2302,9 @@ class Client
              * @var ResponseInterface $response
              */
             $response = $this->client->request($method, $url, $requestOptions);
+        } catch (ConnectException $e) {
+            $this->logger->error('Connection exception occurred');
+            throw new ClientException($e->getMessage(), $e->getCode(), $e);
         } catch (RequestException $e) {
             $response = $e->getResponse();
             $body = $response ? json_decode((string)$response->getBody(), true) : array();
