@@ -471,9 +471,10 @@ class TriggersTest extends StorageApiTestCase
     }
 
     /**
+     * @dataProvider tokenCreateOptionsProvider
      * @return void
      */
-    public function testDeleteTriggerWithMasterToken()
+    public function testDeleteTriggerCreatedByMasterToken(TokenCreateOptions $optionForToken)
     {
         $table = $this->createTableWithRandomData("watched-2");
 
@@ -492,31 +493,51 @@ class TriggersTest extends StorageApiTestCase
             ],
         ]);
 
-        $loadedTrigger = $this->_client->getTrigger((int) $trigger['id']);
-        $this->assertEquals($trigger['id'], $loadedTrigger['id']);
+        $trigger2 = $this->_client->createTrigger([
+            'component' => 'orchestrator',
+            'configurationId' => 123,
+            'coolDownPeriodMinutes' => 10,
+            'runWithTokenId' => $newToken['id'],
+            'tableIds' => [
+                $table,
+            ],
+        ]);
 
-        $newNonAdminToken = $this->tokens->createToken((new TokenCreateOptions())->setCanManageBuckets(true));
-        $clientWithoutAdminToken = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminToken['token']]);
+        $newNonAdminTokenWithoutPermission = $this->tokens->createToken((new TokenCreateOptions()));
+        $clientWithoutAdminTokenWithoutPermission = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminTokenWithoutPermission['token']]);
 
-        // try to delete the trigger with non-master token
+        // try to delete the trigger with non-master token without required permission
         try {
-            $clientWithoutAdminToken->deleteTrigger((int) $trigger['id']);
+            $clientWithoutAdminTokenWithoutPermission->deleteTrigger((int) $trigger['id']);
             self::fail('should fail');
         } catch (Exception $e) {
-            self::assertEquals('Insufficient privilege. This token cannot manipulate with this trigger', $e->getMessage());
+            self::assertEquals('Your token does not have sufficient privilege.', $e->getMessage());
         }
 
-        $this->_client->deleteTrigger((int) $loadedTrigger['id']);
+        $anotherToken = $this->tokens->createToken($optionForToken);
+        $anotherClientWithAnotherToken = $this->getClient([
+            'url' => STORAGE_API_URL,
+            'token' => $anotherToken['token'],
+        ]);
 
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage(sprintf('Trigger with id [%d] was not found', $loadedTrigger['id']));
-        $this->_client->getTrigger((int) $trigger['id']);
+        // trigger can be deleted by non-master token with right privilege
+        $anotherClientWithAnotherToken->deleteTrigger((int) $trigger['id']);
+        $triggerList = $this->_client->listTriggers([$table]);
+        $this->assertNotContainsTriggerId($trigger['id'], $triggerList);
+        $this->assertCount(1, $triggerList);
+
+        $this->_client->deleteTrigger((int) $trigger2['id']);
+        $triggerList = $this->_client->listTriggers([$table]);
+        $this->assertNotContainsTriggerId($trigger2['id'], $triggerList);
+
+        $this->assertCount(0, $triggerList);
     }
 
     /**
+     * @dataProvider tokenCreateOptionsProvider
      * @return void
      */
-    public function testDeleteTriggerWithNonMasterToken()
+    public function testDeleteTriggerCreatedByNonMasterTokenDifferentToken(TokenCreateOptions $optionForToken)
     {
         $table1 = $this->createTableWithRandomData("watched-1");
 
@@ -543,33 +564,77 @@ class TriggersTest extends StorageApiTestCase
             'tableIds' => [$table1],
         ]);
 
+        $newNonAdminTokenWithoutPermission = $this->tokens->createToken((new TokenCreateOptions()));
+        $clientWithoutAdminTokenWithoutPermission = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminTokenWithoutPermission['token']]);
 
-        $anotherToken = $this->tokens->createToken($optionsForMainToken);
+        // try to delete the trigger with non-master token without required permission
+        try {
+            $clientWithoutAdminTokenWithoutPermission->deleteTrigger((int) $trigger['id']);
+            self::fail('should fail');
+        } catch (Exception $e) {
+            self::assertEquals('Your token does not have sufficient privilege.', $e->getMessage());
+        }
+
+        $anotherToken = $this->tokens->createToken($optionForToken);
         $anotherClientWithAnotherToken = $this->getClient([
             'url' => STORAGE_API_URL,
             'token' => $anotherToken['token'],
         ]);
 
-        try {
-            $anotherClientWithAnotherToken->deleteTrigger((int) $trigger['id']);
-            self::fail('should fail');
-        } catch (Exception $e) {
-            self::assertEquals('Insufficient privilege. This token cannot manipulate with this trigger', $e->getMessage());
-        }
-
-        // owner can delete it even isn't master token
-        $clientWithoutAdminToken->deleteTrigger((int) $trigger['id']);
-
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage(sprintf('Trigger with id [%d] was not found', $trigger['id']));
-        $clientWithoutAdminToken->getTrigger((int) $trigger['id']);
+        // trigger can be deleted by non-master token with right privilege
+        $anotherClientWithAnotherToken->deleteTrigger((int) $trigger['id']);
+        $triggerList = $clientWithoutAdminToken->listTriggers([$table1]);
+        $this->assertNotContainsTriggerId($trigger['id'], $triggerList);
+        $this->assertCount(1, $triggerList);
 
         // master token can delete it anyway
         $this->_client->deleteTrigger((int) $trigger2['id']);
+        $triggerList = $clientWithoutAdminToken->listTriggers([$table1]);
+        $this->assertNotContainsTriggerId($trigger2['id'], $triggerList);
 
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage(sprintf('Trigger with id [%d] was not found', $trigger2['id']));
-        $this->_client->getTrigger((int) $trigger2['id']);
+        $this->assertCount(0, $triggerList);
+    }
+
+    /**
+     * @dataProvider tokenCreateOptionsProvider
+     * @return void
+     */
+    public function testDeleteTriggerCreatedByNonMasterToken(TokenCreateOptions $optionForToken)
+    {
+        $table1 = $this->createTableWithRandomData("watched-1");
+
+        $optionsForTokenRunWith = (new TokenCreateOptions())
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
+
+        $tokenRunWith = $this->tokens->createToken($optionsForTokenRunWith);
+        $newNonAdminToken = $this->tokens->createToken($optionForToken);
+        $clientWithoutAdminToken = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminToken['token']]);
+
+        $trigger = $clientWithoutAdminToken->createTrigger([
+            'component' => 'orchestrator',
+            'configurationId' => 123,
+            'coolDownPeriodMinutes' => 10,
+            'runWithTokenId' => $tokenRunWith['id'],
+            'tableIds' => [$table1],
+        ]);
+
+        // trigger can be deleted by non-master token with right privilege
+        $clientWithoutAdminToken->deleteTrigger((int) $trigger['id']);
+        $triggerList = $clientWithoutAdminToken->listTriggers([$table1]);
+        $this->assertNotContainsTriggerId($trigger['id'], $triggerList);
+        $this->assertCount(0, $triggerList);
+    }
+
+    /**
+     * @param int $triggerId
+     * @param array $triggerList
+     * @return void
+     */
+    private function assertNotContainsTriggerId($triggerId, $triggerList)
+    {
+        $this->assertFalse(in_array($triggerId, array_map(function ($trigger) {
+            return $trigger['id'];
+        }, $triggerList)));
     }
 
     /**
@@ -828,11 +893,11 @@ class TriggersTest extends StorageApiTestCase
                 (new TokenCreateOptions())
                     ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
                     ->addComponentAccess('keboola.invalid'),
-                'Insufficient privilege. Yours token is not an admin token.',
+                'Your token does not have sufficient privilege.',
             ],
             'no extra permissions, but not master token' => [
                 (new TokenCreateOptions()),
-                'Insufficient privilege. Yours token is not an admin token.',
+                'Your token does not have sufficient privilege.',
             ],
         ];
     }
