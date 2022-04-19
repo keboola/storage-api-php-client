@@ -260,7 +260,7 @@ class TriggersTest extends StorageApiTestCase
         $newNonAdminTokenWithoutPermissions = $this->tokens->createToken((new TokenCreateOptions()));
         $clientWithoutAdminTokenWithoutPermissions = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminTokenWithoutPermissions['token']]);
 
-        // try to update the trigger with non-master token
+        // try to update the trigger with non-master token without permissions
         try {
             $clientWithoutAdminTokenWithoutPermissions->updateTrigger((int) $trigger['id'], $updateData);
             self::fail('should fail');
@@ -271,6 +271,7 @@ class TriggersTest extends StorageApiTestCase
         $newNonAdminToken = $this->tokens->createToken($optionForToken);
         $clientWithoutAdminToken = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminToken['token']]);
 
+        // update the trigger with non-master token
         $updateTrigger = $clientWithoutAdminToken->updateTrigger((int) $trigger['id'], $updateData);
 
         $this->assertEquals('keboola.ex-1', $updateTrigger['component']);
@@ -287,6 +288,7 @@ class TriggersTest extends StorageApiTestCase
             'tableIds' => [$table2],
         ];
 
+        // update the trigger with admin token
         $updateTrigger = $this->_client->updateTrigger((int) $trigger['id'], $updateData);
 
         $this->assertEquals('keboola.ex-2', $updateTrigger['component']);
@@ -363,7 +365,7 @@ class TriggersTest extends StorageApiTestCase
         $this->assertEquals($brandNewToken['id'], $updatedTrigger['runWithTokenId']);
         $this->assertEquals([['tableId' => 'in.c-API-tests.watched-1']], $updatedTrigger['tables']);
 
-        // try it even with non-master token but this token didnt create this trigger
+        // try to update trigger with non-master without permissions
         $anotherToken = $this->tokens->createToken((new TokenCreateOptions()));
         $anotherClientWithAnotherTokenWithoutPermission = $this->getClient([
             'url' => STORAGE_API_URL,
@@ -385,7 +387,7 @@ class TriggersTest extends StorageApiTestCase
             'tableIds' => [$table2],
         ];
 
-        // master token can do anything
+        // update trigger with master token
         $updatedTrigger = $this->_client->updateTrigger((int) $trigger['id'], $updateData);
         self::assertEquals('keboola.ex-2', $updatedTrigger['component']);
         self::assertEquals(321, $updatedTrigger['configurationId']);
