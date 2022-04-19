@@ -537,7 +537,7 @@ class TriggersTest extends StorageApiTestCase
      * @dataProvider tokenCreateOptionsProvider
      * @return void
      */
-    public function testDeleteTriggerCreatedByNonMasterTokenDifferentToken(TokenCreateOptions $optionForToken)
+    public function testDeleteTriggerCreatedByNonMasterTokenUsingDifferentToken(TokenCreateOptions $optionForToken)
     {
         $table1 = $this->createTableWithRandomData("watched-1");
 
@@ -599,7 +599,7 @@ class TriggersTest extends StorageApiTestCase
      * @dataProvider tokenCreateOptionsProvider
      * @return void
      */
-    public function testDeleteTriggerCreatedByNonMasterToken(TokenCreateOptions $optionForToken)
+    public function testNonMasterTokenCanDeleteTriggerItCreated(TokenCreateOptions $optionForToken)
     {
         $table1 = $this->createTableWithRandomData("watched-1");
 
