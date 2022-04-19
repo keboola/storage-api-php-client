@@ -433,9 +433,9 @@ class TriggersTest extends StorageApiTestCase
         ];
 
         $newNonAdminTokenDifferent = $this->tokens->createToken($tokenCreateOptions);
-        $clientWithoutAdminTokenDifferent = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminTokenDifferent['token']]);
+        $clientWithDifferentNonAdminToken = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminTokenDifferent['token']]);
 
-        $updatedTrigger = $clientWithoutAdminTokenDifferent->updateTrigger((int) $trigger['id'], $updateData);
+        $updatedTrigger = $clientWithDifferentNonAdminToken->updateTrigger((int) $trigger['id'], $updateData);
         self::assertEquals('keboola.ex-1', $updatedTrigger['component']);
         self::assertEquals(111, $updatedTrigger['configurationId']);
         self::assertEquals(20, $updatedTrigger['coolDownPeriodMinutes']);
