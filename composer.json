@@ -27,7 +27,8 @@
 		}
 	},
 	"require": {
-		"php": ">=5.6",
+		"php": ">=7.4",
+		"ext-json": "*",
 		"keboola/csv": "~1.1.3",
 		"guzzlehttp/guzzle": "~7.0||~6.0",
 		"symfony/filesystem": "^6.0||^5.0||^4.0||^3.0||~2.3",
@@ -50,10 +51,10 @@
 		"phpstan/phpstan": "~1.3.3",
 		"phpstan/phpstan-phpunit": "^1.0",
 		"bshaffer/phpunit-retry-annotations": "dev-master"
-    },
+	},
 	"scripts": {
 		"phpcs": "phpcs -n .",
-		"phpcs-compatibility": "phpcs --config-set installed_paths vendor/phpcompatibility/php-compatibility && phpcs --ignore=*vendor/* -n . --standard=PHPCompatibility --runtime-set testVersion 5.6-7.4",
+		"phpcs-compatibility": "phpcs --config-set installed_paths vendor/phpcompatibility/php-compatibility && phpcs --ignore=*vendor/*,*cache/* -n . --standard=PHPCompatibility --runtime-set testVersion 7.4-8.1",
 		"phpcbf": "phpcbf -n .",
 		"phpstan": "phpstan analyse --no-progress --level=max . -c phpstan.neon",
 		"tests": "phpunit --testsuite=unit",

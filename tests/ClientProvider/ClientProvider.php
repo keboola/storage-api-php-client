@@ -67,16 +67,17 @@ class ClientProvider
     }
 
     /**
-     * @param array $config
-     * @param bool $useExistingBranch
-     * @return GuzzleClient
+     * @param array<mixed> $config
+     * @return GuzzleClient|BranchAwareGuzzleClient
      */
-    public function createGuzzleClientForCurrentTest($config, $useExistingBranch = false)
+    public function createGuzzleClientForCurrentTest(array $config, bool $useExistingBranch = false)
     {
         if ($this->testCase->usesDataProvider()) {
             if ($this->testCase->getProvidedData()[0] === self::DEFAULT_BRANCH) {
                 return $this->getGuzzleClient($config);
-            } elseif ($this->testCase->getProvidedData()[0] === self::DEV_BRANCH) {
+            }
+
+            if ($this->testCase->getProvidedData()[0] === self::DEV_BRANCH) {
                 return $this->getBranchAwareGuzzleClient($config, $useExistingBranch);
             }
         }
@@ -106,7 +107,7 @@ class ClientProvider
     public function getDefaultBranchClient($config = [])
     {
         $branchId = $this->testCase->getDefaultBranchId($this->testCase);
-        
+
         if ($config) {
             return $this->testCase->getBranchAwareClient($branchId, $config);
         } else {
@@ -135,21 +136,17 @@ class ClientProvider
     }
 
     /**
-     * @param array $config
-     * @return GuzzleClient
+     * @param array<mixed> $config
      */
-    public function getGuzzleClient($config = [])
+    public function getGuzzleClient(array $config = []): GuzzleClient
     {
         return new GuzzleClient($config);
     }
 
-    /**
-     * @param array $config
-     * @param bool $useExistingBranch
-     * @return BranchAwareGuzzleClient
-     */
-    public function getBranchAwareGuzzleClient($config = [], $useExistingBranch = false)
-    {
+    public function getBranchAwareGuzzleClient(
+        array $config = [],
+        bool $useExistingBranch = false
+    ): BranchAwareGuzzleClient {
         if ($useExistingBranch) {
             $branch = $this->getExistingBranchForTestCase();
         } else {
