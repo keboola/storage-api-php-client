@@ -1,0 +1,29 @@
+name: Build on master
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: |
+          docker-compose build tests
+          docker network create connection_api-tests
+          docker-compose run --rm tests php -v
+          docker-compose run --rm tests composer ci
+      - name: List images
+        run: docker images
+      - name: Login to quay.io
+        uses: docker/login-action@v1
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_ROBOT_TOKEN }}
+      - name: Tag and push to quay.io
+        run: |
+          docker tag keboola/storage-api-tests quay.io/keboola/storage-api-tests:latest
+          docker push quay.io/keboola/storage-api-tests:latest

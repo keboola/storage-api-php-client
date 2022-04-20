@@ -111,17 +111,7 @@ parameters:
 			path: src/Keboola/StorageApi/BranchAwareGuzzleClient.php
 
 		-
-			message: "#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#"
-			count: 2
-			path: src/Keboola/StorageApi/Client.php
-
-		-
 			message: "#^Cannot access offset 'code' on mixed\\.$#"
-			count: 2
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Cannot access offset 'entries' on mixed\\.$#"
 			count: 2
 			path: src/Keboola/StorageApi/Client.php
 
@@ -143,11 +133,6 @@ parameters:
 		-
 			message: "#^Cannot access offset 'sharing' on mixed\\.$#"
 			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Cannot access offset 'url' on mixed\\.$#"
-			count: 4
 			path: src/Keboola/StorageApi/Client.php
 
 		-
@@ -317,16 +302,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:createTable\\(\\) should return string but returns string\\|true\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:createTableAsync\\(\\) has parameter \\$bucketId with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:createTableAsync\\(\\) has parameter \\$name with no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
 
@@ -547,11 +522,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:enableAliasTableColumnsAutoSync\\(\\) has parameter \\$tableId with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:exportTableAsync\\(\\) has parameter \\$tableId with no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
 
@@ -1181,11 +1151,6 @@ parameters:
 			path: src/Keboola/StorageApi/Client.php
 
 		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$bucketId\\)\\: Unexpected token \"\\$bucketId\", expected type at offset 437$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
 			message: "#^PHPDoc tag @param has invalid value \\(\\$bucketId\\)\\: Unexpected token \"\\$bucketId\", expected type at offset 80$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
@@ -1236,11 +1201,6 @@ parameters:
 			path: src/Keboola/StorageApi/Client.php
 
 		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$name\\)\\: Unexpected token \"\\$name\", expected type at offset 461$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
 			message: "#^PHPDoc tag @param has invalid value \\(\\$options\\)\\: Unexpected token \"\\$options\", expected type at offset 41$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
@@ -1277,11 +1237,6 @@ parameters:
 
 		-
 			message: "#^PHPDoc tag @param has invalid value \\(\\$tableId\\)\\: Unexpected token \"\\$tableId\", expected type at offset 185$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$tableId\\)\\: Unexpected token \"\\$tableId\", expected type at offset 273$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
 
@@ -1381,23 +1336,8 @@ parameters:
 			path: src/Keboola/StorageApi/Client.php
 
 		-
-			message: "#^Parameter \\#1 \\$json of function GuzzleHttp\\\\json_decode expects string, mixed given\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function GuzzleHttp\\\\json_decode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
 			message: "#^Parameter \\#1 \\$message of class Keboola\\\\StorageApi\\\\ClientException constructor expects string\\|null, mixed given\\.$#"
 			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Parameter \\#1 \\$path of function basename expects string, mixed given\\.$#"
-			count: 2
 			path: src/Keboola/StorageApi/Client.php
 
 		-
@@ -1406,17 +1346,7 @@ parameters:
 			path: src/Keboola/StorageApi/Client.php
 
 		-
-			message: "#^Parameter \\#1 \\$str of function strtr expects string, mixed given\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
 			message: "#^Parameter \\#2 \\$length of function fgetcsv expects int\\<0, max\\>, null given\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Parameter \\#2 \\$str of function explode expects string, mixed given\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
 
@@ -10426,11 +10356,6 @@ parameters:
 			path: tests/Common/ExceptionsTest.php
 
 		-
-			message: "#^Cannot call method getStatusCode\\(\\) on Psr\\\\Http\\\\Message\\\\ResponseInterface\\|null\\.$#"
-			count: 1
-			path: tests/Common/FilesLegacyFormUploadsTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\FilesLegacyFormUploadsTest\\:\\:testEncryptionMustBeSetWhenEnabled\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Common/FilesLegacyFormUploadsTest.php
@@ -10461,11 +10386,6 @@ parameters:
 			path: tests/Common/GetServiceUrlTest.php
 
 		-
-			message: "#^Cannot access offset 0 on mixed\\.$#"
-			count: 1
-			path: tests/Common/GetToFileTest.php
-
-		-
 			message: "#^Cannot access property \\$configurations on mixed\\.$#"
 			count: 1
 			path: tests/Common/GetToFileTest.php
@@ -10481,17 +10401,7 @@ parameters:
 			path: tests/Common/GetToFileTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$json of function GuzzleHttp\\\\json_decode expects string, string\\|false given\\.$#"
-			count: 1
-			path: tests/Common/GetToFileTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$str of function sha1 expects string, string\\|false given\\.$#"
-			count: 1
-			path: tests/Common/GetToFileTest.php
-
-		-
-			message: "#^Property Keboola\\\\Test\\\\Common\\\\GetToFileTest\\:\\:\\$downloadPath has no type specified\\.$#"
 			count: 1
 			path: tests/Common/GetToFileTest.php
 
@@ -12129,3 +12039,4 @@ parameters:
 			message: "#^Parameter \\#1 \\$filename of function file_get_contents expects string, string\\|false given\\.$#"
 			count: 1
 			path: tests/bootstrap.php
+
