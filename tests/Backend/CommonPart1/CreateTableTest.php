@@ -377,6 +377,9 @@ class CreateTableTest extends StorageApiTestCase
 
     public function testTableCreateWithPK()
     {
+        if ($this->getDefaultBackend($this->_client) === self::BACKEND_TERADATA) {
+            $this->markTestSkipped('deduplication not supported for Teradata');
+        }
         $tableId = $this->_client->createTable(
             $this->getTestBucketId(),
             'languages',
@@ -481,6 +484,9 @@ class CreateTableTest extends StorageApiTestCase
 
     public function testRowNumberAmbiguity()
     {
+        if ($this->getDefaultBackend($this->_client) === self::BACKEND_TERADATA) {
+            $this->markTestSkipped('createTablePrimaryKey not supported for Teradata');
+        }
         $importFile = __DIR__ . '/../../_data/column-name-row-number.csv';
 
         // create and import data into source table
