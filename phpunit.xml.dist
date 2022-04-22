@@ -207,6 +207,7 @@
 
 	<testsuite name="paratest-teradata">
 		<file>tests/Backend/CommonPart1/BucketsTest.php</file>
+		<file>tests/Backend/CommonPart1/CreateTableTest.php</file>
 	</testsuite>
 	<testsuite name="unit">
 		<directory>tests-unit</directory>
