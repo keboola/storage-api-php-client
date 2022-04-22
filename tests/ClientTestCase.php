@@ -156,4 +156,14 @@ class ClientTestCase extends TestCase
             $this->getTestName()
         );
     }
+
+    /**
+     * @param Client $client
+     * @return string
+     */
+    public function getDefaultBackend($client)
+    {
+        $tokenData = $client->verifyToken();
+        return $tokenData['owner']['defaultBackend'];
+    }
 }
