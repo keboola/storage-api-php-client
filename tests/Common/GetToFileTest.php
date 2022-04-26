@@ -2,13 +2,12 @@
 
 namespace Keboola\Test\Common;
 
+use GuzzleHttp\Utils;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
-use Nette\Utils\Json;
-use function json_decode;
 
 class GetToFileTest extends StorageApiTestCase
 {
@@ -70,7 +69,7 @@ class GetToFileTest extends StorageApiTestCase
 
 
         /** @var array<mixed> $configurations */
-        $configurations = json_decode((string) file_get_contents($this->downloadPath), true);
+        $configurations = Utils::jsonDecode((string) file_get_contents($this->downloadPath), true);
         $this->assertCount($configurationRowsCount, $configurations[0]->configurations[0]->rows);
     }
 }
