@@ -323,7 +323,6 @@ class TriggersTest extends StorageApiTestCase
 
         $options = (new TokenCreateOptions())
             ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
-
         $tokenRunWith = $this->tokens->createToken($options);
 
         $trigger = $this->_client->createTrigger([
@@ -346,7 +345,6 @@ class TriggersTest extends StorageApiTestCase
 
         $options = (new TokenCreateOptions())
             ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
-
         $newNonAdminTokenWithoutComponentAccess = $this->tokens->createToken(($options));
         $clientWithoutAdminTokenWithoutComponentAccess = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminTokenWithoutComponentAccess['token']]);
 
@@ -360,7 +358,6 @@ class TriggersTest extends StorageApiTestCase
         $options = (new TokenCreateOptions())
             ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
             ->addComponentAccess('keboola.ex-1');
-
         $newNonAdminTokenWithPermissions = $this->tokens->createToken(($options));
         $clientWithoutAdminTokenWithPermissions = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminTokenWithPermissions['token']]);
 
