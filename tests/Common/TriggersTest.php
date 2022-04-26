@@ -317,6 +317,61 @@ class TriggersTest extends StorageApiTestCase
         $this->assertEquals([['tableId' => 'in.c-API-tests.watched-2']], $updateTrigger['tables']);
     }
 
+    public function testUpdateTriggerParameterCreatedByAdminToken()
+    {
+        $table1 = $this->createTableWithRandomData("watched-1");
+
+        $options = (new TokenCreateOptions())
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
+
+        $tokenRunWith = $this->tokens->createToken($options);
+
+        $trigger = $this->_client->createTrigger([
+            'component' => 'keboola.orchestrator',
+            'configurationId' => 123,
+            'coolDownPeriodMinutes' => 10,
+            'runWithTokenId' => $tokenRunWith['id'],
+            'tableIds' => [
+                $table1,
+            ],
+        ]);
+
+        $updateData = [
+            'component' => 'keboola.orchestrator',
+            'configurationId' => 543,
+            'coolDownPeriodMinutes' => 15,
+            'runWithTokenId' => $tokenRunWith['id'],
+            'tableIds' => [$table1],
+        ];
+
+        $options = (new TokenCreateOptions())
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
+
+        $newNonAdminTokenWithoutComponentAccess = $this->tokens->createToken(($options));
+        $clientWithoutAdminTokenWithoutComponentAccess = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminTokenWithoutComponentAccess['token']]);
+
+        try {
+            $clientWithoutAdminTokenWithoutComponentAccess->updateTrigger((int) $trigger['id'], $updateData);
+            self::fail('should fail before');
+        } catch (\Exception $e) {
+            self::assertEquals('Your token does not have sufficient privilege.', $e->getMessage());
+        }
+
+        $options = (new TokenCreateOptions())
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
+            ->addComponentAccess('keboola.orchestrator');
+
+        $newNonAdminTokenWithPermissions = $this->tokens->createToken(($options));
+        $clientWithoutAdminTokenWithPermissions = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminTokenWithPermissions['token']]);
+
+        $updatedTrigger = $clientWithoutAdminTokenWithPermissions->updateTrigger((int) $trigger['id'], $updateData);
+
+        $this->assertEquals('keboola.orchestrator', $updatedTrigger['component']);
+        $this->assertEquals(543, $updatedTrigger['configurationId']);
+        $this->assertEquals(15, $updatedTrigger['coolDownPeriodMinutes']);
+        $this->assertEquals($tokenRunWith['id'], $updatedTrigger['runWithTokenId']);
+        $this->assertEquals([['tableId' => 'in.c-API-tests.watched-1']], $updatedTrigger['tables']);
+    }
     /**
      * @dataProvider tokenCreateOptionsProvider
      * @return void
