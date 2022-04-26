@@ -21,6 +21,44 @@ class StatsTest extends StorageApiTestCase
         $this->_initEmptyTestBuckets();
     }
 
+    public function testGetStatsForDifferentJobWithTheSameNumberBeforeDot(): void
+    {
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        $importFile = __DIR__ . '/../_data/languages.csv';
+        $table1Id = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile($importFile));
+        $this->_client->writeTableAsync($table1Id, new CsvFile($importFile));
+
+        // block until async events are processed, processing in order is not guaranteed but it should work most of time
+        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
+
+        // stats for other run id with the same number before "." should return empty stats
+        $newRunId = $this->_client->generateRunId($runId);
+        $stats = $this->_client->getStats((new \Keboola\StorageApi\Options\StatsOptions())->setRunId($newRunId));
+
+        $this->assertArrayHasKey('tables', $stats);
+
+        $tables = $stats['tables'];
+        $this->assertArrayHasKey('import', $tables);
+        $this->assertArrayHasKey('export', $tables);
+
+        $import = $tables['import'];
+        $this->assertCount(0, $import['tables']);
+        $this->assertEquals(0, $import['totalCount']);
+
+
+        $export = $tables['export'];
+        $this->assertCount(0, $export['tables']);
+        $this->assertEquals(0, $export['totalCount']);
+
+        $this->assertArrayHasKey('files', $stats);
+        $files = $stats['files'];
+        $this->assertEquals(0, $files['total']['count']);
+
+        $this->assertCount(0, $files['tags']['tags']);
+    }
+
     public function testRunIdStats()
     {
         $runId = $this->_client->generateRunId();
