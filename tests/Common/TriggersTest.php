@@ -372,6 +372,69 @@ class TriggersTest extends StorageApiTestCase
         $this->assertEquals($tokenRunWith['id'], $updatedTrigger['runWithTokenId']);
         $this->assertEquals([['tableId' => 'in.c-API-tests.watched-1']], $updatedTrigger['tables']);
     }
+
+    /**
+     * @dataProvider tokenUpdateOptionsProviderInvalid
+     * @param TokenCreateOptions $optionsForMainToken
+     * @param string $expectedException
+     * @return void
+     */
+    public function testUpdateTriggerComponentWithWrongPermissions(TokenCreateOptions $optionsForMainToken, $expectedException)
+    {
+        $table1 = $this->createTableWithRandomData("watched-1");
+        $optionsForTokenRunWith = (new TokenCreateOptions())
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
+
+        $tokenRunWith = $this->tokens->createToken($optionsForTokenRunWith);
+
+        $trigger = $this->_client->createTrigger([
+            'component' => 'keboola.orchestrator',
+            'configurationId' => 123,
+            'coolDownPeriodMinutes' => 10,
+            'runWithTokenId' => $tokenRunWith['id'],
+            'tableIds' => [
+                $table1,
+            ],
+        ]);
+
+        $updateData = [
+            'component' => 'keboola.ex-1',
+            'configurationId' => 111,
+            'coolDownPeriodMinutes' => 20,
+            'runWithTokenId' => $tokenRunWith['id'],
+            'tableIds' => [$table1],
+        ];
+
+        try {
+            $newNonAdminToken = $this->tokens->createToken($optionsForMainToken);
+            $clientWithoutAdminToken = $this->getClient([
+                'url' => STORAGE_API_URL,
+                'token' => $newNonAdminToken['token'],
+            ]);
+
+            $clientWithoutAdminToken->updateTrigger((int) $trigger['id'], $updateData);
+            self::fail('should fail before');
+        } catch (\Exception $e) {
+            self::assertEquals($expectedException, $e->getMessage());
+        }
+    }
+
+    public function tokenUpdateOptionsProviderInvalid()
+    {
+        $this->setUp();
+        yield 'Token has only access on actual set component' => [
+            (new TokenCreateOptions())
+                ->addComponentAccess('keboola.orchestrator'),
+            "Your token does not have sufficient privilege.",
+        ];
+
+        yield 'Token has only access on to update set component' => [
+            (new TokenCreateOptions())
+                ->addComponentAccess('keboola.ex-1'),
+            "Your token does not have sufficient privilege.",
+        ];
+    }
+
     /**
      * @dataProvider tokenCreateOptionsProvider
      * @return void
