@@ -8193,7 +8193,7 @@ Token has to be [*master*](https://help.keboola.com/storage/tokens/) (then `runW
     + runWithTokenId (required, number) - Id of token used for running configured component
     + component: `orchestration` (required, enum[string]) - For now we support only 'orchestration'
     + configurationId (required, string) - Id of component configuration
-    + coolDownPeriodMinutes (required, number) - Minimal cool down period before firing action again in minutes (min is 5 minutes)
+    + coolDownPeriodMinutes (required, number) - Minimal cool down period before firing action again in minutes (min is 1 minute)
     + tabledIds (required, object) - Array of tables ids
         + tableId (string) - Id of table (like "in.c-test.watched")
 + Request
@@ -8271,7 +8271,7 @@ Updates an existing trigger
     + runWithTokenId (optional, number) - Id of token used for running configured component
     + component `orchestration` (optional, enum[string]) - For now we support only 'orchestrations'
     + configurationId (optional, string) - Id of component configuration
-    + coolDownPeriodMinutes (optional, number) - Minimal cool down period before firing action again in minutes (min is 5 minutes)
+    + coolDownPeriodMinutes (optional, number) - Minimal cool down period before firing action again in minutes (min is 1 minute)
     + tabledIds (optional, object) - Array of tables ids
         + tableId (string) - Id of table (like "in.c-test.watched")
 
