@@ -1,4 +1,6 @@
-FROM php:7.1
+ARG PHP_VERSION=7.4
+# the default env bellow is used when build pipeline sends "PHP_VERSION=" - the above default value is ignored in that case
+FROM php:${PHP_VERSION:-7.4}-cli-buster as dev
 MAINTAINER Martin Halamicek <martin@keboola.com>
 ENV DEBIAN_FRONTEND noninteractive
 ARG COMPOSER_FLAGS="--prefer-dist --no-interaction"
@@ -6,6 +8,7 @@ ARG SNOWFLAKE_ODBC_VERSION=2.21.0
 ARG SNOWFLAKE_GPG_KEY=EC218558EABB25A1
 ENV COMPOSER_ALLOW_SUPERUSER 1
 ENV COMPOSER_PROCESS_TIMEOUT 3600
+ARG SYNAPSE_ODBC_VERSION=5.9.0
 
 WORKDIR /code/
 
@@ -72,16 +75,16 @@ RUN mkdir -p ~/.gnupg \
     && gpg --batch --delete-key --yes $SNOWFLAKE_GPG_KEY \
     && dpkg -i /tmp/snowflake-odbc.deb
 
-#Synapse ODBC
+# Synapse ODBC
 RUN set -ex; \
-    pecl install sqlsrv-5.6.1 pdo_sqlsrv-5.6.1; \
+    pecl install sqlsrv-$SYNAPSE_ODBC_VERSION pdo_sqlsrv-$SYNAPSE_ODBC_VERSION; \
     docker-php-ext-enable sqlsrv pdo_sqlsrv; \
     docker-php-source delete
 
 # Exasol
 RUN set -ex; \
     mkdir -p /tmp/exasol/odbc /opt/exasol ;\
-    curl https://www.exasol.com/support/secure/attachment/153765/EXASOL_ODBC-7.1.rc1.tar.gz --output /tmp/exasol/odbc.tar.gz; \
+    curl https://www.exasol.com/support/secure/attachment/186326/EXASOL_ODBC-7.1.5.tar.gz --output /tmp/exasol/odbc.tar.gz; \
     tar -xzf /tmp/exasol/odbc.tar.gz -C /tmp/exasol/odbc --strip-components 1; \
     cp /tmp/exasol/odbc/lib/linux/x86_64/libexaodbc-uo2214lv2.so /opt/exasol/;\
     echo "\n[exasol]\nDriver=/opt/exasol/libexaodbc-uo2214lv2.so\n" >> /etc/odbcinst.ini;\

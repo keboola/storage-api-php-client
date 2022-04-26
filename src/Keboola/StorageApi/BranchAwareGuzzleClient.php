@@ -3,27 +3,38 @@
 namespace Keboola\StorageApi;
 
 use \GuzzleHttp\Client;
+use GuzzleHttp\ClientTrait;
+use GuzzleHttp\Promise\PromiseInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriInterface;
 
-class BranchAwareGuzzleClient extends Client
+class BranchAwareGuzzleClient
 {
+    use ClientTrait;
+
     private $branchId;
+
+    private Client $client;
 
     public function __construct($branchId, array $config = [])
     {
-        parent::__construct($config);
         if (empty($branchId)) {
             throw new \InvalidArgumentException(sprintf('Branch "%s" is not valid.', $branchId));
         }
         $this->branchId = $branchId;
+        $this->client = new Client($config);
     }
 
-    public function request($method, $uri = '', array $options = [])
+    /**
+     * @param string|UriInterface $uri     URI object or string.
+     */
+    public function request(string $method, $uri = '', array $options = []): ResponseInterface
     {
         if (strpos($uri, '/v2/storage/') === 0 && strpos($uri, 'jobs/') !== 0) {
             $uri = substr_replace($uri, sprintf('branch/%s/', $this->branchId), strlen('/v2/storage/'), 0);
         }
 
-        return parent::request($method, $uri, $options);
+        return $this->client->request($method, $uri, $options);
     }
 
     /**
@@ -32,5 +43,13 @@ class BranchAwareGuzzleClient extends Client
     public function getCurrentBranchId()
     {
         return $this->branchId;
+    }
+
+    /**
+     * @param string|UriInterface $uri     URI object or string.
+     */
+    public function requestAsync(string $method, $uri, array $options = []): PromiseInterface
+    {
+        throw new \Exception('requestAsync not suppoted');
     }
 }

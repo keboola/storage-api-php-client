@@ -6,6 +6,7 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\MessageFormatter;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Utils;
 use Keboola\StorageApi\Client\RequestTimeoutMiddleware;
 use Keboola\StorageApi\Downloader\BlobClientFactory;
 use Keboola\StorageApi\Options\BucketUpdateOptions;
@@ -393,7 +394,7 @@ class Client
 
         $allowedOptions = array(
             'force',
-            'async'
+            'async',
         );
 
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
@@ -407,7 +408,8 @@ class Client
      * @param string $bucketId
      * @param array $options
      * @return mixed
-     * @deprecated use shareBucketToUsers, shareBucketToProjects, shareOrganizationProjectBucket or shareOrganizationBucket instead
+     * @deprecated use shareBucketToUsers, shareBucketToProjects, shareOrganizationProjectBucket or
+     *     shareOrganizationBucket instead
      */
     public function shareBucket($bucketId, $options = [])
     {
@@ -463,7 +465,7 @@ class Client
 
 
         $data = [
-            'targetProjectIds' => $targetProjectIds
+            'targetProjectIds' => $targetProjectIds,
         ];
 
         if ($async) {
@@ -484,7 +486,7 @@ class Client
 
 
         $data = [
-            'targetUsers' => $targetUsers
+            'targetUsers' => $targetUsers,
         ];
 
         if ($async) {
@@ -505,7 +507,7 @@ class Client
         $url = "buckets/" . $bucketId . "/share";
 
         $data = [
-            'sharing' => $sharing
+            'sharing' => $sharing,
         ];
 
         if ($async) {
@@ -685,7 +687,8 @@ class Client
 
     /**
      * Creates table with header of CSV file, then import whole csv file by async import
-     * Handles async operation. Starts import job and waits when it is finished. Throws exception if job finishes with error.
+     * Handles async operation. Starts import job and waits when it is finished. Throws exception if job finishes with
+     * error.
      *
      * Workflow:
      *  - Upload file to File Uploads
@@ -693,8 +696,8 @@ class Client
      *  - Wait until job is finished
      *  - Return created table id
      *
-     * @param $bucketId
-     * @param $name
+     * @param string $bucketId
+     * @param string $name
      * @param CsvFile $csvFile
      * @param array $options - see createTable method params
      * @return string - created table id
@@ -838,7 +841,7 @@ class Client
     {
         $allowedOptions = [
             'displayName',
-            'async'
+            'async',
         ];
 
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
@@ -1328,7 +1331,7 @@ class Client
 
         $this->log("Token {$options->getTokenId()} updated", [
             "options" => $options->toParamsArray(),
-            "result" => $result
+            "result" => $result,
         ]);
 
         return $result['id'];
@@ -1405,11 +1408,12 @@ class Client
     }
 
     /**
-     * Exports table content into File Uploads asynchronously. Waits for async operation result. Created file id is stored in returned job results.
+     * Exports table content into File Uploads asynchronously. Waits for async operation result. Created file id is
+     * stored in returned job results.
      * http://docs.keboola.apiary.io/#post-%2Fv2%2Fstorage%2Ftables%2F%7Btable_id%7D%2Fexport-async
      *
-     * @param $tableId
-     * @param array $options
+     * @param string $tableId
+     * @param array<mixed> $options
      *    - (int) limit,
      *  - (timestamp | strtotime format) changedSince
      *  - (timestamp | strtotime format) changedUntil
@@ -1456,7 +1460,8 @@ class Client
 
     /**
      * @param $tableId
-     * @param array $options - (int) limit, (timestamp | strtotime format) changedSince, (timestamp | strtotime format) changedUntil, (bool) escape, (array) columns
+     * @param array $options - (int) limit, (timestamp | strtotime format) changedSince, (timestamp | strtotime format)
+     *     changedUntil, (bool) escape, (array) columns
      * @return mixed|string
      */
     public function deleteTableRows($tableId, $options = array())
@@ -1467,7 +1472,7 @@ class Client
             'changedSince',
             'changedUntil',
             'whereColumn',
-            'whereOperator'
+            'whereOperator',
         );
 
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
@@ -1616,7 +1621,7 @@ class Client
                 'key' => $uploadParams['credentials']['AccessKeyId'],
                 'secret' => $uploadParams['credentials']['SecretAccessKey'],
                 'token' => $uploadParams['credentials']['SessionToken'],
-            ]
+            ],
         ];
 
         if ($this->isAwsDebug()) {
@@ -1631,7 +1636,7 @@ class Client
                 },
                 'stream_size' => 0,
                 'scrub_auth' => true,
-                'http' => true
+                'http' => true,
             ];
         }
 
@@ -1785,7 +1790,7 @@ class Client
                 'key' => $uploadParams['credentials']['AccessKeyId'],
                 'secret' => $uploadParams['credentials']['SecretAccessKey'],
                 'token' => $uploadParams['credentials']['SessionToken'],
-            ]
+            ],
         ];
 
         if ($this->isAwsDebug()) {
@@ -1800,7 +1805,7 @@ class Client
                 },
                 'stream_size' => 0,
                 'scrub_auth' => true,
-                'http' => true
+                'http' => true,
             ];
         }
 
@@ -1877,7 +1882,7 @@ class Client
         $s3Client->getObject([
             'Bucket' => $fileInfo['s3Path']['bucket'],
             'Key' => $fileInfo['s3Path']['key'],
-            'SaveAs' => $destination
+            'SaveAs' => $destination,
         ]);
     }
 
@@ -1907,9 +1912,11 @@ class Client
         }
 
         $getResult = $blobClient->getblob($fileInfo['absPath']['container'], $fileInfo['absPath']['name'] . 'manifest');
-        $manifest = \GuzzleHttp\json_decode(stream_get_contents($getResult->getContentStream()), true);
+        /** @var array{entries: array{url: string}} $manifest */
+        $manifest = Utils::jsonDecode((string) stream_get_contents($getResult->getContentStream()), true);
         $slices = [];
         $fs = new Filesystem();
+        /** @var array{url:string} $entry */
         foreach ($manifest['entries'] as $entry) {
             $blobPath = explode(sprintf(
                 'blob.core.windows.net/%s/',
@@ -1948,12 +1955,15 @@ class Client
             $destinationFolder .= '/';
         }
 
+        /** @var array{Body:string} $object */
         $object = $s3Client->getObject([
             'Bucket' => $fileInfo['s3Path']['bucket'],
             'Key' => $fileInfo['s3Path']['key'] . 'manifest',
         ]);
-        $manifest = \GuzzleHttp\json_decode($object['Body'], true);
+        /** @var array{entries: array{url: string}} $manifest */
+        $manifest = Utils::jsonDecode($object['Body'], true);
         $slices = [];
+        /** @var array{url: string} $entry */
         foreach ($manifest['entries'] as $entry) {
             $object = $s3Client->getObject([
                 'Bucket' => $fileInfo['s3Path']['bucket'],
