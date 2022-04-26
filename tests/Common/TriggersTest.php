@@ -909,7 +909,9 @@ class TriggersTest extends StorageApiTestCase
             'component access only' => [
                 (new TokenCreateOptions())
                     ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
-                    ->addComponentAccess('keboola.orchestrator'),
+                    ->addComponentAccess('keboola.orchestrator')
+                    ->addComponentAccess('keboola.ex-1')
+                    ->addComponentAccess('keboola.ex-2'),
             ],
             'both' => [
                 (new TokenCreateOptions())
