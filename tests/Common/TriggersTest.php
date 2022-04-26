@@ -1003,6 +1003,12 @@ class TriggersTest extends StorageApiTestCase
                 (new TokenCreateOptions()),
                 'Your token does not have sufficient privilege.',
             ],
+            'access to different component' => [
+                (new TokenCreateOptions())
+                    ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
+                    ->addComponentAccess('keboola.wr-db'),
+                "Your token does not have sufficient privilege.",
+            ],
         ];
     }
 
