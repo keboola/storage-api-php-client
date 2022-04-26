@@ -327,7 +327,7 @@ class TriggersTest extends StorageApiTestCase
         $tokenRunWith = $this->tokens->createToken($options);
 
         $trigger = $this->_client->createTrigger([
-            'component' => 'keboola.orchestrator',
+            'component' => 'keboola.ex-1',
             'configurationId' => 123,
             'coolDownPeriodMinutes' => 10,
             'runWithTokenId' => $tokenRunWith['id'],
@@ -337,7 +337,7 @@ class TriggersTest extends StorageApiTestCase
         ]);
 
         $updateData = [
-            'component' => 'keboola.orchestrator',
+            'component' => 'keboola.ex-1',
             'configurationId' => 543,
             'coolDownPeriodMinutes' => 15,
             'runWithTokenId' => $tokenRunWith['id'],
@@ -359,14 +359,14 @@ class TriggersTest extends StorageApiTestCase
 
         $options = (new TokenCreateOptions())
             ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
-            ->addComponentAccess('keboola.orchestrator');
+            ->addComponentAccess('keboola.ex-1');
 
         $newNonAdminTokenWithPermissions = $this->tokens->createToken(($options));
         $clientWithoutAdminTokenWithPermissions = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminTokenWithPermissions['token']]);
 
         $updatedTrigger = $clientWithoutAdminTokenWithPermissions->updateTrigger((int) $trigger['id'], $updateData);
 
-        $this->assertEquals('keboola.orchestrator', $updatedTrigger['component']);
+        $this->assertEquals('keboola.ex-1', $updatedTrigger['component']);
         $this->assertEquals(543, $updatedTrigger['configurationId']);
         $this->assertEquals(15, $updatedTrigger['coolDownPeriodMinutes']);
         $this->assertEquals($tokenRunWith['id'], $updatedTrigger['runWithTokenId']);
