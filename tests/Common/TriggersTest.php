@@ -133,7 +133,7 @@ class TriggersTest extends StorageApiTestCase
 
         $clientWithoutAdminToken = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminToken['token']]);
         $trigger = $clientWithoutAdminToken->createTrigger([
-            'component' => 'orchestrator',
+            'component' => 'keboola.orchestrator',
             'configurationId' => 123,
             'coolDownPeriodMinutes' => 10,
             'runWithTokenId' => $tokenRunWith['id'],
@@ -142,7 +142,7 @@ class TriggersTest extends StorageApiTestCase
             ],
         ]);
 
-        $this->assertEquals('orchestrator', $trigger['component']);
+        $this->assertEquals('keboola.orchestrator', $trigger['component']);
         $this->assertEquals(123, $trigger['configurationId']);
         $this->assertEquals(10, $trigger['coolDownPeriodMinutes']);
         $this->assertEquals($tokenRunWith['id'], $trigger['runWithTokenId']);
@@ -186,7 +186,7 @@ class TriggersTest extends StorageApiTestCase
                 'token' => $newNonAdminToken['token'],
             ]);
             $clientWithoutAdminToken->createTrigger([
-                'component' => 'orchestrator',
+                'component' => 'keboola.orchestrator',
                 'configurationId' => 123,
                 'coolDownPeriodMinutes' => 10,
                 'runWithTokenId' => $tokenRunWith['id'],
@@ -253,7 +253,7 @@ class TriggersTest extends StorageApiTestCase
         $newToken = $this->tokens->createToken($options);
 
         $trigger = $this->_client->createTrigger([
-            'component' => 'orchestrator',
+            'component' => 'keboola.orchestrator',
             'configurationId' => 123,
             'coolDownPeriodMinutes' => 10,
             'runWithTokenId' => $newToken['id'],
@@ -334,7 +334,7 @@ class TriggersTest extends StorageApiTestCase
         $clientWithoutAdminToken = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminToken['token']]);
 
         $trigger = $clientWithoutAdminToken->createTrigger([
-            'component' => 'orchestrator',
+            'component' => 'keboola.orchestrator',
             'configurationId' => 123,
             'coolDownPeriodMinutes' => 10,
             'runWithTokenId' => $tokenRunWith['id'],
@@ -431,7 +431,7 @@ class TriggersTest extends StorageApiTestCase
         $clientWithoutAdminToken = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminToken['token']]);
 
         $trigger = $clientWithoutAdminToken->createTrigger([
-            'component' => 'orchestrator',
+            'component' => 'keboola.orchestrator',
             'configurationId' => 123,
             'coolDownPeriodMinutes' => 10,
             'runWithTokenId' => $tokenRunWith['id'],
@@ -531,7 +531,7 @@ class TriggersTest extends StorageApiTestCase
         $newToken = $this->tokens->createToken($options);
 
         $trigger = $this->_client->createTrigger([
-            'component' => 'orchestrator',
+            'component' => 'keboola.orchestrator',
             'configurationId' => 123,
             'coolDownPeriodMinutes' => 10,
             'runWithTokenId' => $newToken['id'],
@@ -541,7 +541,7 @@ class TriggersTest extends StorageApiTestCase
         ]);
 
         $trigger2 = $this->_client->createTrigger([
-            'component' => 'orchestrator',
+            'component' => 'keboola.orchestrator',
             'configurationId' => 123,
             'coolDownPeriodMinutes' => 10,
             'runWithTokenId' => $newToken['id'],
@@ -597,14 +597,14 @@ class TriggersTest extends StorageApiTestCase
         $clientWithoutAdminToken = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminToken['token']]);
 
         $trigger = $clientWithoutAdminToken->createTrigger([
-            'component' => 'orchestrator',
+            'component' => 'keboola.orchestrator',
             'configurationId' => 123,
             'coolDownPeriodMinutes' => 10,
             'runWithTokenId' => $tokenRunWith['id'],
             'tableIds' => [$table1],
         ]);
         $trigger2 = $clientWithoutAdminToken->createTrigger([
-            'component' => 'orchestrator',
+            'component' => 'keboola.orchestrator',
             'configurationId' => 123,
             'coolDownPeriodMinutes' => 10,
             'runWithTokenId' => $tokenRunWith['id'],
@@ -658,7 +658,7 @@ class TriggersTest extends StorageApiTestCase
         $clientWithoutAdminToken = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminToken['token']]);
 
         $trigger = $clientWithoutAdminToken->createTrigger([
-            'component' => 'orchestrator',
+            'component' => 'keboola.orchestrator',
             'configurationId' => 123,
             'coolDownPeriodMinutes' => 10,
             'runWithTokenId' => $tokenRunWith['id'],
