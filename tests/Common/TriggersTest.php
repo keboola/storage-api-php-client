@@ -220,9 +220,10 @@ class TriggersTest extends StorageApiTestCase
     }
 
     /**
+     * @dataProvider tokenCreateOptionsProvider
      * @return void
      */
-    public function testUpdateTriggerWithMasterToken()
+    public function testUpdateTriggerCreatedByMasterToken(TokenCreateOptions $optionForToken)
     {
         $table1 = $this->createTableWithRandomData("watched-1");
         $table2 = $this->createTableWithRandomData("watched-2");
@@ -256,31 +257,52 @@ class TriggersTest extends StorageApiTestCase
             'tableIds' => [$table1],
         ];
 
-        $newNonAdminToken = $this->tokens->createToken((new TokenCreateOptions())->setCanManageBuckets(true));
-        $clientWithoutAdminToken = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminToken['token']]);
+        $newNonAdminTokenWithoutPermissions = $this->tokens->createToken((new TokenCreateOptions()));
+        $clientWithoutAdminTokenWithoutPermissions = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminTokenWithoutPermissions['token']]);
 
-        // try to update the trigger with non-master token
+        // try to update the trigger with non-master token without permissions
         try {
-            $clientWithoutAdminToken->updateTrigger((int) $trigger['id'], $updateData);
+            $clientWithoutAdminTokenWithoutPermissions->updateTrigger((int) $trigger['id'], $updateData);
             self::fail('should fail');
         } catch (Exception $e) {
-            self::assertEquals('Insufficient privilege. This token cannot manipulate with this trigger', $e->getMessage());
+            self::assertEquals('Your token does not have sufficient privilege.', $e->getMessage());
         }
 
-        $updateTrigger = $this->_client->updateTrigger((int) $trigger['id'], $updateData);
+        $newNonAdminToken = $this->tokens->createToken($optionForToken);
+        $clientWithoutAdminToken = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminToken['token']]);
+
+        // update the trigger with non-master token
+        $updateTrigger = $clientWithoutAdminToken->updateTrigger((int) $trigger['id'], $updateData);
 
         $this->assertEquals('keboola.ex-1', $updateTrigger['component']);
         $this->assertEquals(111, $updateTrigger['configurationId']);
         $this->assertEquals(20, $updateTrigger['coolDownPeriodMinutes']);
         $this->assertEquals($brandNewToken['id'], $updateTrigger['runWithTokenId']);
         $this->assertEquals([['tableId' => 'in.c-API-tests.watched-1']], $updateTrigger['tables']);
+
+        $updateData = [
+            'component' => 'keboola.ex-2',
+            'configurationId' => 543,
+            'coolDownPeriodMinutes' => 15,
+            'runWithTokenId' => $brandNewToken['id'],
+            'tableIds' => [$table2],
+        ];
+
+        // update the trigger with admin token
+        $updateTrigger = $this->_client->updateTrigger((int) $trigger['id'], $updateData);
+
+        $this->assertEquals('keboola.ex-2', $updateTrigger['component']);
+        $this->assertEquals(543, $updateTrigger['configurationId']);
+        $this->assertEquals(15, $updateTrigger['coolDownPeriodMinutes']);
+        $this->assertEquals($brandNewToken['id'], $updateTrigger['runWithTokenId']);
+        $this->assertEquals([['tableId' => 'in.c-API-tests.watched-2']], $updateTrigger['tables']);
     }
 
     /**
      * @dataProvider tokenCreateOptionsProvider
      * @return void
      */
-    public function testUpdateTriggerWithNonMasterToken(TokenCreateOptions $options)
+    public function testUpdateTriggerCreatedByNonMasterToken(TokenCreateOptions $options)
     {
         $table1 = $this->createTableWithRandomData("watched-1");
         $table2 = $this->createTableWithRandomData("watched-2");
@@ -343,25 +365,42 @@ class TriggersTest extends StorageApiTestCase
         $this->assertEquals($brandNewToken['id'], $updatedTrigger['runWithTokenId']);
         $this->assertEquals([['tableId' => 'in.c-API-tests.watched-1']], $updatedTrigger['tables']);
 
-        // try it even with non-master token but this token didnt create this trigger
-        $anotherToken = $this->tokens->createToken((new TokenCreateOptions())->setCanManageBuckets(true));
-        $anotherClientWithAnotherToken = $this->getClient([
+        // try to update trigger with non-master without permissions
+        $anotherToken = $this->tokens->createToken((new TokenCreateOptions()));
+        $anotherClientWithAnotherTokenWithoutPermission = $this->getClient([
             'url' => STORAGE_API_URL,
             'token' => $anotherToken['token'],
         ]);
 
         try {
-            $anotherClientWithAnotherToken->updateTrigger((int) $trigger['id'], $updateData);
+            $anotherClientWithAnotherTokenWithoutPermission->updateTrigger((int) $trigger['id'], $updateData);
             self::fail('should fail');
         } catch (Exception $e) {
-            self::assertEquals('Insufficient privilege. This token cannot manipulate with this trigger', $e->getMessage());
+            self::assertEquals('Your token does not have sufficient privilege.', $e->getMessage());
         }
+
+        $updateData = [
+            'component' => 'keboola.ex-2',
+            'configurationId' => 321,
+            'coolDownPeriodMinutes' => 12,
+            'runWithTokenId' => $brandNewToken['id'],
+            'tableIds' => [$table2],
+        ];
+
+        // update trigger with master token
+        $updatedTrigger = $this->_client->updateTrigger((int) $trigger['id'], $updateData);
+        self::assertEquals('keboola.ex-2', $updatedTrigger['component']);
+        self::assertEquals(321, $updatedTrigger['configurationId']);
+        self::assertEquals(12, $updatedTrigger['coolDownPeriodMinutes']);
+        self::assertEquals($brandNewToken['id'], $updatedTrigger['runWithTokenId']);
+        self::assertEquals([['tableId' => 'in.c-API-tests.watched-2']], $updatedTrigger['tables']);
     }
 
     /**
+     * @dataProvider tokenCreateOptionsProvider
      * @return void
      */
-    public function testUpdateTriggerWithDifferentNonMasterToken()
+    public function testUpdateTriggerWithDifferentNonMasterToken(TokenCreateOptions $tokenCreateOptions)
     {
         $table1 = $this->createTableWithRandomData("watched-1");
 
@@ -393,21 +432,10 @@ class TriggersTest extends StorageApiTestCase
             'tableIds' => [$table1],
         ];
 
-        $anotherToken = $this->tokens->createToken((new TokenCreateOptions())->setCanManageBuckets(true));
-        $anotherClientWithAnotherToken = $this->getClient([
-            'url' => STORAGE_API_URL,
-            'token' => $anotherToken['token'],
-        ]);
+        $newNonAdminTokenDifferent = $this->tokens->createToken($tokenCreateOptions);
+        $clientWithDifferentNonAdminToken = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminTokenDifferent['token']]);
 
-        try {
-            $anotherClientWithAnotherToken->updateTrigger((int) $trigger['id'], $updateData);
-            self::fail('should fail');
-        } catch (Exception $e) {
-            self::assertEquals('Insufficient privilege. This token cannot manipulate with this trigger', $e->getMessage());
-        }
-
-        // master token can do anything
-        $updatedTrigger = $this->_client->updateTrigger((int) $trigger['id'], $updateData);
+        $updatedTrigger = $clientWithDifferentNonAdminToken->updateTrigger((int) $trigger['id'], $updateData);
         self::assertEquals('keboola.ex-1', $updatedTrigger['component']);
         self::assertEquals(111, $updatedTrigger['configurationId']);
         self::assertEquals(20, $updatedTrigger['coolDownPeriodMinutes']);
