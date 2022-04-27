@@ -69,7 +69,7 @@ class GetToFileTest extends StorageApiTestCase
 
 
         /** @var array<mixed> $configurations */
-        $configurations = Utils::jsonDecode((string) file_get_contents($this->downloadPath), true);
+        $configurations = Utils::jsonDecode((string) file_get_contents($this->downloadPath), false);
         $this->assertCount($configurationRowsCount, $configurations[0]->configurations[0]->rows);
     }
 }
