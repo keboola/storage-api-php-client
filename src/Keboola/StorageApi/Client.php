@@ -835,7 +835,7 @@ class Client
     /**
      * @param string $tableId
      * @param array $options
-     * @return string
+     * @return string|null
      */
     public function updateTable($tableId, $options)
     {
@@ -846,8 +846,13 @@ class Client
 
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
 
+        /** @var array{id: string} $result */
         $result = $this->apiPut('tables/' . $tableId, $filteredOptions);
         $this->log("Table {$tableId} updated");
+        if (array_key_exists('async', $filteredOptions) && $filteredOptions['async'] === true) {
+            // async job has no result
+            return null;
+        }
         return $result['id'];
     }
 
