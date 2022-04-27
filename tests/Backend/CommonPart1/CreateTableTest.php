@@ -150,6 +150,7 @@ class CreateTableTest extends StorageApiTestCase
                 'displayName' => $displayName,
             ]
         );
+        assert($tableId !== null);
 
         $table = $this->_client->getTable($tableId);
 
