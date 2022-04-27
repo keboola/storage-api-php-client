@@ -8187,7 +8187,7 @@ Gets stats for a given Run Id. Provides the count of imported/exported tables an
 ###Create [POST /v2/storage/triggers/]
 Created a trigger listening on set of tables
 
-Token has to be [*master*](https://help.keboola.com/storage/tokens/) (then `runWithTokenId` can be also master). If it isn't master, it has to have `canManageBuckets` permission or `componentAccess` permission for component `keboola.orchestrator`. Applies also on Update operation
+Token has to be [*master*](https://help.keboola.com/storage/tokens/) (then `runWithTokenId` can be also master). If it isn't master, it has to have `canManageBuckets` permission or `componentAccess` permission for component `keboola.orchestrator`. Applies also on Update and Delete operation
 
 + Attributes
     + runWithTokenId (required, number) - Id of token used for running configured component
@@ -8311,7 +8311,6 @@ Updates an existing trigger
 ###Delete [DELETE]
 Deletes an existing trigger.
 
-Token has to be owner of the trigger or master token.
 
 + Parameters
 
