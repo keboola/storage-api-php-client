@@ -25,7 +25,7 @@ trait WorkspaceCredentialsAssertTrait
                 $this->getDbConnection($connection);
                 throw new \Exception(self::$RETRY_FAIL_MESSAGE);
             });
-        } catch (\Doctrine\DBAL\Driver\PDOException $e) {
+        } catch (\Doctrine\DBAL\Driver\Exception $e) {
             $isCorrectErrorCode = false;
             if ($connection['backend'] === StorageApiTestCase::BACKEND_SYNAPSE) {
                 $isCorrectErrorCode = in_array($e->getCode(), [
@@ -49,7 +49,7 @@ trait WorkspaceCredentialsAssertTrait
             // RS
             $this->assertEquals(7, $e->getCode());
         } catch (\Keboola\Db\Import\Exception $e) {
-            $this->assertContains('Incorrect username or password was specified', $e->getMessage());
+            $this->assertStringContainsString('Incorrect username or password was specified', $e->getMessage());
         } catch (\Exception $e) {
             if ($connection['backend'] === StorageApiTestCase::BACKEND_EXASOL) {
                 // Exasol authentication failed

@@ -9,7 +9,7 @@ use Keboola\Test\StorageApiTestCase;
 
 class DevBranchesTest extends StorageApiTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -22,7 +22,7 @@ class DevBranchesTest extends StorageApiTestCase
         }
     }
 
-    public function testCannotDeleteDefaultBranch()
+    public function testCannotDeleteDefaultBranch(): void
     {
         $branches = new DevBranches($this->_client);
         $branchesList = $branches->listBranches();
@@ -43,7 +43,7 @@ class DevBranchesTest extends StorageApiTestCase
         $this->assertCount(1, $branches->listBranches());
     }
 
-    public function testAdminRoleBranchesPermissions()
+    public function testAdminRoleBranchesPermissions(): void
     {
         $description = __CLASS__ . '\\' . $this->getName();
 
@@ -65,7 +65,7 @@ class DevBranchesTest extends StorageApiTestCase
         $this->assertCount(1, $adminDevBranches->listBranches());
     }
 
-    public function testBranchCreateAndDelete()
+    public function testBranchCreateAndDelete(): void
     {
         $token = $this->_client->verifyToken();
         $branches = new DevBranches($this->_client);
@@ -180,7 +180,7 @@ class DevBranchesTest extends StorageApiTestCase
     }
 
 
-    public function testGuestRoleBranchesPermissions()
+    public function testGuestRoleBranchesPermissions(): void
     {
         $description = __CLASS__ . '\\' . $this->getName();
 
@@ -206,7 +206,7 @@ class DevBranchesTest extends StorageApiTestCase
         $this->assertCount(3, $adminDevBranches->listBranches());
     }
 
-    public function testNonAdminTokenRestrictions()
+    public function testNonAdminTokenRestrictions(): void
     {
         $description = __CLASS__ . '\\' . $this->getName();
 
@@ -256,7 +256,7 @@ class DevBranchesTest extends StorageApiTestCase
         $this->assertCount(2, $adminDevBranches->listBranches());
     }
 
-    public function testReadOnlyRoleBranchesPermissions()
+    public function testReadOnlyRoleBranchesPermissions(): void
     {
         $description = __CLASS__ . '\\' . $this->getName();
 

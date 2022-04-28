@@ -7,7 +7,7 @@ use Keboola\Test\StorageApiTestCase;
 
 class SearchTablesOptionsTest extends StorageApiTestCase
 {
-    public function testGetDefaults()
+    public function testGetDefaults(): void
     {
         $options = new SearchTablesOptions;
         $this->assertSame([
@@ -17,7 +17,7 @@ class SearchTablesOptionsTest extends StorageApiTestCase
         ], $options->toArray());
     }
 
-    public function testCreate()
+    public function testCreate(): void
     {
         $options = new SearchTablesOptions;
         $this->assertSame([
@@ -35,7 +35,7 @@ class SearchTablesOptionsTest extends StorageApiTestCase
         ], $options->toArray());
     }
 
-    public function testFluentInterface()
+    public function testFluentInterface(): void
     {
         $options = new SearchTablesOptions;
         $this->assertInstanceOf(SearchTablesOptions::class, $options->setMetadataKey('key'));

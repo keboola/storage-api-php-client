@@ -20,7 +20,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
     /** @var Client */
     private $_linkingClient;
 
-    public function testWorkspaceTablesPermissions()
+    public function testWorkspaceTablesPermissions(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
@@ -83,7 +83,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $this->assertEquals('langs', $tables[0]);
     }
 
-    public function testWorkspaceLoadData()
+    public function testWorkspaceLoadData(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
@@ -162,7 +162,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $this->assertContains($backend->toIdentifier("table3"), $tables);
     }
 
-    public function testWorkspaceLoadAliasTable()
+    public function testWorkspaceLoadAliasTable(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
@@ -275,7 +275,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ",", '"'), $data, 'id');
     }
 
-    public function testWorkspaceLoadColumns()
+    public function testWorkspaceLoadColumns(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -387,7 +387,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testLoadIncrementalWithColumns()
+    public function testLoadIncrementalWithColumns(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -463,7 +463,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $this->assertEquals(5, $backend->countRows("languagesDetails"));
     }
 
-    public function testIncrementalAdditionalColumns()
+    public function testIncrementalAdditionalColumns(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -537,12 +537,12 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
             $this->fail('Workspace should not be loaded');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.columnsNotMatch', $e->getStringCode());
-            $this->assertContains('columns are missing in workspace table', $e->getMessage());
-            $this->assertContains('languages', $e->getMessage());
+            $this->assertStringContainsString('columns are missing in workspace table', $e->getMessage());
+            $this->assertStringContainsString('languages', $e->getMessage());
         }
     }
 
-    public function testIncrementalMissingColumns()
+    public function testIncrementalMissingColumns(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -608,15 +608,15 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
             $this->fail('Workspace should not be loaded');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.columnsNotMatch', $e->getStringCode());
-            $this->assertContains('columns are missing in source table', $e->getMessage());
-            $this->assertContains($tableId, $e->getMessage());
+            $this->assertStringContainsString('columns are missing in source table', $e->getMessage());
+            $this->assertStringContainsString($tableId, $e->getMessage());
         }
     }
 
     /**
      * @dataProvider columnsErrorDefinitions
      */
-    public function testIncrementalDataTypesDiff($table, $firstLoadDataColumns, $secondLoadDataColumns)
+    public function testIncrementalDataTypesDiff($table, $firstLoadDataColumns, $secondLoadDataColumns): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -665,11 +665,11 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
             $this->fail('Incremental load with different datatypes should fail');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.columnsTypesNotMatch', $e->getStringCode());
-            $this->assertContains('Different mapping between', $e->getMessage());
+            $this->assertStringContainsString('Different mapping between', $e->getMessage());
         }
     }
 
-    public function testSecondsFilter()
+    public function testSecondsFilter(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -681,7 +681,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
             'languages',
             new CsvFile($importFile)
         );
-        $originalFileLinesCount = exec("wc -l <" . escapeshellarg($importFile));
+        $originalFileLinesCount = (string) exec("wc -l <" . escapeshellarg($importFile));
         sleep(35);
         $startTime = time();
         $importCsv = new \Keboola\Csv\CsvFile($importFile);
@@ -721,7 +721,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $this->assertEquals(2 * ($originalFileLinesCount - 1), $numRows, "seconds parameter");
     }
 
-    public function testRowsParameter()
+    public function testRowsParameter(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -768,7 +768,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
      * @param $expectedResult
      * @dataProvider workspaceExportFiltersData
      */
-    public function testWorkspaceExportFilters($exportOptions, $expectedResult)
+    public function testWorkspaceExportFilters($exportOptions, $expectedResult): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));
@@ -1098,7 +1098,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
      * @dataProvider validColumnsDefinitions
      * @param $columnsDefinition
      */
-    public function testDataTypes($columnsDefinition, $expectedColumns)
+    public function testDataTypes($columnsDefinition, $expectedColumns): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -1158,7 +1158,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
      * @dataProvider conversionUserErrorColumnsDefinitions
      * @param $columnsDefinition
      */
-    public function testDataTypeConversionUserError($columnsDefinition)
+    public function testDataTypeConversionUserError($columnsDefinition): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -1188,7 +1188,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
             $this->fail('Workspace should not be loaded');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.tableLoad', $e->getStringCode());
-            $this->assertContains($tableId, $e->getMessage());
+            $this->assertStringContainsString($tableId, $e->getMessage());
         }
 
         // table should be created but we should be able to delete it
@@ -1202,7 +1202,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
      * @dataProvider notExistingColumnUserErrorColumnsDefinitions
      * @param $columnsDefinition
      */
-    public function testDataTypeForNotExistingColumnUserError($columnsDefinition)
+    public function testDataTypeForNotExistingColumnUserError($columnsDefinition): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -1235,7 +1235,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testInvalidExtendedColumnUserError()
+    public function testInvalidExtendedColumnUserError(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -1277,7 +1277,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testDuplicateDestination()
+    public function testDuplicateDestination(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -1347,7 +1347,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testTableAlreadyExistsAndOverwrite()
+    public function testTableAlreadyExistsAndOverwrite(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -1443,7 +1443,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $this->assertCount(7, $workspaceTableData);
     }
 
-    public function testSourceTableNotFound()
+    public function testSourceTableNotFound(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -1472,7 +1472,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testInvalidInputs()
+    public function testInvalidInputs(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
@@ -1560,7 +1560,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testInvalidBucketPermissions()
+    public function testInvalidBucketPermissions(): void
     {
         // make a test table
         $tableId = $this->_client->createTable(
@@ -1613,7 +1613,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testDottedDestination()
+    public function testDottedDestination(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -1658,7 +1658,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $this->assertEquals('dotted.destination', $tables[0]);
     }
 
-    public function testLoadIncrementalWithColumnsReorder()
+    public function testLoadIncrementalWithColumnsReorder(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -2062,7 +2062,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         ];
     }
 
-    public function testLoadWithWrongInput()
+    public function testLoadWithWrongInput(): void
     {
         $workspacesClient = new Workspaces($this->_client);
         $workspace = $this->initTestWorkspace();
@@ -2085,7 +2085,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
     /**
      * @return void
      */
-    public function testCreateWorkspaceWithReadOnlyIM()
+    public function testCreateWorkspaceWithReadOnlyIM(): void
     {
         $token = $this->_client->verifyToken();
 
@@ -2196,7 +2196,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
     /**
      * @return void
      */
-    public function testCreateWorkspaceWithReadOnlyIMUnlinkUnshare()
+    public function testCreateWorkspaceWithReadOnlyIMUnlinkUnshare(): void
     {
         $tokenConsumer = $this->_client->verifyToken();
         $consumerProjectId = $tokenConsumer['owner']['id'];

@@ -18,7 +18,7 @@ use Keboola\StorageApi\Event;
 class EventsTest extends StorageApiTestCase
 {
 
-    public function testEventCreate()
+    public function testEventCreate(): void
     {
         $event = new Event();
         $event->setComponent('ex-sfdc')
@@ -46,7 +46,7 @@ class EventsTest extends StorageApiTestCase
         $this->assertGreaterThan(0, $savedEvent['idBranch']);
     }
 
-    public function testEventCreateWithoutParams()
+    public function testEventCreateWithoutParams(): void
     {
         $event = new Event();
         $event->setComponent('ex-sfdc')
@@ -73,7 +73,7 @@ class EventsTest extends StorageApiTestCase
      * @param $messageLength
      * @throws \Exception
      */
-    public function testLargeEventWithinMaxSizeLimit($messageLength)
+    public function testLargeEventWithinMaxSizeLimit($messageLength): void
     {
         $largeMessage = str_repeat('x', $messageLength);
         $event = new Event();
@@ -95,7 +95,7 @@ class EventsTest extends StorageApiTestCase
         ];
     }
 
-    public function testLargeEventOverLimitShouldNotBeCreated()
+    public function testLargeEventOverLimitShouldNotBeCreated(): void
     {
         $largeMessage = str_repeat('x', 250000);
         $event = new Event();
@@ -110,16 +110,14 @@ class EventsTest extends StorageApiTestCase
         }
     }
 
-    /**
-     * @expectedException \Keboola\StorageApi\Exception
-     */
-    public function testInvalidType()
+    public function testInvalidType(): void
     {
+        $this->expectException(\Keboola\StorageApi\Exception::class);
         $event = new Event();
         $event->setType('homeless');
     }
 
-    public function testEventCompatibility()
+    public function testEventCompatibility(): void
     {
         $event = new Event();
         $event->setComponentName('sys.c-sfdc.account-01')
@@ -135,7 +133,7 @@ class EventsTest extends StorageApiTestCase
     /**
      * http://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-test.txt
      */
-    public function testCreateInvalidUTF8()
+    public function testCreateInvalidUTF8(): void
     {
         $message = "SQLSTATE[XX000]: " . chr(0x00000080);
         $event = new Event();
@@ -151,7 +149,7 @@ class EventsTest extends StorageApiTestCase
         }
     }
 
-    public function testEventList()
+    public function testEventList(): void
     {
         // at least one event should be generated
         $this->_client->listBuckets();
@@ -160,7 +158,7 @@ class EventsTest extends StorageApiTestCase
         $this->assertCount(1, $events);
     }
 
-    public function testEventsFiltering()
+    public function testEventsFiltering(): void
     {
         $events = $this->_client->listEvents(array(
             'limit' => 100,
@@ -211,7 +209,7 @@ class EventsTest extends StorageApiTestCase
         $this->assertCount(3, $events);
     }
 
-    public function testEventsSearch()
+    public function testEventsSearch(): void
     {
         $searchString = 'search-' . $this->_client->generateId();
 
@@ -238,7 +236,7 @@ class EventsTest extends StorageApiTestCase
         $this->assertEquals($searchEvent['id'], $events[0]['id']);
     }
 
-    public function testEmptyEventsSearch()
+    public function testEmptyEventsSearch(): void
     {
         $searchString = 'search-' . $this->_client->generateId();
         $events = $this->_client->listEvents([
@@ -252,7 +250,7 @@ class EventsTest extends StorageApiTestCase
      * @dataProvider invalidQueries
      * @param $query
      */
-    public function testInvalidSearchSyntaxUserError($query)
+    public function testInvalidSearchSyntaxUserError($query): void
     {
         try {
             $this->_client->listEvents([
@@ -283,7 +281,7 @@ class EventsTest extends StorageApiTestCase
         ];
     }
 
-    public function testEventListingMaxLimit()
+    public function testEventListingMaxLimit(): void
     {
         $events = $this->_client->listEvents([
             'limit' => 10000,

@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 class GetServiceUrlTest extends TestCase
 {
-    public function testInvalidApiIndexResponseThrowsException()
+    public function testInvalidApiIndexResponseThrowsException(): void
     {
         $fakeClient = $this->createClientWithFakeIndexResponse([]);
 
@@ -18,7 +18,7 @@ class GetServiceUrlTest extends TestCase
         $fakeClient->getServiceUrl('dummy');
     }
 
-    public function testInvalidServiceNameThrowsException()
+    public function testInvalidServiceNameThrowsException(): void
     {
         $serviceName = 'dummy';
 
@@ -31,7 +31,7 @@ class GetServiceUrlTest extends TestCase
         $fakeClient->getServiceUrl($serviceName);
     }
 
-    public function testServiceWithoutUrlThrowsException()
+    public function testServiceWithoutUrlThrowsException(): void
     {
         $serviceName = 'dummy';
 
@@ -46,7 +46,7 @@ class GetServiceUrlTest extends TestCase
         $fakeClient->getServiceUrl($serviceName);
     }
 
-    public function testServiceUrlIsReturned()
+    public function testServiceUrlIsReturned(): void
     {
         $serviceName = 'dummy';
         $serviceUrl = 'https://dummy.keboola.com/dummy';

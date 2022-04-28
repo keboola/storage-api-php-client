@@ -9,7 +9,7 @@ use Keboola\Test\StorageApiTestCase;
 class SimpleJobPollDelayTest extends StorageApiTestCase
 {
 
-    public function testSimpleJobPollDelayParam()
+    public function testSimpleJobPollDelayParam(): void
     {
         $retryDelay = createSimpleJobPollDelay(10);
 
@@ -22,7 +22,7 @@ class SimpleJobPollDelayTest extends StorageApiTestCase
         $this->assertEquals(10, $retryDelay(5000));
     }
 
-    public function testSimpleJobPollDelayDefault()
+    public function testSimpleJobPollDelayDefault(): void
     {
         $retryDelay = createSimpleJobPollDelay();
 

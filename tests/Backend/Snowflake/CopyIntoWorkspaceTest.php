@@ -17,7 +17,7 @@ class CopyIntoWorkspaceTest extends WorkspacesTestCase
 {
     const IMPORT_FILE_PATH = __DIR__ . '/../../_data/languages.csv';
 
-    public function testOverwrite()
+    public function testOverwrite(): void
     {
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();

@@ -66,6 +66,11 @@ final class InputMappingConverter
         return $input;
     }
 
+    /**
+     * @param array|string $column
+     * @param StorageApiTestCase::BACKEND_* $backendType
+     * @return array|string
+     */
     public static function convertColumnOrType($column, $backendType)
     {
         $isOnlyType = is_string($column);
@@ -106,7 +111,7 @@ final class InputMappingConverter
                     if ($isOnlyType) {
                         return 'varchar(2000000)';
                     }
-                    if (!array_key_exists('length', $column)) {
+                    if (!array_key_exists('length', (array) $column)) {
                         $column['length'] = '2000000';
                     }
                     break;

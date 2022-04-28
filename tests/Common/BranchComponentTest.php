@@ -19,7 +19,7 @@ use Keboola\Test\StorageApiTestCase;
 
 class BranchComponentTest extends StorageApiTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -29,7 +29,7 @@ class BranchComponentTest extends StorageApiTestCase
     /**
      * @return void
      */
-    public function testCreateFromVersionCreateRowsAndVersions()
+    public function testCreateFromVersionCreateRowsAndVersions(): void
     {
         $componentId = 'transformation';
         $configurationId = 'main-1';
@@ -101,11 +101,11 @@ class BranchComponentTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
             $this->assertSame('notFound', $e->getStringCode());
-            $this->assertContains('Row main-1-row-2 not found', $e->getMessage());
+            $this->assertStringContainsString('Row main-1-row-2 not found', $e->getMessage());
         }
     }
 
-    public function testResetToDefault()
+    public function testResetToDefault(): void
     {
         $providedToken = $this->_client->verifyToken();
         $devBranchClient = new \Keboola\StorageApi\DevBranches($this->_client);
@@ -353,7 +353,7 @@ class BranchComponentTest extends StorageApiTestCase
         return $branch;
     }
 
-    public function testManipulationWithComponentConfigurations()
+    public function testManipulationWithComponentConfigurations(): void
     {
         // create new configurations in main branch
         $componentId = 'transformation';
@@ -394,7 +394,7 @@ class BranchComponentTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
             $this->assertSame('notFound', $e->getStringCode());
-            $this->assertContains('Configuration deleted-main not found', $e->getMessage());
+            $this->assertStringContainsString('Configuration deleted-main not found', $e->getMessage());
         }
 
         $branch = $this->createDevBranchForTestCase($this);
@@ -407,7 +407,7 @@ class BranchComponentTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
             $this->assertSame('notFound', $e->getStringCode());
-            $this->assertContains('Configuration deleted-main not found', $e->getMessage());
+            $this->assertStringContainsString('Configuration deleted-main not found', $e->getMessage());
         }
 
         $configFromMain = $branchComponents->getConfiguration($componentId, 'main-1');
@@ -531,7 +531,7 @@ class BranchComponentTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
             $this->assertSame('notFound', $e->getStringCode());
-            $this->assertContains('Row main-1-row-2 not found', $e->getMessage());
+            $this->assertStringContainsString('Row main-1-row-2 not found', $e->getMessage());
         }
 
         // there should be the one config existing in production before creating the branch
@@ -552,7 +552,7 @@ class BranchComponentTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
             $this->assertSame('notFound', $e->getStringCode());
-            $this->assertContains('Configuration main-2 not found', $e->getMessage());
+            $this->assertStringContainsString('Configuration main-2 not found', $e->getMessage());
         }
 
         $mainComponentDetail  = $components->getConfiguration($componentId, 'main-1');
@@ -812,7 +812,7 @@ class BranchComponentTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
             $this->assertSame('notFound', $e->getStringCode());
-            $this->assertContains('Row dev-1-row-1 not found', $e->getMessage());
+            $this->assertStringContainsString('Row dev-1-row-1 not found', $e->getMessage());
         }
 
         //create
@@ -873,7 +873,7 @@ class BranchComponentTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
             $this->assertSame('notFound', $e->getStringCode());
-            $this->assertContains('Configuration dev-branch-1 not found', $e->getMessage());
+            $this->assertStringContainsString('Configuration dev-branch-1 not found', $e->getMessage());
         }
 
         //Update
@@ -1095,7 +1095,7 @@ class BranchComponentTest extends StorageApiTestCase
         );
     }
 
-    public function testDeleteBranchConfiguration()
+    public function testDeleteBranchConfiguration(): void
     {
         // create new configurations in main branch
         $componentId = 'transformation';
@@ -1148,7 +1148,7 @@ class BranchComponentTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
             $this->assertSame('notFound', $e->getStringCode());
-            $this->assertContains('Configuration main-1 not found', $e->getMessage());
+            $this->assertStringContainsString('Configuration main-1 not found', $e->getMessage());
         }
 
         try {
@@ -1159,7 +1159,7 @@ class BranchComponentTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
             $this->assertSame('notFound', $e->getStringCode());
-            $this->assertContains('Configuration main-1 not found', $e->getMessage());
+            $this->assertStringContainsString('Configuration main-1 not found', $e->getMessage());
         }
 
         // check main branch
@@ -1185,7 +1185,7 @@ class BranchComponentTest extends StorageApiTestCase
         }
     }
 
-    public function testDeleteBranchConfigurationRow()
+    public function testDeleteBranchConfigurationRow(): void
     {
         // create new configurations in main branch
         $componentId = 'transformation';
@@ -1244,7 +1244,7 @@ class BranchComponentTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
             $this->assertSame('notFound', $e->getStringCode());
-            $this->assertContains('Row main-1-row-1 not found', $e->getMessage());
+            $this->assertStringContainsString('Row main-1-row-1 not found', $e->getMessage());
         }
 
         $branchConfigRows = $branchComponents->listConfigurationRows((new ListConfigurationRowsOptions())
@@ -1268,7 +1268,7 @@ class BranchComponentTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
             $this->assertSame('notFound', $e->getStringCode());
-            $this->assertContains('Row main-1-row-1 not found', $e->getMessage());
+            $this->assertStringContainsString('Row main-1-row-1 not found', $e->getMessage());
         }
 
         // create second configuration row

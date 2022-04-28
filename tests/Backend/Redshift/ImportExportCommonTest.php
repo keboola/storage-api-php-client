@@ -13,13 +13,13 @@ use Keboola\StorageApi\Client;
 
 class ImportExportCommonTest extends StorageApiTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->_initEmptyTestBuckets();
     }
 
-    public function testRedshiftErrorInCsv()
+    public function testRedshiftErrorInCsv(): void
     {
         $tableId = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),
@@ -38,7 +38,7 @@ class ImportExportCommonTest extends StorageApiTestCase
     /**
      * Enclosure and escaped by should not be specified together
      */
-    public function testRedshiftUnsupportedCsvParams()
+    public function testRedshiftUnsupportedCsvParams(): void
     {
         $tableId = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),

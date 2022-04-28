@@ -7,7 +7,7 @@ use Keboola\Test\StorageApiTestCase;
 
 class ChunkerTest extends StorageApiTestCase
 {
-    public function testSettersAndGetters()
+    public function testSettersAndGetters(): void
     {
         $chunker = new Chunker();
         $this->assertEquals(50, $chunker->getSize());
@@ -17,7 +17,7 @@ class ChunkerTest extends StorageApiTestCase
         $this->assertEquals(5, $chunker->getSize());
     }
 
-    public function testSimpleChunker()
+    public function testSimpleChunker(): void
     {
         $chunker = new Chunker(3);
         $items = [1, 2, 3, 4, 5];
@@ -25,7 +25,7 @@ class ChunkerTest extends StorageApiTestCase
         $this->assertEquals($expected, $chunker->makeChunks($items));
     }
 
-    public function testAssociativeArrayChunker()
+    public function testAssociativeArrayChunker(): void
     {
         $chunker = new Chunker(3);
         $items = [

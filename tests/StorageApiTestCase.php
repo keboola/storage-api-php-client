@@ -9,6 +9,7 @@
 
 namespace Keboola\Test;
 
+use Exception;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
@@ -95,7 +96,7 @@ abstract class StorageApiTestCase extends ClientTestCase
         static::assertEquals($expected, $actual);
     }
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->_client = $this->getDefaultClient();
         $this->tokens = new Tokens($this->_client);
@@ -204,6 +205,9 @@ abstract class StorageApiTestCase extends ClientTestCase
     protected function _readCsv($path, $delimiter = ",", $enclosure = '"', $escape = '"')
     {
         $fh = fopen($path, 'r');
+        if ($fh === false) {
+            throw new Exception(sprintf('Cannot open file "%s"', $path));
+        }
         $lines = array();
         while (($data = fgetcsv($fh, 1000, $delimiter, $enclosure, $escape)) !== false) {
             $lines[] = $data;

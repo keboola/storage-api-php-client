@@ -2,6 +2,7 @@
 
 namespace Keboola\Test\File;
 
+use Exception;
 use GuzzleHttp\Client;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Options\GetFileOptions;
@@ -12,7 +13,7 @@ class AzureFileTest extends StorageApiTestCase
     /**
      * @dataProvider uploadData
      */
-    public function testFileUpload($filePath, FileUploadOptions $options)
+    public function testFileUpload($filePath, FileUploadOptions $options): void
     {
         $fileId = $this->_client->uploadFile($filePath, $options);
         $file = $this->_client->getFile($fileId, (new GetFileOptions())->setFederationToken(true));
@@ -41,7 +42,7 @@ class AzureFileTest extends StorageApiTestCase
         if ($options->getIsPermanent()) {
             $this->assertNull($file['maxAgeDays']);
         } else {
-            $this->assertInternalType('integer', $file['maxAgeDays']);
+            $this->assertIsInt($file['maxAgeDays']);
             $this->assertEquals(StorageApiTestCase::FILE_LONG_TERM_EXPIRATION_IN_DAYS, $file['maxAgeDays']);
         }
 
@@ -121,7 +122,7 @@ class AzureFileTest extends StorageApiTestCase
     /**
      * @dataProvider uploadSlicedData
      */
-    public function testUploadSlicedFile(array $slices, FileUploadOptions $options)
+    public function testUploadSlicedFile(array $slices, FileUploadOptions $options): void
     {
         $fileId = $this->_client->uploadSlicedFile($slices, $options);
         $file = $this->_client->getFile($fileId, (new GetFileOptions())->setFederationToken(true));
@@ -148,6 +149,9 @@ class AzureFileTest extends StorageApiTestCase
             unlink($filepath);
         }
         $fp = fopen($filepath, 'a+');
+        if ($fp === false) {
+            throw new Exception(sprintf('Cannot open file "%s"', $filepath));
+        }
         $i = 0;
         while ($i++ < $fileSizeMegabytes) {
             fwrite($fp, str_repeat('X', 1024 * 1024));

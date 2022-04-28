@@ -9,7 +9,7 @@ use Keboola\Csv\CsvFile;
 
 class UploadSlicedFileTest extends StorageApiTestCase
 {
-    public function testNoCompress()
+    public function testNoCompress(): void
     {
         $uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
         $uploadOptions
@@ -27,7 +27,7 @@ class UploadSlicedFileTest extends StorageApiTestCase
         $this->assertEquals('entries', $slicedFile['name']);
     }
 
-    public function testCompress()
+    public function testCompress(): void
     {
         $uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
         $uploadOptions

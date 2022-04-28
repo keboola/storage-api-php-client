@@ -13,7 +13,7 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
 {
     use WorkspaceConnectionTrait;
 
-    public function testCreateNotSupportedBackend()
+    public function testCreateNotSupportedBackend(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         try {
@@ -24,7 +24,7 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testLoadDataTypesDefaults()
+    public function testLoadDataTypesDefaults(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -107,7 +107,7 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
         $this->assertEquals("VARCHAR (2000000)", $columns[1]->getColumnDefinition()->getSQLDefinition());
     }
 
-    public function testLoadedPrimaryKeys()
+    public function testLoadedPrimaryKeys(): void
     {
         $primaries = ['Paid_Search_Engine_Account','Date','Paid_Search_Campaign','Paid_Search_Ad_ID','Site__DFA'];
         $pkTableId = $this->_client->createTable(
@@ -172,7 +172,7 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
         $this->assertEquals("VARCHAR (2000000)", $columns[1]->getColumnDefinition()->getSQLDefinition());
     }
 
-    public function testLoadIncremental()
+    public function testLoadIncremental(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -254,7 +254,7 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
         $this->assertEquals(3, $backend->countRows("languagesDetails"));
     }
 
-    public function testLoadIncrementalAndPreserve()
+    public function testLoadIncrementalAndPreserve(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -327,7 +327,7 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testLoadIncrementalNullable()
+    public function testLoadIncrementalNullable(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -424,7 +424,7 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testLoadIncrementalNotNullable()
+    public function testLoadIncrementalNotNullable(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -518,7 +518,7 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
     /**
      * @dataProvider dataTypesDiffDefinitions
      */
-    public function testsIncrementalDataTypesDiff($table, $firstLoadColumns, $secondLoadColumns, $shouldFail)
+    public function testsIncrementalDataTypesDiff($table, $firstLoadColumns, $secondLoadColumns, $shouldFail): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -562,14 +562,14 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
                 $this->fail('Incremental load with different datatypes should fail');
             } catch (ClientException $e) {
                 $this->assertEquals('workspace.columnsTypesNotMatch', $e->getStringCode());
-                $this->assertContains('Different mapping between', $e->getMessage());
+                $this->assertStringContainsString('Different mapping between', $e->getMessage());
             }
         } else {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
         }
     }
 
-    public function testOutBytesMetricsWithLoadWorkspaceWithRows()
+    public function testOutBytesMetricsWithLoadWorkspaceWithRows(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
@@ -618,7 +618,7 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
         $this->assertEquals(15, $backend->countRows('rates'));
     }
 
-    public function testOutBytesMetricsWithLoadWorkspaceWithSeconds()
+    public function testOutBytesMetricsWithLoadWorkspaceWithSeconds(): void
     {
         $this->markTestSkipped('missing incremental import');
         $workspaces = new Workspaces($this->workspaceSapiClient);

@@ -7,7 +7,7 @@ use Keboola\Test\StorageApiTestCase;
 
 class DirectAccessTest extends StorageApiTestCase
 {
-    public function testGetDirectAccessCredentials()
+    public function testGetDirectAccessCredentials(): void
     {
         $backend = self::BACKEND_REDSHIFT;
         $directAccess = new DirectAccess($this->_client);
