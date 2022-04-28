@@ -96,6 +96,7 @@ class SynapseWorkspaceBackend implements WorkspaceBackend
     public function fetchAll($table, $style = \PDO::FETCH_NUM, $orderBy = null)
     {
         $data = [];
+        /** @var array[] $res */
         $res = $this->db->fetchAll(sprintf(
             "SELECT * FROM %s.%s %s;",
             $this->platform->quoteSingleIdentifier($this->schema),
