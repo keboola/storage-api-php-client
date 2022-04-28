@@ -10,7 +10,7 @@ use Keboola\Test\Backend\Workspaces\WorkspacesLoadTest;
 
 class WorkspaceLoadTest extends WorkspacesLoadTest
 {
-    public function testDottedDestination()
+    public function testDottedDestination(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();

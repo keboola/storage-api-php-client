@@ -12,7 +12,7 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
 {
     use WorkspaceConnectionTrait;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -27,7 +27,7 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testCreateTableFromWorkspace()
+    public function testCreateTableFromWorkspace(): void
     {
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace(self::BACKEND_SYNAPSE);
@@ -38,7 +38,7 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
         $backend->dropTableIfExists($tableId);
 
         $connection = $workspace['connection'];
-        $db = $this->getDbConnection($connection);
+        $db = $this->getDbConnectionSynapse($connection);
 
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
@@ -46,7 +46,7 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
             $tableId
         ));
 
-        $db->query("create table $quotedTableId (
+        $db->executeQuery("create table $quotedTableId (
                     \"string\" varchar(16) not null default 'string',
                     \"char\" char null,
                     \"integer\" integer not null default 4,
@@ -143,7 +143,7 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertMetadata($expectedDateMetadata, $table['columnMetadata']['date']);
     }
 
-    public function testCopyImport()
+    public function testCopyImport(): void
     {
         $table_id = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),
@@ -161,7 +161,7 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
         $backend->dropTableIfExists($tableId);
 
         $connection = $workspace['connection'];
-        $db = $this->getDbConnection($connection);
+        $db = $this->getDbConnectionSynapse($connection);
 
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
@@ -169,12 +169,12 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
             $tableId
         ));
 
-        $db->query("create table $quotedTableId (
+        $db->executeQuery("create table $quotedTableId (
                 \"id\" integer not null,
                 \"name\" varchar(50) not null default 'honza'
             );");
-        $db->query("insert into $quotedTableId ([id], [name]) values (1, 'cz');");
-        $db->query("insert into $quotedTableId ([id], [name]) values (2, 'en');");
+        $db->executeQuery("insert into $quotedTableId ([id], [name]) values (1, 'cz');");
+        $db->executeQuery("insert into $quotedTableId ([id], [name]) values (2, 'en');");
 
         $this->_client->writeTableAsyncDirect($table_id, array(
             'dataWorkspaceId' => $workspace['id'],
@@ -198,11 +198,11 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertEquals([], $table['metadata']);
         $this->assertEquals([], $table['columnMetadata']);
 
-        $db->query("truncate table $quotedTableId");
-        $db->query("alter table $quotedTableId ADD \"update\" varchar(64) NOT NULL DEFAULT '';");
-        $db->query("insert into $quotedTableId values (1, 'cz', '');");
-        $db->query("insert into $quotedTableId values (3, 'sk', 'newValue');");
-        $db->query("insert into $quotedTableId values (4, 'jp', 'test');");
+        $db->executeQuery("truncate table $quotedTableId");
+        $db->executeQuery("alter table $quotedTableId ADD \"update\" varchar(64) NOT NULL DEFAULT '';");
+        $db->executeQuery("insert into $quotedTableId values (1, 'cz', '');");
+        $db->executeQuery("insert into $quotedTableId values (3, 'sk', 'newValue');");
+        $db->executeQuery("insert into $quotedTableId values (4, 'jp', 'test');");
 
         $this->_client->writeTableAsyncDirect($table['id'], array(
             'dataWorkspaceId' => $workspace['id'],
@@ -228,7 +228,7 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertEquals([], $table['columnMetadata']);
     }
 
-    public function testMetadataManipulationRestrictions()
+    public function testMetadataManipulationRestrictions(): void
     {
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace(self::BACKEND_SYNAPSE);
@@ -239,7 +239,7 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
         $backend->dropTableIfExists($tableId);
 
         $connection = $workspace['connection'];
-        $db = $this->getDbConnection($connection);
+        $db = $this->getDbConnectionSynapse($connection);
 
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
@@ -247,7 +247,7 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
             $tableId
         ));
 
-        $db->query("create table $quotedTableId (
+        $db->executeQuery("create table $quotedTableId (
                     \"string\" varchar(16) not null default 'string'
                 );");
 
@@ -320,7 +320,7 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
             $this->assertEquals($expectedKeyValues[$data['key']], $data['value']);
             $this->assertArrayHasKey("provider", $data);
             $this->assertArrayHasKey("timestamp", $data);
-            $this->assertRegExp(self::ISO8601_REGEXP, $data['timestamp']);
+            $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $data['timestamp']);
             $this->assertEquals(Metadata::PROVIDER_STORAGE, $data['provider']);
         }
     }

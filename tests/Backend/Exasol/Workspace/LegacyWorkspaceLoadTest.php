@@ -6,7 +6,7 @@ use Keboola\Test\Backend\Workspaces\WorkspacesLoadTest;
 
 class LegacyWorkspaceLoadTest extends WorkspacesLoadTest
 {
-    public function testDottedDestination()
+    public function testDottedDestination(): void
     {
         $this->markTestSkipped('Dotted tables not supported');
     }

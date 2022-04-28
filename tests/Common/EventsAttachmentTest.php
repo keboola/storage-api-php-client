@@ -15,13 +15,13 @@ use Keboola\Csv\CsvFile;
 class EventsAttachmentTest extends StorageApiTestCase
 {
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->_initEmptyTestBuckets();
     }
 
-    public function testImportEventAttachment()
+    public function testImportEventAttachment(): void
     {
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);

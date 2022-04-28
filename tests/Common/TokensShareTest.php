@@ -10,7 +10,7 @@ class TokensShareTest extends StorageApiTestCase
 {
     use EventTesterUtils;
 
-    public function testMasterTokenShouldNotBeShareable()
+    public function testMasterTokenShouldNotBeShareable(): void
     {
         try {
             $token = $this->_client->verifyToken();
@@ -21,7 +21,7 @@ class TokensShareTest extends StorageApiTestCase
         }
     }
 
-    public function testTokenShare()
+    public function testTokenShare(): void
     {
         $this->initEvents($this->_client);
         $newToken = $this->tokens->createToken(new TokenCreateOptions());

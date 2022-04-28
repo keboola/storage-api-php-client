@@ -23,29 +23,35 @@ class Metadata
 
     /**
      * @param $bucketId
-     * @return mixed|string list of metadata
+     * @return array list of metadata
      */
     public function listBucketMetadata($bucketId)
     {
-        return $this->client->apiGet("buckets/{$bucketId}/metadata");
+        /** @var array $result */
+        $result = $this->client->apiGet("buckets/{$bucketId}/metadata");
+        return $result;
     }
 
     /**
      * @param $tableId
-     * @return mixed|string list of metadata
+     * @return array list of metadata
      */
     public function listTableMetadata($tableId)
     {
-        return $this->client->apiGet("tables/{$tableId}/metadata");
+        /** @var array $result */
+        $result = $this->client->apiGet("tables/{$tableId}/metadata");
+        return $result;
     }
 
     /**
      * @param $columnId  -- ex: "in.c-bucket.table.column"
-     * @return mixed|string list of metadata
+     * @return array list of metadata
      */
     public function listColumnMetadata($columnId)
     {
-        return $this->client->apiGet("columns/{$columnId}/metadata");
+        /** @var array $result */
+        $result = $this->client->apiGet("columns/{$columnId}/metadata");
+        return $result;
     }
 
     /**
@@ -82,7 +88,7 @@ class Metadata
      * @param $bucketId
      * @param $provider
      * @param array $metadata
-     * @return mixed|string
+     * @return array
      * @throws ClientException
      */
     public function postBucketMetadata($bucketId, $provider, $metadata)
@@ -90,10 +96,12 @@ class Metadata
         if (!is_array($metadata) || count($metadata) === 0) {
             throw new ClientException("Third argument must be a non-empty array of metadata objects");
         }
-        return $this->client->apiPost("buckets/{$bucketId}/metadata", array(
+        /** @var array $result */
+        $result = $this->client->apiPost("buckets/{$bucketId}/metadata", [
             "provider" => $provider,
             "metadata" => $metadata
-        ));
+        ]);
+        return $result;
     }
 
     /**
@@ -102,7 +110,7 @@ class Metadata
      * @param string $tableId
      * @param string $provider
      * @param array<int, array{key: string, value: string}> $metadata
-     * @return mixed|string
+     * @return array
      * @throws ClientException
      */
     public function postTableMetadata($tableId, $provider, $metadata)
@@ -110,10 +118,12 @@ class Metadata
         if (!is_array($metadata) || count($metadata) === 0) {
             throw new ClientException("Third argument must be a non-empty array of Metadata objects");
         }
-        return $this->client->apiPost("tables/{$tableId}/metadata", array(
+        /** @var array $result */
+        $result = $this->client->apiPost("tables/{$tableId}/metadata", [
             "provider" => $provider,
             "metadata" => $metadata
-        ));
+        ]);
+        return $result;
     }
 
     /**
@@ -128,7 +138,7 @@ class Metadata
      * @param $columnId
      * @param $provider
      * @param array $metadata
-     * @return mixed|string
+     * @return array
      * @throws ClientException
      */
     public function postColumnMetadata($columnId, $provider, $metadata)
@@ -136,9 +146,11 @@ class Metadata
         if (!is_array($metadata) || count($metadata) === 0) {
             throw new ClientException("Third argument must be a non-empty array of Metadata objects");
         }
-        return $this->client->apiPost("columns/{$columnId}/metadata", array(
+        /** @var array $result */
+        $result = $this->client->apiPost("columns/{$columnId}/metadata", [
             "provider" => $provider,
             "metadata" => $metadata
-        ));
+        ]);
+        return $result;
     }
 }

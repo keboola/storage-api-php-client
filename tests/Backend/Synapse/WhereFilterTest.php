@@ -13,13 +13,13 @@ use function GuzzleHttp\json_encode;
 
 class WhereFilterTest extends StorageApiTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->_initEmptyTestBuckets();
     }
 
-    public function testSimpleWhereConditions()
+    public function testSimpleWhereConditions(): void
     {
         $tableId = $this->prepareTable();
 
@@ -35,7 +35,7 @@ class WhereFilterTest extends StorageApiTestCase
         $this->assertCount(1, $this->getExportedTable($tableId, ['whereFilters' => $where]));
     }
 
-    public function testFilterWithCast()
+    public function testFilterWithCast(): void
     {
         $tableId = $this->prepareTable();
 
@@ -58,7 +58,7 @@ class WhereFilterTest extends StorageApiTestCase
         $this->assertEquals($exportCsv[0]['column_string'], 'fifth');
     }
 
-    public function testDataPreviewWithNonExistingDataType()
+    public function testDataPreviewWithNonExistingDataType(): void
     {
         $tableId = $this->prepareTable();
 
@@ -71,11 +71,11 @@ class WhereFilterTest extends StorageApiTestCase
             ],
         ];
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessageRegExp('~Data type non-existing not recognized~');
+        $this->expectExceptionMessageMatches('~Data type non-existing not recognized~');
         $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
     }
 
-    public function testTableExportWithNonExistingDataType()
+    public function testTableExportWithNonExistingDataType(): void
     {
         $tableId = $this->prepareTable();
 
@@ -88,11 +88,11 @@ class WhereFilterTest extends StorageApiTestCase
             ],
         ];
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessageRegExp('~Data type non-existing not recognized~');
+        $this->expectExceptionMessageMatches('~Data type non-existing not recognized~');
         $this->getExportedTable($tableId, ['whereFilters' => $where]);
     }
 
-    public function testCastToDouble()
+    public function testCastToDouble(): void
     {
         $tableId = $this->prepareTable();
 
@@ -112,7 +112,7 @@ class WhereFilterTest extends StorageApiTestCase
         $this->assertCount(2, $previewCsv);
     }
 
-    public function testMultipleConditions()
+    public function testMultipleConditions(): void
     {
         $tableId = $this->prepareTable();
 
@@ -138,7 +138,7 @@ class WhereFilterTest extends StorageApiTestCase
         $this->assertCount(1, $exportCsv);
     }
 
-    public function testDataPreviewInvalidComparingOperator()
+    public function testDataPreviewInvalidComparingOperator(): void
     {
         $tableId = $this->prepareTable();
 
@@ -151,11 +151,11 @@ class WhereFilterTest extends StorageApiTestCase
         ];
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessageRegExp('~Invalid where operator non-existing~');
+        $this->expectExceptionMessageMatches('~Invalid where operator non-existing~');
         $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
     }
 
-    public function testExportTableInvalidComparingOperator()
+    public function testExportTableInvalidComparingOperator(): void
     {
         $tableId = $this->prepareTable();
 
@@ -168,11 +168,11 @@ class WhereFilterTest extends StorageApiTestCase
         ];
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessageRegExp('~Invalid where operator non-existing~');
+        $this->expectExceptionMessageMatches('~Invalid where operator non-existing~');
         $this->getExportedTable($tableId, ['whereFilters' => $where]);
     }
 
-    public function testInvalidStructuredQueryInAsyncExport()
+    public function testInvalidStructuredQueryInAsyncExport(): void
     {
         $tableId = $this->prepareTable();
 
@@ -183,7 +183,7 @@ class WhereFilterTest extends StorageApiTestCase
         $this->getExportedTable($tableId, ['whereFilters' => $where]);
     }
 
-    public function testNonArrayParamsShouldReturnErrorInAsyncExport()
+    public function testNonArrayParamsShouldReturnErrorInAsyncExport(): void
     {
         $tableId = $this->prepareTable();
 
@@ -194,7 +194,7 @@ class WhereFilterTest extends StorageApiTestCase
         $this->getExportedTable($tableId, ['whereFilters' => $where]);
     }
 
-    public function testInvalidStructuredQueryInDataPreview()
+    public function testInvalidStructuredQueryInDataPreview(): void
     {
         $tableId = $this->prepareTable();
 
@@ -205,7 +205,7 @@ class WhereFilterTest extends StorageApiTestCase
         $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
     }
 
-    public function testNonArrayParamsShouldReturnErrorInDataPreview()
+    public function testNonArrayParamsShouldReturnErrorInDataPreview(): void
     {
         $tableId = $this->prepareTable();
 

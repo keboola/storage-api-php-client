@@ -12,7 +12,7 @@ class RequestTimeoutMiddlewareTest extends TestCase
     /**
      * @return void
      */
-    public function testWillSetDefaultTimeout()
+    public function testWillSetDefaultTimeout(): void
     {
         $assertingHandler = function ($request, $options) {
             $this->assertSame(RequestTimeoutMiddleware::REQUEST_TIMEOUT_DEFAULT, $options['timeout']);
@@ -27,7 +27,7 @@ class RequestTimeoutMiddlewareTest extends TestCase
     /**
      * @return void
      */
-    public function testWillOverrideTimeout()
+    public function testWillOverrideTimeout(): void
     {
         $assertingHandler = function ($request, $options) {
             $this->assertSame(RequestTimeoutMiddleware::REQUEST_TIMEOUT_DEFAULT, $options['timeout']);
@@ -42,7 +42,7 @@ class RequestTimeoutMiddlewareTest extends TestCase
     /**
      * @return void
      */
-    public function testWillSetDeleteTimeout()
+    public function testWillSetDeleteTimeout(): void
     {
         $assertingHandler = function ($request, $options) {
             $this->assertSame(RequestTimeoutMiddleware::REQUEST_TIMEOUT_EXTENDED, $options['timeout']);
@@ -57,7 +57,7 @@ class RequestTimeoutMiddlewareTest extends TestCase
     /**
      * @return void
      */
-    public function testWillSetManualExtendedTimeout()
+    public function testWillSetManualExtendedTimeout(): void
     {
         $assertingHandler = function ($request, $options) {
             $this->assertSame(RequestTimeoutMiddleware::REQUEST_TIMEOUT_EXTENDED, $options['timeout']);

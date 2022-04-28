@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class AbsUrlParserTest extends TestCase
 {
-    public function testParseAbsUrlAzure()
+    public function testParseAbsUrlAzure(): void
     {
         $url = 'azure://myaccount.blob.core.windows.net/mycontainer/myblob';
         list($protocol, $account, $container, $file) = AbsUrlParser::parseAbsUrl($url);
@@ -18,7 +18,7 @@ class AbsUrlParserTest extends TestCase
         $this->assertEquals('myblob', $file);
     }
 
-    public function testParseAbsUrlHttps()
+    public function testParseAbsUrlHttps(): void
     {
         $url = 'https://myaccount.blob.core.windows.net/mycontainer/myblob';
         list($protocol, $account, $container, $file) = AbsUrlParser::parseAbsUrl($url);

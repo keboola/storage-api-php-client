@@ -15,14 +15,14 @@ class TimeTravelTest extends StorageApiTestCase
 {
     private $downloadPath;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();
         $this->downloadPath = __DIR__ . '/../../_tmp/';
     }
 
-    public function testCreateTableFromTimestamp()
+    public function testCreateTableFromTimestamp(): void
     {
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
 
@@ -51,7 +51,7 @@ class TimeTravelTest extends StorageApiTestCase
 
         $updatedTable = $this->_client->getTable($sourceTableId);
 
-        $newTableName = "new-table-name_" . date('Ymd_His', strtotime($timestamp));
+        $newTableName = "new-table-name_" . date('Ymd_His', (int) strtotime($timestamp));
 
         $replicaTableId = $this->_client->createTableFromSourceTableAtTimestamp(
             $this->getTestBucketId(self::STAGE_OUT),
@@ -78,7 +78,7 @@ class TimeTravelTest extends StorageApiTestCase
         );
     }
 
-    public function testCreateTableFromTimestampOfAlteredTable()
+    public function testCreateTableFromTimestampOfAlteredTable(): void
     {
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
 
@@ -102,7 +102,7 @@ class TimeTravelTest extends StorageApiTestCase
 
         $updatedTable = $this->_client->getTable($sourceTableId);
 
-        $newTableName = "new-table-name_" . date('Ymd_His', strtotime($timestamp));
+        $newTableName = "new-table-name_" . date('Ymd_His', (int) strtotime($timestamp));
 
         $replicaTableId = $this->_client->createTableFromSourceTableAtTimestamp(
             $this->getTestBucketId(self::STAGE_OUT),
@@ -121,7 +121,7 @@ class TimeTravelTest extends StorageApiTestCase
         // $this->assertEquals(['id', 'name'], $replicaTable['primaryKey']);
     }
 
-    public function testInvalidCreateTableFromTimestampRequests()
+    public function testInvalidCreateTableFromTimestampRequests(): void
     {
         $beforeCreationTimestamp = date(DATE_ATOM, strtotime('-10m'));
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
@@ -146,7 +146,7 @@ class TimeTravelTest extends StorageApiTestCase
         }
     }
 
-    public function testTableCreationInLinkedBucket()
+    public function testTableCreationInLinkedBucket(): void
     {
         // make the source table
         $originalTableId = $this->_client->createTableAsync(
@@ -185,7 +185,7 @@ class TimeTravelTest extends StorageApiTestCase
         $this->assertLinesEqualsSorted($data, $linkedData);
     }
 
-    public function testTimeTravelBucketPermissions()
+    public function testTimeTravelBucketPermissions(): void
     {
         // Create the source table
         $originalTableId = $this->_client->createTableAsync(

@@ -18,7 +18,7 @@ class TimestampTest extends ParallelWorkspacesTestCase
     /**
      * Originally this is ImportExportCommonTest::testTableAsyncImportExport but only works in snowflake
      */
-    public function testTimestampCSVImportAsync()
+    public function testTimestampCSVImportAsync(): void
     {
         $workspace = $this->initTestWorkspace();
 
@@ -58,7 +58,7 @@ class TimestampTest extends ParallelWorkspacesTestCase
     /**
      * Originally this is ImportExportCommonTest::testTableImportExport but only works in snowflake
      */
-    public function testTimestampCSVImportSync()
+    public function testTimestampCSVImportSync(): void
     {
         $workspace = $this->initTestWorkspace();
 
@@ -98,7 +98,7 @@ class TimestampTest extends ParallelWorkspacesTestCase
     /**
      * Originally this is SlicedImportsTest::testSlicedImportSingleFile but only works in snowflake
      */
-    public function testTimestampSlicedImport()
+    public function testTimestampSlicedImport(): void
     {
         $workspace = $this->initTestWorkspace();
 
@@ -168,7 +168,7 @@ class TimestampTest extends ParallelWorkspacesTestCase
     /**
      * Originally this is WorkspacesUnloadTest::testCopyImport but only works in snowflake
      */
-    public function testTimestampCopyImport()
+    public function testTimestampCopyImport(): void
     {
         $workspace = $this->initTestWorkspace();
 
@@ -268,7 +268,7 @@ class TimestampTest extends ParallelWorkspacesTestCase
                 $timestampRecord['_timestamp'],
                 '_timestamp field must not be a null.'
             );
-            $this->assertRegExp(
+            $this->assertMatchesRegularExpression(
                 self::TIMESTAMP_FORMAT,
                 $timestampRecord['_timestamp'],
                 '_timestamp has wrong pattern.'

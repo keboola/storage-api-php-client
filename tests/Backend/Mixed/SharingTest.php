@@ -19,7 +19,7 @@ class SharingTest extends StorageApiSharingTestCase
 {
     use WorkspaceConnectionTrait;
 
-    public function testOrganizationAdminInTokenVerify()
+    public function testOrganizationAdminInTokenVerify(): void
     {
         $token = $this->_client->verifyToken();
         $this->assertTrue($token['admin']['isOrganizationMember']);
@@ -28,7 +28,7 @@ class SharingTest extends StorageApiSharingTestCase
     /**
      * @dataProvider invalidSharingTypeData
      */
-    public function testInvalidSharingType($sharingType, $isAsync)
+    public function testInvalidSharingType($sharingType, $isAsync): void
     {
         $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
         $bucketId = reset($this->_bucketIds);
@@ -49,7 +49,7 @@ class SharingTest extends StorageApiSharingTestCase
     }
 
     /** @dataProvider syncAsyncProvider */
-    public function testOrganizationPublicSharing($isAsync)
+    public function testOrganizationPublicSharing($isAsync): void
     {
         $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
         $bucketId = reset($this->_bucketIds);
@@ -320,7 +320,7 @@ class SharingTest extends StorageApiSharingTestCase
     }
 
     /** @dataProvider syncAsyncProvider */
-    public function testNonOrganizationAdminInToken($isAsync)
+    public function testNonOrganizationAdminInToken($isAsync): void
     {
         $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
         $bucketId = reset($this->_bucketIds);
@@ -394,7 +394,7 @@ class SharingTest extends StorageApiSharingTestCase
      * @dataProvider sharingBackendDataWithAsync
      * @throws ClientException
      */
-    public function testShareBucket($backend, $isAsync)
+    public function testShareBucket($backend, $isAsync): void
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
@@ -422,7 +422,7 @@ class SharingTest extends StorageApiSharingTestCase
      * @dataProvider syncAsyncProvider
      * @throws ClientException
      */
-    public function testAdminWithShareRoleSharesBucket($isAsync)
+    public function testAdminWithShareRoleSharesBucket($isAsync): void
     {
         $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
         $bucketId = reset($this->_bucketIds);
@@ -460,7 +460,7 @@ class SharingTest extends StorageApiSharingTestCase
      * @dataProvider sharingBackendDataWithAsync
      * @throws ClientException
      */
-    public function testShareBucketChangeType($backend, $isASync)
+    public function testShareBucketChangeType($backend, $isASync): void
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
@@ -474,7 +474,7 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertEquals('specific-projects', $sharedBucket['sharing']);
         $this->assertArrayHasKey('sharingParameters', $sharedBucket);
         $this->assertNotEmpty($sharedBucket['sharingParameters']);
-        $this->assertInternalType('array', $sharedBucket['sharingParameters']);
+        $this->assertIsArray($sharedBucket['sharingParameters']);
 
         // first reshare
         $this->_client->changeBucketSharing($bucketId, 'organization-project', $isASync);
@@ -484,7 +484,7 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertEquals('organization-project', $sharedBucket['sharing']);
         $this->assertArrayHasKey('sharingParameters', $sharedBucket);
         $this->assertEmpty($sharedBucket['sharingParameters']);
-        $this->assertInternalType('array', $sharedBucket['sharingParameters']);
+        $this->assertIsArray($sharedBucket['sharingParameters']);
 
         // second reshare
         $this->_client->changeBucketSharing($bucketId, 'organization', $isASync);
@@ -494,14 +494,14 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertEquals('organization', $sharedBucket['sharing']);
         $this->assertArrayHasKey('sharingParameters', $sharedBucket);
         $this->assertEmpty($sharedBucket['sharingParameters']);
-        $this->assertInternalType('array', $sharedBucket['sharingParameters']);
+        $this->assertIsArray($sharedBucket['sharingParameters']);
     }
 
     /**
      * @dataProvider sharingBackendDataWithAsync
      * @throws ClientException
      */
-    public function testShareBucketChangeTypeOnUnsharedBucket($backend, $isAsync)
+    public function testShareBucketChangeTypeOnUnsharedBucket($backend, $isAsync): void
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
@@ -520,7 +520,7 @@ class SharingTest extends StorageApiSharingTestCase
      * @dataProvider sharingBackendDataWithAsync
      * @throws ClientException
      */
-    public function testSharedBuckets($backend, $isAsync)
+    public function testSharedBuckets($backend, $isAsync): void
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
@@ -655,7 +655,7 @@ class SharingTest extends StorageApiSharingTestCase
      * @dataProvider sharingBackendDataWithAsync
      * @throws ClientException
      */
-    public function testSharedBucketsWithInclude($backend, $isAsync)
+    public function testSharedBucketsWithInclude($backend, $isAsync): void
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
@@ -735,7 +735,7 @@ class SharingTest extends StorageApiSharingTestCase
      * @dataProvider sharingBackendDataWithAsync
      * @throws ClientException
      */
-    public function testLinkBucketDry($backend, $isAsync)
+    public function testLinkBucketDry($backend, $isAsync): void
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
@@ -781,7 +781,7 @@ class SharingTest extends StorageApiSharingTestCase
      * @dataProvider sharingBackendDataWithAsync
      * @throws ClientException
      */
-    public function testLinkBucketToOrganizationDeletePermissions($backend, $isAsync)
+    public function testLinkBucketToOrganizationDeletePermissions($backend, $isAsync): void
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
@@ -814,7 +814,7 @@ class SharingTest extends StorageApiSharingTestCase
     }
 
     /** @dataProvider syncAsyncProvider */
-    public function testBucketCannotBeLinkedMoreTimes($isAsync)
+    public function testBucketCannotBeLinkedMoreTimes($isAsync): void
     {
         $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
         $bucketId = reset($this->_bucketIds);
@@ -868,7 +868,7 @@ class SharingTest extends StorageApiSharingTestCase
      * @dataProvider sharingBackendDataWithAsync
      * @throws ClientException
      */
-    public function testLinkedBucket($backend, $isAsync)
+    public function testLinkedBucket($backend, $isAsync): void
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
@@ -997,7 +997,7 @@ class SharingTest extends StorageApiSharingTestCase
      * @dataProvider sharingBackendDataWithAsync
      * @throws ClientException
      */
-    public function testRestrictedDrop($backend, $isAsync)
+    public function testRestrictedDrop($backend, $isAsync): void
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
@@ -1064,7 +1064,7 @@ class SharingTest extends StorageApiSharingTestCase
      * @dataProvider sharingBackendDataWithAsync
      * @throws ClientException
      */
-    public function testForcedDrop($backend, $isAsync)
+    public function testForcedDrop($backend, $isAsync): void
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
@@ -1124,7 +1124,7 @@ class SharingTest extends StorageApiSharingTestCase
      * @throws \Exception
      * @throws \Keboola\StorageApi\Exception
      */
-    public function testWorkspaceLoadData($sharingBackend, $workspaceBackend, $isAsync)
+    public function testWorkspaceLoadData($sharingBackend, $workspaceBackend, $isAsync): void
     {
         //setup test tables
         $this->deleteAllWorkspaces();
@@ -1301,7 +1301,7 @@ class SharingTest extends StorageApiSharingTestCase
     }
 
     /** @dataProvider syncAsyncProvider */
-    public function testCloneLinkedBucket($isAsync)
+    public function testCloneLinkedBucket($isAsync): void
     {
         $this->deleteAllWorkspaces();
         $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
@@ -1506,7 +1506,7 @@ class SharingTest extends StorageApiSharingTestCase
     }
 
     /** @dataProvider syncAsyncProvider */
-    public function testDevBranchBucketCannotBeShared($isAsync)
+    public function testDevBranchBucketCannotBeShared($isAsync): void
     {
         $metadataProvider = Metadata::PROVIDER_SYSTEM;
         $metadataKey = Metadata::BUCKET_METADATA_KEY_ID_BRANCH;

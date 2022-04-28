@@ -14,7 +14,7 @@ use Keboola\Test\StorageApiTestCase;
 
 class DirectAccessTest extends StorageApiTestCase
 {
-    public function testGetDirectAccessCredentials()
+    public function testGetDirectAccessCredentials(): void
     {
         $backend = self::BACKEND_SNOWFLAKE;
         $directAccess = $this->prepareDirectAccess();
@@ -84,7 +84,7 @@ class DirectAccessTest extends StorageApiTestCase
             ]);
             $this->fail('Exception should be thrown');
         } catch (\Keboola\Db\Import\Exception $e) {
-            $this->assertContains(
+            $this->assertStringContainsString(
                 'Incorrect username or password was specified., SQL state 28000 in SQLConnect',
                 $e->getMessage()
             );
@@ -111,7 +111,7 @@ class DirectAccessTest extends StorageApiTestCase
         }
     }
 
-    public function testWithNonAdminToken()
+    public function testWithNonAdminToken(): void
     {
         $backend = self::BACKEND_SNOWFLAKE;
         $newToken = $this->tokens->createToken(new TokenCreateOptions());
@@ -130,7 +130,7 @@ class DirectAccessTest extends StorageApiTestCase
         }
     }
 
-    public function testDirectAccessAndRestrictions()
+    public function testDirectAccessAndRestrictions(): void
     {
         $bucketName = 'API-DA-tests';
         $bucket2Name = 'API-DA_TEST';
@@ -221,7 +221,7 @@ class DirectAccessTest extends StorageApiTestCase
             $this->_client->getTable($tableId);
             $this->fail('Should have thrown!');
         } catch (ClientException $e) {
-            $this->assertContains(
+            $this->assertStringContainsString(
                 'The table "mytable" was not found in the bucket "in.c-API-DA-tests"',
                 $e->getMessage()
             );
