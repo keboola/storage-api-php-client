@@ -2,6 +2,7 @@
 
 namespace Keboola\Test\File;
 
+use Exception;
 use GuzzleHttp\Client;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Options\GetFileOptions;
@@ -148,6 +149,9 @@ class AzureFileTest extends StorageApiTestCase
             unlink($filepath);
         }
         $fp = fopen($filepath, 'a+');
+        if ($fp === false) {
+            throw new Exception(sprintf('Cannot open file "%s"', $filepath));
+        }
         $i = 0;
         while ($i++ < $fileSizeMegabytes) {
             fwrite($fp, str_repeat('X', 1024 * 1024));
