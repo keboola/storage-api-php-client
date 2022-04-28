@@ -8,13 +8,13 @@ use Keboola\Test\StorageApiTestCase;
 class JobPollDelayTest extends StorageApiTestCase
 {
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->_initEmptyTestBuckets();
     }
 
-    public function testAlternateJobPollDelay()
+    public function testAlternateJobPollDelay(): void
     {
         $methodUsed = false;
 
@@ -35,11 +35,9 @@ class JobPollDelayTest extends StorageApiTestCase
         $this->assertTrue($methodUsed);
     }
 
-    /**
-     * @expectedException \TypeError
-     */
-    public function testInvalidJobPollDelay()
+    public function testInvalidJobPollDelay(): void
     {
+        $this->expectException(\TypeError::class);
         $dumbDelay = 'wait for 30 seconds';
 
         $client = $this->getClient(array(

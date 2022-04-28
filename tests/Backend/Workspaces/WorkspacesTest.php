@@ -21,7 +21,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
     use WorkspaceConnectionTrait;
     use WorkspaceCredentialsAssertTrait;
 
-    public function testWorkspaceCreate()
+    public function testWorkspaceCreate(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
@@ -100,7 +100,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $this->assertCredentialsShouldNotWork($connection);
     }
 
-    public function testWorkspacePasswordReset()
+    public function testWorkspacePasswordReset(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
@@ -164,7 +164,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
      * @dataProvider  dropOptions
      * @param $dropOptions
      */
-    public function testDropWorkspace($dropOptions)
+    public function testDropWorkspace($dropOptions): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
@@ -193,9 +193,33 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
             $this->fail("workspace no longer exists. connection should be dead.");
         } catch (\PDOException $e) { // catch redshift connection exception
             $this->assertEquals("57P01", $e->getCode());
-        } catch (DBALException $e) {
-            // Synapse
-            $this->assertEquals(0, $e->getCode(), $e->getMessage());
+        } catch (\Doctrine\DBAL\Exception $e) {
+            switch ($connection['backend']) {
+                case self::BACKEND_SYNAPSE:
+                    $this->assertEquals(110813, $e->getCode(), $e->getMessage());
+                    break;
+                case self::BACKEND_TERADATA:
+                    $this->assertContains(
+                        $e->getCode(),
+                        [0, 2],
+                        sprintf(
+                            'Unexpected error message from Teradata code: "%s" message: "%s".',
+                            $e->getCode(),
+                            $e->getMessage()
+                        )
+                    );
+                    break;
+                case self::BACKEND_EXASOL:
+                    $this->assertEquals(0, $e->getCode(), $e->getMessage());
+                    break;
+                default:
+                    $this->fail(sprintf(
+                        'Unexpected exception for backend "%s". code: "%s",message: "%s"',
+                        $workspace['backend'],
+                        $e->getCode(),
+                        $e->getMessage()
+                    ));
+            }
         } catch (\Exception $e) {
             // check that exception not caused by the above fail()
             $this->assertEquals(2, $e->getCode(), $e->getMessage());
@@ -212,7 +236,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
      * @dataProvider dropOptions
      * @param $dropOptions
      */
-    public function testDropNonExistingWorkspace($dropOptions)
+    public function testDropNonExistingWorkspace($dropOptions): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 

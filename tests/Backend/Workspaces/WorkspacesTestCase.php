@@ -13,7 +13,7 @@ use Keboola\Test\StorageApiTestCase;
 
 abstract class WorkspacesTestCase extends StorageApiTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->_initEmptyTestBuckets();

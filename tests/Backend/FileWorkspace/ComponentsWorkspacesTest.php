@@ -11,7 +11,7 @@ use Keboola\Test\Backend\FileWorkspace\Backend\Abs;
 
 class ComponentsWorkspacesTest extends FileWorkspaceTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -30,7 +30,7 @@ class ComponentsWorkspacesTest extends FileWorkspaceTestCase
         }
     }
 
-    public function testWorkspaceCreate()
+    public function testWorkspaceCreate(): void
     {
         $componentId = 'wr-db';
         $configurationId = 'main-1';

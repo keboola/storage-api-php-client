@@ -10,7 +10,7 @@ use Keboola\Test\StorageApiTestCase;
 
 class WhereFilterTest extends StorageApiTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->_initEmptyTestBuckets();
@@ -19,14 +19,14 @@ class WhereFilterTest extends StorageApiTestCase
     /**
      * @dataProvider conditionProvider
      */
-    public function testForbiddenWhereOperators(array $where)
+    public function testForbiddenWhereOperators(array $where): void
     {
         $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
         $csvFile->writeRow(['test']);
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'conditions', $csvFile);
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessageRegExp('~Operator ' . $where['operator'] . ' not allowed .* Available operators are~');
+        $this->expectExceptionMessageMatches('~Operator ' . $where['operator'] . ' not allowed .* Available operators are~');
         $this->_client->getTableDataPreview($tableId, ['whereFilters' => [$where]]);
     }
 

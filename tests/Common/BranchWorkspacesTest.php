@@ -17,7 +17,7 @@ class BranchWorkspacesTest extends WorkspacesTest
 
     private $branchId;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -40,7 +40,7 @@ class BranchWorkspacesTest extends WorkspacesTest
         );
     }
 
-    public function testWorkspaceCreate()
+    public function testWorkspaceCreate(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
@@ -99,7 +99,7 @@ class BranchWorkspacesTest extends WorkspacesTest
         $this->assertEquals($this->branchId, $workspaceCreatedEvent['idBranch']);
     }
 
-    public function testWorkspacePasswordReset()
+    public function testWorkspacePasswordReset(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 

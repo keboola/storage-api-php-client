@@ -11,7 +11,7 @@ class AwsFileTest extends StorageApiTestCase
     /**
      * @dataProvider uploadData
      */
-    public function testFileUpload($filePath, FileUploadOptions $options)
+    public function testFileUpload($filePath, FileUploadOptions $options): void
     {
         $fileId = $this->_client->uploadFile($filePath, $options);
         $file = $this->_client->getFile($fileId);
@@ -36,7 +36,7 @@ class AwsFileTest extends StorageApiTestCase
         if ($options->getIsPermanent()) {
             $this->assertNull($file['maxAgeDays']);
         } else {
-            $this->assertInternalType('integer', $file['maxAgeDays']);
+            $this->assertIsInt($file['maxAgeDays']);
             $this->assertEquals(StorageApiTestCase::FILE_LONG_TERM_EXPIRATION_IN_DAYS, $file['maxAgeDays']);
         }
 
@@ -90,7 +90,7 @@ class AwsFileTest extends StorageApiTestCase
      * @dataProvider encryptedData
      * @param $encrypted
      */
-    public function testFileUploadUsingFederationToken($encrypted)
+    public function testFileUploadUsingFederationToken($encrypted): void
     {
         $pathToFile = __DIR__ . '/../_data/files.upload.txt';
         $options = new FileUploadOptions();
@@ -141,7 +141,7 @@ class AwsFileTest extends StorageApiTestCase
         );
     }
 
-    public function testRequireEncryptionForSliced()
+    public function testRequireEncryptionForSliced(): void
     {
         // sliced file
         $uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
@@ -177,7 +177,7 @@ class AwsFileTest extends StorageApiTestCase
         }
     }
 
-    public function testGetFileFederationToken()
+    public function testGetFileFederationToken(): void
     {
         $filePath = __DIR__ . '/../_data/files.upload.txt';
         $fileId = $this->_client->uploadFile($filePath, (new FileUploadOptions())->setNotify(false)->setFederationToken(true)->setIsPublic(false));

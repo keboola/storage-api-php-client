@@ -102,7 +102,7 @@ class Abs
      */
     public function uploadTestingFile()
     {
-        $filePath = tempnam(sys_get_temp_dir(), 'abs-file-upload');
+        $filePath = (string) tempnam(sys_get_temp_dir(), 'abs-file-upload');
         file_put_contents($filePath, 'We fight for data');
         $this->uploadFile($filePath, basename($filePath));
 

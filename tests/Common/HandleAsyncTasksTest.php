@@ -9,7 +9,7 @@ use Keboola\Test\StorageApiTestCase;
 
 class HandleAsyncTasksTest extends StorageApiTestCase
 {
-    public function testWriteTableAsyncSuccess()
+    public function testWriteTableAsyncSuccess(): void
     {
         $jobResult1 = array (
             'id' => 1,
@@ -34,7 +34,7 @@ class HandleAsyncTasksTest extends StorageApiTestCase
         $this->assertEquals([$jobResult1, $jobResult2], $results);
     }
 
-    public function testWriteTableAsyncError()
+    public function testWriteTableAsyncError(): void
     {
         $jobResult1 = array (
             'id' => 1,
@@ -64,7 +64,7 @@ class HandleAsyncTasksTest extends StorageApiTestCase
             $clientMock->handleAsyncTasks([1, 2]);
             $this->fail('Missing exception');
         } catch (ClientException $e) {
-            $this->assertContains('invalidData', $e->getStringCode());
+            $this->assertStringContainsString('invalidData', $e->getStringCode());
         }
     }
 }

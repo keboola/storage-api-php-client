@@ -9,7 +9,7 @@ use Keboola\Test\Backend\FileWorkspace\Backend\Abs;
 
 class WorkspacesUnloadTest extends FileWorkspaceTestCase
 {
-    public function testCreateTableFromWorkspace()
+    public function testCreateTableFromWorkspace(): void
     {
         $workspaces = new Workspaces($this->_client);
         $workspace = $this->createFileWorkspace($workspaces);

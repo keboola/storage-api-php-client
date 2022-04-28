@@ -13,7 +13,7 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
 {
     use WorkspaceConnectionTrait;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -24,7 +24,7 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testCreateTableFromWorkspace()
+    public function testCreateTableFromWorkspace(): void
     {
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace(self::BACKEND_REDSHIFT);
@@ -152,7 +152,7 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertMetadata($expectedTimestamptzMetadata, $table['columnMetadata']['timestamptz']);
     }
 
-    public function testCopyImport()
+    public function testCopyImport(): void
     {
         $table_id = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),
@@ -221,7 +221,7 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertEquals([], $table['columnMetadata']);
     }
 
-    public function testWriteTableFromWorkspaceWithUnsupportedDataType()
+    public function testWriteTableFromWorkspaceWithUnsupportedDataType(): void
     {
         $tableId = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),
@@ -261,7 +261,7 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertEquals([], $table['columnMetadata']);
     }
 
-    public function testCreateTableFromWorkspaceWithUnsupportedDataType()
+    public function testCreateTableFromWorkspaceWithUnsupportedDataType(): void
     {
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace(self::BACKEND_REDSHIFT);
@@ -305,7 +305,7 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
             $this->assertEquals($expectedKeyValues[$data['key']], $data['value']);
             $this->assertArrayHasKey("provider", $data);
             $this->assertArrayHasKey("timestamp", $data);
-            $this->assertRegExp(self::ISO8601_REGEXP, $data['timestamp']);
+            $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $data['timestamp']);
             $this->assertEquals(Metadata::PROVIDER_STORAGE, $data['provider']);
         }
     }

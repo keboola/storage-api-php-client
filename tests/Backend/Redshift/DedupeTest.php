@@ -12,13 +12,13 @@ use Keboola\Csv\CsvFile;
 
 class DedupeTest extends StorageApiTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->_initEmptyTestBuckets();
     }
 
-    public function testDedupe()
+    public function testDedupe(): void
     {
         $importFile = __DIR__ . '/../../_data/languages.duplicates.csv';
 

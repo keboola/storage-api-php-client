@@ -8,7 +8,7 @@ use MicrosoftAzure\Storage\Common\Exceptions\ServiceException;
 
 class WorkspacesTest extends FileWorkspaceTestCase
 {
-    public function testWorkspaceCreate()
+    public function testWorkspaceCreate(): void
     {
         $workspaces = new Workspaces($this->_client);
 
@@ -68,7 +68,7 @@ class WorkspacesTest extends FileWorkspaceTestCase
         $backend->listFiles(null);
     }
 
-    public function testWorkspacePasswordReset()
+    public function testWorkspacePasswordReset(): void
     {
         $workspaces = new Workspaces($this->_client);
 
@@ -118,7 +118,7 @@ class WorkspacesTest extends FileWorkspaceTestCase
      * @dataProvider  dropOptions
      * @param $dropOptions
      */
-    public function testDropWorkspace($dropOptions)
+    public function testDropWorkspace($dropOptions): void
     {
         $workspaces = new Workspaces($this->_client);
 

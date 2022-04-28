@@ -3,6 +3,7 @@
 namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\Csv\CsvFile;
+use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
@@ -12,7 +13,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
 {
     use WorkspaceConnectionTrait;
 
-    public function testCreateNotSupportedBackend()
+    public function testCreateNotSupportedBackend(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         try {
@@ -23,7 +24,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testLoadDataTypesDefaults()
+    public function testLoadDataTypesDefaults(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -105,23 +106,23 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $this->assertEquals("VARCHAR(16777216)", $table[1]['type']);
     }
 
-    public function testStatementTimeout()
+    public function testStatementTimeout(): void
     {
         $workspace = $this->initTestWorkspace();
 
         $this->assertGreaterThan(0, $workspace['statementTimeoutSeconds']);
 
-        $db = $this->getDbConnection($workspace['connection']);
+        $db = $this->getDbConnectionSnowflake($workspace['connection']);
 
         $timeout = $db->fetchAll('SHOW PARAMETERS LIKE \'STATEMENT_TIMEOUT_IN_SECONDS\'')[0]['value'];
         $this->assertEquals($workspace['statementTimeoutSeconds'], $timeout);
     }
 
-    public function testClientSessionKeepAlive()
+    public function testClientSessionKeepAlive(): void
     {
         $workspace = $this->initTestWorkspace();
 
-        $db = $this->getDbConnection($workspace['connection']);
+        $db = $this->getDbConnectionSnowflake($workspace['connection']);
 
         $isKeepAlive = $db->fetchAll(sprintf(
             'SHOW PARAMETERS LIKE \'CLIENT_SESSION_KEEP_ALIVE\' IN USER %s',
@@ -130,7 +131,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $this->assertEquals('true', $isKeepAlive);
     }
 
-    public function testTransientTables()
+    public function testTransientTables(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -174,7 +175,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $this->assertArrayHasKey('metrics', $actualJobId);
         $this->assertEquals(3584, $actualJobId['metrics']['outBytes']);
 
-        $db = $this->getDbConnection($workspace['connection']);
+        $db = $this->getDbConnectionSnowflake($workspace['connection']);
 
         // check if schema is transient
         $schemas = $db->fetchAll("SHOW SCHEMAS");
@@ -199,7 +200,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $this->assertEquals('users', $tables[1]['name']);
     }
 
-    public function testLoadedPrimaryKeys()
+    public function testLoadedPrimaryKeys(): void
     {
         $primaries = ['Paid_Search_Engine_Account', 'Date', 'Paid_Search_Campaign', 'Paid_Search_Ad_ID', 'Site__DFA'];
         $pkTableId = $this->_client->createTable(
@@ -262,7 +263,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $this->assertEquals("VARCHAR(16777216)", $cols[1]['type']);
     }
 
-    public function testLoadIncremental()
+    public function testLoadIncremental(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -343,7 +344,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $this->assertEquals(3, $backend->countRows("languagesDetails"));
     }
 
-    public function testLoadIncrementalAndPreserve()
+    public function testLoadIncrementalAndPreserve(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -415,7 +416,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testLoadIncrementalNullable()
+    public function testLoadIncrementalNullable(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -511,7 +512,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testLoadIncrementalNotNullable()
+    public function testLoadIncrementalNotNullable(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -604,7 +605,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
     /**
      * @dataProvider dataTypesDiffDefinitions
      */
-    public function testsIncrementalDataTypesDiff($table, $firstLoadColumns, $secondLoadColumns, $shouldFail)
+    public function testsIncrementalDataTypesDiff($table, $firstLoadColumns, $secondLoadColumns, $shouldFail): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -648,14 +649,14 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
                 $this->fail('Incremental load with different datatypes should fail');
             } catch (ClientException $e) {
                 $this->assertEquals('workspace.columnsTypesNotMatch', $e->getStringCode());
-                $this->assertContains('Different mapping between', $e->getMessage());
+                $this->assertStringContainsString('Different mapping between', $e->getMessage());
             }
         } else {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
         }
     }
 
-    public function testOutBytesMetricsWithLoadWorkspaceWithRows()
+    public function testOutBytesMetricsWithLoadWorkspaceWithRows(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
@@ -704,7 +705,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $this->assertEquals(15, $backend->countRows('rates'));
     }
 
-    public function testOutBytesMetricsWithLoadWorkspaceWithSeconds()
+    public function testOutBytesMetricsWithLoadWorkspaceWithSeconds(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();

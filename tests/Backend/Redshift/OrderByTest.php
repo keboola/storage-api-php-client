@@ -10,13 +10,13 @@ use Keboola\Test\StorageApiTestCase;
 
 class OrderByTest extends StorageApiTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->_initEmptyTestBuckets();
     }
 
-    public function testForbiddenWhereOperators()
+    public function testForbiddenWhereOperators(): void
     {
         $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
         $csvFile->writeRow(['test']);
