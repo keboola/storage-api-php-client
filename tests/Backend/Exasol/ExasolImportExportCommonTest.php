@@ -30,7 +30,7 @@ class ExasolImportExportCommonTest extends ImportExportCommonTest
         ];
     }
 
-    public function testTableImportNullValuesOnPrimaryKey()
+    public function testTableImportNullValuesOnPrimaryKey(): void
     {
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.null.csv');
         $this->expectException(ClientException::class);

@@ -16,7 +16,7 @@ class WorkspacesRenameTest extends WorkspacesTestCase
      * @param $backend
      * @param $bucketBackend
      */
-    public function testLoadIncremental($backend, $bucketBackend)
+    public function testLoadIncremental($backend, $bucketBackend): void
     {
         if ($this->_client->bucketExists("in.c-mixed-test-" . $bucketBackend)) {
             $this->_client->dropBucket(
@@ -143,7 +143,7 @@ class WorkspacesRenameTest extends WorkspacesTestCase
      * @param $backend
      * @param $bucketBackend
      */
-    public function testLoadIncrementalWithColumnsReorder($backend, $bucketBackend)
+    public function testLoadIncrementalWithColumnsReorder($backend, $bucketBackend): void
     {
         if ($this->_client->bucketExists("in.c-mixed-test-" . $bucketBackend)) {
             $this->_client->dropBucket(

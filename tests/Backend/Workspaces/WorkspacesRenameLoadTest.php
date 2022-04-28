@@ -12,7 +12,7 @@ use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
 {
-    public function testLoadIncremental()
+    public function testLoadIncremental(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -133,7 +133,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
         $this->assertEquals($expectedData, $workspaceData);
     }
 
-    public function testDottedDestination()
+    public function testDottedDestination(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -188,7 +188,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testIncrementalAdditionalColumns()
+    public function testIncrementalAdditionalColumns(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -267,12 +267,12 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
             $this->fail('Workspace should not be loaded');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.columnsNotMatch', $e->getStringCode());
-            $this->assertContains('columns are missing in workspace table', $e->getMessage());
-            $this->assertContains('languages', $e->getMessage());
+            $this->assertStringContainsString('columns are missing in workspace table', $e->getMessage());
+            $this->assertStringContainsString('languages', $e->getMessage());
         }
     }
 
-    public function testIncrementalMissingColumns()
+    public function testIncrementalMissingColumns(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -341,15 +341,15 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
             $this->fail('Workspace should not be loaded');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.columnsNotMatch', $e->getStringCode());
-            $this->assertContains('columns are missing in source table', $e->getMessage());
-            $this->assertContains($tableId, $e->getMessage());
+            $this->assertStringContainsString('columns are missing in source table', $e->getMessage());
+            $this->assertStringContainsString($tableId, $e->getMessage());
         }
     }
 
     /**
      * @dataProvider columnsErrorDefinitions
      */
-    public function testIncrementalDataTypesDiff($table, $firstLoadDataColumns, $secondLoadDataColumns)
+    public function testIncrementalDataTypesDiff($table, $firstLoadDataColumns, $secondLoadDataColumns): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -398,7 +398,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
             $this->fail('Incremental load with different datatypes should fail');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.columnsTypesNotMatch', $e->getStringCode());
-            $this->assertContains('Different mapping between', $e->getMessage());
+            $this->assertStringContainsString('Different mapping between', $e->getMessage());
         }
     }
 
@@ -406,7 +406,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
      * @dataProvider validColumnsDefinitions
      * @param $columnsDefinition
      */
-    public function testDataTypes($columnsDefinition)
+    public function testDataTypes($columnsDefinition): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();

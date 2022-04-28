@@ -25,7 +25,7 @@ class MetadataTest extends StorageApiTestCase
     const ENDPOINT_TYPE_TABLES = 'tables';
     const ENDPOINT_TYPE_BUCKETS = 'buckets';
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->_initEmptyTestBuckets();
@@ -37,7 +37,7 @@ class MetadataTest extends StorageApiTestCase
         $this->_client->createTable($this->getTestBucketId(), "table", new CsvFile(__DIR__ . '/../_data/users.csv'));
     }
 
-    public function testBucketMetadata()
+    public function testBucketMetadata(): void
     {
         $bucketId = $this->getTestBucketId();
         $metadataApi = new Metadata($this->_client);
@@ -60,7 +60,7 @@ class MetadataTest extends StorageApiTestCase
         $this->assertArrayHasKey("value", $metadatas[0]);
         $this->assertArrayHasKey("provider", $metadatas[0]);
         $this->assertArrayHasKey("timestamp", $metadatas[0]);
-        $this->assertRegExp(self::ISO8601_REGEXP, $metadatas[0]['timestamp']);
+        $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $metadatas[0]['timestamp']);
         $this->assertEquals(self::TEST_PROVIDER, $metadatas[0]['provider']);
 
         $origValue = $metadatas[0]['value'];
@@ -89,7 +89,7 @@ class MetadataTest extends StorageApiTestCase
         $this->assertEquals($metadatas[1]['timestamp'], $mdList[0]['timestamp']);
     }
 
-    public function testColumnMetadataOverwrite()
+    public function testColumnMetadataOverwrite(): void
     {
         $outTestBucketId = $this->getTestBucketId(self::STAGE_OUT);
         $outBucketTableId = $this->_client->createTable(
@@ -174,7 +174,7 @@ class MetadataTest extends StorageApiTestCase
         $this->assertSame($metadata[0]['value'], 'testValue');
     }
 
-    public function testTableMetadata()
+    public function testTableMetadata(): void
     {
         $tableId = $this->getMetadataTestTableId('table');
         $metadataApi = new Metadata($this->_client);
@@ -198,7 +198,7 @@ class MetadataTest extends StorageApiTestCase
         $this->assertArrayHasKey("value", $metadatas[0]);
         $this->assertArrayHasKey("provider", $metadatas[0]);
         $this->assertArrayHasKey("timestamp", $metadatas[0]);
-        $this->assertRegExp(self::ISO8601_REGEXP, $metadatas[0]['timestamp']);
+        $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $metadatas[0]['timestamp']);
         $this->assertEquals(self::TEST_PROVIDER, $metadatas[0]['provider']);
 
         $mdCopy = $metadatas[0];
@@ -243,7 +243,7 @@ class MetadataTest extends StorageApiTestCase
     /**
      * @return void
      */
-    public function testTableMetadataWithColumns()
+    public function testTableMetadataWithColumns(): void
     {
         $tableId = $this->getMetadataTestTableId('table');
         $column1 = 'id';
@@ -289,7 +289,7 @@ class MetadataTest extends StorageApiTestCase
         $this->assertArrayHasKey("value", $metadata[0]);
         $this->assertArrayHasKey("provider", $metadata[0]);
         $this->assertArrayHasKey("timestamp", $metadata[0]);
-        $this->assertRegExp(self::ISO8601_REGEXP, $metadata[0]['timestamp']);
+        $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $metadata[0]['timestamp']);
         $this->assertEquals(self::TEST_PROVIDER, $metadata[0]['provider']);
         // check columns metadata
         $columns = $metadatas['columnsMetadata'];
@@ -303,13 +303,13 @@ class MetadataTest extends StorageApiTestCase
         $this->assertArrayHasKey("value", $metadata[0]);
         $this->assertArrayHasKey("provider", $metadata[0]);
         $this->assertArrayHasKey("timestamp", $metadata[0]);
-        $this->assertRegExp(self::ISO8601_REGEXP, $metadata[0]['timestamp']);
+        $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $metadata[0]['timestamp']);
         $this->assertEquals(self::TEST_PROVIDER, $metadata[0]['provider']);
         $this->assertArrayHasKey("key", $metadata[1]);
         $this->assertArrayHasKey("value", $metadata[1]);
         $this->assertArrayHasKey("provider", $metadata[1]);
         $this->assertArrayHasKey("timestamp", $metadata[1]);
-        $this->assertRegExp(self::ISO8601_REGEXP, $metadata[1]['timestamp']);
+        $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $metadata[1]['timestamp']);
         $this->assertEquals(self::TEST_PROVIDER, $metadata[1]['provider']);
         // check column 2
         $metadata = $metadatas['columnsMetadata'][$column2];
@@ -318,7 +318,7 @@ class MetadataTest extends StorageApiTestCase
         $this->assertArrayHasKey("value", $metadata[0]);
         $this->assertArrayHasKey("provider", $metadata[0]);
         $this->assertArrayHasKey("timestamp", $metadata[0]);
-        $this->assertRegExp(self::ISO8601_REGEXP, $metadata[0]['timestamp']);
+        $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $metadata[0]['timestamp']);
         $this->assertEquals(self::TEST_PROVIDER, $metadata[0]['provider']);
 
         // copy metadata
@@ -358,7 +358,7 @@ class MetadataTest extends StorageApiTestCase
         }
     }
 
-    public function testTableMetadataForTokenWithReadPrivilege()
+    public function testTableMetadataForTokenWithReadPrivilege(): void
     {
         $testMetadataValue = 'testval';
 
@@ -450,7 +450,7 @@ class MetadataTest extends StorageApiTestCase
         $this->assertCount(1, $metadataArray);
     }
 
-    public function testTableDeleteWithMetadata()
+    public function testTableDeleteWithMetadata(): void
     {
         $tableId = $this->getMetadataTestTableId('table');
         $columnId = $this->getMetadataTestColumnId('table', 'sex');
@@ -491,7 +491,7 @@ class MetadataTest extends StorageApiTestCase
         $metadataApi->listTableMetadata($columnId);
     }
 
-    public function testColumnMetadata()
+    public function testColumnMetadata(): void
     {
         $columnId = $this->getMetadataTestColumnId('table', 'id');
         $metadataApi = new Metadata($this->_client);
@@ -515,7 +515,7 @@ class MetadataTest extends StorageApiTestCase
         $this->assertArrayHasKey("value", $metadatas[0]);
         $this->assertArrayHasKey("provider", $metadatas[0]);
         $this->assertArrayHasKey("timestamp", $metadatas[0]);
-        $this->assertRegExp(self::ISO8601_REGEXP, $metadatas[0]['timestamp']);
+        $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $metadatas[0]['timestamp']);
         $this->assertEquals(self::TEST_PROVIDER, $metadatas[0]['provider']);
 
         $mdCopy = $metadatas[0];
@@ -590,7 +590,7 @@ class MetadataTest extends StorageApiTestCase
         );
     }
 
-    public function testColumnMetadataForTokenWithReadPrivilege()
+    public function testColumnMetadataForTokenWithReadPrivilege(): void
     {
         $testMetadataValue = 'testval';
 
@@ -682,7 +682,7 @@ class MetadataTest extends StorageApiTestCase
         $this->assertCount(1, $metadataArray);
     }
 
-    public function testTableColumnDeleteWithMetadata()
+    public function testTableColumnDeleteWithMetadata(): void
     {
         $tableId = $this->getMetadataTestTableId('table');
         $columnId = $this->getMetadataTestColumnId('table', 'sex');
@@ -722,7 +722,7 @@ class MetadataTest extends StorageApiTestCase
     }
 
 
-    public function testUpdateTimestamp()
+    public function testUpdateTimestamp(): void
     {
         $bucketId = $this->getTestBucketId();
         $metadataApi = new Metadata($this->_client);
@@ -758,7 +758,7 @@ class MetadataTest extends StorageApiTestCase
     /**
      * @dataProvider apiEndpoints
      */
-    public function testInvalidMetadata($apiEndpoint, $object)
+    public function testInvalidMetadata($apiEndpoint, $object): void
     {
         $bucketId = self::getTestBucketId();
         $object = ($apiEndpoint === self::ENDPOINT_TYPE_BUCKETS) ? $bucketId : $bucketId . $object;
@@ -822,7 +822,7 @@ class MetadataTest extends StorageApiTestCase
      *
      * @dataProvider apiEndpoints
      */
-    public function testInvalidMetadataWhenMetadataIsNotArray($apiEndpoint, $object)
+    public function testInvalidMetadataWhenMetadataIsNotArray($apiEndpoint, $object): void
     {
         $bucketId = self::getTestBucketId();
         $objectId = $bucketId . $object;
@@ -842,7 +842,7 @@ class MetadataTest extends StorageApiTestCase
     /**
      * @dataProvider apiEndpoints
      */
-    public function testInvalidMetadataWhenMetadataIsNotPresent($apiEndpoint, $object)
+    public function testInvalidMetadataWhenMetadataIsNotPresent($apiEndpoint, $object): void
     {
         $bucketId = self::getTestBucketId();
         $objectId = $bucketId . $object;
@@ -861,7 +861,7 @@ class MetadataTest extends StorageApiTestCase
     /**
      * @dataProvider apiEndpoints
      */
-    public function testMetadata40xs($apiEndpoint, $object)
+    public function testMetadata40xs($apiEndpoint, $object): void
     {
         $bucketId = self::getTestBucketId();
         $object = ($apiEndpoint === "bucket") ? $bucketId : $bucketId . $object;
@@ -900,7 +900,7 @@ class MetadataTest extends StorageApiTestCase
         }
     }
 
-    public function testInvalidProvider()
+    public function testInvalidProvider(): void
     {
         $metadataApi = new Metadata($this->_client);
         $md = [
@@ -927,7 +927,7 @@ class MetadataTest extends StorageApiTestCase
         }
     }
 
-    public function testTryToRemoveForeignData()
+    public function testTryToRemoveForeignData(): void
     {
         $medataApi = new Metadata($this->_client);
         $md = [
@@ -943,7 +943,7 @@ class MetadataTest extends StorageApiTestCase
         $medataApi->deleteBucketMetadata($anotherBucketId, $createdMetadata[0]['id']);
     }
 
-    public function testTryToRemoveForeignMetadataFromTable()
+    public function testTryToRemoveForeignMetadataFromTable(): void
     {
         $medataApi = new Metadata($this->_client);
         $md = [
@@ -959,7 +959,7 @@ class MetadataTest extends StorageApiTestCase
         $medataApi->deleteBucketMetadata($this->getTestBucketId(), $createdMetadata[0]['id']);
     }
 
-    public function testBucketMetadataForTokenWithReadPrivilege()
+    public function testBucketMetadataForTokenWithReadPrivilege(): void
     {
         $testMetadataValue = 'testval';
 

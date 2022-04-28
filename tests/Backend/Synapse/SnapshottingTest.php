@@ -6,13 +6,13 @@ use Keboola\Csv\CsvFile;
 
 class SnapshottingTest extends StorageApiTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();
     }
 
-    public function testCreateTableFromSnapshotWithDistributionKey()
+    public function testCreateTableFromSnapshotWithDistributionKey(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
         $importFile = __DIR__ . '/../../_data/languages.csv';

@@ -17,13 +17,13 @@ use Keboola\Csv\CsvFile;
 class SlicedImportsTest extends StorageApiTestCase
 {
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();
     }
 
-    public function testSlicedImportGzipped()
+    public function testSlicedImportGzipped(): void
     {
         $slices = [
             __DIR__ . '/../../_data/sliced/neco_0000_part_00.gz',
@@ -57,7 +57,7 @@ class SlicedImportsTest extends StorageApiTestCase
         ));
     }
 
-    public function testSlicedImportSingleFile()
+    public function testSlicedImportSingleFile(): void
     {
         $slices = [
             __DIR__ . '/../../_data/languages.no-headers.csv',
@@ -112,7 +112,7 @@ class SlicedImportsTest extends StorageApiTestCase
             ]
         ]);
 
-        $data = file_get_contents(__DIR__ . '/../../_data/languages.normalized-column-names.csv');
+        $data = (string) file_get_contents(__DIR__ . '/../../_data/languages.normalized-column-names.csv');
         $lines = explode("\n", $data);
         array_shift($lines);
         $data = $data . implode("\n", $lines);
@@ -126,7 +126,7 @@ class SlicedImportsTest extends StorageApiTestCase
         );
     }
 
-    public function testSlicedImportMissingManifest()
+    public function testSlicedImportMissingManifest(): void
     {
         $uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
         $uploadOptions
@@ -151,7 +151,7 @@ class SlicedImportsTest extends StorageApiTestCase
         }
     }
 
-    public function testInvalidFilesInManifest()
+    public function testInvalidFilesInManifest(): void
     {
         $tokenData = $this->_client->verifyToken();
         if ($tokenData['owner']['defaultBackend'] == self::BACKEND_REDSHIFT) {
@@ -258,7 +258,7 @@ class SlicedImportsTest extends StorageApiTestCase
         }
     }
 
-    public function testUnauthorizedAccessInManifestFile()
+    public function testUnauthorizedAccessInManifestFile(): void
     {
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'entries', new CsvFile(__DIR__ . '/../../_data/sliced/header.csv'));
 

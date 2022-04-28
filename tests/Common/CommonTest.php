@@ -15,7 +15,7 @@ use Keboola\Test\StorageApiTestCase;
 class CommonTest extends StorageApiTestCase
 {
 
-    public function testParseCsv()
+    public function testParseCsv(): void
     {
         $csvData = '"column1","column2"' . PHP_EOL
             . '"valu\ "",e1","value2"' . PHP_EOL
@@ -52,17 +52,15 @@ class CommonTest extends StorageApiTestCase
         $this->assertEquals($expectedHashmap, $data, "Csv parse to associative array");
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testUrlShouldBeRequired()
+    public function testUrlShouldBeRequired(): void
     {
+        $this->expectException(\InvalidArgumentException::class);
         new Client([
             'token' => STORAGE_API_TOKEN,
         ]);
     }
 
-    public function testAwsRetries()
+    public function testAwsRetries(): void
     {
         $retriesCount = 234;
         $client = $this->getClient(array(

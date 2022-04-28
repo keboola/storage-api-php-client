@@ -11,7 +11,7 @@ class SlicedFilesUploadTest extends StorageApiTestCase
     /**
      * @dataProvider uploadSlicedData
      */
-    public function testUploadSlicedFile(array $slices, FileUploadOptions $options)
+    public function testUploadSlicedFile(array $slices, FileUploadOptions $options): void
     {
         $fileId = $this->_client->uploadSlicedFile($slices, $options);
         $file = $this->_client->getFile($fileId, (new GetFileOptions())->setFederationToken(true));
@@ -58,12 +58,12 @@ class SlicedFilesUploadTest extends StorageApiTestCase
         if ($options->getIsPermanent()) {
             $this->assertNull($file['maxAgeDays']);
         } else {
-            $this->assertInternalType('integer', $file['maxAgeDays']);
+            $this->assertIsInt($file['maxAgeDays']);
             $this->assertEquals(StorageApiTestCase::FILE_LONG_TERM_EXPIRATION_IN_DAYS, $file['maxAgeDays']);
         }
     }
 
-    public function testUploadSlicedFileEmptyParts()
+    public function testUploadSlicedFileEmptyParts(): void
     {
         $part1 = __DIR__ . '/../_data/sliced/empty.1';
         $part2 = __DIR__ . '/../_data/sliced/empty.2';
@@ -117,13 +117,13 @@ class SlicedFilesUploadTest extends StorageApiTestCase
         if ($options->getIsPermanent()) {
             $this->assertNull($file['maxAgeDays']);
         } else {
-            $this->assertInternalType('integer', $file['maxAgeDays']);
+            $this->assertIsInt($file['maxAgeDays']);
             $this->assertEquals(StorageApiTestCase::FILE_LONG_TERM_EXPIRATION_IN_DAYS, $file['maxAgeDays']);
         }
     }
 
 
-    public function testUploadSlicedFileChunks()
+    public function testUploadSlicedFileChunks(): void
     {
         $parts = 50;
         $slices = [];

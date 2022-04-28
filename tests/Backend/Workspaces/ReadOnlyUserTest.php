@@ -6,7 +6,7 @@ use Keboola\StorageApi\Workspaces;
 
 class ReadOnlyUserTest extends ParallelWorkspacesTestCase
 {
-    public function testWorkspaceRestrictionsForReadOnlyUser()
+    public function testWorkspaceRestrictionsForReadOnlyUser(): void
     {
         $expectedError = 'Your user role "readOnly" does not have access to the resource.';
         $readOnlyClient = $this->getClientForToken(STORAGE_API_READ_ONLY_TOKEN);

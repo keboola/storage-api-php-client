@@ -33,7 +33,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
      */
     private $client;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -45,13 +45,13 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
         $this->initEvents($this->client);
     }
 
-    public function testSearchThrowsErrorWhenIsCalledWithoutBranch()
+    public function testSearchThrowsErrorWhenIsCalledWithoutBranch(): void
     {
         try {
             $this->_client->searchComponents((new SearchComponentConfigurationsOptions()));
             $this->fail('should fail, not implemented without branch');
         } catch (ClientException $e) {
-            $this->assertContains('Not implemented', $e->getMessage());
+            $this->assertStringContainsString('Not implemented', $e->getMessage());
             $this->assertSame(501, $e->getCode());
         }
     }
@@ -59,7 +59,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testSearchComponents()
+    public function testSearchComponents(): void
     {
         $components = new Components($this->client);
 
@@ -287,7 +287,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testSearchComponentsEvent()
+    public function testSearchComponentsEvent(): void
     {
         $components = new Components($this->client);
         $configurationOptions = $this->createConfiguration(

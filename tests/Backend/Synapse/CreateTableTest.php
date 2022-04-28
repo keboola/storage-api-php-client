@@ -37,7 +37,7 @@ class CreateTableTest extends StorageApiTestCase
         ],
     ];
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -50,7 +50,7 @@ class CreateTableTest extends StorageApiTestCase
         $this->initEmptyTestBucketsForParallelTests();
     }
 
-    public function testCreateTableWithDistributionKey()
+    public function testCreateTableWithDistributionKey(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -124,7 +124,7 @@ class CreateTableTest extends StorageApiTestCase
         }
     }
 
-    public function testCreateTableWithCrlfLineEndings()
+    public function testCreateTableWithCrlfLineEndings(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
         $importFile = __DIR__ . '/../../_data/languages.crlf.csv';
@@ -139,7 +139,7 @@ class CreateTableTest extends StorageApiTestCase
         $this->assertCount(5, Client::parseCsv($importedData));
     }
 
-    public function testCreateTableDefinition()
+    public function testCreateTableDefinition(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -224,7 +224,7 @@ class CreateTableTest extends StorageApiTestCase
         $this->assertSame('true', $metadata['value']);
     }
 
-    public function testCreateTableDefinitionNoPrimaryKey()
+    public function testCreateTableDefinitionNoPrimaryKey(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -273,7 +273,7 @@ class CreateTableTest extends StorageApiTestCase
         self::assertSame('ROUND_ROBIN', $eventParams['distribution']);
     }
 
-    public function testColumnTypesInTableDefinition()
+    public function testColumnTypesInTableDefinition(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -395,7 +395,7 @@ class CreateTableTest extends StorageApiTestCase
     /**
      * @dataProvider invalidDefinitions
      */
-    public function testCreateTableDefinitionWithWrongInput(array $definition)
+    public function testCreateTableDefinitionWithWrongInput(array $definition): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 

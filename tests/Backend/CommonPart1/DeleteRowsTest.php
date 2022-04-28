@@ -16,7 +16,7 @@ use Keboola\StorageApi\Client;
 class DeleteRowsTest extends StorageApiTestCase
 {
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();
@@ -27,7 +27,7 @@ class DeleteRowsTest extends StorageApiTestCase
      * @param $expectedTableContent
      * @dataProvider tableDeleteRowsByFiltersData
      */
-    public function testTableDeleteRowsByFilter($filterParams, $expectedTableContent)
+    public function testTableDeleteRowsByFilter($filterParams, $expectedTableContent): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
@@ -43,7 +43,7 @@ class DeleteRowsTest extends StorageApiTestCase
         $this->assertArrayEqualsSorted($expectedTableContent, $parsedData, 0);
     }
 
-    public function testDeleteRowsMissingValuesShouldReturnUserError()
+    public function testDeleteRowsMissingValuesShouldReturnUserError(): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));

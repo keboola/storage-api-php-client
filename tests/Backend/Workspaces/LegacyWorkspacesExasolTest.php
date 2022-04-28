@@ -11,7 +11,7 @@ use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 class LegacyWorkspacesExasolTest extends ParallelWorkspacesTestCase
 {
 
-    public function testLoadedPrimaryKeys()
+    public function testLoadedPrimaryKeys(): void
     {
         $primaries = ['Paid_Search_Engine_Account','Date','Paid_Search_Campaign','Paid_Search_Ad_ID','Site__DFA'];
         $pkTableId = $this->_client->createTable(
@@ -69,7 +69,7 @@ class LegacyWorkspacesExasolTest extends ParallelWorkspacesTestCase
         $this->assertEquals('VARCHAR (2000000)', $cols[1]->getColumnDefinition()->getSQLDefinition());
     }
 
-    public function testLoadIncrementalNotNullable()
+    public function testLoadIncrementalNotNullable(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -160,7 +160,7 @@ class LegacyWorkspacesExasolTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testLoadIncrementalNullable()
+    public function testLoadIncrementalNullable(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -260,7 +260,7 @@ class LegacyWorkspacesExasolTest extends ParallelWorkspacesTestCase
     /**
      * @dataProvider dataTypesDiffDefinitions
      */
-    public function testsIncrementalDataTypesDiff($table, $firstLoadDataTypes, $secondLoadDataTypes, $shouldFail)
+    public function testsIncrementalDataTypesDiff($table, $firstLoadDataTypes, $secondLoadDataTypes, $shouldFail): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -304,7 +304,7 @@ class LegacyWorkspacesExasolTest extends ParallelWorkspacesTestCase
                 $this->fail('Incremental load with different datatypes should fail');
             } catch (ClientException $e) {
                 $this->assertEquals('workspace.columnsTypesNotMatch', $e->getStringCode());
-                $this->assertContains('Different mapping between', $e->getMessage());
+                $this->assertStringContainsString('Different mapping between', $e->getMessage());
             }
         } else {
             $workspaces->loadWorkspaceData($workspace['id'], $options);

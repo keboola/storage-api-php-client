@@ -25,7 +25,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
     /** @var Workspaces */
     private $workspaces2;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -68,7 +68,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
         $backendSize,
         $expectedBackendSize,
         $expectedWarehouseSuffix
-    ) {
+    ): void {
         $workspace = $this->workspaces->createWorkspace([
             'backend' => StorageApiTestCase::BACKEND_SNOWFLAKE,
             'backendSize' => $backendSize,
@@ -79,7 +79,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
         $this->assertStringEndsWith($expectedWarehouseSuffix, $workspace['connection']['warehouse']);
     }
 
-    public function testWorkspaceLoadLinkedDataFromProjectWithDynamicBackends()
+    public function testWorkspaceLoadLinkedDataFromProjectWithDynamicBackends(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -137,7 +137,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
         $this->assertDataInWorkspace($backend);
     }
 
-    public function testWorkspaceLoadLinkedDataFromProjectWithoutDynamicBackends()
+    public function testWorkspaceLoadLinkedDataFromProjectWithoutDynamicBackends(): void
     {
         $description = $this->generateDescriptionForTestObject();
         $bucketName = $this->getTestBucketName($description);
@@ -203,7 +203,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
         $this->assertDataInWorkspace($backend);
     }
 
-    public function testWorkspaceCreateError()
+    public function testWorkspaceCreateError(): void
     {
         try {
             $this->workspaces->createWorkspace([
@@ -212,7 +212,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
             ]);
         } catch (ClientException $e) {
             $this->assertSame(400, $e->getCode());
-            $this->assertRegExp(
+            $this->assertMatchesRegularExpression(
                 '/^Invalid backend size: "ultralarge". Allowed values: [a-z\,\ ]+\.$/',
                 $e->getMessage()
             );
@@ -226,7 +226,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
     public function testWorkspaceCreateRequestObjectError(
         array $params,
         array $expectedErrors
-    ) {
+    ): void {
         try {
             $this->workspaces->createWorkspace($params);
         } catch (ClientException $e) {
@@ -237,7 +237,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testWorkspaceLoadData()
+    public function testWorkspaceLoadData(): void
     {
         $workspaces = $this->workspaces;
 

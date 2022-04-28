@@ -21,7 +21,7 @@ abstract class BaseWorkSpacesTestCase extends WorkspacesTestCase
      * @param $backend
      * @param $dataTypesDefinition
      */
-    public function testCreateWorkspaceParam($backend, $dataTypesDefinition)
+    public function testCreateWorkspaceParam($backend, $dataTypesDefinition): void
     {
         $workspaces = new Workspaces($this->_client);
 
@@ -41,7 +41,7 @@ abstract class BaseWorkSpacesTestCase extends WorkspacesTestCase
      * @param $sourceBackend
      * @param $columnsDefinition
      */
-    public function testLoadUserError($workspaceBackend, $sourceBackend, $columnsDefinition)
+    public function testLoadUserError($workspaceBackend, $sourceBackend, $columnsDefinition): void
     {
         if ($this->_client->bucketExists("in.c-mixed-test-" . $sourceBackend)) {
             $this->_client->dropBucket("in.c-mixed-test-{$sourceBackend}", [
@@ -84,7 +84,7 @@ abstract class BaseWorkSpacesTestCase extends WorkspacesTestCase
      * @param $workspaceBackend
      * @param $sourceBackend
      */
-    public function testLoadWorkspaceExtendedDataTypesNullify($workspaceBackend, $sourceBackend)
+    public function testLoadWorkspaceExtendedDataTypesNullify($workspaceBackend, $sourceBackend): void
     {
         if ($this->_client->bucketExists("in.c-mixed-test-" . $sourceBackend)) {
             $this->_client->dropBucket("in.c-mixed-test-{$sourceBackend}", [

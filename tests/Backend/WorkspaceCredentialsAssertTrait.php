@@ -25,24 +25,28 @@ trait WorkspaceCredentialsAssertTrait
                 $this->getDbConnection($connection);
                 throw new \Exception(self::$RETRY_FAIL_MESSAGE);
             });
-        } catch (\Doctrine\DBAL\Driver\PDOException $e) {
-            // Synapse|Exasol
-            if (!in_array(
-                $e->getCode(),
-                [
-                    //https://docs.microsoft.com/en-us/sql/odbc/reference/appendixes/appendix-a-odbc-error-codes?view=sql-server-ver15
-                    '28000', // Invalid authorization specification
-                    '08004', // Server rejected the connection
-                ],
-                true
-            )) {
-                $this->fail(sprintf('Unexpected error code "%s" for Synapse credentials fail.', $e->getCode()));
+        } catch (\Doctrine\DBAL\Driver\Exception $e) {
+            if ($connection['backend'] === StorageApiTestCase::BACKEND_SYNAPSE) {
+                $this->assertStringContainsString('The login failed', $e->getMessage());
+            }
+            if ($connection['backend'] === StorageApiTestCase::BACKEND_EXASOL) {
+                // Exasol
+                if (!in_array(
+                    (string) $e->getCode(),
+                    [
+                        '28000', // Invalid authorization specification
+                        '08004', // Server rejected the connection
+                    ],
+                    true
+                )) {
+                    $this->fail(sprintf('Unexpected error code "%s" for Exasol credentials fail.', $e->getCode()));
+                }
             }
         } catch (\PDOException $e) {
             // RS
             $this->assertEquals(7, $e->getCode());
         } catch (\Keboola\Db\Import\Exception $e) {
-            $this->assertContains('Incorrect username or password was specified', $e->getMessage());
+            $this->assertStringContainsString('Incorrect username or password was specified', $e->getMessage());
         } catch (\Exception $e) {
             if ($connection['backend'] === StorageApiTestCase::BACKEND_EXASOL) {
                 // Exasol authentication failed

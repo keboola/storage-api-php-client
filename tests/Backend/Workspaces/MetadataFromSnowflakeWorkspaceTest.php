@@ -11,7 +11,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
 {
     use WorkspaceConnectionTrait;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -22,7 +22,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testIncrementalLoadUpdateDataType()
+    public function testIncrementalLoadUpdateDataType(): void
     {
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace(self::BACKEND_SNOWFLAKE);
@@ -218,7 +218,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertMetadata($expectedNameMetadata, $table['columnMetadata']['name']);
     }
 
-    public function testCreateTableFromWorkspace()
+    public function testCreateTableFromWorkspace(): void
     {
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace(self::BACKEND_SNOWFLAKE);
@@ -350,7 +350,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertMetadata($expectedTimestamptzMetadata, $table['columnMetadata']['timestampltz']);
     }
 
-    public function testCopyImport()
+    public function testCopyImport(): void
     {
         $table_id = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),
@@ -445,7 +445,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertMetadata($expectedUpdateMetadata, $table['columnMetadata']['update']);
     }
 
-    public function testWriteTableFromWorkspaceWithSnowflakeBug()
+    public function testWriteTableFromWorkspaceWithSnowflakeBug(): void
     {
         $tableId = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),
@@ -476,7 +476,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertEquals([], $table['columnMetadata']);
     }
 
-    public function testCreateTableFromWorkspaceWithSnowflakeBug()
+    public function testCreateTableFromWorkspaceWithSnowflakeBug(): void
     {
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace(self::BACKEND_SNOWFLAKE);
@@ -511,7 +511,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
             $this->assertEquals($expectedKeyValues[$data['key']], $data['value']);
             $this->assertArrayHasKey("provider", $data);
             $this->assertArrayHasKey("timestamp", $data);
-            $this->assertRegExp(self::ISO8601_REGEXP, $data['timestamp']);
+            $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $data['timestamp']);
             $this->assertEquals(Metadata::PROVIDER_STORAGE, $data['provider']);
         }
     }
