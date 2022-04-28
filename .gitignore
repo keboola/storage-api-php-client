@@ -18,3 +18,4 @@ snowflake_linux_x8664_odbc.tgz
 REVISION
 /cache
 phpunit-retry.xml
+.phpunit.result.cache
