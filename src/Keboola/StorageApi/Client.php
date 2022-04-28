@@ -2484,6 +2484,9 @@ class Client
         $firstLine = true;
 
         $tmpFile = tmpfile();
+        if ($tmpFile === false) {
+            throw new ClientException('Cannot create temp file for CSV parsing');
+        }
         fwrite($tmpFile, $csvString);
         rewind($tmpFile);
 
