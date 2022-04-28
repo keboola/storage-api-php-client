@@ -2,6 +2,7 @@
 
 namespace Keboola\Test\File;
 
+use Exception;
 use GuzzleHttp\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\GetFileOptions;
@@ -199,6 +200,9 @@ class CommonFileTest extends StorageApiTestCase
         $this->assertEquals(basename($filePath) . ".gz", $file['name']);
 
         $gzFile = gzopen($file['url'], "r");
+        if ($gzFile === false) {
+            throw new Exception(sprintf('Cannot open file "%s"', $file['url']));
+        }
         $this->assertEquals(file_get_contents($filePath), gzread($gzFile, 524288));
     }
 
@@ -206,6 +210,9 @@ class CommonFileTest extends StorageApiTestCase
     {
         $filePath = __DIR__ . '/../_tmp/files.upload.large.csv';
         $fileHandle = fopen($filePath, "w+");
+        if ($fileHandle === false) {
+            throw new Exception(sprintf('Cannot open file "%s"', $filePath));
+        }
         for ($i = 0; $i < 5000000; $i++) {
             fputs($fileHandle, "0123456789");
         }
