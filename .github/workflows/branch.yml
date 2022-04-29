@@ -45,5 +45,8 @@ jobs:
         uses: actions/checkout@v3
       -
         name: Build docker image
+        env:
+          DRIVER_DOWNLOADS_ACCESS_KEY_ID: ${{ secrets.DRIVER_DOWNLOADS_ACCESS_KEY_ID }}
+          DRIVER_DOWNLOADS_SECRET_ACCESS_KEY: ${{ secrets.DRIVER_DOWNLOADS_SECRET_ACCESS_KEY }}
         run: |
           docker-compose build tests
