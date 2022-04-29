@@ -27,6 +27,25 @@ class TriggersTest extends StorageApiTestCase
         }
     }
 
+    public function testCannotCreateTriggerWithZeroCooldown(): void
+    {
+        $table1 = $this->createTableWithRandomData("watched-1");
+        $options = (new TokenCreateOptions())
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
+        $newToken = $this->tokens->createToken($options);
+        $this->expectExceptionMessage('Minimal cool down period is 1 minute');
+        $this->expectException(ClientException::class);
+        $this->_client->createTrigger([
+            'component' => 'orchestrator',
+            'configurationId' => 123,
+            'coolDownPeriodMinutes' => 0,
+            'runWithTokenId' => $newToken['id'],
+            'tableIds' => [
+                $table1,
+            ],
+        ]);
+    }
+
     /**
      * @return void
      */
@@ -39,7 +58,7 @@ class TriggersTest extends StorageApiTestCase
         $trigger = $this->_client->createTrigger([
             'component' => 'orchestrator',
             'configurationId' => 123,
-            'coolDownPeriodMinutes' => 10,
+            'coolDownPeriodMinutes' => 1,
             'runWithTokenId' => $newToken['id'],
             'tableIds' => [
                 $table1,
@@ -48,7 +67,7 @@ class TriggersTest extends StorageApiTestCase
 
         $this->assertEquals('orchestrator', $trigger['component']);
         $this->assertEquals(123, $trigger['configurationId']);
-        $this->assertEquals(10, $trigger['coolDownPeriodMinutes']);
+        $this->assertEquals(1, $trigger['coolDownPeriodMinutes']);
         $this->assertEquals($newToken['id'], $trigger['runWithTokenId']);
         $this->assertNotNull($trigger['lastRun']);
         $this->assertLessThan((new \DateTime()), (new \DateTime($trigger['lastRun'])));
