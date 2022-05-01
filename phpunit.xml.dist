@@ -159,6 +159,8 @@
 		<directory>tests/Backend/CommonPart1</directory>
 		<exclude>tests/Backend/CommonPart1/BucketsTest.php</exclude>
 		<directory>tests/Backend/CommonPart2</directory>
+		<!--	excluded test is included in tests/Backend/Synapse/SynapseImportExportCommonTest.php -->
+		<exclude>tests/Backend/CommonPart1/ImportExportCommonTest.php</exclude>
 		<!--WORKSPACE-->
 		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
