@@ -5,6 +5,7 @@
 namespace Keboola\Test\Common;
 
 use Exception;
+use Generator;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
@@ -133,7 +134,7 @@ class TriggersTest extends StorageApiTestCase
 
         $clientWithoutAdminToken = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminToken['token']]);
         $trigger = $clientWithoutAdminToken->createTrigger([
-            'component' => 'orchestrator',
+            'component' => 'keboola.orchestrator',
             'configurationId' => 123,
             'coolDownPeriodMinutes' => 10,
             'runWithTokenId' => $tokenRunWith['id'],
@@ -142,7 +143,7 @@ class TriggersTest extends StorageApiTestCase
             ],
         ]);
 
-        $this->assertEquals('orchestrator', $trigger['component']);
+        $this->assertEquals('keboola.orchestrator', $trigger['component']);
         $this->assertEquals(123, $trigger['configurationId']);
         $this->assertEquals(10, $trigger['coolDownPeriodMinutes']);
         $this->assertEquals($tokenRunWith['id'], $trigger['runWithTokenId']);
@@ -186,7 +187,7 @@ class TriggersTest extends StorageApiTestCase
                 'token' => $newNonAdminToken['token'],
             ]);
             $clientWithoutAdminToken->createTrigger([
-                'component' => 'orchestrator',
+                'component' => 'keboola.orchestrator',
                 'configurationId' => 123,
                 'coolDownPeriodMinutes' => 10,
                 'runWithTokenId' => $tokenRunWith['id'],
@@ -253,7 +254,7 @@ class TriggersTest extends StorageApiTestCase
         $newToken = $this->tokens->createToken($options);
 
         $trigger = $this->_client->createTrigger([
-            'component' => 'orchestrator',
+            'component' => 'keboola.orchestrator',
             'configurationId' => 123,
             'coolDownPeriodMinutes' => 10,
             'runWithTokenId' => $newToken['id'],
@@ -284,7 +285,7 @@ class TriggersTest extends StorageApiTestCase
             $clientWithoutAdminTokenWithoutPermissions->updateTrigger((int) $trigger['id'], $updateData);
             self::fail('should fail');
         } catch (Exception $e) {
-            self::assertEquals('Your token does not have sufficient privilege.', $e->getMessage());
+            self::assertEquals('Your token does not have sufficient privilege. Token is neither admin token nor does it have canManageBucket permission nor does it have access to component(s) "keboola.ex-1, keboola.orchestrator".', $e->getMessage());
         }
 
         $newNonAdminToken = $this->tokens->createToken($optionForToken);
@@ -317,6 +318,121 @@ class TriggersTest extends StorageApiTestCase
         $this->assertEquals([['tableId' => 'in.c-API-tests.watched-2']], $updateTrigger['tables']);
     }
 
+    public function testUpdateTriggerParameterCreatedByAdminToken(): void
+    {
+        $table1 = $this->createTableWithRandomData("watched-1");
+
+        $options = (new TokenCreateOptions())
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
+        $tokenRunWith = $this->tokens->createToken($options);
+
+        $trigger = $this->_client->createTrigger([
+            'component' => 'keboola.ex-1',
+            'configurationId' => 123,
+            'coolDownPeriodMinutes' => 10,
+            'runWithTokenId' => $tokenRunWith['id'],
+            'tableIds' => [
+                $table1,
+            ],
+        ]);
+
+        $updateData = [
+            'component' => 'keboola.ex-1',
+            'configurationId' => 543,
+            'coolDownPeriodMinutes' => 15,
+            'runWithTokenId' => $tokenRunWith['id'],
+            'tableIds' => [$table1],
+        ];
+
+        $options = (new TokenCreateOptions())
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
+        $newNonAdminTokenWithoutComponentAccess = $this->tokens->createToken(($options));
+        $clientWithoutAdminTokenWithoutComponentAccess = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminTokenWithoutComponentAccess['token']]);
+
+        try {
+            $clientWithoutAdminTokenWithoutComponentAccess->updateTrigger((int) $trigger['id'], $updateData);
+            self::fail('should fail before');
+        } catch (\Exception $e) {
+            self::assertEquals('Your token does not have sufficient privilege. Token is neither admin token nor does it have canManageBucket permission nor does it have access to component(s) "keboola.ex-1".', $e->getMessage());
+        }
+
+        $options = (new TokenCreateOptions())
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
+            ->addComponentAccess('keboola.ex-1');
+        $newNonAdminTokenWithPermissions = $this->tokens->createToken(($options));
+        $clientWithoutAdminTokenWithPermissions = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminTokenWithPermissions['token']]);
+
+        $updatedTrigger = $clientWithoutAdminTokenWithPermissions->updateTrigger((int) $trigger['id'], $updateData);
+
+        $this->assertEquals('keboola.ex-1', $updatedTrigger['component']);
+        $this->assertEquals(543, $updatedTrigger['configurationId']);
+        $this->assertEquals(15, $updatedTrigger['coolDownPeriodMinutes']);
+        $this->assertEquals($tokenRunWith['id'], $updatedTrigger['runWithTokenId']);
+        $this->assertEquals([['tableId' => 'in.c-API-tests.watched-1']], $updatedTrigger['tables']);
+    }
+
+    /**
+     * @dataProvider tokenUpdateOptionsProviderInvalid
+     * @param TokenCreateOptions $optionsForMainToken
+     * @param string $expectedException
+     * @return void
+     */
+    public function testUpdateTriggerComponentWithWrongPermissions(TokenCreateOptions $optionsForMainToken, $expectedException)
+    {
+        $table1 = $this->createTableWithRandomData("watched-1");
+        $optionsForTokenRunWith = (new TokenCreateOptions())
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
+
+        $tokenRunWith = $this->tokens->createToken($optionsForTokenRunWith);
+
+        $trigger = $this->_client->createTrigger([
+            'component' => 'keboola.orchestrator',
+            'configurationId' => 123,
+            'coolDownPeriodMinutes' => 10,
+            'runWithTokenId' => $tokenRunWith['id'],
+            'tableIds' => [
+                $table1,
+            ],
+        ]);
+
+        $updateData = [
+            'component' => 'keboola.ex-1',
+            'configurationId' => 111,
+            'coolDownPeriodMinutes' => 20,
+            'runWithTokenId' => $tokenRunWith['id'],
+            'tableIds' => [$table1],
+        ];
+
+        try {
+            $newNonAdminToken = $this->tokens->createToken($optionsForMainToken);
+            $clientWithoutAdminToken = $this->getClient([
+                'url' => STORAGE_API_URL,
+                'token' => $newNonAdminToken['token'],
+            ]);
+
+            $clientWithoutAdminToken->updateTrigger((int) $trigger['id'], $updateData);
+            self::fail('should fail before');
+        } catch (\Exception $e) {
+            self::assertEquals($expectedException, $e->getMessage());
+        }
+    }
+
+    public function tokenUpdateOptionsProviderInvalid(): Generator
+    {
+        $this->setUp();
+        yield 'Token has only access on current set component' => [
+            (new TokenCreateOptions())
+                ->addComponentAccess('keboola.orchestrator'),
+            'Your token does not have sufficient privilege. Token is neither admin token nor does it have canManageBucket permission nor does it have access to component(s) "keboola.ex-1".',
+        ];
+
+        yield 'Token has only access on to update set component' => [
+            (new TokenCreateOptions())
+                ->addComponentAccess('keboola.ex-1'),
+            'Your token does not have sufficient privilege. Token is neither admin token nor does it have canManageBucket permission nor does it have access to component(s) "keboola.orchestrator".',
+        ];
+    }
+
     /**
      * @dataProvider tokenCreateOptionsProvider
      * @return void
@@ -334,7 +450,7 @@ class TriggersTest extends StorageApiTestCase
         $clientWithoutAdminToken = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminToken['token']]);
 
         $trigger = $clientWithoutAdminToken->createTrigger([
-            'component' => 'orchestrator',
+            'component' => 'keboola.orchestrator',
             'configurationId' => 123,
             'coolDownPeriodMinutes' => 10,
             'runWithTokenId' => $tokenRunWith['id'],
@@ -395,7 +511,7 @@ class TriggersTest extends StorageApiTestCase
             $anotherClientWithAnotherTokenWithoutPermission->updateTrigger((int) $trigger['id'], $updateData);
             self::fail('should fail');
         } catch (Exception $e) {
-            self::assertEquals('Your token does not have sufficient privilege.', $e->getMessage());
+            self::assertEquals('Your token does not have sufficient privilege. Token is neither admin token nor does it have canManageBucket permission nor does it have access to component(s) "keboola.ex-1".', $e->getMessage());
         }
 
         $updateData = [
@@ -431,7 +547,7 @@ class TriggersTest extends StorageApiTestCase
         $clientWithoutAdminToken = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminToken['token']]);
 
         $trigger = $clientWithoutAdminToken->createTrigger([
-            'component' => 'orchestrator',
+            'component' => 'keboola.orchestrator',
             'configurationId' => 123,
             'coolDownPeriodMinutes' => 10,
             'runWithTokenId' => $tokenRunWith['id'],
@@ -531,7 +647,7 @@ class TriggersTest extends StorageApiTestCase
         $newToken = $this->tokens->createToken($options);
 
         $trigger = $this->_client->createTrigger([
-            'component' => 'orchestrator',
+            'component' => 'keboola.orchestrator',
             'configurationId' => 123,
             'coolDownPeriodMinutes' => 10,
             'runWithTokenId' => $newToken['id'],
@@ -541,7 +657,7 @@ class TriggersTest extends StorageApiTestCase
         ]);
 
         $trigger2 = $this->_client->createTrigger([
-            'component' => 'orchestrator',
+            'component' => 'keboola.orchestrator',
             'configurationId' => 123,
             'coolDownPeriodMinutes' => 10,
             'runWithTokenId' => $newToken['id'],
@@ -558,7 +674,7 @@ class TriggersTest extends StorageApiTestCase
             $clientWithoutAdminTokenWithoutPermission->deleteTrigger((int) $trigger['id']);
             self::fail('should fail');
         } catch (Exception $e) {
-            self::assertEquals('Your token does not have sufficient privilege.', $e->getMessage());
+            self::assertEquals('Your token does not have sufficient privilege. Token is neither admin token nor does it have canManageBucket permission nor does it have access to component(s) "keboola.orchestrator".', $e->getMessage());
         }
 
         $anotherToken = $this->tokens->createToken($optionForToken);
@@ -597,14 +713,14 @@ class TriggersTest extends StorageApiTestCase
         $clientWithoutAdminToken = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminToken['token']]);
 
         $trigger = $clientWithoutAdminToken->createTrigger([
-            'component' => 'orchestrator',
+            'component' => 'keboola.orchestrator',
             'configurationId' => 123,
             'coolDownPeriodMinutes' => 10,
             'runWithTokenId' => $tokenRunWith['id'],
             'tableIds' => [$table1],
         ]);
         $trigger2 = $clientWithoutAdminToken->createTrigger([
-            'component' => 'orchestrator',
+            'component' => 'keboola.orchestrator',
             'configurationId' => 123,
             'coolDownPeriodMinutes' => 10,
             'runWithTokenId' => $tokenRunWith['id'],
@@ -619,7 +735,7 @@ class TriggersTest extends StorageApiTestCase
             $clientWithoutAdminTokenWithoutPermission->deleteTrigger((int) $trigger['id']);
             self::fail('should fail');
         } catch (Exception $e) {
-            self::assertEquals('Your token does not have sufficient privilege.', $e->getMessage());
+            self::assertEquals('Your token does not have sufficient privilege. Token is neither admin token nor does it have canManageBucket permission nor does it have access to component(s) "keboola.orchestrator".', $e->getMessage());
         }
 
         $anotherToken = $this->tokens->createToken($optionForToken);
@@ -658,7 +774,7 @@ class TriggersTest extends StorageApiTestCase
         $clientWithoutAdminToken = $this->getClient(['url' => STORAGE_API_URL, 'token' => $newNonAdminToken['token']]);
 
         $trigger = $clientWithoutAdminToken->createTrigger([
-            'component' => 'orchestrator',
+            'component' => 'keboola.orchestrator',
             'configurationId' => 123,
             'coolDownPeriodMinutes' => 10,
             'runWithTokenId' => $tokenRunWith['id'],
@@ -909,7 +1025,9 @@ class TriggersTest extends StorageApiTestCase
             'component access only' => [
                 (new TokenCreateOptions())
                     ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
-                    ->addComponentAccess('keboola.orchestrator'),
+                    ->addComponentAccess('keboola.orchestrator')
+                    ->addComponentAccess('keboola.ex-1')
+                    ->addComponentAccess('keboola.ex-2'),
             ],
             'both' => [
                 (new TokenCreateOptions())
@@ -940,11 +1058,17 @@ class TriggersTest extends StorageApiTestCase
                 (new TokenCreateOptions())
                     ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
                     ->addComponentAccess('keboola.invalid'),
-                'Your token does not have sufficient privilege.',
+                'Your token does not have sufficient privilege. Token is neither admin token nor does it have canManageBucket permission nor does it have access to component(s) "keboola.orchestrator".',
             ],
             'no extra permissions, but not master token' => [
                 (new TokenCreateOptions()),
-                'Your token does not have sufficient privilege.',
+                'Your token does not have sufficient privilege. Token is neither admin token nor does it have canManageBucket permission nor does it have access to component(s) "keboola.orchestrator".',
+            ],
+            'access to different component' => [
+                (new TokenCreateOptions())
+                    ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
+                    ->addComponentAccess('keboola.wr-db'),
+                'Your token does not have sufficient privilege. Token is neither admin token nor does it have canManageBucket permission nor does it have access to component(s) "keboola.orchestrator".',
             ],
         ];
     }
