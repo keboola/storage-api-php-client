@@ -5,6 +5,7 @@
 namespace Keboola\Test\Common;
 
 use Exception;
+use Generator;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
@@ -317,7 +318,7 @@ class TriggersTest extends StorageApiTestCase
         $this->assertEquals([['tableId' => 'in.c-API-tests.watched-2']], $updateTrigger['tables']);
     }
 
-    public function testUpdateTriggerParameterCreatedByAdminToken()
+    public function testUpdateTriggerParameterCreatedByAdminToken(): void
     {
         $table1 = $this->createTableWithRandomData("watched-1");
 
@@ -416,7 +417,7 @@ class TriggersTest extends StorageApiTestCase
         }
     }
 
-    public function tokenUpdateOptionsProviderInvalid()
+    public function tokenUpdateOptionsProviderInvalid(): Generator
     {
         $this->setUp();
         yield 'Token has only access on current set component' => [
