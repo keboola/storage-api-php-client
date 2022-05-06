@@ -9912,11 +9912,6 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$previousRunId of method Keboola\\\\StorageApi\\\\Client\\:\\:generateRunId\\(\\) expects null, string given\\.$#"
-			count: 1
-			path: tests/Common/StatsTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$previousRunId of method Keboola\\\\StorageApi\\\\Client\\:\\:generateRunId\\(\\) expects null, string given\\.$#"
 			count: 3
 			path: tests/Common/RunIdTest.php
 
@@ -10122,6 +10117,11 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\StatsTest\\:\\:testStatsMissingParam\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Common/StatsTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$previousRunId of method Keboola\\\\StorageApi\\\\Client\\:\\:generateRunId\\(\\) expects null, string given\\.$#"
 			count: 1
 			path: tests/Common/StatsTest.php
 
