@@ -10181,11 +10181,6 @@ parameters:
 			path: tests/Common/GetToFileTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$str of function sha1 expects string, string\\|false given\\.$#"
-			count: 1
-			path: tests/Common/GetToFileTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\HandleAsyncTasksTest\\:\\:testWriteTableAsyncError\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Common/HandleAsyncTasksTest.php

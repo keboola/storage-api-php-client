@@ -53,7 +53,7 @@ class GetToFileTest extends StorageApiTestCase
         ];
         $valuesCount = 100;
         for ($i = 0; $i < $valuesCount; $i++) {
-            $largeRowConfiguration['values'][] = sha1(openssl_random_pseudo_bytes(128));
+            $largeRowConfiguration['values'][] = sha1((string) openssl_random_pseudo_bytes(128));
         }
 
         $configurationRowsCount = 100;
