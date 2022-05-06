@@ -85,7 +85,7 @@ class SlicedImportsWithSlicedUploadsTest extends StorageApiTestCase
             'columns' => array('id', 'name'),
         ));
 
-        $data = file_get_contents(__DIR__ . '/../../_data/languages.csv');
+        $data = (string) file_get_contents(__DIR__ . '/../../_data/languages.csv');
         $lines = explode("\n", $data);
         array_shift($lines);
         $data = $data . implode("\n", $lines);
