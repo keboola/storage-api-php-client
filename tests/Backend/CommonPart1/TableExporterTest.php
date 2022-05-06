@@ -273,7 +273,7 @@ class TableExporterTest extends StorageApiTestCase
             $exporter->exportTables(array(array('tableId' => 'in.c-dummy.dummy', 'destination' => 'dummy')));
             $this->fail('Missing exception');
         } catch (ClientException $e) {
-            $this->assertContains('The table "dummy" was not found in the bucket "in.c-dummy"', $e->getMessage());
+            $this->assertStringContainsString('The table "dummy" was not found in the bucket "in.c-dummy"', $e->getMessage());
         }
     }
 

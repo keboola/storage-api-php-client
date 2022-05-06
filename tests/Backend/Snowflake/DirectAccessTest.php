@@ -593,7 +593,7 @@ class DirectAccessTest extends StorageApiTestCase
             return $row['column_name'];
         }, $connection->fetchAll(sprintf('SHOW COLUMNS IN %s', $connection->quoteIdentifier('updatedDisplayName'))));
 
-        $this->assertContains('count', $columns);
+        $this->assertStringContainsString('count', $columns);
         $this->assertEquals(['id', 'name', '_timestamp', 'count'], $columns);
 
         $this->_client->addTableColumn($tableId, 'add_test_column');
@@ -607,7 +607,7 @@ class DirectAccessTest extends StorageApiTestCase
             return $row['column_name'];
         }, $connection->fetchAll(sprintf('SHOW COLUMNS IN %s', $connection->quoteIdentifier('updatedDisplayName'))));
 
-        $this->assertContains('add_test_column', $columns);
+        $this->assertStringContainsString('add_test_column', $columns);
         $this->assertEquals(['id', 'name', '_timestamp', 'count', 'add_test_column'], $columns);
 
         $schemas = $client2Connection->fetchAll('SHOW SCHEMAS');
@@ -629,7 +629,7 @@ class DirectAccessTest extends StorageApiTestCase
             sprintf('SHOW COLUMNS IN %s', $connection->quoteIdentifier('updatedDisplayName'))
         ));
 
-        $this->assertContains('add_test_column', $columns);
+        $this->assertStringContainsString('add_test_column', $columns);
         $this->assertEquals(['id', 'name', '_timestamp', 'count', 'add_test_column'], $columns);
 
         $viewsResult = $client2Connection->fetchAll('SHOW VIEWS');

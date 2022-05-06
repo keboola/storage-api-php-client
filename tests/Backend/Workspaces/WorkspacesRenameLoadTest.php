@@ -267,8 +267,8 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
             $this->fail('Workspace should not be loaded');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.columnsNotMatch', $e->getStringCode());
-            $this->assertContains('columns are missing in workspace table', $e->getMessage());
-            $this->assertContains('languages', $e->getMessage());
+            $this->assertStringContainsString('columns are missing in workspace table', $e->getMessage());
+            $this->assertStringContainsString('languages', $e->getMessage());
         }
     }
 
@@ -341,7 +341,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
             $this->fail('Workspace should not be loaded');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.columnsNotMatch', $e->getStringCode());
-            $this->assertContains('columns are missing in source table', $e->getMessage());
+            $this->assertStringContainsString('columns are missing in source table', $e->getMessage());
             $this->assertContains($tableId, $e->getMessage());
         }
     }
@@ -398,7 +398,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
             $this->fail('Incremental load with different datatypes should fail');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.columnsTypesNotMatch', $e->getStringCode());
-            $this->assertContains('Different mapping between', $e->getMessage());
+            $this->assertStringContainsString('Different mapping between', $e->getMessage());
         }
     }
 

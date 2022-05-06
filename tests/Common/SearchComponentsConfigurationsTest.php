@@ -51,7 +51,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
             $this->_client->searchComponents((new SearchComponentConfigurationsOptions()));
             $this->fail('should fail, not implemented without branch');
         } catch (ClientException $e) {
-            $this->assertContains('Not implemented', $e->getMessage());
+            $this->assertStringContainsString('Not implemented', $e->getMessage());
             $this->assertSame(501, $e->getCode());
         }
     }

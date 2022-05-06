@@ -385,7 +385,7 @@ class ComponentsTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
             $this->assertSame('notFound', $e->getStringCode());
-            $this->assertContains('Deleted configuration main-1 not found', $e->getMessage());
+            $this->assertStringContainsString('Deleted configuration main-1 not found', $e->getMessage());
         }
 
         // delete configuration again
@@ -405,7 +405,7 @@ class ComponentsTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
             $this->assertSame('notFound', $e->getStringCode());
-            $this->assertContains('Configuration main-1 not found', $e->getMessage());
+            $this->assertStringContainsString('Configuration main-1 not found', $e->getMessage());
         }
 
         // restore configuration with create same configuration id and test number of rows
@@ -621,7 +621,7 @@ class ComponentsTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame(403, $e->getCode());
             $this->assertSame('accessDenied', $e->getStringCode());
-            $this->assertContains('Configuration manipulation is restricted for your user role', $e->getMessage());
+            $this->assertStringContainsString('Configuration manipulation is restricted for your user role', $e->getMessage());
         }
 
         try {
@@ -631,7 +631,7 @@ class ComponentsTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame(403, $e->getCode());
             $this->assertSame('accessDenied', $e->getStringCode());
-            $this->assertContains('Configuration manipulation is restricted for your user role', $e->getMessage());
+            $this->assertStringContainsString('Configuration manipulation is restricted for your user role', $e->getMessage());
         }
 
         try {
@@ -640,7 +640,7 @@ class ComponentsTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame(403, $e->getCode());
             $this->assertSame('accessDenied', $e->getStringCode());
-            $this->assertContains('Configuration manipulation is restricted for your user role', $e->getMessage());
+            $this->assertStringContainsString('Configuration manipulation is restricted for your user role', $e->getMessage());
         }
 
         $this->assertSame($components, $componentsForAdmin->listComponents());
@@ -656,7 +656,7 @@ class ComponentsTest extends StorageApiTestCase
             $this->fail('Params should be invalid');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.components.validation', $e->getStringCode());
-            $this->assertContains('name', $e->getMessage());
+            $this->assertStringContainsString('name', $e->getMessage());
         }
     }
 

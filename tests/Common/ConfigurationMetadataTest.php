@@ -437,7 +437,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             $components->addConfigurationMetadata($configurationMetadataOptions);
             $this->fail('should fail, insufficiently permission');
         } catch (ClientException $e) {
-            $this->assertContains('Configuration manipulation is restricted for your user role', $e->getMessage());
+            $this->assertStringContainsString('Configuration manipulation is restricted for your user role', $e->getMessage());
             $this->assertSame(403, $e->getCode());
         }
     }
@@ -483,7 +483,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             $components->deleteConfigurationMetadata('transformation', $configurationNameMain1, $newMetadata[0]['id']);
             $this->fail('should fail, metadata does not exist');
         } catch (ClientException $e) {
-            $this->assertContains('Metadata with id ', $e->getMessage());
+            $this->assertStringContainsString('Metadata with id ', $e->getMessage());
             $this->assertSame(404, $e->getCode());
         }
 
@@ -512,7 +512,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             $devBranchComponents->deleteConfigurationMetadata('transformation', $configurationNameMain1, $newMetadata[1]['id']);
             $this->fail('should fail, not allowed for devBranch');
         } catch (ClientException $e) {
-            $this->assertContains('Delete metadata is not implemented for development branch', $e->getMessage());
+            $this->assertStringContainsString('Delete metadata is not implemented for development branch', $e->getMessage());
             $this->assertSame(501, $e->getCode());
         }
 

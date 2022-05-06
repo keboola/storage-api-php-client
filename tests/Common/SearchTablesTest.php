@@ -27,7 +27,7 @@ class SearchTablesTest extends StorageApiTestCase
             $branchAwareClient->searchTables((new SearchTablesOptions()));
             $this->fail('should fail, not implemented with branch');
         } catch (ClientException $e) {
-            $this->assertContains('Not implemented', $e->getMessage());
+            $this->assertStringContainsString('Not implemented', $e->getMessage());
             $this->assertSame(501, $e->getCode());
         }
     }

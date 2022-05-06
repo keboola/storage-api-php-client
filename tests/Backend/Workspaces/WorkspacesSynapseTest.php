@@ -635,7 +635,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
                 $this->fail('Incremental load with different datatypes should fail');
             } catch (ClientException $e) {
                 $this->assertEquals('workspace.columnsTypesNotMatch', $e->getStringCode());
-                $this->assertContains('Different mapping between', $e->getMessage());
+                $this->assertStringContainsString('Different mapping between', $e->getMessage());
             }
         } else {
             $workspaces->loadWorkspaceData($workspace['id'], $options);

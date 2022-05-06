@@ -64,7 +64,7 @@ class HandleAsyncTasksTest extends StorageApiTestCase
             $clientMock->handleAsyncTasks([1, 2]);
             $this->fail('Missing exception');
         } catch (ClientException $e) {
-            $this->assertContains('invalidData', $e->getStringCode());
+            $this->assertStringContainsString('invalidData', $e->getStringCode());
         }
     }
 }

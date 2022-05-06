@@ -91,7 +91,7 @@ class ExasolWorkspacesUnloadTest extends ParallelWorkspacesTestCase
             $this->fail('Table should not be created');
         } catch (ClientException $e) {
             $this->assertEquals('storage.invalidColumns', $e->getStringCode());
-            $this->assertContains('_Id', $e->getMessage(), '', true);
+            $this->assertStringContainsString('_Id', $e->getMessage(), '', true);
         }
     }
 
@@ -138,7 +138,7 @@ class ExasolWorkspacesUnloadTest extends ParallelWorkspacesTestCase
             $this->fail('Table should not be imported');
         } catch (ClientException $e) {
             $this->assertEquals('storage.invalidColumns', $e->getStringCode());
-            $this->assertContains('_update', $e->getMessage());
+            $this->assertStringContainsString('_update', $e->getMessage());
         }
     }
 

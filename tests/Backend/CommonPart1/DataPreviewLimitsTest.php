@@ -101,7 +101,7 @@ class DataPreviewLimitsTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertEquals(400, $e->getCode());
             $this->assertEquals('storage.tables.validation', $e->getStringCode());
-            $this->assertContains('1000', $e->getMessage());
+            $this->assertStringContainsString('1000', $e->getMessage());
         }
     }
 
@@ -127,7 +127,7 @@ class DataPreviewLimitsTest extends StorageApiTestCase
 
         $this->assertCount($columnCount, $jsonPreview['columns']);
         $this->assertCount($rowCount, $jsonPreview['rows']);
-        $this->assertContains('col' . ($columnCount - 1), $jsonPreview['columns']);
+        $this->assertStringContainsString('col' . ($columnCount - 1), $jsonPreview['columns']);
         $truncatedRow = $this->getTruncatedRow($jsonPreview);
         $this->assertNotEmpty($truncatedRow);
         $this->assertEquals(16384, mb_strlen($truncatedRow[0]['value']), 'Value in row is not truncated');
