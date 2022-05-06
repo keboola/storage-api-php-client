@@ -37,7 +37,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         $table = $this->_client->getTable($tableId);
 
         $this->assertEmpty($result['warnings']);
-        $this->assertEquals($colNames, array_values($result['importedColumns']), 'columns');
+        $this->assertEquals($colNames, array_values((array) $result['importedColumns']), 'columns');
         $this->assertEmpty($result['transaction']);
         $this->assertNotEmpty($table['dataSizeBytes']);
         $this->assertNotEmpty($result['totalDataSizeBytes']);
@@ -340,7 +340,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         $table = $this->_client->getTable($tableId);
 
         $this->assertEmpty($result['warnings']);
-        $this->assertEquals(array('Id', 'Name', 'iso', 'Something'), array_values($result['importedColumns']), 'columns');
+        $this->assertEquals(array('Id', 'Name', 'iso', 'Something'), array_values((array) $result['importedColumns']), 'columns');
         $this->assertEmpty($result['transaction']);
         $this->assertNotEmpty($table['dataSizeBytes']);
         $this->assertNotEmpty($result['totalDataSizeBytes']);
