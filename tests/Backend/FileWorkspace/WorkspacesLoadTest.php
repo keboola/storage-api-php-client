@@ -489,7 +489,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
      * @param $expectedResult
      * @dataProvider workspaceExportFiltersData
      */
-    public function testWorkspaceExportFilters($exportOptions, $expectedResult)
+    public function testWorkspaceExportFilters($exportOptions, $expectedResult): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));

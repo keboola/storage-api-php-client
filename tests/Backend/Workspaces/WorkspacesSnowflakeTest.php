@@ -604,7 +604,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
     /**
      * @dataProvider dataTypesDiffDefinitions
      */
-    public function testsIncrementalDataTypesDiff($table, $firstLoadColumns, $secondLoadColumns, $shouldFail)
+    public function testsIncrementalDataTypesDiff($table, $firstLoadColumns, $secondLoadColumns, $shouldFail): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();

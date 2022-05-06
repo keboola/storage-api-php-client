@@ -169,7 +169,7 @@ class ComponentsEventsTest extends StorageApiTestCase
      * @dataProvider provideComponentsClientType
      * @param string $clientType
      */
-    public function testConfigurationDelete($clientType)
+    public function testConfigurationDelete($clientType): void
     {
         $components = new Components($this->client);
 

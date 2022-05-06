@@ -27,7 +27,7 @@ class MetricsTest extends StorageApiTestCase
      * @param CsvFile $csvFile
      * @param $expectedMetrics
      */
-    public function testTableCreateMetrics(CsvFile $csvFile, $expectedMetrics)
+    public function testTableCreateMetrics(CsvFile $csvFile, $expectedMetrics): void
     {
         $tokenData = $this->_client->verifyToken();
         $fileId = $this->_client->uploadFile(
@@ -64,7 +64,7 @@ class MetricsTest extends StorageApiTestCase
     /**
      * @dataProvider importMetricsData
      */
-    public function testAsyncImportMetrics(CsvFile $csvFile, $expectedMetrics)
+    public function testAsyncImportMetrics(CsvFile $csvFile, $expectedMetrics): void
     {
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', $csvFile);
         $tokenData = $this->_client->verifyToken();

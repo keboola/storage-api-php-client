@@ -309,7 +309,7 @@ class ComponentsTest extends StorageApiTestCase
      * @dataProvider provideComponentsClientType
      * @param string $clientType
      */
-    public function testComponentConfigRestore($clientType)
+    public function testComponentConfigRestore($clientType): void
     {
         $componentId = 'wr-db';
         $configurationId = 'main-1';
@@ -470,7 +470,7 @@ class ComponentsTest extends StorageApiTestCase
      * @param string $clientType
      * @return void
      */
-    public function testComponentConfigIsDisabled($clientType)
+    public function testComponentConfigIsDisabled($clientType): void
     {
         $components = new \Keboola\StorageApi\Components($this->client);
 
@@ -522,7 +522,7 @@ class ComponentsTest extends StorageApiTestCase
      * @param bool $expectedIsDisabled
      * @return void
      */
-    public function testComponentConfigCreateIsDisabledMixed($clientType, $isDisabled, $expectedIsDisabled)
+    public function testComponentConfigCreateIsDisabledMixed($clientType, $isDisabled, $expectedIsDisabled): void
     {
         // create config
         $client = $this->clientProvider->createGuzzleClientForCurrentTest([
@@ -898,7 +898,7 @@ class ComponentsTest extends StorageApiTestCase
      * @dataProvider provideComponentsClientType
      * @param string $clientType
      */
-    public function testComponentConfigUpdate($clientType)
+    public function testComponentConfigUpdate($clientType): void
     {
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
@@ -1292,7 +1292,7 @@ class ComponentsTest extends StorageApiTestCase
      * @dataProvider provideComponentsClientType
      * @param string $clientName
      */
-    public function testConfigurationRollback($clientName)
+    public function testConfigurationRollback($clientName): void
     {
         $componentsApi = new \Keboola\StorageApi\Components($this->client);
 
@@ -1550,7 +1550,7 @@ class ComponentsTest extends StorageApiTestCase
      * @dataProvider provideComponentsClientType
      * @param string $clientType
      */
-    public function testComponentConfigsVersionsCreate($clientType)
+    public function testComponentConfigsVersionsCreate($clientType): void
     {
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')

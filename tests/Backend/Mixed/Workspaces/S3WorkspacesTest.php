@@ -71,7 +71,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
      * @dataProvider workspaceMixedBackendData
      * @param $backend
      */
-    public function testLoadIncremental($backend, $bucketBackend)
+    public function testLoadIncremental($backend, $bucketBackend): void
     {
         if ($this->_client->bucketExists("in.c-mixed-test-" . $bucketBackend)) {
             $this->_client->dropBucket(
@@ -133,7 +133,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
      * @dataProvider workspaceMixedBackendData
      * @param $backend
      */
-    public function testLoadIncrementalNullable($backend, $bucketBackend)
+    public function testLoadIncrementalNullable($backend, $bucketBackend): void
     {
         if ($this->_client->bucketExists("in.c-mixed-test-" . $bucketBackend)) {
             $this->_client->dropBucket(
@@ -249,7 +249,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
      * @dataProvider workspaceMixedBackendData
      * @param $backend
      */
-    public function testLoadIncrementalNotNullable($backend, $bucketBackend)
+    public function testLoadIncrementalNotNullable($backend, $bucketBackend): void
     {
         if ($this->_client->bucketExists("in.c-mixed-test-" . $bucketBackend)) {
             $this->_client->dropBucket(
@@ -411,7 +411,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
      * @dataProvider workspaceMixedBackendData
      * @param $backend
      */
-    public function testMixedBackendWorkspaceLoad($backend, $bucketBackend)
+    public function testMixedBackendWorkspaceLoad($backend, $bucketBackend): void
     {
         if ($this->_client->bucketExists("out.c-mixed-test-" . $bucketBackend)) {
             $this->_client->dropBucket(

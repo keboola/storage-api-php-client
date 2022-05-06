@@ -122,7 +122,7 @@ class TriggersTest extends StorageApiTestCase
      * @dataProvider tokenCreateOptionsProvider
      * @return void
      */
-    public function testCreateTriggerWithExtraPermissions(TokenCreateOptions $optionsForMainToken)
+    public function testCreateTriggerWithExtraPermissions(TokenCreateOptions $optionsForMainToken): void
     {
         $table1 = $this->createTableWithRandomData("watched-1");
 
@@ -171,7 +171,7 @@ class TriggersTest extends StorageApiTestCase
      * @param string $expectedException
      * @return void
      */
-    public function testCreateTriggerWithWrongPermissions(TokenCreateOptions $optionsForMainToken, $expectedException)
+    public function testCreateTriggerWithWrongPermissions(TokenCreateOptions $optionsForMainToken, $expectedException): void
     {
         $table1 = $this->createTableWithRandomData("watched-1");
 
@@ -243,7 +243,7 @@ class TriggersTest extends StorageApiTestCase
      * @dataProvider tokenCreateOptionsProvider
      * @return void
      */
-    public function testUpdateTriggerCreatedByMasterToken(TokenCreateOptions $optionForToken)
+    public function testUpdateTriggerCreatedByMasterToken(TokenCreateOptions $optionForToken): void
     {
         $table1 = $this->createTableWithRandomData("watched-1");
         $table2 = $this->createTableWithRandomData("watched-2");
@@ -377,7 +377,7 @@ class TriggersTest extends StorageApiTestCase
      * @param string $expectedException
      * @return void
      */
-    public function testUpdateTriggerComponentWithWrongPermissions(TokenCreateOptions $optionsForMainToken, $expectedException)
+    public function testUpdateTriggerComponentWithWrongPermissions(TokenCreateOptions $optionsForMainToken, $expectedException): void
     {
         $table1 = $this->createTableWithRandomData("watched-1");
         $optionsForTokenRunWith = (new TokenCreateOptions())
@@ -437,7 +437,7 @@ class TriggersTest extends StorageApiTestCase
      * @dataProvider tokenCreateOptionsProvider
      * @return void
      */
-    public function testUpdateTriggerCreatedByNonMasterToken(TokenCreateOptions $options)
+    public function testUpdateTriggerCreatedByNonMasterToken(TokenCreateOptions $options): void
     {
         $table1 = $this->createTableWithRandomData("watched-1");
         $table2 = $this->createTableWithRandomData("watched-2");
@@ -535,7 +535,7 @@ class TriggersTest extends StorageApiTestCase
      * @dataProvider tokenCreateOptionsProvider
      * @return void
      */
-    public function testUpdateTriggerWithDifferentNonMasterToken(TokenCreateOptions $tokenCreateOptions)
+    public function testUpdateTriggerWithDifferentNonMasterToken(TokenCreateOptions $tokenCreateOptions): void
     {
         $table1 = $this->createTableWithRandomData("watched-1");
 
@@ -637,7 +637,7 @@ class TriggersTest extends StorageApiTestCase
      * @dataProvider tokenCreateOptionsProvider
      * @return void
      */
-    public function testDeleteTriggerCreatedByMasterToken(TokenCreateOptions $optionForToken)
+    public function testDeleteTriggerCreatedByMasterToken(TokenCreateOptions $optionForToken): void
     {
         $table = $this->createTableWithRandomData("watched-2");
 
@@ -700,7 +700,7 @@ class TriggersTest extends StorageApiTestCase
      * @dataProvider tokenCreateOptionsProvider
      * @return void
      */
-    public function testDeleteTriggerCreatedByNonMasterTokenUsingDifferentToken(TokenCreateOptions $optionForToken)
+    public function testDeleteTriggerCreatedByNonMasterTokenUsingDifferentToken(TokenCreateOptions $optionForToken): void
     {
         $table1 = $this->createTableWithRandomData("watched-1");
 
@@ -762,7 +762,7 @@ class TriggersTest extends StorageApiTestCase
      * @dataProvider tokenCreateOptionsProvider
      * @return void
      */
-    public function testNonMasterTokenCanDeleteTriggerItCreated(TokenCreateOptions $optionForToken)
+    public function testNonMasterTokenCanDeleteTriggerItCreated(TokenCreateOptions $optionForToken): void
     {
         $table1 = $this->createTableWithRandomData("watched-1");
 
@@ -805,7 +805,7 @@ class TriggersTest extends StorageApiTestCase
      * @param string $keyToDelete
      * @return void
      */
-    public function testMissingParameters($keyToDelete)
+    public function testMissingParameters($keyToDelete): void
     {
         $data = [
             'component' => 'orchestrator',

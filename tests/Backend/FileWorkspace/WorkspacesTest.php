@@ -118,7 +118,7 @@ class WorkspacesTest extends FileWorkspaceTestCase
      * @dataProvider  dropOptions
      * @param $dropOptions
      */
-    public function testDropWorkspace($dropOptions)
+    public function testDropWorkspace($dropOptions): void
     {
         $workspaces = new Workspaces($this->_client);
 

@@ -455,7 +455,7 @@ class CommonFileTest extends StorageApiTestCase
 
 
     /** @dataProvider invalidIdDataProvider */
-    public function testInvalidFileId($fileId)
+    public function testInvalidFileId($fileId): void
     {
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('File id cannot be empty');

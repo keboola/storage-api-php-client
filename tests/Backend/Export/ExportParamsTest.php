@@ -26,7 +26,7 @@ class ExportParamsTest extends StorageApiTestCase
      * @param $expectedResult
      * @dataProvider tableExportFiltersData
      */
-    public function testTableExportAsyncSliced($exportOptions, $expectedResult)
+    public function testTableExportAsyncSliced($exportOptions, $expectedResult): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $csvFile = new CsvFile($importFile);

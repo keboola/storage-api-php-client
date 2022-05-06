@@ -73,7 +73,7 @@ class EventsTest extends StorageApiTestCase
      * @param $messageLength
      * @throws \Exception
      */
-    public function testLargeEventWithinMaxSizeLimit($messageLength)
+    public function testLargeEventWithinMaxSizeLimit($messageLength): void
     {
         $largeMessage = str_repeat('x', $messageLength);
         $event = new Event();
@@ -252,7 +252,7 @@ class EventsTest extends StorageApiTestCase
      * @dataProvider invalidQueries
      * @param $query
      */
-    public function testInvalidSearchSyntaxUserError($query)
+    public function testInvalidSearchSyntaxUserError($query): void
     {
         try {
             $this->_client->listEvents([

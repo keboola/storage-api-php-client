@@ -23,7 +23,7 @@ class CreateTableTest extends StorageApiTestCase
      * @param $async
      * @dataProvider syncAsyncData
      */
-    public function testTableWithLongPkShouldNotBeCreatedInRedshift($async)
+    public function testTableWithLongPkShouldNotBeCreatedInRedshift($async): void
     {
         $method = $async ? 'createTableAsync' : 'createTable';
         $id = $this->_client->{$method}(

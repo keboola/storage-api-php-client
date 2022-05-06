@@ -260,7 +260,7 @@ class LegacyWorkspacesExasolTest extends ParallelWorkspacesTestCase
     /**
      * @dataProvider dataTypesDiffDefinitions
      */
-    public function testsIncrementalDataTypesDiff($table, $firstLoadDataTypes, $secondLoadDataTypes, $shouldFail)
+    public function testsIncrementalDataTypesDiff($table, $firstLoadDataTypes, $secondLoadDataTypes, $shouldFail): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();

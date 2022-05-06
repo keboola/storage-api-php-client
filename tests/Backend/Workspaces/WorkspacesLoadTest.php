@@ -616,7 +616,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
     /**
      * @dataProvider columnsErrorDefinitions
      */
-    public function testIncrementalDataTypesDiff($table, $firstLoadDataColumns, $secondLoadDataColumns)
+    public function testIncrementalDataTypesDiff($table, $firstLoadDataColumns, $secondLoadDataColumns): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -768,7 +768,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
      * @param $expectedResult
      * @dataProvider workspaceExportFiltersData
      */
-    public function testWorkspaceExportFilters($exportOptions, $expectedResult)
+    public function testWorkspaceExportFilters($exportOptions, $expectedResult): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));
@@ -1098,7 +1098,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
      * @dataProvider validColumnsDefinitions
      * @param $columnsDefinition
      */
-    public function testDataTypes($columnsDefinition, $expectedColumns)
+    public function testDataTypes($columnsDefinition, $expectedColumns): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -1158,7 +1158,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
      * @dataProvider conversionUserErrorColumnsDefinitions
      * @param $columnsDefinition
      */
-    public function testDataTypeConversionUserError($columnsDefinition)
+    public function testDataTypeConversionUserError($columnsDefinition): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -1202,7 +1202,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
      * @dataProvider notExistingColumnUserErrorColumnsDefinitions
      * @param $columnsDefinition
      */
-    public function testDataTypeForNotExistingColumnUserError($columnsDefinition)
+    public function testDataTypeForNotExistingColumnUserError($columnsDefinition): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();

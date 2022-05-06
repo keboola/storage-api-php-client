@@ -395,7 +395,7 @@ class CreateTableTest extends StorageApiTestCase
     /**
      * @dataProvider invalidDefinitions
      */
-    public function testCreateTableDefinitionWithWrongInput(array $definition)
+    public function testCreateTableDefinitionWithWrongInput(array $definition): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 

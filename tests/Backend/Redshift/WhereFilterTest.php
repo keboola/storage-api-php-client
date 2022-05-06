@@ -19,7 +19,7 @@ class WhereFilterTest extends StorageApiTestCase
     /**
      * @dataProvider conditionProvider
      */
-    public function testForbiddenWhereOperators(array $where)
+    public function testForbiddenWhereOperators(array $where): void
     {
         $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
         $csvFile->writeRow(['test']);

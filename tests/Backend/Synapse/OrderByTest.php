@@ -78,7 +78,7 @@ class OrderByTest extends StorageApiTestCase
     /**
      * @dataProvider invalidDataProvider
      */
-    public function testInvalidOrderByParamsShouldReturnErrorInDataPreview($order, $message)
+    public function testInvalidOrderByParamsShouldReturnErrorInDataPreview($order, $message): void
     {
         $tableId = $this->prepareTable();
 
@@ -90,7 +90,7 @@ class OrderByTest extends StorageApiTestCase
     /**
      * @dataProvider invalidDataProvider
      */
-    public function testInvalidOrderByParamsShouldReturnErrorInExport($order, $message)
+    public function testInvalidOrderByParamsShouldReturnErrorInExport($order, $message): void
     {
         $tableId = $this->prepareTable();
 

@@ -27,7 +27,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
      * @dataProvider columnCompressionDataTypesDefinitions
      * @param $columnsDefinition
      */
-    public function testColumnCompression($columnsDefinition)
+    public function testColumnCompression($columnsDefinition): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -119,7 +119,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
      * @dataProvider  distTypeData
      * @param $dist
      */
-    public function testLoadedDist($dist)
+    public function testLoadedDist($dist): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();

@@ -11,7 +11,7 @@ class SlicedFilesUploadTest extends StorageApiTestCase
     /**
      * @dataProvider uploadSlicedData
      */
-    public function testUploadSlicedFile(array $slices, FileUploadOptions $options)
+    public function testUploadSlicedFile(array $slices, FileUploadOptions $options): void
     {
         $fileId = $this->_client->uploadSlicedFile($slices, $options);
         $file = $this->_client->getFile($fileId, (new GetFileOptions())->setFederationToken(true));

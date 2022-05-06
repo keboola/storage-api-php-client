@@ -1313,7 +1313,7 @@ class TokensTest extends StorageApiTestCase
     /**
      * @dataProvider limitedTokenOptionsData
      */
-    public function testGuestTokenCreateLimitedToken(TokenCreateOptions $options)
+    public function testGuestTokenCreateLimitedToken(TokenCreateOptions $options): void
     {
         $client = $this->getGuestClient();
 
@@ -1347,7 +1347,7 @@ class TokensTest extends StorageApiTestCase
     /**
      * @dataProvider limitedTokenOptionsData
      */
-    public function testReadOnlyUserCannotCreateLimitedToken(TokenCreateOptions $options)
+    public function testReadOnlyUserCannotCreateLimitedToken(TokenCreateOptions $options): void
     {
         $client = $this->getClientForToken(STORAGE_API_READ_ONLY_TOKEN);
 
@@ -1394,7 +1394,7 @@ class TokensTest extends StorageApiTestCase
         TokenCreateOptions $invalidOptions,
         $expectedExceptionClass,
         $expectedExceptionMessage
-    ) {
+    ): void {
         $client = $this->getGuestClient();
 
         $token = $client->verifyToken();

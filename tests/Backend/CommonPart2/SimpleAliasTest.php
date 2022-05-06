@@ -531,7 +531,7 @@ class SimpleAliasTest extends StorageApiTestCase
      * @param $expectedResult
      * @dataProvider tableExportFiltersData
      */
-    public function testFilteredAliases($filterOptions, $expectedResult)
+    public function testFilteredAliases($filterOptions, $expectedResult): void
     {
         // source table
         $sourceTableId = $this->_client->createTable(

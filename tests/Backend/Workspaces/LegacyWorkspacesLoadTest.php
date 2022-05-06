@@ -457,7 +457,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
     /**
      * @dataProvider dataTypesErrorDefinitions
      */
-    public function testIncrementalDataTypesDiff($table, $firstLoadDataTypes, $secondLoadDataTypes)
+    public function testIncrementalDataTypesDiff($table, $firstLoadDataTypes, $secondLoadDataTypes): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -617,7 +617,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
      * @dataProvider validDataTypesDefinitions
      * @param $dataTypesDefinition
      */
-    public function testDataTypes($dataTypesDefinition)
+    public function testDataTypes($dataTypesDefinition): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -664,7 +664,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
      * @dataProvider conversionUserErrorDataTypesDefinitions
      * @param $dataTypesDefinition
      */
-    public function testDataTypeConversionUserError($dataTypesDefinition)
+    public function testDataTypeConversionUserError($dataTypesDefinition): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -730,7 +730,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
      * @dataProvider notExistingColumnUserErrorDataTypesDefinitions
      * @param $dataTypesDefinition
      */
-    public function testDataTypeForNotExistingColumnUserError($dataTypesDefinition)
+    public function testDataTypeForNotExistingColumnUserError($dataTypesDefinition): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -1112,7 +1112,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
      * @param $expectedResult
      * @dataProvider tableExportFiltersData
      */
-    public function testWorkspaceExportFilters($exportOptions, $expectedResult)
+    public function testWorkspaceExportFilters($exportOptions, $expectedResult): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));

@@ -10,7 +10,7 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
      * @dataProvider sharingBackendDataWithAsync
      * @throws ClientException
      */
-    public function testShareOrganizationBucketChangeType($backend, $isAsync)
+    public function testShareOrganizationBucketChangeType($backend, $isAsync): void
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
@@ -55,7 +55,7 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
      * @dataProvider sharingBackendDataWithAsync
      * @throws ClientException
      */
-    public function testShareBucketToProject($backend, $isAsync)
+    public function testShareBucketToProject($backend, $isAsync): void
     {
         $this->initTestBuckets($backend);
         $bucketIds = $this->_bucketIds;
@@ -102,7 +102,7 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
      * @dataProvider sharingBackendDataWithAsync
      * @throws ClientException
      */
-    public function testUpdateShareBucketToProject($backend, $isAsync)
+    public function testUpdateShareBucketToProject($backend, $isAsync): void
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
@@ -130,7 +130,7 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
      * @dataProvider sharingBackendDataWithAsync
      * @throws ClientException
      */
-    public function testLinkBucketToSpecificProject($backend, $isAsync)
+    public function testLinkBucketToSpecificProject($backend, $isAsync): void
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
@@ -230,7 +230,7 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
      * @dataProvider sharingBackendDataWithAsync
      * @throws ClientException
      */
-    public function testNotAbleToLinkBucketToSpecificProject($backend, $isAsync)
+    public function testNotAbleToLinkBucketToSpecificProject($backend, $isAsync): void
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
@@ -265,7 +265,7 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
      * @dataProvider sharingBackendDataWithAsync
      * @throws ClientException
      */
-    public function testShareBucketToAnotherOrganizationProject($backend, $isAsync)
+    public function testShareBucketToAnotherOrganizationProject($backend, $isAsync): void
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);

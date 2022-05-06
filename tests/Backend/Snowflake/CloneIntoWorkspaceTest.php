@@ -22,7 +22,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
      * @param int $aliasNestingLevel
      * @throws Exception
      */
-    public function testClone($aliasNestingLevel)
+    public function testClone($aliasNestingLevel): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
         $sourceTableId = $this->createTableFromFile(
@@ -177,7 +177,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
      * @dataProvider aliasSettingsProvider
      * @param array $aliasSettings
      */
-    public function testCloneOtherAliasesNotAllowed(array $aliasSettings)
+    public function testCloneOtherAliasesNotAllowed(array $aliasSettings): void
     {
         $sourceBucketId = $this->getTestBucketId();
         $sourceTableId = $this->createTableFromFile(

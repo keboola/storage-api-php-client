@@ -111,7 +111,7 @@ class CreateTableTest extends StorageApiTestCase
      * @dataProvider tableCreateData
      * @param $createFile
      */
-    public function testTableCreate($tableName, $createFile, $expectationFile, $async, $options = array())
+    public function testTableCreate($tableName, $createFile, $expectationFile, $async, $options = array()): void
     {
         $createMethod = $async ? 'createTableAsync' : 'createTable';
         $tableId = $this->_client->{$createMethod}(
@@ -332,7 +332,7 @@ class CreateTableTest extends StorageApiTestCase
      * @param $async
      * @dataProvider syncAsyncData
      */
-    public function testTableColumnNamesSanitize($async)
+    public function testTableColumnNamesSanitize($async): void
     {
         $csv = new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/filtering.csv');
 
@@ -354,7 +354,7 @@ class CreateTableTest extends StorageApiTestCase
      * @param $async
      * @dataProvider syncAsyncData
      */
-    public function testTableWithLongColumnNamesShouldNotBeCreated($async)
+    public function testTableWithLongColumnNamesShouldNotBeCreated($async): void
     {
         try {
             $method = $async ? 'createTableAsync' : 'createTable';
@@ -398,7 +398,7 @@ class CreateTableTest extends StorageApiTestCase
      * @dataProvider invalidPrimaryKeys
      * @param $backend
      */
-    public function testTableCreateWithInvalidPK($primaryKey)
+    public function testTableCreateWithInvalidPK($primaryKey): void
     {
         try {
             $this->_client->createTable(
@@ -505,7 +505,7 @@ class CreateTableTest extends StorageApiTestCase
     /**
      * @dataProvider createTableFromSlicedFileData
      */
-    public function testCreateTableFromSlicedFile($fileName)
+    public function testCreateTableFromSlicedFile($fileName): void
     {
         $uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
         $uploadOptions

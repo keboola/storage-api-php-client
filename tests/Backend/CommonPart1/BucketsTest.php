@@ -454,7 +454,7 @@ class BucketsTest extends StorageApiTestCase
      * @param $attributes
      * @dataProvider invalidAttributes
      */
-    public function testBucketAttributesReplaceValidation($attributes)
+    public function testBucketAttributesReplaceValidation($attributes): void
     {
         $bucketId = $this->getTestBucketId();
         $this->clearBucketAttributes($bucketId);

@@ -61,7 +61,7 @@ class SharingTest extends StorageApiSharingTestCase
         $sharingBackend,
         $workspaceBackend,
         $expectedLoadType
-    ) {
+    ): void {
         //setup test tables
         $this->deleteAllWorkspaces();
         $this->initTestBuckets($sharingBackend);

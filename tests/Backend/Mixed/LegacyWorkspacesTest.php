@@ -20,7 +20,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
      * @dataProvider loadToRedshiftDataTypes
      * @param $dataTypesDefinition
      */
-    public function testDataTypesLoadToRedshift($dataTypesDefinition)
+    public function testDataTypesLoadToRedshift($dataTypesDefinition): void
     {
 
         $bucketBackend = self::BACKEND_SNOWFLAKE;
@@ -85,7 +85,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
      * @dataProvider workspaceMixedBackendData
      * @param $backend
      */
-    public function testLoadIncrementalNotNullable($backend, $bucketBackend)
+    public function testLoadIncrementalNotNullable($backend, $bucketBackend): void
     {
         if ($this->_client->bucketExists("in.c-mixed-test-" . $bucketBackend)) {
             $this->_client->dropBucket(
@@ -189,7 +189,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
      * @dataProvider workspaceMixedBackendData
      * @param $backend
      */
-    public function testLoadIncrementalNullable($backend, $bucketBackend)
+    public function testLoadIncrementalNullable($backend, $bucketBackend): void
     {
         if ($this->_client->bucketExists("in.c-mixed-test-" . $bucketBackend)) {
             $this->_client->dropBucket(
@@ -307,7 +307,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
      * @param $sourceBackend
      * @param $dataTypesDefinition
      */
-    public function testLoadUserError($workspaceBackend, $sourceBackend, $dataTypesDefinition)
+    public function testLoadUserError($workspaceBackend, $sourceBackend, $dataTypesDefinition): void
     {
         if ($this->_client->bucketExists("in.c-mixed-test-" . $sourceBackend)) {
             $this->_client->dropBucket("in.c-mixed-test-{$sourceBackend}", [
@@ -350,7 +350,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
      * @param $workspaceBackend
      * @param $sourceBackend
      */
-    public function testLoadWorkspaceExtendedDataTypesNullify($workspaceBackend, $sourceBackend)
+    public function testLoadWorkspaceExtendedDataTypesNullify($workspaceBackend, $sourceBackend): void
     {
         if ($this->_client->bucketExists("in.c-mixed-test-" . $sourceBackend)) {
             $this->_client->dropBucket("in.c-mixed-test-{$sourceBackend}", [

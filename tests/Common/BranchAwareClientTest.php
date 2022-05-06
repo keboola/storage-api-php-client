@@ -39,7 +39,7 @@ class BranchAwareClientTest extends StorageApiTestCase
      * @param string $defaultBranchUsage
      * @return void
      */
-    public function testClientWithDefaultBranch($defaultBranchUsage)
+    public function testClientWithDefaultBranch($defaultBranchUsage): void
     {
         switch ($defaultBranchUsage) {
             case 'id':
@@ -102,7 +102,7 @@ class BranchAwareClientTest extends StorageApiTestCase
      * @param scalar|null $branchId
      * @return void
      */
-    public function testInvalidBranch($branchId)
+    public function testInvalidBranch($branchId): void
     {
         $options = [
             'token' => STORAGE_API_TOKEN,

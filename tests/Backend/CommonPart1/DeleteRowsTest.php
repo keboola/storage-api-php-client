@@ -27,7 +27,7 @@ class DeleteRowsTest extends StorageApiTestCase
      * @param $expectedTableContent
      * @dataProvider tableDeleteRowsByFiltersData
      */
-    public function testTableDeleteRowsByFilter($filterParams, $expectedTableContent)
+    public function testTableDeleteRowsByFilter($filterParams, $expectedTableContent): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));

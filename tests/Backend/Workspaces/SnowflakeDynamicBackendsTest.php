@@ -68,7 +68,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
         $backendSize,
         $expectedBackendSize,
         $expectedWarehouseSuffix
-    ) {
+    ): void {
         $workspace = $this->workspaces->createWorkspace([
             'backend' => StorageApiTestCase::BACKEND_SNOWFLAKE,
             'backendSize' => $backendSize,
@@ -226,7 +226,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
     public function testWorkspaceCreateRequestObjectError(
         array $params,
         array $expectedErrors
-    ) {
+    ): void {
         try {
             $this->workspaces->createWorkspace($params);
         } catch (ClientException $e) {

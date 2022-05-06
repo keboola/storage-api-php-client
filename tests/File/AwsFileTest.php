@@ -11,7 +11,7 @@ class AwsFileTest extends StorageApiTestCase
     /**
      * @dataProvider uploadData
      */
-    public function testFileUpload($filePath, FileUploadOptions $options)
+    public function testFileUpload($filePath, FileUploadOptions $options): void
     {
         $fileId = $this->_client->uploadFile($filePath, $options);
         $file = $this->_client->getFile($fileId);
@@ -90,7 +90,7 @@ class AwsFileTest extends StorageApiTestCase
      * @dataProvider encryptedData
      * @param $encrypted
      */
-    public function testFileUploadUsingFederationToken($encrypted)
+    public function testFileUploadUsingFederationToken($encrypted): void
     {
         $pathToFile = __DIR__ . '/../_data/files.upload.txt';
         $options = new FileUploadOptions();

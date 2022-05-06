@@ -758,7 +758,7 @@ class MetadataTest extends StorageApiTestCase
     /**
      * @dataProvider apiEndpoints
      */
-    public function testInvalidMetadata($apiEndpoint, $object)
+    public function testInvalidMetadata($apiEndpoint, $object): void
     {
         $bucketId = self::getTestBucketId();
         $object = ($apiEndpoint === self::ENDPOINT_TYPE_BUCKETS) ? $bucketId : $bucketId . $object;
@@ -822,7 +822,7 @@ class MetadataTest extends StorageApiTestCase
      *
      * @dataProvider apiEndpoints
      */
-    public function testInvalidMetadataWhenMetadataIsNotArray($apiEndpoint, $object)
+    public function testInvalidMetadataWhenMetadataIsNotArray($apiEndpoint, $object): void
     {
         $bucketId = self::getTestBucketId();
         $objectId = $bucketId . $object;
@@ -842,7 +842,7 @@ class MetadataTest extends StorageApiTestCase
     /**
      * @dataProvider apiEndpoints
      */
-    public function testInvalidMetadataWhenMetadataIsNotPresent($apiEndpoint, $object)
+    public function testInvalidMetadataWhenMetadataIsNotPresent($apiEndpoint, $object): void
     {
         $bucketId = self::getTestBucketId();
         $objectId = $bucketId . $object;
@@ -861,7 +861,7 @@ class MetadataTest extends StorageApiTestCase
     /**
      * @dataProvider apiEndpoints
      */
-    public function testMetadata40xs($apiEndpoint, $object)
+    public function testMetadata40xs($apiEndpoint, $object): void
     {
         $bucketId = self::getTestBucketId();
         $object = ($apiEndpoint === "bucket") ? $bucketId : $bucketId . $object;

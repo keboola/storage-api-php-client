@@ -349,7 +349,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
     /**
      * @dataProvider columnsErrorDefinitions
      */
-    public function testIncrementalDataTypesDiff($table, $firstLoadDataColumns, $secondLoadDataColumns)
+    public function testIncrementalDataTypesDiff($table, $firstLoadDataColumns, $secondLoadDataColumns): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -406,7 +406,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
      * @dataProvider validColumnsDefinitions
      * @param $columnsDefinition
      */
-    public function testDataTypes($columnsDefinition)
+    public function testDataTypes($columnsDefinition): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();

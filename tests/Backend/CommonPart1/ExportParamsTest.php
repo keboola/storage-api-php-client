@@ -83,7 +83,7 @@ class ExportParamsTest extends StorageApiTestCase
      * @param $expectedResult
      * @dataProvider tableExportFiltersData
      */
-    public function testTableExportFilters($exportOptions, $expectedResult)
+    public function testTableExportFilters($exportOptions, $expectedResult): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));

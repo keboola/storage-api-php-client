@@ -371,7 +371,7 @@ class TablesListingTest extends StorageApiTestCase
      * @param $attributes
      * @dataProvider invalidAttributes
      */
-    public function testTableAttributesReplaceValidation($attributes)
+    public function testTableAttributesReplaceValidation($attributes): void
     {
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
         try {

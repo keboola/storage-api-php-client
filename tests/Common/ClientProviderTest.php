@@ -127,7 +127,7 @@ class ClientProviderTest extends StorageApiTestCase
      * @param int|string $dataName
      * @return void
      */
-    public function testGetDevBranchName($clientType, $dataName)
+    public function testGetDevBranchName($clientType, $dataName): void
     {
         $branchNamePattern = '/^'
             . 'Keboola\\\\Test\\\\ClientProvider\\\\ClientProviderTest'

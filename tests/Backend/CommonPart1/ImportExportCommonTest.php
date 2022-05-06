@@ -28,7 +28,7 @@ class ImportExportCommonTest extends StorageApiTestCase
      * @dataProvider tableImportData
      * @param $importFileName
      */
-    public function testTableImportExport(CsvFile $importFile, $expectationsFileName, $colNames, $format = 'rfc', $createTableOptions = array())
+    public function testTableImportExport(CsvFile $importFile, $expectationsFileName, $colNames, $format = 'rfc', $createTableOptions = array()): void
     {
         $expectationsFile = __DIR__ . '/../../_data/' . $expectationsFileName;
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages-2', $importFile, $createTableOptions);
@@ -64,7 +64,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         $colNames,
         $format = 'rfc',
         $createTableOptions = []
-    ) {
+    ): void {
         $expectationsFile = __DIR__ . '/../../_data/' . $expectationsFileName;
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages-3', $importFile, $createTableOptions);
 
@@ -162,7 +162,7 @@ class ImportExportCommonTest extends StorageApiTestCase
      * @param $incrementFile
      * @param $expectationFinal
      */
-    public function testIncrementalImportPkDedupe($createFile, $primaryKey, $expectationFileAfterCreate, $incrementFile, $expectationFinal)
+    public function testIncrementalImportPkDedupe($createFile, $primaryKey, $expectationFileAfterCreate, $incrementFile, $expectationFinal): void
     {
 
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'pk', $createFile, [
@@ -246,7 +246,7 @@ class ImportExportCommonTest extends StorageApiTestCase
      * @dataProvider tableImportInvalidData
      * @expectedException \Keboola\StorageApi\ClientException
      */
-    public function testTableInvalidImport($languagesFile)
+    public function testTableInvalidImport($languagesFile): void
     {
         $importCsvFile = new CsvFile(__DIR__ . '/../../_data/' . $languagesFile);
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../../_data/languages.csv'));

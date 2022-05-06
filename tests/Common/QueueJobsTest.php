@@ -57,7 +57,7 @@ class QueueJobsTest extends StorageApiTestCase
      * @dataProvider invalidQueueCreateTableOptions
      * @param array $options
      */
-    public function testQueueCreateTableInvalidName($options)
+    public function testQueueCreateTableInvalidName($options): void
     {
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Table create option "name" is required and cannot be empty.');

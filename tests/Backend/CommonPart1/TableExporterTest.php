@@ -37,7 +37,7 @@ class TableExporterTest extends StorageApiTestCase
      * @dataProvider tableExportData
      * @param $importFileName
      */
-    public function testTableAsyncExport(array $supportedBackends, CsvFile $importFile, $expectationsFileName, $exportOptions = array())
+    public function testTableAsyncExport(array $supportedBackends, CsvFile $importFile, $expectationsFileName, $exportOptions = array()): void
     {
         $expectationsFile = __DIR__ . '/../../_data/' . $expectationsFileName;
         $tokenData = $this->_client->verifyToken();

@@ -14,7 +14,7 @@ class LegacyWorkspacesRedshiftTest extends ParallelWorkspacesTestCase
      * @dataProvider columnCompressionDataTypesDefinitions
      * @param $dataTypesDefinition
      */
-    public function testColumnCompression($dataTypesDefinition)
+    public function testColumnCompression($dataTypesDefinition): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
