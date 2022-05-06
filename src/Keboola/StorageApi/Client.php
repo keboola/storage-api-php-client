@@ -2494,7 +2494,7 @@ class Client
             $enclosure = chr(0);
         }
 
-        while ($parsedLine = fgetcsv($tmpFile, null, $delimiter, $enclosure, '"')) {
+        while ($parsedLine = fgetcsv($tmpFile, 0, $delimiter, $enclosure, '"')) {
             if (!$header) {
                 $data[] = $parsedLine;
             } else {
