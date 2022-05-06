@@ -17,8 +17,10 @@ jobs:
           - '8.1'
         include:
           - php-versions: "8.0"
+            composer-options: "--ignore-platform-req=ext-pdo_pgsql --ignore-platform-req=ext-odbc"
             experimental: true
           - php-versions: "8.1"
+            composer-options: "--ignore-platform-req=ext-pdo_pgsql --ignore-platform-req=ext-odbc"
             experimental: true
     steps:
       -
@@ -31,7 +33,7 @@ jobs:
           php-version: ${{ matrix.php-versions }}
       -
         name: Install dependencies
-        run: composer install
+        run: composer install ${{ matrix.composer-options }}
       -
         name: Tests
         run: composer ci
