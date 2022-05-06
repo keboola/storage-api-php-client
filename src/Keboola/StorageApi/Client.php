@@ -67,7 +67,7 @@ class Client
     private $userAgent = 'Keboola Storage API PHP Client';
 
     /**
-     * @var callable|null
+     * @var callable
      */
     private $jobPollRetryDelay;
 
