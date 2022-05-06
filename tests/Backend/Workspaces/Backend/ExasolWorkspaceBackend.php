@@ -101,7 +101,7 @@ class ExasolWorkspaceBackend implements WorkspaceBackend
         switch ($style) {
             case \PDO::FETCH_NUM:
                 foreach ($res as $row) {
-                    $data[] = array_values($row);
+                    $data[] = array_values((array) $row);
                 }
                 break;
             case \PDO::FETCH_ASSOC:
