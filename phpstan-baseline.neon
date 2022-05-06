@@ -1281,11 +1281,6 @@ parameters:
 			path: src/Keboola/StorageApi/Client.php
 
 		-
-			message: "#^Parameter \\#1 \\$function of function call_user_func expects callable\\(\\)\\: mixed, \\(callable\\(\\)\\: mixed\\)\\|null given\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
 			message: "#^Parameter \\#1 \\$id of method Keboola\\\\StorageApi\\\\Tokens\\:\\:dropToken\\(\\) expects int, string given\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
@@ -4076,11 +4071,6 @@ parameters:
 			path: tests/Backend/CommonPart1/ImportExportCommonTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$input of function array_values expects array, mixed given\\.$#"
-			count: 2
-			path: tests/Backend/CommonPart1/ImportExportCommonTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\LegacyIndexedColumnsTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart1/LegacyIndexedColumnsTest.php
@@ -4476,11 +4466,6 @@ parameters:
 			path: tests/Backend/CommonPart2/SlicedImportsTest.php
 
 		-
-			message: "#^Parameter \\#2 \\$str of function explode expects string, string\\|false given\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart2/SlicedImportsTest.php
-
-		-
 			message: "#^Parameter \\#3 \\$content of method MicrosoftAzure\\\\Storage\\\\Blob\\\\BlobRestProxy\\:\\:createBlockBlob\\(\\) expects Psr\\\\Http\\\\Message\\\\StreamInterface\\|resource\\|string, resource\\|false given\\.$#"
 			count: 2
 			path: tests/Backend/CommonPart2/SlicedImportsTest.php
@@ -4517,11 +4502,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart2\\\\SlicedImportsWithSlicedUploadsTest\\:\\:testSlicedImportSingleFile\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart2/SlicedImportsWithSlicedUploadsTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$str of function explode expects string, string\\|false given\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart2/SlicedImportsWithSlicedUploadsTest.php
 
@@ -4971,23 +4951,8 @@ parameters:
 			path: tests/Backend/FileWorkspace/Backend/Abs.php
 
 		-
-			message: "#^Parameter \\#1 \\$file of function file_put_contents expects string, string\\|false given\\.$#"
-			count: 1
-			path: tests/Backend/FileWorkspace/Backend/Abs.php
-
-		-
-			message: "#^Parameter \\#1 \\$filePath of method Keboola\\\\Test\\\\Backend\\\\FileWorkspace\\\\Backend\\\\Abs\\:\\:uploadFile\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: tests/Backend/FileWorkspace/Backend/Abs.php
-
-		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 1
-			path: tests/Backend/FileWorkspace/Backend/Abs.php
-
-		-
-			message: "#^Parameter \\#1 \\$path of function basename expects string, string\\|false given\\.$#"
-			count: 2
 			path: tests/Backend/FileWorkspace/Backend/Abs.php
 
 		-
@@ -6576,11 +6541,6 @@ parameters:
 			path: tests/Backend/Snowflake/TimeTravelTest.php
 
 		-
-			message: "#^Parameter \\#2 \\$timestamp of function date expects int, int\\|false given\\.$#"
-			count: 2
-			path: tests/Backend/Snowflake/TimeTravelTest.php
-
-		-
 			message: "#^Property Keboola\\\\Test\\\\Backend\\\\Snowflake\\\\TimeTravelTest\\:\\:\\$downloadPath has no type specified\\.$#"
 			count: 1
 			path: tests/Backend/Snowflake/TimeTravelTest.php
@@ -7181,11 +7141,6 @@ parameters:
 			path: tests/Backend/Workspaces/Backend/ExasolWorkspaceBackend.php
 
 		-
-			message: "#^Parameter \\#1 \\$input of function array_values expects array, mixed given\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/Backend/ExasolWorkspaceBackend.php
-
-		-
 			message: "#^Property Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\Backend\\\\ExasolWorkspaceBackend\\:\\:\\$db \\(Doctrine\\\\DBAL\\\\Connection\\) does not accept Doctrine\\\\DBAL\\\\Connection\\|Keboola\\\\Db\\\\Import\\\\Snowflake\\\\Connection\\|PDO\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/Backend/ExasolWorkspaceBackend.php
@@ -7206,32 +7161,12 @@ parameters:
 			path: tests/Backend/Workspaces/Backend/InputMappingConverter.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\Backend\\\\InputMappingConverter\\:\\:convertColumnOrType\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/Backend/InputMappingConverter.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\Backend\\\\InputMappingConverter\\:\\:convertColumnOrType\\(\\) has parameter \\$backendType with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/Backend/InputMappingConverter.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\Backend\\\\InputMappingConverter\\:\\:convertColumnOrType\\(\\) has parameter \\$column with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/Backend/InputMappingConverter.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\Backend\\\\InputMappingConverter\\:\\:convertColumnsDefinition\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/Backend/InputMappingConverter.php
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\Backend\\\\InputMappingConverter\\:\\:convertColumnsDefinition\\(\\) has parameter \\$backendType with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/Backend/InputMappingConverter.php
-
-		-
-			message: "#^Parameter \\#2 \\$search of function array_key_exists expects array, array\\|string given\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/Backend/InputMappingConverter.php
 
