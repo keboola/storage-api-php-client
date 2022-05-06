@@ -51,7 +51,7 @@ class TimeTravelTest extends StorageApiTestCase
 
         $updatedTable = $this->_client->getTable($sourceTableId);
 
-        $newTableName = "new-table-name_" . date('Ymd_His', strtotime($timestamp));
+        $newTableName = "new-table-name_" . date('Ymd_His', (int) strtotime($timestamp));
 
         $replicaTableId = $this->_client->createTableFromSourceTableAtTimestamp(
             $this->getTestBucketId(self::STAGE_OUT),
@@ -102,7 +102,7 @@ class TimeTravelTest extends StorageApiTestCase
 
         $updatedTable = $this->_client->getTable($sourceTableId);
 
-        $newTableName = "new-table-name_" . date('Ymd_His', strtotime($timestamp));
+        $newTableName = "new-table-name_" . date('Ymd_His', (int) strtotime($timestamp));
 
         $replicaTableId = $this->_client->createTableFromSourceTableAtTimestamp(
             $this->getTestBucketId(self::STAGE_OUT),
