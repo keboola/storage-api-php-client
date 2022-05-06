@@ -10,7 +10,7 @@ use Keboola\Test\StorageApiTestCase;
 
 class WhereFilterTest extends StorageApiTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->_initEmptyTestBuckets();

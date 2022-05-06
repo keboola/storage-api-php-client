@@ -13,7 +13,7 @@ use Keboola\Csv\CsvFile;
 
 class TableExportTest extends StorageApiTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();

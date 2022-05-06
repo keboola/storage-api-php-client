@@ -19,7 +19,7 @@ class ExportParamsTest extends StorageApiTestCase
 {
 
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();

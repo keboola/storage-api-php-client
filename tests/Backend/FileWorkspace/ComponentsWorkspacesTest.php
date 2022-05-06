@@ -11,7 +11,7 @@ use Keboola\Test\Backend\FileWorkspace\Backend\Abs;
 
 class ComponentsWorkspacesTest extends FileWorkspaceTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

@@ -16,7 +16,7 @@ use Keboola\Csv\CsvFile;
 class SnapshottingTest extends StorageApiTestCase
 {
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();

@@ -15,7 +15,7 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
     /** @var Client */
     protected $workspaceSapiClient;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();

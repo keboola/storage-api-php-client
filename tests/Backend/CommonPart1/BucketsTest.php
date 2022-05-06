@@ -21,7 +21,7 @@ class BucketsTest extends StorageApiTestCase
 {
     use EventTesterUtils;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->_initEmptyTestBuckets();

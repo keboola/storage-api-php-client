@@ -11,7 +11,7 @@ use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class ComponentsWorkspacesTest extends WorkspacesTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

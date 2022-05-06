@@ -25,7 +25,7 @@ class MetadataTest extends StorageApiTestCase
     const ENDPOINT_TYPE_TABLES = 'tables';
     const ENDPOINT_TYPE_BUCKETS = 'buckets';
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->_initEmptyTestBuckets();

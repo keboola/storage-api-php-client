@@ -12,7 +12,7 @@ use Keboola\Test\StorageApiTestCase;
 
 class SystemColumnsTest extends StorageApiTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();

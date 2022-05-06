@@ -9,7 +9,7 @@ use Keboola\Test\StorageApiTestCase;
 
 class DevBranchesTest extends StorageApiTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

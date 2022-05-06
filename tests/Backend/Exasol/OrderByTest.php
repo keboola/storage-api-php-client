@@ -11,7 +11,7 @@ use function GuzzleHttp\json_encode;
 
 class OrderByTest extends StorageApiTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();

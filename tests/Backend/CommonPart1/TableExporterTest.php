@@ -25,7 +25,7 @@ class TableExporterTest extends StorageApiTestCase
     private $downloadPath;
     private $downloadPathGZip;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();

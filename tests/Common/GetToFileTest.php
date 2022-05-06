@@ -14,7 +14,7 @@ class GetToFileTest extends StorageApiTestCase
     /** @var string */
     private $downloadPath;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->_initEmptyTestBuckets();

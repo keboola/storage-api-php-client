@@ -24,7 +24,7 @@ use Keboola\Csv\CsvFile;
 class AlterTableTest extends StorageApiTestCase
 {
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();

@@ -15,7 +15,7 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class ExportParamsTest extends StorageApiTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->_initEmptyTestBuckets();

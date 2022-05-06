@@ -12,7 +12,7 @@ class MetadataFromExasolWorkspaceTest extends ParallelWorkspacesTestCase
 {
     use WorkspaceConnectionTrait;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

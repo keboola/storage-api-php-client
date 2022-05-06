@@ -25,7 +25,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
     /** @var Workspaces */
     private $workspaces2;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

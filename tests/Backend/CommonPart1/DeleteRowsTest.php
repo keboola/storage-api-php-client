@@ -16,7 +16,7 @@ use Keboola\StorageApi\Client;
 class DeleteRowsTest extends StorageApiTestCase
 {
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();

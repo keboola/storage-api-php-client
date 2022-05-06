@@ -27,7 +27,7 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
     /** @var Client */
     protected $shareRoleClient;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

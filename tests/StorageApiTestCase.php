@@ -96,7 +96,7 @@ abstract class StorageApiTestCase extends ClientTestCase
         static::assertEquals($expected, $actual);
     }
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->_client = $this->getDefaultClient();
         $this->tokens = new Tokens($this->_client);

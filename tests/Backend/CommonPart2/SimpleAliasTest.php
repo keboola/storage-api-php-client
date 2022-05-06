@@ -16,7 +16,7 @@ use Keboola\StorageApi\ClientException;
 
 class SimpleAliasTest extends StorageApiTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();

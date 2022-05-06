@@ -18,7 +18,7 @@ use Keboola\Csv\CsvFile;
 class ImportExportCommonTest extends StorageApiTestCase
 {
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();

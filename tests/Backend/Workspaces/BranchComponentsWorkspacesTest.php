@@ -15,7 +15,7 @@ class BranchComponentsWorkspacesTest extends ComponentsWorkspacesTest
     /** @var BranchAwareClient */
     private $branchAwareClient;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

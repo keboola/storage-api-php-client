@@ -11,7 +11,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 {
     private $tableId;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

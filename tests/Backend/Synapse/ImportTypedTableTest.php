@@ -12,7 +12,7 @@ use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
 
 class ImportTypedTableTest extends ParallelWorkspacesTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

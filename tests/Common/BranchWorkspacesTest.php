@@ -17,7 +17,7 @@ class BranchWorkspacesTest extends WorkspacesTest
 
     private $branchId;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

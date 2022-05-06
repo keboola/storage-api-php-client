@@ -28,7 +28,7 @@ class TokensTest extends StorageApiTestCase
     /** @var string */
     private $outBucketId;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

@@ -9,7 +9,7 @@ use Keboola\Test\StorageApiTestCase;
 
 class QueueJobsTest extends StorageApiTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->_initEmptyTestBuckets([Client::STAGE_IN]);

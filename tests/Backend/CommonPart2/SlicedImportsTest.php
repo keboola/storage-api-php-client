@@ -17,7 +17,7 @@ use Keboola\Csv\CsvFile;
 class SlicedImportsTest extends StorageApiTestCase
 {
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();

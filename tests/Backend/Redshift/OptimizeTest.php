@@ -12,7 +12,7 @@ use Keboola\Csv\CsvFile;
 
 class OptimizeTest extends StorageApiTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->_initEmptyTestBuckets();

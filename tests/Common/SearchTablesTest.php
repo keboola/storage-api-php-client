@@ -13,7 +13,7 @@ class SearchTablesTest extends StorageApiTestCase
 {
     const TEST_PROVIDER = "keboola.sapi_client_tests";
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->_initEmptyTestBuckets();

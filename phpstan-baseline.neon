@@ -3266,11 +3266,6 @@ parameters:
 			path: tests/Backend/CommonPart1/AlterTableTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\AlterTableTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/AlterTableTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\AlterTableTest\\:\\:testTableColumnNameShouldBeWebalized\\(\\) has parameter \\$expectedColumnName with no type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart1/AlterTableTest.php
@@ -3311,11 +3306,6 @@ parameters:
 			path: tests/Backend/CommonPart1/BucketsTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\BucketsTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/BucketsTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\BucketsTest\\:\\:testBucketAttributesReplaceValidation\\(\\) has parameter \\$attributes with no type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart1/BucketsTest.php
@@ -3332,11 +3322,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\CreateTableTest\\:\\:invalidPrimaryKeys\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/CreateTableTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\CreateTableTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart1/CreateTableTest.php
 
@@ -3446,11 +3431,6 @@ parameters:
 			path: tests/Backend/CommonPart1/DataPreviewLimitsTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\DataPreviewLimitsTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/DataPreviewLimitsTest.php
-
-		-
 			message: "#^Offset 'columns' does not exist on array\\{string\\}\\.$#"
 			count: 2
 			path: tests/Backend/CommonPart1/DataPreviewLimitsTest.php
@@ -3481,11 +3461,6 @@ parameters:
 			path: tests/Backend/CommonPart1/DataPreviewLimitsTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\DeleteRowsTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/DeleteRowsTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\DeleteRowsTest\\:\\:tableDeleteRowsByFiltersData\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart1/DeleteRowsTest.php
@@ -3511,18 +3486,8 @@ parameters:
 			path: tests/Backend/CommonPart1/DeleteRowsTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\DeleteTableTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/DeleteTableTest.php
-
-		-
 			message: "#^Binary operation \"\\-\" between string and 1 results in an error\\.$#"
 			count: 2
-			path: tests/Backend/CommonPart1/ExportParamsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\ExportParamsTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
 			path: tests/Backend/CommonPart1/ExportParamsTest.php
 
 		-
@@ -3572,11 +3537,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\ImportExportCommonTest\\:\\:incrementalImportPkDedupeData\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/ImportExportCommonTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\ImportExportCommonTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart1/ImportExportCommonTest.php
 
@@ -3691,16 +3651,6 @@ parameters:
 			path: tests/Backend/CommonPart1/ImportExportCommonTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\LegacyIndexedColumnsTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/LegacyIndexedColumnsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\TableExporterTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/TableExporterTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\TableExporterTest\\:\\:tableExportData\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart1/TableExporterTest.php
@@ -3742,11 +3692,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart2\\\\MetricsTest\\:\\:importMetricsData\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart2/MetricsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart2\\\\MetricsTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart2/MetricsTest.php
 
@@ -3816,11 +3761,6 @@ parameters:
 			path: tests/Backend/CommonPart2/SimpleAliasTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart2\\\\SimpleAliasTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart2/SimpleAliasTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart2\\\\SimpleAliasTest\\:\\:testFilteredAliases\\(\\) has parameter \\$expectedResult with no type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart2/SimpleAliasTest.php
@@ -3846,11 +3786,6 @@ parameters:
 			path: tests/Backend/CommonPart2/SimpleAliasTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart2\\\\SlicedImportsTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart2/SlicedImportsTest.php
-
-		-
 			message: "#^Parameter \\#3 \\$content of method MicrosoftAzure\\\\Storage\\\\Blob\\\\BlobRestProxy\\:\\:createBlockBlob\\(\\) expects Psr\\\\Http\\\\Message\\\\StreamInterface\\|resource\\|string, resource\\|false given\\.$#"
 			count: 2
 			path: tests/Backend/CommonPart2/SlicedImportsTest.php
@@ -3861,17 +3796,7 @@ parameters:
 			path: tests/Backend/CommonPart2/SlicedImportsTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart2\\\\SlicedImportsWithSlicedUploadsTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart2/SlicedImportsWithSlicedUploadsTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart2\\\\SnapshottingTest\\:\\:filterIdAndTimestampFromMetadataArray\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart2/SnapshottingTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart2\\\\SnapshottingTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart2/SnapshottingTest.php
 
@@ -3882,11 +3807,6 @@ parameters:
 
 		-
 			message: "#^Cannot access offset 'importedColumns' on mixed\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart2/SystemColumnsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart2\\\\SystemColumnsTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart2/SystemColumnsTest.php
 
@@ -3917,11 +3837,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Exasol\\\\OrderByTest\\:\\:prepareTable\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Exasol/OrderByTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Exasol\\\\OrderByTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Exasol/OrderByTest.php
 
@@ -3961,11 +3876,6 @@ parameters:
 			path: tests/Backend/Exasol/TableDefinitionOperationsTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Exasol\\\\TableDefinitionOperationsTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Exasol/TableDefinitionOperationsTest.php
-
-		-
 			message: "#^Offset 'rows' does not exist on string\\.$#"
 			count: 4
 			path: tests/Backend/Exasol/TableDefinitionOperationsTest.php
@@ -4001,11 +3911,6 @@ parameters:
 			path: tests/Backend/Exasol/WhereFilterTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Exasol\\\\WhereFilterTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Exasol/WhereFilterTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$csvString of static method Keboola\\\\StorageApi\\\\Client\\:\\:parseCsv\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: tests/Backend/Exasol/WhereFilterTest.php
@@ -4023,11 +3928,6 @@ parameters:
 		-
 			message: "#^Cannot access offset 'Key' on mixed\\.$#"
 			count: 2
-			path: tests/Backend/Export/ExportParamsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Export\\\\ExportParamsTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
 			path: tests/Backend/Export/ExportParamsTest.php
 
 		-
@@ -4104,11 +4004,6 @@ parameters:
 			message: "#^Parameter \\#3 \\$content of method MicrosoftAzure\\\\Storage\\\\Blob\\\\BlobRestProxy\\:\\:createBlockBlob\\(\\) expects Psr\\\\Http\\\\Message\\\\StreamInterface\\|resource\\|string, resource\\|false given\\.$#"
 			count: 1
 			path: tests/Backend/FileWorkspace/Backend/Abs.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\FileWorkspace\\\\ComponentsWorkspacesTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/FileWorkspace/ComponentsWorkspacesTest.php
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\FileWorkspace\\\\WorkspacesLoadTest\\:\\:assertManifest\\(\\) has no return type specified\\.$#"
@@ -4661,11 +4556,6 @@ parameters:
 			path: tests/Backend/Mixed/StorageApiSharingTestCase.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\StorageApiSharingTestCase\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Mixed/StorageApiSharingTestCase.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\StorageApiSharingTestCase\\:\\:sharingBackendData\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Mixed/StorageApiSharingTestCase.php
@@ -4936,16 +4826,6 @@ parameters:
 			path: tests/Backend/MixedSnowflakeSynapse/SharingTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Redshift\\\\CommonTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Redshift/CommonTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Redshift\\\\CreateTableTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Redshift/CreateTableTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Redshift\\\\CreateTableTest\\:\\:syncAsyncData\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Redshift/CreateTableTest.php
@@ -4966,37 +4846,7 @@ parameters:
 			path: tests/Backend/Redshift/DedupeTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Redshift\\\\DedupeTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Redshift/DedupeTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Redshift\\\\FulltextSearchTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Redshift/FulltextSearchTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Redshift\\\\ImportExportCommonTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Redshift/ImportExportCommonTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Redshift\\\\OptimizeTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Redshift/OptimizeTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Redshift\\\\OrderByTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Redshift/OrderByTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Redshift\\\\WhereFilterTest\\:\\:conditionProvider\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Redshift/WhereFilterTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Redshift\\\\WhereFilterTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Redshift/WhereFilterTest.php
 
@@ -5041,11 +4891,6 @@ parameters:
 			path: tests/Backend/Snowflake/FulltextSearchTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Snowflake\\\\FulltextSearchTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Snowflake/FulltextSearchTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Snowflake\\\\OrderByTest\\:\\:getExportedTable\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Snowflake/OrderByTest.php
@@ -5067,11 +4912,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Snowflake\\\\OrderByTest\\:\\:prepareTable\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Snowflake/OrderByTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Snowflake\\\\OrderByTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Snowflake/OrderByTest.php
 
@@ -5111,19 +4951,9 @@ parameters:
 			path: tests/Backend/Snowflake/TableExportTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Snowflake\\\\TableExportTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Snowflake/TableExportTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$tableId of method Keboola\\\\StorageApi\\\\Client\\:\\:getTableDataPreview\\(\\) expects string, mixed given\\.$#"
 			count: 2
 			path: tests/Backend/Snowflake/TableExportTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Snowflake\\\\TimeTravelTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Snowflake/TimeTravelTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$bucketId of method Keboola\\\\StorageApi\\\\Client\\:\\:listTables\\(\\) expects string\\|null, mixed given\\.$#"
@@ -5176,11 +5006,6 @@ parameters:
 			path: tests/Backend/Snowflake/WhereFilterTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Snowflake\\\\WhereFilterTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Snowflake/WhereFilterTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$csvString of static method Keboola\\\\StorageApi\\\\Client\\:\\:parseCsv\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: tests/Backend/Snowflake/WhereFilterTest.php
@@ -5196,27 +5021,12 @@ parameters:
 			path: tests/Backend/Synapse/CreateTableTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Synapse\\\\CreateTableTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Synapse/CreateTableTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Synapse\\\\FulltextSearchTest\\:\\:prepareTable\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Synapse/FulltextSearchTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Synapse\\\\FulltextSearchTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Synapse/FulltextSearchTest.php
-
-		-
 			message: "#^Call to an undefined method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\Backend\\\\WorkspaceBackend\\:\\:getTableReflection\\(\\)\\.$#"
-			count: 1
-			path: tests/Backend/Synapse/ImportTypedTableTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Synapse\\\\ImportTypedTableTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Synapse/ImportTypedTableTest.php
 
@@ -5242,11 +5052,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Synapse\\\\OrderByTest\\:\\:prepareTable\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Synapse/OrderByTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Synapse\\\\OrderByTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Synapse/OrderByTest.php
 
@@ -5281,22 +5086,12 @@ parameters:
 			path: tests/Backend/Synapse/OrderByTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Synapse\\\\SnapshottingTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Synapse/SnapshottingTest.php
-
-		-
 			message: "#^Parameter \\#3 \\$name of method Keboola\\\\StorageApi\\\\Client\\:\\:createTableFromSnapshot\\(\\) expects null, string given\\.$#"
 			count: 2
 			path: tests/Backend/Synapse/SnapshottingTest.php
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Synapse\\\\TableDefinitionOperationsTest\\:\\:createTableDefinition\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Synapse/TableDefinitionOperationsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Synapse\\\\TableDefinitionOperationsTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Synapse/TableDefinitionOperationsTest.php
 
@@ -5332,11 +5127,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Synapse\\\\WhereFilterTest\\:\\:prepareTable\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Synapse/WhereFilterTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Synapse\\\\WhereFilterTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Synapse/WhereFilterTest.php
 
@@ -5956,16 +5746,6 @@ parameters:
 			path: tests/Backend/Workspaces/Backend/WorkspaceBackendFactory.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\BranchComponentsWorkspacesTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/BranchComponentsWorkspacesTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\ComponentsWorkspacesTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/ComponentsWorkspacesTest.php
-
-		-
 			message: "#^Call to an undefined method Doctrine\\\\DBAL\\\\Connection\\|Keboola\\\\Db\\\\Import\\\\Snowflake\\\\Connection\\|PDO\\:\\:getDatabasePlatform\\(\\)\\.$#"
 			count: 3
 			path: tests/Backend/Workspaces/ExasolWorkspacesUnloadTest.php
@@ -6186,11 +5966,6 @@ parameters:
 			path: tests/Backend/Workspaces/MetadataFromExasolWorkspaceTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\MetadataFromExasolWorkspaceTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/MetadataFromExasolWorkspaceTest.php
-
-		-
 			message: "#^Unreachable statement \\- code above always terminates\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/MetadataFromExasolWorkspaceTest.php
@@ -6211,11 +5986,6 @@ parameters:
 			path: tests/Backend/Workspaces/MetadataFromRedshiftWorkspaceTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\MetadataFromRedshiftWorkspaceTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/MetadataFromRedshiftWorkspaceTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\MetadataFromSnowflakeWorkspaceTest\\:\\:assertMetadata\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/MetadataFromSnowflakeWorkspaceTest.php
@@ -6227,11 +5997,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\MetadataFromSnowflakeWorkspaceTest\\:\\:assertMetadata\\(\\) has parameter \\$metadata with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/MetadataFromSnowflakeWorkspaceTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\MetadataFromSnowflakeWorkspaceTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/MetadataFromSnowflakeWorkspaceTest.php
 
@@ -6256,11 +6021,6 @@ parameters:
 			path: tests/Backend/Workspaces/MetadataFromSynapseWorkspaceTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\MetadataFromSynapseWorkspaceTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/MetadataFromSynapseWorkspaceTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\ParallelWorkspacesTestCase\\:\\:deleteOldTestWorkspaces\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/ParallelWorkspacesTestCase.php
@@ -6281,17 +6041,7 @@ parameters:
 			path: tests/Backend/Workspaces/ParallelWorkspacesTestCase.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\ParallelWorkspacesTestCase\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/ParallelWorkspacesTestCase.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\SnowflakeDynamicBackendsTest\\:\\:assertDataInWorkspace\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/SnowflakeDynamicBackendsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\SnowflakeDynamicBackendsTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/SnowflakeDynamicBackendsTest.php
 
@@ -6671,11 +6421,6 @@ parameters:
 			path: tests/Backend/Workspaces/WorkspacesTestCase.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\WorkspacesTestCase\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/WorkspacesTestCase.php
-
-		-
 			message: "#^Cannot access offset 'id' on mixed\\.$#"
 			count: 8
 			path: tests/Backend/Workspaces/WorkspacesUnloadTest.php
@@ -6694,16 +6439,6 @@ parameters:
 			message: "#^Method Keboola\\\\Test\\\\ClientTestCase\\:\\:getBranchAwareDefaultClient\\(\\) has parameter \\$branchId with no type specified\\.$#"
 			count: 1
 			path: tests/ClientTestCase.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\BranchBucketsTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/BranchBucketsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\BranchComponentTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/BranchComponentTest.php
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\BranchComponentTest\\:\\:withoutKeysChangingInBranch\\(\\) has no return type specified\\.$#"
@@ -6731,11 +6466,6 @@ parameters:
 			path: tests/Common/BranchWorkspacesTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\BranchWorkspacesTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/BranchWorkspacesTest.php
-
-		-
 			message: "#^Property Keboola\\\\Test\\\\Common\\\\BranchWorkspacesTest\\:\\:\\$RETRY_FAIL_MESSAGE has no type specified\\.$#"
 			count: 1
 			path: tests/Common/BranchWorkspacesTest.php
@@ -6744,11 +6474,6 @@ parameters:
 			message: "#^Property Keboola\\\\Test\\\\Common\\\\BranchWorkspacesTest\\:\\:\\$branchId has no type specified\\.$#"
 			count: 1
 			path: tests/Common/BranchWorkspacesTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\ComponentsEventsTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/ComponentsEventsTest.php
 
 		-
 			message: "#^Cannot access offset 'id' on mixed\\.$#"
@@ -6791,11 +6516,6 @@ parameters:
 			path: tests/Common/ComponentsTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\ComponentsTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/ComponentsTest.php
-
-		-
 			message: "#^Parameter \\#2 \\$return of function print_r expects bool, int given\\.$#"
 			count: 1
 			path: tests/Common/ComponentsTest.php
@@ -6824,16 +6544,6 @@ parameters:
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\ConfigurationMetadataTest\\:\\:createConfiguration\\(\\) has parameter \\$name with no type specified\\.$#"
 			count: 1
 			path: tests/Common/ConfigurationMetadataTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\ConfigurationMetadataTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/ConfigurationMetadataTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\ConfigurationRowStateTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/ConfigurationRowStateTest.php
 
 		-
 			message: "#^Cannot access property \\$changeDescription on mixed\\.$#"
@@ -6871,29 +6581,9 @@ parameters:
 			path: tests/Common/ConfigurationRowTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\ConfigurationRowTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/ConfigurationRowTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\ConfigurationRowsSortOrderTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/ConfigurationRowsSortOrderTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\DevBranchesTest\\:\\:assertAccessForbiddenException\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Common/DevBranchesTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\DevBranchesTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/DevBranchesTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\EventsAttachmentTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/EventsAttachmentTest.php
 
 		-
 			message: "#^Cannot access property \\$params on mixed\\.$#"
@@ -6951,21 +6641,6 @@ parameters:
 			path: tests/Common/GetToFileTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\GetToFileTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/GetToFileTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\JobPollDelayTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/JobPollDelayTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\JobsListTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/JobsListTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\MetadataTest\\:\\:apiEndpoints\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Common/MetadataTest.php
@@ -7021,11 +6696,6 @@ parameters:
 			path: tests/Common/MetadataTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\MetadataTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/MetadataTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\MetadataTest\\:\\:testInvalidMetadata\\(\\) has parameter \\$apiEndpoint with no type specified\\.$#"
 			count: 1
 			path: tests/Common/MetadataTest.php
@@ -7067,11 +6737,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\QueueJobsTest\\:\\:invalidQueueCreateTableOptions\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/QueueJobsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\QueueJobsTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Common/QueueJobsTest.php
 
@@ -7146,11 +6811,6 @@ parameters:
 			path: tests/Common/SearchComponentsConfigurationsTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\SearchComponentsConfigurationsTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/SearchComponentsConfigurationsTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\SearchComponentsConfigurationsTest\\:\\:sortResponse\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Common/SearchComponentsConfigurationsTest.php
@@ -7177,11 +6837,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\SearchTablesTest\\:\\:_initTable\\(\\) has parameter \\$tableName with no type specified\\.$#"
-			count: 1
-			path: tests/Common/SearchTablesTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\SearchTablesTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Common/SearchTablesTest.php
 
@@ -7221,22 +6876,12 @@ parameters:
 			path: tests/Common/SlicedFilesUploadTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\StatsTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/StatsTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$previousRunId of method Keboola\\\\StorageApi\\\\Client\\:\\:generateRunId\\(\\) expects null, string given\\.$#"
 			count: 1
 			path: tests/Common/StatsTest.php
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\TablesListingTest\\:\\:invalidAttributes\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/TablesListingTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\TablesListingTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Common/TablesListingTest.php
 
@@ -7287,11 +6932,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\TokensTest\\:\\:provideInvalidOptionsForGuestUser\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/TokensTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\TokensTest\\:\\:setUp\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Common/TokensTest.php
 
@@ -7651,11 +7291,6 @@ parameters:
 			path: tests/StorageApiTestCase.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\StorageApiTestCase\\:\\:setUp\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/StorageApiTestCase.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\StorageApiTestCase\\:\\:tableExportFiltersData\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/StorageApiTestCase.php
@@ -7714,4 +7349,3 @@ parameters:
 			message: "#^Parameter \\#1 \\$filename of function file_get_contents expects string, string\\|false given\\.$#"
 			count: 1
 			path: tests/bootstrap.php
-
