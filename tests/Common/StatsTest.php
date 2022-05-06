@@ -59,7 +59,7 @@ class StatsTest extends StorageApiTestCase
         $this->assertCount(0, $files['tags']['tags']);
     }
 
-    public function testRunIdStats()
+    public function testRunIdStats(): void
     {
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
@@ -105,7 +105,7 @@ class StatsTest extends StorageApiTestCase
         $this->assertCount(2, $files['tags']['tags']);
     }
 
-    public function testEmptyStatsResults()
+    public function testEmptyStatsResults(): void
     {
         $stats = $this->_client->getStats((new \Keboola\StorageApi\Options\StatsOptions())->setRunId($this->_client->generateRunId()));
 
@@ -115,7 +115,7 @@ class StatsTest extends StorageApiTestCase
         $this->assertEquals(0, $stats['files']['total']['count']);
     }
 
-    public function testStatsMissingParam()
+    public function testStatsMissingParam(): void
     {
         try {
             $this->_client->getStats(new \Keboola\StorageApi\Options\StatsOptions());

@@ -349,7 +349,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
         }
     }
 
-    public function testDataTypesLoadToRedshift()
+    public function testDataTypesLoadToRedshift(): void
     {
 
         $bucketBackend = self::BACKEND_SNOWFLAKE;

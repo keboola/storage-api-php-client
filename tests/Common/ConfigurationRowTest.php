@@ -47,7 +47,7 @@ class ConfigurationRowTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testConfigurationCopyCreateWithSameRowId()
+    public function testConfigurationCopyCreateWithSameRowId(): void
     {
         $components = new \Keboola\StorageApi\Components($this->client);
 
@@ -94,7 +94,7 @@ class ConfigurationRowTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testConfigurationRowReturnsSingleRow()
+    public function testConfigurationRowReturnsSingleRow(): void
     {
         $components = new Components($this->client);
         $configuration = new Configuration();
@@ -124,7 +124,7 @@ class ConfigurationRowTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testConfigurationRowThrowsNotFoundException()
+    public function testConfigurationRowThrowsNotFoundException(): void
     {
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Row invalidRowID not found');
@@ -147,7 +147,7 @@ class ConfigurationRowTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testConfigurationRowJsonDataTypes()
+    public function testConfigurationRowJsonDataTypes(): void
     {
         $components = new \Keboola\StorageApi\Components($this->client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
@@ -252,7 +252,7 @@ class ConfigurationRowTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testConfigurationRowIsDisabledBooleanValue()
+    public function testConfigurationRowIsDisabledBooleanValue(): void
     {
         $components = new \Keboola\StorageApi\Components($this->client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();

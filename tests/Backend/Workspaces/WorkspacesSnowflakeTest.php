@@ -12,7 +12,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
 {
     use WorkspaceConnectionTrait;
 
-    public function testCreateNotSupportedBackend()
+    public function testCreateNotSupportedBackend(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         try {
@@ -23,7 +23,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testLoadDataTypesDefaults()
+    public function testLoadDataTypesDefaults(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -105,7 +105,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $this->assertEquals("VARCHAR(16777216)", $table[1]['type']);
     }
 
-    public function testStatementTimeout()
+    public function testStatementTimeout(): void
     {
         $workspace = $this->initTestWorkspace();
 
@@ -117,7 +117,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $this->assertEquals($workspace['statementTimeoutSeconds'], $timeout);
     }
 
-    public function testClientSessionKeepAlive()
+    public function testClientSessionKeepAlive(): void
     {
         $workspace = $this->initTestWorkspace();
 
@@ -130,7 +130,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $this->assertEquals('true', $isKeepAlive);
     }
 
-    public function testTransientTables()
+    public function testTransientTables(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -199,7 +199,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $this->assertEquals('users', $tables[1]['name']);
     }
 
-    public function testLoadedPrimaryKeys()
+    public function testLoadedPrimaryKeys(): void
     {
         $primaries = ['Paid_Search_Engine_Account', 'Date', 'Paid_Search_Campaign', 'Paid_Search_Ad_ID', 'Site__DFA'];
         $pkTableId = $this->_client->createTable(
@@ -262,7 +262,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $this->assertEquals("VARCHAR(16777216)", $cols[1]['type']);
     }
 
-    public function testLoadIncremental()
+    public function testLoadIncremental(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -343,7 +343,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $this->assertEquals(3, $backend->countRows("languagesDetails"));
     }
 
-    public function testLoadIncrementalAndPreserve()
+    public function testLoadIncrementalAndPreserve(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -415,7 +415,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testLoadIncrementalNullable()
+    public function testLoadIncrementalNullable(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -511,7 +511,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testLoadIncrementalNotNullable()
+    public function testLoadIncrementalNotNullable(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -655,7 +655,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testOutBytesMetricsWithLoadWorkspaceWithRows()
+    public function testOutBytesMetricsWithLoadWorkspaceWithRows(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();
@@ -704,7 +704,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $this->assertEquals(15, $backend->countRows('rates'));
     }
 
-    public function testOutBytesMetricsWithLoadWorkspaceWithSeconds()
+    public function testOutBytesMetricsWithLoadWorkspaceWithSeconds(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $workspaces->createWorkspace();

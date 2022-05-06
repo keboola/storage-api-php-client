@@ -26,7 +26,7 @@ class BranchComponentsWorkspacesTest extends ComponentsWorkspacesTest
         $this->branchAwareClient = $this->getBranchAwareDefaultClient($branch['id']);
     }
 
-    public function testWorkspace()
+    public function testWorkspace(): void
     {
         $componentId = 'wr-db';
         $configurationId = 'main-1';

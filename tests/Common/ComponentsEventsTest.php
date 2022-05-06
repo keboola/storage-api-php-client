@@ -65,7 +65,7 @@ class ComponentsEventsTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testConfigurationChange()
+    public function testConfigurationChange(): void
     {
         $components = new Components($this->client);
         $config = $this->getConfiguration();
@@ -120,7 +120,7 @@ class ComponentsEventsTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testConfigurationCreate()
+    public function testConfigurationCreate(): void
     {
         $components = new Components($this->client);
 
@@ -220,7 +220,7 @@ class ComponentsEventsTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testConfigurationRestore()
+    public function testConfigurationRestore(): void
     {
         $components = new Components($this->client);
 
@@ -250,7 +250,7 @@ class ComponentsEventsTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testConfigurationVersionCopy()
+    public function testConfigurationVersionCopy(): void
     {
         $components = new Components($this->client);
 
@@ -290,7 +290,7 @@ class ComponentsEventsTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testConfigurationVersionRollback()
+    public function testConfigurationVersionRollback(): void
     {
         $components = new Components($this->client);
 
@@ -327,7 +327,7 @@ class ComponentsEventsTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testRowsChange()
+    public function testRowsChange(): void
     {
         $components = new Components($this->client);
 
@@ -377,7 +377,7 @@ class ComponentsEventsTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testRowsCreate()
+    public function testRowsCreate(): void
     {
         $components = new Components($this->client);
 
@@ -412,7 +412,7 @@ class ComponentsEventsTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testRowsDelete()
+    public function testRowsDelete(): void
     {
         $components = new Components($this->client);
 
@@ -449,7 +449,7 @@ class ComponentsEventsTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testRowsVersionCreate()
+    public function testRowsVersionCreate(): void
     {
         $components = new Components($this->client);
 
@@ -502,7 +502,7 @@ class ComponentsEventsTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testRowsVersionRollback()
+    public function testRowsVersionRollback(): void
     {
         $components = new Components($this->client);
 

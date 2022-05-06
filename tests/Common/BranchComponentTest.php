@@ -29,7 +29,7 @@ class BranchComponentTest extends StorageApiTestCase
     /**
      * @return void
      */
-    public function testCreateFromVersionCreateRowsAndVersions()
+    public function testCreateFromVersionCreateRowsAndVersions(): void
     {
         $componentId = 'transformation';
         $configurationId = 'main-1';
@@ -105,7 +105,7 @@ class BranchComponentTest extends StorageApiTestCase
         }
     }
 
-    public function testResetToDefault()
+    public function testResetToDefault(): void
     {
         $providedToken = $this->_client->verifyToken();
         $devBranchClient = new \Keboola\StorageApi\DevBranches($this->_client);
@@ -353,7 +353,7 @@ class BranchComponentTest extends StorageApiTestCase
         return $branch;
     }
 
-    public function testManipulationWithComponentConfigurations()
+    public function testManipulationWithComponentConfigurations(): void
     {
         // create new configurations in main branch
         $componentId = 'transformation';
@@ -1095,7 +1095,7 @@ class BranchComponentTest extends StorageApiTestCase
         );
     }
 
-    public function testDeleteBranchConfiguration()
+    public function testDeleteBranchConfiguration(): void
     {
         // create new configurations in main branch
         $componentId = 'transformation';
@@ -1185,7 +1185,7 @@ class BranchComponentTest extends StorageApiTestCase
         }
     }
 
-    public function testDeleteBranchConfigurationRow()
+    public function testDeleteBranchConfigurationRow(): void
     {
         // create new configurations in main branch
         $componentId = 'transformation';

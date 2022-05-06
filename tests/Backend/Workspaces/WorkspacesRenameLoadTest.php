@@ -12,7 +12,7 @@ use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
 {
-    public function testLoadIncremental()
+    public function testLoadIncremental(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -133,7 +133,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
         $this->assertEquals($expectedData, $workspaceData);
     }
 
-    public function testDottedDestination()
+    public function testDottedDestination(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -188,7 +188,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testIncrementalAdditionalColumns()
+    public function testIncrementalAdditionalColumns(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -272,7 +272,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testIncrementalMissingColumns()
+    public function testIncrementalMissingColumns(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();

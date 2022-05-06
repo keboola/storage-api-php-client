@@ -11,7 +11,7 @@ use Keboola\Test\StorageApiTestCase;
 
 class PromiseResultHandlerTest extends StorageApiTestCase
 {
-    public function testGetRejected()
+    public function testGetRejected(): void
     {
         $results = [
             "filepath1" => [
@@ -31,7 +31,7 @@ class PromiseResultHandlerTest extends StorageApiTestCase
         $this->assertEquals('DummyKey', $rejected["filepath2"]->getKey());
     }
 
-    public function testGetRejectedException()
+    public function testGetRejectedException(): void
     {
         $results = [
             "filepath" => [

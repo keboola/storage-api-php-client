@@ -56,7 +56,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         return $this->_client->createTableDefinition($bucketId, $data);
     }
 
-    public function testDataPreviewForTableDefinitionWithDecimalType()
+    public function testDataPreviewForTableDefinitionWithDecimalType(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -285,7 +285,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $this->assertCount(1, $data['rows']);
     }
 
-    public function testTableWithDot()
+    public function testTableWithDot(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -306,7 +306,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $this->_client->createTableDefinition($bucketId, $tableDefinition);
     }
 
-    public function testAddColumnOnTypedTable()
+    public function testAddColumnOnTypedTable(): void
     {
         $tableDefinition = [
             'name' => 'my-new-table-add-column',
@@ -407,7 +407,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         }
     }
 
-    public function testAddTypedColumnToNonTypedTableShouldFail()
+    public function testAddTypedColumnToNonTypedTableShouldFail(): void
     {
         $tableDefinition = [
             'name' => 'my-new-table-typed-add-column',
@@ -437,7 +437,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $this->_client->addTableColumn($sourceTableId, 'addColumn');
     }
 
-    public function testDropColumnOnTypedTable()
+    public function testDropColumnOnTypedTable(): void
     {
         $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $this->tableId, 'table-1');
         $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $firstAliasTableId, 'table-2');
@@ -456,7 +456,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $this->assertEquals($expectedColumns, $this->_client->getTable($secondAliasTableId)['columns']);
     }
 
-    public function testPrimaryKeyOperationsOnTypedTable()
+    public function testPrimaryKeyOperationsOnTypedTable(): void
     {
         $this->_client->removeTablePrimaryKey($this->tableId);
         $this->_client->createTablePrimaryKey($this->tableId, ['id']);
@@ -472,7 +472,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $this->_client->createTablePrimaryKey($this->tableId, ['id', 'name']);
     }
 
-    public function testCreateSnapshotOnTypedTable()
+    public function testCreateSnapshotOnTypedTable(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 

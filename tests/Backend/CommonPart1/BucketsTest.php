@@ -27,7 +27,7 @@ class BucketsTest extends StorageApiTestCase
         $this->_initEmptyTestBuckets();
     }
 
-    public function testBucketsList()
+    public function testBucketsList(): void
     {
         $buckets = $this->_client->listBuckets();
 
@@ -52,7 +52,7 @@ class BucketsTest extends StorageApiTestCase
         $this->assertNotEquals('', $firstBucket['displayName']);
     }
 
-    public function testBucketDetail()
+    public function testBucketDetail(): void
     {
         $displayName = "Romanov-Bucket";
         $bucketName = 'BucketsTest_testBucketDetail';
@@ -116,7 +116,7 @@ class BucketsTest extends StorageApiTestCase
         $this->_client->dropBucket($bucket['id']);
     }
 
-    public function testBucketEvents()
+    public function testBucketEvents(): void
     {
         $this->initEvents($this->_client);
 
@@ -144,7 +144,7 @@ class BucketsTest extends StorageApiTestCase
         );
     }
 
-    public function testBucketsListWithIncludeParameter()
+    public function testBucketsListWithIncludeParameter(): void
     {
         $buckets = $this->_client->listBuckets(array(
             'include' => '',
@@ -154,7 +154,7 @@ class BucketsTest extends StorageApiTestCase
         $this->assertArrayNotHasKey('attributes', $firstBucket);
     }
 
-    public function testBucketsListWithIncludeMetadata()
+    public function testBucketsListWithIncludeMetadata(): void
     {
         $buckets = $this->_client->listBuckets(array(
             'include' => 'metadata',
@@ -194,7 +194,7 @@ class BucketsTest extends StorageApiTestCase
         self::assertEquals('test-value', $firstBucket['metadata'][0]['value']);
     }
 
-    public function testBucketCreateWithInvalidBackend()
+    public function testBucketCreateWithInvalidBackend(): void
     {
         try {
             $this->_client->createBucket('unknown-backend', 'in', 'desc', 'redshit');
@@ -204,7 +204,7 @@ class BucketsTest extends StorageApiTestCase
         }
     }
 
-    public function testBucketManipulation()
+    public function testBucketManipulation(): void
     {
         $tokenData = $this->_client->verifyToken();
 
@@ -343,7 +343,7 @@ class BucketsTest extends StorageApiTestCase
         }, $buckets)));
     }
 
-    public function testBucketCreateWithoutDescription()
+    public function testBucketCreateWithoutDescription(): void
     {
         $bucketId = $this->_client->createBucket('something', self::STAGE_IN);
         $bucket = $this->_client->getBucket($bucketId);
@@ -351,7 +351,7 @@ class BucketsTest extends StorageApiTestCase
         $this->_client->dropBucket($bucket['id']);
     }
 
-    public function testBucketAttributes()
+    public function testBucketAttributes(): void
     {
         $bucketId = $this->getTestBucketId();
 
@@ -406,13 +406,13 @@ class BucketsTest extends StorageApiTestCase
         $this->_client->deleteBucketAttribute($bucketId, 'other');
     }
 
-    public function testBucketExists()
+    public function testBucketExists(): void
     {
         $this->assertTrue($this->_client->bucketExists($this->getTestBucketId()));
         $this->assertFalse($this->_client->bucketExists('in.ukulele'));
     }
 
-    public function testBucketAttributesReplace()
+    public function testBucketAttributesReplace(): void
     {
         $bucketId = $this->getTestBucketId();
         $this->clearBucketAttributes($bucketId);
@@ -439,7 +439,7 @@ class BucketsTest extends StorageApiTestCase
         $this->assertFalse($bucket['attributes'][0]['protected']);
     }
 
-    public function testBucketAttributesClear()
+    public function testBucketAttributesClear(): void
     {
         $bucketId = $this->getTestBucketId();
         $this->clearBucketAttributes($bucketId);

@@ -18,7 +18,7 @@ class DedupeTest extends StorageApiTestCase
         $this->_initEmptyTestBuckets();
     }
 
-    public function testDedupe()
+    public function testDedupe(): void
     {
         $importFile = __DIR__ . '/../../_data/languages.duplicates.csv';
 

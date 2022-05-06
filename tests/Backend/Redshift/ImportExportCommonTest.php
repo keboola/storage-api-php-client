@@ -19,7 +19,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         $this->_initEmptyTestBuckets();
     }
 
-    public function testRedshiftErrorInCsv()
+    public function testRedshiftErrorInCsv(): void
     {
         $tableId = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),
@@ -38,7 +38,7 @@ class ImportExportCommonTest extends StorageApiTestCase
     /**
      * Enclosure and escaped by should not be specified together
      */
-    public function testRedshiftUnsupportedCsvParams()
+    public function testRedshiftUnsupportedCsvParams(): void
     {
         $tableId = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),

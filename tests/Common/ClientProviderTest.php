@@ -36,7 +36,7 @@ class ClientProviderTest extends StorageApiTestCase
      * @dataProvider provideDefaultBranchClientProvider
      * @return void
      */
-    public function testClientProviderForDefaultBranch()
+    public function testClientProviderForDefaultBranch(): void
     {
         $defaultBranchId = $this->getDefaultBranchId($this);
 
@@ -57,7 +57,7 @@ class ClientProviderTest extends StorageApiTestCase
      * @dataProvider provideDevBranchClientProvider
      * @return void
      */
-    public function testClientProviderForDevBranch()
+    public function testClientProviderForDevBranch(): void
     {
         $devBranchId = $this->clientProvider->getExistingBranchForTestCase()['id'];
         $defaultBranchId = $this->getDefaultBranchId($this);

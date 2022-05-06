@@ -141,7 +141,7 @@ class AwsFileTest extends StorageApiTestCase
         );
     }
 
-    public function testRequireEncryptionForSliced()
+    public function testRequireEncryptionForSliced(): void
     {
         // sliced file
         $uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
@@ -177,7 +177,7 @@ class AwsFileTest extends StorageApiTestCase
         }
     }
 
-    public function testGetFileFederationToken()
+    public function testGetFileFederationToken(): void
     {
         $filePath = __DIR__ . '/../_data/files.upload.txt';
         $fileId = $this->_client->uploadFile($filePath, (new FileUploadOptions())->setNotify(false)->setFederationToken(true)->setIsPublic(false));

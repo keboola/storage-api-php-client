@@ -22,7 +22,7 @@ class TablesListingTest extends StorageApiTestCase
         $this->_initEmptyTestBuckets();
     }
 
-    public function testTableExists()
+    public function testTableExists(): void
     {
         $this->assertFalse($this->_client->tableExists($this->getTestBucketId() . '.languages'));
 
@@ -34,7 +34,7 @@ class TablesListingTest extends StorageApiTestCase
         $this->assertTrue($this->_client->tableExists($tableId));
     }
 
-    public function testListTables()
+    public function testListTables(): void
     {
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
         $this->_client->setTableAttribute($tableId, 'test', 'something');
@@ -64,7 +64,7 @@ class TablesListingTest extends StorageApiTestCase
         $this->assertArrayNotHasKey('columns', $firstTable);
     }
 
-    public function testListTablesWithIncludeParam()
+    public function testListTablesWithIncludeParam(): void
     {
         $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
         $tables = $this->_client->listTables($this->getTestBucketId(), array(
@@ -88,7 +88,7 @@ class TablesListingTest extends StorageApiTestCase
         $this->assertArrayNotHasKey('columnMetadata', $firstTable);
     }
 
-    public function testListTablesIncludeMetadata()
+    public function testListTablesIncludeMetadata(): void
     {
         $metadataApi = new Metadata($this->_client);
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
@@ -130,7 +130,7 @@ class TablesListingTest extends StorageApiTestCase
         $this->assertNotEmpty($firstMeta['value']);
     }
 
-    public function testListTablesWithColumns()
+    public function testListTablesWithColumns(): void
     {
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
         $table2Id = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile(__DIR__ . '/../_data/users.csv'));
@@ -185,7 +185,7 @@ class TablesListingTest extends StorageApiTestCase
         $this->assertEquals(array('valid_from'), $datesTables['columns']);
     }
 
-    public function testListTablesIncludeColumnMetadata()
+    public function testListTablesIncludeColumnMetadata(): void
     {
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
 
@@ -235,7 +235,7 @@ class TablesListingTest extends StorageApiTestCase
         $this->assertArrayHasKey('value', $firstTable['columnMetadata']['id'][1]);
     }
 
-    public function testSomeTablesWithMetadataSomeWithout()
+    public function testSomeTablesWithMetadataSomeWithout(): void
     {
         $table1Id = $this->_client->createTable($this->getTestBucketId(), 'languages1', new CsvFile(__DIR__ . '/../_data/languages.csv'));
         $table2Id = $this->_client->createTable($this->getTestBucketId(), 'languages2', new CsvFile(__DIR__ . '/../_data/languages.csv'));
@@ -274,7 +274,7 @@ class TablesListingTest extends StorageApiTestCase
         }
     }
 
-    public function testTableAttributes()
+    public function testTableAttributes(): void
     {
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
 
@@ -330,7 +330,7 @@ class TablesListingTest extends StorageApiTestCase
         $this->_client->deleteTableAttribute($tableId, 'other');
     }
 
-    public function testTableAttributesReplace()
+    public function testTableAttributesReplace(): void
     {
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
         $this->_client->setTableAttribute($tableId, 'first', 'something');
@@ -356,7 +356,7 @@ class TablesListingTest extends StorageApiTestCase
         $this->assertFalse($table['attributes'][0]['protected']);
     }
 
-    public function testTableAttributesClear()
+    public function testTableAttributesClear(): void
     {
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
         $this->_client->setTableAttribute($tableId, 'first', 'something');
@@ -382,7 +382,7 @@ class TablesListingTest extends StorageApiTestCase
         }
     }
 
-    public function testTableListingIncludeAll()
+    public function testTableListingIncludeAll(): void
     {
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
 
@@ -444,7 +444,7 @@ class TablesListingTest extends StorageApiTestCase
     }
 
 
-    public function testNullAtributesReplace()
+    public function testNullAtributesReplace(): void
     {
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
         $this->_client->replaceTableAttributes($tableId, [
@@ -474,7 +474,7 @@ class TablesListingTest extends StorageApiTestCase
         $this->assertEquals($expected, $table['attributes']);
     }
 
-    public function testNullAttributeValueSet()
+    public function testNullAttributeValueSet(): void
     {
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
 

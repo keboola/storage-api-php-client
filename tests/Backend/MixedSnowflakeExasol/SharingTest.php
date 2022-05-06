@@ -49,7 +49,7 @@ class SharingTest extends StorageApiSharingTestCase
     /**
      * @return void
      */
-    public function testOrganizationAdminInTokenVerify()
+    public function testOrganizationAdminInTokenVerify(): void
     {
         $token = $this->_client->verifyToken();
         self::assertTrue($token['admin']['isOrganizationMember']);

@@ -37,7 +37,7 @@ class MetadataTest extends StorageApiTestCase
         $this->_client->createTable($this->getTestBucketId(), "table", new CsvFile(__DIR__ . '/../_data/users.csv'));
     }
 
-    public function testBucketMetadata()
+    public function testBucketMetadata(): void
     {
         $bucketId = $this->getTestBucketId();
         $metadataApi = new Metadata($this->_client);
@@ -89,7 +89,7 @@ class MetadataTest extends StorageApiTestCase
         $this->assertEquals($metadatas[1]['timestamp'], $mdList[0]['timestamp']);
     }
 
-    public function testColumnMetadataOverwrite()
+    public function testColumnMetadataOverwrite(): void
     {
         $outTestBucketId = $this->getTestBucketId(self::STAGE_OUT);
         $outBucketTableId = $this->_client->createTable(
@@ -174,7 +174,7 @@ class MetadataTest extends StorageApiTestCase
         $this->assertSame($metadata[0]['value'], 'testValue');
     }
 
-    public function testTableMetadata()
+    public function testTableMetadata(): void
     {
         $tableId = $this->getMetadataTestTableId('table');
         $metadataApi = new Metadata($this->_client);
@@ -243,7 +243,7 @@ class MetadataTest extends StorageApiTestCase
     /**
      * @return void
      */
-    public function testTableMetadataWithColumns()
+    public function testTableMetadataWithColumns(): void
     {
         $tableId = $this->getMetadataTestTableId('table');
         $column1 = 'id';
@@ -358,7 +358,7 @@ class MetadataTest extends StorageApiTestCase
         }
     }
 
-    public function testTableMetadataForTokenWithReadPrivilege()
+    public function testTableMetadataForTokenWithReadPrivilege(): void
     {
         $testMetadataValue = 'testval';
 
@@ -450,7 +450,7 @@ class MetadataTest extends StorageApiTestCase
         $this->assertCount(1, $metadataArray);
     }
 
-    public function testTableDeleteWithMetadata()
+    public function testTableDeleteWithMetadata(): void
     {
         $tableId = $this->getMetadataTestTableId('table');
         $columnId = $this->getMetadataTestColumnId('table', 'sex');
@@ -491,7 +491,7 @@ class MetadataTest extends StorageApiTestCase
         $metadataApi->listTableMetadata($columnId);
     }
 
-    public function testColumnMetadata()
+    public function testColumnMetadata(): void
     {
         $columnId = $this->getMetadataTestColumnId('table', 'id');
         $metadataApi = new Metadata($this->_client);
@@ -590,7 +590,7 @@ class MetadataTest extends StorageApiTestCase
         );
     }
 
-    public function testColumnMetadataForTokenWithReadPrivilege()
+    public function testColumnMetadataForTokenWithReadPrivilege(): void
     {
         $testMetadataValue = 'testval';
 
@@ -682,7 +682,7 @@ class MetadataTest extends StorageApiTestCase
         $this->assertCount(1, $metadataArray);
     }
 
-    public function testTableColumnDeleteWithMetadata()
+    public function testTableColumnDeleteWithMetadata(): void
     {
         $tableId = $this->getMetadataTestTableId('table');
         $columnId = $this->getMetadataTestColumnId('table', 'sex');
@@ -722,7 +722,7 @@ class MetadataTest extends StorageApiTestCase
     }
 
 
-    public function testUpdateTimestamp()
+    public function testUpdateTimestamp(): void
     {
         $bucketId = $this->getTestBucketId();
         $metadataApi = new Metadata($this->_client);
@@ -900,7 +900,7 @@ class MetadataTest extends StorageApiTestCase
         }
     }
 
-    public function testInvalidProvider()
+    public function testInvalidProvider(): void
     {
         $metadataApi = new Metadata($this->_client);
         $md = [
@@ -927,7 +927,7 @@ class MetadataTest extends StorageApiTestCase
         }
     }
 
-    public function testTryToRemoveForeignData()
+    public function testTryToRemoveForeignData(): void
     {
         $medataApi = new Metadata($this->_client);
         $md = [
@@ -943,7 +943,7 @@ class MetadataTest extends StorageApiTestCase
         $medataApi->deleteBucketMetadata($anotherBucketId, $createdMetadata[0]['id']);
     }
 
-    public function testTryToRemoveForeignMetadataFromTable()
+    public function testTryToRemoveForeignMetadataFromTable(): void
     {
         $medataApi = new Metadata($this->_client);
         $md = [
@@ -959,7 +959,7 @@ class MetadataTest extends StorageApiTestCase
         $medataApi->deleteBucketMetadata($this->getTestBucketId(), $createdMetadata[0]['id']);
     }
 
-    public function testBucketMetadataForTokenWithReadPrivilege()
+    public function testBucketMetadataForTokenWithReadPrivilege(): void
     {
         $testMetadataValue = 'testval';
 

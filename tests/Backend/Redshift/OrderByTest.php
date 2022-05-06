@@ -16,7 +16,7 @@ class OrderByTest extends StorageApiTestCase
         $this->_initEmptyTestBuckets();
     }
 
-    public function testForbiddenWhereOperators()
+    public function testForbiddenWhereOperators(): void
     {
         $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
         $csvFile->writeRow(['test']);

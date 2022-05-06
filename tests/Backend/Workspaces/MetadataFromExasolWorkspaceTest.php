@@ -27,7 +27,7 @@ class MetadataFromExasolWorkspaceTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testCreateTableFromWorkspace()
+    public function testCreateTableFromWorkspace(): void
     {
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace(self::BACKEND_EXASOL);
@@ -147,7 +147,7 @@ class MetadataFromExasolWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertMetadata($expectedDateMetadata, $table['columnMetadata']['date']);
     }
 
-    public function testCopyImport()
+    public function testCopyImport(): void
     {
         $this->markTestSkipped('missing addTableColumn and incremental');
         $table_id = $this->_client->createTable(
@@ -233,7 +233,7 @@ class MetadataFromExasolWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertEquals([], $table['columnMetadata']);
     }
 
-    public function testMetadataManipulationRestrictions()
+    public function testMetadataManipulationRestrictions(): void
     {
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace(self::BACKEND_EXASOL);

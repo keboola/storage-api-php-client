@@ -14,7 +14,7 @@ use Keboola\Test\StorageApiTestCase;
 
 class DirectAccessTest extends StorageApiTestCase
 {
-    public function testGetDirectAccessCredentials()
+    public function testGetDirectAccessCredentials(): void
     {
         $backend = self::BACKEND_SNOWFLAKE;
         $directAccess = $this->prepareDirectAccess();
@@ -111,7 +111,7 @@ class DirectAccessTest extends StorageApiTestCase
         }
     }
 
-    public function testWithNonAdminToken()
+    public function testWithNonAdminToken(): void
     {
         $backend = self::BACKEND_SNOWFLAKE;
         $newToken = $this->tokens->createToken(new TokenCreateOptions());
@@ -130,7 +130,7 @@ class DirectAccessTest extends StorageApiTestCase
         }
     }
 
-    public function testDirectAccessAndRestrictions()
+    public function testDirectAccessAndRestrictions(): void
     {
         $bucketName = 'API-DA-tests';
         $bucket2Name = 'API-DA_TEST';

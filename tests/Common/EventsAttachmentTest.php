@@ -21,7 +21,7 @@ class EventsAttachmentTest extends StorageApiTestCase
         $this->_initEmptyTestBuckets();
     }
 
-    public function testImportEventAttachment()
+    public function testImportEventAttachment(): void
     {
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);

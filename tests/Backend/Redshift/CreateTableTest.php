@@ -37,7 +37,7 @@ class CreateTableTest extends StorageApiTestCase
         $this->assertNotEmpty($id);
     }
 
-    public function testTimeTravelNotSupported()
+    public function testTimeTravelNotSupported(): void
     {
         $id = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),

@@ -30,7 +30,7 @@ class ComponentsWorkspacesTest extends FileWorkspaceTestCase
         }
     }
 
-    public function testWorkspaceCreate()
+    public function testWorkspaceCreate(): void
     {
         $componentId = 'wr-db';
         $configurationId = 'main-1';

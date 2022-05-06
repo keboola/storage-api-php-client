@@ -19,7 +19,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
     use WorkspaceConnectionTrait;
     use WorkspaceCredentialsAssertTrait;
 
-    public function testWorkspaceCreate()
+    public function testWorkspaceCreate(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
@@ -98,7 +98,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $this->assertCredentialsShouldNotWork($connection);
     }
 
-    public function testWorkspacePasswordReset()
+    public function testWorkspacePasswordReset(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 

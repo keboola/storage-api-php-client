@@ -36,7 +36,7 @@ class GetToFileTest extends StorageApiTestCase
         }
     }
 
-    public function testGetToFile()
+    public function testGetToFile(): void
     {
         // prepare data
         $config = new Configuration();

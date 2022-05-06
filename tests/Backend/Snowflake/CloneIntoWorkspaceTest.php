@@ -124,7 +124,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         ];
     }
 
-    public function testCloneMultipleTables()
+    public function testCloneMultipleTables(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
         $table1Id = $this->_client->createTable(
@@ -207,7 +207,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         ]);
     }
 
-    public function testClonePreserveOffByDefault()
+    public function testClonePreserveOffByDefault(): void
     {
         $sourceBucketId = $this->getTestBucketId();
         $sourceTableId = $this->createTableFromFile(
@@ -244,7 +244,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         $this->assertEquals(['languages-2'], $backendTables);
     }
 
-    public function testClonePreserve()
+    public function testClonePreserve(): void
     {
         $sourceBucketId = $this->getTestBucketId();
         $sourceTableId = $this->createTableFromFile(
@@ -288,7 +288,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         );
     }
 
-    public function testTableAlreadyExistsAndOverwrite()
+    public function testTableAlreadyExistsAndOverwrite(): void
     {
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace();
@@ -395,7 +395,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         $this->assertCount(6, $workspaceTableData);
     }
 
-    public function testCloneWithWrongInput()
+    public function testCloneWithWrongInput(): void
     {
         $workspacesClient = new Workspaces($this->_client);
         $workspace = $workspacesClient->createWorkspace();

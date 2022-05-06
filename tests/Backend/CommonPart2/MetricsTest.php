@@ -95,7 +95,7 @@ class MetricsTest extends StorageApiTestCase
         $this->assertEquals($expectedMetrics, $job['metrics']);
     }
 
-    public function testTableExportMetrics()
+    public function testTableExportMetrics(): void
     {
         $csvFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', $csvFile);

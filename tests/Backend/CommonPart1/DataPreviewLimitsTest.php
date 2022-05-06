@@ -24,7 +24,7 @@ class DataPreviewLimitsTest extends StorageApiTestCase
         $this->initEmptyTestBucketsForParallelTests();
     }
 
-    public function testSimplePreview()
+    public function testSimplePreview(): void
     {
         $tokenData = $this->_client->verifyToken();
         if ($tokenData['owner']['defaultBackend'] === self::BACKEND_REDSHIFT) {
@@ -62,7 +62,7 @@ class DataPreviewLimitsTest extends StorageApiTestCase
         $this->assertEquals('test2', $data['rows'][1][1]['value']);
     }
 
-    public function testDataPreviewDefaultLimit()
+    public function testDataPreviewDefaultLimit(): void
     {
         $csvFile = $this->generateCsv(2000);
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', $csvFile);
@@ -77,7 +77,7 @@ class DataPreviewLimitsTest extends StorageApiTestCase
         $this->assertCount(2000, Client::parseCsv(file_get_contents($fullTableExportPath)));
     }
 
-    public function testDataPreviewParametrizedLimit()
+    public function testDataPreviewParametrizedLimit(): void
     {
         $csvFile = $this->generateCsv(2000);
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', $csvFile);
@@ -88,7 +88,7 @@ class DataPreviewLimitsTest extends StorageApiTestCase
         $this->assertCount(2, Client::parseCsv($preview), 'only preview of 2 rows should be returned');
     }
 
-    public function testDataPreviewMaximumLimit()
+    public function testDataPreviewMaximumLimit(): void
     {
         $csvFile = $this->generateCsv(2000);
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', $csvFile);
@@ -106,7 +106,7 @@ class DataPreviewLimitsTest extends StorageApiTestCase
     }
 
 
-    public function testJsonTruncationLimit()
+    public function testJsonTruncationLimit(): void
     {
         $tokenData = $this->_client->verifyToken();
         if ($tokenData['owner']['defaultBackend'] === self::BACKEND_SYNAPSE) {

@@ -12,7 +12,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
 {
     use WorkspaceConnectionTrait;
 
-    public function testCreateNotSupportedBackend()
+    public function testCreateNotSupportedBackend(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         try {
@@ -62,7 +62,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         $this->assertEquals("bytedict", $table['name']['COMPRESSION']);
     }
 
-    public function testLoadedSortKey()
+    public function testLoadedSortKey(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -169,7 +169,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testLoadDataTypesDefaults()
+    public function testLoadDataTypesDefaults(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -247,7 +247,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         $this->assertEquals(256, $table['skk']['LENGTH']);
     }
 
-    public function testLoadedPrimaryKeys()
+    public function testLoadedPrimaryKeys(): void
     {
         $primaries = ['Paid_Search_Engine_Account', 'Date', 'Paid_Search_Campaign', 'Paid_Search_Ad_ID', 'Site__DFA'];
         $pkTableId = $this->_client->createTable(
@@ -340,7 +340,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         ];
     }
 
-    public function testLoadIncremental()
+    public function testLoadIncremental(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -419,7 +419,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         $this->assertEquals(3, $backend->countRows("languagesDetails"));
     }
 
-    public function testLoadIncrementalAndPreserve()
+    public function testLoadIncrementalAndPreserve(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -492,7 +492,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testLoadIncrementalNullable()
+    public function testLoadIncrementalNullable(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -590,7 +590,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testLoadIncrementalNotNullable()
+    public function testLoadIncrementalNotNullable(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -681,7 +681,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testOutBytesMetricsWithLoadWorkspaceWithRows()
+    public function testOutBytesMetricsWithLoadWorkspaceWithRows(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -725,7 +725,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         $this->assertEquals(15, $backend->countRows('rates'));
     }
 
-    public function testOutBytesMetricsWithLoadWorkspaceWithSeconds()
+    public function testOutBytesMetricsWithLoadWorkspaceWithSeconds(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();

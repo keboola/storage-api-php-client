@@ -18,7 +18,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 {
     use WorkspaceConnectionTrait;
 
-    public function testTableCloneCaseSensitiveThrowsUserError()
+    public function testTableCloneCaseSensitiveThrowsUserError(): void
     {
         $tokenData = $this->_client->verifyToken();
         if (in_array($tokenData['owner']['defaultBackend'], [
@@ -59,7 +59,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         ]);
     }
 
-    public function testCreateTableFromWorkspace()
+    public function testCreateTableFromWorkspace(): void
     {
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace();
@@ -96,7 +96,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         )), 'imported data comparsion');
     }
 
-    public function testCreateTableFromWorkspaceWithInvalidColumnNames()
+    public function testCreateTableFromWorkspaceWithInvalidColumnNames(): void
     {
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace();
@@ -126,7 +126,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testImportFromWorkspaceWithInvalidTableNames()
+    public function testImportFromWorkspaceWithInvalidTableNames(): void
     {
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace();
@@ -173,7 +173,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testImportFromWorkspaceWithInvalidColumnNames()
+    public function testImportFromWorkspaceWithInvalidColumnNames(): void
     {
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace();
@@ -210,7 +210,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testCopyImport()
+    public function testCopyImport(): void
     {
         $table = $this->_client->apiPost("buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(
             'dataString' => 'Id,Name,update',

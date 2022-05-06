@@ -43,7 +43,7 @@ class DeleteRowsTest extends StorageApiTestCase
         $this->assertArrayEqualsSorted($expectedTableContent, $parsedData, 0);
     }
 
-    public function testDeleteRowsMissingValuesShouldReturnUserError()
+    public function testDeleteRowsMissingValuesShouldReturnUserError(): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));

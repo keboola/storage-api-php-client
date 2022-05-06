@@ -12,7 +12,7 @@ use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
 {
-    public function testWorkspaceTablesPermissions()
+    public function testWorkspaceTablesPermissions(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
@@ -51,7 +51,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $this->assertEquals('langs', $tables[0]);
     }
 
-    public function testWorkspaceLoadData()
+    public function testWorkspaceLoadData(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
@@ -244,7 +244,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         ];
     }
 
-    public function testWorkspaceLoadColumns()
+    public function testWorkspaceLoadColumns(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -303,7 +303,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testLoadIncrementalWithColumns()
+    public function testLoadIncrementalWithColumns(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -355,7 +355,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $this->assertEquals(5, $backend->countRows("languagesDetails"));
     }
 
-    public function testIncrementalAdditionalColumns()
+    public function testIncrementalAdditionalColumns(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -405,7 +405,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testIncrementalMissingColumns()
+    public function testIncrementalMissingColumns(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -512,7 +512,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
     }
 
 
-    public function testSecondsFilter()
+    public function testSecondsFilter(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -551,7 +551,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $this->assertEquals(2 * ($originalFileLinesCount - 1), $numRows, "seconds parameter");
     }
 
-    public function testRowsParameter()
+    public function testRowsParameter(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -787,7 +787,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         ];
     }
 
-    public function testInvalidDataTypeUserError()
+    public function testInvalidDataTypeUserError(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -821,7 +821,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testInvalidExtendedDataTypeUserError()
+    public function testInvalidExtendedDataTypeUserError(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -861,7 +861,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testDuplicateDestination()
+    public function testDuplicateDestination(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -891,7 +891,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testTableAlreadyExistsShouldThrowUserError()
+    public function testTableAlreadyExistsShouldThrowUserError(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -935,7 +935,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testSourceTableNotFound()
+    public function testSourceTableNotFound(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -952,7 +952,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testInvalidInputs()
+    public function testInvalidInputs(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
@@ -1007,7 +1007,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testInvalidBucketPermissions()
+    public function testInvalidBucketPermissions(): void
     {
         // make a test table
         $tableId = $this->_client->createTable(
@@ -1048,7 +1048,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testDottedDestination()
+    public function testDottedDestination(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -1077,7 +1077,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $this->assertEquals('dotted.destination', $tables[0]);
     }
 
-    public function testInvalidColumnsStringIgnore()
+    public function testInvalidColumnsStringIgnore(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();

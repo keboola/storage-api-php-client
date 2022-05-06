@@ -10,7 +10,7 @@ class ExasolWorkspacesUnloadTest extends ParallelWorkspacesTestCase
 {
     use WorkspaceConnectionTrait;
 
-    public function testCreateTableFromWorkspace()
+    public function testCreateTableFromWorkspace(): void
     {
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace();
@@ -55,7 +55,7 @@ class ExasolWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         )), 'imported data comparsion');
     }
 
-    public function testCreateTableFromWorkspaceWithInvalidColumnNames()
+    public function testCreateTableFromWorkspaceWithInvalidColumnNames(): void
     {
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace();
@@ -95,7 +95,7 @@ class ExasolWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testImportFromWorkspaceWithInvalidColumnNames()
+    public function testImportFromWorkspaceWithInvalidColumnNames(): void
     {
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace();
@@ -142,7 +142,7 @@ class ExasolWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testCopyImport()
+    public function testCopyImport(): void
     {
         $this->markTestSkipped('Needs incremental import');
         $table = $this->_client->apiPost("buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(

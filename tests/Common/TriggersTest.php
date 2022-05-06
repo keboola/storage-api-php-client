@@ -50,7 +50,7 @@ class TriggersTest extends StorageApiTestCase
     /**
      * @return void
      */
-    public function testCreateTrigger()
+    public function testCreateTrigger(): void
     {
         $table1 = $this->createTableWithRandomData("watched-1");
         $options = (new TokenCreateOptions())
@@ -91,7 +91,7 @@ class TriggersTest extends StorageApiTestCase
     /**
      * @return void
      */
-    public function testCreateTriggerAsNonAdminButWithMasterTokenAsTokenRunWith()
+    public function testCreateTriggerAsNonAdminButWithMasterTokenAsTokenRunWith(): void
     {
         $table1 = $this->createTableWithRandomData("watched-1");
         $options = (new TokenCreateOptions())
@@ -204,7 +204,7 @@ class TriggersTest extends StorageApiTestCase
     /**
      * @return void
      */
-    public function testCreateTriggerWithMasterTokensEveryWhere()
+    public function testCreateTriggerWithMasterTokensEveryWhere(): void
     {
         $table1 = $this->createTableWithRandomData("watched-1");
         $myTokenId = $this->_client->verifyToken()['id'];
@@ -581,7 +581,7 @@ class TriggersTest extends StorageApiTestCase
     /**
      * @return void
      */
-    public function testUpdateTwoTables()
+    public function testUpdateTwoTables(): void
     {
         $table1 = $this->createTableWithRandomData("watched-1");
         $table2 = $this->createTableWithRandomData("watched-2");
@@ -823,7 +823,7 @@ class TriggersTest extends StorageApiTestCase
     /**
      * @return void
      */
-    public function testListAction()
+    public function testListAction(): void
     {
         $table = $this->createTableWithRandomData("watched-2");
 
@@ -881,7 +881,7 @@ class TriggersTest extends StorageApiTestCase
     /**
      * @return void
      */
-    public function testInvalidToken()
+    public function testInvalidToken(): void
     {
         $token = $this->tokens->createToken(new TokenCreateOptions());
         $this->tokens->dropToken($token['id']);
@@ -900,7 +900,7 @@ class TriggersTest extends StorageApiTestCase
     /**
      * @return void
      */
-    public function testPreventTokenDelete()
+    public function testPreventTokenDelete(): void
     {
         $table1 = $this->createTableWithRandomData("watched-1");
         $options = (new TokenCreateOptions())
@@ -933,7 +933,7 @@ class TriggersTest extends StorageApiTestCase
     /**
      * @return void
      */
-    public function testTokenWithExpiration()
+    public function testTokenWithExpiration(): void
     {
         $token = $this->tokens->createToken(
             (new TokenCreateOptions())->setExpiresIn(5)
@@ -954,7 +954,7 @@ class TriggersTest extends StorageApiTestCase
     /**
      * @return void
      */
-    public function testTriggersRestrictionsForReadOnlyUser()
+    public function testTriggersRestrictionsForReadOnlyUser(): void
     {
         $expectedError = 'Trigger manipulation is restricted for your user role "readOnly".';
         $readOnlyClient = $this->getClientForToken(STORAGE_API_READ_ONLY_TOKEN);

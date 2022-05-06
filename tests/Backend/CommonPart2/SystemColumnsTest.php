@@ -18,7 +18,7 @@ class SystemColumnsTest extends StorageApiTestCase
         $this->initEmptyTestBucketsForParallelTests();
     }
 
-    public function testSystemColumnsConversionOnTableCreate()
+    public function testSystemColumnsConversionOnTableCreate(): void
     {
         $excpectedColumns = [
             'id',
@@ -44,7 +44,7 @@ class SystemColumnsTest extends StorageApiTestCase
         $this->assertEquals($excpectedColumns, $table['columns']);
     }
 
-    public function testSystemColumnAdd()
+    public function testSystemColumnAdd(): void
     {
         $csvFile = new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/languages.csv');
 
@@ -62,7 +62,7 @@ class SystemColumnsTest extends StorageApiTestCase
         $this->assertEquals($expectedColumns, $table['columns']);
     }
 
-    public function testSystemColumnImport()
+    public function testSystemColumnImport(): void
     {
         $csvFile = new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/system-columns.csv');
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'system', $csvFile);
@@ -83,7 +83,7 @@ class SystemColumnsTest extends StorageApiTestCase
         $this->assertEquals($excpectedColumns, $result['importedColumns']);
     }
 
-    public function testImportWithNewSystemColumn()
+    public function testImportWithNewSystemColumn(): void
     {
         $csvFile = new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/languages.csv');
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'system', $csvFile);

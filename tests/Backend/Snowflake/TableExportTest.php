@@ -19,7 +19,7 @@ class TableExportTest extends StorageApiTestCase
         $this->initEmptyTestBucketsForParallelTests();
     }
 
-    public function testSyncExportShouldReturnErrorForLargeNumberOfCols()
+    public function testSyncExportShouldReturnErrorForLargeNumberOfCols(): void
     {
         $cols = implode(',', array_map(function ($colNum) {
             return "col_{$colNum}";
@@ -39,7 +39,7 @@ class TableExportTest extends StorageApiTestCase
         }
     }
 
-    public function testSyncExportMax30cols()
+    public function testSyncExportMax30cols(): void
     {
         $cols = [];
         $rows = 4;

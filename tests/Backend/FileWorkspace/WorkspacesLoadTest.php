@@ -14,7 +14,7 @@ use Keboola\Test\Backend\Workspaces\Backend\InputMappingConverter;
 
 class WorkspacesLoadTest extends FileWorkspaceTestCase
 {
-    public function testWorkspaceLoadData()
+    public function testWorkspaceLoadData(): void
     {
         $workspaces = new Workspaces($this->_client);
         $workspace = $this->createFileWorkspace($workspaces);
@@ -186,7 +186,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         }
     }
 
-    public function testWorkspaceLoadFilePermissionsCanReadAllFiles()
+    public function testWorkspaceLoadFilePermissionsCanReadAllFiles(): void
     {
         $fileCsv = __DIR__ . '/../../_data/languages.more-rows.csv';
         $fileId = $this->_client->uploadFile(
@@ -243,7 +243,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         }
     }
 
-    public function testWorkspaceLoadAliasTable()
+    public function testWorkspaceLoadAliasTable(): void
     {
         $workspaces = new Workspaces($this->_client);
         $workspace = $this->createFileWorkspace($workspaces);
@@ -335,7 +335,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         }
     }
 
-    public function testWorkspaceLoadColumns()
+    public function testWorkspaceLoadColumns(): void
     {
         $workspaces = new Workspaces($this->_client);
 
@@ -442,7 +442,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         }
     }
 
-    public function testRowsParameter()
+    public function testRowsParameter(): void
     {
         $workspaces = new Workspaces($this->_client);
         $workspace = $this->createFileWorkspace($workspaces);
@@ -815,7 +815,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         ];
     }
 
-    public function testDuplicateDestination()
+    public function testDuplicateDestination(): void
     {
         $workspaces = new Workspaces($this->_client);
 
@@ -886,7 +886,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         }
     }
 
-    public function testSourceTableNotFound()
+    public function testSourceTableNotFound(): void
     {
         $workspaces = new Workspaces($this->_client);
 
@@ -916,7 +916,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         }
     }
 
-    public function testDataFileIdNotFound()
+    public function testDataFileIdNotFound(): void
     {
         $workspaces = new Workspaces($this->_client);
 
@@ -946,7 +946,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         }
     }
 
-    public function testInvalidInputs()
+    public function testInvalidInputs(): void
     {
         $workspaces = new Workspaces($this->_client);
 
@@ -1070,7 +1070,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         }
     }
 
-    public function testInvalidBucketPermissions()
+    public function testInvalidBucketPermissions(): void
     {
         // make a test table
         $tableId = $this->_client->createTable(
@@ -1123,7 +1123,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         }
     }
 
-    public function testDottedDestination()
+    public function testDottedDestination(): void
     {
         $workspaces = new Workspaces($this->_client);
         $workspace = $this->createFileWorkspace($workspaces);
@@ -1181,7 +1181,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $this->assertTrue($manifestExists);
     }
 
-    public function testLoadWorkspaceWithOverwrite()
+    public function testLoadWorkspaceWithOverwrite(): void
     {
         $workspaces = new Workspaces($this->_client);
         $workspace = $this->createFileWorkspace($workspaces);

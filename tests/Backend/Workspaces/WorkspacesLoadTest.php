@@ -20,7 +20,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
     /** @var Client */
     private $_linkingClient;
 
-    public function testWorkspaceTablesPermissions()
+    public function testWorkspaceTablesPermissions(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
@@ -83,7 +83,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $this->assertEquals('langs', $tables[0]);
     }
 
-    public function testWorkspaceLoadData()
+    public function testWorkspaceLoadData(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
@@ -162,7 +162,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $this->assertContains($backend->toIdentifier("table3"), $tables);
     }
 
-    public function testWorkspaceLoadAliasTable()
+    public function testWorkspaceLoadAliasTable(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
@@ -275,7 +275,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ",", '"'), $data, 'id');
     }
 
-    public function testWorkspaceLoadColumns()
+    public function testWorkspaceLoadColumns(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -387,7 +387,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testLoadIncrementalWithColumns()
+    public function testLoadIncrementalWithColumns(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -463,7 +463,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $this->assertEquals(5, $backend->countRows("languagesDetails"));
     }
 
-    public function testIncrementalAdditionalColumns()
+    public function testIncrementalAdditionalColumns(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -542,7 +542,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testIncrementalMissingColumns()
+    public function testIncrementalMissingColumns(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -669,7 +669,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testSecondsFilter()
+    public function testSecondsFilter(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -721,7 +721,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $this->assertEquals(2 * ($originalFileLinesCount - 1), $numRows, "seconds parameter");
     }
 
-    public function testRowsParameter()
+    public function testRowsParameter(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -1235,7 +1235,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testInvalidExtendedColumnUserError()
+    public function testInvalidExtendedColumnUserError(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -1277,7 +1277,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testDuplicateDestination()
+    public function testDuplicateDestination(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -1347,7 +1347,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testTableAlreadyExistsAndOverwrite()
+    public function testTableAlreadyExistsAndOverwrite(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -1443,7 +1443,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $this->assertCount(7, $workspaceTableData);
     }
 
-    public function testSourceTableNotFound()
+    public function testSourceTableNotFound(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -1472,7 +1472,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testInvalidInputs()
+    public function testInvalidInputs(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
@@ -1560,7 +1560,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testInvalidBucketPermissions()
+    public function testInvalidBucketPermissions(): void
     {
         // make a test table
         $tableId = $this->_client->createTable(
@@ -1613,7 +1613,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testDottedDestination()
+    public function testDottedDestination(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -1658,7 +1658,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $this->assertEquals('dotted.destination', $tables[0]);
     }
 
-    public function testLoadIncrementalWithColumnsReorder()
+    public function testLoadIncrementalWithColumnsReorder(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -2062,7 +2062,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         ];
     }
 
-    public function testLoadWithWrongInput()
+    public function testLoadWithWrongInput(): void
     {
         $workspacesClient = new Workspaces($this->_client);
         $workspace = $this->initTestWorkspace();
@@ -2085,7 +2085,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
     /**
      * @return void
      */
-    public function testCreateWorkspaceWithReadOnlyIM()
+    public function testCreateWorkspaceWithReadOnlyIM(): void
     {
         $token = $this->_client->verifyToken();
 
@@ -2196,7 +2196,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
     /**
      * @return void
      */
-    public function testCreateWorkspaceWithReadOnlyIMUnlinkUnshare()
+    public function testCreateWorkspaceWithReadOnlyIMUnlinkUnshare(): void
     {
         $tokenConsumer = $this->_client->verifyToken();
         $consumerProjectId = $tokenConsumer['owner']['id'];

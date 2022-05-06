@@ -16,7 +16,7 @@ class QueueJobsTest extends StorageApiTestCase
         $this->_client->createTableAsync('in.c-API-tests', 'table1', new CsvFile(__DIR__ . '/../_data/languages-headers.csv'));
     }
 
-    public function testQueueTableImportFromFile()
+    public function testQueueTableImportFromFile(): void
     {
         $fileId = $this->_client->uploadFile(__DIR__ . '/../_data/languages.csv', new FileUploadOptions());
         $jobId = $this->_client->queueTableImport('in.c-API-tests.table1', ['dataFileId' => $fileId]);
@@ -27,7 +27,7 @@ class QueueJobsTest extends StorageApiTestCase
         $this->assertEquals('file', $job['operationParams']['source']['type']);
     }
 
-    public function testQueueTableImportFromWorkspace()
+    public function testQueueTableImportFromWorkspace(): void
     {
         $jobId = $this->_client->queueTableImport(
             'in.c-API-tests.table1',
@@ -45,7 +45,7 @@ class QueueJobsTest extends StorageApiTestCase
         $this->assertEquals('workspace', $job['operationParams']['source']['type']);
     }
 
-    public function testQueueTableExport()
+    public function testQueueTableExport(): void
     {
         $jobId = $this->_client->queueTableExport('in.c-API-tests.table1', []);
         $job = $this->_client->getJob($jobId);
@@ -79,7 +79,7 @@ class QueueJobsTest extends StorageApiTestCase
         ];
     }
 
-    public function testQueueCreateTableFromFile()
+    public function testQueueCreateTableFromFile(): void
     {
         $fileId = $this->_client->uploadFile(__DIR__ . '/../_data/languages.csv', new FileUploadOptions());
         $jobId = $this->_client->queueTableCreate('in.c-API-tests.table1', [
@@ -93,7 +93,7 @@ class QueueJobsTest extends StorageApiTestCase
         $this->assertEquals('file', $job['operationParams']['source']['type']);
     }
 
-    public function testQueueCreateTableFromWorkspace()
+    public function testQueueCreateTableFromWorkspace(): void
     {
         $jobId = $this->_client->queueTableCreate(
             'in.c-API-tests.table1',

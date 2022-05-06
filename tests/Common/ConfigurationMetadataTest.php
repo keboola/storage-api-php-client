@@ -50,7 +50,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testAddMetadata()
+    public function testAddMetadata(): void
     {
         $configurationNameMain1 = $this->generateUniqueNameForString('main-1');
         $configurationNameMain2 = $this->generateUniqueNameForString('main-2');
@@ -170,7 +170,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testUpdateMetadata()
+    public function testUpdateMetadata(): void
     {
         $components = new Components($this->client);
 
@@ -217,7 +217,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testAddMetadataEvent()
+    public function testAddMetadataEvent(): void
     {
         $components = new Components($this->client);
         $configurationOptions = $this->createConfiguration(
@@ -251,7 +251,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
         );
     }
 
-    public function testCreateBranchCopyMetadataToTheDevBranch()
+    public function testCreateBranchCopyMetadataToTheDevBranch(): void
     {
         $configurationNameMain1 = $this->generateUniqueNameForString('main-1');
 
@@ -326,7 +326,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
         self::assertNotContains('newDevBranchKey', $keys);
     }
 
-    public function testResetToDefault()
+    public function testResetToDefault(): void
     {
         $configurationNameMain1 = $this->generateUniqueNameForString('main-1');
         $defaultBranchId = $this->getDefaultBranchId($this);
@@ -405,7 +405,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
         $this->assertMetadataEquals($moreMetadata[0], $listConfigurationMetadata[2]);
     }
 
-    public function testConfigMetadataRestrictionsForReadOnlyUser()
+    public function testConfigMetadataRestrictionsForReadOnlyUser(): void
     {
         $defaultBranchId = $this->getDefaultBranchId($this);
 
@@ -442,7 +442,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
         }
     }
 
-    public function testDeleteMetadata()
+    public function testDeleteMetadata(): void
     {
         $configurationNameMain1 = $this->generateUniqueNameForString('main-1');
 
@@ -545,7 +545,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
         }
     }
 
-    public function testDeleteMetadataEvent()
+    public function testDeleteMetadataEvent(): void
     {
         $defaultBranchId = $this->getDefaultBranchId($this);
 

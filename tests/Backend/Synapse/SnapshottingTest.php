@@ -12,7 +12,7 @@ class SnapshottingTest extends StorageApiTestCase
         $this->initEmptyTestBucketsForParallelTests();
     }
 
-    public function testCreateTableFromSnapshotWithDistributionKey()
+    public function testCreateTableFromSnapshotWithDistributionKey(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
         $importFile = __DIR__ . '/../../_data/languages.csv';

@@ -22,7 +22,7 @@ class SnapshottingTest extends StorageApiTestCase
         $this->initEmptyTestBucketsForParallelTests();
     }
 
-    public function testTableSnapshotCreate()
+    public function testTableSnapshotCreate(): void
     {
         $tableId = $this->initTestTable();
         $table = $this->_client->getTable($tableId);
@@ -41,7 +41,7 @@ class SnapshottingTest extends StorageApiTestCase
         $this->assertNotEmpty($snapshot['dataFileId']);
     }
 
-    public function testTableSnapshotDelete()
+    public function testTableSnapshotDelete(): void
     {
         $tableId = $this->initTestTable();
         $table = $this->_client->getTable($tableId);
@@ -62,7 +62,7 @@ class SnapshottingTest extends StorageApiTestCase
         $this->_client->deleteSnapshot($snapshotId);
     }
 
-    public function testCreateTableFromSnapshotWithDifferentName()
+    public function testCreateTableFromSnapshotWithDifferentName(): void
     {
         $sourceTableId = $this->initTestTable();
 
@@ -157,7 +157,7 @@ class SnapshottingTest extends StorageApiTestCase
         return $tableId;
     }
 
-    public function testGetTableSnapshot()
+    public function testGetTableSnapshot(): void
     {
         $sourceTableId = $this->initTestTable();
 
@@ -178,7 +178,7 @@ class SnapshottingTest extends StorageApiTestCase
     /**
      * https://github.com/keboola/connection/issues/850
      */
-    public function testSnapshotPermissions()
+    public function testSnapshotPermissions(): void
     {
         $sourceTableId = $this->initTestTable();
 

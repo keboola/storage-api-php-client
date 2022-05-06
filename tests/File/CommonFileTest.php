@@ -17,7 +17,7 @@ use Symfony\Component\Filesystem\Filesystem;
 class CommonFileTest extends StorageApiTestCase
 {
 
-    public function testFileList()
+    public function testFileList(): void
     {
         $options = new FileUploadOptions();
         $fileId = $this->createAndWaitForFile(__DIR__ . '/../_data/files.upload.txt', $options);
@@ -30,14 +30,14 @@ class CommonFileTest extends StorageApiTestCase
         $this->assertArrayNotHasKey('credentials', $uploadedFile);
     }
 
-    public function testGetFileWithoutCredentials()
+    public function testGetFileWithoutCredentials(): void
     {
         $fileId = $this->createAndWaitForFile(__DIR__ . '/../_data/files.upload.txt', (new FileUploadOptions()));
         $file = $this->_client->getFile($fileId, (new GetFileOptions())->setFederationToken(false));
         $this->assertArrayNotHasKey('credentials', $file);
     }
 
-    public function testFilesListFilterByTags()
+    public function testFilesListFilterByTags(): void
     {
         $filePath = __DIR__ . '/../_data/files.upload.txt';
 
@@ -62,7 +62,7 @@ class CommonFileTest extends StorageApiTestCase
         $this->assertEquals($fileId, $file['id']);
     }
 
-    public function testFilesListFilterByInvalidValues()
+    public function testFilesListFilterByInvalidValues(): void
     {
         try {
             $this->_client->apiGet('files?' . http_build_query([
@@ -74,7 +74,7 @@ class CommonFileTest extends StorageApiTestCase
         }
     }
 
-    public function testSetTagsFromArrayWithGaps()
+    public function testSetTagsFromArrayWithGaps(): void
     {
         $file = $this->_client->prepareFileUpload((new FileUploadOptions())
             ->setFileName('test.json')
@@ -86,7 +86,7 @@ class CommonFileTest extends StorageApiTestCase
         $this->assertEquals(['neco', 'another'], $file['tags']);
     }
 
-    public function testFileListSearch()
+    public function testFileListSearch(): void
     {
 
         $fileId = $this->_client->uploadFile(__DIR__ . '/../_data/users.csv', new FileUploadOptions());
@@ -99,7 +99,7 @@ class CommonFileTest extends StorageApiTestCase
         $this->assertEquals($fileId, $file['id']);
     }
 
-    public function testSyntaxErrorInQueryShouldReturnUserError()
+    public function testSyntaxErrorInQueryShouldReturnUserError(): void
     {
         try {
             $this->_client->listFiles((new ListFilesOptions())->setQuery('tags[]:sd'));
@@ -110,7 +110,7 @@ class CommonFileTest extends StorageApiTestCase
         }
     }
 
-    public function testFileListFilterBySinceIdMaxId()
+    public function testFileListFilterBySinceIdMaxId(): void
     {
         $files = $this->_client->listFiles((new ListFilesOptions())
             ->setLimit(1)
@@ -133,7 +133,7 @@ class CommonFileTest extends StorageApiTestCase
         $this->assertEquals($firstFileId, $files[0]['id']);
     }
 
-    public function testFileListFilterByRunId()
+    public function testFileListFilterByRunId(): void
     {
         $options = new FileUploadOptions();
         $options->setFileName('upload.txt')
@@ -152,7 +152,7 @@ class CommonFileTest extends StorageApiTestCase
         $this->assertEquals($file['id'], $files[0]['id']);
     }
 
-    public function testEmptyFileUpload()
+    public function testEmptyFileUpload(): void
     {
         $options = new FileUploadOptions();
         $filePath = __DIR__ . '/../_data/empty.csv';
@@ -191,7 +191,7 @@ class CommonFileTest extends StorageApiTestCase
     /**
      * with compress = true
      */
-    public function testFileUploadCompress()
+    public function testFileUploadCompress(): void
     {
         $filePath = __DIR__ . '/../_data/files.upload.txt';
         $fileId = $this->_client->uploadFile($filePath, (new FileUploadOptions())->setCompress(true));
@@ -206,7 +206,7 @@ class CommonFileTest extends StorageApiTestCase
         $this->assertEquals(file_get_contents($filePath), gzread($gzFile, 524288));
     }
 
-    public function testFileUploadLargeFile()
+    public function testFileUploadLargeFile(): void
     {
         $filePath = __DIR__ . '/../_tmp/files.upload.large.csv';
         $fileHandle = fopen($filePath, "w+");
@@ -224,7 +224,7 @@ class CommonFileTest extends StorageApiTestCase
         $this->assertEquals(hash_file('md5', $filePath), hash_file('md5', $file['url']));
     }
 
-    public function testFileDelete()
+    public function testFileDelete(): void
     {
         $filePath = __DIR__ . '/../_data/files.upload.txt';
         $options = new FileUploadOptions();
@@ -245,7 +245,7 @@ class CommonFileTest extends StorageApiTestCase
         (new Client())->get($file['url']);
     }
 
-    public function testNotExistingFileUpload()
+    public function testNotExistingFileUpload(): void
     {
         try {
             $this->_client->uploadFile('invalid.csv', new FileUploadOptions());
@@ -254,7 +254,7 @@ class CommonFileTest extends StorageApiTestCase
         }
     }
 
-    public function testFilesPermissions()
+    public function testFilesPermissions(): void
     {
         $filePath = __DIR__ . '/../_data/files.upload.txt';
         $uploadOptions = new FileUploadOptions();
@@ -290,7 +290,7 @@ class CommonFileTest extends StorageApiTestCase
         $this->tokens->dropToken($newToken['id']);
     }
 
-    public function testFilesPermissionsCanReadAllFiles()
+    public function testFilesPermissionsCanReadAllFiles(): void
     {
         $uploadOptions = new FileUploadOptions();
         $uploadOptions->setFileName('test.txt')
@@ -332,7 +332,7 @@ class CommonFileTest extends StorageApiTestCase
         $this->assertEmpty($files);
     }
 
-    public function testsDuplicateTagsShouldBeDeduped()
+    public function testsDuplicateTagsShouldBeDeduped(): void
     {
         $uploadOptions = new FileUploadOptions();
         $uploadOptions
@@ -346,7 +346,7 @@ class CommonFileTest extends StorageApiTestCase
 
 
 
-    public function testDownloadFile()
+    public function testDownloadFile(): void
     {
         $uploadOptions = (new FileUploadOptions())
             ->setFileName('testing_file_name');
@@ -366,7 +366,7 @@ class CommonFileTest extends StorageApiTestCase
         );
     }
 
-    public function testUploadAndDownloadSlicedFile()
+    public function testUploadAndDownloadSlicedFile(): void
     {
         $uploadOptions = (new FileUploadOptions())
             ->setFileName('sliced_testing_file_name')
@@ -391,7 +391,7 @@ class CommonFileTest extends StorageApiTestCase
         $this->assertFileEquals($slices[2], $donwloadFiles[2]);
     }
 
-    public function testTagging()
+    public function testTagging(): void
     {
         $filePath = __DIR__ . '/../_data/files.upload.txt';
         $initialTags = array('gooddata', 'image');
@@ -414,7 +414,7 @@ class CommonFileTest extends StorageApiTestCase
         $this->assertEquals(array('image', 'new'), $file['tags'], 'duplicate tag add is ignored');
     }
 
-    public function testReadOnlyRoleFilesPermissions()
+    public function testReadOnlyRoleFilesPermissions(): void
     {
         $expectedError = 'File manipulation is restricted for your user role "readOnly".';
         $readOnlyClient = $this->getClientForToken(STORAGE_API_READ_ONLY_TOKEN);

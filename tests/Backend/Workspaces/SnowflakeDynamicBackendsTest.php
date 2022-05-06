@@ -79,7 +79,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
         $this->assertStringEndsWith($expectedWarehouseSuffix, $workspace['connection']['warehouse']);
     }
 
-    public function testWorkspaceLoadLinkedDataFromProjectWithDynamicBackends()
+    public function testWorkspaceLoadLinkedDataFromProjectWithDynamicBackends(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -137,7 +137,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
         $this->assertDataInWorkspace($backend);
     }
 
-    public function testWorkspaceLoadLinkedDataFromProjectWithoutDynamicBackends()
+    public function testWorkspaceLoadLinkedDataFromProjectWithoutDynamicBackends(): void
     {
         $description = $this->generateDescriptionForTestObject();
         $bucketName = $this->getTestBucketName($description);
@@ -203,7 +203,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
         $this->assertDataInWorkspace($backend);
     }
 
-    public function testWorkspaceCreateError()
+    public function testWorkspaceCreateError(): void
     {
         try {
             $this->workspaces->createWorkspace([
@@ -237,7 +237,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testWorkspaceLoadData()
+    public function testWorkspaceLoadData(): void
     {
         $workspaces = $this->workspaces;
 

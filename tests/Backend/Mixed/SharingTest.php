@@ -19,7 +19,7 @@ class SharingTest extends StorageApiSharingTestCase
 {
     use WorkspaceConnectionTrait;
 
-    public function testOrganizationAdminInTokenVerify()
+    public function testOrganizationAdminInTokenVerify(): void
     {
         $token = $this->_client->verifyToken();
         $this->assertTrue($token['admin']['isOrganizationMember']);

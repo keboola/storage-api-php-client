@@ -63,7 +63,7 @@ class SlicedFilesUploadTest extends StorageApiTestCase
         }
     }
 
-    public function testUploadSlicedFileEmptyParts()
+    public function testUploadSlicedFileEmptyParts(): void
     {
         $part1 = __DIR__ . '/../_data/sliced/empty.1';
         $part2 = __DIR__ . '/../_data/sliced/empty.2';
@@ -123,7 +123,7 @@ class SlicedFilesUploadTest extends StorageApiTestCase
     }
 
 
-    public function testUploadSlicedFileChunks()
+    public function testUploadSlicedFileChunks(): void
     {
         $parts = 50;
         $slices = [];

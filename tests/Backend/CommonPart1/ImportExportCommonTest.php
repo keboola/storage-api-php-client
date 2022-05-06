@@ -199,7 +199,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         ];
     }
 
-    public function testTableImportColumnsCaseInsensitive()
+    public function testTableImportColumnsCaseInsensitive(): void
     {
         $tokenData = $this->_client->verifyToken();
         if (in_array($tokenData['owner']['defaultBackend'], [
@@ -219,7 +219,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         $this->assertEquals($importFile->getHeader(), $table['columns']);
     }
 
-    public function testTableImportCaseSensitiveThrowsUserError()
+    public function testTableImportCaseSensitiveThrowsUserError(): void
     {
         $tokenData = $this->_client->verifyToken();
         if (in_array($tokenData['owner']['defaultBackend'], [
@@ -264,7 +264,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         );
     }
 
-    public function testTableImportNotExistingFile()
+    public function testTableImportNotExistingFile(): void
     {
         try {
             $this->_client->writeTable($this->getTestBucketId() . '.languages', new CsvFile('invalid.csv'));
@@ -273,7 +273,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         }
     }
 
-    public function testTableImportInvalidCsvParams()
+    public function testTableImportInvalidCsvParams(): void
     {
         try {
             $this->_client->apiPost("buckets/{$this->getTestBucketId(self::STAGE_IN)}/tables", [
@@ -323,13 +323,13 @@ class ImportExportCommonTest extends StorageApiTestCase
     /**
      * @expectedException \Keboola\StorageApi\ClientException
      */
-    public function testTableNotExistsImport()
+    public function testTableNotExistsImport(): void
     {
         $importCsvFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
         $this->_client->writeTable('languages', $importCsvFile);
     }
 
-    public function testTableImportCreateMissingColumns()
+    public function testTableImportCreateMissingColumns(): void
     {
         $filePath = __DIR__ . '/../../_data/languages.camel-case-columns.csv';
         $importFile = new CsvFile($filePath);
@@ -352,7 +352,7 @@ class ImportExportCommonTest extends StorageApiTestCase
     }
 
 
-    public function testTableAsyncImportMissingFile()
+    public function testTableAsyncImportMissingFile(): void
     {
         $token = $this->_client->verifyToken();
         if (in_array($token['owner']['region'], ['eu-central-1', 'ap-northeast-2'])) {
@@ -384,7 +384,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         }
     }
 
-    public function testImportWithoutHeaders()
+    public function testImportWithoutHeaders(): void
     {
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/languages-headers.csv'));
 
@@ -400,7 +400,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         $this->assertNotEmpty($result['totalDataSizeBytes']);
     }
 
-    public function testImportWithColumnsList()
+    public function testImportWithColumnsList(): void
     {
         $headersCsv = new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/languages-headers.csv');
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', $headersCsv);
@@ -417,7 +417,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         $this->assertNotEmpty($result['totalDataSizeBytes']);
     }
 
-    public function testTableImportFromString()
+    public function testTableImportFromString(): void
     {
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/languages-headers.csv'));
 
@@ -432,7 +432,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         )));
     }
 
-    public function testTableInvalidAsyncImport()
+    public function testTableInvalidAsyncImport(): void
     {
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', $importFile);
@@ -451,7 +451,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         }
     }
 
-    public function testTableImportFromEmptyFileShouldFail()
+    public function testTableImportFromEmptyFileShouldFail(): void
     {
         $tableId = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),
@@ -481,7 +481,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         }
     }
 
-    public function testTableAsyncExportRepeatedly()
+    public function testTableAsyncExportRepeatedly(): void
     {
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
         $firstRunId = $this->_client->generateRunId();
@@ -528,7 +528,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         $this->assertTrue($oldFileInfo["id"] === $fileInfo["id"]);
     }
 
-    public function testRowsCountAndSize()
+    public function testRowsCountAndSize(): void
     {
         $importFileIn = new CsvFile(__DIR__ . '/../../_data/languages.csv');
         $importFileOut = new CsvFile(__DIR__ . '/../../_data/languages.more-rows.csv');

@@ -43,7 +43,7 @@ class ConfigurationRowStateTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testAttributeExists()
+    public function testAttributeExists(): void
     {
         $components = new \Keboola\StorageApi\Components($this->client);
         $configuration = (new \Keboola\StorageApi\Options\Components\Configuration())
@@ -65,7 +65,7 @@ class ConfigurationRowStateTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testAttributeValueCreate()
+    public function testAttributeValueCreate(): void
     {
         $components = new \Keboola\StorageApi\Components($this->client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
@@ -91,7 +91,7 @@ class ConfigurationRowStateTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testAttributeValueUpdate()
+    public function testAttributeValueUpdate(): void
     {
         $components = new \Keboola\StorageApi\Components($this->client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
@@ -119,7 +119,7 @@ class ConfigurationRowStateTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testVersionUnchangedAfterSettingAttribute()
+    public function testVersionUnchangedAfterSettingAttribute(): void
     {
         $components = new \Keboola\StorageApi\Components($this->client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
@@ -150,7 +150,7 @@ class ConfigurationRowStateTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testAttributeNotPresentInVersions()
+    public function testAttributeNotPresentInVersions(): void
     {
         $components = new \Keboola\StorageApi\Components($this->client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
@@ -173,7 +173,7 @@ class ConfigurationRowStateTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testRollbackPreservesState()
+    public function testRollbackPreservesState(): void
     {
 
         $components = new \Keboola\StorageApi\Components($this->client);
@@ -189,7 +189,7 @@ class ConfigurationRowStateTest extends StorageApiTestCase
         $configurationRow->setRowId('main-1-1')
             ->setState(['unknown' => 'undefined']);
         $components->addConfigurationRow($configurationRow);
-        
+
         $updateConfig = new ConfigurationRow($configuration);
         $updateConfig
             ->setRowId('main-1-1')
@@ -219,7 +219,7 @@ class ConfigurationRowStateTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testCopyPreservesState()
+    public function testCopyPreservesState(): void
     {
         $components = new \Keboola\StorageApi\Components($this->client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
@@ -258,7 +258,7 @@ class ConfigurationRowStateTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testRowRollbackPreservesState()
+    public function testRowRollbackPreservesState(): void
     {
         $components = new \Keboola\StorageApi\Components($this->client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
@@ -303,7 +303,7 @@ class ConfigurationRowStateTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testRowCopyResetsState()
+    public function testRowCopyResetsState(): void
     {
         $components = new \Keboola\StorageApi\Components($this->client);
 
@@ -356,7 +356,7 @@ class ConfigurationRowStateTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testDeletedRowRollbackPreservesState()
+    public function testDeletedRowRollbackPreservesState(): void
     {
         $components = new \Keboola\StorageApi\Components($this->client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
@@ -409,7 +409,7 @@ class ConfigurationRowStateTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testDeletedRowCopyPreservesState()
+    public function testDeletedRowCopyPreservesState(): void
     {
         $components = new \Keboola\StorageApi\Components($this->client);
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();

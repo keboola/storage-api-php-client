@@ -76,7 +76,7 @@ class LegacyWorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         ];
     }
 
-    public function testLoadedPrimaryKeys()
+    public function testLoadedPrimaryKeys(): void
     {
         $primaries = ['Paid_Search_Engine_Account', 'Date', 'Paid_Search_Campaign', 'Paid_Search_Ad_ID', 'Site__DFA'];
         $pkTableId = $this->_client->createTable(
@@ -132,7 +132,7 @@ class LegacyWorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         $this->assertEquals(255, $cols['date']['LENGTH']);
     }
 
-    public function testLoadIncrementalNotNullable()
+    public function testLoadIncrementalNotNullable(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -223,7 +223,7 @@ class LegacyWorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testLoadIncrementalNullable()
+    public function testLoadIncrementalNullable(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 

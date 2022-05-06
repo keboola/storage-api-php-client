@@ -14,7 +14,7 @@ class JobPollDelayTest extends StorageApiTestCase
         $this->_initEmptyTestBuckets();
     }
 
-    public function testAlternateJobPollDelay()
+    public function testAlternateJobPollDelay(): void
     {
         $methodUsed = false;
 
@@ -38,7 +38,7 @@ class JobPollDelayTest extends StorageApiTestCase
     /**
      * @expectedException \TypeError
      */
-    public function testInvalidJobPollDelay()
+    public function testInvalidJobPollDelay(): void
     {
         $dumbDelay = 'wait for 30 seconds';
 

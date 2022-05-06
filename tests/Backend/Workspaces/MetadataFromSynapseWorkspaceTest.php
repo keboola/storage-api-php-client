@@ -27,7 +27,7 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testCreateTableFromWorkspace()
+    public function testCreateTableFromWorkspace(): void
     {
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace(self::BACKEND_SYNAPSE);
@@ -143,7 +143,7 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertMetadata($expectedDateMetadata, $table['columnMetadata']['date']);
     }
 
-    public function testCopyImport()
+    public function testCopyImport(): void
     {
         $table_id = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),
@@ -228,7 +228,7 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertEquals([], $table['columnMetadata']);
     }
 
-    public function testMetadataManipulationRestrictions()
+    public function testMetadataManipulationRestrictions(): void
     {
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace(self::BACKEND_SYNAPSE);

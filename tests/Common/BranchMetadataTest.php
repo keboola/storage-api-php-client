@@ -69,7 +69,7 @@ class BranchMetadataTest extends StorageApiTestCase
      * @dataProvider provideComponentsClientType
      * @return void
      */
-    public function testCreateAndUpdateMetadata()
+    public function testCreateAndUpdateMetadata(): void
     {
         // create metadata client
         $defaultMdClient = new DevBranchesMetadata($this->client);
@@ -105,7 +105,7 @@ class BranchMetadataTest extends StorageApiTestCase
      * @dataProvider provideComponentsClientType
      * @return void
      */
-    public function testManipulateMetadataRestrictionForReadOnlyUser()
+    public function testManipulateMetadataRestrictionForReadOnlyUser(): void
     {
         // create read only client
         $readOnlyClient = $this->clientProvider->createBranchAwareClientForCurrentTest([
@@ -133,7 +133,7 @@ class BranchMetadataTest extends StorageApiTestCase
      * @dataProvider provideComponentsClientType
      * @return void
      */
-    public function testSetMetadataEvent()
+    public function testSetMetadataEvent(): void
     {
         // create metadata client
         $defaultMdClient = new DevBranchesMetadata($this->client);
@@ -162,7 +162,7 @@ class BranchMetadataTest extends StorageApiTestCase
      * @dataProvider provideComponentsClientType
      * @return void
      */
-    public function testDeleteMetadata()
+    public function testDeleteMetadata(): void
     {
         // create metadata client
         $defaultMdClient = new DevBranchesMetadata($this->client);
@@ -202,7 +202,7 @@ class BranchMetadataTest extends StorageApiTestCase
      * @dataProvider provideComponentsClientType
      * @return void
      */
-    public function testDeleteMetadataRestrictionForReadOnlyUser()
+    public function testDeleteMetadataRestrictionForReadOnlyUser(): void
     {
         // create read only client
         $readOnlyClient = $this->clientProvider->createBranchAwareClientForCurrentTest([
@@ -237,7 +237,7 @@ class BranchMetadataTest extends StorageApiTestCase
      * @dataProvider provideComponentsClientType
      * @return void
      */
-    public function testDeleteMetadataEvent()
+    public function testDeleteMetadataEvent(): void
     {
         // create metadata client
         $defaultMdClient = new DevBranchesMetadata($this->client);
@@ -270,7 +270,7 @@ class BranchMetadataTest extends StorageApiTestCase
     /**
      * @return void
      */
-    public function testCreateBranchMetadataCopyToBranch()
+    public function testCreateBranchMetadataCopyToBranch(): void
     {
         // create metadata client
         $defaultMdClient = new DevBranchesMetadata($this->client);

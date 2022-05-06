@@ -21,7 +21,7 @@ class DeleteTableTest extends StorageApiTestCase
         $this->initEmptyTestBucketsForParallelTests();
     }
 
-    public function testTableDelete()
+    public function testTableDelete(): void
     {
         $table1Id = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile(__DIR__ . '/../../_data/languages.csv'));
         $table2Id = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages_2', new CsvFile(__DIR__ . '/../../_data/languages.csv'));

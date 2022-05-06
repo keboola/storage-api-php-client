@@ -23,7 +23,7 @@ class JobsListTest extends StorageApiTestCase
         }
     }
 
-    public function testJobsListing()
+    public function testJobsListing(): void
     {
         $jobs = $this->_client->listJobs();
 

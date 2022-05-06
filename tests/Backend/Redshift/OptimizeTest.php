@@ -18,7 +18,7 @@ class OptimizeTest extends StorageApiTestCase
         $this->_initEmptyTestBuckets();
     }
 
-    public function testOptimize()
+    public function testOptimize(): void
     {
         $importFile = __DIR__ . '/../../_data/pk.simple.csv';
 

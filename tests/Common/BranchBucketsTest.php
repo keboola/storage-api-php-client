@@ -16,7 +16,7 @@ class BranchBucketsTest extends StorageApiTestCase
         $this->initEmptyTestBucketsForParallelTests();
     }
 
-    public function testDropAllDevBucketsWhenDropBranch()
+    public function testDropAllDevBucketsWhenDropBranch(): void
     {
         $metadataKey = Metadata::BUCKET_METADATA_KEY_ID_BRANCH;
         $metadataProvider = Metadata::PROVIDER_SYSTEM;

@@ -17,7 +17,7 @@ class FulltextSearchTest extends StorageApiTestCase
         $this->_initEmptyTestBuckets();
     }
 
-    public function testFindDataByFulltext()
+    public function testFindDataByFulltext(): void
     {
         $tableId = $this->prepareTable();
 
@@ -36,7 +36,7 @@ class FulltextSearchTest extends StorageApiTestCase
         $this->assertSame('EcontainsEE', $dataPreviewCsv[1]['column_2']);
     }
 
-    public function testFindNonExistingDataByFulltext()
+    public function testFindNonExistingDataByFulltext(): void
     {
         $tableId = $this->prepareTable();
 
@@ -46,7 +46,7 @@ class FulltextSearchTest extends StorageApiTestCase
         $this->assertCount(0, $dataPreviewCsv);
     }
 
-    public function testFulltextAndWhereFiltersAtTheSameTimeShouldFail()
+    public function testFulltextAndWhereFiltersAtTheSameTimeShouldFail(): void
     {
         $tableId = $this->prepareTable();
 

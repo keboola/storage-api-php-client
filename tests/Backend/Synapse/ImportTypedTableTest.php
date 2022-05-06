@@ -25,7 +25,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
         $this->initEmptyTestBucketsForParallelTests();
     }
 
-    public function testCreateTableDefinition()
+    public function testCreateTableDefinition(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -105,7 +105,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
         //]), 'imported data comparison');
     }
 
-    public function testLoadTypedTables()
+    public function testLoadTypedTables(): void
     {
         $fullLoadExpectationFile = __DIR__ . '/../../_data/tw_accounts.expectation.full.csv';
         $incLoadExpectationFile = __DIR__ . '/../../_data/tw_accounts.expectation.increment.csv';
@@ -291,7 +291,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
         //);
     }
 
-    public function testLoadTypedTablesConversionError()
+    public function testLoadTypedTablesConversionError(): void
     {
         $fullLoadFile = __DIR__ . '/../../_data/users.csv';
 
