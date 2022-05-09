@@ -180,7 +180,7 @@
 		<!-- subset of test to test import and export -->
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/SynapseWorkspacesUnloadTest.php</file>
-		<file>tests/Backend/CommonPart1/ImportExportCommonTest.php</file>
+		<file>tests/Backend/Synapse/SynapseImportExportCommonTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-exasol">
