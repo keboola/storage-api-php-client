@@ -54,8 +54,8 @@ trait WorkspaceConnectionTrait
 
                 return $db;
             case StorageApiTestCase::BACKEND_EXASOL:
-                $db = ExasolConnection::getConnection(
-                    $connection['host'],
+                $db = new ExasolConnection(
+                    'odbc:Driver=exasol;ENCODING=UTF-8;EXAHOST=' . $connection['host'],
                     $connection['user'],
                     $connection['password']
                 );
