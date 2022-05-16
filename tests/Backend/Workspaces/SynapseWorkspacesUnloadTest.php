@@ -22,7 +22,7 @@ class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
         $connection = $workspace['connection'];
 
-        $db = $this->getDbConnection($connection);
+        $db = $this->getDbConnectionSynapse($connection);
 
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
@@ -67,7 +67,7 @@ class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
         $connection = $workspace['connection'];
 
-        $db = $this->getDbConnection($connection);
+        $db = $this->getDbConnectionSynapse($connection);
 
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
@@ -107,7 +107,7 @@ class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
         $connection = $workspace['connection'];
 
-        $db = $this->getDbConnection($connection);
+        $db = $this->getDbConnectionSynapse($connection);
 
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
@@ -160,7 +160,7 @@ class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
         $connection = $workspace['connection'];
 
-        $db = $this->getDbConnection($connection);
+        $db = $this->getDbConnectionSynapse($connection);
 
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',

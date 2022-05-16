@@ -38,7 +38,7 @@ class MetadataFromExasolWorkspaceTest extends ParallelWorkspacesTestCase
         $backend->dropTableIfExists($tableId);
 
         $connection = $workspace['connection'];
-        $db = $this->getDbConnection($connection);
+        $db = $this->getDbConnectionExasol($connection);
 
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
@@ -166,7 +166,7 @@ class MetadataFromExasolWorkspaceTest extends ParallelWorkspacesTestCase
         $backend->dropTableIfExists($tableId);
 
         $connection = $workspace['connection'];
-        $db = $this->getDbConnection($connection);
+        $db = $this->getDbConnectionExasol($connection);
 
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
@@ -244,7 +244,7 @@ class MetadataFromExasolWorkspaceTest extends ParallelWorkspacesTestCase
         $backend->dropTableIfExists($tableId);
 
         $connection = $workspace['connection'];
-        $db = $this->getDbConnection($connection);
+        $db = $this->getDbConnectionExasol($connection);
 
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',

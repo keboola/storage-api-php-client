@@ -38,7 +38,7 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
         $backend->dropTableIfExists($tableId);
 
         $connection = $workspace['connection'];
-        $db = $this->getDbConnection($connection);
+        $db = $this->getDbConnectionSynapse($connection);
 
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
@@ -161,7 +161,7 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
         $backend->dropTableIfExists($tableId);
 
         $connection = $workspace['connection'];
-        $db = $this->getDbConnection($connection);
+        $db = $this->getDbConnectionSynapse($connection);
 
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
@@ -239,7 +239,7 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
         $backend->dropTableIfExists($tableId);
 
         $connection = $workspace['connection'];
-        $db = $this->getDbConnection($connection);
+        $db = $this->getDbConnectionSynapse($connection);
 
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',

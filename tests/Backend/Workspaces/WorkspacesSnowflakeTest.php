@@ -3,6 +3,7 @@
 namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\Csv\CsvFile;
+use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
@@ -111,7 +112,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
 
         $this->assertGreaterThan(0, $workspace['statementTimeoutSeconds']);
 
-        $db = $this->getDbConnection($workspace['connection']);
+        $db = $this->getDbConnectionSnowflake($workspace['connection']);
 
         $timeout = $db->fetchAll('SHOW PARAMETERS LIKE \'STATEMENT_TIMEOUT_IN_SECONDS\'')[0]['value'];
         $this->assertEquals($workspace['statementTimeoutSeconds'], $timeout);
@@ -121,7 +122,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
     {
         $workspace = $this->initTestWorkspace();
 
-        $db = $this->getDbConnection($workspace['connection']);
+        $db = $this->getDbConnectionSnowflake($workspace['connection']);
 
         $isKeepAlive = $db->fetchAll(sprintf(
             'SHOW PARAMETERS LIKE \'CLIENT_SESSION_KEEP_ALIVE\' IN USER %s',
@@ -174,7 +175,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $this->assertArrayHasKey('metrics', $actualJobId);
         $this->assertEquals(3584, $actualJobId['metrics']['outBytes']);
 
-        $db = $this->getDbConnection($workspace['connection']);
+        $db = $this->getDbConnectionSnowflake($workspace['connection']);
 
         // check if schema is transient
         $schemas = $db->fetchAll("SHOW SCHEMAS");

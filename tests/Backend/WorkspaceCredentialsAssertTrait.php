@@ -25,10 +25,10 @@ trait WorkspaceCredentialsAssertTrait
                 $this->getDbConnection($connection);
                 throw new \Exception(self::$RETRY_FAIL_MESSAGE);
             });
-        } catch (\Doctrine\DBAL\Driver\PDOException $e) {
+        } catch (\Doctrine\DBAL\Driver\Exception $e) {
             // Synapse|Exasol
             if (!in_array(
-                $e->getCode(),
+                (string) $e->getCode(),
                 [
                     //https://docs.microsoft.com/en-us/sql/odbc/reference/appendixes/appendix-a-odbc-error-codes?view=sql-server-ver15
                     '28000', // Invalid authorization specification

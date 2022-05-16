@@ -66,7 +66,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
-        $db = $this->getDbConnection($workspace['connection']);
+        $db = $this->getDbConnectionRedshift($workspace['connection']);
 
         // Create a table of sample data
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -123,7 +123,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
-        $db = $this->getDbConnection($workspace['connection']);
+        $db = $this->getDbConnectionRedshift($workspace['connection']);
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable(
