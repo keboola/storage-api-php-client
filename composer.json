@@ -43,7 +43,8 @@
 		"keboola/retry": "^0.5.0",
 		"phpstan/phpstan": "1.6.8",
 		"phpstan/phpstan-phpunit": "^1.0",
-		"keboola/phpunit-retry-annotations": "^0.4"
+		"keboola/phpunit-retry-annotations": "^0.4",
+		"rector/rector": "^0.12.23"
 	},
 	"scripts": {
 		"phpcs": "phpcs -n .",
