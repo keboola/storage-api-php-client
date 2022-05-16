@@ -1276,11 +1276,6 @@ parameters:
 			path: src/Keboola/StorageApi/Client.php
 
 		-
-			message: "#^Parameter \\#1 \\$filename of function fopen expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
 			message: "#^Parameter \\#1 \\$id of method Keboola\\\\StorageApi\\\\Tokens\\:\\:dropToken\\(\\) expects int, string given\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
@@ -2906,11 +2901,6 @@ parameters:
 			path: src/Keboola/StorageApi/ProcessPolyfill.php
 
 		-
-			message: "#^If condition is always false\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/S3Uploader.php
-
-		-
 			message: "#^Method Keboola\\\\StorageApi\\\\S3Uploader\\:\\:putFile\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/S3Uploader.php
@@ -2976,11 +2966,6 @@ parameters:
 			path: src/Keboola/StorageApi/S3Uploader.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\S3Uploader\\:\\:uploadFile\\(\\) has parameter \\$name with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/S3Uploader.php
-
-		-
 			message: "#^Method Keboola\\\\StorageApi\\\\S3Uploader\\:\\:uploadSlicedFile\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/S3Uploader.php
@@ -3041,37 +3026,12 @@ parameters:
 			path: src/Keboola/StorageApi/S3Uploader.php
 
 		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$name\\)\\: Unexpected token \"\\$name\", expected type at offset 98$#"
-			count: 1
-			path: src/Keboola/StorageApi/S3Uploader.php
-
-		-
 			message: "#^PHPDoc tag @param has invalid value \\(\\$slices\\)\\: Unexpected token \"\\$slices\", expected type at offset 78$#"
 			count: 1
 			path: src/Keboola/StorageApi/S3Uploader.php
 
 		-
 			message: "#^Parameter \\#3 \\$key of method Keboola\\\\StorageApi\\\\S3Uploader\\:\\:multipartUploaderFactory\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/S3Uploader.php
-
-		-
-			message: "#^Parameter \\#7 \\$name of method Keboola\\\\StorageApi\\\\S3Uploader\\:\\:multipartUploaderFactory\\(\\) expects null, string given\\.$#"
-			count: 2
-			path: src/Keboola/StorageApi/S3Uploader.php
-
-		-
-			message: "#^Ternary operator condition is always false\\.$#"
-			count: 5
-			path: src/Keboola/StorageApi/S3Uploader.php
-
-		-
-			message: "#^Variable \\$encryption in empty\\(\\) always exists and is always falsy\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/S3Uploader.php
-
-		-
-			message: "#^Variable \\$name in empty\\(\\) always exists and is always falsy\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/S3Uploader.php
 
@@ -5946,11 +5906,6 @@ parameters:
 			path: tests/Backend/Workspaces/LegacyWorkspacesSynapseTest.php
 
 		-
-			message: "#^Call to an undefined method Doctrine\\\\DBAL\\\\Connection\\|Keboola\\\\Db\\\\Import\\\\Snowflake\\\\Connection\\|PDO\\:\\:getDatabasePlatform\\(\\)\\.$#"
-			count: 2
-			path: tests/Backend/Workspaces/MetadataFromExasolWorkspaceTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\MetadataFromExasolWorkspaceTest\\:\\:assertMetadata\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/MetadataFromExasolWorkspaceTest.php
@@ -5999,11 +5954,6 @@ parameters:
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\MetadataFromSnowflakeWorkspaceTest\\:\\:assertMetadata\\(\\) has parameter \\$metadata with no type specified\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/MetadataFromSnowflakeWorkspaceTest.php
-
-		-
-			message: "#^Call to an undefined method Doctrine\\\\DBAL\\\\Connection\\|Keboola\\\\Db\\\\Import\\\\Snowflake\\\\Connection\\|PDO\\:\\:getDatabasePlatform\\(\\)\\.$#"
-			count: 3
-			path: tests/Backend/Workspaces/MetadataFromSynapseWorkspaceTest.php
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\MetadataFromSynapseWorkspaceTest\\:\\:assertMetadata\\(\\) has no return type specified\\.$#"
@@ -6079,11 +6029,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$csvString of static method Keboola\\\\StorageApi\\\\Client\\:\\:parseCsv\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/SnowflakeDynamicBackendsTest.php
-
-		-
-			message: "#^Call to an undefined method Doctrine\\\\DBAL\\\\Connection\\|Keboola\\\\Db\\\\Import\\\\Snowflake\\\\Connection\\|PDO\\:\\:getDatabasePlatform\\(\\)\\.$#"
-			count: 4
-			path: tests/Backend/Workspaces/SynapseWorkspacesUnloadTest.php
 
 		-
 			message: "#^Cannot access offset 'id' on mixed\\.$#"
@@ -6231,11 +6176,6 @@ parameters:
 			path: tests/Backend/Workspaces/WorkspacesLoadTest.php
 
 		-
-			message: "#^Call to an undefined method Doctrine\\\\DBAL\\\\Connection\\|Keboola\\\\Db\\\\Import\\\\Snowflake\\\\Connection\\|PDO\\:\\:prepare\\(\\)\\.$#"
-			count: 3
-			path: tests/Backend/Workspaces/WorkspacesRedshiftTest.php
-
-		-
 			message: "#^Cannot access offset 'distkey' on mixed\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/WorkspacesRedshiftTest.php
@@ -6319,16 +6259,6 @@ parameters:
 			message: "#^PHPDoc tag @param has invalid value \\(\\$columnsDefinition\\)\\: Unexpected token \"\\$columnsDefinition\", expected type at offset 63$#"
 			count: 1
 			path: tests/Backend/Workspaces/WorkspacesRenameLoadTest.php
-
-		-
-			message: "#^Call to an undefined method Doctrine\\\\DBAL\\\\Connection\\|Keboola\\\\Db\\\\Import\\\\Snowflake\\\\Connection\\|PDO\\:\\:fetchAll\\(\\)\\.$#"
-			count: 4
-			path: tests/Backend/Workspaces/WorkspacesSnowflakeTest.php
-
-		-
-			message: "#^Call to an undefined method Doctrine\\\\DBAL\\\\Connection\\|Keboola\\\\Db\\\\Import\\\\Snowflake\\\\Connection\\|PDO\\:\\:quoteIdentifier\\(\\)\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/WorkspacesSnowflakeTest.php
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\WorkspacesSnowflakeTest\\:\\:dataTypesDiffDefinitions\\(\\) has no return type specified\\.$#"
