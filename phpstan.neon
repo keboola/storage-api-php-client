@@ -11,6 +11,7 @@ parameters:
     excludePaths:
         - vendor
         - cache
+        - rector.php
 includes:
     - phpstan-baseline.neon
     - vendor/phpstan/phpstan-phpunit/extension.neon
