@@ -77,8 +77,8 @@ class S3Uploader
      * @param $acl
      * @param $key
      * @param $filePath
-     * @param null $name
-     * @param null $encryption
+     * @param string $name
+     * @param string $encryption
      * @throws ClientException
      */
     private function putFile($bucket, $key, $acl, $filePath, $name = null, $encryption = null)
