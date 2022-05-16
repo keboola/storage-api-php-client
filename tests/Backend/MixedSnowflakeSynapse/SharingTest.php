@@ -395,12 +395,12 @@ class SharingTest extends StorageApiSharingTestCase
         $db = $this->getDbConnection($connection);
 
         if ($db instanceof \Doctrine\DBAL\Connection) {
-            $db->query("create table [Languages3] (
+            $db->executeQuery("create table [Languages3] (
 			[Id] integer not null,
 			[Name] varchar(10) not null
 		);");
-            $db->query("insert into [Languages3] ([Id], [Name]) values (1, 'cz');");
-            $db->query("insert into [Languages3] ([Id], [Name]) values (2, 'en');");
+            $db->executeQuery("insert into [Languages3] ([Id], [Name]) values (1, 'cz');");
+            $db->executeQuery("insert into [Languages3] ([Id], [Name]) values (2, 'en');");
         } else {
             $db->query("create table \"test.Languages3\" (
 			\"Id\" integer not null,

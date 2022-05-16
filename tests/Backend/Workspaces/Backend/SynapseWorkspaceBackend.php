@@ -55,12 +55,12 @@ class SynapseWorkspaceBackend implements WorkspaceBackend
     public function dropTable($table)
     {
         $qb = new SynapseTableQueryBuilder();
-        $this->db->exec($qb->getDropTableCommand($this->schema, $table));
+        $this->db->executeStatement($qb->getDropTableCommand($this->schema, $table));
     }
 
     public function dropTableColumn($table, $column)
     {
-        $this->db->exec(sprintf(
+        $this->db->executeStatement(sprintf(
             "ALTER TABLE %s.%s DROP COLUMN %s;",
             $this->platform->quoteSingleIdentifier($this->schema),
             $this->platform->quoteSingleIdentifier($table),
@@ -86,7 +86,7 @@ class SynapseWorkspaceBackend implements WorkspaceBackend
         }
 
         $qb = new SynapseTableQueryBuilder();
-        $this->db->exec($qb->getCreateTableCommand(
+        $this->db->executeStatement($qb->getCreateTableCommand(
             $this->schema,
             $tableName,
             new ColumnCollection($cols)
@@ -97,7 +97,7 @@ class SynapseWorkspaceBackend implements WorkspaceBackend
     {
         $data = [];
         /** @var array[] $res */
-        $res = $this->db->fetchAll(sprintf(
+        $res = $this->db->fetchAllAssociative(sprintf(
             "SELECT * FROM %s.%s %s;",
             $this->platform->quoteSingleIdentifier($this->schema),
             $this->platform->quoteSingleIdentifier($table),
@@ -163,7 +163,7 @@ class SynapseWorkspaceBackend implements WorkspaceBackend
 
     public function dropTableIfExists($table)
     {
-        $this->db->exec(sprintf(
+        $this->db->executeStatement(sprintf(
             "IF OBJECT_ID (N'%s.%s', N'U') IS NOT NULL DROP TABLE %s.%s;",
             $this->platform->quoteSingleIdentifier($this->schema),
             $this->platform->quoteSingleIdentifier($table),

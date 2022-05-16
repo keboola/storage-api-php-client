@@ -187,7 +187,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
             $this->fail("workspace no longer exists. connection should be dead.");
         } catch (\PDOException $e) { // catch redshift connection exception
             $this->assertEquals("57P01", $e->getCode());
-        } catch (DBALException $e) {
+        } catch (\Doctrine\DBAL\Exception $e) {
             // Synapse
             $this->assertEquals(0, $e->getCode(), $e->getMessage());
         } catch (\Exception $e) {
