@@ -26,7 +26,7 @@ class WhereFilterTest extends StorageApiTestCase
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'conditions', $csvFile);
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessageRegExp('~Operator ' . $where['operator'] . ' not allowed .* Available operators are~');
+        $this->expectExceptionMessageMatches('~Operator ' . $where['operator'] . ' not allowed .* Available operators are~');
         $this->_client->getTableDataPreview($tableId, ['whereFilters' => [$where]]);
     }
 

@@ -18,6 +18,6 @@ return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->rule(InlineConstructorDefaultToPropertyRector::class);
 
     $rectorConfig->sets([
-        PHPUnitSetList::PHPUNIT_80,
+        PHPUnitSetList::PHPUNIT_90,
     ]);
 };

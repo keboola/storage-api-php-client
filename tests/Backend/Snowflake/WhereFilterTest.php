@@ -70,7 +70,7 @@ class WhereFilterTest extends StorageApiTestCase
             ],
         ];
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessageRegExp('~Data type non-existing not recognized~');
+        $this->expectExceptionMessageMatches('~Data type non-existing not recognized~');
         $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
     }
 
@@ -87,7 +87,7 @@ class WhereFilterTest extends StorageApiTestCase
             ],
         ];
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessageRegExp('~Data type non-existing not recognized~');
+        $this->expectExceptionMessageMatches('~Data type non-existing not recognized~');
         $this->getExportedTable($tableId, ['whereFilters' => $where]);
     }
 
@@ -150,7 +150,7 @@ class WhereFilterTest extends StorageApiTestCase
         ];
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessageRegExp('~Invalid where operator non-existing~');
+        $this->expectExceptionMessageMatches('~Invalid where operator non-existing~');
         $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
     }
 
@@ -167,7 +167,7 @@ class WhereFilterTest extends StorageApiTestCase
         ];
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessageRegExp('~Invalid where operator non-existing~');
+        $this->expectExceptionMessageMatches('~Invalid where operator non-existing~');
         $this->getExportedTable($tableId, ['whereFilters' => $where]);
     }
 

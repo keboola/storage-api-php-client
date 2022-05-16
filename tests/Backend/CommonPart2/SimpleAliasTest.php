@@ -144,7 +144,7 @@ class SimpleAliasTest extends StorageApiTestCase
 
         $this->expectException(ClientException::class);
         $this->expectExceptionCode(400);
-        $this->expectExceptionMessageRegExp('/^The table users cannot be deleted because an alias exists./');
+        $this->expectExceptionMessageMatches('/^The table users cannot be deleted because an alias exists./');
         $this->_client->dropTable($sourceTableId);
     }
 
@@ -757,7 +757,7 @@ class SimpleAliasTest extends StorageApiTestCase
 
         $this->expectException(ClientException::class);
         $this->expectExceptionCode(400);
-        $this->expectExceptionMessageRegExp('/^Cannot change auto sync settings - table has dependent aliases$/');
+        $this->expectExceptionMessageMatches('/^Cannot change auto sync settings - table has dependent aliases$/');
         $this->_client->disableAliasTableColumnsAutoSync($aliasTableId);
     }
 
