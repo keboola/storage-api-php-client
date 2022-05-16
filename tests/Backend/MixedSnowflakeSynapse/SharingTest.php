@@ -54,7 +54,7 @@ class SharingTest extends StorageApiSharingTestCase
      * @param string $workspaceBackend
      * @param string $expectedLoadType
      * @throws ClientException
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Exception
      * @throws \Keboola\StorageApi\Exception
      */
     public function testWorkspaceLoadData(
