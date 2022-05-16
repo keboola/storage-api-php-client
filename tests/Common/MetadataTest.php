@@ -60,7 +60,7 @@ class MetadataTest extends StorageApiTestCase
         $this->assertArrayHasKey("value", $metadatas[0]);
         $this->assertArrayHasKey("provider", $metadatas[0]);
         $this->assertArrayHasKey("timestamp", $metadatas[0]);
-        $this->assertRegExp(self::ISO8601_REGEXP, $metadatas[0]['timestamp']);
+        $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $metadatas[0]['timestamp']);
         $this->assertEquals(self::TEST_PROVIDER, $metadatas[0]['provider']);
 
         $origValue = $metadatas[0]['value'];
@@ -198,7 +198,7 @@ class MetadataTest extends StorageApiTestCase
         $this->assertArrayHasKey("value", $metadatas[0]);
         $this->assertArrayHasKey("provider", $metadatas[0]);
         $this->assertArrayHasKey("timestamp", $metadatas[0]);
-        $this->assertRegExp(self::ISO8601_REGEXP, $metadatas[0]['timestamp']);
+        $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $metadatas[0]['timestamp']);
         $this->assertEquals(self::TEST_PROVIDER, $metadatas[0]['provider']);
 
         $mdCopy = $metadatas[0];
@@ -289,7 +289,7 @@ class MetadataTest extends StorageApiTestCase
         $this->assertArrayHasKey("value", $metadata[0]);
         $this->assertArrayHasKey("provider", $metadata[0]);
         $this->assertArrayHasKey("timestamp", $metadata[0]);
-        $this->assertRegExp(self::ISO8601_REGEXP, $metadata[0]['timestamp']);
+        $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $metadata[0]['timestamp']);
         $this->assertEquals(self::TEST_PROVIDER, $metadata[0]['provider']);
         // check columns metadata
         $columns = $metadatas['columnsMetadata'];
@@ -303,13 +303,13 @@ class MetadataTest extends StorageApiTestCase
         $this->assertArrayHasKey("value", $metadata[0]);
         $this->assertArrayHasKey("provider", $metadata[0]);
         $this->assertArrayHasKey("timestamp", $metadata[0]);
-        $this->assertRegExp(self::ISO8601_REGEXP, $metadata[0]['timestamp']);
+        $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $metadata[0]['timestamp']);
         $this->assertEquals(self::TEST_PROVIDER, $metadata[0]['provider']);
         $this->assertArrayHasKey("key", $metadata[1]);
         $this->assertArrayHasKey("value", $metadata[1]);
         $this->assertArrayHasKey("provider", $metadata[1]);
         $this->assertArrayHasKey("timestamp", $metadata[1]);
-        $this->assertRegExp(self::ISO8601_REGEXP, $metadata[1]['timestamp']);
+        $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $metadata[1]['timestamp']);
         $this->assertEquals(self::TEST_PROVIDER, $metadata[1]['provider']);
         // check column 2
         $metadata = $metadatas['columnsMetadata'][$column2];
@@ -318,7 +318,7 @@ class MetadataTest extends StorageApiTestCase
         $this->assertArrayHasKey("value", $metadata[0]);
         $this->assertArrayHasKey("provider", $metadata[0]);
         $this->assertArrayHasKey("timestamp", $metadata[0]);
-        $this->assertRegExp(self::ISO8601_REGEXP, $metadata[0]['timestamp']);
+        $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $metadata[0]['timestamp']);
         $this->assertEquals(self::TEST_PROVIDER, $metadata[0]['provider']);
 
         // copy metadata
@@ -515,7 +515,7 @@ class MetadataTest extends StorageApiTestCase
         $this->assertArrayHasKey("value", $metadatas[0]);
         $this->assertArrayHasKey("provider", $metadatas[0]);
         $this->assertArrayHasKey("timestamp", $metadatas[0]);
-        $this->assertRegExp(self::ISO8601_REGEXP, $metadatas[0]['timestamp']);
+        $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $metadatas[0]['timestamp']);
         $this->assertEquals(self::TEST_PROVIDER, $metadatas[0]['provider']);
 
         $mdCopy = $metadatas[0];

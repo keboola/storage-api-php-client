@@ -496,7 +496,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             $components->deleteConfigurationMetadata('transformation', $configurationNameMain1, $wrDbMetadata[0]['id']);
             $this->fail('should fail, don\'t have access to resource');
         } catch (ClientException $e) {
-            $this->assertRegExp(
+            $this->assertMatchesRegularExpression(
                 '/^Metadata with id "[0-9]+" not found for "transformation" configuration '.
                 '"[a-z0-9]+\\\main-1" in branch "[0-9]+"$/',
                 $e->getMessage()
@@ -536,7 +536,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             $components->deleteConfigurationMetadata('transformation', $configurationNameMain1, $listConfigurationMetadata[0]['id']);
             $this->fail('should fail, not allowed delete metadata in dev branch using default branch client');
         } catch (ClientException $e) {
-            $this->assertRegExp(
+            $this->assertMatchesRegularExpression(
                 '/^Metadata with id "[0-9]+" not found for "transformation" configuration '.
                 '"[a-z0-9]+\\\+main-1" in branch "[0-9]+"$/',
                 $e->getMessage()

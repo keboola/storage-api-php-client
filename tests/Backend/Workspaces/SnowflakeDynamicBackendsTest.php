@@ -212,7 +212,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
             ]);
         } catch (ClientException $e) {
             $this->assertSame(400, $e->getCode());
-            $this->assertRegExp(
+            $this->assertMatchesRegularExpression(
                 '/^Invalid backend size: "ultralarge". Allowed values: [a-z\,\ ]+\.$/',
                 $e->getMessage()
             );

@@ -268,7 +268,7 @@ class TimestampTest extends ParallelWorkspacesTestCase
                 $timestampRecord['_timestamp'],
                 '_timestamp field must not be a null.'
             );
-            $this->assertRegExp(
+            $this->assertMatchesRegularExpression(
                 self::TIMESTAMP_FORMAT,
                 $timestampRecord['_timestamp'],
                 '_timestamp has wrong pattern.'

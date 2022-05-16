@@ -511,7 +511,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
             $this->assertEquals($expectedKeyValues[$data['key']], $data['value']);
             $this->assertArrayHasKey("provider", $data);
             $this->assertArrayHasKey("timestamp", $data);
-            $this->assertRegExp(self::ISO8601_REGEXP, $data['timestamp']);
+            $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $data['timestamp']);
             $this->assertEquals(Metadata::PROVIDER_STORAGE, $data['provider']);
         }
     }

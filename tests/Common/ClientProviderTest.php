@@ -139,7 +139,7 @@ class ClientProviderTest extends StorageApiTestCase
             . '\d+'
             . '$/';
 
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             $branchNamePattern,
             $this->clientProvider->getDevBranchName()
         );
