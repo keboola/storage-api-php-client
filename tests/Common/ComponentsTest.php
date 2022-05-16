@@ -229,8 +229,8 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertSame('Configuration created', $component['changeDescription']);
         $this->assertFalse($component['isDeleted']);
         $this->assertEquals(4, $component['version']);
-        $this->assertInternalType('int', $component['version']);
-        $this->assertInternalType('int', $component['creatorToken']['id']);
+        $this->assertIsInt($component['version']);
+        $this->assertIsInt($component['creatorToken']['id']);
         $this->assertCount(0, $component['rows']);
     }
 
@@ -279,8 +279,8 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertNotEmpty($component['changeDescription']);
         $this->assertTrue($component['isDeleted']);
         $this->assertEquals(2, $component['version']);
-        $this->assertInternalType('int', $component['version']);
-        $this->assertInternalType('int', $component['creatorToken']['id']);
+        $this->assertIsInt($component['version']);
+        $this->assertIsInt($component['creatorToken']['id']);
 
         $currentVersion = $component['currentVersion'];
         $this->assertEquals('Configuration deleted', $currentVersion['changeDescription']);
@@ -449,8 +449,8 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEmpty($component['configuration']);
         $this->assertSame('Configuration created', $component['changeDescription']);
         $this->assertEquals(1, $component['version']);
-        $this->assertInternalType('int', $component['version']);
-        $this->assertInternalType('int', $component['creatorToken']['id']);
+        $this->assertIsInt($component['version']);
+        $this->assertIsInt($component['creatorToken']['id']);
 
         $components = $components->listComponents();
         $this->assertCount(1, $components);
@@ -1279,7 +1279,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $this->assertArrayHasKey('version', $configurationVersion);
         $this->assertSame(2, $configurationVersion['version']);
-        $this->assertInternalType('int', $configurationVersion['creatorToken']['id']);
+        $this->assertIsInt($configurationVersion['creatorToken']['id']);
         $this->assertArrayNotHasKey('state', $configurationVersion);
         $this->assertArrayHasKey('configuration', $configurationVersion);
         $this->assertSame($configurationData, $configurationVersion['configuration']);
@@ -1868,8 +1868,8 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals('some desc', $component['description']);
         $this->assertEmpty($component['configuration']);
         $this->assertEquals(1, $component['version']);
-        $this->assertInternalType('int', $component['version']);
-        $this->assertInternalType('int', $component['creatorToken']['id']);
+        $this->assertIsInt($component['version']);
+        $this->assertIsInt($component['creatorToken']['id']);
 
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
         $configurationRow->setRowId('main-1-1');
@@ -2295,8 +2295,8 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals('some desc', $component['description']);
         $this->assertEmpty($component['configuration']);
         $this->assertEquals(1, $component['version']);
-        $this->assertInternalType('int', $component['version']);
-        $this->assertInternalType('int', $component['creatorToken']['id']);
+        $this->assertIsInt($component['version']);
+        $this->assertIsInt($component['creatorToken']['id']);
 
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
         $configurationRow->setRowId('main-1-1');
@@ -2529,8 +2529,8 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals('some desc', $component['description']);
         $this->assertEmpty($component['configuration']);
         $this->assertEquals(1, $component['version']);
-        $this->assertInternalType('int', $component['version']);
-        $this->assertInternalType('int', $component['creatorToken']['id']);
+        $this->assertIsInt($component['version']);
+        $this->assertIsInt($component['creatorToken']['id']);
 
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
         $configurationRow->setRowId('main-1-1');

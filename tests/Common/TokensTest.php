@@ -118,9 +118,9 @@ class TokensTest extends StorageApiTestCase
         $this->assertMasterTokenVisibility($currentToken);
 
         $owner = $currentToken['owner'];
-        $this->assertInternalType('integer', $owner['dataSizeBytes']);
-        $this->assertInternalType('integer', $owner['rowsCount']);
-        $this->assertInternalType('boolean', $owner['hasRedshift']);
+        $this->assertIsInt($owner['dataSizeBytes']);
+        $this->assertIsInt($owner['rowsCount']);
+        $this->assertIsBool($owner['hasRedshift']);
 
         $admin = $currentToken['admin'];
         $this->assertIsString($admin['name']);
@@ -138,7 +138,7 @@ class TokensTest extends StorageApiTestCase
 
         $this->assertArrayHasKey('name', $firstLimit);
         $this->assertArrayHasKey('value', $firstLimit);
-        $this->assertInternalType('int', $firstLimit['value']);
+        $this->assertIsInt($firstLimit['value']);
         $this->assertEquals($firstLimit['name'], $limitKeys[0]);
 
         $tokenFound = false;
@@ -191,9 +191,9 @@ class TokensTest extends StorageApiTestCase
         $this->assertMasterTokenVisibility($currentToken);
 
         $owner = $currentToken['owner'];
-        $this->assertInternalType('integer', $owner['dataSizeBytes']);
-        $this->assertInternalType('integer', $owner['rowsCount']);
-        $this->assertInternalType('boolean', $owner['hasRedshift']);
+        $this->assertIsInt($owner['dataSizeBytes']);
+        $this->assertIsInt($owner['rowsCount']);
+        $this->assertIsBool($owner['hasRedshift']);
 
         $this->assertArrayHasKey('limits', $owner);
         $this->assertArrayHasKey('metrics', $owner);
@@ -204,7 +204,7 @@ class TokensTest extends StorageApiTestCase
 
         $this->assertArrayHasKey('name', $firstLimit);
         $this->assertArrayHasKey('value', $firstLimit);
-        $this->assertInternalType('int', $firstLimit['value']);
+        $this->assertIsInt($firstLimit['value']);
         $this->assertEquals($firstLimit['name'], $limitKeys[0]);
 
         $tokenFound = false;
@@ -277,7 +277,7 @@ class TokensTest extends StorageApiTestCase
             $this->assertArrayHasKey('payAsYouGo', $currentToken['owner']);
 
             $payAsYouGo = $currentToken['owner']['payAsYouGo'];
-            $this->assertInternalType('float', $payAsYouGo['purchasedCredits']);
+            $this->assertIsFloat($payAsYouGo['purchasedCredits']);
         }
     }
 
@@ -301,7 +301,7 @@ class TokensTest extends StorageApiTestCase
             $client->verifyToken();
             $this->fail('Exception should be thrown on invalid token');
         } catch (\Keboola\StorageApi\ClientException $e) {
-            $this->assertNotContains($invalidToken, $e->getMessage(), "Token value should not be returned back");
+            $this->assertStringNotContainsString($invalidToken, $e->getMessage(), "Token value should not be returned back");
         }
     }
 

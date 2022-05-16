@@ -23,8 +23,8 @@ class IndexTest extends StorageApiTestCase
         $this->assertEquals('v2', $index['version']);
         $this->assertArrayHasKey('revision', $index);
 
-        $this->assertInternalType('array', $index['components']);
-        $this->assertInternalType('array', $index['features']);
+        $this->assertIsArray($index['components']);
+        $this->assertIsArray($index['features']);
 
         $component = reset($index['components']);
         $this->assertArrayHasKey('id', $component);
@@ -45,7 +45,7 @@ class IndexTest extends StorageApiTestCase
         $this->assertArrayHasKey('revision', $index);
 
         $this->assertArrayNotHasKey('components', $index);
-        $this->assertInternalType('array', $index['features']);
+        $this->assertIsArray($index['features']);
 
         $this->assertArrayHasKey('urlTemplates', $index);
 

@@ -342,7 +342,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
         } catch (ClientException $e) {
             $this->assertEquals('workspace.columnsNotMatch', $e->getStringCode());
             $this->assertStringContainsString('columns are missing in source table', $e->getMessage());
-            $this->assertContains($tableId, $e->getMessage());
+            $this->assertStringContainsString($tableId, $e->getMessage());
         }
     }
 

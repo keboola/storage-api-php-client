@@ -36,7 +36,7 @@ class AwsFileTest extends StorageApiTestCase
         if ($options->getIsPermanent()) {
             $this->assertNull($file['maxAgeDays']);
         } else {
-            $this->assertInternalType('integer', $file['maxAgeDays']);
+            $this->assertIsInt($file['maxAgeDays']);
             $this->assertEquals(StorageApiTestCase::FILE_LONG_TERM_EXPIRATION_IN_DAYS, $file['maxAgeDays']);
         }
 
