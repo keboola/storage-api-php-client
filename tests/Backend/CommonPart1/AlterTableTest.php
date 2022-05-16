@@ -86,11 +86,9 @@ class AlterTableTest extends StorageApiTestCase
         ];
     }
 
-    /**
-     * @expectedException \Keboola\StorageApi\ClientException
-     */
     public function testTableExistingColumnAdd(): void
     {
+        $this->expectException(\Keboola\StorageApi\ClientException::class);
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile($importFile));
         $this->_client->addTableColumn($tableId, 'id');

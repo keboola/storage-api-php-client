@@ -167,7 +167,7 @@ class SnapshottingTest extends StorageApiTestCase
         $snapshots = $this->_client->listTableSnapshots($sourceTableId, array(
             'limit' => 2,
         ));
-        $this->assertInternalType('array', $snapshots);
+        $this->assertIsArray($snapshots);
         $this->assertCount(2, $snapshots);
 
         $newestSnapshot = reset($snapshots);

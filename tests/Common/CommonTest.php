@@ -52,11 +52,9 @@ class CommonTest extends StorageApiTestCase
         $this->assertEquals($expectedHashmap, $data, "Csv parse to associative array");
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testUrlShouldBeRequired(): void
     {
+        $this->expectException(\InvalidArgumentException::class);
         new Client([
             'token' => STORAGE_API_TOKEN,
         ]);

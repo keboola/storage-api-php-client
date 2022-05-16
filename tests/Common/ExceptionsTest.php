@@ -14,11 +14,9 @@ use Keboola\Test\StorageApiTestCase;
 
 class ExceptionsTest extends StorageApiTestCase
 {
-    /**
-     * @expectedException \Keboola\StorageApi\ClientException
-     */
     public function testException(): void
     {
+        $this->expectException(\Keboola\StorageApi\ClientException::class);
         $t = $this->_client->getTable("nonexistingtable");
     }
 }

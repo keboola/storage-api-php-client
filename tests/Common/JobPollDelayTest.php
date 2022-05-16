@@ -35,11 +35,9 @@ class JobPollDelayTest extends StorageApiTestCase
         $this->assertTrue($methodUsed);
     }
 
-    /**
-     * @expectedException \TypeError
-     */
     public function testInvalidJobPollDelay(): void
     {
+        $this->expectException(\TypeError::class);
         $dumbDelay = 'wait for 30 seconds';
 
         $client = $this->getClient(array(

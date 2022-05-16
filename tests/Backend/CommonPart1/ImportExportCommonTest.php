@@ -244,10 +244,10 @@ class ImportExportCommonTest extends StorageApiTestCase
 
     /**
      * @dataProvider tableImportInvalidData
-     * @expectedException \Keboola\StorageApi\ClientException
      */
     public function testTableInvalidImport($languagesFile): void
     {
+        $this->expectException(\Keboola\StorageApi\ClientException::class);
         $importCsvFile = new CsvFile(__DIR__ . '/../../_data/' . $languagesFile);
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../../_data/languages.csv'));
 
@@ -320,11 +320,9 @@ class ImportExportCommonTest extends StorageApiTestCase
     }
 
 
-    /**
-     * @expectedException \Keboola\StorageApi\ClientException
-     */
     public function testTableNotExistsImport(): void
     {
+        $this->expectException(\Keboola\StorageApi\ClientException::class);
         $importCsvFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
         $this->_client->writeTable('languages', $importCsvFile);
     }
@@ -495,7 +493,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         $fileInfo = $this->_client->getFile($tableExportResult["file"]["id"], (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
 
         $this->assertArrayHasKey('maxAgeDays', $fileInfo);
-        $this->assertInternalType('integer', $fileInfo['maxAgeDays']);
+        $this->assertIsInt($fileInfo['maxAgeDays']);
         $this->assertEquals(StorageApiTestCase::FILE_SHORT_TERM_EXPIRATION_IN_DAYS, $fileInfo['maxAgeDays']);
         $this->assertArrayHasKey('runId', $fileInfo);
         $this->assertEquals($firstRunId, $fileInfo['runId']);
