@@ -1387,7 +1387,7 @@ class TokensTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideInvalidOptionsForGuestUser
-     * @param string $expectedExceptionClass
+     * @param class-string<\Throwable> $expectedExceptionClass
      * @param string $expectedExceptionMessage
      */
     public function testGuestUserSuppliesInvalidOptions(
