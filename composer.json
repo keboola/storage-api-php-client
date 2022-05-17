@@ -37,7 +37,7 @@
 		"keboola/php-csv-db-import": "^2.2",
 		"ext-pdo_pgsql": "*",
 		"phpcompatibility/php-compatibility": "*",
-		"keboola/table-backend-utils": "dev-tf-php8",
+		"keboola/table-backend-utils": "dev-zajca-v1",
 		"brianium/paratest": "2.*|6.*",
 		"ext-pdo": "*",
 		"keboola/retry": "^0.5.0",
