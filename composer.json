@@ -43,7 +43,7 @@
 		"keboola/retry": "^0.5.0",
 		"phpstan/phpstan": "1.6.8",
 		"phpstan/phpstan-phpunit": "^1.0",
-		"keboola/phpunit-retry-annotations": "^0.3.0",
+		"keboola/phpunit-retry-annotations": "dev-KBC-2610-sapi-client-make-8-tests-green",
 		"rector/rector": "^0.12.23"
 	},
 	"scripts": {
