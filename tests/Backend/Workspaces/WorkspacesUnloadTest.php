@@ -122,7 +122,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
             $this->fail('Table should not be created');
         } catch (ClientException $e) {
             $this->assertEquals('storage.invalidColumns', $e->getStringCode());
-            $this->assertStringContainsString('_id', $e->getMessage());
+            $this->assertStringContainsString('_id', strtolower($e->getMessage())); // RS is case insensitive, others are not
         }
     }
 
