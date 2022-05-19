@@ -3,10 +3,10 @@
 namespace Keboola\Test\Backend\Synapse;
 
 use Keboola\Csv\CsvFile;
-use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
+use Keboola\Test\Backend\Workspaces\Backend\SynapseWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
 
@@ -344,5 +344,66 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
         } catch (ClientException $e) {
             self::assertSame('[SQL Server]Bulk load data conversion error (type mismatch or invalid character for the specified codepage) for row starting at byte offset 25, column 4 (sex) in data file /users.csv.gz.', $e->getMessage());
         }
+    }
+
+    public function testUnLoadFromWorkspaceCTAS(): void
+    {
+        $token = $this->_client->verifyToken();
+        if (!in_array('synapse-ctas-om', $token['owner']['features'])) {
+            $this->markTestSkipped(sprintf(
+                'Feature "synapse-ctas-om" is not enabled for project "%s".',
+                $token['owner']['id']
+            ));
+        }
+
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $payload = [
+            'name' => 'languages',
+            'primaryKeysNames' => ['id'],
+            'columns' => [
+                ['name' => 'id', 'definition' => ['type' => 'INT']],
+                ['name' => 'name', 'definition' => ['type' => 'NVARCHAR']],
+            ],
+            'distribution' => [
+                'type' => 'HASH',
+                'distributionColumnsNames' => ['id'],
+            ],
+        ];
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        // create table
+        $tableId = $this->_client->createTableDefinition($bucketId, $payload);
+
+        // block until async events are processed, processing in order is not guaranteed but it should work most of time
+        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
+
+        $workspace = $this->initTestWorkspace();
+        /** @var SynapseWorkspaceBackend $backend */
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists('test');
+        $backend->createTable('test', ['id' => 'INT', 'name' => 'NVARCHAR']);
+        $backend->getDb()->executeStatement('insert into [test] ([id], [name]) values (2, \'cz\');');
+
+        // should be OK tables are same
+        $this->_client->writeTableAsyncDirect($tableId, [
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => 'test',
+            'incremental' => true,
+        ]);
+
+        $backend->dropTableIfExists('test2');
+        $backend->createTable('test2', ['id' => 'NUMERIC', 'name' => 'NVARCHAR']);
+        $backend->getDb()->executeStatement('insert into [test] ([id], [name]) values (2, \'cz\');');
+
+        // should fail id is not int
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Unload error: Source destination columns mismatch. "NUMERIC(38,0)"->"INT"');
+        $this->_client->writeTableAsyncDirect($tableId, [
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => 'test2',
+            'incremental' => true,
+        ]);
     }
 }
