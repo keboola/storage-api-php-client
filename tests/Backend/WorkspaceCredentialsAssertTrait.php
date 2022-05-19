@@ -28,7 +28,7 @@ trait WorkspaceCredentialsAssertTrait
         } catch (\Doctrine\DBAL\Driver\Exception $e) {
             $isCorrectErrorCode = false;
             if ($connection['backend'] === StorageApiTestCase::BACKEND_SYNAPSE) {
-                $isCorrectErrorCode = in_array($e->getCode(), [
+                $isCorrectErrorCode = in_array((string) $e->getCode(), [
                     //Synapse: https://docs.microsoft.com/en-us/sql/odbc/reference/appendixes/appendix-a-odbc-error-codes?view=sql-server-ver15
                     '28000', // Invalid authorization specification
                     '08004', // Server rejected the connection
