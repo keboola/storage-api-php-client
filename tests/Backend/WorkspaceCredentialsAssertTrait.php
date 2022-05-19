@@ -26,24 +26,36 @@ trait WorkspaceCredentialsAssertTrait
                 throw new \Exception(self::$RETRY_FAIL_MESSAGE);
             });
         } catch (\Doctrine\DBAL\Driver\Exception $e) {
-            $isCorrectErrorCode = false;
-            if ($connection['backend'] === StorageApiTestCase::BACKEND_SYNAPSE) {
-                $isCorrectErrorCode = in_array((string) $e->getCode(), [
-                    //Synapse: https://docs.microsoft.com/en-us/sql/odbc/reference/appendixes/appendix-a-odbc-error-codes?view=sql-server-ver15
-                    '28000', // Invalid authorization specification
-                    '08004', // Server rejected the connection
-                ], true);
-            }
-            if ($connection['backend'] === StorageApiTestCase::BACKEND_TERADATA) {
-                /** @phpstan-ignore-next-line */
-                $isCorrectErrorCode = in_array($e->getCode(), [
-                    1, // Failed call to Logon, aborting connection.
-                    130, // TLS connection failed with The legacy port is enabled, but the client failed to connect to it.
-                    210, // The UserId, Password or Account is invalid.
-                ], true);
-            }
-            if (!$isCorrectErrorCode) {
-                $this->fail(sprintf('Unexpected error code "%s" for %s credentials fail.', $e->getCode(), ucfirst($connection['backend'])));
+            switch ($connection['backend']) {
+                case StorageApiTestCase::BACKEND_SYNAPSE:
+                    $this->assertStringContainsString('Login failed', $e->getMessage());
+                    break;
+                case StorageApiTestCase::BACKEND_TERADATA:
+                    $this->assertContains(
+                        $e->getCode(),
+                        [
+                            1,
+                            // Failed call to Logon, aborting connection.
+                            130,
+                            // TLS connection failed with The legacy port is enabled
+                            // but the client failed to connect to it.
+                            210,
+                            // The UserId, Password or Account is invalid.
+                        ],
+                        sprintf(
+                            'Unexpected error message from Teradata code: "%s" message: "%s".',
+                            $e->getCode(),
+                            $e->getMessage()
+                        )
+                    );
+                    break;
+                default:
+                    $this->fail(sprintf(
+                        'Unexpected error message from "%s" backend. code: "%s" message: "%s".',
+                        $connection['backend'],
+                        $e->getCode(),
+                        $e->getMessage()
+                    ));
             }
         } catch (\PDOException $e) {
             // RS
