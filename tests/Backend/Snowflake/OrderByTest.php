@@ -13,13 +13,13 @@ use function GuzzleHttp\json_encode;
 
 class OrderByTest extends StorageApiTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();
     }
 
-    public function testSimpleSort()
+    public function testSimpleSort(): void
     {
         $tableId = $this->prepareTable();
 
@@ -33,7 +33,7 @@ class OrderByTest extends StorageApiTestCase
         $this->assertSame('aa', $exportTable[0]['column_string']);
     }
 
-    public function testSortWithDataType()
+    public function testSortWithDataType(): void
     {
         $tableId = $this->prepareTable();
 
@@ -47,7 +47,7 @@ class OrderByTest extends StorageApiTestCase
         $this->assertSame('1.1234', $exportTable[0]['column_double']);
     }
 
-    public function testComplexSort()
+    public function testComplexSort(): void
     {
         $tableId = $this->prepareTable();
 
@@ -72,7 +72,7 @@ class OrderByTest extends StorageApiTestCase
     /**
      * @dataProvider invalidDataProvider
      */
-    public function testInvalidOrderByParamsShouldReturnErrorInDataPreview($order, $message)
+    public function testInvalidOrderByParamsShouldReturnErrorInDataPreview($order, $message): void
     {
         $tableId = $this->prepareTable();
 
@@ -84,7 +84,7 @@ class OrderByTest extends StorageApiTestCase
     /**
      * @dataProvider invalidDataProvider
      */
-    public function testInvalidOrderByParamsShouldReturnErrorInExport($order, $message)
+    public function testInvalidOrderByParamsShouldReturnErrorInExport($order, $message): void
     {
         $tableId = $this->prepareTable();
 
@@ -120,7 +120,7 @@ class OrderByTest extends StorageApiTestCase
         ];
     }
 
-    public function testNonArrayParamsShouldReturnErrorInAsyncExport()
+    public function testNonArrayParamsShouldReturnErrorInAsyncExport(): void
     {
         $tableId = $this->prepareTable();
 
@@ -132,7 +132,7 @@ class OrderByTest extends StorageApiTestCase
     }
 
 
-    public function testInvalidStructuredQueryInAsyncExport()
+    public function testInvalidStructuredQueryInAsyncExport(): void
     {
         $tableId = $this->prepareTable();
 
@@ -143,7 +143,7 @@ class OrderByTest extends StorageApiTestCase
         $this->getExportedTable($tableId, ['orderBy' => $orderBy]);
     }
 
-    public function testNonArrayParamsShouldReturnErrorInDataPreview()
+    public function testNonArrayParamsShouldReturnErrorInDataPreview(): void
     {
         $tableId = $this->prepareTable();
 
@@ -155,7 +155,7 @@ class OrderByTest extends StorageApiTestCase
     }
 
 
-    public function testInvalidStructuredQueryInADataPreview()
+    public function testInvalidStructuredQueryInADataPreview(): void
     {
         $tableId = $this->prepareTable();
 

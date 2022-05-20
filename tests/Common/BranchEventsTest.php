@@ -15,7 +15,7 @@ class BranchEventsTest extends StorageApiTestCase
     /**
      * @return void
      */
-    public function testCreatedEventAvailableInBranchOnly()
+    public function testCreatedEventAvailableInBranchOnly(): void
     {
         $branch = $this->createDevBranchForTestCase($this);
         $branchName = $branch['name'];
@@ -65,7 +65,7 @@ class BranchEventsTest extends StorageApiTestCase
     /**
      * @return void
      */
-    public function testCreateExternalEvent()
+    public function testCreateExternalEvent(): void
     {
         $branch = $this->createDevBranchForTestCase($this);
         $configurationId = 'config-id-dev-branch-' . $branch['id'];
@@ -146,7 +146,7 @@ class BranchEventsTest extends StorageApiTestCase
     /**
      * @return void
      */
-    public function testCreateBucketEvent()
+    public function testCreateBucketEvent(): void
     {
         $branch = $this->createDevBranchForTestCase($this);
         $configurationId = 'config-id-dev-branch-' . $branch['id'];
@@ -176,7 +176,7 @@ class BranchEventsTest extends StorageApiTestCase
     /**
      * @return void
      */
-    public function testFilterBranchTokenEventsIsNotInDefaultBranch()
+    public function testFilterBranchTokenEventsIsNotInDefaultBranch(): void
     {
         // create new token
         $tokenOptions = (new TokenCreateOptions())

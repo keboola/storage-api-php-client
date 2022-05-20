@@ -10,7 +10,7 @@ class FileUploadTransferOptionsTest extends StorageApiTestCase
 {
 
 
-    public function testGetDefaults()
+    public function testGetDefaults(): void
     {
         $options = new FileUploadTransferOptions();
         $this->assertEquals(50, $options->getChunkSize());
@@ -19,7 +19,7 @@ class FileUploadTransferOptionsTest extends StorageApiTestCase
         $this->assertEquals(5, $options->getMultiFileConcurrency());
     }
 
-    public function testSetters()
+    public function testSetters(): void
     {
         $options = new FileUploadTransferOptions();
 
@@ -34,7 +34,7 @@ class FileUploadTransferOptionsTest extends StorageApiTestCase
         $this->assertEquals(13, $options->getSingleFileConcurrency());
     }
 
-    public function testSetInvalidChunkSize()
+    public function testSetInvalidChunkSize(): void
     {
         $options = new FileUploadTransferOptions();
         try {
@@ -57,7 +57,7 @@ class FileUploadTransferOptionsTest extends StorageApiTestCase
         }
     }
 
-    public function testSetInvalidMaxRetriesPerChunk()
+    public function testSetInvalidMaxRetriesPerChunk(): void
     {
         $options = new FileUploadTransferOptions();
         try {
@@ -80,7 +80,7 @@ class FileUploadTransferOptionsTest extends StorageApiTestCase
         }
     }
 
-    public function testSetInvalidMultiFileConcurrency()
+    public function testSetInvalidMultiFileConcurrency(): void
     {
         $options = new FileUploadTransferOptions();
         try {
@@ -103,7 +103,7 @@ class FileUploadTransferOptionsTest extends StorageApiTestCase
         }
     }
 
-    public function testSetInvalidSingleFileConcurrency()
+    public function testSetInvalidSingleFileConcurrency(): void
     {
         $options = new FileUploadTransferOptions();
         try {

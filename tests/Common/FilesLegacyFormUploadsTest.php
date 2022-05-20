@@ -10,7 +10,7 @@ use \Keboola\StorageApi\Options\FileUploadOptions;
 class FilesLegacyFormUploadsTest extends StorageApiTestCase
 {
 
-    public function testFormUpload()
+    public function testFormUpload(): void
     {
         $token = $this->_client->verifyToken();
         if (in_array($token['owner']['region'], ['eu-central-1', 'ap-northeast-2'])) {
@@ -70,7 +70,7 @@ class FilesLegacyFormUploadsTest extends StorageApiTestCase
         $this->assertEquals(file_get_contents($path), file_get_contents($file['url']));
     }
 
-    public function testEncryptionMustBeSetWhenEnabled()
+    public function testEncryptionMustBeSetWhenEnabled(): void
     {
         $token = $this->_client->verifyToken();
         if (in_array($token['owner']['region'], ['eu-central-1', 'ap-northeast-2'])) {

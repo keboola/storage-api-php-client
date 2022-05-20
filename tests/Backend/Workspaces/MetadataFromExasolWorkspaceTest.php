@@ -12,7 +12,7 @@ class MetadataFromExasolWorkspaceTest extends ParallelWorkspacesTestCase
 {
     use WorkspaceConnectionTrait;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -27,7 +27,7 @@ class MetadataFromExasolWorkspaceTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testCreateTableFromWorkspace()
+    public function testCreateTableFromWorkspace(): void
     {
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace(self::BACKEND_EXASOL);
@@ -38,7 +38,7 @@ class MetadataFromExasolWorkspaceTest extends ParallelWorkspacesTestCase
         $backend->dropTableIfExists($tableId);
 
         $connection = $workspace['connection'];
-        $db = $this->getDbConnection($connection);
+        $db = $this->getDbConnectionExasol($connection);
 
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
@@ -46,7 +46,7 @@ class MetadataFromExasolWorkspaceTest extends ParallelWorkspacesTestCase
             $tableId
         ));
 
-        $db->query("create table $quotedTableId (
+        $db->executeQuery("create table $quotedTableId (
                     \"string\" varchar(16) default 'string' not null,
                     \"char\" char null,
                     \"integer\" int default 4 not null,
@@ -147,7 +147,7 @@ class MetadataFromExasolWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertMetadata($expectedDateMetadata, $table['columnMetadata']['date']);
     }
 
-    public function testCopyImport()
+    public function testCopyImport(): void
     {
         $this->markTestSkipped('missing addTableColumn and incremental');
         $table_id = $this->_client->createTable(
@@ -166,7 +166,7 @@ class MetadataFromExasolWorkspaceTest extends ParallelWorkspacesTestCase
         $backend->dropTableIfExists($tableId);
 
         $connection = $workspace['connection'];
-        $db = $this->getDbConnection($connection);
+        $db = $this->getDbConnectionExasol($connection);
 
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
@@ -233,7 +233,7 @@ class MetadataFromExasolWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertEquals([], $table['columnMetadata']);
     }
 
-    public function testMetadataManipulationRestrictions()
+    public function testMetadataManipulationRestrictions(): void
     {
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace(self::BACKEND_EXASOL);
@@ -244,7 +244,7 @@ class MetadataFromExasolWorkspaceTest extends ParallelWorkspacesTestCase
         $backend->dropTableIfExists($tableId);
 
         $connection = $workspace['connection'];
-        $db = $this->getDbConnection($connection);
+        $db = $this->getDbConnectionExasol($connection);
 
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
@@ -252,7 +252,7 @@ class MetadataFromExasolWorkspaceTest extends ParallelWorkspacesTestCase
             $tableId
         ));
 
-        $db->query("create table $quotedTableId (
+        $db->executeQuery("create table $quotedTableId (
                     \"string\" varchar(16) default 'string' not null 
                 );");
 
@@ -325,7 +325,7 @@ class MetadataFromExasolWorkspaceTest extends ParallelWorkspacesTestCase
             $this->assertEquals($expectedKeyValues[$data['key']], $data['value']);
             $this->assertArrayHasKey("provider", $data);
             $this->assertArrayHasKey("timestamp", $data);
-            $this->assertRegExp(self::ISO8601_REGEXP, $data['timestamp']);
+            $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $data['timestamp']);
             $this->assertEquals(Metadata::PROVIDER_STORAGE, $data['provider']);
         }
     }

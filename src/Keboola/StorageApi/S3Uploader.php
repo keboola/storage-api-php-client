@@ -42,8 +42,8 @@ class S3Uploader
      * @param $key
      * @param $acl
      * @param $file
-     * @param $name
-     * @param null $encryption
+     * @param string $name
+     * @param string $encryption
      * @throws ClientException
      */
     public function uploadFile($bucket, $key, $acl, $file, $name, $encryption = null)
@@ -77,8 +77,8 @@ class S3Uploader
      * @param $acl
      * @param $key
      * @param $filePath
-     * @param null $name
-     * @param null $encryption
+     * @param string $name
+     * @param string $encryption
      * @throws ClientException
      */
     private function putFile($bucket, $key, $acl, $filePath, $name = null, $encryption = null)
@@ -108,8 +108,8 @@ class S3Uploader
      * @param $bucket
      * @param $acl
      * @param array $files
-     * @param null $name
-     * @param null $encryption
+     * @param string $name
+     * @param string $encryption
      * @throws ClientException
      */
     private function upload($bucket, $acl, $files, $name = null, $encryption = null)
@@ -173,8 +173,8 @@ class S3Uploader
      * @param string $key
      * @param string $acl
      * @param int $concurrency
-     * @param null $encryption
-     * @param null $name
+     * @param string $encryption
+     * @param string $name
      * @param UploadState|null $state
      * @return \Aws\S3\MultipartUploader
      */

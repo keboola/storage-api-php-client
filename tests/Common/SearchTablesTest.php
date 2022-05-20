@@ -13,13 +13,13 @@ class SearchTablesTest extends StorageApiTestCase
 {
     const TEST_PROVIDER = "keboola.sapi_client_tests";
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->_initEmptyTestBuckets();
     }
 
-    public function testSearchThrowsErrorWhenIsCalledWithBranch()
+    public function testSearchThrowsErrorWhenIsCalledWithBranch(): void
     {
         $defaultBranchId = $this->getDefaultBranchId($this);
         $branchAwareClient = $this->getBranchAwareDefaultClient($defaultBranchId);
@@ -27,18 +27,18 @@ class SearchTablesTest extends StorageApiTestCase
             $branchAwareClient->searchTables((new SearchTablesOptions()));
             $this->fail('should fail, not implemented with branch');
         } catch (ClientException $e) {
-            $this->assertContains('Not implemented', $e->getMessage());
+            $this->assertStringContainsString('Not implemented', $e->getMessage());
             $this->assertSame(501, $e->getCode());
         }
     }
 
-    public function testSearchTablesNoResult()
+    public function testSearchTablesNoResult(): void
     {
         $result = $this->_client->searchTables(new SearchTablesOptions('nonexisting.key', null, null));
         $this->assertCount(0, $result);
     }
 
-    public function testSearchTables()
+    public function testSearchTables(): void
     {
         $this->_initTable('tableX', [
             [
@@ -80,7 +80,7 @@ class SearchTablesTest extends StorageApiTestCase
         $this->assertCount(1, $result);
     }
 
-    public function testSearchTablesEmptyRequest()
+    public function testSearchTablesEmptyRequest(): void
     {
         try {
             $this->_client->searchTables(new SearchTablesOptions);

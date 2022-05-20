@@ -25,7 +25,7 @@ class TableExporterTest extends StorageApiTestCase
     private $downloadPath;
     private $downloadPathGZip;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();
@@ -37,7 +37,7 @@ class TableExporterTest extends StorageApiTestCase
      * @dataProvider tableExportData
      * @param $importFileName
      */
-    public function testTableAsyncExport(array $supportedBackends, CsvFile $importFile, $expectationsFileName, $exportOptions = array())
+    public function testTableAsyncExport(array $supportedBackends, CsvFile $importFile, $expectationsFileName, $exportOptions = array()): void
     {
         $expectationsFile = __DIR__ . '/../../_data/' . $expectationsFileName;
         $tokenData = $this->_client->verifyToken();
@@ -97,7 +97,7 @@ class TableExporterTest extends StorageApiTestCase
         $this->assertTrue($job['operationParams']['export']['gzipOutput']);
     }
 
-    public function testLimitParameter()
+    public function testLimitParameter(): void
     {
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', $importFile);
@@ -114,7 +114,7 @@ class TableExporterTest extends StorageApiTestCase
     }
 
 
-    public function testExportTablesEmptyColumns()
+    public function testExportTablesEmptyColumns(): void
     {
         $filesBasePath = __DIR__ . '/../../_data/';
         $table1Id = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'languages1', new CsvFile($filesBasePath . 'languages.csv'));
@@ -173,7 +173,7 @@ class TableExporterTest extends StorageApiTestCase
         $this->assertSame($table2['columns'], $table2Job['operationParams']['export']['columns']);
     }
 
-    public function testExportTablesWithColumns()
+    public function testExportTablesWithColumns(): void
     {
         $filesBasePath = __DIR__ . '/../../_data/';
         $table1Id = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'languages1', new CsvFile($filesBasePath . 'languages.csv'));
@@ -222,7 +222,7 @@ class TableExporterTest extends StorageApiTestCase
         $this->assertSame(['name', 'id'], $table1Job['operationParams']['export']['columns']);
     }
 
-    public function testExportTablesMissingTableId()
+    public function testExportTablesMissingTableId(): void
     {
         $exporter = new TableExporter($this->_client);
         try {
@@ -233,7 +233,7 @@ class TableExporterTest extends StorageApiTestCase
         }
     }
 
-    public function testExportTablesEmptyTableId()
+    public function testExportTablesEmptyTableId(): void
     {
         $exporter = new TableExporter($this->_client);
         try {
@@ -244,7 +244,7 @@ class TableExporterTest extends StorageApiTestCase
         }
     }
 
-    public function testExportTablesMissingDestination()
+    public function testExportTablesMissingDestination(): void
     {
         $exporter = new TableExporter($this->_client);
         try {
@@ -255,7 +255,7 @@ class TableExporterTest extends StorageApiTestCase
         }
     }
 
-    public function testExportTablesEmptyDestination()
+    public function testExportTablesEmptyDestination(): void
     {
         $exporter = new TableExporter($this->_client);
         try {
@@ -266,14 +266,14 @@ class TableExporterTest extends StorageApiTestCase
         }
     }
 
-    public function testExportTablesInvalidTable()
+    public function testExportTablesInvalidTable(): void
     {
         $exporter = new TableExporter($this->_client);
         try {
             $exporter->exportTables(array(array('tableId' => 'in.c-dummy.dummy', 'destination' => 'dummy')));
             $this->fail('Missing exception');
         } catch (ClientException $e) {
-            $this->assertContains('The table "dummy" was not found in the bucket "in.c-dummy"', $e->getMessage());
+            $this->assertStringContainsString('The table "dummy" was not found in the bucket "in.c-dummy"', $e->getMessage());
         }
     }
 

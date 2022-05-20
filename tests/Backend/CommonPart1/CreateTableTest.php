@@ -18,13 +18,13 @@ class CreateTableTest extends StorageApiTestCase
 {
 
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();
     }
 
-    public function testSyntheticPrimaryKey()
+    public function testSyntheticPrimaryKey(): void
     {
         $testBucketName = $this->getTestBucketName($this->getTestBucketId());
         $testBucketStage = self::STAGE_IN;
@@ -111,7 +111,7 @@ class CreateTableTest extends StorageApiTestCase
      * @dataProvider tableCreateData
      * @param $createFile
      */
-    public function testTableCreate($tableName, $createFile, $expectationFile, $async, $options = array())
+    public function testTableCreate($tableName, $createFile, $expectationFile, $async, $options = array()): void
     {
         $createMethod = $async ? 'createTableAsync' : 'createTable';
         $tableId = $this->_client->{$createMethod}(
@@ -248,7 +248,7 @@ class CreateTableTest extends StorageApiTestCase
         );
     }
 
-    public function testTableWithUnsupportedCharactersInNameShouldNotBeCreated()
+    public function testTableWithUnsupportedCharactersInNameShouldNotBeCreated(): void
     {
         try {
             $tableId = $this->_client->createTable(
@@ -262,7 +262,7 @@ class CreateTableTest extends StorageApiTestCase
         }
     }
 
-    public function testTableWithEmptyColumnNamesShouldNotBeCreated()
+    public function testTableWithEmptyColumnNamesShouldNotBeCreated(): void
     {
         try {
             $this->_client->createTable(
@@ -276,7 +276,7 @@ class CreateTableTest extends StorageApiTestCase
         }
     }
 
-    public function testTableFromEmptyFileShouldNotBeCreated()
+    public function testTableFromEmptyFileShouldNotBeCreated(): void
     {
         try {
             $this->_client->createTable(
@@ -307,7 +307,7 @@ class CreateTableTest extends StorageApiTestCase
         }
     }
 
-    public function testTableCreateFromNotUploadedFileShouldThrowError()
+    public function testTableCreateFromNotUploadedFileShouldThrowError(): void
     {
         $file = $this->_client->prepareFileUpload(
             (new FileUploadOptions())
@@ -332,7 +332,7 @@ class CreateTableTest extends StorageApiTestCase
      * @param $async
      * @dataProvider syncAsyncData
      */
-    public function testTableColumnNamesSanitize($async)
+    public function testTableColumnNamesSanitize($async): void
     {
         $csv = new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/filtering.csv');
 
@@ -354,7 +354,7 @@ class CreateTableTest extends StorageApiTestCase
      * @param $async
      * @dataProvider syncAsyncData
      */
-    public function testTableWithLongColumnNamesShouldNotBeCreated($async)
+    public function testTableWithLongColumnNamesShouldNotBeCreated($async): void
     {
         try {
             $method = $async ? 'createTableAsync' : 'createTable';
@@ -376,7 +376,7 @@ class CreateTableTest extends StorageApiTestCase
         );
     }
 
-    public function testTableCreateWithPK()
+    public function testTableCreateWithPK(): void
     {
         if ($this->getDefaultBackend($this->_client) === self::BACKEND_TERADATA) {
             $this->markTestSkipped('deduplication not supported for Teradata');
@@ -398,7 +398,7 @@ class CreateTableTest extends StorageApiTestCase
      * @dataProvider invalidPrimaryKeys
      * @param $backend
      */
-    public function testTableCreateWithInvalidPK($primaryKey)
+    public function testTableCreateWithInvalidPK($primaryKey): void
     {
         try {
             $this->_client->createTable(
@@ -429,7 +429,7 @@ class CreateTableTest extends StorageApiTestCase
         }
     }
 
-    public function testCreateTableWithInvalidTableName()
+    public function testCreateTableWithInvalidTableName(): void
     {
         $this->expectException(ClientException::class);
         $this->_client->createTable(
@@ -448,7 +448,7 @@ class CreateTableTest extends StorageApiTestCase
         );
     }
 
-    public function testTableCreateInvalidPkType()
+    public function testTableCreateInvalidPkType(): void
     {
         // sync
         try {
@@ -483,7 +483,7 @@ class CreateTableTest extends StorageApiTestCase
         }
     }
 
-    public function testRowNumberAmbiguity()
+    public function testRowNumberAmbiguity(): void
     {
         if ($this->getDefaultBackend($this->_client) === self::BACKEND_TERADATA) {
             $this->markTestSkipped('createTablePrimaryKey not supported for Teradata');
@@ -505,7 +505,7 @@ class CreateTableTest extends StorageApiTestCase
     /**
      * @dataProvider createTableFromSlicedFileData
      */
-    public function testCreateTableFromSlicedFile($fileName)
+    public function testCreateTableFromSlicedFile($fileName): void
     {
         $uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
         $uploadOptions
