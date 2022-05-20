@@ -399,7 +399,9 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
 
         // should fail id is not int
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Unload error: Source destination columns mismatch. "NUMERIC(38,0)"->"INT"');
+        $this->expectExceptionMessage(
+            'Table import error: Source destination columns mismatch. "id NUMERIC(38,0)"->"id INT"'
+        );
         $this->_client->writeTableAsyncDirect($tableId, [
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => 'test2',
