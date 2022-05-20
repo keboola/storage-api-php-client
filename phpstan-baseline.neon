@@ -5481,11 +5481,6 @@ parameters:
 			path: tests/Backend/Workspaces/Backend/SnowflakeWorkspaceBackend.php
 
 		-
-			message: "#^Call to an undefined method Doctrine\\\\DBAL\\\\Connection\\|Keboola\\\\Db\\\\Import\\\\Snowflake\\\\Connection\\|PDO\\:\\:getDatabasePlatform\\(\\)\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/Backend/SynapseWorkspaceBackend.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\Backend\\\\SynapseWorkspaceBackend\\:\\:__construct\\(\\) has parameter \\$workspace with no type specified\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/Backend/SynapseWorkspaceBackend.php
