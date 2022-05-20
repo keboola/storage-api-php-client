@@ -92,7 +92,7 @@ class ExasolWorkspaceBackend implements WorkspaceBackend
     public function fetchAll($table, $style = \PDO::FETCH_NUM, $orderBy = null)
     {
         $data = [];
-        $res = $this->db->fetchAll(sprintf(
+        $res = $this->db->fetchAllAssociative(sprintf(
             "SELECT * FROM %s.%s %s;",
             ExasolQuote::quoteSingleIdentifier($this->schema),
             ExasolQuote::quoteSingleIdentifier($table),
@@ -101,7 +101,7 @@ class ExasolWorkspaceBackend implements WorkspaceBackend
         switch ($style) {
             case \PDO::FETCH_NUM:
                 foreach ($res as $row) {
-                    $data[] = array_values($row);
+                    $data[] = array_values((array) $row);
                 }
                 break;
             case \PDO::FETCH_ASSOC:

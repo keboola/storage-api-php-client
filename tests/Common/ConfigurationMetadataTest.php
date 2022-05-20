@@ -35,7 +35,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
      */
     private $client;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -50,7 +50,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testAddMetadata()
+    public function testAddMetadata(): void
     {
         $configurationNameMain1 = $this->generateUniqueNameForString('main-1');
         $configurationNameMain2 = $this->generateUniqueNameForString('main-2');
@@ -170,7 +170,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testUpdateMetadata()
+    public function testUpdateMetadata(): void
     {
         $components = new Components($this->client);
 
@@ -217,7 +217,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testAddMetadataEvent()
+    public function testAddMetadataEvent(): void
     {
         $components = new Components($this->client);
         $configurationOptions = $this->createConfiguration(
@@ -251,7 +251,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
         );
     }
 
-    public function testCreateBranchCopyMetadataToTheDevBranch()
+    public function testCreateBranchCopyMetadataToTheDevBranch(): void
     {
         $configurationNameMain1 = $this->generateUniqueNameForString('main-1');
 
@@ -326,7 +326,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
         self::assertNotContains('newDevBranchKey', $keys);
     }
 
-    public function testResetToDefault()
+    public function testResetToDefault(): void
     {
         $configurationNameMain1 = $this->generateUniqueNameForString('main-1');
         $defaultBranchId = $this->getDefaultBranchId($this);
@@ -405,7 +405,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
         $this->assertMetadataEquals($moreMetadata[0], $listConfigurationMetadata[2]);
     }
 
-    public function testConfigMetadataRestrictionsForReadOnlyUser()
+    public function testConfigMetadataRestrictionsForReadOnlyUser(): void
     {
         $defaultBranchId = $this->getDefaultBranchId($this);
 
@@ -437,12 +437,12 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             $components->addConfigurationMetadata($configurationMetadataOptions);
             $this->fail('should fail, insufficiently permission');
         } catch (ClientException $e) {
-            $this->assertContains('Configuration manipulation is restricted for your user role', $e->getMessage());
+            $this->assertStringContainsString('Configuration manipulation is restricted for your user role', $e->getMessage());
             $this->assertSame(403, $e->getCode());
         }
     }
 
-    public function testDeleteMetadata()
+    public function testDeleteMetadata(): void
     {
         $configurationNameMain1 = $this->generateUniqueNameForString('main-1');
 
@@ -483,7 +483,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             $components->deleteConfigurationMetadata('transformation', $configurationNameMain1, $newMetadata[0]['id']);
             $this->fail('should fail, metadata does not exist');
         } catch (ClientException $e) {
-            $this->assertContains('Metadata with id ', $e->getMessage());
+            $this->assertStringContainsString('Metadata with id ', $e->getMessage());
             $this->assertSame(404, $e->getCode());
         }
 
@@ -496,7 +496,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             $components->deleteConfigurationMetadata('transformation', $configurationNameMain1, $wrDbMetadata[0]['id']);
             $this->fail('should fail, don\'t have access to resource');
         } catch (ClientException $e) {
-            $this->assertRegExp(
+            $this->assertMatchesRegularExpression(
                 '/^Metadata with id "[0-9]+" not found for "transformation" configuration '.
                 '"[a-z0-9]+\\\main-1" in branch "[0-9]+"$/',
                 $e->getMessage()
@@ -512,7 +512,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             $devBranchComponents->deleteConfigurationMetadata('transformation', $configurationNameMain1, $newMetadata[1]['id']);
             $this->fail('should fail, not allowed for devBranch');
         } catch (ClientException $e) {
-            $this->assertContains('Delete metadata is not implemented for development branch', $e->getMessage());
+            $this->assertStringContainsString('Delete metadata is not implemented for development branch', $e->getMessage());
             $this->assertSame(501, $e->getCode());
         }
 
@@ -536,7 +536,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             $components->deleteConfigurationMetadata('transformation', $configurationNameMain1, $listConfigurationMetadata[0]['id']);
             $this->fail('should fail, not allowed delete metadata in dev branch using default branch client');
         } catch (ClientException $e) {
-            $this->assertRegExp(
+            $this->assertMatchesRegularExpression(
                 '/^Metadata with id "[0-9]+" not found for "transformation" configuration '.
                 '"[a-z0-9]+\\\+main-1" in branch "[0-9]+"$/',
                 $e->getMessage()
@@ -545,7 +545,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
         }
     }
 
-    public function testDeleteMetadataEvent()
+    public function testDeleteMetadataEvent(): void
     {
         $defaultBranchId = $this->getDefaultBranchId($this);
 

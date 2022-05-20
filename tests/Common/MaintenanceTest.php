@@ -14,7 +14,7 @@ use Keboola\Test\StorageApiTestCase;
 class MaintenanceTest extends StorageApiTestCase
 {
 
-    public function testMaintenance()
+    public function testMaintenance(): void
     {
         try {
             $client = $this->getClient(array(

@@ -15,7 +15,7 @@ use Psr\Log\NullLogger;
 class LoggingTest extends StorageApiTestCase
 {
 
-    public function testLogger()
+    public function testLogger(): void
     {
         $logger = $this->getMockBuilder(NullLogger::class)
             ->getMock();
@@ -31,7 +31,7 @@ class LoggingTest extends StorageApiTestCase
         $client->verifyToken();
     }
 
-    public function testAwsLogger()
+    public function testAwsLogger(): void
     {
         $logger = $this->getMockBuilder(NullLogger::class)
             ->getMock();

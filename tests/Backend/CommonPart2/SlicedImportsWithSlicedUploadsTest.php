@@ -15,13 +15,13 @@ use Keboola\Csv\CsvFile;
 class SlicedImportsWithSlicedUploadsTest extends StorageApiTestCase
 {
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();
     }
 
-    public function testSlicedImportGzipped()
+    public function testSlicedImportGzipped(): void
     {
 
         $uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
@@ -49,7 +49,7 @@ class SlicedImportsWithSlicedUploadsTest extends StorageApiTestCase
         ));
     }
 
-    public function testSlicedImportSingleFile()
+    public function testSlicedImportSingleFile(): void
     {
         $uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
         $uploadOptions
@@ -85,7 +85,7 @@ class SlicedImportsWithSlicedUploadsTest extends StorageApiTestCase
             'columns' => array('id', 'name'),
         ));
 
-        $data = file_get_contents(__DIR__ . '/../../_data/languages.csv');
+        $data = (string) file_get_contents(__DIR__ . '/../../_data/languages.csv');
         $lines = explode("\n", $data);
         array_shift($lines);
         $data = $data . implode("\n", $lines);
@@ -95,7 +95,7 @@ class SlicedImportsWithSlicedUploadsTest extends StorageApiTestCase
         )), 'imported data comparsion');
     }
 
-    public function testSlicedFileImportWithoutHeadersOption()
+    public function testSlicedFileImportWithoutHeadersOption(): void
     {
         $uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
         $uploadOptions
@@ -125,7 +125,7 @@ class SlicedImportsWithSlicedUploadsTest extends StorageApiTestCase
         $this->assertEquals($tableInfo['rowsCount'], 27945);
     }
 
-    public function testSlicedFileImportWithoutColumnsShouldBeUserError()
+    public function testSlicedFileImportWithoutColumnsShouldBeUserError(): void
     {
         $uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
         $uploadOptions
@@ -157,7 +157,7 @@ class SlicedImportsWithSlicedUploadsTest extends StorageApiTestCase
         }
     }
 
-    public function testSlicedImportCompress()
+    public function testSlicedImportCompress(): void
     {
         $uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
         $uploadOptions

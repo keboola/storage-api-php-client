@@ -15,7 +15,7 @@ use Keboola\StorageApi\Event;
 class TicketsTest extends StorageApiTestCase
 {
 
-    public function testGenerator()
+    public function testGenerator(): void
     {
         $id1 = $this->_client->generateId();
         $this->assertNotEmpty($id1);

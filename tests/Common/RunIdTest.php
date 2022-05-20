@@ -16,13 +16,13 @@ class RunIdTest extends StorageApiTestCase
 {
 
 
-    public function testRunIdCreate()
+    public function testRunIdCreate(): void
     {
         $runId = $this->_client->generateRunId();
         $this->assertNotEmpty($runId);
     }
 
-    public function testRunIdCreateFromPrevious()
+    public function testRunIdCreateFromPrevious(): void
     {
         $previousRunId = '234234';
 
@@ -31,7 +31,7 @@ class RunIdTest extends StorageApiTestCase
         $this->assertStringStartsWith("$previousRunId.", $runId);
     }
 
-    public function testRunIdFiltering()
+    public function testRunIdFiltering(): void
     {
         $topLevelRunId = $this->_client->generateRunId();
 

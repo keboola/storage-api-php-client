@@ -16,13 +16,13 @@ use Keboola\Csv\CsvFile;
 class SnapshottingTest extends StorageApiTestCase
 {
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();
     }
 
-    public function testTableSnapshotCreate()
+    public function testTableSnapshotCreate(): void
     {
         $tableId = $this->initTestTable();
         $table = $this->_client->getTable($tableId);
@@ -41,7 +41,7 @@ class SnapshottingTest extends StorageApiTestCase
         $this->assertNotEmpty($snapshot['dataFileId']);
     }
 
-    public function testTableSnapshotDelete()
+    public function testTableSnapshotDelete(): void
     {
         $tableId = $this->initTestTable();
         $table = $this->_client->getTable($tableId);
@@ -62,7 +62,7 @@ class SnapshottingTest extends StorageApiTestCase
         $this->_client->deleteSnapshot($snapshotId);
     }
 
-    public function testCreateTableFromSnapshotWithDifferentName()
+    public function testCreateTableFromSnapshotWithDifferentName(): void
     {
         $sourceTableId = $this->initTestTable();
 
@@ -157,7 +157,7 @@ class SnapshottingTest extends StorageApiTestCase
         return $tableId;
     }
 
-    public function testGetTableSnapshot()
+    public function testGetTableSnapshot(): void
     {
         $sourceTableId = $this->initTestTable();
 
@@ -167,7 +167,7 @@ class SnapshottingTest extends StorageApiTestCase
         $snapshots = $this->_client->listTableSnapshots($sourceTableId, array(
             'limit' => 2,
         ));
-        $this->assertInternalType('array', $snapshots);
+        $this->assertIsArray($snapshots);
         $this->assertCount(2, $snapshots);
 
         $newestSnapshot = reset($snapshots);
@@ -178,7 +178,7 @@ class SnapshottingTest extends StorageApiTestCase
     /**
      * https://github.com/keboola/connection/issues/850
      */
-    public function testSnapshotPermissions()
+    public function testSnapshotPermissions(): void
     {
         $sourceTableId = $this->initTestTable();
 

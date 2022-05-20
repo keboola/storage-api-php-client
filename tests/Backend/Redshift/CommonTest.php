@@ -12,13 +12,13 @@ use Keboola\Csv\CsvFile;
 
 class CommonTest extends StorageApiTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->_initEmptyTestBuckets();
     }
 
-    public function testTokenProperties()
+    public function testTokenProperties(): void
     {
         $token = $this->_client->verifyToken();
 
@@ -34,7 +34,7 @@ class CommonTest extends StorageApiTestCase
         $this->assertEquals(self::BACKEND_REDSHIFT, $owner['defaultBackend']);
     }
 
-    public function testBucketUpdateOnTableTruncate()
+    public function testBucketUpdateOnTableTruncate(): void
     {
         $inBucketId = $this->getTestBucketId(self::STAGE_IN);
         $inBucket = $this->_client->getBucket($inBucketId);

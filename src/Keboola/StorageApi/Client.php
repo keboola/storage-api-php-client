@@ -67,7 +67,7 @@ class Client
     private $userAgent = 'Keboola Storage API PHP Client';
 
     /**
-     * @var callable|null
+     * @var callable
      */
     private $jobPollRetryDelay;
 
@@ -2484,6 +2484,9 @@ class Client
         $firstLine = true;
 
         $tmpFile = tmpfile();
+        if ($tmpFile === false) {
+            throw new ClientException('Cannot create temp file for CSV parsing');
+        }
         fwrite($tmpFile, $csvString);
         rewind($tmpFile);
 
@@ -2491,7 +2494,7 @@ class Client
             $enclosure = chr(0);
         }
 
-        while ($parsedLine = fgetcsv($tmpFile, null, $delimiter, $enclosure, '"')) {
+        while ($parsedLine = fgetcsv($tmpFile, 0, $delimiter, $enclosure, '"')) {
             if (!$header) {
                 $data[] = $parsedLine;
             } else {

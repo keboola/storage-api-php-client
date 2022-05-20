@@ -49,7 +49,7 @@ class SharingTest extends StorageApiSharingTestCase
     /**
      * @return void
      */
-    public function testOrganizationAdminInTokenVerify()
+    public function testOrganizationAdminInTokenVerify(): void
     {
         $token = $this->_client->verifyToken();
         self::assertTrue($token['admin']['isOrganizationMember']);
@@ -63,14 +63,14 @@ class SharingTest extends StorageApiSharingTestCase
      * @param string $expectedLoadType
      * @return void
      * @throws ClientException
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Exception
      * @throws \Keboola\StorageApi\Exception
      */
     public function testWorkspaceLoadData(
         $sharingBackend,
         $workspaceBackend,
         $expectedLoadType
-    ) {
+    ): void {
         //setup test tables
         $this->deleteAllWorkspaces();
         $this->initTestBuckets($sharingBackend);
@@ -268,12 +268,12 @@ class SharingTest extends StorageApiSharingTestCase
         $db = $this->getDbConnection($connection);
 
         if ($db instanceof \Doctrine\DBAL\Connection) {
-            $db->query("CREATE TABLE [Languages3] (
+            $db->executeQuery("CREATE TABLE [Languages3] (
 			[Id] INTEGER NOT NULL,
 			[NAME] VARCHAR(10) NOT NULL
 		);");
-            $db->query("INSERT INTO [Languages3] ([Id], [NAME]) VALUES (1, 'cz');");
-            $db->query("INSERT INTO [Languages3] ([Id], [NAME]) VALUES (2, 'en');");
+            $db->executeQuery("INSERT INTO [Languages3] ([Id], [NAME]) VALUES (1, 'cz');");
+            $db->executeQuery("INSERT INTO [Languages3] ([Id], [NAME]) VALUES (2, 'en');");
         } else {
             $db->query("CREATE TABLE \"test.Languages3\" (
 			\"Id\" integer NOT NULL,

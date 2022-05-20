@@ -19,13 +19,13 @@ class ExportParamsTest extends StorageApiTestCase
 {
 
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();
     }
 
-    public function testInvalidExportFormat()
+    public function testInvalidExportFormat(): void
     {
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile($importFile));
@@ -40,12 +40,12 @@ class ExportParamsTest extends StorageApiTestCase
         }
     }
 
-    public function testTableExportParams()
+    public function testTableExportParams(): void
     {
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile($importFile));
 
-        $originalFileLinesCount = exec("wc -l <" . escapeshellarg($importFile));
+        $originalFileLinesCount = (string) exec("wc -l <" . escapeshellarg($importFile));
 
         $data = $this->_client->getTableDataPreview($tableId);
         $this->assertEquals($originalFileLinesCount, count(Client::parseCsv($data, false)));
@@ -83,7 +83,7 @@ class ExportParamsTest extends StorageApiTestCase
      * @param $expectedResult
      * @dataProvider tableExportFiltersData
      */
-    public function testTableExportFilters($exportOptions, $expectedResult)
+    public function testTableExportFilters($exportOptions, $expectedResult): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));
@@ -95,7 +95,7 @@ class ExportParamsTest extends StorageApiTestCase
         $this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
     }
 
-    public function testTableExportFilterShouldFailOnNonIndexedColumn()
+    public function testTableExportFilterShouldFailOnNonIndexedColumn(): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));
@@ -110,7 +110,7 @@ class ExportParamsTest extends StorageApiTestCase
         }
     }
 
-    public function testTableExportShouldFailOnNonExistingColumn()
+    public function testTableExportShouldFailOnNonExistingColumn(): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
@@ -125,7 +125,7 @@ class ExportParamsTest extends StorageApiTestCase
         }
     }
 
-    public function testTableExportColumnsParam()
+    public function testTableExportColumnsParam(): void
     {
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile($importFile));
@@ -141,7 +141,7 @@ class ExportParamsTest extends StorageApiTestCase
         $this->assertEquals("id", $firstRow[0]);
     }
 
-    public function testTableExportAsyncCache()
+    public function testTableExportAsyncCache(): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));
@@ -196,7 +196,7 @@ class ExportParamsTest extends StorageApiTestCase
     /**
      * Test access to cached file by various tokens
      */
-    public function testTableExportAsyncPermissions()
+    public function testTableExportAsyncPermissions(): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));

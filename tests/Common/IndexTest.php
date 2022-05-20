@@ -16,15 +16,15 @@ use Keboola\Test\StorageApiTestCase;
 class IndexTest extends StorageApiTestCase
 {
 
-    public function testIndex()
+    public function testIndex(): void
     {
         $index = $this->_client->indexAction();
         $this->assertEquals('storage', $index['api']);
         $this->assertEquals('v2', $index['version']);
         $this->assertArrayHasKey('revision', $index);
 
-        $this->assertInternalType('array', $index['components']);
-        $this->assertInternalType('array', $index['features']);
+        $this->assertIsArray($index['components']);
+        $this->assertIsArray($index['features']);
 
         $component = reset($index['components']);
         $this->assertArrayHasKey('id', $component);
@@ -36,7 +36,7 @@ class IndexTest extends StorageApiTestCase
         $this->assertArrayHasKey('orchestrationJob', $urlTemplates);
     }
 
-    public function testIndexExclude()
+    public function testIndexExclude(): void
     {
         // exclude=components
         $index = $this->_client->indexAction((new IndexOptions())->setExclude(['components']));
@@ -45,7 +45,7 @@ class IndexTest extends StorageApiTestCase
         $this->assertArrayHasKey('revision', $index);
 
         $this->assertArrayNotHasKey('components', $index);
-        $this->assertInternalType('array', $index['features']);
+        $this->assertIsArray($index['features']);
 
         $this->assertArrayHasKey('urlTemplates', $index);
 
@@ -71,14 +71,14 @@ class IndexTest extends StorageApiTestCase
         $this->assertArrayNotHasKey('components', $indexWithoutComponents);
     }
 
-    public function testSuccessfullyWebalizeDisplayName()
+    public function testSuccessfullyWebalizeDisplayName(): void
     {
         $responseDisplayName = $this->_client->webalizeDisplayName('Môj 1$ obľúbený bucket $');
 
         $this->assertSame('Moj-1-oblubeny-bucket', $responseDisplayName['displayName']);
     }
 
-    public function testFailWebalizeDisplayName()
+    public function testFailWebalizeDisplayName(): void
     {
         try {
             $this->_client->webalizeDisplayName('-----');

@@ -138,7 +138,7 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
     public function fetchAll($table, $style = \PDO::FETCH_NUM, $orderBy = null)
     {
         $data = [];
-        $res = $this->getDb()->fetchAll(sprintf(
+        $res = $this->getDb()->fetchAllAssociative(sprintf(
             "SELECT * FROM %s.%s %s;",
             TeradataQuote::quoteSingleIdentifier($this->schema),
             TeradataQuote::quoteSingleIdentifier($table),

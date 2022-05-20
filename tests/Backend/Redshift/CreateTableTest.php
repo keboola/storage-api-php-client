@@ -13,7 +13,7 @@ use Keboola\Csv\CsvFile;
 
 class CreateTableTest extends StorageApiTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->_initEmptyTestBuckets();
@@ -23,7 +23,7 @@ class CreateTableTest extends StorageApiTestCase
      * @param $async
      * @dataProvider syncAsyncData
      */
-    public function testTableWithLongPkShouldNotBeCreatedInRedshift($async)
+    public function testTableWithLongPkShouldNotBeCreatedInRedshift($async): void
     {
         $method = $async ? 'createTableAsync' : 'createTable';
         $id = $this->_client->{$method}(
@@ -37,7 +37,7 @@ class CreateTableTest extends StorageApiTestCase
         $this->assertNotEmpty($id);
     }
 
-    public function testTimeTravelNotSupported()
+    public function testTimeTravelNotSupported(): void
     {
         $id = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),

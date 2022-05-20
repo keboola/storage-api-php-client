@@ -14,7 +14,7 @@ class GetToFileTest extends StorageApiTestCase
     /** @var string */
     private $downloadPath;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->_initEmptyTestBuckets();
@@ -36,7 +36,7 @@ class GetToFileTest extends StorageApiTestCase
         }
     }
 
-    public function testGetToFile()
+    public function testGetToFile(): void
     {
         // prepare data
         $config = new Configuration();
@@ -53,7 +53,7 @@ class GetToFileTest extends StorageApiTestCase
         ];
         $valuesCount = 100;
         for ($i = 0; $i < $valuesCount; $i++) {
-            $largeRowConfiguration['values'][] = sha1(openssl_random_pseudo_bytes(128));
+            $largeRowConfiguration['values'][] = sha1((string) openssl_random_pseudo_bytes(128));
         }
 
         $configurationRowsCount = 100;
