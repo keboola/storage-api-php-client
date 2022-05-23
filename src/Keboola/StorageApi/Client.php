@@ -1643,7 +1643,7 @@ class Client
         }
 
         $s3Client = new S3Client($s3options);
-        $s3Uploader = new S3Uploader($s3Client, $transferOptions);
+        $s3Uploader = new S3Uploader($s3Client, $transferOptions, $this->logger);
         $s3Uploader->uploadFile(
             $uploadParams['bucket'],
             $uploadParams['key'],
@@ -1812,7 +1812,7 @@ class Client
         }
 
         $s3Client = new S3Client($options);
-        $s3Uploader = new S3Uploader($s3Client, $transferOptions);
+        $s3Uploader = new S3Uploader($s3Client, $transferOptions, $this->logger);
         $s3Uploader->uploadSlicedFile(
             $uploadParams['bucket'],
             $uploadParams['key'],
