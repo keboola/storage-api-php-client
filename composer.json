@@ -4,7 +4,8 @@
 	"homepage": "http://keboola.com",
 	"license": "MIT",
 	"config": {
-		"lock": false
+		"lock": false,
+		"sort-packages": true
 	},
 	"autoload": {
 		"psr-0": {
@@ -23,28 +24,28 @@
 	"require": {
 		"php": ">=7.4",
 		"ext-json": "*",
-		"keboola/csv": "~1.1.3",
-		"guzzlehttp/guzzle": "~7.0",
-		"symfony/filesystem": "^6.0||^5.0||^4.0",
-		"symfony/process": "^6.0||^5.0||^4.0",
 		"aws/aws-sdk-php": "~3.2",
+		"guzzlehttp/guzzle": "~7.0",
+		"keboola/csv": "~1.1.3",
+		"microsoft/azure-storage-blob": "^1.4",
 		"psr/log": "~1.0",
-        "microsoft/azure-storage-blob": "^1.4"
+		"symfony/filesystem": "^6.0||^5.0||^4.0",
+		"symfony/process": "^6.0||^5.0||^4.0"
 	},
 	"require-dev": {
-		"phpunit/phpunit": "^7.0|^8.0|^9.0",
-		"squizlabs/php_codesniffer": "^3",
-		"keboola/php-csv-db-import": "^2.2",
-		"ext-pdo_pgsql": "*",
-		"phpcompatibility/php-compatibility": "*",
-		"keboola/table-backend-utils": "^1",
-		"brianium/paratest": "2.*|6.*",
 		"ext-pdo": "*",
+		"ext-pdo_pgsql": "*",
+		"brianium/paratest": "2.*|6.*",
+		"keboola/php-csv-db-import": "^2.2",
+		"keboola/phpunit-retry-annotations": "^0.4",
 		"keboola/retry": "^0.5.0",
+		"keboola/table-backend-utils": "^1",
+		"phpcompatibility/php-compatibility": "*",
 		"phpstan/phpstan": "^1.7",
 		"phpstan/phpstan-phpunit": "^1.0",
-		"keboola/phpunit-retry-annotations": "^0.4",
-		"rector/rector": "^0.12.23"
+		"phpunit/phpunit": "^7.0|^8.0|^9.0",
+		"rector/rector": "^0.12.23",
+		"squizlabs/php_codesniffer": "^3"
 	},
 	"scripts": {
 		"phpcs": "phpcs -n .",
