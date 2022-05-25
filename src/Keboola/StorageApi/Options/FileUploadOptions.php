@@ -128,7 +128,7 @@ class FileUploadOptions
      */
     public function setFederationToken($federationToken)
     {
-        $this->federationToken = (bool)$federationToken;
+        $this->federationToken = (bool) $federationToken;
         return $this;
     }
 
@@ -146,7 +146,7 @@ class FileUploadOptions
      */
     public function setSizeBytes($sizeBytes)
     {
-        $this->sizeBytes = (int)$sizeBytes;
+        $this->sizeBytes = (int) $sizeBytes;
         return $this;
     }
 
@@ -164,7 +164,7 @@ class FileUploadOptions
      */
     public function setIsPermanent($permanent)
     {
-        $this->isPermanent = (bool)$permanent;
+        $this->isPermanent = (bool) $permanent;
         return $this;
     }
 
@@ -200,7 +200,7 @@ class FileUploadOptions
      */
     public function setIsEncrypted($encrypted)
     {
-        $this->isEncrypted = (bool)$encrypted;
+        $this->isEncrypted = (bool) $encrypted;
         return $this;
     }
 }

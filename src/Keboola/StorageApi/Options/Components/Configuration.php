@@ -112,7 +112,7 @@ class Configuration
      */
     public function setConfiguration($configuration)
     {
-        $this->configuration = (array)$configuration;
+        $this->configuration = (array) $configuration;
         return $this;
     }
 

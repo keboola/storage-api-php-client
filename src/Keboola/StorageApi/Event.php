@@ -188,7 +188,7 @@ class Event
      */
     public function setDuration($duration)
     {
-        $this->duration = (int)$duration;
+        $this->duration = (int) $duration;
         return $this;
     }
 

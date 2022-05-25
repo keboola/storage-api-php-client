@@ -132,15 +132,15 @@ class Client
         $this->token = $config['token'];
 
         if (isset($config['backoffMaxTries'])) {
-            $this->backoffMaxTries = (int)$config['backoffMaxTries'];
+            $this->backoffMaxTries = (int) $config['backoffMaxTries'];
         }
 
         if (isset($config['awsRetries'])) {
-            $this->awsRetries = (int)$config['awsRetries'];
+            $this->awsRetries = (int) $config['awsRetries'];
         }
 
         if (isset($config['awsDebug'])) {
-            $this->awsDebug = (bool)$config['awsDebug'];
+            $this->awsDebug = (bool) $config['awsDebug'];
         }
 
         if (!isset($config['logger'])) {
@@ -590,7 +590,7 @@ class Client
             'value' => $value,
         );
         if ($protected !== null) {
-            $data['protected'] = (bool)$protected;
+            $data['protected'] = (bool) $protected;
         }
         $this->apiPost("buckets/$bucketId/attributes/$key", $data);
     }
@@ -807,11 +807,11 @@ class Client
         );
 
         if (isset($options['aliasFilter'])) {
-            $filteredOptions['aliasFilter'] = (array)$options['aliasFilter'];
+            $filteredOptions['aliasFilter'] = (array) $options['aliasFilter'];
         }
 
         if (isset($options['aliasColumns'])) {
-            $filteredOptions['aliasColumns'] = (array)$options['aliasColumns'];
+            $filteredOptions['aliasColumns'] = (array) $options['aliasColumns'];
         }
 
         $result = $this->apiPost("buckets/" . $bucketId . "/table-aliases", $filteredOptions);
@@ -1066,7 +1066,7 @@ class Client
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
 
         return array_merge($filteredOptions, array(
-            "incremental" => isset($options['incremental']) ? (bool)$options['incremental'] : false,
+            "incremental" => isset($options['incremental']) ? (bool) $options['incremental'] : false,
         ));
     }
 
@@ -1123,7 +1123,7 @@ class Client
             'value' => $value,
         );
         if ($protected !== null) {
-            $data['protected'] = (bool)$protected;
+            $data['protected'] = (bool) $protected;
         }
         $this->apiPost("tables/$tableId/attributes/$key", $data);
     }
@@ -1453,11 +1453,11 @@ class Client
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
 
         if (isset($options['columns'])) {
-            $filteredOptions['columns'] = implode(',', (array)$options['columns']);
+            $filteredOptions['columns'] = implode(',', (array) $options['columns']);
         }
 
         if (isset($options['whereValues'])) {
-            $filteredOptions['whereValues'] = (array)$options['whereValues'];
+            $filteredOptions['whereValues'] = (array) $options['whereValues'];
         }
 
         return $filteredOptions;
@@ -1483,7 +1483,7 @@ class Client
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
 
         if (isset($options['whereValues'])) {
-            $filteredOptions['whereValues'] = (array)$options['whereValues'];
+            $filteredOptions['whereValues'] = (array) $options['whereValues'];
         }
 
         $url .= '?' . http_build_query($filteredOptions);
@@ -2318,10 +2318,10 @@ class Client
             $response = $this->client->request($method, $url, $requestOptions);
         } catch (RequestException $e) {
             $response = $e->getResponse();
-            $body = $response ? json_decode((string)$response->getBody(), true) : array();
+            $body = $response ? json_decode((string) $response->getBody(), true) : array();
 
             if ($response && $response->getStatusCode() == 503) {
-                throw new MaintenanceException(isset($body["reason"]) ? $body['reason'] : 'Maintenance', $response && $response->hasHeader('Retry-After') ? (string)$response->getHeader('Retry-After')[0] : null, $body);
+                throw new MaintenanceException(isset($body["reason"]) ? $body['reason'] : 'Maintenance', $response && $response->hasHeader('Retry-After') ? (string) $response->getHeader('Retry-After')[0] : null, $body);
             }
 
             throw new ClientException(
@@ -2352,10 +2352,10 @@ class Client
         }
 
         if ($response->hasHeader('Content-Type') && $response->getHeader('Content-Type')[0] == 'application/json') {
-            return json_decode((string)$response->getBody(), true);
+            return json_decode((string) $response->getBody(), true);
         }
 
-        return (string)$response->getBody();
+        return (string) $response->getBody();
     }
 
     private function fixRequestBody(array $body)
@@ -2381,7 +2381,7 @@ class Client
      */
     private function handleAsyncTask(Response $jobCreatedResponse)
     {
-        $job = json_decode((string)$jobCreatedResponse->getBody(), true);
+        $job = json_decode((string) $jobCreatedResponse->getBody(), true);
         $job = $this->waitForJob($job['id']);
         $this->handleJobError($job);
         return $job['results'];
@@ -2593,7 +2593,7 @@ class Client
         foreach ($data as $key => $value) {
             $multipart[] = [
                 'name' => $key,
-                'contents' => in_array(gettype($value), ['object', 'resource', 'NULL']) ? $value : (string)$value,
+                'contents' => in_array(gettype($value), ['object', 'resource', 'NULL']) ? $value : (string) $value,
             ];
         }
         return $multipart;

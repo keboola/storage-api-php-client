@@ -49,7 +49,7 @@ class ListComponentsOptions
      */
     public function setInclude($include = array())
     {
-        $this->include = (array)$include;
+        $this->include = (array) $include;
         return $this;
     }
 
@@ -72,7 +72,7 @@ class ListComponentsOptions
      */
     public function setIsDeleted($isDeleted)
     {
-        $this->isDeleted = (bool)$isDeleted;
+        $this->isDeleted = (bool) $isDeleted;
         return $this;
     }
 }

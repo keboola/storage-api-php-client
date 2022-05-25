@@ -109,7 +109,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
 
         $row = $statement->fetch();
 
-        $this->assertEquals(1, (int)$row['sortkey']);
+        $this->assertEquals(1, (int) $row['sortkey']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $this->assertEquals(5, $backend->countRows('users'));
@@ -151,7 +151,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
             $statement = $db->prepare("SELECT \"column\", distkey FROM pg_table_def WHERE schemaname = ? AND tablename = ? AND \"column\" = ?;");
             $statement->execute([$workspace['connection']['schema'], "languages", "id"]);
             $row = $statement->fetch();
-            $this->assertEquals(1, (int)$row['distkey']);
+            $this->assertEquals(1, (int) $row['distkey']);
         }
 
         $statement = $db->prepare(sprintf(
@@ -161,11 +161,11 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         $statement->execute();
         $row = $statement->fetch();
         if (is_array($dist)) {
-            $this->assertEquals(1, (int)$row['reldiststyle'], "key diststyle doesn't check out.");
+            $this->assertEquals(1, (int) $row['reldiststyle'], "key diststyle doesn't check out.");
         } else if ($dist === 'even') {
-            $this->assertEquals(0, (int)$row['reldiststyle'], "even diststyle doesn't check out.");
+            $this->assertEquals(0, (int) $row['reldiststyle'], "even diststyle doesn't check out.");
         } else if ($dist === "all") {
-            $this->assertEquals(8, (int)$row['reldiststyle'], "all diststyle doesn't check out.");
+            $this->assertEquals(8, (int) $row['reldiststyle'], "all diststyle doesn't check out.");
         }
     }
 

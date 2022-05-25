@@ -30,7 +30,7 @@ class GetFileOptions
      */
     public function setFederationToken($federationToken)
     {
-        $this->federationToken = (bool)$federationToken;
+        $this->federationToken = (bool) $federationToken;
         return $this;
     }
 

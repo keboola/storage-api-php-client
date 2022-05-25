@@ -61,7 +61,7 @@ class EventsTest extends StorageApiTestCase
 
         $response = $client->get('/v2/storage/events/' . $event['id']);
 
-        $response = json_decode((string)$response->getBody());
+        $response = json_decode((string) $response->getBody());
 
         $this->assertInstanceOf('stdclass', $response->params);
         $this->assertInstanceOf('stdclass', $response->results);
