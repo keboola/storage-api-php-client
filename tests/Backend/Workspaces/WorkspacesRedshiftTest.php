@@ -161,9 +161,9 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         $row = $statement->fetch();
         if (is_array($dist)) {
             $this->assertEquals(1, (int) $row['reldiststyle'], "key diststyle doesn't check out.");
-        } else if ($dist === 'even') {
+        } elseif ($dist === 'even') {
             $this->assertEquals(0, (int) $row['reldiststyle'], "even diststyle doesn't check out.");
-        } else if ($dist === "all") {
+        } elseif ($dist === "all") {
             $this->assertEquals(8, (int) $row['reldiststyle'], "all diststyle doesn't check out.");
         }
     }
