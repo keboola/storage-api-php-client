@@ -105,7 +105,7 @@ class MetadataTest extends StorageApiTestCase
             [
                 'key' => 'KBC.datatype.nullable',
                 'value' => 'testValue',
-            ]
+            ],
         ];
         $metadata = $metadataApi->postBucketMetadata(
             $outTestBucketId,
@@ -135,7 +135,7 @@ class MetadataTest extends StorageApiTestCase
             [
                 'key' => 'KBC.datatype.nullable',
                 'value' => 'true',
-            ]
+            ],
         ];
         $metadata = $metadataApi->postColumnMetadata(
             $columnId,
@@ -149,7 +149,7 @@ class MetadataTest extends StorageApiTestCase
             [
                 'key' => 'KBC.datatype.nullable',
                 'value' => 1,
-            ]
+            ],
         ];
         $metadata = $metadataApi->postColumnMetadata(
             $columnId,
@@ -374,7 +374,7 @@ class MetadataTest extends StorageApiTestCase
                 [
                     'key' => self::TEST_METADATA_KEY_1,
                     'value' => $testMetadataValue,
-                ]
+                ],
             ]
         );
 
@@ -412,7 +412,7 @@ class MetadataTest extends StorageApiTestCase
                     [
                         'key' => self::TEST_METADATA_KEY_1,
                         'value' => 'changed',
-                    ]
+                    ],
                 ]
             );
 
@@ -436,7 +436,7 @@ class MetadataTest extends StorageApiTestCase
                     [
                         'key' => self::TEST_METADATA_KEY_2,
                         'value' => $testMetadataValue,
-                    ]
+                    ],
                 ]
             );
 
@@ -605,7 +605,7 @@ class MetadataTest extends StorageApiTestCase
                 [
                     'key' => self::TEST_METADATA_KEY_1,
                     'value' => $testMetadataValue,
-                ]
+                ],
             ]
         );
 
@@ -643,7 +643,7 @@ class MetadataTest extends StorageApiTestCase
                     [
                         'key' => self::TEST_METADATA_KEY_1,
                         'value' => 'changed',
-                    ]
+                    ],
                 ]
             );
 
@@ -667,7 +667,7 @@ class MetadataTest extends StorageApiTestCase
                     [
                         'key' => self::TEST_METADATA_KEY_2,
                         'value' => $testMetadataValue,
-                    ]
+                    ],
                 ]
             );
 
@@ -929,7 +929,7 @@ class MetadataTest extends StorageApiTestCase
         $medataApi = new Metadata($this->_client);
         $md = [
             'key' => 'magic-key',
-            'value' => 'magic-frog'
+            'value' => 'magic-frog',
         ];
 
         $createdMetadata = $medataApi->postBucketMetadata($this->getTestBucketId(), 'provider', [$md]);
@@ -945,7 +945,7 @@ class MetadataTest extends StorageApiTestCase
         $medataApi = new Metadata($this->_client);
         $md = [
             'key' => 'magic-key',
-            'value' => 'magic-frog'
+            'value' => 'magic-frog',
         ];
 
         $tableId = $this->getMetadataTestTableId('table');
@@ -971,7 +971,7 @@ class MetadataTest extends StorageApiTestCase
                 [
                     'key' => self::TEST_METADATA_KEY_1,
                     'value' => $testMetadataValue,
-                ]
+                ],
             ]
         );
 
@@ -1009,7 +1009,7 @@ class MetadataTest extends StorageApiTestCase
                     [
                         'key' => self::TEST_METADATA_KEY_1,
                         'value' => 'changed',
-                    ]
+                    ],
                 ]
             );
 
@@ -1033,7 +1033,7 @@ class MetadataTest extends StorageApiTestCase
                     [
                         'key' => self::TEST_METADATA_KEY_2,
                         'value' => $testMetadataValue,
-                    ]
+                    ],
                 ]
             );
 

@@ -183,7 +183,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
                             'convertEmptyValuesToNull' => true,
                             'nullable' => true,
                         ],
-                    ]
+                    ],
                 ],
             ],
         ];
@@ -297,7 +297,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
                             'convertEmptyValuesToNull' => true,
                             'nullable' => false,
                         ],
-                    ]
+                    ],
                 ],
             ],
         ];
@@ -467,8 +467,8 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
                 ],
                 'aliasFilter' => [
                     'column' => 'id',
-                    'values' => ['1']
-                ]
+                    'values' => ['1'],
+                ],
             ]
         );
 
@@ -482,7 +482,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
             "input" => [
                 [
                     "source" => $table1Id,
-                    "destination" => "{$bucketBackend}_Languages"
+                    "destination" => "{$bucketBackend}_Languages",
                 ],
                 [
                     "source" => $table2Id,
@@ -499,8 +499,8 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
                 [
                     "source" => $table4Id,
                     "destination" => "languagesFilteredRenamed",
-                ]
-            ]
+                ],
+            ],
         ];
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);

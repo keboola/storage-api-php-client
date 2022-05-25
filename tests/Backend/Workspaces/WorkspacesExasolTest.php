@@ -57,7 +57,7 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
                             'source' => 'name',
                             'type' => 'varchar',
                         ],
-                    ]
+                    ],
                 ],
                 [
                     "source" => $table2Id,
@@ -71,9 +71,9 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
                             'source' => 'SKK',
                             'type' => 'varchar',
                         ],
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ]);
 
         $actualJobId = null;
@@ -121,7 +121,7 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
 
         $mapping = [
             "source" => $pkTableId,
-            "destination" => "languages-pk"
+            "destination" => "languages-pk",
         ];
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
@@ -366,7 +366,7 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
                             'nullable' => true,
-                        ]
+                        ],
                     ],
                 ],
             ],
@@ -401,7 +401,7 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
                             'nullable' => true,
-                        ]
+                        ],
                     ],
                 ],
             ],
@@ -462,7 +462,7 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
                             'nullable' => false,
-                        ]
+                        ],
                     ],
                 ],
             ],
@@ -593,8 +593,8 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
                     "source" => $table2Id,
                     "destination" => "rates",
                     'rows' => 15,
-                ]
-            ]
+                ],
+            ],
         ]);
 
         $actualJobId = null;
@@ -652,8 +652,8 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
                     "source" => $table2Id,
                     "destination" => "users",
                     'seconds' => floor(time() - $startTime) + 30,
-                ]
-            ]
+                ],
+            ],
         ]);
 
         $actualJobId = null;

@@ -298,7 +298,7 @@ class CreateTableTest extends StorageApiTestCase
                 $this->getTestBucketId(self::STAGE_IN),
                 [
                     'name' => 'languages',
-                    'dataFileId' => $fileId
+                    'dataFileId' => $fileId,
                 ]
             );
             $this->fail('Table should not be created');
@@ -513,7 +513,7 @@ class CreateTableTest extends StorageApiTestCase
             ->setIsSliced(true)
             ->setIsEncrypted(false);
         $slices = [
-            __DIR__ . '/../../_data/languages.no-headers.csv'
+            __DIR__ . '/../../_data/languages.no-headers.csv',
         ];
         $slicedFileId = $this->_client->uploadSlicedFile($slices, $uploadOptions);
 

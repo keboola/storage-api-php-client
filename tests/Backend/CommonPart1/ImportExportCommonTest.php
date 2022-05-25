@@ -470,7 +470,7 @@ class ImportExportCommonTest extends StorageApiTestCase
             $this->_client->writeTableAsyncDirect(
                 $tableId,
                 [
-                    'dataFileId' => $fileId
+                    'dataFileId' => $fileId,
                 ]
             );
             $this->fail('Table should not be imported');

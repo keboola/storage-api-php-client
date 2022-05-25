@@ -19,12 +19,12 @@ class BranchMetadataTest extends StorageApiTestCase
     const TEST_METADATA = [
         [
             'key' => 'KBC.SomeEnity.metadataKey',
-            'value' => 'some-value'
+            'value' => 'some-value',
         ],
         [
             'key' => 'someMetadataKey',
-            'value' => 'some-value'
-        ]
+            'value' => 'some-value',
+        ],
     ];
     /** @var ClientProvider */
     private $clientProvider;

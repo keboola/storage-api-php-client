@@ -569,7 +569,7 @@ class ComponentsTest extends StorageApiTestCase
             ],
             '!isDisabled bool' => [
                 false,
-                false
+                false,
             ],
             '!isDisabled int' => [
                 0,
@@ -668,7 +668,7 @@ class ComponentsTest extends StorageApiTestCase
         $components = new \Keboola\StorageApi\Components($this->client);
 
         $resp = $this->client->apiPost('components/wr-db/configs', [
-            'name' => 'neco'
+            'name' => 'neco',
         ]);
         $configuration = $components->getConfiguration('wr-db', $resp['id']);
         $this->assertNotNull($configuration['description']);
@@ -732,7 +732,7 @@ class ComponentsTest extends StorageApiTestCase
             'array' => [],
             'object' => (object) [
                 'subobject' => (object) [],
-            ]
+            ],
         ];
 
         $response = $client->post("/v2/storage/components/wr-db/configs", [
@@ -2024,7 +2024,7 @@ class ComponentsTest extends StorageApiTestCase
         $components->addConfiguration($configuration);
 
         $rowConfigurationData = [
-            'some' => 'configuration'
+            'some' => 'configuration',
         ];
         $rowDescription = 'some description';
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
@@ -2465,7 +2465,7 @@ class ComponentsTest extends StorageApiTestCase
         try {
             $this->client->apiPut($stateEndpoint, [
                 'description' => 'Test',
-                'state' => json_encode('{}')
+                'state' => json_encode('{}'),
             ]);
             $this->fail('Post additional fileds should not be allowed.');
         } catch (ClientException $e) {
@@ -2476,7 +2476,7 @@ class ComponentsTest extends StorageApiTestCase
 
         try {
             $this->client->apiPut($stateEndpoint, [
-                'state' => ''
+                'state' => '',
             ]);
             $this->fail('Post empty state should not be allowed.');
         } catch (ClientException $e) {
@@ -2766,7 +2766,7 @@ class ComponentsTest extends StorageApiTestCase
         // update row V3
         $configurationRowV1
             ->setConfiguration([
-                'test' => 2
+                'test' => 2,
             ])
             ->setChangeDescription(null);
         $configurationRowV3 = $componentsApi->updateConfigurationRow($configurationRowV1);
@@ -2787,7 +2787,7 @@ class ComponentsTest extends StorageApiTestCase
         );
         $this->assertArrayEqualsExceptKeys($configurationRowV2, $configurationRowV4, [
             'version',
-            'changeDescription'
+            'changeDescription',
         ]);
 
         // try same assert but load row from api
@@ -3565,7 +3565,7 @@ class ComponentsTest extends StorageApiTestCase
         try {
             $this->client->apiPut($stateEndpoint, [
                 'description' => 'Test',
-                'state' => json_encode('{}')
+                'state' => json_encode('{}'),
             ]);
             $this->fail('Post additional fileds should not be allowed.');
         } catch (ClientException $e) {
@@ -3576,7 +3576,7 @@ class ComponentsTest extends StorageApiTestCase
 
         try {
             $this->client->apiPut($stateEndpoint, [
-                'state' => ''
+                'state' => '',
             ]);
             $this->fail('Post empty state should not be allowed.');
         } catch (ClientException $e) {

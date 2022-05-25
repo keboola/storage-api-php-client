@@ -15,15 +15,15 @@ class PromiseResultHandlerTest extends StorageApiTestCase
     {
         $results = [
             "filepath1" => [
-                "state" => "fulfilled"
+                "state" => "fulfilled",
             ],
             "filepath2" => [
                 "state" => "rejected",
                 "reason" => new S3MultipartUploadException(
                     new UploadState([]),
                     new AwsException("DummyAwsException", new Command('DummyCommand', ["Key" => "DummyKey"]))
-                )
-            ]
+                ),
+            ],
         ];
         $rejected = PromiseResultHandler::getRejected($results);
         $this->assertCount(1, $rejected);
@@ -36,8 +36,8 @@ class PromiseResultHandlerTest extends StorageApiTestCase
         $results = [
             "filepath" => [
                 "state" => "rejected",
-                "reason" => new \Exception()
-            ]
+                "reason" => new \Exception(),
+            ],
         ];
         try {
             PromiseResultHandler::getRejected($results);

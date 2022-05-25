@@ -66,7 +66,7 @@ class DirectAccessTest extends StorageApiTestCase
         $connection = new Connection([
             'host' => $newCredentials['host'],
             'user' => $newCredentials['username'],
-            'password' => $newCredentials['password']
+            'password' => $newCredentials['password'],
         ]);
 
         $testResult = $connection->fetchAll("select 'test'");
@@ -80,7 +80,7 @@ class DirectAccessTest extends StorageApiTestCase
             new Connection([
                 'host' => $newCredentials['host'],
                 'user' => $newCredentials['username'],
-                'password' => $newCredentials['password']
+                'password' => $newCredentials['password'],
             ]);
             $this->fail('Exception should be thrown');
         } catch (\Keboola\Db\Import\Exception $e) {
@@ -93,7 +93,7 @@ class DirectAccessTest extends StorageApiTestCase
         $connection = new Connection([
             'host' => $newCredentials['host'],
             'user' => $newCredentials['username'],
-            'password' => $response['password']
+            'password' => $response['password'],
         ]);
 
         $testResult = $connection->fetchAll("select 'test'");

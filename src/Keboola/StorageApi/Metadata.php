@@ -99,7 +99,7 @@ class Metadata
         /** @var array $result */
         $result = $this->client->apiPost("buckets/{$bucketId}/metadata", [
             "provider" => $provider,
-            "metadata" => $metadata
+            "metadata" => $metadata,
         ]);
         return $result;
     }
@@ -121,7 +121,7 @@ class Metadata
         /** @var array $result */
         $result = $this->client->apiPost("tables/{$tableId}/metadata", [
             "provider" => $provider,
-            "metadata" => $metadata
+            "metadata" => $metadata,
         ]);
         return $result;
     }
@@ -149,7 +149,7 @@ class Metadata
         /** @var array $result */
         $result = $this->client->apiPost("columns/{$columnId}/metadata", [
             "provider" => $provider,
-            "metadata" => $metadata
+            "metadata" => $metadata,
         ]);
         return $result;
     }

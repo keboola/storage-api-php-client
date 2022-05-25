@@ -111,17 +111,17 @@ class OrderByTest extends StorageApiTestCase
             [
                 [
                     'column' => 'column_string',
-                    'order' => 'non-existing'
+                    'order' => 'non-existing',
                 ],
                 'Invalid sort order non-existing. Available orders are [DESC|ASC]',
             ],
             [
                 [
                     'column' => 'column_string',
-                    'dataType' => 'non-existing'
+                    'dataType' => 'non-existing',
                 ],
                 'Data type non-existing not recognized. Possible datatypes are [DECIMAL]',
-            ]
+            ],
         ];
     }
 

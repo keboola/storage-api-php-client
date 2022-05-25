@@ -239,7 +239,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
             'dataWorkspaceId' => $workspace['id'],
             'dataObject' => 'tw_loaded',
             'incremental' => false,
-            'columns' => $expectedColumnsInWorkspace
+            'columns' => $expectedColumnsInWorkspace,
         ]);
 
         // preview will convert nulls to "" it can't be compered
@@ -277,7 +277,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
             'dataWorkspaceId' => $workspace['id'],
             'dataObject' => 'tw_loaded',
             'incremental' => true,
-            'columns' => $expectedColumnsInWorkspace
+            'columns' => $expectedColumnsInWorkspace,
         ]);
 
         // preview will convert nulls to "" it can't be compered

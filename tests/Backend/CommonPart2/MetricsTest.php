@@ -78,7 +78,7 @@ class MetricsTest extends StorageApiTestCase
                 ->setTags(array('table-import'))
         );
         $job = $this->_client->apiPost("tables/{$tableId}/import-async", [
-            'dataFileId' => $fileId
+            'dataFileId' => $fileId,
         ], false);
         $job = $this->_client->waitForJob($job['id']);
 

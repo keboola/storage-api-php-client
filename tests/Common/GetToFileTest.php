@@ -49,7 +49,7 @@ class GetToFileTest extends StorageApiTestCase
         $config->setConfigurationId($configData['id']);
 
         $largeRowConfiguration = [
-            'values' => []
+            'values' => [],
         ];
         $valuesCount = 100;
         for ($i = 0; $i < $valuesCount; $i++) {

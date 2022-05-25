@@ -538,7 +538,7 @@ class TokensTest extends StorageApiTestCase
         $limitedAccessToken = $this->tokens->createToken($options);
         $limitAccessTokenClient = $this->getClient([
             'token' => $limitedAccessToken['token'],
-            'url' => STORAGE_API_URL
+            'url' => STORAGE_API_URL,
         ]);
 
         $otherToken = $this->tokens->createToken($options);
@@ -565,7 +565,7 @@ class TokensTest extends StorageApiTestCase
 
         $client = $this->getClient([
             'token' => $token['token'],
-            'url' => STORAGE_API_URL
+            'url' => STORAGE_API_URL,
         ]);
 
         $components = new Components($client);
@@ -622,7 +622,7 @@ class TokensTest extends StorageApiTestCase
 
         $client = $this->getClient([
             'token' => $token['token'],
-            'url' => STORAGE_API_URL
+            'url' => STORAGE_API_URL,
         ]);
 
         $components = new Components($client);
@@ -1362,12 +1362,12 @@ class TokensTest extends StorageApiTestCase
         return [
             'minimal configuration' => [
                 (new TokenCreateOptions())
-                    ->setExpiresIn(60 * 5)
+                    ->setExpiresIn(60 * 5),
             ],
             'all applicable params' => [
                 (new TokenCreateOptions())
                     ->setDescription('Autosave test')
-                    ->setExpiresIn(60 * 5)
+                    ->setExpiresIn(60 * 5),
             ],
             'full configuration' => [
                 (new TokenCreateOptions())
@@ -1376,7 +1376,7 @@ class TokensTest extends StorageApiTestCase
                     ->setCanReadAllFileUploads(true)
                     ->setCanPurgeTrash(true)
                     ->addBucketPermission('in.c-test', TokenAbstractOptions::BUCKET_PERMISSION_READ)
-                    ->addComponentAccess('wr-db')
+                    ->addComponentAccess('wr-db'),
             ],
         ];
     }
@@ -1499,7 +1499,7 @@ class TokensTest extends StorageApiTestCase
                 ->setExpiresIn(0)
                 ->setDescription('Whatever'),
             ClientException::class,
-            'Minimal expiration must be greater or equal to 1 second(s)'
+            'Minimal expiration must be greater or equal to 1 second(s)',
         ];
     }
 

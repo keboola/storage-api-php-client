@@ -82,7 +82,7 @@ class AlterTableTest extends StorageApiTestCase
             [
                 'lot__of_____underscores____',
                 'lot__of_____underscores',
-            ]
+            ],
         ];
     }
 
@@ -132,7 +132,7 @@ class AlterTableTest extends StorageApiTestCase
             ],
             'empty column' => [
                 '',
-            ]
+            ],
         ];
     }
 

@@ -252,13 +252,13 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
     {
         return [
             [
-                []
+                [],
             ],
             [
                 [
                     'async' => true,
-                ]
-            ]
+                ],
+            ],
         ];
     }
 }

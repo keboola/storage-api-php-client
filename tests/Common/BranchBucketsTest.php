@@ -41,7 +41,7 @@ class BranchBucketsTest extends StorageApiTestCase
             [
                 'key' => Metadata::BUCKET_METADATA_KEY_ID_BRANCH,
                 'value' => $branch1['id'],
-            ]
+            ],
         ];
 
         $this->deleteBranchesByPrefix($devBranchClient, $branchName2);

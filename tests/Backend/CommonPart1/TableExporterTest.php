@@ -138,7 +138,7 @@ class TableExporterTest extends StorageApiTestCase
                 'tableId' => $table2Id,
                 'destination' => $file2,
                 'columns' => [],
-            ]
+            ],
 
         ];
         $jobResults = $exporter->exportTables($exports);
@@ -192,7 +192,7 @@ class TableExporterTest extends StorageApiTestCase
                         [
                             'column' => 'id',
                             'values' => [
-                                '0'
+                                '0',
                             ],
                         ],
                     ],

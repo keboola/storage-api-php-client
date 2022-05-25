@@ -78,7 +78,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
                             'source' => 'name',
                             'type' => 'varchar',
                         ],
-                    ]
+                    ],
                 ],
             ],
         ];
@@ -124,7 +124,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
                             'source' => 'name',
                             'type' => 'varchar',
                         ],
-                    ]
+                    ],
                 ],
                 [
                     'source' => $table2Id,
@@ -138,9 +138,9 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
                             'source' => 'SKK',
                             'type' => 'varchar',
                         ],
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ]);
 
         $jobs = $this->listWorkspaceJobs($workspace['id']);
@@ -191,7 +191,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
 
         $mapping = [
             'source' => $pkTableId,
-            'destination' => 'languages-pk'
+            'destination' => 'languages-pk',
         ];
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
@@ -439,7 +439,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
                             'nullable' => true,
-                        ]
+                        ],
                     ],
                 ],
             ],
@@ -474,7 +474,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
                             'nullable' => true,
-                        ]
+                        ],
                     ],
                 ],
             ],
@@ -535,7 +535,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
                             'nullable' => false,
-                        ]
+                        ],
                     ],
                 ],
             ],
@@ -666,8 +666,8 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
                     'source' => $table2Id,
                     'destination' => 'rates',
                     'rows' => 15,
-                ]
-            ]
+                ],
+            ],
         ]);
 
         $jobs = $this->listWorkspaceJobs($workspace['id']);
@@ -719,8 +719,8 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
                     'source' => $table2Id,
                     'destination' => 'users',
                     'seconds' => floor(time() - $startTime) + 30,
-                ]
-            ]
+                ],
+            ],
         ]);
 
         $jobs = $this->listWorkspaceJobs($workspace['id']);

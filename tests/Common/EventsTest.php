@@ -275,7 +275,7 @@ class EventsTest extends StorageApiTestCase
             ],
             [
                 "*tables*",
-            ]
+            ],
         ];
     }
 

@@ -207,25 +207,25 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
             yield sprintf('snowflake sharing, snowflake workspace async=%b', $async) => [
                 self::BACKEND_SNOWFLAKE,
                 self::BACKEND_SNOWFLAKE,
-                $async
+                $async,
             ];
 
             yield sprintf('snowflake sharing, redshift workspace async=%b', $async) => [
                 self::BACKEND_SNOWFLAKE,
                 self::BACKEND_REDSHIFT,
-                $async
+                $async,
             ];
 
             yield sprintf('redshift sharing, snowflake workspace async=%b', $async) => [
                 self::BACKEND_REDSHIFT,
                 self::BACKEND_SNOWFLAKE,
-                $async
+                $async,
             ];
 
             yield sprintf('redshift sharing, redshift workspace async=%b', $async) => [
                 self::BACKEND_REDSHIFT,
                 self::BACKEND_SNOWFLAKE,
-                $async
+                $async,
             ];
         }
     }

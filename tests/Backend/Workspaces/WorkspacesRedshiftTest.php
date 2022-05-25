@@ -45,9 +45,9 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
                 [
                     "source" => $tableId,
                     "destination" => "languages-rs",
-                    "columns" => $columnsDefinition
-                ]
-            ]
+                    "columns" => $columnsDefinition,
+                ],
+            ],
         ]);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
@@ -87,13 +87,13 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
                 [
                     "source" => $table1Id,
                     "destination" => "languages-rs",
-                    "sortKey" => "name"
+                    "sortKey" => "name",
                 ],
                 [
                     "source" => $table2Id,
                     "destination" => "users",
-                ]
-            ]
+                ],
+            ],
         ]);
 
         $jobs = $this->listWorkspaceJobs($workspace['id']);
@@ -132,7 +132,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         );
         $mapping = [
             "source" => $tableId,
-            "destination" => "languages"
+            "destination" => "languages",
         ];
         if (is_array($dist)) {
             $mapping['distKey'] = $dist['key'];
@@ -142,8 +142,8 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         }
         $workspaces->loadWorkspaceData($workspace['id'], [
             "input" => [
-                $mapping
-            ]
+                $mapping,
+            ],
         ]);
 
         if (is_array($dist)) {
@@ -200,8 +200,8 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
                         [
                             'source' => 'name',
                             'type' => 'varchar',
-                        ]
-                    ]
+                        ],
+                    ],
                 ],
                 [
                     "source" => $table2Id,
@@ -215,9 +215,9 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
                             'source' => 'SKK',
                             'type' => 'varchar',
                         ],
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ]);
 
         $jobs = $this->listWorkspaceJobs($workspace['id']);
@@ -259,7 +259,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
 
         $mapping = [
             "source" => $pkTableId,
-            "destination" => "languages-pk"
+            "destination" => "languages-pk",
         ];
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
@@ -296,7 +296,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
                     'source' => 'Date',
                     'type' => 'varchar',
                 ],
-            ] // missing PK columns
+            ], // missing PK columns
         ];
         $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping2]]);
 
@@ -313,7 +313,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         return [
             ["all"],
             ["even"],
-            [["key" => "id"]]
+            [["key" => "id"]],
         ];
     }
 
@@ -333,7 +333,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
                         'length' => 255,
                         'compression' => 'BYTEDICT',
                     ],
-                ]
+                ],
             ],
         ];
     }
@@ -530,7 +530,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
                             'nullable' => true,
-                        ]
+                        ],
                     ],
                 ],
             ],
@@ -565,7 +565,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
                             'nullable' => true,
-                        ]
+                        ],
                     ],
                 ],
             ],
@@ -626,7 +626,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
                             'nullable' => false,
-                        ]
+                        ],
                     ],
                 ],
             ],
@@ -661,7 +661,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
                             'nullable' => false,
-                        ]
+                        ],
                     ],
                 ],
             ],
@@ -703,8 +703,8 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
                     "source" => $table2Id,
                     "destination" => "rates",
                     'rows' => 15,
-                ]
-            ]
+                ],
+            ],
         ]);
 
         $jobs = $this->listWorkspaceJobs($workspace['id']);
@@ -756,8 +756,8 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
                     "source" => $table2Id,
                     "destination" => "users",
                     'seconds' => floor(time() - $startTime) + 30,
-                ]
-            ]
+                ],
+            ],
         ]);
 
         $jobs = $this->listWorkspaceJobs($workspace['id']);

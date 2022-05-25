@@ -59,9 +59,9 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
                 [
                     "source" => "in.c-mixed-test-{$bucketBackend}.dates",
                     "destination" => "dates",
-                    "datatypes" => $dataTypesDefinition
-                ]
-            ]
+                    "datatypes" => $dataTypesDefinition,
+                ],
+            ],
         ];
 
         // exception should not be thrown, date conversion should be applied
@@ -77,7 +77,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
     {
         return [
             [['valid_from' => "TIMESTAMP"]],
-            [[['column' => 'valid_from', 'type' => "TIMESTAMP"]]]
+            [[['column' => 'valid_from', 'type' => "TIMESTAMP"]]],
         ];
     }
 
@@ -136,7 +136,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
                             'convertEmptyValuesToNull' => true,
                             'nullable' => false,
                         ],
-                    ]
+                    ],
                 ],
             ],
         ];
@@ -239,7 +239,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
                             'convertEmptyValuesToNull' => true,
                             'nullable' => true,
                         ],
-                    ]
+                    ],
                 ],
             ],
         ];
@@ -377,13 +377,13 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
                         [
                             'column' => 'item',
                             'type' => 'VARCHAR',
-                            'convertEmptyValuesToNull' => true
+                            'convertEmptyValuesToNull' => true,
                         ],
                         [
                             'column' => 'quantity',
                             'type' => $dataType,
-                            'convertEmptyValuesToNull' => true
-                        ]
+                            'convertEmptyValuesToNull' => true,
+                        ],
                     ],
                 ],
             ],

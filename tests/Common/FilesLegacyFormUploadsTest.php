@@ -56,7 +56,7 @@ class FilesLegacyFormUploadsTest extends StorageApiTestCase
             [
                 'name' => 'file',
                 'contents' => $fh,
-            ]
+            ],
         ];
 
         $client->post($uploadParams['url'], array(
@@ -117,7 +117,7 @@ class FilesLegacyFormUploadsTest extends StorageApiTestCase
             [
                 'name' => 'file',
                 'contents' => $fh,
-            ]
+            ],
         ];
 
         try {

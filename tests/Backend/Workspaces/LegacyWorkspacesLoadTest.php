@@ -34,7 +34,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
                 [
                     'source' => $tableId,
                     'destination' => 'langs',
-                ]
+                ],
             ],
         ]);
 
@@ -262,14 +262,14 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
                 [
                     'source' => $tableId,
                     'destination' => 'languagesIso',
-                    'columns' => ["Id", "iso"]
+                    'columns' => ["Id", "iso"],
                 ],
                 [
                     'source' => $tableId,
                     'destination' => 'languagesSomething',
-                    'columns' => ["Name", "Something"]
-                ]
-            ]
+                    'columns' => ["Name", "Something"],
+                ],
+            ],
         ];
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
@@ -289,9 +289,9 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
                 [
                     'source' => $tableId,
                     'destination' => 'languagesIso',
-                    'columns' => ["Id", "iso", "not-a-column"]
-                ]
-            ]
+                    'columns' => ["Id", "iso", "not-a-column"],
+                ],
+            ],
         ];
 
         try {
@@ -566,8 +566,8 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             [
                 'source' => $tableId,
                 'destination' => 'languages',
-                'rows' => 2
-            ]
+                'rows' => 2,
+            ],
         ]);
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
@@ -582,8 +582,8 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             [
                 [
                     "Id" => "INTEGER",
-                    "Name" => "VARCHAR(50)"
-                ]
+                    "Name" => "VARCHAR(50)",
+                ],
             ],
             [
                 [
@@ -591,23 +591,23 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
                     "Name" => [
                         'column' => 'Name',
                         'type' => 'VARCHAR',
-                        'length' => '50'
-                    ]
-                ]
+                        'length' => '50',
+                    ],
+                ],
             ],
             [
                 [
                     [
                         'column' => 'Id',
-                        'type' => 'INTEGER'
+                        'type' => 'INTEGER',
                     ],
                     [
                         'column' => 'Name',
                         'type' => 'VARCHAR',
-                        'length' => '50'
-                    ]
-                ]
-            ]
+                        'length' => '50',
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -632,8 +632,8 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             [
                 'source' => $tableId,
                 'destination' => 'datatype_Test',
-                'datatypes' => $dataTypesDefinition
-            ]
+                'datatypes' => $dataTypesDefinition,
+            ],
         ]);
         $options = LegacyInputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
@@ -678,8 +678,8 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             [
                 'source' => $tableId,
                 'destination' => 'datatype_test',
-                'datatypes' => $dataTypesDefinition
-            ]
+                'datatypes' => $dataTypesDefinition,
+            ],
         ]);
         $options = LegacyInputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
@@ -706,21 +706,21 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             [
                 [
                     "id" => "INTEGER",
-                    "name" => "INTEGER"
-                ]
+                    "name" => "INTEGER",
+                ],
             ],
             [
                 [
                     [
                         'column' => 'id',
-                        'type' => 'INTEGER'
+                        'type' => 'INTEGER',
                     ],
                     [
                         'column' => 'name',
-                        'type' => 'INTEGER'
-                    ]
-                ]
-            ]
+                        'type' => 'INTEGER',
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -746,9 +746,9 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
                 'destination' => 'datatype_Test',
                 'datatypes' => [
                     "id" => "INTEGER", // lower case instead camel case should be resolved like non-existing column
-                    "Name" => "VARCHAR(50)"
-                ]
-            ]
+                    "Name" => "VARCHAR(50)",
+                ],
+            ],
         ]);
         $options = LegacyInputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
@@ -767,21 +767,21 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         return [
             [
                 "id" => "INTEGER", // lower case instead camel case should be resolved like non-existing column
-                "Name" => "VARCHAR(50)"
+                "Name" => "VARCHAR(50)",
             ],
             [
                 [
                     [
                         'column' => 'id',
-                        'type' => 'INTEGER'
+                        'type' => 'INTEGER',
                     ],
                     [
                         'column' => 'Name',
                         'type' => 'VARCHAR',
-                        'length' => '50'
-                    ]
-                ]
-            ]
+                        'length' => '50',
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -803,9 +803,9 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
                 'destination' => 'datatype_test',
                 'datatypes' =>  [
                     "id" => "UNKNOWN",
-                    "name" => "UNKNOWN"
-                ]
-            ]
+                    "name" => "UNKNOWN",
+                ],
+            ],
         ]);
         $options = LegacyInputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
@@ -838,14 +838,14 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
                 'datatypes' => [
                     [
                         'column' => 'id',
-                        'type' => 'UNKNOWN'
+                        'type' => 'UNKNOWN',
                     ],
                     [
                         'column' => 'name',
-                        'type' => 'UNKNOWN'
-                    ]
-                ]
-            ]
+                        'type' => 'UNKNOWN',
+                    ],
+                ],
+            ],
         ]);
         $options = LegacyInputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
@@ -908,8 +908,8 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
                     [
                         'source' => $tableId,
                         'destination' => 'Langs',
-                    ]
-                ]
+                    ],
+                ],
             ]
         );
 
@@ -922,7 +922,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
                         [
                             'source' => $tableId,
                             'destination' => 'Langs',
-                        ]
+                        ],
                     ],
                     'preserve' => true,
                 ]
@@ -1023,7 +1023,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
 
         $testClient = $this->getClient([
             'token' => $token['token'],
-            'url' => STORAGE_API_URL
+            'url' => STORAGE_API_URL,
         ]);
 
         // create the workspace with the limited permission client
@@ -1033,8 +1033,8 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $input = [
             [
                 'source' => $tableId,
-                'destination' => 'irrelevant'
-            ]
+                'destination' => 'irrelevant',
+            ],
         ];
 
         try {
@@ -1064,8 +1064,8 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
                 [
                     "source" => $tableId,
                     "destination" => "dotted.destination",
-                ]
-            ]
+                ],
+            ],
         ]);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
@@ -1095,7 +1095,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
                     "destination" => "languages",
                     "columns" => "",
                 ],
-            ]
+            ],
         ]);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
@@ -1123,8 +1123,8 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             "input" => [
                 array_merge([
                     "source" => $tableId,
-                    "destination" => 'filter-test'
-                ], $exportOptions)
+                    "destination" => 'filter-test',
+                ], $exportOptions),
             ]
         );
 

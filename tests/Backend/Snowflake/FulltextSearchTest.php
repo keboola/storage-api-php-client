@@ -48,9 +48,9 @@ class FulltextSearchTest extends StorageApiTestCase
                 [
                     'column' => 'column_1',
                     'operator' => 'eq',
-                    'values' => ['AcontaionsAA']
-                ]
-            ]
+                    'values' => ['AcontaionsAA'],
+                ],
+            ],
         ];
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Cannot use fulltextSearch and whereFilters at the same time');

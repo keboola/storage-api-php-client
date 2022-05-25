@@ -24,7 +24,7 @@ class LegacyWorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
 
         $mapping = [
             "source" => $pkTableId,
-            "destination" => "languages-pk"
+            "destination" => "languages-pk",
         ];
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
@@ -52,7 +52,7 @@ class LegacyWorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $mapping2 = [
             "source" => $pkTableId,
             "destination" => "languages-pk-skipped",
-            "columns" => ['Paid_Search_Engine_Account','Date'] // missing PK columns
+            "columns" => ['Paid_Search_Engine_Account','Date'], // missing PK columns
         ];
         $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping2]]);
 
@@ -106,7 +106,7 @@ class LegacyWorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
                             'convertEmptyValuesToNull' => true,
                             'nullable' => false,
                         ],
-                    ]
+                    ],
                 ],
             ],
         ];
@@ -196,7 +196,7 @@ class LegacyWorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
                             'convertEmptyValuesToNull' => true,
                             'nullable' => true,
                         ],
-                    ]
+                    ],
                 ],
             ],
         ];

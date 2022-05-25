@@ -27,7 +27,6 @@
         <exclude name="SlevomatCodingStandard.TypeHints.NullableTypeForNullDefaultValue.NullabilityTypeMissing" />
         <exclude name="SlevomatCodingStandard.Commenting.ForbiddenComments.CommentForbidden" />
         <exclude name="SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses.IncorrectlyOrderedUses" />
-        <exclude name="SlevomatCodingStandard.Arrays.TrailingArrayComma.MissingTrailingComma" />
         <exclude name="SlevomatCodingStandard.Operators.DisallowEqualOperators.DisallowedEqualOperator" />
         <exclude name="SlevomatCodingStandard.Operators.DisallowEqualOperators.DisallowedNotEqualOperator" />
         <exclude name="SlevomatCodingStandard.ControlStructures.DisallowYodaComparison.DisallowedYodaComparison" />

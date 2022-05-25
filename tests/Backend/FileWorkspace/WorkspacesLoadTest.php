@@ -207,7 +207,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $newToken = $this->tokens->createToken($tokenOptions);
         $newTokenClient = $this->getClient([
             'token' => $newToken['token'],
-            'url' => STORAGE_API_URL
+            'url' => STORAGE_API_URL,
         ]);
 
         $workspaces = new Workspaces($newTokenClient);
