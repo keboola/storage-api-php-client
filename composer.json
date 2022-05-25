@@ -37,11 +37,11 @@
 		"keboola/php-csv-db-import": "^2.2",
 		"ext-pdo_pgsql": "*",
 		"phpcompatibility/php-compatibility": "*",
-		"keboola/table-backend-utils": "^1.0",
+		"keboola/table-backend-utils": "^1",
 		"brianium/paratest": "2.*|6.*",
 		"ext-pdo": "*",
 		"keboola/retry": "^0.5.0",
-		"phpstan/phpstan": "^1.6",
+		"phpstan/phpstan": "^1.7",
 		"phpstan/phpstan-phpunit": "^1.0",
 		"keboola/phpunit-retry-annotations": "^0.4",
 		"rector/rector": "^0.12.23"
