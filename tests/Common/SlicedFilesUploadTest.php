@@ -51,7 +51,7 @@ class SlicedFilesUploadTest extends StorageApiTestCase
         $this->assertEquals($tags, $fileTags);
 
         $info = $this->_client->verifyToken();
-        $this->assertEquals($file['creatorToken']['id'], (int)$info['id']);
+        $this->assertEquals($file['creatorToken']['id'], (int) $info['id']);
         $this->assertEquals($file['creatorToken']['description'], $info['description']);
         $this->assertEquals($file['isEncrypted'], $options->getIsEncrypted());
 
@@ -110,7 +110,7 @@ class SlicedFilesUploadTest extends StorageApiTestCase
         $this->assertEquals($tags, $fileTags);
 
         $info = $this->_client->verifyToken();
-        $this->assertEquals($file['creatorToken']['id'], (int)$info['id']);
+        $this->assertEquals($file['creatorToken']['id'], (int) $info['id']);
         $this->assertEquals($file['creatorToken']['description'], $info['description']);
         $this->assertEquals($file['isEncrypted'], $options->getIsEncrypted());
 

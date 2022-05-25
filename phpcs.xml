@@ -32,7 +32,6 @@
         <exclude name="SlevomatCodingStandard.Operators.DisallowEqualOperators.DisallowedNotEqualOperator" />
         <exclude name="SlevomatCodingStandard.ControlStructures.DisallowYodaComparison.DisallowedYodaComparison" />
         <exclude name="SlevomatCodingStandard.Namespaces.UseDoesNotStartWithBackslash.UseStartsWithBackslash" />
-        <exclude name="Generic.Formatting.SpaceAfterCast.NoSpace" />
         <exclude name="SlevomatCodingStandard.Exceptions.ReferenceThrowableOnly.ReferencedGeneralException" />
         <exclude name="Squiz.WhiteSpace.SuperfluousWhitespace.EmptyLines" />
         <exclude name="PSR2.ControlStructures.ElseIfDeclaration.NotAllowed" />

@@ -60,7 +60,7 @@ class ListFilesOptions
      */
     public function setLimit($limit)
     {
-        $this->limit = (int)$limit;
+        $this->limit = (int) $limit;
         return $this;
     }
 
@@ -78,7 +78,7 @@ class ListFilesOptions
      */
     public function setOffset($offset)
     {
-        $this->offset = (int)$offset;
+        $this->offset = (int) $offset;
         return $this;
     }
 
@@ -127,7 +127,7 @@ class ListFilesOptions
      */
     public function setSinceId($sinceId)
     {
-        $this->sinceId = (int)$sinceId;
+        $this->sinceId = (int) $sinceId;
         return $this;
     }
 
@@ -144,7 +144,7 @@ class ListFilesOptions
      */
     public function setMaxId($maxId)
     {
-        $this->maxId = (int)$maxId;
+        $this->maxId = (int) $maxId;
         return $this;
     }
 

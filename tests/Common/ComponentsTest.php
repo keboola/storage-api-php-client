@@ -539,7 +539,7 @@ class ComponentsTest extends StorageApiTestCase
             ),
         ]);
         /** @var \stdClass $response */
-        $response = json_decode((string)$response->getBody());
+        $response = json_decode((string) $response->getBody());
 
         $this->assertEquals('test configuration', $response->name);
         $this->assertEquals($expectedIsDisabled, $response->isDisabled);
@@ -721,17 +721,17 @@ class ComponentsTest extends StorageApiTestCase
             'base_uri' => $this->_client->getApiUrl(),
         ], true);
 
-        $config = (object)[
+        $config = (object) [
             'test' => 'neco',
             'array' => [],
-            'object' => (object)[],
+            'object' => (object) [],
         ];
 
-        $state = (object)[
+        $state = (object) [
             'test' => 'state',
             'array' => [],
-            'object' => (object)[
-                'subobject' => (object)[],
+            'object' => (object) [
+                'subobject' => (object) [],
             ]
         ];
 
@@ -746,7 +746,7 @@ class ComponentsTest extends StorageApiTestCase
                 'X-StorageApi-Token' => $this->_client->getTokenString(),
             ),
         ]);
-        $response = json_decode((string)$response->getBody());
+        $response = json_decode((string) $response->getBody());
         $this->assertEquals($config, $response->configuration);
         $this->assertEquals($state, $response->state);
 
@@ -755,16 +755,16 @@ class ComponentsTest extends StorageApiTestCase
                 'X-StorageApi-Token' => $this->_client->getTokenString(),
             ),
         ]);
-        $response = json_decode((string)$response->getBody());
+        $response = json_decode((string) $response->getBody());
         $this->assertEquals($config, $response->configuration);
         $this->assertEquals($state, $response->state);
 
         // update
-        $config = (object)[
+        $config = (object) [
             'test' => 'neco',
             'array' => ['2'],
             'anotherArr' => [],
-            'object' => (object)[],
+            'object' => (object) [],
         ];
         $response = $client->put("/v2/storage/components/wr-db/configs/{$response->id}", [
             'form_params' => [
@@ -774,7 +774,7 @@ class ComponentsTest extends StorageApiTestCase
                 'X-StorageApi-Token' => $this->_client->getTokenString(),
             ),
         ]);
-        $response = json_decode((string)$response->getBody());
+        $response = json_decode((string) $response->getBody());
         $this->assertEquals($config, $response->configuration);
 
         $response = $client->get("/v2/storage/components/wr-db/configs/{$response->id}", [
@@ -782,7 +782,7 @@ class ComponentsTest extends StorageApiTestCase
                 'X-StorageApi-Token' => $this->_client->getTokenString(),
             ),
         ]);
-        $response = json_decode((string)$response->getBody());
+        $response = json_decode((string) $response->getBody());
         $this->assertEquals($config, $response->configuration);
     }
 

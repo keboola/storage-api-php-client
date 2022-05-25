@@ -164,17 +164,17 @@ class ConfigurationRowTest extends StorageApiTestCase
             'base_uri' => $this->client->getApiUrl(),
         ], true);
 
-        $config = (object)[
+        $config = (object) [
             'test' => 'neco',
             'array' => [],
-            'object' => (object)[],
+            'object' => (object) [],
         ];
 
-        $state = (object)[
+        $state = (object) [
             'test' => 'state',
             'array' => [],
-            'object' => (object)[
-                'subobject' => (object)[],
+            'object' => (object) [
+                'subobject' => (object) [],
             ]
         ];
 
@@ -189,7 +189,7 @@ class ConfigurationRowTest extends StorageApiTestCase
                 'X-StorageApi-Token' => $this->client->getTokenString(),
             ),
         ]);
-        $response = json_decode((string)$response->getBody());
+        $response = json_decode((string) $response->getBody());
         $this->assertEquals($config, $response->configuration);
         $this->assertEquals($state, $response->state);
 
@@ -198,22 +198,22 @@ class ConfigurationRowTest extends StorageApiTestCase
                 'X-StorageApi-Token' => $this->client->getTokenString(),
             ),
         ]);
-        $response = json_decode((string)$response->getBody());
+        $response = json_decode((string) $response->getBody());
         $this->assertEquals($config, $response->configuration);
         $this->assertEquals($state, $response->state);
 
         // update
-        $config = (object)[
+        $config = (object) [
             'test' => 'neco',
             'array' => ['2'],
             'anotherArr' => [],
-            'object' => (object)[],
+            'object' => (object) [],
         ];
-        $state = (object)[
+        $state = (object) [
             'test2' => 'state',
             'array2' => [],
-            'object2' => (object)[
-                'subobject2' => (object)[],
+            'object2' => (object) [
+                'subobject2' => (object) [],
             ]
         ];
 
@@ -234,7 +234,7 @@ class ConfigurationRowTest extends StorageApiTestCase
                 'X-StorageApi-Token' => $this->client->getTokenString(),
             ),
         ]);
-        $response = json_decode((string)$response->getBody());
+        $response = json_decode((string) $response->getBody());
         $this->assertEquals($config, $response->configuration);
         $this->assertEquals($state, $response->state);
 
@@ -243,7 +243,7 @@ class ConfigurationRowTest extends StorageApiTestCase
                 'X-StorageApi-Token' => $this->client->getTokenString(),
             ),
         ]);
-        $response = json_decode((string)$response->getBody());
+        $response = json_decode((string) $response->getBody());
         $this->assertEquals($config, $response->configuration);
         $this->assertEquals($state, $response->state);
         $this->assertFalse($response->isDisabled);
@@ -266,17 +266,17 @@ class ConfigurationRowTest extends StorageApiTestCase
             'base_uri' => $this->client->getApiUrl(),
         ], true);
 
-        $config = (object)[
+        $config = (object) [
             'test' => 'neco',
             'array' => [],
-            'object' => (object)[],
+            'object' => (object) [],
         ];
 
-        $state = (object)[
+        $state = (object) [
             'test' => 'state',
             'array' => [],
-            'object' => (object)[
-                'subobject' => (object)[],
+            'object' => (object) [
+                'subobject' => (object) [],
             ]
         ];
 
@@ -326,17 +326,17 @@ class ConfigurationRowTest extends StorageApiTestCase
             'base_uri' => $this->client->getApiUrl(),
         ], true);
 
-        $config = (object)[
+        $config = (object) [
             'test' => 'neco',
             'array' => [],
-            'object' => (object)[],
+            'object' => (object) [],
         ];
 
-        $state = (object)[
+        $state = (object) [
             'test' => 'state',
             'array' => [],
-            'object' => (object)[
-                'subobject' => (object)[],
+            'object' => (object) [
+                'subobject' => (object) [],
             ]
         ];
 
@@ -351,7 +351,7 @@ class ConfigurationRowTest extends StorageApiTestCase
                 'X-StorageApi-Token' => $this->client->getTokenString(),
             ),
         ]);
-        $response = json_decode((string)$response->getBody());
+        $response = json_decode((string) $response->getBody());
         $this->assertEquals($expectedIsDisabled, $response->isDisabled);
         $this->assertEquals('test configuration row', $response->name);
         $this->assertEquals($config, $response->configuration);
