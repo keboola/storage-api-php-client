@@ -45,7 +45,7 @@ class ExportParamsTest extends StorageApiTestCase
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile($importFile));
 
-        $originalFileLinesCount = (string) exec("wc -l <" . escapeshellarg($importFile));
+        $originalFileLinesCount = (string) exec('wc -l <' . escapeshellarg($importFile));
 
         $data = $this->_client->getTableDataPreview($tableId);
         $this->assertEquals($originalFileLinesCount, count(Client::parseCsv($data, false)));
@@ -53,7 +53,7 @@ class ExportParamsTest extends StorageApiTestCase
         $data = $this->_client->getTableDataPreview($tableId, [
             'limit' => 2,
         ]);
-        $this->assertEquals(3, count(Client::parseCsv($data, false)), "limit parameter");
+        $this->assertEquals(3, count(Client::parseCsv($data, false)), 'limit parameter');
 
         sleep(10);
         $startTime = time();
@@ -65,17 +65,17 @@ class ExportParamsTest extends StorageApiTestCase
             'incremental' => true,
         ]);
         $data = $this->_client->getTableDataPreview($tableId);
-        $this->assertEquals((3 * ($originalFileLinesCount - 1)) + 1, count(Client::parseCsv($data, false)), "lines count after incremental load");
+        $this->assertEquals((3 * ($originalFileLinesCount - 1)) + 1, count(Client::parseCsv($data, false)), 'lines count after incremental load');
 
         $data = $this->_client->getTableDataPreview($tableId, [
             'changedSince' => sprintf('-%d second', ceil(time() - $startTime) + 5),
         ]);
-        $this->assertEquals((2 * ($originalFileLinesCount - 1)) + 1, count(Client::parseCsv($data, false)), "changedSince parameter");
+        $this->assertEquals((2 * ($originalFileLinesCount - 1)) + 1, count(Client::parseCsv($data, false)), 'changedSince parameter');
 
         $data = $this->_client->getTableDataPreview($tableId, [
             'changedUntil' => sprintf('-%d second', ceil(time() - $startTime) + 5),
         ]);
-        $this->assertEquals($originalFileLinesCount, count(Client::parseCsv($data, false)), "changedUntil parameter");
+        $this->assertEquals($originalFileLinesCount, count(Client::parseCsv($data, false)), 'changedUntil parameter');
     }
 
     /**
@@ -138,7 +138,7 @@ class ExportParamsTest extends StorageApiTestCase
 
         $this->assertCount(1, $firstRow);
         $this->assertArrayHasKey(0, $firstRow);
-        $this->assertEquals("id", $firstRow[0]);
+        $this->assertEquals('id', $firstRow[0]);
     }
 
     public function testTableExportAsyncCache(): void

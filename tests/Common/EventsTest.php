@@ -134,7 +134,7 @@ class EventsTest extends StorageApiTestCase
      */
     public function testCreateInvalidUTF8(): void
     {
-        $message = "SQLSTATE[XX000]: " . chr(0x00000080);
+        $message = 'SQLSTATE[XX000]: ' . chr(0x00000080);
         $event = new Event();
         $event->setComponent('ex-sfdc')
             ->setType('info')
@@ -271,10 +271,10 @@ class EventsTest extends StorageApiTestCase
                 'success:',
             ],
             [
-                "/GET",
+                '/GET',
             ],
             [
-                "*tables*",
+                '*tables*',
             ],
         ];
     }

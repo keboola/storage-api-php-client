@@ -57,7 +57,7 @@ class ExasolWorkspaceBackend implements WorkspaceBackend
     public function dropTableColumn($table, $column)
     {
         $this->db->executeStatement(sprintf(
-            "ALTER TABLE %s.%s DROP COLUMN %s;",
+            'ALTER TABLE %s.%s DROP COLUMN %s;',
             ExasolQuote::quoteSingleIdentifier($this->schema),
             ExasolQuote::quoteSingleIdentifier($table),
             ExasolQuote::quoteSingleIdentifier($column)
@@ -93,7 +93,7 @@ class ExasolWorkspaceBackend implements WorkspaceBackend
     {
         $data = [];
         $res = $this->db->fetchAllAssociative(sprintf(
-            "SELECT * FROM %s.%s %s;",
+            'SELECT * FROM %s.%s %s;',
             ExasolQuote::quoteSingleIdentifier($this->schema),
             ExasolQuote::quoteSingleIdentifier($table),
             $orderBy !== null ? "ORDER BY $orderBy" : null
@@ -159,7 +159,7 @@ class ExasolWorkspaceBackend implements WorkspaceBackend
     public function dropTableIfExists($table)
     {
         $this->db->executeStatement(sprintf(
-            "DROP TABLE IF EXISTS %s.%s;",
+            'DROP TABLE IF EXISTS %s.%s;',
             ExasolQuote::quoteSingleIdentifier($this->schema),
             ExasolQuote::quoteSingleIdentifier($table)
         ));

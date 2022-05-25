@@ -55,7 +55,7 @@ class ExportSimpleTest extends StorageApiTestCase
             $csv .= file_get_contents($slice);
         }
 
-        $parsedData = Client::parseCsv($csv, false, ",", '"');
+        $parsedData = Client::parseCsv($csv, false, ',', '"');
         $this->assertCount($expectedColumnsCount, $parsedData);
         // unset column (e.g. with datetime)
         foreach ($parsedData as &$parsedLine) {
@@ -95,15 +95,15 @@ class ExportSimpleTest extends StorageApiTestCase
                 'version' => 'latest',
                 'region' => $exportedFile['region'],
             ]);
-            $bucket = $exportedFile["s3Path"]["bucket"];
-            $prefix = $exportedFile["s3Path"]["key"];
+            $bucket = $exportedFile['s3Path']['bucket'];
+            $prefix = $exportedFile['s3Path']['key'];
             /** @var array{Contents: array} $objects */
             $objects = $s3Client->listObjects([
-                "Bucket" => $bucket,
-                "Prefix" => $prefix,
+                'Bucket' => $bucket,
+                'Prefix' => $prefix,
             ]);
             /** @var array{Key: string} $object */
-            foreach ($objects["Contents"] as $object) {
+            foreach ($objects['Contents'] as $object) {
                 $objectDetail = $s3Client->headObject([
                     'Bucket' => $bucket,
                     'Key' => $object['Key'],
@@ -113,7 +113,7 @@ class ExportSimpleTest extends StorageApiTestCase
                 if (substr($object['Key'], -8) === 'manifest') {
                     $this->assertEquals('AES256', $objectDetail['ServerSideEncryption']);
                 }
-                $this->assertStringStartsWith($prefix, $object["Key"]);
+                $this->assertStringStartsWith($prefix, $object['Key']);
             }
         }
     }

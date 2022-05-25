@@ -17,6 +17,6 @@ class ExceptionsTest extends StorageApiTestCase
     public function testException(): void
     {
         $this->expectException(\Keboola\StorageApi\ClientException::class);
-        $t = $this->_client->getTable("nonexistingtable");
+        $t = $this->_client->getTable('nonexistingtable');
     }
 }

@@ -320,11 +320,11 @@ class MetadataFromExasolWorkspaceTest extends ParallelWorkspacesTestCase
     {
         $this->assertEquals(count($expectedKeyValues), count($metadata));
         foreach ($metadata as $data) {
-            $this->assertArrayHasKey("key", $data);
-            $this->assertArrayHasKey("value", $data);
+            $this->assertArrayHasKey('key', $data);
+            $this->assertArrayHasKey('value', $data);
             $this->assertEquals($expectedKeyValues[$data['key']], $data['value']);
-            $this->assertArrayHasKey("provider", $data);
-            $this->assertArrayHasKey("timestamp", $data);
+            $this->assertArrayHasKey('provider', $data);
+            $this->assertArrayHasKey('timestamp', $data);
             $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $data['timestamp']);
             $this->assertEquals(Metadata::PROVIDER_STORAGE, $data['provider']);
         }

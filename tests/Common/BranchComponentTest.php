@@ -79,7 +79,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         $rowConfig = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config);
         $rowConfig->setRowId('main-1-row-2');
-        $rowConfig->setDescription("Desc manually updated");
+        $rowConfig->setDescription('Desc manually updated');
         $components->updateConfigurationRow($rowConfig);
 
         $configData = $components->getConfigurationVersion($componentId, $configurationId, 2);

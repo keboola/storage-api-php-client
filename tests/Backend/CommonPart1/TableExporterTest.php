@@ -73,7 +73,7 @@ class TableExporterTest extends StorageApiTestCase
             if (file_exists($this->downloadPath)) {
                 unlink($this->downloadPath);
             }
-            $process = ProcessPolyfill::createProcess("gunzip " . escapeshellarg($this->downloadPathGZip));
+            $process = ProcessPolyfill::createProcess('gunzip ' . escapeshellarg($this->downloadPathGZip));
             if (0 !== $process->run()) {
                 throw new \Symfony\Component\Process\Exception\ProcessFailedException($process);
             }

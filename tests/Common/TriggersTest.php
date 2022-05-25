@@ -30,7 +30,7 @@ class TriggersTest extends StorageApiTestCase
 
     public function testCannotCreateTriggerWithZeroCooldown(): void
     {
-        $table1 = $this->createTableWithRandomData("watched-1");
+        $table1 = $this->createTableWithRandomData('watched-1');
         $options = (new TokenCreateOptions())
             ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
         $newToken = $this->tokens->createToken($options);
@@ -52,7 +52,7 @@ class TriggersTest extends StorageApiTestCase
      */
     public function testCreateTrigger(): void
     {
-        $table1 = $this->createTableWithRandomData("watched-1");
+        $table1 = $this->createTableWithRandomData('watched-1');
         $options = (new TokenCreateOptions())
             ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
         $newToken = $this->tokens->createToken($options);
@@ -93,7 +93,7 @@ class TriggersTest extends StorageApiTestCase
      */
     public function testCreateTriggerAsNonAdminButWithMasterTokenAsTokenRunWith(): void
     {
-        $table1 = $this->createTableWithRandomData("watched-1");
+        $table1 = $this->createTableWithRandomData('watched-1');
         $options = (new TokenCreateOptions())
             ->setCanManageBuckets(true);
         $newToken = $this->tokens->createToken($options);
@@ -109,7 +109,7 @@ class TriggersTest extends StorageApiTestCase
                     $table1,
                 ],
             ]);
-            self::fail("should fail");
+            self::fail('should fail');
         } catch (ClientException $e) {
             $this->assertEquals(
                 "The 'runByToken' cannot be admin's token when your main token is not admin's",
@@ -124,7 +124,7 @@ class TriggersTest extends StorageApiTestCase
      */
     public function testCreateTriggerWithExtraPermissions(TokenCreateOptions $optionsForMainToken): void
     {
-        $table1 = $this->createTableWithRandomData("watched-1");
+        $table1 = $this->createTableWithRandomData('watched-1');
 
         $optionsForTokenRunWith = (new TokenCreateOptions())
             ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
@@ -173,7 +173,7 @@ class TriggersTest extends StorageApiTestCase
      */
     public function testCreateTriggerWithWrongPermissions(TokenCreateOptions $optionsForMainToken, $expectedException): void
     {
-        $table1 = $this->createTableWithRandomData("watched-1");
+        $table1 = $this->createTableWithRandomData('watched-1');
 
         $optionsForTokenRunWith = (new TokenCreateOptions())
             ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
@@ -206,7 +206,7 @@ class TriggersTest extends StorageApiTestCase
      */
     public function testCreateTriggerWithMasterTokensEveryWhere(): void
     {
-        $table1 = $this->createTableWithRandomData("watched-1");
+        $table1 = $this->createTableWithRandomData('watched-1');
         $myTokenId = $this->_client->verifyToken()['id'];
         $trigger = $this->_client->createTrigger([
             'component' => 'orchestrator',
@@ -245,8 +245,8 @@ class TriggersTest extends StorageApiTestCase
      */
     public function testUpdateTriggerCreatedByMasterToken(TokenCreateOptions $optionForToken): void
     {
-        $table1 = $this->createTableWithRandomData("watched-1");
-        $table2 = $this->createTableWithRandomData("watched-2");
+        $table1 = $this->createTableWithRandomData('watched-1');
+        $table2 = $this->createTableWithRandomData('watched-2');
 
         $options = (new TokenCreateOptions())
             ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
@@ -320,7 +320,7 @@ class TriggersTest extends StorageApiTestCase
 
     public function testUpdateTriggerParameterCreatedByAdminToken(): void
     {
-        $table1 = $this->createTableWithRandomData("watched-1");
+        $table1 = $this->createTableWithRandomData('watched-1');
 
         $options = (new TokenCreateOptions())
             ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
@@ -379,7 +379,7 @@ class TriggersTest extends StorageApiTestCase
      */
     public function testUpdateTriggerComponentWithWrongPermissions(TokenCreateOptions $optionsForMainToken, $expectedException): void
     {
-        $table1 = $this->createTableWithRandomData("watched-1");
+        $table1 = $this->createTableWithRandomData('watched-1');
         $optionsForTokenRunWith = (new TokenCreateOptions())
             ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
 
@@ -439,8 +439,8 @@ class TriggersTest extends StorageApiTestCase
      */
     public function testUpdateTriggerCreatedByNonMasterToken(TokenCreateOptions $options): void
     {
-        $table1 = $this->createTableWithRandomData("watched-1");
-        $table2 = $this->createTableWithRandomData("watched-2");
+        $table1 = $this->createTableWithRandomData('watched-1');
+        $table2 = $this->createTableWithRandomData('watched-2');
 
         $optionsForTokenRunWith = (new TokenCreateOptions())
             ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
@@ -476,7 +476,7 @@ class TriggersTest extends StorageApiTestCase
             ];
 
             $clientWithoutAdminToken->updateTrigger((int) $trigger['id'], $updateData);
-            self::fail("should fail");
+            self::fail('should fail');
         } catch (ClientException $e) {
             $this->assertEquals(
                 "The 'runByToken' cannot be admin's token when your main token is not admin's",
@@ -537,7 +537,7 @@ class TriggersTest extends StorageApiTestCase
      */
     public function testUpdateTriggerWithDifferentNonMasterToken(TokenCreateOptions $tokenCreateOptions): void
     {
-        $table1 = $this->createTableWithRandomData("watched-1");
+        $table1 = $this->createTableWithRandomData('watched-1');
 
         $optionsForTokenRunWith = (new TokenCreateOptions())
             ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
@@ -583,8 +583,8 @@ class TriggersTest extends StorageApiTestCase
      */
     public function testUpdateTwoTables(): void
     {
-        $table1 = $this->createTableWithRandomData("watched-1");
-        $table2 = $this->createTableWithRandomData("watched-2");
+        $table1 = $this->createTableWithRandomData('watched-1');
+        $table2 = $this->createTableWithRandomData('watched-2');
 
         $options = (new TokenCreateOptions())
             ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
@@ -639,7 +639,7 @@ class TriggersTest extends StorageApiTestCase
      */
     public function testDeleteTriggerCreatedByMasterToken(TokenCreateOptions $optionForToken): void
     {
-        $table = $this->createTableWithRandomData("watched-2");
+        $table = $this->createTableWithRandomData('watched-2');
 
         $options = (new TokenCreateOptions())
             ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
@@ -702,7 +702,7 @@ class TriggersTest extends StorageApiTestCase
      */
     public function testDeleteTriggerCreatedByNonMasterTokenUsingDifferentToken(TokenCreateOptions $optionForToken): void
     {
-        $table1 = $this->createTableWithRandomData("watched-1");
+        $table1 = $this->createTableWithRandomData('watched-1');
 
         $optionsForTokenRunWith = (new TokenCreateOptions())
             ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
@@ -764,7 +764,7 @@ class TriggersTest extends StorageApiTestCase
      */
     public function testNonMasterTokenCanDeleteTriggerItCreated(TokenCreateOptions $optionForToken): void
     {
-        $table1 = $this->createTableWithRandomData("watched-1");
+        $table1 = $this->createTableWithRandomData('watched-1');
 
         $optionsForTokenRunWith = (new TokenCreateOptions())
             ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
@@ -825,7 +825,7 @@ class TriggersTest extends StorageApiTestCase
      */
     public function testListAction(): void
     {
-        $table = $this->createTableWithRandomData("watched-2");
+        $table = $this->createTableWithRandomData('watched-2');
 
         $options = (new TokenCreateOptions())
             ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
@@ -902,7 +902,7 @@ class TriggersTest extends StorageApiTestCase
      */
     public function testPreventTokenDelete(): void
     {
-        $table1 = $this->createTableWithRandomData("watched-1");
+        $table1 = $this->createTableWithRandomData('watched-1');
         $options = (new TokenCreateOptions())
             ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
         $newToken = $this->tokens->createToken($options);
@@ -917,7 +917,7 @@ class TriggersTest extends StorageApiTestCase
         ]);
         try {
             $this->tokens->dropToken($newToken['id']);
-            $this->fail("Token should not be deleted");
+            $this->fail('Token should not be deleted');
         } catch (ClientException $e) {
             $this->assertEquals(400, $e->getCode());
             $this->assertEquals('storage.tokens.cannotDeleteDueToOrchestration', $e->getStringCode());
@@ -959,7 +959,7 @@ class TriggersTest extends StorageApiTestCase
         $expectedError = 'Trigger manipulation is restricted for your user role "readOnly".';
         $readOnlyClient = $this->getClientForToken(STORAGE_API_READ_ONLY_TOKEN);
 
-        $table1 = $this->createTableWithRandomData("watched-1");
+        $table1 = $this->createTableWithRandomData('watched-1');
         $newToken = $this->tokens->createToken(
             (new TokenCreateOptions())
                 ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)

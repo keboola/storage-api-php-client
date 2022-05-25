@@ -26,7 +26,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
             self::BACKEND_SYNAPSE,
             self::BACKEND_EXASOL,
         ], true)) {
-            $this->markTestSkipped("Test case-sensitivity columns name only for snowflake");
+            $this->markTestSkipped('Test case-sensitivity columns name only for snowflake');
         }
 
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
@@ -41,10 +41,10 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
         $db = $this->getDbConnection($workspace['connection']);
 
-        $db->query("create table \"test_Languages3\" (
-			\"id\" integer not null,
-			\"Name\" varchar(10) not null
-		);");
+        $db->query('create table "test_Languages3" (
+			"id" integer not null,
+			"Name" varchar(10) not null
+		);');
 
         $db->query("insert into \"test_Languages3\" (\"id\", \"Name\") values (1, 'cz'), (2, 'en');");
 
@@ -71,10 +71,10 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
         $db = $this->getDbConnection($connection);
 
-        $db->query("create table \"test_Languages3\" (
-			\"Id\" integer not null,
-			\"Name\" varchar(10) not null
-		);");
+        $db->query('create table "test_Languages3" (
+			"Id" integer not null,
+			"Name" varchar(10) not null
+		);');
         $db->query("insert into \"test_Languages3\" (\"Id\", \"Name\") values (1, 'cz'), (2, 'en');");
 
         // create table from workspace
@@ -106,10 +106,10 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
         $db = $this->getDbConnection($workspace['connection']);
 
-        $db->query("create table \"test_Languages3\" (
-			\"_Id\" integer not null,
-			\"Name\" varchar(10) not null
-		);");
+        $db->query('create table "test_Languages3" (
+			"_Id" integer not null,
+			"Name" varchar(10) not null
+		);');
         $db->query("insert into \"test_Languages3\" (\"_Id\", \"Name\") values (1, 'cz'), (2, 'en');");
 
         try {
@@ -130,7 +130,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace();
 
-        $table = $this->_client->apiPost("buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", [
+        $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => 'Id,Name',
             'name' => 'languages',
             'primaryKey' => 'Id',
@@ -183,14 +183,14 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
         $db = $this->getDbConnection($workspace['connection']);
 
-        $db->query("create table \"test_Languages3\" (
-			\"Id\" integer not null,
-			\"Name\" varchar(10) not null,
-			\"_update\" varchar(10) not null 
-		);");
+        $db->query('create table "test_Languages3" (
+			"Id" integer not null,
+			"Name" varchar(10) not null,
+			"_update" varchar(10) not null 
+		);');
         $db->query("insert into \"test_Languages3\" (\"Id\", \"Name\", \"_update\") values (1, 'cz', 'x'), (2, 'en', 'z');");
 
-        $table = $this->_client->apiPost("buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", [
+        $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => 'Id,Name',
             'name' => 'languages',
             'primaryKey' => 'Id',
@@ -211,7 +211,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
     public function testCopyImport(): void
     {
-        $table = $this->_client->apiPost("buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", [
+        $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => 'Id,Name,update',
             'name' => 'languages',
             'primaryKey' => 'Id',
@@ -226,11 +226,11 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
         $db = $this->getDbConnection($workspace['connection']);
 
-        $db->query("create table \"test_Languages3\" (
-			\"Id\" integer not null,
-			\"Name\" varchar(10) not null,
-			\"update\" varchar(10)
-		);");
+        $db->query('create table "test_Languages3" (
+			"Id" integer not null,
+			"Name" varchar(10) not null,
+			"update" varchar(10)
+		);');
 
         $db->query("insert into \"test_Languages3\" (\"Id\", \"Name\") values (1, 'cz'), (2, 'en');");
 
@@ -249,7 +249,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
             'format' => 'rfc',
         ]), 'imported data comparsion');
 
-        $db->query("truncate table \"test_Languages3\"");
+        $db->query('truncate table "test_Languages3"');
         $db->query("insert into \"test_Languages3\" values (1, 'cz', '1'), (3, 'sk', '1');");
 
         $this->_client->writeTableAsyncDirect($table['id'], [
@@ -268,8 +268,8 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
             'format' => 'rfc',
         ]), 'previously null column updated');
 
-        $db->query("truncate table \"test_Languages3\"");
-        $db->query("alter table \"test_Languages3\" ADD COLUMN \"new_col\" varchar(10)");
+        $db->query('truncate table "test_Languages3"');
+        $db->query('alter table "test_Languages3" ADD COLUMN "new_col" varchar(10)');
         $db->query("insert into \"test_Languages3\" values (1, 'cz', '1', null), (3, 'sk', '1', 'newValue');");
 
         $this->_client->writeTableAsyncDirect($table['id'], [

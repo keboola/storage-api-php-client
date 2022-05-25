@@ -103,13 +103,13 @@ class TablesListingTest extends StorageApiTestCase
 
         $metadataApi->postTableMetadata(
             $tableId,
-            "keboola.sapi_client_tests",
+            'keboola.sapi_client_tests',
             [[
-                "key" => "testkey",
-                "value" => "testValue",
+                'key' => 'testkey',
+                'value' => 'testValue',
             ],[
-                "key" => "testkey2",
-                "value" => "testValue2",
+                'key' => 'testkey2',
+                'value' => 'testValue2',
             ]]
         );
 
@@ -123,7 +123,7 @@ class TablesListingTest extends StorageApiTestCase
         $firstMeta = reset($firstTable['metadata']);
         $this->assertArrayHasKey('timestamp', $firstMeta);
         $this->assertArrayHasKey('provider', $firstMeta);
-        $this->assertEquals("keboola.sapi_client_tests", $firstMeta['provider']);
+        $this->assertEquals('keboola.sapi_client_tests', $firstMeta['provider']);
         $this->assertArrayHasKey('key', $firstMeta);
         $this->assertNotEmpty($firstMeta['key']);
         $this->assertArrayHasKey('value', $firstMeta);
@@ -199,14 +199,14 @@ class TablesListingTest extends StorageApiTestCase
         // let's post some column metadata to make sure it shows up correctly
         $metadataApi = new Metadata($this->_client);
         $metadataApi->postColumnMetadata(
-            $tableId . ".id",
-            "keboola.sapi_client_tests",
+            $tableId . '.id',
+            'keboola.sapi_client_tests',
             [[
-                "key" => "testkey",
-                "value" => "testValue",
+                'key' => 'testkey',
+                'value' => 'testValue',
             ],[
-                "key" => "testkey2",
-                "value" => "testValue2",
+                'key' => 'testkey2',
+                'value' => 'testValue2',
             ]]
         );
         $tables = $this->_client->listTables($this->getTestBucketId(), [
@@ -222,13 +222,13 @@ class TablesListingTest extends StorageApiTestCase
         $this->assertCount(2, $firstTable['columnMetadata']['id']);
         $this->assertArrayHasKey('timestamp', $firstTable['columnMetadata']['id'][0]);
         $this->assertArrayHasKey('provider', $firstTable['columnMetadata']['id'][0]);
-        $this->assertEquals("keboola.sapi_client_tests", $firstTable['columnMetadata']['id'][0]['provider']);
+        $this->assertEquals('keboola.sapi_client_tests', $firstTable['columnMetadata']['id'][0]['provider']);
         $this->assertArrayHasKey('key', $firstTable['columnMetadata']['id'][0]);
         $this->assertArrayHasKey('value', $firstTable['columnMetadata']['id'][0]);
 
         $this->assertArrayHasKey('timestamp', $firstTable['columnMetadata']['id'][1]);
         $this->assertArrayHasKey('provider', $firstTable['columnMetadata']['id'][1]);
-        $this->assertEquals("keboola.sapi_client_tests", $firstTable['columnMetadata']['id'][1]['provider']);
+        $this->assertEquals('keboola.sapi_client_tests', $firstTable['columnMetadata']['id'][1]['provider']);
         $this->assertArrayHasKey('key', $firstTable['columnMetadata']['id'][1]);
         $this->assertArrayHasKey('value', $firstTable['columnMetadata']['id'][1]);
     }
@@ -240,14 +240,14 @@ class TablesListingTest extends StorageApiTestCase
 
         $metadataApi = new Metadata($this->_client);
         $metadataApi->postColumnMetadata(
-            $table1Id . ".id",
-            "keboola.sapi_client_tests",
+            $table1Id . '.id',
+            'keboola.sapi_client_tests',
             [[
-                "key" => "testkey",
-                "value" => "testValue",
+                'key' => 'testkey',
+                'value' => 'testValue',
             ],[
-                "key" => "testkey2",
-                "value" => "testValue2",
+                'key' => 'testkey2',
+                'value' => 'testValue2',
             ]]
         );
 
@@ -385,14 +385,14 @@ class TablesListingTest extends StorageApiTestCase
 
         $metadataApi = new Metadata($this->_client);
         $metadataApi->postColumnMetadata(
-            $tableId . ".id",
-            "keboola.sapi_client_tests",
+            $tableId . '.id',
+            'keboola.sapi_client_tests',
             [[
-                "key" => "testkey",
-                "value" => "testValue",
+                'key' => 'testkey',
+                'value' => 'testValue',
             ],[
-                "key" => "testkey2",
-                "value" => "testValue2",
+                'key' => 'testkey2',
+                'value' => 'testValue2',
             ]]
         );
 

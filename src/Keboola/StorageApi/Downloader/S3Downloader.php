@@ -25,8 +25,8 @@ class S3Downloader implements DownloaderInterface
     public function downloadFileFromFileResponse($fileResponse, $tmpFilePath)
     {
         $this->client->getObject([
-            'Bucket' => $fileResponse["s3Path"]["bucket"],
-            'Key' => $fileResponse["s3Path"]["key"],
+            'Bucket' => $fileResponse['s3Path']['bucket'],
+            'Key' => $fileResponse['s3Path']['key'],
             'SaveAs' => $tmpFilePath,
         ]);
     }
@@ -36,11 +36,11 @@ class S3Downloader implements DownloaderInterface
      */
     public function downloadManifestEntry($fileResponse, $entry, $tmpFilePath)
     {
-        $fileKey = substr($entry["url"], strpos($entry["url"], '/', 5) + 1);
+        $fileKey = substr($entry['url'], strpos($entry['url'], '/', 5) + 1);
         $filePath = $tmpFilePath . '_' . md5(str_replace('/', '_', $fileKey));
 
         $this->client->getObject([
-            'Bucket' => $fileResponse["s3Path"]["bucket"],
+            'Bucket' => $fileResponse['s3Path']['bucket'],
             'Key' => $fileKey,
             'SaveAs' => $filePath,
         ]);

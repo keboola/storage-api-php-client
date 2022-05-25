@@ -141,7 +141,7 @@ class OrderByTest extends StorageApiTestCase
     {
         $tableId = $this->prepareTable();
 
-        $orderBy = "string";
+        $orderBy = 'string';
 
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage("Parameter \"orderBy\" should be an array, but parameter contains:\n" . json_encode($orderBy));
@@ -163,7 +163,7 @@ class OrderByTest extends StorageApiTestCase
     {
         $tableId = $this->prepareTable();
 
-        $orderBy = "string";
+        $orderBy = 'string';
 
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage("Parameter \"orderBy\" should be an array, but parameter contains:\n" . json_encode($orderBy));

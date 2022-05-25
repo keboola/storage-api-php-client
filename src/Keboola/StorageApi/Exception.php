@@ -49,7 +49,7 @@ class Exception extends \Exception
         if ($stringCode) {
             $this->stringCode = (string) $stringCode;
         } else {
-            $this->stringCode = "APPLICATION_ERROR";
+            $this->stringCode = 'APPLICATION_ERROR';
         }
         return $this;
     }

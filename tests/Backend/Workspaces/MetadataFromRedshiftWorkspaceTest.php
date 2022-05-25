@@ -193,9 +193,9 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
 
         $this->assertEquals([], $table['metadata']);
         $this->assertEquals([], $table['columnMetadata']);
-        $db->query("truncate table \"test.Languages3\"");
-        $db->query("alter table \"test.Languages3\" ADD COLUMN \"update\" varchar(64)");
-        $db->query("insert into \"test.Languages3\" values " .
+        $db->query('truncate table "test.Languages3"');
+        $db->query('alter table "test.Languages3" ADD COLUMN "update" varchar(64)');
+        $db->query('insert into "test.Languages3" values ' .
             "(1, 'cz', null)," .
             " (3, 'sk', 'newValue')," .
             " (4, 'jp', 'test');");
@@ -237,10 +237,10 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
 
         $db = $this->getDbConnection($workspace['connection']);
 
-         $db->query("create table \"test.metadata_columns\" (
-                \"id\" integer not null,
-                \"name\" geometry
-            );");
+         $db->query('create table "test.metadata_columns" (
+                "id" integer not null,
+                "name" geometry
+            );');
 
         try {
             $this->_client->writeTableAsyncDirect($tableId, [
@@ -250,7 +250,7 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
             $this->fail('Exception "cannot cast type geometry to character " should be thrown');
         } catch (ClientException $e) {
             $this->assertSame(
-                "SQLSTATE[42846]: Cannot coerce: 7 ERROR:  cannot cast type geometry to character varying",
+                'SQLSTATE[42846]: Cannot coerce: 7 ERROR:  cannot cast type geometry to character varying',
                 $e->getMessage()
             );
         }
@@ -271,10 +271,10 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
 
         $db = $this->getDbConnection($workspace['connection']);
 
-        $db->query("create table \"test.metadata_columns\" (
-                \"id\" integer not null,
-                \"name\" geometry
-            );");
+        $db->query('create table "test.metadata_columns" (
+                "id" integer not null,
+                "name" geometry
+            );');
 
         try {
             $tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), [
@@ -290,7 +290,7 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
             $this->fail('Exception "cannot cast type geometry to character " should be thrown');
         } catch (ClientException $e) {
             $this->assertSame(
-                "SQLSTATE[42846]: Cannot coerce: 7 ERROR:  cannot cast type geometry to character varying",
+                'SQLSTATE[42846]: Cannot coerce: 7 ERROR:  cannot cast type geometry to character varying',
                 $e->getMessage()
             );
         }
@@ -300,11 +300,11 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
     {
         $this->assertEquals(count($expectedKeyValues), count($metadata));
         foreach ($metadata as $data) {
-            $this->assertArrayHasKey("key", $data);
-            $this->assertArrayHasKey("value", $data);
+            $this->assertArrayHasKey('key', $data);
+            $this->assertArrayHasKey('value', $data);
             $this->assertEquals($expectedKeyValues[$data['key']], $data['value']);
-            $this->assertArrayHasKey("provider", $data);
-            $this->assertArrayHasKey("timestamp", $data);
+            $this->assertArrayHasKey('provider', $data);
+            $this->assertArrayHasKey('timestamp', $data);
             $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $data['timestamp']);
             $this->assertEquals(Metadata::PROVIDER_STORAGE, $data['provider']);
         }

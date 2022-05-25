@@ -115,7 +115,7 @@ class Abs
      */
     public function uploadFile($filePath, $destinationName)
     {
-        $content = fopen($filePath, "rb");
+        $content = fopen($filePath, 'rb');
         $this->getClient()->createBlockBlob($this->container, $destinationName, $content);
     }
 
@@ -148,7 +148,7 @@ class Abs
                 $prefix . 'manifest'
             );
             $blob = json_decode(stream_get_contents($blob->getContentStream()), true);
-            foreach ($blob["entries"] as $entry) {
+            foreach ($blob['entries'] as $entry) {
                 list($protocol, $account, $container, $file) = AbsUrlParser::parseAbsUrl($entry['url']);
 
                 $filePath = $tmpFilePath . '_' . md5(str_replace('/', '_', $file));
@@ -176,7 +176,7 @@ class Abs
         }
 
         // Create file with header
-        $delimiter = ",";
+        $delimiter = ',';
         $enclosure = '"';
         $header = $enclosure . implode($enclosure . $delimiter . $enclosure, $columns) . $enclosure . "\n";
         if ($isCompressed === true) {
@@ -188,9 +188,9 @@ class Abs
         // Concat all files into one, compressed files need to be decompressed first
         foreach ($files as $file) {
             if ($isCompressed) {
-                $catCmd = "gunzip " . escapeshellarg($file) . " --to-stdout >> " . escapeshellarg($destination) . ".tmp";
+                $catCmd = 'gunzip ' . escapeshellarg($file) . ' --to-stdout >> ' . escapeshellarg($destination) . '.tmp';
             } else {
-                $catCmd = "cat " . escapeshellarg($file) . " >> " . escapeshellarg($destination);
+                $catCmd = 'cat ' . escapeshellarg($file) . ' >> ' . escapeshellarg($destination);
             }
             $process = ProcessPolyfill::createProcess($catCmd);
             $process->setTimeout(null);

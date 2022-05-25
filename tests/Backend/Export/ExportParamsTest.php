@@ -57,7 +57,7 @@ class ExportParamsTest extends StorageApiTestCase
             $csv .= file_get_contents($slice);
         }
 
-        $parsedData = Client::parseCsv($csv, false, ",", '"');
+        $parsedData = Client::parseCsv($csv, false, ',', '"');
         $this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
 
         if ($exportedFile['provider'] === Client::FILE_PROVIDER_AZURE) {
@@ -90,20 +90,20 @@ class ExportParamsTest extends StorageApiTestCase
                 'version' => 'latest',
                 'region' => $exportedFile['region'],
             ]);
-            $bucket = $exportedFile["s3Path"]["bucket"];
-            $prefix = $exportedFile["s3Path"]["key"];
+            $bucket = $exportedFile['s3Path']['bucket'];
+            $prefix = $exportedFile['s3Path']['key'];
             $objects = $s3Client->listObjects([
-                "Bucket" => $bucket,
-                "Prefix" => $prefix,
+                'Bucket' => $bucket,
+                'Prefix' => $prefix,
             ]);
-            foreach ($objects["Contents"] as $object) {
+            foreach ($objects['Contents'] as $object) {
                 $objectDetail = $s3Client->headObject([
                     'Bucket' => $bucket,
                     'Key' => $object['Key'],
                 ]);
 
                 $this->assertEquals('AES256', $objectDetail['ServerSideEncryption']);
-                $this->assertStringStartsWith($prefix, $object["Key"]);
+                $this->assertStringStartsWith($prefix, $object['Key']);
             }
         }
     }

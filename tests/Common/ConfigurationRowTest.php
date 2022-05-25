@@ -54,8 +54,8 @@ class ConfigurationRowTest extends StorageApiTestCase
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
-            ->setName("Main 1")
-            ->setDescription("description");
+            ->setName('Main 1')
+            ->setDescription('description');
         $components->addConfiguration($config);
 
         $rowConfig = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config);
@@ -71,8 +71,8 @@ class ConfigurationRowTest extends StorageApiTestCase
         $config2 = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-2')
-            ->setName("Main 2")
-            ->setDescription("description");
+            ->setName('Main 2')
+            ->setDescription('description');
         $components->addConfiguration($config2);
 
         $rowConfig2 = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config2);
@@ -86,7 +86,7 @@ class ConfigurationRowTest extends StorageApiTestCase
             2,
             'copy-main'
         );
-        $response = $components->getConfiguration('wr-db', $copiedConfig["id"]);
+        $response = $components->getConfiguration('wr-db', $copiedConfig['id']);
 
         $this->assertSame(['key' => 'main-2-1'], $response['rows'][0]['state']);
     }
@@ -289,7 +289,7 @@ class ConfigurationRowTest extends StorageApiTestCase
         ]);
         $response = json_decode((string) $response->getBody());
 
-        $responsePut = $guzzleClient->put("/v2/storage/components/wr-db/configs/main-1/rows/" . $response->id, [
+        $responsePut = $guzzleClient->put('/v2/storage/components/wr-db/configs/main-1/rows/' . $response->id, [
             'form_params' => [
                 'isDisabled' => 'true',
                 'changeDescription' => 'Row ABCD disabled',
@@ -301,7 +301,7 @@ class ConfigurationRowTest extends StorageApiTestCase
 
         $result = json_decode((string) $responsePut->getBody());
         $this->assertTrue($result->isDisabled);
-        $this->assertEquals("Row ABCD disabled", $result->changeDescription);
+        $this->assertEquals('Row ABCD disabled', $result->changeDescription);
     }
 
     /**

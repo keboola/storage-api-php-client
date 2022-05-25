@@ -13,8 +13,8 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
     public function workspaceBackendData()
     {
         return [
-            [self::BACKEND_SNOWFLAKE, ["amount" => "NUMBER"]],
-            [self::BACKEND_REDSHIFT, ["amount" => "INT"]],
+            [self::BACKEND_SNOWFLAKE, ['amount' => 'NUMBER']],
+            [self::BACKEND_REDSHIFT, ['amount' => 'INT']],
         ];
     }
 
@@ -73,7 +73,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
      */
     public function testLoadIncremental($backend, $bucketBackend): void
     {
-        if ($this->_client->bucketExists("in.c-mixed-test-" . $bucketBackend)) {
+        if ($this->_client->bucketExists('in.c-mixed-test-' . $bucketBackend)) {
             $this->_client->dropBucket(
                 "in.c-mixed-test-{$bucketBackend}",
                 [
@@ -82,10 +82,10 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
             );
         }
 
-        $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", "in", "", $bucketBackend);
+        $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", 'in', '', $bucketBackend);
 
         $workspaces = new Workspaces($this->_client);
-        $workspace = $workspaces->createWorkspace(["backend" => $backend]);
+        $workspace = $workspaces->createWorkspace(['backend' => $backend]);
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../../_data/languages.csv';
@@ -109,7 +109,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
         ];
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
-        $this->assertEquals(2, $backend->countRows("languages"));
+        $this->assertEquals(2, $backend->countRows('languages'));
 
         // second load
         $options = [
@@ -125,7 +125,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
         ];
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
-        $this->assertEquals(3, $backend->countRows("languages"));
+        $this->assertEquals(3, $backend->countRows('languages'));
     }
 
     /**
@@ -134,7 +134,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
      */
     public function testLoadIncrementalNullable($backend, $bucketBackend): void
     {
-        if ($this->_client->bucketExists("in.c-mixed-test-" . $bucketBackend)) {
+        if ($this->_client->bucketExists('in.c-mixed-test-' . $bucketBackend)) {
             $this->_client->dropBucket(
                 "in.c-mixed-test-{$bucketBackend}",
                 [
@@ -143,10 +143,10 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
             );
         }
 
-        $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", "in", "", $bucketBackend);
+        $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", 'in', '', $bucketBackend);
 
         $workspaces = new Workspaces($this->_client);
-        $workspace = $workspaces->createWorkspace(["backend" => $backend]);
+        $workspace = $workspaces->createWorkspace(['backend' => $backend]);
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../../_data/languages.with-state.csv';
@@ -236,7 +236,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
             $this->assertArrayHasKey('state', $row);
             $this->assertArrayHasKey('id', $row);
 
-            if (in_array($row['id'], ["0", "11", "24"])) {
+            if (in_array($row['id'], ['0', '11', '24'])) {
                 $this->assertNull($row['state']);
             }
         }
@@ -248,7 +248,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
      */
     public function testLoadIncrementalNotNullable($backend, $bucketBackend): void
     {
-        if ($this->_client->bucketExists("in.c-mixed-test-" . $bucketBackend)) {
+        if ($this->_client->bucketExists('in.c-mixed-test-' . $bucketBackend)) {
             $this->_client->dropBucket(
                 "in.c-mixed-test-{$bucketBackend}",
                 [
@@ -257,10 +257,10 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
             );
         }
 
-        $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", "in", "", $bucketBackend);
+        $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", 'in', '', $bucketBackend);
 
         $workspaces = new Workspaces($this->_client);
-        $workspace = $workspaces->createWorkspace(["backend" => $backend]);
+        $workspace = $workspaces->createWorkspace(['backend' => $backend]);
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../../_data/languages.with-state.csv';
@@ -350,7 +350,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
 
         $bucketBackend = self::BACKEND_SNOWFLAKE;
 
-        if ($this->_client->bucketExists("out.c-mixed-test-" . $bucketBackend)) {
+        if ($this->_client->bucketExists('out.c-mixed-test-' . $bucketBackend)) {
             $this->_client->dropBucket(
                 "out.c-mixed-test-{$bucketBackend}",
                 [
@@ -359,12 +359,12 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
             );
         }
 
-        if ($this->_client->bucketExists("in.c-mixed-test-" . $bucketBackend)) {
+        if ($this->_client->bucketExists('in.c-mixed-test-' . $bucketBackend)) {
             $this->_client->dropBucket("in.c-mixed-test-{$bucketBackend}", [
                 'force' => true,
             ]);
         }
-        $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", "in", "", $bucketBackend);
+        $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", 'in', '', $bucketBackend);
 
         //setup test table
         $this->_client->createTable(
@@ -380,11 +380,11 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
         ]);
 
         $options = [
-            "input" => [
+            'input' => [
                 [
-                    "source" => "in.c-mixed-test-{$bucketBackend}.dates",
-                    "destination" => "dates",
-                    "columns" => [
+                    'source' => "in.c-mixed-test-{$bucketBackend}.dates",
+                    'destination' => 'dates',
+                    'columns' => [
                         [
                             'source' => 'valid_from',
                             'type' => 'TIMESTAMP',
@@ -399,7 +399,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
 
         $wsBackend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-        $data = $wsBackend->fetchAll("dates", \PDO::FETCH_ASSOC);
+        $data = $wsBackend->fetchAll('dates', \PDO::FETCH_ASSOC);
         $this->assertCount(3, $data);
     }
 
@@ -409,7 +409,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
      */
     public function testMixedBackendWorkspaceLoad($backend, $bucketBackend): void
     {
-        if ($this->_client->bucketExists("out.c-mixed-test-" . $bucketBackend)) {
+        if ($this->_client->bucketExists('out.c-mixed-test-' . $bucketBackend)) {
             $this->_client->dropBucket(
                 "out.c-mixed-test-{$bucketBackend}",
                 [
@@ -418,7 +418,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
             );
         }
 
-        if ($this->_client->bucketExists("in.c-mixed-test-" . $bucketBackend)) {
+        if ($this->_client->bucketExists('in.c-mixed-test-' . $bucketBackend)) {
             $this->_client->dropBucket(
                 "in.c-mixed-test-{$bucketBackend}",
                 [
@@ -427,8 +427,8 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
             );
         }
 
-        $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", "in", "", $bucketBackend);
-        $outBucketId =  $this->_client->createBucket("mixed-test-{$bucketBackend}", "out", "", $bucketBackend);
+        $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", 'in', '', $bucketBackend);
+        $outBucketId =  $this->_client->createBucket("mixed-test-{$bucketBackend}", 'out', '', $bucketBackend);
 
         //setup test table
         $table1Id = $this->_client->createTable(
@@ -479,26 +479,26 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
         ]);
 
         $options = [
-            "input" => [
+            'input' => [
                 [
-                    "source" => $table1Id,
-                    "destination" => "{$bucketBackend}_Languages",
+                    'source' => $table1Id,
+                    'destination' => "{$bucketBackend}_Languages",
                 ],
                 [
-                    "source" => $table2Id,
-                    "destination" => "languagesAlias",
+                    'source' => $table2Id,
+                    'destination' => 'languagesAlias',
                 ],
                 [
-                    "source" => $table3Id,
-                    "destination" => "languagesOneColumn",
+                    'source' => $table3Id,
+                    'destination' => 'languagesOneColumn',
                 ],
                 [
-                    "source" => $table4Id,
-                    "destination" => "languagesFiltered",
+                    'source' => $table4Id,
+                    'destination' => 'languagesFiltered',
                 ],
                 [
-                    "source" => $table4Id,
-                    "destination" => "languagesFilteredRenamed",
+                    'source' => $table4Id,
+                    'destination' => 'languagesFilteredRenamed',
                 ],
             ],
         ];
@@ -510,18 +510,18 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
         // test first table
         $data = $workspaceBackend->fetchAll("{$bucketBackend}_Languages", \PDO::FETCH_ASSOC);
 
-        $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../../_data/languages.csv'), true, ",", '"'), $data, 'id');
+        $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../../_data/languages.csv'), true, ',', '"'), $data, 'id');
 
         // second table
-        $data = $workspaceBackend->fetchAll("languagesAlias", \PDO::FETCH_ASSOC);
-        $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../../_data/languages.csv'), true, ",", '"'), $data, 'id');
+        $data = $workspaceBackend->fetchAll('languagesAlias', \PDO::FETCH_ASSOC);
+        $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../../_data/languages.csv'), true, ',', '"'), $data, 'id');
 
         // third table
-        $data = $workspaceBackend->fetchAll("languagesOneColumn", \PDO::FETCH_ASSOC);
+        $data = $workspaceBackend->fetchAll('languagesOneColumn', \PDO::FETCH_ASSOC);
 
         $this->assertCount(1, $data[0], 'there should be one column');
         $this->assertArrayHasKey('id', $data[0]);
-        $expected = Client::parseCsv(file_get_contents(__DIR__ . '/../../../_data/languages.csv'), true, ",", '"');
+        $expected = Client::parseCsv(file_get_contents(__DIR__ . '/../../../_data/languages.csv'), true, ',', '"');
         $expected = array_map(function ($row) {
             return [
                 'id' => $row['id'],
@@ -530,13 +530,13 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
         $this->assertArrayEqualsSorted($expected, $data, 'id');
 
         // fourth table
-        $data = $workspaceBackend->fetchAll("languagesFiltered", \PDO::FETCH_ASSOC);
+        $data = $workspaceBackend->fetchAll('languagesFiltered', \PDO::FETCH_ASSOC);
         $this->assertCount(1, $data[0], 'there should be one column');
         $this->assertArrayHasKey('id', $data[0]);
         $this->assertEquals('1', $data[0]['id']);
 
         // fifth table
-        $data = $workspaceBackend->fetchAll("languagesFilteredRenamed", \PDO::FETCH_ASSOC);
+        $data = $workspaceBackend->fetchAll('languagesFilteredRenamed', \PDO::FETCH_ASSOC);
         $this->assertCount(1, $data[0], 'there should be one column');
         $this->assertArrayHasKey('id', $data[0]);
         $this->assertEquals('1', $data[0]['id']);

@@ -313,13 +313,13 @@ class SimpleAliasTest extends StorageApiTestCase
         $aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users');
 
         $aliasTable = $this->_client->getTable($aliasTableId);
-        $this->assertEquals(["id", "name", "city", "sex"], $aliasTable["columns"]);
+        $this->assertEquals(['id', 'name', 'city', 'sex'], $aliasTable['columns']);
 
         $this->_client->addTableColumn($sourceTableId, 'age');
 
         $aliasTable = $this->_client->getTable($aliasTableId);
-        $expectedColumns = ["id", "name", "city", "sex", "age"];
-        $this->assertEquals($expectedColumns, $aliasTable["columns"]);
+        $expectedColumns = ['id', 'name', 'city', 'sex', 'age'];
+        $this->assertEquals($expectedColumns, $aliasTable['columns']);
 
         $this->_client->disableAliasTableColumnsAutoSync($aliasTableId);
 
@@ -331,8 +331,8 @@ class SimpleAliasTest extends StorageApiTestCase
 
         $aliasTable = $this->_client->getTable($aliasTableId);
 
-        $expectedColumns = ["id", "city", "sex", "age"];
-        $this->assertEquals($expectedColumns, $aliasTable["columns"]);
+        $expectedColumns = ['id', 'city', 'sex', 'age'];
+        $this->assertEquals($expectedColumns, $aliasTable['columns']);
 
         $data = $this->_client->parseCsv($this->_client->getTableDataPreview($aliasTableId));
         $this->assertEquals($expectedColumns, array_keys(reset($data)));
@@ -340,7 +340,7 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->_client->enableAliasTableColumnsAutoSync($aliasTableId);
         $aliasTable = $this->_client->getTable($aliasTableId);
 
-        $this->assertEquals(["id", "name", "city", "sex", "age", "birthDate"], $aliasTable['columns']);
+        $this->assertEquals(['id', 'name', 'city', 'sex', 'age', 'birthDate'], $aliasTable['columns']);
     }
 
     public function testColumnAssignedToAliasWithAutoSyncShouldNotBeDeletable(): void
@@ -351,13 +351,13 @@ class SimpleAliasTest extends StorageApiTestCase
         $aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users');
 
         $aliasTable = $this->_client->getTable($aliasTableId);
-        $this->assertEquals(["id", "name", "city", "sex"], $aliasTable["columns"]);
+        $this->assertEquals(['id', 'name', 'city', 'sex'], $aliasTable['columns']);
 
         $this->_client->addTableColumn($sourceTableId, 'age');
 
         $aliasTable = $this->_client->getTable($aliasTableId);
-        $expectedColumns = ["id", "name", "city", "sex", "age"];
-        $this->assertEquals($expectedColumns, $aliasTable["columns"]);
+        $expectedColumns = ['id', 'name', 'city', 'sex', 'age'];
+        $this->assertEquals($expectedColumns, $aliasTable['columns']);
 
         try {
             $this->_client->deleteTableColumn($sourceTableId, 'age');
@@ -464,8 +464,8 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->_client->deleteTableColumn($sourceTableId, 'name');
 
         $sourceTable = $this->_client->getTable($sourceTableId);
-        $expectedColumns = ["id", "city", "sex"];
-        $this->assertEquals($expectedColumns, $sourceTable["columns"]);
+        $expectedColumns = ['id', 'city', 'sex'];
+        $this->assertEquals($expectedColumns, $sourceTable['columns']);
     }
 
     public function testAliasColumns(): void
@@ -599,24 +599,24 @@ class SimpleAliasTest extends StorageApiTestCase
 
         $expectedResult = [
             [
-                "1",
-                "martin",
-                "PRG",
+                '1',
+                'martin',
+                'PRG',
             ],
             [
-                "3",
-                "ondra",
-                "VAN",
+                '3',
+                'ondra',
+                'VAN',
             ],
             [
-                "4",
-                "miro",
-                "BRA",
+                '4',
+                'miro',
+                'BRA',
             ],
             [
-                "5",
-                "hidden",
-                "",
+                '5',
+                'hidden',
+                '',
             ],
         ];
 
@@ -659,10 +659,10 @@ class SimpleAliasTest extends StorageApiTestCase
 
         $expectedResult = [
             [
-                "1",
-                "martin",
-                "PRG",
-                "male",
+                '1',
+                'martin',
+                'PRG',
+                'male',
             ],
         ];
 

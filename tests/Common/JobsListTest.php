@@ -31,13 +31,13 @@ class JobsListTest extends StorageApiTestCase
         $this->assertLessThanOrEqual(20, count($jobs));
 
         // get only 2 jobs
-        $twoJobs = $this->_client->listJobs(["limit" => 2]);
+        $twoJobs = $this->_client->listJobs(['limit' => 2]);
         $this->assertEquals(2, count($twoJobs));
 
         // check the offset parameter
         $firstJob = $twoJobs[0];
         $secondJob = $twoJobs[1];
-        $offsetJobs = $this->_client->listJobs(["limit" => 2, "offset" => 1]);
+        $offsetJobs = $this->_client->listJobs(['limit' => 2, 'offset' => 1]);
         $this->assertNotEquals($firstJob, $offsetJobs[0]);
         $this->assertEquals($secondJob, $offsetJobs[0]);
     }

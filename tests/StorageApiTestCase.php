@@ -202,7 +202,7 @@ abstract class StorageApiTestCase extends ClientTestCase
      * @param $path
      * @return array
      */
-    protected function _readCsv($path, $delimiter = ",", $enclosure = '"', $escape = '"')
+    protected function _readCsv($path, $delimiter = ',', $enclosure = '"', $escape = '"')
     {
         $fh = fopen($path, 'r');
         if ($fh === false) {
@@ -216,7 +216,7 @@ abstract class StorageApiTestCase extends ClientTestCase
         return $lines;
     }
 
-    public function assertLinesEqualsSorted($expected, $actual, $message = "")
+    public function assertLinesEqualsSorted($expected, $actual, $message = '')
     {
         $expected = explode("\n", $expected);
         $actual = explode("\n", $actual);
@@ -226,7 +226,7 @@ abstract class StorageApiTestCase extends ClientTestCase
         $this->assertEquals($expected, $actual, $message);
     }
 
-    public function assertArrayEqualsSorted($expected, $actual, $sortKey, $message = "")
+    public function assertArrayEqualsSorted($expected, $actual, $sortKey, $message = '')
     {
         $comparsion = function ($attrLeft, $attrRight) use ($sortKey) {
             if ($attrLeft[$sortKey] == $attrRight[$sortKey]) {
@@ -251,14 +251,14 @@ abstract class StorageApiTestCase extends ClientTestCase
                 ],
                 [
                     [
-                        "1",
-                        "martin",
-                        "male",
+                        '1',
+                        'martin',
+                        'male',
                     ],
                     [
-                        "2",
-                        "klara",
-                        "female",
+                        '2',
+                        'klara',
+                        'female',
                     ],
                 ],
             ],
@@ -271,16 +271,16 @@ abstract class StorageApiTestCase extends ClientTestCase
                 ],
                 [
                     [
-                        "1",
-                        "martin",
-                        "PRG",
-                        "male",
+                        '1',
+                        'martin',
+                        'PRG',
+                        'male',
                     ],
                     [
-                        "2",
-                        "klara",
-                        "PRG",
-                        "female",
+                        '2',
+                        'klara',
+                        'PRG',
+                        'female',
                     ],
                 ],
             ],
@@ -292,22 +292,22 @@ abstract class StorageApiTestCase extends ClientTestCase
                 ],
                 [
                     [
-                        "1",
-                        "martin",
-                        "PRG",
-                        "male",
+                        '1',
+                        'martin',
+                        'PRG',
+                        'male',
                     ],
                     [
-                        "2",
-                        "klara",
-                        "PRG",
-                        "female",
+                        '2',
+                        'klara',
+                        'PRG',
+                        'female',
                     ],
                     [
-                        "3",
-                        "ondra",
-                        "VAN",
-                        "male",
+                        '3',
+                        'ondra',
+                        'VAN',
+                        'male',
                     ],
                 ],
             ],
@@ -320,22 +320,22 @@ abstract class StorageApiTestCase extends ClientTestCase
                 ],
                 [
                     [
-                        "5",
-                        "hidden",
-                        "",
-                        "male",
+                        '5',
+                        'hidden',
+                        '',
+                        'male',
                     ],
                     [
-                        "4",
-                        "miro",
-                        "BRA",
-                        "male",
+                        '4',
+                        'miro',
+                        'BRA',
+                        'male',
                     ],
                     [
-                        "3",
-                        "ondra",
-                        "VAN",
-                        "male",
+                        '3',
+                        'ondra',
+                        'VAN',
+                        'male',
                     ],
                 ],
             ],
@@ -348,16 +348,16 @@ abstract class StorageApiTestCase extends ClientTestCase
                 ],
                 [
                     [
-                        "4",
-                        "miro",
-                        "BRA",
-                        "male",
+                        '4',
+                        'miro',
+                        'BRA',
+                        'male',
                     ],
                     [
-                        "5",
-                        "hidden",
-                        "",
-                        "male",
+                        '5',
+                        'hidden',
+                        '',
+                        'male',
                     ],
                 ],
             ],
@@ -370,10 +370,10 @@ abstract class StorageApiTestCase extends ClientTestCase
                 ],
                 [
                     [
-                        "5",
-                        "hidden",
-                        "",
-                        "male",
+                        '5',
+                        'hidden',
+                        '',
+                        'male',
                     ],
                 ],
             ],
@@ -386,28 +386,28 @@ abstract class StorageApiTestCase extends ClientTestCase
                 ],
                 [
                     [
-                        "4",
-                        "miro",
-                        "BRA",
-                        "male",
+                        '4',
+                        'miro',
+                        'BRA',
+                        'male',
                     ],
                     [
-                        "1",
-                        "martin",
-                        "PRG",
-                        "male",
+                        '1',
+                        'martin',
+                        'PRG',
+                        'male',
                     ],
                     [
-                        "2",
-                        "klara",
-                        "PRG",
-                        "female",
+                        '2',
+                        'klara',
+                        'PRG',
+                        'female',
                     ],
                     [
-                        "3",
-                        "ondra",
-                        "VAN",
-                        "male",
+                        '3',
+                        'ondra',
+                        'VAN',
+                        'male',
                     ],
                 ],
             ],
@@ -457,7 +457,7 @@ abstract class StorageApiTestCase extends ClientTestCase
     {
         $client = $sapiClient ? $sapiClient : $this->_client;
         $fileSearchOptions = new ListFilesOptions();
-        $fileSearchOptions = $fileSearchOptions->setQuery(sprintf("id:%s", $fileId));
+        $fileSearchOptions = $fileSearchOptions->setQuery(sprintf('id:%s', $fileId));
 
         $tries = 0;
         sleep(2);
@@ -502,8 +502,8 @@ abstract class StorageApiTestCase extends ClientTestCase
      */
     private function createRandomString($length)
     {
-        $alpabet = "abcdefghijklmnopqrstvuwxyz0123456789 ";
-        $randStr = "";
+        $alpabet = 'abcdefghijklmnopqrstvuwxyz0123456789 ';
+        $randStr = '';
         for ($i = 0; $i < $length; $i++) {
             $randStr .=  $alpabet[rand(0, strlen($alpabet)-1)];
         }

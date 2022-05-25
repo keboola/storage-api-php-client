@@ -19,7 +19,7 @@ class Tokens
      */
     public function listTokens()
     {
-        return $this->client->apiGet("tokens");
+        return $this->client->apiGet('tokens');
     }
 
     /**
@@ -36,7 +36,7 @@ class Tokens
      */
     public function createToken(TokenCreateOptions $options)
     {
-        return $this->client->apiPost("tokens", $options->toParamsArray());
+        return $this->client->apiPost('tokens', $options->toParamsArray());
     }
 
     /**

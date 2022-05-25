@@ -20,7 +20,7 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
 
     public function getTableColumns($table)
     {
-        $stmt = $this->db->prepare("SELECT \"column\" FROM PG_TABLE_DEF WHERE tablename = ?;");
+        $stmt = $this->db->prepare('SELECT "column" FROM PG_TABLE_DEF WHERE tablename = ?;');
         $stmt->execute([$table]);
         return array_map(function ($row) {
                 return $row['column'];
@@ -29,7 +29,7 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
 
     public function getTables()
     {
-        $stmt = $this->db->prepare("select tablename from PG_TABLES where schemaname = ?");
+        $stmt = $this->db->prepare('select tablename from PG_TABLES where schemaname = ?');
         $stmt->execute([$this->schema]);
         return array_map(function ($table) {
                 return $table['tablename'];
@@ -78,7 +78,7 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
         $definition = join(",\n", $cols);
 
         $this->db->query(
-            sprintf("CREATE TABLE %s (%s)", $tableName, $definition)
+            sprintf('CREATE TABLE %s (%s)', $tableName, $definition)
         );
     }
 
@@ -118,7 +118,7 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
                 LEFT OUTER JOIN pg_attrdef AS d ON d.adrelid = c.oid AND d.adnum = a.attnum
             WHERE a.attnum > 0 AND c.relname = " . $this->db->quote($tableName);
 
-        $sql .= " AND n.nspname = " . $this->db->quote($this->schema);
+        $sql .= ' AND n.nspname = ' . $this->db->quote($this->schema);
 
         $sql .= ' ORDER BY a.attnum';
 

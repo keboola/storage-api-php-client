@@ -301,7 +301,7 @@ class TokensTest extends StorageApiTestCase
             $client->verifyToken();
             $this->fail('Exception should be thrown on invalid token');
         } catch (\Keboola\StorageApi\ClientException $e) {
-            $this->assertStringNotContainsString($invalidToken, $e->getMessage(), "Token value should not be returned back");
+            $this->assertStringNotContainsString($invalidToken, $e->getMessage(), 'Token value should not be returned back');
         }
     }
 
@@ -629,7 +629,7 @@ class TokensTest extends StorageApiTestCase
 
         try {
             $components->listComponents();
-            $this->fail("This token should not be allowed to access components API");
+            $this->fail('This token should not be allowed to access components API');
         } catch (ClientException $e) {
             $this->assertEquals('accessDenied', $e->getStringCode());
         }
@@ -641,7 +641,7 @@ class TokensTest extends StorageApiTestCase
                 ->setConfigurationId('main-2')
                 ->setConfiguration(['foo' => 'bar'])
                 ->setName('Main2'));
-            $this->fail("Token was not granted access to this component, should throw an exception");
+            $this->fail('Token was not granted access to this component, should throw an exception');
         } catch (ClientException $e) {
             $this->assertEquals('accessDenied', $e->getStringCode());
         }
@@ -657,7 +657,7 @@ class TokensTest extends StorageApiTestCase
 
         try {
             $components->addConfigurationRow($configurationRow);
-            $this->fail("Token was not granted access to this component, should throw an exception");
+            $this->fail('Token was not granted access to this component, should throw an exception');
         } catch (ClientException  $e) {
             $this->assertEquals('accessDenied', $e->getStringCode());
         }

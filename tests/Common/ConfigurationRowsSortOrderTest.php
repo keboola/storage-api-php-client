@@ -435,7 +435,7 @@ class ConfigurationRowsSortOrderTest extends StorageApiTestCase
 
         $newConfig = $components->createConfigurationFromVersion('wr-db', 'main-1', 4, 'main-2');
 
-        $configurationResponse = $components->getConfiguration('wr-db', $newConfig["id"]);
+        $configurationResponse = $components->getConfiguration('wr-db', $newConfig['id']);
         $this->assertEquals(['main-1-2', 'main-1-1'], $configurationResponse['rowsSortOrder']);
         $this->assertEquals('main-1-2', $configurationResponse['rows'][0]['id']);
         $this->assertEquals('main-1-1', $configurationResponse['rows'][1]['id']);

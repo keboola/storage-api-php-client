@@ -94,19 +94,19 @@ class ImportExportCommonTest extends StorageApiTestCase
     public function tableImportData()
     {
         return [
-            "simple" =>
+            'simple' =>
                 [
                     new CsvFile(__DIR__ . '/../../_data/languages.csv'),
                     'languages.csv',
                     ['id', 'name'],
                 ],
-            "special chars" =>
+            'special chars' =>
                 [
                     new CsvFile(__DIR__ . '/../../_data/languages.encoding.csv'),
                     'languages.encoding.csv',
                     ['id', 'name'],
                 ],
-            "duplicates" =>
+            'duplicates' =>
                 [
                     new CsvFile(__DIR__ . '/../../_data/languages.with-duplicates.csv'),
                     'languages.csv',
@@ -116,7 +116,7 @@ class ImportExportCommonTest extends StorageApiTestCase
                         'primaryKey' => 'id,name',
                     ],
                 ],
-            "special-column-names" =>
+            'special-column-names' =>
                 [
                     new CsvFile(__DIR__ . '/../../_data/languages.special-column-names.csv'),
                     'languages.special-column-names.csv',
@@ -126,25 +126,25 @@ class ImportExportCommonTest extends StorageApiTestCase
                         'primaryKey' => 'Id,queryId',
                     ],
                 ],
-            "utf8.bom" =>
+            'utf8.bom' =>
                 [
                     new CsvFile(__DIR__ . '/../../_data/languages.utf8.bom.csv'),
                     'languages.csv',
                     ['id', 'name'],
                 ],
-            "gz" =>
+            'gz' =>
                 [
                     new CsvFile(__DIR__ . '/../../_data/languages.csv.gz'),
                     'languages.csv',
                     ['id', 'name'],
                 ],
-            "escaping" =>
+            'escaping' =>
                 [
                     new CsvFile(__DIR__ . '/../../_data/escaping.csv'),
                     'escaping.standard.out.csv',
                     ['col1', 'col2_with_space'],
                 ],
-            "nl on last row" =>
+            'nl on last row' =>
                 [
                     new CsvFile(__DIR__ . '/../../_data/escaping.nl-last-row.csv'),
                     'escaping.standard.out.csv',
@@ -180,7 +180,7 @@ class ImportExportCommonTest extends StorageApiTestCase
     public function incrementalImportPkDedupeData()
     {
         return [
-            "simple" =>
+            'simple' =>
                 [
                     new CsvFile(__DIR__ . '/../../_data/pk.simple.csv'),
                     'id',
@@ -188,7 +188,7 @@ class ImportExportCommonTest extends StorageApiTestCase
                     new CsvFile(__DIR__ . '/../../_data/pk.simple.increment.csv'),
                     new CsvFile(__DIR__ . '/../../_data/pk.simple.increment.loaded.csv'),
                 ],
-            "multiple" =>
+            'multiple' =>
                 [
                     new CsvFile(__DIR__ . '/../../_data/pk.multiple.csv'),
                     'id,sub_id',
@@ -227,7 +227,7 @@ class ImportExportCommonTest extends StorageApiTestCase
             self::BACKEND_SYNAPSE,
             self::BACKEND_EXASOL,
         ], true)) {
-            self::markTestSkipped("Test case-sensitivity columns name only for snowflake");
+            self::markTestSkipped('Test case-sensitivity columns name only for snowflake');
         }
 
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
@@ -490,7 +490,7 @@ class ImportExportCommonTest extends StorageApiTestCase
 
         // First export validation
         $tableExportResult = $this->_client->exportTableAsync($tableId);
-        $fileInfo = $this->_client->getFile($tableExportResult["file"]["id"], (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
+        $fileInfo = $this->_client->getFile($tableExportResult['file']['id'], (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
 
         $this->assertArrayHasKey('maxAgeDays', $fileInfo);
         $this->assertIsInt($fileInfo['maxAgeDays']);
@@ -515,7 +515,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         $fourthRunId = $this->_client->generateRunId();
         $this->_client->setRunId($fourthRunId);
         $tableExportResult = $this->_client->exportTableAsync($tableId);
-        $fileInfo = $this->_client->getFile($tableExportResult["file"]["id"], (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
+        $fileInfo = $this->_client->getFile($tableExportResult['file']['id'], (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
 
         $this->assertArrayHasKey('runId', $fileInfo);
         $this->assertEquals($firstRunId, $fileInfo['runId']);
@@ -523,7 +523,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         $this->assertArrayHasKey('runIds', $fileInfo);
         $this->assertEquals([$firstRunId, $secondRunId, $thirdRunId, $fourthRunId], $fileInfo['runIds']);
 
-        $this->assertTrue($oldFileInfo["id"] === $fileInfo["id"]);
+        $this->assertTrue($oldFileInfo['id'] === $fileInfo['id']);
     }
 
     public function testRowsCountAndSize(): void

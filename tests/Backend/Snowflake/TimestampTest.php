@@ -171,7 +171,7 @@ class TimestampTest extends ParallelWorkspacesTestCase
     {
         $workspace = $this->initTestWorkspace();
 
-        $table = $this->_client->apiPost("buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", [
+        $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => 'Id,Name,update',
             'name' => 'languages',
             'primaryKey' => 'Id',
@@ -180,12 +180,12 @@ class TimestampTest extends ParallelWorkspacesTestCase
         // create workspace and source table in workspace
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
-        $db->query("drop table if exists \"test.Languages3\";");
-        $db->query("create table \"test.Languages3\" (
-			\"Id\" integer not null,
-			\"Name\" varchar not null,
-			\"update\" varchar
-		);");
+        $db->query('drop table if exists "test.Languages3";');
+        $db->query('create table "test.Languages3" (
+			"Id" integer not null,
+			"Name" varchar not null,
+			"update" varchar
+		);');
         $db->query("insert into \"test.Languages3\" (\"Id\", \"Name\") values (1, 'cz'), (2, 'en');");
         // copy data from workspace
         $this->_client->writeTableAsyncDirect($table['id'], [
@@ -202,12 +202,12 @@ class TimestampTest extends ParallelWorkspacesTestCase
         );
 
         $db = $this->getDbConnection($connection);
-        $db->query("drop table if exists \"test.Languages3\";");
-        $db->query("create table \"test.Languages3\" (
-			\"Id\" integer not null,
-			\"Name\" varchar not null,
-			\"update\" varchar
-		);");
+        $db->query('drop table if exists "test.Languages3";');
+        $db->query('create table "test.Languages3" (
+			"Id" integer not null,
+			"Name" varchar not null,
+			"update" varchar
+		);');
         $db->query("insert into \"test.Languages3\" values (1, 'cz', '1'), (3, 'sk', '1');");
 
         $this->_client->writeTableAsyncDirect($table['id'], [
@@ -216,13 +216,13 @@ class TimestampTest extends ParallelWorkspacesTestCase
             'incremental' => true,
         ]);
 
-        $db->query("drop table if exists \"test.Languages3\";");
-        $db->query("create table \"test.Languages3\" (
-			\"Id\" integer not null,
-			\"Name\" varchar not null,
-			\"update\" varchar,
-			\"new_col\" varchar
-		);");
+        $db->query('drop table if exists "test.Languages3";');
+        $db->query('create table "test.Languages3" (
+			"Id" integer not null,
+			"Name" varchar not null,
+			"update" varchar,
+			"new_col" varchar
+		);');
         $db->query("insert into \"test.Languages3\" values (1, 'cz', '1', null), (3, 'sk', '1', 'newValue');");
 
         $this->_client->writeTableAsyncDirect($table['id'], [

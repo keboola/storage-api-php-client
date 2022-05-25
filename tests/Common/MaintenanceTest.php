@@ -29,7 +29,7 @@ class MaintenanceTest extends StorageApiTestCase
             $this->assertEquals('MAINTENANCE', $e->getStringCode());
             $this->assertEquals(503, $e->getCode());
             $params = $e->getContextParams();
-            $this->assertEquals('maintenance', $params["status"]);
+            $this->assertEquals('maintenance', $params['status']);
             $this->assertArrayHasKey('reason', $params);
             $this->assertArrayHasKey('estimatedEndTime', $params);
         }
