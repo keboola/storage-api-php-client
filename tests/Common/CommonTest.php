@@ -23,32 +23,32 @@ class CommonTest extends StorageApiTestCase
 
         $expectedSimple = [
             [
-                "column1",
-                "column2",
+                'column1',
+                'column2',
             ],
             [
                 'valu\ ",e1', 'value2',
             ],
             [
-                "new\nline", "col2",
+                "new\nline", 'col2',
             ],
         ];
         $expectedHashmap = [
             [
-                "column1" => 'valu\ ",e1',
-                "column2" => 'value2',
+                'column1' => 'valu\ ",e1',
+                'column2' => 'value2',
             ],
             [
-                "column1" => "new\nline",
-                "column2" => "col2",
+                'column1' => "new\nline",
+                'column2' => 'col2',
             ],
         ];
 
         $data = \Keboola\StorageApi\Client::parseCsv($csvData, false);
-        $this->assertEquals($expectedSimple, $data, "Csv parse to flat array");
+        $this->assertEquals($expectedSimple, $data, 'Csv parse to flat array');
 
         $data = \Keboola\StorageApi\Client::parseCsv($csvData, true);
-        $this->assertEquals($expectedHashmap, $data, "Csv parse to associative array");
+        $this->assertEquals($expectedHashmap, $data, 'Csv parse to associative array');
     }
 
     public function testUrlShouldBeRequired(): void

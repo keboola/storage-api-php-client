@@ -169,8 +169,8 @@ class DataPreviewLimitsTest extends StorageApiTestCase
      */
     private function createRandomString($length)
     {
-        $alpabet = "abcdefghijklmnopqrstvuwxyz0123456789 ";
-        $randStr = "";
+        $alpabet = 'abcdefghijklmnopqrstvuwxyz0123456789 ';
+        $randStr = '';
         for ($i = 0; $i < $length; $i++) {
             $randStr .=  $alpabet[rand(0, strlen($alpabet)-1)];
         }

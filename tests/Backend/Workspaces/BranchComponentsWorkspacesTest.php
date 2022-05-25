@@ -143,7 +143,7 @@ class BranchComponentsWorkspacesTest extends ComponentsWorkspacesTest
         $connection = $branchWorkspace['connection'];
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($branchWorkspace);
 
-        $backend->createTable("mytable", ["amount" => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? "NUMBER" : "VARCHAR"]);
+        $backend->createTable('mytable', ['amount' => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? 'NUMBER' : 'VARCHAR']);
 
         // tables validation
         $tableNames = $backend->getTables();

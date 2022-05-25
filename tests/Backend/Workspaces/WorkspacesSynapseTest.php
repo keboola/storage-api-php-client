@@ -967,8 +967,8 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
         $options = [
             'input' => [
                 [
-                    "dataFileId" => $fileId,
-                    "destination" => "languages",
+                    'dataFileId' => $fileId,
+                    'destination' => 'languages',
                 ],
             ],
         ];

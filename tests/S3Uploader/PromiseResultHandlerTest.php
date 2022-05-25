@@ -14,36 +14,36 @@ class PromiseResultHandlerTest extends StorageApiTestCase
     public function testGetRejected(): void
     {
         $results = [
-            "filepath1" => [
-                "state" => "fulfilled",
+            'filepath1' => [
+                'state' => 'fulfilled',
             ],
-            "filepath2" => [
-                "state" => "rejected",
-                "reason" => new S3MultipartUploadException(
+            'filepath2' => [
+                'state' => 'rejected',
+                'reason' => new S3MultipartUploadException(
                     new UploadState([]),
-                    new AwsException("DummyAwsException", new Command('DummyCommand', ["Key" => "DummyKey"]))
+                    new AwsException('DummyAwsException', new Command('DummyCommand', ['Key' => 'DummyKey']))
                 ),
             ],
         ];
         $rejected = PromiseResultHandler::getRejected($results);
         $this->assertCount(1, $rejected);
-        $this->assertArrayHasKey("filepath2", $rejected);
-        $this->assertEquals('DummyKey', $rejected["filepath2"]->getKey());
+        $this->assertArrayHasKey('filepath2', $rejected);
+        $this->assertEquals('DummyKey', $rejected['filepath2']->getKey());
     }
 
     public function testGetRejectedException(): void
     {
         $results = [
-            "filepath" => [
-                "state" => "rejected",
-                "reason" => new \Exception(),
+            'filepath' => [
+                'state' => 'rejected',
+                'reason' => new \Exception(),
             ],
         ];
         try {
             PromiseResultHandler::getRejected($results);
-            $this->fail("Exception not caught.");
+            $this->fail('Exception not caught.');
         } catch (\UnexpectedValueException $e) {
-            $this->assertEquals("Not an instance of S3MultipartUploadException", $e->getMessage());
+            $this->assertEquals('Not an instance of S3MultipartUploadException', $e->getMessage());
         }
     }
 }

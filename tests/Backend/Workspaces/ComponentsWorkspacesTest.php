@@ -88,11 +88,11 @@ class ComponentsWorkspacesTest extends WorkspacesTestCase
         $connection = $workspace['connection'];
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-        $backend->createTable("mytable", ["amount" => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? "NUMBER" : "VARCHAR"]);
+        $backend->createTable('mytable', ['amount' => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? 'NUMBER' : 'VARCHAR']);
 
         $tableNames = $backend->getTables();
         $backend = null; // force odbc disconnect
 
-        $this->assertArrayHasKey("mytable", array_flip($tableNames));
+        $this->assertArrayHasKey('mytable', array_flip($tableNames));
     }
 }

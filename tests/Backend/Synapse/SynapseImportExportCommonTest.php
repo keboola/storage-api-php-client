@@ -13,7 +13,7 @@ class SynapseImportExportCommonTest extends ImportExportCommonTest
     public function incrementalImportPkDedupeData(): array
     {
         return [
-            "simple" =>
+            'simple' =>
                 [
                     new CsvFile(__DIR__ . '/../../_data/pk.simple.csv'),
                     'id',
@@ -21,7 +21,7 @@ class SynapseImportExportCommonTest extends ImportExportCommonTest
                     new CsvFile(__DIR__ . '/../../_data/pk.simple.increment.csv'),
                     new CsvFile(__DIR__ . '/../../_data/pk.simple.increment.loaded.csv'),
                 ],
-            "multiple" =>
+            'multiple' =>
                 [
                     new CsvFile(__DIR__ . '/../../_data/pk.multiple.csv'),
                     'id,sub_id',

@@ -35,7 +35,7 @@ class SnowflakeWorkspaceBackend implements WorkspaceBackend
     {
         return array_map(function ($column) {
             return $column['column_name'];
-        }, $this->db->fetchAll(sprintf("SHOW COLUMNS IN %s", $this->db->quoteIdentifier($table))));
+        }, $this->db->fetchAll(sprintf('SHOW COLUMNS IN %s', $this->db->quoteIdentifier($table))));
     }
 
     /**
@@ -45,19 +45,19 @@ class SnowflakeWorkspaceBackend implements WorkspaceBackend
     {
         return array_map(function ($table) {
             return $table['name'];
-        }, $this->db->fetchAll(sprintf("SHOW TABLES IN SCHEMA %s", $this->db->quoteIdentifier($this->schema))));
+        }, $this->db->fetchAll(sprintf('SHOW TABLES IN SCHEMA %s', $this->db->quoteIdentifier($this->schema))));
     }
 
     public function dropTable($table)
     {
-        $this->db->query(sprintf("DROP TABLE %s;", $this->db->quoteIdentifier($table)));
+        $this->db->query(sprintf('DROP TABLE %s;', $this->db->quoteIdentifier($table)));
     }
 
     public function dropTableColumn($table, $column)
     {
 
         $this->db->query(sprintf(
-            "ALTER TABLE %s DROP COLUMN %s;",
+            'ALTER TABLE %s DROP COLUMN %s;',
             $this->db->quoteIdentifier($table),
             $this->db->quoteIdentifier($column)
         ));
@@ -75,9 +75,9 @@ class SnowflakeWorkspaceBackend implements WorkspaceBackend
     {
         $cols = [];
         foreach ($columns as $column => $dataType) {
-            $cols[] = $this->db->quoteIdentifier($column) . " " . $dataType;
+            $cols[] = $this->db->quoteIdentifier($column) . ' ' . $dataType;
         }
-        $qry = sprintf("CREATE TABLE %s (%s)", $this->db->quoteIdentifier($tableName), implode(", ", $cols));
+        $qry = sprintf('CREATE TABLE %s (%s)', $this->db->quoteIdentifier($tableName), implode(', ', $cols));
         $this->db->query($qry);
     }
 
@@ -85,7 +85,7 @@ class SnowflakeWorkspaceBackend implements WorkspaceBackend
     {
         $data = [];
         $res = $this->db->fetchAll(sprintf(
-            "SELECT * FROM %s.%s %s;",
+            'SELECT * FROM %s.%s %s;',
             $this->db->quoteIdentifier($this->schema),
             $this->db->quoteIdentifier($table),
             $orderBy !== null ? "ORDER BY $orderBy" : null

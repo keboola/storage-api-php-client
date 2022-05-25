@@ -34,14 +34,14 @@ class DirectAccess
 
     public function enableForBucket($bucketId)
     {
-        $url = "buckets/" . $bucketId . "/direct-access";
+        $url = 'buckets/' . $bucketId . '/direct-access';
 
         return $this->client->apiPost($url);
     }
 
     public function disableForBucket($bucketId)
     {
-        $url = "buckets/" . $bucketId . "/direct-access";
+        $url = 'buckets/' . $bucketId . '/direct-access';
 
         return $this->client->apiDelete($url);
     }

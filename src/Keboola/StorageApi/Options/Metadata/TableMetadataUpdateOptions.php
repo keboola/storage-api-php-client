@@ -27,13 +27,13 @@ class TableMetadataUpdateOptions
     public function __construct($tableId, $provider, $tableMetadata = null, $columnsMetadata = null)
     {
         if ($tableMetadata !== null && count($tableMetadata) === 0) {
-            throw new ClientException("Third argument must be a non-empty array of Metadata objects");
+            throw new ClientException('Third argument must be a non-empty array of Metadata objects');
         }
         if ($columnsMetadata !== null && count($columnsMetadata) === 0) {
-            throw new ClientException("Fourth argument must be a non-empty array of Metadata objects with columns names as keys");
+            throw new ClientException('Fourth argument must be a non-empty array of Metadata objects with columns names as keys');
         }
         if (!$tableMetadata && !$columnsMetadata) {
-            throw new ClientException("At least one of the third or fourth argument is required");
+            throw new ClientException('At least one of the third or fourth argument is required');
         }
         $this->tableId = $tableId;
         $this->provider = $provider;

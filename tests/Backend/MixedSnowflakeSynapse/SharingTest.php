@@ -116,7 +116,7 @@ class SharingTest extends StorageApiSharingTestCase
         $sharedBucket = reset($response);
 
         $linkedId = $this->_client2->linkBucket(
-            "linked-" . time(),
+            'linked-' . time(),
             'out',
             $sharedBucket['project']['id'],
             $sharedBucket['id']
@@ -142,7 +142,7 @@ class SharingTest extends StorageApiSharingTestCase
             return $bucket['id'] === $secondBucketId;
         }))[0];
         $linked2Id = $this->_client2->linkBucket(
-            "linked-2-" . time(),
+            'linked-2-' . time(),
             'out',
             $sharedBucket2['project']['id'],
             $sharedBucket2['id']
@@ -150,24 +150,24 @@ class SharingTest extends StorageApiSharingTestCase
         $this->_client2->dropBucket($linked2Id);
 
         $mapping1 = [
-            "source" => str_replace($bucketId, $linkedId, $table1Id),
-            "destination" => "languagesLoaded",
+            'source' => str_replace($bucketId, $linkedId, $table1Id),
+            'destination' => 'languagesLoaded',
         ];
 
         $mapping2 = [
-            "source" => str_replace($bucketId, $linkedId, $table2Id),
-            "destination" => "numbersLoaded",
+            'source' => str_replace($bucketId, $linkedId, $table2Id),
+            'destination' => 'numbersLoaded',
         ];
 
         $mapping3 = [
-            "source" => str_replace($bucketId, $linkedId, $table3Id),
-            "destination" => "numbersAliasLoaded",
+            'source' => str_replace($bucketId, $linkedId, $table3Id),
+            'destination' => 'numbersAliasLoaded',
         ];
 
         // init workspace
         $workspaces = new Workspaces($this->_client2);
         $workspace = $workspaces->createWorkspace([
-            "backend" => $workspaceBackend,
+            'backend' => $workspaceBackend,
         ]);
 
         $input = [$mapping1, $mapping2, $mapping3];
@@ -178,7 +178,7 @@ class SharingTest extends StorageApiSharingTestCase
         $runId = $this->_client2->generateRunId();
         $this->_client2->setRunId($runId);
 
-        $workspaces->loadWorkspaceData($workspace['id'], ["input" => $input]);
+        $workspaces->loadWorkspaceData($workspace['id'], ['input' => $input]);
 
         $this->createAndWaitForEvent(
             (new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'),
@@ -211,17 +211,17 @@ class SharingTest extends StorageApiSharingTestCase
 
         // check that the tables are in the workspace
         $this->assertCount(3, $tables);
-        $this->assertContains($backend->toIdentifier("languagesLoaded"), $tables);
-        $this->assertContains($backend->toIdentifier("numbersLoaded"), $tables);
-        $this->assertContains($backend->toIdentifier("numbersAliasLoaded"), $tables);
+        $this->assertContains($backend->toIdentifier('languagesLoaded'), $tables);
+        $this->assertContains($backend->toIdentifier('numbersLoaded'), $tables);
+        $this->assertContains($backend->toIdentifier('numbersAliasLoaded'), $tables);
 
         // check table structure and data
-        $data = $backend->fetchAll("languagesLoaded", \PDO::FETCH_ASSOC);
+        $data = $backend->fetchAll('languagesLoaded', \PDO::FETCH_ASSOC);
         $this->assertCount(2, $data[0], 'there should be two columns');
         $this->assertArrayHasKey('id', $data[0]);
         $this->assertArrayHasKey('name', $data[0]);
         $this->assertArrayEqualsSorted(
-            Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ",", '"'),
+            Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ',', '"'),
             $data,
             'id'
         );
@@ -251,8 +251,8 @@ class SharingTest extends StorageApiSharingTestCase
         $runId = $this->_client2->generateRunId();
         $this->_client2->setRunId($runId);
 
-        $mapping3 = ["source" => str_replace($bucketId, $linkedId, $table3Id), "destination" => "table3"];
-        $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping3], "preserve" => true]);
+        $mapping3 = ['source' => str_replace($bucketId, $linkedId, $table3Id), 'destination' => 'table3'];
+        $workspaces->loadWorkspaceData($workspace['id'], ['input' => [$mapping3], 'preserve' => true]);
 
         $this->createAndWaitForEvent(
             (new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'),
@@ -266,16 +266,16 @@ class SharingTest extends StorageApiSharingTestCase
         $tables = $backend->getTables();
 
         $this->assertCount(4, $tables);
-        $this->assertContains($backend->toIdentifier("table3"), $tables);
-        $this->assertContains($backend->toIdentifier("languagesLoaded"), $tables);
-        $this->assertContains($backend->toIdentifier("numbersLoaded"), $tables);
-        $this->assertContains($backend->toIdentifier("numbersAliasLoaded"), $tables);
+        $this->assertContains($backend->toIdentifier('table3'), $tables);
+        $this->assertContains($backend->toIdentifier('languagesLoaded'), $tables);
+        $this->assertContains($backend->toIdentifier('numbersLoaded'), $tables);
+        $this->assertContains($backend->toIdentifier('numbersAliasLoaded'), $tables);
 
         // now we'll try the same load, but it should clear the workspace first (preserve is false by default)
         $runId = $this->_client2->generateRunId();
         $this->_client2->setRunId($runId);
 
-        $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping3]]);
+        $workspaces->loadWorkspaceData($workspace['id'], ['input' => [$mapping3]]);
 
         $this->createAndWaitForEvent(
             (new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'),
@@ -288,7 +288,7 @@ class SharingTest extends StorageApiSharingTestCase
 
         $tables = $backend->getTables();
         $this->assertCount(1, $tables);
-        $this->assertContains($backend->toIdentifier("table3"), $tables);
+        $this->assertContains($backend->toIdentifier('table3'), $tables);
 
         $unloadBucketId = 'out.c-sharing-test-unload';
         try {
@@ -299,7 +299,7 @@ class SharingTest extends StorageApiSharingTestCase
             $this->assertEquals("Bucket {$unloadBucketId} not found", $e->getMessage());
         } finally {
             // create unload bucket
-            $this->_client2->createBucket("sharing-test-unload", "out", "", 'synapse');
+            $this->_client2->createBucket('sharing-test-unload', 'out', '', 'synapse');
         }
 
         // now try load as view
@@ -308,36 +308,36 @@ class SharingTest extends StorageApiSharingTestCase
         ) {
             $inputAsView = [
                 [
-                    "source" => str_replace($bucketId, $linkedId, $table1Id),
-                    "destination" => "languagesLoaded",
-                    "useView" => true,
+                    'source' => str_replace($bucketId, $linkedId, $table1Id),
+                    'destination' => 'languagesLoaded',
+                    'useView' => true,
                 ],
 
                 [
-                    "source" => str_replace($bucketId, $linkedId, $table2Id),
-                    "destination" => "numbersLoaded",
-                    "useView" => true,
+                    'source' => str_replace($bucketId, $linkedId, $table2Id),
+                    'destination' => 'numbersLoaded',
+                    'useView' => true,
                 ],
 
                 [
-                    "source" => str_replace($bucketId, $linkedId, $table3Id),
-                    "destination" => "numbersAliasLoaded",
-                    "useView" => true,
+                    'source' => str_replace($bucketId, $linkedId, $table3Id),
+                    'destination' => 'numbersAliasLoaded',
+                    'useView' => true,
                 ],
             ];
 
-            $workspaces->loadWorkspaceData($workspace['id'], ["input" => $inputAsView]);
+            $workspaces->loadWorkspaceData($workspace['id'], ['input' => $inputAsView]);
 
             // check that the tables are in the workspace
             $views = ($backend->getSchemaReflection())->getViewsNames();
             self::assertCount(3, $views);
             self::assertCount(0, $backend->getTables());
-            self::assertContains($backend->toIdentifier("languagesLoaded"), $views);
-            self::assertContains($backend->toIdentifier("numbersLoaded"), $views);
-            self::assertContains($backend->toIdentifier("numbersAliasLoaded"), $views);
+            self::assertContains($backend->toIdentifier('languagesLoaded'), $views);
+            self::assertContains($backend->toIdentifier('numbersLoaded'), $views);
+            self::assertContains($backend->toIdentifier('numbersAliasLoaded'), $views);
 
             // check table structure and data
-            $data = $backend->fetchAll("languagesLoaded", \PDO::FETCH_ASSOC);
+            $data = $backend->fetchAll('languagesLoaded', \PDO::FETCH_ASSOC);
             self::assertCount(5, $data, 'there should be 5 rows');
             self::assertCount(3, $data[0], 'there should be two columns');
             self::assertArrayHasKey('id', $data[0]);
@@ -393,17 +393,17 @@ class SharingTest extends StorageApiSharingTestCase
         $db = $this->getDbConnection($connection);
 
         if ($db instanceof \Doctrine\DBAL\Connection) {
-            $db->executeQuery("create table [Languages3] (
+            $db->executeQuery('create table [Languages3] (
 			[Id] integer not null,
 			[Name] varchar(10) not null
-		);");
+		);');
             $db->executeQuery("insert into [Languages3] ([Id], [Name]) values (1, 'cz');");
             $db->executeQuery("insert into [Languages3] ([Id], [Name]) values (2, 'en');");
         } else {
-            $db->query("create table \"test.Languages3\" (
-			\"Id\" integer not null,
-			\"Name\" varchar not null
-		);");
+            $db->query('create table "test.Languages3" (
+			"Id" integer not null,
+			"Name" varchar not null
+		);');
             $db->query("insert into \"test.Languages3\" (\"Id\", \"Name\") values (1, 'cz'), (2, 'en');");
         }
         try {

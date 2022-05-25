@@ -19,7 +19,7 @@ class DevBranchesMetadata
     public function listBranchMetadata()
     {
         /** @var array $response */
-        $response = $this->client->apiGet("metadata");
+        $response = $this->client->apiGet('metadata');
         return $response;
     }
 
@@ -30,7 +30,7 @@ class DevBranchesMetadata
     public function addBranchMetadata(array $metadata)
     {
         /** @var array $response */
-        $response = $this->client->apiPost("metadata", [
+        $response = $this->client->apiPost('metadata', [
             'metadata' => $metadata,
         ]);
         return $response;

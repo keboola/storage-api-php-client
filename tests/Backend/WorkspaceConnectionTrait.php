@@ -46,7 +46,7 @@ trait WorkspaceConnectionTrait
             'password' => $connection['password'],
         ]);
         // set connection to use workspace schema
-        $db->query(sprintf("USE SCHEMA %s;", $db->quoteIdentifier($connection['schema'])));
+        $db->query(sprintf('USE SCHEMA %s;', $db->quoteIdentifier($connection['schema'])));
 
         return $db;
     }

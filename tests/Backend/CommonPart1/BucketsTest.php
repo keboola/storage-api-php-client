@@ -54,7 +54,7 @@ class BucketsTest extends StorageApiTestCase
 
     public function testBucketDetail(): void
     {
-        $displayName = "Romanov-Bucket";
+        $displayName = 'Romanov-Bucket';
         $bucketName = 'BucketsTest_testBucketDetail';
 
         $tokenData = $this->_client->verifyToken();

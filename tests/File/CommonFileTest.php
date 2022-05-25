@@ -197,9 +197,9 @@ class CommonFileTest extends StorageApiTestCase
         $fileId = $this->_client->uploadFile($filePath, (new FileUploadOptions())->setCompress(true));
         $file = $this->_client->getFile($fileId);
 
-        $this->assertEquals(basename($filePath) . ".gz", $file['name']);
+        $this->assertEquals(basename($filePath) . '.gz', $file['name']);
 
-        $gzFile = gzopen($file['url'], "r");
+        $gzFile = gzopen($file['url'], 'r');
         if ($gzFile === false) {
             throw new Exception(sprintf('Cannot open file "%s"', $file['url']));
         }
@@ -209,12 +209,12 @@ class CommonFileTest extends StorageApiTestCase
     public function testFileUploadLargeFile(): void
     {
         $filePath = __DIR__ . '/../_tmp/files.upload.large.csv';
-        $fileHandle = fopen($filePath, "w+");
+        $fileHandle = fopen($filePath, 'w+');
         if ($fileHandle === false) {
             throw new Exception(sprintf('Cannot open file "%s"', $filePath));
         }
         for ($i = 0; $i < 5000000; $i++) {
-            fputs($fileHandle, "0123456789");
+            fputs($fileHandle, '0123456789');
         }
         fclose($fileHandle);
         $fileId = $this->_client->uploadFile($filePath, new FileUploadOptions());

@@ -24,14 +24,14 @@ class WorkspaceLoadTest extends WorkspacesLoadTest
         );
 
         $options = [
-            "input" => [
+            'input' => [
                 [
-                    "source" => $tableId,
-                    "destination" => "dotted.destination",
-                    "columns" => [
+                    'source' => $tableId,
+                    'destination' => 'dotted.destination',
+                    'columns' => [
                         [
-                            "source" => "id",
-                            "type" => "INTEGER",
+                            'source' => 'id',
+                            'type' => 'INTEGER',
                         ],
                     ],
                 ],
@@ -45,13 +45,13 @@ class WorkspaceLoadTest extends WorkspacesLoadTest
 
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
-            self::fail("Dotted destination is not supported in exasol");
+            self::fail('Dotted destination is not supported in exasol');
         } catch (ClientException $e) {
             self::assertEquals(
-                "Invalid table name: Only alphanumeric characters dash and underscores are allowed.",
+                'Invalid table name: Only alphanumeric characters dash and underscores are allowed.',
                 $e->getMessage()
             );
-            self::assertEquals("workspace.loadRequestBadInput", $e->getStringCode());
+            self::assertEquals('workspace.loadRequestBadInput', $e->getStringCode());
         }
     }
 }

@@ -119,7 +119,7 @@ class Components
         if (!$options) {
             $options = new ListComponentsOptions();
         }
-        return $this->client->apiGet("components?" . http_build_query($options->toParamsArray()));
+        return $this->client->apiGet('components?' . http_build_query($options->toParamsArray()));
     }
 
     public function getComponent($componentId)
@@ -167,7 +167,7 @@ class Components
     public function getConfigurationRow($componentId, $configurationId, $rowId)
     {
         return $this->client->apiGet(sprintf(
-            "components/%s/configs/%s/rows/%s",
+            'components/%s/configs/%s/rows/%s',
             $componentId,
             $configurationId,
             $rowId
@@ -196,7 +196,7 @@ class Components
     {
         return $this->client->apiPost(
             sprintf(
-                "components/%s/configs/%s/rows",
+                'components/%s/configs/%s/rows',
                 $options->getComponentConfiguration()->getComponentId(),
                 $options->getComponentConfiguration()->getConfigurationId()
             ),
@@ -259,7 +259,7 @@ class Components
 
         return $this->client->apiPut(
             sprintf(
-                "components/%s/configs/%s/rows/%s",
+                'components/%s/configs/%s/rows/%s',
                 $options->getComponentConfiguration()->getComponentId(),
                 $options->getComponentConfiguration()->getConfigurationId(),
                 $options->getRowId()
@@ -282,7 +282,7 @@ class Components
 
         return $this->client->apiPut(
             sprintf(
-                "components/%s/configs/%s/rows/%s/state",
+                'components/%s/configs/%s/rows/%s/state',
                 $options->getComponentConfiguration()->getComponentId(),
                 $options->getComponentConfiguration()->getConfigurationId(),
                 $options->getRowId()
@@ -295,7 +295,7 @@ class Components
     {
         return $this->client->apiGet(
             sprintf(
-                "components/%s/configs/%s/rows/%s/versions?%s",
+                'components/%s/configs/%s/rows/%s/versions?%s',
                 $options->getComponentId(),
                 $options->getConfigurationId(),
                 $options->getRowId(),
@@ -313,7 +313,7 @@ class Components
     {
         return $this->client->apiPost(
             "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/versions/{$version}/rollback",
-            ["changeDescription" => $changeDescription]
+            ['changeDescription' => $changeDescription]
         );
     }
 
@@ -339,7 +339,7 @@ class Components
     {
         return $this->client->apiPost(
             sprintf(
-                "components/%s/configs/%s/metadata",
+                'components/%s/configs/%s/metadata',
                 $options->getComponentConfiguration()->getComponentId(),
                 $options->getComponentConfiguration()->getConfigurationId()
             ),
@@ -352,7 +352,7 @@ class Components
     public function listConfigurationMetadata(ListConfigurationMetadataOptions $options)
     {
         return $this->client->apiGet(sprintf(
-            "components/%s/configs/%s/metadata",
+            'components/%s/configs/%s/metadata',
             $options->getComponentId(),
             $options->getConfigurationId()
         ));
@@ -361,7 +361,7 @@ class Components
     public function deleteConfigurationMetadata($componentId, $configurationId, $metadataId)
     {
         return $this->client->apiDelete(sprintf(
-            "components/%s/configs/%s/metadata/%s",
+            'components/%s/configs/%s/metadata/%s',
             $componentId,
             $configurationId,
             $metadataId

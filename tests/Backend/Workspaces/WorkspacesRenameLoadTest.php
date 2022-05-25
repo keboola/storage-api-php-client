@@ -57,7 +57,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
             $options
         );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
-        $this->assertEquals(2, $backend->countRows("languagesDetails"));
+        $this->assertEquals(2, $backend->countRows('languagesDetails'));
         $workspaceData = $backend->fetchAll('languagesDetails', \PDO::FETCH_ASSOC, '"primary" ASC');
 
         $this->assertEquals(['title', 'primary'], array_keys($workspaceData[0]));
@@ -102,7 +102,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
             $options
         );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
-        $this->assertEquals(5, $backend->countRows("languagesDetails"));
+        $this->assertEquals(5, $backend->countRows('languagesDetails'));
 
         $workspaceData = $backend->fetchAll('languagesDetails', \PDO::FETCH_ASSOC, '"primary" ASC');
 
@@ -147,20 +147,20 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
         );
 
         $options = [
-            "input" => [
+            'input' => [
                 [
-                    "source" => $tableId,
-                    "destination" => "dotted.destination",
-                    "columns" => [
+                    'source' => $tableId,
+                    'destination' => 'dotted.destination',
+                    'columns' => [
                         [
-                            "source" => "id",
-                            "destination" => "lang.id",
-                            "type" => "INTEGER",
+                            'source' => 'id',
+                            'destination' => 'lang.id',
+                            'type' => 'INTEGER',
                         ],
                         [
-                            "source" => "name",
-                            "destination" => "lang.name",
-                            "type" => "VARCHAR",
+                            'source' => 'name',
+                            'destination' => 'lang.name',
+                            'type' => 'VARCHAR',
                         ],
                     ],
                 ],
@@ -227,7 +227,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
             $options
         );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
-        $this->assertEquals(5, $backend->countRows("languages"));
+        $this->assertEquals(5, $backend->countRows('languages'));
 
         $this->_client->addTableColumn($tableId, 'test');
 
@@ -311,7 +311,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
             $options
         );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
-        $this->assertEquals(5, $backend->countRows("languages"));
+        $this->assertEquals(5, $backend->countRows('languages'));
 
         $this->_client->deleteTableColumn($tableId, 'name');
 
@@ -436,14 +436,14 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
         $columnInfo = $backend->describeTableColumns($backend->toIdentifier('datatype_Test'));
         $this->assertCount(2, $columnInfo);
         if ($workspace['connection']['backend'] === $this::BACKEND_SNOWFLAKE) {
-            $this->assertEquals("LangId", $columnInfo[0]['name']);
-            $this->assertEquals("NUMBER(38,0)", $columnInfo[0]['type']);
-            $this->assertEquals("LangName", $columnInfo[1]['name']);
-            $this->assertEquals("VARCHAR(50)", $columnInfo[1]['type']);
+            $this->assertEquals('LangId', $columnInfo[0]['name']);
+            $this->assertEquals('NUMBER(38,0)', $columnInfo[0]['type']);
+            $this->assertEquals('LangName', $columnInfo[1]['name']);
+            $this->assertEquals('VARCHAR(50)', $columnInfo[1]['type']);
         }
         if ($workspace['connection']['backend'] === $this::BACKEND_REDSHIFT) {
-            $this->assertEquals("int4", $columnInfo['langid']['DATA_TYPE']);
-            $this->assertEquals("varchar", $columnInfo['langname']['DATA_TYPE']);
+            $this->assertEquals('int4', $columnInfo['langid']['DATA_TYPE']);
+            $this->assertEquals('varchar', $columnInfo['langname']['DATA_TYPE']);
             $this->assertEquals(50, $columnInfo['langname']['LENGTH']);
         }
     }

@@ -114,7 +114,7 @@ class AzureFileTest extends StorageApiTestCase
                 $parts,
                 (new FileUploadOptions())
                     ->setIsSliced(true)
-                    ->setFileName("slice.csv"),
+                    ->setFileName('slice.csv'),
             ],
         ];
     }
@@ -136,7 +136,7 @@ class AzureFileTest extends StorageApiTestCase
         $this->assertEquals($fileSize, $file['sizeBytes']);
         sleep(1); // tests sometimes return 403, but file can be downloaded just a few seconds later
         $manifest = json_decode(file_get_contents($file['url']), true);
-        $this->assertCount(count($slices), $manifest["entries"]);
+        $this->assertCount(count($slices), $manifest['entries']);
     }
 
     /**

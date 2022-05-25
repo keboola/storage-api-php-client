@@ -11,7 +11,7 @@ use Keboola\Csv\CsvFile;
 
 class SearchTablesTest extends StorageApiTestCase
 {
-    const TEST_PROVIDER = "keboola.sapi_client_tests";
+    const TEST_PROVIDER = 'keboola.sapi_client_tests';
 
     public function setUp(): void
     {
@@ -42,15 +42,15 @@ class SearchTablesTest extends StorageApiTestCase
     {
         $this->_initTable('tableX', [
             [
-                "key" => "testkey",
-                "value" => "testValue",
+                'key' => 'testkey',
+                'value' => 'testValue',
             ],
         ]);
         $this->_initTable('tableX', [], self::STAGE_OUT); // table in different bucket
         $this->_initTable('tableY', [
             [
-                "key" => "differentkey",
-                "value" => "differentValue",
+                'key' => 'differentkey',
+                'value' => 'differentValue',
             ],
         ]);
         $this->_initTable('table-nometa', []);

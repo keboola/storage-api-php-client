@@ -148,7 +148,7 @@ class AlterTableTest extends StorageApiTestCase
 
         try {
             $this->_client->deleteTableColumn($tableId, 'Id');
-            $this->fail("Exception should be thrown when last column is remaining");
+            $this->fail('Exception should be thrown when last column is remaining');
         } catch (\Keboola\StorageApi\ClientException $e) {
         }
     }
@@ -165,7 +165,7 @@ class AlterTableTest extends StorageApiTestCase
             'languages',
             new CsvFile($importFile),
             [
-                'primaryKey' => "id,name",
+                'primaryKey' => 'id,name',
             ]
         );
 
@@ -217,7 +217,7 @@ class AlterTableTest extends StorageApiTestCase
                 new CsvFile($importFile),
                 []
             );
-            $this->fail("There were 5000 columns man. fail.");
+            $this->fail('There were 5000 columns man. fail.');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.tables.validation.tooManyColumns', $e->getStringCode());
         }
@@ -349,7 +349,7 @@ class AlterTableTest extends StorageApiTestCase
             'languages',
             new CsvFile($importFile),
             [
-                'primaryKey' => "Id,Name",
+                'primaryKey' => 'Id,Name',
             ]
         );
 
@@ -459,17 +459,17 @@ class AlterTableTest extends StorageApiTestCase
             new CsvFile(__DIR__ . '/../../_data/users.csv')
         );
         try {
-            $this->_client->createTablePrimaryKey($tableId, ["fakeColumn"]);
-            $this->fail("Adding invalid primary key should result in an error");
+            $this->_client->createTablePrimaryKey($tableId, ['fakeColumn']);
+            $this->fail('Adding invalid primary key should result in an error');
         } catch (\Keboola\StorageApi\ClientException $e) {
-            $this->assertEquals("storage.validation.primaryKey", $e->getStringCode());
+            $this->assertEquals('storage.validation.primaryKey', $e->getStringCode());
         }
 
         try {
-            $this->_client->createTablePrimaryKey($tableId, ["id", "fakeColumn"]);
-            $this->fail("Adding invalid primary key should result in an error");
+            $this->_client->createTablePrimaryKey($tableId, ['id', 'fakeColumn']);
+            $this->fail('Adding invalid primary key should result in an error');
         } catch (\Keboola\StorageApi\ClientException $e) {
-            $this->assertEquals("storage.validation.primaryKey", $e->getStringCode());
+            $this->assertEquals('storage.validation.primaryKey', $e->getStringCode());
         }
     }
 }

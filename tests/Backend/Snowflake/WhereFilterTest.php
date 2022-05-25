@@ -25,9 +25,9 @@ class WhereFilterTest extends StorageApiTestCase
 
         $where = [
             [
-                "column" => "column_string",
-                "operator" => "eq",
-                "values" => ["first"],
+                'column' => 'column_string',
+                'operator' => 'eq',
+                'values' => ['first'],
             ],
         ];
         $preview = $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
@@ -175,7 +175,7 @@ class WhereFilterTest extends StorageApiTestCase
     {
         $tableId = $this->prepareTable();
 
-        $where = "string";
+        $where = 'string';
 
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage("Parameter \"whereFilters\" should be an array, but parameter contains:\n" . json_encode($where));
@@ -197,7 +197,7 @@ class WhereFilterTest extends StorageApiTestCase
     {
         $tableId = $this->prepareTable();
 
-        $where = "string";
+        $where = 'string';
 
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage("Parameter \"whereFilters\" should be an array, but parameter contains:\n" . json_encode($where));

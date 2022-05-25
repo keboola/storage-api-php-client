@@ -18,7 +18,7 @@ class WorkspacesRenameTest extends WorkspacesTestCase
      */
     public function testLoadIncremental($backend, $bucketBackend): void
     {
-        if ($this->_client->bucketExists("in.c-mixed-test-" . $bucketBackend)) {
+        if ($this->_client->bucketExists('in.c-mixed-test-' . $bucketBackend)) {
             $this->_client->dropBucket(
                 "in.c-mixed-test-{$bucketBackend}",
                 [
@@ -27,10 +27,10 @@ class WorkspacesRenameTest extends WorkspacesTestCase
             );
         }
 
-        $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", "in", "", $bucketBackend);
+        $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", 'in', '', $bucketBackend);
 
         $workspaces = new Workspaces($this->_client);
-        $workspace = $workspaces->createWorkspace(["backend" => $backend]);
+        $workspace = $workspaces->createWorkspace(['backend' => $backend]);
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
@@ -66,7 +66,7 @@ class WorkspacesRenameTest extends WorkspacesTestCase
         ];
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
-        $this->assertEquals(2, $backend->countRows("languagesDetails"));
+        $this->assertEquals(2, $backend->countRows('languagesDetails'));
         $workspaceData = $backend->fetchAll('languagesDetails', \PDO::FETCH_ASSOC, '"primary" ASC');
 
         $this->assertEquals(['title', 'primary'], array_keys($workspaceData[0]));
@@ -108,7 +108,7 @@ class WorkspacesRenameTest extends WorkspacesTestCase
         ];
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
-        $this->assertEquals(5, $backend->countRows("languagesDetails"));
+        $this->assertEquals(5, $backend->countRows('languagesDetails'));
 
         $workspaceData = $backend->fetchAll('languagesDetails', \PDO::FETCH_ASSOC, '"primary" ASC');
 
@@ -145,7 +145,7 @@ class WorkspacesRenameTest extends WorkspacesTestCase
      */
     public function testLoadIncrementalWithColumnsReorder($backend, $bucketBackend): void
     {
-        if ($this->_client->bucketExists("in.c-mixed-test-" . $bucketBackend)) {
+        if ($this->_client->bucketExists('in.c-mixed-test-' . $bucketBackend)) {
             $this->_client->dropBucket(
                 "in.c-mixed-test-{$bucketBackend}",
                 [
@@ -154,10 +154,10 @@ class WorkspacesRenameTest extends WorkspacesTestCase
             );
         }
 
-        $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", "in", "", $bucketBackend);
+        $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", 'in', '', $bucketBackend);
 
         $workspaces = new Workspaces($this->_client);
-        $workspace = $workspaces->createWorkspace(["backend" => $backend]);
+        $workspace = $workspaces->createWorkspace(['backend' => $backend]);
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
@@ -193,7 +193,7 @@ class WorkspacesRenameTest extends WorkspacesTestCase
         ];
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
-        $this->assertEquals(2, $backend->countRows("languagesDetails"));
+        $this->assertEquals(2, $backend->countRows('languagesDetails'));
 
         $workspaceData = $backend->fetchAll('languagesDetails', \PDO::FETCH_ASSOC, '"primary" ASC');
 
@@ -236,7 +236,7 @@ class WorkspacesRenameTest extends WorkspacesTestCase
         ];
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
-        $this->assertEquals(5, $backend->countRows("languagesDetails"));
+        $this->assertEquals(5, $backend->countRows('languagesDetails'));
 
         $workspaceData = $backend->fetchAll('languagesDetails', \PDO::FETCH_ASSOC, '"primary" ASC');
 
