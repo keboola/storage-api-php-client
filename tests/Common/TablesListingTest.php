@@ -67,9 +67,9 @@ class TablesListingTest extends StorageApiTestCase
     public function testListTablesWithIncludeParam(): void
     {
         $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
-        $tables = $this->_client->listTables($this->getTestBucketId(), array(
+        $tables = $this->_client->listTables($this->getTestBucketId(), [
             'include' => '', // don't include anything
-        ));
+        ]);
 
         $firstTable = reset($tables);
         $this->assertArrayNotHasKey('attributes', $firstTable);
@@ -77,9 +77,9 @@ class TablesListingTest extends StorageApiTestCase
         $this->assertArrayNotHasKey('metadata', $firstTable);
         $this->assertArrayNotHasKey('columnMetadata', $firstTable);
 
-        $tables = $this->_client->listTables(null, array(
+        $tables = $this->_client->listTables(null, [
             'include' => '', // don't include anything
-        ));
+        ]);
 
         $firstTable = reset($tables);
         $this->assertArrayNotHasKey('attributes', $firstTable);
@@ -93,9 +93,9 @@ class TablesListingTest extends StorageApiTestCase
         $metadataApi = new Metadata($this->_client);
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
 
-        $tables = $this->_client->listTables($this->getTestBucketId(), array(
+        $tables = $this->_client->listTables($this->getTestBucketId(), [
             'include' => 'metadata',
-        ));
+        ]);
 
         $firstTable = reset($tables);
         $this->assertArrayHasKey('metadata', $firstTable);
@@ -113,9 +113,9 @@ class TablesListingTest extends StorageApiTestCase
             ]]
         );
 
-        $tables = $this->_client->listTables($this->getTestBucketId(), array(
+        $tables = $this->_client->listTables($this->getTestBucketId(), [
             'include' => 'metadata',
-        ));
+        ]);
         $this->assertCount(1, $tables);
 
         $firstTable = reset($tables);
@@ -136,9 +136,9 @@ class TablesListingTest extends StorageApiTestCase
         $table2Id = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile(__DIR__ . '/../_data/users.csv'));
         $table3Id = $this->_client->createTable($this->getTestBucketId(self::STAGE_OUT), 'dates', new CsvFile(__DIR__ . '/../_data/dates.csv'));
 
-        $tables = $this->_client->listTables($this->getTestBucketId(), array(
+        $tables = $this->_client->listTables($this->getTestBucketId(), [
             'include' => 'columns',
-        ));
+        ]);
 
         $this->assertCount(2, $tables);
 
@@ -155,41 +155,41 @@ class TablesListingTest extends StorageApiTestCase
         $languagesTables = $findTable($tables, $tableId);
         $this->assertEquals($tableId, $languagesTables['id']);
         $this->assertArrayHasKey('columns', $languagesTables);
-        $this->assertEquals(array('id', 'name'), $languagesTables['columns']);
+        $this->assertEquals(['id', 'name'], $languagesTables['columns']);
 
         $usersTables = $findTable($tables, $table2Id);
         $this->assertEquals($table2Id, $usersTables['id']);
         $this->assertArrayHasKey('columns', $usersTables);
-        $this->assertEquals(array('id', 'name', 'city', 'sex'), $usersTables['columns']);
+        $this->assertEquals(['id', 'name', 'city', 'sex'], $usersTables['columns']);
 
-        $tables = $this->_client->listTables(null, array(
+        $tables = $this->_client->listTables(null, [
             'include' => 'columns',
-        ));
+        ]);
         $this->assertCount(3, $tables);
 
         $languagesTables = $findTable($tables, $tableId);
         $this->assertEquals($tableId, $languagesTables['id']);
         $this->assertArrayHasKey('columns', $languagesTables);
-        $this->assertEquals(array('id', 'name'), $languagesTables['columns']);
+        $this->assertEquals(['id', 'name'], $languagesTables['columns']);
 
         $usersTables = $findTable($tables, $table2Id);
         $this->assertEquals($table2Id, $usersTables['id']);
         $this->assertArrayHasKey('columns', $usersTables);
-        $this->assertEquals(array('id', 'name', 'city', 'sex'), $usersTables['columns']);
+        $this->assertEquals(['id', 'name', 'city', 'sex'], $usersTables['columns']);
 
         $datesTables = $findTable($tables, $table3Id);
         $this->assertEquals($table3Id, $datesTables['id']);
         $this->assertArrayHasKey('columns', $usersTables);
-        $this->assertEquals(array('valid_from'), $datesTables['columns']);
+        $this->assertEquals(['valid_from'], $datesTables['columns']);
     }
 
     public function testListTablesIncludeColumnMetadata(): void
     {
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
 
-        $tables = $this->_client->listTables($this->getTestBucketId(), array(
+        $tables = $this->_client->listTables($this->getTestBucketId(), [
             'include' => 'columnMetadata,metadata',
-        ));
+        ]);
         $firstTable = reset($tables);
         $this->assertEquals($tableId, $firstTable['id']);
         $this->assertArrayHasKey('columnMetadata', $firstTable);
@@ -209,9 +209,9 @@ class TablesListingTest extends StorageApiTestCase
                 "value" => "testValue2",
             ]]
         );
-        $tables = $this->_client->listTables($this->getTestBucketId(), array(
+        $tables = $this->_client->listTables($this->getTestBucketId(), [
             'include' => 'metadata,columnMetadata',
-        ));
+        ]);
 
         $firstTable = reset($tables);
         $this->assertEquals($tableId, $firstTable['id']);
@@ -284,45 +284,45 @@ class TablesListingTest extends StorageApiTestCase
         $this->_client->setTableAttribute($tableId, 'other', 'hello', true);
         $table = $this->_client->getTable($tableId);
 
-        $this->assertArrayEqualsSorted($table['attributes'], array(
-            array(
+        $this->assertArrayEqualsSorted($table['attributes'], [
+            [
                 'name' => 's',
                 'value' => 'lala',
                 'protected' => false,
-            ),
-            array(
+            ],
+            [
                 'name' => 'other',
                 'value' => 'hello',
                 'protected' => true,
-            ),
-        ), 'name', 'attribute set');
+            ],
+        ], 'name', 'attribute set');
 
         // update
         $this->_client->setTableAttribute($tableId, 's', 'papa');
         $table = $this->_client->getTable($tableId);
-        $this->assertArrayEqualsSorted($table['attributes'], array(
-            array(
+        $this->assertArrayEqualsSorted($table['attributes'], [
+            [
                 'name' => 's',
                 'value' => 'papa',
                 'protected' => false,
-            ),
-            array(
+            ],
+            [
                 'name' => 'other',
                 'value' => 'hello',
                 'protected' => true,
-            ),
-        ), 'name', 'attribute update');
+            ],
+        ], 'name', 'attribute update');
 
         // delete
         $this->_client->deleteTableAttribute($tableId, 's');
         $table = $this->_client->getTable($tableId);
-        $this->assertArrayEqualsSorted($table['attributes'], array(
-            array(
+        $this->assertArrayEqualsSorted($table['attributes'], [
+            [
                 'name' => 'other',
                 'value' => 'hello',
                 'protected' => true,
-            ),
-        ), 'attribute delete');
+            ],
+        ], 'attribute delete');
 
         $this->_client->deleteTableAttribute($tableId, 'other');
     }
@@ -332,17 +332,17 @@ class TablesListingTest extends StorageApiTestCase
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
         $this->_client->setTableAttribute($tableId, 'first', 'something');
 
-        $newAttributes = array(
-            array(
+        $newAttributes = [
+            [
                 'name' => 'new',
                 'value' => 'new',
-            ),
-            array(
+            ],
+            [
                 'name' => 'second',
                 'value' => 'second value',
                 'protected' => true,
-            ),
-        );
+            ],
+        ];
         $this->_client->replaceTableAttributes($tableId, $newAttributes);
 
         $table = $this->_client->getTable($tableId);
@@ -404,7 +404,7 @@ class TablesListingTest extends StorageApiTestCase
         $firstTable = reset($tables);
         $this->assertEquals($tableId, $firstTable['id']);
         $this->assertArrayHasKey('columns', $firstTable);
-        $this->assertEquals(array('id', 'name'), $firstTable['columns']);
+        $this->assertEquals(['id', 'name'], $firstTable['columns']);
 
         // check the bucket
         $this->assertArrayHasKey('bucket', $firstTable);
@@ -425,18 +425,18 @@ class TablesListingTest extends StorageApiTestCase
 
     public function invalidAttributes()
     {
-        return array(
-            array(
-                array(
-                    array(
+        return [
+            [
+                [
+                    [
                         'nome' => 'ukulele',
-                    ),
-                    array(
+                    ],
+                    [
                         'name' => 'jehovista',
-                    ),
-                ),
-            )
-        );
+                    ],
+                ],
+            ],
+        ];
     }
 
 

@@ -43,18 +43,18 @@ class CommonFileTest extends StorageApiTestCase
 
         $this->createAndWaitForFile($filePath, new FileUploadOptions());
         $tag = uniqid('tag-test');
-        $fileId = $this->createAndWaitForFile($filePath, (new FileUploadOptions())->setTags(array($tag)));
+        $fileId = $this->createAndWaitForFile($filePath, (new FileUploadOptions())->setTags([$tag]));
 
-        $files = $this->_client->listFiles((new ListFilesOptions())->setTags(array($tag)));
+        $files = $this->_client->listFiles((new ListFilesOptions())->setTags([$tag]));
 
         $this->assertCount(1, $files);
         $file = reset($files);
         $this->assertEquals($fileId, $file['id']);
 
         $tag2 = uniqid('tag-test-2');
-        $fileId2 = $this->createAndWaitForFile($filePath, (new FileUploadOptions())->setTags(array($tag, $tag2)));
+        $fileId2 = $this->createAndWaitForFile($filePath, (new FileUploadOptions())->setTags([$tag, $tag2]));
 
-        $files = $this->_client->listFiles((new ListFilesOptions())->setTags(array($tag, $tag2)));
+        $files = $this->_client->listFiles((new ListFilesOptions())->setTags([$tag, $tag2]));
         $this->assertCount(2, $files, 'files with one or more matching tags are returned');
         $file2 = array_shift($files);
         $file = array_shift($files);
@@ -394,7 +394,7 @@ class CommonFileTest extends StorageApiTestCase
     public function testTagging(): void
     {
         $filePath = __DIR__ . '/../_data/files.upload.txt';
-        $initialTags = array('gooddata', 'image');
+        $initialTags = ['gooddata', 'image'];
         $fileId = $this->_client->uploadFile($filePath, (new FileUploadOptions())->setFederationToken(true)->setTags($initialTags));
 
         $file = $this->_client->getFile($fileId);
@@ -403,15 +403,15 @@ class CommonFileTest extends StorageApiTestCase
         $this->_client->deleteFileTag($fileId, 'gooddata');
 
         $file = $this->_client->getFile($fileId);
-        $this->assertEquals(array('image'), $file['tags']);
+        $this->assertEquals(['image'], $file['tags']);
 
         $this->_client->addFileTag($fileId, 'new');
         $file = $this->_client->getFile($fileId);
-        $this->assertEquals(array('image', 'new'), $file['tags']);
+        $this->assertEquals(['image', 'new'], $file['tags']);
 
         $this->_client->addFileTag($fileId, 'new');
         $file = $this->_client->getFile($fileId);
-        $this->assertEquals(array('image', 'new'), $file['tags'], 'duplicate tag add is ignored');
+        $this->assertEquals(['image', 'new'], $file['tags'], 'duplicate tag add is ignored');
     }
 
     public function testReadOnlyRoleFilesPermissions(): void

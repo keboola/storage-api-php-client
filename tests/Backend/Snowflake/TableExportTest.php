@@ -25,10 +25,10 @@ class TableExportTest extends StorageApiTestCase
             return "col_{$colNum}";
         }, range(1, 130)));
 
-        $table = $this->_client->apiPost("buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(
+        $table = $this->_client->apiPost("buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", [
             'dataString' => $cols,
             'name' => 'langs',
-        ));
+        ]);
 
         try {
             $this->_client->getTableDataPreview($table['id']);
@@ -49,10 +49,10 @@ class TableExportTest extends StorageApiTestCase
             }, range(1, 30)));
         }
 
-        $table = $this->_client->apiPost("buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(
+        $table = $this->_client->apiPost("buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", [
             'dataString' => implode("\n", $cols),
             'name' => 'langs',
-        ));
+        ]);
 
         $data = $this->_client->getTableDataPreview($table['id']);
         $this->assertEquals($rows, count(explode("\n", trim($data))));

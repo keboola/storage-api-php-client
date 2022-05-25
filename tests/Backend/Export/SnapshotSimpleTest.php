@@ -20,9 +20,9 @@ class SnapshotSimpleTest extends StorageApiTestCase
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $csvFile = new CsvFile($importFile);
-        $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', $csvFile, array(
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', $csvFile, [
             'columns' => $csvFile->getHeader(),
-        ));
+        ]);
         $table = $this->_client->getTable($tableId);
 
         $description = 'Test snapshot';

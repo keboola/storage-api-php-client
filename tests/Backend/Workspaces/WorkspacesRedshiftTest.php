@@ -252,9 +252,9 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
             $this->getTestBucketId(self::STAGE_IN),
             'languages-pk',
             new CsvFile(__DIR__ . '/../../_data/multiple-columns-pk.csv'),
-            array(
+            [
                 'primaryKey' => implode(",", $primaries),
-            )
+            ]
         );
 
         $mapping = [
@@ -741,9 +741,9 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         $startTime = time();
 
         $importCsv = new CsvFile(__DIR__ . '/../../_data/languages.csv');
-        $this->_client->writeTable($table1Id, $importCsv, array(
+        $this->_client->writeTable($table1Id, $importCsv, [
             'incremental' => true,
-        ));
+        ]);
 
         $workspaces->loadWorkspaceData($workspace['id'], [
             "input" => [

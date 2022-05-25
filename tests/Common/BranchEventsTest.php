@@ -80,10 +80,10 @@ class BranchEventsTest extends StorageApiTestCase
             ->setRunId('ddddssss')
             ->setMessage('Table Opportunity fetched.')
             ->setDescription('Some longer description of event')
-            ->setParams(array(
+            ->setParams([
                 'accountName' => 'Keboola',
                 'configuration' => 'sys.c-sfdc.sfdc-01',
-            ));
+            ]);
         $this->createAndWaitForEvent($event, $branchAwareClient);
 
         $bucketsListedEvents = $this->waitForListEvents(

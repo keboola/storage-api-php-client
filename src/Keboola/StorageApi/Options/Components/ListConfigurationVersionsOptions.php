@@ -13,7 +13,7 @@ class ListConfigurationVersionsOptions
 
     private $configurationId;
 
-    private $include = array();
+    private $include = [];
 
     private $offset;
 
@@ -21,11 +21,11 @@ class ListConfigurationVersionsOptions
 
     public function toParamsArray()
     {
-        return array(
+        return [
             'include' => implode(',', $this->getInclude()),
             'offset' => $this->getOffset(),
-            'limit' => $this->getLimit()
-        );
+            'limit' => $this->getLimit(),
+        ];
     }
 
     /**
@@ -104,7 +104,7 @@ class ListConfigurationVersionsOptions
      * @param array $include
      * @return $this
      */
-    public function setInclude($include = array())
+    public function setInclude($include = [])
     {
         $this->include = (array) $include;
         return $this;

@@ -174,37 +174,37 @@ class SlicedFilesUploadTest extends StorageApiTestCase
         $part2 = __DIR__ . '/../_data/languages.csv.part_2';
         $parts = [$part1, $part2];
 
-        return array(
-            array(
+        return [
+            [
                 $parts,
                 (new FileUploadOptions())
                     ->setIsSliced(true)
-                    ->setFileName("languages.csv")
-            ),
-            array(
+                    ->setFileName("languages.csv"),
+            ],
+            [
                 $parts,
                 (new FileUploadOptions())
                     ->setIsEncrypted(false)
                     ->setIsSliced(true)
-                    ->setFileName("languages.csv")
-            ),
-            array(
+                    ->setFileName("languages.csv"),
+            ],
+            [
                 $parts,
                 (new FileUploadOptions())
                     ->setNotify(false)
                     ->setCompress(false)
                     ->setIsPublic(false)
                     ->setIsSliced(true)
-                    ->setFileName("languages.csv")
-            ),
-            array(
+                    ->setFileName("languages.csv"),
+            ],
+            [
                 $parts,
                 (new FileUploadOptions())
                     ->setIsPermanent(true)
-                    ->setTags(array('sapi-import', 'martin'))
+                    ->setTags(['sapi-import', 'martin'])
                     ->setIsSliced(true)
-                    ->setFileName("languages.csv")
-            ),
-        );
+                    ->setFileName("languages.csv"),
+            ],
+        ];
     }
 }

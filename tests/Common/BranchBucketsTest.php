@@ -56,9 +56,9 @@ class BranchBucketsTest extends StorageApiTestCase
             $this->getTestBucketId(),
             'languages',
             new CsvFile($importFile),
-            array(
-                'primaryKey' => 'id'
-            )
+            [
+                'primaryKey' => 'id',
+            ]
         );
 
         $metadata->postColumnMetadata(

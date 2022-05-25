@@ -50,7 +50,7 @@ class MetadataTest extends StorageApiTestCase
             'key' => self::TEST_METADATA_KEY_2,
             'value' => 'testval',
         ];
-        $testMetadata = array($md, $md2);
+        $testMetadata = [$md, $md2];
 
         $provider = self::TEST_PROVIDER;
         $metadatas = $metadataApi->postBucketMetadata($bucketId, $provider, $testMetadata);
@@ -67,7 +67,7 @@ class MetadataTest extends StorageApiTestCase
         $mdCopy = $metadatas[0];
         $mdCopy['value'] = "newValue";
 
-        $newMetadata = $metadataApi->postBucketMetadata($bucketId, $provider, array($mdCopy));
+        $newMetadata = $metadataApi->postBucketMetadata($bucketId, $provider, [$mdCopy]);
 
         foreach ($newMetadata as $metadata) {
             if ($metadata['id'] == $metadatas[0]['id']) {
@@ -187,7 +187,7 @@ class MetadataTest extends StorageApiTestCase
             'key' => self::TEST_METADATA_KEY_2,
             'value' => 'testval',
         ];
-        $testMetadata = array($md, $md2);
+        $testMetadata = [$md, $md2];
 
         $provider = self::TEST_PROVIDER;
 
@@ -204,7 +204,7 @@ class MetadataTest extends StorageApiTestCase
         $mdCopy = $metadatas[0];
         $mdCopy['value'] = "newValue";
 
-        $newMetadata = $metadataApi->postTableMetadata($tableId, $provider, array($mdCopy));
+        $newMetadata = $metadataApi->postTableMetadata($tableId, $provider, [$mdCopy]);
 
         foreach ($newMetadata as $metadata) {
             if ($metadata['id'] == $metadatas[0]['id']) {
@@ -230,7 +230,7 @@ class MetadataTest extends StorageApiTestCase
         $this->assertEquals($metadatas[1]['timestamp'], $mdList[0]['timestamp']);
 
         // test that bucket metadata is included in the get table api response
-        $bucketMetadata = array($md);
+        $bucketMetadata = [$md];
         $metadataApi->postBucketMetadata($this->getTestBucketId(), $provider, $bucketMetadata);
 
         $table = $this->_client->getTable($tableId);
@@ -463,7 +463,7 @@ class MetadataTest extends StorageApiTestCase
             'key' => self::TEST_METADATA_KEY_2,
             'value' => 'testval',
         ];
-        $testMetadata = array($md, $md2);
+        $testMetadata = [$md, $md2];
 
         $provider = self::TEST_PROVIDER;
 
@@ -503,7 +503,7 @@ class MetadataTest extends StorageApiTestCase
             'key' => self::TEST_METADATA_KEY_2,
             'value' => 'testval',
         ];
-        $testMetadata = array($md, $md2);
+        $testMetadata = [$md, $md2];
 
         $provider = self::TEST_PROVIDER;
 
@@ -520,7 +520,7 @@ class MetadataTest extends StorageApiTestCase
         $mdCopy = $metadatas[0];
         $mdCopy['value'] = "newValue";
 
-        $newMetadata = $metadataApi->postColumnMetadata($columnId, $provider, array($mdCopy));
+        $newMetadata = $metadataApi->postColumnMetadata($columnId, $provider, [$mdCopy]);
         foreach ($newMetadata as $metadata) {
             if ($metadata['id'] == $metadatas[0]['id']) {
                 $this->assertEquals("newValue", $metadata['value']);
@@ -694,7 +694,7 @@ class MetadataTest extends StorageApiTestCase
             'key' => self::TEST_METADATA_KEY_2,
             'value' => 'testval',
         ];
-        $testMetadata = array($md, $md2);
+        $testMetadata = [$md, $md2];
 
         $provider = self::TEST_PROVIDER;
 
@@ -710,7 +710,7 @@ class MetadataTest extends StorageApiTestCase
         $tableDetail = $this->_client->getTable($tableId);
         $this->assertEmpty($tableDetail['columnMetadata']);
 
-        $this->assertEquals(array('id','name','city'), $tableDetail['columns']);
+        $this->assertEquals(['id','name','city'], $tableDetail['columns']);
 
         $this->expectException(ClientException::class);
         $this->expectExceptionCode(404);
@@ -732,7 +732,7 @@ class MetadataTest extends StorageApiTestCase
             'key' => self::TEST_METADATA_KEY_1,
             'value' => 'new testval',
         ];
-        $testMetadata = array($md);
+        $testMetadata = [$md];
 
         $provider = self::TEST_PROVIDER;
         $metadatas = $metadataApi->postBucketMetadata($bucketId, $provider, $testMetadata);

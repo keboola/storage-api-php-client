@@ -17,7 +17,7 @@ class FileUploadOptions
     private $fileName;
     private $notify = false;
     private $isPublic = false;
-    private $tags = array();
+    private $tags = [];
     private $compress = false;
     private $federationToken = false;
     private $sizeBytes;

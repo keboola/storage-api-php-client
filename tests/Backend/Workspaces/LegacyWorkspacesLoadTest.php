@@ -69,17 +69,17 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             new CsvFile(__DIR__ . '/../../_data/numbers.csv')
         );
 
-        $mapping1 = array("source" => $table1_id, "destination" => "languagesLoaded");
-        $mapping2 = array("source" => $table2_id, "destination" => "numbersLoaded");
+        $mapping1 = ["source" => $table1_id, "destination" => "languagesLoaded"];
+        $mapping2 = ["source" => $table2_id, "destination" => "numbersLoaded"];
 
-        $input = array($mapping1, $mapping2);
+        $input = [$mapping1, $mapping2];
 
         // test if job is created and listed
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
         $this->workspaceSapiClient->setRunId($runId);
 
-        $workspaces->loadWorkspaceData($workspace['id'], array("input" => $input));
+        $workspaces->loadWorkspaceData($workspace['id'], ["input" => $input]);
 
         $afterJobs = $this->listWorkspaceJobs($workspace['id']);
         $lastJob = reset($afterJobs);
@@ -111,8 +111,8 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ",", '"'), $data, 'id');
 
         // now we'll load another table and use the preserve parameters to check that all tables are present
-        $mapping3 = array("source" => $table1_id, "destination" => "table3");
-        $workspaces->loadWorkspaceData($workspace['id'], array("input" => array($mapping3), "preserve" => true));
+        $mapping3 = ["source" => $table1_id, "destination" => "table3"];
+        $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping3], "preserve" => true]);
 
         $tables = $backend->getTables();
 
@@ -126,7 +126,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $this->workspaceSapiClient->setRunId($runId);
 
         // now we'll try the same load, but it should clear the workspace first (preserve is false by default)
-        $workspaces->loadWorkspaceData($workspace['id'], array("input" => array($mapping3)));
+        $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping3]]);
 
         $tables = $backend->getTables();
         $this->assertCount(1, $tables);
@@ -526,12 +526,12 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         sleep(35);
         $startTime = time();
         $importCsv = new \Keboola\Csv\CsvFile($importFile);
-        $this->_client->writeTable($tableId, $importCsv, array(
+        $this->_client->writeTable($tableId, $importCsv, [
             'incremental' => true,
-        ));
-        $this->_client->writeTable($tableId, $importCsv, array(
+        ]);
+        $this->_client->writeTable($tableId, $importCsv, [
             'incremental' => true,
-        ));
+        ]);
 
         $options = [
             'input' => [
@@ -562,13 +562,13 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             new CsvFile($importFile)
         );
 
-        $options = array('input' => [
+        $options = ['input' => [
             [
                 'source' => $tableId,
                 'destination' => 'languages',
                 'rows' => 2,
             ],
-        ]);
+        ]];
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
@@ -628,13 +628,13 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             new CsvFile($importFile)
         );
 
-        $options = array('input' => [
+        $options = ['input' => [
             [
                 'source' => $tableId,
                 'destination' => 'datatype_Test',
                 'datatypes' => $dataTypesDefinition,
             ],
-        ]);
+        ]];
         $options = LegacyInputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
             $options
@@ -674,13 +674,13 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             new CsvFile($importFile)
         );
 
-        $options = array('input' => [
+        $options = ['input' => [
             [
                 'source' => $tableId,
                 'destination' => 'datatype_test',
                 'datatypes' => $dataTypesDefinition,
             ],
-        ]);
+        ]];
         $options = LegacyInputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
             $options
@@ -740,7 +740,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             new CsvFile($importFile)
         );
 
-        $options = array('input' => [
+        $options = ['input' => [
             [
                 'source' => $tableId,
                 'destination' => 'datatype_Test',
@@ -749,7 +749,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
                     "Name" => "VARCHAR(50)",
                 ],
             ],
-        ]);
+        ]];
         $options = LegacyInputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
             $options
@@ -797,7 +797,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             new CsvFile($importFile)
         );
 
-        $options = array('input' => [
+        $options = ['input' => [
             [
                 'source' => $tableId,
                 'destination' => 'datatype_test',
@@ -806,7 +806,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
                     "name" => "UNKNOWN",
                 ],
             ],
-        ]);
+        ]];
         $options = LegacyInputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
             $options
@@ -831,7 +831,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             new CsvFile($importFile)
         );
 
-        $options = array('input' => [
+        $options = ['input' => [
             [
                 'source' => $tableId,
                 'destination' => 'datatype_test',
@@ -846,7 +846,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
                     ],
                 ],
             ],
-        ]);
+        ]];
         $options = LegacyInputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
             $options
@@ -877,12 +877,12 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         );
 
         // now let's try and load 2 different sources to the same destination, this request should be rejected
-        $mapping1 = array("source" => $table1_id, "destination" => "languagesLoaded");
-        $mapping2 = array("source" => $table2_id, "destination" => "languagesLoaded");
-        $inputDupFail = array($mapping1, $mapping2);
+        $mapping1 = ["source" => $table1_id, "destination" => "languagesLoaded"];
+        $mapping2 = ["source" => $table2_id, "destination" => "languagesLoaded"];
+        $inputDupFail = [$mapping1, $mapping2];
 
         try {
-            $workspaces->loadWorkspaceData($workspace['id'], array("input" => $inputDupFail));
+            $workspaces->loadWorkspaceData($workspace['id'], ["input" => $inputDupFail]);
             $this->fail('Attempt to write two sources to same destination should fail');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.duplicateDestination', $e->getStringCode());
@@ -939,10 +939,10 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace();
 
         // let's try loading from a table that doesn't exist
-        $mappingInvalidSource = array("source" => "in.c-nonExistentBucket.fakeTable", "destination" => "whatever");
-        $input404 = array($mappingInvalidSource);
+        $mappingInvalidSource = ["source" => "in.c-nonExistentBucket.fakeTable", "destination" => "whatever"];
+        $input404 = [$mappingInvalidSource];
         try {
-            $workspaces->loadWorkspaceData($workspace['id'], array("input" => $input404));
+            $workspaces->loadWorkspaceData($workspace['id'], ["input" => $input404]);
             $this->fail('Source does not exist, this should fail');
         } catch (ClientException $e) {
             $this->assertEquals(404, $e->getCode());
@@ -963,12 +963,12 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
 
-        $mapping1 = array("source" => $table1_id, "destination" => "languagesLoaded");
-        $input = array($mapping1);
+        $mapping1 = ["source" => $table1_id, "destination" => "languagesLoaded"];
+        $input = [$mapping1];
 
         //  test for non-array input
         try {
-            $workspaces->loadWorkspaceData($workspace['id'], array("input" => $mapping1));
+            $workspaces->loadWorkspaceData($workspace['id'], ["input" => $mapping1]);
             $this->fail("input should be an array of mappings.");
         } catch (ClientException $e) {
             $this->assertEquals('workspace.loadRequestBadInput', $e->getStringCode());
@@ -976,7 +976,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
 
         // test for invalid workspace id
         try {
-            $workspaces->loadWorkspaceData(0, array("input" => $input));
+            $workspaces->loadWorkspaceData(0, ["input" => $input]);
             $this->fail('Should not be able to find a workspace with id 0');
         } catch (ClientException $e) {
             $this->assertEquals(404, $e->getCode());
@@ -992,13 +992,13 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         }
 
         try {
-            $workspaces->loadWorkspaceData($workspace['id'], array("input" => array(array("source" => $table1_id))));
+            $workspaces->loadWorkspaceData($workspace['id'], ["input" => [["source" => $table1_id]]]);
             $this->fail('Should return bad request, destination is required');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.loadRequestBadInput', $e->getStringCode());
         }
         try {
-            $workspaces->loadWorkspaceData($workspace['id'], array("input" => array(array("destination" => "destination"))));
+            $workspaces->loadWorkspaceData($workspace['id'], ["input" => [["destination" => "destination"]]]);
             $this->fail('Should return bad request, destination is required');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.loadRequestBadInput', $e->getStringCode());
@@ -1119,14 +1119,14 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-        $options = array(
+        $options = [
             "input" => [
                 array_merge([
                     "source" => $tableId,
                     "destination" => 'filter-test',
                 ], $exportOptions),
-            ]
-        );
+            ],
+        ];
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 

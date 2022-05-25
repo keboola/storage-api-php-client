@@ -39,8 +39,8 @@ class GetFileOptions
      */
     public function toArray()
     {
-        return array(
+        return [
             'federationToken' => $this->getFederationToken(),
-        );
+        ];
     }
 }

@@ -37,7 +37,7 @@ class TableExporterTest extends StorageApiTestCase
      * @dataProvider tableExportData
      * @param $importFileName
      */
-    public function testTableAsyncExport(array $supportedBackends, CsvFile $importFile, $expectationsFileName, $exportOptions = array()): void
+    public function testTableAsyncExport(array $supportedBackends, CsvFile $importFile, $expectationsFileName, $exportOptions = []): void
     {
         $expectationsFile = __DIR__ . '/../../_data/' . $expectationsFileName;
         $tokenData = $this->_client->verifyToken();
@@ -103,9 +103,9 @@ class TableExporterTest extends StorageApiTestCase
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', $importFile);
         $this->_client->writeTable($tableId, $importFile);
 
-        $exportOptions = array(
+        $exportOptions = [
             'limit' => 2,
-        );
+        ];
         $exporter = new TableExporter($this->_client);
         $exporter->exportTable($tableId, $this->downloadPath, $exportOptions);
         $this->assertTrue(file_exists($this->downloadPath));
@@ -226,7 +226,7 @@ class TableExporterTest extends StorageApiTestCase
     {
         $exporter = new TableExporter($this->_client);
         try {
-            $exporter->exportTables(array(array()));
+            $exporter->exportTables([[]]);
             $this->fail('Missing exception');
         } catch (Exception $e) {
             $this->assertEquals('Missing tableId', $e->getMessage());
@@ -237,7 +237,7 @@ class TableExporterTest extends StorageApiTestCase
     {
         $exporter = new TableExporter($this->_client);
         try {
-            $exporter->exportTables(array(array('tableId' => '')));
+            $exporter->exportTables([['tableId' => '']]);
             $this->fail('Missing exception');
         } catch (Exception $e) {
             $this->assertEquals('Missing tableId', $e->getMessage());
@@ -248,7 +248,7 @@ class TableExporterTest extends StorageApiTestCase
     {
         $exporter = new TableExporter($this->_client);
         try {
-            $exporter->exportTables(array(array('tableId' => 'dummy')));
+            $exporter->exportTables([['tableId' => 'dummy']]);
             $this->fail('Missing exception');
         } catch (Exception $e) {
             $this->assertEquals('Missing destination', $e->getMessage());
@@ -259,7 +259,7 @@ class TableExporterTest extends StorageApiTestCase
     {
         $exporter = new TableExporter($this->_client);
         try {
-            $exporter->exportTables(array(array('tableId' => 'dummy', 'destination' => '')));
+            $exporter->exportTables([['tableId' => 'dummy', 'destination' => '']]);
             $this->fail('Missing exception');
         } catch (Exception $e) {
             $this->assertEquals('Missing destination', $e->getMessage());
@@ -270,7 +270,7 @@ class TableExporterTest extends StorageApiTestCase
     {
         $exporter = new TableExporter($this->_client);
         try {
-            $exporter->exportTables(array(array('tableId' => 'in.c-dummy.dummy', 'destination' => 'dummy')));
+            $exporter->exportTables([['tableId' => 'in.c-dummy.dummy', 'destination' => 'dummy']]);
             $this->fail('Missing exception');
         } catch (ClientException $e) {
             $this->assertStringContainsString('The table "dummy" was not found in the bucket "in.c-dummy"', $e->getMessage());
@@ -280,23 +280,23 @@ class TableExporterTest extends StorageApiTestCase
     public function tableExportData()
     {
         $filesBasePath = __DIR__ . '/../../_data/';
-        return array(
-            array([self::BACKEND_SNOWFLAKE], new CsvFile($filesBasePath . '1200.csv'), '1200.csv'),
-            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . 'languages.csv.gz'), 'languages.csv'),
-            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . 'languages.encoding.csv'), 'languages.encoding.csv'),
-            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . 'languages.csv.gz'), 'languages.csv', array('gzip' => true)),
-            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . 'numbers.csv'), 'numbers.csv'),
-            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . 'numbers.csv'), 'numbers.two-cols.csv', array('columns' => array('0', '45'))),
+        return [
+            [[self::BACKEND_SNOWFLAKE], new CsvFile($filesBasePath . '1200.csv'), '1200.csv'],
+            [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . 'languages.csv.gz'), 'languages.csv'],
+            [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . 'languages.encoding.csv'), 'languages.encoding.csv'],
+            [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . 'languages.csv.gz'), 'languages.csv', ['gzip' => true]],
+            [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . 'numbers.csv'), 'numbers.csv'],
+            [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . 'numbers.csv'), 'numbers.two-cols.csv', ['columns' => ['0', '45']]],
 
             // tests the redshift data too long bug https://github.com/keboola/connection/issues/412
-            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . 'languages.64k.csv'), 'languages.64k.csv'),
-            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . 'languages.64k.csv'), 'languages.64k.csv',  array('gzip' => true)),
-            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . '64K.csv'), '64K.csv'),
-            array([self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . '64K.csv'), '64K.csv',  array('gzip' => true)),
+            [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . 'languages.64k.csv'), 'languages.64k.csv'],
+            [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . 'languages.64k.csv'), 'languages.64k.csv',  ['gzip' => true]],
+            [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . '64K.csv'), '64K.csv'],
+            [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . '64K.csv'), '64K.csv',  ['gzip' => true]],
 
-            array([self::BACKEND_REDSHIFT], new CsvFile($filesBasePath . 'escaping.csv'), 'escaping.standard.out.csv', array('gzip' => true)),
-            array([self::BACKEND_REDSHIFT], new CsvFile($filesBasePath . 'numbers.csv'), 'numbers.csv', array('gzip' => true)),
-            array([self::BACKEND_REDSHIFT], new CsvFile($filesBasePath . 'numbers.csv'), 'numbers.two-cols.csv', array('gzip' => true, 'columns' => array('0', '45'))),
-        );
+            [[self::BACKEND_REDSHIFT], new CsvFile($filesBasePath . 'escaping.csv'), 'escaping.standard.out.csv', ['gzip' => true]],
+            [[self::BACKEND_REDSHIFT], new CsvFile($filesBasePath . 'numbers.csv'), 'numbers.csv', ['gzip' => true]],
+            [[self::BACKEND_REDSHIFT], new CsvFile($filesBasePath . 'numbers.csv'), 'numbers.two-cols.csv', ['gzip' => true, 'columns' => ['0', '45']]],
+        ];
     }
 }

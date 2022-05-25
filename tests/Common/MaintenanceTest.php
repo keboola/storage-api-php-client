@@ -17,11 +17,11 @@ class MaintenanceTest extends StorageApiTestCase
     public function testMaintenance(): void
     {
         try {
-            $client = $this->getClient(array(
+            $client = $this->getClient([
                 'token' => STORAGE_API_TOKEN,
                 'url' => STORAGE_API_MAINTENANCE_URL,
                 'backoffMaxTries' => 2,
-            ));
+            ]);
             $client->verifyToken();
             $this->fail('maintenance exception should be thrown');
         } catch (\Keboola\StorageApi\MaintenanceException $e) {

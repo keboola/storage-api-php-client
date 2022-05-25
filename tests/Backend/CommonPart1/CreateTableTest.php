@@ -111,7 +111,7 @@ class CreateTableTest extends StorageApiTestCase
      * @dataProvider tableCreateData
      * @param $createFile
      */
-    public function testTableCreate($tableName, $createFile, $expectationFile, $async, $options = array()): void
+    public function testTableCreate($tableName, $createFile, $expectationFile, $async, $options = []): void
     {
         $createMethod = $async ? 'createTableAsync' : 'createTable';
         $tableId = $this->_client->{$createMethod}(
@@ -232,20 +232,20 @@ class CreateTableTest extends StorageApiTestCase
 
     public function tableCreateData()
     {
-        return array(
-            array('Languages', __DIR__ . '/../../_data/languages.csv', __DIR__ . '/../../_data/languages.csv', false),
-            array('Languages', __DIR__ . '/../../_data/languages.csv', __DIR__ . '/../../_data/languages.csv', true),
+        return [
+            ['Languages', __DIR__ . '/../../_data/languages.csv', __DIR__ . '/../../_data/languages.csv', false],
+            ['Languages', __DIR__ . '/../../_data/languages.csv', __DIR__ . '/../../_data/languages.csv', true],
 
-            array('Languages', __DIR__ . '/../../_data/languages.csv.gz', __DIR__ . '/../../_data/languages.csv', false),
-            array('Languages', __DIR__ . '/../../_data/languages.csv.gz', __DIR__ . '/../../_data/languages.csv', true),
+            ['Languages', __DIR__ . '/../../_data/languages.csv.gz', __DIR__ . '/../../_data/languages.csv', false],
+            ['Languages', __DIR__ . '/../../_data/languages.csv.gz', __DIR__ . '/../../_data/languages.csv', true],
 
-            array('Languages', __DIR__ . '/../../_data/languages.camel-case-columns.csv', __DIR__ . '/../../_data/languages.camel-case-columns.csv', false),
-            array('Languages', __DIR__ . '/../../_data/languages.camel-case-columns.csv', __DIR__ . '/../../_data/languages.camel-case-columns.csv', true),
+            ['Languages', __DIR__ . '/../../_data/languages.camel-case-columns.csv', __DIR__ . '/../../_data/languages.camel-case-columns.csv', false],
+            ['Languages', __DIR__ . '/../../_data/languages.camel-case-columns.csv', __DIR__ . '/../../_data/languages.camel-case-columns.csv', true],
 
             // only numeric table and column names
-            array('1', __DIR__ . '/../../_data/numbers.csv', __DIR__ . '/../../_data/numbers.csv', false),
-            array('1', __DIR__ . '/../../_data/numbers.csv', __DIR__ . '/../../_data/numbers.csv', true),
-        );
+            ['1', __DIR__ . '/../../_data/numbers.csv', __DIR__ . '/../../_data/numbers.csv', false],
+            ['1', __DIR__ . '/../../_data/numbers.csv', __DIR__ . '/../../_data/numbers.csv', true],
+        ];
     }
 
     public function testTableWithUnsupportedCharactersInNameShouldNotBeCreated(): void
@@ -344,7 +344,7 @@ class CreateTableTest extends StorageApiTestCase
         );
 
         $table = $this->_client->getTable($tableId);
-        $this->assertEquals(array('with_spaces', 'scrscz', 'with_underscore'), $table['columns']);
+        $this->assertEquals(['with_spaces', 'scrscz', 'with_underscore'], $table['columns']);
         $writeMethod = $async ? 'writeTableAsync' : 'writeTable';
         $this->_client->{$writeMethod}($tableId, new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/filtering.csv'));
     }
@@ -370,10 +370,10 @@ class CreateTableTest extends StorageApiTestCase
 
     public function syncAsyncData()
     {
-        return array(
-            array(false),
-            array(true),
-        );
+        return [
+            [false],
+            [true],
+        ];
     }
 
     public function testTableCreateWithPK(): void
@@ -385,13 +385,13 @@ class CreateTableTest extends StorageApiTestCase
             $this->getTestBucketId(),
             'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),
-            array(
+            [
                 'primaryKey' => 'id',
-            )
+            ]
         );
 
         $table = $this->_client->getTable($tableId);
-        $this->assertEquals(array('id'), $table['primaryKey']);
+        $this->assertEquals(['id'], $table['primaryKey']);
     }
 
     /**
@@ -405,9 +405,9 @@ class CreateTableTest extends StorageApiTestCase
                 $this->getTestBucketId(self::STAGE_IN),
                 'languages',
                 new CsvFile(__DIR__ . '/../../_data/languages.csv'),
-                array(
+                [
                     'primaryKey' => $primaryKey,
-                )
+                ]
             );
             $this->fail('exception should be thrown');
         } catch (\Keboola\StorageApi\ClientException $e) {
@@ -534,10 +534,10 @@ class CreateTableTest extends StorageApiTestCase
 
     public function invalidPrimaryKeys()
     {
-        return array(
-            array('ID'),
-            array('idus'),
-        );
+        return [
+            ['ID'],
+            ['idus'],
+        ];
     }
 
     public function createTableFromSlicedFileData()

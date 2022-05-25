@@ -87,7 +87,7 @@ class TokensTest extends StorageApiTestCase
         $components->addConfiguration((new Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-2')
-            ->setConfiguration(array('x' => 'y'))
+            ->setConfiguration(['x' => 'y'])
             ->setName('Main2'));
 
         $components->addConfiguration((new Configuration())
@@ -293,10 +293,10 @@ class TokensTest extends StorageApiTestCase
         $invalidToken = 'thisIsInvalidToken';
 
         try {
-            $client = $this->getClient(array(
+            $client = $this->getClient([
                 'token' => $invalidToken,
                 'url' => STORAGE_API_URL,
-            ));
+            ]);
 
             $client->verifyToken();
             $this->fail('Exception should be thrown on invalid token');
@@ -692,10 +692,10 @@ class TokensTest extends StorageApiTestCase
 
         $token = $this->tokens->createToken($options);
 
-        $client = $this->getClient(array(
+        $client = $this->getClient([
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
-        ));
+        ]);
 
         // check assigned buckets
         $buckets = $client->listBuckets();
@@ -747,10 +747,10 @@ class TokensTest extends StorageApiTestCase
 
         $token = $this->tokens->createToken($options);
 
-        $client = $this->getClient(array(
+        $client = $this->getClient([
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
-        ));
+        ]);
 
         // check assigned buckets
         $buckets = $client->listBuckets();
@@ -791,10 +791,10 @@ class TokensTest extends StorageApiTestCase
 
         $token = $this->tokens->createToken($options);
 
-        $client = $this->getClient(array(
+        $client = $this->getClient([
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
-        ));
+        ]);
 
         // check assigned buckets
         $buckets = $client->listBuckets();
@@ -855,10 +855,10 @@ class TokensTest extends StorageApiTestCase
 
         $token = $this->tokens->createToken($options);
 
-        $client = $this->getClient(array(
+        $client = $this->getClient([
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
-        ));
+        ]);
 
         // token getter
         $this->assertEquals($client->getTokenString(), $token['token']);
@@ -900,10 +900,10 @@ class TokensTest extends StorageApiTestCase
 
         $token = $this->tokens->createToken($options);
 
-        $client = $this->getClient(array(
+        $client = $this->getClient([
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
-        ));
+        ]);
 
         $token = $client->verifyToken();
 

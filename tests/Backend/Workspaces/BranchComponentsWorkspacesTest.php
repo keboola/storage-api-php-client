@@ -156,10 +156,10 @@ class BranchComponentsWorkspacesTest extends ComponentsWorkspacesTest
         $this->assertSame('mytable', $tableNames[2]);
 
         // table unload
-        $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), array(
+        $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), [
             'name' => 'mytable',
             'dataWorkspaceId' => $branchWorkspace['id'],
             'dataTableName' => 'mytable',
-        ));
+        ]);
     }
 }

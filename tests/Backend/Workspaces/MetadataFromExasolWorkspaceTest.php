@@ -58,11 +58,11 @@ class MetadataFromExasolWorkspaceTest extends ParallelWorkspacesTestCase
                     \"date\" date not null
                 );");
         // create table from workspace
-        $tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), array(
+        $tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), [
             'name' => 'metadata_columns',
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => $tableId,
-        ));
+        ]);
         $expectedStringMetadata = [
             'KBC.datatype.type' => 'VARCHAR',
             'KBC.datatype.nullable' => '',
@@ -154,7 +154,7 @@ class MetadataFromExasolWorkspaceTest extends ParallelWorkspacesTestCase
             $this->getTestBucketId(self::STAGE_IN),
             'languages3',
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),
-            array('primaryKey' => 'id')
+            ['primaryKey' => 'id']
         );
 
         // create workspace and source table in workspace
@@ -181,19 +181,19 @@ class MetadataFromExasolWorkspaceTest extends ParallelWorkspacesTestCase
         $db->query("insert into $quotedTableId ([id], [name]) values (1, 'cz');");
         $db->query("insert into $quotedTableId ([id], [name]) values (2, 'en');");
 
-        $this->_client->writeTableAsyncDirect($table_id, array(
+        $this->_client->writeTableAsyncDirect($table_id, [
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => $tableId,
-        ));
-        $expected = array(
+        ]);
+        $expected = [
             '"id","name"',
             '"1","cz"',
             '"2","en"',
-        );
+        ];
 
         $this->assertLinesEqualsSorted(
             implode("\n", $expected) . "\n",
-            $this->_client->getTableDataPreview($table_id, array('format' => 'rfc')),
+            $this->_client->getTableDataPreview($table_id, ['format' => 'rfc']),
             'imported data comparsion'
         );
 
@@ -209,22 +209,22 @@ class MetadataFromExasolWorkspaceTest extends ParallelWorkspacesTestCase
         $db->query("insert into $quotedTableId values (3, 'sk', 'newValue');");
         $db->query("insert into $quotedTableId values (4, 'jp', 'test');");
 
-        $this->_client->writeTableAsyncDirect($table['id'], array(
+        $this->_client->writeTableAsyncDirect($table['id'], [
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => $tableId,
             'incremental' => true,
-        ));
-        $expected = array(
+        ]);
+        $expected = [
             '"id","name","update"',
             '"1","cz",""',
             '"2","en",""',
             '"3","sk","newValue"',
             '"4","jp","test"',
-        );
+        ];
 
         $this->assertLinesEqualsSorted(
             implode("\n", $expected) . "\n",
-            $this->_client->getTableDataPreview($table['id'], array('format' => 'rfc')),
+            $this->_client->getTableDataPreview($table['id'], ['format' => 'rfc']),
             'new  column added'
         );
 
@@ -257,11 +257,11 @@ class MetadataFromExasolWorkspaceTest extends ParallelWorkspacesTestCase
                 );");
 
         // create table from workspace
-        $tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), array(
+        $tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), [
             'name' => 'metadata_columns',
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => $tableId,
-        ));
+        ]);
 
         $expectedStringMetadata = [
             'KBC.datatype.type' => 'VARCHAR',

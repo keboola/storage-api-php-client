@@ -83,7 +83,7 @@ class SnowflakeWorkspaceBackend implements WorkspaceBackend
 
     public function fetchAll($table, $style = \PDO::FETCH_NUM, $orderBy = null)
     {
-        $data = array();
+        $data = [];
         $res = $this->db->fetchAll(sprintf(
             "SELECT * FROM %s.%s %s;",
             $this->db->quoteIdentifier($this->schema),
