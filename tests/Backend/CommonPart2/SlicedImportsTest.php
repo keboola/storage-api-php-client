@@ -88,7 +88,7 @@ class SlicedImportsTest extends StorageApiTestCase
             'columns' => [
                 'language-id',
                 'language-name',
-            ]
+            ],
         ]);
 
         $this->assertLinesEqualsSorted(
@@ -109,7 +109,7 @@ class SlicedImportsTest extends StorageApiTestCase
             'columns' => [
                 'language-id',
                 'language-name',
-            ]
+            ],
         ]);
 
         $data = (string) file_get_contents(__DIR__ . '/../../_data/languages.normalized-column-names.csv');
@@ -238,7 +238,7 @@ class SlicedImportsTest extends StorageApiTestCase
                         [
                             'url' => 's3://' . $uploadParams['bucket'] . '/' . $uploadParams['key'] . 'part001.gzsome',
                             'mandatory' => true,
-                        ]
+                        ],
                     ],
                 ]),
             ))->get('ObjectURL');

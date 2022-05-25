@@ -63,8 +63,8 @@ class CopyIntoWorkspaceTest extends WorkspacesTestCase
                     [
                         'source' => $tableId,
                         'destination' => 'Langs',
-                    ]
-                ]
+                    ],
+                ],
             ]
         );
 
@@ -81,7 +81,7 @@ class CopyIntoWorkspaceTest extends WorkspacesTestCase
                         [
                             'source' => $tableId,
                             'destination' => 'Langs',
-                        ]
+                        ],
                     ],
                     'preserve' => true,
                 ]

@@ -114,8 +114,8 @@ class AzureFileTest extends StorageApiTestCase
                 $parts,
                 (new FileUploadOptions())
                     ->setIsSliced(true)
-                    ->setFileName("slice.csv")
-            ]
+                    ->setFileName("slice.csv"),
+            ],
         ];
     }
 

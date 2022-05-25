@@ -1198,7 +1198,7 @@ class SharingTest extends StorageApiSharingTestCase
         // init workspace
         $workspaces = new Workspaces($this->_client2);
         $workspace = $workspaces->createWorkspace([
-            "backend" => $workspaceBackend
+            "backend" => $workspaceBackend,
         ]);
 
         $input = array($mapping1, $mapping2, $mapping3);
@@ -1376,7 +1376,7 @@ class SharingTest extends StorageApiSharingTestCase
                 [
                     'name' => '_timestamp',
                     'type' => 'TIMESTAMP_NTZ(9)',
-                ]
+                ],
             ],
             array_map(
                 function (array $column) {
@@ -1419,7 +1419,7 @@ class SharingTest extends StorageApiSharingTestCase
                 [
                     'name' => '_timestamp',
                     'type' => 'TIMESTAMP_NTZ(9)',
-                ]
+                ],
             ],
             array_map(
                 function (array $column) {
@@ -1450,7 +1450,7 @@ class SharingTest extends StorageApiSharingTestCase
                 [
                     'name' => '_timestamp',
                     'type' => 'TIMESTAMP_NTZ(9)',
-                ]
+                ],
             ],
             array_map(
                 function (array $column) {

@@ -25,7 +25,7 @@ class LegacyWorkspacesSynapseTest extends ParallelWorkspacesTestCase
 
         $mapping = [
             'source' => $pkTableId,
-            'destination' => 'languages-pk'
+            'destination' => 'languages-pk',
         ];
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
@@ -55,7 +55,7 @@ class LegacyWorkspacesSynapseTest extends ParallelWorkspacesTestCase
         $mapping2 = [
             'source' => $pkTableId,
             'destination' => 'languages-pk-skipped',
-            'columns' => ['Paid_Search_Engine_Account','Date'] // missing PK columns
+            'columns' => ['Paid_Search_Engine_Account','Date'], // missing PK columns
         ];
         $workspaces->loadWorkspaceData($workspace['id'], ['input' => [$mapping2]]);
 
@@ -111,7 +111,7 @@ class LegacyWorkspacesSynapseTest extends ParallelWorkspacesTestCase
                             'convertEmptyValuesToNull' => true,
                             'nullable' => false,
                         ],
-                    ]
+                    ],
                 ],
             ],
         ];
@@ -201,7 +201,7 @@ class LegacyWorkspacesSynapseTest extends ParallelWorkspacesTestCase
                             'convertEmptyValuesToNull' => true,
                             'nullable' => true,
                         ],
-                    ]
+                    ],
                 ],
             ],
         ];

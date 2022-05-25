@@ -88,7 +88,7 @@ class ExportParamsTest extends StorageApiTestCase
                     'token' => $exportedFile['credentials']['SessionToken'],
                 ],
                 'version' => 'latest',
-                'region' => $exportedFile['region']
+                'region' => $exportedFile['region'],
             ]);
             $bucket = $exportedFile["s3Path"]["bucket"];
             $prefix = $exportedFile["s3Path"]["key"];

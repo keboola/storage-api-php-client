@@ -20,12 +20,12 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
     const TEST_METADATA = [
         [
             'key' => 'KBC.SomeEnity.metadataKey',
-            'value' => 'some-value'
+            'value' => 'some-value',
         ],
         [
             'key' => 'someMetadataKey',
-            'value' => 'some-value'
-        ]
+            'value' => 'some-value',
+        ],
     ];
 
     /**
@@ -95,12 +95,12 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
             ->setMetadata([
                 [
                     'key' => 'KBC.SomeEnity.metadataKey',
-                    'value' => 'some-value'
+                    'value' => 'some-value',
                 ],
                 [
                     'key' => 'transformationMain2Key',
-                    'value' => 'some-value'
-                ]
+                    'value' => 'some-value',
+                ],
             ]);
         $components->addConfigurationMetadata($configurationMetadataOptions);
 
@@ -127,12 +127,12 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
                 'metadata' => [
                     [
                         'key' => 'KBC.SomeEnity.metadataKey',
-                        'value' => 'some-value'
+                        'value' => 'some-value',
                     ],
                     [
                         'key' => 'transformationMain2Key',
-                        'value' => 'some-value'
-                    ]
+                        'value' => 'some-value',
+                    ],
                 ],
             ],
         ], $listConfigurationMetadata);
@@ -150,13 +150,13 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
                 'metadata' => [
                     [
                         'key' => 'KBC.SomeEnity.metadataKey',
-                        'value' => 'some-value'
+                        'value' => 'some-value',
                     ],
                     [
                         'key' => 'transformationMain2Key',
-                        'value' => 'some-value'
-                    ]
-                ]
+                        'value' => 'some-value',
+                    ],
+                ],
             ],
             [
                 'idComponent' => 'wr-db',
@@ -178,8 +178,8 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
                 'metadata' => [
                     [
                         'key' => 'KBC.SomeEnity.metadataKey',
-                        'value' => 'some-value'
-                    ]
+                        'value' => 'some-value',
+                    ],
                 ],
             ],
             [
@@ -188,9 +188,9 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
                 'metadata' => [
                     [
                         'key' => 'KBC.SomeEnity.metadataKey',
-                        'value' => 'some-value'
-                    ]
-                ]
+                        'value' => 'some-value',
+                    ],
+                ],
             ],
             [
                 'idComponent' => 'wr-db',
@@ -198,8 +198,8 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
                 'metadata' => [
                     [
                         'key' => 'KBC.SomeEnity.metadataKey',
-                        'value' => 'some-value'
-                    ]
+                        'value' => 'some-value',
+                    ],
                 ],
             ],
         ], $listConfigurationMetadata);
@@ -216,8 +216,8 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
                 'metadata' => [
                     [
                         'key' => 'KBC.SomeEnity.metadataKey',
-                        'value' => 'some-value'
-                    ]
+                        'value' => 'some-value',
+                    ],
                 ],
             ],
             [
@@ -226,12 +226,12 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
                 'metadata' => [
                     [
                         'key' => 'KBC.SomeEnity.metadataKey',
-                        'value' => 'some-value'
+                        'value' => 'some-value',
                     ],
                     [
                         'key' => 'transformationMain2Key',
-                        'value' => 'some-value'
-                    ]
+                        'value' => 'some-value',
+                    ],
                 ],
             ],
             [
@@ -240,7 +240,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
                 'metadata' => [
                     [
                         'key' => 'KBC.SomeEnity.metadataKey',
-                        'value' => 'some-value'
+                        'value' => 'some-value',
                     ],
                 ],
             ],
@@ -261,10 +261,10 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
                 'metadata' => [
                     [
                         'key' => 'transformationMain2Key',
-                        'value' => 'some-value'
-                    ]
-                ]
-            ]
+                        'value' => 'some-value',
+                    ],
+                ],
+            ],
         ], $listConfigurationMetadata);
 
         // 6. test return exactly 0 configurations

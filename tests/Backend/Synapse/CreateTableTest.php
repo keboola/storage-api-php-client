@@ -211,7 +211,7 @@ class CreateTableTest extends StorageApiTestCase
         $this->assertSame(
             [
                 'id',
-                'name'
+                'name',
             ],
             $table['columns']
         );

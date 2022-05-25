@@ -179,7 +179,7 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
             $bucketId,
             [
                 $targetUser['id'],
-                $targetAdmin2InSameOrg['id']
+                $targetAdmin2InSameOrg['id'],
             ],
             $isAsync
         );

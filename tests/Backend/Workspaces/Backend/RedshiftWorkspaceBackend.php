@@ -178,7 +178,7 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
                 'PRIMARY' => $primary,
                 'PRIMARY_POSITION' => $primaryPosition,
                 'IDENTITY' => $identity,
-                'COMPRESSION' => $row[$encoding]
+                'COMPRESSION' => $row[$encoding],
             ];
         }
         return $desc;

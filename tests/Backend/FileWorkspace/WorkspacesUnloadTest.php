@@ -197,7 +197,7 @@ class WorkspacesUnloadTest extends FileWorkspaceTestCase
                     'destination' => $unloadDestination,
                 ],
             ],
-            'preserve' => $preserve
+            'preserve' => $preserve,
         ]);
 
         return $tableId;

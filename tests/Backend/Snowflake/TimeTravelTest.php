@@ -211,7 +211,7 @@ class TimeTravelTest extends StorageApiTestCase
             'backoffMaxTries' => 1,
             'jobPollRetryDelay' => function () {
                 return 1;
-            }
+            },
         ]);
 
         $inputBucketTokenOptions = (new TokenCreateOptions())
@@ -227,7 +227,7 @@ class TimeTravelTest extends StorageApiTestCase
             'backoffMaxTries' => 1,
             'jobPollRetryDelay' => function () {
                 return 1;
-            }
+            },
         ]);
 
         $minimalTokenOptions = (new TokenCreateOptions())
@@ -244,7 +244,7 @@ class TimeTravelTest extends StorageApiTestCase
             'backoffMaxTries' => 1,
             'jobPollRetryDelay' => function () {
                 return 1;
-            }
+            },
         ]);
 
         // test that only output bucket permissions will fail

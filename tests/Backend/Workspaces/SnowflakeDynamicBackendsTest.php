@@ -97,7 +97,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
         );
 
         $workspace = $this->workspaces2->createWorkspace([
-            'backend' => StorageApiTestCase::BACKEND_SNOWFLAKE
+            'backend' => StorageApiTestCase::BACKEND_SNOWFLAKE,
         ]);
 
         $this->assertNotNull($workspace['backendSize']);
@@ -128,7 +128,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
                 'input' => [
                     [
                         'source' => $linkedBucketId . '.languages',
-                        'destination' => self::WORKSPACE_TABLE_NAME
+                        'destination' => self::WORKSPACE_TABLE_NAME,
                     ],
                 ],
             ]
@@ -194,7 +194,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
                 'input' => [
                     [
                         'source' => $linkedBucketId . '.languages',
-                        'destination' => self::WORKSPACE_TABLE_NAME
+                        'destination' => self::WORKSPACE_TABLE_NAME,
                     ],
                 ],
             ]
@@ -208,7 +208,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
         try {
             $this->workspaces->createWorkspace([
                 'backend' => StorageApiTestCase::BACKEND_SNOWFLAKE,
-                'backendSize' => 'ultralarge'
+                'backendSize' => 'ultralarge',
             ]);
         } catch (ClientException $e) {
             $this->assertSame(400, $e->getCode());
@@ -243,7 +243,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
 
         $workspace = $workspaces->createWorkspace([
             'backend' => StorageApiTestCase::BACKEND_SNOWFLAKE,
-            'backendSize' => 'testsize'
+            'backendSize' => 'testsize',
         ]);
 
         $this->assertSame('testsize', $workspace['backendSize']);
@@ -263,7 +263,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
                 'input' => [
                     [
                         'source' => $tableId,
-                        'destination' => self::WORKSPACE_TABLE_NAME
+                        'destination' => self::WORKSPACE_TABLE_NAME,
                     ],
                 ],
             ]

@@ -82,7 +82,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                     'name' => 'column_decimal',
                     'definition' => [
                         'type' => 'DECIMAL',
-                        'length' => '4,3'
+                        'length' => '4,3',
                     ],
                 ],
                 [
@@ -252,7 +252,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                     'name' => 'column_decimal',
                     'definition' => [
                         'type' => 'DECIMAL',
-                        'length' => '4,3'
+                        'length' => '4,3',
                     ],
                 ],
             ],
@@ -385,7 +385,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                     'name' => 'column_decimal',
                     'definition' => [
                         'type' => 'DECIMAL',
-                        'length' => '4,3'
+                        'length' => '4,3',
                     ],
                 ],
             ],
@@ -451,7 +451,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $this->assertSame(
             [
                 'id',
-                'name'
+                'name',
             ],
             $newTable['columns']
         );

@@ -33,13 +33,13 @@ class SlicedFilesUploadTest extends StorageApiTestCase
                 'key' => $file['credentials']['AccessKeyId'],
                 'secret' => $file['credentials']['SecretAccessKey'],
                 'token' => $file['credentials']['SessionToken'],
-            ]
+            ],
         ]);
 
         foreach ($slices as $filePath) {
             $object = $s3Client->getObject([
                 'Bucket' => $file['s3Path']['bucket'],
-                'Key' => $file["s3Path"]["key"] . basename($filePath)
+                'Key' => $file["s3Path"]["key"] . basename($filePath),
             ]);
             $this->assertEquals(file_get_contents($filePath), $object['Body']);
         }
@@ -92,13 +92,13 @@ class SlicedFilesUploadTest extends StorageApiTestCase
                 'key' => $file['credentials']['AccessKeyId'],
                 'secret' => $file['credentials']['SecretAccessKey'],
                 'token' => $file['credentials']['SessionToken'],
-            ]
+            ],
         ]);
 
         foreach ($slices as $filePath) {
             $object = $s3Client->getObject([
                 'Bucket' => $file['s3Path']['bucket'],
-                'Key' => $file["s3Path"]["key"] . basename($filePath)
+                'Key' => $file["s3Path"]["key"] . basename($filePath),
             ]);
             $this->assertEquals(file_get_contents($filePath), $object['Body']);
         }
@@ -156,13 +156,13 @@ class SlicedFilesUploadTest extends StorageApiTestCase
                 'key' => $file['credentials']['AccessKeyId'],
                 'secret' => $file['credentials']['SecretAccessKey'],
                 'token' => $file['credentials']['SessionToken'],
-            ]
+            ],
         ]);
 
         foreach ($slices as $filePath) {
             $object = $s3Client->getObject([
                 'Bucket' => $file['s3Path']['bucket'],
-                'Key' => $file["s3Path"]["key"] . basename($filePath)
+                'Key' => $file["s3Path"]["key"] . basename($filePath),
             ]);
             $this->assertEquals(file_get_contents($filePath), $object['Body']);
         }

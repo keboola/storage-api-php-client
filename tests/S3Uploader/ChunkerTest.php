@@ -33,18 +33,18 @@ class ChunkerTest extends StorageApiTestCase
             "item2" => 2,
             "item3" => 3,
             "item4" => 4,
-            "item5" => 5
+            "item5" => 5,
         ];
         $expected = [
             [
                 "item1" => 1,
                 "item2" => 2,
-                "item3" => 3
+                "item3" => 3,
             ],
             [
                 "item4" => 4,
-                "item5" => 5
-            ]
+                "item5" => 5,
+            ],
         ];
         $this->assertEquals($expected, $chunker->makeChunks($items));
     }

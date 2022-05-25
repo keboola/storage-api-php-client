@@ -32,9 +32,9 @@ class LegacyWorkspacesRedshiftTest extends ParallelWorkspacesTestCase
                 [
                     "source" => $tableId,
                     "destination" => "languages-rs",
-                    "datatypes" => $dataTypesDefinition
-                ]
-            ]
+                    "datatypes" => $dataTypesDefinition,
+                ],
+            ],
         ]);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
@@ -55,24 +55,24 @@ class LegacyWorkspacesRedshiftTest extends ParallelWorkspacesTestCase
             [
                 [
                     'id' => "VARCHAR(50)",
-                    "name" => "VARCHAR(255) ENCODE BYTEDICT"
-                ]
+                    "name" => "VARCHAR(255) ENCODE BYTEDICT",
+                ],
             ],
             [
                 [
                     [
                         'column' => 'id',
                         'type' => 'VARCHAR',
-                        'length' => '50'
+                        'length' => '50',
                     ],
                     [
                         'column' => 'name',
                         'type' => 'VARCHAR',
                         'length' => '255',
-                        'compression' => 'BYTEDICT'
-                    ]
-                ]
-            ]
+                        'compression' => 'BYTEDICT',
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -90,7 +90,7 @@ class LegacyWorkspacesRedshiftTest extends ParallelWorkspacesTestCase
 
         $mapping = [
             "source" => $pkTableId,
-            "destination" => "languages-pk"
+            "destination" => "languages-pk",
         ];
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
@@ -119,7 +119,7 @@ class LegacyWorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         $mapping2 = [
             "source" => $pkTableId,
             "destination" => "languages-pk-skipped",
-            "columns" => ['Paid_Search_Engine_Account', 'Date'] // missing PK columns
+            "columns" => ['Paid_Search_Engine_Account', 'Date'], // missing PK columns
         ];
         // there are columns as array of strings, legacy input mapping is used, thus PK length will be 255
         $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping2]]);
@@ -174,7 +174,7 @@ class LegacyWorkspacesRedshiftTest extends ParallelWorkspacesTestCase
                             'convertEmptyValuesToNull' => true,
                             'nullable' => false,
                         ],
-                    ]
+                    ],
                 ],
             ],
         ];
@@ -265,7 +265,7 @@ class LegacyWorkspacesRedshiftTest extends ParallelWorkspacesTestCase
                             'convertEmptyValuesToNull' => true,
                             'nullable' => true,
                         ],
-                    ]
+                    ],
                 ],
             ],
         ];

@@ -174,7 +174,7 @@ class ConfigurationRowTest extends StorageApiTestCase
             'array' => [],
             'object' => (object) [
                 'subobject' => (object) [],
-            ]
+            ],
         ];
 
         $response = $guzzleClient->post('/v2/storage/components/wr-db/configs/main-1/rows', [
@@ -212,7 +212,7 @@ class ConfigurationRowTest extends StorageApiTestCase
             'array2' => [],
             'object2' => (object) [
                 'subobject2' => (object) [],
-            ]
+            ],
         ];
 
         $guzzleClient->put('/v2/storage/components/wr-db/configs/main-1/rows/' . $response->id . '/state', [
@@ -275,7 +275,7 @@ class ConfigurationRowTest extends StorageApiTestCase
             'array' => [],
             'object' => (object) [
                 'subobject' => (object) [],
-            ]
+            ],
         ];
 
         $response = $guzzleClient->post('/v2/storage/components/wr-db/configs/main-1/rows', [
@@ -335,7 +335,7 @@ class ConfigurationRowTest extends StorageApiTestCase
             'array' => [],
             'object' => (object) [
                 'subobject' => (object) [],
-            ]
+            ],
         ];
 
         $response = $client->post('/v2/storage/components/wr-db/configs/main-1/rows', [
@@ -377,7 +377,7 @@ class ConfigurationRowTest extends StorageApiTestCase
             ],
             '!isDisabled bool' => [
                 false,
-                false
+                false,
             ],
             '!isDisabled int' => [
                 0,

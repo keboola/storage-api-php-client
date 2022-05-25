@@ -870,7 +870,7 @@ class TriggersTest extends StorageApiTestCase
         $triggers = $this->_client->listTriggers(
             [
                 'component' => $componentName,
-                'configurationId' => $trigger1ConfigurationId
+                'configurationId' => $trigger1ConfigurationId,
             ]
         );
 

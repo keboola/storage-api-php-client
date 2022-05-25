@@ -173,8 +173,8 @@ class BucketsTest extends StorageApiTestCase
         $metadataApi->postBucketMetadata($firstBucket['id'], 'storage-php-client-test', [
             [
                 'key' => 'test-key',
-                'value' => 'test-value'
-            ]
+                'value' => 'test-value',
+            ],
         ]);
 
         $buckets = $this->_client->listBuckets(array(

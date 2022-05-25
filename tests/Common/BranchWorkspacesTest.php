@@ -35,7 +35,7 @@ class BranchWorkspacesTest extends WorkspacesTest
                 'backoffMaxTries' => 1,
                 'jobPollRetryDelay' => function () {
                     return 1;
-                }
+                },
             ]
         );
     }

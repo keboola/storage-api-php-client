@@ -112,7 +112,7 @@ class BranchEventsTest extends StorageApiTestCase
         $this->assertCount(0, $componentConfigCreateEvents);
 
         $clientEventList = $this->_client->listEvents([
-            'q' => 'idBranch:' . $branch['id']
+            'q' => 'idBranch:' . $branch['id'],
         ]);
         $this->assertCount(0, $clientEventList);
 

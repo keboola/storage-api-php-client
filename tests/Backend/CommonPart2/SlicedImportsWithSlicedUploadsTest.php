@@ -31,7 +31,7 @@ class SlicedImportsWithSlicedUploadsTest extends StorageApiTestCase
             ->setIsSliced(true);
         $slices = [
             __DIR__ . '/../../_data/sliced/neco_0000_part_00.gz',
-            __DIR__ . '/../../_data/sliced/neco_0001_part_00.gz'
+            __DIR__ . '/../../_data/sliced/neco_0001_part_00.gz',
         ];
         $slicedFileId = $this->_client->uploadSlicedFile($slices, $uploadOptions);
 
@@ -57,7 +57,7 @@ class SlicedImportsWithSlicedUploadsTest extends StorageApiTestCase
             ->setIsSliced(true)
             ->setIsEncrypted(false);
         $slices = [
-            __DIR__ . '/../../_data/languages.no-headers.csv'
+            __DIR__ . '/../../_data/languages.no-headers.csv',
         ];
         $slicedFileId = $this->_client->uploadSlicedFile($slices, $uploadOptions);
 
@@ -104,7 +104,7 @@ class SlicedImportsWithSlicedUploadsTest extends StorageApiTestCase
             ->setIsSliced(true);
         $slices = [
             __DIR__ . '/../../_data/sliced/neco_0000_part_00',
-            __DIR__ . '/../../_data/sliced/neco_0001_part_00'
+            __DIR__ . '/../../_data/sliced/neco_0001_part_00',
         ];
         $slicedFileId = $this->_client->uploadSlicedFile($slices, $uploadOptions);
 
@@ -133,7 +133,7 @@ class SlicedImportsWithSlicedUploadsTest extends StorageApiTestCase
             ->setIsSliced(true)
             ->setIsEncrypted(false);
         $slices = [
-            __DIR__ . '/../../_data/languages.no-headers.csv'
+            __DIR__ . '/../../_data/languages.no-headers.csv',
         ];
         $slicedFileId = $this->_client->uploadSlicedFile($slices, $uploadOptions);
 

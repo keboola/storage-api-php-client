@@ -147,8 +147,8 @@ class TableExporter
             [
                 'tableId' => $tableId,
                 'destination' => $destination,
-                'exportOptions' => $exportOptions
-            ]
+                'exportOptions' => $exportOptions,
+            ],
         ]);
     }
 

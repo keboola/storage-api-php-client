@@ -47,7 +47,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                         'type' => 'NVARCHAR',
                     ],
                 ],
-            ]
+            ],
         ];
 
         $runId = $this->_client->generateRunId();
@@ -75,7 +75,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                     'name' => 'column_decimal',
                     'definition' => [
                         'type' => 'DECIMAL',
-                        'length' => '4,3'
+                        'length' => '4,3',
                     ],
                 ],
                 [
@@ -148,7 +148,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                         'length' => '16 BYTE',
                     ],
                 ],
-            ]
+            ],
         ];
 
         $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
@@ -323,7 +323,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                     'name' => 'column_decimal',
                     'definition' => [
                         'type' => 'DECIMAL',
-                        'length' => '4,3'
+                        'length' => '4,3',
                     ],
                 ],
             ],
@@ -339,7 +339,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 'name' => 'column_float',
                 'definition' => [
                     'type' => 'FLOAT',
-                ]
+                ],
             ],
             [
                 'name' => 'column_boolean',
@@ -424,7 +424,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                     'name' => 'column_decimal',
                     'definition' => [
                         'type' => 'DECIMAL',
-                        'length' => '4,3'
+                        'length' => '4,3',
                     ],
                 ],
             ],
@@ -487,7 +487,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $this->assertSame(
             [
                 'id',
-                'name'
+                'name',
             ],
             $newTable['columns']
         );

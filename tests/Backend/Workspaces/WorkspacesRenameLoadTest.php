@@ -161,10 +161,10 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
                             "source" => "name",
                             "destination" => "lang.name",
                             "type" => "VARCHAR",
-                        ]
-                    ]
-                ]
-            ]
+                        ],
+                    ],
+                ],
+            ],
         ];
 
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
@@ -423,8 +423,8 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
             [
                 'source' => $tableId,
                 'destination' => 'datatype_Test',
-                'columns' => $columnsDefinition
-            ]
+                'columns' => $columnsDefinition,
+            ],
         ]);
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
@@ -489,7 +489,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
                         'type' => 'VARCHAR',
                         'length' => '50',
                     ],
-                ]
+                ],
             ],
         ];
     }

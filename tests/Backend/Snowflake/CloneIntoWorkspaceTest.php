@@ -92,7 +92,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
                 [
                     'name' => '_timestamp',
                     'type' => 'TIMESTAMP_NTZ(9)',
-                ]
+                ],
             ],
             array_map(
                 function (array $column) {
@@ -151,8 +151,8 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
                [
                    'source' => $table2Id,
                    'destination' => 'rates',
-               ]
-           ]
+               ],
+           ],
         ]);
 
         $actualJob = null;
@@ -334,8 +334,8 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
                     [
                         'source' => $tableId,
                         'destination' => 'Langs',
-                    ]
-                ]
+                    ],
+                ],
             ]
         );
 
@@ -352,7 +352,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
                         [
                             'source' => $tableId,
                             'destination' => 'Langs',
-                        ]
+                        ],
                     ],
                     'preserve' => true,
                 ]

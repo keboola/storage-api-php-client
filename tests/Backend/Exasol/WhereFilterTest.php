@@ -67,7 +67,7 @@ class WhereFilterTest extends StorageApiTestCase
                 'column' => 'column_string_number',
                 'operator' => 'ge',
                 'values' => ['6'],
-                'dataType' => 'non-existing'
+                'dataType' => 'non-existing',
             ],
         ];
         $this->expectException(ClientException::class);
@@ -84,7 +84,7 @@ class WhereFilterTest extends StorageApiTestCase
                 'column' => 'column_string_number',
                 'operator' => 'ge',
                 'values' => ['6'],
-                'dataType' => 'non-existing'
+                'dataType' => 'non-existing',
             ],
         ];
         $this->expectException(ClientException::class);
@@ -101,7 +101,7 @@ class WhereFilterTest extends StorageApiTestCase
                 'column' => 'column_double',
                 'operator' => 'ge',
                 'values' => ['4.123'],
-                'dataType' => 'DECIMAL'
+                'dataType' => 'DECIMAL',
             ],
         ];
         $preview = $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
@@ -121,14 +121,14 @@ class WhereFilterTest extends StorageApiTestCase
                 'column' => 'column_double',
                 'operator' => 'ge',
                 'values' => ['4.123'],
-                'dataType' => 'DECIMAL'
+                'dataType' => 'DECIMAL',
             ],
             [
                 'column' => 'column_string_number',
                 'operator' => 'lt',
                 'values' => ['5'],
-                'dataType' => 'DECIMAL'
-            ]
+                'dataType' => 'DECIMAL',
+            ],
         ];
         $preview = $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
         $previewCsv = Client::parseCsv($preview);
@@ -146,8 +146,8 @@ class WhereFilterTest extends StorageApiTestCase
           [
               'column' => 'column_double',
               'operator' => 'non-existing',
-              'values' => [123]
-          ]
+              'values' => [123],
+          ],
         ];
 
         $this->expectException(ClientException::class);
@@ -163,8 +163,8 @@ class WhereFilterTest extends StorageApiTestCase
           [
               'column' => 'column_double',
               'operator' => 'non-existing',
-              'values' => [123]
-          ]
+              'values' => [123],
+          ],
         ];
 
         $this->expectException(ClientException::class);

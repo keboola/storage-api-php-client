@@ -106,10 +106,10 @@ class TablesListingTest extends StorageApiTestCase
             "keboola.sapi_client_tests",
             [[
                 "key" => "testkey",
-                "value" => "testValue"
+                "value" => "testValue",
             ],[
                 "key" => "testkey2",
-                "value" => "testValue2"
+                "value" => "testValue2",
             ]]
         );
 
@@ -203,10 +203,10 @@ class TablesListingTest extends StorageApiTestCase
             "keboola.sapi_client_tests",
             [[
                 "key" => "testkey",
-                "value" => "testValue"
+                "value" => "testValue",
             ],[
                 "key" => "testkey2",
-                "value" => "testValue2"
+                "value" => "testValue2",
             ]]
         );
         $tables = $this->_client->listTables($this->getTestBucketId(), array(
@@ -244,15 +244,15 @@ class TablesListingTest extends StorageApiTestCase
             "keboola.sapi_client_tests",
             [[
                 "key" => "testkey",
-                "value" => "testValue"
+                "value" => "testValue",
             ],[
                 "key" => "testkey2",
-                "value" => "testValue2"
+                "value" => "testValue2",
             ]]
         );
 
         $tables = $this->_client->listTables($this->getTestBucketId(), [
-            'include' => 'columnMetadata,metadata'
+            'include' => 'columnMetadata,metadata',
         ]);
 
         $this->assertCount(2, $tables);
@@ -389,15 +389,15 @@ class TablesListingTest extends StorageApiTestCase
             "keboola.sapi_client_tests",
             [[
                 "key" => "testkey",
-                "value" => "testValue"
+                "value" => "testValue",
             ],[
                 "key" => "testkey2",
-                "value" => "testValue2"
+                "value" => "testValue2",
             ]]
         );
 
         $tables = $this->_client->listTables($this->getTestBucketId(), [
-            'include' => 'buckets,attributes,columns,metadata,columnMetadata'
+            'include' => 'buckets,attributes,columns,metadata,columnMetadata',
         ]);
 
         // check the columns
@@ -465,7 +465,7 @@ class TablesListingTest extends StorageApiTestCase
                 'name' => 'empty',
                 'value' => '',
                 'protected' => false,
-            ]
+            ],
         ];
         $this->assertEquals($expected, $table['attributes']);
     }

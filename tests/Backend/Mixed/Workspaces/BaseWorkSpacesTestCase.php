@@ -114,13 +114,13 @@ abstract class BaseWorkSpacesTestCase extends WorkspacesTestCase
                         [
                             'source' => 'item',
                             'type' => 'VARCHAR',
-                            'convertEmptyValuesToNull' => true
+                            'convertEmptyValuesToNull' => true,
                         ],
                         [
                             'source' => 'quantity',
                             'type' => $dataType,
-                            'convertEmptyValuesToNull' => true
-                        ]
+                            'convertEmptyValuesToNull' => true,
+                        ],
                     ],
                 ],
             ],

@@ -273,7 +273,7 @@ class CommonFileTest extends StorageApiTestCase
         // new token should not have access to any files
         $newTokenClient = $this->getClient([
             'token' => $newToken['token'],
-            'url' => STORAGE_API_URL
+            'url' => STORAGE_API_URL,
         ]);
 
         $this->assertEmpty($newTokenClient->listFiles());
@@ -307,7 +307,7 @@ class CommonFileTest extends StorageApiTestCase
         // new token should not have access to any files
         $newTokenClient = $this->getClient([
             'token' => $newToken['token'],
-            'url' => STORAGE_API_URL
+            'url' => STORAGE_API_URL,
         ]);
 
         $file = $newTokenClient->getFile($file['id']);
