@@ -36,6 +36,8 @@ trait WorkspaceCredentialsAssertTrait
                         [
                             1,
                             // Failed call to Logon, aborting connection.
+                            2,
+                            // TLS connection failed with The legacy port is enabled
                             130,
                             // TLS connection failed with The legacy port is enabled
                             // but the client failed to connect to it.
