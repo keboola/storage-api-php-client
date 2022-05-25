@@ -13,6 +13,29 @@
         <exclude name="SlevomatCodingStandard.Classes.ClassConstantVisibility.MissingConstantVisibility"/>
         <exclude name="SlevomatCodingStandard.Namespaces.ReferenceUsedNamesOnly.ReferenceViaFullyQualifiedName"/>
         <exclude name="Generic.Files.LineLength.MaxExceeded"/>
+        <!-- Fixable but not reliable-->
+        <exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint" />
+        <exclude name="SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint" />
+        <exclude name="SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingNativeTypeHint" />
+        <exclude name="Generic.Arrays.DisallowLongArraySyntax.Found" />
+        <exclude name="SlevomatCodingStandard.TypeHints.DeclareStrictTypes.DeclareStrictTypesMissing" />
+        <exclude name="Squiz.Strings.DoubleQuoteUsage.NotRequired" />
+        <exclude name="SlevomatCodingStandard.Commenting.UselessFunctionDocComment.UselessDocComment" />
+        <exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint.UselessAnnotation" />
+        <exclude name="SlevomatCodingStandard.TypeHints.PropertyTypeHint.UselessAnnotation" />
+        <exclude name="SlevomatCodingStandard.TypeHints.ReturnTypeHint.UselessAnnotation" />
+        <exclude name="SlevomatCodingStandard.TypeHints.NullableTypeForNullDefaultValue.NullabilityTypeMissing" />
+        <exclude name="SlevomatCodingStandard.Commenting.ForbiddenComments.CommentForbidden" />
+        <exclude name="SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses.IncorrectlyOrderedUses" />
+        <exclude name="SlevomatCodingStandard.Arrays.TrailingArrayComma.MissingTrailingComma" />
+        <exclude name="SlevomatCodingStandard.Operators.DisallowEqualOperators.DisallowedEqualOperator" />
+        <exclude name="SlevomatCodingStandard.Operators.DisallowEqualOperators.DisallowedNotEqualOperator" />
+        <exclude name="SlevomatCodingStandard.ControlStructures.DisallowYodaComparison.DisallowedYodaComparison" />
+        <exclude name="SlevomatCodingStandard.Namespaces.UseDoesNotStartWithBackslash.UseStartsWithBackslash" />
+        <exclude name="Generic.Formatting.SpaceAfterCast.NoSpace" />
+        <exclude name="SlevomatCodingStandard.Exceptions.ReferenceThrowableOnly.ReferencedGeneralException" />
+        <exclude name="Squiz.WhiteSpace.SuperfluousWhitespace.EmptyLines" />
+        <exclude name="PSR2.ControlStructures.ElseIfDeclaration.NotAllowed" />
     </rule>
     <exclude-pattern>vendor/</exclude-pattern>
     <exclude-pattern>cache/</exclude-pattern>
