@@ -595,7 +595,6 @@ class TokensTest extends StorageApiTestCase
         $this->assertEquals($updatedConfig['name'], $newName);
         $this->assertEquals($updatedConfig['configuration'], $newConfigData);
 
-
         // we should be able to delete this configuration too
         $components->deleteConfiguration($options->getComponentId(), $options->getConfigurationId());
 
@@ -1060,7 +1059,6 @@ class TokensTest extends StorageApiTestCase
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
         ]);
-
 
         $components = new Components($client);
 

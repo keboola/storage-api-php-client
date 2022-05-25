@@ -46,7 +46,6 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 			\"Name\" varchar(10) not null
 		);");
 
-
         $db->query("insert into \"test_Languages3\" (\"id\", \"Name\") values (1, 'cz'), (2, 'en');");
 
         $this->expectException(ClientException::class);
@@ -249,7 +248,6 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->getTableDataPreview($table['id'], array(
             'format' => 'rfc',
         )), 'imported data comparsion');
-
 
         $db->query("truncate table \"test_Languages3\"");
         $db->query("insert into \"test_Languages3\" values (1, 'cz', '1'), (3, 'sk', '1');");

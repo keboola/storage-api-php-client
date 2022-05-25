@@ -358,7 +358,6 @@ class BucketsTest extends StorageApiTestCase
         $bucket = $this->_client->getBucket($bucketId);
         $this->assertEmpty($bucket['attributes'], 'empty attributes');
 
-
         // create
         $this->_client->setBucketAttribute($bucketId, 's', 'lala');
         $this->_client->setBucketAttribute($bucketId, 'other', 'hello', true);

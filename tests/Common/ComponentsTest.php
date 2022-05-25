@@ -735,7 +735,6 @@ class ComponentsTest extends StorageApiTestCase
             ]
         ];
 
-
         $response = $client->post("/v2/storage/components/wr-db/configs", [
             'form_params' => [
                 'name' => 'test',
@@ -1482,7 +1481,6 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(1, $newConfiguration['version']);
         $this->assertEmpty($newConfiguration['state']);
 
-
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config);
         $configurationRow->setRowId('main-1-1')
             ->setConfiguration(array('first' => 1));
@@ -1683,7 +1681,6 @@ class ComponentsTest extends StorageApiTestCase
 
         $configs = $components->listComponents();
         $this->assertEmpty($configs);
-
 
         $components->addConfiguration((new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
@@ -2127,7 +2124,6 @@ class ComponentsTest extends StorageApiTestCase
 
         $row = reset($rows);
         $this->assertEquals(false, $row['isDisabled']);
-
 
         $updateConfigurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
         $updateConfigurationRow
@@ -2877,7 +2873,6 @@ class ComponentsTest extends StorageApiTestCase
 
         $components->addConfiguration($configuration2);
 
-
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
         $configurationRow->setRowId('main-1-1');
         $configurationRow->setConfiguration($configurationData);
@@ -2929,7 +2924,6 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertArrayHasKey('isDisabled', $row);
         $this->assertArrayHasKey('name', $row);
         $this->assertArrayHasKey('description', $row);
-
 
         $this->assertEquals(1, $row['version']);
         $this->assertEquals($configurationData, $row['configuration']);
@@ -3487,7 +3481,6 @@ class ComponentsTest extends StorageApiTestCase
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
             ->setState($state));
-
 
         $newConfig = $components->createConfigurationFromVersion('wr-db', 'main-1', 1, 'main-2');
 

@@ -40,7 +40,6 @@ class ExportSimpleTest extends StorageApiTestCase
         $this->assertTrue($exportedFile['isSliced']);
         $this->assertGreaterThan(0, $exportedFile['sizeBytes']);
 
-
         $tmpDestinationFolder = sprintf(
             '%s/%s',
             sys_get_temp_dir(),

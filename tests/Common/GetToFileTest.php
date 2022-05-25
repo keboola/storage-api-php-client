@@ -67,7 +67,6 @@ class GetToFileTest extends StorageApiTestCase
         // download
         $this->_client->apiGet('components?include=configuration,rows,state', $this->downloadPath);
 
-
         /** @var array<mixed> $configurations */
         $configurations = Utils::jsonDecode((string) file_get_contents($this->downloadPath), false);
         $this->assertCount($configurationRowsCount, $configurations[0]->configurations[0]->rows);

@@ -112,7 +112,6 @@ class TimestampTest extends ParallelWorkspacesTestCase
             ->setIsSliced(true)
             ->setIsEncrypted(false);
 
-
         $fileId = $this->_client->uploadSlicedFile(
             $slices,
             $uploadOptions

@@ -930,7 +930,6 @@ class SharingTest extends StorageApiSharingTestCase
             $isAsync
         );
 
-
         // validate bucket
         $bucket = $this->_client->getBucket($bucketId);
         $linkedBucket = $this->_client2->getBucket($linkedBucketId);
@@ -941,7 +940,6 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertEquals($bucket['description'], $linkedBucket['description']);
 
         $this->validateTablesMetadata($bucketId, $linkedBucketId);
-
 
         // new import
         $this->_client->writeTable(
@@ -1182,7 +1180,6 @@ class SharingTest extends StorageApiSharingTestCase
         );
         $this->_client2->dropBucket($linked2Id, ['async' => $isAsync]);
 
-
         $mapping1 = array(
             "source" => str_replace($bucketId, $linkedId, $table1Id),
             "destination" => "languagesLoaded"
@@ -1212,7 +1209,6 @@ class SharingTest extends StorageApiSharingTestCase
         $this->_client2->setRunId($runId);
         $workspaces->loadWorkspaceData($workspace['id'], array("input" => $input));
         $afterJobs = $this->_client2->listJobs();
-
 
         $this->assertEquals('workspaceLoad', $afterJobs[0]['operationName']);
         $this->assertNotEquals(empty($initialJobs) ? 0 : $initialJobs[0]['id'], $afterJobs[0]['id']);
@@ -1273,8 +1269,6 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertCount(1, $tables);
         $this->assertContains($backend->toIdentifier("table3"), $tables);
 
-
-
         // unload validation
         $connection = $workspace['connection'];
 
@@ -1320,7 +1314,6 @@ class SharingTest extends StorageApiSharingTestCase
             'numbers',
             new CsvFile(__DIR__ . '/../../_data/numbers.csv')
         );
-
 
         $table3Id = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_OUT),

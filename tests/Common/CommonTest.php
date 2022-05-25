@@ -44,7 +44,6 @@ class CommonTest extends StorageApiTestCase
             ),
         );
 
-
         $data = \Keboola\StorageApi\Client::parseCsv($csvData, false);
         $this->assertEquals($expectedSimple, $data, "Csv parse to flat array");
 

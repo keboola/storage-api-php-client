@@ -225,7 +225,6 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->assertEquals(array('VAN'), $aliasTable['aliasFilter']['values']);
         $this->assertEquals('eq', $aliasTable['aliasFilter']['operator']);
 
-
         $this->_client->removeAliasTableFilter($aliasTableId);
         $aliasTable = $this->_client->getTable($aliasTableId);
 
@@ -337,7 +336,6 @@ class SimpleAliasTest extends StorageApiTestCase
 
         $data = $this->_client->parseCsv($this->_client->getTableDataPreview($aliasTableId));
         $this->assertEquals($expectedColumns, array_keys(reset($data)));
-
 
         $this->_client->enableAliasTableColumnsAutoSync($aliasTableId);
         $aliasTable = $this->_client->getTable($aliasTableId);

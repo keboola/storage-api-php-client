@@ -463,7 +463,6 @@ class Client
     {
         $url = "buckets/" . $bucketId . "/share-to-projects";
 
-
         $data = [
             'targetProjectIds' => $targetProjectIds,
         ];
@@ -483,7 +482,6 @@ class Client
     public function shareBucketToUsers($bucketId, $targetUsers = [], $async = false)
     {
         $url = "buckets/" . $bucketId . "/share-to-users";
-
 
         $data = [
             'targetUsers' => $targetUsers,
@@ -669,7 +667,6 @@ class Client
             "data" => fopen($csvFile->getPathname(), 'r'),
             'syntheticPrimaryKeyEnabled' => isset($options['syntheticPrimaryKeyEnabled']) ? $options['syntheticPrimaryKeyEnabled'] : null,
         );
-
 
         $tableId = $this->getTableId($name, $bucketId);
         if ($tableId) {

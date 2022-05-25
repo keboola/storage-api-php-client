@@ -1307,7 +1307,6 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
             );
         }
 
-
         $options = [
             'preserve' => true,
             'input' => [

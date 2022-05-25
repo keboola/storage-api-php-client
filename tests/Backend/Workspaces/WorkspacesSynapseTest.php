@@ -258,7 +258,6 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTableAsync(
             $bucketId,
@@ -335,7 +334,6 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable(
             $bucketId,
@@ -407,7 +405,6 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-
 
         $importFile = __DIR__ . '/../../_data/languages.with-state.csv';
         $tableId = $this->_client->createTable(
@@ -504,7 +501,6 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-
 
         $importFile = __DIR__ . '/../../_data/languages.with-state.csv';
         $tableId = $this->_client->createTable(

@@ -40,7 +40,6 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-
         // let's try to delete some columns
         $backend->dropTableColumn('languages', 'id');
 
@@ -380,7 +379,6 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
         $this->assertEquals(5, $backend->countRows("languages"));
-
 
         $this->_client->addTableColumn($tableId, 'test');
 

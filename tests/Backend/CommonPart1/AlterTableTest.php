@@ -341,7 +341,6 @@ class AlterTableTest extends StorageApiTestCase
             $this->assertEmpty($tableDetail['primaryKey']);
         }
 
-
         // composite primary key
         $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
 

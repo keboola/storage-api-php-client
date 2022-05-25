@@ -184,7 +184,6 @@ class ConfigurationRowStateTest extends StorageApiTestCase
             ->setName('Main');
         $components->addConfiguration($configuration);
 
-
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
         $configurationRow->setRowId('main-1-1')
             ->setState(['unknown' => 'undefined']);
@@ -327,7 +326,6 @@ class ConfigurationRowStateTest extends StorageApiTestCase
             ->setConfigurationId('main-1')
             ->setName('Main');
         $components->addConfiguration($configuration);
-
 
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
         $configurationRow->setRowId('main-1-1')

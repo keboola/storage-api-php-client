@@ -447,7 +447,6 @@ class CommonFileTest extends StorageApiTestCase
             $this->assertSame($expectedError, $e->getMessage());
         }
 
-
         $file = $this->_client->getFile($fileId);
         unset($file['url']);
         $this->assertSame($originalFile, $file);

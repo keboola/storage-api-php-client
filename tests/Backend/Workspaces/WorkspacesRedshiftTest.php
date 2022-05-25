@@ -82,7 +82,6 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
             new CsvFile(__DIR__ . '/../../_data/users.csv')
         );
 
-
         $workspaces->loadWorkspaceData($workspace['id'], [
             "input" => [
                 [
@@ -228,7 +227,6 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         $this->assertArrayHasKey('metrics', $actualJob);
         $this->assertEquals(20971520 * $this->getRedshiftNodeCount(), $actualJob['metrics']['outBytes']);
 
-
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $table = $backend->describeTableColumns('languages-rs');
 
@@ -348,7 +346,6 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable(
             $bucketId,
@@ -427,7 +424,6 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable(
             $bucketId,
@@ -500,7 +496,6 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace();
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-
 
         $importFile = __DIR__ . '/../../_data/languages.with-state.csv';
         $tableId = $this->_client->createTable(
@@ -597,7 +592,6 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-
 
         $importFile = __DIR__ . '/../../_data/languages.with-state.csv';
         $tableId = $this->_client->createTable(

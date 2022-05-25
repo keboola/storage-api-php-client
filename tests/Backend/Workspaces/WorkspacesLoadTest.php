@@ -2260,7 +2260,6 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         // check that the sharing still works
         $this->assertLoadDataFromLinkedBucket($db, $sharingProjectDatabase, $sharedBucketId);
 
-
         // unshare (unlink first)
         $this->_client->dropBucket($linkedBucketId, ['async' => true]);
         $this->_linkingClient->unshareBucket($sharedBucketId, true);

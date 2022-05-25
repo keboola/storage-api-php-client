@@ -249,7 +249,6 @@ class Components
             }
         }
 
-
         if ($options->getIsDisabled() !== null) {
             $data['isDisabled'] = $options->getIsDisabled();
         }

@@ -356,7 +356,6 @@ class DirectAccessTest extends StorageApiTestCase
         $this->assertFalse($bucket['directAccessEnabled']);
         $this->assertNull($bucket['directAccessSchemaName']);
 
-
         $credentials = $directAccess->createCredentials(self::BACKEND_SNOWFLAKE);
 
         $connection = new Connection([
@@ -515,7 +514,6 @@ class DirectAccessTest extends StorageApiTestCase
             . ' AS SELECT * FROM "in.c-API-DA_TEST"."other_table"',
             $views[0]['text']
         );
-
 
         $aliasTableId = $this->_client->createAliasTable($bucketId, $tableId, 'this-is-alias');
 

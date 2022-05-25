@@ -155,7 +155,6 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         ]);
         $csvFile->writeRow(['1', '003.123', '3.14', 1, '1989-08-31', '05:00:01', 'roman', '3148.29', '3148.29', '0E984725-C51C-4BF4-9960-E1C80E27ABA0']);
 
-
         $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
 
         $this->_client->writeTable($tableId, $csvFile);

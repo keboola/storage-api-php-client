@@ -157,7 +157,6 @@ class ConfigurationRowTest extends StorageApiTestCase
             ->setName('Main');
         $components->addConfiguration($configuration);
 
-
         // to check if params is object we have to convert received json to objects instead of assoc array
         // so we have to use raw Http Client
         $guzzleClient = $this->clientProvider->createGuzzleClientForCurrentTest([
@@ -177,7 +176,6 @@ class ConfigurationRowTest extends StorageApiTestCase
                 'subobject' => (object) [],
             ]
         ];
-
 
         $response = $guzzleClient->post('/v2/storage/components/wr-db/configs/main-1/rows', [
             'form_params' => [
