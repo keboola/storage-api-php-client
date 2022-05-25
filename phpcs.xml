@@ -17,7 +17,6 @@
         <exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint" />
         <exclude name="SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint" />
         <exclude name="SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingNativeTypeHint" />
-        <exclude name="Generic.Arrays.DisallowLongArraySyntax.Found" />
         <exclude name="SlevomatCodingStandard.TypeHints.DeclareStrictTypes.DeclareStrictTypesMissing" />
         <exclude name="Squiz.Strings.DoubleQuoteUsage.NotRequired" />
         <exclude name="SlevomatCodingStandard.Commenting.UselessFunctionDocComment.UselessDocComment" />

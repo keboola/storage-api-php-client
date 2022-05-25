@@ -30,13 +30,13 @@ class ExportParamsTest extends StorageApiTestCase
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $csvFile = new CsvFile($importFile);
-        $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', $csvFile, array(
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', $csvFile, [
             'columns' => $csvFile->getHeader(),
-        ));
+        ]);
 
-        $results = $this->_client->exportTableAsync($tableId, array_merge($exportOptions, array(
+        $results = $this->_client->exportTableAsync($tableId, array_merge($exportOptions, [
             'format' => 'rfc',
-        )));
+        ]));
 
         $exportedFile = $this->_client->getFile($results['file']['id'], (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
 
@@ -92,10 +92,10 @@ class ExportParamsTest extends StorageApiTestCase
             ]);
             $bucket = $exportedFile["s3Path"]["bucket"];
             $prefix = $exportedFile["s3Path"]["key"];
-            $objects = $s3Client->listObjects(array(
+            $objects = $s3Client->listObjects([
                 "Bucket" => $bucket,
-                "Prefix" => $prefix
-            ));
+                "Prefix" => $prefix,
+            ]);
             foreach ($objects["Contents"] as $object) {
                 $objectDetail = $s3Client->headObject([
                     'Bucket' => $bucket,

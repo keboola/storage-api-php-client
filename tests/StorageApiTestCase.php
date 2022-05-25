@@ -42,7 +42,7 @@ abstract class StorageApiTestCase extends ClientTestCase
 
     const FEATURE_CONFIGURATIONS_USE_DEV_BRANCH_SERVICES_ONLY = 'configurations-use-dev-branch-services-only';
 
-    protected $_bucketIds = array();
+    protected $_bucketIds = [];
 
     /** @var Client */
     protected $_client;
@@ -208,7 +208,7 @@ abstract class StorageApiTestCase extends ClientTestCase
         if ($fh === false) {
             throw new Exception(sprintf('Cannot open file "%s"', $path));
         }
-        $lines = array();
+        $lines = [];
         while (($data = fgetcsv($fh, 1000, $delimiter, $enclosure, $escape)) !== false) {
             $lines[] = $data;
         }
@@ -241,177 +241,177 @@ abstract class StorageApiTestCase extends ClientTestCase
 
     public function tableExportFiltersData()
     {
-        return array(
+        return [
             // first test
-            array(
-                array(
+            [
+                [
                     'whereColumn' => 'city',
-                    'whereValues' => array('PRG'),
+                    'whereValues' => ['PRG'],
                     'columns' => ['id', 'name', 'sex'],
-                ),
-                array(
-                    array(
+                ],
+                [
+                    [
                         "1",
                         "martin",
-                        "male"
-                    ),
-                    array(
+                        "male",
+                    ],
+                    [
                         "2",
                         "klara",
                         "female",
-                    ),
-                ),
-            ),
+                    ],
+                ],
+            ],
             // first test with defined operator
-            array(
-                array(
+            [
+                [
                     'whereColumn' => 'city',
-                    'whereValues' => array('PRG'),
+                    'whereValues' => ['PRG'],
                     'whereOperator' => 'eq',
-                ),
-                array(
-                    array(
+                ],
+                [
+                    [
                         "1",
                         "martin",
                         "PRG",
-                        "male"
-                    ),
-                    array(
+                        "male",
+                    ],
+                    [
                         "2",
                         "klara",
                         "PRG",
                         "female",
-                    ),
-                ),
-            ),
+                    ],
+                ],
+            ],
             // second test
-            array(
-                array(
+            [
+                [
                     'whereColumn' => 'city',
-                    'whereValues' => array('PRG', 'VAN')
-                ),
-                array(
-                    array(
+                    'whereValues' => ['PRG', 'VAN'],
+                ],
+                [
+                    [
                         "1",
                         "martin",
                         "PRG",
-                        "male"
-                    ),
-                    array(
+                        "male",
+                    ],
+                    [
                         "2",
                         "klara",
                         "PRG",
                         "female",
-                    ),
-                    array(
+                    ],
+                    [
                         "3",
                         "ondra",
                         "VAN",
                         "male",
-                    ),
-                ),
-            ),
+                    ],
+                ],
+            ],
             // third test
-            array(
-                array(
+            [
+                [
                     'whereColumn' => 'city',
-                    'whereValues' => array('PRG'),
-                    'whereOperator' => 'ne'
-                ),
-                array(
-                    array(
+                    'whereValues' => ['PRG'],
+                    'whereOperator' => 'ne',
+                ],
+                [
+                    [
                         "5",
                         "hidden",
                         "",
                         "male",
-                    ),
-                    array(
+                    ],
+                    [
                         "4",
                         "miro",
                         "BRA",
                         "male",
-                    ),
-                    array(
+                    ],
+                    [
                         "3",
                         "ondra",
                         "VAN",
                         "male",
-                    ),
-                ),
-            ),
+                    ],
+                ],
+            ],
             // fourth test
-            array(
-                array(
+            [
+                [
                     'whereColumn' => 'city',
-                    'whereValues' => array('PRG', 'VAN'),
-                    'whereOperator' => 'ne'
-                ),
-                array(
-                    array(
+                    'whereValues' => ['PRG', 'VAN'],
+                    'whereOperator' => 'ne',
+                ],
+                [
+                    [
                         "4",
                         "miro",
                         "BRA",
                         "male",
-                    ),
-                    array(
+                    ],
+                    [
                         "5",
                         "hidden",
                         "",
                         "male",
-                    ),
-                ),
-            ),
+                    ],
+                ],
+            ],
             // fifth test
-            array(
-                array(
+            [
+                [
                     'whereColumn' => 'city',
-                    'whereValues' => array(''),
-                    'whereOperator' => 'eq'
-                ),
-                array(
-                    array(
+                    'whereValues' => [''],
+                    'whereOperator' => 'eq',
+                ],
+                [
+                    [
                         "5",
                         "hidden",
                         "",
                         "male",
-                    ),
-                ),
-            ),
+                    ],
+                ],
+            ],
             // sixth test
-            array(
-                array(
+            [
+                [
                     'whereColumn' => 'city',
-                    'whereValues' => array(''),
-                    'whereOperator' => 'ne'
-                ),
-                array(
-                    array(
+                    'whereValues' => [''],
+                    'whereOperator' => 'ne',
+                ],
+                [
+                    [
                         "4",
                         "miro",
                         "BRA",
                         "male",
-                    ),
-                    array(
+                    ],
+                    [
                         "1",
                         "martin",
                         "PRG",
-                        "male"
-                    ),
-                    array(
+                        "male",
+                    ],
+                    [
                         "2",
                         "klara",
                         "PRG",
                         "female",
-                    ),
-                    array(
+                    ],
+                    [
                         "3",
                         "ondra",
                         "VAN",
                         "male",
-                    ),
-                ),
-            ),
-        );
+                    ],
+                ],
+            ],
+        ];
     }
 
     protected function getTestBucketId($stage = self::STAGE_IN)

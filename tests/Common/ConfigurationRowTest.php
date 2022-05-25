@@ -183,18 +183,18 @@ class ConfigurationRowTest extends StorageApiTestCase
                 'configuration' => json_encode($config),
                 'state' => json_encode($state),
             ],
-            'headers' => array(
+            'headers' => [
                 'X-StorageApi-Token' => $this->client->getTokenString(),
-            ),
+            ],
         ]);
         $response = json_decode((string) $response->getBody());
         $this->assertEquals($config, $response->configuration);
         $this->assertEquals($state, $response->state);
 
         $response = $guzzleClient->get('/v2/storage/components/wr-db/configs/main-1/rows/' . $response->id, [
-            'headers' => array(
+            'headers' => [
                 'X-StorageApi-Token' => $this->client->getTokenString(),
-            ),
+            ],
         ]);
         $response = json_decode((string) $response->getBody());
         $this->assertEquals($config, $response->configuration);
@@ -219,27 +219,27 @@ class ConfigurationRowTest extends StorageApiTestCase
             'form_params' => [
                 'state' => json_encode($state),
             ],
-            'headers' => array(
+            'headers' => [
                 'X-StorageApi-Token' => $this->client->getTokenString(),
-            ),
+            ],
         ]);
 
         $response = $guzzleClient->put('/v2/storage/components/wr-db/configs/main-1/rows/' . $response->id, [
             'form_params' => [
                 'configuration' => json_encode($config),
             ],
-            'headers' => array(
+            'headers' => [
                 'X-StorageApi-Token' => $this->client->getTokenString(),
-            ),
+            ],
         ]);
         $response = json_decode((string) $response->getBody());
         $this->assertEquals($config, $response->configuration);
         $this->assertEquals($state, $response->state);
 
         $response = $guzzleClient->get('/v2/storage/components/wr-db/configs/main-1/rows/' . $response->id, [
-            'headers' => array(
+            'headers' => [
                 'X-StorageApi-Token' => $this->client->getTokenString(),
-            ),
+            ],
         ]);
         $response = json_decode((string) $response->getBody());
         $this->assertEquals($config, $response->configuration);
@@ -283,9 +283,9 @@ class ConfigurationRowTest extends StorageApiTestCase
                 'configuration' => json_encode($config),
                 'state' => json_encode($state),
             ],
-            'headers' => array(
+            'headers' => [
                 'X-StorageApi-Token' => $this->client->getTokenString(),
-            ),
+            ],
         ]);
         $response = json_decode((string) $response->getBody());
 
@@ -345,9 +345,9 @@ class ConfigurationRowTest extends StorageApiTestCase
                 'state' => json_encode($state),
                 'isDisabled' => $isDisabled,
             ],
-            'headers' => array(
+            'headers' => [
                 'X-StorageApi-Token' => $this->client->getTokenString(),
-            ),
+            ],
         ]);
         $response = json_decode((string) $response->getBody());
         $this->assertEquals($expectedIsDisabled, $response->isDisabled);

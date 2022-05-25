@@ -30,9 +30,9 @@ class CreateTableTest extends StorageApiTestCase
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile(__DIR__ . '/../../_data/multiple-columns-pk.csv'),
-            array(
+            [
                 'primaryKey' => 'Paid_Search_Engine_Account,Date,Paid_Search_Campaign,Paid_Search_Ad_ID,Site__DFA',
-            )
+            ]
         );
         $this->assertNotEmpty($id);
     }
@@ -60,9 +60,9 @@ class CreateTableTest extends StorageApiTestCase
 
     public function syncAsyncData()
     {
-        return array(
-            array(false),
-            array(true),
-        );
+        return [
+            [false],
+            [true],
+        ];
     }
 }

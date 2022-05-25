@@ -419,13 +419,13 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
             new CsvFile($importFile)
         );
 
-        $options = array('input' => [
+        $options = ['input' => [
             [
                 'source' => $tableId,
                 'destination' => 'datatype_Test',
                 'columns' => $columnsDefinition,
             ],
-        ]);
+        ]];
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
             $options

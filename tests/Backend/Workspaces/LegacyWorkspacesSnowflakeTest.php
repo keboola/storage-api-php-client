@@ -17,9 +17,9 @@ class LegacyWorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
             $this->getTestBucketId(self::STAGE_IN),
             'languages-pk',
             new CsvFile(__DIR__ . '/../../_data/multiple-columns-pk.csv'),
-            array(
+            [
                 'primaryKey' => implode(",", $primaries),
-            )
+            ]
         );
 
         $mapping = [

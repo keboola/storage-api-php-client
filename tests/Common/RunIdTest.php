@@ -46,19 +46,19 @@ class RunIdTest extends StorageApiTestCase
         $this->createEvent($secondLevelRunId2);
         $this->createEvent($secondLevelRunId2);
 
-        $events = $this->_client->listEvents(array(
+        $events = $this->_client->listEvents([
             'runId' => $topLevelRunId,
-        ));
+        ]);
         $this->assertCount(6, $events);
 
-        $events = $this->_client->listEvents(array(
+        $events = $this->_client->listEvents([
             'runId' => $secondLevelRunId1,
-        ));
+        ]);
         $this->assertCount(2, $events);
 
-        $events = $this->_client->listEvents(array(
+        $events = $this->_client->listEvents([
             'runId' => $secondLevelRunId2,
-        ));
+        ]);
         $this->assertCount(3, $events);
     }
 

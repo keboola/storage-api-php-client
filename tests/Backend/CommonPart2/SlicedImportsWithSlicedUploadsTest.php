@@ -41,12 +41,12 @@ class SlicedImportsWithSlicedUploadsTest extends StorageApiTestCase
         if ($table['bucket']['backend'] === self::BACKEND_SYNAPSE) {
             $this->markTestSkipped('Empty ECLOSURE is not possible with synapse.');
         }
-        $this->_client->writeTableAsyncDirect($tableId, array(
+        $this->_client->writeTableAsyncDirect($tableId, [
             'dataFileId' => $slicedFileId,
             'columns' => $headerFile->getHeader(),
             'delimiter' => '|',
             'enclosure' => '',
-        ));
+        ]);
     }
 
     public function testSlicedImportSingleFile(): void
@@ -63,36 +63,36 @@ class SlicedImportsWithSlicedUploadsTest extends StorageApiTestCase
 
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'entries', new CsvFile(__DIR__ . '/../../_data/languages.csv'));
         $this->_client->deleteTableRows($tableId);
-        $this->_client->writeTableAsyncDirect($tableId, array(
+        $this->_client->writeTableAsyncDirect($tableId, [
             'dataFileId' => $slicedFileId,
             'delimiter' => ',',
             'enclosure' => '"',
             'escapedBy' => '',
-            'columns' => array('id', 'name'),
-        ));
+            'columns' => ['id', 'name'],
+        ]);
 
-        $this->assertLinesEqualsSorted(file_get_contents(__DIR__ . '/../../_data/languages.csv'), $this->_client->getTableDataPreview($tableId, array(
+        $this->assertLinesEqualsSorted(file_get_contents(__DIR__ . '/../../_data/languages.csv'), $this->_client->getTableDataPreview($tableId, [
             'format' => 'rfc',
-        )), 'imported data comparsion');
+        ]), 'imported data comparsion');
 
         // incremental
-        $this->_client->writeTableAsyncDirect($tableId, array(
+        $this->_client->writeTableAsyncDirect($tableId, [
             'dataFileId' => $slicedFileId,
             'incremental' => true,
             'delimiter' => ',',
             'enclosure' => '"',
             'escapedBy' => '',
-            'columns' => array('id', 'name'),
-        ));
+            'columns' => ['id', 'name'],
+        ]);
 
         $data = (string) file_get_contents(__DIR__ . '/../../_data/languages.csv');
         $lines = explode("\n", $data);
         array_shift($lines);
         $data = $data . implode("\n", $lines);
 
-        $this->assertLinesEqualsSorted($data, $this->_client->getTableDataPreview($tableId, array(
+        $this->assertLinesEqualsSorted($data, $this->_client->getTableDataPreview($tableId, [
             'format' => 'rfc',
-        )), 'imported data comparsion');
+        ]), 'imported data comparsion');
     }
 
     public function testSlicedFileImportWithoutHeadersOption(): void
@@ -114,12 +114,12 @@ class SlicedImportsWithSlicedUploadsTest extends StorageApiTestCase
         if ($table['bucket']['backend'] === self::BACKEND_SYNAPSE) {
             $this->markTestSkipped('Empty ECLOSURE is not possible with synapse.');
         }
-        $this->_client->writeTableAsyncDirect($tableId, array(
+        $this->_client->writeTableAsyncDirect($tableId, [
             'dataFileId' => $slicedFileId,
             'delimiter' => '|',
             'enclosure' => '',
             'withoutHeaders' => true,
-        ));
+        ]);
 
         $tableInfo = $this->_client->getTable($tableId);
         $this->assertEquals($tableInfo['rowsCount'], 27945);
@@ -144,12 +144,12 @@ class SlicedImportsWithSlicedUploadsTest extends StorageApiTestCase
         );
 
         try {
-            $this->_client->writeTableAsyncDirect($tableId, array(
+            $this->_client->writeTableAsyncDirect($tableId, [
                 'dataFileId' => $slicedFileId,
                 'delimiter' => ',',
                 'enclosure' => '"',
                 'escapedBy' => '',
-            ));
+            ]);
             $this->fail('Table should not be imported');
         } catch (ClientException $e) {
             // it should be - cannot import sliced file
@@ -176,12 +176,12 @@ class SlicedImportsWithSlicedUploadsTest extends StorageApiTestCase
         if ($table['bucket']['backend'] === self::BACKEND_SYNAPSE) {
             $this->markTestSkipped('Empty ECLOSURE is not possible with synapse.');
         }
-        $this->_client->writeTableAsyncDirect($tableId, array(
+        $this->_client->writeTableAsyncDirect($tableId, [
             'dataFileId' => $slicedFileId,
             'delimiter' => '|',
             'enclosure' => '',
             'withoutHeaders' => true,
-        ));
+        ]);
 
         $tableInfo = $this->_client->getTable($tableId);
         $this->assertEquals($tableInfo['rowsCount'], 13973);

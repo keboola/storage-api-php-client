@@ -114,7 +114,7 @@ class Client
      *     - logger: instance of Psr\Log\LoggerInterface
      *     - jobPollRetryDelay: callable method which determines wait period for job polling
      */
-    public function __construct(array $config = array())
+    public function __construct(array $config = [])
     {
         if (!isset($config['url'])) {
             throw new \InvalidArgumentException('url must be set');
@@ -261,7 +261,7 @@ class Client
      *
      * @return array
      */
-    public function listBuckets($options = array())
+    public function listBuckets($options = [])
     {
         return $this->apiGet("buckets?" . http_build_query($options));
     }
@@ -319,11 +319,11 @@ class Client
      */
     public function createBucket($name, $stage, $description = "", $backend = null, $displayName = null)
     {
-        $options = array(
+        $options = [
             "name" => $name,
             "stage" => $stage,
             "description" => $description,
-        );
+        ];
 
         if ($backend) {
             $options['backend'] = $backend;
@@ -340,7 +340,7 @@ class Client
 
         $result = $this->apiPost("buckets", $options);
 
-        $this->log("Bucket {$result["id"]} created", array("options" => $options, "result" => $result));
+        $this->log("Bucket {$result["id"]} created", ["options" => $options, "result" => $result]);
 
         return $result["id"];
     }
@@ -357,12 +357,12 @@ class Client
      */
     public function linkBucket($name, $stage, $sourceProjectId, $sourceBucketId, $displayName = null, $async = false)
     {
-        $options = array(
+        $options = [
             "name" => $name,
             "stage" => $stage,
             "sourceProjectId" => $sourceProjectId,
             "sourceBucketId" => $sourceBucketId,
-        );
+        ];
 
         if ($displayName) {
             $options['displayName'] = $displayName;
@@ -375,7 +375,7 @@ class Client
 
         $result = $this->apiPost($url, $options, $async);
 
-        $this->log("Shared bucket {$result["id"]} linked to the project", array("options" => $options, "result" => $result));
+        $this->log("Shared bucket {$result["id"]} linked to the project", ["options" => $options, "result" => $result]);
 
         return $result["id"];
     }
@@ -388,14 +388,14 @@ class Client
      * @param array $options - (bool) force
      * @return mixed|string
      */
-    public function dropBucket($bucketId, $options = array())
+    public function dropBucket($bucketId, $options = [])
     {
         $url = "buckets/" . $bucketId;
 
-        $allowedOptions = array(
+        $allowedOptions = [
             'force',
             'async',
-        );
+        ];
 
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
 
@@ -424,7 +424,7 @@ class Client
 
         $result = $this->apiPost($url, [], $isAsync);
 
-        $this->log("Bucket {$bucketId} shared", array("result" => $result));
+        $this->log("Bucket {$bucketId} shared", ["result" => $result]);
 
         return $result;
     }
@@ -514,7 +514,7 @@ class Client
 
         $result = $this->apiPut($url, $data);
 
-        $this->log("Bucket {$bucketId} sharing changed to {$sharing}", array("result" => $result));
+        $this->log("Bucket {$bucketId} sharing changed to {$sharing}", ["result" => $result]);
 
         return $result;
     }
@@ -584,9 +584,9 @@ class Client
      */
     public function setBucketAttribute($bucketId, $key, $value, $protected = null)
     {
-        $data = array(
+        $data = [
             'value' => $value,
-        );
+        ];
         if ($protected !== null) {
             $data['protected'] = (bool) $protected;
         }
@@ -598,9 +598,9 @@ class Client
      * @param $bucketId
      * @param array $attributes array of objects with `name`, `value`, `protected` keys
      */
-    public function replaceBucketAttributes($bucketId, $attributes = array())
+    public function replaceBucketAttributes($bucketId, $attributes = [])
     {
-        $params = array();
+        $params = [];
         if (!empty($attributes)) {
             $params['attributes'] = $attributes;
         }
@@ -654,9 +654,9 @@ class Client
      *  - primaryKey - string, multiple column primary keys separate by comma
      * @return string - created table id
      */
-    public function createTable($bucketId, $name, CsvFile $csvFile, $options = array())
+    public function createTable($bucketId, $name, CsvFile $csvFile, $options = [])
     {
-        $options = array(
+        $options = [
             "bucketId" => $bucketId,
             "name" => $name,
             "delimiter" => $csvFile->getDelimiter(),
@@ -666,7 +666,7 @@ class Client
             "columns" => isset($options['columns']) ? $options['columns'] : null,
             "data" => fopen($csvFile->getPathname(), 'r'),
             'syntheticPrimaryKeyEnabled' => isset($options['syntheticPrimaryKeyEnabled']) ? $options['syntheticPrimaryKeyEnabled'] : null,
-        );
+        ];
 
         $tableId = $this->getTableId($name, $bucketId);
         if ($tableId) {
@@ -674,7 +674,7 @@ class Client
         }
         $result = $this->apiPostMultipart("buckets/" . $bucketId . "/tables", $this->prepareMultipartData($options));
 
-        $this->log("Table {$result["id"]} created", array("options" => $options, "result" => $result));
+        $this->log("Table {$result["id"]} created", ["options" => $options, "result" => $result]);
 
         if (!empty($options['data']) && is_resource($options['data'])) {
             fclose($options['data']);
@@ -699,9 +699,9 @@ class Client
      * @param array $options - see createTable method params
      * @return string - created table id
      */
-    public function createTableAsync($bucketId, $name, CsvFile $csvFile, $options = array())
+    public function createTableAsync($bucketId, $name, CsvFile $csvFile, $options = [])
     {
-        $options = array(
+        $options = [
             "bucketId" => $bucketId,
             "name" => $name,
             "delimiter" => $csvFile->getDelimiter(),
@@ -712,7 +712,7 @@ class Client
             "transactional" => isset($options['transactional']) ? $options['transactional'] : false,
             'columns' => isset($options['columns']) ? $options['columns'] : null,
             'syntheticPrimaryKeyEnabled' => isset($options['syntheticPrimaryKeyEnabled']) ? $options['syntheticPrimaryKeyEnabled'] : null,
-        );
+        ];
 
         // upload file
         $fileId = $this->uploadFile(
@@ -721,7 +721,7 @@ class Client
                 ->setNotify(false)
                 ->setIsPublic(false)
                 ->setCompress(true)
-                ->setTags(array('file-import'))
+                ->setTags(['file-import'])
         );
         $options['dataFileId'] = $fileId;
 
@@ -736,7 +736,7 @@ class Client
      * @param array $options see createTable method params
      * @return string - created table id
      */
-    public function createTableAsyncDirect($bucketId, $options = array())
+    public function createTableAsyncDirect($bucketId, $options = [])
     {
         $createdTable = $this->apiPost("buckets/{$bucketId}/tables-async", $options);
         return $createdTable['id'];
@@ -763,10 +763,10 @@ class Client
      */
     public function createTableFromSnapshot($bucketId, $snapshotId, $name = null)
     {
-        return $this->createTableAsyncDirect($bucketId, array(
+        return $this->createTableAsyncDirect($bucketId, [
             'snapshotId' => $snapshotId,
             'name' => $name,
-        ));
+        ]);
     }
 
     /**
@@ -778,11 +778,11 @@ class Client
      */
     public function createTableFromSourceTableAtTimestamp($bucketId, $sourceTableId, $timestamp, $name)
     {
-        return $this->createTableAsyncDirect($bucketId, array(
+        return $this->createTableAsyncDirect($bucketId, [
             'sourceTableId' => $sourceTableId,
             'timestamp' => $timestamp,
             'name' => $name,
-        ));
+        ]);
     }
 
     /**
@@ -796,12 +796,12 @@ class Client
      *  - (array) aliasColumns (optional)
      * @return string  - created table id
      */
-    public function createAliasTable($bucketId, $sourceTableId, $name = null, $options = array())
+    public function createAliasTable($bucketId, $sourceTableId, $name = null, $options = [])
     {
-        $filteredOptions = array(
+        $filteredOptions = [
             'sourceTable' => $sourceTableId,
             'name' => $name,
-        );
+        ];
 
         if (isset($options['aliasFilter'])) {
             $filteredOptions['aliasFilter'] = (array) $options['aliasFilter'];
@@ -812,7 +812,7 @@ class Client
         }
 
         $result = $this->apiPost("buckets/" . $bucketId . "/table-aliases", $filteredOptions);
-        $this->log("Table alias {$result["id"]}  created", array("options" => $filteredOptions, "result" => $result));
+        $this->log("Table alias {$result["id"]}  created", ["options" => $filteredOptions, "result" => $result]);
         return $result["id"];
     }
 
@@ -822,9 +822,9 @@ class Client
      */
     public function createTableSnapshot($tableId, $snapshotDescription = null)
     {
-        $result = $this->apiPost("tables/{$tableId}/snapshots", array(
+        $result = $this->apiPost("tables/{$tableId}/snapshots", [
             'description' => $snapshotDescription,
-        ));
+        ]);
         $this->log("Snapthos {$result['id']} of table {$tableId} created.");
         return $result["id"];
     }
@@ -857,7 +857,7 @@ class Client
      * @param $tableId
      * @return mixed|string
      */
-    public function listTableSnapshots($tableId, $options = array())
+    public function listTableSnapshots($tableId, $options = [])
     {
         return $this->apiGet("tables/{$tableId}/snapshots?" . http_build_query($options));
     }
@@ -870,10 +870,10 @@ class Client
     public function setAliasTableFilter($tableId, array $filter)
     {
         $result = $this->apiPost("tables/$tableId/alias-filter", $filter);
-        $this->log("Table $tableId  filter set", array(
+        $this->log("Table $tableId  filter set", [
             'filter' => $filter,
             'result' => $result,
-        ));
+        ]);
         return $result;
     }
 
@@ -906,7 +906,7 @@ class Client
      * @param array $options
      * @return array
      */
-    public function listTables($bucketId = null, $options = array())
+    public function listTables($bucketId = null, $options = [])
     {
         if ($bucketId) {
             return $this->apiGet("buckets/{$bucketId}/tables?" . http_build_query($options));
@@ -951,13 +951,13 @@ class Client
      * @return mixed|string
      * @throws ClientException
      */
-    public function writeTable($tableId, CsvFile $csvFile, $options = array())
+    public function writeTable($tableId, CsvFile $csvFile, $options = [])
     {
-        $optionsExtended = $this->writeTableOptionsPrepare(array_merge($options, array(
+        $optionsExtended = $this->writeTableOptionsPrepare(array_merge($options, [
             "delimiter" => $csvFile->getDelimiter(),
             "enclosure" => $csvFile->getEnclosure(),
             "escapedBy" => $csvFile->getEscapedBy(),
-        )));
+        ]));
 
         $optionsExtended["data"] = @fopen($csvFile->getRealPath(), 'r');
         if ($optionsExtended["data"] === false) {
@@ -966,7 +966,7 @@ class Client
 
         $result = $this->apiPostMultipart("tables/{$tableId}/import", $this->prepareMultipartData($optionsExtended));
 
-        $this->log("Data written to table {$tableId}", array("options" => $optionsExtended, "result" => $result));
+        $this->log("Data written to table {$tableId}", ["options" => $optionsExtended, "result" => $result]);
         return $result;
     }
 
@@ -978,13 +978,13 @@ class Client
      * @param array $options
      * @return array - table write results
      */
-    public function writeTableAsync($tableId, CsvFile $csvFile, $options = array())
+    public function writeTableAsync($tableId, CsvFile $csvFile, $options = [])
     {
-        $optionsExtended = array_merge($options, array(
+        $optionsExtended = array_merge($options, [
             "delimiter" => $csvFile->getDelimiter(),
             "enclosure" => $csvFile->getEnclosure(),
             "escapedBy" => $csvFile->getEscapedBy(),
-        ));
+        ]);
 
         // upload file
         $fileId = $this->uploadFile(
@@ -993,7 +993,7 @@ class Client
                 ->setNotify(false)
                 ->setIsPublic(false)
                 ->setCompress(true)
-                ->setTags(array('table-import'))
+                ->setTags(['table-import'])
         );
         $optionsExtended['dataFileId'] = $fileId;
 
@@ -1007,7 +1007,7 @@ class Client
      * @param array $options
      * @return array
      */
-    public function writeTableAsyncDirect($tableId, $options = array())
+    public function writeTableAsyncDirect($tableId, $options = [])
     {
         return $this->apiPost("tables/{$tableId}/import-async", $this->writeTableOptionsPrepare($options));
     }
@@ -1017,7 +1017,7 @@ class Client
      * @param array $options
      * @return int
      */
-    public function queueTableCreate($bucketId, $options = array())
+    public function queueTableCreate($bucketId, $options = [])
     {
         $job = $this->apiPost("buckets/{$bucketId}/tables-async", $options, false);
         return $job['id'];
@@ -1028,7 +1028,7 @@ class Client
      * @param array $options
      * @return int
      */
-    public function queueTableImport($tableId, $options = array())
+    public function queueTableImport($tableId, $options = [])
     {
         $job = $this->apiPost("tables/{$tableId}/import-async", $this->writeTableOptionsPrepare($options), false);
         return $job["id"];
@@ -1039,7 +1039,7 @@ class Client
      * @param $options
      * @return int
      */
-    public function queueTableExport($tableId, $options = array())
+    public function queueTableExport($tableId, $options = [])
     {
         $job = $this->apiPost("tables/{$tableId}/export-async", $this->prepareExportOptions($options), false);
         return $job["id"];
@@ -1047,7 +1047,7 @@ class Client
 
     private function writeTableOptionsPrepare($options)
     {
-        $allowedOptions = array(
+        $allowedOptions = [
             'delimiter',
             'enclosure',
             'escapedBy',
@@ -1058,13 +1058,13 @@ class Client
             'data',
             'withoutHeaders',
             'columns',
-        );
+        ];
 
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
 
-        return array_merge($filteredOptions, array(
+        return array_merge($filteredOptions, [
             "incremental" => isset($options['incremental']) ? (bool) $options['incremental'] : false,
-        ));
+        ]);
     }
 
     /**
@@ -1087,13 +1087,13 @@ class Client
      * @param array $options - (bool) force
      * @return mixed|string
      */
-    public function dropTable($tableId, $options = array())
+    public function dropTable($tableId, $options = [])
     {
         $url = "tables/" . $tableId;
 
-        $allowedOptions = array(
+        $allowedOptions = [
             'force',
-        );
+        ];
 
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
 
@@ -1116,9 +1116,9 @@ class Client
      */
     public function setTableAttribute($tableId, $key, $value, $protected = null)
     {
-        $data = array(
+        $data = [
             'value' => $value,
-        );
+        ];
         if ($protected !== null) {
             $data['protected'] = (bool) $protected;
         }
@@ -1130,9 +1130,9 @@ class Client
      * @param $tableId
      * @param array $attributes array of objects with `name`, `value`, `protected` keys
      */
-    public function replaceTableAttributes($tableId, $attributes = array())
+    public function replaceTableAttributes($tableId, $attributes = [])
     {
-        $params = array();
+        $params = [];
         if (!empty($attributes)) {
             $params['attributes'] = $attributes;
         }
@@ -1164,10 +1164,10 @@ class Client
      */
     public function addTableColumn($tableId, $name, $definition = [])
     {
-        $data = array(
+        $data = [
             'name' => $name,
             'definition' => $definition,
-        );
+        ];
         $this->apiPost("tables/$tableId/columns", $data);
     }
 
@@ -1181,13 +1181,13 @@ class Client
      * @param array $options - (bool) force
      * @return mixed|string
      */
-    public function deleteTableColumn($tableId, $name, $options = array())
+    public function deleteTableColumn($tableId, $name, $options = [])
     {
         $url = "tables/$tableId/columns/$name";
 
-        $allowedOptions = array(
+        $allowedOptions = [
             'force',
-        );
+        ];
 
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
 
@@ -1371,7 +1371,7 @@ class Client
             $this->token = $result['token'];
         }
 
-        $this->log("Token {$tokenId} refreshed", array("token" => $result));
+        $this->log("Token {$tokenId} refreshed", ["token" => $result]);
 
         return $result["token"];
     }
@@ -1401,7 +1401,7 @@ class Client
      *
      * @return string
      */
-    public function getTableDataPreview($tableId, $options = array())
+    public function getTableDataPreview($tableId, $options = [])
     {
         $url = "tables/{$tableId}/data-preview";
         $url .= '?' . http_build_query($this->prepareExportOptions($options));
@@ -1423,7 +1423,7 @@ class Client
      *  - (array) columns
      * @return array job results
      */
-    public function exportTableAsync($tableId, $options = array())
+    public function exportTableAsync($tableId, $options = [])
     {
         return $this->apiPost(
             "tables/{$tableId}/export-async",
@@ -1466,16 +1466,16 @@ class Client
      *     changedUntil, (bool) escape, (array) columns
      * @return mixed|string
      */
-    public function deleteTableRows($tableId, $options = array())
+    public function deleteTableRows($tableId, $options = [])
     {
         $url = "tables/{$tableId}/rows";
 
-        $allowedOptions = array(
+        $allowedOptions = [
             'changedSince',
             'changedUntil',
             'whereColumn',
             'whereOperator',
-        );
+        ];
 
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
 
@@ -1505,7 +1505,7 @@ class Client
         $newOptions = clone $options;
         $fs = null;
         $currentUploadDir = null;
-        if ($newOptions->getCompress() && !in_array(strtolower(pathinfo($filePath, PATHINFO_EXTENSION)), array("gzip", "gz", "zip"))) {
+        if ($newOptions->getCompress() && !in_array(strtolower(pathinfo($filePath, PATHINFO_EXTENSION)), ["gzip", "gz", "zip"])) {
             $fs = new Filesystem();
             $sapiClientTempDir = sys_get_temp_dir();
             if (!$fs->exists($sapiClientTempDir)) {
@@ -1685,7 +1685,7 @@ class Client
 
         if ($newOptions->getCompress()) {
             foreach ($slices as $key => $filePath) {
-                if (!in_array(strtolower(pathinfo($filePath, PATHINFO_EXTENSION)), array("gzip", "gz", "zip"))) {
+                if (!in_array(strtolower(pathinfo($filePath, PATHINFO_EXTENSION)), ["gzip", "gz", "zip"])) {
                     // gzip file and preserve it's base name
                     $gzFilePath = $currentUploadDir . '/' . basename($filePath) . '.gz';
                     $command = sprintf("gzip -c %s > %s", escapeshellarg($filePath), escapeshellarg($gzFilePath));
@@ -1986,7 +1986,7 @@ class Client
      */
     public function prepareFileUpload(FileUploadOptions $options)
     {
-        return $this->apiPost("files/prepare", array(
+        return $this->apiPost("files/prepare", [
             'isPublic' => $options->getIsPublic(),
             'isPermanent' => $options->getIsPermanent(),
             'isEncrypted' => $options->getIsEncrypted(),
@@ -1996,7 +1996,7 @@ class Client
             'sizeBytes' => $options->getSizeBytes(),
             'tags' => $options->getTags(),
             'federationToken' => $options->getFederationToken(),
-        ));
+        ]);
     }
 
     /**
@@ -2020,7 +2020,7 @@ class Client
         if (empty($fileId)) {
             throw new ClientException('File id cannot be empty');
         }
-        return $this->apiGet("files/$fileId?" . http_build_query($options ? $options->toArray() : array()));
+        return $this->apiGet("files/$fileId?" . http_build_query($options ? $options->toArray() : []));
     }
 
     /**
@@ -2035,9 +2035,9 @@ class Client
 
     public function addFileTag($fileId, $tagName)
     {
-        $this->apiPost("files/$fileId/tags", array(
+        $this->apiPost("files/$fileId/tags", [
             'tag' => $tagName,
-        ));
+        ]);
     }
 
     /**
@@ -2048,7 +2048,7 @@ class Client
      */
     public function listFiles(ListFilesOptions $options = null)
     {
-        return $this->apiGet('files?' . http_build_query($options ? $options->toArray() : array()));
+        return $this->apiGet('files?' . http_build_query($options ? $options->toArray() : []));
     }
 
 
@@ -2060,7 +2060,7 @@ class Client
      */
     public function createEvent(Event $event)
     {
-        $result = $this->apiPost('events', array(
+        $result = $this->apiPost('events', [
             'component' => $event->getComponent(),
             'configurationId' => $event->getConfigurationId(),
             'runId' => $event->getRunId(),
@@ -2070,7 +2070,7 @@ class Client
             'params' => json_encode($event->getParams()),
             'results' => json_encode($event->getResults()),
             'duration' => $event->getDuration(),
-        ));
+        ]);
         return $result['id'];
     }
 
@@ -2089,19 +2089,19 @@ class Client
      * @param array $params
      * @return array
      */
-    public function listEvents($params = array())
+    public function listEvents($params = [])
     {
-        $defaultParams = array(
+        $defaultParams = [
             'limit' => 100,
             'offset' => 0,
-        );
+        ];
 
         if (!is_array($params)) {
             // BC compatibility
             $args = func_get_args();
-            $params = array(
+            $params = [
                 'limit' => $args[0],
-            );
+            ];
             if (isset($args[1])) {
                 $params['offset'] = $args[1];
             }
@@ -2118,10 +2118,10 @@ class Client
      */
     public function listTableEvents($tableId, $params = [])
     {
-        $defaultParams = array(
+        $defaultParams = [
             'limit' => 100,
             'offset' => 0,
-        );
+        ];
 
         $queryParams = array_merge($defaultParams, $params);
         return $this->apiGet("tables/{$tableId}/events?" . http_build_query($queryParams));
@@ -2134,10 +2134,10 @@ class Client
      */
     public function listBucketEvents($bucketId, $params = [])
     {
-        $defaultParams = array(
+        $defaultParams = [
             'limit' => 100,
             'offset' => 0,
-        );
+        ];
 
         $queryParams = array_merge($defaultParams, $params);
         return $this->apiGet("buckets/{$bucketId}/events?" . http_build_query($queryParams));
@@ -2148,12 +2148,12 @@ class Client
      * @param array $params
      * @return array
      */
-    public function listTokenEvents($tokenId, $params = array())
+    public function listTokenEvents($tokenId, $params = [])
     {
-        $defaultParams = array(
+        $defaultParams = [
             'limit' => 100,
             'offset' => 0,
-        );
+        ];
 
         $queryParams = array_merge($defaultParams, $params);
         return $this->apiGet("tokens/{$tokenId}/events?" . http_build_query($queryParams));
@@ -2237,7 +2237,7 @@ class Client
 
     public function apiPostMultipart($url, $postData = null, $handleAsyncTask = true)
     {
-        return $this->request('post', $url, array('multipart' => $postData), null, $handleAsyncTask);
+        return $this->request('post', $url, ['multipart' => $postData], null, $handleAsyncTask);
     }
 
     public function apiPostJson($url, $data = [])
@@ -2276,13 +2276,13 @@ class Client
 
     public function apiDeleteParams($url, $data)
     {
-        $options = array();
+        $options = [];
         $options['headers']['Content-Type'] = 'application/x-www-form-urlencoded';
         $options['body'] = http_build_query($data, '', '&');
         return $this->request('delete', $url, $options);
     }
 
-    protected function request($method, $url, $options = array(), $responseFileName = null, $handleAsyncTask = true)
+    protected function request($method, $url, $options = [], $responseFileName = null, $handleAsyncTask = true)
     {
         $url = self::API_VERSION . "/storage/" . $url;
         $requestOptions = array_merge($options, [
@@ -2315,7 +2315,7 @@ class Client
             $response = $this->client->request($method, $url, $requestOptions);
         } catch (RequestException $e) {
             $response = $e->getResponse();
-            $body = $response ? json_decode((string) $response->getBody(), true) : array();
+            $body = $response ? json_decode((string) $response->getBody(), true) : [];
 
             if ($response && $response->getStatusCode() == 503) {
                 throw new MaintenanceException(isset($body["reason"]) ? $body['reason'] : 'Maintenance', $response && $response->hasHeader('Retry-After') ? (string) $response->getHeader('Retry-After')[0] : null, $body);
@@ -2357,7 +2357,7 @@ class Client
 
     private function fixRequestBody(array $body)
     {
-        $fixedBody = array();
+        $fixedBody = [];
         foreach ($body as $key => $value) {
             if (!is_array($value)) {
                 $fixedBody[$key] = $value;
@@ -2422,7 +2422,7 @@ class Client
 
             $job = $this->getJob($jobId);
             $jobId = $job['id'];
-        } while (!in_array($job['status'], array('success', 'error')));
+        } while (!in_array($job['status'], ['success', 'error']));
 
         return $job;
     }
@@ -2449,7 +2449,7 @@ class Client
      * @param array $context Data to log
      *
      */
-    private function log($message, $context = array())
+    private function log($message, $context = [])
     {
         $this->logger->debug($message, $context);
     }
@@ -2476,8 +2476,8 @@ class Client
      */
     public static function parseCsv($csvString, $header = true, $delimiter = ",", $enclosure = '"')
     {
-        $data = array();
-        $headers = array();
+        $data = [];
+        $headers = [];
         $firstLine = true;
 
         $tmpFile = tmpfile();
@@ -2498,7 +2498,7 @@ class Client
                 if ($firstLine) {
                     $headers = $parsedLine;
                 } else {
-                    $lineData = array();
+                    $lineData = [];
                     foreach ($headers as $i => $headerName) {
                         $lineData[$headerName] = $parsedLine[$i];
                     }
@@ -2569,7 +2569,7 @@ class Client
     public function getComponents()
     {
         $data = $this->indexAction();
-        $components = array();
+        $components = [];
         if (!isset($data["components"])) {
             return $components;
         }
@@ -2615,9 +2615,9 @@ class Client
      */
     public function createTablePrimaryKey($tableId, $columns)
     {
-        $data = array(
+        $data = [
             'columns' => $columns,
-        );
+        ];
         $this->apiPost("tables/$tableId/primary-key", $data);
     }
 

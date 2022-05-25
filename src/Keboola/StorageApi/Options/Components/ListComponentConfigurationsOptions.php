@@ -9,9 +9,9 @@ class ListComponentConfigurationsOptions
 
     public function toParamsArray()
     {
-        return array(
+        return [
             'isDeleted' => $this->getIsDeleted(),
-        );
+        ];
     }
 
     /**

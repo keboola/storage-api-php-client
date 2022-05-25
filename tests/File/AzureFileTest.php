@@ -57,48 +57,48 @@ class AzureFileTest extends StorageApiTestCase
         $largeFilePath = sys_get_temp_dir() . '/large_abs_upload.txt';
         $this->generateFile($largeFilePath, 16);
 
-        return array(
-            array(
+        return [
+            [
                 $path,
-                (new FileUploadOptions())->setIsPublic(true)
-            ),
-            array(
-                $path,
-                (new FileUploadOptions())
-                    ->setIsPublic(true)
-            ),
-            array(
+                (new FileUploadOptions())->setIsPublic(true),
+            ],
+            [
                 $path,
                 (new FileUploadOptions())
-                    ->setIsEncrypted(false)
-            ),
-            array(
+                    ->setIsPublic(true),
+            ],
+            [
                 $path,
                 (new FileUploadOptions())
-                    ->setIsEncrypted(true)
-            ),
-            array(
+                    ->setIsEncrypted(false),
+            ],
+            [
+                $path,
+                (new FileUploadOptions())
+                    ->setIsEncrypted(true),
+            ],
+            [
                 $path,
                 (new FileUploadOptions())
                     ->setNotify(false)
                     ->setCompress(false)
-                    ->setIsPublic(false)
-            ),
-            array(
+                    ->setIsPublic(false),
+            ],
+            [
                 $path,
                 (new FileUploadOptions())
                     ->setIsPublic(true)
                     ->setIsPermanent(true)
-                    ->setTags(array('sapi-import', 'martin'))
-            ),
-            'large file' => array(
+                    ->setTags(['sapi-import', 'martin']),
+            ],
+            'large file' => [
                 $largeFilePath,
                 (new FileUploadOptions())
                     ->setIsPublic(true)
                     ->setIsPermanent(true)
-                    ->setTags(array('sapi-import', 'martin'))
-            ),
-        );
+                    ->setTags(['sapi-import', 'martin']),
+            ],
+        ];
     }
 
     public function uploadSlicedData()

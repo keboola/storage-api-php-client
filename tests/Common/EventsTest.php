@@ -28,10 +28,10 @@ class EventsTest extends StorageApiTestCase
             ->setRunId('ddddssss')
             ->setMessage('Table Opportunity fetched.')
             ->setDescription('Some longer description of event')
-            ->setParams(array(
+            ->setParams([
                 'accountName' => 'Keboola',
                 'configuration' => 'sys.c-sfdc.sfdc-01',
-            ));
+            ]);
 
         $savedEvent = $this->createAndWaitForEvent($event);
 
@@ -159,10 +159,10 @@ class EventsTest extends StorageApiTestCase
 
     public function testEventsFiltering(): void
     {
-        $events = $this->_client->listEvents(array(
+        $events = $this->_client->listEvents([
             'limit' => 100,
-            'offset' => 0
-        ));
+            'offset' => 0,
+        ]);
 
         $lastEvent = reset($events);
         $lastEventId = $lastEvent['id'];
@@ -184,26 +184,26 @@ class EventsTest extends StorageApiTestCase
         $event->setMessage('another');
         $this->createAndWaitForEvent($event);
 
-        $events = $this->_client->listEvents(array(
+        $events = $this->_client->listEvents([
             'sinceId' => $lastEventId,
             'runId' => $runId,
-        ));
+        ]);
 
         $this->assertCount(3, $events);
 
-        $events = $this->_client->listEvents(array(
+        $events = $this->_client->listEvents([
             'sinceId' => $lastEventId,
             'component' => 'transformation',
-        ));
+        ]);
         $this->assertCount(1, $events, 'filter by component');
 
         $event->setRunId('rundId2');
         $this->createAndWaitForEvent($event);
 
-        $events = $this->_client->listEvents(array(
+        $events = $this->_client->listEvents([
             'sinceId' => $lastEventId,
             'runId' => $runId,
-        ));
+        ]);
         $this->assertCount(3, $events);
     }
 

@@ -28,7 +28,7 @@ class ImportExportCommonTest extends StorageApiTestCase
      * @dataProvider tableImportData
      * @param $importFileName
      */
-    public function testTableImportExport(CsvFile $importFile, $expectationsFileName, $colNames, $format = 'rfc', $createTableOptions = array()): void
+    public function testTableImportExport(CsvFile $importFile, $expectationsFileName, $colNames, $format = 'rfc', $createTableOptions = []): void
     {
         $expectationsFile = __DIR__ . '/../../_data/' . $expectationsFileName;
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages-2', $importFile, $createTableOptions);
@@ -43,14 +43,14 @@ class ImportExportCommonTest extends StorageApiTestCase
         $this->assertNotEmpty($result['totalDataSizeBytes']);
 
         // compare data
-        $this->assertLinesEqualsSorted(file_get_contents($expectationsFile), $this->_client->getTableDataPreview($tableId, array(
+        $this->assertLinesEqualsSorted(file_get_contents($expectationsFile), $this->_client->getTableDataPreview($tableId, [
             'format' => $format,
-        )), 'imported data comparsion');
+        ]), 'imported data comparsion');
 
         // incremental
-        $result = $this->_client->writeTable($tableId, $importFile, array(
+        $result = $this->_client->writeTable($tableId, $importFile, [
             'incremental' => true,
-        ));
+        ]);
         $this->assertNotEmpty($result['totalDataSizeBytes']);
     }
 
@@ -78,15 +78,15 @@ class ImportExportCommonTest extends StorageApiTestCase
         $this->assertNotEmpty($result['totalDataSizeBytes']);
 
         // compare data
-        $this->assertLinesEqualsSorted(file_get_contents($expectationsFile), $this->_client->getTableDataPreview($tableId, array(
+        $this->assertLinesEqualsSorted(file_get_contents($expectationsFile), $this->_client->getTableDataPreview($tableId, [
             'format' => $format,
-        )), 'imported data comparsion');
+        ]), 'imported data comparsion');
 
         // incremental
 
-        $result = $this->_client->writeTableAsync($tableId, $importFile, array(
+        $result = $this->_client->writeTableAsync($tableId, $importFile, [
             'incremental' => true,
-        ));
+        ]);
         $this->assertNotEmpty($result['totalDataSizeBytes']);
     }
 
@@ -256,12 +256,12 @@ class ImportExportCommonTest extends StorageApiTestCase
 
     public function tableImportInvalidData()
     {
-        return array(
-            array('languages.invalid.csv'),
-            array('languages.invalid.gzip'),
-            array('languages.invalid.zip'),
-            array('languages.invalid.duplicateColumns.csv'),
-        );
+        return [
+            ['languages.invalid.csv'],
+            ['languages.invalid.gzip'],
+            ['languages.invalid.zip'],
+            ['languages.invalid.duplicateColumns.csv'],
+        ];
     }
 
     public function testTableImportNotExistingFile(): void
@@ -338,15 +338,15 @@ class ImportExportCommonTest extends StorageApiTestCase
         $table = $this->_client->getTable($tableId);
 
         $this->assertEmpty($result['warnings']);
-        $this->assertEquals(array('Id', 'Name', 'iso', 'Something'), array_values((array) $result['importedColumns']), 'columns');
+        $this->assertEquals(['Id', 'Name', 'iso', 'Something'], array_values((array) $result['importedColumns']), 'columns');
         $this->assertEmpty($result['transaction']);
         $this->assertNotEmpty($table['dataSizeBytes']);
         $this->assertNotEmpty($result['totalDataSizeBytes']);
 
         // compare data
-        $this->assertLinesEqualsSorted(file_get_contents($extendedFile), $this->_client->getTableDataPreview($tableId, array(
+        $this->assertLinesEqualsSorted(file_get_contents($extendedFile), $this->_client->getTableDataPreview($tableId, [
             'format' => 'rfc',
-        )), 'imported data comparsion');
+        ]), 'imported data comparsion');
     }
 
 
@@ -373,9 +373,9 @@ class ImportExportCommonTest extends StorageApiTestCase
         $file = $this->_client->prepareFileUpload((new \Keboola\StorageApi\Options\FileUploadOptions())->setFileName('languages.csv'));
 
         try {
-            $this->_client->writeTableAsyncDirect($tableId, array(
+            $this->_client->writeTableAsyncDirect($tableId, [
                 'dataFileId' => $file['id'],
-            ));
+            ]);
             $this->fail('Exception should be thrown');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.fileNotUploaded', $e->getStringCode());
@@ -387,9 +387,9 @@ class ImportExportCommonTest extends StorageApiTestCase
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/languages-headers.csv'));
 
         $importedFile = __DIR__ . '/../../_data/languages-without-headers.csv';
-        $result = $this->_client->writeTableAsync($tableId, new CsvFile($importedFile), array(
+        $result = $this->_client->writeTableAsync($tableId, new CsvFile($importedFile), [
             'withoutHeaders' => true,
-        ));
+        ]);
         $table = $this->_client->getTable($tableId);
 
         $this->assertEmpty($result['warnings']);
@@ -404,9 +404,9 @@ class ImportExportCommonTest extends StorageApiTestCase
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', $headersCsv);
 
         $importedFile = __DIR__ . '/../../_data/languages-without-headers.csv';
-        $result = $this->_client->writeTableAsync($tableId, new CsvFile($importedFile), array(
+        $result = $this->_client->writeTableAsync($tableId, new CsvFile($importedFile), [
             'columns' => $headersCsv->getHeader(),
-        ));
+        ]);
         $table = $this->_client->getTable($tableId);
 
         $this->assertEmpty($result['warnings']);
@@ -421,13 +421,13 @@ class ImportExportCommonTest extends StorageApiTestCase
 
         $lines = '"id","name"';
         $lines .= "\n" . '"first","second"' . "\n";
-        $this->_client->apiPost("tables/$tableId/import", array(
+        $this->_client->apiPost("tables/$tableId/import", [
             'dataString' => $lines,
-        ));
+        ]);
 
-        $this->assertEquals($lines, $this->_client->getTableDataPreview($tableId, array(
+        $this->assertEquals($lines, $this->_client->getTableDataPreview($tableId, [
             'format' => 'rfc',
-        )));
+        ]));
     }
 
     public function testTableInvalidAsyncImport(): void

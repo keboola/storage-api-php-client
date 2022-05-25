@@ -1035,7 +1035,7 @@ class BranchComponentTest extends StorageApiTestCase
         $branchComponents->addConfiguration((new Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('branch-2')
-            ->setConfiguration(array('x' => 'y'))
+            ->setConfiguration(['x' => 'y'])
             ->setName('Dev branch'));
         $branchComponents->addConfiguration((new Configuration())
             ->setComponentId('provisioning')
@@ -1057,7 +1057,7 @@ class BranchComponentTest extends StorageApiTestCase
         // list with configuration body
         $configs = $branchComponents->listComponents((new ListComponentsOptions())
             ->setComponentType('writer')
-            ->setInclude(array('configuration')));
+            ->setInclude(['configuration']));
 
         $this->assertCount(2, $configs[0]['configurations']);
         $this->assertCount(1, $configs);

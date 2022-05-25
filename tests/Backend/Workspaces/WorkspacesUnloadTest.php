@@ -78,21 +78,21 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $db->query("insert into \"test_Languages3\" (\"Id\", \"Name\") values (1, 'cz'), (2, 'en');");
 
         // create table from workspace
-        $tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), array(
+        $tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), [
             'name' => 'languages3',
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => 'test_Languages3',
-        ));
+        ]);
 
-        $expected = array(
+        $expected = [
             ($connection['backend'] === parent::BACKEND_REDSHIFT) ? '"id","name"' : '"Id","Name"',
             '"1","cz"',
             '"2","en"',
-        );
+        ];
 
-        $this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->getTableDataPreview($tableId, array(
+        $this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->getTableDataPreview($tableId, [
             'format' => 'rfc',
-        )), 'imported data comparsion');
+        ]), 'imported data comparsion');
     }
 
     public function testCreateTableFromWorkspaceWithInvalidColumnNames(): void
@@ -113,11 +113,11 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $db->query("insert into \"test_Languages3\" (\"_Id\", \"Name\") values (1, 'cz'), (2, 'en');");
 
         try {
-            $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), array(
+            $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), [
                 'name' => 'languages3',
                 'dataWorkspaceId' => $workspace['id'],
                 'dataTableName' => 'test_Languages3',
-            ));
+            ]);
             $this->fail('Table should not be created');
         } catch (ClientException $e) {
             $this->assertEquals('storage.invalidColumns', $e->getStringCode());
@@ -130,17 +130,17 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace();
 
-        $table = $this->_client->apiPost("buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(
+        $table = $this->_client->apiPost("buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", [
             'dataString' => 'Id,Name',
             'name' => 'languages',
             'primaryKey' => 'Id',
-        ));
+        ]);
 
         try {
-            $this->_client->writeTableAsyncDirect($table['id'], array(
+            $this->_client->writeTableAsyncDirect($table['id'], [
                 'dataWorkspaceId' => $workspace['id'],
                 'dataTableName' => 'thisTableDoesNotExist',
-            ));
+            ]);
             $this->fail('Table should not be imported');
         } catch (ClientException $e) {
             $this->assertEquals('storage.tableNotFound', $e->getStringCode());
@@ -154,11 +154,11 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         }
 
         try {
-            $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), array(
+            $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), [
                 'name' => 'thisTableDoesNotExist',
                 'dataWorkspaceId' => $workspace['id'],
                 'dataTableName' => 'thisTableDoesNotExist',
-            ));
+            ]);
             $this->fail('Table should not be imported');
         } catch (ClientException $e) {
             $this->assertEquals('storage.tableNotFound', $e->getStringCode());
@@ -190,18 +190,18 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 		);");
         $db->query("insert into \"test_Languages3\" (\"Id\", \"Name\", \"_update\") values (1, 'cz', 'x'), (2, 'en', 'z');");
 
-        $table = $this->_client->apiPost("buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(
+        $table = $this->_client->apiPost("buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", [
             'dataString' => 'Id,Name',
             'name' => 'languages',
             'primaryKey' => 'Id',
-        ));
+        ]);
 
         try {
-            $this->_client->writeTableAsyncDirect($table['id'], array(
+            $this->_client->writeTableAsyncDirect($table['id'], [
                 'dataWorkspaceId' => $workspace['id'],
                 'dataTableName' => 'test_Languages3',
                 'incremental' => true,
-            ));
+            ]);
             $this->fail('Table should not be imported');
         } catch (ClientException $e) {
             $this->assertEquals('storage.invalidColumns', $e->getStringCode());
@@ -211,11 +211,11 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
     public function testCopyImport(): void
     {
-        $table = $this->_client->apiPost("buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(
+        $table = $this->_client->apiPost("buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", [
             'dataString' => 'Id,Name,update',
             'name' => 'languages',
             'primaryKey' => 'Id',
-        ));
+        ]);
 
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace();
@@ -234,58 +234,58 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
         $db->query("insert into \"test_Languages3\" (\"Id\", \"Name\") values (1, 'cz'), (2, 'en');");
 
-        $this->_client->writeTableAsyncDirect($table['id'], array(
+        $this->_client->writeTableAsyncDirect($table['id'], [
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => 'test_Languages3',
-        ));
+        ]);
 
-        $expected = array(
+        $expected = [
             '"Id","Name","update"',
             '"1","cz",""',
             '"2","en",""',
-        );
+        ];
 
-        $this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->getTableDataPreview($table['id'], array(
+        $this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->getTableDataPreview($table['id'], [
             'format' => 'rfc',
-        )), 'imported data comparsion');
+        ]), 'imported data comparsion');
 
         $db->query("truncate table \"test_Languages3\"");
         $db->query("insert into \"test_Languages3\" values (1, 'cz', '1'), (3, 'sk', '1');");
 
-        $this->_client->writeTableAsyncDirect($table['id'], array(
+        $this->_client->writeTableAsyncDirect($table['id'], [
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => 'test_Languages3',
             'incremental' => true,
-        ));
+        ]);
 
-        $expected = array(
+        $expected = [
             '"Id","Name","update"',
             '"1","cz","1"',
             '"2","en",""',
             '"3","sk","1"',
-        );
-        $this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->getTableDataPreview($table['id'], array(
+        ];
+        $this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->getTableDataPreview($table['id'], [
             'format' => 'rfc',
-        )), 'previously null column updated');
+        ]), 'previously null column updated');
 
         $db->query("truncate table \"test_Languages3\"");
         $db->query("alter table \"test_Languages3\" ADD COLUMN \"new_col\" varchar(10)");
         $db->query("insert into \"test_Languages3\" values (1, 'cz', '1', null), (3, 'sk', '1', 'newValue');");
 
-        $this->_client->writeTableAsyncDirect($table['id'], array(
+        $this->_client->writeTableAsyncDirect($table['id'], [
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => 'test_Languages3',
             'incremental' => true,
-        ));
+        ]);
 
-        $expected = array(
+        $expected = [
             '"Id","Name","update","new_col"',
             '"1","cz","1",""',
             '"2","en","",""',
             '"3","sk","1","newValue"',
-        );
-        $this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->getTableDataPreview($table['id'], array(
+        ];
+        $this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->getTableDataPreview($table['id'], [
             'format' => 'rfc',
-        )), 'new  column added');
+        ]), 'new  column added');
     }
 }

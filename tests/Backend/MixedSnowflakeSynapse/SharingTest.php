@@ -149,20 +149,20 @@ class SharingTest extends StorageApiSharingTestCase
         );
         $this->_client2->dropBucket($linked2Id);
 
-        $mapping1 = array(
+        $mapping1 = [
             "source" => str_replace($bucketId, $linkedId, $table1Id),
-            "destination" => "languagesLoaded"
-        );
+            "destination" => "languagesLoaded",
+        ];
 
-        $mapping2 = array(
+        $mapping2 = [
             "source" => str_replace($bucketId, $linkedId, $table2Id),
-            "destination" => "numbersLoaded"
-        );
+            "destination" => "numbersLoaded",
+        ];
 
-        $mapping3 = array(
+        $mapping3 = [
             "source" => str_replace($bucketId, $linkedId, $table3Id),
-            "destination" => "numbersAliasLoaded"
-        );
+            "destination" => "numbersAliasLoaded",
+        ];
 
         // init workspace
         $workspaces = new Workspaces($this->_client2);
@@ -170,7 +170,7 @@ class SharingTest extends StorageApiSharingTestCase
             "backend" => $workspaceBackend,
         ]);
 
-        $input = array($mapping1, $mapping2, $mapping3);
+        $input = [$mapping1, $mapping2, $mapping3];
 
         // test if job is created and listed
         $initialJobs = $this->_client2->listJobs();
@@ -178,7 +178,7 @@ class SharingTest extends StorageApiSharingTestCase
         $runId = $this->_client2->generateRunId();
         $this->_client2->setRunId($runId);
 
-        $workspaces->loadWorkspaceData($workspace['id'], array("input" => $input));
+        $workspaces->loadWorkspaceData($workspace['id'], ["input" => $input]);
 
         $this->createAndWaitForEvent(
             (new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'),
@@ -251,8 +251,8 @@ class SharingTest extends StorageApiSharingTestCase
         $runId = $this->_client2->generateRunId();
         $this->_client2->setRunId($runId);
 
-        $mapping3 = array("source" => str_replace($bucketId, $linkedId, $table3Id), "destination" => "table3");
-        $workspaces->loadWorkspaceData($workspace['id'], array("input" => array($mapping3), "preserve" => true));
+        $mapping3 = ["source" => str_replace($bucketId, $linkedId, $table3Id), "destination" => "table3"];
+        $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping3], "preserve" => true]);
 
         $this->createAndWaitForEvent(
             (new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'),
@@ -275,7 +275,7 @@ class SharingTest extends StorageApiSharingTestCase
         $runId = $this->_client2->generateRunId();
         $this->_client2->setRunId($runId);
 
-        $workspaces->loadWorkspaceData($workspace['id'], array("input" => array($mapping3)));
+        $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping3]]);
 
         $this->createAndWaitForEvent(
             (new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'),
@@ -407,11 +407,11 @@ class SharingTest extends StorageApiSharingTestCase
             $db->query("insert into \"test.Languages3\" (\"Id\", \"Name\") values (1, 'cz'), (2, 'en');");
         }
         try {
-            $this->_client2->createTableAsyncDirect($linkedId, array(
+            $this->_client2->createTableAsyncDirect($linkedId, [
                 'name' => 'languages3',
                 'dataWorkspaceId' => $workspace['id'],
                 'dataTableName' => 'Languages3',
-            ));
+            ]);
 
             $this->fail('Unload to liked bucket should fail with access exception');
         } catch (ClientException $e) {

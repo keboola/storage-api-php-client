@@ -13,7 +13,7 @@ class ListComponentsOptions
 {
     private $componentType;
 
-    private $include = array();
+    private $include = [];
 
     private $isDeleted;
 
@@ -36,18 +36,18 @@ class ListComponentsOptions
 
     public function toParamsArray()
     {
-        return array(
+        return [
             'componentType' => $this->getComponentType(),
             'include' => implode(',', $this->getInclude()),
             'isDeleted' => $this->getIsDeleted(),
-        );
+        ];
     }
 
     /**
      * @param array $include
      * @return $this
      */
-    public function setInclude($include = array())
+    public function setInclude($include = [])
     {
         $this->include = (array) $include;
         return $this;

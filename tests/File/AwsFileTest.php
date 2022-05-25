@@ -49,41 +49,41 @@ class AwsFileTest extends StorageApiTestCase
     public function uploadData()
     {
         $path = __DIR__ . '/../_data/files.upload.txt';
-        return array(
-            array(
+        return [
+            [
                 $path,
-                (new FileUploadOptions())->setIsPublic(true)
-            ),
-            array(
-                $path,
-                (new FileUploadOptions())
-                    ->setIsPublic(true)
-            ),
-            array(
+                (new FileUploadOptions())->setIsPublic(true),
+            ],
+            [
                 $path,
                 (new FileUploadOptions())
-                    ->setIsEncrypted(false)
-            ),
-            array(
+                    ->setIsPublic(true),
+            ],
+            [
                 $path,
                 (new FileUploadOptions())
-                    ->setIsEncrypted(true)
-            ),
-            array(
+                    ->setIsEncrypted(false),
+            ],
+            [
+                $path,
+                (new FileUploadOptions())
+                    ->setIsEncrypted(true),
+            ],
+            [
                 $path,
                 (new FileUploadOptions())
                     ->setNotify(false)
                     ->setCompress(false)
-                    ->setIsPublic(false)
-            ),
-            array(
+                    ->setIsPublic(false),
+            ],
+            [
                 $path,
                 (new FileUploadOptions())
                     ->setIsPublic(true)
                     ->setIsPermanent(true)
-                    ->setTags(array('sapi-import', 'martin'))
-            ),
-        );
+                    ->setTags(['sapi-import', 'martin']),
+            ],
+        ];
     }
 
     /**
@@ -135,10 +135,10 @@ class AwsFileTest extends StorageApiTestCase
 
     public function encryptedData()
     {
-        return array(
-            array(false),
-            array(true),
-        );
+        return [
+            [false],
+            [true],
+        ];
     }
 
     public function testRequireEncryptionForSliced(): void
@@ -165,11 +165,11 @@ class AwsFileTest extends StorageApiTestCase
 
         try {
             // write without encryption header
-            $s3Client->putObject(array(
+            $s3Client->putObject([
                 'Bucket' => $uploadParams['bucket'],
                 'Key' => $uploadParams['key'] . 'part001.gz',
                 'Body' => fopen(__DIR__ . '/../_data/sliced/neco_0000_part_00.gz', 'r+'),
-            ))->get('ObjectURL');
+            ])->get('ObjectURL');
             $this->fail('Write should not be allowed');
         } catch (\Aws\S3\Exception\S3Exception $e) {
             $this->assertEquals(403, $e->getStatusCode());
@@ -198,34 +198,34 @@ class AwsFileTest extends StorageApiTestCase
             ],
         ]);
 
-        $object = $s3Client->getObject(array(
+        $object = $s3Client->getObject([
             'Bucket' => $file['s3Path']['bucket'],
             'Key' => $file['s3Path']['key'],
-        ));
+        ]);
         $this->assertEquals(file_get_contents($filePath), $object['Body']);
 
-        $objects = $s3Client->listObjects(array(
+        $objects = $s3Client->listObjects([
             'Bucket' => $file['s3Path']['bucket'],
             'Prefix' => $file['s3Path']['key'],
-        ));
+        ]);
 
         $this->assertCount(1, $objects->get('Contents'), 'Only one file should be returned');
 
         try {
-            $s3Client->listObjects(array(
+            $s3Client->listObjects([
                 'Bucket' => $file['s3Path']['bucket'],
                 'Prefix' => dirname($file['s3Path']['key']),
-            ));
+            ]);
             $this->fail('Access denied exception should be thrown');
         } catch (\Aws\S3\Exception\S3Exception $e) {
             $this->assertEquals(403, $e->getStatusCode());
         }
 
         try {
-            $s3Client->listObjects(array(
+            $s3Client->listObjects([
                 'Bucket' => $file['s3Path']['bucket'],
                 'Prefix' => $file['s3Path']['key'] . 'manifest',
-            ));
+            ]);
             $this->fail('Access denied exception should be thrown');
         } catch (\Aws\S3\Exception\S3Exception $e) {
             $this->assertEquals(403, $e->getStatusCode());

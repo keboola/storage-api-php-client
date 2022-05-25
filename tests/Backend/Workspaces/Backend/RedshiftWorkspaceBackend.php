@@ -21,7 +21,7 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
     public function getTableColumns($table)
     {
         $stmt = $this->db->prepare("SELECT \"column\" FROM PG_TABLE_DEF WHERE tablename = ?;");
-        $stmt->execute(array($table));
+        $stmt->execute([$table]);
         return array_map(function ($row) {
                 return $row['column'];
         }, $stmt->fetchAll());
@@ -30,7 +30,7 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
     public function getTables()
     {
         $stmt = $this->db->prepare("select tablename from PG_TABLES where schemaname = ?");
-        $stmt->execute(array($this->schema));
+        $stmt->execute([$this->schema]);
         return array_map(function ($table) {
                 return $table['tablename'];
         }, $stmt->fetchAll());
