@@ -288,7 +288,6 @@ class BranchMetadataTest extends StorageApiTestCase
         // wait for other timestamp
         sleep(1);
 
-
         // create new branch
         $branchClient = $this->clientProvider->getDevBranchClient();
         $branchMdClient = new DevBranchesMetadata($branchClient);
@@ -301,7 +300,6 @@ class BranchMetadataTest extends StorageApiTestCase
         $this->assertMetadataEquals(self::TEST_METADATA[1], $branchMetadata[1]);
         $this->assertNotSame($metadata[0]['timestamp'], $branchMetadata[0]['timestamp']);
         $lastBranchMetadata = $branchMetadata;
-
 
         // add new metadata to default
         $DEFAULT_METADATA = [
@@ -327,7 +325,6 @@ class BranchMetadataTest extends StorageApiTestCase
         $branchMetadata = $branchMdClient->listBranchMetadata();
         $this->assertSame($lastBranchMetadata, $branchMetadata);
 
-
         // add new metadata to branch
         $BRANCH_METADATA = [
             [
@@ -347,7 +344,6 @@ class BranchMetadataTest extends StorageApiTestCase
         // check metadata are untouched in default
         $defaultMetadata = $defaultMdClient->listBranchMetadata();
         $this->assertSame($lastDefaultMetadata, $defaultMetadata);
-
 
         // delete branch
         $defaultClient = new DevBranches($this->_client);

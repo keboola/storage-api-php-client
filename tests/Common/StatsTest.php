@@ -47,7 +47,6 @@ class StatsTest extends StorageApiTestCase
         $this->assertCount(0, $import['tables']);
         $this->assertEquals(0, $import['totalCount']);
 
-
         $export = $tables['export'];
         $this->assertCount(0, $export['tables']);
         $this->assertEquals(0, $export['totalCount']);
@@ -92,7 +91,6 @@ class StatsTest extends StorageApiTestCase
         $this->assertEquals(2, $table['count']);
         $this->assertArrayHasKey('durationTotalSeconds', $table);
         $this->assertEquals($table1Id, $table['id']);
-
 
         $export = $tables['export'];
         $this->assertCount(1, $export['tables']);

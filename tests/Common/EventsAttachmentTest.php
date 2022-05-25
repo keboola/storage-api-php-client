@@ -30,7 +30,6 @@ class EventsAttachmentTest extends StorageApiTestCase
         $table1Id = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile($importFile));
         $this->_client->writeTableAsync($table1Id, new CsvFile($importFile));
 
-
         // block until async events are processed, processing in order is not guaranteed but it should work most of time
         $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
 

@@ -42,7 +42,6 @@ class CommonTest extends StorageApiTestCase
         $this->assertEquals(0, $inBucket['rowsCount']);
         $this->assertEquals(0, $inBucket['dataSizeBytes']);
 
-
         $tableId = $this->_client->createTable(
             $inBucketId,
             'rates',

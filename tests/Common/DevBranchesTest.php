@@ -50,7 +50,6 @@ class DevBranchesTest extends StorageApiTestCase
         $adminDevBranches = new DevBranches($this->_client);
         $branch = $adminDevBranches->createBranch($description);
 
-
         $branches = new DevBranches($this->getClientForToken(STORAGE_API_GUEST_TOKEN));
         $guestBranch = $branches->createBranch($description . '\\GuestRole');
 
@@ -112,7 +111,6 @@ class DevBranchesTest extends StorageApiTestCase
         $this->assertSame($branchName . '-original', $event['objectName']);
         $this->assertSame('devBranch', $event['objectType']);
         $this->assertSame($branchName, $event['params']['devBranchName']);
-
 
         // can get branch detail
         $branchFromDetail = $branches->getBranch($branchId);

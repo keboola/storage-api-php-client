@@ -33,7 +33,6 @@
         <exclude name="SlevomatCodingStandard.ControlStructures.DisallowYodaComparison.DisallowedYodaComparison" />
         <exclude name="SlevomatCodingStandard.Namespaces.UseDoesNotStartWithBackslash.UseStartsWithBackslash" />
         <exclude name="SlevomatCodingStandard.Exceptions.ReferenceThrowableOnly.ReferencedGeneralException" />
-        <exclude name="Squiz.WhiteSpace.SuperfluousWhitespace.EmptyLines" />
         <exclude name="PSR2.ControlStructures.ElseIfDeclaration.NotAllowed" />
     </rule>
     <exclude-pattern>vendor/</exclude-pattern>

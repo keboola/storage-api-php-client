@@ -88,7 +88,6 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
         $workspace = $workspaces->createWorkspace(["backend" => $backend]);
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-
         $importFile = __DIR__ . '/../../../_data/languages.csv';
         $tableId = $this->_client->createTable(
             $bucketId,
@@ -149,7 +148,6 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace(["backend" => $backend]);
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-
 
         $importFile = __DIR__ . '/../../../_data/languages.with-state.csv';
         $tableId = $this->_client->createTable(
@@ -228,7 +226,6 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
         $workspaces->loadWorkspaceData($workspace['id'], $options);
         $this->assertEquals(5, $backend->countRows('languages'));
 
-
         $rows = $backend->fetchAll('languages', \PDO::FETCH_ASSOC);
         // lower case keys - Redshift issue
         $rows = array_map(function ($row) {
@@ -265,7 +262,6 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace(["backend" => $backend]);
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-
 
         $importFile = __DIR__ . '/../../../_data/languages.with-state.csv';
         $tableId = $this->_client->createTable(

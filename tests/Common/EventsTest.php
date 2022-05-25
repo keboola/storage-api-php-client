@@ -124,7 +124,6 @@ class EventsTest extends StorageApiTestCase
             ->setComponentType('ex-sfdc')
             ->setMessage('test');
 
-
         $savedEvent = $this->createAndWaitForEvent($event);
         $this->assertEquals($event->getComponentName(), $savedEvent['configurationId']);
         $this->assertEquals($event->getComponentType(), $savedEvent['component']);
@@ -164,7 +163,6 @@ class EventsTest extends StorageApiTestCase
             'limit' => 100,
             'offset' => 0
         ));
-
 
         $lastEvent = reset($events);
         $lastEventId = $lastEvent['id'];

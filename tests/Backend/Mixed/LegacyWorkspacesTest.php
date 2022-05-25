@@ -102,7 +102,6 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
         $workspace = $workspaces->createWorkspace(["backend" => $backend]);
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-
         $importFile = __DIR__ . '/../../_data/languages.with-state.csv';
         $tableId = $this->_client->createTable(
             $bucketId,
@@ -206,7 +205,6 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
         $workspace = $workspaces->createWorkspace(["backend" => $backend]);
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-
         $importFile = __DIR__ . '/../../_data/languages.with-state.csv';
         $tableId = $this->_client->createTable(
             $bucketId,
@@ -283,7 +281,6 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
         $this->assertEquals(5, $backend->countRows('languages'));
-
 
         $rows = $backend->fetchAll('languages', \PDO::FETCH_ASSOC);
         // lower case keys - Redshift issue

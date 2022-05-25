@@ -378,7 +378,6 @@ class MetadataTest extends StorageApiTestCase
             ]
         );
 
-
         $readClient = $this->getClient([
             'token' => $this->prepareTokenWithReadPrivilegeForBucket($bucketId),
             'url' => STORAGE_API_URL,
@@ -610,7 +609,6 @@ class MetadataTest extends StorageApiTestCase
             ]
         );
 
-
         $readClient = $this->getClient([
             'token' => $this->prepareTokenWithReadPrivilegeForBucket($bucketId),
             'url' => STORAGE_API_URL,
@@ -713,7 +711,6 @@ class MetadataTest extends StorageApiTestCase
         $this->assertEmpty($tableDetail['columnMetadata']);
 
         $this->assertEquals(array('id','name','city'), $tableDetail['columns']);
-
 
         $this->expectException(ClientException::class);
         $this->expectExceptionCode(404);
@@ -977,7 +974,6 @@ class MetadataTest extends StorageApiTestCase
                 ]
             ]
         );
-
 
         $readClient = $this->getClient([
             'token' => $this->prepareTokenWithReadPrivilegeForBucket($bucketId),

@@ -118,7 +118,6 @@ class BranchEventsTest extends StorageApiTestCase
 
         $this->assertGreaterThan(1, count($this->_client->listEvents()));
 
-
         $components = new \Keboola\StorageApi\Components($this->_client);
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('transformation')
@@ -205,7 +204,6 @@ class BranchEventsTest extends StorageApiTestCase
         $eventInBranchFromMasterToken->setComponent('dummy')
             ->setMessage($token['description'] . ' sample master token event');
         $eventInBranchFromMasterToken = $this->createAndWaitForEvent($eventInBranchFromMasterToken, $masterBranchClient);
-
 
         // test DEFAULT branch
         // check token events in default branch

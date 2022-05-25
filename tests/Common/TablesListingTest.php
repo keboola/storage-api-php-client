@@ -136,7 +136,6 @@ class TablesListingTest extends StorageApiTestCase
         $table2Id = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile(__DIR__ . '/../_data/users.csv'));
         $table3Id = $this->_client->createTable($this->getTestBucketId(self::STAGE_OUT), 'dates', new CsvFile(__DIR__ . '/../_data/dates.csv'));
 
-
         $tables = $this->_client->listTables($this->getTestBucketId(), array(
             'include' => 'columns',
         ));
@@ -162,7 +161,6 @@ class TablesListingTest extends StorageApiTestCase
         $this->assertEquals($table2Id, $usersTables['id']);
         $this->assertArrayHasKey('columns', $usersTables);
         $this->assertEquals(array('id', 'name', 'city', 'sex'), $usersTables['columns']);
-
 
         $tables = $this->_client->listTables(null, array(
             'include' => 'columns',
@@ -286,7 +284,6 @@ class TablesListingTest extends StorageApiTestCase
         $this->_client->setTableAttribute($tableId, 'other', 'hello', true);
         $table = $this->_client->getTable($tableId);
 
-
         $this->assertArrayEqualsSorted($table['attributes'], array(
             array(
                 'name' => 's',
@@ -398,7 +395,6 @@ class TablesListingTest extends StorageApiTestCase
                 "value" => "testValue2"
             ]]
         );
-
 
         $tables = $this->_client->listTables($this->getTestBucketId(), [
             'include' => 'buckets,attributes,columns,metadata,columnMetadata'

@@ -149,7 +149,6 @@ class SharingTest extends StorageApiSharingTestCase
         );
         $this->_client2->dropBucket($linked2Id);
 
-
         $mapping1 = array(
             "source" => str_replace($bucketId, $linkedId, $table1Id),
             "destination" => "languagesLoaded"
@@ -193,7 +192,6 @@ class SharingTest extends StorageApiSharingTestCase
         }
 
         $afterJobs = $this->_client2->listJobs();
-
 
         $this->assertEquals('workspaceLoad', $afterJobs[0]['operationName']);
         $this->assertNotEquals(empty($initialJobs) ? 0 : $initialJobs[0]['id'], $afterJobs[0]['id']);

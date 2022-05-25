@@ -191,7 +191,6 @@ class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
             'format' => 'rfc',
         )), 'imported data comparsion');
 
-
         $db->executeQuery("truncate table $quotedTableId");
         $db->executeQuery("insert into $quotedTableId ([Id], [Name], [update]) values (1, 'cz', '1');");
         $db->executeQuery("insert into $quotedTableId ([Id], [Name], [update]) values (3, 'sk', '1');");

@@ -192,7 +192,6 @@ class ExasolWorkspacesUnloadTest extends ParallelWorkspacesTestCase
             'format' => 'rfc',
         )), 'imported data comparsion');
 
-
         $db->query("truncate table $quotedTableId");
         $db->query("insert into $quotedTableId ([Id], [Name], [update]) values (1, 'cz', '1');");
         $db->query("insert into $quotedTableId ([Id], [Name], [update]) values (3, 'sk', '1');");
