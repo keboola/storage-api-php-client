@@ -24,7 +24,7 @@ class SlicedFilesUploadTest extends StorageApiTestCase
         }
         $this->assertEquals($fileSize, $file['sizeBytes']);
         $manifest = json_decode(file_get_contents($file['url']), true);
-        $this->assertCount(count($slices), $manifest["entries"]);
+        $this->assertCount(count($slices), $manifest['entries']);
 
         $s3Client = new \Aws\S3\S3Client([
             'version' => '2006-03-01',
@@ -33,13 +33,13 @@ class SlicedFilesUploadTest extends StorageApiTestCase
                 'key' => $file['credentials']['AccessKeyId'],
                 'secret' => $file['credentials']['SecretAccessKey'],
                 'token' => $file['credentials']['SessionToken'],
-            ]
+            ],
         ]);
 
         foreach ($slices as $filePath) {
             $object = $s3Client->getObject([
                 'Bucket' => $file['s3Path']['bucket'],
-                'Key' => $file["s3Path"]["key"] . basename($filePath)
+                'Key' => $file['s3Path']['key'] . basename($filePath),
             ]);
             $this->assertEquals(file_get_contents($filePath), $object['Body']);
         }
@@ -51,7 +51,7 @@ class SlicedFilesUploadTest extends StorageApiTestCase
         $this->assertEquals($tags, $fileTags);
 
         $info = $this->_client->verifyToken();
-        $this->assertEquals($file['creatorToken']['id'], (int)$info['id']);
+        $this->assertEquals($file['creatorToken']['id'], (int) $info['id']);
         $this->assertEquals($file['creatorToken']['description'], $info['description']);
         $this->assertEquals($file['isEncrypted'], $options->getIsEncrypted());
 
@@ -70,7 +70,7 @@ class SlicedFilesUploadTest extends StorageApiTestCase
         $slices = [$part1, $part2];
         $options = (new FileUploadOptions())
             ->setIsSliced(true)
-            ->setFileName("empty");
+            ->setFileName('empty');
 
         $fileId = $this->_client->uploadSlicedFile($slices, $options);
         $file = $this->_client->getFile($fileId, (new GetFileOptions())->setFederationToken(true));
@@ -83,7 +83,7 @@ class SlicedFilesUploadTest extends StorageApiTestCase
         }
         $this->assertEquals($fileSize, $file['sizeBytes']);
         $manifest = json_decode(file_get_contents($file['url']), true);
-        $this->assertCount(count($slices), $manifest["entries"]);
+        $this->assertCount(count($slices), $manifest['entries']);
 
         $s3Client = new \Aws\S3\S3Client([
             'version' => '2006-03-01',
@@ -92,13 +92,13 @@ class SlicedFilesUploadTest extends StorageApiTestCase
                 'key' => $file['credentials']['AccessKeyId'],
                 'secret' => $file['credentials']['SecretAccessKey'],
                 'token' => $file['credentials']['SessionToken'],
-            ]
+            ],
         ]);
 
         foreach ($slices as $filePath) {
             $object = $s3Client->getObject([
                 'Bucket' => $file['s3Path']['bucket'],
-                'Key' => $file["s3Path"]["key"] . basename($filePath)
+                'Key' => $file['s3Path']['key'] . basename($filePath),
             ]);
             $this->assertEquals(file_get_contents($filePath), $object['Body']);
         }
@@ -110,7 +110,7 @@ class SlicedFilesUploadTest extends StorageApiTestCase
         $this->assertEquals($tags, $fileTags);
 
         $info = $this->_client->verifyToken();
-        $this->assertEquals($file['creatorToken']['id'], (int)$info['id']);
+        $this->assertEquals($file['creatorToken']['id'], (int) $info['id']);
         $this->assertEquals($file['creatorToken']['description'], $info['description']);
         $this->assertEquals($file['isEncrypted'], $options->getIsEncrypted());
 
@@ -130,12 +130,12 @@ class SlicedFilesUploadTest extends StorageApiTestCase
         for ($i = 0; $i < $parts; $i++) {
             $tempfile = tempnam(sys_get_temp_dir(), 'sapi-client-test-slice-' . $i);
             $file = new \Keboola\Csv\CsvFile($tempfile);
-            $file->writeRow(["row" . $i, "value" . $i]);
+            $file->writeRow(['row' . $i, 'value' . $i]);
             $slices[] = $tempfile;
         }
         $fileUploadOptions = (new FileUploadOptions())
             ->setIsSliced(true)
-            ->setFileName("manyparts.csv");
+            ->setFileName('manyparts.csv');
         $fileUploadTransferOptions = (new FileUploadTransferOptions())
             ->setChunkSize(20);
         $fileId = $this->_client->uploadSlicedFile($slices, $fileUploadOptions, $fileUploadTransferOptions);
@@ -147,7 +147,7 @@ class SlicedFilesUploadTest extends StorageApiTestCase
         }
         $this->assertEquals($fileSize, $file['sizeBytes']);
         $manifest = json_decode(file_get_contents($file['url']), true);
-        $this->assertCount(count($slices), $manifest["entries"]);
+        $this->assertCount(count($slices), $manifest['entries']);
 
         $s3Client = new \Aws\S3\S3Client([
             'version' => '2006-03-01',
@@ -156,13 +156,13 @@ class SlicedFilesUploadTest extends StorageApiTestCase
                 'key' => $file['credentials']['AccessKeyId'],
                 'secret' => $file['credentials']['SecretAccessKey'],
                 'token' => $file['credentials']['SessionToken'],
-            ]
+            ],
         ]);
 
         foreach ($slices as $filePath) {
             $object = $s3Client->getObject([
                 'Bucket' => $file['s3Path']['bucket'],
-                'Key' => $file["s3Path"]["key"] . basename($filePath)
+                'Key' => $file['s3Path']['key'] . basename($filePath),
             ]);
             $this->assertEquals(file_get_contents($filePath), $object['Body']);
         }
@@ -174,37 +174,37 @@ class SlicedFilesUploadTest extends StorageApiTestCase
         $part2 = __DIR__ . '/../_data/languages.csv.part_2';
         $parts = [$part1, $part2];
 
-        return array(
-            array(
+        return [
+            [
                 $parts,
                 (new FileUploadOptions())
                     ->setIsSliced(true)
-                    ->setFileName("languages.csv")
-            ),
-            array(
+                    ->setFileName('languages.csv'),
+            ],
+            [
                 $parts,
                 (new FileUploadOptions())
                     ->setIsEncrypted(false)
                     ->setIsSliced(true)
-                    ->setFileName("languages.csv")
-            ),
-            array(
+                    ->setFileName('languages.csv'),
+            ],
+            [
                 $parts,
                 (new FileUploadOptions())
                     ->setNotify(false)
                     ->setCompress(false)
                     ->setIsPublic(false)
                     ->setIsSliced(true)
-                    ->setFileName("languages.csv")
-            ),
-            array(
+                    ->setFileName('languages.csv'),
+            ],
+            [
                 $parts,
                 (new FileUploadOptions())
                     ->setIsPermanent(true)
-                    ->setTags(array('sapi-import', 'martin'))
+                    ->setTags(['sapi-import', 'martin'])
                     ->setIsSliced(true)
-                    ->setFileName("languages.csv")
-            ),
-        );
+                    ->setFileName('languages.csv'),
+            ],
+        ];
     }
 }

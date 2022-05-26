@@ -11,7 +11,7 @@ class ExasolImportExportCommonTest extends ImportExportCommonTest
     public function incrementalImportPkDedupeData()
     {
         return [
-            "simple" =>
+            'simple' =>
                 [
                     new CsvFile(__DIR__ . '/../../_data/pk.simple.csv'),
                     'id',
@@ -19,7 +19,7 @@ class ExasolImportExportCommonTest extends ImportExportCommonTest
                     new CsvFile(__DIR__ . '/../../_data/pk.simple.increment.csv'),
                     new CsvFile(__DIR__ . '/../../_data/pk.simple.increment.loaded.csv'),
                 ],
-            "multiple" =>
+            'multiple' =>
                 [
                     new CsvFile(__DIR__ . '/../../_data/pk.multiple_exasol.csv'),
                     'id,sub_id',

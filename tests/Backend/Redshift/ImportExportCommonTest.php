@@ -46,7 +46,7 @@ class ImportExportCommonTest extends StorageApiTestCase
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
 
-        $csv = new CsvFile(__DIR__ . '/../../_data/languages.csv', ",", '"', "\\");
+        $csv = new CsvFile(__DIR__ . '/../../_data/languages.csv', ',', '"', '\\');
         try {
             $this->_client->writeTableAsync($tableId, $csv);
             $this->fail('Exception should be thrown');

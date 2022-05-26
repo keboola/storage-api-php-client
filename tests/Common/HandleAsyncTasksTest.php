@@ -11,14 +11,14 @@ class HandleAsyncTasksTest extends StorageApiTestCase
 {
     public function testWriteTableAsyncSuccess(): void
     {
-        $jobResult1 = array (
+        $jobResult1 =  [
             'id' => 1,
-            'status' => 'success'
-        );
-        $jobResult2 = array (
+            'status' => 'success',
+        ];
+        $jobResult2 =  [
             'id' => 2,
-            'status' => 'success'
-        );
+            'status' => 'success',
+        ];
 
         $clientMock = self::getMockBuilder(Client::class)
             ->disableOriginalConstructor()
@@ -36,20 +36,20 @@ class HandleAsyncTasksTest extends StorageApiTestCase
 
     public function testWriteTableAsyncError(): void
     {
-        $jobResult1 = array (
+        $jobResult1 =  [
             'id' => 1,
             'status' => 'success',
-        );
-        $jobResult2 = array (
+        ];
+        $jobResult2 =  [
             'id' => 2,
             'status' => 'error',
             'error' =>
-                array (
+                 [
                     'code' => 'invalidData',
                     'message' => 'errorMessage',
                     'exceptionId' => 'keboola-connection-abcdef0123456789',
-                )
-        );
+                ],
+        ];
 
         $clientMock = self::getMockBuilder(Client::class)
             ->disableOriginalConstructor()

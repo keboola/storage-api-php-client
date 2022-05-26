@@ -88,7 +88,7 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
     public function dropTableColumn($table, $column)
     {
         $this->getDb()->executeStatement(sprintf(
-            "ALTER TABLE %s.%s DROP %s;",
+            'ALTER TABLE %s.%s DROP %s;',
             TeradataQuote::quoteSingleIdentifier($this->schema),
             TeradataQuote::quoteSingleIdentifier($table),
             TeradataQuote::quoteSingleIdentifier($column)
@@ -139,7 +139,7 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
     {
         $data = [];
         $res = $this->getDb()->fetchAllAssociative(sprintf(
-            "SELECT * FROM %s.%s %s;",
+            'SELECT * FROM %s.%s %s;',
             TeradataQuote::quoteSingleIdentifier($this->schema),
             TeradataQuote::quoteSingleIdentifier($table),
             $orderBy !== null ? "ORDER BY $orderBy" : null
@@ -213,7 +213,7 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
     {
         if ($this->isTableExists($this->schema, $table)) {
             $this->getDb()->executeStatement(sprintf(
-                "DROP TABLE %s.%s;",
+                'DROP TABLE %s.%s;',
                 TeradataQuote::quoteSingleIdentifier($this->schema),
                 TeradataQuote::quoteSingleIdentifier($table)
             ));

@@ -54,16 +54,16 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         );
 
         $mapping1 = [
-            "source" => $table1Id,
-            "destination" => "tableLanguagesLoaded",
+            'source' => $table1Id,
+            'destination' => 'tableLanguagesLoaded',
         ];
         $mapping2 = [
-            "source" => $table2Id,
-            "destination" => "tableNumbersLoaded",
+            'source' => $table2Id,
+            'destination' => 'tableNumbersLoaded',
         ];
         $mapping3 = [
-            "dataFileId" => $fileId,
-            "destination" => "fileLanguagesLoaded",
+            'dataFileId' => $fileId,
+            'destination' => 'fileLanguagesLoaded',
         ];
 
         $input = [$mapping1, $mapping2, $mapping3];
@@ -72,7 +72,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $initialJobs = $this->_client->listJobs();
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
-        $workspaces->loadWorkspaceData($workspace['id'], ["input" => $input]);
+        $workspaces->loadWorkspaceData($workspace['id'], ['input' => $input]);
         $afterJobs = $this->_client->listJobs();
 
         $this->assertEquals('workspaceLoad', $afterJobs[0]['operationName']);
@@ -92,19 +92,19 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $this->assertManifest($backend, 'tableLanguagesLoaded');
         $this->assertManifest($backend, 'tableNumbersLoaded');
 
-        $data = $backend->fetchAll('tableLanguagesLoaded', ["id", "name"], false, false);
+        $data = $backend->fetchAll('tableLanguagesLoaded', ['id', 'name'], false, false);
         $this->assertArrayEqualsSorted(
             $this->_readCsv($table1Csv),
             $data,
             0
         );
-        $data = $backend->fetchAll('tableNumbersLoaded', ["0","1","2","3","45"], false, false);
+        $data = $backend->fetchAll('tableNumbersLoaded', ['0','1','2','3','45'], false, false);
         $this->assertArrayEqualsSorted(
             $this->_readCsv($table2Csv),
             $data,
             0
         );
-        $data = $backend->fetchAll('fileLanguagesLoaded', ["id", "name"], true, true, false);
+        $data = $backend->fetchAll('fileLanguagesLoaded', ['id', 'name'], true, true, false);
         $this->assertArrayEqualsSorted(
             $this->_readCsv($file1Csv),
             $data,
@@ -115,10 +115,10 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $this->assertCount(1, $blobs); // one file upload in folder
         // load table again with second file into same destination with preserve
         $workspaces->loadWorkspaceData($workspace['id'], [
-            "input" => [
+            'input' => [
                 [
-                    "dataFileId" => $file2Id,
-                    "destination" => "fileLanguagesLoaded",
+                    'dataFileId' => $file2Id,
+                    'destination' => 'fileLanguagesLoaded',
                 ],
             ],
             'preserve' => true,
@@ -128,14 +128,14 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
 
         // load table again to new destination to test if workspace was cleared
         $workspaces->loadWorkspaceData($workspace['id'], [
-            "input" => [
+            'input' => [
                 [
-                    "source" => $table1Id,
-                    "destination" => "tableLoadAgain",
+                    'source' => $table1Id,
+                    'destination' => 'tableLoadAgain',
                 ],
                 [
-                    "dataFileId" => $file2Id,
-                    "destination" => "fileLanguagesLoaded2",
+                    'dataFileId' => $file2Id,
+                    'destination' => 'fileLanguagesLoaded2',
                 ],
             ],
         ]);
@@ -150,10 +150,10 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         try {
             // load table again to same destination with preserve
             $workspaces->loadWorkspaceData($workspace['id'], [
-                "input" => [
+                'input' => [
                     [
-                        "source" => $table1Id,
-                        "destination" => "tableLoadAgain",
+                        'source' => $table1Id,
+                        'destination' => 'tableLoadAgain',
                     ],
                 ],
                 'preserve' => true,
@@ -169,10 +169,10 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         try {
             // load file upload again to same destination with preserve
             $workspaces->loadWorkspaceData($workspace['id'], [
-                "input" => [
+                'input' => [
                     [
-                        "dataFileId" => $file2Id,
-                        "destination" => "fileLanguagesLoaded2",
+                        'dataFileId' => $file2Id,
+                        'destination' => 'fileLanguagesLoaded2',
                     ],
                 ],
                 'preserve' => true,
@@ -207,21 +207,21 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $newToken = $this->tokens->createToken($tokenOptions);
         $newTokenClient = $this->getClient([
             'token' => $newToken['token'],
-            'url' => STORAGE_API_URL
+            'url' => STORAGE_API_URL,
         ]);
 
         $workspaces = new Workspaces($newTokenClient);
         $workspace = $this->createFileWorkspace($workspaces);
 
         $mapping = [
-            "dataFileId" => $fileId,
-            "destination" => "languagesLoadedMore",
+            'dataFileId' => $fileId,
+            'destination' => 'languagesLoadedMore',
         ];
 
-        $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping]]);
+        $workspaces->loadWorkspaceData($workspace['id'], ['input' => [$mapping]]);
 
         $backend = new Abs($workspace['connection']);
-        $data = $backend->fetchAll('languagesLoadedMore', ["id", "name"], true, true, false);
+        $data = $backend->fetchAll('languagesLoadedMore', ['id', 'name'], true, true, false);
         $this->assertArrayEqualsSorted(
             $this->_readCsv($fileCsv),
             $data,
@@ -235,7 +235,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         );
 
         try {
-            $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping]]);
+            $workspaces->loadWorkspaceData($workspace['id'], ['input' => [$mapping]]);
         } catch (ClientException $e) {
             $this->assertSame(403, $e->getCode());
             $this->assertSame('You don\'t have access to resource.', $e->getMessage());
@@ -298,14 +298,14 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
             ]
         );
 
-        $mapping1 = ["source" => $table1Id, "destination" => "languagesLoaded"];
-        $mapping2 = ["source" => $table2Id, "destination" => "languagesAlias"];
-        $mapping3 = ["source" => $table3Id, "destination" => "languagesOneColumn"];
-        $mapping4 = ["source" => $table4Id, "destination" => "languagesFiltered"];
-        $mapping5 = ["source" => $table2AliasedId, "destination" => "languagesNestedAlias"];
+        $mapping1 = ['source' => $table1Id, 'destination' => 'languagesLoaded'];
+        $mapping2 = ['source' => $table2Id, 'destination' => 'languagesAlias'];
+        $mapping3 = ['source' => $table3Id, 'destination' => 'languagesOneColumn'];
+        $mapping4 = ['source' => $table4Id, 'destination' => 'languagesFiltered'];
+        $mapping5 = ['source' => $table2AliasedId, 'destination' => 'languagesNestedAlias'];
 
         $input = [$mapping1, $mapping2, $mapping3, $mapping4, $mapping5];
-        $workspaces->loadWorkspaceData($workspace['id'], ["input" => $input]);
+        $workspaces->loadWorkspaceData($workspace['id'], ['input' => $input]);
 
         $backend = new Abs($workspace['connection']);
 
@@ -315,21 +315,21 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $this->assertManifest($backend, 'languagesFiltered');
         $this->assertManifest($backend, 'languagesNestedAlias');
 
-        $data = $backend->fetchAll('languagesLoaded', ["id", "name"], false, false);
+        $data = $backend->fetchAll('languagesLoaded', ['id', 'name'], false, false);
         $this->assertArrayEqualsSorted(
             $this->_readCsv($table1Csv),
             $data,
             0
         );
-        $data = $backend->fetchAll('languagesAlias', ["id", "name"], false, false);
+        $data = $backend->fetchAll('languagesAlias', ['id', 'name'], false, false);
         $this->assertArrayEqualsSorted(
             $this->_readCsv($table1Csv),
             $data,
             0
         );
-        $this->assertEquals(1, $backend->countRows('languagesFiltered', ["id", "name"], false));
+        $this->assertEquals(1, $backend->countRows('languagesFiltered', ['id', 'name'], false));
 
-        $data = $backend->fetchAll('languagesOneColumn', ["id"], false, false);
+        $data = $backend->fetchAll('languagesOneColumn', ['id'], false, false);
         foreach ($data as $row) {
             $this->assertCount(1, $row);
         }
@@ -436,9 +436,9 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         );
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
-            $this->fail("Trying to select a non existent column should fail");
+            $this->fail('Trying to select a non existent column should fail');
         } catch (ClientException $e) {
-            $this->assertEquals("storage.tables.nonExistingColumns", $e->getStringCode());
+            $this->assertEquals('storage.tables.nonExistingColumns', $e->getStringCode());
         }
     }
 
@@ -514,7 +514,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
-        $data = $backend->fetchAll('filter-test', ["id", "name", "city", "sex"], false, true);
+        $data = $backend->fetchAll('filter-test', ['id', 'name', 'city', 'sex'], false, true);
 
         $this->assertArrayEqualsSorted($expectedResult, $data, 0);
     }
@@ -544,14 +544,14 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
                 ],
                 [
                     [
-                        "1",
-                        "martin",
-                        "male",
+                        '1',
+                        'martin',
+                        'male',
                     ],
                     [
-                        "2",
-                        "klara",
-                        "female",
+                        '2',
+                        'klara',
+                        'female',
                     ],
                 ],
             ],
@@ -582,16 +582,16 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
                 ],
                 [
                     [
-                        "1",
-                        "martin",
-                        "PRG",
-                        "male",
+                        '1',
+                        'martin',
+                        'PRG',
+                        'male',
                     ],
                     [
-                        "2",
-                        "klara",
-                        "PRG",
-                        "female",
+                        '2',
+                        'klara',
+                        'PRG',
+                        'female',
                     ],
                 ],
             ],
@@ -621,22 +621,22 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
                 ],
                 [
                     [
-                        "1",
-                        "martin",
-                        "PRG",
-                        "male",
+                        '1',
+                        'martin',
+                        'PRG',
+                        'male',
                     ],
                     [
-                        "2",
-                        "klara",
-                        "PRG",
-                        "female",
+                        '2',
+                        'klara',
+                        'PRG',
+                        'female',
                     ],
                     [
-                        "3",
-                        "ondra",
-                        "VAN",
-                        "male",
+                        '3',
+                        'ondra',
+                        'VAN',
+                        'male',
                     ],
                 ],
             ],
@@ -667,22 +667,22 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
                 ],
                 [
                     [
-                        "5",
-                        "hidden",
-                        "",
-                        "male",
+                        '5',
+                        'hidden',
+                        '',
+                        'male',
                     ],
                     [
-                        "4",
-                        "miro",
-                        "BRA",
-                        "male",
+                        '4',
+                        'miro',
+                        'BRA',
+                        'male',
                     ],
                     [
-                        "3",
-                        "ondra",
-                        "VAN",
-                        "male",
+                        '3',
+                        'ondra',
+                        'VAN',
+                        'male',
                     ],
                 ],
             ],
@@ -713,16 +713,16 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
                 ],
                 [
                     [
-                        "4",
-                        "miro",
-                        "BRA",
-                        "male",
+                        '4',
+                        'miro',
+                        'BRA',
+                        'male',
                     ],
                     [
-                        "5",
-                        "hidden",
-                        "",
-                        "male",
+                        '5',
+                        'hidden',
+                        '',
+                        'male',
                     ],
                 ],
             ],
@@ -753,10 +753,10 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
                 ],
                 [
                     [
-                        "5",
-                        "hidden",
-                        "",
-                        "male",
+                        '5',
+                        'hidden',
+                        '',
+                        'male',
                     ],
                 ],
             ],
@@ -787,28 +787,28 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
                 ],
                 [
                     [
-                        "4",
-                        "miro",
-                        "BRA",
-                        "male",
+                        '4',
+                        'miro',
+                        'BRA',
+                        'male',
                     ],
                     [
-                        "1",
-                        "martin",
-                        "PRG",
-                        "male",
+                        '1',
+                        'martin',
+                        'PRG',
+                        'male',
                     ],
                     [
-                        "2",
-                        "klara",
-                        "PRG",
-                        "female",
+                        '2',
+                        'klara',
+                        'PRG',
+                        'female',
                     ],
                     [
-                        "3",
-                        "ondra",
-                        "VAN",
-                        "male",
+                        '3',
+                        'ondra',
+                        'VAN',
+                        'male',
                     ],
                 ],
             ],
@@ -966,8 +966,8 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
                 [
                     'input' => [
                         [
-                            "source" => $table1_id,
-                            "destination" => "languages//Loaded",
+                            'source' => $table1_id,
+                            'destination' => 'languages//Loaded',
                         ],
                     ],
                 ]
@@ -983,8 +983,8 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
                 [
                     'input' => [
                         [
-                            "source" => $table1_id,
-                            "destination" => "languages*(&#$@(Loaded",
+                            'source' => $table1_id,
+                            'destination' => 'languages*(&#$@(Loaded',
                         ],
                     ],
                 ]
@@ -994,16 +994,16 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         }
 
         $mapping1 = [
-            "source" => $table1_id,
-            "destination" => "languagesLoaded",
-            "columns" => [
+            'source' => $table1_id,
+            'destination' => 'languagesLoaded',
+            'columns' => [
                 [
-                    "source" => "id",
-                    "type" => "INTEGER",
+                    'source' => 'id',
+                    'type' => 'INTEGER',
                 ],
                 [
-                    "source" => "name",
-                    "type" => "VARCHAR",
+                    'source' => 'name',
+                    'type' => 'VARCHAR',
                 ],
             ],
         ];
@@ -1016,7 +1016,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         //  test for non-array input
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
-            $this->fail("input should be an array of mappings.");
+            $this->fail('input should be an array of mappings.');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.loadRequestBadInput', $e->getStringCode());
         }
@@ -1043,7 +1043,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         }
 
         $testMapping = $mapping1;
-        unset($testMapping["destination"]);
+        unset($testMapping['destination']);
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
             ['input' => [$testMapping]]
@@ -1057,7 +1057,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         }
 
         $testMapping = $mapping1;
-        unset($testMapping["source"]);
+        unset($testMapping['source']);
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
             ['input' => [$testMapping]]
@@ -1096,16 +1096,16 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
 
         $input = [
             [
-                "source" => $tableId,
-                "destination" => "irrelevant",
-                "columns" => [
+                'source' => $tableId,
+                'destination' => 'irrelevant',
+                'columns' => [
                     [
-                        "source" => "id",
-                        "type" => "INTEGER",
+                        'source' => 'id',
+                        'type' => 'INTEGER',
                     ],
                     [
-                        "source" => "name",
-                        "type" => "VARCHAR",
+                        'source' => 'name',
+                        'type' => 'VARCHAR',
                     ],
                 ],
             ],
@@ -1137,18 +1137,18 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         );
 
         $options = [
-            "input" => [
+            'input' => [
                 [
-                    "source" => $tableId,
-                    "destination" => "dotted.destination",
-                    "columns" => [
+                    'source' => $tableId,
+                    'destination' => 'dotted.destination',
+                    'columns' => [
                         [
-                            "source" => "id",
-                            "type" => "INTEGER",
+                            'source' => 'id',
+                            'type' => 'INTEGER',
                         ],
                         [
-                            "source" => "name",
-                            "type" => "VARCHAR",
+                            'source' => 'name',
+                            'type' => 'VARCHAR',
                         ],
                     ],
                 ],
@@ -1233,8 +1233,8 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
                     'destination' => 'tableUsers',
                 ],
                 [
-                    "dataFileId" => $file1Id,
-                    "destination" => "fileLanguages",
+                    'dataFileId' => $file1Id,
+                    'destination' => 'fileLanguages',
                 ],
                 [
                     'dataFileId' => $file2Id,
@@ -1245,7 +1245,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
-        $data = $backend->fetchAll('tableLanguages', ["id","name"], false, false);
+        $data = $backend->fetchAll('tableLanguages', ['id','name'], false, false);
         $this->assertCount(6, $data);
         $this->assertArrayEqualsSorted(
             $this->_readCsv($table1Csv),
@@ -1253,14 +1253,14 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
             0
         );
 
-        $data = $backend->fetchAll('tableUsers', ["id","name", "city", "sex"], false, false);
+        $data = $backend->fetchAll('tableUsers', ['id','name', 'city', 'sex'], false, false);
         $this->assertArrayEqualsSorted(
             $this->_readCsv($table2Csv),
             $data,
             0
         );
 
-        $data = $backend->fetchAll('fileLanguages', ["id", "name"], true, true, false);
+        $data = $backend->fetchAll('fileLanguages', ['id', 'name'], true, true, false);
         $this->assertCount(6, $data);
         $this->assertArrayEqualsSorted(
             $this->_readCsv($file1Csv),
@@ -1268,7 +1268,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
             0
         );
 
-        $data = $backend->fetchAll('fileUsers', ["id","name", "city", "sex"], true, true, false);
+        $data = $backend->fetchAll('fileUsers', ['id','name', 'city', 'sex'], true, true, false);
         $this->assertArrayEqualsSorted(
             $this->_readCsv($file2Csv),
             $data,
@@ -1291,8 +1291,8 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
                     'overwrite' => true,
                 ],
                 [
-                    "dataFileId" => $file1Id,
-                    "destination" => "fileLanguages",
+                    'dataFileId' => $file1Id,
+                    'destination' => 'fileLanguages',
                 ],
             ],
         ];
@@ -1307,7 +1307,6 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
             );
         }
 
-
         $options = [
             'preserve' => true,
             'input' => [
@@ -1317,8 +1316,8 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
                     'overwrite' => true,
                 ],
                 [
-                    "dataFileId" => $file1Id,
-                    "destination" => "fileLanguages",
+                    'dataFileId' => $file1Id,
+                    'destination' => 'fileLanguages',
                     'overwrite' => true,
                 ],
             ],
@@ -1328,7 +1327,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
         // test load from table overwrite existing data instead of add new data
-        $data = $backend->fetchAll('tableLanguages', ["id", "name"], false, false);
+        $data = $backend->fetchAll('tableLanguages', ['id', 'name'], false, false);
         $this->assertArrayEqualsSorted(
             $this->_readCsv($table3Csv),
             $data,
@@ -1336,7 +1335,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         );
 
         // test load from file overwrite existing data instead of add new data
-        $data = $backend->fetchAll('fileLanguages', ["id", "name"], true, true, false);
+        $data = $backend->fetchAll('fileLanguages', ['id', 'name'], true, true, false);
         $this->assertArrayEqualsSorted(
             $this->_readCsv($file1Csv),
             $data,
@@ -1344,7 +1343,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         );
 
         // test table created from table before overwrite should be preserved
-        $data = $backend->fetchAll('tableUsers', ["id","name", "city", "sex"], false, false);
+        $data = $backend->fetchAll('tableUsers', ['id','name', 'city', 'sex'], false, false);
         $this->assertArrayEqualsSorted(
             $this->_readCsv($table2Csv),
             $data,
@@ -1352,7 +1351,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         );
 
         // test table created from file before overwrite table should be preserved
-        $data = $backend->fetchAll('fileUsers', ["id","name", "city", "sex"], true, true, false);
+        $data = $backend->fetchAll('fileUsers', ['id','name', 'city', 'sex'], true, true, false);
         $this->assertArrayEqualsSorted(
             $this->_readCsv($file2Csv),
             $data,

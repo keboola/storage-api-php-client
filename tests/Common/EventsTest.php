@@ -28,10 +28,10 @@ class EventsTest extends StorageApiTestCase
             ->setRunId('ddddssss')
             ->setMessage('Table Opportunity fetched.')
             ->setDescription('Some longer description of event')
-            ->setParams(array(
+            ->setParams([
                 'accountName' => 'Keboola',
                 'configuration' => 'sys.c-sfdc.sfdc-01',
-            ));
+            ]);
 
         $savedEvent = $this->createAndWaitForEvent($event);
 
@@ -61,7 +61,7 @@ class EventsTest extends StorageApiTestCase
 
         $response = $client->get('/v2/storage/events/' . $event['id']);
 
-        $response = json_decode((string)$response->getBody());
+        $response = json_decode((string) $response->getBody());
 
         $this->assertInstanceOf('stdclass', $response->params);
         $this->assertInstanceOf('stdclass', $response->results);
@@ -124,7 +124,6 @@ class EventsTest extends StorageApiTestCase
             ->setComponentType('ex-sfdc')
             ->setMessage('test');
 
-
         $savedEvent = $this->createAndWaitForEvent($event);
         $this->assertEquals($event->getComponentName(), $savedEvent['configurationId']);
         $this->assertEquals($event->getComponentType(), $savedEvent['component']);
@@ -135,7 +134,7 @@ class EventsTest extends StorageApiTestCase
      */
     public function testCreateInvalidUTF8(): void
     {
-        $message = "SQLSTATE[XX000]: " . chr(0x00000080);
+        $message = 'SQLSTATE[XX000]: ' . chr(0x00000080);
         $event = new Event();
         $event->setComponent('ex-sfdc')
             ->setType('info')
@@ -160,11 +159,10 @@ class EventsTest extends StorageApiTestCase
 
     public function testEventsFiltering(): void
     {
-        $events = $this->_client->listEvents(array(
+        $events = $this->_client->listEvents([
             'limit' => 100,
-            'offset' => 0
-        ));
-
+            'offset' => 0,
+        ]);
 
         $lastEvent = reset($events);
         $lastEventId = $lastEvent['id'];
@@ -186,26 +184,26 @@ class EventsTest extends StorageApiTestCase
         $event->setMessage('another');
         $this->createAndWaitForEvent($event);
 
-        $events = $this->_client->listEvents(array(
+        $events = $this->_client->listEvents([
             'sinceId' => $lastEventId,
             'runId' => $runId,
-        ));
+        ]);
 
         $this->assertCount(3, $events);
 
-        $events = $this->_client->listEvents(array(
+        $events = $this->_client->listEvents([
             'sinceId' => $lastEventId,
             'component' => 'transformation',
-        ));
+        ]);
         $this->assertCount(1, $events, 'filter by component');
 
         $event->setRunId('rundId2');
         $this->createAndWaitForEvent($event);
 
-        $events = $this->_client->listEvents(array(
+        $events = $this->_client->listEvents([
             'sinceId' => $lastEventId,
             'runId' => $runId,
-        ));
+        ]);
         $this->assertCount(3, $events);
     }
 
@@ -273,11 +271,11 @@ class EventsTest extends StorageApiTestCase
                 'success:',
             ],
             [
-                "/GET",
+                '/GET',
             ],
             [
-                "*tables*",
-            ]
+                '*tables*',
+            ],
         ];
     }
 

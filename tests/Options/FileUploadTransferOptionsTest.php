@@ -39,19 +39,19 @@ class FileUploadTransferOptionsTest extends StorageApiTestCase
         $options = new FileUploadTransferOptions();
         try {
             $options->setChunkSize(0);
-            $this->fail("Exception not caught.");
+            $this->fail('Exception not caught.');
         } catch (ClientException $e) {
             $this->assertEquals("Invalid chunk size: '0'", $e->getMessage());
         }
         try {
             $options->setChunkSize(-1);
-            $this->fail("Exception not caught.");
+            $this->fail('Exception not caught.');
         } catch (ClientException $e) {
             $this->assertEquals("Invalid chunk size: '-1'", $e->getMessage());
         }
         try {
-            $options->setChunkSize("abcd");
-            $this->fail("Exception not caught.");
+            $options->setChunkSize('abcd');
+            $this->fail('Exception not caught.');
         } catch (ClientException $e) {
             $this->assertEquals("Invalid chunk size: 'abcd'", $e->getMessage());
         }
@@ -62,19 +62,19 @@ class FileUploadTransferOptionsTest extends StorageApiTestCase
         $options = new FileUploadTransferOptions();
         try {
             $options->setMaxRetriesPerChunk(0);
-            $this->fail("Exception not caught.");
+            $this->fail('Exception not caught.');
         } catch (ClientException $e) {
             $this->assertEquals("Invalid max retries per chunk: '0'", $e->getMessage());
         }
         try {
             $options->setMaxRetriesPerChunk(-1);
-            $this->fail("Exception not caught.");
+            $this->fail('Exception not caught.');
         } catch (ClientException $e) {
             $this->assertEquals("Invalid max retries per chunk: '-1'", $e->getMessage());
         }
         try {
-            $options->setMaxRetriesPerChunk("abcd");
-            $this->fail("Exception not caught.");
+            $options->setMaxRetriesPerChunk('abcd');
+            $this->fail('Exception not caught.');
         } catch (ClientException $e) {
             $this->assertEquals("Invalid max retries per chunk: 'abcd'", $e->getMessage());
         }
@@ -85,19 +85,19 @@ class FileUploadTransferOptionsTest extends StorageApiTestCase
         $options = new FileUploadTransferOptions();
         try {
             $options->setMultiFileConcurrency(0);
-            $this->fail("Exception not caught.");
+            $this->fail('Exception not caught.');
         } catch (ClientException $e) {
             $this->assertEquals("Invalid multi file concurrency: '0'", $e->getMessage());
         }
         try {
             $options->setMultiFileConcurrency(-1);
-            $this->fail("Exception not caught.");
+            $this->fail('Exception not caught.');
         } catch (ClientException $e) {
             $this->assertEquals("Invalid multi file concurrency: '-1'", $e->getMessage());
         }
         try {
-            $options->setMultiFileConcurrency("abcd");
-            $this->fail("Exception not caught.");
+            $options->setMultiFileConcurrency('abcd');
+            $this->fail('Exception not caught.');
         } catch (ClientException $e) {
             $this->assertEquals("Invalid multi file concurrency: 'abcd'", $e->getMessage());
         }
@@ -108,19 +108,19 @@ class FileUploadTransferOptionsTest extends StorageApiTestCase
         $options = new FileUploadTransferOptions();
         try {
             $options->setSingleFileConcurrency(0);
-            $this->fail("Exception not caught.");
+            $this->fail('Exception not caught.');
         } catch (ClientException $e) {
             $this->assertEquals("Invalid single file concurrency: '0'", $e->getMessage());
         }
         try {
             $options->setSingleFileConcurrency(-1);
-            $this->fail("Exception not caught.");
+            $this->fail('Exception not caught.');
         } catch (ClientException $e) {
             $this->assertEquals("Invalid single file concurrency: '-1'", $e->getMessage());
         }
         try {
-            $options->setSingleFileConcurrency("abcd");
-            $this->fail("Exception not caught.");
+            $options->setSingleFileConcurrency('abcd');
+            $this->fail('Exception not caught.');
         } catch (ClientException $e) {
             $this->assertEquals("Invalid single file concurrency: 'abcd'", $e->getMessage());
         }

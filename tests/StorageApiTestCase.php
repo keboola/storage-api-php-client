@@ -42,7 +42,7 @@ abstract class StorageApiTestCase extends ClientTestCase
 
     const FEATURE_CONFIGURATIONS_USE_DEV_BRANCH_SERVICES_ONLY = 'configurations-use-dev-branch-services-only';
 
-    protected $_bucketIds = array();
+    protected $_bucketIds = [];
 
     /** @var Client */
     protected $_client;
@@ -202,13 +202,13 @@ abstract class StorageApiTestCase extends ClientTestCase
      * @param $path
      * @return array
      */
-    protected function _readCsv($path, $delimiter = ",", $enclosure = '"', $escape = '"')
+    protected function _readCsv($path, $delimiter = ',', $enclosure = '"', $escape = '"')
     {
         $fh = fopen($path, 'r');
         if ($fh === false) {
             throw new Exception(sprintf('Cannot open file "%s"', $path));
         }
-        $lines = array();
+        $lines = [];
         while (($data = fgetcsv($fh, 1000, $delimiter, $enclosure, $escape)) !== false) {
             $lines[] = $data;
         }
@@ -216,7 +216,7 @@ abstract class StorageApiTestCase extends ClientTestCase
         return $lines;
     }
 
-    public function assertLinesEqualsSorted($expected, $actual, $message = "")
+    public function assertLinesEqualsSorted($expected, $actual, $message = '')
     {
         $expected = explode("\n", $expected);
         $actual = explode("\n", $actual);
@@ -226,7 +226,7 @@ abstract class StorageApiTestCase extends ClientTestCase
         $this->assertEquals($expected, $actual, $message);
     }
 
-    public function assertArrayEqualsSorted($expected, $actual, $sortKey, $message = "")
+    public function assertArrayEqualsSorted($expected, $actual, $sortKey, $message = '')
     {
         $comparsion = function ($attrLeft, $attrRight) use ($sortKey) {
             if ($attrLeft[$sortKey] == $attrRight[$sortKey]) {
@@ -241,177 +241,177 @@ abstract class StorageApiTestCase extends ClientTestCase
 
     public function tableExportFiltersData()
     {
-        return array(
+        return [
             // first test
-            array(
-                array(
+            [
+                [
                     'whereColumn' => 'city',
-                    'whereValues' => array('PRG'),
+                    'whereValues' => ['PRG'],
                     'columns' => ['id', 'name', 'sex'],
-                ),
-                array(
-                    array(
-                        "1",
-                        "martin",
-                        "male"
-                    ),
-                    array(
-                        "2",
-                        "klara",
-                        "female",
-                    ),
-                ),
-            ),
+                ],
+                [
+                    [
+                        '1',
+                        'martin',
+                        'male',
+                    ],
+                    [
+                        '2',
+                        'klara',
+                        'female',
+                    ],
+                ],
+            ],
             // first test with defined operator
-            array(
-                array(
+            [
+                [
                     'whereColumn' => 'city',
-                    'whereValues' => array('PRG'),
+                    'whereValues' => ['PRG'],
                     'whereOperator' => 'eq',
-                ),
-                array(
-                    array(
-                        "1",
-                        "martin",
-                        "PRG",
-                        "male"
-                    ),
-                    array(
-                        "2",
-                        "klara",
-                        "PRG",
-                        "female",
-                    ),
-                ),
-            ),
+                ],
+                [
+                    [
+                        '1',
+                        'martin',
+                        'PRG',
+                        'male',
+                    ],
+                    [
+                        '2',
+                        'klara',
+                        'PRG',
+                        'female',
+                    ],
+                ],
+            ],
             // second test
-            array(
-                array(
+            [
+                [
                     'whereColumn' => 'city',
-                    'whereValues' => array('PRG', 'VAN')
-                ),
-                array(
-                    array(
-                        "1",
-                        "martin",
-                        "PRG",
-                        "male"
-                    ),
-                    array(
-                        "2",
-                        "klara",
-                        "PRG",
-                        "female",
-                    ),
-                    array(
-                        "3",
-                        "ondra",
-                        "VAN",
-                        "male",
-                    ),
-                ),
-            ),
+                    'whereValues' => ['PRG', 'VAN'],
+                ],
+                [
+                    [
+                        '1',
+                        'martin',
+                        'PRG',
+                        'male',
+                    ],
+                    [
+                        '2',
+                        'klara',
+                        'PRG',
+                        'female',
+                    ],
+                    [
+                        '3',
+                        'ondra',
+                        'VAN',
+                        'male',
+                    ],
+                ],
+            ],
             // third test
-            array(
-                array(
+            [
+                [
                     'whereColumn' => 'city',
-                    'whereValues' => array('PRG'),
-                    'whereOperator' => 'ne'
-                ),
-                array(
-                    array(
-                        "5",
-                        "hidden",
-                        "",
-                        "male",
-                    ),
-                    array(
-                        "4",
-                        "miro",
-                        "BRA",
-                        "male",
-                    ),
-                    array(
-                        "3",
-                        "ondra",
-                        "VAN",
-                        "male",
-                    ),
-                ),
-            ),
+                    'whereValues' => ['PRG'],
+                    'whereOperator' => 'ne',
+                ],
+                [
+                    [
+                        '5',
+                        'hidden',
+                        '',
+                        'male',
+                    ],
+                    [
+                        '4',
+                        'miro',
+                        'BRA',
+                        'male',
+                    ],
+                    [
+                        '3',
+                        'ondra',
+                        'VAN',
+                        'male',
+                    ],
+                ],
+            ],
             // fourth test
-            array(
-                array(
+            [
+                [
                     'whereColumn' => 'city',
-                    'whereValues' => array('PRG', 'VAN'),
-                    'whereOperator' => 'ne'
-                ),
-                array(
-                    array(
-                        "4",
-                        "miro",
-                        "BRA",
-                        "male",
-                    ),
-                    array(
-                        "5",
-                        "hidden",
-                        "",
-                        "male",
-                    ),
-                ),
-            ),
+                    'whereValues' => ['PRG', 'VAN'],
+                    'whereOperator' => 'ne',
+                ],
+                [
+                    [
+                        '4',
+                        'miro',
+                        'BRA',
+                        'male',
+                    ],
+                    [
+                        '5',
+                        'hidden',
+                        '',
+                        'male',
+                    ],
+                ],
+            ],
             // fifth test
-            array(
-                array(
+            [
+                [
                     'whereColumn' => 'city',
-                    'whereValues' => array(''),
-                    'whereOperator' => 'eq'
-                ),
-                array(
-                    array(
-                        "5",
-                        "hidden",
-                        "",
-                        "male",
-                    ),
-                ),
-            ),
+                    'whereValues' => [''],
+                    'whereOperator' => 'eq',
+                ],
+                [
+                    [
+                        '5',
+                        'hidden',
+                        '',
+                        'male',
+                    ],
+                ],
+            ],
             // sixth test
-            array(
-                array(
+            [
+                [
                     'whereColumn' => 'city',
-                    'whereValues' => array(''),
-                    'whereOperator' => 'ne'
-                ),
-                array(
-                    array(
-                        "4",
-                        "miro",
-                        "BRA",
-                        "male",
-                    ),
-                    array(
-                        "1",
-                        "martin",
-                        "PRG",
-                        "male"
-                    ),
-                    array(
-                        "2",
-                        "klara",
-                        "PRG",
-                        "female",
-                    ),
-                    array(
-                        "3",
-                        "ondra",
-                        "VAN",
-                        "male",
-                    ),
-                ),
-            ),
-        );
+                    'whereValues' => [''],
+                    'whereOperator' => 'ne',
+                ],
+                [
+                    [
+                        '4',
+                        'miro',
+                        'BRA',
+                        'male',
+                    ],
+                    [
+                        '1',
+                        'martin',
+                        'PRG',
+                        'male',
+                    ],
+                    [
+                        '2',
+                        'klara',
+                        'PRG',
+                        'female',
+                    ],
+                    [
+                        '3',
+                        'ondra',
+                        'VAN',
+                        'male',
+                    ],
+                ],
+            ],
+        ];
     }
 
     protected function getTestBucketId($stage = self::STAGE_IN)
@@ -457,7 +457,7 @@ abstract class StorageApiTestCase extends ClientTestCase
     {
         $client = $sapiClient ? $sapiClient : $this->_client;
         $fileSearchOptions = new ListFilesOptions();
-        $fileSearchOptions = $fileSearchOptions->setQuery(sprintf("id:%s", $fileId));
+        $fileSearchOptions = $fileSearchOptions->setQuery(sprintf('id:%s', $fileId));
 
         $tries = 0;
         sleep(2);
@@ -502,8 +502,8 @@ abstract class StorageApiTestCase extends ClientTestCase
      */
     private function createRandomString($length)
     {
-        $alpabet = "abcdefghijklmnopqrstvuwxyz0123456789 ";
-        $randStr = "";
+        $alpabet = 'abcdefghijklmnopqrstvuwxyz0123456789 ';
+        $randStr = '';
         for ($i = 0; $i < $length; $i++) {
             $randStr .=  $alpabet[rand(0, strlen($alpabet)-1)];
         }

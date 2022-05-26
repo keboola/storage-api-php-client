@@ -47,9 +47,9 @@ class SimpleAliasTest extends StorageApiTestCase
             $this->getTestBucketId(),
             'languages',
             new CsvFile($importFile),
-            array(
-                'primaryKey' => 'id'
-            )
+            [
+                'primaryKey' => 'id',
+            ]
         );
         $sourceTable = $this->_client->getTable($sourceTableId);
 
@@ -199,32 +199,31 @@ class SimpleAliasTest extends StorageApiTestCase
             $this->getTestBucketId(self::STAGE_OUT),
             $sourceTableId,
             'users',
-            array(
-                'aliasFilter' => array(
+            [
+                'aliasFilter' => [
                     'column' => 'city',
-                    'values' => array('PRG'),
+                    'values' => ['PRG'],
                     'operator' => 'eq',
-                ),
-            )
+                ],
+            ]
         );
 
         $aliasTable = $this->_client->getTable($aliasTableId);
 
         $this->assertEquals('city', $aliasTable['aliasFilter']['column']);
-        $this->assertEquals(array('PRG'), $aliasTable['aliasFilter']['values']);
+        $this->assertEquals(['PRG'], $aliasTable['aliasFilter']['values']);
         $this->assertEquals('eq', $aliasTable['aliasFilter']['operator']);
 
         $this->assertNull($aliasTable['dataSizeBytes'], 'Filtered alias should have unknown size');
         $this->assertNull($aliasTable['rowsCount'], 'Filtered alias should have unknown rows count');
 
-        $aliasTable = $this->_client->setAliasTableFilter($aliasTableId, array(
-            'values' => array('VAN'),
-        ));
+        $aliasTable = $this->_client->setAliasTableFilter($aliasTableId, [
+            'values' => ['VAN'],
+        ]);
 
         $this->assertEquals('city', $aliasTable['aliasFilter']['column']);
-        $this->assertEquals(array('VAN'), $aliasTable['aliasFilter']['values']);
+        $this->assertEquals(['VAN'], $aliasTable['aliasFilter']['values']);
         $this->assertEquals('eq', $aliasTable['aliasFilter']['operator']);
-
 
         $this->_client->removeAliasTableFilter($aliasTableId);
         $aliasTable = $this->_client->getTable($aliasTableId);
@@ -242,18 +241,18 @@ class SimpleAliasTest extends StorageApiTestCase
         $importFile = __DIR__ . '/../../_data/users.csv';
         $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
-        $aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users', array(
-            'aliasColumns' => array(
+        $aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users', [
+            'aliasColumns' => [
                 'city',
                 'id',
                 'name',
-            ),
-        ));
+            ],
+        ]);
 
         $this->_client->deleteTableColumn($aliasTableId, 'city');
 
         $aliasTable = $this->_client->getTable($aliasTableId);
-        $this->assertEquals(array('id', 'name'), $aliasTable['columns']);
+        $this->assertEquals(['id', 'name'], $aliasTable['columns']);
     }
 
     public function testAliasColumnWithoutAutoSyncCanBeAdded(): void
@@ -261,17 +260,17 @@ class SimpleAliasTest extends StorageApiTestCase
         $importFile = __DIR__ . '/../../_data/users.csv';
         $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
-        $aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users', array(
-            'aliasColumns' => array(
+        $aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users', [
+            'aliasColumns' => [
                 'id',
                 'name',
-            ),
-        ));
+            ],
+        ]);
 
         $this->_client->addTableColumn($aliasTableId, 'city');
 
         $aliasTable = $this->_client->getTable($aliasTableId);
-        $this->assertEquals(array('id', 'name', 'city'), $aliasTable['columns']);
+        $this->assertEquals(['id', 'name', 'city'], $aliasTable['columns']);
     }
 
     public function testSourceTableColumnDeleteWithAutoSyncAliases(): void
@@ -314,13 +313,13 @@ class SimpleAliasTest extends StorageApiTestCase
         $aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users');
 
         $aliasTable = $this->_client->getTable($aliasTableId);
-        $this->assertEquals(array("id", "name", "city", "sex"), $aliasTable["columns"]);
+        $this->assertEquals(['id', 'name', 'city', 'sex'], $aliasTable['columns']);
 
         $this->_client->addTableColumn($sourceTableId, 'age');
 
         $aliasTable = $this->_client->getTable($aliasTableId);
-        $expectedColumns = array("id", "name", "city", "sex", "age");
-        $this->assertEquals($expectedColumns, $aliasTable["columns"]);
+        $expectedColumns = ['id', 'name', 'city', 'sex', 'age'];
+        $this->assertEquals($expectedColumns, $aliasTable['columns']);
 
         $this->_client->disableAliasTableColumnsAutoSync($aliasTableId);
 
@@ -332,17 +331,16 @@ class SimpleAliasTest extends StorageApiTestCase
 
         $aliasTable = $this->_client->getTable($aliasTableId);
 
-        $expectedColumns = array("id", "city", "sex", "age");
-        $this->assertEquals($expectedColumns, $aliasTable["columns"]);
+        $expectedColumns = ['id', 'city', 'sex', 'age'];
+        $this->assertEquals($expectedColumns, $aliasTable['columns']);
 
         $data = $this->_client->parseCsv($this->_client->getTableDataPreview($aliasTableId));
         $this->assertEquals($expectedColumns, array_keys(reset($data)));
 
-
         $this->_client->enableAliasTableColumnsAutoSync($aliasTableId);
         $aliasTable = $this->_client->getTable($aliasTableId);
 
-        $this->assertEquals(array("id", "name", "city", "sex", "age", "birthDate"), $aliasTable['columns']);
+        $this->assertEquals(['id', 'name', 'city', 'sex', 'age', 'birthDate'], $aliasTable['columns']);
     }
 
     public function testColumnAssignedToAliasWithAutoSyncShouldNotBeDeletable(): void
@@ -353,13 +351,13 @@ class SimpleAliasTest extends StorageApiTestCase
         $aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users');
 
         $aliasTable = $this->_client->getTable($aliasTableId);
-        $this->assertEquals(array("id", "name", "city", "sex"), $aliasTable["columns"]);
+        $this->assertEquals(['id', 'name', 'city', 'sex'], $aliasTable['columns']);
 
         $this->_client->addTableColumn($sourceTableId, 'age');
 
         $aliasTable = $this->_client->getTable($aliasTableId);
-        $expectedColumns = array("id", "name", "city", "sex", "age");
-        $this->assertEquals($expectedColumns, $aliasTable["columns"]);
+        $expectedColumns = ['id', 'name', 'city', 'sex', 'age'];
+        $this->assertEquals($expectedColumns, $aliasTable['columns']);
 
         try {
             $this->_client->deleteTableColumn($sourceTableId, 'age');
@@ -374,12 +372,12 @@ class SimpleAliasTest extends StorageApiTestCase
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile($importFile));
 
-        $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'languages', array(
-            'aliasFilter' => array(
+        $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'languages', [
+            'aliasFilter' => [
                 'column' => 'id',
-                'values' => array('1'),
-            ),
-        ));
+                'values' => ['1'],
+            ],
+        ]);
 
         try {
             $this->_client->deleteTableColumn($sourceTableId, 'id');
@@ -394,12 +392,12 @@ class SimpleAliasTest extends StorageApiTestCase
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile($importFile));
 
-        $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'languages', array(
-            'aliasFilter' => array(
+        $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'languages', [
+            'aliasFilter' => [
                 'column' => 'id',
-                'values' => array('1'),
-            ),
-        ));
+                'values' => ['1'],
+            ],
+        ]);
 
         try {
             $this->_client->deleteTableColumn($sourceTableId, 'id', ['force' => true]);
@@ -414,13 +412,13 @@ class SimpleAliasTest extends StorageApiTestCase
         $importFile = __DIR__ . '/../../_data/users.csv';
         $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
-        $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users', array(
-            'aliasColumns' => array(
+        $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users', [
+            'aliasColumns' => [
                 'city',
                 'id',
                 'name',
-            ),
-        ));
+            ],
+        ]);
 
         try {
             $this->_client->deleteTableColumn($sourceTableId, 'city');
@@ -435,13 +433,13 @@ class SimpleAliasTest extends StorageApiTestCase
         $importFile = __DIR__ . '/../../_data/users.csv';
         $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
-        $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users', array(
-            'aliasColumns' => array(
+        $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users', [
+            'aliasColumns' => [
                 'city',
                 'id',
                 'name',
-            ),
-        ));
+            ],
+        ]);
 
         try {
             $this->_client->deleteTableColumn($sourceTableId, 'city', ['force' => true]);
@@ -456,18 +454,18 @@ class SimpleAliasTest extends StorageApiTestCase
         $importFile = __DIR__ . '/../../_data/users.csv';
         $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
-        $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users', array(
-            'aliasColumns' => array(
+        $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users', [
+            'aliasColumns' => [
                 'city',
                 'id',
-            ),
-        ));
+            ],
+        ]);
 
         $this->_client->deleteTableColumn($sourceTableId, 'name');
 
         $sourceTable = $this->_client->getTable($sourceTableId);
-        $expectedColumns = ["id", "city", "sex"];
-        $this->assertEquals($expectedColumns, $sourceTable["columns"]);
+        $expectedColumns = ['id', 'city', 'sex'];
+        $this->assertEquals($expectedColumns, $sourceTable['columns']);
     }
 
     public function testAliasColumns(): void
@@ -479,18 +477,18 @@ class SimpleAliasTest extends StorageApiTestCase
             new CsvFile(__DIR__ . '/../../_data/users.csv')
         );
 
-        $aliasColumns = array(
+        $aliasColumns = [
             'id',
             'city',
-        );
+        ];
         // alias table
         $aliasTableId = $this->_client->createAliasTable(
             $this->getTestBucketId(self::STAGE_OUT),
             $sourceTableId,
             'users',
-            array(
+            [
                 'aliasColumns' => $aliasColumns,
-            )
+            ]
         );
 
         $aliasTable = $this->_client->getTable($aliasTableId);
@@ -509,13 +507,13 @@ class SimpleAliasTest extends StorageApiTestCase
         $importFile = __DIR__ . '/../../_data/users.csv';
         $sourceTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
-        $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users', array(
-            'aliasColumns' => array(
+        $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users', [
+            'aliasColumns' => [
                 'city',
                 'id',
                 'name',
-            ),
-        ));
+            ],
+        ]);
 
         $this->assertCount(1, $this->_client->listTables($this->getTestBucketId()));
         $this->assertCount(1, $this->_client->listTables($this->getTestBucketId(self::STAGE_OUT)));
@@ -590,37 +588,37 @@ class SimpleAliasTest extends StorageApiTestCase
             $this->getTestBucketId(self::STAGE_OUT),
             $sourceTableId,
             'males',
-            array(
-                'aliasColumns' => array('id', 'name', 'city'),
-                'aliasFilter' => array(
+            [
+                'aliasColumns' => ['id', 'name', 'city'],
+                'aliasFilter' => [
                     'column' => 'sex',
-                    'values' => array('male'),
-                ),
-            )
+                    'values' => ['male'],
+                ],
+            ]
         );
 
-        $expectedResult = array(
-            array(
-                "1",
-                "martin",
-                "PRG",
-            ),
-            array(
-                "3",
-                "ondra",
-                "VAN",
-            ),
-            array(
-                "4",
-                "miro",
-                "BRA",
-            ),
-            array(
-                "5",
-                "hidden",
-                "",
-            )
-        );
+        $expectedResult = [
+            [
+                '1',
+                'martin',
+                'PRG',
+            ],
+            [
+                '3',
+                'ondra',
+                'VAN',
+            ],
+            [
+                '4',
+                'miro',
+                'BRA',
+            ],
+            [
+                '5',
+                'hidden',
+                '',
+            ],
+        ];
 
         $data = $this->_client->getTableDataPreview($aliasTableId);
         $parsedData = Client::parseCsv($data, false);
@@ -651,27 +649,27 @@ class SimpleAliasTest extends StorageApiTestCase
             $this->getTestBucketId(self::STAGE_OUT),
             $sourceTableId,
             'users',
-            array(
-                'aliasFilter' => array(
+            [
+                'aliasFilter' => [
                     'column' => 'city',
-                    'values' => array('PRG'),
-                ),
-            )
+                    'values' => ['PRG'],
+                ],
+            ]
         );
 
-        $expectedResult = array(
-            array(
-                "1",
-                "martin",
-                "PRG",
-                "male"
-            )
-        );
+        $expectedResult = [
+            [
+                '1',
+                'martin',
+                'PRG',
+                'male',
+            ],
+        ];
 
-        $data = $this->_client->getTableDataPreview($aliasTableId, array(
+        $data = $this->_client->getTableDataPreview($aliasTableId, [
             'whereColumn' => 'sex',
-            'whereValues' => array('male'),
-        ));
+            'whereValues' => ['male'],
+        ]);
         $parsedData = Client::parseCsv($data, false);
         array_shift($parsedData); // remove header
         $this->assertEquals($expectedResult, $parsedData);
@@ -681,16 +679,16 @@ class SimpleAliasTest extends StorageApiTestCase
         $downloadPath = $this->getExportFilePathForTest('languages.sliced.csv');
         $exporter->exportTable($aliasTableId, $downloadPath, [
             'whereColumn' => 'sex',
-            'whereValues' => array('male'),
+            'whereValues' => ['male'],
         ]);
         $parsedData = Client::parseCsv(file_get_contents($downloadPath), false);
         array_shift($parsedData); // remove header
         $this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
 
-        $data = $this->_client->getTableDataPreview($aliasTableId, array(
+        $data = $this->_client->getTableDataPreview($aliasTableId, [
             'whereColumn' => 'city',
-            'whereValues' => array('VAN'),
-        ));
+            'whereValues' => ['VAN'],
+        ]);
         $parsedData = Client::parseCsv($data, false);
         array_shift($parsedData); // remove header
 
@@ -701,7 +699,7 @@ class SimpleAliasTest extends StorageApiTestCase
         $downloadPath = $this->getExportFilePathForTest('languages.sliced.csv');
         $exporter->exportTable($aliasTableId, $downloadPath, [
             'whereColumn' => 'city',
-            'whereValues' => array('VAN'),
+            'whereValues' => ['VAN'],
         ]);
         $parsedData = Client::parseCsv(file_get_contents($downloadPath), false);
         array_shift($parsedData); // remove header
@@ -814,7 +812,7 @@ class SimpleAliasTest extends StorageApiTestCase
             [
                 'aliasFilter' => [
                     'column' => 'name',
-                    'values' => array('foo'),
+                    'values' => ['foo'],
                     'operator' => 'eq',
                 ],
             ]
@@ -836,9 +834,9 @@ class SimpleAliasTest extends StorageApiTestCase
             $this->getTestBucketId(),
             'languages',
             new CsvFile($importFile),
-            array(
-                'primaryKey' => 'id'
-            )
+            [
+                'primaryKey' => 'id',
+            ]
         );
 
         $metadata = new Metadata($this->_client);
@@ -911,9 +909,9 @@ class SimpleAliasTest extends StorageApiTestCase
             $sourceBucketId,
             'languages',
             new CsvFile($importFile),
-            array(
-                'primaryKey' => 'id'
-            )
+            [
+                'primaryKey' => 'id',
+            ]
         );
 
         $metadata = new Metadata($this->_client);

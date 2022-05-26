@@ -28,10 +28,10 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace(self::BACKEND_SNOWFLAKE);
 
         $db = $this->getDbConnection($workspace['connection']);
-        $db->query("create or replace table \"test.metadata_columns\" (
-                    \"id\" varchar(16),
-                    \"name\" varchar
-                );");
+        $db->query('create or replace table "test.metadata_columns" (
+                    "id" varchar(16),
+                    "name" varchar
+                );');
 
         $tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), [
             'name' => 'metadata_columns',
@@ -64,10 +64,10 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertArrayHasKey('name', $table['columnMetadata']);
         $this->assertMetadata($expectedNameMetadata, $table['columnMetadata']['name']);
 
-        $db->query("create or replace table \"test.metadata_columns\" (
-                    \"id\" integer,
-                    \"name\" char not null
-                );");
+        $db->query('create or replace table "test.metadata_columns" (
+                    "id" integer,
+                    "name" char not null
+                );');
 
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
@@ -181,10 +181,10 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertArrayHasKey('name', $table['columnMetadata']);
         $this->assertMetadata($expectedNameMetadata, $table['columnMetadata']['name']);
 
-        $db->query("create or replace table \"test.metadata_columns\" (
-                    \"id\" integer,
-                    \"name\" varchar(32)
-                );");
+        $db->query('create or replace table "test.metadata_columns" (
+                    "id" integer,
+                    "name" varchar(32)
+                );');
 
         $this->_client->writeTableAsyncDirect($tableId, [
             'incremental' => true,
@@ -239,11 +239,11 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
                     \"timestampltz\" timestampltz not null default current_timestamp 
                 );");
         // create table from workspace
-        $tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), array(
+        $tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), [
             'name' => 'metadata_columns',
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => 'test.metadata_columns',
-        ));
+        ]);
         $expectedStringMetadata = [
             'KBC.datatype.type' => 'TEXT',
             'KBC.datatype.nullable' => '',
@@ -356,7 +356,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
             $this->getTestBucketId(self::STAGE_IN),
             'languages3',
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),
-            array('primaryKey' => 'id')
+            ['primaryKey' => 'id']
         );
 
         // create workspace and source table in workspace
@@ -368,18 +368,18 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
                 \"name\" varchar not null default 'honza'
             );");
         $db->query("insert into \"test.Languages3\" (\"id\", \"name\") values (1, 'cz'), (2, 'en');");
-        $this->_client->writeTableAsyncDirect($table_id, array(
+        $this->_client->writeTableAsyncDirect($table_id, [
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => 'test.Languages3',
-        ));
-        $expected = array(
+        ]);
+        $expected = [
             '"id","name"',
             '"1","cz"',
             '"2","en"',
-        );
+        ];
         $this->assertLinesEqualsSorted(
             implode("\n", $expected) . "\n",
-            $this->_client->getTableDataPreview($table_id, array('format' => 'rfc')),
+            $this->_client->getTableDataPreview($table_id, ['format' => 'rfc']),
             'imported data comparsion'
         );
         // check the created metadata
@@ -406,28 +406,28 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertArrayHasKey('name', $table['columnMetadata']);
         $this->assertMetadata($expectedNameMetadata, $table['columnMetadata']['name']);
 
-        $db->query("truncate table \"test.Languages3\"");
+        $db->query('truncate table "test.Languages3"');
         $db->query("alter table \"test.Languages3\" ADD COLUMN \"update\" varchar(64) NOT NULL DEFAULT '';");
-        $db->query("insert into \"test.Languages3\" values " .
+        $db->query('insert into "test.Languages3" values ' .
             "(1, 'cz', '')," .
             " (3, 'sk', 'newValue')," .
             " (4, 'jp', 'test');");
-        $this->_client->writeTableAsyncDirect($table['id'], array(
+        $this->_client->writeTableAsyncDirect($table['id'], [
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => 'test.Languages3',
             'incremental' => true,
-        ));
-        $expected = array(
+        ]);
+        $expected = [
             '"id","name","update"',
             '"1","cz",""',
             '"2","en",""',
             '"3","sk","newValue"',
             '"4","jp","test"',
-        );
+        ];
 
         $this->assertLinesEqualsSorted(
             implode("\n", $expected) . "\n",
-            $this->_client->getTableDataPreview($table['id'], array('format' => 'rfc')),
+            $this->_client->getTableDataPreview($table['id'], ['format' => 'rfc']),
             'new  column added'
         );
         $expectedUpdateMetadata = [
@@ -439,9 +439,9 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         ];
         $table = $this->_client->getTable($table['id']);
         $this->assertEquals([], $table['metadata']);
-        $this->assertArrayHasKey("id", $table['columnMetadata']);
-        $this->assertArrayHasKey("name", $table['columnMetadata']);
-        $this->assertArrayHasKey("update", $table['columnMetadata']);
+        $this->assertArrayHasKey('id', $table['columnMetadata']);
+        $this->assertArrayHasKey('name', $table['columnMetadata']);
+        $this->assertArrayHasKey('update', $table['columnMetadata']);
         $this->assertMetadata($expectedUpdateMetadata, $table['columnMetadata']['update']);
     }
 
@@ -465,10 +465,10 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
                         PARSE_JSON('{\"id\":\"test\"}'):id::variant as \"variant3\"
                     ;");
 
-        $this->_client->writeTableAsyncDirect($tableId, array(
+        $this->_client->writeTableAsyncDirect($tableId, [
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => 'test.metadata_columns',
-        ));
+        ]);
 
         $table = $this->_client->getTable($tableId);
 
@@ -490,11 +490,11 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
                         PARSE_JSON('{\"id\":\"test\"}'):id::variant as \"variant3\"
                     ;");
 
-        $tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), array(
+        $tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), [
             'name' => 'metadata_columns',
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => 'test.metadata_columns',
-        ));
+        ]);
 
         $table = $this->_client->getTable($tableId);
 
@@ -506,11 +506,11 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
     {
         $this->assertEquals(count($expectedKeyValues), count($metadata));
         foreach ($metadata as $data) {
-            $this->assertArrayHasKey("key", $data);
-            $this->assertArrayHasKey("value", $data);
+            $this->assertArrayHasKey('key', $data);
+            $this->assertArrayHasKey('value', $data);
             $this->assertEquals($expectedKeyValues[$data['key']], $data['value']);
-            $this->assertArrayHasKey("provider", $data);
-            $this->assertArrayHasKey("timestamp", $data);
+            $this->assertArrayHasKey('provider', $data);
+            $this->assertArrayHasKey('timestamp', $data);
             $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $data['timestamp']);
             $this->assertEquals(Metadata::PROVIDER_STORAGE, $data['provider']);
         }

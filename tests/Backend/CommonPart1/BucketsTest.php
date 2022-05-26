@@ -54,7 +54,7 @@ class BucketsTest extends StorageApiTestCase
 
     public function testBucketDetail(): void
     {
-        $displayName = "Romanov-Bucket";
+        $displayName = 'Romanov-Bucket';
         $bucketName = 'BucketsTest_testBucketDetail';
 
         $tokenData = $this->_client->verifyToken();
@@ -146,9 +146,9 @@ class BucketsTest extends StorageApiTestCase
 
     public function testBucketsListWithIncludeParameter(): void
     {
-        $buckets = $this->_client->listBuckets(array(
+        $buckets = $this->_client->listBuckets([
             'include' => '',
-        ));
+        ]);
 
         $firstBucket = reset($buckets);
         $this->assertArrayNotHasKey('attributes', $firstBucket);
@@ -156,9 +156,9 @@ class BucketsTest extends StorageApiTestCase
 
     public function testBucketsListWithIncludeMetadata(): void
     {
-        $buckets = $this->_client->listBuckets(array(
+        $buckets = $this->_client->listBuckets([
             'include' => 'metadata',
-        ));
+        ]);
         $firstBucket = array_filter($buckets, function ($bucket) {
             return $bucket['id'] === $this->_bucketIds[self::STAGE_IN];
         });
@@ -173,13 +173,13 @@ class BucketsTest extends StorageApiTestCase
         $metadataApi->postBucketMetadata($firstBucket['id'], 'storage-php-client-test', [
             [
                 'key' => 'test-key',
-                'value' => 'test-value'
-            ]
+                'value' => 'test-value',
+            ],
         ]);
 
-        $buckets = $this->_client->listBuckets(array(
+        $buckets = $this->_client->listBuckets([
             'include' => 'metadata',
-        ));
+        ]);
 
         $filteredBuckets = array_filter($buckets, function ($bucket) {
             return $bucket['id'] === $this->_bucketIds[self::STAGE_IN];
@@ -358,50 +358,49 @@ class BucketsTest extends StorageApiTestCase
         $bucket = $this->_client->getBucket($bucketId);
         $this->assertEmpty($bucket['attributes'], 'empty attributes');
 
-
         // create
         $this->_client->setBucketAttribute($bucketId, 's', 'lala');
         $this->_client->setBucketAttribute($bucketId, 'other', 'hello', true);
         $bucket = $this->_client->getBucket($bucketId);
-        $this->assertArrayEqualsSorted(array(
-            array(
+        $this->assertArrayEqualsSorted([
+            [
                 'name' => 's',
                 'value' => 'lala',
                 'protected' => false,
-            ),
-            array(
+            ],
+            [
                 'name' => 'other',
                 'value' => 'hello',
                 'protected' => true,
-            ),
-        ), $bucket['attributes'], 'name', 'attribute set');
+            ],
+        ], $bucket['attributes'], 'name', 'attribute set');
 
         // update
         $this->_client->setBucketAttribute($bucketId, 's', 'papa');
         $bucket = $this->_client->getBucket($bucketId);
-        $this->assertArrayEqualsSorted($bucket['attributes'], array(
-            array(
+        $this->assertArrayEqualsSorted($bucket['attributes'], [
+            [
                 'name' => 's',
                 'value' => 'papa',
                 'protected' => false,
-            ),
-            array(
+            ],
+            [
                 'name' => 'other',
                 'value' => 'hello',
                 'protected' => true,
-            ),
-        ), 'name', 'attribute update');
+            ],
+        ], 'name', 'attribute update');
 
         // delete
         $this->_client->deleteBucketAttribute($bucketId, 's');
         $bucket = $this->_client->getBucket($bucketId);
-        $this->assertArrayEqualsSorted($bucket['attributes'], array(
-            array(
+        $this->assertArrayEqualsSorted($bucket['attributes'], [
+            [
                 'name' => 'other',
                 'value' => 'hello',
                 'protected' => true,
-            )
-        ), 'name', 'attribute delete');
+            ],
+        ], 'name', 'attribute delete');
 
         $this->_client->deleteBucketAttribute($bucketId, 'other');
     }
@@ -418,17 +417,17 @@ class BucketsTest extends StorageApiTestCase
         $this->clearBucketAttributes($bucketId);
         $this->_client->setBucketAttribute($bucketId, 'first', 'something');
 
-        $newAttributes = array(
-            array(
+        $newAttributes = [
+            [
                 'name' => 'new',
                 'value' => 'new',
-            ),
-            array(
+            ],
+            [
                 'name' => 'second',
                 'value' => 'second value',
                 'protected' => true,
-            ),
-        );
+            ],
+        ];
         $this->_client->replaceBucketAttributes($bucketId, $newAttributes);
 
         $bucket = $this->_client->getBucket($bucketId);
@@ -469,18 +468,18 @@ class BucketsTest extends StorageApiTestCase
 
     public function invalidAttributes()
     {
-        return array(
-            array(
-                array(
-                    array(
+        return [
+            [
+                [
+                    [
                         'nome' => 'ukulele',
-                    ),
-                    array(
+                    ],
+                    [
                         'name' => 'jehovista',
-                    ),
-                ),
-            )
-        );
+                    ],
+                ],
+            ],
+        ];
     }
 
 

@@ -94,12 +94,12 @@ class Metadata
     public function postBucketMetadata($bucketId, $provider, $metadata)
     {
         if (!is_array($metadata) || count($metadata) === 0) {
-            throw new ClientException("Third argument must be a non-empty array of metadata objects");
+            throw new ClientException('Third argument must be a non-empty array of metadata objects');
         }
         /** @var array $result */
         $result = $this->client->apiPost("buckets/{$bucketId}/metadata", [
-            "provider" => $provider,
-            "metadata" => $metadata
+            'provider' => $provider,
+            'metadata' => $metadata,
         ]);
         return $result;
     }
@@ -116,12 +116,12 @@ class Metadata
     public function postTableMetadata($tableId, $provider, $metadata)
     {
         if (!is_array($metadata) || count($metadata) === 0) {
-            throw new ClientException("Third argument must be a non-empty array of Metadata objects");
+            throw new ClientException('Third argument must be a non-empty array of Metadata objects');
         }
         /** @var array $result */
         $result = $this->client->apiPost("tables/{$tableId}/metadata", [
-            "provider" => $provider,
-            "metadata" => $metadata
+            'provider' => $provider,
+            'metadata' => $metadata,
         ]);
         return $result;
     }
@@ -144,12 +144,12 @@ class Metadata
     public function postColumnMetadata($columnId, $provider, $metadata)
     {
         if (!is_array($metadata) || count($metadata) === 0) {
-            throw new ClientException("Third argument must be a non-empty array of Metadata objects");
+            throw new ClientException('Third argument must be a non-empty array of Metadata objects');
         }
         /** @var array $result */
         $result = $this->client->apiPost("columns/{$columnId}/metadata", [
-            "provider" => $provider,
-            "metadata" => $metadata
+            'provider' => $provider,
+            'metadata' => $metadata,
         ]);
         return $result;
     }

@@ -20,8 +20,8 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
 
     public function getTableColumns($table)
     {
-        $stmt = $this->db->prepare("SELECT \"column\" FROM PG_TABLE_DEF WHERE tablename = ?;");
-        $stmt->execute(array($table));
+        $stmt = $this->db->prepare('SELECT "column" FROM PG_TABLE_DEF WHERE tablename = ?;');
+        $stmt->execute([$table]);
         return array_map(function ($row) {
                 return $row['column'];
         }, $stmt->fetchAll());
@@ -29,8 +29,8 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
 
     public function getTables()
     {
-        $stmt = $this->db->prepare("select tablename from PG_TABLES where schemaname = ?");
-        $stmt->execute(array($this->schema));
+        $stmt = $this->db->prepare('select tablename from PG_TABLES where schemaname = ?');
+        $stmt->execute([$this->schema]);
         return array_map(function ($table) {
                 return $table['tablename'];
         }, $stmt->fetchAll());
@@ -78,7 +78,7 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
         $definition = join(",\n", $cols);
 
         $this->db->query(
-            sprintf("CREATE TABLE %s (%s)", $tableName, $definition)
+            sprintf('CREATE TABLE %s (%s)', $tableName, $definition)
         );
     }
 
@@ -118,7 +118,7 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
                 LEFT OUTER JOIN pg_attrdef AS d ON d.adrelid = c.oid AND d.adnum = a.attnum
             WHERE a.attnum > 0 AND c.relname = " . $this->db->quote($tableName);
 
-        $sql .= " AND n.nspname = " . $this->db->quote($this->schema);
+        $sql .= ' AND n.nspname = ' . $this->db->quote($this->schema);
 
         $sql .= ' ORDER BY a.attnum';
 
@@ -161,7 +161,7 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
             if ($row[$contype] == 'p') {
                 $primary = true;
                 $primaryPosition = array_search($row[$attnum], explode(',', $row[$conkey])) + 1;
-                $identity = (bool)(preg_match('/^nextval/', $row[$default_value]));
+                $identity = (bool) (preg_match('/^nextval/', $row[$default_value]));
             }
             $desc[$row[$colname]] = [
                 'SCHEMA_NAME' => $row[$nspname],
@@ -170,7 +170,7 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
                 'COLUMN_POSITION' => $row[$attnum],
                 'DATA_TYPE' => $row[$type],
                 'DEFAULT' => $defaultValue,
-                'NULLABLE' => (bool)($row[$notnull] != 't'),
+                'NULLABLE' => (bool) ($row[$notnull] != 't'),
                 'LENGTH' => $row[$length],
                 'SCALE' => null, // @todo
                 'PRECISION' => null, // @todo
@@ -178,7 +178,7 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
                 'PRIMARY' => $primary,
                 'PRIMARY_POSITION' => $primaryPosition,
                 'IDENTITY' => $identity,
-                'COMPRESSION' => $row[$encoding]
+                'COMPRESSION' => $row[$encoding],
             ];
         }
         return $desc;

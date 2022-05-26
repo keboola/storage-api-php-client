@@ -48,11 +48,11 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
                     \"timestamptz\" timestamptz not null default sysdate 
                 );");
         // create table from workspace
-        $tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), array(
+        $tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), [
             'name' => 'metadata_columns',
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => 'test.metadata_columns',
-        ));
+        ]);
         $expectedStringMetadata = [
             'KBC.datatype.type' => 'VARCHAR',
             'KBC.datatype.nullable' => '',
@@ -158,7 +158,7 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
             $this->getTestBucketId(self::STAGE_IN),
             'languages3',
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),
-            array('primaryKey' => 'id')
+            ['primaryKey' => 'id']
         );
 
         // create workspace and source table in workspace
@@ -173,18 +173,18 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
                 \"name\" varchar not null default 'honza'
             );");
         $db->query("insert into \"test.Languages3\" (\"id\", \"name\") values (1, 'cz'), (2, 'en');");
-        $this->_client->writeTableAsyncDirect($table_id, array(
+        $this->_client->writeTableAsyncDirect($table_id, [
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => 'test.Languages3',
-        ));
-        $expected = array(
+        ]);
+        $expected = [
             '"id","name"',
             '"1","cz"',
             '"2","en"',
-        );
+        ];
         $this->assertLinesEqualsSorted(
             implode("\n", $expected) . "\n",
-            $this->_client->getTableDataPreview($table_id, array('format' => 'rfc')),
+            $this->_client->getTableDataPreview($table_id, ['format' => 'rfc']),
             'imported data comparsion'
         );
 
@@ -193,27 +193,27 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
 
         $this->assertEquals([], $table['metadata']);
         $this->assertEquals([], $table['columnMetadata']);
-        $db->query("truncate table \"test.Languages3\"");
-        $db->query("alter table \"test.Languages3\" ADD COLUMN \"update\" varchar(64)");
-        $db->query("insert into \"test.Languages3\" values " .
+        $db->query('truncate table "test.Languages3"');
+        $db->query('alter table "test.Languages3" ADD COLUMN "update" varchar(64)');
+        $db->query('insert into "test.Languages3" values ' .
             "(1, 'cz', null)," .
             " (3, 'sk', 'newValue')," .
             " (4, 'jp', 'test');");
-        $this->_client->writeTableAsyncDirect($table['id'], array(
+        $this->_client->writeTableAsyncDirect($table['id'], [
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => 'test.Languages3',
             'incremental' => true,
-        ));
-        $expected = array(
+        ]);
+        $expected = [
             '"id","name","update"',
             '"1","cz",""',
             '"2","en",""',
             '"3","sk","newValue"',
             '"4","jp","test"',
-        );
+        ];
         $this->assertLinesEqualsSorted(
             implode("\n", $expected) . "\n",
-            $this->_client->getTableDataPreview($table['id'], array('format' => 'rfc')),
+            $this->_client->getTableDataPreview($table['id'], ['format' => 'rfc']),
             'new  column added'
         );
         $table = $this->_client->getTable($table['id']);
@@ -237,20 +237,20 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
 
         $db = $this->getDbConnection($workspace['connection']);
 
-         $db->query("create table \"test.metadata_columns\" (
-                \"id\" integer not null,
-                \"name\" geometry
-            );");
+         $db->query('create table "test.metadata_columns" (
+                "id" integer not null,
+                "name" geometry
+            );');
 
         try {
-            $this->_client->writeTableAsyncDirect($tableId, array(
+            $this->_client->writeTableAsyncDirect($tableId, [
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => 'test.metadata_columns',
-            ));
+            ]);
             $this->fail('Exception "cannot cast type geometry to character " should be thrown');
         } catch (ClientException $e) {
             $this->assertSame(
-                "SQLSTATE[42846]: Cannot coerce: 7 ERROR:  cannot cast type geometry to character varying",
+                'SQLSTATE[42846]: Cannot coerce: 7 ERROR:  cannot cast type geometry to character varying',
                 $e->getMessage()
             );
         }
@@ -271,17 +271,17 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
 
         $db = $this->getDbConnection($workspace['connection']);
 
-        $db->query("create table \"test.metadata_columns\" (
-                \"id\" integer not null,
-                \"name\" geometry
-            );");
+        $db->query('create table "test.metadata_columns" (
+                "id" integer not null,
+                "name" geometry
+            );');
 
         try {
-            $tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), array(
+            $tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), [
                 'name' => 'metadata_columns',
                 'dataWorkspaceId' => $workspace['id'],
                 'dataTableName' => 'test.metadata_columns',
-            ));
+            ]);
 
             $table = $this->_client->getTable($tableId);
 
@@ -290,7 +290,7 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
             $this->fail('Exception "cannot cast type geometry to character " should be thrown');
         } catch (ClientException $e) {
             $this->assertSame(
-                "SQLSTATE[42846]: Cannot coerce: 7 ERROR:  cannot cast type geometry to character varying",
+                'SQLSTATE[42846]: Cannot coerce: 7 ERROR:  cannot cast type geometry to character varying',
                 $e->getMessage()
             );
         }
@@ -300,11 +300,11 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
     {
         $this->assertEquals(count($expectedKeyValues), count($metadata));
         foreach ($metadata as $data) {
-            $this->assertArrayHasKey("key", $data);
-            $this->assertArrayHasKey("value", $data);
+            $this->assertArrayHasKey('key', $data);
+            $this->assertArrayHasKey('value', $data);
             $this->assertEquals($expectedKeyValues[$data['key']], $data['value']);
-            $this->assertArrayHasKey("provider", $data);
-            $this->assertArrayHasKey("timestamp", $data);
+            $this->assertArrayHasKey('provider', $data);
+            $this->assertArrayHasKey('timestamp', $data);
             $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $data['timestamp']);
             $this->assertEquals(Metadata::PROVIDER_STORAGE, $data['provider']);
         }

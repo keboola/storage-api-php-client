@@ -85,15 +85,15 @@ class S3Uploader
     {
         $fh = @fopen($filePath, 'r');
         if ($fh === false) {
-            throw new ClientException("Error on file upload to S3: " . $filePath, null, null, 'fileNotReadable');
+            throw new ClientException('Error on file upload to S3: ' . $filePath, null, null, 'fileNotReadable');
         }
-        $options = array(
+        $options = [
             'Bucket' => $bucket,
             'Key' => $key,
             'ACL' => $acl,
             'Body' => $fh,
             'ContentDisposition' => sprintf('attachment; filename=%s;', $name ? $name : basename($filePath)),
-        );
+        ];
 
         if ($encryption) {
             $options ['ServerSideEncryption'] = $encryption;

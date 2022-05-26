@@ -17,51 +17,51 @@ class LegacyWorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
             $this->getTestBucketId(self::STAGE_IN),
             'languages-pk',
             new CsvFile(__DIR__ . '/../../_data/multiple-columns-pk.csv'),
-            array(
-                'primaryKey' => implode(",", $primaries),
-            )
+            [
+                'primaryKey' => implode(',', $primaries),
+            ]
         );
 
         $mapping = [
-            "source" => $pkTableId,
-            "destination" => "languages-pk"
+            'source' => $pkTableId,
+            'destination' => 'languages-pk',
         ];
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-        $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping]]);
+        $workspaces->loadWorkspaceData($workspace['id'], ['input' => [$mapping]]);
 
-        $cols = $backend->describeTableColumns("languages-pk");
+        $cols = $backend->describeTableColumns('languages-pk');
         $this->assertCount(6, $cols);
-        $this->assertEquals("Paid_Search_Engine_Account", $cols[0]['name']);
-        $this->assertEquals("VARCHAR(16777216)", $cols[0]['type']);
-        $this->assertEquals("Advertiser_ID", $cols[1]['name']);
-        $this->assertEquals("VARCHAR(16777216)", $cols[1]['type']);
-        $this->assertEquals("Date", $cols[2]['name']);
-        $this->assertEquals("VARCHAR(16777216)", $cols[2]['type']);
-        $this->assertEquals("Paid_Search_Campaign", $cols[3]['name']);
-        $this->assertEquals("VARCHAR(16777216)", $cols[3]['type']);
-        $this->assertEquals("Paid_Search_Ad_ID", $cols[4]['name']);
-        $this->assertEquals("VARCHAR(16777216)", $cols[4]['type']);
-        $this->assertEquals("Site__DFA", $cols[5]['name']);
-        $this->assertEquals("VARCHAR(16777216)", $cols[5]['type']);
+        $this->assertEquals('Paid_Search_Engine_Account', $cols[0]['name']);
+        $this->assertEquals('VARCHAR(16777216)', $cols[0]['type']);
+        $this->assertEquals('Advertiser_ID', $cols[1]['name']);
+        $this->assertEquals('VARCHAR(16777216)', $cols[1]['type']);
+        $this->assertEquals('Date', $cols[2]['name']);
+        $this->assertEquals('VARCHAR(16777216)', $cols[2]['type']);
+        $this->assertEquals('Paid_Search_Campaign', $cols[3]['name']);
+        $this->assertEquals('VARCHAR(16777216)', $cols[3]['type']);
+        $this->assertEquals('Paid_Search_Ad_ID', $cols[4]['name']);
+        $this->assertEquals('VARCHAR(16777216)', $cols[4]['type']);
+        $this->assertEquals('Site__DFA', $cols[5]['name']);
+        $this->assertEquals('VARCHAR(16777216)', $cols[5]['type']);
 
         // Check that PK is NOT set if not all PK columns are present
         $mapping2 = [
-            "source" => $pkTableId,
-            "destination" => "languages-pk-skipped",
-            "columns" => ['Paid_Search_Engine_Account','Date'] // missing PK columns
+            'source' => $pkTableId,
+            'destination' => 'languages-pk-skipped',
+            'columns' => ['Paid_Search_Engine_Account','Date'], // missing PK columns
         ];
-        $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping2]]);
+        $workspaces->loadWorkspaceData($workspace['id'], ['input' => [$mapping2]]);
 
-        $cols = $backend->describeTableColumns("languages-pk-skipped");
+        $cols = $backend->describeTableColumns('languages-pk-skipped');
         $this->assertCount(2, $cols);
-        $this->assertEquals("Paid_Search_Engine_Account", $cols[0]['name']);
-        $this->assertEquals("VARCHAR(16777216)", $cols[0]['type']);
-        $this->assertEquals("Date", $cols[1]['name']);
-        $this->assertEquals("VARCHAR(16777216)", $cols[1]['type']);
+        $this->assertEquals('Paid_Search_Engine_Account', $cols[0]['name']);
+        $this->assertEquals('VARCHAR(16777216)', $cols[0]['type']);
+        $this->assertEquals('Date', $cols[1]['name']);
+        $this->assertEquals('VARCHAR(16777216)', $cols[1]['type']);
     }
 
     public function testLoadIncrementalNotNullable(): void
@@ -71,7 +71,6 @@ class LegacyWorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-
 
         $importFile = __DIR__ . '/../../_data/languages.with-state.csv';
         $tableId = $this->_client->createTable(
@@ -107,7 +106,7 @@ class LegacyWorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
                             'convertEmptyValuesToNull' => true,
                             'nullable' => false,
                         ],
-                    ]
+                    ],
                 ],
             ],
         ];
@@ -163,7 +162,6 @@ class LegacyWorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-
         $importFile = __DIR__ . '/../../_data/languages.with-state.csv';
         $tableId = $this->_client->createTable(
             $bucketId,
@@ -198,7 +196,7 @@ class LegacyWorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
                             'convertEmptyValuesToNull' => true,
                             'nullable' => true,
                         ],
-                    ]
+                    ],
                 ],
             ],
         ];
@@ -246,7 +244,7 @@ class LegacyWorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
             $this->assertArrayHasKey('State', $row);
             $this->assertArrayHasKey('id', $row);
 
-            if (in_array($row['id'], ["0", "11", "24"])) {
+            if (in_array($row['id'], ['0', '11', '24'])) {
                 $this->assertNull($row['State']);
             }
         }

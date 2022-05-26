@@ -23,11 +23,11 @@ class JobPollDelayTest extends StorageApiTestCase
             return (int) $tries;
         };
 
-        $client = $this->getClient(array(
+        $client = $this->getClient([
             'token' => STORAGE_API_TOKEN,
             'url' => STORAGE_API_URL,
-            'jobPollRetryDelay' => $linearDelay
-        ));
+            'jobPollRetryDelay' => $linearDelay,
+        ]);
 
         $csvFile = new CsvFile(__DIR__ . '/../_data/languages.csv');
         $tableId = $client->createTableAsync($this->getTestBucketId(), 'languages', $csvFile);
@@ -40,10 +40,10 @@ class JobPollDelayTest extends StorageApiTestCase
         $this->expectException(\TypeError::class);
         $dumbDelay = 'wait for 30 seconds';
 
-        $client = $this->getClient(array(
+        $client = $this->getClient([
             'token' => STORAGE_API_TOKEN,
             'url' => STORAGE_API_URL,
-            'jobPollRetryDelay' => $dumbDelay
-        ));
+            'jobPollRetryDelay' => $dumbDelay,
+        ]);
     }
 }

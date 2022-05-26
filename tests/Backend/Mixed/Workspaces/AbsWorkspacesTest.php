@@ -7,7 +7,7 @@ class AbsWorkspacesTest extends BaseWorkSpacesTestCase
     public function workspaceBackendData()
     {
         return [
-            [self::BACKEND_SNOWFLAKE, ["amount" => "NUMBER"]],
+            [self::BACKEND_SNOWFLAKE, ['amount' => 'NUMBER']],
         ];
     }
 

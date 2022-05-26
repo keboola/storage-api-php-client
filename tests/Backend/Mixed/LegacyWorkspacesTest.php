@@ -25,7 +25,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
 
         $bucketBackend = self::BACKEND_SNOWFLAKE;
 
-        if ($this->_client->bucketExists("out.c-mixed-test-" . $bucketBackend)) {
+        if ($this->_client->bucketExists('out.c-mixed-test-' . $bucketBackend)) {
             $this->_client->dropBucket(
                 "out.c-mixed-test-{$bucketBackend}",
                 [
@@ -34,12 +34,12 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
             );
         }
 
-        if ($this->_client->bucketExists("in.c-mixed-test-" . $bucketBackend)) {
+        if ($this->_client->bucketExists('in.c-mixed-test-' . $bucketBackend)) {
             $this->_client->dropBucket("in.c-mixed-test-{$bucketBackend}", [
                 'force' => true,
             ]);
         }
-        $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", "in", "", $bucketBackend);
+        $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", 'in', '', $bucketBackend);
 
         //setup test table
         $this->_client->createTable(
@@ -55,13 +55,13 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
         ]);
 
         $options = [
-            "input" => [
+            'input' => [
                 [
-                    "source" => "in.c-mixed-test-{$bucketBackend}.dates",
-                    "destination" => "dates",
-                    "datatypes" => $dataTypesDefinition
-                ]
-            ]
+                    'source' => "in.c-mixed-test-{$bucketBackend}.dates",
+                    'destination' => 'dates',
+                    'datatypes' => $dataTypesDefinition,
+                ],
+            ],
         ];
 
         // exception should not be thrown, date conversion should be applied
@@ -69,15 +69,15 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
 
         $wsBackend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-        $data = $wsBackend->fetchAll("dates", \PDO::FETCH_ASSOC);
+        $data = $wsBackend->fetchAll('dates', \PDO::FETCH_ASSOC);
         $this->assertCount(3, $data);
     }
 
     public function loadToRedshiftDataTypes()
     {
         return [
-            [['valid_from' => "TIMESTAMP"]],
-            [[['column' => 'valid_from', 'type' => "TIMESTAMP"]]]
+            [['valid_from' => 'TIMESTAMP']],
+            [[['column' => 'valid_from', 'type' => 'TIMESTAMP']]],
         ];
     }
 
@@ -87,7 +87,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
      */
     public function testLoadIncrementalNotNullable($backend, $bucketBackend): void
     {
-        if ($this->_client->bucketExists("in.c-mixed-test-" . $bucketBackend)) {
+        if ($this->_client->bucketExists('in.c-mixed-test-' . $bucketBackend)) {
             $this->_client->dropBucket(
                 "in.c-mixed-test-{$bucketBackend}",
                 [
@@ -96,12 +96,11 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
             );
         }
 
-        $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", "in", "", $bucketBackend);
+        $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", 'in', '', $bucketBackend);
 
         $workspaces = new Workspaces($this->_client);
-        $workspace = $workspaces->createWorkspace(["backend" => $backend]);
+        $workspace = $workspaces->createWorkspace(['backend' => $backend]);
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-
 
         $importFile = __DIR__ . '/../../_data/languages.with-state.csv';
         $tableId = $this->_client->createTable(
@@ -137,7 +136,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
                             'convertEmptyValuesToNull' => true,
                             'nullable' => false,
                         ],
-                    ]
+                    ],
                 ],
             ],
         ];
@@ -191,7 +190,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
      */
     public function testLoadIncrementalNullable($backend, $bucketBackend): void
     {
-        if ($this->_client->bucketExists("in.c-mixed-test-" . $bucketBackend)) {
+        if ($this->_client->bucketExists('in.c-mixed-test-' . $bucketBackend)) {
             $this->_client->dropBucket(
                 "in.c-mixed-test-{$bucketBackend}",
                 [
@@ -200,12 +199,11 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
             );
         }
 
-        $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", "in", "", $bucketBackend);
+        $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", 'in', '', $bucketBackend);
 
         $workspaces = new Workspaces($this->_client);
-        $workspace = $workspaces->createWorkspace(["backend" => $backend]);
+        $workspace = $workspaces->createWorkspace(['backend' => $backend]);
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-
 
         $importFile = __DIR__ . '/../../_data/languages.with-state.csv';
         $tableId = $this->_client->createTable(
@@ -241,7 +239,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
                             'convertEmptyValuesToNull' => true,
                             'nullable' => true,
                         ],
-                    ]
+                    ],
                 ],
             ],
         ];
@@ -284,7 +282,6 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
         $workspaces->loadWorkspaceData($workspace['id'], $options);
         $this->assertEquals(5, $backend->countRows('languages'));
 
-
         $rows = $backend->fetchAll('languages', \PDO::FETCH_ASSOC);
         // lower case keys - Redshift issue
         $rows = array_map(function ($row) {
@@ -295,7 +292,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
             $this->assertArrayHasKey('state', $row);
             $this->assertArrayHasKey('id', $row);
 
-            if (in_array($row['id'], ["0", "11", "24"])) {
+            if (in_array($row['id'], ['0', '11', '24'])) {
                 $this->assertNull($row['state']);
             }
         }
@@ -309,12 +306,12 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
      */
     public function testLoadUserError($workspaceBackend, $sourceBackend, $dataTypesDefinition): void
     {
-        if ($this->_client->bucketExists("in.c-mixed-test-" . $sourceBackend)) {
+        if ($this->_client->bucketExists('in.c-mixed-test-' . $sourceBackend)) {
             $this->_client->dropBucket("in.c-mixed-test-{$sourceBackend}", [
                 'force' => true,
             ]);
         }
-        $bucketId = $this->_client->createBucket("mixed-test-{$sourceBackend}", "in", "", $sourceBackend);
+        $bucketId = $this->_client->createBucket("mixed-test-{$sourceBackend}", 'in', '', $sourceBackend);
         $sourceTableId = $this->_client->createTable(
             $bucketId,
             'transactions',
@@ -328,11 +325,11 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
         ]);
 
         $options = [
-            "input" => [
+            'input' => [
                 [
-                    "source" => $sourceTableId,
-                    "destination" => "transactions",
-                    "datatypes" => $dataTypesDefinition,
+                    'source' => $sourceTableId,
+                    'destination' => 'transactions',
+                    'datatypes' => $dataTypesDefinition,
                 ],
             ],
         ];
@@ -341,7 +338,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
         } catch (ClientException $e) {
-            $this->assertEquals($e->getStringCode(), "workspace.tableLoad");
+            $this->assertEquals($e->getStringCode(), 'workspace.tableLoad');
         }
     }
 
@@ -352,12 +349,12 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
      */
     public function testLoadWorkspaceExtendedDataTypesNullify($workspaceBackend, $sourceBackend): void
     {
-        if ($this->_client->bucketExists("in.c-mixed-test-" . $sourceBackend)) {
+        if ($this->_client->bucketExists('in.c-mixed-test-' . $sourceBackend)) {
             $this->_client->dropBucket("in.c-mixed-test-{$sourceBackend}", [
                 'force' => true,
             ]);
         }
-        $bucketId = $this->_client->createBucket("mixed-test-{$sourceBackend}", "in", "", $sourceBackend);
+        $bucketId = $this->_client->createBucket("mixed-test-{$sourceBackend}", 'in', '', $sourceBackend);
         $sourceTableId = $this->_client->createTable(
             $bucketId,
             'transactions',
@@ -372,21 +369,21 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
 
         $dataType = $workspaceBackend === self::BACKEND_SNOWFLAKE ? 'NUMBER' : 'INTEGER';
         $options = [
-            "input" => [
+            'input' => [
                 [
-                    "source" => $sourceTableId,
-                    "destination" => "transactions",
-                    "datatypes" => [
+                    'source' => $sourceTableId,
+                    'destination' => 'transactions',
+                    'datatypes' => [
                         [
                             'column' => 'item',
                             'type' => 'VARCHAR',
-                            'convertEmptyValuesToNull' => true
+                            'convertEmptyValuesToNull' => true,
                         ],
                         [
                             'column' => 'quantity',
                             'type' => $dataType,
-                            'convertEmptyValuesToNull' => true
-                        ]
+                            'convertEmptyValuesToNull' => true,
+                        ],
                     ],
                 ],
             ],
@@ -394,7 +391,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
         $workspaceBackendConnection = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-        $data = $workspaceBackendConnection->fetchAll("transactions", \PDO::FETCH_ASSOC);
+        $data = $workspaceBackendConnection->fetchAll('transactions', \PDO::FETCH_ASSOC);
         $this->assertArrayHasKey('quantity', $data[0]);
         $this->assertArrayHasKey('item', $data[0]);
         $this->assertEquals(null, $data[0]['quantity']);
@@ -421,10 +418,10 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
 
     public function workspaceMixedAndSameBackendDataWithDataTypes()
     {
-        $simpleDataTypesDefinitionSnowflake = ["price" => "VARCHAR", "quantity" => "NUMBER"];
-        $simpleDataTypesDefinitionRedshift = ["price" => "VARCHAR", "quantity" => "INTEGER"];
-        $extendedDataTypesDefinitionSnowflake = [["column" => "price", "type" => "VARCHAR"], ["column" => "quantity", "type" => "NUMBER"]];
-        $extendedDataTypesDefinitionRedshift = [["column" => "price", "type" => "VARCHAR"], ["column" => "quantity", "type" => "INTEGER"]];
+        $simpleDataTypesDefinitionSnowflake = ['price' => 'VARCHAR', 'quantity' => 'NUMBER'];
+        $simpleDataTypesDefinitionRedshift = ['price' => 'VARCHAR', 'quantity' => 'INTEGER'];
+        $extendedDataTypesDefinitionSnowflake = [['column' => 'price', 'type' => 'VARCHAR'], ['column' => 'quantity', 'type' => 'NUMBER']];
+        $extendedDataTypesDefinitionRedshift = [['column' => 'price', 'type' => 'VARCHAR'], ['column' => 'quantity', 'type' => 'INTEGER']];
         return [
             [self::BACKEND_SNOWFLAKE, self::BACKEND_SNOWFLAKE, $simpleDataTypesDefinitionSnowflake],
             [self::BACKEND_SNOWFLAKE, self::BACKEND_REDSHIFT, $simpleDataTypesDefinitionSnowflake],

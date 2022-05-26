@@ -154,7 +154,7 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
         $sharedBucket = reset($response);
 
         $linkedBucketId = $this->_client2->linkBucket(
-            "linked-" . time(),
+            'linked-' . time(),
             'in',
             $sharedBucket['project']['id'],
             $sharedBucket['id'],
@@ -178,7 +178,7 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
         $sharedBucket = reset($response);
 
         $linkedBucketId2 = $this->clientAdmin2InSameOrg->linkBucket(
-            "linked-" . time(),
+            'linked-' . time(),
             'in',
             $sharedBucket['project']['id'],
             $sharedBucket['id'],
@@ -242,7 +242,7 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
 
         try {
             $this->_client2->linkBucket(
-                "linked-" . time(),
+                'linked-' . time(),
                 'in',
                 $this->_client->verifyToken()['owner']['id'],
                 $bucketId,

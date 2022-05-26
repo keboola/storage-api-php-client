@@ -11,7 +11,7 @@ namespace Keboola\StorageApi\Options;
 
 class ListFilesOptions
 {
-    private $tags = array();
+    private $tags = [];
 
     private $limit = 100;
 
@@ -60,7 +60,7 @@ class ListFilesOptions
      */
     public function setLimit($limit)
     {
-        $this->limit = (int)$limit;
+        $this->limit = (int) $limit;
         return $this;
     }
 
@@ -78,13 +78,13 @@ class ListFilesOptions
      */
     public function setOffset($offset)
     {
-        $this->offset = (int)$offset;
+        $this->offset = (int) $offset;
         return $this;
     }
 
     public function toArray()
     {
-        return array(
+        return [
             'limit' => $this->getLimit(),
             'offset' => $this->getOffset(),
             'tags' => $this->getTags(),
@@ -93,7 +93,7 @@ class ListFilesOptions
             'maxId' => $this->getMaxId(),
             'runId' => $this->getRunId(),
             'showExpired' => $this->getShowExpired(),
-        );
+        ];
     }
 
     /**
@@ -127,7 +127,7 @@ class ListFilesOptions
      */
     public function setSinceId($sinceId)
     {
-        $this->sinceId = (int)$sinceId;
+        $this->sinceId = (int) $sinceId;
         return $this;
     }
 
@@ -144,7 +144,7 @@ class ListFilesOptions
      */
     public function setMaxId($maxId)
     {
-        $this->maxId = (int)$maxId;
+        $this->maxId = (int) $maxId;
         return $this;
     }
 

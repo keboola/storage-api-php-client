@@ -61,7 +61,7 @@ class SynapseWorkspaceBackend implements WorkspaceBackend
     public function dropTableColumn($table, $column)
     {
         $this->db->executeStatement(sprintf(
-            "ALTER TABLE %s.%s DROP COLUMN %s;",
+            'ALTER TABLE %s.%s DROP COLUMN %s;',
             $this->platform->quoteSingleIdentifier($this->schema),
             $this->platform->quoteSingleIdentifier($table),
             $this->platform->quoteSingleIdentifier($column)
@@ -98,7 +98,7 @@ class SynapseWorkspaceBackend implements WorkspaceBackend
         $data = [];
         /** @var array[] $res */
         $res = $this->db->fetchAllAssociative(sprintf(
-            "SELECT * FROM %s.%s %s;",
+            'SELECT * FROM %s.%s %s;',
             $this->platform->quoteSingleIdentifier($this->schema),
             $this->platform->quoteSingleIdentifier($table),
             $orderBy !== null ? "ORDER BY $orderBy" : null

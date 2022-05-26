@@ -143,7 +143,7 @@ class BranchComponentsWorkspacesTest extends ComponentsWorkspacesTest
         $connection = $branchWorkspace['connection'];
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($branchWorkspace);
 
-        $backend->createTable("mytable", ["amount" => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? "NUMBER" : "VARCHAR"]);
+        $backend->createTable('mytable', ['amount' => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? 'NUMBER' : 'VARCHAR']);
 
         // tables validation
         $tableNames = $backend->getTables();
@@ -156,10 +156,10 @@ class BranchComponentsWorkspacesTest extends ComponentsWorkspacesTest
         $this->assertSame('mytable', $tableNames[2]);
 
         // table unload
-        $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), array(
+        $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), [
             'name' => 'mytable',
             'dataWorkspaceId' => $branchWorkspace['id'],
             'dataTableName' => 'mytable',
-        ));
+        ]);
     }
 }

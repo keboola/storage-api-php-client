@@ -94,7 +94,7 @@ class WorkspacesTest extends FileWorkspaceTestCase
         $this->_client->setRunId($runId);
 
         $newCredentials = $workspaces->resetWorkspacePassword($workspace['id']);
-        $this->assertArrayHasKey("connectionString", $newCredentials);
+        $this->assertArrayHasKey('connectionString', $newCredentials);
 
         $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
 

@@ -55,13 +55,13 @@ class Event
      * Params associated to event e.q. sfdc configuration id
      * @var array
      */
-    private $params = array();
+    private $params = [];
 
     /**
      * Results associated to event, some performance metrics, fetched rows. couts etc.
      * @var array
      */
-    private $results = array();
+    private $results = [];
 
     /**
      * @var int run duration in seconds
@@ -133,12 +133,12 @@ class Event
      */
     public function setType($type)
     {
-        $allowedTypes = array(
+        $allowedTypes = [
             self::TYPE_ERROR,
             self::TYPE_INFO,
             self::TYPE_SUCCESS,
-            self::TYPE_WARN
-        );
+            self::TYPE_WARN,
+        ];
         if (!in_array($type, $allowedTypes)) {
             throw new Exception("{$type} is not allowed. Allowed types: " . implode(',', $allowedTypes));
         }
@@ -188,7 +188,7 @@ class Event
      */
     public function setDuration($duration)
     {
-        $this->duration = (int)$duration;
+        $this->duration = (int) $duration;
         return $this;
     }
 

@@ -27,19 +27,18 @@ class ExportSimpleTest extends StorageApiTestCase
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $csvFile = new CsvFile($importFile);
-        $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', $csvFile, array(
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', $csvFile, [
             'columns' => $csvFile->getHeader(),
-        ));
+        ]);
 
-        $results = $this->_client->exportTableAsync($tableId, array_merge($exportOptions, array(
+        $results = $this->_client->exportTableAsync($tableId, array_merge($exportOptions, [
             'format' => 'rfc',
-        )));
+        ]));
 
         $exportedFile = $this->_client->getFile($results['file']['id'], (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
 
         $this->assertTrue($exportedFile['isSliced']);
         $this->assertGreaterThan(0, $exportedFile['sizeBytes']);
-
 
         $tmpDestinationFolder = sprintf(
             '%s/%s',
@@ -56,7 +55,7 @@ class ExportSimpleTest extends StorageApiTestCase
             $csv .= file_get_contents($slice);
         }
 
-        $parsedData = Client::parseCsv($csv, false, ",", '"');
+        $parsedData = Client::parseCsv($csv, false, ',', '"');
         $this->assertCount($expectedColumnsCount, $parsedData);
         // unset column (e.g. with datetime)
         foreach ($parsedData as &$parsedLine) {
@@ -94,17 +93,17 @@ class ExportSimpleTest extends StorageApiTestCase
                     'token' => $exportedFile['credentials']['SessionToken'],
                 ],
                 'version' => 'latest',
-                'region' => $exportedFile['region']
+                'region' => $exportedFile['region'],
             ]);
-            $bucket = $exportedFile["s3Path"]["bucket"];
-            $prefix = $exportedFile["s3Path"]["key"];
+            $bucket = $exportedFile['s3Path']['bucket'];
+            $prefix = $exportedFile['s3Path']['key'];
             /** @var array{Contents: array} $objects */
-            $objects = $s3Client->listObjects(array(
-                "Bucket" => $bucket,
-                "Prefix" => $prefix
-            ));
+            $objects = $s3Client->listObjects([
+                'Bucket' => $bucket,
+                'Prefix' => $prefix,
+            ]);
             /** @var array{Key: string} $object */
-            foreach ($objects["Contents"] as $object) {
+            foreach ($objects['Contents'] as $object) {
                 $objectDetail = $s3Client->headObject([
                     'Bucket' => $bucket,
                     'Key' => $object['Key'],
@@ -114,7 +113,7 @@ class ExportSimpleTest extends StorageApiTestCase
                 if (substr($object['Key'], -8) === 'manifest') {
                     $this->assertEquals('AES256', $objectDetail['ServerSideEncryption']);
                 }
-                $this->assertStringStartsWith($prefix, $object["Key"]);
+                $this->assertStringStartsWith($prefix, $object['Key']);
             }
         }
     }

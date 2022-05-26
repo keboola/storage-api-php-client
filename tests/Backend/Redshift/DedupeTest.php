@@ -27,9 +27,9 @@ class DedupeTest extends StorageApiTestCase
             $this->getTestBucketId(),
             'languages',
             new CsvFile($importFile),
-            array(
-                'primaryKey' => 'id'
-            )
+            [
+                'primaryKey' => 'id',
+            ]
         );
 
         $this->assertLinesEqualsSorted(file_get_contents(__DIR__ . '/../../_data/languages.duplicates.deduped.csv'), $this->_client->getTableDataPreview($tableId));

@@ -87,7 +87,7 @@ class TokensTest extends StorageApiTestCase
         $components->addConfiguration((new Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-2')
-            ->setConfiguration(array('x' => 'y'))
+            ->setConfiguration(['x' => 'y'])
             ->setName('Main2'));
 
         $components->addConfiguration((new Configuration())
@@ -293,15 +293,15 @@ class TokensTest extends StorageApiTestCase
         $invalidToken = 'thisIsInvalidToken';
 
         try {
-            $client = $this->getClient(array(
+            $client = $this->getClient([
                 'token' => $invalidToken,
                 'url' => STORAGE_API_URL,
-            ));
+            ]);
 
             $client->verifyToken();
             $this->fail('Exception should be thrown on invalid token');
         } catch (\Keboola\StorageApi\ClientException $e) {
-            $this->assertStringNotContainsString($invalidToken, $e->getMessage(), "Token value should not be returned back");
+            $this->assertStringNotContainsString($invalidToken, $e->getMessage(), 'Token value should not be returned back');
         }
     }
 
@@ -538,7 +538,7 @@ class TokensTest extends StorageApiTestCase
         $limitedAccessToken = $this->tokens->createToken($options);
         $limitAccessTokenClient = $this->getClient([
             'token' => $limitedAccessToken['token'],
-            'url' => STORAGE_API_URL
+            'url' => STORAGE_API_URL,
         ]);
 
         $otherToken = $this->tokens->createToken($options);
@@ -565,7 +565,7 @@ class TokensTest extends StorageApiTestCase
 
         $client = $this->getClient([
             'token' => $token['token'],
-            'url' => STORAGE_API_URL
+            'url' => STORAGE_API_URL,
         ]);
 
         $components = new Components($client);
@@ -595,7 +595,6 @@ class TokensTest extends StorageApiTestCase
         $this->assertEquals($updatedConfig['name'], $newName);
         $this->assertEquals($updatedConfig['configuration'], $newConfigData);
 
-
         // we should be able to delete this configuration too
         $components->deleteConfiguration($options->getComponentId(), $options->getConfigurationId());
 
@@ -623,14 +622,14 @@ class TokensTest extends StorageApiTestCase
 
         $client = $this->getClient([
             'token' => $token['token'],
-            'url' => STORAGE_API_URL
+            'url' => STORAGE_API_URL,
         ]);
 
         $components = new Components($client);
 
         try {
             $components->listComponents();
-            $this->fail("This token should not be allowed to access components API");
+            $this->fail('This token should not be allowed to access components API');
         } catch (ClientException $e) {
             $this->assertEquals('accessDenied', $e->getStringCode());
         }
@@ -642,7 +641,7 @@ class TokensTest extends StorageApiTestCase
                 ->setConfigurationId('main-2')
                 ->setConfiguration(['foo' => 'bar'])
                 ->setName('Main2'));
-            $this->fail("Token was not granted access to this component, should throw an exception");
+            $this->fail('Token was not granted access to this component, should throw an exception');
         } catch (ClientException $e) {
             $this->assertEquals('accessDenied', $e->getStringCode());
         }
@@ -658,7 +657,7 @@ class TokensTest extends StorageApiTestCase
 
         try {
             $components->addConfigurationRow($configurationRow);
-            $this->fail("Token was not granted access to this component, should throw an exception");
+            $this->fail('Token was not granted access to this component, should throw an exception');
         } catch (ClientException  $e) {
             $this->assertEquals('accessDenied', $e->getStringCode());
         }
@@ -693,10 +692,10 @@ class TokensTest extends StorageApiTestCase
 
         $token = $this->tokens->createToken($options);
 
-        $client = $this->getClient(array(
+        $client = $this->getClient([
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
-        ));
+        ]);
 
         // check assigned buckets
         $buckets = $client->listBuckets();
@@ -748,10 +747,10 @@ class TokensTest extends StorageApiTestCase
 
         $token = $this->tokens->createToken($options);
 
-        $client = $this->getClient(array(
+        $client = $this->getClient([
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
-        ));
+        ]);
 
         // check assigned buckets
         $buckets = $client->listBuckets();
@@ -792,10 +791,10 @@ class TokensTest extends StorageApiTestCase
 
         $token = $this->tokens->createToken($options);
 
-        $client = $this->getClient(array(
+        $client = $this->getClient([
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
-        ));
+        ]);
 
         // check assigned buckets
         $buckets = $client->listBuckets();
@@ -856,10 +855,10 @@ class TokensTest extends StorageApiTestCase
 
         $token = $this->tokens->createToken($options);
 
-        $client = $this->getClient(array(
+        $client = $this->getClient([
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
-        ));
+        ]);
 
         // token getter
         $this->assertEquals($client->getTokenString(), $token['token']);
@@ -901,10 +900,10 @@ class TokensTest extends StorageApiTestCase
 
         $token = $this->tokens->createToken($options);
 
-        $client = $this->getClient(array(
+        $client = $this->getClient([
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
-        ));
+        ]);
 
         $token = $client->verifyToken();
 
@@ -1060,7 +1059,6 @@ class TokensTest extends StorageApiTestCase
             'token' => $token['token'],
             'url' => STORAGE_API_URL,
         ]);
-
 
         $components = new Components($client);
 
@@ -1364,12 +1362,12 @@ class TokensTest extends StorageApiTestCase
         return [
             'minimal configuration' => [
                 (new TokenCreateOptions())
-                    ->setExpiresIn(60 * 5)
+                    ->setExpiresIn(60 * 5),
             ],
             'all applicable params' => [
                 (new TokenCreateOptions())
                     ->setDescription('Autosave test')
-                    ->setExpiresIn(60 * 5)
+                    ->setExpiresIn(60 * 5),
             ],
             'full configuration' => [
                 (new TokenCreateOptions())
@@ -1378,7 +1376,7 @@ class TokensTest extends StorageApiTestCase
                     ->setCanReadAllFileUploads(true)
                     ->setCanPurgeTrash(true)
                     ->addBucketPermission('in.c-test', TokenAbstractOptions::BUCKET_PERMISSION_READ)
-                    ->addComponentAccess('wr-db')
+                    ->addComponentAccess('wr-db'),
             ],
         ];
     }
@@ -1501,7 +1499,7 @@ class TokensTest extends StorageApiTestCase
                 ->setExpiresIn(0)
                 ->setDescription('Whatever'),
             ClientException::class,
-            'Minimal expiration must be greater or equal to 1 second(s)'
+            'Minimal expiration must be greater or equal to 1 second(s)',
         ];
     }
 

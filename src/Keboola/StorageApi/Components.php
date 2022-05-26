@@ -29,7 +29,7 @@ class Components
 
     public function addConfiguration(Configuration $options)
     {
-        return $this->client->apiPost("components/{$options->getComponentId()}/configs", array(
+        return $this->client->apiPost("components/{$options->getComponentId()}/configs", [
             'name' => $options->getName(),
             'description' => $options->getDescription(),
             'configurationId' => $options->getConfigurationId(),
@@ -37,12 +37,12 @@ class Components
             'state' => $options->getState() ? json_encode($options->getState()) : null,
             'changeDescription' => $options->getChangeDescription(),
             'isDisabled' => $options->getIsDisabled(),
-        ));
+        ]);
     }
 
     public function updateConfiguration(Configuration $options)
     {
-        $data = array();
+        $data = [];
         if ($options->getName() !== null) {
             $data['name'] = $options->getName();
         }
@@ -119,7 +119,7 @@ class Components
         if (!$options) {
             $options = new ListComponentsOptions();
         }
-        return $this->client->apiGet("components?" . http_build_query($options->toParamsArray()));
+        return $this->client->apiGet('components?' . http_build_query($options->toParamsArray()));
     }
 
     public function getComponent($componentId)
@@ -152,7 +152,7 @@ class Components
     {
         return $this->client->apiPost(
             "components/{$componentId}/configs/{$configurationId}/versions/{$version}/rollback",
-            array('changeDescription' => $changeDescription)
+            ['changeDescription' => $changeDescription]
         );
     }
 
@@ -160,14 +160,14 @@ class Components
     {
         return $this->client->apiPost(
             "components/{$componentId}/configs/{$configurationId}/versions/{$version}/create",
-            array('name' => $name, 'description' => $description, 'changeDescription' => $changeDescription)
+            ['name' => $name, 'description' => $description, 'changeDescription' => $changeDescription]
         );
     }
 
     public function getConfigurationRow($componentId, $configurationId, $rowId)
     {
         return $this->client->apiGet(sprintf(
-            "components/%s/configs/%s/rows/%s",
+            'components/%s/configs/%s/rows/%s',
             $componentId,
             $configurationId,
             $rowId
@@ -196,19 +196,19 @@ class Components
     {
         return $this->client->apiPost(
             sprintf(
-                "components/%s/configs/%s/rows",
+                'components/%s/configs/%s/rows',
                 $options->getComponentConfiguration()->getComponentId(),
                 $options->getComponentConfiguration()->getConfigurationId()
             ),
-            array(
+            [
                 'rowId' => $options->getRowId(),
                 'configuration' => $options->getConfiguration() ? json_encode($options->getConfiguration()) : null,
                 'state' => $options->getState() ? json_encode($options->getState()) : null,
                 'changeDescription' => $options->getChangeDescription(),
                 'name' => $options->getName(),
                 'description' => $options->getDescription(),
-                'isDisabled' => $options->getIsDisabled()
-            )
+                'isDisabled' => $options->getIsDisabled(),
+            ]
         );
     }
 
@@ -216,15 +216,15 @@ class Components
     {
         return $this->client->apiDeleteParams(
             "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}",
-            array(
-                'changeDescription' => $changeDescription
-            )
+            [
+                'changeDescription' => $changeDescription,
+            ]
         );
     }
 
     public function updateConfigurationRow(ConfigurationRow $options)
     {
-        $data = array();
+        $data = [];
         if ($options->getName() !== null) {
             $data['name'] = $options->getName();
         }
@@ -249,7 +249,6 @@ class Components
             }
         }
 
-
         if ($options->getIsDisabled() !== null) {
             $data['isDisabled'] = $options->getIsDisabled();
         }
@@ -260,7 +259,7 @@ class Components
 
         return $this->client->apiPut(
             sprintf(
-                "components/%s/configs/%s/rows/%s",
+                'components/%s/configs/%s/rows/%s',
                 $options->getComponentConfiguration()->getComponentId(),
                 $options->getComponentConfiguration()->getConfigurationId(),
                 $options->getRowId()
@@ -283,7 +282,7 @@ class Components
 
         return $this->client->apiPut(
             sprintf(
-                "components/%s/configs/%s/rows/%s/state",
+                'components/%s/configs/%s/rows/%s/state',
                 $options->getComponentConfiguration()->getComponentId(),
                 $options->getComponentConfiguration()->getConfigurationId(),
                 $options->getRowId()
@@ -296,7 +295,7 @@ class Components
     {
         return $this->client->apiGet(
             sprintf(
-                "components/%s/configs/%s/rows/%s/versions?%s",
+                'components/%s/configs/%s/rows/%s/versions?%s',
                 $options->getComponentId(),
                 $options->getConfigurationId(),
                 $options->getRowId(),
@@ -314,7 +313,7 @@ class Components
     {
         return $this->client->apiPost(
             "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/versions/{$version}/rollback",
-            array("changeDescription" => $changeDescription)
+            ['changeDescription' => $changeDescription]
         );
     }
 
@@ -322,7 +321,7 @@ class Components
     {
         return $this->client->apiPost(
             "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/versions/{$version}/create",
-            array('targetConfigId' => $targetConfigurationId, 'changeDescription' => $changeDescription)
+            ['targetConfigId' => $targetConfigurationId, 'changeDescription' => $changeDescription]
         );
     }
 
@@ -340,7 +339,7 @@ class Components
     {
         return $this->client->apiPost(
             sprintf(
-                "components/%s/configs/%s/metadata",
+                'components/%s/configs/%s/metadata',
                 $options->getComponentConfiguration()->getComponentId(),
                 $options->getComponentConfiguration()->getConfigurationId()
             ),
@@ -353,7 +352,7 @@ class Components
     public function listConfigurationMetadata(ListConfigurationMetadataOptions $options)
     {
         return $this->client->apiGet(sprintf(
-            "components/%s/configs/%s/metadata",
+            'components/%s/configs/%s/metadata',
             $options->getComponentId(),
             $options->getConfigurationId()
         ));
@@ -362,7 +361,7 @@ class Components
     public function deleteConfigurationMetadata($componentId, $configurationId, $metadataId)
     {
         return $this->client->apiDelete(sprintf(
-            "components/%s/configs/%s/metadata/%s",
+            'components/%s/configs/%s/metadata/%s',
             $componentId,
             $configurationId,
             $metadataId

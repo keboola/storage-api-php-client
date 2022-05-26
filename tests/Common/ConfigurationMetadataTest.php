@@ -22,12 +22,12 @@ class ConfigurationMetadataTest extends StorageApiTestCase
     const TEST_METADATA = [
         [
             'key' => 'KBC.SomeEnity.metadataKey',
-            'value' => 'some-value'
+            'value' => 'some-value',
         ],
         [
             'key' => 'someMetadataKey',
-            'value' => 'some-value'
-        ]
+            'value' => 'some-value',
+        ],
     ];
 
     /**
@@ -156,7 +156,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
                 [
                     'key' => 'KBC.SomeEnity.afterRestore',
                     'value' => 'new-value',
-                ]
+                ],
             ]);
         $newMetadata = $components->addConfigurationMetadata($afterRestoreOptions);
         self::assertCount(3, $newMetadata);
@@ -291,7 +291,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             ->setMetadata([
                 [
                     'key' => 'createBranchCopyMetadataToTheDevBranch',
-                    'value' => 'new value'
+                    'value' => 'new value',
                 ],
             ]);
         $newMetadata = $components->addConfigurationMetadata($configurationMetadataOptions);
@@ -307,7 +307,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             ->setMetadata([
                 [
                     'key' => 'newDevBranchKey',
-                    'value' => 'new value'
+                    'value' => 'new value',
                 ],
             ]);
         $newMetadata = $branchComponents->addConfigurationMetadata($configurationMetadataOptions);
@@ -376,7 +376,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             [
                 'key' => 'KBC.addMetadata.thirdMetadata',
                 'value' => 'my awesome next value',
-            ]
+            ],
         ];
 
         $configurationMetadataOptions = (new ConfigurationMetadata($transformationMain1Options))
@@ -389,7 +389,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
                 [
                     'key' => 'someMetadataKey',
                     'value' => 'development branch value',
-                ]
+                ],
             ]);
         $branchComponents->addConfigurationMetadata($configurationMetadataOptions);
 

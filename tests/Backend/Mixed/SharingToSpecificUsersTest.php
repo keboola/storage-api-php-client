@@ -179,7 +179,7 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
             $bucketId,
             [
                 $targetUser['id'],
-                $targetAdmin2InSameOrg['id']
+                $targetAdmin2InSameOrg['id'],
             ],
             $isAsync
         );
@@ -191,7 +191,7 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
         $sharedBucket = reset($response);
 
         $linkedBucketId = $this->_client2->linkBucket(
-            "linked-" . time(),
+            'linked-' . time(),
             'in',
             $sharedBucket['project']['id'],
             $sharedBucket['id'],
@@ -215,7 +215,7 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
         $sharedBucket = reset($response);
 
         $linkedBucketId2 = $this->clientAdmin2InSameOrg->linkBucket(
-            "linked-" . time(),
+            'linked-' . time(),
             'in',
             $sharedBucket['project']['id'],
             $sharedBucket['id'],
@@ -272,7 +272,7 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
 
         try {
             $this->_client->linkBucket(
-                "linked-" . time(),
+                'linked-' . time(),
                 'in',
                 $this->_client->verifyToken()['owner']['id'],
                 $bucketId,

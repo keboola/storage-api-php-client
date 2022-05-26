@@ -12,9 +12,9 @@ class IndexOptions
      */
     public function toArray()
     {
-        return array(
+        return [
             'exclude' => $this->getExcludeAsString(),
-        );
+        ];
     }
 
     /**

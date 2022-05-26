@@ -31,9 +31,9 @@ class ExportParamsTest extends StorageApiTestCase
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile($importFile));
 
         try {
-            $this->_client->getTableDataPreview($tableId, array(
+            $this->_client->getTableDataPreview($tableId, [
                 'format' => 'csv',
-            ));
+            ]);
             $this->fail('Should throw exception');
         } catch (\Keboola\StorageApi\Exception $e) {
             $this->assertEquals('storage.tables.validation.invalidFormat', $e->getStringCode());
@@ -45,37 +45,37 @@ class ExportParamsTest extends StorageApiTestCase
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile($importFile));
 
-        $originalFileLinesCount = (string) exec("wc -l <" . escapeshellarg($importFile));
+        $originalFileLinesCount = (string) exec('wc -l <' . escapeshellarg($importFile));
 
         $data = $this->_client->getTableDataPreview($tableId);
         $this->assertEquals($originalFileLinesCount, count(Client::parseCsv($data, false)));
 
-        $data = $this->_client->getTableDataPreview($tableId, array(
+        $data = $this->_client->getTableDataPreview($tableId, [
             'limit' => 2,
-        ));
-        $this->assertEquals(3, count(Client::parseCsv($data, false)), "limit parameter");
+        ]);
+        $this->assertEquals(3, count(Client::parseCsv($data, false)), 'limit parameter');
 
         sleep(10);
         $startTime = time();
         $importCsv = new \Keboola\Csv\CsvFile($importFile);
-        $this->_client->writeTable($tableId, $importCsv, array(
+        $this->_client->writeTable($tableId, $importCsv, [
             'incremental' => true,
-        ));
-        $this->_client->writeTable($tableId, $importCsv, array(
+        ]);
+        $this->_client->writeTable($tableId, $importCsv, [
             'incremental' => true,
-        ));
+        ]);
         $data = $this->_client->getTableDataPreview($tableId);
-        $this->assertEquals((3 * ($originalFileLinesCount - 1)) + 1, count(Client::parseCsv($data, false)), "lines count after incremental load");
+        $this->assertEquals((3 * ($originalFileLinesCount - 1)) + 1, count(Client::parseCsv($data, false)), 'lines count after incremental load');
 
-        $data = $this->_client->getTableDataPreview($tableId, array(
+        $data = $this->_client->getTableDataPreview($tableId, [
             'changedSince' => sprintf('-%d second', ceil(time() - $startTime) + 5),
-        ));
-        $this->assertEquals((2 * ($originalFileLinesCount - 1)) + 1, count(Client::parseCsv($data, false)), "changedSince parameter");
+        ]);
+        $this->assertEquals((2 * ($originalFileLinesCount - 1)) + 1, count(Client::parseCsv($data, false)), 'changedSince parameter');
 
-        $data = $this->_client->getTableDataPreview($tableId, array(
+        $data = $this->_client->getTableDataPreview($tableId, [
             'changedUntil' => sprintf('-%d second', ceil(time() - $startTime) + 5),
-        ));
-        $this->assertEquals($originalFileLinesCount, count(Client::parseCsv($data, false)), "changedUntil parameter");
+        ]);
+        $this->assertEquals($originalFileLinesCount, count(Client::parseCsv($data, false)), 'changedUntil parameter');
     }
 
     /**
@@ -101,10 +101,10 @@ class ExportParamsTest extends StorageApiTestCase
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));
 
         try {
-            $this->_client->getTableDataPreview($tableId, array(
+            $this->_client->getTableDataPreview($tableId, [
                 'whereColumn' => 'city',
-                'whereValues' => array('PRG'),
-            ));
+                'whereValues' => ['PRG'],
+            ]);
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.tables.validation.columnNotIndexed', $e->getStringCode());
         }
@@ -116,10 +116,10 @@ class ExportParamsTest extends StorageApiTestCase
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
         try {
-            $this->_client->getTableDataPreview($tableId, array(
+            $this->_client->getTableDataPreview($tableId, [
                 'whereColumn' => 'mesto',
-                'whereValues' => array('PRG'),
-            ));
+                'whereValues' => ['PRG'],
+            ]);
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.tables.validation.columnNotExists', $e->getStringCode());
         }
@@ -130,15 +130,15 @@ class ExportParamsTest extends StorageApiTestCase
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile($importFile));
 
-        $data = $this->_client->getTableDataPreview($tableId, array(
-            'columns' => array('id'),
-        ));
+        $data = $this->_client->getTableDataPreview($tableId, [
+            'columns' => ['id'],
+        ]);
         $parsed = Client::parseCsv($data, false);
         $firstRow = reset($parsed);
 
         $this->assertCount(1, $firstRow);
         $this->assertArrayHasKey(0, $firstRow);
-        $this->assertEquals("id", $firstRow[0]);
+        $this->assertEquals('id', $firstRow[0]);
     }
 
     public function testTableExportAsyncCache(): void
@@ -157,25 +157,25 @@ class ExportParamsTest extends StorageApiTestCase
         $this->assertTrue($results['cacheHit']);
         $this->assertEquals($fileId, $results['file']['id']);
 
-        $results = $this->_client->exportTableAsync($tableId, array(
+        $results = $this->_client->exportTableAsync($tableId, [
             'gzip' => true,
-        ));
+        ]);
 
         $gzippedFileId = $results['file']['id'];
 
         $this->waitForFile($gzippedFileId);
         $this->assertFalse($results['cacheHit']);
         $this->assertNotEquals($fileId, $gzippedFileId);
-        $results = $this->_client->exportTableAsync($tableId, array(
+        $results = $this->_client->exportTableAsync($tableId, [
             'gzip' => true,
-        ));
+        ]);
         $this->assertTrue($results['cacheHit']);
         $this->assertEquals($gzippedFileId, $results['file']['id']);
 
-        $results = $this->_client->exportTableAsync($tableId, array(
+        $results = $this->_client->exportTableAsync($tableId, [
             'whereColumn' => 'city',
-            'whereValues' => array('PRG'),
-        ));
+            'whereValues' => ['PRG'],
+        ]);
         $filteredByCityFileId = $results['file']['id'];
         $this->assertFalse($results['cacheHit']);
         $this->assertNotEquals($fileId, $filteredByCityFileId);
@@ -187,9 +187,9 @@ class ExportParamsTest extends StorageApiTestCase
         $this->assertFalse($results['cacheHit']);
         $this->assertNotEquals($fileId, $newFileId);
 
-        $results = $this->_client->exportTableAsync($tableId, array(
+        $results = $this->_client->exportTableAsync($tableId, [
             'gzip' => true,
-        ));
+        ]);
         $this->assertFalse($results['cacheHit']);
     }
 

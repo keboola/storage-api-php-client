@@ -102,8 +102,8 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
             new CsvFile(__DIR__ . '/../../_data/numbers.csv')
         );
 
-        $mapping1 = ["source" => $table1_id, "destination" => "languagesLoaded"];
-        $mapping2 = ["source" => $table2_id, "destination" => "numbersLoaded"];
+        $mapping1 = ['source' => $table1_id, 'destination' => 'languagesLoaded'];
+        $mapping2 = ['source' => $table2_id, 'destination' => 'numbersLoaded'];
 
         $input = [$mapping1, $mapping2];
 
@@ -112,7 +112,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $this->_client->setRunId($runId);
         $this->workspaceSapiClient->setRunId($runId);
 
-        $workspaces->loadWorkspaceData($workspace['id'], ["input" => $input]);
+        $workspaces->loadWorkspaceData($workspace['id'], ['input' => $input]);
 
         $afterJobs = $this->listWorkspaceJobs($workspace['id']);
         $lastJob = reset($afterJobs);
@@ -133,33 +133,33 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
 
         // check that the tables are in the workspace
         $this->assertCount(2, $tables);
-        $this->assertContains($backend->toIdentifier("languagesLoaded"), $tables);
-        $this->assertContains($backend->toIdentifier("numbersLoaded"), $tables);
+        $this->assertContains($backend->toIdentifier('languagesLoaded'), $tables);
+        $this->assertContains($backend->toIdentifier('numbersLoaded'), $tables);
 
         // check table structure and data
-        $data = $backend->fetchAll("languagesLoaded", \PDO::FETCH_ASSOC);
+        $data = $backend->fetchAll('languagesLoaded', \PDO::FETCH_ASSOC);
         $this->assertCount(2, $data[0], 'there should be two columns');
         $this->assertArrayHasKey('id', $data[0]);
         $this->assertArrayHasKey('name', $data[0]);
-        $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ",", '"'), $data, 'id');
+        $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ',', '"'), $data, 'id');
 
         // now we'll load another table and use the preserve parameters to check that all tables are present
-        $mapping3 = ["source" => $table1_id, "destination" => "table3"];
-        $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping3], "preserve" => true]);
+        $mapping3 = ['source' => $table1_id, 'destination' => 'table3'];
+        $workspaces->loadWorkspaceData($workspace['id'], ['input' => [$mapping3], 'preserve' => true]);
 
         $tables = $backend->getTables();
 
         $this->assertCount(3, $tables);
-        $this->assertContains($backend->toIdentifier("table3"), $tables);
-        $this->assertContains($backend->toIdentifier("languagesLoaded"), $tables);
-        $this->assertContains($backend->toIdentifier("numbersLoaded"), $tables);
+        $this->assertContains($backend->toIdentifier('table3'), $tables);
+        $this->assertContains($backend->toIdentifier('languagesLoaded'), $tables);
+        $this->assertContains($backend->toIdentifier('numbersLoaded'), $tables);
 
         // now we'll try the same load, but it should clear the workspace first (preserve is false by default)
-        $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping3]]);
+        $workspaces->loadWorkspaceData($workspace['id'], ['input' => [$mapping3]]);
 
         $tables = $backend->getTables();
         $this->assertCount(1, $tables);
-        $this->assertContains($backend->toIdentifier("table3"), $tables);
+        $this->assertContains($backend->toIdentifier('table3'), $tables);
     }
 
     public function testWorkspaceLoadAliasTable(): void
@@ -217,14 +217,14 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
             ]
         );
 
-        $mapping1 = ["source" => $table1Id, "destination" => "languagesLoaded"];
-        $mapping2 = ["source" => $table2Id, "destination" => "languagesAlias"];
-        $mapping3 = ["source" => $table3Id, "destination" => "languagesOneColumn"];
-        $mapping4 = ["source" => $table4Id, "destination" => "languagesFiltered"];
-        $mapping5 = ["source" => $table2AliasedId, "destination" => "languagesNestedAlias"];
+        $mapping1 = ['source' => $table1Id, 'destination' => 'languagesLoaded'];
+        $mapping2 = ['source' => $table2Id, 'destination' => 'languagesAlias'];
+        $mapping3 = ['source' => $table3Id, 'destination' => 'languagesOneColumn'];
+        $mapping4 = ['source' => $table4Id, 'destination' => 'languagesFiltered'];
+        $mapping5 = ['source' => $table2AliasedId, 'destination' => 'languagesNestedAlias'];
 
         $input = [$mapping1, $mapping2, $mapping3, $mapping4, $mapping5];
-        $workspaces->loadWorkspaceData($workspace['id'], ["input" => $input]);
+        $workspaces->loadWorkspaceData($workspace['id'], ['input' => $input]);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -232,30 +232,30 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
 
         // check that the tables are in the workspace
         $this->assertCount(5, $tables);
-        $this->assertContains($backend->toIdentifier("languagesLoaded"), $tables);
-        $this->assertContains($backend->toIdentifier("languagesAlias"), $tables);
-        $this->assertContains($backend->toIdentifier("languagesOneColumn"), $tables);
-        $this->assertContains($backend->toIdentifier("languagesFiltered"), $tables);
-        $this->assertContains($backend->toIdentifier("languagesNestedAlias"), $tables);
+        $this->assertContains($backend->toIdentifier('languagesLoaded'), $tables);
+        $this->assertContains($backend->toIdentifier('languagesAlias'), $tables);
+        $this->assertContains($backend->toIdentifier('languagesOneColumn'), $tables);
+        $this->assertContains($backend->toIdentifier('languagesFiltered'), $tables);
+        $this->assertContains($backend->toIdentifier('languagesNestedAlias'), $tables);
 
         // check table structure and data
         // first table
-        $data = $backend->fetchAll("languagesLoaded", \PDO::FETCH_ASSOC);
+        $data = $backend->fetchAll('languagesLoaded', \PDO::FETCH_ASSOC);
         $this->assertCount(2, $data[0], 'there should be two columns');
         $this->assertArrayHasKey('id', $data[0]);
         $this->assertArrayHasKey('name', $data[0]);
-        $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ",", '"'), $data, 'id');
+        $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ',', '"'), $data, 'id');
 
         // second table
-        $data = $backend->fetchAll("languagesAlias", \PDO::FETCH_ASSOC);
-        $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ",", '"'), $data, 'id');
+        $data = $backend->fetchAll('languagesAlias', \PDO::FETCH_ASSOC);
+        $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ',', '"'), $data, 'id');
 
         // third table
-        $data = $backend->fetchAll("languagesOneColumn", \PDO::FETCH_ASSOC);
+        $data = $backend->fetchAll('languagesOneColumn', \PDO::FETCH_ASSOC);
 
         $this->assertCount(1, $data[0], 'there should be one column');
         $this->assertArrayHasKey('id', $data[0]);
-        $expected = Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ",", '"');
+        $expected = Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ',', '"');
         $expected = array_map(function ($row) {
             return [
                 'id' => $row['id'],
@@ -264,15 +264,15 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $this->assertArrayEqualsSorted($expected, $data, 'id');
 
         // fourth table
-        $data = $backend->fetchAll("languagesFiltered", \PDO::FETCH_ASSOC);
+        $data = $backend->fetchAll('languagesFiltered', \PDO::FETCH_ASSOC);
         $this->assertCount(1, $data[0], 'there should be one column');
         $this->assertArrayHasKey('id', $data[0]);
 
         $this->assertEquals('1', $data[0]['id']);
 
         // fifth table
-        $data = $backend->fetchAll("languagesNestedAlias", \PDO::FETCH_ASSOC);
-        $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ",", '"'), $data, 'id');
+        $data = $backend->fetchAll('languagesNestedAlias', \PDO::FETCH_ASSOC);
+        $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ',', '"'), $data, 'id');
     }
 
     public function testWorkspaceLoadColumns(): void
@@ -344,11 +344,11 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
         // check that the tables have the appropriate columns
-        $columns = $backend->getTableColumns($backend->toIdentifier("languagesIso"));
+        $columns = $backend->getTableColumns($backend->toIdentifier('languagesIso'));
         $this->assertEquals(2, count($columns));
         $this->assertEquals(0, count(array_diff($columns, $backend->toIdentifier($mappingColumns[0]))));
 
-        $columns = $backend->getTableColumns($backend->toIdentifier("languagesSomething"));
+        $columns = $backend->getTableColumns($backend->toIdentifier('languagesSomething'));
         $this->assertEquals(2, count($columns));
         $this->assertEquals(0, count(array_diff($columns, $backend->toIdentifier($mappingColumns[1]))));
 
@@ -381,9 +381,9 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         );
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
-            $this->fail("Trying to select a non existent column should fail");
+            $this->fail('Trying to select a non existent column should fail');
         } catch (ClientException $e) {
-            $this->assertEquals("storage.tables.nonExistingColumns", $e->getStringCode());
+            $this->assertEquals('storage.tables.nonExistingColumns', $e->getStringCode());
         }
     }
 
@@ -460,7 +460,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
             $options
         );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
-        $this->assertEquals(5, $backend->countRows("languagesDetails"));
+        $this->assertEquals(5, $backend->countRows('languagesDetails'));
     }
 
     public function testIncrementalAdditionalColumns(): void
@@ -500,7 +500,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
             $options
         );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
-        $this->assertEquals(5, $backend->countRows("languages"));
+        $this->assertEquals(5, $backend->countRows('languages'));
 
         $this->_client->addTableColumn($tableId, 'test');
 
@@ -579,7 +579,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
             $options
         );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
-        $this->assertEquals(5, $backend->countRows("languages"));
+        $this->assertEquals(5, $backend->countRows('languages'));
 
         $this->_client->deleteTableColumn($tableId, 'name');
 
@@ -681,7 +681,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
             'languages',
             new CsvFile($importFile)
         );
-        $originalFileLinesCount = (string) exec("wc -l <" . escapeshellarg($importFile));
+        $originalFileLinesCount = (string) exec('wc -l <' . escapeshellarg($importFile));
         sleep(35);
         $startTime = time();
         $importCsv = new \Keboola\Csv\CsvFile($importFile);
@@ -717,8 +717,8 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
         // ok, the table should only have rows from the 2 most recent loads
-        $numRows = $backend->countRows("languages");
-        $this->assertEquals(2 * ($originalFileLinesCount - 1), $numRows, "seconds parameter");
+        $numRows = $backend->countRows('languages');
+        $this->assertEquals(2 * ($originalFileLinesCount - 1), $numRows, 'seconds parameter');
     }
 
     public function testRowsParameter(): void
@@ -823,14 +823,14 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                 ],
                 [
                     [
-                        "1",
-                        "martin",
-                        "male",
+                        '1',
+                        'martin',
+                        'male',
                     ],
                     [
-                        "2",
-                        "klara",
-                        "female",
+                        '2',
+                        'klara',
+                        'female',
                     ],
                 ],
             ],
@@ -861,16 +861,16 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                 ],
                 [
                     [
-                        "1",
-                        "martin",
-                        "PRG",
-                        "male",
+                        '1',
+                        'martin',
+                        'PRG',
+                        'male',
                     ],
                     [
-                        "2",
-                        "klara",
-                        "PRG",
-                        "female",
+                        '2',
+                        'klara',
+                        'PRG',
+                        'female',
                     ],
                 ],
             ],
@@ -900,22 +900,22 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                 ],
                 [
                     [
-                        "1",
-                        "martin",
-                        "PRG",
-                        "male",
+                        '1',
+                        'martin',
+                        'PRG',
+                        'male',
                     ],
                     [
-                        "2",
-                        "klara",
-                        "PRG",
-                        "female",
+                        '2',
+                        'klara',
+                        'PRG',
+                        'female',
                     ],
                     [
-                        "3",
-                        "ondra",
-                        "VAN",
-                        "male",
+                        '3',
+                        'ondra',
+                        'VAN',
+                        'male',
                     ],
                 ],
             ],
@@ -946,22 +946,22 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                 ],
                 [
                     [
-                        "5",
-                        "hidden",
-                        "",
-                        "male",
+                        '5',
+                        'hidden',
+                        '',
+                        'male',
                     ],
                     [
-                        "4",
-                        "miro",
-                        "BRA",
-                        "male",
+                        '4',
+                        'miro',
+                        'BRA',
+                        'male',
                     ],
                     [
-                        "3",
-                        "ondra",
-                        "VAN",
-                        "male",
+                        '3',
+                        'ondra',
+                        'VAN',
+                        'male',
                     ],
                 ],
             ],
@@ -992,16 +992,16 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                 ],
                 [
                     [
-                        "4",
-                        "miro",
-                        "BRA",
-                        "male",
+                        '4',
+                        'miro',
+                        'BRA',
+                        'male',
                     ],
                     [
-                        "5",
-                        "hidden",
-                        "",
-                        "male",
+                        '5',
+                        'hidden',
+                        '',
+                        'male',
                     ],
                 ],
             ],
@@ -1032,10 +1032,10 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                 ],
                 [
                     [
-                        "5",
-                        "hidden",
-                        "",
-                        "male",
+                        '5',
+                        'hidden',
+                        '',
+                        'male',
                     ],
                 ],
             ],
@@ -1066,28 +1066,28 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                 ],
                 [
                     [
-                        "4",
-                        "miro",
-                        "BRA",
-                        "male",
+                        '4',
+                        'miro',
+                        'BRA',
+                        'male',
                     ],
                     [
-                        "1",
-                        "martin",
-                        "PRG",
-                        "male",
+                        '1',
+                        'martin',
+                        'PRG',
+                        'male',
                     ],
                     [
-                        "2",
-                        "klara",
-                        "PRG",
-                        "female",
+                        '2',
+                        'klara',
+                        'PRG',
+                        'female',
                     ],
                     [
-                        "3",
-                        "ondra",
-                        "VAN",
-                        "male",
+                        '3',
+                        'ondra',
+                        'VAN',
+                        'male',
                     ],
                 ],
             ],
@@ -1486,16 +1486,16 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         );
 
         $mapping1 = [
-            "source" => $table1_id,
-            "destination" => "languagesLoaded",
-            "columns" => [
+            'source' => $table1_id,
+            'destination' => 'languagesLoaded',
+            'columns' => [
                 [
-                    "source" => "id",
-                    "type" => "INTEGER",
+                    'source' => 'id',
+                    'type' => 'INTEGER',
                 ],
                 [
-                    "source" => "name",
-                    "type" => "VARCHAR",
+                    'source' => 'name',
+                    'type' => 'VARCHAR',
                 ],
             ],
         ];
@@ -1507,7 +1507,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         //  test for non-array input
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
-            $this->fail("input should be an array of mappings.");
+            $this->fail('input should be an array of mappings.');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.loadRequestBadInput', $e->getStringCode());
         }
@@ -1533,7 +1533,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         }
 
         $testMapping = $mapping1;
-        unset($testMapping["destination"]);
+        unset($testMapping['destination']);
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
             ['input' => [$testMapping]]
@@ -1547,7 +1547,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         }
 
         $testMapping = $mapping1;
-        unset($testMapping["source"]);
+        unset($testMapping['source']);
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
             ['input' => [$testMapping]]
@@ -1586,16 +1586,16 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace();
         $input = [
             [
-                "source" => $tableId,
-                "destination" => "irrelevant",
-                "columns" => [
+                'source' => $tableId,
+                'destination' => 'irrelevant',
+                'columns' => [
                     [
-                        "source" => "id",
-                        "type" => "INTEGER",
+                        'source' => 'id',
+                        'type' => 'INTEGER',
                     ],
                     [
-                        "source" => "name",
-                        "type" => "VARCHAR",
+                        'source' => 'name',
+                        'type' => 'VARCHAR',
                     ],
                 ],
             ],
@@ -1627,18 +1627,18 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         );
 
         $options = [
-            "input" => [
+            'input' => [
                 [
-                    "source" => $tableId,
-                    "destination" => "dotted.destination",
-                    "columns" => [
+                    'source' => $tableId,
+                    'destination' => 'dotted.destination',
+                    'columns' => [
                         [
-                            "source" => "id",
-                            "type" => "INTEGER",
+                            'source' => 'id',
+                            'type' => 'INTEGER',
                         ],
                         [
-                            "source" => "name",
-                            "type" => "VARCHAR",
+                            'source' => 'name',
+                            'type' => 'VARCHAR',
                         ],
                     ],
                 ],
@@ -1701,7 +1701,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
             $options
         );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
-        $this->assertEquals(2, $backend->countRows("languagesDetails"));
+        $this->assertEquals(2, $backend->countRows('languagesDetails'));
 
         // second load
         $options = [
@@ -1730,7 +1730,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
             $options
         );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
-        $this->assertEquals(5, $backend->countRows("languagesDetails"));
+        $this->assertEquals(5, $backend->countRows('languagesDetails'));
     }
 
     public function validColumnsDefinitions()
@@ -2260,7 +2260,6 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         // check that the sharing still works
         $this->assertLoadDataFromLinkedBucket($db, $sharingProjectDatabase, $sharedBucketId);
 
-
         // unshare (unlink first)
         $this->_client->dropBucket($linkedBucketId, ['async' => true]);
         $this->_linkingClient->unshareBucket($sharedBucketId, true);
@@ -2271,7 +2270,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $this->_client->linkBucket($linkedBucketName, 'in', $sharingProjectId, $sharedBucketId, null, false);
         // check that the sharing still works
         $this->assertLoadDataFromLinkedBucket($db, $sharingProjectDatabase, $sharedBucketId);
-        $this->_linkingClient->forceUnlinkBucket($sharedBucketId, $consumerProjectId, ["async" => true]);
+        $this->_linkingClient->forceUnlinkBucket($sharedBucketId, $consumerProjectId, ['async' => true]);
         $this->assertCannotAccessLinkedBucket($db, $sharingProjectDatabase, $sharedBucketId);
     }
 

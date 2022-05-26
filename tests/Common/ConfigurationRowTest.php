@@ -54,8 +54,8 @@ class ConfigurationRowTest extends StorageApiTestCase
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
-            ->setName("Main 1")
-            ->setDescription("description");
+            ->setName('Main 1')
+            ->setDescription('description');
         $components->addConfiguration($config);
 
         $rowConfig = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config);
@@ -71,8 +71,8 @@ class ConfigurationRowTest extends StorageApiTestCase
         $config2 = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-2')
-            ->setName("Main 2")
-            ->setDescription("description");
+            ->setName('Main 2')
+            ->setDescription('description');
         $components->addConfiguration($config2);
 
         $rowConfig2 = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config2);
@@ -86,7 +86,7 @@ class ConfigurationRowTest extends StorageApiTestCase
             2,
             'copy-main'
         );
-        $response = $components->getConfiguration('wr-db', $copiedConfig["id"]);
+        $response = $components->getConfiguration('wr-db', $copiedConfig['id']);
 
         $this->assertSame(['key' => 'main-2-1'], $response['rows'][0]['state']);
     }
@@ -157,27 +157,25 @@ class ConfigurationRowTest extends StorageApiTestCase
             ->setName('Main');
         $components->addConfiguration($configuration);
 
-
         // to check if params is object we have to convert received json to objects instead of assoc array
         // so we have to use raw Http Client
         $guzzleClient = $this->clientProvider->createGuzzleClientForCurrentTest([
             'base_uri' => $this->client->getApiUrl(),
         ], true);
 
-        $config = (object)[
+        $config = (object) [
             'test' => 'neco',
             'array' => [],
-            'object' => (object)[],
+            'object' => (object) [],
         ];
 
-        $state = (object)[
+        $state = (object) [
             'test' => 'state',
             'array' => [],
-            'object' => (object)[
-                'subobject' => (object)[],
-            ]
+            'object' => (object) [
+                'subobject' => (object) [],
+            ],
         ];
-
 
         $response = $guzzleClient->post('/v2/storage/components/wr-db/configs/main-1/rows', [
             'form_params' => [
@@ -185,65 +183,65 @@ class ConfigurationRowTest extends StorageApiTestCase
                 'configuration' => json_encode($config),
                 'state' => json_encode($state),
             ],
-            'headers' => array(
+            'headers' => [
                 'X-StorageApi-Token' => $this->client->getTokenString(),
-            ),
+            ],
         ]);
-        $response = json_decode((string)$response->getBody());
+        $response = json_decode((string) $response->getBody());
         $this->assertEquals($config, $response->configuration);
         $this->assertEquals($state, $response->state);
 
         $response = $guzzleClient->get('/v2/storage/components/wr-db/configs/main-1/rows/' . $response->id, [
-            'headers' => array(
+            'headers' => [
                 'X-StorageApi-Token' => $this->client->getTokenString(),
-            ),
+            ],
         ]);
-        $response = json_decode((string)$response->getBody());
+        $response = json_decode((string) $response->getBody());
         $this->assertEquals($config, $response->configuration);
         $this->assertEquals($state, $response->state);
 
         // update
-        $config = (object)[
+        $config = (object) [
             'test' => 'neco',
             'array' => ['2'],
             'anotherArr' => [],
-            'object' => (object)[],
+            'object' => (object) [],
         ];
-        $state = (object)[
+        $state = (object) [
             'test2' => 'state',
             'array2' => [],
-            'object2' => (object)[
-                'subobject2' => (object)[],
-            ]
+            'object2' => (object) [
+                'subobject2' => (object) [],
+            ],
         ];
 
         $guzzleClient->put('/v2/storage/components/wr-db/configs/main-1/rows/' . $response->id . '/state', [
             'form_params' => [
                 'state' => json_encode($state),
             ],
-            'headers' => array(
+            'headers' => [
                 'X-StorageApi-Token' => $this->client->getTokenString(),
-            ),
+            ],
         ]);
 
         $response = $guzzleClient->put('/v2/storage/components/wr-db/configs/main-1/rows/' . $response->id, [
             'form_params' => [
                 'configuration' => json_encode($config),
             ],
-            'headers' => array(
+            'headers' => [
                 'X-StorageApi-Token' => $this->client->getTokenString(),
-            ),
+            ],
         ]);
-        $response = json_decode((string)$response->getBody());
+        $response = json_decode((string) $response->getBody());
         $this->assertEquals($config, $response->configuration);
         $this->assertEquals($state, $response->state);
 
         $response = $guzzleClient->get('/v2/storage/components/wr-db/configs/main-1/rows/' . $response->id, [
-            'headers' => array(
+            'headers' => [
                 'X-StorageApi-Token' => $this->client->getTokenString(),
-            ),
+            ],
         ]);
-        $response = json_decode((string)$response->getBody());
+        $response = json_decode((string) $response->getBody());
         $this->assertEquals($config, $response->configuration);
         $this->assertEquals($state, $response->state);
         $this->assertFalse($response->isDisabled);
@@ -266,18 +264,18 @@ class ConfigurationRowTest extends StorageApiTestCase
             'base_uri' => $this->client->getApiUrl(),
         ], true);
 
-        $config = (object)[
+        $config = (object) [
             'test' => 'neco',
             'array' => [],
-            'object' => (object)[],
+            'object' => (object) [],
         ];
 
-        $state = (object)[
+        $state = (object) [
             'test' => 'state',
             'array' => [],
-            'object' => (object)[
-                'subobject' => (object)[],
-            ]
+            'object' => (object) [
+                'subobject' => (object) [],
+            ],
         ];
 
         $response = $guzzleClient->post('/v2/storage/components/wr-db/configs/main-1/rows', [
@@ -285,13 +283,13 @@ class ConfigurationRowTest extends StorageApiTestCase
                 'configuration' => json_encode($config),
                 'state' => json_encode($state),
             ],
-            'headers' => array(
+            'headers' => [
                 'X-StorageApi-Token' => $this->client->getTokenString(),
-            ),
+            ],
         ]);
         $response = json_decode((string) $response->getBody());
 
-        $responsePut = $guzzleClient->put("/v2/storage/components/wr-db/configs/main-1/rows/" . $response->id, [
+        $responsePut = $guzzleClient->put('/v2/storage/components/wr-db/configs/main-1/rows/' . $response->id, [
             'form_params' => [
                 'isDisabled' => 'true',
                 'changeDescription' => 'Row ABCD disabled',
@@ -303,7 +301,7 @@ class ConfigurationRowTest extends StorageApiTestCase
 
         $result = json_decode((string) $responsePut->getBody());
         $this->assertTrue($result->isDisabled);
-        $this->assertEquals("Row ABCD disabled", $result->changeDescription);
+        $this->assertEquals('Row ABCD disabled', $result->changeDescription);
     }
 
     /**
@@ -326,18 +324,18 @@ class ConfigurationRowTest extends StorageApiTestCase
             'base_uri' => $this->client->getApiUrl(),
         ], true);
 
-        $config = (object)[
+        $config = (object) [
             'test' => 'neco',
             'array' => [],
-            'object' => (object)[],
+            'object' => (object) [],
         ];
 
-        $state = (object)[
+        $state = (object) [
             'test' => 'state',
             'array' => [],
-            'object' => (object)[
-                'subobject' => (object)[],
-            ]
+            'object' => (object) [
+                'subobject' => (object) [],
+            ],
         ];
 
         $response = $client->post('/v2/storage/components/wr-db/configs/main-1/rows', [
@@ -347,11 +345,11 @@ class ConfigurationRowTest extends StorageApiTestCase
                 'state' => json_encode($state),
                 'isDisabled' => $isDisabled,
             ],
-            'headers' => array(
+            'headers' => [
                 'X-StorageApi-Token' => $this->client->getTokenString(),
-            ),
+            ],
         ]);
-        $response = json_decode((string)$response->getBody());
+        $response = json_decode((string) $response->getBody());
         $this->assertEquals($expectedIsDisabled, $response->isDisabled);
         $this->assertEquals('test configuration row', $response->name);
         $this->assertEquals($config, $response->configuration);
@@ -379,7 +377,7 @@ class ConfigurationRowTest extends StorageApiTestCase
             ],
             '!isDisabled bool' => [
                 false,
-                false
+                false,
             ],
             '!isDisabled int' => [
                 0,

@@ -67,7 +67,7 @@ class ConfigurationRow
      */
     public function setConfiguration($configuration)
     {
-        $this->configuration = (array)$configuration;
+        $this->configuration = (array) $configuration;
         return $this;
     }
 
@@ -138,7 +138,7 @@ class ConfigurationRow
      */
     public function setIsDisabled($isDisabled)
     {
-        $this->isDisabled = (bool)$isDisabled;
+        $this->isDisabled = (bool) $isDisabled;
         return $this;
     }
 

@@ -112,7 +112,6 @@ class TimestampTest extends ParallelWorkspacesTestCase
             ->setIsSliced(true)
             ->setIsEncrypted(false);
 
-
         $fileId = $this->_client->uploadSlicedFile(
             $slices,
             $uploadOptions
@@ -172,27 +171,27 @@ class TimestampTest extends ParallelWorkspacesTestCase
     {
         $workspace = $this->initTestWorkspace();
 
-        $table = $this->_client->apiPost("buckets/" . $this->getTestBucketId(self::STAGE_IN) . "/tables", array(
+        $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => 'Id,Name,update',
             'name' => 'languages',
             'primaryKey' => 'Id',
-        ));
+        ]);
 
         // create workspace and source table in workspace
         $connection = $workspace['connection'];
         $db = $this->getDbConnection($connection);
-        $db->query("drop table if exists \"test.Languages3\";");
-        $db->query("create table \"test.Languages3\" (
-			\"Id\" integer not null,
-			\"Name\" varchar not null,
-			\"update\" varchar
-		);");
+        $db->query('drop table if exists "test.Languages3";');
+        $db->query('create table "test.Languages3" (
+			"Id" integer not null,
+			"Name" varchar not null,
+			"update" varchar
+		);');
         $db->query("insert into \"test.Languages3\" (\"Id\", \"Name\") values (1, 'cz'), (2, 'en');");
         // copy data from workspace
-        $this->_client->writeTableAsyncDirect($table['id'], array(
+        $this->_client->writeTableAsyncDirect($table['id'], [
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => 'test.Languages3',
-        ));
+        ]);
         unset($db);
         // test timestamp
         $this->assertDataInTable(
@@ -203,34 +202,34 @@ class TimestampTest extends ParallelWorkspacesTestCase
         );
 
         $db = $this->getDbConnection($connection);
-        $db->query("drop table if exists \"test.Languages3\";");
-        $db->query("create table \"test.Languages3\" (
-			\"Id\" integer not null,
-			\"Name\" varchar not null,
-			\"update\" varchar
-		);");
+        $db->query('drop table if exists "test.Languages3";');
+        $db->query('create table "test.Languages3" (
+			"Id" integer not null,
+			"Name" varchar not null,
+			"update" varchar
+		);');
         $db->query("insert into \"test.Languages3\" values (1, 'cz', '1'), (3, 'sk', '1');");
 
-        $this->_client->writeTableAsyncDirect($table['id'], array(
+        $this->_client->writeTableAsyncDirect($table['id'], [
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => 'test.Languages3',
             'incremental' => true,
-        ));
+        ]);
 
-        $db->query("drop table if exists \"test.Languages3\";");
-        $db->query("create table \"test.Languages3\" (
-			\"Id\" integer not null,
-			\"Name\" varchar not null,
-			\"update\" varchar,
-			\"new_col\" varchar
-		);");
+        $db->query('drop table if exists "test.Languages3";');
+        $db->query('create table "test.Languages3" (
+			"Id" integer not null,
+			"Name" varchar not null,
+			"update" varchar,
+			"new_col" varchar
+		);');
         $db->query("insert into \"test.Languages3\" values (1, 'cz', '1', null), (3, 'sk', '1', 'newValue');");
 
-        $this->_client->writeTableAsyncDirect($table['id'], array(
+        $this->_client->writeTableAsyncDirect($table['id'], [
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => 'test.Languages3',
             'incremental' => true,
-        ));
+        ]);
         unset($db);
 
         $this->assertDataInTable(

@@ -49,12 +49,12 @@ class SlicedImportsTest extends StorageApiTestCase
         if ($table['bucket']['backend'] === self::BACKEND_SYNAPSE) {
             $this->markTestSkipped('Empty ECLOSURE is not possible with synapse.');
         }
-        $this->_client->writeTableAsyncDirect($tableId, array(
+        $this->_client->writeTableAsyncDirect($tableId, [
             'dataFileId' => $fileId,
             'columns' => $headerFile->getHeader(),
             'delimiter' => '|',
             'enclosure' => '',
-        ));
+        ]);
     }
 
     public function testSlicedImportSingleFile(): void
@@ -88,7 +88,7 @@ class SlicedImportsTest extends StorageApiTestCase
             'columns' => [
                 'language-id',
                 'language-name',
-            ]
+            ],
         ]);
 
         $this->assertLinesEqualsSorted(
@@ -109,7 +109,7 @@ class SlicedImportsTest extends StorageApiTestCase
             'columns' => [
                 'language-id',
                 'language-name',
-            ]
+            ],
         ]);
 
         $data = (string) file_get_contents(__DIR__ . '/../../_data/languages.normalized-column-names.csv');
@@ -138,13 +138,13 @@ class SlicedImportsTest extends StorageApiTestCase
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'entries', new CsvFile(__DIR__ . '/../../_data/sliced/header.csv'));
 
         try {
-            $this->_client->writeTableAsyncDirect($tableId, array(
+            $this->_client->writeTableAsyncDirect($tableId, [
                 'dataFileId' => $slicedFile['id'],
                 'withoutHeaders' => true,
                 'delimiter' => '|',
                 'enclosure' => '',
                 'escapedBy' => '',
-            ));
+            ]);
             $this->fail('Exception should be thrown');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.manifestFileMissing', $e->getStringCode());
@@ -220,13 +220,13 @@ class SlicedImportsTest extends StorageApiTestCase
                 'region' => $slicedFile['region'],
             ]);
 
-            $s3Client->putObject(array(
+            $s3Client->putObject([
                 'Bucket' => $uploadParams['bucket'],
                 'Key' => $uploadParams['key'] . 'part001.gz',
                 'Body' => fopen(__DIR__ . '/../../_data/sliced/neco_0000_part_00.gz', 'r+'),
-            ))->get('ObjectURL');
+            ])->get('ObjectURL');
 
-            $s3Client->putObject(array(
+            $s3Client->putObject([
                 'Bucket' => $uploadParams['bucket'],
                 'Key' => $uploadParams['key'] . 'manifest',
                 'Body' => json_encode([
@@ -238,20 +238,20 @@ class SlicedImportsTest extends StorageApiTestCase
                         [
                             'url' => 's3://' . $uploadParams['bucket'] . '/' . $uploadParams['key'] . 'part001.gzsome',
                             'mandatory' => true,
-                        ]
+                        ],
                     ],
                 ]),
-            ))->get('ObjectURL');
+            ])->get('ObjectURL');
         }
 
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'entries', new CsvFile(__DIR__ . '/../../_data/sliced/header.csv'));
 
         try {
-            $this->_client->writeTableAsyncDirect($tableId, array(
+            $this->_client->writeTableAsyncDirect($tableId, [
                 'dataFileId' => $slicedFile['id'],
-                'columns' => array('id', 'added_manually', 'start', 'end', 'task_id', 'project_id'),
-                'delimiter' => '|'
-            ));
+                'columns' => ['id', 'added_manually', 'start', 'end', 'task_id', 'project_id'],
+                'delimiter' => '|',
+            ]);
             $this->fail('Exception should be thrown');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.importFileMissing', $e->getStringCode());
@@ -361,11 +361,11 @@ class SlicedImportsTest extends StorageApiTestCase
         }
 
         try {
-            $this->_client->writeTableAsyncDirect($tableId, array(
+            $this->_client->writeTableAsyncDirect($tableId, [
                 'dataFileId' => $slicedFile['id'],
                 'withoutHeaders' => true,
                 'delimiter' => '|',
-            ));
+            ]);
             $this->fail('Exception should be thrown');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.unauthorizedAccess', $e->getStringCode());

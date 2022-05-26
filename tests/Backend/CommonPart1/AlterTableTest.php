@@ -41,7 +41,7 @@ class AlterTableTest extends StorageApiTestCase
 
         $this->assertArrayHasKey('columns', $detail);
         $this->assertContains('State', $detail['columns']);
-        $this->assertEquals(array('id', 'name', 'State'), $detail['columns']);
+        $this->assertEquals(['id', 'name', 'State'], $detail['columns']);
 
         $importFileWithNewCol = $importFile = __DIR__ . '/../../_data/languages.with-state.csv';
         $this->_client->writeTable($tableId, new CsvFile($importFileWithNewCol));
@@ -82,7 +82,7 @@ class AlterTableTest extends StorageApiTestCase
             [
                 'lot__of_____underscores____',
                 'lot__of_____underscores',
-            ]
+            ],
         ];
     }
 
@@ -132,7 +132,7 @@ class AlterTableTest extends StorageApiTestCase
             ],
             'empty column' => [
                 '',
-            ]
+            ],
         ];
     }
 
@@ -144,11 +144,11 @@ class AlterTableTest extends StorageApiTestCase
         $this->_client->deleteTableColumn($tableId, 'Name');
 
         $detail = $this->_client->getTable($tableId);
-        $this->assertEquals(array('Id'), $detail['columns']);
+        $this->assertEquals(['Id'], $detail['columns']);
 
         try {
             $this->_client->deleteTableColumn($tableId, 'Id');
-            $this->fail("Exception should be thrown when last column is remaining");
+            $this->fail('Exception should be thrown when last column is remaining');
         } catch (\Keboola\StorageApi\ClientException $e) {
         }
     }
@@ -164,14 +164,14 @@ class AlterTableTest extends StorageApiTestCase
             $this->getTestBucketId(),
             'languages',
             new CsvFile($importFile),
-            array(
-                'primaryKey' => "id,name",
-            )
+            [
+                'primaryKey' => 'id,name',
+            ]
         );
 
         $detail = $this->_client->getTable($tableId);
 
-        $this->assertEquals(array('id', 'name'), $detail['primaryKey']);
+        $this->assertEquals(['id', 'name'], $detail['primaryKey']);
 
         try {
             $this->_client->deleteTableColumn($tableId, 'name');
@@ -215,9 +215,9 @@ class AlterTableTest extends StorageApiTestCase
                 $this->getTestBucketId(self::STAGE_IN),
                 'tooManyColumns',
                 new CsvFile($importFile),
-                array()
+                []
             );
-            $this->fail("There were 5000 columns man. fail.");
+            $this->fail('There were 5000 columns man. fail.');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.tables.validation.tooManyColumns', $e->getStringCode());
         }
@@ -253,22 +253,22 @@ class AlterTableTest extends StorageApiTestCase
 
     public function testPrimaryKeyAddWithDuplicty(): void
     {
-        $primaryKeyColumns = array('id');
+        $primaryKeyColumns = ['id'];
         $importFile = __DIR__ . '/../../_data/users.csv';
 
         $tableId = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),
             'users',
             new CsvFile($importFile),
-            array()
+            []
         );
 
         $this->_client->writeTableAsync(
             $tableId,
             new CsvFile($importFile),
-            array(
+            [
                 'incremental' => true,
-            )
+            ]
         );
 
         try {
@@ -278,22 +278,22 @@ class AlterTableTest extends StorageApiTestCase
         }
 
         // composite primary key
-        $primaryKeyColumns = array('Id', 'Name');
+        $primaryKeyColumns = ['Id', 'Name'];
         $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
 
         $tableId = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile($importFile),
-            array()
+            []
         );
 
         $this->_client->writeTableAsync(
             $tableId,
             new CsvFile($importFile),
-            array(
+            [
                 'incremental' => true,
-            )
+            ]
         );
 
         try {
@@ -312,35 +312,34 @@ class AlterTableTest extends StorageApiTestCase
             $this->getTestBucketId(),
             'users',
             new CsvFile($importFile),
-            array(
-                'primaryKey' => 'id'
-            )
+            [
+                'primaryKey' => 'id',
+            ]
         );
 
         $aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $tableId);
 
-        $tables = array(
+        $tables = [
             $this->_client->getTable($tableId),
             $this->_client->getTable($aliasTableId),
-        );
+        ];
 
         foreach ($tables as $tableDetail) {
             $this->assertArrayHasKey('primaryKey', $tableDetail);
-            $this->assertEquals(array('id'), $tableDetail['primaryKey']);
+            $this->assertEquals(['id'], $tableDetail['primaryKey']);
         }
 
         $this->_client->removeTablePrimaryKey($tableId);
 
-        $tables = array(
+        $tables = [
             $this->_client->getTable($tableId),
             $this->_client->getTable($aliasTableId),
-        );
+        ];
 
         foreach ($tables as $tableDetail) {
             $this->assertArrayHasKey('primaryKey', $tableDetail);
             $this->assertEmpty($tableDetail['primaryKey']);
         }
-
 
         // composite primary key
         $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
@@ -349,15 +348,15 @@ class AlterTableTest extends StorageApiTestCase
             $this->getTestBucketId(),
             'languages',
             new CsvFile($importFile),
-            array(
-                'primaryKey' => "Id,Name",
-            )
+            [
+                'primaryKey' => 'Id,Name',
+            ]
         );
 
         $tableDetail = $this->_client->getTable($tableId);
 
         $this->assertArrayHasKey('primaryKey', $tableDetail);
-        $this->assertEquals(array('Id', 'Name'), $tableDetail['primaryKey']);
+        $this->assertEquals(['Id', 'Name'], $tableDetail['primaryKey']);
 
         $this->_client->removeTablePrimaryKey($tableId);
 
@@ -374,31 +373,31 @@ class AlterTableTest extends StorageApiTestCase
             $this->getTestBucketId(),
             'languages-more-columns',
             new CsvFile($importFile),
-            array(
-                'primaryKey' => 'id'
-            )
+            [
+                'primaryKey' => 'id',
+            ]
         );
 
         $aliasTableId = $this->_client->createAliasTable(
             $this->getTestBucketId(self::STAGE_OUT),
             $tableId,
             null,
-            array(
-                'aliasFilter' => array(
+            [
+                'aliasFilter' => [
                     'column' => 'id',
-                    'values' => array('1'),
-                ),
-            )
+                    'values' => ['1'],
+                ],
+            ]
         );
 
-        $tables = array(
+        $tables = [
             $this->_client->getTable($tableId),
             $this->_client->getTable($aliasTableId),
-        );
+        ];
 
         foreach ($tables as $tableDetail) {
             $this->assertArrayHasKey('primaryKey', $tableDetail);
-            $this->assertEquals(array('id'), $tableDetail['primaryKey']);
+            $this->assertEquals(['id'], $tableDetail['primaryKey']);
         }
 
         $indexRemoved = true;
@@ -418,7 +417,7 @@ class AlterTableTest extends StorageApiTestCase
         $tableDetail = $this->_client->getTable($tableId);
 
         $this->assertArrayHasKey('primaryKey', $tableDetail);
-        $this->assertEquals(array('id'), $tableDetail['primaryKey']);
+        $this->assertEquals(['id'], $tableDetail['primaryKey']);
 
         $indexRemoved = true;
         try {
@@ -436,7 +435,7 @@ class AlterTableTest extends StorageApiTestCase
         $tableDetail = $this->_client->getTable($aliasTableId);
 
         $this->assertArrayHasKey('primaryKey', $tableDetail);
-        $this->assertEquals(array('id'), $tableDetail['primaryKey']);
+        $this->assertEquals(['id'], $tableDetail['primaryKey']);
     }
 
     public function testEmptyPrimaryKeyDelete(): void
@@ -460,17 +459,17 @@ class AlterTableTest extends StorageApiTestCase
             new CsvFile(__DIR__ . '/../../_data/users.csv')
         );
         try {
-            $this->_client->createTablePrimaryKey($tableId, ["fakeColumn"]);
-            $this->fail("Adding invalid primary key should result in an error");
+            $this->_client->createTablePrimaryKey($tableId, ['fakeColumn']);
+            $this->fail('Adding invalid primary key should result in an error');
         } catch (\Keboola\StorageApi\ClientException $e) {
-            $this->assertEquals("storage.validation.primaryKey", $e->getStringCode());
+            $this->assertEquals('storage.validation.primaryKey', $e->getStringCode());
         }
 
         try {
-            $this->_client->createTablePrimaryKey($tableId, ["id", "fakeColumn"]);
-            $this->fail("Adding invalid primary key should result in an error");
+            $this->_client->createTablePrimaryKey($tableId, ['id', 'fakeColumn']);
+            $this->fail('Adding invalid primary key should result in an error');
         } catch (\Keboola\StorageApi\ClientException $e) {
-            $this->assertEquals("storage.validation.primaryKey", $e->getStringCode());
+            $this->assertEquals('storage.validation.primaryKey', $e->getStringCode());
         }
     }
 }
