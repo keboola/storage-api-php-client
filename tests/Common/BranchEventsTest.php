@@ -80,10 +80,10 @@ class BranchEventsTest extends StorageApiTestCase
             ->setRunId('ddddssss')
             ->setMessage('Table Opportunity fetched.')
             ->setDescription('Some longer description of event')
-            ->setParams(array(
+            ->setParams([
                 'accountName' => 'Keboola',
                 'configuration' => 'sys.c-sfdc.sfdc-01',
-            ));
+            ]);
         $this->createAndWaitForEvent($event, $branchAwareClient);
 
         $bucketsListedEvents = $this->waitForListEvents(
@@ -112,12 +112,11 @@ class BranchEventsTest extends StorageApiTestCase
         $this->assertCount(0, $componentConfigCreateEvents);
 
         $clientEventList = $this->_client->listEvents([
-            'q' => 'idBranch:' . $branch['id']
+            'q' => 'idBranch:' . $branch['id'],
         ]);
         $this->assertCount(0, $clientEventList);
 
         $this->assertGreaterThan(1, count($this->_client->listEvents()));
-
 
         $components = new \Keboola\StorageApi\Components($this->_client);
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
@@ -205,7 +204,6 @@ class BranchEventsTest extends StorageApiTestCase
         $eventInBranchFromMasterToken->setComponent('dummy')
             ->setMessage($token['description'] . ' sample master token event');
         $eventInBranchFromMasterToken = $this->createAndWaitForEvent($eventInBranchFromMasterToken, $masterBranchClient);
-
 
         // test DEFAULT branch
         // check token events in default branch

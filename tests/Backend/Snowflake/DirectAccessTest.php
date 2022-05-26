@@ -66,7 +66,7 @@ class DirectAccessTest extends StorageApiTestCase
         $connection = new Connection([
             'host' => $newCredentials['host'],
             'user' => $newCredentials['username'],
-            'password' => $newCredentials['password']
+            'password' => $newCredentials['password'],
         ]);
 
         $testResult = $connection->fetchAll("select 'test'");
@@ -80,7 +80,7 @@ class DirectAccessTest extends StorageApiTestCase
             new Connection([
                 'host' => $newCredentials['host'],
                 'user' => $newCredentials['username'],
-                'password' => $newCredentials['password']
+                'password' => $newCredentials['password'],
             ]);
             $this->fail('Exception should be thrown');
         } catch (\Keboola\Db\Import\Exception $e) {
@@ -93,7 +93,7 @@ class DirectAccessTest extends StorageApiTestCase
         $connection = new Connection([
             'host' => $newCredentials['host'],
             'user' => $newCredentials['username'],
-            'password' => $response['password']
+            'password' => $response['password'],
         ]);
 
         $testResult = $connection->fetchAll("select 'test'");
@@ -356,7 +356,6 @@ class DirectAccessTest extends StorageApiTestCase
         $this->assertFalse($bucket['directAccessEnabled']);
         $this->assertNull($bucket['directAccessSchemaName']);
 
-
         $credentials = $directAccess->createCredentials(self::BACKEND_SNOWFLAKE);
 
         $connection = new Connection([
@@ -515,7 +514,6 @@ class DirectAccessTest extends StorageApiTestCase
             . ' AS SELECT * FROM "in.c-API-DA_TEST"."other_table"',
             $views[0]['text']
         );
-
 
         $aliasTableId = $this->_client->createAliasTable($bucketId, $tableId, 'this-is-alias');
 

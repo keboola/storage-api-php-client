@@ -105,7 +105,7 @@ class OrderByTest extends StorageApiTestCase
             [
                 [
                     'column' => 'column_string',
-                    'order' => 'non-existing'
+                    'order' => 'non-existing',
                 ],
                 'Invalid sort order non-existing. Available orders are [DESC|ASC]',
             ],
@@ -113,10 +113,10 @@ class OrderByTest extends StorageApiTestCase
                 [
                     'column' => 'column_string',
                     'order' => 'DESC',
-                    'dataType' => 'non-existing'
+                    'dataType' => 'non-existing',
                 ],
                 'Data type non-existing not recognized. Possible datatypes are [INTEGER|DOUBLE]',
-            ]
+            ],
         ];
     }
 
@@ -136,7 +136,7 @@ class OrderByTest extends StorageApiTestCase
     {
         $tableId = $this->prepareTable();
 
-        $orderBy = "string";
+        $orderBy = 'string';
 
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage("Parameter \"orderBy\" should be an array, but parameter contains:\n" . json_encode($orderBy));
@@ -159,7 +159,7 @@ class OrderByTest extends StorageApiTestCase
     {
         $tableId = $this->prepareTable();
 
-        $orderBy = "string";
+        $orderBy = 'string';
 
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage("Parameter \"orderBy\" should be an array, but parameter contains:\n" . json_encode($orderBy));

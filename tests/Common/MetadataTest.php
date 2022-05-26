@@ -34,7 +34,7 @@ class MetadataTest extends StorageApiTestCase
         foreach ($metadatas as $md) {
             $metadataApi->deleteBucketMetadata($this->getTestBucketId(), $md['id']);
         }
-        $this->_client->createTable($this->getTestBucketId(), "table", new CsvFile(__DIR__ . '/../_data/users.csv'));
+        $this->_client->createTable($this->getTestBucketId(), 'table', new CsvFile(__DIR__ . '/../_data/users.csv'));
     }
 
     public function testBucketMetadata(): void
@@ -50,30 +50,30 @@ class MetadataTest extends StorageApiTestCase
             'key' => self::TEST_METADATA_KEY_2,
             'value' => 'testval',
         ];
-        $testMetadata = array($md, $md2);
+        $testMetadata = [$md, $md2];
 
         $provider = self::TEST_PROVIDER;
         $metadatas = $metadataApi->postBucketMetadata($bucketId, $provider, $testMetadata);
 
         $this->assertEquals(2, count($metadatas));
-        $this->assertArrayHasKey("key", $metadatas[0]);
-        $this->assertArrayHasKey("value", $metadatas[0]);
-        $this->assertArrayHasKey("provider", $metadatas[0]);
-        $this->assertArrayHasKey("timestamp", $metadatas[0]);
+        $this->assertArrayHasKey('key', $metadatas[0]);
+        $this->assertArrayHasKey('value', $metadatas[0]);
+        $this->assertArrayHasKey('provider', $metadatas[0]);
+        $this->assertArrayHasKey('timestamp', $metadatas[0]);
         $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $metadatas[0]['timestamp']);
         $this->assertEquals(self::TEST_PROVIDER, $metadatas[0]['provider']);
 
         $origValue = $metadatas[0]['value'];
         $mdCopy = $metadatas[0];
-        $mdCopy['value'] = "newValue";
+        $mdCopy['value'] = 'newValue';
 
-        $newMetadata = $metadataApi->postBucketMetadata($bucketId, $provider, array($mdCopy));
+        $newMetadata = $metadataApi->postBucketMetadata($bucketId, $provider, [$mdCopy]);
 
         foreach ($newMetadata as $metadata) {
             if ($metadata['id'] == $metadatas[0]['id']) {
-                $this->assertEquals("newValue", $metadata['value']);
+                $this->assertEquals('newValue', $metadata['value']);
             } else {
-                $this->assertEquals("testval", $metadata['value']);
+                $this->assertEquals('testval', $metadata['value']);
             }
         }
 
@@ -94,7 +94,7 @@ class MetadataTest extends StorageApiTestCase
         $outTestBucketId = $this->getTestBucketId(self::STAGE_OUT);
         $outBucketTableId = $this->_client->createTable(
             $outTestBucketId,
-            "table",
+            'table',
             new CsvFile(__DIR__ . '/../_data/users.csv')
         );
 
@@ -105,7 +105,7 @@ class MetadataTest extends StorageApiTestCase
             [
                 'key' => 'KBC.datatype.nullable',
                 'value' => 'testValue',
-            ]
+            ],
         ];
         $metadata = $metadataApi->postBucketMetadata(
             $outTestBucketId,
@@ -135,7 +135,7 @@ class MetadataTest extends StorageApiTestCase
             [
                 'key' => 'KBC.datatype.nullable',
                 'value' => 'true',
-            ]
+            ],
         ];
         $metadata = $metadataApi->postColumnMetadata(
             $columnId,
@@ -149,7 +149,7 @@ class MetadataTest extends StorageApiTestCase
             [
                 'key' => 'KBC.datatype.nullable',
                 'value' => 1,
-            ]
+            ],
         ];
         $metadata = $metadataApi->postColumnMetadata(
             $columnId,
@@ -187,34 +187,34 @@ class MetadataTest extends StorageApiTestCase
             'key' => self::TEST_METADATA_KEY_2,
             'value' => 'testval',
         ];
-        $testMetadata = array($md, $md2);
+        $testMetadata = [$md, $md2];
 
         $provider = self::TEST_PROVIDER;
 
         $metadatas = $metadataApi->postTableMetadata($tableId, $provider, $testMetadata);
 
         $this->assertEquals(2, count($metadatas));
-        $this->assertArrayHasKey("key", $metadatas[0]);
-        $this->assertArrayHasKey("value", $metadatas[0]);
-        $this->assertArrayHasKey("provider", $metadatas[0]);
-        $this->assertArrayHasKey("timestamp", $metadatas[0]);
+        $this->assertArrayHasKey('key', $metadatas[0]);
+        $this->assertArrayHasKey('value', $metadatas[0]);
+        $this->assertArrayHasKey('provider', $metadatas[0]);
+        $this->assertArrayHasKey('timestamp', $metadatas[0]);
         $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $metadatas[0]['timestamp']);
         $this->assertEquals(self::TEST_PROVIDER, $metadatas[0]['provider']);
 
         $mdCopy = $metadatas[0];
-        $mdCopy['value'] = "newValue";
+        $mdCopy['value'] = 'newValue';
 
-        $newMetadata = $metadataApi->postTableMetadata($tableId, $provider, array($mdCopy));
+        $newMetadata = $metadataApi->postTableMetadata($tableId, $provider, [$mdCopy]);
 
         foreach ($newMetadata as $metadata) {
             if ($metadata['id'] == $metadatas[0]['id']) {
-                $this->assertEquals("newValue", $metadata['value']);
+                $this->assertEquals('newValue', $metadata['value']);
                 $this->assertGreaterThanOrEqual(
                     strtotime($metadatas[0]['timestamp']),
                     strtotime($metadata['timestamp'])
                 );
             } else {
-                $this->assertEquals("testval", $metadata['value']);
+                $this->assertEquals('testval', $metadata['value']);
             }
         }
 
@@ -230,7 +230,7 @@ class MetadataTest extends StorageApiTestCase
         $this->assertEquals($metadatas[1]['timestamp'], $mdList[0]['timestamp']);
 
         // test that bucket metadata is included in the get table api response
-        $bucketMetadata = array($md);
+        $bucketMetadata = [$md];
         $metadataApi->postBucketMetadata($this->getTestBucketId(), $provider, $bucketMetadata);
 
         $table = $this->_client->getTable($tableId);
@@ -280,15 +280,15 @@ class MetadataTest extends StorageApiTestCase
         $metadatas = $metadataApi->postTableMetadataWithColumns($options);
 
         $this->assertEquals(2, count($metadatas));
-        $this->assertArrayHasKey("metadata", $metadatas);
-        $this->assertArrayHasKey("columnsMetadata", $metadatas);
+        $this->assertArrayHasKey('metadata', $metadatas);
+        $this->assertArrayHasKey('columnsMetadata', $metadatas);
         // check table metadata
         $metadata = $metadatas['metadata'];
         $this->assertEquals(2, count($metadata));
-        $this->assertArrayHasKey("key", $metadata[0]);
-        $this->assertArrayHasKey("value", $metadata[0]);
-        $this->assertArrayHasKey("provider", $metadata[0]);
-        $this->assertArrayHasKey("timestamp", $metadata[0]);
+        $this->assertArrayHasKey('key', $metadata[0]);
+        $this->assertArrayHasKey('value', $metadata[0]);
+        $this->assertArrayHasKey('provider', $metadata[0]);
+        $this->assertArrayHasKey('timestamp', $metadata[0]);
         $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $metadata[0]['timestamp']);
         $this->assertEquals(self::TEST_PROVIDER, $metadata[0]['provider']);
         // check columns metadata
@@ -299,37 +299,37 @@ class MetadataTest extends StorageApiTestCase
         // check column 1
         $metadata = $metadatas['columnsMetadata'][$column1];
         $this->assertEquals(2, count($metadata));
-        $this->assertArrayHasKey("key", $metadata[0]);
-        $this->assertArrayHasKey("value", $metadata[0]);
-        $this->assertArrayHasKey("provider", $metadata[0]);
-        $this->assertArrayHasKey("timestamp", $metadata[0]);
+        $this->assertArrayHasKey('key', $metadata[0]);
+        $this->assertArrayHasKey('value', $metadata[0]);
+        $this->assertArrayHasKey('provider', $metadata[0]);
+        $this->assertArrayHasKey('timestamp', $metadata[0]);
         $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $metadata[0]['timestamp']);
         $this->assertEquals(self::TEST_PROVIDER, $metadata[0]['provider']);
-        $this->assertArrayHasKey("key", $metadata[1]);
-        $this->assertArrayHasKey("value", $metadata[1]);
-        $this->assertArrayHasKey("provider", $metadata[1]);
-        $this->assertArrayHasKey("timestamp", $metadata[1]);
+        $this->assertArrayHasKey('key', $metadata[1]);
+        $this->assertArrayHasKey('value', $metadata[1]);
+        $this->assertArrayHasKey('provider', $metadata[1]);
+        $this->assertArrayHasKey('timestamp', $metadata[1]);
         $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $metadata[1]['timestamp']);
         $this->assertEquals(self::TEST_PROVIDER, $metadata[1]['provider']);
         // check column 2
         $metadata = $metadatas['columnsMetadata'][$column2];
         $this->assertEquals(1, count($metadata));
-        $this->assertArrayHasKey("key", $metadata[0]);
-        $this->assertArrayHasKey("value", $metadata[0]);
-        $this->assertArrayHasKey("provider", $metadata[0]);
-        $this->assertArrayHasKey("timestamp", $metadata[0]);
+        $this->assertArrayHasKey('key', $metadata[0]);
+        $this->assertArrayHasKey('value', $metadata[0]);
+        $this->assertArrayHasKey('provider', $metadata[0]);
+        $this->assertArrayHasKey('timestamp', $metadata[0]);
         $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $metadata[0]['timestamp']);
         $this->assertEquals(self::TEST_PROVIDER, $metadata[0]['provider']);
 
         // copy metadata
         $mdCopy = [];
         $mdCopy['key'] = $metadatas['metadata'][0]['key'];
-        $mdCopy['value'] = "newValue";
+        $mdCopy['value'] = 'newValue';
 
         // copy column metadata
         $mdColumnCopy = [];
         $mdColumnCopy['key'] = $metadatas['columnsMetadata'][$column1][0]['key'];
-        $mdColumnCopy['value'] = "newValue";
+        $mdColumnCopy['value'] = 'newValue';
 
         // post copied metadata
         $options = new TableMetadataUpdateOptions($tableId, $provider, [$mdCopy], [$column1 => [$mdColumnCopy]]);
@@ -339,20 +339,20 @@ class MetadataTest extends StorageApiTestCase
         // check table metadata
         foreach ($newMetadatas['metadata'] as $metadata) {
             if ($metadata['id'] == $metadatas['metadata'][0]['id']) {
-                $this->assertEquals("newValue", $metadata['value']);
+                $this->assertEquals('newValue', $metadata['value']);
                 $this->assertGreaterThanOrEqual(strtotime($metadatas['metadata'][0]['timestamp']), strtotime($metadata['timestamp']));
             } else {
-                $this->assertEquals("testval", $metadata['value']);
+                $this->assertEquals('testval', $metadata['value']);
             }
         }
         // check columns metadata
         foreach ($newMetadatas['columnsMetadata'] as $columnName => $columnMetadatas) {
             foreach ($columnMetadatas as $metadata) {
                 if ($metadata['id'] == $metadatas['columnsMetadata'][$column1][0]['id']) {
-                    $this->assertEquals("newValue", $metadata['value']);
+                    $this->assertEquals('newValue', $metadata['value']);
                     $this->assertGreaterThanOrEqual(strtotime($metadatas['columnsMetadata'][$column1][0]['timestamp']), strtotime($metadata['timestamp']));
                 } else {
-                    $this->assertEquals("testval", $metadata['value']);
+                    $this->assertEquals('testval', $metadata['value']);
                 }
             }
         }
@@ -374,10 +374,9 @@ class MetadataTest extends StorageApiTestCase
                 [
                     'key' => self::TEST_METADATA_KEY_1,
                     'value' => $testMetadataValue,
-                ]
+                ],
             ]
         );
-
 
         $readClient = $this->getClient([
             'token' => $this->prepareTokenWithReadPrivilegeForBucket($bucketId),
@@ -413,7 +412,7 @@ class MetadataTest extends StorageApiTestCase
                     [
                         'key' => self::TEST_METADATA_KEY_1,
                         'value' => 'changed',
-                    ]
+                    ],
                 ]
             );
 
@@ -437,7 +436,7 @@ class MetadataTest extends StorageApiTestCase
                     [
                         'key' => self::TEST_METADATA_KEY_2,
                         'value' => $testMetadataValue,
-                    ]
+                    ],
                 ]
             );
 
@@ -464,7 +463,7 @@ class MetadataTest extends StorageApiTestCase
             'key' => self::TEST_METADATA_KEY_2,
             'value' => 'testval',
         ];
-        $testMetadata = array($md, $md2);
+        $testMetadata = [$md, $md2];
 
         $provider = self::TEST_PROVIDER;
 
@@ -504,33 +503,33 @@ class MetadataTest extends StorageApiTestCase
             'key' => self::TEST_METADATA_KEY_2,
             'value' => 'testval',
         ];
-        $testMetadata = array($md, $md2);
+        $testMetadata = [$md, $md2];
 
         $provider = self::TEST_PROVIDER;
 
         $metadatas = $metadataApi->postColumnMetadata($columnId, $provider, $testMetadata);
 
         $this->assertEquals(2, count($metadatas));
-        $this->assertArrayHasKey("key", $metadatas[0]);
-        $this->assertArrayHasKey("value", $metadatas[0]);
-        $this->assertArrayHasKey("provider", $metadatas[0]);
-        $this->assertArrayHasKey("timestamp", $metadatas[0]);
+        $this->assertArrayHasKey('key', $metadatas[0]);
+        $this->assertArrayHasKey('value', $metadatas[0]);
+        $this->assertArrayHasKey('provider', $metadatas[0]);
+        $this->assertArrayHasKey('timestamp', $metadatas[0]);
         $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $metadatas[0]['timestamp']);
         $this->assertEquals(self::TEST_PROVIDER, $metadatas[0]['provider']);
 
         $mdCopy = $metadatas[0];
-        $mdCopy['value'] = "newValue";
+        $mdCopy['value'] = 'newValue';
 
-        $newMetadata = $metadataApi->postColumnMetadata($columnId, $provider, array($mdCopy));
+        $newMetadata = $metadataApi->postColumnMetadata($columnId, $provider, [$mdCopy]);
         foreach ($newMetadata as $metadata) {
             if ($metadata['id'] == $metadatas[0]['id']) {
-                $this->assertEquals("newValue", $metadata['value']);
+                $this->assertEquals('newValue', $metadata['value']);
                 $this->assertGreaterThanOrEqual(
                     strtotime($metadatas[0]['timestamp']),
                     strtotime($metadata['timestamp'])
                 );
             } else {
-                $this->assertEquals("testval", $metadata['value']);
+                $this->assertEquals('testval', $metadata['value']);
             }
         }
 
@@ -606,10 +605,9 @@ class MetadataTest extends StorageApiTestCase
                 [
                     'key' => self::TEST_METADATA_KEY_1,
                     'value' => $testMetadataValue,
-                ]
+                ],
             ]
         );
-
 
         $readClient = $this->getClient([
             'token' => $this->prepareTokenWithReadPrivilegeForBucket($bucketId),
@@ -645,7 +643,7 @@ class MetadataTest extends StorageApiTestCase
                     [
                         'key' => self::TEST_METADATA_KEY_1,
                         'value' => 'changed',
-                    ]
+                    ],
                 ]
             );
 
@@ -669,7 +667,7 @@ class MetadataTest extends StorageApiTestCase
                     [
                         'key' => self::TEST_METADATA_KEY_2,
                         'value' => $testMetadataValue,
-                    ]
+                    ],
                 ]
             );
 
@@ -696,7 +694,7 @@ class MetadataTest extends StorageApiTestCase
             'key' => self::TEST_METADATA_KEY_2,
             'value' => 'testval',
         ];
-        $testMetadata = array($md, $md2);
+        $testMetadata = [$md, $md2];
 
         $provider = self::TEST_PROVIDER;
 
@@ -712,8 +710,7 @@ class MetadataTest extends StorageApiTestCase
         $tableDetail = $this->_client->getTable($tableId);
         $this->assertEmpty($tableDetail['columnMetadata']);
 
-        $this->assertEquals(array('id','name','city'), $tableDetail['columns']);
-
+        $this->assertEquals(['id','name','city'], $tableDetail['columns']);
 
         $this->expectException(ClientException::class);
         $this->expectExceptionCode(404);
@@ -735,7 +732,7 @@ class MetadataTest extends StorageApiTestCase
             'key' => self::TEST_METADATA_KEY_1,
             'value' => 'new testval',
         ];
-        $testMetadata = array($md);
+        $testMetadata = [$md];
 
         $provider = self::TEST_PROVIDER;
         $metadatas = $metadataApi->postBucketMetadata($bucketId, $provider, $testMetadata);
@@ -764,16 +761,16 @@ class MetadataTest extends StorageApiTestCase
         $object = ($apiEndpoint === self::ENDPOINT_TYPE_BUCKETS) ? $bucketId : $bucketId . $object;
 
         $md = [
-            "key" => "%invalidKey", // invalid char %
-            "value" => "testval",
+            'key' => '%invalidKey', // invalid char %
+            'value' => 'testval',
         ];
 
         try {
             // this should fail because metadata objects must be provided in an array
             $this->postMetadata($apiEndpoint, $object, $md);
-            $this->fail("metadata must be an array of key-value objects.");
+            $this->fail('metadata must be an array of key-value objects.');
         } catch (ClientException $e) {
-            $this->assertEquals("storage.metadata.invalidStructure", $e->getStringCode());
+            $this->assertEquals('storage.metadata.invalidStructure', $e->getStringCode());
             $this->assertEquals(
                 "Invalid structure. Metadata must be provided as an array of objects with 'key' and 'value' members",
                 $e->getMessage()
@@ -782,36 +779,36 @@ class MetadataTest extends StorageApiTestCase
 
         try {
             $this->postMetadata($apiEndpoint, $object, [$md]);
-            $this->fail("Should throw invalid key exception");
+            $this->fail('Should throw invalid key exception');
         } catch (ClientException $e) {
-            $this->assertEquals("storage.metadata.invalidKey", $e->getStringCode());
-            $this->assertEquals("Invalid Metadata Key (%invalidKey)", $e->getMessage());
+            $this->assertEquals('storage.metadata.invalidKey', $e->getStringCode());
+            $this->assertEquals('Invalid Metadata Key (%invalidKey)', $e->getMessage());
         }
 
         // length > 255
-        $invalidKey = str_pad("validKey", 260, "+");
+        $invalidKey = str_pad('validKey', 260, '+');
         $md = [
-            "key" => $invalidKey,
-            "value" => "testval",
+            'key' => $invalidKey,
+            'value' => 'testval',
         ];
         try {
             $this->postMetadata($apiEndpoint, $object, [$md]);
-            $this->fail("Should throw invalid key exception");
+            $this->fail('Should throw invalid key exception');
         } catch (ClientException $e) {
-            $this->assertEquals("storage.metadata.invalidKey", $e->getStringCode());
+            $this->assertEquals('storage.metadata.invalidKey', $e->getStringCode());
             $this->assertEquals("Invalid Metadata Key ({$invalidKey})", $e->getMessage());
         }
 
         $md = [
-            "key" => "", // empty key
-            "value" => "testval",
+            'key' => '', // empty key
+            'value' => 'testval',
         ];
         try {
             $this->postMetadata($apiEndpoint, $object, [$md]);
-            $this->fail("Should throw invalid key exception");
+            $this->fail('Should throw invalid key exception');
         } catch (ClientException $e) {
-            $this->assertEquals("storage.metadata.invalidKey", $e->getStringCode());
-            $this->assertEquals("Invalid Metadata Key ()", $e->getMessage());
+            $this->assertEquals('storage.metadata.invalidKey', $e->getStringCode());
+            $this->assertEquals('Invalid Metadata Key ()', $e->getMessage());
         }
     }
 
@@ -829,13 +826,13 @@ class MetadataTest extends StorageApiTestCase
 
         try {
             $this->_client->apiPost("{$apiEndpoint}/{$objectId}/metadata", [
-                "provider" => 'valid',
-                "metadata" => 'not an array',
+                'provider' => 'valid',
+                'metadata' => 'not an array',
             ]);
-            $this->fail("Should throw invalid key exception");
+            $this->fail('Should throw invalid key exception');
         } catch (ClientException $e) {
-            $this->assertEquals("storage.metadata.invalidParameter", $e->getStringCode());
-            $this->assertEquals("The metadata parameter must be an array.", $e->getMessage());
+            $this->assertEquals('storage.metadata.invalidParameter', $e->getStringCode());
+            $this->assertEquals('The metadata parameter must be an array.', $e->getMessage());
         }
     }
 
@@ -849,12 +846,12 @@ class MetadataTest extends StorageApiTestCase
 
         try {
             $this->_client->apiPost("{$apiEndpoint}/{$objectId}/metadata", [
-                "provider" => 'valid',
+                'provider' => 'valid',
             ]);
-            $this->fail("Should throw invalid key exception");
+            $this->fail('Should throw invalid key exception');
         } catch (ClientException $e) {
-            $this->assertEquals("storage.metadata.invalidParameter", $e->getStringCode());
-            $this->assertEquals("The metadata parameter must be an array.", $e->getMessage());
+            $this->assertEquals('storage.metadata.invalidParameter', $e->getStringCode());
+            $this->assertEquals('The metadata parameter must be an array.', $e->getMessage());
         }
     }
 
@@ -864,12 +861,12 @@ class MetadataTest extends StorageApiTestCase
     public function testMetadata40xs($apiEndpoint, $object): void
     {
         $bucketId = self::getTestBucketId();
-        $object = ($apiEndpoint === "bucket") ? $bucketId : $bucketId . $object;
+        $object = ($apiEndpoint === 'bucket') ? $bucketId : $bucketId . $object;
 
         // test invalid number
         try {
             $this->deleteMetadata($apiEndpoint, $object, 9999999);
-            $this->fail("Invalid metadataId");
+            $this->fail('Invalid metadataId');
         } catch (ClientException $e) {
             $this->assertEquals(404, $e->getCode());
             $this->assertEquals('storage.metadata.notFound', $e->getStringCode());
@@ -879,7 +876,7 @@ class MetadataTest extends StorageApiTestCase
         // test null
         try {
             $this->deleteMetadata($apiEndpoint, $object, null);
-            $this->fail("Invalid metadataId");
+            $this->fail('Invalid metadataId');
         } catch (ClientException $e) {
             $this->assertEquals(400, $e->getCode());
             $this->assertEquals('APPLICATION_ERROR', $e->getStringCode());
@@ -889,7 +886,7 @@ class MetadataTest extends StorageApiTestCase
         // not numeric value
         try {
             $this->deleteMetadata($apiEndpoint, $object, 'notNumber');
-            $this->fail("Invalid metadataId");
+            $this->fail('Invalid metadataId');
         } catch (ClientException $e) {
             $this->assertEquals(400, $e->getCode());
             $this->assertEquals('APPLICATION_ERROR', $e->getStringCode());
@@ -904,26 +901,26 @@ class MetadataTest extends StorageApiTestCase
     {
         $metadataApi = new Metadata($this->_client);
         $md = [
-            "key" => "validKey",
-            "value" => "testval",
+            'key' => 'validKey',
+            'value' => 'testval',
         ];
 
         try {
             // provider null should be rejected
             $metadataApi->postBucketMetadata($this->getTestBucketId(), null, [$md]);
-            $this->fail("provider is required");
+            $this->fail('provider is required');
         } catch (ClientException $e) {
-            $this->assertEquals("storage.metadata.invalidProvider", $e->getStringCode());
-            $this->assertEquals("Provider is required.", $e->getMessage());
+            $this->assertEquals('storage.metadata.invalidProvider', $e->getStringCode());
+            $this->assertEquals('Provider is required.', $e->getMessage());
         }
 
         // invalid characters in provider
         try {
-            $metadataApi->postBucketMetadata($this->getTestBucketId(), "%invalidCharacter$", [$md]);
-            $this->fail("Invalid metadata provider");
+            $metadataApi->postBucketMetadata($this->getTestBucketId(), '%invalidCharacter$', [$md]);
+            $this->fail('Invalid metadata provider');
         } catch (ClientException $e) {
-            $this->assertEquals("storage.metadata.invalidProvider", $e->getStringCode());
-            $this->assertEquals("Invalid metadata provider: %invalidCharacter$", $e->getMessage());
+            $this->assertEquals('storage.metadata.invalidProvider', $e->getStringCode());
+            $this->assertEquals('Invalid metadata provider: %invalidCharacter$', $e->getMessage());
         }
     }
 
@@ -932,7 +929,7 @@ class MetadataTest extends StorageApiTestCase
         $medataApi = new Metadata($this->_client);
         $md = [
             'key' => 'magic-key',
-            'value' => 'magic-frog'
+            'value' => 'magic-frog',
         ];
 
         $createdMetadata = $medataApi->postBucketMetadata($this->getTestBucketId(), 'provider', [$md]);
@@ -948,7 +945,7 @@ class MetadataTest extends StorageApiTestCase
         $medataApi = new Metadata($this->_client);
         $md = [
             'key' => 'magic-key',
-            'value' => 'magic-frog'
+            'value' => 'magic-frog',
         ];
 
         $tableId = $this->getMetadataTestTableId('table');
@@ -974,10 +971,9 @@ class MetadataTest extends StorageApiTestCase
                 [
                     'key' => self::TEST_METADATA_KEY_1,
                     'value' => $testMetadataValue,
-                ]
+                ],
             ]
         );
-
 
         $readClient = $this->getClient([
             'token' => $this->prepareTokenWithReadPrivilegeForBucket($bucketId),
@@ -1013,7 +1009,7 @@ class MetadataTest extends StorageApiTestCase
                     [
                         'key' => self::TEST_METADATA_KEY_1,
                         'value' => 'changed',
-                    ]
+                    ],
                 ]
             );
 
@@ -1037,7 +1033,7 @@ class MetadataTest extends StorageApiTestCase
                     [
                         'key' => self::TEST_METADATA_KEY_2,
                         'value' => $testMetadataValue,
-                    ]
+                    ],
                 ]
             );
 
@@ -1057,7 +1053,7 @@ class MetadataTest extends StorageApiTestCase
         return [
             'columnEndpoint' => [self::ENDPOINT_TYPE_COLUMNS, $columnId],
             'tableEndpoint' => [self::ENDPOINT_TYPE_TABLES, $tableId],
-            'bucketEndpoint' => [self::ENDPOINT_TYPE_BUCKETS, ""],
+            'bucketEndpoint' => [self::ENDPOINT_TYPE_BUCKETS, ''],
         ];
     }
 

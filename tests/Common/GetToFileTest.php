@@ -49,7 +49,7 @@ class GetToFileTest extends StorageApiTestCase
         $config->setConfigurationId($configData['id']);
 
         $largeRowConfiguration = [
-            'values' => []
+            'values' => [],
         ];
         $valuesCount = 100;
         for ($i = 0; $i < $valuesCount; $i++) {
@@ -66,7 +66,6 @@ class GetToFileTest extends StorageApiTestCase
 
         // download
         $this->_client->apiGet('components?include=configuration,rows,state', $this->downloadPath);
-
 
         /** @var array<mixed> $configurations */
         $configurations = Utils::jsonDecode((string) file_get_contents($this->downloadPath), false);

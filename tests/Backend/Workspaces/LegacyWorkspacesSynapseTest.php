@@ -18,14 +18,14 @@ class LegacyWorkspacesSynapseTest extends ParallelWorkspacesTestCase
             $this->getTestBucketId(self::STAGE_IN),
             'languages-pk',
             new CsvFile(__DIR__ . '/../../_data/multiple-columns-pk.csv'),
-            array(
+            [
                 'primaryKey' => implode(',', $primaries),
-            )
+            ]
         );
 
         $mapping = [
             'source' => $pkTableId,
-            'destination' => 'languages-pk'
+            'destination' => 'languages-pk',
         ];
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
@@ -55,7 +55,7 @@ class LegacyWorkspacesSynapseTest extends ParallelWorkspacesTestCase
         $mapping2 = [
             'source' => $pkTableId,
             'destination' => 'languages-pk-skipped',
-            'columns' => ['Paid_Search_Engine_Account','Date'] // missing PK columns
+            'columns' => ['Paid_Search_Engine_Account','Date'], // missing PK columns
         ];
         $workspaces->loadWorkspaceData($workspace['id'], ['input' => [$mapping2]]);
 
@@ -76,7 +76,6 @@ class LegacyWorkspacesSynapseTest extends ParallelWorkspacesTestCase
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-
 
         $importFile = __DIR__ . '/../../_data/languages.with-state.csv';
         $tableId = $this->_client->createTable(
@@ -112,7 +111,7 @@ class LegacyWorkspacesSynapseTest extends ParallelWorkspacesTestCase
                             'convertEmptyValuesToNull' => true,
                             'nullable' => false,
                         ],
-                    ]
+                    ],
                 ],
             ],
         ];
@@ -168,7 +167,6 @@ class LegacyWorkspacesSynapseTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-
         $importFile = __DIR__ . '/../../_data/languages.with-state.csv';
         $tableId = $this->_client->createTable(
             $bucketId,
@@ -203,7 +201,7 @@ class LegacyWorkspacesSynapseTest extends ParallelWorkspacesTestCase
                             'convertEmptyValuesToNull' => true,
                             'nullable' => true,
                         ],
-                    ]
+                    ],
                 ],
             ],
         ];

@@ -110,9 +110,9 @@ class SnapshottingTest extends StorageApiTestCase
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.camel-case-columns.csv'),
-            array(
+            [
                 'primaryKey' => 'Id',
-            )
+            ]
         );
 
         $this->_client->setTableAttribute($tableId, 'first', 'some value');
@@ -164,9 +164,9 @@ class SnapshottingTest extends StorageApiTestCase
         $this->_client->createTableSnapshot($sourceTableId, 'my snapshot');
         $snapshotId = $this->_client->createTableSnapshot($sourceTableId, 'second');
 
-        $snapshots = $this->_client->listTableSnapshots($sourceTableId, array(
+        $snapshots = $this->_client->listTableSnapshots($sourceTableId, [
             'limit' => 2,
-        ));
+        ]);
         $this->assertIsArray($snapshots);
         $this->assertCount(2, $snapshots);
 

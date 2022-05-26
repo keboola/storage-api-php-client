@@ -51,7 +51,7 @@ class TimeTravelTest extends StorageApiTestCase
 
         $updatedTable = $this->_client->getTable($sourceTableId);
 
-        $newTableName = "new-table-name_" . date('Ymd_His', (int) strtotime($timestamp));
+        $newTableName = 'new-table-name_' . date('Ymd_His', (int) strtotime($timestamp));
 
         $replicaTableId = $this->_client->createTableFromSourceTableAtTimestamp(
             $this->getTestBucketId(self::STAGE_OUT),
@@ -97,12 +97,12 @@ class TimeTravelTest extends StorageApiTestCase
         $timestamp = date(DATE_ATOM);
         sleep(25);
 
-        $this->_client->addTableColumn($sourceTableId, "new-column");
+        $this->_client->addTableColumn($sourceTableId, 'new-column');
         $this->_client->removeTablePrimaryKey($sourceTableId);
 
         $updatedTable = $this->_client->getTable($sourceTableId);
 
-        $newTableName = "new-table-name_" . date('Ymd_His', (int) strtotime($timestamp));
+        $newTableName = 'new-table-name_' . date('Ymd_His', (int) strtotime($timestamp));
 
         $replicaTableId = $this->_client->createTableFromSourceTableAtTimestamp(
             $this->getTestBucketId(self::STAGE_OUT),
@@ -211,7 +211,7 @@ class TimeTravelTest extends StorageApiTestCase
             'backoffMaxTries' => 1,
             'jobPollRetryDelay' => function () {
                 return 1;
-            }
+            },
         ]);
 
         $inputBucketTokenOptions = (new TokenCreateOptions())
@@ -227,7 +227,7 @@ class TimeTravelTest extends StorageApiTestCase
             'backoffMaxTries' => 1,
             'jobPollRetryDelay' => function () {
                 return 1;
-            }
+            },
         ]);
 
         $minimalTokenOptions = (new TokenCreateOptions())
@@ -244,7 +244,7 @@ class TimeTravelTest extends StorageApiTestCase
             'backoffMaxTries' => 1,
             'jobPollRetryDelay' => function () {
                 return 1;
-            }
+            },
         ]);
 
         // test that only output bucket permissions will fail
@@ -255,7 +255,7 @@ class TimeTravelTest extends StorageApiTestCase
                 $timestamp,
                 'shouldFail'
             );
-            $this->fail("No read permission on source bucket");
+            $this->fail('No read permission on source bucket');
         } catch (ClientException $e) {
             $this->assertEquals(403, $e->getCode());
         }
@@ -268,7 +268,7 @@ class TimeTravelTest extends StorageApiTestCase
                 $timestamp,
                 'shouldFail'
             );
-            $this->fail("No write permission on destination bucket");
+            $this->fail('No write permission on destination bucket');
         } catch (ClientException $e) {
             $this->assertEquals(403, $e->getCode());
         }

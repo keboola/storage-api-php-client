@@ -56,12 +56,12 @@ class FilesLegacyFormUploadsTest extends StorageApiTestCase
             [
                 'name' => 'file',
                 'contents' => $fh,
-            ]
+            ],
         ];
 
-        $client->post($uploadParams['url'], array(
+        $client->post($uploadParams['url'], [
             'multipart' => $multipart,
-        ));
+        ]);
 
         $file = $this->_client->getFile($result['id']);
 
@@ -117,13 +117,13 @@ class FilesLegacyFormUploadsTest extends StorageApiTestCase
             [
                 'name' => 'file',
                 'contents' => $fh,
-            ]
+            ],
         ];
 
         try {
-            $client->post($uploadParams['url'], array(
+            $client->post($uploadParams['url'], [
                 'multipart' => $multipart,
-            ));
+            ]);
             $this->fail('x-amz-server-side​-encryption should be required');
         } catch (\GuzzleHttp\Exception\ClientException $e) {
             $this->assertEquals(403, $e->getResponse()->getStatusCode());
@@ -145,11 +145,11 @@ class FilesLegacyFormUploadsTest extends StorageApiTestCase
             ],
         ]);
 
-        $putParams = array(
+        $putParams = [
             'Bucket' => $uploadParams['bucket'],
             'Key' => $uploadParams['key'],
             'Body' => fopen($path, 'r+'),
-        );
+        ];
 
         try {
             $s3Client->putObject($putParams);

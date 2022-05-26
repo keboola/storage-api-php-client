@@ -20,7 +20,6 @@ class LegacyIndexedColumnsTest extends StorageApiTestCase
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile($importFile));
 
-
         $indexedColumnName = 'id';
         $this->_client->apiPost("tables/$tableId/indexed-columns", [
             'name' => $indexedColumnName,

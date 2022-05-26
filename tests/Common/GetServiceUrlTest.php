@@ -37,7 +37,7 @@ class GetServiceUrlTest extends TestCase
 
         $fakeClient = $this->createClientWithFakeIndexResponse([
             'services' => [
-                ['id' => $serviceName, /* no URL */]
+                ['id' => $serviceName, /* no URL */],
             ],
         ]);
 

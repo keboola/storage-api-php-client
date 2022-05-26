@@ -35,7 +35,7 @@ class BranchWorkspacesTest extends WorkspacesTest
                 'backoffMaxTries' => 1,
                 'jobPollRetryDelay' => function () {
                     return 1;
-                }
+                },
             ]
         );
     }
@@ -58,12 +58,12 @@ class BranchWorkspacesTest extends WorkspacesTest
         $this->assertEquals($tokenInfo['owner']['defaultBackend'], $connection['backend']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-        $backend->createTable("mytable", ["amount" => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? "NUMBER" : "VARCHAR"]);
+        $backend->createTable('mytable', ['amount' => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? 'NUMBER' : 'VARCHAR']);
 
         $tableNames = $backend->getTables();
         $backend = null; // force odbc disconnect
 
-        $this->assertArrayHasKey("mytable", array_flip($tableNames));
+        $this->assertArrayHasKey('mytable', array_flip($tableNames));
 
         // get workspace
         $workspace = $workspaces->getWorkspace($workspace['id']);
@@ -112,17 +112,17 @@ class BranchWorkspacesTest extends WorkspacesTest
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $backend->dropTableIfExists('mytable');
-        $backend->createTable("mytable", ["amount" => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? "NUMBER" : "VARCHAR"]);
+        $backend->createTable('mytable', ['amount' => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? 'NUMBER' : 'VARCHAR']);
 
         $tableNames = $backend->getTables();
 
-        $this->assertArrayHasKey("mytable", array_flip($tableNames));
+        $this->assertArrayHasKey('mytable', array_flip($tableNames));
 
         $runId = $this->_client->generateRunId();
         $this->workspaceSapiClient->setRunId($runId);
 
         $newCredentials = $workspaces->resetWorkspacePassword($workspace['id']);
-        $this->assertArrayHasKey("password", $newCredentials);
+        $this->assertArrayHasKey('password', $newCredentials);
 
         $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
 
@@ -157,6 +157,6 @@ class BranchWorkspacesTest extends WorkspacesTest
         $tableNames = $backend->getTables();
         $backend = null; // force odbc disconnect
 
-        $this->assertArrayHasKey("mytable", array_flip($tableNames));
+        $this->assertArrayHasKey('mytable', array_flip($tableNames));
     }
 }

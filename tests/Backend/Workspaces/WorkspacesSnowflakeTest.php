@@ -18,9 +18,9 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $workspaces = new Workspaces($this->workspaceSapiClient);
         try {
             $workspaces->createWorkspace(['backend' => self::BACKEND_REDSHIFT]);
-            $this->fail("should not be able to create WS for unsupported backend");
+            $this->fail('should not be able to create WS for unsupported backend');
         } catch (ClientException $e) {
-            $this->assertEquals($e->getStringCode(), "workspace.backendNotSupported");
+            $this->assertEquals($e->getStringCode(), 'workspace.backendNotSupported');
         }
     }
 
@@ -44,11 +44,11 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         );
 
         $workspaces->loadWorkspaceData($workspace['id'], [
-            "input" => [
+            'input' => [
                 [
-                    "source" => $table1Id,
-                    "destination" => "languages",
-                    "columns" => [
+                    'source' => $table1Id,
+                    'destination' => 'languages',
+                    'columns' => [
                         [
                             'source' => 'id',
                             'type' => 'int',
@@ -60,9 +60,9 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
                     ],
                 ],
                 [
-                    "source" => $table2Id,
-                    "destination" => "rates",
-                    "columns" => [
+                    'source' => $table2Id,
+                    'destination' => 'rates',
+                    'columns' => [
                         [
                             'source' => 'Date',
                             'type' => 'varchar',
@@ -92,18 +92,18 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $table = $backend->describeTableColumns('languages');
 
         $this->assertEquals('id', $table[0]['name']);
-        $this->assertEquals("NUMBER(38,0)", $table[0]['type']);
+        $this->assertEquals('NUMBER(38,0)', $table[0]['type']);
 
         $this->assertEquals('name', $table[1]['name']);
-        $this->assertEquals("VARCHAR(16777216)", $table[1]['type']);
+        $this->assertEquals('VARCHAR(16777216)', $table[1]['type']);
 
         $table = $backend->describeTableColumns('rates');
 
         $this->assertEquals('Date', $table[0]['name']);
-        $this->assertEquals("VARCHAR(16777216)", $table[0]['type']);
+        $this->assertEquals('VARCHAR(16777216)', $table[0]['type']);
 
         $this->assertEquals('SKK', $table[1]['name']);
-        $this->assertEquals("VARCHAR(16777216)", $table[1]['type']);
+        $this->assertEquals('VARCHAR(16777216)', $table[1]['type']);
     }
 
     public function testStatementTimeout(): void
@@ -151,14 +151,14 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         );
 
         $workspaces->loadWorkspaceData($workspace['id'], [
-            "input" => [
+            'input' => [
                 [
-                    "source" => $table1Id,
-                    "destination" => "languages",
+                    'source' => $table1Id,
+                    'destination' => 'languages',
                 ],
                 [
-                    "source" => $table2Id,
-                    "destination" => "users",
+                    'source' => $table2Id,
+                    'destination' => 'users',
                 ],
             ],
         ]);
@@ -178,7 +178,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $db = $this->getDbConnectionSnowflake($workspace['connection']);
 
         // check if schema is transient
-        $schemas = $db->fetchAll("SHOW SCHEMAS");
+        $schemas = $db->fetchAll('SHOW SCHEMAS');
 
         $workspaceSchema = null;
         foreach ($schemas as $schema) {
@@ -191,7 +191,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $this->assertNotEmpty($workspaceSchema, 'schema not found');
         $this->assertEquals('TRANSIENT', $workspaceSchema['options']);
 
-        $tables = $db->fetchAll("SHOW TABLES IN SCHEMA " . $db->quoteIdentifier($workspaceSchema['name']));
+        $tables = $db->fetchAll('SHOW TABLES IN SCHEMA ' . $db->quoteIdentifier($workspaceSchema['name']));
         $this->assertCount(2, $tables);
 
         $this->assertEquals('languages', $tables[0]['name']);
@@ -208,59 +208,59 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
             'languages-pk',
             new CsvFile(__DIR__ . '/../../_data/multiple-columns-pk.csv'),
             [
-                'primaryKey' => implode(",", $primaries),
+                'primaryKey' => implode(',', $primaries),
             ]
         );
 
         $mapping = [
-            "source" => $pkTableId,
-            "destination" => "languages-pk",
+            'source' => $pkTableId,
+            'destination' => 'languages-pk',
         ];
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-        $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping]]);
+        $workspaces->loadWorkspaceData($workspace['id'], ['input' => [$mapping]]);
 
-        $cols = $backend->describeTableColumns("languages-pk");
+        $cols = $backend->describeTableColumns('languages-pk');
         $this->assertCount(6, $cols);
-        $this->assertEquals("Paid_Search_Engine_Account", $cols[0]['name']);
-        $this->assertEquals("VARCHAR(16777216)", $cols[0]['type']);
-        $this->assertEquals("Advertiser_ID", $cols[1]['name']);
-        $this->assertEquals("VARCHAR(16777216)", $cols[1]['type']);
-        $this->assertEquals("Date", $cols[2]['name']);
-        $this->assertEquals("VARCHAR(16777216)", $cols[2]['type']);
-        $this->assertEquals("Paid_Search_Campaign", $cols[3]['name']);
-        $this->assertEquals("VARCHAR(16777216)", $cols[3]['type']);
-        $this->assertEquals("Paid_Search_Ad_ID", $cols[4]['name']);
-        $this->assertEquals("VARCHAR(16777216)", $cols[4]['type']);
-        $this->assertEquals("Site__DFA", $cols[5]['name']);
-        $this->assertEquals("VARCHAR(16777216)", $cols[5]['type']);
+        $this->assertEquals('Paid_Search_Engine_Account', $cols[0]['name']);
+        $this->assertEquals('VARCHAR(16777216)', $cols[0]['type']);
+        $this->assertEquals('Advertiser_ID', $cols[1]['name']);
+        $this->assertEquals('VARCHAR(16777216)', $cols[1]['type']);
+        $this->assertEquals('Date', $cols[2]['name']);
+        $this->assertEquals('VARCHAR(16777216)', $cols[2]['type']);
+        $this->assertEquals('Paid_Search_Campaign', $cols[3]['name']);
+        $this->assertEquals('VARCHAR(16777216)', $cols[3]['type']);
+        $this->assertEquals('Paid_Search_Ad_ID', $cols[4]['name']);
+        $this->assertEquals('VARCHAR(16777216)', $cols[4]['type']);
+        $this->assertEquals('Site__DFA', $cols[5]['name']);
+        $this->assertEquals('VARCHAR(16777216)', $cols[5]['type']);
 
         // Check that PK is NOT set if not all PK columns are present
         $mapping2 = [
-            "source" => $pkTableId,
-            "destination" => "languages-pk-skipped",
-            "columns" => [
+            'source' => $pkTableId,
+            'destination' => 'languages-pk-skipped',
+            'columns' => [
                 [
-                    "source" => "Paid_Search_Engine_Account",
-                    "type" => "varchar",
+                    'source' => 'Paid_Search_Engine_Account',
+                    'type' => 'varchar',
                 ],
                 [
-                    "source" => "Date",
-                    "type" => "varchar",
+                    'source' => 'Date',
+                    'type' => 'varchar',
                 ],
             ],
         ];
-        $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping2]]);
+        $workspaces->loadWorkspaceData($workspace['id'], ['input' => [$mapping2]]);
 
-        $cols = $backend->describeTableColumns("languages-pk-skipped");
+        $cols = $backend->describeTableColumns('languages-pk-skipped');
         $this->assertCount(2, $cols);
-        $this->assertEquals("Paid_Search_Engine_Account", $cols[0]['name']);
-        $this->assertEquals("VARCHAR(16777216)", $cols[0]['type']);
-        $this->assertEquals("Date", $cols[1]['name']);
-        $this->assertEquals("VARCHAR(16777216)", $cols[1]['type']);
+        $this->assertEquals('Paid_Search_Engine_Account', $cols[0]['name']);
+        $this->assertEquals('VARCHAR(16777216)', $cols[0]['type']);
+        $this->assertEquals('Date', $cols[1]['name']);
+        $this->assertEquals('VARCHAR(16777216)', $cols[1]['type']);
     }
 
     public function testLoadIncremental(): void
@@ -317,8 +317,8 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $this->assertArrayHasKey('metrics', $actualJobId);
         $this->assertEquals(3072, $actualJobId['metrics']['outBytes']);
 
-        $this->assertEquals(2, $backend->countRows("languages"));
-        $this->assertEquals(5, $backend->countRows("languagesDetails"));
+        $this->assertEquals(2, $backend->countRows('languages'));
+        $this->assertEquals(5, $backend->countRows('languagesDetails'));
 
         // second load
         $options = [
@@ -340,8 +340,8 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         ];
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
-        $this->assertEquals(3, $backend->countRows("languages"));
-        $this->assertEquals(3, $backend->countRows("languagesDetails"));
+        $this->assertEquals(3, $backend->countRows('languages'));
+        $this->assertEquals(3, $backend->countRows('languagesDetails'));
     }
 
     public function testLoadIncrementalAndPreserve(): void
@@ -385,8 +385,8 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         ];
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
-        $this->assertEquals(2, $backend->countRows("languages"));
-        $this->assertEquals(5, $backend->countRows("languagesDetails"));
+        $this->assertEquals(2, $backend->countRows('languages'));
+        $this->assertEquals(5, $backend->countRows('languagesDetails'));
 
         // second load
         $options = [
@@ -506,7 +506,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
             $this->assertArrayHasKey('State', $row);
             $this->assertArrayHasKey('id', $row);
 
-            if (in_array($row['id'], ["0", "11", "24"])) {
+            if (in_array($row['id'], ['0', '11', '24'])) {
                 $this->assertNull($row['State']);
             }
         }
@@ -675,14 +675,14 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         );
 
         $workspaces->loadWorkspaceData($workspace['id'], [
-            "input" => [
+            'input' => [
                 [
-                    "source" => $table1Id,
-                    "destination" => "languages",
+                    'source' => $table1Id,
+                    'destination' => 'languages',
                 ],
                 [
-                    "source" => $table2Id,
-                    "destination" => "rates",
+                    'source' => $table2Id,
+                    'destination' => 'rates',
                     'rows' => 15,
                 ],
             ],
@@ -732,15 +732,15 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         ]);
 
         $workspaces->loadWorkspaceData($workspace['id'], [
-            "input" => [
+            'input' => [
                 [
-                    "source" => $table1Id,
-                    "destination" => "languages",
+                    'source' => $table1Id,
+                    'destination' => 'languages',
                     'seconds' => floor(time() - $startTime) + 30,
                 ],
                 [
-                    "source" => $table2Id,
-                    "destination" => "users",
+                    'source' => $table2Id,
+                    'destination' => 'users',
                     'seconds' => floor(time() - $startTime) + 30,
                 ],
             ],

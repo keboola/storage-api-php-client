@@ -23,9 +23,9 @@ class DownloaderFactory
                     'region' => $getFileResponse['region'],
                     'retries' => 40,
                     'credentials' => [
-                        'key' => $getFileResponse["credentials"]["AccessKeyId"],
-                        'secret' => $getFileResponse["credentials"]["SecretAccessKey"],
-                        'token' => $getFileResponse["credentials"]["SessionToken"],
+                        'key' => $getFileResponse['credentials']['AccessKeyId'],
+                        'secret' => $getFileResponse['credentials']['SecretAccessKey'],
+                        'token' => $getFileResponse['credentials']['SessionToken'],
                     ],
                     'http' => [
                         'read_timeout' => 10,

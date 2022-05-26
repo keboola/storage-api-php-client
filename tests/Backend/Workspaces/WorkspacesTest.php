@@ -50,12 +50,12 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $this->assertEquals($tokenInfo['owner']['defaultBackend'], $connection['backend']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-        $backend->createTable("mytable", ["amount" => ($workspaceWithSnowflakeBackend) ? "NUMBER" : "VARCHAR"]);
+        $backend->createTable('mytable', ['amount' => ($workspaceWithSnowflakeBackend) ? 'NUMBER' : 'VARCHAR']);
 
         $tableNames = $backend->getTables();
         $backend = null; // force odbc disconnect
 
-        $this->assertArrayHasKey("mytable", array_flip($tableNames));
+        $this->assertArrayHasKey('mytable', array_flip($tableNames));
 
         // get workspace
         $workspace = $workspaces->getWorkspace($workspace['id']);
@@ -113,18 +113,18 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $backend->dropTableIfExists('mytable');
-        $backend->createTable("mytable", ["amount" => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? "NUMBER" : "VARCHAR"]);
+        $backend->createTable('mytable', ['amount' => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? 'NUMBER' : 'VARCHAR']);
 
         $tableNames = $backend->getTables();
 
-        $this->assertArrayHasKey("mytable", array_flip($tableNames));
+        $this->assertArrayHasKey('mytable', array_flip($tableNames));
 
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
         $this->workspaceSapiClient->setRunId($runId);
 
         $newCredentials = $workspaces->resetWorkspacePassword($workspace['id']);
-        $this->assertArrayHasKey("password", $newCredentials);
+        $this->assertArrayHasKey('password', $newCredentials);
 
         $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
 
@@ -157,7 +157,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $tableNames = $backend->getTables();
         $backend = null; // force odbc disconnect
 
-        $this->assertArrayHasKey("mytable", array_flip($tableNames));
+        $this->assertArrayHasKey('mytable', array_flip($tableNames));
     }
 
     /**
@@ -179,7 +179,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $connection = $workspace['connection'];
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-        $backend->createTable("mytable", ["amount" => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? "NUMBER" : "VARCHAR"]);
+        $backend->createTable('mytable', ['amount' => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? 'NUMBER' : 'VARCHAR']);
         if ($backend instanceof TeradataWorkspaceBackend) {
             // Teradata: cannot drop workspace if user is logged in
             $backend->disconnect();
@@ -189,10 +189,10 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $workspaces->deleteWorkspace($workspace['id'], $dropOptions);
 
         try {
-            $backend->countRows("mytable");
-            $this->fail("workspace no longer exists. connection should be dead.");
+            $backend->countRows('mytable');
+            $this->fail('workspace no longer exists. connection should be dead.');
         } catch (\PDOException $e) { // catch redshift connection exception
-            $this->assertEquals("57P01", $e->getCode());
+            $this->assertEquals('57P01', $e->getCode());
         } catch (\Doctrine\DBAL\Exception $e) {
             switch ($connection['backend']) {
                 case self::BACKEND_SYNAPSE:
@@ -252,13 +252,13 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
     {
         return [
             [
-                []
+                [],
             ],
             [
                 [
                     'async' => true,
-                ]
-            ]
+                ],
+            ],
         ];
     }
 }

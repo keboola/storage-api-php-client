@@ -57,7 +57,7 @@ final class HandlerStack
     private static function createExponentialDelay()
     {
         return function ($retries) {
-            return (int)pow(2, $retries - 1) * 1000;
+            return (int) pow(2, $retries - 1) * 1000;
         };
     }
 }

@@ -34,12 +34,11 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
                 [
                     'source' => $tableId,
                     'destination' => 'langs',
-                ]
+                ],
             ],
         ]);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-
 
         // let's try to delete some columns
         $backend->dropTableColumn('languages', 'id');
@@ -70,17 +69,17 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             new CsvFile(__DIR__ . '/../../_data/numbers.csv')
         );
 
-        $mapping1 = array("source" => $table1_id, "destination" => "languagesLoaded");
-        $mapping2 = array("source" => $table2_id, "destination" => "numbersLoaded");
+        $mapping1 = ['source' => $table1_id, 'destination' => 'languagesLoaded'];
+        $mapping2 = ['source' => $table2_id, 'destination' => 'numbersLoaded'];
 
-        $input = array($mapping1, $mapping2);
+        $input = [$mapping1, $mapping2];
 
         // test if job is created and listed
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
         $this->workspaceSapiClient->setRunId($runId);
 
-        $workspaces->loadWorkspaceData($workspace['id'], array("input" => $input));
+        $workspaces->loadWorkspaceData($workspace['id'], ['input' => $input]);
 
         $afterJobs = $this->listWorkspaceJobs($workspace['id']);
         $lastJob = reset($afterJobs);
@@ -101,37 +100,37 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
 
         // check that the tables are in the workspace
         $this->assertCount(2, $tables);
-        $this->assertContains($backend->toIdentifier("languagesLoaded"), $tables);
-        $this->assertContains($backend->toIdentifier("numbersLoaded"), $tables);
+        $this->assertContains($backend->toIdentifier('languagesLoaded'), $tables);
+        $this->assertContains($backend->toIdentifier('numbersLoaded'), $tables);
 
         // check table structure and data
-        $data = $backend->fetchAll("languagesLoaded", \PDO::FETCH_ASSOC);
+        $data = $backend->fetchAll('languagesLoaded', \PDO::FETCH_ASSOC);
         $this->assertCount(2, $data[0], 'there should be two columns');
         $this->assertArrayHasKey('id', $data[0]);
         $this->assertArrayHasKey('name', $data[0]);
-        $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ",", '"'), $data, 'id');
+        $this->assertArrayEqualsSorted(Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ',', '"'), $data, 'id');
 
         // now we'll load another table and use the preserve parameters to check that all tables are present
-        $mapping3 = array("source" => $table1_id, "destination" => "table3");
-        $workspaces->loadWorkspaceData($workspace['id'], array("input" => array($mapping3), "preserve" => true));
+        $mapping3 = ['source' => $table1_id, 'destination' => 'table3'];
+        $workspaces->loadWorkspaceData($workspace['id'], ['input' => [$mapping3], 'preserve' => true]);
 
         $tables = $backend->getTables();
 
         $this->assertCount(3, $tables);
-        $this->assertContains($backend->toIdentifier("table3"), $tables);
-        $this->assertContains($backend->toIdentifier("languagesLoaded"), $tables);
-        $this->assertContains($backend->toIdentifier("numbersLoaded"), $tables);
+        $this->assertContains($backend->toIdentifier('table3'), $tables);
+        $this->assertContains($backend->toIdentifier('languagesLoaded'), $tables);
+        $this->assertContains($backend->toIdentifier('numbersLoaded'), $tables);
 
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
         $this->workspaceSapiClient->setRunId($runId);
 
         // now we'll try the same load, but it should clear the workspace first (preserve is false by default)
-        $workspaces->loadWorkspaceData($workspace['id'], array("input" => array($mapping3)));
+        $workspaces->loadWorkspaceData($workspace['id'], ['input' => [$mapping3]]);
 
         $tables = $backend->getTables();
         $this->assertCount(1, $tables);
-        $this->assertContains($backend->toIdentifier("table3"), $tables);
+        $this->assertContains($backend->toIdentifier('table3'), $tables);
 
         // block until async events are processed, processing in order is not guaranteed but it should work most of time
         $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
@@ -263,24 +262,24 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
                 [
                     'source' => $tableId,
                     'destination' => 'languagesIso',
-                    'columns' => ["Id", "iso"]
+                    'columns' => ['Id', 'iso'],
                 ],
                 [
                     'source' => $tableId,
                     'destination' => 'languagesSomething',
-                    'columns' => ["Name", "Something"]
-                ]
-            ]
+                    'columns' => ['Name', 'Something'],
+                ],
+            ],
         ];
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
         // check that the tables have the appropriate columns
-        $columns = $backend->getTableColumns($backend->toIdentifier("languagesIso"));
+        $columns = $backend->getTableColumns($backend->toIdentifier('languagesIso'));
         $this->assertEquals(2, count($columns));
         $this->assertEquals(0, count(array_diff($columns, $backend->toIdentifier($options['input'][0]['columns']))));
 
-        $columns = $backend->getTableColumns($backend->toIdentifier("languagesSomething"));
+        $columns = $backend->getTableColumns($backend->toIdentifier('languagesSomething'));
         $this->assertEquals(2, count($columns));
         $this->assertEquals(0, count(array_diff($columns, $backend->toIdentifier($options['input'][1]['columns']))));
 
@@ -290,16 +289,16 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
                 [
                     'source' => $tableId,
                     'destination' => 'languagesIso',
-                    'columns' => ["Id", "iso", "not-a-column"]
-                ]
-            ]
+                    'columns' => ['Id', 'iso', 'not-a-column'],
+                ],
+            ],
         ];
 
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
-            $this->fail("Trying to select a non existent column should fail");
+            $this->fail('Trying to select a non existent column should fail');
         } catch (ClientException $e) {
-            $this->assertEquals("storage.tables.nonExistingColumns", $e->getStringCode());
+            $this->assertEquals('storage.tables.nonExistingColumns', $e->getStringCode());
         }
     }
 
@@ -335,7 +334,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
 //        return;
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
-        $this->assertEquals(2, $backend->countRows("languagesDetails"));
+        $this->assertEquals(2, $backend->countRows('languagesDetails'));
 
         // second load
         $options = [
@@ -352,7 +351,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         ];
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
-        $this->assertEquals(5, $backend->countRows("languagesDetails"));
+        $this->assertEquals(5, $backend->countRows('languagesDetails'));
     }
 
     public function testIncrementalAdditionalColumns(): void
@@ -379,8 +378,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         ];
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
-        $this->assertEquals(5, $backend->countRows("languages"));
-
+        $this->assertEquals(5, $backend->countRows('languages'));
 
         $this->_client->addTableColumn($tableId, 'test');
 
@@ -429,7 +427,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         ];
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
-        $this->assertEquals(5, $backend->countRows("languages"));
+        $this->assertEquals(5, $backend->countRows('languages'));
 
         $this->_client->deleteTableColumn($tableId, 'name');
 
@@ -524,16 +522,16 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             'languages',
             new CsvFile($importFile)
         );
-        $originalFileLinesCount = (string) exec("wc -l <" . escapeshellarg($importFile));
+        $originalFileLinesCount = (string) exec('wc -l <' . escapeshellarg($importFile));
         sleep(35);
         $startTime = time();
         $importCsv = new \Keboola\Csv\CsvFile($importFile);
-        $this->_client->writeTable($tableId, $importCsv, array(
+        $this->_client->writeTable($tableId, $importCsv, [
             'incremental' => true,
-        ));
-        $this->_client->writeTable($tableId, $importCsv, array(
+        ]);
+        $this->_client->writeTable($tableId, $importCsv, [
             'incremental' => true,
-        ));
+        ]);
 
         $options = [
             'input' => [
@@ -547,8 +545,8 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
         // ok, the table should only have rows from the 2 most recent loads
-        $numRows = $backend->countRows("languages");
-        $this->assertEquals(2 * ($originalFileLinesCount - 1), $numRows, "seconds parameter");
+        $numRows = $backend->countRows('languages');
+        $this->assertEquals(2 * ($originalFileLinesCount - 1), $numRows, 'seconds parameter');
     }
 
     public function testRowsParameter(): void
@@ -564,13 +562,13 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             new CsvFile($importFile)
         );
 
-        $options = array('input' => [
+        $options = ['input' => [
             [
                 'source' => $tableId,
                 'destination' => 'languages',
-                'rows' => 2
-            ]
-        ]);
+                'rows' => 2,
+            ],
+        ]];
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
@@ -583,33 +581,33 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         return [
             [
                 [
-                    "Id" => "INTEGER",
-                    "Name" => "VARCHAR(50)"
-                ]
+                    'Id' => 'INTEGER',
+                    'Name' => 'VARCHAR(50)',
+                ],
             ],
             [
                 [
-                    "Id" => "INTEGER",
-                    "Name" => [
+                    'Id' => 'INTEGER',
+                    'Name' => [
                         'column' => 'Name',
                         'type' => 'VARCHAR',
-                        'length' => '50'
-                    ]
-                ]
+                        'length' => '50',
+                    ],
+                ],
             ],
             [
                 [
                     [
                         'column' => 'Id',
-                        'type' => 'INTEGER'
+                        'type' => 'INTEGER',
                     ],
                     [
                         'column' => 'Name',
                         'type' => 'VARCHAR',
-                        'length' => '50'
-                    ]
-                ]
-            ]
+                        'length' => '50',
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -630,13 +628,13 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             new CsvFile($importFile)
         );
 
-        $options = array('input' => [
+        $options = ['input' => [
             [
                 'source' => $tableId,
                 'destination' => 'datatype_Test',
-                'datatypes' => $dataTypesDefinition
-            ]
-        ]);
+                'datatypes' => $dataTypesDefinition,
+            ],
+        ]];
         $options = LegacyInputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
             $options
@@ -647,14 +645,14 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $columnInfo = $backend->describeTableColumns($backend->toIdentifier('datatype_Test'));
         $this->assertCount(2, $columnInfo);
         if ($workspace['connection']['backend'] === $this::BACKEND_SNOWFLAKE) {
-            $this->assertEquals("Id", $columnInfo[0]['name']);
-            $this->assertEquals("NUMBER(38,0)", $columnInfo[0]['type']);
-            $this->assertEquals("Name", $columnInfo[1]['name']);
-            $this->assertEquals("VARCHAR(50)", $columnInfo[1]['type']);
+            $this->assertEquals('Id', $columnInfo[0]['name']);
+            $this->assertEquals('NUMBER(38,0)', $columnInfo[0]['type']);
+            $this->assertEquals('Name', $columnInfo[1]['name']);
+            $this->assertEquals('VARCHAR(50)', $columnInfo[1]['type']);
         }
         if ($workspace['connection']['backend'] === $this::BACKEND_REDSHIFT) {
-            $this->assertEquals("int4", $columnInfo['id']['DATA_TYPE']);
-            $this->assertEquals("varchar", $columnInfo['name']['DATA_TYPE']);
+            $this->assertEquals('int4', $columnInfo['id']['DATA_TYPE']);
+            $this->assertEquals('varchar', $columnInfo['name']['DATA_TYPE']);
             $this->assertEquals(50, $columnInfo['name']['LENGTH']);
         }
     }
@@ -676,13 +674,13 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             new CsvFile($importFile)
         );
 
-        $options = array('input' => [
+        $options = ['input' => [
             [
                 'source' => $tableId,
                 'destination' => 'datatype_test',
-                'datatypes' => $dataTypesDefinition
-            ]
-        ]);
+                'datatypes' => $dataTypesDefinition,
+            ],
+        ]];
         $options = LegacyInputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
             $options
@@ -707,22 +705,22 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         return [
             [
                 [
-                    "id" => "INTEGER",
-                    "name" => "INTEGER"
-                ]
+                    'id' => 'INTEGER',
+                    'name' => 'INTEGER',
+                ],
             ],
             [
                 [
                     [
                         'column' => 'id',
-                        'type' => 'INTEGER'
+                        'type' => 'INTEGER',
                     ],
                     [
                         'column' => 'name',
-                        'type' => 'INTEGER'
-                    ]
-                ]
-            ]
+                        'type' => 'INTEGER',
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -742,16 +740,16 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             new CsvFile($importFile)
         );
 
-        $options = array('input' => [
+        $options = ['input' => [
             [
                 'source' => $tableId,
                 'destination' => 'datatype_Test',
                 'datatypes' => [
-                    "id" => "INTEGER", // lower case instead camel case should be resolved like non-existing column
-                    "Name" => "VARCHAR(50)"
-                ]
-            ]
-        ]);
+                    'id' => 'INTEGER', // lower case instead camel case should be resolved like non-existing column
+                    'Name' => 'VARCHAR(50)',
+                ],
+            ],
+        ]];
         $options = LegacyInputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
             $options
@@ -768,22 +766,22 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
     {
         return [
             [
-                "id" => "INTEGER", // lower case instead camel case should be resolved like non-existing column
-                "Name" => "VARCHAR(50)"
+                'id' => 'INTEGER', // lower case instead camel case should be resolved like non-existing column
+                'Name' => 'VARCHAR(50)',
             ],
             [
                 [
                     [
                         'column' => 'id',
-                        'type' => 'INTEGER'
+                        'type' => 'INTEGER',
                     ],
                     [
                         'column' => 'Name',
                         'type' => 'VARCHAR',
-                        'length' => '50'
-                    ]
-                ]
-            ]
+                        'length' => '50',
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -799,16 +797,16 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             new CsvFile($importFile)
         );
 
-        $options = array('input' => [
+        $options = ['input' => [
             [
                 'source' => $tableId,
                 'destination' => 'datatype_test',
                 'datatypes' =>  [
-                    "id" => "UNKNOWN",
-                    "name" => "UNKNOWN"
-                ]
-            ]
-        ]);
+                    'id' => 'UNKNOWN',
+                    'name' => 'UNKNOWN',
+                ],
+            ],
+        ]];
         $options = LegacyInputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
             $options
@@ -833,22 +831,22 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             new CsvFile($importFile)
         );
 
-        $options = array('input' => [
+        $options = ['input' => [
             [
                 'source' => $tableId,
                 'destination' => 'datatype_test',
                 'datatypes' => [
                     [
                         'column' => 'id',
-                        'type' => 'UNKNOWN'
+                        'type' => 'UNKNOWN',
                     ],
                     [
                         'column' => 'name',
-                        'type' => 'UNKNOWN'
-                    ]
-                ]
-            ]
-        ]);
+                        'type' => 'UNKNOWN',
+                    ],
+                ],
+            ],
+        ]];
         $options = LegacyInputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
             $options
@@ -879,12 +877,12 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         );
 
         // now let's try and load 2 different sources to the same destination, this request should be rejected
-        $mapping1 = array("source" => $table1_id, "destination" => "languagesLoaded");
-        $mapping2 = array("source" => $table2_id, "destination" => "languagesLoaded");
-        $inputDupFail = array($mapping1, $mapping2);
+        $mapping1 = ['source' => $table1_id, 'destination' => 'languagesLoaded'];
+        $mapping2 = ['source' => $table2_id, 'destination' => 'languagesLoaded'];
+        $inputDupFail = [$mapping1, $mapping2];
 
         try {
-            $workspaces->loadWorkspaceData($workspace['id'], array("input" => $inputDupFail));
+            $workspaces->loadWorkspaceData($workspace['id'], ['input' => $inputDupFail]);
             $this->fail('Attempt to write two sources to same destination should fail');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.duplicateDestination', $e->getStringCode());
@@ -910,8 +908,8 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
                     [
                         'source' => $tableId,
                         'destination' => 'Langs',
-                    ]
-                ]
+                    ],
+                ],
             ]
         );
 
@@ -924,7 +922,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
                         [
                             'source' => $tableId,
                             'destination' => 'Langs',
-                        ]
+                        ],
                     ],
                     'preserve' => true,
                 ]
@@ -941,10 +939,10 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace();
 
         // let's try loading from a table that doesn't exist
-        $mappingInvalidSource = array("source" => "in.c-nonExistentBucket.fakeTable", "destination" => "whatever");
-        $input404 = array($mappingInvalidSource);
+        $mappingInvalidSource = ['source' => 'in.c-nonExistentBucket.fakeTable', 'destination' => 'whatever'];
+        $input404 = [$mappingInvalidSource];
         try {
-            $workspaces->loadWorkspaceData($workspace['id'], array("input" => $input404));
+            $workspaces->loadWorkspaceData($workspace['id'], ['input' => $input404]);
             $this->fail('Source does not exist, this should fail');
         } catch (ClientException $e) {
             $this->assertEquals(404, $e->getCode());
@@ -965,20 +963,20 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
 
-        $mapping1 = array("source" => $table1_id, "destination" => "languagesLoaded");
-        $input = array($mapping1);
+        $mapping1 = ['source' => $table1_id, 'destination' => 'languagesLoaded'];
+        $input = [$mapping1];
 
         //  test for non-array input
         try {
-            $workspaces->loadWorkspaceData($workspace['id'], array("input" => $mapping1));
-            $this->fail("input should be an array of mappings.");
+            $workspaces->loadWorkspaceData($workspace['id'], ['input' => $mapping1]);
+            $this->fail('input should be an array of mappings.');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.loadRequestBadInput', $e->getStringCode());
         }
 
         // test for invalid workspace id
         try {
-            $workspaces->loadWorkspaceData(0, array("input" => $input));
+            $workspaces->loadWorkspaceData(0, ['input' => $input]);
             $this->fail('Should not be able to find a workspace with id 0');
         } catch (ClientException $e) {
             $this->assertEquals(404, $e->getCode());
@@ -994,13 +992,13 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         }
 
         try {
-            $workspaces->loadWorkspaceData($workspace['id'], array("input" => array(array("source" => $table1_id))));
+            $workspaces->loadWorkspaceData($workspace['id'], ['input' => [['source' => $table1_id]]]);
             $this->fail('Should return bad request, destination is required');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.loadRequestBadInput', $e->getStringCode());
         }
         try {
-            $workspaces->loadWorkspaceData($workspace['id'], array("input" => array(array("destination" => "destination"))));
+            $workspaces->loadWorkspaceData($workspace['id'], ['input' => [['destination' => 'destination']]]);
             $this->fail('Should return bad request, destination is required');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.loadRequestBadInput', $e->getStringCode());
@@ -1025,7 +1023,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
 
         $testClient = $this->getClient([
             'token' => $token['token'],
-            'url' => STORAGE_API_URL
+            'url' => STORAGE_API_URL,
         ]);
 
         // create the workspace with the limited permission client
@@ -1035,8 +1033,8 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $input = [
             [
                 'source' => $tableId,
-                'destination' => 'irrelevant'
-            ]
+                'destination' => 'irrelevant',
+            ],
         ];
 
         try {
@@ -1062,12 +1060,12 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         );
 
         $workspaces->loadWorkspaceData($workspace['id'], [
-            "input" => [
+            'input' => [
                 [
-                    "source" => $tableId,
-                    "destination" => "dotted.destination",
-                ]
-            ]
+                    'source' => $tableId,
+                    'destination' => 'dotted.destination',
+                ],
+            ],
         ]);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
@@ -1091,13 +1089,13 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         );
 
         $workspaces->loadWorkspaceData($workspace['id'], [
-            "input" => [
+            'input' => [
                 [
-                    "source" => $tableId,
-                    "destination" => "languages",
-                    "columns" => "",
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                    'columns' => '',
                 ],
-            ]
+            ],
         ]);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
@@ -1121,14 +1119,14 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-        $options = array(
-            "input" => [
+        $options = [
+            'input' => [
                 array_merge([
-                    "source" => $tableId,
-                    "destination" => 'filter-test'
-                ], $exportOptions)
-            ]
-        );
+                    'source' => $tableId,
+                    'destination' => 'filter-test',
+                ], $exportOptions),
+            ],
+        ];
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 

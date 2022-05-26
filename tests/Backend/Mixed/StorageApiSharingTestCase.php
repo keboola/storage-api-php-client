@@ -74,17 +74,17 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
 
         // same organizations validation
         if ($tokenData['organization']['id'] !== $this->_client2->verifyToken()['organization']['id']) {
-            throw new \Exception("STORAGE_API_LINKING_TOKEN is not in the same organization as STORAGE_API_TOKEN");
+            throw new \Exception('STORAGE_API_LINKING_TOKEN is not in the same organization as STORAGE_API_TOKEN');
         } elseif ($tokenData['organization']['id'] !== $tokenAdmin2InSameOrgData['organization']['id']) {
             throw new \Exception(
-                "STORAGE_API_TOKEN_ADMIN_2_IN_SAME_ORGANIZATION is not in the same organization as STORAGE_API_TOKEN"
+                'STORAGE_API_TOKEN_ADMIN_2_IN_SAME_ORGANIZATION is not in the same organization as STORAGE_API_TOKEN'
             );
         }
 
         // not same organization
         if ($tokenData['organization']['id'] === $tokenAdmin3InOtherOrg['organization']['id']) {
             throw new \Exception(
-                "STORAGE_API_TOKEN_ADMIN_3_IN_OTHER_ORGANIZATION is in the same organization as STORAGE_API_TOKEN"
+                'STORAGE_API_TOKEN_ADMIN_3_IN_OTHER_ORGANIZATION is in the same organization as STORAGE_API_TOKEN'
             );
         }
     }
@@ -207,25 +207,25 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
             yield sprintf('snowflake sharing, snowflake workspace async=%b', $async) => [
                 self::BACKEND_SNOWFLAKE,
                 self::BACKEND_SNOWFLAKE,
-                $async
+                $async,
             ];
 
             yield sprintf('snowflake sharing, redshift workspace async=%b', $async) => [
                 self::BACKEND_SNOWFLAKE,
                 self::BACKEND_REDSHIFT,
-                $async
+                $async,
             ];
 
             yield sprintf('redshift sharing, snowflake workspace async=%b', $async) => [
                 self::BACKEND_REDSHIFT,
                 self::BACKEND_SNOWFLAKE,
-                $async
+                $async,
             ];
 
             yield sprintf('redshift sharing, redshift workspace async=%b', $async) => [
                 self::BACKEND_REDSHIFT,
                 self::BACKEND_SNOWFLAKE,
-                $async
+                $async,
             ];
         }
     }

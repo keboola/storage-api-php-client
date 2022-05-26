@@ -18,9 +18,9 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
         $workspaces = new Workspaces($this->workspaceSapiClient);
         try {
             $workspaces->createWorkspace(['backend' => self::BACKEND_REDSHIFT]);
-            $this->fail("should not be able to create WS for unsupported backend");
+            $this->fail('should not be able to create WS for unsupported backend');
         } catch (ClientException $e) {
-            $this->assertEquals($e->getStringCode(), "workspace.backendNotSupported");
+            $this->assertEquals($e->getStringCode(), 'workspace.backendNotSupported');
         }
     }
 
@@ -44,11 +44,11 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
         );
 
         $workspaces->loadWorkspaceData($workspace['id'], [
-            "input" => [
+            'input' => [
                 [
-                    "source" => $table1Id,
-                    "destination" => "languages",
-                    "columns" => [
+                    'source' => $table1Id,
+                    'destination' => 'languages',
+                    'columns' => [
                         [
                             'source' => 'id',
                             'type' => 'int',
@@ -57,12 +57,12 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
                             'source' => 'name',
                             'type' => 'varchar',
                         ],
-                    ]
+                    ],
                 ],
                 [
-                    "source" => $table2Id,
-                    "destination" => "rates",
-                    "columns" => [
+                    'source' => $table2Id,
+                    'destination' => 'rates',
+                    'columns' => [
                         [
                             'source' => 'Date',
                             'type' => 'varchar',
@@ -71,9 +71,9 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
                             'source' => 'SKK',
                             'type' => 'varchar',
                         ],
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ]);
 
         $actualJobId = null;
@@ -93,18 +93,18 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
         $columns = iterator_to_array($backend->describeTableColumns('languages'));
 
         $this->assertEquals('id', $columns[0]->getColumnName());
-        $this->assertEquals("DECIMAL (18,0)", $columns[0]->getColumnDefinition()->getSQLDefinition());
+        $this->assertEquals('DECIMAL (18,0)', $columns[0]->getColumnDefinition()->getSQLDefinition());
 
         $this->assertEquals('name', $columns[1]->getColumnName());
-        $this->assertEquals("VARCHAR (2000000)", $columns[1]->getColumnDefinition()->getSQLDefinition());
+        $this->assertEquals('VARCHAR (2000000)', $columns[1]->getColumnDefinition()->getSQLDefinition());
 
         $columns = iterator_to_array($backend->describeTableColumns('rates'));
 
         $this->assertEquals('Date', $columns[0]->getColumnName());
-        $this->assertEquals("VARCHAR (2000000)", $columns[0]->getColumnDefinition()->getSQLDefinition());
+        $this->assertEquals('VARCHAR (2000000)', $columns[0]->getColumnDefinition()->getSQLDefinition());
 
         $this->assertEquals('SKK', $columns[1]->getColumnName());
-        $this->assertEquals("VARCHAR (2000000)", $columns[1]->getColumnDefinition()->getSQLDefinition());
+        $this->assertEquals('VARCHAR (2000000)', $columns[1]->getColumnDefinition()->getSQLDefinition());
     }
 
     public function testLoadedPrimaryKeys(): void
@@ -114,62 +114,62 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
             $this->getTestBucketId(self::STAGE_IN),
             'languages-pk',
             new CsvFile(__DIR__ . '/../../_data/multiple-columns-pk.csv'),
-            array(
-                'primaryKey' => implode(",", $primaries),
-            )
+            [
+                'primaryKey' => implode(',', $primaries),
+            ]
         );
 
         $mapping = [
-            "source" => $pkTableId,
-            "destination" => "languages-pk"
+            'source' => $pkTableId,
+            'destination' => 'languages-pk',
         ];
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-        $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping]]);
+        $workspaces->loadWorkspaceData($workspace['id'], ['input' => [$mapping]]);
 
         /** @var ExasolColumn[] $columns */
-        $columns = iterator_to_array($backend->describeTableColumns("languages-pk"));
+        $columns = iterator_to_array($backend->describeTableColumns('languages-pk'));
         $this->assertCount(6, $columns);
-        $this->assertEquals("Paid_Search_Engine_Account", $columns[0]->getColumnName());
-        $this->assertEquals("VARCHAR (2000000) NOT NULL", $columns[0]->getColumnDefinition()->getSQLDefinition());
-        $this->assertEquals("Advertiser_ID", $columns[1]->getColumnName());
-        $this->assertEquals("VARCHAR (2000000)", $columns[1]->getColumnDefinition()->getSQLDefinition());
-        $this->assertEquals("Date", $columns[2]->getColumnName());
-        $this->assertEquals("VARCHAR (2000000) NOT NULL", $columns[2]->getColumnDefinition()->getSQLDefinition());
-        $this->assertEquals("Paid_Search_Campaign", $columns[3]->getColumnName());
-        $this->assertEquals("VARCHAR (2000000) NOT NULL", $columns[3]->getColumnDefinition()->getSQLDefinition());
-        $this->assertEquals("Paid_Search_Ad_ID", $columns[4]->getColumnName());
-        $this->assertEquals("VARCHAR (2000000) NOT NULL", $columns[4]->getColumnDefinition()->getSQLDefinition());
-        $this->assertEquals("Site__DFA", $columns[5]->getColumnName());
-        $this->assertEquals("VARCHAR (2000000) NOT NULL", $columns[5]->getColumnDefinition()->getSQLDefinition());
+        $this->assertEquals('Paid_Search_Engine_Account', $columns[0]->getColumnName());
+        $this->assertEquals('VARCHAR (2000000) NOT NULL', $columns[0]->getColumnDefinition()->getSQLDefinition());
+        $this->assertEquals('Advertiser_ID', $columns[1]->getColumnName());
+        $this->assertEquals('VARCHAR (2000000)', $columns[1]->getColumnDefinition()->getSQLDefinition());
+        $this->assertEquals('Date', $columns[2]->getColumnName());
+        $this->assertEquals('VARCHAR (2000000) NOT NULL', $columns[2]->getColumnDefinition()->getSQLDefinition());
+        $this->assertEquals('Paid_Search_Campaign', $columns[3]->getColumnName());
+        $this->assertEquals('VARCHAR (2000000) NOT NULL', $columns[3]->getColumnDefinition()->getSQLDefinition());
+        $this->assertEquals('Paid_Search_Ad_ID', $columns[4]->getColumnName());
+        $this->assertEquals('VARCHAR (2000000) NOT NULL', $columns[4]->getColumnDefinition()->getSQLDefinition());
+        $this->assertEquals('Site__DFA', $columns[5]->getColumnName());
+        $this->assertEquals('VARCHAR (2000000) NOT NULL', $columns[5]->getColumnDefinition()->getSQLDefinition());
 
         // Check that PK is NOT set if not all PK columns are present
         $mapping2 = [
-            "source" => $pkTableId,
-            "destination" => "languages-pk-skipped",
-            "columns" => [
+            'source' => $pkTableId,
+            'destination' => 'languages-pk-skipped',
+            'columns' => [
                 [
-                    "source" => "Paid_Search_Engine_Account",
-                    "type" => "varchar",
+                    'source' => 'Paid_Search_Engine_Account',
+                    'type' => 'varchar',
                 ],
                 [
-                    "source" => "Date",
-                    "type" => "varchar",
+                    'source' => 'Date',
+                    'type' => 'varchar',
                 ],
             ],
         ];
-        $workspaces->loadWorkspaceData($workspace['id'], ["input" => [$mapping2]]);
+        $workspaces->loadWorkspaceData($workspace['id'], ['input' => [$mapping2]]);
 
         /** @var ExasolColumn[] $columns */
-        $columns = iterator_to_array($backend->describeTableColumns("languages-pk-skipped"));
+        $columns = iterator_to_array($backend->describeTableColumns('languages-pk-skipped'));
         $this->assertCount(2, $columns);
-        $this->assertEquals("Paid_Search_Engine_Account", $columns[0]->getColumnName());
-        $this->assertEquals("VARCHAR (2000000)", $columns[0]->getColumnDefinition()->getSQLDefinition());
-        $this->assertEquals("Date", $columns[1]->getColumnName());
-        $this->assertEquals("VARCHAR (2000000)", $columns[1]->getColumnDefinition()->getSQLDefinition());
+        $this->assertEquals('Paid_Search_Engine_Account', $columns[0]->getColumnName());
+        $this->assertEquals('VARCHAR (2000000)', $columns[0]->getColumnDefinition()->getSQLDefinition());
+        $this->assertEquals('Date', $columns[1]->getColumnName());
+        $this->assertEquals('VARCHAR (2000000)', $columns[1]->getColumnDefinition()->getSQLDefinition());
     }
 
     public function testLoadIncremental(): void
@@ -179,7 +179,6 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable(
@@ -227,8 +226,8 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
         $this->assertArrayHasKey('metrics', $actualJobId);
         $this->assertEquals(76, $actualJobId['metrics']['outBytes']);
 
-        $this->assertEquals(2, $backend->countRows("languages"));
-        $this->assertEquals(5, $backend->countRows("languagesDetails"));
+        $this->assertEquals(2, $backend->countRows('languages'));
+        $this->assertEquals(5, $backend->countRows('languagesDetails'));
 
         // second load
         $options = [
@@ -250,8 +249,8 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
         ];
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
-        $this->assertEquals(3, $backend->countRows("languages"));
-        $this->assertEquals(3, $backend->countRows("languagesDetails"));
+        $this->assertEquals(3, $backend->countRows('languages'));
+        $this->assertEquals(3, $backend->countRows('languagesDetails'));
     }
 
     public function testLoadIncrementalAndPreserve(): void
@@ -261,7 +260,6 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable(
@@ -296,8 +294,8 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
         ];
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
-        $this->assertEquals(2, $backend->countRows("languages"));
-        $this->assertEquals(5, $backend->countRows("languagesDetails"));
+        $this->assertEquals(2, $backend->countRows('languages'));
+        $this->assertEquals(5, $backend->countRows('languagesDetails'));
 
         // second load
         $options = [
@@ -335,7 +333,6 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-
         $importFile = __DIR__ . '/../../_data/languages.with-state.csv';
         $tableId = $this->_client->createTable(
             $bucketId,
@@ -369,7 +366,7 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
                             'nullable' => true,
-                        ]
+                        ],
                     ],
                 ],
             ],
@@ -404,7 +401,7 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
                             'nullable' => true,
-                        ]
+                        ],
                     ],
                 ],
             ],
@@ -418,7 +415,7 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
             $this->assertArrayHasKey('State', $row);
             $this->assertArrayHasKey('id', $row);
 
-            if (in_array($row['id'], ["0", "11", "24"])) {
+            if (in_array($row['id'], ['0', '11', '24'])) {
                 $this->assertNull($row['State']);
             }
         }
@@ -431,7 +428,6 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-
 
         $importFile = __DIR__ . '/../../_data/languages.with-state.csv';
         $tableId = $this->_client->createTable(
@@ -466,7 +462,7 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
                             'type' => 'VARCHAR',
                             'convertEmptyValuesToNull' => true,
                             'nullable' => false,
-                        ]
+                        ],
                     ],
                 ],
             ],
@@ -588,17 +584,17 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
         );
 
         $workspaces->loadWorkspaceData($workspace['id'], [
-            "input" => [
+            'input' => [
                 [
-                    "source" => $table1Id,
-                    "destination" => "languages",
+                    'source' => $table1Id,
+                    'destination' => 'languages',
                 ],
                 [
-                    "source" => $table2Id,
-                    "destination" => "rates",
+                    'source' => $table2Id,
+                    'destination' => 'rates',
                     'rows' => 15,
-                ]
-            ]
+                ],
+            ],
         ]);
 
         $actualJobId = null;
@@ -641,23 +637,23 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
         $startTime = time();
 
         $importCsv = new CsvFile(__DIR__ . '/../../_data/languages.csv');
-        $this->_client->writeTable($table1Id, $importCsv, array(
+        $this->_client->writeTable($table1Id, $importCsv, [
             'incremental' => true,
-        ));
+        ]);
 
         $workspaces->loadWorkspaceData($workspace['id'], [
-            "input" => [
+            'input' => [
                 [
-                    "source" => $table1Id,
-                    "destination" => "languages",
+                    'source' => $table1Id,
+                    'destination' => 'languages',
                     'seconds' => floor(time() - $startTime) + 30,
                 ],
                 [
-                    "source" => $table2Id,
-                    "destination" => "users",
+                    'source' => $table2Id,
+                    'destination' => 'users',
                     'seconds' => floor(time() - $startTime) + 30,
-                ]
-            ]
+                ],
+            ],
         ]);
 
         $actualJobId = null;

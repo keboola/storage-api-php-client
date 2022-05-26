@@ -49,9 +49,9 @@ class DeleteRowsTest extends StorageApiTestCase
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
         try {
-            $this->_client->deleteTableRows($tableId, array(
+            $this->_client->deleteTableRows($tableId, [
                 'whereColumn' => 'city',
-            ));
+            ]);
             $this->fail('Exception should be thrown');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.tables.validation.invalidFilterValues', $e->getStringCode());
@@ -63,134 +63,134 @@ class DeleteRowsTest extends StorageApiTestCase
         $yesterday = new \DateTime('-1 day');
         $tomorrow = new \DateTime('+1 day');
 
-        return array(
+        return [
             // 1st test
-            array(
-                array(
+            [
+                [
                     'whereColumn' => 'city',
-                    'whereValues' => array('PRG')
-                ),
-                array(
-                    array(
-                        "3",
-                        "ondra",
-                        "VAN",
-                        "male"
-                    ),
-                    array(
-                        "4",
-                        "miro",
-                        "BRA",
-                        "male",
-                    ),
-                    array(
-                        "5",
-                        "hidden",
-                        "",
-                        "male",
-                    ),
-                ),
-            ),
+                    'whereValues' => ['PRG'],
+                ],
+                [
+                    [
+                        '3',
+                        'ondra',
+                        'VAN',
+                        'male',
+                    ],
+                    [
+                        '4',
+                        'miro',
+                        'BRA',
+                        'male',
+                    ],
+                    [
+                        '5',
+                        'hidden',
+                        '',
+                        'male',
+                    ],
+                ],
+            ],
             // 2nd test
-            array(
-                array(
+            [
+                [
                     'changedSince' => $yesterday->getTimestamp(),
-                ),
-                array(),
-            ),
+                ],
+                [],
+            ],
             // 3rd test
-            array(
-                array(),
-                array(),
-            ),
+            [
+                [],
+                [],
+            ],
             // 4th test
-            array(
-                array(
+            [
+                [
                     'whereOperator' => 'ne',
                     'whereColumn' => 'city',
-                    'whereValues' => array('PRG')
-                ),
-                array(
-                    array(
-                        "1",
-                        "martin",
-                        "PRG",
-                        "male"
-                    ),
-                    array(
-                        "2",
-                        "klara",
-                        "PRG",
-                        "female",
-                    ),
-                ),
-            ),
+                    'whereValues' => ['PRG'],
+                ],
+                [
+                    [
+                        '1',
+                        'martin',
+                        'PRG',
+                        'male',
+                    ],
+                    [
+                        '2',
+                        'klara',
+                        'PRG',
+                        'female',
+                    ],
+                ],
+            ],
             // 5th test
-            array(
-                array(
+            [
+                [
                     'whereOperator' => 'ne',
                     'whereColumn' => 'city',
-                    'whereValues' => array('PRG', 'BRA')
-                ),
-                array(
-                    array(
-                        "1",
-                        "martin",
-                        "PRG",
-                        "male"
-                    ),
-                    array(
-                        "2",
-                        "klara",
-                        "PRG",
-                        "female",
-                    ),
-                    array(
-                        "4",
-                        "miro",
-                        "BRA",
-                        "male",
-                    ),
-                ),
-            ),
+                    'whereValues' => ['PRG', 'BRA'],
+                ],
+                [
+                    [
+                        '1',
+                        'martin',
+                        'PRG',
+                        'male',
+                    ],
+                    [
+                        '2',
+                        'klara',
+                        'PRG',
+                        'female',
+                    ],
+                    [
+                        '4',
+                        'miro',
+                        'BRA',
+                        'male',
+                    ],
+                ],
+            ],
             // 6th test
-            array(
-                array(
+            [
+                [
                     'changedSince' => $tomorrow->getTimestamp(),
-                ),
-                array(
-                    array(
-                        "1",
-                        "martin",
-                        "PRG",
-                        "male"
-                    ),
-                    array(
-                        "2",
-                        "klara",
-                        "PRG",
-                        "female",
-                    ),
-                    array(
-                        "3",
-                        "ondra",
-                        "VAN",
-                        "male",
-                    ),
-                    array(
-                        "4",
-                        "miro",
-                        "BRA",
-                        "male",
-                    ),
-                    array(
-                        "5",
-                        "hidden",
-                        "",
-                        "male",
-                    ),
-                ),
-            ),
-        );
+                ],
+                [
+                    [
+                        '1',
+                        'martin',
+                        'PRG',
+                        'male',
+                    ],
+                    [
+                        '2',
+                        'klara',
+                        'PRG',
+                        'female',
+                    ],
+                    [
+                        '3',
+                        'ondra',
+                        'VAN',
+                        'male',
+                    ],
+                    [
+                        '4',
+                        'miro',
+                        'BRA',
+                        'male',
+                    ],
+                    [
+                        '5',
+                        'hidden',
+                        '',
+                        'male',
+                    ],
+                ],
+            ],
+        ];
     }
 }

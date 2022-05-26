@@ -32,7 +32,7 @@ abstract class BaseWorkSpacesTestCase extends WorkspacesTestCase
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-        $backend->createTable("mytable", $dataTypesDefinition);
+        $backend->createTable('mytable', $dataTypesDefinition);
     }
 
     /**
@@ -43,12 +43,12 @@ abstract class BaseWorkSpacesTestCase extends WorkspacesTestCase
      */
     public function testLoadUserError($workspaceBackend, $sourceBackend, $columnsDefinition): void
     {
-        if ($this->_client->bucketExists("in.c-mixed-test-" . $sourceBackend)) {
+        if ($this->_client->bucketExists('in.c-mixed-test-' . $sourceBackend)) {
             $this->_client->dropBucket("in.c-mixed-test-{$sourceBackend}", [
                 'force' => true,
             ]);
         }
-        $bucketId = $this->_client->createBucket("mixed-test-{$sourceBackend}", "in", "", $sourceBackend);
+        $bucketId = $this->_client->createBucket("mixed-test-{$sourceBackend}", 'in', '', $sourceBackend);
         $sourceTableId = $this->_client->createTable(
             $bucketId,
             'transactions',
@@ -62,11 +62,11 @@ abstract class BaseWorkSpacesTestCase extends WorkspacesTestCase
         ]);
 
         $options = [
-            "input" => [
+            'input' => [
                 [
-                    "source" => $sourceTableId,
-                    "destination" => "transactions",
-                    "columns" => $columnsDefinition,
+                    'source' => $sourceTableId,
+                    'destination' => 'transactions',
+                    'columns' => $columnsDefinition,
                 ],
             ],
         ];
@@ -75,7 +75,7 @@ abstract class BaseWorkSpacesTestCase extends WorkspacesTestCase
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
         } catch (ClientException $e) {
-            $this->assertEquals($e->getStringCode(), "workspace.tableLoad");
+            $this->assertEquals($e->getStringCode(), 'workspace.tableLoad');
         }
     }
 
@@ -86,12 +86,12 @@ abstract class BaseWorkSpacesTestCase extends WorkspacesTestCase
      */
     public function testLoadWorkspaceExtendedDataTypesNullify($workspaceBackend, $sourceBackend): void
     {
-        if ($this->_client->bucketExists("in.c-mixed-test-" . $sourceBackend)) {
+        if ($this->_client->bucketExists('in.c-mixed-test-' . $sourceBackend)) {
             $this->_client->dropBucket("in.c-mixed-test-{$sourceBackend}", [
                 'force' => true,
             ]);
         }
-        $bucketId = $this->_client->createBucket("mixed-test-{$sourceBackend}", "in", "", $sourceBackend);
+        $bucketId = $this->_client->createBucket("mixed-test-{$sourceBackend}", 'in', '', $sourceBackend);
         $sourceTableId = $this->_client->createTable(
             $bucketId,
             'transactions',
@@ -106,21 +106,21 @@ abstract class BaseWorkSpacesTestCase extends WorkspacesTestCase
 
         $dataType = $workspaceBackend === self::BACKEND_SNOWFLAKE ? 'NUMBER' : 'INTEGER';
         $options = [
-            "input" => [
+            'input' => [
                 [
-                    "source" => $sourceTableId,
-                    "destination" => "transactions",
-                    "columns" => [
+                    'source' => $sourceTableId,
+                    'destination' => 'transactions',
+                    'columns' => [
                         [
                             'source' => 'item',
                             'type' => 'VARCHAR',
-                            'convertEmptyValuesToNull' => true
+                            'convertEmptyValuesToNull' => true,
                         ],
                         [
                             'source' => 'quantity',
                             'type' => $dataType,
-                            'convertEmptyValuesToNull' => true
-                        ]
+                            'convertEmptyValuesToNull' => true,
+                        ],
                     ],
                 ],
             ],
@@ -128,7 +128,7 @@ abstract class BaseWorkSpacesTestCase extends WorkspacesTestCase
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
         $workspaceBackendConnection = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-        $data = $workspaceBackendConnection->fetchAll("transactions", \PDO::FETCH_ASSOC);
+        $data = $workspaceBackendConnection->fetchAll('transactions', \PDO::FETCH_ASSOC);
         $this->assertArrayHasKey('quantity', $data[0]);
         $this->assertArrayHasKey('item', $data[0]);
         $this->assertEquals(null, $data[0]['quantity']);

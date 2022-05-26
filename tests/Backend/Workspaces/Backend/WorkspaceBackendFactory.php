@@ -33,7 +33,7 @@ class WorkspaceBackendFactory
             case StorageApiTestCase::BACKEND_TERADATA:
                 return new TeradataWorkspaceBackend($workspace);
             default:
-                throw new Exception($workspace['connection']['backend'] . " workspaces are not supported.");
+                throw new Exception($workspace['connection']['backend'] . ' workspaces are not supported.');
         }
     }
 }

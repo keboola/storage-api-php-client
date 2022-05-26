@@ -20,7 +20,7 @@ class BranchAwareClient extends Client
         $this->branchId = $branchId;
     }
 
-    public function request($method, $url, $options = array(), $responseFileName = null, $handleAsyncTask = true)
+    public function request($method, $url, $options = [], $responseFileName = null, $handleAsyncTask = true)
     {
         if (strpos($url, 'jobs/') !== 0) {
             $url = 'branch/' . $this->branchId . '/' . $url;

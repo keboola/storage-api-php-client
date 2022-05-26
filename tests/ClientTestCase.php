@@ -84,7 +84,7 @@ class ClientTestCase extends TestCase
                 'User-agent' => $this->buildUserAgentString(
                     $client->getTokenString(),
                     $client->getApiUrl()
-                )
+                ),
             ],
         ]);
     }

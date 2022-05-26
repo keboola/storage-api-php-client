@@ -49,7 +49,7 @@ class CopyIntoWorkspaceTest extends WorkspacesTestCase
 
         $sourceProjectId = $client2->verifyToken()['owner']['id'];
         $linkedBucketId = $this->_client->linkBucket(
-            "linked-bucket",
+            'linked-bucket',
             'out',
             $sourceProjectId,
             $bucket
@@ -63,8 +63,8 @@ class CopyIntoWorkspaceTest extends WorkspacesTestCase
                     [
                         'source' => $tableId,
                         'destination' => 'Langs',
-                    ]
-                ]
+                    ],
+                ],
             ]
         );
 
@@ -81,7 +81,7 @@ class CopyIntoWorkspaceTest extends WorkspacesTestCase
                         [
                             'source' => $tableId,
                             'destination' => 'Langs',
-                        ]
+                        ],
                     ],
                     'preserve' => true,
                 ]
