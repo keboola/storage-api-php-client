@@ -164,7 +164,6 @@ Lists all tokens in the project.
                     "canManageTokens": false,
                     "canReadAllFileUploads": false,
                     "canPurgeTrash": false,
-                    "canUseDirectAccess": false,
                     "expires": null,
                     "isExpired": false,
                     "isDisabled": false,
@@ -192,7 +191,6 @@ Lists all tokens in the project.
                     "canManageTokens": false,
                     "canReadAllFileUploads": false,
                     "canPurgeTrash": false,
-                    "canUseDirectAccess": false,
                     "expires": null,
                     "isExpired": false,
                     "isDisabled": false,
@@ -237,7 +235,6 @@ Lists all tokens in the project - **same as for default branch**.
                     "canManageTokens": false,
                     "canReadAllFileUploads": false,
                     "canPurgeTrash": false,
-                    "canUseDirectAccess": false,
                     "expires": null,
                     "isExpired": false,
                     "isDisabled": false,
@@ -265,7 +262,6 @@ Lists all tokens in the project - **same as for default branch**.
                     "canManageTokens": false,
                     "canReadAllFileUploads": false,
                     "canPurgeTrash": false,
-                    "canUseDirectAccess": false,
                     "expires": null,
                     "isExpired": false,
                     "isDisabled": false,
@@ -328,7 +324,6 @@ In this case, you are allowed to set the `description` and token expiration via 
                 "canManageTokens": false,
                 "canReadAllFileUploads": false,
                 "canPurgeTrash": false,
-                "canUseDirectAccess": false,
                 "expires": null,
                 "isExpired": false,
                 "isDisabled": false,
@@ -375,7 +370,6 @@ the [Verify call](#reference/tokens-and-permissions/token/token-verification).
                 "isMasterToken": false,
                 "canReadAllFileUploads": false,
                 "canPurgeTrash": false,
-                "canUseDirectAccess": false,
                 "expires": null,
                 "isExpired": false,
                 "isDisabled": false,
@@ -417,7 +411,6 @@ the [Verify call](#reference/tokens-and-permissions/token/token-verification).
                 "isMasterToken": false,
                 "canReadAllFileUploads": false,
                 "canPurgeTrash": false,
-                "canUseDirectAccess": false,
                 "expires": null,
                 "isExpired": false,
                 "isDisabled": false,
@@ -472,7 +465,6 @@ bucket permissions, don't forget to specify the previous permissions.
                 "canManageTokens": false,
                 "canReadAllFileUploads": false,
                 "canPurgeTrash": false,
-                "canUseDirectAccess": false,
                 "expires": null,
                 "isExpired": false,
                 "isDisabled": false,
@@ -510,7 +502,6 @@ and the associated administrator (`admin`) with organization (if any). If the pr
                 "isMasterToken": false,
                 "canReadAllFileUploads": false,
                 "canPurgeTrash": false,
-                "canUseDirectAccess": false,
                 "expires": null,
                 "isExpired": false,
                 "isDisabled": false,
@@ -635,7 +626,6 @@ This call can be executed by all tokens.
                 "isMasterToken": false,
                 "canReadAllFileUploads": false,
                 "canPurgeTrash": false,
-                "canUseDirectAccess": false,
                 "expires": null,
                 "isExpired": false,
                 "isDisabled": false,
@@ -782,7 +772,6 @@ This method can be executed by all tokens.
                 "isMasterToken": false,
                 "canReadAllFileUploads": false,
                 "canPurgeTrash": false,
-                "canUseDirectAccess": false,
                 "expires": null,
                 "isExpired": false,
                 "isDisabled": false,
@@ -975,8 +964,6 @@ existing bucket from another project (see below).
                 "isMaintenance": false,
                 "backend": "snowflake",
                 "sharing": null,
-                "directAccessEnabled": false,
-                "directAccessSchemaName": null,
                 "attributes": []
             }
 
@@ -1152,8 +1139,6 @@ Synchronous call response (async=false)
                 "isMaintenance": false,
                 "backend": "snowflake",
                 "sharing": null,
-                "directAccessEnabled": false,
-                "directAccessSchemaName": null
             }
 + Response 202
 Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
@@ -1290,8 +1275,6 @@ Synchronous call response (async=false)
                 "isMaintenance": false,
                 "backend": "snowflake",
                 "sharing": "organization",
-                "directAccessEnabled": false,
-                "directAccessSchemaName": null
             }
 
 + Response 202
@@ -1367,8 +1350,6 @@ Synchronous call response (async=false)
                     "name": "dev@keboola.com",
                     "date": "2020-02-03T14:58:29+0100"
                 },
-                "directAccessEnabled": false,
-                "directAccessSchemaName": null
             }
 
 + Response 202
@@ -1443,8 +1424,6 @@ Synchronous call response (async=false)
                     "name": "dev@keboola.com",
                     "date": "2020-02-03T14:58:29+0100"
                 },
-                "directAccessEnabled": false,
-                "directAccessSchemaName": null
             }
 
 + Response 202
@@ -1541,8 +1520,6 @@ Synchronous call response (async=false)
                     "name": "dev@keboola.com",
                     "date": "2020-02-03T14:58:29+0100"
                 },
-                "directAccessEnabled": false,
-                "directAccessSchemaName": null
             }
 
 + Response 202
@@ -1645,8 +1622,6 @@ Synchronous call response (async=false)
                     "name": "dev@keboola.com",
                     "date": "2020-02-03T14:58:29+0100"
                 },
-                "directAccessEnabled": false,
-                "directAccessSchemaName": null
             }
 
 + Response 202
@@ -1731,8 +1706,6 @@ Synchronous call response (async=false)
                     "name": "dev@keboola.com",
                     "date": "2020-02-03T14:58:29+0100"
                 },
-                "directAccessEnabled": false,
-                "directAccessSchemaName": null
             }
 
 + Response 202
@@ -2836,8 +2809,6 @@ Obtains information about a table.
                     "isMaintenance": false,
                     "backend": "snowflake",
                     "sharing": null,
-                    "directAccessEnabled": false,
-                    "directAccessSchemaName": null,
                     "metadata": []
                 }
             }
@@ -2928,8 +2899,6 @@ Synchronous call response (async=false)
                     "isMaintenance": false,
                     "backend": "snowflake",
                     "sharing": null,
-                    "directAccessEnabled": false,
-                    "directAccessSchemaName": null,
                     "metadata": []
                 }
             }
@@ -3094,8 +3063,6 @@ attributes and information about the containing bucket.
                         "isMaintenance": false,
                         "backend": "snowflake",
                         "sharing": null,
-                        "directAccessEnabled": false,
-                        "directAccessSchemaName": null
                     },
                     "columnMetadata": {
                         "number_of_items": [
@@ -3171,8 +3138,6 @@ attributes and information about the containing bucket.
                         "isMaintenance": false,
                         "backend": "snowflake",
                         "sharing": null,
-                        "directAccessEnabled": false,
-                        "directAccessSchemaName": null
                     },
                     "columnMetadata": []
                 }
@@ -3500,8 +3465,6 @@ When turning `aliasColumnsAutoSync` back on, the columns will be immediately syn
                     "isMaintenance": false,
                     "backend": "snowflake",
                     "sharing": null,
-                    "directAccessEnabled": false,
-                    "directAccessSchemaName": null
                 }
             }
 
@@ -7998,8 +7961,6 @@ attributes and information about the containing bucket. At least one of paramete
                         "isMaintenance": false,
                         "backend": "snowflake",
                         "sharing": null,
-                        "directAccessEnabled": false
-                        "directAccessSchemaName": null
                     },
                     "columnMetadata": {
                         "number_of_items": [
@@ -8068,8 +8029,6 @@ attributes and information about the containing bucket. At least one of paramete
                         "isMaintenance": false,
                         "backend": "snowflake",
                         "sharing": null,
-                        "directAccessEnabled": false,
-                        "directAccessSchemaName": null
                     },
                     "columnMetadata": []
                 }
@@ -8349,141 +8308,6 @@ and [buckets](https://keboola.docs.apiary.io/#reference/buckets/manage-bucket/bu
         {
             "displayName": "My-Display-Name"
         }
-
-# Group Direct Access
-**Direct Access** allows you to connect directly to the your project backend(for now only snowflake is supported).
-Then you are allowed to works with your tables(call query, create new tables etc.) in buckets which has turned on **Direct Access**.
-These tables are automatically updated when something change in source buckets(tables) in Keboola Connection.
-Each user in project can have its own credentials for **Direct Access**. The credentials are valid per project,
-if you want **Direct Access** to the another project, you have to create it by `StorageApi-Token`(Only admin token is allowed) for project where
-you want to have **Direct Access**.
-
-## Create or List Direct Access Credentials [/v2/storage/direct-access/{backend}]
-
-+ Parameters
-    + backend (required, enum[string]) - type of backend
-        + Members
-            + snowflake
-
-###Create Credentials [POST]
-Creates and new credentials(for all supported backends) in your project to **Direct Access** connect for buckets.
-
-+ Request
-
-    + Headers
-
-            X-StorageApi-Token: your_token
-
-+ Response 201 (application/json)
-
-        {
-            "snowflake": {
-                "host": "keboola.snowflake.com"
-                "username": "KEBOOLA_DA_1_1",
-                "password": "q.s3JQLTUC8i2v_BQQC3jLChqmz9L2ic",
-                "warehouse": "DEV"
-            }
-        }
-
-###Credentials Detail [GET]
-Returns host and username for backends in project where you have already created credentials.
-
-+ Request
-
-    + Headers
-
-            X-StorageApi-Token: your_token
-
-+ Response 200 (application/json)
-
-        {
-            "host": "keboola.snowflake.com",
-            "username": "KEBOOLA_DA_1_1",
-            "warehouse": "DEV"
-        }
-
-###Remove Credentials [DELETE]
-Deletes your credentials for selected backends in your project.
-From now on you won't be able to sign in to the **Direct Access** for specific project.
-
-+ Request
-
-    + Headers
-
-            X-StorageApi-Token: your_token
-
-+ Response 204
-
-## Enable or Disable Direct Access For Bucket [/v2/storage/buckets/{bucket_id}/direct-access]
-
-+ Parameters
-    + bucket_id (required) - Bucket Id
-
-###Enable Direct Access [POST]
-**Enable Direct Access** for the **specific bucket** in your **project**. Then you will be able to work with bucket in the your project direct access.
-+ Response 202
-
-    + Body
-
-            {
-                "id": 11,
-                "status": "waiting",
-                "url": "https://connection.keboola.com/v2/storage/jobs/11",
-                "operationName": "directAccessEnable",
-                "operationParams": {
-                        "queue": "main"
-                },
-                "createdTime": "2013-05-31T16:11:05+0200",
-                "startTime": null,
-                "endTime": null,
-                "runId": null,
-                "results": null,
-                "creatorToken": {
-                    "id": "27978",
-                    "description": "ondrej.popelka@keboola.com"
-                },
-                "metrics": {
-                    "inCompressed": false,
-                    "inBytes": 0,
-                    "inBytesUncompressed": 0,
-                    "outCompressed": false,
-                    "outBytes": 0,
-                    "outBytesUncompressed": 0
-                }
-            }
-
-###Disable Direct Access [DELETE]
-**Disable Direct Access** for the **specific bucket** in your **project**. Then you won't be able to work with bucket in the your project direct access.
-+ Response 202
-
-    + Body
-
-            {
-                "id": 11,
-                "status": "waiting",
-                "url": "https://connection.keboola.com/v2/storage/jobs/11",
-                "operationName": "directAccessDisable",
-                "operationParams": {
-                        "queue": "main"
-                },
-                "createdTime": "2013-05-31T16:11:05+0200",
-                "startTime": null,
-                "endTime": null,
-                "runId": null,
-                "results": null,
-                "creatorToken": {
-                    "id": "27978",
-                    "description": "ondrej.popelka@keboola.com"
-                },
-                "metrics": {
-                    "inCompressed": false,
-                    "inBytes": 0,
-                    "inBytesUncompressed": 0,
-                    "outCompressed": false,
-                    "outBytes": 0,
-                    "outBytesUncompressed": 0
-                }
-            }
 
 # Group Development Branches
 
