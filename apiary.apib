@@ -5633,8 +5633,10 @@ defined by the component.
 All components and configurations endpoints can be used with `default` for `branch_id` parameter and emulate call endpoint without development branch.
 It means that endpoint `GET /v2/storage/components` is the same as `GET /v2/storage/branch/default/components`.
 
-### Get component [GET /v2/storage/components/{componentId}]
+## Get component [/v2/storage/components/{componentId}]
+### Get component (deprecated) [GET]
 
+***Deprecated**, use method listed above.*
 Use this API call to obtain the definition of component available in KBC.
 
 + Parameters
@@ -5710,7 +5712,7 @@ Use this API call to obtain the definition of component available in KBC.
                 "uri": "https://syrup.keboola.com/docker/keboola.app-tree",
             }
 
-### Get development branch component [GET /v2/storage/branch/{branch_id}/components/{componentId}]
+### Get component [GET /v2/storage/branch/{branch_id}/components/{componentId}]
 
 Use this API call to obtain the definition of component for [Development Branch](#reference/development-branches) available in KBC.
 
@@ -5788,8 +5790,10 @@ Use this API call to obtain the definition of component for [Development Branch]
                 "uri": "https://syrup.keboola.com/docker/keboola.app-tree",
             }
 
-### Get components [GET /v2/storage/components?include={include}&componentType={componentType}&isDeleted={isDeleted}]
+## Get components [/v2/storage/components]
+### Get components (deprecated) [GET /v2/storage/components?include={include}&componentType={componentType}&isDeleted={isDeleted}]
 
+***Deprecated**, use method listed above.*
 Use this API call to obtain the definitions of all components available in KBC. For more information about the
 KBC Component architecture, see the [Developers documentation](https://developers.keboola.com/overview/)
 
@@ -5894,7 +5898,7 @@ KBC Component architecture, see the [Developers documentation](https://developer
                 }
             ]
 
-### Get development branch components [GET /v2/storage/branch/{branch_id}/components?include={include}&componentType={componentType}&isDeleted={isDeleted}]
+### Get components [GET /v2/storage/branch/{branch_id}/components?include={include}&componentType={componentType}&isDeleted={isDeleted}]
 Use this API call to obtain the definitions of all components in [Development Branch](#reference/development-branches). For more information about the
 KBC Component architecture, see the [Developers documentation](https://developers.keboola.com/overview/)
 
@@ -6001,7 +6005,9 @@ KBC Component architecture, see the [Developers documentation](https://developer
             ]
 
 ## Component Configurations [/v2/storage/components/{component_id}/configs]
-### List configurations [GET /v2/storage/components/{component_id}/configs?isDeleted={isDeleted}]
+### List configurations (deprecated) [GET /v2/storage/components/{component_id}/configs?isDeleted={isDeleted}]
+
+***Deprecated**, use method listed above.*
 Lists all configurations for a component including all config rows.
 
 + Parameters
@@ -6062,7 +6068,7 @@ Lists all configurations for a component including all config rows.
                 }
             ]
 
-### List development branch configurations [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs?isDeleted={isDeleted}]
+### List configurations [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs?isDeleted={isDeleted}]
 Lists all configurations for a component including all config rows in [Development Branch](#reference/development-branches).
 
 + Parameters
@@ -6124,7 +6130,9 @@ Lists all configurations for a component including all config rows in [Developme
                 }
             ]
 
-### Create Configuration [POST]
+### Create Configuration (deprecated) [POST]
+
+***Deprecated**, use method listed above.*
 Creates a new component configuration.
 
 + Parameters
@@ -6177,7 +6185,7 @@ Creates a new component configuration.
                 }
             }
 
-### Create Development Branch Configuration [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs]
+### Create Configuration [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs]
 Creates a new component configuration for [Development Branch](#reference/development-branches).
 
 + Parameters
@@ -6234,7 +6242,9 @@ Creates a new component configuration for [Development Branch](#reference/develo
             }
 
 ## Manage Configurations [/v2/storage/components/{component_id}/configs/{config_id}]
-### Configuration Detail [GET]
+### Configuration Detail (deprecated) [GET]
+
+***Deprecated**, use method listed above.*
 Gets the component configuration detail.
 
 + Parameters
@@ -6277,7 +6287,7 @@ Gets the component configuration detail.
                 }
             }
 
-### Development Branch Configuration Detail [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}]
+### Configuration Detail [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}]
 Gets the component configuration detail for [Development Branch](#reference/development-branches).
 
 + Parameters
@@ -6321,7 +6331,9 @@ Gets the component configuration detail for [Development Branch](#reference/deve
                 }
             }
 
-### Update Configuration [PUT]
+### Update Configuration (deprecated) [PUT]
+
+***Deprecated**, use method listed above.*
 Updates an existing configuration. When the configuration is updated, a new version is automatically created and
 marked as `currentVersion`.
 
@@ -6380,7 +6392,7 @@ marked as `currentVersion`.
                 }
             }
 
-### Update Development Branch Configuration [PUT /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}]
+### Update Configuration [PUT /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}]
 Updates an existing configuration for [Development Branch](#reference/development-branches). When the configuration is updated in a development branch, it does not affect `currentVersion` of the configuration.
 
 + Parameters
@@ -6440,7 +6452,9 @@ Updates an existing configuration for [Development Branch](#reference/developmen
                 }
             }
 
-### Update Configuration State [PUT /v2/storage/components/{component_id}/configs/{config_id}/state]
+### Update Configuration State (deprecated) [PUT /v2/storage/components/{component_id}/configs/{config_id}/state]
+
+***Deprecated**, use method listed above.*
 Updates state of an existing configuration.
 
 + Parameters
@@ -6495,7 +6509,7 @@ Updates state of an existing configuration.
                 }
             }
 
-### Update Development Branch Configuration State [PUT /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/state]
+### Update Configuration State [PUT /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/state]
 Updates state of an existing configuration for [Development Branch](#reference/development-branches).
 
 + Parameters
@@ -6566,7 +6580,9 @@ Updates an existing configuration for [Development Branch](#reference/developmen
 
 + Response 204 (application/json)
 
-### Delete Configuration [DELETE]
+### Delete Configuration (deprecated) [DELETE]
+
+***Deprecated**, use method listed above.*
 Deletes a configuration. When a configuration is deleted, it is only marked as deleted and remains still available in the system.
 You can [list deleted](#reference/components-and-configurations/component-configurations/list-configurations) configurations, or
 [restore deleted](#reference/components-and-configurations/configuration-restore/restore-deleted-configuration) configurations.
@@ -6586,7 +6602,7 @@ you have to delete it twice (call twice this API resource). The `canPurgeTrash` 
 
 + Response 204
 
-### Delete Development Branch Configuration [DELETE /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}]
+### Delete Configuration [DELETE /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}]
 Deletes a development branch configuration. When a configuration is deleted, it is only marked as deleted and remains still available in the system.
 You can [list deleted](#reference/components-and-configurations/component-configurations/list-development-branch-configurations) configurations.
 Other operations with deleted configurations are restricted.
@@ -6607,7 +6623,9 @@ Calling this API call on a deleted configuration will return error. Development 
 
 
 ## Configuration Restore [/v2/storage/components/{component_id}/configs/{config_id}/restore]
-### Restore Deleted Configuration [POST]
+### Restore Deleted Configuration (deprecated) [POST]
+
+***Deprecated**, use method listed above.*
 Removes the `isDeleted` flag of a deleted configuration. This makes a new version of the configuration
 and the configuration becomes available for other API calls.
 
@@ -6644,7 +6662,7 @@ and the configuration becomes available for other API calls.
                 }
             }
 
-### Restore Deleted Configuration for Development Branch [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/restore]
+### Restore Deleted Configuration [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/restore]
 Removes the `isDeleted` flag of a deleted configuration for [Development Branch](#reference/development-branches). This makes a new version of the configuration
 and the configuration becomes available for other API calls.
 
@@ -6684,7 +6702,9 @@ and the configuration becomes available for other API calls.
 
 
 ## List Configuration Versions [/v2/storage/components/{component_id}/configs/{config_id}/versions]
-### Versions list [GET /v2/storage/components/{component_id}/configs/{config_id}/versions?include={include}&limit={limit}&offset={offset}]
+### Versions list (deprecated) [GET /v2/storage/components/{component_id}/configs/{config_id}/versions?include={include}&limit={limit}&offset={offset}]
+
+***Deprecated**, use method listed above.*
 Lists all versions of a component configuration.
 
 + Parameters
@@ -6730,7 +6750,7 @@ Lists all versions of a component configuration.
                 }
             ]
 
-### Versions list for Development Branch [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/versions?include={include}&limit={limit}&offset={offset}]
+### Versions list [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/versions?include={include}&limit={limit}&offset={offset}]
 
 Lists all versions of a component configuration for [Development Branch](#reference/development-branches).
 
@@ -6779,7 +6799,9 @@ Lists all versions of a component configuration for [Development Branch](#refere
             ]
 
 ## Manage Configuration Versions [/v2/storage/components/{component_id}/configs/{config_id}/versions/{version_id}]
-### Version Detail [GET]
+### Version Detail (deprecated) [GET]
+
+***Deprecated**, use method listed above.*
 Gets configuration version.
 
 + Parameters
@@ -6811,7 +6833,7 @@ Gets configuration version.
                 "rows": []
             }
 
-### Version Detail for Development Branch [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/versions/{version_id}]
+### Version Detail [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/versions/{version_id}]
 
 Gets configuration version for [Development Branch](#reference/development-branches).
 
@@ -6846,7 +6868,9 @@ Gets configuration version for [Development Branch](#reference/development-branc
             }
 
 ## Rollback Configuration Version [/v2/storage/components/{component_id}/configs/{config_id}/versions/{version_id}/rollback]
-### Rollback Version [POST]
+### Rollback Version (deprecated) [POST]
+
+***Deprecated**, use method listed above.*
 Rollbacking a configuration version actually creates a new configuration version identical to the
 one you specified. `state` attributes of the config and rows is preserved, if any row is recreated, it will have the last existing state.
 
@@ -6873,7 +6897,7 @@ one you specified. `state` attributes of the config and rows is preserved, if an
             "version": 3
         }
 
-### Rollback Version for Development Branch [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/versions/{version_id}/rollback]
+### Rollback Version [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/versions/{version_id}/rollback]
 Rollbacking a configuration version actually creates a new configuration version identical to the
 one you specified. `state` attributes of the config and rows is preserved, if any row is recreated, it will have the last existing state.
 
@@ -6902,7 +6926,9 @@ one you specified. `state` attributes of the config and rows is preserved, if an
         }
 
 ## Copy Configurations [/v2/storage/components/{component_id}/configs/{config_id}/versions/{version_id}/create]
-### Create Configuration Copy [POST]
+### Create Configuration Copy (deprecated) [POST]
+
+***Deprecated**, use method listed above.*
 Creates a new configuration from the specified configuration version.
 
 + Parameters
@@ -6930,7 +6956,7 @@ Creates a new configuration from the specified configuration version.
             "id": 4
         }
 
-### Create Development Branch Configuration Copy [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/versions/{version_id}/create]
+### Create Configuration Copy [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/versions/{version_id}/create]
 Creates a new configuration from the specified configuration version in [Development Branch](#reference/development-branches).
 
 + Parameters
@@ -6961,7 +6987,9 @@ Creates a new configuration from the specified configuration version in [Develop
 
 
 ## Create or List Configuration Rows [/v2/storage/components/{component_id}/configs/{config_id}/rows]
-### Create Configuration Row [POST]
+### Create Configuration Row (deprecated) [POST]
+
+***Deprecated**, use method listed above.*
 Creates a new row (item) of an existing configuration.
 
 + Parameters
@@ -7007,7 +7035,7 @@ Creates a new row (item) of an existing configuration.
                 "changeDescription": "Added new row"
             }
 
-### Create Development Branch Configuration Row [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows]
+### Create Configuration Row [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows]
 Creates a new row (item) of an existing configuration in [Development Branch](#reference/development-branches).
 
 + Parameters
@@ -7054,7 +7082,9 @@ Creates a new row (item) of an existing configuration in [Development Branch](#r
                 "changeDescription": "Added new row"
             }
 
-### Row List [GET]
+### Configuration Row List (deprecated) [GET]
+
+***Deprecated**, use method listed above.*
 Gets configuration rows.
 
 + Request
@@ -7101,7 +7131,7 @@ Gets configuration rows.
                 }
             ]
 
-### Row List For Development Branch [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows]
+### Configuration Row List [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows]
 Gets configuration rows for [Development Branch](#reference/development-branches).
 
 + Parameters
@@ -7154,7 +7184,9 @@ Gets configuration rows for [Development Branch](#reference/development-branches
             ]
 
 ## Manage Configuration Rows [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}]
-### Row detail [GET]
+### Configuration Row detail (deprecated) [GET]
+
+***Deprecated**, use method listed above.*
 Gets configuration rows.
 
 + Parameters
@@ -7186,7 +7218,7 @@ Gets configuration rows.
                 "changeDescription": "Row 236781529 added"
             }
 
-### Row detail for Development Branch [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}]
+### Configuration Row detail [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}]
 Gets configuration rows for [Development Branch](#reference/development-branches).
 
 + Parameters
@@ -7219,7 +7251,9 @@ Gets configuration rows for [Development Branch](#reference/development-branches
                 "changeDescription": "Row 236781529 added"
             }
 
-### Update Row [PUT]
+### Update Configuration Row (deprecated) [PUT]
+
+***Deprecated**, use method listed above.*
 Modifies the content of a single row in a configuration. Note that configuration rows are versioned
 independently on the configurations.
 
@@ -7267,7 +7301,7 @@ independently on the configurations.
                 "changeDescription": "change description"
             }
 
-### Update Row For Development Branch [PUT /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}]
+### Update Configuration Row [PUT /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}]
 Modifies the content of a single row in [Development Branch](#reference/development-branches). Note that configuration rows are versioned
 independently on the configurations.
 
@@ -7314,7 +7348,9 @@ independently on the configurations.
                 "changeDescription": "change description"
             }
 
-### Update Row State [PUT /v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/state]
+### Update Configuration Row State (deprecated) [PUT /v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/state]
+
+***Deprecated**, use method listed above.*
 Updates state of an existing row.
 
 + Parameters
@@ -7357,7 +7393,7 @@ Updates state of an existing row.
                 "changeDescription": "change description"
             }
 
-### Update Row State For Development Branch [PUT /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}/state]
+### Update Configuration Row State [PUT /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}/state]
 Updates state of an existing configuration for [Development Branch](#reference/development-branches).
 
 + Parameters
@@ -7402,7 +7438,9 @@ Updates state of an existing configuration for [Development Branch](#reference/d
             }
 
 
-### Delete Row [DELETE]
+### Delete Configuration Row (deprecated) [DELETE]
+
+***Deprecated**, use method listed above.*
 Deletes a configuration row. A configuration row is deleted permanently and cannot be restored.
 
 + Parameters
@@ -7424,7 +7462,7 @@ Deletes a configuration row. A configuration row is deleted permanently and cann
 
 + Response 204
 
-### Delete Row for Development Branch [DELETE /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}]
+### Delete Configuration Row [DELETE /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}]
 Deletes a configuration row for [Development Branch](#reference/development-branches).
 A configuration row is deleted permanently and cannot be restored.
 
@@ -7449,7 +7487,9 @@ A configuration row is deleted permanently and cannot be restored.
 + Response 204
 
 ## List Configuration Row Versions [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/versions]
-### Versions list [GET /v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/versions?include={include}&limit={limit}&offset={offset}]
+### Versions list (deprecated) [GET /v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/versions?include={include}&limit={limit}&offset={offset}]
+
+***Deprecated**, use method listed above.*
 List versions of a given configuration Row of a given Configuration.
 
 + Parameters
@@ -7502,7 +7542,7 @@ List versions of a given configuration Row of a given Configuration.
                 }
             ]
 
-### Versions list for Development Branch [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}/versions?include={include}&limit={limit}&offset={offset}]
+### Versions list [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}/versions?include={include}&limit={limit}&offset={offset}]
 List versions of a given configuration Row of a given Configuration for [Development Branch](#reference/development-branches)
 
 + Parameters
@@ -7557,7 +7597,9 @@ List versions of a given configuration Row of a given Configuration for [Develop
             ]
 
 ## Manage Configuration Row Versions [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/versions/{version_id}]
-### Version detail [GET]
+### Version detail (deprecated) [GET]
+
+***Deprecated**, use method listed above.*
 Gets details about the Configuration Row version.
 
 + Parameters
@@ -7588,7 +7630,7 @@ Gets details about the Configuration Row version.
                 "configuration": {}
             }
 
-### Version detail for Development Branch [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}/versions/{version_id}]
+### Version detail [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}/versions/{version_id}]
 Gets details about the Configuration Row version.
 
 + Parameters
@@ -7621,7 +7663,9 @@ Gets details about the Configuration Row version.
             }
 
 ## Rollback Configuration Row Version [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/versions/{version_id}/rollback]
-### Rollback Version [POST]
+### Rollback Version (deprecated) [POST]
+
+***Deprecated**, use method listed above.*
 Rollbacks row to a previous version. This operation actually creates a new Row version with identical
 content to be rollbacked to.
 
@@ -7664,7 +7708,7 @@ content to be rollbacked to.
                 "changeDescription": "Rollback to previous version"
             }
 
-### Rollback Version for Development Branch [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}/versions/{version_id}/rollback]
+### Rollback Version [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}/versions/{version_id}/rollback]
 Rollbacks row to a previous version. This operation actually creates a new Row version with identical
 content to be rollbacked to.
 
@@ -7709,7 +7753,9 @@ content to be rollbacked to.
             }
 
 ## Copy Configuration Rows [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/versions/{version_id}/create]
-### Create Configuration Row copy [POST]
+### Create Configuration Row copy (deprecated) [POST]
+
+***Deprecated**, use method listed above.*
 Creates a new configuration row from an existing row version.
 
 + Parameters
@@ -7751,7 +7797,7 @@ Creates a new configuration row from an existing row version.
                 "changeDescription": "Copy to another row"
             }
 
-### Create Configuration Row copy for Development Branch [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}/versions/{version_id}/create]
+### Create Configuration Row copy [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}/versions/{version_id}/create]
 Creates a new configuration row from an existing row version in [Development Branch](#reference/development-branches).
 
 + Parameters
@@ -7796,7 +7842,9 @@ Creates a new configuration row from an existing row version in [Development Bra
 
 ## Create or List Configuration Workspaces [/v2/storage/components/{component_id}/configs/{config_id}/workspaces]
 
-### Create Configuration Workspaces [POST]
+### Create Configuration Workspaces (deprecated) [POST]
+
+***Deprecated**, use method listed above.*
 Creates a new workspace for an existing configuration.
 
 + Parameters
@@ -7828,7 +7876,7 @@ Creates a new workspace for an existing configuration.
    + Attributes (WorkspaceCreated)
 
 
-### Create Development Branch Configuration Workspaces [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/workspaces]
+### Create Configuration Workspaces [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/workspaces]
 Creates a new workspace for an existing configuration in [Development Branch](#reference/development-branches).
 
 + Parameters
@@ -7861,7 +7909,9 @@ Creates a new workspace for an existing configuration in [Development Branch](#r
    + Attributes (WorkspaceCreated)
 
 
-### Workspace List [GET]
+### Workspace List (deprecated) [GET]
+
+***Deprecated**, use method listed above.*
 Returns all workspaces for the component configuration.
 
 + Parameters
@@ -7877,7 +7927,7 @@ Returns all workspaces for the component configuration.
 
    + Attributes (array[Workspace])
 
-### Development Branch Workspace List [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/workspaces]
+### Workspace List [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/workspaces]
 Returns all workspaces for the component configuration in [Development Branch](#reference/development-branches).
 
 + Parameters
