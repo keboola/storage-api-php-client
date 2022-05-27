@@ -30,7 +30,7 @@ class DevBranchesMetadata
     public function addBranchMetadata(array $metadata)
     {
         /** @var array $response */
-        $response = $this->client->apiPost('metadata', [
+        $response = $this->client->apiPostJson('metadata', [
             'metadata' => $metadata,
         ]);
         return $response;
