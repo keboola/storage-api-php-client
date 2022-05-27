@@ -201,16 +201,6 @@ parameters:
 			path: src/Keboola/StorageApi/Client.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:apiPostJson\\(\\) has parameter \\$data with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:apiPostJson\\(\\) has parameter \\$url with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:apiPostMultipart\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
