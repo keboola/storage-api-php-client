@@ -1806,66 +1806,6 @@ parameters:
 			path: src/Keboola/StorageApi/DevBranches.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\DirectAccess\\:\\:createCredentials\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/DirectAccess.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\DirectAccess\\:\\:createCredentials\\(\\) has parameter \\$backend with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/DirectAccess.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\DirectAccess\\:\\:deleteCredentials\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/DirectAccess.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\DirectAccess\\:\\:deleteCredentials\\(\\) has parameter \\$backend with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/DirectAccess.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\DirectAccess\\:\\:disableForBucket\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/DirectAccess.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\DirectAccess\\:\\:disableForBucket\\(\\) has parameter \\$bucketId with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/DirectAccess.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\DirectAccess\\:\\:enableForBucket\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/DirectAccess.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\DirectAccess\\:\\:enableForBucket\\(\\) has parameter \\$bucketId with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/DirectAccess.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\DirectAccess\\:\\:getCredentials\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/DirectAccess.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\DirectAccess\\:\\:getCredentials\\(\\) has parameter \\$backend with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/DirectAccess.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\DirectAccess\\:\\:resetPassword\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/DirectAccess.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\DirectAccess\\:\\:resetPassword\\(\\) has parameter \\$backend with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/DirectAccess.php
-
-		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Event\\:\\:getComponent\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Event.php
@@ -4844,11 +4784,6 @@ parameters:
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Snowflake\\\\CloneIntoWorkspaceTest\\:\\:createTableAliasChain\\(\\) has parameter \\$sourceTableId with no type specified\\.$#"
 			count: 1
 			path: tests/Backend/Snowflake/CloneIntoWorkspaceTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Snowflake\\\\DirectAccessTest\\:\\:prepareDirectAccess\\(\\) has parameter \\$bucketId with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/Snowflake/DirectAccessTest.php
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Snowflake\\\\FulltextSearchTest\\:\\:prepareTable\\(\\) has no return type specified\\.$#"
