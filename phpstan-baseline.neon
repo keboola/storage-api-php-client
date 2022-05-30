@@ -7171,11 +7171,6 @@ parameters:
 			path: tests/StorageApiTestCase.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\StorageApiTestCase\\:\\:getTestBucketId\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/StorageApiTestCase.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\StorageApiTestCase\\:\\:getTestBucketId\\(\\) has parameter \\$stage with no type specified\\.$#"
 			count: 1
 			path: tests/StorageApiTestCase.php

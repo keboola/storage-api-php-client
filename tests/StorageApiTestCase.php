@@ -414,7 +414,7 @@ abstract class StorageApiTestCase extends ClientTestCase
         ];
     }
 
-    protected function getTestBucketId($stage = self::STAGE_IN)
+    protected function getTestBucketId($stage = self::STAGE_IN): string
     {
         return $this->_bucketIds[$stage];
     }
