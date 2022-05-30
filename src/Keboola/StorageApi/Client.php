@@ -756,9 +756,9 @@ class Client
     }
 
     /**
-     * @param $bucketId destination bucket
-     * @param $snapshotId source snapshot
-     * @param null $name table name (optional) otherwise fetched from snapshot
+     * @param string $bucketId destination bucket
+     * @param string|int $snapshotId source snapshot
+     * @param string|null $name table name (optional) otherwise fetched from snapshot
      * @return string - created table id
      */
     public function createTableFromSnapshot($bucketId, $snapshotId, $name = null)
