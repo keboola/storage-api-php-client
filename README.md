@@ -182,3 +182,7 @@ _Note: see [this link](https://www.jetbrains.com/help/phpstorm/configuring-remot
 
 ## Release History
 See the [CHANGELOG](CHANGELOG.md).
+
+## License
+
+MIT licensed, see [LICENSE](./LICENSE) file.
