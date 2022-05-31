@@ -5714,7 +5714,6 @@ Use this API call to obtain the definition of component for [Development Branch]
 
 ### Get component (deprecated) [GET]
 
-***Deprecated**, use method listed above.*
 Use this API call to obtain the definition of component available in KBC.
 
 + Parameters
@@ -5789,6 +5788,7 @@ Use this API call to obtain the definition of component available in KBC.
                 "configurationDescription": "The tree data must be stored in a child-parent relationship. A column named **levels** will be added to the table (root nodes will have number 1). Additionally, a column named **root** will be added, containing the ID of the root item.\n\nSample input \n-------------------\n\ncategoryId | categoryParentId\t| title\n--- | --- | --- \n1 |\t0 | foo\n2 | 1 | bar\n3 | 1 | baz\n4 | 2 | buzz\n\n\nSample output\n-------------------\n\ncategoryId | categoryParentId | title | levels | root\n--- | --- | --- | --- | --- |\n1 |\t0 | foo | 1 | 1 |\n2 | 1 | bar | 2 | 1 |\n3 | 1 | baz | 2 | 1 |\n4 | 2 | buzz | 3 | 1 |",
                 "uri": "https://syrup.keboola.com/docker/keboola.app-tree",
             }
+***Deprecated**, use the branch endpoint and set `branch/default`.*
 
 ## Get components [/v2/storage/components]
 ### Get components [GET /v2/storage/branch/{branch_id}/components?include={include}&componentType={componentType}&isDeleted={isDeleted}]
@@ -5899,7 +5899,6 @@ KBC Component architecture, see the [Developers documentation](https://developer
 
 ### Get components (deprecated) [GET /v2/storage/components?include={include}&componentType={componentType}&isDeleted={isDeleted}]
 
-***Deprecated**, use method listed above.*
 Use this API call to obtain the definitions of all components available in KBC. For more information about the
 KBC Component architecture, see the [Developers documentation](https://developers.keboola.com/overview/)
 
@@ -6003,6 +6002,7 @@ KBC Component architecture, see the [Developers documentation](https://developer
                     ]
                 }
             ]
+***Deprecated**, use the branch endpoint and set `branch/default`.*
 
 ## Component Configurations [/v2/storage/components/{component_id}/configs]
 ### List configurations [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs?isDeleted={isDeleted}]
@@ -6125,7 +6125,6 @@ Creates a new component configuration for [Development Branch](#reference/develo
 
 ### List configurations (deprecated) [GET /v2/storage/components/{component_id}/configs?isDeleted={isDeleted}]
 
-***Deprecated**, use method listed above.*
 Lists all configurations for a component including all config rows.
 
 + Parameters
@@ -6185,10 +6184,10 @@ Lists all configurations for a component including all config rows.
                     "state": {}
                 }
             ]
+***Deprecated**, use the branch endpoint and set `branch/default`.*
 
 ### Create Configuration (deprecated) [POST]
 
-***Deprecated**, use method listed above.*
 Creates a new component configuration.
 
 + Parameters
@@ -6240,6 +6239,7 @@ Creates a new component configuration.
                     "changeDescription": "Initial configuration"
                 }
             }
+***Deprecated**, use the branch endpoint and set `branch/default`.*
 
 ## Manage Configurations [/v2/storage/components/{component_id}/configs/{config_id}]
 ### Configuration Detail [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}]
@@ -6438,7 +6438,7 @@ Calling this API call on a deleted configuration will return error. Development 
 
 ### Configuration Detail (deprecated) [GET]
 
-***Deprecated**, use method listed above.*
+***Deprecated**, use the branch endpoint and set `branch/default`.*
 Gets the component configuration detail.
 
 + Parameters
@@ -6483,7 +6483,7 @@ Gets the component configuration detail.
 
 ### Update Configuration (deprecated) [PUT]
 
-***Deprecated**, use method listed above.*
+***Deprecated**, use the branch endpoint and set `branch/default`.*
 Updates an existing configuration. When the configuration is updated, a new version is automatically created and
 marked as `currentVersion`.
 
@@ -6544,7 +6544,7 @@ marked as `currentVersion`.
 
 ### Update Configuration State (deprecated) [PUT /v2/storage/components/{component_id}/configs/{config_id}/state]
 
-***Deprecated**, use method listed above.*
+***Deprecated**, use the branch endpoint and set `branch/default`.*
 Updates state of an existing configuration.
 
 + Parameters
@@ -6601,7 +6601,7 @@ Updates state of an existing configuration.
 
 ### Delete Configuration (deprecated) [DELETE]
 
-***Deprecated**, use method listed above.*
+***Deprecated**, use the branch endpoint and set `branch/default`.*
 Deletes a configuration. When a configuration is deleted, it is only marked as deleted and remains still available in the system.
 You can [list deleted](#reference/components-and-configurations/component-configurations/list-configurations) configurations, or
 [restore deleted](#reference/components-and-configurations/configuration-restore/restore-deleted-configuration) configurations.
@@ -6662,7 +6662,7 @@ and the configuration becomes available for other API calls.
 
 ### Restore Deleted Configuration (deprecated) [POST]
 
-***Deprecated**, use method listed above.*
+***Deprecated**, use the branch endpoint and set `branch/default`.*
 Removes the `isDeleted` flag of a deleted configuration. This makes a new version of the configuration
 and the configuration becomes available for other API calls.
 
@@ -6750,7 +6750,7 @@ Lists all versions of a component configuration for [Development Branch](#refere
 
 ### Versions list (deprecated) [GET /v2/storage/components/{component_id}/configs/{config_id}/versions?include={include}&limit={limit}&offset={offset}]
 
-***Deprecated**, use method listed above.*
+***Deprecated**, use the branch endpoint and set `branch/default`.*
 Lists all versions of a component configuration.
 
 + Parameters
@@ -6833,7 +6833,7 @@ Gets configuration version for [Development Branch](#reference/development-branc
 
 ### Version Detail (deprecated) [GET]
 
-***Deprecated**, use method listed above.*
+***Deprecated**, use the branch endpoint and set `branch/default`.*
 Gets configuration version.
 
 + Parameters
@@ -6896,7 +6896,7 @@ one you specified. `state` attributes of the config and rows is preserved, if an
 
 ### Rollback Version (deprecated) [POST]
 
-***Deprecated**, use method listed above.*
+***Deprecated**, use the branch endpoint and set `branch/default`.*
 Rollbacking a configuration version actually creates a new configuration version identical to the
 one you specified. `state` attributes of the config and rows is preserved, if any row is recreated, it will have the last existing state.
 
@@ -6955,7 +6955,7 @@ Creates a new configuration from the specified configuration version in [Develop
 
 ### Create Configuration Copy (deprecated) [POST]
 
-***Deprecated**, use method listed above.*
+***Deprecated**, use the branch endpoint and set `branch/default`.*
 Creates a new configuration from the specified configuration version.
 
 + Parameters
@@ -7085,7 +7085,7 @@ Gets configuration rows for [Development Branch](#reference/development-branches
 
 ### Create Configuration Row (deprecated) [POST]
 
-***Deprecated**, use method listed above.*
+***Deprecated**, use the branch endpoint and set `branch/default`.*
 Creates a new row (item) of an existing configuration.
 
 + Parameters
@@ -7133,7 +7133,7 @@ Creates a new row (item) of an existing configuration.
 
 ### Configuration Row List (deprecated) [GET]
 
-***Deprecated**, use method listed above.*
+***Deprecated**, use the branch endpoint and set `branch/default`.*
 Gets configuration rows.
 
 + Request
@@ -7331,7 +7331,7 @@ A configuration row is deleted permanently and cannot be restored.
 
 ### Configuration Row detail (deprecated) [GET]
 
-***Deprecated**, use method listed above.*
+***Deprecated**, use the branch endpoint and set `branch/default`.*
 Gets configuration rows.
 
 + Parameters
@@ -7365,7 +7365,7 @@ Gets configuration rows.
 
 ### Update Configuration Row (deprecated) [PUT]
 
-***Deprecated**, use method listed above.*
+***Deprecated**, use the branch endpoint and set `branch/default`.*
 Modifies the content of a single row in a configuration. Note that configuration rows are versioned
 independently on the configurations.
 
@@ -7415,7 +7415,7 @@ independently on the configurations.
 
 ### Update Configuration Row State (deprecated) [PUT /v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/state]
 
-***Deprecated**, use method listed above.*
+***Deprecated**, use the branch endpoint and set `branch/default`.*
 Updates state of an existing row.
 
 + Parameters
@@ -7460,7 +7460,7 @@ Updates state of an existing row.
 
 ### Delete Configuration Row (deprecated) [DELETE]
 
-***Deprecated**, use method listed above.*
+***Deprecated**, use the branch endpoint and set `branch/default`.*
 Deletes a configuration row. A configuration row is deleted permanently and cannot be restored.
 
 + Parameters
@@ -7539,7 +7539,7 @@ List versions of a given configuration Row of a given Configuration for [Develop
 
 ### Versions list (deprecated) [GET /v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/versions?include={include}&limit={limit}&offset={offset}]
 
-***Deprecated**, use method listed above.*
+***Deprecated**, use the branch endpoint and set `branch/default`.*
 List versions of a given configuration Row of a given Configuration.
 
 + Parameters
@@ -7627,7 +7627,7 @@ Gets details about the Configuration Row version.
 
 ### Version detail (deprecated) [GET]
 
-***Deprecated**, use method listed above.*
+***Deprecated**, use the branch endpoint and set `branch/default`.*
 Gets details about the Configuration Row version.
 
 + Parameters
@@ -7705,7 +7705,7 @@ content to be rollbacked to.
 
 ### Rollback Version (deprecated) [POST]
 
-***Deprecated**, use method listed above.*
+***Deprecated**, use the branch endpoint and set `branch/default`.*
 Rollbacks row to a previous version. This operation actually creates a new Row version with identical
 content to be rollbacked to.
 
@@ -7794,7 +7794,7 @@ Creates a new configuration row from an existing row version in [Development Bra
 
 ### Create Configuration Row copy (deprecated) [POST]
 
-***Deprecated**, use method listed above.*
+***Deprecated**, use the branch endpoint and set `branch/default`.*
 Creates a new configuration row from an existing row version.
 
 + Parameters
@@ -7889,7 +7889,7 @@ Returns all workspaces for the component configuration in [Development Branch](#
 
 ### Create Configuration Workspaces (deprecated) [POST]
 
-***Deprecated**, use method listed above.*
+***Deprecated**, use the branch endpoint and set `branch/default`.*
 Creates a new workspace for an existing configuration.
 
 + Parameters
@@ -7922,7 +7922,7 @@ Creates a new workspace for an existing configuration.
 
 ### Workspace List (deprecated) [GET]
 
-***Deprecated**, use method listed above.*
+***Deprecated**, use the branch endpoint and set `branch/default`.*
 Returns all workspaces for the component configuration.
 
 + Parameters
