@@ -51,6 +51,14 @@ trait WorkspaceCredentialsAssertTrait
                         )
                     );
                     break;
+                case StorageApiTestCase::BACKEND_EXASOL:
+                    // Exasol authentication failed
+                    self::assertEquals(
+                        -373252,
+                        $e->getCode(),
+                        'Unexpected error code, expected code for Exasol is -373252.'
+                    );
+                    break;
                 default:
                     $this->fail(sprintf(
                         'Unexpected error message from "%s" backend. code: "%s" message: "%s".',
@@ -65,16 +73,7 @@ trait WorkspaceCredentialsAssertTrait
         } catch (\Keboola\Db\Import\Exception $e) {
             $this->assertStringContainsString('Incorrect username or password was specified', $e->getMessage());
         } catch (\Exception $e) {
-            if ($connection['backend'] === StorageApiTestCase::BACKEND_EXASOL) {
-                // Exasol authentication failed
-                self::assertEquals(
-                    -373252,
-                    $e->getCode(),
-                    'Unexpected error code, expected code for Exasol is -373252.'
-                );
-            } else {
-                throw new \Exception($e->getMessage(), (int) $e->getCode(), $e);
-            }
+            throw new \Exception($e->getMessage(), (int) $e->getCode(), $e);
         }
     }
 }
