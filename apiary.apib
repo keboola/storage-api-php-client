@@ -5714,81 +5714,9 @@ Use this API call to obtain the definition of component for [Development Branch]
 
 ### Get component (deprecated) [GET]
 
-Use this API call to obtain the definition of component available in KBC.
-
-+ Parameters
-    + componentId - Component ID - e.g. `keboola.app-tree`
-
-+ Request
-    + Headers
-
-            X-StorageApi-Token: your_token
+***Deprecated**, use the branch endpoint and set `branch/default`.*
 
 + Response 200
-    + Headers
-
-            Content-type: application/json
-
-    + Body
-
-            {
-                "id": "keboola.app-tree",
-                "type": "application",
-                "name": "Tree depth",
-                "description": "Application which computes a tree depth.",
-                "longDescription": "This application computes levels in a table representing a tree (e.g. product categories). The tree data must be stored in a child-parent relationship. A column named **levels** will be added to the table (root nodes will have number 1). Additionally, a column named **root** will be added, containing the ID of the root item.",
-                "hasUI": false,
-                "hasRun": false,
-                "ico32": "https://d3iz2gfan5zufq.cloudfront.net/images/cloud-services/keboola.app-tree-32-1.png",
-                "ico64": "https://d3iz2gfan5zufq.cloudfront.net/images/cloud-services/keboola.app-tree-64-1.png",
-                "data": {
-                    "definition": {
-                        "type": "aws-ecr",
-                        "uri": "147946154733.dkr.ecr.us-east-1.amazonaws.com/keboola/app-tree",
-                        "tag": "latest",
-                        "repository": {
-                            "region": "us-east-1"
-                        }
-                    },
-                    "cpu_shares": 1024,
-                    "memory": "8024m",
-                    "configuration_format": "json",
-                    "process_timeout": 10800
-                },
-                "flags": [
-                    "genericDockerUI",
-                    "genericDockerUI-tableInput",
-                    "genericDockerUI-tableOutput",
-                    "excludeFromNewList"
-                ],
-                "configurationSchema": {
-                    "title": "Parameters",
-                    "type": "object",
-                    "properties": {
-                        "idColumn": {
-                            "type": "string",
-                            "title": "ID Column",
-                            "description": "Name of the column containing row identifier",
-                            "default": "categoryId"
-                        },
-                        "parentColumn": {
-                            "type": "string",
-                            "title": "Parent Column",
-                            "description": "Name of the column containing parent identifier",
-                            "default": "categoryParentId"
-                        }
-                    },
-                    "required": [
-                        "idColumn",
-                        "parentColumn"
-                    ]
-                },
-                "emptyConfiguration": {},
-                "uiOptions": {},
-                "configurationDescription": "The tree data must be stored in a child-parent relationship. A column named **levels** will be added to the table (root nodes will have number 1). Additionally, a column named **root** will be added, containing the ID of the root item.\n\nSample input \n-------------------\n\ncategoryId | categoryParentId\t| title\n--- | --- | --- \n1 |\t0 | foo\n2 | 1 | bar\n3 | 1 | baz\n4 | 2 | buzz\n\n\nSample output\n-------------------\n\ncategoryId | categoryParentId | title | levels | root\n--- | --- | --- | --- | --- |\n1 |\t0 | foo | 1 | 1 |\n2 | 1 | bar | 2 | 1 |\n3 | 1 | baz | 2 | 1 |\n4 | 2 | buzz | 3 | 1 |",
-                "uri": "https://syrup.keboola.com/docker/keboola.app-tree",
-            }
-***Deprecated**, use the branch endpoint and set `branch/default`.*
 
 ## Get components [/v2/storage/components]
 ### Get components [GET /v2/storage/branch/{branch_id}/components?include={include}&componentType={componentType}&isDeleted={isDeleted}]
@@ -5899,110 +5827,9 @@ KBC Component architecture, see the [Developers documentation](https://developer
 
 ### Get components (deprecated) [GET /v2/storage/components?include={include}&componentType={componentType}&isDeleted={isDeleted}]
 
-Use this API call to obtain the definitions of all components available in KBC. For more information about the
-KBC Component architecture, see the [Developers documentation](https://developers.keboola.com/overview/)
-
-+ Parameters
-    + componentType (optional) - Component type - `extractor`, `writer`, `application`, etc.
-    + include (optional) - Comma separated list of resources to include. Available resources: `configuration`, `rows` and `state`.
-    + isDeleted (optional, boolean) - If true, it returns only components with deleted configurations.
-      Default: false
-
-+ Request
-    + Headers
-
-            X-StorageApi-Token: your_token
+***Deprecated**, use the branch endpoint and set `branch/default`.*
 
 + Response 200
-    + Headers
-
-            Content-type: application/json
-
-    + Body
-
-            [
-                {
-                    "id": "keboola.app-tree",
-                    "type": "application",
-                    "name": "Tree depth",
-                    "description": "Application which computes a tree depth.",
-                    "longDescription": "This application computes levels in a table representing a tree (e.g. product categories). The tree data must be stored in a child-parent relationship. A column named **levels** will be added to the table (root nodes will have number 1). Additionally, a column named **root** will be added, containing the ID of the root item.",
-                    "hasUI": false,
-                    "hasRun": false,
-                    "ico32": "https://d3iz2gfan5zufq.cloudfront.net/images/cloud-services/keboola.app-tree-32-1.png",
-                    "ico64": "https://d3iz2gfan5zufq.cloudfront.net/images/cloud-services/keboola.app-tree-64-1.png",
-                    "data": {
-                        "definition": {
-                            "type": "aws-ecr",
-                            "uri": "147946154733.dkr.ecr.us-east-1.amazonaws.com/keboola/app-tree",
-                            "tag": "latest",
-                            "repository": {
-                                "region": "us-east-1"
-                            }
-                        },
-                        "cpu_shares": 1024,
-                        "memory": "8024m",
-                        "configuration_format": "json",
-                        "process_timeout": 10800
-                    },
-                    "flags": [
-                        "genericDockerUI",
-                        "genericDockerUI-tableInput",
-                        "genericDockerUI-tableOutput",
-                        "excludeFromNewList"
-                    ],
-                    "configurationSchema": {
-                        "title": "Parameters",
-                        "type": "object",
-                        "properties": {
-                            "idColumn": {
-                                "type": "string",
-                                "title": "ID Column",
-                                "description": "Name of the column containing row identifier",
-                                "default": "categoryId"
-                            },
-                            "parentColumn": {
-                                "type": "string",
-                                "title": "Parent Column",
-                                "description": "Name of the column containing parent identifier",
-                                "default": "categoryParentId"
-                            }
-                        },
-                        "required": [
-                            "idColumn",
-                            "parentColumn"
-                        ]
-                    },
-                    "emptyConfiguration": {},
-                    "uiOptions": {},
-                    "configurationDescription": "The tree data must be stored in a child-parent relationship. A column named **levels** will be added to the table (root nodes will have number 1). Additionally, a column named **root** will be added, containing the ID of the root item.\n\nSample input \n-------------------\n\ncategoryId | categoryParentId\t| title\n--- | --- | --- \n1 |\t0 | foo\n2 | 1 | bar\n3 | 1 | baz\n4 | 2 | buzz\n\n\nSample output\n-------------------\n\ncategoryId | categoryParentId | title | levels | root\n--- | --- | --- | --- | --- |\n1 |\t0 | foo | 1 | 1 |\n2 | 1 | bar | 2 | 1 |\n3 | 1 | baz | 2 | 1 |\n4 | 2 | buzz | 3 | 1 |",
-                    "uri": "https://syrup.keboola.com/docker/keboola.app-tree",
-                    "configurations": [
-                        {
-                            "id": "236552566",
-                            "name": "teest2",
-                            "description": "",
-                            "created": "2017-02-14T12:12:30+0100",
-                            "creatorToken": {
-                                "id": 27978,
-                                "description": "ondrej.popelka@keboola.com"
-                            },
-                            "version": 2,
-                            "changeDescription": "Configuration deleted",
-                            "isDeleted": true,
-                            "currentVersion": {
-                                "created": "2017-02-14T12:12:45+0100",
-                                "creatorToken": {
-                                    "id": 27978,
-                                    "description": "ondrej.popelka@keboola.com"
-                                },
-                                "changeDescription": "Configuration deleted"
-                            }
-                        }
-                    ]
-                }
-            ]
-***Deprecated**, use the branch endpoint and set `branch/default`.*
 
 ## Component Configurations [/v2/storage/components/{component_id}/configs]
 ### List configurations [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs?isDeleted={isDeleted}]
@@ -6125,121 +5952,15 @@ Creates a new component configuration for [Development Branch](#reference/develo
 
 ### List configurations (deprecated) [GET /v2/storage/components/{component_id}/configs?isDeleted={isDeleted}]
 
-Lists all configurations for a component including all config rows.
-
-+ Parameters
-    + component_id (required) - Id of the component
-    + isDeleted (optional, boolean) - When true, only deleted configurations will be returned. When false, only current configurations will be returned.
-        + Default: false
-
-+ Request
-    + Headers
-
-            X-StorageApi-Token: your_token
+***Deprecated**, use the branch endpoint and set `branch/default`.*
 
 + Response 200 (application/json)
-    + Body
-
-            [
-                {
-                    "id": "main-1",
-                    "name": "Main 1",
-                    "description": "",
-                    "created": "2016-05-11T14:33:50+0200",
-                    "creatorToken": {
-                        "id": 67,
-                        "description": "dev@keboola.com"
-                    },
-                    "version": 2,
-                    "changeDescription": "Row row1 added",
-                    "isDeleted": false,
-                    "configuration": {
-                        "key1": "val1"
-                    },
-                    "currentVersion": {
-                        "created": "2016-05-11T14:33:50+0200",
-                        "creatorToken": {
-                            "id": 67,
-                            "description": "dev@keboola.com"
-                        },
-                        "changeDescription": "Row row1 added"
-                    },
-                    "rowsSortOrder": [],
-                    "rows": [
-                        {
-                            "id": "row1",
-                            "configuration": {
-                                "key2": "val2"
-                            },
-                            "state": {},
-                            "version": 1,
-                            "created": "2016-05-11T14:33:50+0200",
-                            "creatorToken": {
-                                "id": 67,
-                                "description": "dev@keboola.com"
-                            },
-                            "changeDescription": null
-                        }
-                    ],
-                    "state": {}
-                }
-            ]
-***Deprecated**, use the branch endpoint and set `branch/default`.*
 
 ### Create Configuration (deprecated) [POST]
 
-Creates a new component configuration.
-
-+ Parameters
-    + component_id (required) - Id of the Component
-
-+ Attributes
-    + name (required) - Configuration name
-    + configurationId (optional) - Configuration Id (must be unique for each component type). If not set, it will be auto-generated.
-    + description (optional) - Configuration description
-    + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB
-    + state (optional) - Serialized state configuration JSON; the maximum allowed size is 4MB
-    + changeDescription (optional) - Description of the configuration modification
-
-+ Request (application/x-www-form-urlencoded)
-    + Headers
-
-            X-StorageApi-Token: your_token
-
-    + Body
-
-            name=My+new+configuration&configuration=%7B%22key%22%3A%22value%22%2C+%22key2%22%3A%22value2%22%7D&changeDescription=Initial+configuration
+***Deprecated**, use the branch endpoint and set `branch/default`.*
 
 + Response 201 (application/json)
-    + Body
-
-            {
-                "id": "236606822",
-                "name": "My new configuration",
-                "description": "",
-                "created": "2017-02-14T14:38:26+0100",
-                "creatorToken": {
-                    "id": 27978,
-                    "description": "ondrej.popelka@keboola.com"
-                },
-                "version": 1,
-                "changeDescription": "Initial configuration",
-                "isDeleted": false,
-                "configuration": {
-                    "key": "value",
-                    "key2": "value2"
-                },
-                "state": {},
-                "currentVersion": {
-                    "created": "2017-02-14T14:38:26+0100",
-                    "creatorToken": {
-                        "id": 27978,
-                        "description": "ondrej.popelka@keboola.com"
-                    },
-                    "changeDescription": "Initial configuration"
-                }
-            }
-***Deprecated**, use the branch endpoint and set `branch/default`.*
 
 ## Manage Configurations [/v2/storage/components/{component_id}/configs/{config_id}]
 ### Configuration Detail [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}]
@@ -6439,185 +6160,24 @@ Calling this API call on a deleted configuration will return error. Development 
 ### Configuration Detail (deprecated) [GET]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
-Gets the component configuration detail.
-
-+ Parameters
-    + component_id (required) - Id of the component
-    + config_id (required) - Id of the configuration
-
-+ Request
-    + Headers
-
-            X-StorageApi-Token: your_token
 
 + Response 200 (application/json)
-
-            {
-                "id": "236606822",
-                "name": "My new configuration",
-                "description": "",
-                "created": "2017-02-14T14:38:26+0100",
-                "creatorToken": {
-                    "id": 27978,
-                    "description": "ondrej.popelka@keboola.com"
-                },
-                "version": 1,
-                "changeDescription": "Initial configuration",
-                "isDeleted": false,
-                "configuration": {
-                    "key": "value",
-                    "key2": "value2"
-                },
-                "rowsSortOrder": [],
-                "rows": [],
-                "state": {},
-                "currentVersion": {
-                    "created": "2017-02-14T14:38:26+0100",
-                    "creatorToken": {
-                        "id": 27978,
-                        "description": "ondrej.popelka@keboola.com"
-                    },
-                    "changeDescription": "Initial configuration"
-                }
-            }
 
 ### Update Configuration (deprecated) [PUT]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
-Updates an existing configuration. When the configuration is updated, a new version is automatically created and
-marked as `currentVersion`.
-
-+ Parameters
-    + component_id (required) - Id of the component
-    + config_id (required) - Id of the configuration
-
-+ Attributes
-    + name (required) - Configuration name
-    + description (optional) - Configuration description
-    + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB
-    + state (optional) - **DEPRECATED will be removed in the future. For state updates use [state endpoint](#reference/components-and-configurations/manage-configurations/update-configuration-state).**  Serialized configuration state JSON; the maximum allowed size is 4MB.
-    + changeDescription (optional) - Description of the configuration modification
-    + rowsSortOrder (optional) - Array of row ids in desired order, you have to specify all row ids
-
-+ Request (application/x-www-form-urlencoded)
-    + Headers
-
-            X-StorageApi-Token: your_token
-
-    + Body
-
-            configuration=%7B%22key%22%3A%22value%22%2C+%22key2%22%3A%22value2%22%2C+%22key3%22%3A+%22value3%22%7D&changeDescription=Added+new+key
-
 
 + Response 200 (application/json)
-    + Body
-
-            {
-                "id": "236606822",
-                "name": "My new configuration",
-                "description": "",
-                "created": "2017-02-14T14:38:26+0100",
-                "creatorToken": {
-                    "id": 27978,
-                    "description": "ondrej.popelka@keboola.com"
-                },
-                "version": 2,
-                "changeDescription": "Added new key",
-                "isDeleted": false,
-                "configuration": {
-                    "key": "value",
-                    "key2": "value2",
-                    "key3": "value3"
-                },
-                "rowsSortOrder": [],
-                "rows": [],
-                "state": {},
-                "currentVersion": {
-                    "created": "2017-02-14T14:48:41+0100",
-                    "creatorToken": {
-                        "id": 27978,
-                        "description": "ondrej.popelka@keboola.com"
-                    },
-                    "changeDescription": "Added new key"
-                }
-            }
 
 ### Update Configuration State (deprecated) [PUT /v2/storage/components/{component_id}/configs/{config_id}/state]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
-Updates state of an existing configuration.
-
-+ Parameters
-    + component_id (required) - Id of the component
-    + config_id (required) - Id of the configuration
-
-+ Attributes
-    + state (required) - Serialized configuration state JSON; the maximum allowed size is 4MB
-
-+ Request (application/x-www-form-urlencoded)
-    + Headers
-
-            X-StorageApi-Token: your_token
-
-    + Body
-
-            state=%7B%22lastId%22%3A123%7D
-
 
 + Response 200 (application/json)
-    + Body
-
-            {
-                "id": "236606822",
-                "name": "My new configuration",
-                "description": "",
-                "created": "2017-02-14T14:38:26+0100",
-                "creatorToken": {
-                    "id": 27978,
-                    "description": "ondrej.popelka@keboola.com"
-                },
-                "version": 2,
-                "changeDescription": "Added new key",
-                "isDeleted": false,
-                "configuration": {
-                    "key": "value",
-                    "key2": "value2",
-                    "key3": "value3"
-                },
-                "rowsSortOrder": [],
-                "rows": [],
-                "state": {
-                    "lastId": 123
-                },
-                "currentVersion": {
-                    "created": "2017-02-14T14:48:41+0100",
-                    "creatorToken": {
-                        "id": 27978,
-                        "description": "ondrej.popelka@keboola.com"
-                    },
-                    "changeDescription": "Added new key"
-                }
-            }
 
 ### Delete Configuration (deprecated) [DELETE]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
-Deletes a configuration. When a configuration is deleted, it is only marked as deleted and remains still available in the system.
-You can [list deleted](#reference/components-and-configurations/component-configurations/list-configurations) configurations, or
-[restore deleted](#reference/components-and-configurations/configuration-restore/restore-deleted-configuration) configurations.
-Other operations with deleted configurations are restricted.
-
-Calling this API call on a deleted configuration will remove it permanently. I.e. to permanently remove a configuration
-you have to delete it twice (call twice this API resource). The `canPurgeTrash` permission must be set for your token.
-
-+ Parameters
-    + component_id (required) - Id of the component
-    + config_id (required) - Id of the configuration
-
-+ Request
-    + Headers
-
-            X-StorageApi-Token: your_token
 
 + Response 204
 
@@ -6663,41 +6223,8 @@ and the configuration becomes available for other API calls.
 ### Restore Deleted Configuration (deprecated) [POST]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
-Removes the `isDeleted` flag of a deleted configuration. This makes a new version of the configuration
-and the configuration becomes available for other API calls.
-
-+ Parameters
-    + component_id (required) - Id of the component
-    + config_id (required) - Id of the configuration
-
-+ Request
-    + Headers
-
-            X-StorageApi-Token: your_token
 
 + Response 200 (application/json)
-
-            {
-                "id": "236606822",
-                "name": "My new configuration",
-                "description": "",
-                "created": "2017-02-14T14:38:26+0100",
-                "creatorToken": {
-                    "id": 27978,
-                    "description": "ondrej.popelka@keboola.com"
-                },
-                "version": 4,
-                "changeDescription": "Configuration restored",
-                "isDeleted": false,
-                "currentVersion": {
-                    "created": "2017-02-14T15:48:39+0100",
-                    "creatorToken": {
-                        "id": 27978,
-                        "description": "ondrej.popelka@keboola.com"
-                    },
-                    "changeDescription": "Configuration restored"
-                }
-            }
 
 ## List Configuration Versions [/v2/storage/components/{component_id}/configs/{config_id}/versions]
 ### Versions list [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/versions?include={include}&limit={limit}&offset={offset}]
@@ -6751,50 +6278,8 @@ Lists all versions of a component configuration for [Development Branch](#refere
 ### Versions list (deprecated) [GET /v2/storage/components/{component_id}/configs/{config_id}/versions?include={include}&limit={limit}&offset={offset}]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
-Lists all versions of a component configuration.
-
-+ Parameters
-    + include (optional) - Comma separated list of information to be retrieved; possible fields are `name`, `description` and `configuration`.
-      Default: `name,description`
-    + limit (optional, number) - Pagination limit
-      Default: 100
-    + offset (optional, number) - Pagination offset
-      Default: 0
-
-+ Request
-    + Headers
-
-            X-StorageApi-Token: your_token
 
 + Response 200 (application/json)
-    + Body
-
-            [
-                {
-                    "version": 2,
-                    "created": "2017-02-09T21:11:02+0100",
-                    "creatorToken": {
-                        "id": 27978,
-                        "description": "ondrej.popelka@keboola.com"
-                    },
-                    "changeDescription": "Add input table in.c-afnhk.tree-test",
-                    "isDeleted": false,
-                    "name": "test",
-                    "description": ""
-                },
-                {
-                    "version": 1,
-                    "created": "2017-02-09T21:10:31+0100",
-                    "creatorToken": {
-                        "id": 27978,
-                        "description": "ondrej.popelka@keboola.com"
-                    },
-                    "changeDescription": "",
-                    "isDeleted": false,
-                    "name": "test",
-                    "description": ""
-                }
-            ]
 
 ## Manage Configuration Versions [/v2/storage/components/{component_id}/configs/{config_id}/versions/{version_id}]
 ### Version Detail [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/versions/{version_id}]
@@ -6834,36 +6319,8 @@ Gets configuration version for [Development Branch](#reference/development-branc
 ### Version Detail (deprecated) [GET]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
-Gets configuration version.
-
-+ Parameters
-    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
-    + config_id (required) - Id of the configuration
-    + version_id (required, string) - Version number
-
-+ Request
-    + Headers
-
-            X-StorageApi-Token: your_token
 
 + Response 200 (application/json)
-    + Body
-
-            {
-                "version": 1,
-                "created": "2017-02-09T21:10:31+0100",
-                "creatorToken": {
-                    "id": 27978,
-                    "description": "ondrej.popelka@keboola.com"
-                },
-                "changeDescription": "",
-                "isDeleted": false,
-                "name": "test",
-                "description": "",
-                "configuration": {},
-                "rowsSortOrder": [],
-                "rows": []
-            }
 
 ## Rollback Configuration Version [/v2/storage/components/{component_id}/configs/{config_id}/versions/{version_id}/rollback]
 ### Rollback Version [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/versions/{version_id}/rollback]
@@ -6897,31 +6354,8 @@ one you specified. `state` attributes of the config and rows is preserved, if an
 ### Rollback Version (deprecated) [POST]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
-Rollbacking a configuration version actually creates a new configuration version identical to the
-one you specified. `state` attributes of the config and rows is preserved, if any row is recreated, it will have the last existing state.
-
-+ Parameters
-    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
-    + config_id (required) - Id of the configuration
-    + version_id (required, number) - Version number to rollback to
-
-+ Attributes
-    + changeDescription (optional) - Description of a version change
-
-+ Request (application/x-www-form-urlencoded)
-    + Headers
-
-            X-StorageApi-Token: your_token
-
-    + Body
-
-            changeDescription=change+description
 
 + Response 201 (application/json)
-
-        {
-            "version": 3
-        }
 
 ## Copy Configurations [/v2/storage/components/{component_id}/configs/{config_id}/versions/{version_id}/create]
 ### Create Configuration Copy [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/versions/{version_id}/create]
@@ -6956,32 +6390,8 @@ Creates a new configuration from the specified configuration version in [Develop
 ### Create Configuration Copy (deprecated) [POST]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
-Creates a new configuration from the specified configuration version.
-
-+ Parameters
-    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
-    + config_id (required) - Id of the configuration to copy
-    + version_id (required, number) - Version number to copy
-
-+ Attributes
-    + name (required) - Name of the new configuration
-    + description (optional) - Description of the new configuration
-    + changeDescription (optional) - Version change description
-
-+ Request (application/x-www-form-urlencoded)
-    + Headers
-
-            X-StorageApi-Token: your_token
-
-    + Body
-
-            name=Configuration+copy&changeDescription=Testing+Copying
 
 + Response 201 (application/json)
-
-        {
-            "id": 4
-        }
 
 ## Create or List Configuration Rows [/v2/storage/components/{component_id}/configs/{config_id}/rows]
 ### Create Configuration Row [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows]
@@ -7086,99 +6496,14 @@ Gets configuration rows for [Development Branch](#reference/development-branches
 ### Create Configuration Row (deprecated) [POST]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
-Creates a new row (item) of an existing configuration.
-
-+ Parameters
-    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
-    + config_id (required) - Id of the configuration
-
-+ Attributes
-    + rowId (optional) - Row id (must be unique for each configuration); if not set, it will be generated
-    + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB
-    + state (optional) - Serialized configuration state JSON; the maximum allowed size is 4MB
-    + name (optional, string) - Row name
-    + description (optional, string) - Row description
-    + isDisabled (optional, boolean) - Disabled flag
-    + changeDescription (optional) - Version change description
-
-+ Request (application/x-www-form-urlencoded)
-    + Headers
-
-            X-StorageApi-Token: your_token
-
-    + Body
-
-            configuration=%7B%22host%22%3A+%22localhost%22%2C+%22port%22%3A+4406%7D&changeDescription=Added+new+row
 
 + Response 201 (application/json)
-
-            {
-                "id": "236781646",
-                "configuration": {
-                    "host": "localhost",
-                    "port": 4406
-                },
-                "state": {},
-                "name": "",
-                "description": "",
-                "isDisabled": false,
-                "version": 1,
-                "created": "2017-02-15T00:05:32+0100",
-                "creatorToken": {
-                    "id": 27978,
-                    "description": "ondrej.popelka@keboola.com"
-                },
-                "changeDescription": "Added new row"
-            }
 
 ### Configuration Row List (deprecated) [GET]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
-Gets configuration rows.
-
-+ Request
-    + Headers
-
-            X-StorageApi-Token: your_token
-
 
 + Response 200 (application/json)
-
-            [
-                {
-                    "id": "236781529",
-                    "configuration": {},
-                    "state": {},
-                    "name": "",
-                    "description": "",
-                    "isDisabled": false,
-                    "version": 1,
-                    "created": "2017-02-15T00:04:42+0100",
-                    "creatorToken": {
-                        "id": 27978,
-                        "description": "ondrej.popelka@keboola.com"
-                    },
-                    "changeDescription": "Row 236781529 added"
-                },
-                {
-                    "id": "236781639",
-                    "configuration": {
-                        "host": "localhost",
-                        "port": 4406
-                    },
-                    "state": {},
-                    "name": "",
-                    "description": "",
-                    "isDisabled": false,
-                    "version": 1,
-                    "created": "2017-02-15T00:05:29+0100",
-                    "creatorToken": {
-                        "id": 27978,
-                        "description": "ondrej.popelka@keboola.com"
-                    },
-                    "changeDescription": "Added new row"
-                }
-            ]
 
 ## Manage Configuration Rows [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}]
 ### Configuration Row detail [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}]
@@ -7332,153 +6657,24 @@ A configuration row is deleted permanently and cannot be restored.
 ### Configuration Row detail (deprecated) [GET]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
-Gets configuration rows.
-
-+ Parameters
-    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
-    + config_id (required) - Id of the configuration
-    + row_id (required) - Id of the configuration row
-
-+ Request
-    + Headers
-
-            X-StorageApi-Token: your_token
-
 
 + Response 200 (application/json)
-
-            {
-                "id": "236781529",
-                "configuration": {},
-                "state": {},
-                "name": "",
-                "description": "",
-                "isDisabled": false,
-                "version": 1,
-                "created": "2017-02-15T00:04:42+0100",
-                "creatorToken": {
-                    "id": 27978,
-                    "description": "name@example.com"
-                },
-                "changeDescription": "Row 236781529 added"
-            }
 
 ### Update Configuration Row (deprecated) [PUT]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
-Modifies the content of a single row in a configuration. Note that configuration rows are versioned
-independently on the configurations.
-
-+ Parameters
-    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
-    + config_id (required) - Id of the configuration
-    + row_id (required) - Id of the configuration row
-
-+ Attributes
-    + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB
-    + state (optional) - Serialized configuration state JSON; the maximum allowed size is 4MB
-    + state (optional) - **DEPRECATED will be removed in the future. For state updates use [state endpoint](/#reference/components-and-configurations/manage-configuration-rows/update-row-state).**  Serialized configuration state JSON; the maximum allowed size is 4MB.
-    + name (optional, string) - Row name
-    + description (optional, string) - Row description
-    + isDisabled (optional, boolean) - Disabled flag
-    + changeDescription (optional) - Version change description
-
-+ Request (application/x-www-form-urlencoded)
-    + Headers
-
-            X-StorageApi-Token: your_token
-
-    + Body
-
-            configuration=%7B%22host%22%3A+%22localhost%22%2C+%22port%22%3A+null%7D&changeDescription=change+description
 
 + Response 200 (application/json)
-
-            {
-                "id": "236781529",
-                "configuration": {
-                    "host": "localhost",
-                    "port": null
-                },
-                "state": {},
-                "name": "",
-                "description": "",
-                "isDisabled": false,
-                "version": 2,
-                "created": "2017-02-15T00:04:42+0100",
-                "creatorToken": {
-                    "id": 27978,
-                    "description": "ondrej.popelka@keboola.com"
-                },
-                "changeDescription": "change description"
-            }
 
 ### Update Configuration Row State (deprecated) [PUT /v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/state]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
-Updates state of an existing row.
-
-+ Parameters
-    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
-    + config_id (required) - Id of the configuration
-    + row_id (required) - Id of the configuration row
-
-+ Attributes
-    + state (required) - Serialized configuration state JSON; the maximum allowed size is 4MB
-
-+ Request (application/x-www-form-urlencoded)
-    + Headers
-
-            X-StorageApi-Token: your_token
-
-    + Body
-
-            state=%7B%22lastId%22%3A123%7D
 
 + Response 200 (application/json)
-
-            {
-                "id": "236781529",
-                "configuration": {
-                    "host": "localhost",
-                    "port": null
-                },
-                "state": {
-                    "lastId": 123
-                },
-                "name": "",
-                "description": "",
-                "isDisabled": false,
-                "version": 2,
-                "created": "2017-02-15T00:04:42+0100",
-                "creatorToken": {
-                    "id": 27978,
-                    "description": "ondrej.popelka@keboola.com"
-                },
-                "changeDescription": "change description"
-            }
 
 ### Delete Configuration Row (deprecated) [DELETE]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
-Deletes a configuration row. A configuration row is deleted permanently and cannot be restored.
-
-+ Parameters
-    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
-    + config_id (required) - Id of the configuration
-    + row_id (required) - Id of the configuration row
-
-+ Attributes
-    + changeDescription (optional) - Version change description
-
-+ Request
-    + Headers
-
-            X-StorageApi-Token: your_token
-
-    + Body
-
-            changeDescription=change+description
 
 + Response 204
 
@@ -7540,57 +6736,8 @@ List versions of a given configuration Row of a given Configuration for [Develop
 ### Versions list (deprecated) [GET /v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/versions?include={include}&limit={limit}&offset={offset}]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
-List versions of a given configuration Row of a given Configuration.
-
-+ Parameters
-    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
-    + config_id (required) - Id of the configuration
-    + row_id (required) - Id of the configuration row
-    + include (optional) - Comma separated list of information to retrieve; it may contain: `configuration`
-      Default: `configuration`
-    + limit (optional, number) - Pagination limit
-      Default: 100
-    + offset (optional, number) - Pagination offset
-      Default: 0
-
-+ Request
-    + Headers
-
-            X-StorageApi-Token: your_token
 
 + Response 200
-    + Headers
-
-            Content-type: application/json
-
-    + Body
-
-            [
-                {
-                    "version": 2,
-                    "name": "",
-                    "description": "",
-                    "isDisabled": false,
-                    "created": "2015-08-12T12:33:04+0200",
-                    "creatorToken": {
-                        "id": 1392,
-                        "description": "martin@keboola.com"
-                    },
-                    "changeDescription": "Cause of the change"
-                },
-                {
-                    "version": 1,
-                    "name": "",
-                    "description": "",
-                    "isDisabled": false,
-                    "created": "2015-08-10T22:00:55+0200",
-                    "creatorToken": {
-                        "id": 1392,
-                        "description": "martin@keboola.com"
-                    },
-                    "changeDescription": "Some other cause of the change"
-                }
-            ]
 
 ## Manage Configuration Row Versions [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/versions/{version_id}]
 ### Version detail [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}/versions/{version_id}]
@@ -7628,35 +6775,8 @@ Gets details about the Configuration Row version.
 ### Version detail (deprecated) [GET]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
-Gets details about the Configuration Row version.
-
-+ Parameters
-    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
-    + config_id (required) - Id of the configuration
-    + row_id (required) - Id of the configuration row
-    + version_id (required) - Id of the configuration row version
-
-+ Request
-    + Headers
-
-            X-StorageApi-Token: your_token
 
 + Response 200 (application/json)
-    + Body
-
-            {
-                "name": "",
-                "description": "",
-                "isDisabled": false,
-                "version": 1,
-                "created": "2015-08-10T22:00:55+0200",
-                "creatorToken": {
-                    "id": 1392,
-                    "description": "martin@keboola.com"
-                },
-                "changeDescription": "Some other cause of the change"
-                "configuration": {}
-            }
 
 ## Rollback Configuration Row Version [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/versions/{version_id}/rollback]
 ### Rollback Version [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}/versions/{version_id}/rollback]
@@ -7706,47 +6826,8 @@ content to be rollbacked to.
 ### Rollback Version (deprecated) [POST]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
-Rollbacks row to a previous version. This operation actually creates a new Row version with identical
-content to be rollbacked to.
-
-+ Parameters
-    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
-    + config_id (required) - Id of the configuration
-    + row_id (required) - Id of the configuration row
-    + version_id (required) - Id of the configuration row version to rollback to
-
-+ Attributes
-    + changeDescription (optional) - Version change description
-
-+ Request (application/x-www-form-urlencoded)
-    + Headers
-
-            X-StorageApi-Token: your_token
-
-    + Body
-
-            changeDescription=Rollback+to+previous+version
 
 + Response 201 (application/json)
-
-            {
-                "id": "236781646",
-                "configuration": {
-                    "host": "localhost",
-                    "port": 4406
-                },
-                "state": {},
-                "name": "",
-                "description": "",
-                "isDisabled": false,
-                "version": 2,
-                "created": "2017-02-15T00:05:32+0100",
-                "creatorToken": {
-                    "id": 27978,
-                    "description": "ondrej.popelka@keboola.com"
-                },
-                "changeDescription": "Rollback to previous version"
-            }
 
 ## Copy Configuration Rows [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/versions/{version_id}/create]
 ### Create Configuration Row copy [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}/versions/{version_id}/create]
@@ -7795,46 +6876,8 @@ Creates a new configuration row from an existing row version in [Development Bra
 ### Create Configuration Row copy (deprecated) [POST]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
-Creates a new configuration row from an existing row version.
-
-+ Parameters
-    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
-    + config_id (required) - Id of the configuration
-    + row_id (required) - Id of the configuration row
-    + version_id (required) - Id of the configuration row version to copy from
-
-+ Attributes
-    + targetConfigId (optional) - Copy the row to another existing configuration. If not provided, the row will be copied to the original configuration.
-    + changeDescription (optional) - Version change description
-
-+ Request (application/x-www-form-urlencoded)
-    + Headers
-
-            X-StorageApi-Token: your_token
-
-    + Body
-
-            changeDescription=Copy+to+another+row&targetConfigId=236606822
 
 + Response 201 (application/json)
-
-            {
-                "id": "236791247",
-                "configuration": {
-                    "host": "localhost",
-                    "port": 4406
-                },
-                "name": "",
-                "description": "",
-                "isDisabled": false,
-                "version": 1,
-                "created": "2017-02-15T00:38:58+0100",
-                "creatorToken": {
-                    "id": 27978,
-                    "description": "ondrej.popelka@keboola.com"
-                },
-                "changeDescription": "Copy to another row"
-            }
 
 ## Create or List Configuration Workspaces [/v2/storage/components/{component_id}/configs/{config_id}/workspaces]
 
@@ -7890,53 +6933,14 @@ Returns all workspaces for the component configuration in [Development Branch](#
 ### Create Configuration Workspaces (deprecated) [POST]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
-Creates a new workspace for an existing configuration.
-
-+ Parameters
-    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
-    + config_id (required) - Id of the configuration
-
-+ Attributes
-    + backend: snowflake (optional, enum[string]) - Workspace backend. When omitted, the default backend is used.
-        + Members
-            + redshift
-            + snowflake
-    + backendSize: small (optional, enum[string]) - Workspace backend size. Available only for `snowflake` backend and projects having `workspace-snowflake-dynamic-backend-size` feature enabled.
-        + Members
-            + small
-            + medium
-            + large
-
-+ Request (application/x-www-form-urlencoded)
-    + Headers
-
-            X-StorageApi-Token: your_token
-
-    + Body
-
-            backend=snowflake
 
 + Response 201 (application/json)
-
-    + Attributes (WorkspaceCreated)
 
 ### Workspace List (deprecated) [GET]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
-Returns all workspaces for the component configuration.
-
-+ Parameters
-    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
-    + config_id (required) - Id of the configuration
-
-+ Request
-    + Headers
-
-            X-StorageApi-Token: your_token
 
 + Response 200 (application/json)
-
-    + Attributes (array[Workspace])
 
 # Group Search
 ## Search Tables [/v2/storage/search/tables?metadataKey={metadataKey}&metadataValue={metadataValue}&metadataProvider={metadataProvider}&include={include}]
