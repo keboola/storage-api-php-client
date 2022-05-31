@@ -220,6 +220,7 @@
 		<!--<file>tests/Backend/Export/ExportParamsTest.php</file>-->
 		<!--WORKSPACE-->
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
+		<file>tests/Backend/Workspaces/TeradataWorkspacesUnloadTest.php</file>
 	</testsuite>
 	<testsuite name="unit">
 		<directory>tests-unit</directory>
