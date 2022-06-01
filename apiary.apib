@@ -5712,7 +5712,7 @@ Use this API call to obtain the definition of component for [Development Branch]
                 "uri": "https://syrup.keboola.com/docker/keboola.app-tree",
             }
 
-### Get component (deprecated) [GET]
+### Get component - without branch in URL (deprecated) [GET]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
 
@@ -5825,7 +5825,7 @@ KBC Component architecture, see the [Developers documentation](https://developer
                 }
             ]
 
-### Get components (deprecated) [GET /v2/storage/components?include={include}&componentType={componentType}&isDeleted={isDeleted}]
+### Get components - without branch in URL (deprecated) [GET /v2/storage/components?include={include}&componentType={componentType}&isDeleted={isDeleted}]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
 
@@ -5950,13 +5950,13 @@ Creates a new component configuration for [Development Branch](#reference/develo
                 }
             }
 
-### List configurations (deprecated) [GET /v2/storage/components/{component_id}/configs?isDeleted={isDeleted}]
+### List configurations - without branch in URL (deprecated) [GET /v2/storage/components/{component_id}/configs?isDeleted={isDeleted}]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
 
 + Response 200 (application/json)
 
-### Create Configuration (deprecated) [POST]
+### Create Configuration - without branch in URL (deprecated) [POST]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
 
@@ -6157,25 +6157,25 @@ Calling this API call on a deleted configuration will return error. Development 
 
 + Response 204
 
-### Configuration Detail (deprecated) [GET]
+### Configuration Detail - without branch in URL (deprecated) [GET]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
 
 + Response 200 (application/json)
 
-### Update Configuration (deprecated) [PUT]
+### Update Configuration - without branch in URL (deprecated) [PUT]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
 
 + Response 200 (application/json)
 
-### Update Configuration State (deprecated) [PUT /v2/storage/components/{component_id}/configs/{config_id}/state]
+### Update Configuration State - without branch in URL (deprecated) [PUT /v2/storage/components/{component_id}/configs/{config_id}/state]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
 
 + Response 200 (application/json)
 
-### Delete Configuration (deprecated) [DELETE]
+### Delete Configuration - without branch in URL (deprecated) [DELETE]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
 
@@ -6220,7 +6220,7 @@ and the configuration becomes available for other API calls.
                 }
             }
 
-### Restore Deleted Configuration (deprecated) [POST]
+### Restore Deleted Configuration - without branch in URL (deprecated) [POST]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
 
@@ -6275,7 +6275,7 @@ Lists all versions of a component configuration for [Development Branch](#refere
                 }
             ]
 
-### Versions list (deprecated) [GET /v2/storage/components/{component_id}/configs/{config_id}/versions?include={include}&limit={limit}&offset={offset}]
+### Versions list - without branch in URL (deprecated) [GET /v2/storage/components/{component_id}/configs/{config_id}/versions?include={include}&limit={limit}&offset={offset}]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
 
@@ -6316,7 +6316,7 @@ Gets configuration version for [Development Branch](#reference/development-branc
                 "rows": []
             }
 
-### Version Detail (deprecated) [GET]
+### Version Detail - without branch in URL (deprecated) [GET]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
 
@@ -6351,7 +6351,7 @@ one you specified. `state` attributes of the config and rows is preserved, if an
             "version": 3
         }
 
-### Rollback Version (deprecated) [POST]
+### Rollback Version - without branch in URL (deprecated) [POST]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
 
@@ -6387,7 +6387,7 @@ Creates a new configuration from the specified configuration version in [Develop
             "id": 4
         }
 
-### Create Configuration Copy (deprecated) [POST]
+### Create Configuration Copy - without branch in URL (deprecated) [POST]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
 
@@ -6493,13 +6493,13 @@ Gets configuration rows for [Development Branch](#reference/development-branches
                 }
             ]
 
-### Create Configuration Row (deprecated) [POST]
+### Create Configuration Row - without branch in URL (deprecated) [POST]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
 
 + Response 201 (application/json)
 
-### Configuration Row List (deprecated) [GET]
+### Configuration Row List - without branch in URL (deprecated) [GET]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
 
@@ -6654,25 +6654,25 @@ A configuration row is deleted permanently and cannot be restored.
 
 + Response 204
 
-### Configuration Row detail (deprecated) [GET]
+### Configuration Row detail - without branch in URL (deprecated) [GET]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
 
 + Response 200 (application/json)
 
-### Update Configuration Row (deprecated) [PUT]
+### Update Configuration Row - without branch in URL (deprecated) [PUT]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
 
 + Response 200 (application/json)
 
-### Update Configuration Row State (deprecated) [PUT /v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/state]
+### Update Configuration Row State - without branch in URL (deprecated) [PUT /v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/state]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
 
 + Response 200 (application/json)
 
-### Delete Configuration Row (deprecated) [DELETE]
+### Delete Configuration Row - without branch in URL (deprecated) [DELETE]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
 
@@ -6733,7 +6733,7 @@ List versions of a given configuration Row of a given Configuration for [Develop
                 }
             ]
 
-### Versions list (deprecated) [GET /v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/versions?include={include}&limit={limit}&offset={offset}]
+### Versions list - without branch in URL (deprecated) [GET /v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/versions?include={include}&limit={limit}&offset={offset}]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
 
@@ -6772,7 +6772,7 @@ Gets details about the Configuration Row version.
                 "configuration": {}
             }
 
-### Version detail (deprecated) [GET]
+### Version detail - without branch in URL (deprecated) [GET]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
 
@@ -6823,7 +6823,7 @@ content to be rollbacked to.
                 "changeDescription": "Rollback to previous version"
             }
 
-### Rollback Version (deprecated) [POST]
+### Rollback Version - without branch in URL (deprecated) [POST]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
 
@@ -6873,7 +6873,7 @@ Creates a new configuration row from an existing row version in [Development Bra
                 "changeDescription": "Copy to another row"
             }
 
-### Create Configuration Row copy (deprecated) [POST]
+### Create Configuration Row copy - without branch in URL (deprecated) [POST]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
 
@@ -6930,13 +6930,13 @@ Returns all workspaces for the component configuration in [Development Branch](#
 
    + Attributes (array[Workspace])
 
-### Create Configuration Workspaces (deprecated) [POST]
+### Create Configuration Workspaces - without branch in URL (deprecated) [POST]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
 
 + Response 201 (application/json)
 
-### Workspace List (deprecated) [GET]
+### Workspace List - without branch in URL (deprecated) [GET]
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
 
