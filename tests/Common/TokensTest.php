@@ -109,7 +109,6 @@ class TokensTest extends StorageApiTestCase
         $this->assertTrue($currentToken['canManageBuckets']);
         $this->assertTrue($currentToken['canReadAllFileUploads']);
         $this->assertTrue($currentToken['canPurgeTrash']);
-        $this->assertTrue($currentToken['canUseDirectAccess']);
         $this->assertFalse($currentToken['isDisabled']);
         $this->assertNotEmpty($currentToken['bucketPermissions']);
         $this->assertArrayHasKey('owner', $currentToken);
@@ -182,7 +181,6 @@ class TokensTest extends StorageApiTestCase
         $this->assertTrue($currentToken['canManageBuckets']);
         $this->assertTrue($currentToken['canReadAllFileUploads']);
         $this->assertTrue($currentToken['canPurgeTrash']);
-        $this->assertTrue($currentToken['canUseDirectAccess']);
         $this->assertFalse($currentToken['isDisabled']);
         $this->assertNotEmpty($currentToken['bucketPermissions']);
         $this->assertArrayHasKey('owner', $currentToken);
@@ -438,7 +436,6 @@ class TokensTest extends StorageApiTestCase
         $this->assertFalse($token['canManageTokens']);
         $this->assertFalse($token['canReadAllFileUploads']);
         $this->assertFalse($token['canPurgeTrash']);
-        $this->assertFalse($token['canUseDirectAccess']);
 
         $this->assertEquals('Created by ' . $currentToken['description'], $token['description']);
 
@@ -480,7 +477,6 @@ class TokensTest extends StorageApiTestCase
         $this->assertTrue($token['canManageBuckets']);
         $this->assertTrue($token['canReadAllFileUploads']);
         $this->assertTrue($token['canPurgeTrash']);
-        $this->assertFalse($token['canUseDirectAccess']);
 
         $this->assertEquals('My test token', $token['description']);
 
@@ -1205,8 +1201,6 @@ class TokensTest extends StorageApiTestCase
         $this->assertTrue($token['canReadAllFileUploads']);
         $this->assertArrayHasKey('canPurgeTrash', $token);
         $this->assertFalse($token['canPurgeTrash']);
-        $this->assertArrayHasKey('canUseDirectAccess', $token);
-        $this->assertFalse($token['canUseDirectAccess']);
     }
 
     public function testAdminRoleTokenSettings(): void
@@ -1226,8 +1220,6 @@ class TokensTest extends StorageApiTestCase
         $this->assertTrue($token['canReadAllFileUploads']);
         $this->assertArrayHasKey('canPurgeTrash', $token);
         $this->assertTrue($token['canPurgeTrash']);
-        $this->assertArrayHasKey('canUseDirectAccess', $token);
-        $this->assertTrue($token['canUseDirectAccess']);
     }
 
     public function testShareRoleTokenSettings(): void
@@ -1248,8 +1240,6 @@ class TokensTest extends StorageApiTestCase
         $this->assertTrue($token['canReadAllFileUploads']);
         $this->assertArrayHasKey('canPurgeTrash', $token);
         $this->assertTrue($token['canPurgeTrash']);
-        $this->assertArrayHasKey('canUseDirectAccess', $token);
-        $this->assertTrue($token['canUseDirectAccess']);
     }
 
     public function testReadOnlyRoleTokenSettings(): void
@@ -1270,8 +1260,6 @@ class TokensTest extends StorageApiTestCase
         $this->assertTrue($token['canReadAllFileUploads']);
         $this->assertArrayHasKey('canPurgeTrash', $token);
         $this->assertFalse($token['canPurgeTrash']);
-        $this->assertArrayHasKey('canUseDirectAccess', $token);
-        $this->assertFalse($token['canUseDirectAccess']);
     }
 
     public function testReadOnlyRoleBucketsPermissions(): void
@@ -1336,7 +1324,6 @@ class TokensTest extends StorageApiTestCase
         $this->assertFalse($token['canManageTokens']);
         $this->assertFalse($token['canReadAllFileUploads']);
         $this->assertFalse($token['canPurgeTrash']);
-        $this->assertFalse($token['canUseDirectAccess']);
         $this->assertArrayNotHasKey('componentAccess', $token);
         $this->assertNotEmpty($token['expires']);
         $this->assertSame([], $token['bucketPermissions']);
