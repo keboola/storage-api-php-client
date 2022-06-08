@@ -9,6 +9,8 @@ use Keboola\StorageApi\Options\FileUploadTransferOptions;
 use Keboola\StorageApi\S3Uploader\Chunker;
 use Keboola\StorageApi\S3Uploader\PromiseHandler;
 use Keboola\StorageApi\S3Uploader\PromiseResultHandler;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 class S3Uploader
 {
@@ -23,17 +25,27 @@ class S3Uploader
     private $transferOptions;
 
     /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
      * S3Uploader constructor.
      * @param S3Client $s3Client
      * @param FileUploadTransferOptions|null $transferOptions
      */
-    public function __construct(S3Client $s3Client, FileUploadTransferOptions $transferOptions = null)
+    public function __construct(S3Client $s3Client, FileUploadTransferOptions $transferOptions = null, LoggerInterface $logger = null)
     {
         $this->s3Client = $s3Client;
         if (!$transferOptions) {
             $this->transferOptions = new FileUploadTransferOptions();
         } else {
             $this->transferOptions = $transferOptions;
+        }
+        if (!$logger) {
+            $this->logger = new NullLogger();
+        } else {
+            $this->logger = $logger;
         }
     }
 
@@ -152,6 +164,7 @@ class S3Uploader
              * @var S3MultipartUploadException $reason
              */
             foreach ($rejected as $filePath => $reason) {
+                $this->logger->notice(sprintf(sprintf('Uploadfailed: %s, %s, %s, %s', $filePath, $reason->getMessage(), $reason->getCode(), $reason->getKey())));
                 $uploader = $this->multipartUploaderFactory(
                     $filePath,
                     $bucket,
