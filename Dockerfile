@@ -21,6 +21,11 @@ WORKDIR /code/
 
 COPY docker/composer-install.sh /tmp/composer-install.sh
 
+# Locale
+ENV LC_CTYPE=C.UTF-8
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
+
 RUN apt-get update -q \
     && apt-get install gnupg -y --no-install-recommends \
     && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
