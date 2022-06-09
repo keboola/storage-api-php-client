@@ -652,7 +652,11 @@ class ComponentsTest extends StorageApiTestCase
     public function testConfigurationNameShouldBeRequired(): void
     {
         try {
-            $this->client->apiPost('components/wr-db/configs', []);
+            $branchPrefix = '';
+            if (!$this->client instanceof BranchAwareClient) {
+                $branchPrefix = 'branch/default/';
+            }
+            $this->client->apiPost($branchPrefix . 'components/wr-db/configs', []);
             $this->fail('Params should be invalid');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.components.validation', $e->getStringCode());
@@ -667,7 +671,11 @@ class ComponentsTest extends StorageApiTestCase
     {
         $components = new \Keboola\StorageApi\Components($this->client);
 
-        $resp = $this->client->apiPost('components/wr-db/configs', [
+        $branchPrefix = '';
+        if (!$this->client instanceof BranchAwareClient) {
+            $branchPrefix = 'branch/default/';
+        }
+        $resp = $this->client->apiPost($branchPrefix . 'components/wr-db/configs', [
             'name' => 'neco',
         ]);
         $configuration = $components->getConfiguration('wr-db', $resp['id']);
@@ -680,7 +688,11 @@ class ComponentsTest extends StorageApiTestCase
     public function testNonJsonConfigurationShouldNotBeAllowed(): void
     {
         try {
-            $this->client->apiPost('components/wr-db/configs', [
+            $branchPrefix = '';
+            if (!$this->client instanceof BranchAwareClient) {
+                $branchPrefix = 'branch/default/';
+            }
+            $this->client->apiPost($branchPrefix . 'components/wr-db/configs', [
                 'name' => 'neco',
                 'description' => 'some',
                 'configuration' => '{sdf}',
@@ -698,7 +710,11 @@ class ComponentsTest extends StorageApiTestCase
     public function testNonJsonStateShouldNotBeAllowed(): void
     {
         try {
-            $this->client->apiPost('components/wr-db/configs', [
+            $branchPrefix = '';
+            if (!$this->client instanceof BranchAwareClient) {
+                $branchPrefix = 'branch/default/';
+            }
+            $this->client->apiPost($branchPrefix . 'components/wr-db/configs', [
                 'name' => 'neco',
                 'description' => 'some',
                 'state' => '{sdf}',
@@ -2449,7 +2465,11 @@ class ComponentsTest extends StorageApiTestCase
             )
         );
 
-        $stateEndpoint = "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/state";
+        $branchPrefix = '';
+        if (!$this->client instanceof BranchAwareClient) {
+            $branchPrefix = 'branch/default/';
+        }
+        $stateEndpoint = $branchPrefix . "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/state";
 
         try {
             $this->client->apiPut($stateEndpoint, [
@@ -3549,7 +3569,11 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertSame(1, $configuration['version']);
         $this->assertSame($configuration, $components->getConfiguration($componentId, $configurationId));
 
-        $stateEndpoint = "components/{$componentId}/configs/{$configurationId}/state";
+        $branchPrefix = '';
+        if (!$this->client instanceof BranchAwareClient) {
+            $branchPrefix = 'branch/default/';
+        }
+        $stateEndpoint = $branchPrefix . "components/{$componentId}/configs/{$configurationId}/state";
 
         try {
             $this->client->apiPut($stateEndpoint, [
