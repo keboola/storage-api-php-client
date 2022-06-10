@@ -541,7 +541,7 @@ class ComponentsTest extends StorageApiTestCase
             'base_uri' => $this->client->getApiUrl(),
         ], true);
 
-        $response = $client->post('/v2/storage/components/wr-db/configs', [
+        $response = $client->post('/v2/storage/branch/default/components/wr-db/configs', [
             'form_params' => [
                 'name' => 'test configuration',
                 'isDisabled' => $isDisabled,
@@ -763,7 +763,7 @@ class ComponentsTest extends StorageApiTestCase
             ],
         ];
 
-        $response = $client->post('/v2/storage/components/wr-db/configs', [
+        $response = $client->post('/v2/storage/branch/default/components/wr-db/configs', [
             'form_params' => [
                 'name' => 'test',
                 'configuration' => json_encode($config),
@@ -777,7 +777,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals($config, $response->configuration);
         $this->assertEquals($state, $response->state);
 
-        $response = $client->get("/v2/storage/components/wr-db/configs/{$response->id}", [
+        $response = $client->get("/v2/storage/branch/default/components/wr-db/configs/{$response->id}", [
             'headers' => [
                 'X-StorageApi-Token' => $this->_client->getTokenString(),
             ],
@@ -793,7 +793,7 @@ class ComponentsTest extends StorageApiTestCase
             'anotherArr' => [],
             'object' => (object) [],
         ];
-        $response = $client->put("/v2/storage/components/wr-db/configs/{$response->id}", [
+        $response = $client->put("/v2/storage/branch/default/components/wr-db/configs/{$response->id}", [
             'form_params' => [
                 'configuration' => json_encode($config),
             ],
@@ -804,7 +804,7 @@ class ComponentsTest extends StorageApiTestCase
         $response = json_decode((string) $response->getBody());
         $this->assertEquals($config, $response->configuration);
 
-        $response = $client->get("/v2/storage/components/wr-db/configs/{$response->id}", [
+        $response = $client->get("/v2/storage/branch/default/components/wr-db/configs/{$response->id}", [
             'headers' => [
                 'X-StorageApi-Token' => $this->_client->getTokenString(),
             ],
