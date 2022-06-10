@@ -306,16 +306,6 @@ parameters:
 			path: src/Keboola/StorageApi/Client.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:createTableFromSnapshot\\(\\) has parameter \\$bucketId with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:createTableFromSnapshot\\(\\) has parameter \\$snapshotId with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:createTableFromSourceTableAtTimestamp\\(\\) has parameter \\$bucketId with no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
@@ -1111,11 +1101,6 @@ parameters:
 			path: src/Keboola/StorageApi/Client.php
 
 		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$bucketId destination bucket\\)\\: Unexpected token \"\\$bucketId\", expected type at offset 18$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
 			message: "#^PHPDoc tag @param has invalid value \\(\\$bucketId string destination bucket\\)\\: Unexpected token \"\\$bucketId\", expected type at offset 18$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
@@ -1192,11 +1177,6 @@ parameters:
 
 		-
 			message: "#^PHPDoc tag @param has invalid value \\(\\$runId\\)\\: Unexpected token \"\\$runId\", expected type at offset 18$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$snapshotId source snapshot\\)\\: Unexpected token \"\\$snapshotId\", expected type at offset 61$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
 
@@ -3691,11 +3671,6 @@ parameters:
 			path: tests/Backend/CommonPart2/SnapshottingTest.php
 
 		-
-			message: "#^Parameter \\#3 \\$name of method Keboola\\\\StorageApi\\\\Client\\:\\:createTableFromSnapshot\\(\\) expects null, string given\\.$#"
-			count: 2
-			path: tests/Backend/CommonPart2/SnapshottingTest.php
-
-		-
 			message: "#^Cannot access offset 'importedColumns' on mixed\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart2/SystemColumnsTest.php
@@ -3768,11 +3743,6 @@ parameters:
 		-
 			message: "#^Offset 'rows' does not exist on string\\.$#"
 			count: 2
-			path: tests/Backend/Exasol/TableDefinitionOperationsTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$name of method Keboola\\\\StorageApi\\\\Client\\:\\:createTableFromSnapshot\\(\\) expects null, string given\\.$#"
-			count: 1
 			path: tests/Backend/Exasol/TableDefinitionOperationsTest.php
 
 		-
@@ -4976,11 +4946,6 @@ parameters:
 			path: tests/Backend/Synapse/OrderByTest.php
 
 		-
-			message: "#^Parameter \\#3 \\$name of method Keboola\\\\StorageApi\\\\Client\\:\\:createTableFromSnapshot\\(\\) expects null, string given\\.$#"
-			count: 2
-			path: tests/Backend/Synapse/SnapshottingTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Synapse\\\\TableDefinitionOperationsTest\\:\\:createTableDefinition\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Synapse/TableDefinitionOperationsTest.php
@@ -4988,11 +4953,6 @@ parameters:
 		-
 			message: "#^Offset 'rows' does not exist on string\\.$#"
 			count: 2
-			path: tests/Backend/Synapse/TableDefinitionOperationsTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$name of method Keboola\\\\StorageApi\\\\Client\\:\\:createTableFromSnapshot\\(\\) expects null, string given\\.$#"
-			count: 1
 			path: tests/Backend/Synapse/TableDefinitionOperationsTest.php
 
 		-
