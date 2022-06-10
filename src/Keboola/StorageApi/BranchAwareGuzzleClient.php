@@ -30,7 +30,11 @@ class BranchAwareGuzzleClient
      */
     public function request(string $method, $uri = '', array $options = []): ResponseInterface
     {
-        if (strpos($uri, '/v2/storage/') === 0 && strpos($uri, 'jobs/') !== 0) {
+        if (strpos($uri, '/v2/storage/branch/default/') === 0) {
+            // url already has `branch/default` -> replace with current branch id
+            $uri = substr_replace($uri, $this->branchId, strlen('/v2/storage/branch/'), strlen('default'));
+        } elseif (strpos($uri, '/v2/storage/') === 0 && strpos($uri, 'jobs/') !== 0) {
+            // url without branch -> insert `branch/<id>` into url
             $uri = substr_replace($uri, sprintf('branch/%s/', $this->branchId), strlen('/v2/storage/'), 0);
         }
 
