@@ -202,8 +202,8 @@ class TeradataWorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
         $expected = [
             '"Id","Name","update"',
-            '"1","cz",""',
-            '"2","en",""',
+            '"          1","cz",""',
+            '"          2","en",""',
         ];
 
         $this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->getTableDataPreview($table['id'], [
