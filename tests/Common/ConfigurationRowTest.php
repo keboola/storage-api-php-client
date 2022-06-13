@@ -177,7 +177,7 @@ class ConfigurationRowTest extends StorageApiTestCase
             ],
         ];
 
-        $response = $guzzleClient->post('/v2/storage/components/wr-db/configs/main-1/rows', [
+        $response = $guzzleClient->post('/v2/storage/branch/default/components/wr-db/configs/main-1/rows', [
             'form_params' => [
                 'name' => 'test',
                 'configuration' => json_encode($config),
@@ -191,7 +191,7 @@ class ConfigurationRowTest extends StorageApiTestCase
         $this->assertEquals($config, $response->configuration);
         $this->assertEquals($state, $response->state);
 
-        $response = $guzzleClient->get('/v2/storage/components/wr-db/configs/main-1/rows/' . $response->id, [
+        $response = $guzzleClient->get('/v2/storage/branch/default/components/wr-db/configs/main-1/rows/' . $response->id, [
             'headers' => [
                 'X-StorageApi-Token' => $this->client->getTokenString(),
             ],
@@ -215,7 +215,7 @@ class ConfigurationRowTest extends StorageApiTestCase
             ],
         ];
 
-        $guzzleClient->put('/v2/storage/components/wr-db/configs/main-1/rows/' . $response->id . '/state', [
+        $guzzleClient->put('/v2/storage/branch/default/components/wr-db/configs/main-1/rows/' . $response->id . '/state', [
             'form_params' => [
                 'state' => json_encode($state),
             ],
@@ -224,7 +224,7 @@ class ConfigurationRowTest extends StorageApiTestCase
             ],
         ]);
 
-        $response = $guzzleClient->put('/v2/storage/components/wr-db/configs/main-1/rows/' . $response->id, [
+        $response = $guzzleClient->put('/v2/storage/branch/default/components/wr-db/configs/main-1/rows/' . $response->id, [
             'form_params' => [
                 'configuration' => json_encode($config),
             ],
@@ -236,7 +236,7 @@ class ConfigurationRowTest extends StorageApiTestCase
         $this->assertEquals($config, $response->configuration);
         $this->assertEquals($state, $response->state);
 
-        $response = $guzzleClient->get('/v2/storage/components/wr-db/configs/main-1/rows/' . $response->id, [
+        $response = $guzzleClient->get('/v2/storage/branch/default/components/wr-db/configs/main-1/rows/' . $response->id, [
             'headers' => [
                 'X-StorageApi-Token' => $this->client->getTokenString(),
             ],
@@ -278,7 +278,7 @@ class ConfigurationRowTest extends StorageApiTestCase
             ],
         ];
 
-        $response = $guzzleClient->post('/v2/storage/components/wr-db/configs/main-1/rows', [
+        $response = $guzzleClient->post('/v2/storage/branch/default/components/wr-db/configs/main-1/rows', [
             'form_params' => [
                 'configuration' => json_encode($config),
                 'state' => json_encode($state),
@@ -289,7 +289,7 @@ class ConfigurationRowTest extends StorageApiTestCase
         ]);
         $response = json_decode((string) $response->getBody());
 
-        $responsePut = $guzzleClient->put('/v2/storage/components/wr-db/configs/main-1/rows/' . $response->id, [
+        $responsePut = $guzzleClient->put('/v2/storage/branch/default/components/wr-db/configs/main-1/rows/' . $response->id, [
             'form_params' => [
                 'isDisabled' => 'true',
                 'changeDescription' => 'Row ABCD disabled',
@@ -338,7 +338,7 @@ class ConfigurationRowTest extends StorageApiTestCase
             ],
         ];
 
-        $response = $client->post('/v2/storage/components/wr-db/configs/main-1/rows', [
+        $response = $client->post('/v2/storage/branch/default/components/wr-db/configs/main-1/rows', [
             'form_params' => [
                 'name' => 'test configuration row',
                 'configuration' => json_encode($config),
