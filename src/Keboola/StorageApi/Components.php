@@ -16,6 +16,7 @@ use Keboola\StorageApi\Options\Components\ListConfigurationWorkspacesOptions;
 
 class Components
 {
+    private string $branchPrefix = '';
 
     /**
      * @var Client
@@ -25,11 +26,14 @@ class Components
     public function __construct(Client $client)
     {
         $this->client = $client;
+        if (!$client instanceof BranchAwareClient) {
+            $this->branchPrefix = 'branch/default/';
+        }
     }
 
     public function addConfiguration(Configuration $options)
     {
-        return $this->client->apiPost("components/{$options->getComponentId()}/configs", [
+        return $this->client->apiPost($this->branchPrefix . "components/{$options->getComponentId()}/configs", [
             'name' => $options->getName(),
             'description' => $options->getDescription(),
             'configurationId' => $options->getConfigurationId(),
@@ -76,7 +80,7 @@ class Components
         }
 
         return $this->client->apiPut(
-            "components/{$options->getComponentId()}/configs/{$options->getConfigurationId()}",
+            $this->branchPrefix . "components/{$options->getComponentId()}/configs/{$options->getConfigurationId()}",
             $data
         );
     }
@@ -94,24 +98,24 @@ class Components
         }
 
         return $this->client->apiPut(
-            "components/{$options->getComponentId()}/configs/{$options->getConfigurationId()}/state",
+            $this->branchPrefix . "components/{$options->getComponentId()}/configs/{$options->getConfigurationId()}/state",
             $data
         );
     }
 
     public function getConfiguration($componentId, $configurationId)
     {
-        return $this->client->apiGet("components/{$componentId}/configs/{$configurationId}");
+        return $this->client->apiGet($this->branchPrefix . "components/{$componentId}/configs/{$configurationId}");
     }
 
     public function deleteConfiguration($componentId, $configurationId)
     {
-        return $this->client->apiDelete("components/{$componentId}/configs/{$configurationId}");
+        return $this->client->apiDelete($this->branchPrefix . "components/{$componentId}/configs/{$configurationId}");
     }
 
     public function resetToDefault($componentId, $configurationId)
     {
-        return $this->client->apiPost("components/{$componentId}/configs/{$configurationId}/reset-to-default");
+        return $this->client->apiPost($this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/reset-to-default");
     }
 
     public function listComponents(ListComponentsOptions $options = null)
@@ -119,39 +123,39 @@ class Components
         if (!$options) {
             $options = new ListComponentsOptions();
         }
-        return $this->client->apiGet('components?' . http_build_query($options->toParamsArray()));
+        return $this->client->apiGet($this->branchPrefix . 'components?' . http_build_query($options->toParamsArray()));
     }
 
     public function getComponent($componentId)
     {
-        return $this->client->apiGet("components/{$componentId}");
+        return $this->client->apiGet($this->branchPrefix . "components/{$componentId}");
     }
 
     public function listComponentConfigurations(ListComponentConfigurationsOptions $options)
     {
-        return $this->client->apiGet("components/{$options->getComponentId()}/configs?" . http_build_query($options->toParamsArray()));
+        return $this->client->apiGet($this->branchPrefix . "components/{$options->getComponentId()}/configs?" . http_build_query($options->toParamsArray()));
     }
 
     public function restoreComponentConfiguration($componentId, $configurationId)
     {
-        return $this->client->apiPost("components/{$componentId}/configs/{$configurationId}/restore");
+        return $this->client->apiPost($this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/restore");
     }
 
     public function listConfigurationVersions(ListConfigurationVersionsOptions $options)
     {
-        return $this->client->apiGet("components/{$options->getComponentId()}/configs/"
+        return $this->client->apiGet($this->branchPrefix . "components/{$options->getComponentId()}/configs/"
             . "{$options->getConfigurationId()}/versions?" . http_build_query($options->toParamsArray()));
     }
 
     public function getConfigurationVersion($componentId, $configurationId, $version)
     {
-        return $this->client->apiGet("components/{$componentId}/configs/{$configurationId}/versions/{$version}");
+        return $this->client->apiGet($this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/versions/{$version}");
     }
 
     public function rollbackConfiguration($componentId, $configurationId, $version, $changeDescription = null)
     {
         return $this->client->apiPost(
-            "components/{$componentId}/configs/{$configurationId}/versions/{$version}/rollback",
+            $this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/versions/{$version}/rollback",
             ['changeDescription' => $changeDescription]
         );
     }
@@ -159,7 +163,7 @@ class Components
     public function createConfigurationFromVersion($componentId, $configurationId, $version, $name, $description = null, $changeDescription = null)
     {
         return $this->client->apiPost(
-            "components/{$componentId}/configs/{$configurationId}/versions/{$version}/create",
+            $this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/versions/{$version}/create",
             ['name' => $name, 'description' => $description, 'changeDescription' => $changeDescription]
         );
     }
@@ -167,7 +171,7 @@ class Components
     public function getConfigurationRow($componentId, $configurationId, $rowId)
     {
         return $this->client->apiGet(sprintf(
-            'components/%s/configs/%s/rows/%s',
+            $this->branchPrefix . 'components/%s/configs/%s/rows/%s',
             $componentId,
             $configurationId,
             $rowId
@@ -179,7 +183,7 @@ class Components
         if (!$options) {
             $options = new ListConfigurationRowsOptions();
         }
-        return $this->client->apiGet("components/{$options->getComponentId()}/configs/"
+        return $this->client->apiGet($this->branchPrefix . "components/{$options->getComponentId()}/configs/"
             . "{$options->getConfigurationId()}/rows");
     }
 
@@ -188,7 +192,7 @@ class Components
         if (!$options) {
             $options = new ListConfigurationWorkspacesOptions();
         }
-        return $this->client->apiGet("components/{$options->getComponentId()}/configs/"
+        return $this->client->apiGet($this->branchPrefix . "components/{$options->getComponentId()}/configs/"
             . "{$options->getConfigurationId()}/workspaces");
     }
 
@@ -196,7 +200,7 @@ class Components
     {
         return $this->client->apiPost(
             sprintf(
-                'components/%s/configs/%s/rows',
+                $this->branchPrefix . 'components/%s/configs/%s/rows',
                 $options->getComponentConfiguration()->getComponentId(),
                 $options->getComponentConfiguration()->getConfigurationId()
             ),
@@ -215,7 +219,7 @@ class Components
     public function deleteConfigurationRow($componentId, $configurationId, $rowId, $changeDescription = null)
     {
         return $this->client->apiDeleteParams(
-            "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}",
+            $this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}",
             [
                 'changeDescription' => $changeDescription,
             ]
@@ -259,7 +263,7 @@ class Components
 
         return $this->client->apiPut(
             sprintf(
-                'components/%s/configs/%s/rows/%s',
+                $this->branchPrefix . 'components/%s/configs/%s/rows/%s',
                 $options->getComponentConfiguration()->getComponentId(),
                 $options->getComponentConfiguration()->getConfigurationId(),
                 $options->getRowId()
@@ -282,7 +286,7 @@ class Components
 
         return $this->client->apiPut(
             sprintf(
-                'components/%s/configs/%s/rows/%s/state',
+                $this->branchPrefix . 'components/%s/configs/%s/rows/%s/state',
                 $options->getComponentConfiguration()->getComponentId(),
                 $options->getComponentConfiguration()->getConfigurationId(),
                 $options->getRowId()
@@ -295,7 +299,7 @@ class Components
     {
         return $this->client->apiGet(
             sprintf(
-                'components/%s/configs/%s/rows/%s/versions?%s',
+                $this->branchPrefix . 'components/%s/configs/%s/rows/%s/versions?%s',
                 $options->getComponentId(),
                 $options->getConfigurationId(),
                 $options->getRowId(),
@@ -306,13 +310,13 @@ class Components
 
     public function getConfigurationRowVersion($componentId, $configurationId, $rowId, $version)
     {
-        return $this->client->apiGet("components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/versions/{$version}");
+        return $this->client->apiGet($this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/versions/{$version}");
     }
 
     public function rollbackConfigurationRow($componentId, $configurationId, $rowId, $version, $changeDescription = null)
     {
         return $this->client->apiPost(
-            "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/versions/{$version}/rollback",
+            $this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/versions/{$version}/rollback",
             ['changeDescription' => $changeDescription]
         );
     }
@@ -320,7 +324,7 @@ class Components
     public function createConfigurationRowFromVersion($componentId, $configurationId, $rowId, $version, $targetConfigurationId = null, $changeDescription = null)
     {
         return $this->client->apiPost(
-            "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/versions/{$version}/create",
+            $this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/versions/{$version}/create",
             ['targetConfigId' => $targetConfigurationId, 'changeDescription' => $changeDescription]
         );
     }
@@ -328,7 +332,7 @@ class Components
     public function createConfigurationWorkspace($componentId, $configurationId, array $options = [])
     {
         return $this->client->apiPost(
-            "components/{$componentId}/configs/{$configurationId}/workspaces",
+            $this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/workspaces",
             $options,
             true,
             [Client::REQUEST_OPTION_EXTENDED_TIMEOUT => true]
@@ -339,7 +343,7 @@ class Components
     {
         return $this->client->apiPost(
             sprintf(
-                'components/%s/configs/%s/metadata',
+                $this->branchPrefix . 'components/%s/configs/%s/metadata',
                 $options->getComponentConfiguration()->getComponentId(),
                 $options->getComponentConfiguration()->getConfigurationId()
             ),
@@ -352,7 +356,7 @@ class Components
     public function listConfigurationMetadata(ListConfigurationMetadataOptions $options)
     {
         return $this->client->apiGet(sprintf(
-            'components/%s/configs/%s/metadata',
+            $this->branchPrefix . 'components/%s/configs/%s/metadata',
             $options->getComponentId(),
             $options->getConfigurationId()
         ));
@@ -361,7 +365,7 @@ class Components
     public function deleteConfigurationMetadata($componentId, $configurationId, $metadataId)
     {
         return $this->client->apiDelete(sprintf(
-            'components/%s/configs/%s/metadata/%s',
+            $this->branchPrefix . 'components/%s/configs/%s/metadata/%s',
             $componentId,
             $configurationId,
             $metadataId
