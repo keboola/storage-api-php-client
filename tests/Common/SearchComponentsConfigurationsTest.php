@@ -65,6 +65,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
 
         $configurationNameMain1 = $this->generateUniqueNameForString('main-1');
         $configurationNameMain2 = $this->generateUniqueNameForString('main-2');
+        $configurationNameDeleted = $this->generateUniqueNameForString('deleted');
         // prepare three configs
         $transformationMain1Options = $this->createConfiguration(
             $components,
@@ -77,6 +78,12 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
             'transformation',
             $configurationNameMain2,
             'Main 2'
+        );
+        $transformationDeletedOptions = $this->createConfiguration(
+            $components,
+            'transformation',
+            $configurationNameDeleted,
+            'Deleted'
         );
 
         $wrDbMain1Options = $this->createConfiguration(
@@ -104,15 +111,31 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
             ]);
         $components->addConfigurationMetadata($configurationMetadataOptions);
 
+        $configurationMetadataOptions = (new ConfigurationMetadata($transformationDeletedOptions))
+            ->setMetadata([
+                [
+                    'key' => 'KBC.SomeEnity.metadataKey',
+                    'value' => 'some-value',
+                ],
+                [
+                    'key' => 'transformationMain2Key',
+                    'value' => 'some-value',
+                ],
+            ]);
+        $components->addConfigurationMetadata($configurationMetadataOptions);
+
         $configurationMetadataOptions = (new ConfigurationMetadata($wrDbMain1Options))
             ->setMetadata(self::TEST_METADATA);
         $components->addConfigurationMetadata($configurationMetadataOptions);
+
+        $components->deleteConfiguration($transformationDeletedOptions->getComponentId(), $transformationDeletedOptions->getConfigurationId());
         //setup end
 
         // 1. test only componentId set
         $listConfigurationMetadata = $this->client->searchComponents((new SearchComponentConfigurationsOptions())
             ->setComponentId('transformation')
             ->setInclude(['filteredMetadata']));
+        self::assertNotCount(3, $listConfigurationMetadata, 'Deleted configuration should not be included');
         self::assertCount(2, $listConfigurationMetadata);
         $this->assertMetadataHasKeys($listConfigurationMetadata[0]);
         $this->assertSearchResponseEquals([
