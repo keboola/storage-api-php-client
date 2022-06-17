@@ -182,6 +182,7 @@
 	<testsuite name="backend-exasol">
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
 		<file>tests/Backend/CommonPart1/BucketsTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 	</testsuite>
 
 	<testsuite name="paratest-exasol">
@@ -193,7 +194,6 @@
 
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
 		<!--WORKSPACE-->
-		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/ExasolWorkspacesUnloadTest.php</file>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesExasolTest.php</file>
 		<file>tests/Backend/Workspaces/MetadataFromExasolWorkspaceTest.php</file>
