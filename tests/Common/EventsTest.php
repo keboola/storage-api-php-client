@@ -10,10 +10,9 @@
 
 namespace Keboola\Test\Common;
 
-use GuzzleHttp\Exception\ServerException;
 use Keboola\StorageApi\ClientException;
-use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\Event;
+use Keboola\Test\StorageApiTestCase;
 
 class EventsTest extends StorageApiTestCase
 {
@@ -44,6 +43,53 @@ class EventsTest extends StorageApiTestCase
         $this->assertEquals($event->getDescription(), $savedEvent['description']);
         $this->assertEquals($event->getParams(), $savedEvent['params']);
         $this->assertGreaterThan(0, $savedEvent['idBranch']);
+    }
+
+    public function testEventWithSchemaMatchesTheSchema(): void
+    {
+        $event = new Event();
+        $event->setComponent('keboola.keboola-as-code')
+            ->setMessage('Sync-pull command done.')
+            ->setParams(['command' => 'sync-pull'])
+            ->setResults(['projectId' => 13]);
+
+        $savedEvent = $this->createAndWaitForEvent($event);
+        $this->assertSame('ext.keboola.keboola-as-code.', $savedEvent['event']);
+    }
+
+    public function testEventWithSchemaDoesNotMatchTheSchema(): void
+    {
+        $event = new Event();
+        $event->setComponent('keboola.keboola-as-code')
+            ->setMessage('Sync-pull command done.')
+            ->setParams(['command' => 'sync-pull']);
+        // projectId is missing from results
+
+        try {
+            $this->createAndWaitForEvent($event);
+            $this->fail('Should have thrown');
+        } catch (ClientException $e) {
+            $this->assertSame('storage.event.schemaValidationFailed', $e->getStringCode());
+            $this->assertSame(
+                [
+                    [
+                        'key' => 'results.projectId',
+                        'message' => 'The property projectId is required',
+                    ],
+                ],
+                $e->getContextParams()['errors']
+            );
+        }
+    }
+
+    public function testEventWithoutSchemaHasOnlyMinimalValidation(): void
+    {
+        $event = new Event();
+        $event->setComponent('whatever')
+            ->setMessage('Whatever');
+        $savedEvent = $this->createAndWaitForEvent($event);
+
+        $this->assertSame('ext.whatever.', $savedEvent['event']);
     }
 
     public function testEventCreateWithoutParams(): void
