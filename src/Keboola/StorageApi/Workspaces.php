@@ -26,9 +26,14 @@ class Workspaces
      * @param array $options
      *  - backend (optional)
      */
-    public function createWorkspace(array $options = [])
+    public function createWorkspace(array $options = [], bool $async = false)
     {
-        return $this->client->apiPost('workspaces', $options, true, [Client::REQUEST_OPTION_EXTENDED_TIMEOUT => true]);
+        $url = 'workspaces';
+        if ($async) {
+            $url .= '?' . http_build_query(['async' => $async]);
+        }
+
+        return $this->client->apiPost($url, $options, true, [Client::REQUEST_OPTION_EXTENDED_TIMEOUT => true]);
     }
 
     public function listWorkspaces()
