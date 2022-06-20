@@ -1,27 +1,37 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: martinhalamicek
- * Date: 03/05/16
- * Time: 09:45
- */
+
 namespace Keboola\Test\Backend\Workspaces;
 
-use Doctrine\DBAL\DBALException;
+use Generator;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\WorkspaceCredentialsAssertTrait;
 use Keboola\Test\Backend\Workspaces\Backend\TeradataWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
-use Keboola\Test\StorageApiTestCase;
 
 class WorkspacesTest extends ParallelWorkspacesTestCase
 {
     use WorkspaceConnectionTrait;
     use WorkspaceCredentialsAssertTrait;
 
-    public function testWorkspaceCreate(): void
+    /**
+     * @return Generator<string, array{async:bool}>
+     */
+    public static function createWorkspaceProvider(): Generator
+    {
+        yield 'sync' => [
+            'async' => false,
+        ];
+        yield 'async' => [
+            'async' => true,
+        ];
+    }
+
+    /**
+     * @dataProvider createWorkspaceProvider
+     */
+    public function testWorkspaceCreate(bool $async): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
@@ -33,7 +43,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $this->_client->setRunId($runId);
         $this->workspaceSapiClient->setRunId($runId);
 
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $workspaces->createWorkspace([], $async);
         $connection = $workspace['connection'];
 
         $workspaceWithSnowflakeBackend = $connection['backend'] === self::BACKEND_SNOWFLAKE;
