@@ -9,7 +9,8 @@ Before asking for review make sure that:
 
 ## Release
 
-  - [ ] major (BC break)
-  - [ ] minor (new feature)
-  - [ ] patch (backwards compatible fix)
-  - [ ] no release (just test changes)
+  - [ ] I gave the PR a proper label:
+    * major (BC break)
+    * minor (new feature)
+    * patch (backwards compatible fix)
+    * no release (just test changes)
