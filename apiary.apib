@@ -3793,8 +3793,11 @@ It means that endpoint `GET /v2/storage/workspaces` is the same as `GET /v2/stor
 
 ## Workspaces Collection [/v2/storage/workspaces]
 
-### Create Workspace [POST]
+### Create Workspace [POST /v2/storage/workspaces?async={async}]
 Creates a new workspace and return its credentials.
+
++ Parameters
+    + async (optional, boolean) - Create workspace in a background job.
 
 + Attributes
     + backend: snowflake (optional, enum[string]) - Workspace backend. When omitted, the default backend is used.
@@ -3820,15 +3823,49 @@ Creates a new workspace and return its credentials.
             backend=snowflake
 
 + Response 201 (application/json)
-
+Synchronous call response (async=false)
    + Attributes (WorkspaceCreated)
 
++ Response 202 (application/json)
+Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
+    + Body
 
-### Create Development Branch Workspace [POST /v2/storage/branch/{branch_id}/workspaces]
+            {
+                "id": 11,
+                "status": "waiting",
+                "url": "https://connection.keboola.com/v2/storage/jobs/11",
+                "operationName": "workspaceCreate",
+                "operationParams": {
+                    "values": {
+                        "backend": "snowflake"
+                        "branchId": 1
+                    },
+                },
+                "createdTime": "2013-05-31T16:11:05+0200",
+                "startTime": null,
+                "endTime": null,
+                "runId": null,
+                "results": null,
+                "creatorToken": {
+                    "id": "27978",
+                    "description": "roman.bracinik@keboola.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
+                }
+            }
+
+### Create Development Branch Workspace [POST /v2/storage/branch/{branch_id}/workspaces?async={async}]
 Creates a new workspace for [Development Branch](#reference/development-branches) and return its credentials.
 
 + Parameters
     + branch_id (required) - Id of the development branch
+    + async (optional, boolean) - Create workspace in a background job.
 
 + Attributes
     + backend: snowflake (optional, enum[string]) - Workspace backend. When omitted, the default backend is used.
@@ -3855,8 +3892,42 @@ Creates a new workspace for [Development Branch](#reference/development-branches
             backend=snowflake
 
 + Response 201 (application/json)
-
+Synchronous call response (async=false)
    + Attributes (WorkspaceCreated)
+
++ Response 202 (application/json)
+Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
+    + Body
+
+            {
+                "id": 11,
+                "status": "waiting",
+                "url": "https://connection.keboola.com/v2/storage/jobs/11",
+                "operationName": "workspaceCreate",
+                "operationParams": {
+                    "values": {
+                        "backend": "snowflake"
+                        "branchId": 1
+                    },
+                },
+                "createdTime": "2013-05-31T16:11:05+0200",
+                "startTime": null,
+                "endTime": null,
+                "runId": null,
+                "results": null,
+                "creatorToken": {
+                    "id": "27978",
+                    "description": "roman.bracinik@keboola.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
+                }
+            }
 
 
 ### List Workspaces [GET]

@@ -26,9 +26,16 @@ class Workspaces
      * @param array $options
      *  - backend (optional)
      */
-    public function createWorkspace(array $options = [])
+    public function createWorkspace(array $options = [], bool $async = true)
     {
-        return $this->client->apiPost('workspaces', $options, true, [Client::REQUEST_OPTION_EXTENDED_TIMEOUT => true]);
+        $url = 'workspaces';
+        $requestOptions = [Client::REQUEST_OPTION_EXTENDED_TIMEOUT => true];
+        if ($async) {
+            $url .= '?' . http_build_query(['async' => $async]);
+            $requestOptions = [];
+        }
+
+        return $this->client->apiPost($url, $options, true, $requestOptions);
     }
 
     public function listWorkspaces()
@@ -41,9 +48,16 @@ class Workspaces
         return $this->client->apiGet("workspaces/{$id}");
     }
 
-    public function deleteWorkspace($id, array $options = [])
+    public function deleteWorkspace($id, array $options = [], bool $async = true): void
     {
-        $this->client->apiDelete("workspaces/{$id}?" . http_build_query($options));
+        $url = sprintf('workspaces/%s', $id);
+        if (!array_key_exists('async', $options)) {
+            // to prevent bc use $async argument only if async is not part of options
+            $options['async'] = $async;
+        }
+        $url .= '?' . http_build_query($options);
+
+        $this->client->apiDelete($url);
     }
 
     /**

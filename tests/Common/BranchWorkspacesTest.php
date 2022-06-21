@@ -40,7 +40,10 @@ class BranchWorkspacesTest extends WorkspacesTest
         );
     }
 
-    public function testWorkspaceCreate(): void
+    /**
+     * @dataProvider createWorkspaceProvider
+     */
+    public function testWorkspaceCreate(bool $async): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
@@ -51,7 +54,7 @@ class BranchWorkspacesTest extends WorkspacesTest
         $runId = $this->_client->generateRunId();
         $this->workspaceSapiClient->setRunId($runId);
 
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $workspaces->createWorkspace([], $async);
         $connection = $workspace['connection'];
 
         $tokenInfo = $this->_client->verifyToken();

@@ -1,27 +1,37 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: martinhalamicek
- * Date: 03/05/16
- * Time: 09:45
- */
+
 namespace Keboola\Test\Backend\Workspaces;
 
-use Doctrine\DBAL\DBALException;
+use Generator;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\WorkspaceCredentialsAssertTrait;
 use Keboola\Test\Backend\Workspaces\Backend\TeradataWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
-use Keboola\Test\StorageApiTestCase;
 
 class WorkspacesTest extends ParallelWorkspacesTestCase
 {
     use WorkspaceConnectionTrait;
     use WorkspaceCredentialsAssertTrait;
 
-    public function testWorkspaceCreate(): void
+    /**
+     * @return Generator<string, array{async:bool}>
+     */
+    public static function createWorkspaceProvider(): Generator
+    {
+        yield 'sync' => [
+            'async' => false,
+        ];
+        yield 'async' => [
+            'async' => true,
+        ];
+    }
+
+    /**
+     * @dataProvider createWorkspaceProvider
+     */
+    public function testWorkspaceCreate(bool $async): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
@@ -33,7 +43,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $this->_client->setRunId($runId);
         $this->workspaceSapiClient->setRunId($runId);
 
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $workspaces->createWorkspace([], $async);
         $connection = $workspace['connection'];
 
         $workspaceWithSnowflakeBackend = $connection['backend'] === self::BACKEND_SNOWFLAKE;
@@ -162,9 +172,8 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
 
     /**
      * @dataProvider  dropOptions
-     * @param $dropOptions
      */
-    public function testDropWorkspace($dropOptions): void
+    public function testDropWorkspace(array $dropOptions, bool $async): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
@@ -186,7 +195,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         }
 
         // sync delete
-        $workspaces->deleteWorkspace($workspace['id'], $dropOptions);
+        $workspaces->deleteWorkspace($workspace['id'], $dropOptions, $async);
 
         try {
             $backend->countRows('mytable');
@@ -234,31 +243,27 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
 
     /**
      * @dataProvider dropOptions
-     * @param $dropOptions
      */
-    public function testDropNonExistingWorkspace($dropOptions): void
+    public function testDropNonExistingWorkspace(array $dropOptions, bool $async): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
         try {
-            $workspaces->deleteWorkspace(0, $dropOptions);
+            $workspaces->deleteWorkspace(0, $dropOptions, $async);
             $this->fail('exception should be thrown');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.workspaceNotFound', $e->getStringCode());
         }
     }
 
-    public function dropOptions()
+    /**
+     * @return Generator<string, array{options:array{async?:bool},async:bool}>
+     */
+    public function dropOptions(): \Generator
     {
-        return [
-            [
-                [],
-            ],
-            [
-                [
-                    'async' => true,
-                ],
-            ],
-        ];
+        yield 'defaults async' => ['options' => [], 'async' => true];
+        yield 'defaults sync' => ['options' => [], 'async' => false];
+        yield 'legacy options async' => ['options' => ['async' => true], 'async' => false];
+        yield 'legacy options sync' => ['options' => ['async' => false], 'async' => true];
     }
 }
