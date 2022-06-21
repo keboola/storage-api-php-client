@@ -3086,11 +3086,6 @@ parameters:
 			path: src/Keboola/StorageApi/Workspaces.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Workspaces\\:\\:deleteWorkspace\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Workspaces.php
-
-		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Workspaces\\:\\:deleteWorkspace\\(\\) has parameter \\$id with no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Workspaces.php
@@ -6207,31 +6202,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\WorkspacesTest\\:\\:assertCredentialsShouldNotWork\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/WorkspacesTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\WorkspacesTest\\:\\:dropOptions\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/WorkspacesTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\WorkspacesTest\\:\\:testDropNonExistingWorkspace\\(\\) has parameter \\$dropOptions with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/WorkspacesTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\WorkspacesTest\\:\\:testDropWorkspace\\(\\) has parameter \\$dropOptions with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/WorkspacesTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$dropOptions\\)\\: Unexpected token \"\\$dropOptions\", expected type at offset 51$#"
-			count: 1
-			path: tests/Backend/Workspaces/WorkspacesTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$dropOptions\\)\\: Unexpected token \"\\$dropOptions\", expected type at offset 52$#"
 			count: 1
 			path: tests/Backend/Workspaces/WorkspacesTest.php
 
