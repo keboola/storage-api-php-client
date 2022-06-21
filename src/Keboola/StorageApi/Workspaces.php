@@ -29,11 +29,13 @@ class Workspaces
     public function createWorkspace(array $options = [], bool $async = true)
     {
         $url = 'workspaces';
+        $requestOptions = [Client::REQUEST_OPTION_EXTENDED_TIMEOUT => true];
         if ($async) {
             $url .= '?' . http_build_query(['async' => $async]);
+            $requestOptions = [];
         }
 
-        return $this->client->apiPost($url, $options, true, [Client::REQUEST_OPTION_EXTENDED_TIMEOUT => true]);
+        return $this->client->apiPost($url, $options, true, $requestOptions);
     }
 
     public function listWorkspaces()
