@@ -26,7 +26,7 @@ class Workspaces
      * @param array $options
      *  - backend (optional)
      */
-    public function createWorkspace(array $options = [], bool $async = true)
+    public function createWorkspace(array $options = [], bool $async = false)
     {
         $url = 'workspaces';
         $requestOptions = [Client::REQUEST_OPTION_EXTENDED_TIMEOUT => true];
@@ -48,7 +48,7 @@ class Workspaces
         return $this->client->apiGet("workspaces/{$id}");
     }
 
-    public function deleteWorkspace($id, array $options = [], bool $async = true): void
+    public function deleteWorkspace($id, array $options = [], bool $async = false): void
     {
         $url = sprintf('workspaces/%s', $id);
         if (!array_key_exists('async', $options)) {
