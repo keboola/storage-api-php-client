@@ -19,7 +19,7 @@ class ReadOnlyUserTest extends ParallelWorkspacesTestCase
         $readOnlyWorkspaces = new Workspaces($readOnlyClient);
 
         try {
-            $readOnlyWorkspaces->createWorkspace();
+            $readOnlyWorkspaces->createWorkspace([], true);
             $this->fail('Workspace request should be restricted for readOnly user');
         } catch (ClientException $e) {
             $this->assertSame(403, $e->getCode());
@@ -37,7 +37,7 @@ class ReadOnlyUserTest extends ParallelWorkspacesTestCase
         }
 
         try {
-            $readOnlyWorkspaces->deleteWorkspace($workspace['id']);
+            $readOnlyWorkspaces->deleteWorkspace($workspace['id'], [], true);
             $this->fail('Workspace request should be restricted for readOnly user');
         } catch (ClientException $e) {
             $this->assertSame(403, $e->getCode());

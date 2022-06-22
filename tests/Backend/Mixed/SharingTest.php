@@ -1197,9 +1197,12 @@ class SharingTest extends StorageApiSharingTestCase
 
         // init workspace
         $workspaces = new Workspaces($this->_client2);
-        $workspace = $workspaces->createWorkspace([
-            'backend' => $workspaceBackend,
-        ]);
+        $workspace = $workspaces->createWorkspace(
+            [
+                'backend' => $workspaceBackend,
+            ],
+            true
+        );
 
         $input = [$mapping1, $mapping2, $mapping3];
 
@@ -1339,9 +1342,12 @@ class SharingTest extends StorageApiSharingTestCase
 
         // load data into workspace in destination project
         $workspacesClient = new Workspaces($this->_client2);
-        $workspace = $workspacesClient->createWorkspace([
-            'backend' => self::BACKEND_SNOWFLAKE,
-        ]);
+        $workspace = $workspacesClient->createWorkspace(
+            [
+                'backend' => self::BACKEND_SNOWFLAKE,
+            ],
+            true
+        );
 
         $workspacesClient->cloneIntoWorkspace($workspace['id'], [
             'input' => [

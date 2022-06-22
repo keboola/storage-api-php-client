@@ -35,7 +35,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
 
         $workspacesClient = new Workspaces($this->_client);
 
-        $workspace = $workspacesClient->createWorkspace();
+        $workspace = $workspacesClient->createWorkspace([], true);
 
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
@@ -140,7 +140,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         );
 
         $workspacesClient = new Workspaces($this->_client);
-        $workspace = $workspacesClient->createWorkspace();
+        $workspace = $workspacesClient->createWorkspace([], true);
 
         $workspacesClient->cloneIntoWorkspace($workspace['id'], [
            'input' => [
@@ -194,7 +194,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         );
 
         $workspacesClient = new Workspaces($this->_client);
-        $workspace = $workspacesClient->createWorkspace();
+        $workspace = $workspacesClient->createWorkspace([], true);
 
         $this->expectException(Exception::class);
         $workspacesClient->cloneIntoWorkspace($workspace['id'], [
@@ -217,7 +217,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         );
 
         $workspacesClient = new Workspaces($this->_client);
-        $workspace = $workspacesClient->createWorkspace();
+        $workspace = $workspacesClient->createWorkspace([], true);
 
         // first load
         $workspacesClient->cloneIntoWorkspace($workspace['id'], [
@@ -254,7 +254,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         );
 
         $workspacesClient = new Workspaces($this->_client);
-        $workspace = $workspacesClient->createWorkspace();
+        $workspace = $workspacesClient->createWorkspace([], true);
 
         // first load
         $workspacesClient->cloneIntoWorkspace($workspace['id'], [
@@ -291,7 +291,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
     public function testTableAlreadyExistsAndOverwrite(): void
     {
         $workspaces = new Workspaces($this->_client);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $workspaces->createWorkspace([], true);
 
         $client2 = $this->getClientForToken(
             STORAGE_API_LINKING_TOKEN
@@ -398,7 +398,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
     public function testCloneWithWrongInput(): void
     {
         $workspacesClient = new Workspaces($this->_client);
-        $workspace = $workspacesClient->createWorkspace();
+        $workspace = $workspacesClient->createWorkspace([], true);
 
         try {
             $workspacesClient->cloneIntoWorkspace($workspace['id'], [

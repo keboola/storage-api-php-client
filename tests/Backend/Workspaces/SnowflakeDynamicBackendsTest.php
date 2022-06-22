@@ -55,9 +55,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
         ]));
 
         foreach ($this->listTestWorkspaces($this->client2) as $workspace) {
-            $this->workspaces2->deleteWorkspace($workspace['id'], [
-                'async' => true,
-            ]);
+            $this->workspaces2->deleteWorkspace($workspace['id'], [], true);
         }
     }
 
@@ -69,10 +67,13 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
         $expectedBackendSize,
         $expectedWarehouseSuffix
     ): void {
-        $workspace = $this->workspaces->createWorkspace([
-            'backend' => StorageApiTestCase::BACKEND_SNOWFLAKE,
-            'backendSize' => $backendSize,
-        ]);
+        $workspace = $this->workspaces->createWorkspace(
+            [
+                'backend' => StorageApiTestCase::BACKEND_SNOWFLAKE,
+                'backendSize' => $backendSize,
+            ],
+            true
+        );
 
         $this->assertSame('snowflake', $workspace['connection']['backend']);
         $this->assertSame($expectedBackendSize, $workspace['backendSize']);
@@ -96,9 +97,12 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
             ]
         );
 
-        $workspace = $this->workspaces2->createWorkspace([
-            'backend' => StorageApiTestCase::BACKEND_SNOWFLAKE,
-        ]);
+        $workspace = $this->workspaces2->createWorkspace(
+            [
+                'backend' => StorageApiTestCase::BACKEND_SNOWFLAKE,
+            ],
+            true
+        );
 
         $this->assertNotNull($workspace['backendSize']);
 
@@ -162,10 +166,13 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
             ]
         );
 
-        $workspace = $this->workspaces->createWorkspace([
-            'backend' => StorageApiTestCase::BACKEND_SNOWFLAKE,
-            'backendSize' => 'testsize',
-        ]);
+        $workspace = $this->workspaces->createWorkspace(
+            [
+                'backend' => StorageApiTestCase::BACKEND_SNOWFLAKE,
+                'backendSize' => 'testsize',
+            ],
+            true
+        );
 
         $this->assertSame('testsize', $workspace['backendSize']);
 
@@ -228,7 +235,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
         array $expectedErrors
     ): void {
         try {
-            $this->workspaces->createWorkspace($params);
+            $this->workspaces->createWorkspace($params, true);
         } catch (ClientException $e) {
             $this->assertSame(400, $e->getCode());
             $this->assertSame('Invalid request', $e->getMessage());

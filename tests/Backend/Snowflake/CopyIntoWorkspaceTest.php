@@ -20,7 +20,7 @@ class CopyIntoWorkspaceTest extends WorkspacesTestCase
     public function testOverwrite(): void
     {
         $workspaces = new Workspaces($this->_client);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $workspaces->createWorkspace([], true);
 
         $client2 = $this->getClientForToken(
             STORAGE_API_LINKING_TOKEN

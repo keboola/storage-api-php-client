@@ -659,7 +659,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
     public function testOutBytesMetricsWithLoadWorkspaceWithRows(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $workspaces->createWorkspace([], true);
 
         // Create a table of sample data
         $table1Id = $this->_client->createTable(
@@ -708,7 +708,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
     public function testOutBytesMetricsWithLoadWorkspaceWithSeconds(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $workspaces->createWorkspace([], true);
 
         // Create a table of sample data
         $table1Id = $this->_client->createTable(

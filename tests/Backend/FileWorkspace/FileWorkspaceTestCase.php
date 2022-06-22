@@ -34,8 +34,11 @@ class FileWorkspaceTestCase extends WorkspacesTestCase
 
         $backendType = $this->resolveFileWorkspaceBackend();
 
-        return $workspaces->createWorkspace([
-            'backend' => $backendType,
-        ]);
+        return $workspaces->createWorkspace(
+            [
+                'backend' => $backendType,
+            ],
+            true
+        );
     }
 }

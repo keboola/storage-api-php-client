@@ -30,7 +30,7 @@ class WorkspacesRenameTest extends WorkspacesTestCase
         $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", 'in', '', $bucketBackend);
 
         $workspaces = new Workspaces($this->_client);
-        $workspace = $workspaces->createWorkspace(['backend' => $backend]);
+        $workspace = $workspaces->createWorkspace(['backend' => $backend], true);
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
@@ -157,7 +157,7 @@ class WorkspacesRenameTest extends WorkspacesTestCase
         $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", 'in', '', $bucketBackend);
 
         $workspaces = new Workspaces($this->_client);
-        $workspace = $workspaces->createWorkspace(['backend' => $backend]);
+        $workspace = $workspaces->createWorkspace(['backend' => $backend], true);
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';

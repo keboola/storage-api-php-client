@@ -45,7 +45,7 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
 
         $oldWorkspace = $oldWorkspaces ? reset($oldWorkspaces) : null;
         if (!$oldWorkspace) {
-            return $workspaces->createWorkspace($options);
+            return $workspaces->createWorkspace($options, true);
         }
         if (!array_key_exists('backend', $options)
             || $oldWorkspace['connection']['backend'] === $options['backend']
@@ -56,7 +56,7 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
         }
 
         $this->deleteOldTestWorkspaces();
-        return $workspaces->createWorkspace($options);
+        return $workspaces->createWorkspace($options, true);
     }
 
     protected function deleteOldTestWorkspaces()
@@ -64,9 +64,7 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
         $workspaces = new Workspaces($this->_client);
 
         foreach ($this->listTestWorkspaces($this->_client) as $workspace) {
-            $workspaces->deleteWorkspace($workspace['id'], [
-                'async' => true,
-            ]);
+            $workspaces->deleteWorkspace($workspace['id'], [], true);
         }
     }
 
