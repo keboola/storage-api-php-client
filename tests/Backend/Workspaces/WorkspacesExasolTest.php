@@ -568,7 +568,7 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
     public function testOutBytesMetricsWithLoadWorkspaceWithRows(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $workspaces->createWorkspace([], true);
 
         // Create a table of sample data
         $table1Id = $this->_client->createTable(
@@ -618,7 +618,7 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
     {
         $this->markTestSkipped('missing incremental import');
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $workspaces->createWorkspace([], true);
 
         // Create a table of sample data
         $table1Id = $this->_client->createTable(

@@ -50,9 +50,12 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
 
         $workspaces = new Workspaces($this->_client);
 
-        $workspace = $workspaces->createWorkspace([
-            'backend' => self::BACKEND_REDSHIFT,
-        ]);
+        $workspace = $workspaces->createWorkspace(
+            [
+                'backend' => self::BACKEND_REDSHIFT,
+            ],
+            true
+        );
 
         $options = [
             'input' => [
@@ -99,7 +102,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
         $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", 'in', '', $bucketBackend);
 
         $workspaces = new Workspaces($this->_client);
-        $workspace = $workspaces->createWorkspace(['backend' => $backend]);
+        $workspace = $workspaces->createWorkspace(['backend' => $backend], true);
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../_data/languages.with-state.csv';
@@ -202,7 +205,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
         $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", 'in', '', $bucketBackend);
 
         $workspaces = new Workspaces($this->_client);
-        $workspace = $workspaces->createWorkspace(['backend' => $backend]);
+        $workspace = $workspaces->createWorkspace(['backend' => $backend], true);
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../_data/languages.with-state.csv';
@@ -320,9 +323,12 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
 
         $workspaces = new Workspaces($this->_client);
 
-        $workspace = $workspaces->createWorkspace([
-            'backend' => $workspaceBackend,
-        ]);
+        $workspace = $workspaces->createWorkspace(
+            [
+                'backend' => $workspaceBackend,
+            ],
+            true
+        );
 
         $options = [
             'input' => [
@@ -363,9 +369,12 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
 
         $workspaces = new Workspaces($this->_client);
 
-        $workspace = $workspaces->createWorkspace([
-            'backend' => $workspaceBackend,
-        ]);
+        $workspace = $workspaces->createWorkspace(
+            [
+                'backend' => $workspaceBackend,
+            ],
+            true
+        );
 
         $dataType = $workspaceBackend === self::BACKEND_SNOWFLAKE ? 'NUMBER' : 'INTEGER';
         $options = [

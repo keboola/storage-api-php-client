@@ -13,7 +13,7 @@ class WorkspaceLoadTest extends WorkspacesLoadTest
     public function testDottedDestination(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $workspaces->createWorkspace([], true);
 
         // Create a table of sample data
         $importFile = __DIR__ . '/../../../_data/languages.csv';

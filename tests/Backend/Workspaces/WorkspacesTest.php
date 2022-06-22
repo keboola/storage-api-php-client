@@ -36,7 +36,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
         foreach ($this->listTestWorkspaces($this->_client) as $workspace) {
-            $workspaces->deleteWorkspace($workspace['id']);
+            $workspaces->deleteWorkspace($workspace['id'], [], true);
         }
 
         $runId = $this->_client->generateRunId();
@@ -89,7 +89,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $this->assertNotNull($testWorkspaceInfo);
         $this->assertSame($workspace, $testWorkspaceInfo);
 
-        $workspaces->deleteWorkspace($workspace['id']);
+        $workspaces->deleteWorkspace($workspace['id'], [], true);
 
         // block until async events are processed, processing in order is not guaranteed but it should work most of time
         $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
@@ -178,13 +178,13 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
         foreach ($this->listTestWorkspaces($this->_client) as $workspace) {
-            $workspaces->deleteWorkspace($workspace['id']);
+            $workspaces->deleteWorkspace($workspace['id'], [], true);
         }
 
         $runId = $this->_client->generateRunId();
         $this->workspaceSapiClient->setRunId($runId);
 
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $workspaces->createWorkspace([], true);
         $connection = $workspace['connection'];
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);

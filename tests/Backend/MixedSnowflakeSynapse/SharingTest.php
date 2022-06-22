@@ -166,9 +166,12 @@ class SharingTest extends StorageApiSharingTestCase
 
         // init workspace
         $workspaces = new Workspaces($this->_client2);
-        $workspace = $workspaces->createWorkspace([
-            'backend' => $workspaceBackend,
-        ]);
+        $workspace = $workspaces->createWorkspace(
+            [
+                'backend' => $workspaceBackend,
+            ],
+            true
+        );
 
         $input = [$mapping1, $mapping2, $mapping3];
 

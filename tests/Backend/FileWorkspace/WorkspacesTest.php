@@ -17,9 +17,12 @@ class WorkspacesTest extends FileWorkspaceTestCase
 
         $backend = $this->resolveFileWorkspaceBackend();
 
-        $workspace = $workspaces->createWorkspace([
-            'backend' => $backend,
-        ]);
+        $workspace = $workspaces->createWorkspace(
+            [
+                'backend' => $backend,
+            ],
+            true
+        );
 
         $this->assertEquals($backend, $workspace['connection']['backend']);
 
@@ -44,7 +47,7 @@ class WorkspacesTest extends FileWorkspaceTestCase
 
         $this->assertArrayHasKey($workspace['id'], array_flip($workspacesIds));
 
-        $workspaces->deleteWorkspace($workspace['id']);
+        $workspaces->deleteWorkspace($workspace['id'], [], true);
 
         // block until async events are processed, processing in order is not guaranteed but it should work most of time
         $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
@@ -77,9 +80,12 @@ class WorkspacesTest extends FileWorkspaceTestCase
 
         $backend = $this->resolveFileWorkspaceBackend();
 
-        $workspace = $workspaces->createWorkspace([
-            'backend' => $backend,
-        ]);
+        $workspace = $workspaces->createWorkspace(
+            [
+                'backend' => $backend,
+            ],
+            true
+        );
 
         $this->assertEquals($backend, $workspace['connection']['backend']);
 
@@ -123,12 +129,15 @@ class WorkspacesTest extends FileWorkspaceTestCase
         $workspaces = new Workspaces($this->_client);
 
         $backend = $this->resolveFileWorkspaceBackend();
-        $workspace = $workspaces->createWorkspace([
-            'backend' => $backend,
-        ]);
+        $workspace = $workspaces->createWorkspace(
+            [
+                'backend' => $backend,
+            ],
+            true
+        );
         $backend = new Abs($workspace['connection']);
         // sync delete
-        $workspaces->deleteWorkspace($workspace['id'], $dropOptions);
+        $workspaces->deleteWorkspace($workspace['id'], $dropOptions, true);
         try {
             $backend->listFiles(null);
         } catch (ServiceException $e) {
