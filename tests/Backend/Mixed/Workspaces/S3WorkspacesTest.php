@@ -85,7 +85,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
         $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", 'in', '', $bucketBackend);
 
         $workspaces = new Workspaces($this->_client);
-        $workspace = $workspaces->createWorkspace(['backend' => $backend]);
+        $workspace = $workspaces->createWorkspace(['backend' => $backend], true);
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../../_data/languages.csv';
@@ -146,7 +146,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
         $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", 'in', '', $bucketBackend);
 
         $workspaces = new Workspaces($this->_client);
-        $workspace = $workspaces->createWorkspace(['backend' => $backend]);
+        $workspace = $workspaces->createWorkspace(['backend' => $backend], true);
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../../_data/languages.with-state.csv';
@@ -260,7 +260,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
         $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", 'in', '', $bucketBackend);
 
         $workspaces = new Workspaces($this->_client);
-        $workspace = $workspaces->createWorkspace(['backend' => $backend]);
+        $workspace = $workspaces->createWorkspace(['backend' => $backend], true);
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../../_data/languages.with-state.csv';
@@ -375,9 +375,12 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
 
         $workspaces = new Workspaces($this->_client);
 
-        $workspace = $workspaces->createWorkspace([
-            'backend' => self::BACKEND_REDSHIFT,
-        ]);
+        $workspace = $workspaces->createWorkspace(
+            [
+                'backend' => self::BACKEND_REDSHIFT,
+            ],
+            true
+        );
 
         $options = [
             'input' => [
@@ -474,9 +477,12 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
 
         $workspaces = new Workspaces($this->_client);
 
-        $workspace = $workspaces->createWorkspace([
-            'backend' => $backend,
-        ]);
+        $workspace = $workspaces->createWorkspace(
+            [
+                'backend' => $backend,
+            ],
+            true
+        );
 
         $options = [
             'input' => [

@@ -24,9 +24,7 @@ abstract class WorkspacesTestCase extends StorageApiTestCase
     {
         $workspaces = new Workspaces($this->_client);
         foreach ($workspaces->listWorkspaces() as $workspace) {
-            $workspaces->deleteWorkspace($workspace['id'], [
-                'async' => true,
-            ]);
+            $workspaces->deleteWorkspace($workspace['id'], [], true);
         }
     }
 }
