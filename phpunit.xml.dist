@@ -41,6 +41,11 @@
 		<file>tests/File/CommonFileTest.php</file>
 	</testsuite>
 
+	<testsuite name="file-storage-gcs">
+		<file>tests/File/GcsFileTest.php</file>
+		<file>tests/File/CommonFileTest.php</file>
+	</testsuite>
+
 	<testsuite name="backend-snowflake-abs-part-2">
 		<file>tests/Backend/CommonPart1/BucketsTest.php</file>
 		<file>tests/Backend/FileWorkspace/WorkspacesTest.php</file>
