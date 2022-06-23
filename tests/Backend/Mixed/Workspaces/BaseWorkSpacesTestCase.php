@@ -25,9 +25,12 @@ abstract class BaseWorkSpacesTestCase extends WorkspacesTestCase
     {
         $workspaces = new Workspaces($this->_client);
 
-        $workspace = $workspaces->createWorkspace([
-            'backend' => $backend,
-        ]);
+        $workspace = $workspaces->createWorkspace(
+            [
+                'backend' => $backend,
+            ],
+            true
+        );
         $this->assertEquals($backend, $workspace['connection']['backend']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
@@ -57,9 +60,12 @@ abstract class BaseWorkSpacesTestCase extends WorkspacesTestCase
 
         $workspaces = new Workspaces($this->_client);
 
-        $workspace = $workspaces->createWorkspace([
-            'backend' => $workspaceBackend,
-        ]);
+        $workspace = $workspaces->createWorkspace(
+            [
+                'backend' => $workspaceBackend,
+            ],
+            true
+        );
 
         $options = [
             'input' => [
@@ -100,9 +106,12 @@ abstract class BaseWorkSpacesTestCase extends WorkspacesTestCase
 
         $workspaces = new Workspaces($this->_client);
 
-        $workspace = $workspaces->createWorkspace([
-            'backend' => $workspaceBackend,
-        ]);
+        $workspace = $workspaces->createWorkspace(
+            [
+                'backend' => $workspaceBackend,
+            ],
+            true
+        );
 
         $dataType = $workspaceBackend === self::BACKEND_SNOWFLAKE ? 'NUMBER' : 'INTEGER';
         $options = [

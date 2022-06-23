@@ -106,7 +106,7 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
         foreach ($clients as $client) {
             $workspaces = new Workspaces($client);
             foreach ($workspaces->listWorkspaces() as $workspace) {
-                $workspaces->deleteWorkspace($workspace['id']);
+                $workspaces->deleteWorkspace($workspace['id'], [], true);
             }
         }
     }

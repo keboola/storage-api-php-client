@@ -806,7 +806,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $workspaces->createWorkspace([], true);
         /** @var SynapseWorkspaceBackend $backend */
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -938,7 +938,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
         self::assertCount(10, $backend->fetchAll('languages'));
 
         // load data from workspace to table
-        $workspace2 = $workspaces->createWorkspace();
+        $workspace2 = $workspaces->createWorkspace([], true);
         $options = [
             'input' => [
                 [
@@ -961,9 +961,12 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
         self::assertCount(10, $backend->fetchAll('languages'));
 
         // load data from file workspace
-        $fileWorkspace = $workspaces->createWorkspace([
-            'backend' => 'abs',
-        ]);
+        $fileWorkspace = $workspaces->createWorkspace(
+            [
+                'backend' => 'abs',
+            ],
+            true
+        );
         $options = [
             'input' => [
                 [
