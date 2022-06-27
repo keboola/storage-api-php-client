@@ -346,6 +346,39 @@ class Client
     }
 
     /**
+     * @param string[] $path
+     */
+    public function registerBucket(
+        string $name,
+        array $path,
+        string $stage,
+        string $description = '',
+        ?string $backend = null,
+        ?string $displayName = null
+    ): string {
+        $data = [
+            'name' => $name,
+            'path' => $path,
+            'stage' => $stage,
+            'description' => $description,
+        ];
+
+        if ($backend !== null) {
+            $data['backend'] = $backend;
+        }
+
+        if ($displayName !== null) {
+            $data['displayName'] = $displayName;
+        }
+
+        $result = $this->apiPostJson('buckets', $data);
+
+        $this->log("Bucket {$result["id"]} registered", ['options' => $data, 'result' => $result]);
+
+        return $result['id'];
+    }
+
+    /**
      * Link shared bucket to project
      *
      * @param string $name new bucket name
