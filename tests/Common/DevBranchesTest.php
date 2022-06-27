@@ -302,7 +302,7 @@ class DevBranchesTest extends StorageApiTestCase
         $this->assertTrue($branch['isDefault']);
         try {
             $branches->updateBranch($branch['id'], 'NewBranchName');
-            $this->fail('Update default branch should not be able.');
+            $this->fail('Update default branch should not be possible.');
         } catch (ClientException $e) {
             $this->assertSame(400, $e->getCode());
             $this->assertSame('You can not update default branch.', $e->getMessage());
