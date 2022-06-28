@@ -59,7 +59,7 @@ class RegisterBucketTest extends StorageApiTestCase
 
         $idOfBucket = $this->_client->registerBucket(
             'test-bucket-registration',
-            ['Zajca-test-reg', 'reg-schema'],
+            ['TEST_EXTERNAL_BUCKETS', 'TEST_SCHEMA'],
             'in',
             'Iam in other database',
             'snowflake',
@@ -93,7 +93,7 @@ class RegisterBucketTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame('workspace.tableCannotBeLoaded', $e->getStringCode());
             $this->assertSame(
-                'Table "test-bucket-registration" is part of external bucket "in.test-bucket-registration.Test-this-reg" and cannot be loaded into workspace.',
+                'Table "test-bucket-registration" is part of external bucket "in.test-bucket-registration.TEST_TABLE" and cannot be loaded into workspace.',
                 $e->getMessage()
             );
         }
@@ -113,7 +113,7 @@ class RegisterBucketTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame('workspace.tableCannotBeLoaded', $e->getStringCode());
             $this->assertSame(
-                'Table "test-bucket-registration" is part of external bucket "in.test-bucket-registration.Test-this-reg" and cannot be loaded into workspace.',
+                'Table "test-bucket-registration" is part of external bucket "in.test-bucket-registration.TEST_TABLE" and cannot be loaded into workspace.',
                 $e->getMessage()
             );
         }
