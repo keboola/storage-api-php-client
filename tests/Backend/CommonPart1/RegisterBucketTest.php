@@ -73,6 +73,7 @@ class RegisterBucketTest extends StorageApiTestCase
 
         $this->assertSame('KBC.dataTypesEnabled', $tableDetail['metadata'][0]['key']);
         $this->assertSame('true', $tableDetail['metadata'][0]['value']);
+        $this->assertTrue($tableDetail['isTyped']);
 
         $this->assertCount(2, $tableDetail['columns']);
 
