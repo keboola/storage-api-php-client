@@ -69,6 +69,55 @@ class RegisterBucketTest extends StorageApiTestCase
         $tables = $this->_client->listTables($idOfBucket);
         $this->assertCount(1, $tables);
 
+        $tableDetail = $this->_client->getTable($tables[0]['id']);
+
+        $this->assertSame('KBC.dataTypesEnabled', $tableDetail['metadata'][0]['key']);
+        $this->assertSame('true', $tableDetail['metadata'][0]['value']);
+
+        $this->assertCount(2, $tableDetail['columns']);
+
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.type',
+            'value' => 'NUMBER',
+            'provider' => 'storage',
+        ], $tableDetail['columnMetadata']['AMOUNT'][0], ['id', 'timestamp']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.nullable',
+            'value' => '1',
+            'provider' => 'storage',
+        ], $tableDetail['columnMetadata']['AMOUNT'][1], ['id', 'timestamp']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.basetype',
+            'value' => 'NUMERIC',
+            'provider' => 'storage',
+        ], $tableDetail['columnMetadata']['AMOUNT'][2], ['id', 'timestamp']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.length',
+            'value' => '38,0',
+            'provider' => 'storage',
+        ], $tableDetail['columnMetadata']['AMOUNT'][3], ['id', 'timestamp']);
+
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.type',
+            'value' => 'VARCHAR',
+            'provider' => 'storage',
+        ], $tableDetail['columnMetadata']['DESCRIPTION'][0], ['id', 'timestamp']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.nullable',
+            'value' => '1',
+            'provider' => 'storage',
+        ], $tableDetail['columnMetadata']['DESCRIPTION'][1], ['id', 'timestamp']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.basetype',
+            'value' => 'STRING',
+            'provider' => 'storage',
+        ], $tableDetail['columnMetadata']['DESCRIPTION'][2], ['id', 'timestamp']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.length',
+            'value' => '16777216',
+            'provider' => 'storage',
+        ], $tableDetail['columnMetadata']['DESCRIPTION'][3], ['id', 'timestamp']);
+
         $this->_client->exportTableAsync($tables[0]['id']);
 
         $preview = $this->_client->getTableDataPreview($tables[0]['id']);
