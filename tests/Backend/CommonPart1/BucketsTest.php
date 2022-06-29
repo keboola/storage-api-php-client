@@ -342,6 +342,7 @@ class BucketsTest extends StorageApiTestCase
 
     public function testBucketCreateWithoutDescription(): void
     {
+        $this->dropBucketIfExists($this->_client, 'in.c-something', true);
         $bucketId = $this->_client->createBucket('something', self::STAGE_IN);
         $bucket = $this->_client->getBucket($bucketId);
         $this->assertEmpty($bucket['description']);
