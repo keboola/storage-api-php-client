@@ -67,9 +67,9 @@ class RegisterBucketTest extends StorageApiTestCase
             'test-bucket-registration',
             [$workspace['connection']['database'], $workspace['connection']['schema']],
             'in',
-            'Iam in other database',
+            'Iam in workspace',
             'snowflake',
-            'Iam-from-external-db'
+            'Iam-your-workspace'
         );
 
         $tables = $this->_client->listTables($idOfBucket);
@@ -197,6 +197,29 @@ class RegisterBucketTest extends StorageApiTestCase
                 'CNT' => '1'
             ]
         ], $result);
+
+        $this->_client->dropBucket($idOfBucket, ['force' => true, 'async' => true]);
+
+        // try same with schema outside of project database
+        $idOfBucket = $this->_client->registerBucket(
+            'test-bucket-registration-ext',
+            ['TEST_EXTERNAL_BUCKETS', 'TEST_SCHEMA'],
+            'in',
+            'Iam in other database',
+            'snowflake',
+            'Iam-from-external-db-ext'
+        );
+
+        $tables = $this->_client->listTables($idOfBucket);
+        $this->assertCount(1, $tables);
+        $this->_client->exportTableAsync($tables[0]['id']);
+
+        $preview = $this->_client->getTableDataPreview($tables[0]['id']);
+        // expect two lines in preview because of the header
+        $this->assertCount(2, Client::parseCsv($preview, false));
+        $this->_client->refreshBucket($idOfBucket);
+        $tables = $this->_client->listTables($idOfBucket);
+        $this->assertCount(1, $tables);
 
         $this->_client->dropBucket($idOfBucket, ['force' => true, 'async' => true]);
     }
