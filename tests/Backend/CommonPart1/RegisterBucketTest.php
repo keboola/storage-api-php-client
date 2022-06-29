@@ -72,6 +72,10 @@ class RegisterBucketTest extends StorageApiTestCase
             'Iam-your-workspace'
         );
 
+        $bucket = $this->_client->getBucket($idOfBucket);
+        $this->assertTrue($bucket['hasExternalSchema']);
+        $this->assertSame($workspace['connection']['database'], $bucket['dbname']);
+
         $tables = $this->_client->listTables($idOfBucket);
         $this->assertCount(0, $tables);
 
@@ -209,6 +213,9 @@ class RegisterBucketTest extends StorageApiTestCase
             'snowflake',
             'Iam-from-external-db-ext'
         );
+        $bucket = $this->_client->getBucket($idOfBucket);
+        $this->assertTrue($bucket['hasExternalSchema']);
+        $this->assertSame('TEST_EXTERNAL_BUCKETS', $bucket['dbname']);
 
         $tables = $this->_client->listTables($idOfBucket);
         $this->assertCount(1, $tables);
