@@ -78,7 +78,7 @@ class RegisterBucketTest extends StorageApiTestCase
         $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $db->createTable('TEST', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT']);
-        $db->getDb()->query('INSERT INTO "TEST" VALUES (1, \'test\')');
+        $db->executeQuery('INSERT INTO "TEST" VALUES (1, \'test\')');
         $this->_client->refreshBucket($idOfBucket);
 
         $tables = $this->_client->listTables($idOfBucket);
@@ -118,8 +118,8 @@ class RegisterBucketTest extends StorageApiTestCase
         $this->assertCount(2, $tables);
 
         $db->dropTable('TEST2');
-        $db->getDb()->query('ALTER TABLE "TEST" DROP COLUMN "AMOUNT"');
-        $db->getDb()->query('ALTER TABLE "TEST" ADD COLUMN "XXX" FLOAT');
+        $db->executeQuery('ALTER TABLE "TEST" DROP COLUMN "AMOUNT"');
+        $db->executeQuery('ALTER TABLE "TEST" ADD COLUMN "XXX" FLOAT');
         $db->createTable('TEST3', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT']);
 
         $this->_client->refreshBucket($idOfBucket);

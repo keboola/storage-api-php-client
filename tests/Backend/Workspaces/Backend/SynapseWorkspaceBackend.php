@@ -3,10 +3,10 @@
 namespace Keboola\Test\Backend\Workspaces\Backend;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Keboola\Datatype\Definition\Synapse;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
+use Keboola\TableBackendUtils\Escaping\SynapseQuote;
 use Keboola\TableBackendUtils\Schema\SynapseSchemaReflection;
 use Keboola\TableBackendUtils\Table\SynapseTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\SynapseTableReflection;
@@ -17,20 +17,21 @@ class SynapseWorkspaceBackend implements WorkspaceBackend
 {
     use WorkspaceConnectionTrait;
 
-    /** @var Connection */
-    private $db;
+    private Connection $db;
 
-    /** @var string */
-    private $schema;
-
-    /** @var AbstractPlatform */
-    private $platform;
+    private string $schema;
 
     public function __construct($workspace)
     {
-        $this->db = $this->getDbConnection($workspace['connection']);
-        $this->platform = $this->db->getDatabasePlatform();
+        $db = $this->getDbConnection($workspace['connection']);
+        assert($db instanceof Connection);
+        $this->db = $db;
         $this->schema = $workspace['connection']['schema'];
+    }
+
+    public function executeQuery(string $sql): void
+    {
+        $this->db->executeQuery($sql);
     }
 
     /**
@@ -62,9 +63,9 @@ class SynapseWorkspaceBackend implements WorkspaceBackend
     {
         $this->db->executeStatement(sprintf(
             'ALTER TABLE %s.%s DROP COLUMN %s;',
-            $this->platform->quoteSingleIdentifier($this->schema),
-            $this->platform->quoteSingleIdentifier($table),
-            $this->platform->quoteSingleIdentifier($column)
+            SynapseQuote::quoteSingleIdentifier($this->schema),
+            SynapseQuote::quoteSingleIdentifier($table),
+            SynapseQuote::quoteSingleIdentifier($column)
         ));
     }
 
@@ -99,8 +100,8 @@ class SynapseWorkspaceBackend implements WorkspaceBackend
         /** @var array[] $res */
         $res = $this->db->fetchAllAssociative(sprintf(
             'SELECT * FROM %s.%s %s;',
-            $this->platform->quoteSingleIdentifier($this->schema),
-            $this->platform->quoteSingleIdentifier($table),
+            SynapseQuote::quoteSingleIdentifier($this->schema),
+            SynapseQuote::quoteSingleIdentifier($table),
             $orderBy !== null ? "ORDER BY $orderBy" : null
         ));
         switch ($style) {
@@ -165,10 +166,15 @@ class SynapseWorkspaceBackend implements WorkspaceBackend
     {
         $this->db->executeStatement(sprintf(
             "IF OBJECT_ID (N'%s.%s', N'U') IS NOT NULL DROP TABLE %s.%s;",
-            $this->platform->quoteSingleIdentifier($this->schema),
-            $this->platform->quoteSingleIdentifier($table),
-            $this->platform->quoteSingleIdentifier($this->schema),
-            $this->platform->quoteSingleIdentifier($table)
+            SynapseQuote::quoteSingleIdentifier($this->schema),
+            SynapseQuote::quoteSingleIdentifier($table),
+            SynapseQuote::quoteSingleIdentifier($this->schema),
+            SynapseQuote::quoteSingleIdentifier($table)
         ));
+    }
+
+    public function getDb()
+    {
+        return $this->db;
     }
 }

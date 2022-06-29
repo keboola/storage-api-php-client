@@ -8,8 +8,19 @@
 
 namespace Keboola\Test\Backend\Workspaces\Backend;
 
+use Doctrine\DBAL\Connection as DBALConnection;
+use Keboola\Db\Import\Snowflake\Connection as SnowflakeConnection;
+use PDO;
+
 interface WorkspaceBackend
 {
+    /**
+     * @return DBALConnection|SnowflakeConnection|PDO
+     */
+    public function getDb();
+
+    public function executeQuery(string $sql): void;
+
     public function getTables();
 
     public function createTable($tableName, $columns);
@@ -29,7 +40,7 @@ interface WorkspaceBackend
      * @param int $style
      * @param string|null $orderBy
      */
-    public function fetchAll($table, $style = \PDO::FETCH_NUM, $orderBy = null);
+    public function fetchAll($table, $style = PDO::FETCH_NUM, $orderBy = null);
 
     // This will return the identifier as it would be returned by the backend.
     public function toIdentifier($item);

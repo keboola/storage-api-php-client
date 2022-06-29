@@ -378,7 +378,10 @@ class Client
         return $result['id'];
     }
 
-    public function refreshBucket(string $bucketId): array
+    /**
+     * @return mixed
+     */
+    public function refreshBucket(string $bucketId)
     {
         $url = 'buckets/' . $bucketId . '/refresh';
 
