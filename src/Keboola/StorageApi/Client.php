@@ -378,6 +378,13 @@ class Client
         return $result['id'];
     }
 
+    public function refreshBucket(string $bucketId): array
+    {
+        $url = 'buckets/' . $bucketId . '/refresh';
+
+        return $this->apiPut($url);
+    }
+
     /**
      * Link shared bucket to project
      *
