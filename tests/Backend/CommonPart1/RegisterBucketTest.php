@@ -59,9 +59,13 @@ class RegisterBucketTest extends StorageApiTestCase
             );
         }
 
+        $ws = new Workspaces($this->_client);
+
+        $workspace = $ws->createWorkspace();
+
         $idOfBucket = $this->_client->registerBucket(
             'test-bucket-registration',
-            ['TEST_EXTERNAL_BUCKETS', 'TEST_SCHEMA'],
+            [$workspace['connection']['database'], $workspace['connection']['schema']],
             'in',
             'Iam in other database',
             'snowflake',
@@ -69,8 +73,16 @@ class RegisterBucketTest extends StorageApiTestCase
         );
 
         $tables = $this->_client->listTables($idOfBucket);
-        $this->assertCount(1, $tables);
+        $this->assertCount(0, $tables);
 
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $db->createTable('TEST', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT']);
+        $db->getDb()->query('INSERT INTO "TEST" VALUES (1, \'test\')');
+        $this->_client->refreshBucket($idOfBucket);
+
+        $tables = $this->_client->listTables($idOfBucket);
+        $this->assertCount(1, $tables);
         $tableDetail = $this->_client->getTable($tables[0]['id']);
 
         $this->assertSame('KBC.dataTypesEnabled', $tableDetail['metadata'][0]['key']);
@@ -79,47 +91,20 @@ class RegisterBucketTest extends StorageApiTestCase
 
         $this->assertCount(2, $tableDetail['columns']);
 
-        $this->assertArrayEqualsExceptKeys([
-            'key' => 'KBC.datatype.type',
-            'value' => 'NUMBER',
-            'provider' => 'storage',
-        ], $tableDetail['columnMetadata']['AMOUNT'][0], ['id', 'timestamp']);
-        $this->assertArrayEqualsExceptKeys([
-            'key' => 'KBC.datatype.nullable',
-            'value' => '1',
-            'provider' => 'storage',
-        ], $tableDetail['columnMetadata']['AMOUNT'][1], ['id', 'timestamp']);
-        $this->assertArrayEqualsExceptKeys([
-            'key' => 'KBC.datatype.basetype',
-            'value' => 'NUMERIC',
-            'provider' => 'storage',
-        ], $tableDetail['columnMetadata']['AMOUNT'][2], ['id', 'timestamp']);
-        $this->assertArrayEqualsExceptKeys([
-            'key' => 'KBC.datatype.length',
-            'value' => '38,0',
-            'provider' => 'storage',
-        ], $tableDetail['columnMetadata']['AMOUNT'][3], ['id', 'timestamp']);
-
-        $this->assertArrayEqualsExceptKeys([
-            'key' => 'KBC.datatype.type',
-            'value' => 'VARCHAR',
-            'provider' => 'storage',
-        ], $tableDetail['columnMetadata']['DESCRIPTION'][0], ['id', 'timestamp']);
-        $this->assertArrayEqualsExceptKeys([
-            'key' => 'KBC.datatype.nullable',
-            'value' => '1',
-            'provider' => 'storage',
-        ], $tableDetail['columnMetadata']['DESCRIPTION'][1], ['id', 'timestamp']);
-        $this->assertArrayEqualsExceptKeys([
-            'key' => 'KBC.datatype.basetype',
-            'value' => 'STRING',
-            'provider' => 'storage',
-        ], $tableDetail['columnMetadata']['DESCRIPTION'][2], ['id', 'timestamp']);
-        $this->assertArrayEqualsExceptKeys([
-            'key' => 'KBC.datatype.length',
-            'value' => '16777216',
-            'provider' => 'storage',
-        ], $tableDetail['columnMetadata']['DESCRIPTION'][3], ['id', 'timestamp']);
+        $this->assertColumnMetadata(
+            'NUMBER',
+            '1',
+            'NUMERIC',
+            '38,0',
+            $tableDetail['columnMetadata']['AMOUNT']
+        );
+        $this->assertColumnMetadata(
+            'VARCHAR',
+            '1',
+            'STRING',
+            '16777216',
+            $tableDetail['columnMetadata']['DESCRIPTION']
+        );
 
         $this->_client->exportTableAsync($tables[0]['id']);
 
@@ -127,9 +112,41 @@ class RegisterBucketTest extends StorageApiTestCase
         // expect two lines in preview because of the header
         $this->assertCount(2, Client::parseCsv($preview, false));
 
-        $ws = new Workspaces($this->_client);
-        $workspace = $ws->createWorkspace();
+        $db->createTable('TEST2', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT']);
+        $this->_client->refreshBucket($idOfBucket);
+        $tables = $this->_client->listTables($idOfBucket);
+        $this->assertCount(2, $tables);
 
+        $db->dropTable('TEST2');
+        $db->getDb()->query('ALTER TABLE "TEST" DROP COLUMN "AMOUNT"');
+        $db->getDb()->query('ALTER TABLE "TEST" ADD COLUMN "XXX" FLOAT');
+        $db->createTable('TEST3', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT']);
+
+        $this->_client->refreshBucket($idOfBucket);
+        $tables = $this->_client->listTables($idOfBucket);
+        $this->assertCount(2, $tables);
+
+        $tableDetail = $this->_client->getTable($tables[0]['id']);
+        $this->assertSame(['DESCRIPTION', 'XXX'], $tableDetail['columns']);
+
+        $this->assertColumnMetadata(
+            'VARCHAR',
+            '1',
+            'STRING',
+            '16777216',
+            $tableDetail['columnMetadata']['DESCRIPTION']
+        );
+
+        $this->assertColumnMetadata(
+            'FLOAT',
+            '1',
+            'FLOAT',
+            null,
+            $tableDetail['columnMetadata']['XXX']
+        );
+
+        // try failing load
+        $ws = new Workspaces($this->_client);
         try {
             $ws->cloneIntoWorkspace(
                 $workspace['id'],
@@ -145,7 +162,7 @@ class RegisterBucketTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame('workspace.tableCannotBeLoaded', $e->getStringCode());
             $this->assertSame(
-                'Table "test-bucket-registration" is part of external bucket "in.test-bucket-registration.TEST_TABLE" and cannot be loaded into workspace.',
+                'Table "test-bucket-registration" is part of external bucket "in.test-bucket-registration.TEST" and cannot be loaded into workspace.',
                 $e->getMessage()
             );
         }
@@ -165,7 +182,7 @@ class RegisterBucketTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame('workspace.tableCannotBeLoaded', $e->getStringCode());
             $this->assertSame(
-                'Table "test-bucket-registration" is part of external bucket "in.test-bucket-registration.TEST_TABLE" and cannot be loaded into workspace.',
+                'Table "test-bucket-registration" is part of external bucket "in.test-bucket-registration.TEST" and cannot be loaded into workspace.',
                 $e->getMessage()
             );
         }
@@ -182,5 +199,37 @@ class RegisterBucketTest extends StorageApiTestCase
         ], $result);
 
         $this->_client->dropBucket($idOfBucket, ['force' => true, 'async' => true]);
+    }
+
+    private function assertColumnMetadata(
+        string $expectedType,
+        string $expectedNullable,
+        string $expectedBasetype,
+        ?string $expectedLength,
+        array $columnMetadata
+    ): void {
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.type',
+            'value' => $expectedType,
+            'provider' => 'storage',
+        ], $columnMetadata[0], ['id', 'timestamp']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.nullable',
+            'value' => $expectedNullable,
+            'provider' => 'storage',
+        ], $columnMetadata[1], ['id', 'timestamp']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.basetype',
+            'value' => $expectedBasetype,
+            'provider' => 'storage',
+        ], $columnMetadata[2], ['id', 'timestamp']);
+
+        if ($expectedLength !== null) {
+            $this->assertArrayEqualsExceptKeys([
+                'key' => 'KBC.datatype.length',
+                'value' => $expectedLength,
+                'provider' => 'storage',
+            ], $columnMetadata[3], ['id', 'timestamp']);
+        }
     }
 }
