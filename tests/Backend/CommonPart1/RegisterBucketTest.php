@@ -5,6 +5,8 @@ namespace Keboola\Test\Backend\CommonPart1;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
+use Keboola\Test\Backend\Workspaces\Backend\SnowflakeWorkspaceBackend;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\StorageApiTestCase;
 
 class RegisterBucketTest extends StorageApiTestCase
@@ -167,6 +169,17 @@ class RegisterBucketTest extends StorageApiTestCase
                 $e->getMessage()
             );
         }
+
+        $ws = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        // this will change in refresh PR
+        assert($ws instanceof SnowflakeWorkspaceBackend);
+        // check that workspace user can read from table in external bucket directly
+        $result = $ws->getDb()->fetchAll('SELECT COUNT(*) AS CNT FROM "TEST_EXTERNAL_BUCKETS"."TEST_SCHEMA"."TEST_TABLE"');
+        $this->assertSame([
+            [
+                'CNT' => '1'
+            ]
+        ], $result);
 
         $this->_client->dropBucket($idOfBucket, ['force' => true, 'async' => true]);
     }
