@@ -150,7 +150,6 @@ class RegisterBucketTest extends StorageApiTestCase
         );
 
         // try failing load
-        $ws = new Workspaces($this->_client);
         try {
             $ws->cloneIntoWorkspace(
                 $workspace['id'],
@@ -191,19 +190,12 @@ class RegisterBucketTest extends StorageApiTestCase
             );
         }
 
-        $ws = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-        // this will change in refresh PR
-        assert($ws instanceof SnowflakeWorkspaceBackend);
-        // check that workspace user can read from table in external bucket directly
-        $result = $ws->getDb()->fetchAll('SELECT COUNT(*) AS CNT FROM "TEST_EXTERNAL_BUCKETS"."TEST_SCHEMA"."TEST_TABLE"');
-        $this->assertSame([
-            [
-                'CNT' => '1'
-            ]
-        ], $result);
-
         $this->_client->dropBucket($idOfBucket, ['force' => true, 'async' => true]);
 
+        $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration-ext', [
+            'force' => true,
+            'async' => true,
+        ]);
         // try same with schema outside of project database
         $idOfBucket = $this->_client->registerBucket(
             'test-bucket-registration-ext',
@@ -227,6 +219,15 @@ class RegisterBucketTest extends StorageApiTestCase
         $this->_client->refreshBucket($idOfBucket);
         $tables = $this->_client->listTables($idOfBucket);
         $this->assertCount(1, $tables);
+
+        // check that workspace user can read from table in external bucket directly
+        assert($db instanceof SnowflakeWorkspaceBackend);
+        $result = $db->getDb()->fetchAll('SELECT COUNT(*) AS CNT FROM "TEST_EXTERNAL_BUCKETS"."TEST_SCHEMA"."TEST_TABLE"');
+        $this->assertSame([
+            [
+                'CNT' => '1',
+            ],
+        ], $result);
 
         $this->_client->dropBucket($idOfBucket, ['force' => true, 'async' => true]);
     }
