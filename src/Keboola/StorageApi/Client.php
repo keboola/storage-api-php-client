@@ -371,7 +371,7 @@ class Client
             $data['displayName'] = $displayName;
         }
 
-        $result = $this->apiPostJson('buckets', $data);
+        $result = $this->apiPostJson('buckets/register', $data);
 
         $this->log("Bucket {$result["id"]} registered", ['options' => $data, 'result' => $result]);
 
