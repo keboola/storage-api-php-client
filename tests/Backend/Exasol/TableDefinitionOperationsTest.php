@@ -533,6 +533,33 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $this->assertCount(1, $data['rows']);
     }
 
+    public function testAddTypedColumnOnNonTypedTable(): void
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $tableDefinition = [
+            'name' => 'my-new-table-non-typed',
+            'primaryKeysNames' => [],
+            'columns' => [
+                [
+                    'name' => 'id',
+                ],
+            ],
+        ];
+
+        $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
+
+        try {
+            $this->_client->addTableColumn($tableId, 'column_typed', [
+                'type' => 'VARCHAR',
+            ]);
+            $this->fail('Should throw ClientException');
+        } catch (ClientException $e) {
+            $this->assertSame('Invalid parameters - definition: This field was not expected.', $e->getMessage());
+            $this->assertSame('storage.tables.validation', $e->getStringCode());
+        }
+    }
+
     public function testTableWithDot(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
