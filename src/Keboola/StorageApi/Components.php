@@ -198,7 +198,7 @@ class Components
 
     public function addConfigurationRow(ConfigurationRow $options)
     {
-        return $this->client->apiPostJson(
+        return $this->client->apiPost(
             sprintf(
                 $this->branchPrefix . 'components/%s/configs/%s/rows',
                 $options->getComponentConfiguration()->getComponentId(),
@@ -218,7 +218,7 @@ class Components
 
     public function deleteConfigurationRow($componentId, $configurationId, $rowId, $changeDescription = null)
     {
-        return $this->client->apiDeleteParamsJson(
+        return $this->client->apiDeleteParams(
             $this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}",
             [
                 'changeDescription' => $changeDescription,
@@ -284,7 +284,7 @@ class Components
             }
         }
 
-        return $this->client->apiPutJson(
+        return $this->client->apiPut(
             sprintf(
                 $this->branchPrefix . 'components/%s/configs/%s/rows/%s/state',
                 $options->getComponentConfiguration()->getComponentId(),
