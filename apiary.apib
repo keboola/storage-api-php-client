@@ -2206,6 +2206,8 @@ Creates a table with typed columns. *Synapse|Exasol only.*
 
 Request is handled asynchronously which means that the create request is created and added to a queue and the job resource URL for status polling is returned.
 
+If there is no column datatype specified (column.definition.type or column.basetype) in a request a table will be created as a non-typed table.
+
 + Parameters
     + bucket_id (required) - The bucket Id
 
@@ -2215,10 +2217,19 @@ Request is handled asynchronously which means that the create request is created
     + columns[] (required) - definition of table columns
        + name (required, string) - column name
        + definition (object) - column settings
-            + type (required, string) - datatype of this column, choose build in types for used backend [Exasol](https://bit.ly/3s2n4AP) [Synapse](https://bit.ly/3uZjN60)
+            + type (string) - datatype of this column, choose build in types for used backend [Exasol](https://bit.ly/3s2n4AP) [Synapse](https://bit.ly/3uZjN60)
             + length (string) - optional, default: depends on type
             + nullable (boolean) - optional, default: true
             + default (string) - optional, default value for column
+       + basetype (enum[string]) - base datatype of this column, will be converted to backend specific types
+            + Members
+                + BOOLEAN
+                + DATE
+                + FLOAT
+                + INTEGER
+                + NUMERIC
+                + STRING
+                + TIMESTAMP
     + distribution - Synapse only
         + type (required, enum[string])
             + Members
