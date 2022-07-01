@@ -236,6 +236,249 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $this->assertCount(1, $data['rows']);
     }
 
+    public function testDataPreviewForTableDefinitionBaseType(): void
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $tableDefinition = [
+            'name' => 'my-new-table-basetype',
+            'primaryKeysNames' => ['id'],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'INT',
+                        'nullable' => false,
+                    ],
+                ],
+                [
+                    'name' => 'column_int',
+                    'basetype' => 'INTEGER',
+                ],
+                [
+                    'name' => 'column_decimal',
+                    'basetype' => 'NUMERIC',
+                ],
+                [
+                    'name' => 'column_float',
+                    'basetype' => 'FLOAT',
+                ],
+                [
+                    'name' => 'column_boolean',
+                    'basetype' => 'BOOLEAN',
+                ],
+                [
+                    'name' => 'column_date',
+                    'basetype' => 'DATE',
+                ],
+                [
+                    'name' => 'column_timestamp',
+                    'basetype' => 'TIMESTAMP',
+                ],
+                [
+                    'name' => 'column_varchar',
+                    'basetype' => 'STRING',
+                ],
+            ],
+            'distribution' => [
+                'type' => 'HASH',
+                'distributionColumnsNames' => ['id'],
+            ],
+            'index' => [
+                'type' => 'CLUSTERED INDEX',
+                'indexColumnsNames' => ['id'],
+            ],
+        ];
+        $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
+
+        $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
+        $csvFile->writeRow([
+            'id',
+            'column_int',
+            'column_decimal',
+            'column_float',
+            'column_boolean',
+            'column_date',
+            'column_timestamp',
+            'column_varchar',
+        ]);
+        $csvFile->writeRow(['1', 123, '003.123', '3.14', 1, '1989-08-31', '1989-08-31 05:00:01', 'roman', '3148.29', '3148.29', '0E984725-C51C-4BF4-9960-E1C80E27ABA0']);
+
+        $this->_client->writeTable($tableId, $csvFile);
+
+        $data = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);
+
+        $expectedPreview = [
+            [
+                [
+                    'columnName' => 'id',
+                    'value' => '1',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_int',
+                    'value' => '123',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_decimal',
+                    'value' => '3',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_float',
+                    'value' => '3.14',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_boolean',
+                    'value' => '1',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_date',
+                    'value' => '1989-08-31',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_timestamp',
+                    'value' => '1989-08-31 05:00:01.0000000',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_varchar',
+                    'value' => 'roman',
+                    'isTruncated' => false,
+                ],
+            ],
+        ];
+
+        $this->assertSame(
+            $expectedPreview,
+            $data['rows']
+        );
+
+        $this->assertCount(1, $data['rows']);
+    }
+
+    public function testDataPreviewForTableWithoutDefinitionAndBaseType(): void
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $tableDefinition = [
+            'name' => 'my-new-table-no-definition-no-basetype',
+            'primaryKeysNames' => ['id'],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'INT',
+                        'nullable' => false,
+                    ],
+                ],
+                [
+                    'name' => 'column_int',
+                ],
+                [
+                    'name' => 'column_decimal',
+                ],
+                [
+                    'name' => 'column_float',
+                ],
+                [
+                    'name' => 'column_boolean',
+                ],
+                [
+                    'name' => 'column_date',
+                ],
+                [
+                    'name' => 'column_timestamp',
+                ],
+                [
+                    'name' => 'column_varchar',
+                ],
+            ],
+            'distribution' => [
+                'type' => 'HASH',
+                'distributionColumnsNames' => ['id'],
+            ],
+            'index' => [
+                'type' => 'CLUSTERED INDEX',
+                'indexColumnsNames' => ['id'],
+            ],
+        ];
+        $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
+
+        $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
+        $csvFile->writeRow([
+            'id',
+            'column_int',
+            'column_decimal',
+            'column_float',
+            'column_boolean',
+            'column_date',
+            'column_timestamp',
+            'column_varchar',
+        ]);
+        $csvFile->writeRow(['1', 123, '003.123', '3.14', 1, '1989-08-31', '05:00:01', 'roman', '3148.29', '3148.29', '0E984725-C51C-4BF4-9960-E1C80E27ABA0']);
+
+        $this->_client->writeTable($tableId, $csvFile);
+
+        $data = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);
+
+        $expectedPreview = [
+            [
+                [
+                    'columnName' => 'id',
+                    'value' => '1',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_int',
+                    'value' => '123',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_decimal',
+                    'value' => '003.123',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_float',
+                    'value' => '3.14',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_boolean',
+                    'value' => '1',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_date',
+                    'value' => '1989-08-31',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_timestamp',
+                    'value' => '05:00:01',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_varchar',
+                    'value' => 'roman',
+                    'isTruncated' => false,
+                ],
+            ],
+        ];
+
+        $this->assertSame(
+            $expectedPreview,
+            $data['rows']
+        );
+
+        $this->assertCount(1, $data['rows']);
+    }
+
     public function testAddColumnOnTypedTable(): void
     {
         $tableDefinition = [
