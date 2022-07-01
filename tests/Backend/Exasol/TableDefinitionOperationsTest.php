@@ -9,7 +9,7 @@ use Keboola\Test\StorageApiTestCase;
 
 class TableDefinitionOperationsTest extends StorageApiTestCase
 {
-    private $tableId;
+    private string $tableId;
 
     public function setUp(): void
     {
@@ -26,7 +26,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $this->tableId = $this->createTableDefinition();
     }
 
-    private function createTableDefinition()
+    private function createTableDefinition(): string
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -189,6 +189,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
         $this->_client->writeTable($tableId, $csvFile);
 
+        /** @var array $data */
         $data = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);
 
         $expectedPreview = [
@@ -275,6 +276,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         //test types is provided from source table for alias
         $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $tableId, 'table-1');
 
+        /** @var array $data */
         $data = $this->_client->getTableDataPreview($firstAliasTableId, ['format' => 'json']);
 
         $this->assertSame(
@@ -350,6 +352,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
         $this->_client->writeTable($tableId, $csvFile);
 
+        /** @var array $data */
         $data = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);
 
         $expectedPreview = [
@@ -403,6 +406,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         //test types is provided from source table for alias
         $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $tableId, 'table-1');
 
+        /** @var array $data */
         $data = $this->_client->getTableDataPreview($firstAliasTableId, ['format' => 'json']);
 
         $this->assertSame(
@@ -471,6 +475,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
         $this->_client->writeTable($tableId, $csvFile);
 
+        /** @var array $data */
         $data = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);
 
         $expectedPreview = [
@@ -523,6 +528,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         //test types is provided from source table for alias
         $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $tableId, 'table-1');
 
+        /** @var array $data */
         $data = $this->_client->getTableDataPreview($firstAliasTableId, ['format' => 'json']);
 
         $this->assertSame(

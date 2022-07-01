@@ -3731,21 +3731,6 @@ parameters:
 			path: tests/Backend/Exasol/OrderByTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Exasol\\\\TableDefinitionOperationsTest\\:\\:createTableDefinition\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Exasol/TableDefinitionOperationsTest.php
-
-		-
-			message: "#^Offset 'rows' does not exist on string\\.$#"
-			count: 2
-			path: tests/Backend/Exasol/TableDefinitionOperationsTest.php
-
-		-
-			message: "#^Property Keboola\\\\Test\\\\Backend\\\\Exasol\\\\TableDefinitionOperationsTest\\:\\:\\$tableId has no type specified\\.$#"
-			count: 1
-			path: tests/Backend/Exasol/TableDefinitionOperationsTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Exasol\\\\WhereFilterTest\\:\\:getExportedTable\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Exasol/WhereFilterTest.php
@@ -4939,21 +4924,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$filename of function file_get_contents expects string, string\\|false given\\.$#"
 			count: 1
 			path: tests/Backend/Synapse/OrderByTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Synapse\\\\TableDefinitionOperationsTest\\:\\:createTableDefinition\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Synapse/TableDefinitionOperationsTest.php
-
-		-
-			message: "#^Offset 'rows' does not exist on string\\.$#"
-			count: 2
-			path: tests/Backend/Synapse/TableDefinitionOperationsTest.php
-
-		-
-			message: "#^Property Keboola\\\\Test\\\\Backend\\\\Synapse\\\\TableDefinitionOperationsTest\\:\\:\\$tableId has no type specified\\.$#"
-			count: 1
-			path: tests/Backend/Synapse/TableDefinitionOperationsTest.php
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Synapse\\\\WhereFilterTest\\:\\:getExportedTable\\(\\) has no return type specified\\.$#"
