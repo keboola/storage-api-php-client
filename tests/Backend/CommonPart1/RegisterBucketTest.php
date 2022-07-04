@@ -74,7 +74,7 @@ class RegisterBucketTest extends StorageApiTestCase
 
         $bucket = $this->_client->getBucket($idOfBucket);
         $this->assertTrue($bucket['hasExternalSchema']);
-        $this->assertSame($workspace['connection']['database'], $bucket['dbname']);
+        $this->assertSame($workspace['connection']['database'], $bucket['databaseName']);
 
         $tables = $this->_client->listTables($idOfBucket);
         $this->assertCount(0, $tables);
@@ -207,7 +207,7 @@ class RegisterBucketTest extends StorageApiTestCase
         );
         $bucket = $this->_client->getBucket($idOfBucket);
         $this->assertTrue($bucket['hasExternalSchema']);
-        $this->assertSame('TEST_EXTERNAL_BUCKETS', $bucket['dbname']);
+        $this->assertSame('TEST_EXTERNAL_BUCKETS', $bucket['databaseName']);
 
         $tables = $this->_client->listTables($idOfBucket);
         $this->assertCount(1, $tables);
