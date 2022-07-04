@@ -511,6 +511,11 @@ parameters:
 			path: src/Keboola/StorageApi/Client.php
 
 		-
+			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:fixRequestBody\\(\\) is unused\\.$#"
+			count: 1
+			path: src/Keboola/StorageApi/Client.php
+
+		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:forceUnlinkBucket\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
@@ -1097,136 +1102,6 @@ parameters:
 
 		-
 			message: "#^Offset 'results' does not exist on array\\|null\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$bucketId string destination bucket\\)\\: Unexpected token \"\\$bucketId\", expected type at offset 18$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$bucketId\\)\\: Unexpected token \"\\$bucketId\", expected type at offset 18$#"
-			count: 3
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$bucketId\\)\\: Unexpected token \"\\$bucketId\", expected type at offset 37$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$bucketId\\)\\: Unexpected token \"\\$bucketId\", expected type at offset 80$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$bucketId\\)\\: Unexpected token \"\\$bucketId\", expected type at offset 88$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$fileId\\)\\: Unexpected token \"\\$fileId\", expected type at offset 41$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$fileId\\)\\: Unexpected token \"\\$fileId\", expected type at offset 46$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$filePath\\)\\: Unexpected token \"\\$filePath\", expected type at offset 62$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$id\\)\\: Unexpected token \"\\$id\", expected type at offset 18$#"
-			count: 2
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$jobId\\)\\: Unexpected token \"\\$jobId\", expected type at offset 18$#"
-			count: 2
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$message\\)\\: Unexpected token \"\\$message\", expected type at offset 71$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$name string table name\\)\\: Unexpected token \"\\$name\", expected type at offset 191$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$name\\)\\: Unexpected token \"\\$name\", expected type at offset 42$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$options\\)\\: Unexpected token \"\\$options\", expected type at offset 41$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$recipientEmail\\)\\: Unexpected token \"\\$recipientEmail\", expected type at offset 41$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$runId\\)\\: Unexpected token \"\\$runId\", expected type at offset 18$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$sourceTableId string source snapshot\\)\\: Unexpected token \"\\$sourceTableId\", expected type at offset 68$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$sourceTableId\\)\\: Unexpected token \"\\$sourceTableId\", expected type at offset 42$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$tableId\\)\\: Unexpected token \"\\$tableId\", expected type at offset 18$#"
-			count: 10
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$tableId\\)\\: Unexpected token \"\\$tableId\", expected type at offset 185$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$tableId\\)\\: Unexpected token \"\\$tableId\", expected type at offset 37$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$tableId\\)\\: Unexpected token \"\\$tableId\", expected type at offset 57$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$tableId\\)\\: Unexpected token \"\\$tableId\", expected type at offset 89$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$tagName\\)\\: Unexpected token \"\\$tagName\", expected type at offset 63$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$timestamp string timestamp to use for table replication\\)\\: Unexpected token \"\\$timestamp\", expected type at offset 120$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$tokenId\\)\\: Unexpected token \"\\$tokenId\", expected type at offset 18$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
 
@@ -1861,56 +1736,6 @@ parameters:
 			path: src/Keboola/StorageApi/Event.php
 
 		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$component\\)\\: Unexpected token \"\\$component\", expected type at offset 18$#"
-			count: 1
-			path: src/Keboola/StorageApi/Event.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$componentName\\)\\: Unexpected token \"\\$componentName\", expected type at offset 37$#"
-			count: 1
-			path: src/Keboola/StorageApi/Event.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$componentType\\)\\: Unexpected token \"\\$componentType\", expected type at offset 37$#"
-			count: 1
-			path: src/Keboola/StorageApi/Event.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$configurationId\\)\\: Unexpected token \"\\$configurationId\", expected type at offset 18$#"
-			count: 1
-			path: src/Keboola/StorageApi/Event.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$description\\)\\: Unexpected token \"\\$description\", expected type at offset 18$#"
-			count: 1
-			path: src/Keboola/StorageApi/Event.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$duration\\)\\: Unexpected token \"\\$duration\", expected type at offset 18$#"
-			count: 1
-			path: src/Keboola/StorageApi/Event.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$message\\)\\: Unexpected token \"\\$message\", expected type at offset 18$#"
-			count: 1
-			path: src/Keboola/StorageApi/Event.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$results\\)\\: Unexpected token \"\\$results\", expected type at offset 18$#"
-			count: 1
-			path: src/Keboola/StorageApi/Event.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$runId\\)\\: Unexpected token \"\\$runId\", expected type at offset 18$#"
-			count: 1
-			path: src/Keboola/StorageApi/Event.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$type\\)\\: Unexpected token \"\\$type\", expected type at offset 18$#"
-			count: 1
-			path: src/Keboola/StorageApi/Event.php
-
-		-
 			message: "#^PHPDoc tag @return has invalid value \\(\\)\\: Unexpected token \"\\\\n     \", expected type at offset 18$#"
 			count: 2
 			path: src/Keboola/StorageApi/Event.php
@@ -1957,11 +1782,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Exception\\:\\:setStringCode\\(\\) has parameter \\$stringCode with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Exception.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$stringCode\\)\\: Unexpected token \"\\$stringCode\", expected type at offset 18$#"
 			count: 1
 			path: src/Keboola/StorageApi/Exception.php
 
@@ -2091,41 +1911,6 @@ parameters:
 			path: src/Keboola/StorageApi/Metadata.php
 
 		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$bucketId\\)\\: Unexpected token \"\\$bucketId\", expected type at offset 18$#"
-			count: 3
-			path: src/Keboola/StorageApi/Metadata.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$columnId  \\-\\- ex\\: \"in\\.c\\-bucket\\.table\\.column\"\\)\\: Unexpected token \"\\$columnId\", expected type at offset 18$#"
-			count: 1
-			path: src/Keboola/StorageApi/Metadata.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$columnId\\)\\: Unexpected token \"\\$columnId\", expected type at offset 18$#"
-			count: 2
-			path: src/Keboola/StorageApi/Metadata.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$metadataId\\)\\: Unexpected token \"\\$metadataId\", expected type at offset 41$#"
-			count: 1
-			path: src/Keboola/StorageApi/Metadata.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$metadataId\\)\\: Unexpected token \"\\$metadataId\", expected type at offset 42$#"
-			count: 2
-			path: src/Keboola/StorageApi/Metadata.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$provider\\)\\: Unexpected token \"\\$provider\", expected type at offset 42$#"
-			count: 2
-			path: src/Keboola/StorageApi/Metadata.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$tableId\\)\\: Unexpected token \"\\$tableId\", expected type at offset 18$#"
-			count: 2
-			path: src/Keboola/StorageApi/Metadata.php
-
-		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\BucketUpdateOptions\\:\\:__construct\\(\\) has parameter \\$async with no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Options/BucketUpdateOptions.php
@@ -2172,11 +1957,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\Components\\\\Configuration\\:\\:setState\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/Components/Configuration.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$configuration\\)\\: Unexpected token \"\\$configuration\", expected type at offset 18$#"
 			count: 1
 			path: src/Keboola/StorageApi/Options/Components/Configuration.php
 
@@ -2232,11 +2012,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\Components\\\\ConfigurationRow\\:\\:setConfiguration\\(\\) has parameter \\$configuration with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/Components/ConfigurationRow.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$configuration\\)\\: Unexpected token \"\\$configuration\", expected type at offset 18$#"
 			count: 1
 			path: src/Keboola/StorageApi/Options/Components/ConfigurationRow.php
 
@@ -2546,51 +2321,6 @@ parameters:
 			path: src/Keboola/StorageApi/Options/FileUploadOptions.php
 
 		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$compress\\)\\: Unexpected token \"\\$compress\", expected type at offset 18$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/FileUploadOptions.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$encrypted\\)\\: Unexpected token \"\\$encrypted\", expected type at offset 18$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/FileUploadOptions.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$federationToken\\)\\: Unexpected token \"\\$federationToken\", expected type at offset 18$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/FileUploadOptions.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$fileName\\)\\: Unexpected token \"\\$fileName\", expected type at offset 18$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/FileUploadOptions.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$isPublic\\)\\: Unexpected token \"\\$isPublic\", expected type at offset 18$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/FileUploadOptions.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$isSliced\\)\\: Unexpected token \"\\$isSliced\", expected type at offset 18$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/FileUploadOptions.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$notify\\)\\: Unexpected token \"\\$notify\", expected type at offset 18$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/FileUploadOptions.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$permanent\\)\\: Unexpected token \"\\$permanent\", expected type at offset 18$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/FileUploadOptions.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$sizeBytes\\)\\: Unexpected token \"\\$sizeBytes\", expected type at offset 18$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/FileUploadOptions.php
-
-		-
 			message: "#^Property Keboola\\\\StorageApi\\\\Options\\\\FileUploadOptions\\:\\:\\$compress has no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Options/FileUploadOptions.php
@@ -2651,22 +2381,7 @@ parameters:
 			path: src/Keboola/StorageApi/Options/FileUploadTransferOptions.php
 
 		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$chunkSize\\)\\: Unexpected token \"\\$chunkSize\", expected type at offset 18$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/FileUploadTransferOptions.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$maxRetriesPerChunk\\)\\: Unexpected token \"\\$maxRetriesPerChunk\", expected type at offset 18$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/FileUploadTransferOptions.php
-
-		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\GetFileOptions\\:\\:setFederationToken\\(\\) has parameter \\$federationToken with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/GetFileOptions.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$federationToken\\)\\: Unexpected token \"\\$federationToken\", expected type at offset 18$#"
 			count: 1
 			path: src/Keboola/StorageApi/Options/GetFileOptions.php
 
@@ -2716,21 +2431,6 @@ parameters:
 			path: src/Keboola/StorageApi/Options/ListFilesOptions.php
 
 		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$limit\\)\\: Unexpected token \"\\$limit\", expected type at offset 18$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/ListFilesOptions.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$offset\\)\\: Unexpected token \"\\$offset\", expected type at offset 18$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/ListFilesOptions.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$query\\)\\: Unexpected token \"\\$query\", expected type at offset 18$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/ListFilesOptions.php
-
-		-
 			message: "#^Property Keboola\\\\StorageApi\\\\Options\\\\ListFilesOptions\\:\\:\\$limit has no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Options/ListFilesOptions.php
@@ -2776,11 +2476,6 @@ parameters:
 			path: src/Keboola/StorageApi/Options/StatsOptions.php
 
 		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$runId\\)\\: Unexpected token \"\\$runId\", expected type at offset 18$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/StatsOptions.php
-
-		-
 			message: "#^Property Keboola\\\\StorageApi\\\\Options\\\\StatsOptions\\:\\:\\$runId has no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Options/StatsOptions.php
@@ -2792,11 +2487,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\TokenCreateOptions\\:\\:setExpiresIn\\(\\) has parameter \\$seconds with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/TokenCreateOptions.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$seconds\\)\\: Unexpected token \"\\$seconds\", expected type at offset 18$#"
 			count: 1
 			path: src/Keboola/StorageApi/Options/TokenCreateOptions.php
 
@@ -2901,57 +2591,12 @@ parameters:
 			path: src/Keboola/StorageApi/S3Uploader.php
 
 		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$acl\\)\\: Unexpected token \"\\$acl\", expected type at offset 40$#"
-			count: 2
-			path: src/Keboola/StorageApi/S3Uploader.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$acl\\)\\: Unexpected token \"\\$acl\", expected type at offset 59$#"
-			count: 2
-			path: src/Keboola/StorageApi/S3Uploader.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$bucket\\)\\: Unexpected token \"\\$bucket\", expected type at offset 18$#"
-			count: 4
-			path: src/Keboola/StorageApi/S3Uploader.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$file\\)\\: Unexpected token \"\\$file\", expected type at offset 78$#"
-			count: 1
-			path: src/Keboola/StorageApi/S3Uploader.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$filePath\\)\\: Unexpected token \"\\$filePath\", expected type at offset 78$#"
-			count: 1
-			path: src/Keboola/StorageApi/S3Uploader.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$key\\)\\: Unexpected token \"\\$key\", expected type at offset 40$#"
-			count: 2
-			path: src/Keboola/StorageApi/S3Uploader.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$key\\)\\: Unexpected token \"\\$key\", expected type at offset 59$#"
-			count: 1
-			path: src/Keboola/StorageApi/S3Uploader.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$slices\\)\\: Unexpected token \"\\$slices\", expected type at offset 78$#"
-			count: 1
-			path: src/Keboola/StorageApi/S3Uploader.php
-
-		-
 			message: "#^Parameter \\#3 \\$key of method Keboola\\\\StorageApi\\\\S3Uploader\\:\\:multipartUploaderFactory\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/S3Uploader.php
 
 		-
 			message: "#^Method Keboola\\\\StorageApi\\\\S3Uploader\\\\PromiseResultHandler\\:\\:getRejected\\(\\) has parameter \\$results with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/S3Uploader/PromiseResultHandler.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$results\\)\\: Unexpected token \"\\$results\", expected type at offset 18$#"
 			count: 1
 			path: src/Keboola/StorageApi/S3Uploader/PromiseResultHandler.php
 
@@ -3017,21 +2662,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\StorageApi\\\\TableExporter\\:\\:handleExportedFile\\(\\) has parameter \\$tableId with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/TableExporter.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$destination\\)\\: Unexpected token \"\\$destination\", expected type at offset 112$#"
-			count: 1
-			path: src/Keboola/StorageApi/TableExporter.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$exportOptions\\)\\: Unexpected token \"\\$exportOptions\", expected type at offset 139$#"
-			count: 1
-			path: src/Keboola/StorageApi/TableExporter.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$tableId\\)\\: Unexpected token \"\\$tableId\", expected type at offset 89$#"
 			count: 1
 			path: src/Keboola/StorageApi/TableExporter.php
 
@@ -3121,11 +2751,6 @@ parameters:
 			path: src/Keboola/StorageApi/Workspaces.php
 
 		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$id\\)\\: Unexpected token \"\\$id\", expected type at offset 18$#"
-			count: 2
-			path: src/Keboola/StorageApi/Workspaces.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\AlterTableTest\\:\\:invalidColumnNameProvider\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart1/AlterTableTest.php
@@ -3146,16 +2771,6 @@ parameters:
 			path: tests/Backend/CommonPart1/AlterTableTest.php
 
 		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$expectedColumnName\\)\\: Unexpected token \"\\$expectedColumnName\", expected type at offset 101$#"
-			count: 1
-			path: tests/Backend/CommonPart1/AlterTableTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$requestedColumnName\\)\\: Unexpected token \"\\$requestedColumnName\", expected type at offset 66$#"
-			count: 1
-			path: tests/Backend/CommonPart1/AlterTableTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\BucketsTest\\:\\:clearBucketAttributes\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart1/BucketsTest.php
@@ -3172,11 +2787,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\BucketsTest\\:\\:testBucketAttributesReplaceValidation\\(\\) has parameter \\$attributes with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/BucketsTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$attributes\\)\\: Unexpected token \"\\$attributes\", expected type at offset 18$#"
 			count: 1
 			path: tests/Backend/CommonPart1/BucketsTest.php
 
@@ -3242,31 +2852,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\CreateTableTest\\:\\:testTableWithLongColumnNamesShouldNotBeCreated\\(\\) has parameter \\$async with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/CreateTableTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$async\\)\\: Unexpected token \"\\$async\", expected type at offset 18$#"
-			count: 1
-			path: tests/Backend/CommonPart1/CreateTableTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$async\\)\\: Unexpected token \"\\$async\", expected type at offset 41$#"
-			count: 1
-			path: tests/Backend/CommonPart1/CreateTableTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$backend\\)\\: Unexpected token \"\\$backend\", expected type at offset 18$#"
-			count: 1
-			path: tests/Backend/CommonPart1/CreateTableTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$backend\\)\\: Unexpected token \"\\$backend\", expected type at offset 58$#"
-			count: 1
-			path: tests/Backend/CommonPart1/CreateTableTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$createFile\\)\\: Unexpected token \"\\$createFile\", expected type at offset 55$#"
 			count: 1
 			path: tests/Backend/CommonPart1/CreateTableTest.php
 
@@ -3341,16 +2926,6 @@ parameters:
 			path: tests/Backend/CommonPart1/DeleteRowsTest.php
 
 		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$expectedTableContent\\)\\: Unexpected token \"\\$expectedTableContent\", expected type at offset 46$#"
-			count: 1
-			path: tests/Backend/CommonPart1/DeleteRowsTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$filterParams\\)\\: Unexpected token \"\\$filterParams\", expected type at offset 18$#"
-			count: 1
-			path: tests/Backend/CommonPart1/DeleteRowsTest.php
-
-		-
 			message: "#^Binary operation \"\\-\" between string and 1 results in an error\\.$#"
 			count: 2
 			path: tests/Backend/CommonPart1/ExportParamsTest.php
@@ -3362,16 +2937,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\ExportParamsTest\\:\\:testTableExportFilters\\(\\) has parameter \\$exportOptions with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/ExportParamsTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$expectedResult\\)\\: Unexpected token \"\\$expectedResult\", expected type at offset 47$#"
-			count: 1
-			path: tests/Backend/CommonPart1/ExportParamsTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$exportOptions\\)\\: Unexpected token \"\\$exportOptions\", expected type at offset 18$#"
 			count: 1
 			path: tests/Backend/CommonPart1/ExportParamsTest.php
 
@@ -3486,36 +3051,6 @@ parameters:
 			path: tests/Backend/CommonPart1/ImportExportCommonTest.php
 
 		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$createFile\\)\\: Unexpected token \"\\$createFile\", expected type at offset 69$#"
-			count: 1
-			path: tests/Backend/CommonPart1/ImportExportCommonTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$expectationFileAfterCreate\\)\\: Unexpected token \"\\$expectationFileAfterCreate\", expected type at offset 121$#"
-			count: 1
-			path: tests/Backend/CommonPart1/ImportExportCommonTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$expectationFinal\\)\\: Unexpected token \"\\$expectationFinal\", expected type at offset 192$#"
-			count: 1
-			path: tests/Backend/CommonPart1/ImportExportCommonTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$importFileName\\)\\: Unexpected token \"\\$importFileName\", expected type at offset 55$#"
-			count: 2
-			path: tests/Backend/CommonPart1/ImportExportCommonTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$incrementFile\\)\\: Unexpected token \"\\$incrementFile\", expected type at offset 163$#"
-			count: 1
-			path: tests/Backend/CommonPart1/ImportExportCommonTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$primaryKey\\)\\: Unexpected token \"\\$primaryKey\", expected type at offset 95$#"
-			count: 1
-			path: tests/Backend/CommonPart1/ImportExportCommonTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\TableExporterTest\\:\\:tableExportData\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart1/TableExporterTest.php
@@ -3527,11 +3062,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\TableExporterTest\\:\\:testTableAsyncExport\\(\\) has parameter \\$exportOptions with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/TableExporterTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$importFileName\\)\\: Unexpected token \"\\$importFileName\", expected type at offset 55$#"
 			count: 1
 			path: tests/Backend/CommonPart1/TableExporterTest.php
 
@@ -3573,11 +3103,6 @@ parameters:
 		-
 			message: "#^Offset 'metrics' does not exist on array\\|null\\.$#"
 			count: 2
-			path: tests/Backend/CommonPart2/MetricsTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$expectedMetrics\\)\\: Unexpected token \"\\$expectedMetrics\", expected type at offset 88$#"
-			count: 1
 			path: tests/Backend/CommonPart2/MetricsTest.php
 
 		-
@@ -3632,16 +3157,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart2\\\\SimpleAliasTest\\:\\:testFilteredAliases\\(\\) has parameter \\$filterOptions with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart2/SimpleAliasTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$expectedResult\\)\\: Unexpected token \"\\$expectedResult\", expected type at offset 47$#"
-			count: 1
-			path: tests/Backend/CommonPart2/SimpleAliasTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$filterOptions\\)\\: Unexpected token \"\\$filterOptions\", expected type at offset 18$#"
 			count: 1
 			path: tests/Backend/CommonPart2/SimpleAliasTest.php
 
@@ -3796,16 +3311,6 @@ parameters:
 			path: tests/Backend/Export/ExportParamsTest.php
 
 		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$expectedResult\\)\\: Unexpected token \"\\$expectedResult\", expected type at offset 47$#"
-			count: 1
-			path: tests/Backend/Export/ExportParamsTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$exportOptions\\)\\: Unexpected token \"\\$exportOptions\", expected type at offset 18$#"
-			count: 1
-			path: tests/Backend/Export/ExportParamsTest.php
-
-		-
 			message: "#^Parameter \\#2 \\$string of method PHPUnit\\\\Framework\\\\Assert\\:\\:assertStringStartsWith\\(\\) expects string, mixed given\\.$#"
 			count: 1
 			path: tests/Backend/Export/ExportParamsTest.php
@@ -3886,27 +3391,12 @@ parameters:
 			path: tests/Backend/FileWorkspace/WorkspacesLoadTest.php
 
 		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$expectedResult\\)\\: Unexpected token \"\\$expectedResult\", expected type at offset 47$#"
-			count: 1
-			path: tests/Backend/FileWorkspace/WorkspacesLoadTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$exportOptions\\)\\: Unexpected token \"\\$exportOptions\", expected type at offset 18$#"
-			count: 1
-			path: tests/Backend/FileWorkspace/WorkspacesLoadTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\FileWorkspace\\\\WorkspacesTest\\:\\:dropOptions\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/FileWorkspace/WorkspacesTest.php
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\FileWorkspace\\\\WorkspacesTest\\:\\:testDropWorkspace\\(\\) has parameter \\$dropOptions with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/FileWorkspace/WorkspacesTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$dropOptions\\)\\: Unexpected token \"\\$dropOptions\", expected type at offset 52$#"
 			count: 1
 			path: tests/Backend/FileWorkspace/WorkspacesTest.php
 
@@ -3982,41 +3472,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\LegacyWorkspacesTest\\:\\:workspaceMixedBackendData\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Mixed/LegacyWorkspacesTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$backend\\)\\: Unexpected token \"\\$backend\", expected type at offset 65$#"
-			count: 2
-			path: tests/Backend/Mixed/LegacyWorkspacesTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$dataTypesDefinition\\)\\: Unexpected token \"\\$dataTypesDefinition\", expected type at offset 146$#"
-			count: 1
-			path: tests/Backend/Mixed/LegacyWorkspacesTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$dataTypesDefinition\\)\\: Unexpected token \"\\$dataTypesDefinition\", expected type at offset 63$#"
-			count: 1
-			path: tests/Backend/Mixed/LegacyWorkspacesTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$sourceBackend\\)\\: Unexpected token \"\\$sourceBackend\", expected type at offset 104$#"
-			count: 1
-			path: tests/Backend/Mixed/LegacyWorkspacesTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$sourceBackend\\)\\: Unexpected token \"\\$sourceBackend\", expected type at offset 117$#"
-			count: 1
-			path: tests/Backend/Mixed/LegacyWorkspacesTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$workspaceBackend\\)\\: Unexpected token \"\\$workspaceBackend\", expected type at offset 72$#"
-			count: 1
-			path: tests/Backend/Mixed/LegacyWorkspacesTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$workspaceBackend\\)\\: Unexpected token \"\\$workspaceBackend\", expected type at offset 85$#"
 			count: 1
 			path: tests/Backend/Mixed/LegacyWorkspacesTest.php
 
@@ -4431,21 +3886,6 @@ parameters:
 			path: tests/Backend/Mixed/StorageApiSharingTestCase.php
 
 		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$backend\\)\\: Unexpected token \"\\$backend\", expected type at offset 135$#"
-			count: 1
-			path: tests/Backend/Mixed/StorageApiSharingTestCase.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$name\\)\\: Unexpected token \"\\$name\", expected type at offset 62$#"
-			count: 1
-			path: tests/Backend/Mixed/StorageApiSharingTestCase.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$stage\\)\\: Unexpected token \"\\$stage\", expected type at offset 82$#"
-			count: 1
-			path: tests/Backend/Mixed/StorageApiSharingTestCase.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\Workspaces\\\\AbsWorkspacesTest\\:\\:workspaceBackendData\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Mixed/Workspaces/AbsWorkspacesTest.php
@@ -4511,41 +3951,6 @@ parameters:
 			path: tests/Backend/Mixed/Workspaces/BaseWorkSpacesTestCase.php
 
 		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$backend\\)\\: Unexpected token \"\\$backend\", expected type at offset 61$#"
-			count: 1
-			path: tests/Backend/Mixed/Workspaces/BaseWorkSpacesTestCase.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$columnsDefinition\\)\\: Unexpected token \"\\$columnsDefinition\", expected type at offset 146$#"
-			count: 1
-			path: tests/Backend/Mixed/Workspaces/BaseWorkSpacesTestCase.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$dataTypesDefinition\\)\\: Unexpected token \"\\$dataTypesDefinition\", expected type at offset 84$#"
-			count: 1
-			path: tests/Backend/Mixed/Workspaces/BaseWorkSpacesTestCase.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$sourceBackend\\)\\: Unexpected token \"\\$sourceBackend\", expected type at offset 104$#"
-			count: 1
-			path: tests/Backend/Mixed/Workspaces/BaseWorkSpacesTestCase.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$sourceBackend\\)\\: Unexpected token \"\\$sourceBackend\", expected type at offset 117$#"
-			count: 1
-			path: tests/Backend/Mixed/Workspaces/BaseWorkSpacesTestCase.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$workspaceBackend\\)\\: Unexpected token \"\\$workspaceBackend\", expected type at offset 72$#"
-			count: 1
-			path: tests/Backend/Mixed/Workspaces/BaseWorkSpacesTestCase.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$workspaceBackend\\)\\: Unexpected token \"\\$workspaceBackend\", expected type at offset 85$#"
-			count: 1
-			path: tests/Backend/Mixed/Workspaces/BaseWorkSpacesTestCase.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\Workspaces\\\\S3WorkspacesTest\\:\\:testLoadIncremental\\(\\) has parameter \\$backend with no type specified\\.$#"
 			count: 1
 			path: tests/Backend/Mixed/Workspaces/S3WorkspacesTest.php
@@ -4606,11 +4011,6 @@ parameters:
 			path: tests/Backend/Mixed/Workspaces/S3WorkspacesTest.php
 
 		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$backend\\)\\: Unexpected token \"\\$backend\", expected type at offset 65$#"
-			count: 4
-			path: tests/Backend/Mixed/Workspaces/S3WorkspacesTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$csvString of static method Keboola\\\\StorageApi\\\\Client\\:\\:parseCsv\\(\\) expects string, string\\|false given\\.$#"
 			count: 3
 			path: tests/Backend/Mixed/Workspaces/S3WorkspacesTest.php
@@ -4638,16 +4038,6 @@ parameters:
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\WorkspacesRenameTest\\:\\:workspaceMixedBackendData\\(\\) has no return type specified\\.$#"
 			count: 1
-			path: tests/Backend/Mixed/WorkspacesRenameTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$backend\\)\\: Unexpected token \"\\$backend\", expected type at offset 65$#"
-			count: 2
-			path: tests/Backend/Mixed/WorkspacesRenameTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$bucketBackend\\)\\: Unexpected token \"\\$bucketBackend\", expected type at offset 88$#"
-			count: 2
 			path: tests/Backend/Mixed/WorkspacesRenameTest.php
 
 		-
@@ -4692,11 +4082,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Redshift\\\\CreateTableTest\\:\\:testTableWithLongPkShouldNotBeCreatedInRedshift\\(\\) has parameter \\$async with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/Redshift/CreateTableTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$async\\)\\: Unexpected token \"\\$async\", expected type at offset 18$#"
 			count: 1
 			path: tests/Backend/Redshift/CreateTableTest.php
 
@@ -5086,11 +4471,6 @@ parameters:
 			path: tests/Backend/Workspaces/Backend/ExasolWorkspaceBackend.php
 
 		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$table\\)\\: Unexpected token \"\\$table\", expected type at offset 18$#"
-			count: 1
-			path: tests/Backend/Workspaces/Backend/ExasolWorkspaceBackend.php
-
-		-
 			message: "#^Property Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\Backend\\\\ExasolWorkspaceBackend\\:\\:\\$db \\(Doctrine\\\\DBAL\\\\Connection\\) does not accept Doctrine\\\\DBAL\\\\Connection\\|Keboola\\\\Db\\\\Import\\\\Snowflake\\\\Connection\\|PDO\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/Backend/ExasolWorkspaceBackend.php
@@ -5336,11 +4716,6 @@ parameters:
 			path: tests/Backend/Workspaces/Backend/SnowflakeWorkspaceBackend.php
 
 		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$table\\)\\: Unexpected token \"\\$table\", expected type at offset 18$#"
-			count: 1
-			path: tests/Backend/Workspaces/Backend/SnowflakeWorkspaceBackend.php
-
-		-
 			message: "#^Unreachable statement \\- code above always terminates\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/Backend/SnowflakeWorkspaceBackend.php
@@ -5442,11 +4817,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\Backend\\\\SynapseWorkspaceBackend\\:\\:toIdentifier\\(\\) has parameter \\$item with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/Backend/SynapseWorkspaceBackend.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$table\\)\\: Unexpected token \"\\$table\", expected type at offset 18$#"
 			count: 1
 			path: tests/Backend/Workspaces/Backend/SynapseWorkspaceBackend.php
 
@@ -5561,11 +4931,6 @@ parameters:
 			path: tests/Backend/Workspaces/Backend/WorkspaceBackendFactory.php
 
 		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$workspace\\)\\: Unexpected token \"\\$workspace\", expected type at offset 18$#"
-			count: 1
-			path: tests/Backend/Workspaces/Backend/WorkspaceBackendFactory.php
-
-		-
 			message: "#^Call to an undefined method Doctrine\\\\DBAL\\\\Connection\\|Keboola\\\\Db\\\\Import\\\\Snowflake\\\\Connection\\|PDO\\:\\:getDatabasePlatform\\(\\)\\.$#"
 			count: 3
 			path: tests/Backend/Workspaces/ExasolWorkspacesUnloadTest.php
@@ -5671,31 +5036,6 @@ parameters:
 			path: tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php
 
 		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$dataTypesDefinition\\)\\: Unexpected token \"\\$dataTypesDefinition\", expected type at offset 65$#"
-			count: 1
-			path: tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$dataTypesDefinition\\)\\: Unexpected token \"\\$dataTypesDefinition\", expected type at offset 79$#"
-			count: 1
-			path: tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$dataTypesDefinition\\)\\: Unexpected token \"\\$dataTypesDefinition\", expected type at offset 86$#"
-			count: 1
-			path: tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$expectedResult\\)\\: Unexpected token \"\\$expectedResult\", expected type at offset 47$#"
-			count: 1
-			path: tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$exportOptions\\)\\: Unexpected token \"\\$exportOptions\", expected type at offset 18$#"
-			count: 1
-			path: tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$csvString of static method Keboola\\\\StorageApi\\\\Client\\:\\:parseCsv\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php
@@ -5707,11 +5047,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\LegacyWorkspacesRedshiftTest\\:\\:testColumnCompression\\(\\) has parameter \\$dataTypesDefinition with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/LegacyWorkspacesRedshiftTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$dataTypesDefinition\\)\\: Unexpected token \"\\$dataTypesDefinition\", expected type at offset 77$#"
 			count: 1
 			path: tests/Backend/Workspaces/LegacyWorkspacesRedshiftTest.php
 
@@ -6011,31 +5346,6 @@ parameters:
 			path: tests/Backend/Workspaces/WorkspacesLoadTest.php
 
 		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$columnsDefinition\\)\\: Unexpected token \"\\$columnsDefinition\", expected type at offset 63$#"
-			count: 1
-			path: tests/Backend/Workspaces/WorkspacesLoadTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$columnsDefinition\\)\\: Unexpected token \"\\$columnsDefinition\", expected type at offset 77$#"
-			count: 1
-			path: tests/Backend/Workspaces/WorkspacesLoadTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$columnsDefinition\\)\\: Unexpected token \"\\$columnsDefinition\", expected type at offset 84$#"
-			count: 1
-			path: tests/Backend/Workspaces/WorkspacesLoadTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$expectedResult\\)\\: Unexpected token \"\\$expectedResult\", expected type at offset 47$#"
-			count: 1
-			path: tests/Backend/Workspaces/WorkspacesLoadTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$exportOptions\\)\\: Unexpected token \"\\$exportOptions\", expected type at offset 18$#"
-			count: 1
-			path: tests/Backend/Workspaces/WorkspacesLoadTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$csvString of static method Keboola\\\\StorageApi\\\\Client\\:\\:parseCsv\\(\\) expects string, string\\|false given\\.$#"
 			count: 5
 			path: tests/Backend/Workspaces/WorkspacesLoadTest.php
@@ -6081,16 +5391,6 @@ parameters:
 			path: tests/Backend/Workspaces/WorkspacesRedshiftTest.php
 
 		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$columnsDefinition\\)\\: Unexpected token \"\\$columnsDefinition\", expected type at offset 77$#"
-			count: 1
-			path: tests/Backend/Workspaces/WorkspacesRedshiftTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$dist\\)\\: Unexpected token \"\\$dist\", expected type at offset 53$#"
-			count: 1
-			path: tests/Backend/Workspaces/WorkspacesRedshiftTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\WorkspacesRenameLoadTest\\:\\:columnsErrorDefinitions\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/WorkspacesRenameLoadTest.php
@@ -6117,11 +5417,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\WorkspacesRenameLoadTest\\:\\:validColumnsDefinitions\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/WorkspacesRenameLoadTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$columnsDefinition\\)\\: Unexpected token \"\\$columnsDefinition\", expected type at offset 63$#"
 			count: 1
 			path: tests/Backend/Workspaces/WorkspacesRenameLoadTest.php
 
@@ -6391,16 +5686,6 @@ parameters:
 			path: tests/Common/EventsTest.php
 
 		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$messageLength\\)\\: Unexpected token \"\\$messageLength\", expected type at offset 80$#"
-			count: 1
-			path: tests/Common/EventsTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$query\\)\\: Unexpected token \"\\$query\", expected type at offset 54$#"
-			count: 1
-			path: tests/Common/EventsTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$params of method Keboola\\\\StorageApi\\\\Client\\:\\:listEvents\\(\\) expects array, int given\\.$#"
 			count: 1
 			path: tests/Common/EventsTest.php
@@ -6512,11 +5797,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\RunIdTest\\:\\:createEvent\\(\\) has parameter \\$runId with no type specified\\.$#"
-			count: 1
-			path: tests/Common/RunIdTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$runId\\)\\: Unexpected token \"\\$runId\", expected type at offset 18$#"
 			count: 1
 			path: tests/Common/RunIdTest.php
 
@@ -6661,11 +5941,6 @@ parameters:
 			path: tests/Common/TablesListingTest.php
 
 		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$attributes\\)\\: Unexpected token \"\\$attributes\", expected type at offset 18$#"
-			count: 1
-			path: tests/Common/TablesListingTest.php
-
-		-
 			message: "#^Parameter \\#3 \\$value of method Keboola\\\\StorageApi\\\\Client\\:\\:setTableAttribute\\(\\) expects string, null given\\.$#"
 			count: 1
 			path: tests/Common/TablesListingTest.php
@@ -6762,11 +6037,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\File\\\\AwsFileTest\\:\\:uploadData\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/File/AwsFileTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$encrypted\\)\\: Unexpected token \"\\$encrypted\", expected type at offset 53$#"
 			count: 1
 			path: tests/File/AwsFileTest.php
 
@@ -7077,26 +6347,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\StorageApiTestCase\\:\\:waitForFile\\(\\) has parameter \\$sapiClient with no type specified\\.$#"
-			count: 1
-			path: tests/StorageApiTestCase.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$name\\)\\: Unexpected token \"\\$name\", expected type at offset 55$#"
-			count: 1
-			path: tests/StorageApiTestCase.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$path\\)\\: Unexpected token \"\\$path\", expected type at offset 18$#"
-			count: 1
-			path: tests/StorageApiTestCase.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$stage\\)\\: Unexpected token \"\\$stage\", expected type at offset 75$#"
-			count: 1
-			path: tests/StorageApiTestCase.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$testName\\)\\: Unexpected token \"\\$testName\", expected type at offset 18$#"
 			count: 1
 			path: tests/StorageApiTestCase.php
 
