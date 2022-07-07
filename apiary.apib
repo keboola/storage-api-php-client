@@ -2202,7 +2202,7 @@ Lists tables in a given bucket.
 
 **EXPERIMENTAL**
 
-Creates a table with typed columns. *Synapse|Exasol only.*
+Creates a table with typed columns. *Synapse|Exasol|Snowflake only.*
 
 Request is handled asynchronously which means that the create request is created and added to a queue and the job resource URL for status polling is returned.
 
@@ -2217,7 +2217,7 @@ If there is no column datatype specified (column.definition.type or column.baset
     + columns[] (required) - definition of table columns
        + name (required, string) - column name
        + definition (object) - column settings
-            + type (string) - datatype of this column, choose build in types for used backend [Exasol](https://bit.ly/3s2n4AP) [Synapse](https://bit.ly/3uZjN60)
+            + type (string) - datatype of this column, choose build in types for used backend [Exasol](https://bit.ly/3s2n4AP), [Synapse](https://bit.ly/3uZjN60), [Snowflake](https://docs.snowflake.com/en/sql-reference/intro-summary-data-types.html)
             + length (string) - optional, default: depends on type
             + nullable (boolean) - optional, default: true
             + default (string) - optional, default value for column
