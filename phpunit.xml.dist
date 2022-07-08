@@ -90,6 +90,7 @@
 
 	<testsuite name="backend-snowflake-part-2">
 		<file>tests/Backend/CommonPart1/BucketsTest.php</file>
+		<file>tests/Backend/CommonPart1/RegisterBucketTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesLoadTestReadOnly.php</file>
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
 		<file>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</file>
