@@ -32,8 +32,8 @@ class CopyIntoWorkspaceTest extends WorkspacesTestCase
             self::IMPORT_FILE_PATH
         );
 
-        $this->dropBucketIfExists($this->_client, 'out.c-linked-bucket');
-        $this->dropBucketIfExists($client2, 'in.c-shared-bucket');
+        $this->dropBucketIfExists($this->_client, 'out.c-linked-bucket', true);
+        $this->dropBucketIfExists($client2, 'in.c-shared-bucket', true);
 
         $bucket = $client2->createBucket('shared-bucket', 'in');
 

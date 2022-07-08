@@ -498,6 +498,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $this->assertSame('storage', $metadata['provider']);
         $this->assertSame('KBC.dataTypesEnabled', $metadata['key']);
         $this->assertSame('true', $metadata['value']);
+        $this->assertTrue($newTable['isTyped']);
 
         // check that the new table has correct datypes in metadata
         $metadataClient = new Metadata($this->_client);
