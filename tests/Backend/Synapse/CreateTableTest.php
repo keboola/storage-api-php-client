@@ -222,6 +222,7 @@ class CreateTableTest extends StorageApiTestCase
         $this->assertSame('storage', $metadata['provider']);
         $this->assertSame('KBC.dataTypesEnabled', $metadata['key']);
         $this->assertSame('true', $metadata['value']);
+        $this->assertTrue($table['isTyped']);
     }
 
     public function testCreateTableDefinitionNoPrimaryKey(): void

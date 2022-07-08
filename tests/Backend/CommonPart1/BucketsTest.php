@@ -58,7 +58,7 @@ class BucketsTest extends StorageApiTestCase
         $bucketName = 'BucketsTest_testBucketDetail';
 
         $tokenData = $this->_client->verifyToken();
-        $this->dropBucketIfExists($this->_client, 'in.c-' . $bucketName);
+        $this->dropBucketIfExists($this->_client, 'in.c-' . $bucketName, true);
         $bucketId = $this->_client->createBucket($bucketName, self::STAGE_IN);
 
         $bucket = $this->_client->getBucket($bucketId);
@@ -110,7 +110,7 @@ class BucketsTest extends StorageApiTestCase
         $bucketUpdateOptions = new BucketUpdateOptions($bucketId, $displayName);
         $bucket = $this->_client->updateBucket($bucketUpdateOptions);
 
-        $this->_client->dropBucket($bucket['id']);
+        $this->_client->dropBucket($bucket['id'], ['async' => true]);
     }
 
     public function testBucketEvents(): void
@@ -218,7 +218,7 @@ class BucketsTest extends StorageApiTestCase
 
         $testBucketId = $bucketData['stage'] . '.c-'.$bucketData['name'];
 
-        $this->dropBucketIfExists($this->_client, $testBucketId);
+        $this->dropBucketIfExists($this->_client, $testBucketId, true);
 
         $newBucketId = $this->_client->createBucket(
             $bucketData['name'],
@@ -249,7 +249,7 @@ class BucketsTest extends StorageApiTestCase
             $this->assertSame('buckets.deleteNotEmpty', $e->getStringCode());
         }
 
-        $this->_client->dropBucket($newBucketId, ['force' => true]);
+        $this->_client->dropBucket($newBucketId, ['force' => true, 'async' => true]);
 
         $newBucketId = $this->_client->createBucket(
             $bucketData['name'],
@@ -318,7 +318,7 @@ class BucketsTest extends StorageApiTestCase
             $this->assertEquals('storage.buckets.validation', $e->getStringCode());
         }
 
-        $this->_client->dropBucket($newBucket['id']);
+        $this->_client->dropBucket($newBucket['id'], ['async' => true]);
 
         $newBucketId = $this->_client->createBucket(
             $bucketData['name'],
@@ -346,7 +346,7 @@ class BucketsTest extends StorageApiTestCase
         $bucketId = $this->_client->createBucket('something', self::STAGE_IN);
         $bucket = $this->_client->getBucket($bucketId);
         $this->assertEmpty($bucket['description']);
-        $this->_client->dropBucket($bucket['id']);
+        $this->_client->dropBucket($bucket['id'], ['async' => true]);
     }
 
     public function testBucketAttributes(): void

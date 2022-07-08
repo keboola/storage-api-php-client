@@ -963,6 +963,8 @@ existing bucket from another project (see below).
                 "rowsCount": 0,
                 "isMaintenance": false,
                 "backend": "snowflake",
+                "hasExternalSchema": false,
+                "databaseName": null,
                 "sharing": null,
                 "attributes": []
             }
@@ -1060,6 +1062,78 @@ Asynchronous call response (async=true) that creates a new job. To see job detai
                 }
             }
 
+### Register bucket [POST /v2/storage/buckets/register]
+Use this API call to create a new bucket from existing schema.
+
++ Attributes
+    + name (required) - New bucket name; only alphanumeric characters and underscores are allowed.
+    + stage (optional, enum[string]) - Assigns the bucket to one of the stages.
+        + Members
+            + in
+            + out
+        + Default: in
+    + description (optional) - Bucket description.
+    + backend (optional, enum[string]) - Bucket backend type; the default value is determined by the project settings.
+        + Members
+            + snowflake
+            + redshift
+    + displayName (optional) - Bucket displayName, this name is displayed in UI and can be changed anytime; only alphanumeric characters,underscores and dashes are allowed.
+    + path (required, array) - Path to the schema. On SNFLK ['database-name','schema-name']
+
++ Request (application/json)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            {
+                "name": "organizationData",
+                "displayName": "organization-members",
+                "stage": "in",
+                "description": "my bucket",
+                "backend": "snowflake",
+                "path": ["DATABASE", "SCHEMA"]
+            }
+
++ Response 202
+Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
+    + Body
+
+            {
+                "id": 11,
+                "status": "waiting",
+                "url": "https://connection.keboola.com/v2/storage/jobs/11",
+                "operationName": "bucketRegister",
+                "operationParams": {
+                    "params": {
+                        "bucketName": "organizationData",
+                        "displayName": "organizationData",
+                        "bucketStage": "in",
+                        "path": ["DATABASE", "SCHEMA"],
+                        "devBranchId": 4230,
+                        "queue": "main"
+                    }
+                },
+                "createdTime": "2013-05-31T16:11:05+0200",
+                "startTime": null,
+                "endTime": null,
+                "runId": null,
+                "results": null,
+                "creatorToken": {
+                    "id": "27978",
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
+                }
+            }
+
 ## Manage Bucket [/v2/storage/buckets/{bucket_id}]
 ### Bucket Detail [GET]
 Obtains information about a bucket.
@@ -1084,6 +1158,8 @@ Obtains information about a bucket.
                 "description": "Google Analytics",
                 "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-ga/tables",
                 "backend": "snowflake",
+                "hasExternalSchema": false,
+                "databaseName": null,
                 "linkedBy": [
                     {
                         "id": "in.c-linked-bucket",
@@ -1158,6 +1234,50 @@ Asynchronous call response (async=true) that creates a new job. To see job detai
                     "params": {
                         "idBucket": 123,
                         "force": true
+                    }
+                },
+                "createdTime": "2013-05-31T16:11:05+0200",
+                "startTime": null,
+                "endTime": null,
+                "runId": null,
+                "results": null,
+                "creatorToken": {
+                    "id": "27978",
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
+                }
+            }
+
+### Bucket Refresh [PUT /v2/storage/buckets/{bucket_id}/refresh]
+Refresh external bucket
+
++ Parameters
+    + bucket_id (required) - Bucket Id
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 202
+Asynchronous call response that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
+
+    + Body
+
+            {
+                "id": 11,
+                "status": "waiting",
+                "url": "https://connection.keboola.com/v2/storage/jobs/11",
+                "operationName": "bucketRefresh",
+                "operationParams": {
+                    "params": {
+                        "idBucket": 123,
                     }
                 },
                 "createdTime": "2013-05-31T16:11:05+0200",
@@ -2014,6 +2134,7 @@ Lists tables in a given bucket.
                     "dataSizeBytes": 1024,
                     "isAlias": false,
                     "isAliasable": true,
+                    "isTyped": false,
                     "metadata": [
                         {
                             "id": "206180828",
@@ -2049,6 +2170,7 @@ Lists tables in a given bucket.
                     "dataSizeBytes": 1024,
                     "isAlias": true,
                     "isAliasable": true,
+                    "isTyped": false,
                     "sourceTable": {
                         "id": "in.c-keboola-ex-db-snowflake-528221294.datatypes",
                         "uri": "https://connection.keboola.com/v2/storage/tables/in.c-keboola-ex-db-snowflake-528221294.datatypes",
@@ -2764,6 +2886,7 @@ Obtains information about a table.
                 "dataSizeBytes": 25165824,
                 "isAlias": true,
                 "isAliasable": true,
+                "isTyped": false,
                 "sourceTable": {
                     "id": "in.c-application-testing.cashier-data",
                     "uri": "https://connection.keboola.com/v2/storage/tables/in.c-application-testing.cashier-data",
@@ -2855,6 +2978,7 @@ Synchronous call response (async=false)
                 "dataSizeBytes": 25165824,
                 "isAlias": true,
                 "isAliasable": true,
+                "isTyped": false,
                 "sourceTable": {
                     "id": "in.c-application-testing.cashier-data",
                     "uri": "https://connection.keboola.com/v2/storage/tables/in.c-application-testing.cashier-data",
@@ -3040,6 +3164,7 @@ attributes and information about the containing bucket.
                     "dataSizeBytes": 12288,
                     "isAlias": false,
                     "isAliasable": true,
+                    "isTyped": false,
                     "attributes": [],
                     "columns": [
                         "time_spent_in_shop",
@@ -3095,6 +3220,7 @@ attributes and information about the containing bucket.
                     "dataSizeBytes": 12288,
                     "isAlias": true,
                     "isAliasable": true,
+                    "isTyped": false,
                     "sourceTable": {
                         "id": "in.c-application-testing.cashier-data",
                         "uri": "https:\/\/connection.keboola.com\/v2\/storage\/tables\/in.c-application-testing.cashier-data",
@@ -7063,6 +7189,7 @@ attributes and information about the containing bucket. At least one of paramete
                     "dataSizeBytes": 12288,
                     "isAlias": false,
                     "isAliasable": true,
+                    "isTyped": false,
                     "attributes": [],
                     "columns": [
                         "time_spent_in_shop",
@@ -7111,6 +7238,7 @@ attributes and information about the containing bucket. At least one of paramete
                     "dataSizeBytes": 12288,
                     "isAlias": true,
                     "isAliasable": true,
+                    "isTyped": false,
                     "sourceTable": {
                         "id": "in.c-application-testing.cashier-data",
                         "uri": "https:\/\/connection.keboola.com\/v2\/storage\/tables\/in.c-application-testing.cashier-data",
