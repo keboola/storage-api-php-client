@@ -3,37 +3,54 @@
 namespace Keboola\Test\Backend\Workspaces\Backend;
 
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
+use PDO;
 
 class RedshiftWorkspaceBackend implements WorkspaceBackend
 {
     use WorkspaceConnectionTrait;
 
-    private $db;
+    private PDO $db;
 
     private $schema;
 
     public function __construct($workspace)
     {
-        $this->db = $this->getDbConnection($workspace['connection']);
+        $db = $this->getDbConnection($workspace['connection']);
+        assert($db instanceof PDO);
+        $this->db = $db;
         $this->schema = $workspace['connection']['schema'];
+    }
+
+    public function getDb(): PDO
+    {
+        return $this->db;
+    }
+
+    public function executeQuery(string $sql): void
+    {
+        $this->db->query($sql);
     }
 
     public function getTableColumns($table)
     {
         $stmt = $this->db->prepare('SELECT "column" FROM PG_TABLE_DEF WHERE tablename = ?;');
         $stmt->execute([$table]);
+        $all = $stmt->fetchAll();
+        assert($all !== false);
         return array_map(function ($row) {
                 return $row['column'];
-        }, $stmt->fetchAll());
+        }, $all);
     }
 
     public function getTables()
     {
         $stmt = $this->db->prepare('select tablename from PG_TABLES where schemaname = ?');
         $stmt->execute([$this->schema]);
+        $all = $stmt->fetchAll();
+        assert($all !== false);
         return array_map(function ($table) {
                 return $table['tablename'];
-        }, $stmt->fetchAll());
+        }, $all);
     }
 
     public function dropTable($table)
@@ -54,11 +71,12 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
     {
         $stmt = $this->db->prepare(sprintf("select count(*) as count from \"{$this->schema}\".\"%s\"", $table));
         $stmt->execute();
+        /** @var array{count:int} $count */
         $count = $stmt->fetch();
         return $count['count'];
     }
 
-    public function fetchAll($table, $style = \PDO::FETCH_NUM, $orderBy = null)
+    public function fetchAll($table, $style = PDO::FETCH_NUM, $orderBy = null)
     {
         $stmt = $this->db->prepare(sprintf(
             "SELECT * FROM \"{$this->schema}\".\"%s\" %s",
@@ -126,6 +144,7 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
 
         $stmt->execute();
 
+        /** @var array<string, array<int, string>> $result */
         $result = $stmt->fetchAll();
 
         $attnum = 0;
@@ -157,7 +176,7 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
                     $defaultValue = $matches[1];
                 }
             }
-            list($primary, $primaryPosition, $identity) = [false, null, false];
+            [$primary, $primaryPosition, $identity] = [false, null, false];
             if ($row[$contype] == 'p') {
                 $primary = true;
                 $primaryPosition = array_search($row[$attnum], explode(',', $row[$conkey])) + 1;

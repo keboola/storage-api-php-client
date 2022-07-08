@@ -20,27 +20,32 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
 {
     use WorkspaceConnectionTrait;
 
-    /** @var Connection */
-    private $db;
+    private Connection $db;
 
-    /** @var string */
-    private $schema;
+    private string $schema;
 
     /**
      * @param array $workspace
      */
     public function __construct($workspace)
     {
-        $this->db = $this->getDbConnection($workspace['connection']);
+        $db = $this->getDbConnection($workspace['connection']);
+        assert($db instanceof Connection);
+        $this->db = $db;
         $this->schema = $workspace['connection']['schema'];
     }
 
     /**
      * @return Connection
      */
-    private function getDb()
+    public function getDb()
     {
         return $this->db;
+    }
+
+    public function executeQuery(string $sql): void
+    {
+        $this->db->executeQuery($sql);
     }
 
     /**

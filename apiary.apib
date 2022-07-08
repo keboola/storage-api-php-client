@@ -963,6 +963,8 @@ existing bucket from another project (see below).
                 "rowsCount": 0,
                 "isMaintenance": false,
                 "backend": "snowflake",
+                "hasExternalSchema": false,
+                "databaseName": null,
                 "sharing": null,
                 "attributes": []
             }
@@ -1156,6 +1158,8 @@ Obtains information about a bucket.
                 "description": "Google Analytics",
                 "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-ga/tables",
                 "backend": "snowflake",
+                "hasExternalSchema": false,
+                "databaseName": null,
                 "linkedBy": [
                     {
                         "id": "in.c-linked-bucket",
@@ -1230,6 +1234,50 @@ Asynchronous call response (async=true) that creates a new job. To see job detai
                     "params": {
                         "idBucket": 123,
                         "force": true
+                    }
+                },
+                "createdTime": "2013-05-31T16:11:05+0200",
+                "startTime": null,
+                "endTime": null,
+                "runId": null,
+                "results": null,
+                "creatorToken": {
+                    "id": "27978",
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
+                }
+            }
+
+### Bucket Refresh [PUT /v2/storage/buckets/{bucket_id}/refresh]
+Refresh external bucket
+
++ Parameters
+    + bucket_id (required) - Bucket Id
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 202
+Asynchronous call response that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
+
+    + Body
+
+            {
+                "id": 11,
+                "status": "waiting",
+                "url": "https://connection.keboola.com/v2/storage/jobs/11",
+                "operationName": "bucketRefresh",
+                "operationParams": {
+                    "params": {
+                        "idBucket": 123,
                     }
                 },
                 "createdTime": "2013-05-31T16:11:05+0200",

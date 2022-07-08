@@ -9,9 +9,9 @@ class SnowflakeWorkspaceBackend implements WorkspaceBackend
 {
     use WorkspaceConnectionTrait;
 
-    private $db;
+    private Connection $db;
 
-    private $schema;
+    private string $schema;
 
     /**
      * @return Connection
@@ -23,8 +23,15 @@ class SnowflakeWorkspaceBackend implements WorkspaceBackend
 
     public function __construct($workspace)
     {
-        $this->db = $this->getDbConnection($workspace['connection']);
+        $db = $this->getDbConnection($workspace['connection']);
+        assert($db instanceof Connection);
+        $this->db = $db;
         $this->schema = $workspace['connection']['schema'];
+    }
+
+    public function executeQuery(string $sql): void
+    {
+        $this->db->query($sql);
     }
 
     /**
