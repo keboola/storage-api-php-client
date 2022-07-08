@@ -379,6 +379,16 @@ class Client
     }
 
     /**
+     * @return mixed
+     */
+    public function refreshBucket(string $bucketId)
+    {
+        $url = 'buckets/' . $bucketId . '/refresh';
+
+        return $this->apiPut($url);
+    }
+
+    /**
      * Link shared bucket to project
      *
      * @param string $name new bucket name
