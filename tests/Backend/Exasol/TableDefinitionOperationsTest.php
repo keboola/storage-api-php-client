@@ -9,7 +9,7 @@ use Keboola\Test\StorageApiTestCase;
 
 class TableDefinitionOperationsTest extends StorageApiTestCase
 {
-    private $tableId;
+    private string $tableId;
 
     public function setUp(): void
     {
@@ -26,7 +26,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $this->tableId = $this->createTableDefinition();
     }
 
-    private function createTableDefinition()
+    private function createTableDefinition(): string
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -189,6 +189,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
         $this->_client->writeTable($tableId, $csvFile);
 
+        /** @var array $data */
         $data = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);
 
         $expectedPreview = [
@@ -275,6 +276,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         //test types is provided from source table for alias
         $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $tableId, 'table-1');
 
+        /** @var array $data */
         $data = $this->_client->getTableDataPreview($firstAliasTableId, ['format' => 'json']);
 
         $this->assertSame(
@@ -283,6 +285,284 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         );
 
         $this->assertCount(1, $data['rows']);
+    }
+
+    public function testDataPreviewForTableDefinitionBaseType(): void
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $tableDefinition = [
+            'name' => 'my-new-table-for-data-preview',
+            'primaryKeysNames' => [],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'basetype'=> 'INTEGER',
+                ],
+                [
+                    'name' => 'column_decimal',
+                    'basetype'=> 'NUMERIC',
+                ],
+                [
+                    'name' => 'column_float',
+                    'basetype' => 'FLOAT',
+                ],
+                [
+                    'name' => 'column_boolean',
+                    'basetype' => 'BOOLEAN',
+                ],
+                [
+                    'name' => 'column_date',
+                    'basetype' => 'DATE',
+                ],
+                [
+                    'name' => 'column_timestamp',
+                    'basetype' => 'TIMESTAMP',
+                ],
+                [
+                    'name' => 'column_varchar',
+                    'basetype' => 'STRING',
+                ],
+            ],
+        ];
+
+        $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
+        $csvFile->writeRow([
+            'id',
+            'column_decimal',
+            'column_float',
+            'column_boolean',
+            'column_date',
+            'column_timestamp',
+            'column_varchar',
+        ]);
+        $csvFile->writeRow(
+            [
+                '1',
+                '0.123', // default is (36,36) => 1e-36
+                '3.14',
+                0,
+                '1989-08-31',
+                '1989-08-31 00:00:00.000',
+                'roman',
+            ]
+        );
+
+        $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
+
+        $this->_client->writeTable($tableId, $csvFile);
+
+        /** @var array $data */
+        $data = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);
+
+        $expectedPreview = [
+            [
+                [
+                    'columnName' => 'id',
+                    'value' => '1',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_decimal',
+                    'value' => '0.122999999999999995035135668316536832',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_float',
+                    'value' => '3.14',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_boolean',
+                    'value' => 'FALSE',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_date',
+                    'value' => '1989-08-31',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_timestamp',
+                    'value' => '1989-08-31 00:00:00.000000',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_varchar',
+                    'value' => 'roman',
+                    'isTruncated' => false,
+                ],
+            ],
+        ];
+
+        $this->assertSame(
+            $expectedPreview,
+            $data['rows']
+        );
+
+        $this->assertCount(1, $data['rows']);
+
+        //test types is provided from source table for alias
+        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $tableId, 'table-1');
+
+        /** @var array $data */
+        $data = $this->_client->getTableDataPreview($firstAliasTableId, ['format' => 'json']);
+
+        $this->assertSame(
+            $expectedPreview,
+            $data['rows']
+        );
+
+        $this->assertCount(1, $data['rows']);
+    }
+
+    public function testDataPreviewForTableDefinitionWithoutDefinitionAndBaseType(): void
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $tableDefinition = [
+            'name' => 'my-new-table-for-data-preview',
+            'primaryKeysNames' => [],
+            'columns' => [
+                [
+                    'name' => 'id',
+                ],
+                [
+                    'name' => 'column_decimal',
+                ],
+                [
+                    'name' => 'column_float',
+                ],
+                [
+                    'name' => 'column_boolean',
+                ],
+                [
+                    'name' => 'column_date',
+                ],
+                [
+                    'name' => 'column_timestamp',
+                ],
+                [
+                    'name' => 'column_varchar',
+                ],
+            ],
+        ];
+
+        $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
+        $csvFile->writeRow([
+            'id',
+            'column_decimal',
+            'column_float',
+            'column_boolean',
+            'column_date',
+            'column_timestamp',
+            'column_varchar',
+        ]);
+        $csvFile->writeRow(
+            [
+                '1',
+                '003.123',
+                '3.14',
+                0,
+                '1989-08-31',
+                '1989-08-31 00:00:00.000',
+                'roman',
+            ]
+        );
+
+        $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
+
+        $this->_client->writeTable($tableId, $csvFile);
+
+        /** @var array $data */
+        $data = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);
+
+        $expectedPreview = [
+            [
+                [
+                    'columnName' => 'id',
+                    'value' => '1',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_decimal',
+                    'value' => '003.123',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_float',
+                    'value' => '3.14',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_boolean',
+                    'value' => '0',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_date',
+                    'value' => '1989-08-31',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_timestamp',
+                    'value' => '1989-08-31 00:00:00.000',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_varchar',
+                    'value' => 'roman',
+                    'isTruncated' => false,
+                ],
+            ],
+        ];
+
+        $this->assertSame(
+            $expectedPreview,
+            $data['rows']
+        );
+
+        $this->assertCount(1, $data['rows']);
+
+        //test types is provided from source table for alias
+        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $tableId, 'table-1');
+
+        /** @var array $data */
+        $data = $this->_client->getTableDataPreview($firstAliasTableId, ['format' => 'json']);
+
+        $this->assertSame(
+            $expectedPreview,
+            $data['rows']
+        );
+
+        $this->assertCount(1, $data['rows']);
+    }
+
+    public function testAddTypedColumnOnNonTypedTable(): void
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $tableDefinition = [
+            'name' => 'my-new-table-non-typed',
+            'primaryKeysNames' => [],
+            'columns' => [
+                [
+                    'name' => 'id',
+                ],
+            ],
+        ];
+
+        $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
+
+        try {
+            $this->_client->addTableColumn($tableId, 'column_typed', [
+                'type' => 'VARCHAR',
+            ]);
+            $this->fail('Should throw ClientException');
+        } catch (ClientException $e) {
+            $this->assertSame('Invalid parameters - definition: This field was not expected.', $e->getMessage());
+            $this->assertSame('storage.tables.validation', $e->getStringCode());
+        }
     }
 
     public function testTableWithDot(): void
