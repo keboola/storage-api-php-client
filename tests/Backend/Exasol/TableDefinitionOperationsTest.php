@@ -364,8 +364,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 ],
                 [
                     'columnName' => 'column_decimal',
-                    // TODO actual: 0.122999999999999995035135668316536832
-                    'value' => '0.123',
+                    'value' => '0.122999999999999995035135668316536832',
                     'isTruncated' => false,
                 ],
                 [
