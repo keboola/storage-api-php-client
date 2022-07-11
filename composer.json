@@ -28,6 +28,7 @@
 		"php": ">=7.4",
 		"ext-json": "*",
 		"aws/aws-sdk-php": "~3.2",
+		"google/apiclient": "^2.1",
 		"guzzlehttp/guzzle": "~7.0",
 		"keboola/coding-standard": "^14.0",
 		"keboola/csv": "~1.1.3",
