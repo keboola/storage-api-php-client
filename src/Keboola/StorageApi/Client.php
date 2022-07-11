@@ -2,6 +2,9 @@
 namespace Keboola\StorageApi;
 
 use Aws\S3\S3Client;
+use Google\Auth\Credentials\ServiceAccountCredentials;
+use Google\Auth\HttpHandler\HttpHandlerFactory;
+use Google\Cloud\Storage\StorageClient;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\MessageFormatter;
 use GuzzleHttp\Middleware;
@@ -47,6 +50,7 @@ class Client
 
     const FILE_PROVIDER_AWS = 'aws';
     const FILE_PROVIDER_AZURE = 'azure';
+    private const FILE_PROVIDER_GCS = 'gcs';
 
     // Token string
     public $token;
@@ -1597,6 +1601,15 @@ class Client
                     $newOptions,
                     $transferOptions
                 );
+                break;
+            case self::FILE_PROVIDER_GCS:
+                $this->uploadFileToGcs(
+                    $prepareResult,
+                    $filePath
+                );
+                break;
+            default:
+                throw new Exception('Invalid File Provider: ' . $prepareResult['provider']);
         }
 
         if ($fs) {
@@ -1604,6 +1617,21 @@ class Client
         }
 
         return $prepareResult['id'];
+    }
+
+    private function uploadFileToGcs(
+        array $prepareResult,
+        string $filePath
+    ) {
+        $gcsUploader = new GCSUploader([
+            'credentials' => $prepareResult['gcsUploadParams']['credentials'],
+            'projectId' => $prepareResult['gcsUploadParams']['projectId'],
+        ]);
+
+        $gcsUploader->uploadFile(
+            $prepareResult['gcsUploadParams']['bucket'],
+            $filePath
+        );
     }
 
     /**
