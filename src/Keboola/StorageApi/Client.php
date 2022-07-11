@@ -2402,22 +2402,6 @@ class Client
         return (string) $response->getBody();
     }
 
-    private function fixRequestBody(array $body)
-    {
-        $fixedBody = [];
-        foreach ($body as $key => $value) {
-            if (!is_array($value)) {
-                $fixedBody[$key] = $value;
-                continue;
-            }
-
-            foreach ($value as $deeperKey => $deeperValue) {
-                $fixedBody[sprintf('%s[%s]', $key, $deeperKey)] = $deeperValue;
-            }
-        }
-        return $fixedBody;
-    }
-
     /**
      * @param Response $jobCreatedResponse
      * @return mixed
