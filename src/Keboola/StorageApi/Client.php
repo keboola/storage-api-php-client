@@ -2296,13 +2296,13 @@ class Client
 
     /**
      * @param string $url
-     * @param array $postData
+     * @param array $data
      * @return mixed|string
      */
-    public function apiPut($url, $postData = null)
+    public function apiPut($url, $data = null)
     {
         return $this->request('put', $url, [
-            'form_params' => $postData,
+            'form_params' => $data,
         ]);
     }
 
@@ -2327,10 +2327,9 @@ class Client
 
     public function apiDeleteParams($url, $data)
     {
-        $options = [];
-        $options['headers']['Content-Type'] = 'application/x-www-form-urlencoded';
-        $options['body'] = http_build_query($data, '', '&');
-        return $this->request('delete', $url, $options);
+        return $this->request('delete', $url, [
+            'form_params' => $data,
+        ]);
     }
 
     /**
