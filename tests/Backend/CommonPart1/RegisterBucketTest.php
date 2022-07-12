@@ -63,6 +63,7 @@ class RegisterBucketTest extends StorageApiTestCase
 
         $workspace = $ws->createWorkspace();
 
+        $runId = $this->setRunId();
         $idOfBucket = $this->_client->registerBucket(
             'test-bucket-registration',
             [$workspace['connection']['database'], $workspace['connection']['schema']],
@@ -71,6 +72,7 @@ class RegisterBucketTest extends StorageApiTestCase
             'snowflake',
             'Iam-your-workspace'
         );
+        $this->assertEvents($runId, ['storage.bucketCreated']);
 
         $bucket = $this->_client->getBucket($idOfBucket);
         $this->assertTrue($bucket['hasExternalSchema']);
@@ -83,7 +85,10 @@ class RegisterBucketTest extends StorageApiTestCase
 
         $db->createTable('TEST', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT']);
         $db->executeQuery('INSERT INTO "TEST" VALUES (1, \'test\')');
+
+        $runId = $this->setRunId();
         $this->_client->refreshBucket($idOfBucket);
+        $this->assertEvents($runId, ['storage.tableCreated', 'storage.bucketRefreshed']);
 
         $tables = $this->_client->listTables($idOfBucket);
         $this->assertCount(1, $tables);
@@ -117,7 +122,14 @@ class RegisterBucketTest extends StorageApiTestCase
         $this->assertCount(2, Client::parseCsv($preview, false));
 
         $db->createTable('TEST2', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT']);
+
+        $runId = $this->setRunId();
         $this->_client->refreshBucket($idOfBucket);
+        $this->assertEvents($runId, [
+            'storage.tableCreated',
+            'storage.bucketRefreshed',
+        ]);
+
         $tables = $this->_client->listTables($idOfBucket);
         $this->assertCount(2, $tables);
 
@@ -126,7 +138,15 @@ class RegisterBucketTest extends StorageApiTestCase
         $db->executeQuery('ALTER TABLE "TEST" ADD COLUMN "XXX" FLOAT');
         $db->createTable('TEST3', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT']);
 
+        $runId = $this->setRunId();
         $this->_client->refreshBucket($idOfBucket);
+        $this->assertEvents($runId, [
+            'storage.tableDeleted',
+            'storage.tableCreated',
+            'storage.tableColumnsUpdated',
+            'storage.bucketRefreshed',
+        ]);
+
         $tables = $this->_client->listTables($idOfBucket);
         $this->assertCount(2, $tables);
 
@@ -196,6 +216,8 @@ class RegisterBucketTest extends StorageApiTestCase
             'force' => true,
             'async' => true,
         ]);
+
+        $runId = $this->setRunId();
         // try same with schema outside of project database
         $idOfBucket = $this->_client->registerBucket(
             'test-bucket-registration-ext',
@@ -205,6 +227,11 @@ class RegisterBucketTest extends StorageApiTestCase
             'snowflake',
             'Iam-from-external-db-ext'
         );
+        $this->assertEvents($runId, [
+            'storage.bucketCreated',
+            'storage.tableCreated',
+        ]);
+
         $bucket = $this->_client->getBucket($idOfBucket);
         $this->assertTrue($bucket['hasExternalSchema']);
         $this->assertSame('TEST_EXTERNAL_BUCKETS', $bucket['databaseName']);
@@ -262,5 +289,35 @@ class RegisterBucketTest extends StorageApiTestCase
                 'provider' => 'storage',
             ], $columnMetadata[3], ['id', 'timestamp']);
         }
+    }
+
+    private function setRunId(): string
+    {
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+        return $runId;
+    }
+
+    /**
+     * @param string[] $expectedEventsNames
+     */
+    private function assertEvents(string $runId, array $expectedEventsNames): void
+    {
+        // block until async events are processed, processing in order is not guaranteed but it should work most of time
+        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
+
+        $events = $this->_client->listEvents([
+            'runId' => $runId,
+        ]);
+
+        $eventsNames = [];
+        foreach ($events as $event) {
+            if ($event['event'] === 'ext.dummy.') {
+                continue;
+            }
+            $eventsNames[] = $event['event'];
+        }
+
+        $this->assertSame([], array_diff($expectedEventsNames, $eventsNames));
     }
 }
