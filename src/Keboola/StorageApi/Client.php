@@ -2295,24 +2295,28 @@ class Client
     }
 
     /**
-     *
-     * Prepare URL and call a POST request
-     *
      * @param string $url
-     * @param array $postData
+     * @param array $data
      * @return mixed|string
      */
-    public function apiPut($url, $postData = null)
+    public function apiPut($url, $data = null)
     {
         return $this->request('put', $url, [
-            'form_params' => $postData,
+            'form_params' => $data,
         ]);
     }
 
     /**
-     *
-     * Prepare URL and call a DELETE request
-     *
+     * @return mixed|string
+     */
+    public function apiPutJson(string $url, array $data = [])
+    {
+        return $this->request('put', $url, [
+            'json' => $data,
+        ]);
+    }
+
+    /**
      * @param string $url
      * @return mixed|string
      */
@@ -2323,10 +2327,19 @@ class Client
 
     public function apiDeleteParams($url, $data)
     {
-        $options = [];
-        $options['headers']['Content-Type'] = 'application/x-www-form-urlencoded';
-        $options['body'] = http_build_query($data, '', '&');
-        return $this->request('delete', $url, $options);
+        return $this->request('delete', $url, [
+            'form_params' => $data,
+        ]);
+    }
+
+    /**
+     * @return mixed|string
+     */
+    public function apiDeleteParamsJson(string $url, array $data = [])
+    {
+        return $this->request('delete', $url, [
+            'json' => $data,
+        ]);
     }
 
     protected function request($method, $url, $options = [], $responseFileName = null, $handleAsyncTask = true)
