@@ -9,7 +9,7 @@ use Google\Cloud\Storage\StorageClient as GoogleStorageClient;
 
 class GCSUploader
 {
-    public const STORAGE_CLASS_PERMANENT = 'NEARLINE';
+    public const STORAGE_CLASS_PERMANENT = 'COLDLINE';
     public const STORAGE_CLASS_STANDARD = 'STANDARD';
 
     private GoogleStorageClient $gcsClient;
@@ -61,7 +61,5 @@ class GCSUploader
                 ],
             ]
         );
-    }
-
     }
 }
