@@ -3,6 +3,7 @@ namespace Keboola\StorageApi;
 
 use Aws\S3\S3Client;
 use Google\Auth\Credentials\ServiceAccountCredentials;
+use Google\Auth\FetchAuthTokenInterface;
 use Google\Auth\HttpHandler\HttpHandlerFactory;
 use Google\Cloud\Storage\StorageClient;
 use GuzzleHttp\Exception\RequestException;
@@ -32,6 +33,7 @@ use Psr\Log\NullLogger;
 use Symfony\Component\Filesystem\Filesystem;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Options\FileUploadOptions;
+use Google\Cloud\Storage\StorageClient as GoogleStorageClient;
 
 class Client
 {
@@ -1931,6 +1933,11 @@ class Client
             case self::FILE_PROVIDER_AWS:
                 $this->downloadS3File($fileInfo, $destination);
                 break;
+            case self::FILE_PROVIDER_GCP:
+                $this->downloadGcsFile($fileInfo, $destination);
+                break;
+            default:
+                throw new Exception('Invalid File Provider: ' . $fileInfo['provider']);
         }
     }
 
@@ -1965,6 +1972,51 @@ class Client
             'Key' => $fileInfo['s3Path']['key'],
             'SaveAs' => $destination,
         ]);
+    }
+
+    private function downloadGcsFile(array $fileInfo, string $destination): void
+    {
+        $options = [
+            'credentials' => [
+                'access_token' => $fileInfo['gcsCredentials']['access_token'],
+                'expires_in' => $fileInfo['gcsCredentials']['expires_in'],
+                'token_type' => $fileInfo['gcsCredentials']['token_type'],
+            ],
+            'projectId' => $fileInfo['gcsCredentials']['projectId'],
+        ];
+
+        $fetchAuthToken = new class ($options['credentials']) implements FetchAuthTokenInterface {
+            private array $creds;
+
+            public function __construct(
+                array $creds
+            ) {
+                $this->creds = $creds;
+            }
+
+            public function fetchAuthToken(callable $httpHandler = null)
+            {
+                return $this->creds;
+            }
+
+            public function getCacheKey()
+            {
+                return '';
+            }
+
+            public function getLastReceivedToken()
+            {
+                return $this->creds;
+            }
+        };
+        $gcsClient = new GoogleStorageClient([
+            'projectId' => $options['projectId'],
+            'credentialsFetcher' => $fetchAuthToken,
+        ]);
+
+        $retBucket = $gcsClient->bucket($fileInfo['gcsPath']['bucket']);
+        $object = $retBucket->object($fileInfo['gcsPath']['key']);
+        $object->downloadToFile($destination);
     }
 
     public function downloadSlicedFile($fileId, $destinationFolder)
