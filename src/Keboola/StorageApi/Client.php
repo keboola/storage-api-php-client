@@ -50,7 +50,7 @@ class Client
 
     const FILE_PROVIDER_AWS = 'aws';
     const FILE_PROVIDER_AZURE = 'azure';
-    private const FILE_PROVIDER_GCS = 'gcs';
+    private const FILE_PROVIDER_GCP = 'gcp';
 
     // Token string
     public $token;
@@ -1602,7 +1602,7 @@ class Client
                     $transferOptions
                 );
                 break;
-            case self::FILE_PROVIDER_GCS:
+            case self::FILE_PROVIDER_GCP:
                 $this->uploadFileToGcs(
                     $prepareResult,
                     $filePath
