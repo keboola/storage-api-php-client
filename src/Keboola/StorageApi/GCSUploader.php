@@ -9,6 +9,9 @@ use Google\Cloud\Storage\StorageClient as GoogleStorageClient;
 
 class GCSUploader
 {
+    public const STORAGE_CLASS_PERMANENT = 'NEARLINE';
+    public const STORAGE_CLASS_STANDARD = 'STANDARD';
+
     private GoogleStorageClient $gcsClient;
 
     private FetchAuthTokenInterface $fetchAuthToken;
@@ -45,9 +48,20 @@ class GCSUploader
         ]);
     }
 
-    public function uploadFile(string $bucket, string $fileName)
+    public function uploadFile(string $bucket, string $filePath, string $fileName, bool $isPermanent)
     {
         $retBucket = $this->gcsClient->bucket($bucket);
-        $retBucket->upload(fopen($fileName, 'rb'));
+        $retBucket->upload(
+            fopen($fileName, 'rb'),
+            [
+                'name' => $filePath,
+                'metadata' => [
+                    // in gcs is not possible set life cycles to directory, it must set by storageClass mapped to life cycle when file is uploaded
+                    'storageClass' => $isPermanent ? self::STORAGE_CLASS_PERMANENT : self::STORAGE_CLASS_STANDARD,
+                ],
+            ]
+        );
+    }
+
     }
 }
