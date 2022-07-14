@@ -5596,6 +5596,11 @@ upload the files. The *legacy form submission* method is less reliable and does 
 For a more detailed guide on the file upload, see the corresponding part of the
 [Developers documentation](https://developers.keboola.com/integrate/storage/api/import-export/#manually-uploading-a-file).
 
+#### GCS File Storage Life Cycles Policy
+In case of using GCS as file storage it is not possible to set lifecycle policy according to prefixes on folders as it is e.g. with AWS S3,
+therefore it is necessary to choose special [storage class](https://cloud.google.com/storage/docs/storage-classes) `COLDLINE` for files which should be permanent when uploaded to GCS by client.
+The lifecycle can be mapped to this storage class. The default storage class is `STANDARD` and the life cycle is set to 15 days.
+
 + Attributes
     + name (required) - File name
     + sizeBytes (optional, number) - File size in bytes
