@@ -1624,7 +1624,7 @@ class Client
         array $prepareResult,
         string $filePath,
         bool $isPermanent
-    ) {
+    ): void {
         $gcsUploader = new GCSUploader([
             'credentials' => [
                  'access_token' => $prepareResult['gcsUploadParams']['access_token'],

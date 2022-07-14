@@ -48,11 +48,15 @@ class GCSUploader
         ]);
     }
 
-    public function uploadFile(string $bucket, string $filePath, string $fileName, bool $isPermanent)
+    public function uploadFile(string $bucket, string $filePath, string $fileName, bool $isPermanent): void
     {
         $retBucket = $this->gcsClient->bucket($bucket);
+        $file = fopen($fileName, 'rb');
+        if (!$file) {
+            throw new ClientException("Cannot open file {$file}");
+        }
         $retBucket->upload(
-            fopen($fileName, 'rb'),
+            $file,
             [
                 'name' => $filePath,
                 'metadata' => [
