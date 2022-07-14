@@ -3,6 +3,7 @@
 namespace Keboola\Test\File;
 
 use GuzzleHttp\Client;
+use Keboola\StorageApi\Exception;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Options\GetFileOptions;
 use Keboola\Test\StorageApiTestCase;
@@ -12,7 +13,7 @@ class GcsFileTest extends StorageApiTestCase
     /**
      * @dataProvider uploadData
      */
-    public function testFileUpload($filePath, FileUploadOptions $options): void
+    public function testFileUpload(string $filePath, FileUploadOptions $options): void
     {
         $fileId = $this->_client->uploadFile($filePath, $options);
         $file = $this->_client->getFile($fileId, (new GetFileOptions())->setFederationToken(true));
@@ -50,7 +51,7 @@ class GcsFileTest extends StorageApiTestCase
         $client->get($file['url']);
     }
 
-    public function uploadData()
+    public function uploadData(): array
     {
         $path = __DIR__ . '/../_data/files.upload.txt';
         $largeFilePath = sys_get_temp_dir() . '/large_abs_upload.txt';
@@ -100,11 +101,7 @@ class GcsFileTest extends StorageApiTestCase
         ];
     }
 
-    /**
-     * @param string $filepath
-     * @param int $fileSizeMegabytes
-     */
-    private function generateFile($filepath, $fileSizeMegabytes)
+    private function generateFile(string $filepath, int $fileSizeMegabytes): void
     {
         if (file_exists($filepath)) {
             unlink($filepath);
