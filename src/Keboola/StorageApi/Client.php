@@ -1605,7 +1605,8 @@ class Client
             case self::FILE_PROVIDER_GCP:
                 $this->uploadFileToGcs(
                     $prepareResult,
-                    $filePath
+                    $filePath,
+                    $newOptions->getIsPermanent(),
                 );
                 break;
             default:
@@ -1621,16 +1622,23 @@ class Client
 
     private function uploadFileToGcs(
         array $prepareResult,
-        string $filePath
+        string $filePath,
+        bool $isPermanent
     ) {
         $gcsUploader = new GCSUploader([
-            'credentials' => $prepareResult['gcsUploadParams']['credentials'],
+            'credentials' => [
+                 'access_token' => $prepareResult['gcsUploadParams']['access_token'],
+                 'expires_in' => $prepareResult['gcsUploadParams']['expires_in'],
+                 'token_type' => $prepareResult['gcsUploadParams']['token_type'],
+                ],
             'projectId' => $prepareResult['gcsUploadParams']['projectId'],
         ]);
 
         $gcsUploader->uploadFile(
             $prepareResult['gcsUploadParams']['bucket'],
-            $filePath
+            $prepareResult['gcsUploadParams']['key'],
+            $filePath,
+            $isPermanent
         );
     }
 
