@@ -61,7 +61,7 @@ class GCSUploader
                 'name' => $filePath,
                 'metadata' => [
                     // in gcs is not possible set life cycles to directory, it must set by storageClass mapped to life cycle when file is uploaded
-                    'storageClass' => $isPermanent ? self::STORAGE_CLASS_PERMANENT : self::STORAGE_CLASS_STANDARD,
+                    'storageClass' => $this->getLifeCycleStorageClass($isPermanent),
                 ],
             ]
         );
@@ -69,5 +69,71 @@ class GCSUploader
 
     public function uploadSlicedFile($bucket, $key, $slices, $isPermanent)
     {
+        $preparedSlices = [];
+        foreach ($slices as $filePath) {
+            $preparedSlices[$filePath] = $key . basename($filePath);
+        }
+        $chunker = new Chunker($this->transferOptions->getChunkSize());
+        $chunks = $chunker->makeChunks($preparedSlices);
+        $retBucket = $this->gcsClient->bucket($bucket);
+
+        $manifest = [
+            'entries' => [],
+        ];
+        $promises = [];
+        foreach ($chunks as $chunk) {
+            foreach ($chunk as $localFilePath => $gcsFilePath) {
+                $fileToUpload = fopen($localFilePath, 'rb');
+                if (!$fileToUpload) {
+                    throw new ClientException("Cannot open file {$fileToUpload}");
+                }
+
+                $manifest['entries'][] = [
+                    'url' => sprintf(
+                        'gs://%s/%s',
+                        $bucket,
+                        $gcsFilePath
+                    ),
+                ];
+
+                if (filesize($localFilePath) === 0) {
+                    $retBucket->upload(
+                        $fileToUpload,
+                        [
+                            'name' => $gcsFilePath,
+                            'metadata' => [
+                                // in gcs is not possible set life cycles to directory, it must set by storageClass mapped to life cycle when file is uploaded
+                                'storageClass' => $this->getLifeCycleStorageClass($isPermanent),
+                            ],
+                        ]
+                    );
+                    continue;
+                }
+
+                $promises[$localFilePath] = $retBucket->uploadAsync(
+                    $fileToUpload,
+                    [
+                        'name' => $gcsFilePath,
+                        'metadata' => [
+                            // in gcs is not possible set life cycles to directory, it must set by storageClass mapped to life cycle when file is uploaded
+                            'storageClass' => $this->getLifeCycleStorageClass($isPermanent),
+                        ],
+                    ]
+                );
+            }
+        }
+
+        \GuzzleHttp\Promise\settle($promises)->wait();
+
+        $stream = fopen('data://application/json,' . json_encode($manifest), 'r');
+
+        $retBucket->upload($stream, [
+            'name' => $key . 'manifest',
+        ]);
+    }
+
+    private function getLifeCycleStorageClass($isPermanent): string
+    {
+        return $isPermanent ? self::STORAGE_CLASS_PERMANENT : self::STORAGE_CLASS_STANDARD;
     }
 }
