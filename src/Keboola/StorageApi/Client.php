@@ -1810,6 +1810,9 @@ class Client
             case self::FILE_PROVIDER_AWS:
                 $this->uploadSlicedFileToS3($prepareResult, $slices, $options, $transferOptions);
                 break;
+            case self::FILE_PROVIDER_GCP:
+                $this->uploadSlicedFileToGcs($prepareResult, $slices, $options, $transferOptions);
+                break;
             default:
                 throw new Exception('Invalid File Provider: ' . $prepareResult['provider']);
         }
@@ -1921,6 +1924,32 @@ class Client
             $manifestUploadOptions['ServerSideEncryption'] = $uploadParams['x-amz-server-side-encryption'];
         }
         $s3Client->putObject($manifestUploadOptions);
+    }
+
+    private function uploadSlicedFileToGcs(
+        array $preparedFileResult,
+        array $slices,
+        FileUploadOptions $newOptions,
+        FileUploadTransferOptions $transferOptions = null
+    ): void {
+        $uploadParams = $preparedFileResult['gcsUploadParams'];
+        $gcsUploader = new GCSUploader(
+            [
+                'credentials' => [
+                    'access_token' => $uploadParams['access_token'],
+                    'expires_in' => $uploadParams['expires_in'],
+                    'token_type' => $uploadParams['token_type'],
+                ],
+                'projectId' => $uploadParams['projectId'],
+            ]
+        );
+
+        $gcsUploader->uploadSlicedFile(
+            $uploadParams['bucket'],
+            $uploadParams['key'],
+            $slices,
+            $newOptions->getIsPermanent()
+        );
     }
 
     public function downloadFile($fileId, $destination, GetFileOptions $getOptions = null)
@@ -2108,6 +2137,75 @@ class Client
             ]);
             $slices[] = $destinationFile = $destinationFolder . basename($entry['url']);
             file_put_contents($destinationFile, $object['Body']);
+        }
+        return $slices;
+    }
+
+    private function downloadGcsSlicedFile(array $fileInfo, string $destinationFolder): array
+    {
+        $options = [
+            'credentials' => [
+                'access_token' => $fileInfo['gcsCredentials']['access_token'],
+                'expires_in' => $fileInfo['gcsCredentials']['expires_in'],
+                'token_type' => $fileInfo['gcsCredentials']['token_type'],
+            ],
+            'projectId' => $fileInfo['gcsCredentials']['projectId'],
+        ];
+
+        $fetchAuthToken = new class ($options['credentials']) implements FetchAuthTokenInterface {
+            private array $creds;
+
+            public function __construct(
+                array $creds
+            ) {
+                $this->creds = $creds;
+            }
+
+            public function fetchAuthToken(callable $httpHandler = null)
+            {
+                return $this->creds;
+            }
+
+            public function getCacheKey()
+            {
+                return '';
+            }
+
+            public function getLastReceivedToken()
+            {
+                return $this->creds;
+            }
+        };
+        $gcsClient = new GoogleStorageClient([
+            'projectId' => $options['projectId'],
+            'credentialsFetcher' => $fetchAuthToken,
+        ]);
+
+        $retBucket = $gcsClient->bucket($fileInfo['gcsPath']['bucket']);
+
+        if (!file_exists($destinationFolder)) {
+            $fs = new Filesystem();
+            $fs->mkdir($destinationFolder);
+        }
+
+        if (substr($destinationFolder, -1) !== '/') {
+            $destinationFolder .= '/';
+        }
+
+        $manifestObject = $retBucket->object($fileInfo['gcsPath']['key'] . 'manifest')->downloadAsString();
+        /** @var array{entries: array{url: string}} $manifest */
+        $manifest = Utils::jsonDecode($manifestObject, true);
+        $slices = [];
+        /** @var array{url: string} $entry */
+        foreach ($manifest['entries'] as $entry) {
+            $slices[] = $destinationFile = $destinationFolder . basename($entry['url']);
+
+            $sprintf = sprintf(
+                '/%s/',
+                $fileInfo['gcsPath']['bucket']
+            );
+            $blobPath = explode($sprintf, $entry['url']);
+            $retBucket->object($blobPath[1])->downloadToFile($destinationFile);
         }
         return $slices;
     }
