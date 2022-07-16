@@ -66,4 +66,8 @@ class GCSUploader
             ]
         );
     }
+
+    public function uploadSlicedFile($bucket, $key, $slices, $isPermanent)
+    {
+    }
 }
