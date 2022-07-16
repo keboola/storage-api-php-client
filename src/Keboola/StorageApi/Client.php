@@ -2058,6 +2058,8 @@ class Client
                 return $this->downloadAbsSlicedFile($fileInfo, $destinationFolder);
             case self::FILE_PROVIDER_AWS:
                 return $this->downloadS3SlicedFile($fileInfo, $destinationFolder);
+            case self::FILE_PROVIDER_GCP:
+                return $this->downloadGcsSlicedFile($fileInfo, $destinationFolder);
             default:
                 throw new Exception('Invalid File Provider: ' . $fileInfo['provider']);
         }
