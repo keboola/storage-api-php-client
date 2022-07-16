@@ -1810,6 +1810,8 @@ class Client
             case self::FILE_PROVIDER_AWS:
                 $this->uploadSlicedFileToS3($prepareResult, $slices, $options, $transferOptions);
                 break;
+            default:
+                throw new Exception('Invalid File Provider: ' . $prepareResult['provider']);
         }
 
         // Cleanup
@@ -2027,6 +2029,8 @@ class Client
                 return $this->downloadAbsSlicedFile($fileInfo, $destinationFolder);
             case self::FILE_PROVIDER_AWS:
                 return $this->downloadS3SlicedFile($fileInfo, $destinationFolder);
+            default:
+                throw new Exception('Invalid File Provider: ' . $fileInfo['provider']);
         }
     }
 
