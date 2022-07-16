@@ -67,64 +67,63 @@ class GCSUploader
         );
     }
 
-    public function uploadSlicedFile($bucket, $key, $slices, $isPermanent)
+    public function uploadSlicedFile(string $bucket, string $key, array $slices, bool $isPermanent): void
     {
-        $preparedSlices = [];
-        foreach ($slices as $filePath) {
-            $preparedSlices[$filePath] = $key . basename($filePath);
-        }
-        $chunker = new Chunker($this->transferOptions->getChunkSize());
-        $chunks = $chunker->makeChunks($preparedSlices);
         $retBucket = $this->gcsClient->bucket($bucket);
 
         $manifest = [
             'entries' => [],
         ];
         $promises = [];
-        foreach ($chunks as $chunk) {
-            foreach ($chunk as $localFilePath => $gcsFilePath) {
-                $fileToUpload = fopen($localFilePath, 'rb');
-                if (!$fileToUpload) {
-                    throw new ClientException("Cannot open file {$fileToUpload}");
-                }
+        foreach ($slices as $gcsFilePath) {
+            $fileToUpload = fopen($gcsFilePath, 'rb');
+            if (!$fileToUpload) {
+                throw new ClientException("Cannot open file {$gcsFilePath}");
+            }
 
-                $manifest['entries'][] = [
-                    'url' => sprintf(
-                        'gs://%s/%s',
-                        $bucket,
-                        $gcsFilePath
-                    ),
-                ];
+            $blobName = sprintf(
+                '%s%s',
+                $key,
+                basename($gcsFilePath)
+            );
 
-                if (filesize($localFilePath) === 0) {
-                    $retBucket->upload(
-                        $fileToUpload,
-                        [
-                            'name' => $gcsFilePath,
-                            'metadata' => [
-                                // in gcs is not possible set life cycles to directory, it must set by storageClass mapped to life cycle when file is uploaded
-                                'storageClass' => $this->getLifeCycleStorageClass($isPermanent),
-                            ],
-                        ]
-                    );
-                    continue;
-                }
+            $manifest['entries'][] = [
+                'url' => sprintf(
+                    'gs://%s/%s',
+                    $bucket,
+                    $blobName
+                ),
+            ];
 
-                $promises[$localFilePath] = $retBucket->uploadAsync(
+            if (filesize($gcsFilePath) === 0) {
+                $retBucket->upload(
                     $fileToUpload,
                     [
-                        'name' => $gcsFilePath,
+                        'name' => $blobName,
                         'metadata' => [
                             // in gcs is not possible set life cycles to directory, it must set by storageClass mapped to life cycle when file is uploaded
                             'storageClass' => $this->getLifeCycleStorageClass($isPermanent),
                         ],
                     ]
                 );
+                continue;
             }
+
+            $promises[$gcsFilePath] = $retBucket->uploadAsync(
+                $fileToUpload,
+                [
+                    'name' => $blobName,
+                    'metadata' => [
+                        // in gcs is not possible set life cycles to directory, it must set by storageClass mapped to life cycle when file is uploaded
+                        'storageClass' => $this->getLifeCycleStorageClass($isPermanent),
+                    ],
+                ]
+            );
         }
 
         \GuzzleHttp\Promise\settle($promises)->wait();
 
+        /** @var resource $stream */
         $stream = fopen('data://application/json,' . json_encode($manifest), 'r');
 
         $retBucket->upload($stream, [
@@ -132,7 +131,7 @@ class GCSUploader
         ]);
     }
 
-    private function getLifeCycleStorageClass($isPermanent): string
+    private function getLifeCycleStorageClass(bool $isPermanent): string
     {
         return $isPermanent ? self::STORAGE_CLASS_PERMANENT : self::STORAGE_CLASS_STANDARD;
     }
