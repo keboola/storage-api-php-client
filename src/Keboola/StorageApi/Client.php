@@ -2015,30 +2015,7 @@ class Client
             'projectId' => $fileInfo['gcsCredentials']['projectId'],
         ];
 
-        $fetchAuthToken = new class ($options['credentials']) implements FetchAuthTokenInterface {
-            private array $creds;
-
-            public function __construct(
-                array $creds
-            ) {
-                $this->creds = $creds;
-            }
-
-            public function fetchAuthToken(callable $httpHandler = null)
-            {
-                return $this->creds;
-            }
-
-            public function getCacheKey()
-            {
-                return '';
-            }
-
-            public function getLastReceivedToken()
-            {
-                return $this->creds;
-            }
-        };
+        $fetchAuthToken = $this->getAuthTokenClass($options['credentials']);
         $gcsClient = new GoogleStorageClient([
             'projectId' => $options['projectId'],
             'credentialsFetcher' => $fetchAuthToken,
@@ -2153,30 +2130,7 @@ class Client
             'projectId' => $fileInfo['gcsCredentials']['projectId'],
         ];
 
-        $fetchAuthToken = new class ($options['credentials']) implements FetchAuthTokenInterface {
-            private array $creds;
-
-            public function __construct(
-                array $creds
-            ) {
-                $this->creds = $creds;
-            }
-
-            public function fetchAuthToken(callable $httpHandler = null)
-            {
-                return $this->creds;
-            }
-
-            public function getCacheKey()
-            {
-                return '';
-            }
-
-            public function getLastReceivedToken()
-            {
-                return $this->creds;
-            }
-        };
+        $fetchAuthToken = $this->getAuthTokenClass($options['credentials']);
         $gcsClient = new GoogleStorageClient([
             'projectId' => $options['projectId'],
             'credentialsFetcher' => $fetchAuthToken,
@@ -2906,5 +2860,35 @@ class Client
         return array_filter($requestOptions, function ($key) {
             return in_array($key, self::ALLOWED_REQUEST_OPTIONS);
         }, ARRAY_FILTER_USE_KEY);
+    }
+
+    private function getAuthTokenClass($credentials)
+    {
+        $fetchAuthToken = new class ($credentials) implements FetchAuthTokenInterface {
+            private array $creds;
+
+            public function __construct(
+                array $creds
+            )
+            {
+                $this->creds = $creds;
+            }
+
+            public function fetchAuthToken(callable $httpHandler = null)
+            {
+                return $this->creds;
+            }
+
+            public function getCacheKey()
+            {
+                return '';
+            }
+
+            public function getLastReceivedToken()
+            {
+                return $this->creds;
+            }
+        };
+        return $fetchAuthToken;
     }
 }
