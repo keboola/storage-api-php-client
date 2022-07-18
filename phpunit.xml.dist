@@ -57,6 +57,9 @@
 
 	<testsuite name="paratest-backend-snowflake-abs-part-1">
 		<directory>tests/Backend/Snowflake</directory>
+<!--		TODO ABS class is not merged in connection-->
+		<exclude>tests/Backend/Snowflake/TableDefinitionOperationsTest.php</exclude>
+		<exclude>tests/Backend/Snowflake/TypedTableInWorkspaceTest.php</exclude>
 		<directory>tests/Backend/CommonPart1</directory>
 		<exclude>tests/Backend/CommonPart1/BucketsTest.php</exclude>
 		<directory>tests/Backend/CommonPart2</directory>
