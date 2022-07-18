@@ -2862,15 +2862,14 @@ class Client
         }, ARRAY_FILTER_USE_KEY);
     }
 
-    private function getAuthTokenClass($credentials)
+    private function getAuthTokenClass(array $credentials): FetchAuthTokenInterface
     {
-        $fetchAuthToken = new class ($credentials) implements FetchAuthTokenInterface {
+        return new class ($credentials) implements FetchAuthTokenInterface {
             private array $creds;
 
             public function __construct(
                 array $creds
-            )
-            {
+            ) {
                 $this->creds = $creds;
             }
 
@@ -2889,6 +2888,5 @@ class Client
                 return $this->creds;
             }
         };
-        return $fetchAuthToken;
     }
 }
