@@ -43,8 +43,7 @@
 
 	<testsuite name="file-storage-gcs">
 		<file>tests/File/GcsFileTest.php</file>
-<!--		uncomment after all api endpoints implemented-->
-<!--		<file>tests/File/CommonFileTest.php</file>-->
+		<file>tests/File/CommonFileTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-snowflake-abs-part-2">
