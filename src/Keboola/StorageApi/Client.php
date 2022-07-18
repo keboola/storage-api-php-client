@@ -1811,7 +1811,7 @@ class Client
                 $this->uploadSlicedFileToS3($prepareResult, $slices, $options, $transferOptions);
                 break;
             case self::FILE_PROVIDER_GCP:
-                $this->uploadSlicedFileToGcs($prepareResult, $slices, $options, $transferOptions);
+                $this->uploadSlicedFileToGcs($prepareResult, $slices, $options);
                 break;
             default:
                 throw new Exception('Invalid File Provider: ' . $prepareResult['provider']);
@@ -1929,8 +1929,7 @@ class Client
     private function uploadSlicedFileToGcs(
         array $preparedFileResult,
         array $slices,
-        FileUploadOptions $newOptions,
-        FileUploadTransferOptions $transferOptions = null
+        FileUploadOptions $newOptions
     ): void {
         $uploadParams = $preparedFileResult['gcsUploadParams'];
         $gcsUploader = new GCSUploader(
