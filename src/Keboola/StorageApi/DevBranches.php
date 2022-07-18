@@ -31,16 +31,15 @@ class DevBranches
      */
     public function updateBranch(
         $branchId,
-        $branchName,
+        $branchName = '',
         $branchDescription = ''
     ) {
-        return $this->client->apiPut(
-            'dev-branches/' . $branchId,
-            [
-                'name' => $branchName,
-                'description' => $branchDescription,
-            ]
-        );
+        $params = [];
+        if ($branchName) {
+            $params['name'] = $branchName;
+        }
+        $params['description'] = $branchDescription;
+        return $this->client->apiPut('dev-branches/' . $branchId, $params);
     }
 
     /**

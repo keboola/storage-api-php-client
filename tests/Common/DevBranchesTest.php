@@ -291,4 +291,17 @@ class DevBranchesTest extends StorageApiTestCase
         $this->assertSame(403, $exception->getCode());
         $this->assertSame('You don\'t have access to resource.', $exception->getMessage());
     }
+
+    public function testCanUpdateMainBranchDescription(): void
+    {
+        $branches = new DevBranches($this->_client);
+        $branchesList = $branches->listBranches();
+        $this->assertCount(1, $branchesList);
+        $branch = reset($branchesList);
+
+        $this->assertTrue($branch['isDefault']);
+        $updatedBranch = $branches->updateBranch($branch['id'], '', 'Updated description');
+        $this->assertSame('Main', $updatedBranch['name']);
+        $this->assertSame('Updated description', $updatedBranch['description']);
+    }
 }
