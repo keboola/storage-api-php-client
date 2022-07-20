@@ -364,7 +364,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 ],
                 [
                     'columnName' => 'column_decimal',
-                    'value' => '0.122999999999999995035135668316536832',
+                    'value' => '0.123',
                     'isTruncated' => false,
                 ],
                 [
