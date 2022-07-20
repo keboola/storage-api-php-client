@@ -10,8 +10,6 @@ class TypedTableInWorkspaceTest extends ParallelWorkspacesTestCase
 {
     private string $tableId;
 
-    use WorkspaceConnectionTrait;
-
     public function setUp(): void
     {
         parent::setUp();
@@ -72,7 +70,7 @@ class TypedTableInWorkspaceTest extends ParallelWorkspacesTestCase
 
         $connection = $workspace['connection'];
 
-        $db = $this->getDbConnection($connection);
+        $db = $backend->getDb();
 
         $quotedTableId = sprintf(
             '"%s"."%s"',
@@ -148,7 +146,7 @@ class TypedTableInWorkspaceTest extends ParallelWorkspacesTestCase
 
         $connection = $workspace['connection'];
 
-        $db = $this->getDbConnection($connection);
+        $db = $backend->getDb();
 
         $quotedTableId = sprintf(
             '"%s"."%s"',
