@@ -204,6 +204,26 @@ class AlterTableTest extends StorageApiTestCase
     }
 
     /**
+     * Tests: https://github.com/keboola/connection/issues/218
+     */
+    public function testTooManyColumns(): void
+    {
+        $importFile = __DIR__ . '/../../_data/many-more-columns.csv';
+
+        try {
+            $this->_client->createTable(
+                $this->getTestBucketId(self::STAGE_IN),
+                'tooManyColumns',
+                new CsvFile($importFile),
+                []
+            );
+            $this->fail('There were 5000 columns man. fail.');
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertEquals('storage.tables.validation.tooManyColumns', $e->getStringCode());
+        }
+    }
+
+    /**
      * Tests: https://github.com/keboola/connection/issues/246
      */
     public function testPrimaryKeyAddWithSameColumnsInDifferentBuckets(): void
