@@ -52,7 +52,7 @@ class Client
 
     const FILE_PROVIDER_AWS = 'aws';
     const FILE_PROVIDER_AZURE = 'azure';
-    private const FILE_PROVIDER_GCP = 'gcp';
+    const FILE_PROVIDER_GCP = 'gcp';
 
     // Token string
     public $token;

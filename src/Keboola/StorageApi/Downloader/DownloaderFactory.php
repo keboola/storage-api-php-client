@@ -40,6 +40,11 @@ class DownloaderFactory
                     $getFileResponse['absCredentials']['SASConnectionString']
                 );
                 return new AbsDownloader($blobClient);
+            case Client::FILE_PROVIDER_GCP:
+                $gcsClient = GcsClientFactory::createClientFromCredentialsArray(
+                    $getFileResponse
+                );
+                return new GcsDownloader($gcsClient);
         }
 
         throw new Exception(sprintf(
