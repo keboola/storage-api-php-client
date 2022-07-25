@@ -1,4 +1,5 @@
 <?php
+
 namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\Csv\CsvFile;
@@ -155,91 +156,96 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
     public function dataTypesErrorDefinitions()
     {
         return [
-            [
-                'languages',
+            'varchar x character' =>
                 [
-                    'name' => [
-                        'column' =>  'name',
-                        'type' => 'VARCHAR',
+                    'languages',
+                    [
+                        'name' => [
+                            'column' => 'name',
+                            'type' => 'VARCHAR',
+                        ],
+                    ],
+                    [
+                        'id' => [
+                            'column' => 'name',
+                            'type' => 'CHARACTER',
+                        ],
                     ],
                 ],
+            'varchar x varchar 30' =>
                 [
-                    'id' => [
-                        'column' =>  'name',
-                        'type' => 'CHARACTER',
+                    'languages',
+                    [
+                        'name' => [
+                            'column' => 'name',
+                            'type' => 'VARCHAR',
+                        ],
+                    ],
+                    [
+                        'id' => [
+                            'column' => 'name',
+                            'type' => 'VARCHAR',
+                            'length' => 30,
+                        ],
                     ],
                 ],
-            ],
-            [
-                'languages',
+            'varchar 50 x varchar 30' =>
                 [
-                    'name' => [
-                        'column' =>  'name',
-                        'type' => 'VARCHAR',
+                    'languages',
+                    [
+                        'name' => [
+                            'column' => 'name',
+                            'type' => 'VARCHAR',
+                            'length' => 50,
+                        ],
+                    ],
+                    [
+                        'id' => [
+                            'column' => 'name',
+                            'type' => 'VARCHAR',
+                            'length' => 30,
+                        ],
                     ],
                 ],
+            'varchar 50 not nullable x varchar 50 ' =>
                 [
-                    'id' => [
-                        'column' =>  'name',
-                        'type' => 'VARCHAR',
-                        'length' => 30,
+                    'languages',
+                    [ // first load
+                        'name' => [
+                            'column' => 'name',
+                            'type' => 'VARCHAR',
+                            'length' => 50,
+                            'nullable' => false,
+                        ],
+                    ],
+                    [ // second load
+                        'id' => [
+                            'column' => 'name',
+                            'type' => 'VARCHAR',
+                            'length' => 50,
+                        ],
                     ],
                 ],
-            ],
-            [
-                'languages',
+            'varchar 50 not nullable x varchar 50 nullable' =>
                 [
-                    'name' => [
-                        'column' =>  'name',
-                        'type' => 'VARCHAR',
-                        'length' => 50,
+                    'languages',
+                    [
+                        'name' => [
+                            'column' => 'name',
+                            'type' => 'VARCHAR',
+                            'length' => 50,
+                            'nullable' => false,
+                        ],
+                    ],
+                    [
+                        'id' => [
+                            'column' => 'name',
+                            'type' => 'VARCHAR',
+                            'length' => 50,
+                            'nullable' => true,
+                        ],
                     ],
                 ],
-                [
-                    'id' => [
-                        'column' =>  'name',
-                        'type' => 'VARCHAR',
-                        'length' => 30,
-                    ],
-                ],
-            ],
-            [
-                'languages',
-                [
-                    'name' => [
-                        'column' =>  'name',
-                        'type' => 'VARCHAR',
-                        'length' => 50,
-                        'nullable' => false,
-                    ],
-                ],
-                [
-                    'id' => [
-                        'column' =>  'name',
-                        'type' => 'VARCHAR',
-                        'length' => 50,
-                    ],
-                ],
-            ],
-            [
-                'languages',
-                [
-                    'name' => [
-                        'column' =>  'name',
-                        'type' => 'VARCHAR',
-                        'length' => 50,
-                        'nullable' => false,
-                    ],
-                ],
-                [
-                    'id' => [
-                        'column' =>  'name',
-                        'type' => 'VARCHAR',
-                        'length' => 50,
-                        'nullable' => true,
-                    ],
-                ],
-            ],
         ];
     }
 
@@ -461,7 +467,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace();
 
         $importFile = __DIR__ . "/../../_data/$table.more-columns.csv";
-     //   $importFile = __DIR__ . "/../../_data/$table.csv";
+        //   $importFile = __DIR__ . "/../../_data/$table.csv";
 
         $tableId = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),
@@ -508,7 +514,6 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             $this->assertStringContainsString('Different mapping between', $e->getMessage());
         }
     }
-
 
     public function testSecondsFilter(): void
     {
@@ -562,13 +567,15 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             new CsvFile($importFile)
         );
 
-        $options = ['input' => [
-            [
-                'source' => $tableId,
-                'destination' => 'languages',
-                'rows' => 2,
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                    'rows' => 2,
+                ],
             ],
-        ]];
+        ];
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
@@ -628,13 +635,15 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             new CsvFile($importFile)
         );
 
-        $options = ['input' => [
-            [
-                'source' => $tableId,
-                'destination' => 'datatype_Test',
-                'datatypes' => $dataTypesDefinition,
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'datatype_Test',
+                    'datatypes' => $dataTypesDefinition,
+                ],
             ],
-        ]];
+        ];
         $options = LegacyInputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
             $options
@@ -657,7 +666,6 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         }
     }
 
-
     /**
      * @dataProvider conversionUserErrorDataTypesDefinitions
      * @param $dataTypesDefinition
@@ -674,13 +682,15 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             new CsvFile($importFile)
         );
 
-        $options = ['input' => [
-            [
-                'source' => $tableId,
-                'destination' => 'datatype_test',
-                'datatypes' => $dataTypesDefinition,
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'datatype_test',
+                    'datatypes' => $dataTypesDefinition,
+                ],
             ],
-        ]];
+        ];
         $options = LegacyInputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
             $options
@@ -740,16 +750,18 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             new CsvFile($importFile)
         );
 
-        $options = ['input' => [
-            [
-                'source' => $tableId,
-                'destination' => 'datatype_Test',
-                'datatypes' => [
-                    'id' => 'INTEGER', // lower case instead camel case should be resolved like non-existing column
-                    'Name' => 'VARCHAR(50)',
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'datatype_Test',
+                    'datatypes' => [
+                        'id' => 'INTEGER', // lower case instead camel case should be resolved like non-existing column
+                        'Name' => 'VARCHAR(50)',
+                    ],
                 ],
             ],
-        ]];
+        ];
         $options = LegacyInputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
             $options
@@ -797,16 +809,18 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             new CsvFile($importFile)
         );
 
-        $options = ['input' => [
-            [
-                'source' => $tableId,
-                'destination' => 'datatype_test',
-                'datatypes' =>  [
-                    'id' => 'UNKNOWN',
-                    'name' => 'UNKNOWN',
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'datatype_test',
+                    'datatypes' => [
+                        'id' => 'UNKNOWN',
+                        'name' => 'UNKNOWN',
+                    ],
                 ],
             ],
-        ]];
+        ];
         $options = LegacyInputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
             $options
@@ -831,22 +845,24 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             new CsvFile($importFile)
         );
 
-        $options = ['input' => [
-            [
-                'source' => $tableId,
-                'destination' => 'datatype_test',
-                'datatypes' => [
-                    [
-                        'column' => 'id',
-                        'type' => 'UNKNOWN',
-                    ],
-                    [
-                        'column' => 'name',
-                        'type' => 'UNKNOWN',
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'datatype_test',
+                    'datatypes' => [
+                        [
+                            'column' => 'id',
+                            'type' => 'UNKNOWN',
+                        ],
+                        [
+                            'column' => 'name',
+                            'type' => 'UNKNOWN',
+                        ],
                     ],
                 ],
             ],
-        ]];
+        ];
         $options = LegacyInputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
             $options
@@ -1016,8 +1032,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
 
         $tokenOptions = (new TokenCreateOptions())
             ->setDescription('workspaceLoadTest: Out read token')
-            ->addBucketPermission($this->getTestBucketId(self::STAGE_OUT), TokenAbstractOptions::BUCKET_PERMISSION_READ)
-        ;
+            ->addBucketPermission($this->getTestBucketId(self::STAGE_OUT), TokenAbstractOptions::BUCKET_PERMISSION_READ);
 
         $token = $this->tokens->createToken($tokenOptions);
 
