@@ -211,9 +211,13 @@ class AlterTableTest extends StorageApiTestCase
         $importFile = __DIR__ . '/../../_data/many-more-columns.csv';
 
         $tokenData = $this->_client->verifyToken();
-        // TODO should be also checked for Snowflake, but it has it manually in Connection
+
         if ($tokenData['owner']['defaultBackend'] == self::BACKEND_EXASOL) {
             $this->markTestSkipped('Exasol backend does not have any limit');
+        }
+
+        if ($tokenData['owner']['defaultBackend'] == self::BACKEND_SNOWFLAKE) {
+            $this->markTestSkipped('Snowflake backend does not have any limit');
         }
 
         try {
