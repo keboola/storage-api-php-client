@@ -107,6 +107,29 @@ class CreateTableTest extends StorageApiTestCase
         }
     }
 
+    public function testLoadWithInvalidCSVColumns(): void
+    {
+        $testBucketName = $this->getTestBucketName($this->getTestBucketId());
+        $testBucketStage = self::STAGE_IN;
+        $testBucketId = $testBucketStage . '.c-' . $testBucketName;
+
+        $this->dropBucketIfExists($this->_client, $testBucketId);
+        $testBucketId = $this->_client->createBucket($testBucketName, self::STAGE_IN);
+        $this->expectExceptionMessageMatches('/Load error:*/m');
+        /*
+         * full exception is :
+         * Load error: An exception occurred while executing a query: Number of columns in file (4) does not match that of the corresponding table (2), use file format option error_on_column_count_mismatch=false to ignore this error
+  File 'exp-15/19/tables/in/c-API-tests-407341178f0c63f1efa743492408a80d3c9f372b/tableWithInvalidData/3556.csv', line 3, character 1
+  Row 1 starts at line 2, column ""__temp_csvimport62dfd37c097aa1_81969579""[4]
+  If you would like to continue loading when an error is encountered, use other values such as 'SKIP_FILE' or 'CONTINUE' for the ON_ER
+         */
+        $this->_client->createTableAsync(
+            $testBucketId,
+            'tableWithInvalidData',
+            new CsvFile(__DIR__ . '/../../_data/languages.invalid-data.csv'),
+        );
+    }
+
     /**
      * @dataProvider tableCreateData
      * @param $createFile
