@@ -528,74 +528,76 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
     public function testCreateSnapshotOnTypedTable(): void
     {
-        $this->markTestSkipped('restore doesnt give good results yet');
-        // TODO the types should be investigated. Code commented out because of stan
-//        $bucketId = $this->getTestBucketId(self::STAGE_IN);
-//
-//        $snapshotId = $this->_client->createTableSnapshot($this->tableId, 'table definition snapshot');
-//
-//        $newTableId = $this->_client->createTableFromSnapshot($bucketId, $snapshotId, 'restored');
-//        $newTable = $this->_client->getTable($newTableId);
-//        $this->assertEquals('restored', $newTable['name']);
-//
-//        $this->assertSame(['id'], $newTable['primaryKey']);
-//
-//        $this->assertSame(
-//            [
-//                'id',
-//                'name',
-//            ],
-//            $newTable['columns']
-//        );
-//
-//        $this->assertCount(1, $newTable['metadata']);
-//
-//        $metadata = reset($newTable['metadata']);
-//        $this->assertSame('storage', $metadata['provider']);
-//        $this->assertSame('KBC.dataTypesEnabled', $metadata['key']);
-//        $this->assertSame('true', $metadata['value']);
-//
-//        // check that the new table has correct datypes in metadata
-//        $metadataClient = new Metadata($this->_client);
-//        $idColumnMetadata = $metadataClient->listColumnMetadata("{$newTableId}.id");
-//        $nameColumnMetadata = $metadataClient->listColumnMetadata("{$newTableId}.name");
-//
-//        $this->assertArrayEqualsExceptKeys([
-//            'key' => 'KBC.datatype.type',
-//            'value' => 'DECIMAL',
-//            // TODO returns NUMBER
-//            'provider' => 'storage',
-//        ], $idColumnMetadata[0], ['id', 'timestamp']);
-//        $this->assertArrayEqualsExceptKeys([
-//            'key' => 'KBC.datatype.nullable',
-//            'value' => '',
-//            'provider' => 'storage',
-//        ], $idColumnMetadata[1], ['id', 'timestamp']);
-//        $this->assertArrayEqualsExceptKeys([
-//            'key' => 'KBC.datatype.basetype',
-//            'value' => 'NUMERIC',
-//            'provider' => 'storage',
-//        ], $idColumnMetadata[2], ['id', 'timestamp']);
-//
-//        $this->assertArrayEqualsExceptKeys([
-//            'key' => 'KBC.datatype.type',
-//            'value' => 'VARCHAR',
-//            'provider' => 'storage',
-//        ], $nameColumnMetadata[0], ['id', 'timestamp']);
-//        $this->assertArrayEqualsExceptKeys([
-//            'key' => 'KBC.datatype.nullable',
-//            'value' => '1',
-//            'provider' => 'storage',
-//        ], $nameColumnMetadata[1], ['id', 'timestamp']);
-//        $this->assertArrayEqualsExceptKeys([
-//            'key' => 'KBC.datatype.basetype',
-//            'value' => 'STRING',
-//            'provider' => 'storage',
-//        ], $nameColumnMetadata[2], ['id', 'timestamp']);
-//        $this->assertArrayEqualsExceptKeys([
-//            'key' => 'KBC.datatype.length',
-//            'value' => '2000000',
-//            'provider' => 'storage',
-//        ], $nameColumnMetadata[3], ['id', 'timestamp']);
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $snapshotId = $this->_client->createTableSnapshot($this->tableId, 'table definition snapshot');
+
+        $newTableId = $this->_client->createTableFromSnapshot($bucketId, $snapshotId, 'restored');
+        $newTable = $this->_client->getTable($newTableId);
+        $this->assertEquals('restored', $newTable['name']);
+
+        $this->assertSame(['id'], $newTable['primaryKey']);
+
+        $this->assertSame(
+            [
+                'id',
+                'name',
+            ],
+            $newTable['columns']
+        );
+
+        $this->assertCount(1, $newTable['metadata']);
+
+        $metadata = reset($newTable['metadata']);
+        $this->assertSame('storage', $metadata['provider']);
+        $this->assertSame('KBC.dataTypesEnabled', $metadata['key']);
+        $this->assertSame('true', $metadata['value']);
+
+        // check that the new table has correct datypes in metadata
+        $metadataClient = new Metadata($this->_client);
+        $idColumnMetadata = $metadataClient->listColumnMetadata("{$newTableId}.id");
+        $nameColumnMetadata = $metadataClient->listColumnMetadata("{$newTableId}.name");
+
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.type',
+            'value' => 'NUMBER',
+            'provider' => 'storage',
+        ], $idColumnMetadata[0], ['id', 'timestamp']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.nullable',
+            'value' => '',
+            'provider' => 'storage',
+        ], $idColumnMetadata[1], ['id', 'timestamp']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.basetype',
+            'value' => 'NUMERIC',
+            'provider' => 'storage',
+        ], $idColumnMetadata[2], ['id', 'timestamp']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.length',
+            'value' => '38,0',
+            'provider' => 'storage',
+        ], $idColumnMetadata[3], ['id', 'timestamp']);
+
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.type',
+            'value' => 'VARCHAR',
+            'provider' => 'storage',
+        ], $nameColumnMetadata[0], ['id', 'timestamp']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.nullable',
+            'value' => '1',
+            'provider' => 'storage',
+        ], $nameColumnMetadata[1], ['id', 'timestamp']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.basetype',
+            'value' => 'STRING',
+            'provider' => 'storage',
+        ], $nameColumnMetadata[2], ['id', 'timestamp']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.length',
+            'value' => '16777216',
+            'provider' => 'storage',
+        ], $nameColumnMetadata[3], ['id', 'timestamp']);
     }
 }
