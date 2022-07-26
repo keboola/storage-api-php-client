@@ -286,9 +286,39 @@ class DevBranchesTest extends StorageApiTestCase
         $this->assertCount(2, $adminDevBranches->listBranches());
     }
 
-    private function assertAccessForbiddenException(ClientException $exception)
+    private function assertAccessForbiddenException(ClientException $exception): void
     {
         $this->assertSame(403, $exception->getCode());
         $this->assertSame('You don\'t have access to resource.', $exception->getMessage());
+    }
+
+    public function testCanUpdateMainBranchDescription(): void
+    {
+        $branches = new DevBranches($this->_client);
+        $branchesList = $branches->listBranches();
+        $this->assertCount(1, $branchesList);
+        $branch = reset($branchesList);
+
+        $this->assertTrue($branch['isDefault']);
+        $updatedBranch = $branches->updateBranch($branch['id'], '', 'Updated description');
+        $this->assertSame('Main', $updatedBranch['name']);
+        $this->assertSame('Updated description', $updatedBranch['description']);
+    }
+
+    public function testCannotUpdateMainBranchName(): void
+    {
+        $branches = new DevBranches($this->_client);
+        $branchesList = $branches->listBranches();
+        $this->assertCount(1, $branchesList);
+        $branch = reset($branchesList);
+
+        $this->assertTrue($branch['isDefault']);
+        try {
+            $branches->updateBranch($branch['id'], 'NewBranchName');
+            $this->fail('Update default branch name should not be possible.');
+        } catch (ClientException $e) {
+            $this->assertSame(400, $e->getCode());
+            $this->assertSame('You can not update default branch name.', $e->getMessage());
+        }
     }
 }

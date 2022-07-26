@@ -5606,11 +5606,6 @@ parameters:
 			path: tests/Common/ConfigurationRowTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\DevBranchesTest\\:\\:assertAccessForbiddenException\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/DevBranchesTest.php
-
-		-
 			message: "#^Cannot access property \\$params on mixed\\.$#"
 			count: 1
 			path: tests/Common/EventsTest.php
