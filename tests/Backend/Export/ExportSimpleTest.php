@@ -1,6 +1,7 @@
 <?php
 namespace Keboola\Test\Backend\Export;
 
+use Google\Cloud\Core\Exception\ServiceException;
 use Keboola\StorageApi\Downloader\BlobClientFactory;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
@@ -65,7 +66,28 @@ class ExportSimpleTest extends StorageApiTestCase
         }
         $this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
 
-        if ($exportedFile['provider'] === Client::FILE_PROVIDER_AZURE) {
+        if ($exportedFile['provider'] === Client::FILE_PROVIDER_GCP) {
+            $params = $exportedFile['gcsCredentials'];
+
+            $client = $this->getGcsClientClient($params);
+            $bucket = $client->bucket($exportedFile['gcsPath']['bucket']);
+
+            try {
+                $objects = $bucket->objects();
+                foreach ($objects as $object) {
+                    $object->info();
+                }
+                $this->fail('List on all bucket should fail');
+            } catch (ServiceException $e) {
+                $this->assertSame(403, $e->getCode());
+            }
+
+            $prefix = $exportedFile['gcsPath']['key'];
+            $objects = $bucket->objects(['prefix' => $prefix]);
+            foreach ($objects as $object) {
+                $this->assertStringStartsWith($exportedFile['gcsPath']['key'], $object->info()['name']);
+            }
+        } elseif ($exportedFile['provider'] === Client::FILE_PROVIDER_AZURE) {
             // Check ABC ACL and listing blobs
             $blobClient = BlobClientFactory::createClientFromConnectionString(
                 $exportedFile['absCredentials']['SASConnectionString']
