@@ -10,6 +10,7 @@
 namespace Keboola\Test\Backend\CommonPart2;
 
 use Keboola\StorageApi\Client;
+use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Downloader\BlobClientFactory;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
@@ -165,7 +166,43 @@ class SlicedImportsTest extends StorageApiTestCase
             ->setIsSliced(true);
         $slicedFile = $this->_client->prepareFileUpload($uploadOptions);
 
-        if ($slicedFile['provider'] === Client::FILE_PROVIDER_AZURE) {
+        if ($slicedFile['provider'] === Client::FILE_PROVIDER_GCP) {
+            $uploadParams = $slicedFile['gcsUploadParams'];
+
+            $client = $this->getGcsClientClient($uploadParams);
+
+            $bucket = $client->bucket($uploadParams['bucket']);
+            $file = fopen(__DIR__ . '/../../_data/sliced/neco_0000_part_00.gz', 'r');
+            if (!$file) {
+                throw new ClientException("Cannot open file {$file}");
+            }
+            $bucket->upload(
+                $file,
+                [
+                    'name' => $uploadParams['key'] . 'part001.gz',
+                ]
+            );
+
+            /** @var string $data */
+            $data = json_encode([
+                'entries' => [
+                    [
+                        'url' => 'gs://' . $uploadParams['bucket'] . '/' . $uploadParams['key'] . 'part001.gz',
+                        'mandatory' => true,
+                    ],
+                    [
+                        'url' => 'gs://' . $uploadParams['bucket'] . '/' . $uploadParams['key'] . 'part001.gzsome',
+                        'mandatory' => true,
+                    ],
+                ],
+            ]);
+            $bucket->upload(
+                $data,
+                [
+                    'name' => $uploadParams['key'] . 'manifest',
+                ]
+            );
+        } elseif ($slicedFile['provider'] === Client::FILE_PROVIDER_AZURE) {
             $uploadParams = $slicedFile['absUploadParams'];
 
             $blobClient = BlobClientFactory::createClientFromConnectionString(
@@ -271,7 +308,25 @@ class SlicedImportsTest extends StorageApiTestCase
         // First upload
         $slicedFile = $this->_client->prepareFileUpload($uploadOptions);
 
-        if ($slicedFile['provider'] === Client::FILE_PROVIDER_AZURE) {
+        if ($slicedFile['provider'] === Client::FILE_PROVIDER_GCP) {
+            $uploadParams = $slicedFile['gcsUploadParams'];
+            $client = $this->getGcsClientClient($uploadParams);
+
+            $bucket = $client->bucket($uploadParams['bucket']);
+
+            $file = fopen(__DIR__ . '/../../_data/escaping.csv', 'r+');
+            if (!$file) {
+                throw new ClientException("Cannot open file {$file}");
+            }
+            $object = $bucket->upload(
+                $file,
+                [
+                    'name' => $uploadParams['key'] . 'part001.gz',
+                ]
+            );
+
+            $part1URL = $object->gcsUri();
+        } elseif ($slicedFile['provider'] === Client::FILE_PROVIDER_AZURE) {
             $uploadParams = $slicedFile['absUploadParams'];
 
             $blobClient = BlobClientFactory::createClientFromConnectionString(
@@ -317,7 +372,27 @@ class SlicedImportsTest extends StorageApiTestCase
         // Second upload
         $slicedFile = $this->_client->prepareFileUpload($uploadOptions);
 
-        if ($slicedFile['provider'] === Client::FILE_PROVIDER_AZURE) {
+        if ($slicedFile['provider'] === Client::FILE_PROVIDER_GCP) {
+            $uploadParams = $slicedFile['gcsUploadParams'];
+            $client = $this->getGcsClientClient($uploadParams);
+
+            $bucket = $client->bucket($uploadParams['bucket']);
+
+            /** @var string $data */
+            $data = json_encode([
+                'entries' => [
+                    [
+                        'url' => $part1URL,
+                    ],
+                ],
+            ]);
+            $bucket->upload(
+                $data,
+                [
+                    'name' => $uploadParams['key'] . 'manifest',
+                ]
+            );
+        } elseif ($slicedFile['provider'] === Client::FILE_PROVIDER_AZURE) {
             $uploadParams = $slicedFile['absUploadParams'];
 
             $blobClient = BlobClientFactory::createClientFromConnectionString(
