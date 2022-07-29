@@ -9,9 +9,6 @@ use Google\Cloud\Storage\StorageClient as GoogleStorageClient;
 
 class GCSUploader
 {
-    public const STORAGE_CLASS_PERMANENT = 'COLDLINE';
-    public const STORAGE_CLASS_STANDARD = 'STANDARD';
-
     private GoogleStorageClient $gcsClient;
 
     private FetchAuthTokenInterface $fetchAuthToken;
@@ -59,10 +56,6 @@ class GCSUploader
             $file,
             [
                 'name' => $filePath,
-                'metadata' => [
-                    // in gcs is not possible set life cycles to directory, it must set by storageClass mapped to life cycle when file is uploaded
-                    'storageClass' => $this->getLifeCycleStorageClass($isPermanent),
-                ],
             ]
         );
     }
@@ -100,10 +93,6 @@ class GCSUploader
                     $fileToUpload,
                     [
                         'name' => $blobName,
-                        'metadata' => [
-                            // in gcs is not possible set life cycles to directory, it must set by storageClass mapped to life cycle when file is uploaded
-                            'storageClass' => $this->getLifeCycleStorageClass($isPermanent),
-                        ],
                     ]
                 );
                 continue;
@@ -113,10 +102,6 @@ class GCSUploader
                 $fileToUpload,
                 [
                     'name' => $blobName,
-                    'metadata' => [
-                        // in gcs is not possible set life cycles to directory, it must set by storageClass mapped to life cycle when file is uploaded
-                        'storageClass' => $this->getLifeCycleStorageClass($isPermanent),
-                    ],
                 ]
             );
         }
@@ -129,10 +114,5 @@ class GCSUploader
         $retBucket->upload($stream, [
             'name' => $key . 'manifest',
         ]);
-    }
-
-    private function getLifeCycleStorageClass(bool $isPermanent): string
-    {
-        return $isPermanent ? self::STORAGE_CLASS_PERMANENT : self::STORAGE_CLASS_STANDARD;
     }
 }

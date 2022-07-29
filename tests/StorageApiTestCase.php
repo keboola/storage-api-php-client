@@ -10,6 +10,8 @@
 namespace Keboola\Test;
 
 use Exception;
+use Google\Auth\FetchAuthTokenInterface;
+use Google\Cloud\Storage\StorageClient as GoogleStorageClient;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
@@ -763,6 +765,51 @@ abstract class StorageApiTestCase extends ClientTestCase
             $that->getName(false),
             $that->dataName(),
             $providedToken['id'],
+        ]);
+    }
+
+    /**
+     * @param $params
+     * @return GoogleStorageClient
+     */
+    public function getGcsClientClient(array $params): GoogleStorageClient
+    {
+        $options = [
+            'credentials' => [
+                'access_token' => $params['access_token'],
+                'expires_in' => $params['expires_in'],
+                'token_type' => $params['token_type'],
+            ],
+            'projectId' => $params['projectId'],
+        ];
+
+        $fetchAuthToken = new class ($options['credentials']) implements FetchAuthTokenInterface {
+            private array $creds;
+
+            public function __construct(
+                array $creds
+            ) {
+                $this->creds = $creds;
+            }
+
+            public function fetchAuthToken(callable $httpHandler = null)
+            {
+                return $this->creds;
+            }
+
+            public function getCacheKey()
+            {
+                return '';
+            }
+
+            public function getLastReceivedToken()
+            {
+                return $this->creds;
+            }
+        };
+        return new GoogleStorageClient([
+            'projectId' => $options['projectId'],
+            'credentialsFetcher' => $fetchAuthToken,
         ]);
     }
 }
