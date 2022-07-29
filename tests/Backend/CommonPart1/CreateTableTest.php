@@ -26,7 +26,7 @@ class CreateTableTest extends StorageApiTestCase
 
     public function testSyntheticPrimaryKey(): void
     {
-        $testBucketName = $this->getTestBucketName($this->getTestBucketId());
+        $testBucketName = $this->getTestBucketName($this->generateDescriptionForTestObject());
         $testBucketStage = self::STAGE_IN;
         $testBucketId = $testBucketStage . '.c-' . $testBucketName;
         $tableName = 'testSynthPk';
@@ -113,7 +113,7 @@ class CreateTableTest extends StorageApiTestCase
             $this->markTestSkipped('Synapse does not fail on invalid data');
         }
 
-        $testBucketName = $this->getTestBucketName($this->getTestBucketId());
+        $testBucketName = $this->getTestBucketName($this->generateDescriptionForTestObject());
         $testBucketStage = self::STAGE_IN;
         $testBucketId = $testBucketStage . '.c-' . $testBucketName;
 
