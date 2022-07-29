@@ -109,8 +109,8 @@ class CreateTableTest extends StorageApiTestCase
 
     public function testLoadWithInvalidCSVColumns(): void
     {
-        if ($this->getDefaultBackend($this->_client) !== self::BACKEND_SNOWFLAKE) {
-            $this->markTestSkipped('tmp tested for snflk only');
+        if ($this->getDefaultBackend($this->_client) === self::BACKEND_SYNAPSE) {
+            $this->markTestSkipped('Synapse does not fail on invalid data');
         }
 
         $testBucketName = $this->getTestBucketName($this->getTestBucketId());
