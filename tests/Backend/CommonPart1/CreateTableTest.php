@@ -113,12 +113,6 @@ class CreateTableTest extends StorageApiTestCase
             $this->markTestSkipped('Synapse does not fail on invalid data');
         }
 
-        $testBucketName = $this->getTestBucketName($this->getTestBucketId());
-        $testBucketStage = self::STAGE_IN;
-        $testBucketId = $testBucketStage . '.c-' . $testBucketName;
-
-        $this->dropBucketIfExists($this->_client, $testBucketId);
-        $testBucketId = $this->_client->createBucket($testBucketName, self::STAGE_IN);
         $this->expectExceptionMessageMatches('/Load error:*/m');
         /*
          * full exception is :
@@ -128,7 +122,7 @@ class CreateTableTest extends StorageApiTestCase
   If you would like to continue loading when an error is encountered, use other values such as 'SKIP_FILE' or 'CONTINUE' for the ON_ER
          */
         $this->_client->createTableAsync(
-            $testBucketId,
+            $this->getTestBucketId(self::STAGE_IN),
             'tableWithInvalidData',
             new CsvFile(__DIR__ . '/../../_data/languages.invalid-data.csv'),
         );
