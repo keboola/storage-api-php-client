@@ -211,11 +211,11 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
             'columns' => [
                 [
                     'name' => 'id',
-                    'basetype'=> 'INTEGER',
+                    'basetype' => 'INTEGER',
                 ],
                 [
                     'name' => 'column_decimal',
-                    'basetype'=> 'NUMERIC',
+                    'basetype' => 'NUMERIC',
                 ],
                 [
                     'name' => 'column_float',
@@ -530,6 +530,12 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
+        // check that the new table has correct datypes in metadata
+        $metadataClient = new Metadata($this->_client);
+
+        $idColumnMetadataBeforeSnapshot = $metadataClient->listColumnMetadata("{$this->tableId}.id");
+        $nameColumnMetadataBeforeSnapshot = $metadataClient->listColumnMetadata("{$this->tableId}.name");
+
         $snapshotId = $this->_client->createTableSnapshot($this->tableId, 'table definition snapshot');
 
         $newTableId = $this->_client->createTableFromSnapshot($bucketId, $snapshotId, 'restored');
@@ -554,7 +560,6 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $this->assertSame('true', $metadata['value']);
 
         // check that the new table has correct datypes in metadata
-        $metadataClient = new Metadata($this->_client);
         $idColumnMetadata = $metadataClient->listColumnMetadata("{$newTableId}.id");
         $nameColumnMetadata = $metadataClient->listColumnMetadata("{$newTableId}.name");
 
@@ -599,5 +604,16 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
             'value' => '16777216',
             'provider' => 'storage',
         ], $nameColumnMetadata[3], ['id', 'timestamp']);
+
+        for ($i = 0; $i <= 3; $i++) {
+            $this->assertArrayEqualsExceptKeys($idColumnMetadataBeforeSnapshot[$i], $idColumnMetadata[$i], [
+                'id',
+                'timestamp',
+            ]);
+            $this->assertArrayEqualsExceptKeys($nameColumnMetadataBeforeSnapshot[$i], $nameColumnMetadata[$i], [
+                'id',
+                'timestamp',
+            ]);
+        }
     }
 }
