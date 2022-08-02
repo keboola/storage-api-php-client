@@ -31,6 +31,20 @@ class Components
         }
     }
 
+    public function addConfigurationJson(Configuration $options)
+    {
+        return $this->client->apiPostJson($this->branchPrefix . "components/{$options->getComponentId()}/configs", [
+            'name' => $options->getName(),
+            'description' => $options->getDescription(),
+            'configurationId' => $options->getConfigurationId(),
+            'configuration' => $options->getConfiguration() ?: null,
+            'state' => $options->getState() ?: null,
+            'changeDescription' => $options->getChangeDescription(),
+            'isDisabled' => $options->getIsDisabled(),
+        ]);
+    }
+
+
     public function addConfiguration(Configuration $options)
     {
         return $this->client->apiPost($this->branchPrefix . "components/{$options->getComponentId()}/configs", [

@@ -3666,4 +3666,23 @@ class ComponentsTest extends StorageApiTestCase
             return $output->fetch();
         }
     }
+
+    public function testConfigurationCanBeSentAsJsonNotString(): void
+    {
+        $components = new \Keboola\StorageApi\Components($this->client);
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $componentId = 'wr-db';
+        $configurationId = 'main-1';
+        $configuration
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setName('Main')
+        ->setConfiguration(1)
+        ->setState(['last' => 'other']);
+        $configurationRow = new ConfigurationRow($configuration);
+        $configurationRow->setChangeDescription('Test description');
+
+        $configuration = $components->addConfigurationJson($configuration);
+        $this->assertSame(['x'], $configuration);
+    }
 }
