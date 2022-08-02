@@ -543,14 +543,9 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $this->assertEquals('restored', $newTable['name']);
 
         $this->assertSame(['id'], $newTable['primaryKey']);
+        $this->assertTrue($newTable['isTyped']);
 
-        $this->assertSame(
-            [
-                'id',
-                'name',
-            ],
-            $newTable['columns']
-        );
+        $this->assertSame(['id', 'name',], $newTable['columns']);
 
         $this->assertCount(1, $newTable['metadata']);
 
@@ -559,10 +554,10 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $this->assertSame('KBC.dataTypesEnabled', $metadata['key']);
         $this->assertSame('true', $metadata['value']);
 
-        // check that the new table has correct datypes in metadata
         $idColumnMetadata = $metadataClient->listColumnMetadata("{$newTableId}.id");
         $nameColumnMetadata = $metadataClient->listColumnMetadata("{$newTableId}.name");
 
+        // check that the new metadata has expected values
         $this->assertArrayEqualsExceptKeys([
             'key' => 'KBC.datatype.type',
             'value' => 'NUMBER',
@@ -605,6 +600,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
             'provider' => 'storage',
         ], $nameColumnMetadata[3], ['id', 'timestamp']);
 
+        // check that the new table has datatype metadata same as the table before
         for ($i = 0; $i <= 3; $i++) {
             $this->assertArrayEqualsExceptKeys($idColumnMetadataBeforeSnapshot[$i], $idColumnMetadata[$i], [
                 'id',
