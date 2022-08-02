@@ -3,7 +3,7 @@ namespace Keboola\StorageApi\Options\Components;
 
 class ConfigurationRow
 {
-    private $rowId;
+    private ?string $rowId;
 
     private $configuration;
 
@@ -43,11 +43,7 @@ class ConfigurationRow
         return $this->rowId;
     }
 
-    /**
-     * @param mixed $rowId
-     * @return $this
-     */
-    public function setRowId($rowId)
+    public function setRowId(?string $rowId): self
     {
         $this->rowId = $rowId;
         return $this;
