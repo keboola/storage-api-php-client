@@ -4061,11 +4061,6 @@ parameters:
 			path: tests/Backend/Redshift/CreateTableTest.php
 
 		-
-			message: "#^Cannot access offset 'maxDuplicity' on mixed\\.$#"
-			count: 1
-			path: tests/Backend/Redshift/DedupeTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Redshift\\\\WhereFilterTest\\:\\:conditionProvider\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Redshift/WhereFilterTest.php
