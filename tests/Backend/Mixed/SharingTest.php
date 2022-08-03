@@ -49,6 +49,52 @@ class SharingTest extends StorageApiSharingTestCase
     }
 
     /** @dataProvider syncAsyncProvider */
+    public function testTryLinkBucketWithSameNameAsAlreadyCreatedBucketThrowUserException(bool $isAsync): void
+    {
+        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
+        $this->dropBucketIfExists($this->_client2, 'out.c-opportunity');
+
+        $bucketToShare = $this->_client2->createBucket('opportunity', self::STAGE_OUT);
+        $this->_client2->shareBucket($bucketToShare, [
+            'sharing' => 'organization-project',
+        ]);
+
+        $sharedBuckets = $this->_client->listSharedBuckets();
+        $this->assertCount(1, $sharedBuckets);
+        try {
+            $this->_client->linkBucket(
+                'API-sharing',
+                self::STAGE_IN,
+                $sharedBuckets[0]['project']['id'],
+                $sharedBuckets[0]['id'],
+                null,
+                $isAsync
+            );
+            $this->fail('bucket can\'t be linked with same name');
+        } catch (ClientException $e) {
+            $this->assertEquals('The bucket API-sharing already exists.', $e->getMessage());
+            $this->assertEquals(400, $e->getCode());
+            $this->assertEquals('storage.buckets.alreadyExists', $e->getStringCode());
+        }
+
+        try {
+            $this->_client->linkBucket(
+                'xxx',
+                self::STAGE_IN,
+                $sharedBuckets[0]['project']['id'],
+                $sharedBuckets[0]['id'],
+                'API-sharing',
+                $isAsync
+            );
+            $this->fail('bucket can\'t be linked with same display name');
+        } catch (ClientException $e) {
+            $this->assertEquals('The display name "API-sharing" already exists in project.', $e->getMessage());
+            $this->assertEquals(400, $e->getCode());
+            $this->assertEquals('storage.buckets.alreadyExists', $e->getStringCode());
+        }
+    }
+
+    /** @dataProvider syncAsyncProvider */
     public function testOrganizationPublicSharing($isAsync): void
     {
         $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
