@@ -153,7 +153,8 @@ class SharingTest extends StorageApiSharingTestCase
                 self::STAGE_IN,
                 $sharedBuckets[0]['project']['id'],
                 $sharedBuckets[0]['id'],
-                $displayName
+                $displayName,
+                $isAsync
             );
             $this->fail('bucket can\'t be linked with same displayName');
         } catch (ClientException $e) {
@@ -168,7 +169,8 @@ class SharingTest extends StorageApiSharingTestCase
                 self::STAGE_IN,
                 $sharedBuckets[0]['project']['id'],
                 $sharedBuckets[0]['id'],
-                '&&&&&&'
+                '&&&&&&',
+                $isAsync
             );
             $this->fail('bucket can\'t be linked with same displayName');
         } catch (ClientException $e) {
