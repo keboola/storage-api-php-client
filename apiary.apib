@@ -3290,7 +3290,7 @@ attributes and information about the containing bucket.
 ### Add Column to Table [POST]
 Adds a new column to an existing table. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 
-*Attribute definition is allowed (and required) for typed tables created via [table definition](#reference/tables/create-table-definition)* with Synapse or Exasol backend only
+*Attribute definition and basetype is allowed (and required) for typed tables created via [table definition](#reference/tables/create-table-definition)* with Synapse, Snowflake and Exasol backend only
 
 + Parameters
     + table_id (required) - Table Id
@@ -3302,6 +3302,15 @@ Adds a new column to an existing table. This request is [asynchronous](#introduc
         + length (string) - optional, default: depends on type
         + nullable (boolean) - optional, default: true
         + default (string) - optional, default value for column
+    + basetype (optional, enum[string]) - base datatype of this column, will be converted to backend specific types
+        + Members
+            + BOOLEAN
+            + DATE
+            + FLOAT
+            + INTEGER
+            + NUMERIC
+            + STRING
+            + TIMESTAMP
 
 + Request (application/x-www-form-urlencoded)
     + Headers
