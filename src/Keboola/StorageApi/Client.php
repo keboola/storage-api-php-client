@@ -1211,12 +1211,17 @@ class Client
      * @param string $tableId
      * @param string $name
      */
-    public function addTableColumn($tableId, $name, $definition = [])
+    public function addTableColumn(string $tableId, string $name, ?array $definition = [], ?string $basetype = null)
     {
         $data = [
             'name' => $name,
-            'definition' => $definition,
         ];
+        if ($definition !== null) {
+            $data['definition'] = $definition;
+        }
+        if ($basetype !== null) {
+            $data['basetype'] = $basetype;
+        }
         $this->apiPost("tables/$tableId/columns", $data);
     }
 
