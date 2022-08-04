@@ -492,6 +492,7 @@ class CreateTableTest extends StorageApiTestCase
             $this->_client->apiPost(
                 sprintf('buckets/%s/tables-async', $this->getTestBucketId(self::STAGE_IN)),
                 [
+                    'dataFileId' => 100,
                     'name' => 'languages',
                     'dataString' => 'id,name',
                     'primaryKey' => ['id', 'name'],
