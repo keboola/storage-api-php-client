@@ -194,7 +194,7 @@ class TimeTravelTest extends StorageApiTestCase
             new CsvFile(__DIR__ . '/../../_data/pk.simple.csv')
         );
         sleep(10);
-        $timestamp = $timestamp = date(DATE_ATOM);
+        $timestamp = date(DATE_ATOM);
         sleep(10);
 
         // Setup our test clients
