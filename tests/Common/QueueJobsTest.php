@@ -68,13 +68,21 @@ class QueueJobsTest extends StorageApiTestCase
     {
         return [
             'name missing' => [
-                [],
+                [
+                    'dataFileId' => 100,
+                ],
             ],
             'name is null' => [
-                ['name' => null,],
+                [
+                    'dataFileId' => 100,
+                    'name' => null,
+                ],
             ],
             'name is empty' => [
-                ['name' => '',],
+                [
+                    'dataFileId' => 100,
+                    'name' => '',
+                ],
             ],
         ];
     }
