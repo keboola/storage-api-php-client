@@ -623,42 +623,6 @@ class Client
 
     /**
      *
-     * Set a bucket attribute
-     *
-     * @deprecated
-     * @param string $bucketId
-     * @param string $key
-     * @param string $value
-     * @param bool null $protected
-     */
-    public function setBucketAttribute($bucketId, $key, $value, $protected = null)
-    {
-        $data = [
-            'value' => $value,
-        ];
-        if ($protected !== null) {
-            $data['protected'] = (bool) $protected;
-        }
-        $this->apiPost("buckets/$bucketId/attributes/$key", $data);
-    }
-
-    /**
-     * @deprecated
-     * @param $bucketId
-     * @param array $attributes array of objects with `name`, `value`, `protected` keys
-     */
-    public function replaceBucketAttributes($bucketId, $attributes = [])
-    {
-        $params = [];
-        if (!empty($attributes)) {
-            $params['attributes'] = $attributes;
-        }
-        $this->apiPost("buckets/$bucketId/attributes", $params);
-    }
-
-
-    /**
-     *
      * Delete a bucket attribute
      *
      * @deprecated
