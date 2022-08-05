@@ -623,22 +623,6 @@ class Client
 
     /**
      *
-     * Delete a bucket attribute
-     *
-     * @deprecated
-     * @param string $bucketId
-     * @param string $key
-     * @return mixed|string
-     */
-    public function deleteBucketAttribute($bucketId, $key)
-    {
-        $result = $this->apiDelete("buckets/$bucketId/attributes/$key");
-        $this->log("Bucket $bucketId attribute $key deleted");
-        return $result;
-    }
-
-    /**
-     *
      * Checks if a bucket exists
      *
      * @param string $bucketId

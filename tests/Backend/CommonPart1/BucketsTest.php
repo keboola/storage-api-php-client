@@ -354,13 +354,4 @@ class BucketsTest extends StorageApiTestCase
         $this->assertTrue($this->_client->bucketExists($this->getTestBucketId()));
         $this->assertFalse($this->_client->bucketExists('in.ukulele'));
     }
-
-    private function clearBucketAttributes($bucketId)
-    {
-        $bucket = $this->_client->getBucket($bucketId);
-
-        foreach ($bucket['attributes'] as $attribute) {
-            $this->_client->deleteBucketAttribute($bucketId, $attribute['name']);
-        }
-    }
 }
