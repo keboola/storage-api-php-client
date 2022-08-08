@@ -3298,11 +3298,11 @@ Adds a new column to an existing table. This request is [asynchronous](#introduc
 + Attributes
     + name (required, string) - column name
     + definition (optional, object) - column settings, this object is applicable when table is typed. Otherwise it is ignored
-        + type (required, string) - datatype of this column, choose build in types for used backend [Exasol](https://bit.ly/3s2n4AP) [Synapse](https://bit.ly/3uZjN60)
+        + type (required, string) - datatype of this column, choose build in types for used backend [Exasol](https://bit.ly/3s2n4AP) [Synapse](https://bit.ly/3uZjN60) [Snowflake](https://bit.ly/3A5CkT8)
         + length (string) - optional, default: depends on type
         + nullable (boolean) - optional, default: true
         + default (string) - optional, default value for column
-    + basetype (optional, enum[string]) - base datatype of this column, will be converted to backend specific types
+    + basetype (optional, enum[string]) - (supported only for Snowflake) base datatype of this column, will be converted to backend specific types
         + Members
             + BOOLEAN
             + DATE
