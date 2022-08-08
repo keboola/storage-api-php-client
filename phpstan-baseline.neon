@@ -786,16 +786,6 @@ parameters:
 			path: src/Keboola/StorageApi/Client.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:replaceBucketAttributes\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:replaceBucketAttributes\\(\\) has parameter \\$bucketId with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:replaceTableAttributes\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
@@ -847,16 +837,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:setAliasTableFilter\\(\\) has parameter \\$tableId with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:setBucketAttribute\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:setBucketAttribute\\(\\) has parameter \\$protected with no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
 
@@ -1092,11 +1072,6 @@ parameters:
 
 		-
 			message: "#^PHPDoc tag @param has invalid value \\(bool null \\$protected\\)\\: Unexpected token \"null\", expected variable at offset 169$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(bool null \\$protected\\)\\: Unexpected token \"null\", expected variable at offset 171$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
 
@@ -2754,26 +2729,6 @@ parameters:
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\AlterTableTest\\:\\:webalizeColumnNameProvider\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart1/AlterTableTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\BucketsTest\\:\\:clearBucketAttributes\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/BucketsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\BucketsTest\\:\\:clearBucketAttributes\\(\\) has parameter \\$bucketId with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/BucketsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\BucketsTest\\:\\:invalidAttributes\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/BucketsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\BucketsTest\\:\\:testBucketAttributesReplaceValidation\\(\\) has parameter \\$attributes with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/BucketsTest.php
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\CreateTableTest\\:\\:createTableFromSlicedFileData\\(\\) has no return type specified\\.$#"
