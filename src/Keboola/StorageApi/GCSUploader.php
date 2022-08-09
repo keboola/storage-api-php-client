@@ -108,10 +108,7 @@ class GCSUploader
 
         \GuzzleHttp\Promise\settle($promises)->wait();
 
-        /** @var resource $stream */
-        $stream = fopen('data://application/json,' . json_encode($manifest), 'r');
-
-        $retBucket->upload($stream, [
+        $retBucket->upload((string) json_encode($manifest), [
             'name' => $key . 'manifest',
         ]);
     }
