@@ -56,6 +56,33 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         return $this->_client->createTableDefinition($bucketId, $data);
     }
 
+    public function testCreateTableWithPrimaryKeyBasetype(): void
+    {
+        $this->_client->dropTable($this->tableId);
+        $bucketId = $this->getTestBucketId();
+
+        $data = [
+            'name' => 'my_new_table',
+            'primaryKeysNames' => ['id', 'name'],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'basetype' => 'STRING',
+                ],
+                [
+                    'name' => 'name',
+                    'basetype' => 'INTEGER',
+                ],
+            ],
+        ];
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        $tableId = $this->_client->createTableDefinition($bucketId, $data);
+        $this->assertNotNull($tableId);
+    }
+
     public function testDataPreviewForTableDefinitionWithDecimalType(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
