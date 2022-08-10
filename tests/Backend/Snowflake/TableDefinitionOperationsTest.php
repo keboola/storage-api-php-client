@@ -822,7 +822,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         string $columnName,
         bool $expectNullable
     ): void {
-        $columnMetadata = $m->listColumnMetadata(sprintf("%s.%s", $tableId, $columnName));
+        $columnMetadata = $m->listColumnMetadata(sprintf('%s.%s', $tableId, $columnName));
         $nullable = array_filter($columnMetadata, static fn(array $item) => $item['key'] === 'KBC.datatype.nullable');
         $nullable = array_values($nullable)[0];
         $this->assertSame('storage', $nullable['provider']);
