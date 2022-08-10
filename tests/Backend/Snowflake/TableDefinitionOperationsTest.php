@@ -56,14 +56,15 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         return $this->_client->createTableDefinition($bucketId, $data);
     }
 
-    public function testCreateTableWithPrimaryKeyBasetype(): void
+    public function testPrimaryKeys(): void
     {
         $this->_client->dropTable($this->tableId);
         $bucketId = $this->getTestBucketId();
 
+        // create table with PK on basetype defined column
         $data = [
             'name' => 'my_new_table',
-            'primaryKeysNames' => ['id', 'name'],
+            'primaryKeysNames' => ['id'],
             'columns' => [
                 [
                     'name' => 'id',
@@ -81,6 +82,18 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
         $tableId = $this->_client->createTableDefinition($bucketId, $data);
         $this->assertNotNull($tableId);
+
+        $m = new Metadata($this->_client);
+        $this->assertTableColumnNullable($m, $tableId, 'id', false);
+        $this->assertTableColumnNullable($m, $tableId, 'name', true);
+
+        // remove PK
+        $this->_client->removeTablePrimaryKey($tableId);
+        // set PK on two columns
+        $this->_client->createTablePrimaryKey($tableId, ['id', 'name']);
+        $this->assertTableColumnNullable($m, $tableId, 'id', false);
+        // second column nullability has not changed SNFLK allows nullable columns in primary key
+        $this->assertTableColumnNullable($m, $tableId, 'name', true);
     }
 
     public function testDataPreviewForTableDefinitionWithDecimalType(): void
@@ -555,7 +568,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $sourceTableId, 'table-1');
         $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $firstAliasTableId, 'table-2');
 
-        $newColumns =  [
+        $newColumns = [
             [
                 'name' => 'column_float',
                 'definition' => [
@@ -602,7 +615,16 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
             $this->_client->addTableColumn($sourceTableId, $newColumn['name'], $newColumn['definition'], $newColumn['basetype']);
         }
 
-        $expectedColumns = ['id', 'column_decimal', 'column_float', 'column_boolean', 'column_date', 'column_timestamp', 'column_varchar', 'basetype'];
+        $expectedColumns = [
+            'id',
+            'column_decimal',
+            'column_float',
+            'column_boolean',
+            'column_date',
+            'column_timestamp',
+            'column_varchar',
+            'basetype',
+        ];
         $this->assertEquals($expectedColumns, $this->_client->getTable($sourceTableId)['columns']);
         $this->assertEquals($expectedColumns, $this->_client->getTable($firstAliasTableId)['columns']);
         $this->assertEquals($expectedColumns, $this->_client->getTable($secondAliasTableId)['columns']);
@@ -614,7 +636,11 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $firstAliasAddedColumnMetadata = $this->_client->getTable($firstAliasTableId)['sourceTable']['columnMetadata']['column_float'];
         $secondAliasAddedColumnMetadata = $this->_client->getTable($secondAliasTableId)['sourceTable']['columnMetadata']['column_float'];
 
-        foreach ([$addedColumnMetadata, $firstAliasAddedColumnMetadata, $secondAliasAddedColumnMetadata] as $columnMetadata) {
+        foreach ([
+                     $addedColumnMetadata,
+                     $firstAliasAddedColumnMetadata,
+                     $secondAliasAddedColumnMetadata,
+                 ] as $columnMetadata) {
             $this->assertArrayEqualsExceptKeys([
                 'key' => 'KBC.datatype.type',
                 'value' => 'REAL',
@@ -788,5 +814,18 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 'timestamp',
             ]);
         }
+    }
+
+    private function assertTableColumnNullable(
+        Metadata $m,
+        string $tableId,
+        string $columnName,
+        bool $expectNullable
+    ): void {
+        $columnMetadata = $m->listColumnMetadata(sprintf("%s.%s", $tableId, $columnName));
+        $nullable = array_filter($columnMetadata, static fn(array $item) => $item['key'] === 'KBC.datatype.nullable');
+        $nullable = array_values($nullable)[0];
+        $this->assertSame('storage', $nullable['provider']);
+        $this->assertSame($expectNullable === true ? '1' : '', $nullable['value']);
     }
 }
