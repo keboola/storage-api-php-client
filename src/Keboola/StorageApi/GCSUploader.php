@@ -5,7 +5,12 @@ declare(strict_types=1);
 namespace Keboola\StorageApi;
 
 use Google\Auth\FetchAuthTokenInterface;
+use Google\Cloud\Core\Exception\ServiceException;
 use Google\Cloud\Storage\StorageClient as GoogleStorageClient;
+use Keboola\StorageApi\GCSUploader\PromiseHandler;
+use Keboola\StorageApi\Options\FileUploadTransferOptions;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 class GCSUploader
 {
@@ -13,8 +18,15 @@ class GCSUploader
 
     private FetchAuthTokenInterface $fetchAuthToken;
 
-    public function __construct(array $options)
-    {
+    private LoggerInterface $logger;
+
+    private FileUploadTransferOptions $transferOptions;
+
+    public function __construct(
+        array $options,
+        LoggerInterface $logger = null,
+        FileUploadTransferOptions $transferOptions = null
+    ) {
         $this->fetchAuthToken = new class ($options['credentials']) implements FetchAuthTokenInterface {
             private array $creds;
 
@@ -43,6 +55,18 @@ class GCSUploader
             'projectId' => $options['projectId'],
             'credentialsFetcher' => $this->fetchAuthToken,
         ]);
+
+        if (!$transferOptions) {
+            $this->transferOptions = new FileUploadTransferOptions();
+        } else {
+            $this->transferOptions = $transferOptions;
+        }
+
+        if (!$logger) {
+            $this->logger = new NullLogger();
+        } else {
+            $this->logger = $logger;
+        }
     }
 
     public function uploadFile(string $bucket, string $filePath, string $fileName, bool $isPermanent): void
@@ -60,7 +84,7 @@ class GCSUploader
         );
     }
 
-    public function uploadSlicedFile(string $bucket, string $key, array $slices, bool $isPermanent): void
+    public function uploadSlicedFile(string $bucket, string $key, array $slices): void
     {
         $retBucket = $this->gcsClient->bucket($bucket);
 
@@ -105,8 +129,38 @@ class GCSUploader
                 ]
             );
         }
+        $retries = 0;
+        while (true) {
+            if ($retries >= $this->transferOptions->getMaxRetriesPerChunk()) {
+                throw new ClientException('Exceeded maximum number of retries per chunk upload');
+            }
+            $results = \GuzzleHttp\Promise\settle($promises)->wait();
+            $rejected = PromiseHandler::getRejected($results);
+            if (count($rejected) == 0) {
+                break;
+            }
+            $retries++;
+            /**
+             * @var string $filePath
+             * @var ServiceException $reason
+             */
+            foreach ($rejected as $filePath => $reason) {
+                $blobName = sprintf(
+                    '%s%s',
+                    $key,
+                    basename($filePath)
+                );
+                $this->logger->notice(sprintf(sprintf('Uploadfailed: %s, %s, %s, %s', $filePath, $reason->getMessage(), $reason->getCode(), $blobName)));
+                $promise = $retBucket->uploadAsync(
+                    $filePath,
+                    [
+                        'name' => $blobName,
+                    ]
+                );
 
-        \GuzzleHttp\Promise\settle($promises)->wait();
+                $promises[$filePath] = $promise;
+            }
+        }
 
         $retBucket->upload((string) json_encode($manifest), [
             'name' => $key . 'manifest',
