@@ -14,7 +14,7 @@ class PromiseHandler
                 if ($uploadInfo['reason'] instanceof ServiceException) {
                     $rejected[$filePath] = $uploadInfo['reason'];
                 } else {
-                    throw new \UnexpectedValueException('Not an instance of S3MultipartUploadException');
+                    throw new \UnexpectedValueException('Not an instance of Google Cloud ServiceException');
                 }
             }
         }
