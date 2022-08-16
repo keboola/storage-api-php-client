@@ -2,15 +2,12 @@
 namespace Keboola\StorageApi;
 
 use Aws\S3\S3Client;
-use Google\Auth\Credentials\ServiceAccountCredentials;
 use Google\Auth\FetchAuthTokenInterface;
-use Google\Auth\HttpHandler\HttpHandlerFactory;
-use Google\Cloud\Storage\StorageClient;
 use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\MessageFormatter;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Utils;
+use Keboola\StorageApi\Client\LogMessageFormatter;
 use Keboola\StorageApi\Client\RequestTimeoutMiddleware;
 use Keboola\StorageApi\Downloader\BlobClientFactory;
 use Keboola\StorageApi\Options\BucketUpdateOptions;
@@ -25,7 +22,6 @@ use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
 use MicrosoftAzure\Storage\Blob\Models\CommitBlobBlocksOptions;
 use MicrosoftAzure\Storage\Blob\Models\CreateBlockBlobOptions;
-use MicrosoftAzure\Storage\Common\Models\ServiceOptions;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
@@ -171,11 +167,14 @@ class Client
         ]);
 
         $handlerStack->push((RequestTimeoutMiddleware::factory()));
-        $handlerStack->push(Middleware::log(
+
+        // this needs to run after http_errors resolves so the error has proper log level
+        $handlerStack->before('http_errors', Middleware::log(
             $this->logger,
-            new MessageFormatter('{hostname} {req_header_User-Agent} - [{ts}] "{method} {resource} {protocol}/{version}" {code} {res_header_Content-Length}'),
+            new LogMessageFormatter(),
             LogLevel::DEBUG
         ));
+
         $this->client = new \GuzzleHttp\Client([
             'base_uri' => $this->apiUrl,
             'handler' => $handlerStack,

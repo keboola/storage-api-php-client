@@ -8,7 +8,12 @@
  */
 namespace Keboola\Test\Common;
 
+use Keboola\StorageApi\Client;
+use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Options\IndexOptions;
 use Keboola\Test\StorageApiTestCase;
+use Monolog\Handler\TestHandler;
+use Monolog\Logger;
 use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
 
@@ -54,5 +59,50 @@ class LoggingTest extends StorageApiTestCase
         ]);
         $options = new \Keboola\StorageApi\Options\FileUploadOptions();
         $client->uploadFile(__DIR__ . '/../_data/files.upload.txt', $options);
+    }
+
+    public function testRequestLog(): void
+    {
+        $logsHandler = new TestHandler();
+        $logger = new Logger('tests', [$logsHandler]);
+
+        $client = new Client([
+            'token' => STORAGE_API_TOKEN,
+            'url' => STORAGE_API_URL,
+            'userAgent' => 'Client Testing',
+            'logger' => $logger,
+            'backoffMaxTries' => 1,
+        ]);
+
+        $client->indexAction((new IndexOptions())->setExclude(['components']));
+
+        self::assertTrue($logsHandler->hasDebug(
+            'GET https://connection.keboola.com/v2/storage/?exclude=components 200'
+        ));
+    }
+
+    public function testFailedRequestLog(): void
+    {
+        $logsHandler = new TestHandler();
+        $logger = new Logger('tests', [$logsHandler]);
+
+        $client = new Client([
+            'token' => STORAGE_API_TOKEN,
+            'url' => STORAGE_API_URL,
+            'userAgent' => 'Client Testing',
+            'logger' => $logger,
+            'backoffMaxTries' => 1,
+        ]);
+
+        try {
+            $client->apiGet('invalid/url');
+            self::fail('ClientException was expected');
+        } catch (ClientException $e) {
+            // ignore exception, we want to check logs
+        }
+
+        self::assertTrue($logsHandler->hasError(
+            'GET https://connection.keboola.com/v2/storage/invalid/url 404 "{\"error\":\"resource not found\"}"'
+        ));
     }
 }
