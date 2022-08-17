@@ -2970,7 +2970,7 @@ class ComponentsTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testComponentConfigRowVersionCreate_copy(): void
+    public function testComponentConfigRowVersionCreateWithNumericIds(): void
     {
         $components = new \Keboola\StorageApi\Components($this->client);
 
@@ -2979,7 +2979,7 @@ class ComponentsTest extends StorageApiTestCase
         $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration
             ->setComponentId('wr-db')
-            ->setConfigurationId('main-1')
+            ->setConfigurationId(100) // use numeric id
             ->setName('Main')
             ->setDescription('some desc');
 
@@ -2988,14 +2988,14 @@ class ComponentsTest extends StorageApiTestCase
         $configuration2 = new \Keboola\StorageApi\Options\Components\Configuration();
         $configuration2
             ->setComponentId($configuration->getComponentId())
-            ->setConfigurationId('main-2')
+            ->setConfigurationId(200) // use numeric id
             ->setName('Main')
             ->setDescription('some desc');
 
         $components->addConfiguration($configuration2);
 
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
-        $configurationRow->setRowId('main-1-1');
+        $configurationRow->setRowId(101); // use numeric id
         $configurationRow->setConfiguration($configurationData);
 
         $components->addConfigurationRow($configurationRow);
@@ -3004,7 +3004,7 @@ class ComponentsTest extends StorageApiTestCase
         $row = $components->createConfigurationRowFromVersion(
             $configuration->getComponentId(),
             $configuration->getConfigurationId(),
-            'main-1-1',
+            101,
             1
         );
 
@@ -3028,9 +3028,9 @@ class ComponentsTest extends StorageApiTestCase
         $row = $components->createConfigurationRowFromVersion(
             $configuration->getComponentId(),
             $configuration->getConfigurationId(),
-            'main-1-1',
+            101,
             1,
-            $configuration2->getConfigurationId()
+            $configuration2->getConfigurationId() // use numeric id
         );
 
         $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
@@ -3046,6 +3046,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertArrayHasKey('name', $row);
         $this->assertArrayHasKey('description', $row);
 
+        $this->assertIsNumeric($row['id']); // check auto increment id is numeric
         $this->assertEquals(1, $row['version']);
         $this->assertEquals($configurationData, $row['configuration']);
 
@@ -3055,6 +3056,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $this->assertCount(1, $rows);
     }
+
 
     /**
      * @dataProvider provideComponentsClientType
