@@ -2970,6 +2970,95 @@ class ComponentsTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
+    public function testComponentConfigRowVersionCreate_copy(): void
+    {
+        $components = new \Keboola\StorageApi\Components($this->client);
+
+        $configurationData = ['my-value' => 666];
+
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main')
+            ->setDescription('some desc');
+
+        $components->addConfiguration($configuration);
+
+        $configuration2 = new \Keboola\StorageApi\Options\Components\Configuration();
+        $configuration2
+            ->setComponentId($configuration->getComponentId())
+            ->setConfigurationId('main-2')
+            ->setName('Main')
+            ->setDescription('some desc');
+
+        $components->addConfiguration($configuration2);
+
+        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
+        $configurationRow->setRowId('main-1-1');
+        $configurationRow->setConfiguration($configurationData);
+
+        $components->addConfigurationRow($configurationRow);
+
+        // copy to same first configuration
+        $row = $components->createConfigurationRowFromVersion(
+            $configuration->getComponentId(),
+            $configuration->getConfigurationId(),
+            'main-1-1',
+            1
+        );
+
+        $this->assertArrayHasKey('id', $row);
+        $this->assertArrayHasKey('version', $row);
+        $this->assertArrayHasKey('configuration', $row);
+
+        $this->assertEquals(1, $row['version']);
+        $this->assertEquals($configurationData, $row['configuration']);
+        $this->assertEquals('', $row['name']);
+        $this->assertEquals('', $row['description']);
+        $this->assertEquals(false, $row['isDisabled']);
+
+        $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
+            ->setComponentId($configuration->getComponentId())
+            ->setConfigurationId($configuration->getConfigurationId()));
+
+        $this->assertCount(2, $rows);
+
+        // copy to same second configuration
+        $row = $components->createConfigurationRowFromVersion(
+            $configuration->getComponentId(),
+            $configuration->getConfigurationId(),
+            'main-1-1',
+            1,
+            $configuration2->getConfigurationId()
+        );
+
+        $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
+            ->setComponentId($configuration->getComponentId())
+            ->setConfigurationId($configuration->getConfigurationId()));
+
+        $this->assertCount(2, $rows);
+
+        $this->assertArrayHasKey('id', $row);
+        $this->assertArrayHasKey('version', $row);
+        $this->assertArrayHasKey('configuration', $row);
+        $this->assertArrayHasKey('isDisabled', $row);
+        $this->assertArrayHasKey('name', $row);
+        $this->assertArrayHasKey('description', $row);
+
+        $this->assertEquals(1, $row['version']);
+        $this->assertEquals($configurationData, $row['configuration']);
+
+        $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
+            ->setComponentId($configuration2->getComponentId())
+            ->setConfigurationId($configuration2->getConfigurationId()));
+
+        $this->assertCount(1, $rows);
+    }
+
+    /**
+     * @dataProvider provideComponentsClientType
+     */
     public function testGetComponentConfigurations(): void
     {
         $components = new \Keboola\StorageApi\Components($this->client);
