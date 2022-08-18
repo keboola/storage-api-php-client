@@ -32,14 +32,14 @@ class QueueJobsTest extends StorageApiTestCase
         $jobId = $this->_client->queueTableImport(
             'in.c-API-tests.table1',
             [
-                'dataWorkspaceId' => 'myWorkspace',
+                'dataWorkspaceId' => 1000,
                 'dataTableName' => 'myTable',
             ]
         );
         $job = $this->_client->getJob($jobId);
         $this->assertEquals('in.c-API-tests.table1', $job['tableId']);
         $this->assertEquals('tableImport', $job['operationName']);
-        $this->assertEquals('myWorkspace', $job['operationParams']['source']['workspaceId']);
+        $this->assertEquals(1000, $job['operationParams']['source']['workspaceId']);
         $this->assertEquals('myTable', $job['operationParams']['source']['tableName']);
         $this->assertEquals('myTable', $job['operationParams']['source']['dataObject']);
         $this->assertEquals('workspace', $job['operationParams']['source']['type']);
@@ -106,7 +106,7 @@ class QueueJobsTest extends StorageApiTestCase
         $jobId = $this->_client->queueTableCreate(
             'in.c-API-tests.table1',
             [
-                'dataWorkspaceId' => 'myWorkspace',
+                'dataWorkspaceId' => 1000,
                 'dataTableName' => 'myTable',
                 'name' => 'my-new-queued-table',
             ]
@@ -114,7 +114,7 @@ class QueueJobsTest extends StorageApiTestCase
         $job = $this->_client->getJob($jobId);
         $this->assertNull($job['tableId']);
         $this->assertEquals('tableCreate', $job['operationName']);
-        $this->assertEquals('myWorkspace', $job['operationParams']['source']['workspaceId']);
+        $this->assertEquals(1000, $job['operationParams']['source']['workspaceId']);
         $this->assertEquals('myTable', $job['operationParams']['source']['tableName']);
         $this->assertEquals('myTable', $job['operationParams']['source']['dataObject']);
         $this->assertEquals('workspace', $job['operationParams']['source']['type']);
