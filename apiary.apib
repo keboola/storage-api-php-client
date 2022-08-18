@@ -7961,19 +7961,19 @@ other buckets (production buckets or buckets belongs the other development branc
 
 ### CreateTableDefinitionAsyncFile(CreateTableDefinitionAsyncBase)
 
-+ dataFileId (required) - Id of the file stored in [File Uploads](#reference/files)
++ dataFileId (required, number) - Id of the file stored in [File Uploads](#reference/files)
 
 ### CreateTableDefinitionAsyncWorkspace(CreateTableDefinitionAsyncBase)
 
-+ dataWorkspaceId (required) - Load from the table [workspace](#reference/workspaces). Use with the **dataObject** attribute.
-+ dataTableName (optional) - (deprecated - use dataObject) Load from the table in the [workspace](#reference/workspaces).
-+ dataObject (optional) - Load from the table/file in the [workspace](#reference/workspaces).
++ dataWorkspaceId (required, number) - Load from the table [workspace](#reference/workspaces). Use with the **dataObject** attribute.
++ dataTableName (optional, string) - (deprecated - use dataObject) Load from the table in the [workspace](#reference/workspaces).
++ dataObject (optional, string) - Load from the table/file in the [workspace](#reference/workspaces).
 
 ### CreateTableDefinitionAsyncSnapshot(CreateTableDefinitionAsyncBase)
 
-+ snapshotId (required) - Id of a table snapshot - a table will be created from the snapshot.
++ snapshotId (required, string) - Id of a table snapshot - a table will be created from the snapshot.
 
 ### CreateTableDefinitionAsyncTimeTravel(CreateTableDefinitionAsyncBase)
 
-+ sourceTableId (required) - Create time travel snapshot of this table.
++ sourceTableId (required, string) - Create time travel snapshot of this table.
 + timestamp (required) - Datetime string. The preferred format is `YYYY-MM-DD hh:mm:ss Z`, other formats may also work, but time zone is required.
