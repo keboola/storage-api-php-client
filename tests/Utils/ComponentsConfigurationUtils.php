@@ -2,11 +2,15 @@
 
 namespace Keboola\Test\Utils;
 
+use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\Configuration;
 
 trait ComponentsConfigurationUtils
 {
-    public function createConfiguration($components, $componentId, $configurationId, $name)
+    /**
+     * @param string|int $configurationId
+     */
+    public function createConfiguration(Components $components, string $componentId, $configurationId, string $name): Configuration
     {
         $configurationOptions = (new Configuration())
             ->setComponentId($componentId)
