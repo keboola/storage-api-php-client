@@ -119,6 +119,7 @@ class Client
      *     - awsRetries: number of aws client retries
      *     - logger: instance of Psr\Log\LoggerInterface
      *     - jobPollRetryDelay: callable method which determines wait period for job polling
+     *     - handler: custom Guzzle handler, allows mocking responses in tests
      */
     public function __construct(array $config = [])
     {
@@ -160,14 +161,15 @@ class Client
             $this->setJobPollRetryDelay(createSimpleJobPollDelay());
         }
 
-        $this->initClient();
+        $this->initClient($config);
         $this->tokens = new Tokens($this);
     }
 
-    private function initClient()
+    private function initClient(array $config)
     {
         $handlerStack = HandlerStack::create([
             'backoffMaxTries' => $this->backoffMaxTries,
+            'handler' => $config['handler'] ?? null,
         ]);
 
         $handlerStack->push((RequestTimeoutMiddleware::factory()));

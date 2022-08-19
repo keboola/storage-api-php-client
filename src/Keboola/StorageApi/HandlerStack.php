@@ -7,6 +7,7 @@
  */
 namespace Keboola\StorageApi;
 
+use GuzzleHttp\BodySummarizer;
 use GuzzleHttp\HandlerStack as HandlerStackBase;
 use GuzzleHttp\Middleware;
 use Psr\Http\Message\RequestInterface;
@@ -19,9 +20,18 @@ use Psr\Http\Message\ResponseInterface;
  */
 final class HandlerStack
 {
+    private const MAX_HTTP_ERROR_MESSAGE_LENGTH = 1024*1024;
+
     public static function create($options = [])
     {
-        $handlerStack = HandlerStackBase::create();
+        $handlerStack = HandlerStackBase::create($options['handler'] ?? null);
+
+        $handlerStack->remove('http_errors');
+        $handlerStack->unshift(
+            Middleware::httpErrors(new BodySummarizer(self::MAX_HTTP_ERROR_MESSAGE_LENGTH)),
+            'http_errors'
+        );
+
         $handlerStack->push(Middleware::retry(
             self::createDefaultDecider(isset($options['backoffMaxTries']) ? $options['backoffMaxTries'] : 0),
             self::createExponentialDelay()
