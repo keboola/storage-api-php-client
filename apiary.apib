@@ -2582,6 +2582,9 @@ Returns up to 1000 rows from table in CSV (RFC) format. Rows can be filtered by 
 For full table download please read more in [Asynchronous Unload documentation](#reference/tables/unload-data-asynchronously).
 For the description of filters, see [Asynchronous Unload documentation](#reference/tables/unload-data-asynchronously).
 
+The `isTruncated` flag is `true` if the value is >16k chars and response type is JSON .
+
+
 #### HTTP Compression
 
 To enable compression of API response traffic, please include the following HTTP header with the API request: `Accept-encoding: gzip`.
