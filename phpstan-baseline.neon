@@ -5491,31 +5491,6 @@ parameters:
 			path: tests/Common/ComponentsTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\ConfigurationMetadataTest\\:\\:createConfiguration\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/ConfigurationMetadataTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\ConfigurationMetadataTest\\:\\:createConfiguration\\(\\) has parameter \\$componentId with no type specified\\.$#"
-			count: 1
-			path: tests/Common/ConfigurationMetadataTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\ConfigurationMetadataTest\\:\\:createConfiguration\\(\\) has parameter \\$components with no type specified\\.$#"
-			count: 1
-			path: tests/Common/ConfigurationMetadataTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\ConfigurationMetadataTest\\:\\:createConfiguration\\(\\) has parameter \\$configurationId with no type specified\\.$#"
-			count: 1
-			path: tests/Common/ConfigurationMetadataTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\ConfigurationMetadataTest\\:\\:createConfiguration\\(\\) has parameter \\$name with no type specified\\.$#"
-			count: 1
-			path: tests/Common/ConfigurationMetadataTest.php
-
-		-
 			message: "#^Cannot access property \\$changeDescription on mixed\\.$#"
 			count: 1
 			path: tests/Common/ConfigurationRowTest.php
@@ -5727,31 +5702,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\SearchComponentsConfigurationsTest\\:\\:assertSearchResponseEquals\\(\\) has parameter \\$expected with no type specified\\.$#"
-			count: 1
-			path: tests/Common/SearchComponentsConfigurationsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\SearchComponentsConfigurationsTest\\:\\:createConfiguration\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/SearchComponentsConfigurationsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\SearchComponentsConfigurationsTest\\:\\:createConfiguration\\(\\) has parameter \\$componentId with no type specified\\.$#"
-			count: 1
-			path: tests/Common/SearchComponentsConfigurationsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\SearchComponentsConfigurationsTest\\:\\:createConfiguration\\(\\) has parameter \\$components with no type specified\\.$#"
-			count: 1
-			path: tests/Common/SearchComponentsConfigurationsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\SearchComponentsConfigurationsTest\\:\\:createConfiguration\\(\\) has parameter \\$configurationId with no type specified\\.$#"
-			count: 1
-			path: tests/Common/SearchComponentsConfigurationsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\SearchComponentsConfigurationsTest\\:\\:createConfiguration\\(\\) has parameter \\$name with no type specified\\.$#"
 			count: 1
 			path: tests/Common/SearchComponentsConfigurationsTest.php
 
