@@ -2354,30 +2354,11 @@ If there is no column datatype specified (column.definition.type or column.baset
 
 The method of creating a table asynchronously should be used for larger imports (everything with 100 lines and more).
 The create request is created and added to a queue, the job resource url for status polling is returned.
-The actual data must be provided in one of the following attributes:
-
-- `dataFileId`,
-- `snapshotId`,
-- `dataWorkspaceId` and `dataObject`
-- `sourceTableId`
 
 + Parameters
     + bucket_id (required) - The bucket Id
 
-+ Attributes
-    + name (required) - New table name
-    + dataFileId (optional) - Id of the file stored in [File Uploads](#reference/files)
-    + snapshotId (optional) - Id of a table snapshot - a table will be created from the snapshot.
-    + dataWorkspaceId (optional) - Load from the table [workspace](#reference/workspaces). Use with the **dataTableName** attribute.
-    + dataTableName (optional) - (deprecated use dataObject) Load from the table in the [workspace](#reference/workspaces).
-    + dataObject (optional) - Load from the table/file in the [workspace](#reference/workspaces).
-    + sourceTableId (optional) - Create time travel snapshot of this table.
-    + timestamp (optional) - Datetime string to be used for the time travel snapshot. Use with the **sourceTableId** attribute. The preferred format is `YYYY-MM-DD hh:mm:ss Z`, other formats may also work, but time zone is required.
-    + delimiter (optional) - Field delimiter used in the CSV file. The default value is ','.  Use '\t' or type the tab char for the tabulator.
-    + enclosure (optional) - Field enclosure used in the CSV file. The default value is '"'. (Note: you can specify either the `enclosure` or `escapedBy` parameter, not both.)
-    + escapedBy (optional) - Escape character used in the CSV file. The default value is an empty value - no escape character is used. (Note: you can specify either the `enclosure` or `escapedBy` parameter, not both.)
-    + primaryKey (optional) - Primary key of a table. If the primary key is set, updates can be done on the table. See CSV incremental import. The primary key can be also composed by multiple columns; the columns must be separated by a comma. For Synapse if single primary key is set, it's also used as distribution key, if distribution key option is empty.
-    + distributionKey (optional) - (Synapse only) Distribution key of a table. If the distribution key is set, table will use HASH distribution.
++ Attributes(CreateTableDefinitionAsyncFile)
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -2425,6 +2406,173 @@ The actual data must be provided in one of the following attributes:
             }
         }
 
+### Create new table from snapshot asynchronously [POST]
+
+The method of creating a table asynchronously should be used for larger imports (everything with 100 lines and more).
+The create request is created and added to a queue, the job resource url for status polling is returned.
+
++ Parameters
+    + bucket_id (required) - The bucket Id
+
++ Attributes(CreateTableDefinitionAsyncSnapshot)
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            name=table_name&snapshotId=234&delimiter=%2C&enclosure=%22
+
++ Response 202 (application/json)
+
+        {
+            "id": 11,
+            "status": "waiting",
+            "url": "https://connection.keboola.com/v2/storage/jobs/11",
+            "operationName": "tableCreate",
+            "operationParams": {
+                "params": {
+                    "enclosure": "\"",
+                    "delimiter": ",",
+                    "escapedBy": "",
+                },
+                "source": {
+                    "fileId": "234",
+                    "type": "file"
+                }
+            },
+            "createdTime": "2013-05-31T16:11:05+0200",
+            "startTime": null,
+            "endTime": null,
+            "runId": null,
+            "results": null,
+            "creatorToken": {
+                "id": "27978",
+                "description": "ondrej.popelka@keboola.com"
+            },
+            "metrics": {
+                "inCompressed": false,
+                "inBytes": 0,
+                "inBytesUncompressed": 0,
+                "outCompressed": false,
+                "outBytes": 0,
+                "outBytesUncompressed": 0
+            }
+        }
+
+### Create new table from workspace asynchronously [POST]
+
+The method of creating a table asynchronously should be used for larger imports (everything with 100 lines and more).
+The create request is created and added to a queue, the job resource url for status polling is returned.
+
++ Parameters
+    + bucket_id (required) - The bucket Id
+
++ Attributes(CreateTableDefinitionAsyncWorkspace)
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            name=table_name&dataWorkspaceId=234&dataObject=84353&delimiter=%2C&enclosure=%22
+
++ Response 202 (application/json)
+
+        {
+            "id": 11,
+            "status": "waiting",
+            "url": "https://connection.keboola.com/v2/storage/jobs/11",
+            "operationName": "tableCreate",
+            "operationParams": {
+                "params": {
+                    "enclosure": "\"",
+                    "delimiter": ",",
+                    "escapedBy": "",
+                },
+                "source": {
+                    "fileId": "234",
+                    "type": "file"
+                }
+            },
+            "createdTime": "2013-05-31T16:11:05+0200",
+            "startTime": null,
+            "endTime": null,
+            "runId": null,
+            "results": null,
+            "creatorToken": {
+                "id": "27978",
+                "description": "ondrej.popelka@keboola.com"
+            },
+            "metrics": {
+                "inCompressed": false,
+                "inBytes": 0,
+                "inBytesUncompressed": 0,
+                "outCompressed": false,
+                "outBytes": 0,
+                "outBytesUncompressed": 0
+            }
+        }
+
+### Create new table from time travel asynchronously [POST]
+
+The method of creating a table asynchronously should be used for larger imports (everything with 100 lines and more).
+The create request is created and added to a queue, the job resource url for status polling is returned.
+
++ Parameters
+    + bucket_id (required) - The bucket Id
+
++ Attributes(CreateTableDefinitionAsyncTimeTravel)
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            name=table_name&sourceTableId=234&timestamp=2022-08-01%2012:00:00%2B0200
+
++ Response 202 (application/json)
+
+        {
+            "id": 11,
+            "status": "waiting",
+            "url": "https://connection.keboola.com/v2/storage/jobs/11",
+            "operationName": "tableCreate",
+            "operationParams": {
+                "params": {
+                    "enclosure": "\"",
+                    "delimiter": ",",
+                    "escapedBy": "",
+                },
+                "source": {
+                    "fileId": "234",
+                    "type": "file"
+                }
+            },
+            "createdTime": "2013-05-31T16:11:05+0200",
+            "startTime": null,
+            "endTime": null,
+            "runId": null,
+            "results": null,
+            "creatorToken": {
+                "id": "27978",
+                "description": "ondrej.popelka@keboola.com"
+            },
+            "metrics": {
+                "inCompressed": false,
+                "inBytes": 0,
+                "inBytesUncompressed": 0,
+                "outCompressed": false,
+                "outBytes": 0,
+                "outBytesUncompressed": 0
+            }
+        }
 
 ## Load Data [/v2/storage/tables/{table_id}/import]
 
@@ -7802,3 +7950,33 @@ other buckets (production buckets or buckets belongs the other development branc
                         "outBytesUncompressed": 0
                     }
                 }
+
+## Data Structures
+
+### CreateTableDefinitionAsyncBase
+
++ name (required) - New table name
++ delimiter (optional) - Field delimiter used in the CSV file. The default value is ','.  Use '\t' or type the tab char for the tabulator.
++ enclosure (optional) - Field enclosure used in the CSV file. The default value is '"'. (Note: you can specify either the `enclosure` or `escapedBy` parameter, not both.)
++ escapedBy (optional) - Escape character used in the CSV file. The default value is an empty value - no escape character is used. (Note: you can specify either the `enclosure` or `escapedBy` parameter, not both.)
++ primaryKey (optional) - Primary key of a table. If the primary key is set, updates can be done on the table. See CSV incremental import. The primary key can be also composed by multiple columns; the columns must be separated by a comma. For Synapse if single primary key is set, it's also used as distribution key, if distribution key option is empty.
++ distributionKey (optional) - (Synapse only) Distribution key of a table. If the distribution key is set, table will use HASH distribution.
+
+### CreateTableDefinitionAsyncFile(CreateTableDefinitionAsyncBase)
+
++ dataFileId (required, number) - Id of the file stored in [File Uploads](#reference/files)
+
+### CreateTableDefinitionAsyncWorkspace(CreateTableDefinitionAsyncBase)
+
++ dataWorkspaceId (required, number) - Load from the table [workspace](#reference/workspaces). Use with the **dataObject** attribute.
++ dataTableName (optional, string) - (deprecated - use dataObject) Load from the table in the [workspace](#reference/workspaces).
++ dataObject (optional, string) - Load from the table/file in the [workspace](#reference/workspaces).
+
+### CreateTableDefinitionAsyncSnapshot(CreateTableDefinitionAsyncBase)
+
++ snapshotId (required, string) - Id of a table snapshot - a table will be created from the snapshot.
+
+### CreateTableDefinitionAsyncTimeTravel(CreateTableDefinitionAsyncBase)
+
++ sourceTableId (required, string) - Create time travel snapshot of this table.
++ timestamp (required) - Datetime string. The preferred format is `YYYY-MM-DD hh:mm:ss Z`, other formats may also work, but time zone is required.
