@@ -212,10 +212,7 @@ class RegisterBucketTest extends StorageApiTestCase
 
         $this->_client->dropBucket($idOfBucket, ['force' => true, 'async' => true]);
 
-        $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration-ext', [
-            'force' => true,
-            'async' => true,
-        ]);
+        $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration-ext', true);
 
         $runId = $this->setRunId();
         // try same with schema outside of project database
