@@ -372,7 +372,6 @@ class MetadataTest extends StorageApiTestCase
             'value' => 'testvalA',
         ];
 
-
         $md2 = [
             'key' => self::TEST_METADATA_KEY_2,
             'value' => 'testvalB',
