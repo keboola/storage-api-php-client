@@ -15,14 +15,14 @@ class TableMetadataUpdateOptions
     /** @var array<int, array{key: string, value: string}> */
     private $tableMetadata;
 
-    /** @var array<string, array<int, array{key: string, value: string}>> */
+    /** @var array<string|int, array<int, array{key: string, value: string}>> */
     private $columnsMetadata;
 
     /**
      * @param string $tableId
      * @param string $provider
      * @param array<int, array{key: string, value: string}>|null $tableMetadata
-     * @param array<string, array<int, array{key: string, value: string}>>|null $columnsMetadata
+     * @param array<string|int, array<int, array{key: string, value: string}>>|null $columnsMetadata
      */
     public function __construct($tableId, $provider, $tableMetadata = null, $columnsMetadata = null)
     {

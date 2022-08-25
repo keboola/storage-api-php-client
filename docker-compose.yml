@@ -1,6 +1,7 @@
 version: '2'
 services:
   tests: &base
+    platform: linux/amd64
     build:
       context: .
       args:
