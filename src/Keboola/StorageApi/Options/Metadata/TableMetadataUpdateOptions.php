@@ -22,7 +22,7 @@ class TableMetadataUpdateOptions
      * @param string $tableId
      * @param string $provider
      * @param array<int, array{key: string, value: string}>|null $tableMetadata
-     * @param array<string, array<int, array{key: string, value: string}>>|null $columnsMetadata
+     * @param array<string|int, array<int, array{key: string, value: string}>>|null $columnsMetadata
      */
     public function __construct($tableId, $provider, $tableMetadata = null, $columnsMetadata = null)
     {
