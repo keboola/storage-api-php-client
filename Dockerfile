@@ -39,7 +39,6 @@ RUN apt-get update -q \
         libpq-dev \
         debsig-verify \
         dirmngr \
-        msodbcsql17 \
         libonig-dev \
         libxml2-dev \
         -y --no-install-recommends \
