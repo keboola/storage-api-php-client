@@ -15,7 +15,7 @@ class TableMetadataUpdateOptions
     /** @var array<int, array{key: string, value: string}> */
     private $tableMetadata;
 
-    /** @var array<string, array<int, array{key: string, value: string}>> */
+    /** @var array<string|int, array<int, array{key: string, value: string}>> */
     private $columnsMetadata;
 
     /**
