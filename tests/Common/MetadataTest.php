@@ -357,6 +357,46 @@ class MetadataTest extends StorageApiTestCase
             }
         }
     }
+    public function testColumnMetadataWithColumnsWithIntegers(): void
+    {
+        $this->_client->createTable($this->getTestBucketId(), 'tableWithIntColumns', new CsvFile(__DIR__ . '/../_data/numbers.two-cols.csv'));
+
+        $tableId = $this->getMetadataTestTableId('tableWithIntColumns');
+        $column1 = '0';
+        $columnId = $this->getMetadataTestColumnId('tableWithIntColumns', $column1);
+
+        $metadataApi = new Metadata($this->_client);
+
+        $mdForTable = [
+            'key' => self::TEST_METADATA_KEY_1,
+            'value' => 'tableValue',
+        ];
+
+        $mdForColumn = [
+            'key' => self::TEST_METADATA_KEY_2,
+            'value' => 'columnValue',
+        ];
+
+        $provider = self::TEST_PROVIDER;
+
+        $metadataApi->postTableMetadata($tableId, $provider, [$mdForTable]);
+        $tableDetail = $this->_client->getTable($tableId);
+
+        $this->assertNotEmpty($tableDetail['metadata']);
+        $this->assertCount(1, $tableDetail['metadata']);
+        $this->assertCount(0, $tableDetail['columnMetadata']);
+
+        $metadataApi->postColumnMetadata($columnId, $provider, [$mdForColumn]);
+        $tableDetail = $this->_client->getTable($tableId);
+
+        $this->assertNotEmpty($tableDetail['metadata']);
+        $this->assertCount(1, $tableDetail['metadata']);
+
+        $this->assertArrayEqualsExceptKeys($mdForTable, $tableDetail['metadata'][0], ['id', 'provider', 'timestamp']);
+
+        $this->assertCount(1, $tableDetail['columnMetadata']);
+        $this->assertArrayEqualsExceptKeys($mdForColumn, $tableDetail['columnMetadata'][0][0], ['id', 'provider', 'timestamp']);
+    }
 
     public function testTableMetadataWithColumnsWithIntegers(): void
     {
