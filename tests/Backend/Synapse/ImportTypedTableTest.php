@@ -345,4 +345,102 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
             self::assertSame('[SQL Server]Bulk load data conversion error (type mismatch or invalid character for the specified codepage) for row starting at byte offset 25, column 4 (sex) in data file /users.csv.gz.', $e->getMessage());
         }
     }
+
+    public function testLoadTypedTablesConversionError2(): void
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $payload = [
+            'name' => 'users-types',
+            'primaryKeysNames' => ['SYS_ID', 'INSERT_PROCESS_KEY', 'EFFECTIVE_DATE'],
+            'columns' => [
+                [
+                    'name' => 'ACTIVE',
+                    'definition' => [
+                        'type' => 'NUMERIC',
+                        'length' => '1,0',
+                        'nullable' => true,
+                    ],
+                ],
+                [
+                    'name' => 'DESCRIPTION',
+                    'definition' => [
+                        'type' => 'NVARCHAR',
+                        'length' => '1000',
+                        'nullable' => true,
+                    ],
+                ],
+                [
+                    'name' => 'SYS_CREATED_ON',
+                    'definition' => [
+                        'type' => 'DATETIME2',
+                        'length' => '7',
+                        'nullable' => true,
+                    ],
+                ],
+                [
+                    'name' => 'SYS_ID',
+                    'definition' => [
+                        'type' => 'NVARCHAR',
+                        'length' => '255',
+                        'nullable' => false,
+                    ],
+                ],
+                [
+                    'name' => 'U_TICKET_QUOTA',
+                    'definition' => [
+                        'type' => 'NUMERIC',
+                        'length' => '14,0',
+                        'nullable' => true,
+                    ],
+                ],
+                [
+                    'name' => 'INSERT_PROCESS_KEY',
+                    'definition' => [
+                        'type' => 'BIGINT',
+                        'nullable' => false,
+                    ],
+                ],
+                [
+                    'name' => 'EFFECTIVE_DATE',
+                    'definition' => [
+                        'type' => 'DATETIME2',
+                        'length' => '7',
+                        'nullable' => false,
+                    ],
+                ],
+            ],
+            'distribution' => [
+                'type' => 'REPLICATE',
+                'distributionColumnsNames' => [],
+            ],
+            'index' => [
+                'type' => 'HEAP',
+            ],
+        ];
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        // create table
+        $tableId = $this->_client->createTableDefinition($bucketId, $payload);
+
+        // block until async events are processed, processing in order is not guaranteed but it should work most of time
+        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
+
+        $csvFile = new CsvFile(__DIR__ . '/../../_data/test_csas.csv');
+
+        try {
+            // try import data with wrong types with full load
+            $this->_client->writeTableAsync(
+                $tableId,
+                $csvFile,
+                [
+                    'incremental' => false,
+                ]
+            );
+            $this->fail('This should fail');
+        } catch (ClientException $e) {
+            self::assertSame('[SQL Server]Bulk load data conversion error (type mismatch or invalid character for the specified codepage) for row starting at byte offset 25, column 4 (sex) in data file /users.csv.gz.', $e->getMessage());
+        }
+    }
 }
