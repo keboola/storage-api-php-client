@@ -5284,7 +5284,7 @@ Sets multiple metadata for table and columns with one call. If the given key and
 for the table, the data will be updated with the new value and timestamp. All metadata associated
 with the table and columns are returned to the response.
 
-At least one of the `metadata` or `columnsMetadata` object is required.
+At least one of the `metadata` or `columnsMetadata` object is required. Indexing columnsMetadata is deprecated and not recommended. Please add column name to metadata object.
 
 + Parameters
     + table_id (required) - Id of the table
@@ -5296,8 +5296,9 @@ At least one of the `metadata` or `columnsMetadata` object is required.
             + key (required)
             + value (required)
     + columnsMetadata (optional) - Object of columns with column names as key (`"id"`)
-        + `<columnName>` (required, array) - Array of metadata objects
+        + `<columnName>` (required, array) - Array of metadata objects.
             + (object)
+                + columnName (optional)
                 + key (required)
                 + value (required)
 
