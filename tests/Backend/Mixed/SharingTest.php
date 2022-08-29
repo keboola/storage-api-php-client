@@ -55,40 +55,43 @@ class SharingTest extends StorageApiSharingTestCase
         $this->dropBucketIfExists($this->_client2, 'out.c-opportunity');
 
         $bucketToShare = $this->_client2->createBucket('opportunity', self::STAGE_OUT);
-        $this->_client2->shareBucket($bucketToShare, [
-            'sharing' => 'organization-project',
-        ]);
+        $this->_client2->shareOrganizationProjectBucket($bucketToShare);
 
         $sharedBuckets = $this->_client->listSharedBuckets();
         $this->assertCount(1, $sharedBuckets);
+        $opportunityBucket = reset($sharedBuckets);
+
+        // linking with existing name API-sharing
         try {
+            // API-sharing bucket is created by initTestBuckets() for all the clients=projects
             $this->_client->linkBucket(
-                'API-sharing',
+                self::BUCKET_API_SHARING,
                 self::STAGE_IN,
-                $sharedBuckets[0]['project']['id'],
-                $sharedBuckets[0]['id'],
+                $opportunityBucket['project']['id'],
+                $opportunityBucket['id'],
                 null,
                 $isAsync
             );
             $this->fail('bucket can\'t be linked with same name');
         } catch (ClientException $e) {
-            $this->assertEquals('The bucket API-sharing already exists.', $e->getMessage());
+            $this->assertEquals(sprintf('The bucket %s already exists.', self::BUCKET_API_SHARING), $e->getMessage());
             $this->assertEquals(400, $e->getCode());
             $this->assertEquals('storage.buckets.alreadyExists', $e->getStringCode());
         }
 
+        // linking with existing display name API-sharing. Name is used as displayName by default
         try {
             $this->_client->linkBucket(
-                'xxx',
+                'not-important',
                 self::STAGE_IN,
-                $sharedBuckets[0]['project']['id'],
-                $sharedBuckets[0]['id'],
-                'API-sharing',
+                $opportunityBucket['project']['id'],
+                $opportunityBucket['id'],
+                self::BUCKET_API_SHARING,
                 $isAsync
             );
             $this->fail('bucket can\'t be linked with same display name');
         } catch (ClientException $e) {
-            $this->assertEquals('The display name "API-sharing" already exists in project.', $e->getMessage());
+            $this->assertEquals(sprintf('The display name "%s" already exists in project.', self::BUCKET_API_SHARING), $e->getMessage());
             $this->assertEquals(400, $e->getCode());
             $this->assertEquals('storage.buckets.alreadyExists', $e->getStringCode());
         }
