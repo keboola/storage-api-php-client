@@ -427,7 +427,11 @@ class MetadataTest extends StorageApiTestCase
                 $md2,
             ],
             $column2 => [
-                $md,
+                [
+                    'key' => self::TEST_METADATA_KEY_1,
+                    'value' => 'testvalA',
+                    'columnName' => '45',
+                ],
             ],
         ];
 
