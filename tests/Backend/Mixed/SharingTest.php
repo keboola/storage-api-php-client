@@ -52,23 +52,24 @@ class SharingTest extends StorageApiSharingTestCase
     public function testTryLinkBucketWithSameNameAsAlreadyCreatedBucketThrowUserException(bool $isAsync): void
     {
         $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
-        $this->dropBucketIfExists($this->_client2, 'out.c-opportunity');
+        $bucketNameToShare = $this->getTestBucketName($this->generateDescriptionForTestObject()) . '-toShare';
+        $this->dropBucketIfExists($this->_client2, 'out.c-' . $bucketNameToShare);
 
-        $bucketToShare = $this->_client2->createBucket('opportunity', self::STAGE_OUT);
+        $bucketToShare = $this->_client2->createBucket($bucketNameToShare, self::STAGE_OUT);
         $this->_client2->shareOrganizationProjectBucket($bucketToShare);
 
         $sharedBuckets = $this->_client->listSharedBuckets();
         $this->assertCount(1, $sharedBuckets);
-        $opportunityBucket = reset($sharedBuckets);
-
+        $sharedBucket = reset($sharedBuckets);
+        $this->assertSame($bucketNameToShare, $sharedBucket['displayName']);
         // linking with existing name API-sharing
         try {
             // API-sharing bucket is created by initTestBuckets() for all the clients=projects
             $this->_client->linkBucket(
                 self::BUCKET_API_SHARING,
                 self::STAGE_IN,
-                $opportunityBucket['project']['id'],
-                $opportunityBucket['id'],
+                $sharedBucket['project']['id'],
+                $sharedBucket['id'],
                 null,
                 $isAsync
             );
@@ -84,8 +85,8 @@ class SharingTest extends StorageApiSharingTestCase
             $this->_client->linkBucket(
                 'not-important',
                 self::STAGE_IN,
-                $opportunityBucket['project']['id'],
-                $opportunityBucket['id'],
+                $sharedBucket['project']['id'],
+                $sharedBucket['id'],
                 self::BUCKET_API_SHARING,
                 $isAsync
             );
