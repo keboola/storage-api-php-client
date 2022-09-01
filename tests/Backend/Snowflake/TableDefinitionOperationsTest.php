@@ -656,11 +656,6 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 'value' => 'FLOAT',
                 'provider' => 'storage',
             ], $columnMetadata[2], ['id', 'timestamp']);
-            $this->assertArrayEqualsExceptKeys([
-                'key' => 'KBC.datatype.default',
-                'value' => '',
-                'provider' => 'storage',
-            ], $columnMetadata[3], ['id', 'timestamp']);
         }
     }
 
