@@ -11,6 +11,7 @@ use Keboola\Test\StorageApiTestCase;
 abstract class StorageApiSharingTestCase extends StorageApiTestCase
 {
     const TEST_METADATA_PROVIDER = 'test-metadata-provider';
+    public const BUCKET_API_SHARING = 'API-sharing';
 
     /** @var Client */
     protected $_client2;
@@ -172,7 +173,7 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
         // recreate buckets in firs project
         $this->_bucketIds = [];
         foreach ([self::STAGE_OUT, self::STAGE_IN] as $stage) {
-            $this->_bucketIds[$stage] = $this->initEmptyBucketForSharingTest('API-sharing', $stage, $backend);
+            $this->_bucketIds[$stage] = $this->initEmptyBucketForSharingTest(self::BUCKET_API_SHARING, $stage, $backend);
         }
 
         return $this->_bucketIds;

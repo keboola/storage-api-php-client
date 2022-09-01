@@ -49,6 +49,56 @@ class SharingTest extends StorageApiSharingTestCase
     }
 
     /** @dataProvider syncAsyncProvider */
+    public function testTryLinkBucketWithSameNameAsAlreadyCreatedBucketThrowUserException(bool $isAsync): void
+    {
+        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
+        $bucketNameToShare = $this->getTestBucketName($this->generateDescriptionForTestObject()) . '-toShare';
+        $this->dropBucketIfExists($this->_client2, 'out.c-' . $bucketNameToShare);
+
+        $bucketToShare = $this->_client2->createBucket($bucketNameToShare, self::STAGE_OUT);
+        $this->_client2->shareOrganizationProjectBucket($bucketToShare);
+
+        $sharedBuckets = $this->_client->listSharedBuckets();
+        $this->assertCount(1, $sharedBuckets);
+        $sharedBucket = reset($sharedBuckets);
+        $this->assertSame($bucketNameToShare, $sharedBucket['displayName']);
+        // linking with existing name API-sharing
+        try {
+            // API-sharing bucket is created by initTestBuckets() for all the clients=projects
+            $this->_client->linkBucket(
+                self::BUCKET_API_SHARING,
+                self::STAGE_IN,
+                $sharedBucket['project']['id'],
+                $sharedBucket['id'],
+                null,
+                $isAsync
+            );
+            $this->fail('bucket can\'t be linked with same name');
+        } catch (ClientException $e) {
+            $this->assertEquals(sprintf('The bucket %s already exists.', self::BUCKET_API_SHARING), $e->getMessage());
+            $this->assertEquals(400, $e->getCode());
+            $this->assertEquals('storage.buckets.alreadyExists', $e->getStringCode());
+        }
+
+        // linking with existing display name API-sharing. Name is used as displayName by default
+        try {
+            $this->_client->linkBucket(
+                'not-important',
+                self::STAGE_IN,
+                $sharedBucket['project']['id'],
+                $sharedBucket['id'],
+                self::BUCKET_API_SHARING,
+                $isAsync
+            );
+            $this->fail('bucket can\'t be linked with same display name');
+        } catch (ClientException $e) {
+            $this->assertEquals(sprintf('The display name "%s" already exists in project.', self::BUCKET_API_SHARING), $e->getMessage());
+            $this->assertEquals(400, $e->getCode());
+            $this->assertEquals('storage.buckets.alreadyExists', $e->getStringCode());
+        }
+    }
+
+    /** @dataProvider syncAsyncProvider */
     public function testOrganizationPublicSharing($isAsync): void
     {
         $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
@@ -107,7 +157,8 @@ class SharingTest extends StorageApiSharingTestCase
                 self::STAGE_IN,
                 $sharedBuckets[0]['project']['id'],
                 $sharedBuckets[0]['id'],
-                $displayName
+                $displayName,
+                $isAsync
             );
             $this->fail('bucket can\'t be linked with same displayName');
         } catch (ClientException $e) {
@@ -122,7 +173,8 @@ class SharingTest extends StorageApiSharingTestCase
                 self::STAGE_IN,
                 $sharedBuckets[0]['project']['id'],
                 $sharedBuckets[0]['id'],
-                '&&&&&&'
+                '&&&&&&',
+                $isAsync
             );
             $this->fail('bucket can\'t be linked with same displayName');
         } catch (ClientException $e) {
