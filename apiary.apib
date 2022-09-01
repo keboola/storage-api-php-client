@@ -7642,7 +7642,43 @@ List all token of project with possible filters
             }
         ]
 
-##Update or delete [/v2/storage/triggers/{id}]
+## Get, update or delete [/v2/storage/triggers/{id}]
+
+### Get detail [GET]
+Get trigger detail
+
++ Parameters
+    + id (required, number) - ID of trigger you want to get
+
++ Request
+
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+
+        {
+            "id": "3",
+            "runWithTokenId": 123,
+            "component": "orchestration",
+            "configurationId": "config-100",
+            "lastRun": "2017-02-13T16:42:00+0100",
+            "coolDownPeriodMinutes": 20,
+            "creatorToken": {
+                "id": 1,
+                "description": "dev@keboola.com"
+            },
+            "tables": [
+                {
+                    "tableId": "in.c-test.watched-1"
+                },
+                {
+                    "tableId": "in.c-prod.watched-5"
+                }
+            ]
+        }
+
 ### Update [PUT]
 Updates an existing trigger
 
