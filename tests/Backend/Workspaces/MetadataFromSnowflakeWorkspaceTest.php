@@ -44,7 +44,6 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
             'KBC.datatype.nullable' => '1',
             'KBC.datatype.basetype' => 'STRING',
             'KBC.datatype.length' => '16777216',
-            'KBC.datatype.default' => '',
         ];
 
         $expectedIdMetadata = [
@@ -52,7 +51,6 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
             'KBC.datatype.nullable' => '1',
             'KBC.datatype.basetype' => 'STRING',
             'KBC.datatype.length' => '16',
-            'KBC.datatype.default' => '',
         ];
 
         $table = $this->_client->getTable($tableId);
@@ -161,7 +159,6 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
             'KBC.datatype.nullable' => '',
             'KBC.datatype.basetype' => 'STRING',
             'KBC.datatype.length' => '1',
-            'KBC.datatype.default' => '',
         ];
 
         $expectedIdMetadata = [
@@ -169,7 +166,6 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
             'KBC.datatype.nullable' => '1',
             'KBC.datatype.basetype' => 'NUMERIC',
             'KBC.datatype.length' => '38,0',
-            'KBC.datatype.default' => '',
         ];
 
         $table = $this->_client->getTable($tableId);
@@ -197,7 +193,6 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
             'KBC.datatype.nullable' => '1',
             'KBC.datatype.basetype' => 'STRING',
             'KBC.datatype.length' => '32',
-            'KBC.datatype.default' => '',
         ];
 
         $expectedIdMetadata = [
@@ -205,7 +200,6 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
             'KBC.datatype.nullable' => '1',
             'KBC.datatype.basetype' => 'NUMERIC',
             'KBC.datatype.length' => '38,0',
-            'KBC.datatype.default' => '',
         ];
 
         $table = $this->_client->getTable($tableId);
@@ -256,7 +250,6 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
             'KBC.datatype.nullable' => '1',
             'KBC.datatype.basetype' => 'STRING',
             'KBC.datatype.length' => '1',
-            'KBC.datatype.default' => '',
         ];
         $expectedIntegerMetadata = [
             'KBC.datatype.type' => 'NUMBER',
@@ -276,13 +269,11 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
             'KBC.datatype.type' => 'REAL',
             'KBC.datatype.nullable' => '1',
             'KBC.datatype.basetype' => 'FLOAT',
-            'KBC.datatype.default' => '',
         ];
         $expectedDoubleMetadata = [
             'KBC.datatype.type' => 'REAL',
             'KBC.datatype.nullable' => '1',
             'KBC.datatype.basetype' => 'FLOAT',
-            'KBC.datatype.default' => '',
         ];
         $expectedBooleanMetadata = [
             'KBC.datatype.type' => 'BOOLEAN',
@@ -294,7 +285,6 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
             'KBC.datatype.type' => 'VARIANT',
             'KBC.datatype.nullable' => '1',
             'KBC.datatype.basetype' => 'STRING',
-            'KBC.datatype.default' => '',
         ];
         $expectedTimeMetadata = [
             'KBC.datatype.type' => 'TIME',
@@ -388,7 +378,6 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
             'KBC.datatype.nullable' => '',
             'KBC.datatype.basetype' => 'NUMERIC',
             'KBC.datatype.length' => '38,0',
-            'KBC.datatype.default' => '',
         ];
         $expectedNameMetadata = [
             'KBC.datatype.type' => 'TEXT',
