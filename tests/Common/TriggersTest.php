@@ -802,20 +802,18 @@ class TriggersTest extends StorageApiTestCase
 
     /**
      * @dataProvider deleteKeyProvider
-     * @param string $keyToDelete
-     * @return void
      */
-    public function testMissingParameters($keyToDelete): void
+    public function testMissingParameters(string $keyToDelete, string $expectedMessage): void
     {
         $data = [
             'component' => 'orchestrator',
             'configurationId' => 123,
             'coolDownPeriodMinutes' => 10,
-            'runWithTokenId' => 'nothing-is-here',
+            'runWithTokenId' => 20,
             'tableIds' => ['nothing-is-here'],
         ];
         unset($data[$keyToDelete]);
-        $this->expectExceptionMessage(sprintf('Missing required query parameter(s) "%s"', $keyToDelete));
+        $this->expectExceptionMessage($expectedMessage);
         $this->expectException(ClientException::class);
         $this->_client->createTrigger($data);
     }
@@ -893,7 +891,7 @@ class TriggersTest extends StorageApiTestCase
             'configurationId' => 123,
             'coolDownPeriodMinutes' => 10,
             'runWithTokenId' => $token['id'],
-            'tableIds' => [''],
+            'tableIds' => ['foo'],
         ]);
     }
 
@@ -947,7 +945,7 @@ class TriggersTest extends StorageApiTestCase
             'configurationId' => 123,
             'coolDownPeriodMinutes' => 10,
             'runWithTokenId' => $token['id'],
-            'tableIds' => [''],
+            'tableIds' => ['foo'],
         ]);
     }
 
@@ -1079,11 +1077,26 @@ class TriggersTest extends StorageApiTestCase
     public function deleteKeyProvider()
     {
         return [
-            'component' => ['component'],
-            'configurationId' => ['configurationId'],
-            'coolDownPeriodMinutes' => ['coolDownPeriodMinutes'],
-            'runWithTokenId' => ['runWithTokenId'],
-            'tableIds' => ['tableIds'],
+            'component' => [
+                'component',
+                'Invalid parameters - component: This field is missing.',
+            ],
+            'configurationId' => [
+                'configurationId',
+                'Invalid parameters - configurationId: This field is missing.',
+            ],
+            'coolDownPeriodMinutes' => [
+                'coolDownPeriodMinutes',
+                'Minimal cool down period is 1 minute',
+            ],
+            'runWithTokenId' => [
+                'runWithTokenId',
+                'Invalid parameters - runWithTokenId: This field is missing.',
+            ],
+            'tableIds' => [
+                'tableIds',
+                'Invalid parameters - tableIds: This field is missing.',
+            ],
         ];
     }
 }
