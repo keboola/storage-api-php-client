@@ -2429,16 +2429,6 @@ class Client
     }
 
     /**
-     * @deprecated use apiDeleteParamsJson method
-     */
-    public function apiDeleteParams($url, $data)
-    {
-        return $this->request('delete', $url, [
-            'form_params' => $data,
-        ]);
-    }
-
-    /**
      * @return mixed|string
      */
     public function apiDeleteParamsJson(string $url, array $data = [])
