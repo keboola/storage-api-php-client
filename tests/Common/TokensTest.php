@@ -1479,7 +1479,7 @@ class TokensTest extends StorageApiTestCase
         yield 'missing required' => [
             new TokenCreateOptions(),
             ClientException::class,
-            'Missing required query parameter(s) "expiresIn"',
+            'Minimal expiration must be greater or equal to 1 second(s)',
         ];
         yield 'invalid expiration' => [
             (new TokenCreateOptions())
