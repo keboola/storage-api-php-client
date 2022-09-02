@@ -45,7 +45,7 @@
 		"keboola/php-csv-db-import": "^2.2",
 		"keboola/phpunit-retry-annotations": "^0.4",
 		"keboola/retry": "^0.5.0",
-		"keboola/table-backend-utils": "^1",
+		"keboola/table-backend-utils": "dev-zajca-kbc-2902 as 1",
 		"phpcompatibility/php-compatibility": "*",
 		"phpstan/phpstan": "^1",
 		"phpstan/phpstan-phpunit": "^1.0",

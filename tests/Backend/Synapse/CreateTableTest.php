@@ -164,22 +164,22 @@ class CreateTableTest extends StorageApiTestCase
         // event params validation
         $eventParams = $workspaceCreatedEvent['params'];
 
-        $this->assertSame(['id'], $eventParams['primaryKey']);
+        $this->assertSame(['ID'], $eventParams['primaryKey']);
         $this->assertSame(
             [
-                'id',
-                'name',
+                'ID',
+                'NAME',
             ],
             $eventParams['columns']
         );
         $this->assertSame(
             [
-                'id' => [
+                'ID' => [
                     'type' => 'INT',
                     'length' => null,
                     'nullable' => true,
                 ],
-                'name' => [
+                'NAME' => [
                     'type' => 'NVARCHAR',
                     'length' => null,
                     'nullable' => true,
@@ -188,30 +188,30 @@ class CreateTableTest extends StorageApiTestCase
             $eventParams['columnsTypes']
         );
         $this->assertFalse($eventParams['syntheticPrimaryKeyEnabled']);
-        $this->assertSame(['id'], $eventParams['distributionKey']);
+        $this->assertSame(['ID'], $eventParams['distributionKey']);
         $this->assertSame('HASH', $eventParams['distribution']);
         $this->assertSame('CLUSTERED INDEX', $eventParams['indexType']);
-        $this->assertSame(['id'], $eventParams['indexKey']);
+        $this->assertSame(['ID'], $eventParams['indexKey']);
 
         // table properties validation
         $table = $this->_client->getTable($tableId);
 
-        $this->assertSame('my-new-table', $table['name']);
-        $this->assertSame('my-new-table', $table['displayName']);
+        $this->assertSame('MY-NEW-TABLE', $table['name']);
+        $this->assertSame('MY-NEW-TABLE', $table['displayName']);
 
-        $this->assertSame(['id'], $table['primaryKey']);
+        $this->assertSame(['ID'], $table['primaryKey']);
         $this->assertSame('HASH', $table['distributionType']);
-        $this->assertSame(['id'], $table['distributionKey']);
-        $this->assertSame(['id'], $table['indexedColumns']);
+        $this->assertSame(['ID'], $table['distributionKey']);
+        $this->assertSame(['ID'], $table['indexedColumns']);
         $this->assertSame('CLUSTERED INDEX', $table['indexType']);
-        $this->assertSame(['id'], $table['indexKey']);
+        $this->assertSame(['ID'], $table['indexKey']);
 
         $this->assertFalse($table['syntheticPrimaryKeyEnabled']);
 
         $this->assertSame(
             [
-                'id',
-                'name',
+                'ID',
+                'NAME',
             ],
             $table['columns']
         );

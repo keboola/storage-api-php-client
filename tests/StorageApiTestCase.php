@@ -812,4 +812,13 @@ abstract class StorageApiTestCase extends ClientTestCase
             'credentialsFetcher' => $fetchAuthToken,
         ]);
     }
+
+    protected function isBackend(string $backend, ?Client $client = null): bool
+    {
+        if ($client === null) {
+            $client = $this->_client;
+        }
+        $token = $client->verifyToken();
+        return $token['owner']['defaultBackend'] === $backend;
+    }
 }

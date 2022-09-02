@@ -1,6 +1,7 @@
 <?php
 namespace Keboola\Test\Backend\Synapse;
 
+use Keboola\TableBackendUtils\Utils\CaseConverter;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 
@@ -28,13 +29,15 @@ class SnapshottingTest extends StorageApiTestCase
         );
 
         $table = $this->_client->getTable($tableId);
+        // expected lowercase create table is not using TableReflection to create table
         self::assertEquals(['name'], $table['distributionKey']);
 
         $snapshotId = $this->_client->createTableSnapshot($tableId);
 
         $newTableId = $this->_client->createTableFromSnapshot($bucketId, $snapshotId, 'languages-restored');
         $newTable = $this->_client->getTable($newTableId);
-        self::assertSame($table['distributionKey'], $newTable['distributionKey']);
+        // expected upper create from snapshot is using table reflection
+        self::assertSame(CaseConverter::arrayToUpper($table['distributionKey']), $newTable['distributionKey']);
 
         // create table with primaryKey
         $tableId = $this->_client->createTableAsync(
@@ -47,12 +50,14 @@ class SnapshottingTest extends StorageApiTestCase
         );
 
         $table = $this->_client->getTable($tableId);
+        // expected lowercase create table is not using TableReflection to create table
         self::assertEquals(['name'], $table['distributionKey']);
 
         $snapshotId = $this->_client->createTableSnapshot($tableId);
 
         $newTableId = $this->_client->createTableFromSnapshot($bucketId, $snapshotId, 'languages2-restored');
         $newTable = $this->_client->getTable($newTableId);
-        self::assertSame($table['distributionKey'], $newTable['distributionKey']);
+        // expected upper create from snapshot is using table reflection
+        self::assertSame(CaseConverter::arrayToUpper($table['distributionKey']), $newTable['distributionKey']);
     }
 }

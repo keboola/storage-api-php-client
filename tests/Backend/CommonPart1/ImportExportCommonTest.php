@@ -11,6 +11,7 @@ namespace Keboola\Test\Backend\CommonPart1;
 
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
+use Keboola\TableBackendUtils\Utils\CaseConverter;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\Client;
 use Keboola\Csv\CsvFile;
@@ -28,7 +29,7 @@ class ImportExportCommonTest extends StorageApiTestCase
      * @dataProvider tableImportData
      * @param $importFileName
      */
-    public function testTableImportExport(CsvFile $importFile, $expectationsFileName, $colNames, $format = 'rfc', $createTableOptions = []): void
+    public function testTableImportExport(CsvFile $importFile, $expectationsFileName, $expectedColumnNames, $format = 'rfc', $createTableOptions = []): void
     {
         $expectationsFile = __DIR__ . '/../../_data/' . $expectationsFileName;
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages-2', $importFile, $createTableOptions);
@@ -37,7 +38,10 @@ class ImportExportCommonTest extends StorageApiTestCase
         $table = $this->_client->getTable($tableId);
 
         $this->assertEmpty($result['warnings']);
-        $this->assertEquals($colNames, array_values((array) $result['importedColumns']), 'columns');
+        if ($this->isBackend(self::BACKEND_SYNAPSE)) {
+            $expectedColumnNames = CaseConverter::arrayToUpper($expectedColumnNames);
+        }
+        $this->assertEquals($expectedColumnNames, array_values((array) $result['importedColumns']), 'columns');
         $this->assertEmpty($result['transaction']);
         $this->assertNotEmpty($table['dataSizeBytes']);
         $this->assertNotEmpty($result['totalDataSizeBytes']);
@@ -61,7 +65,7 @@ class ImportExportCommonTest extends StorageApiTestCase
     public function testTableAsyncImportExport(
         CsvFile $importFile,
         $expectationsFileName,
-        $colNames,
+        $expectedColumnNames,
         $format = 'rfc',
         $createTableOptions = []
     ): void {
@@ -72,7 +76,10 @@ class ImportExportCommonTest extends StorageApiTestCase
         $table = $this->_client->getTable($tableId);
 
         $this->assertEmpty($result['warnings']);
-        $this->assertEquals($colNames, array_values($result['importedColumns']), 'columns');
+        if ($this->isBackend(self::BACKEND_SYNAPSE)) {
+            $expectedColumnNames = CaseConverter::arrayToUpper($expectedColumnNames);
+        }
+        $this->assertEquals($expectedColumnNames, array_values($result['importedColumns']), 'columns');
         $this->assertEmpty($result['transaction']);
         $this->assertNotEmpty($table['dataSizeBytes']);
         $this->assertNotEmpty($result['totalDataSizeBytes']);
