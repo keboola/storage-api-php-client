@@ -2365,13 +2365,13 @@ class Client
     }
 
     /**
-     *
      * Prepare URL and call a POST request
      *
      * @param string $url
      * @param array $postData
      * @param array $requestOptions
      * @return mixed|string
+     * @deprecated use apiPostJson method
      */
     public function apiPost($url, $postData = null, $handleAsyncTask = true, $requestOptions = [])
     {
@@ -2400,6 +2400,7 @@ class Client
      * @param string $url
      * @param array $data
      * @return mixed|string
+     * @deprecated use apiPutJson method
      */
     public function apiPut($url, $data = null)
     {
@@ -2427,6 +2428,9 @@ class Client
         return $this->request('delete', $url);
     }
 
+    /**
+     * @deprecated use apiDeleteParamsJson method
+     */
     public function apiDeleteParams($url, $data)
     {
         return $this->request('delete', $url, [
