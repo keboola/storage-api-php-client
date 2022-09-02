@@ -685,12 +685,12 @@ class TriggersTest extends StorageApiTestCase
 
         // trigger can be deleted by non-master token with right privilege
         $anotherClientWithAnotherToken->deleteTrigger((int) $trigger['id']);
-        $triggerList = $this->_client->listTriggers([$table]);
+        $triggerList = $this->_client->listTriggers();
         $this->assertNotContainsTriggerId($trigger['id'], $triggerList);
         $this->assertCount(1, $triggerList);
 
         $this->_client->deleteTrigger((int) $trigger2['id']);
-        $triggerList = $this->_client->listTriggers([$table]);
+        $triggerList = $this->_client->listTriggers();
         $this->assertNotContainsTriggerId($trigger2['id'], $triggerList);
 
         $this->assertCount(0, $triggerList);
@@ -746,13 +746,13 @@ class TriggersTest extends StorageApiTestCase
 
         // trigger can be deleted by non-master token with right privilege
         $anotherClientWithAnotherToken->deleteTrigger((int) $trigger['id']);
-        $triggerList = $clientWithoutAdminToken->listTriggers([$table1]);
+        $triggerList = $clientWithoutAdminToken->listTriggers();
         $this->assertNotContainsTriggerId($trigger['id'], $triggerList);
         $this->assertCount(1, $triggerList);
 
         // master token can delete it anyway
         $this->_client->deleteTrigger((int) $trigger2['id']);
-        $triggerList = $clientWithoutAdminToken->listTriggers([$table1]);
+        $triggerList = $clientWithoutAdminToken->listTriggers();
         $this->assertNotContainsTriggerId($trigger2['id'], $triggerList);
 
         $this->assertCount(0, $triggerList);
@@ -783,7 +783,7 @@ class TriggersTest extends StorageApiTestCase
 
         // trigger can be deleted by non-master token with right privilege
         $clientWithoutAdminToken->deleteTrigger((int) $trigger['id']);
-        $triggerList = $clientWithoutAdminToken->listTriggers([$table1]);
+        $triggerList = $clientWithoutAdminToken->listTriggers();
         $this->assertNotContainsTriggerId($trigger['id'], $triggerList);
         $this->assertCount(0, $triggerList);
     }
