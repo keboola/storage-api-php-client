@@ -2354,7 +2354,7 @@ class Client
      * Prepare URL and call a GET request
      *
      * @param string $url
-     * @param string null $fileName
+     * @param string|null $fileName
      * @param array $requestOptions
      * @return mixed|string|array
      */
@@ -2368,7 +2368,8 @@ class Client
      * Prepare URL and call a POST request
      *
      * @param string $url
-     * @param array $postData
+     * @param array|null $postData
+     * @param bool $handleAsyncTask
      * @param array $requestOptions
      * @return mixed|string
      * @deprecated use apiPostJson method
@@ -2380,6 +2381,12 @@ class Client
         return $this->request('post', $url, $requestOptions, null, $handleAsyncTask);
     }
 
+    /**
+     * @param string $url
+     * @param array|null $postData
+     * @param bool $handleAsyncTask
+     * @return mixed|string
+     */
     public function apiPostMultipart($url, $postData = null, $handleAsyncTask = true)
     {
         return $this->request('post', $url, ['multipart' => $postData], null, $handleAsyncTask);
@@ -2398,7 +2405,7 @@ class Client
 
     /**
      * @param string $url
-     * @param array $data
+     * @param array|null $data
      * @return mixed|string
      * @deprecated use apiPutJson method
      */
