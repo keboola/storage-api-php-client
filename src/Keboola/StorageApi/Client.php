@@ -2431,7 +2431,7 @@ class Client
     /**
      * @return mixed|string
      */
-    public function apiDeleteParamsJson(string $url, array $data = [])
+    public function apiDeleteJson(string $url, array $data = [])
     {
         return $this->request('delete', $url, [
             'json' => $data,
