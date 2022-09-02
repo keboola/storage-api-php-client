@@ -2377,8 +2377,10 @@ class Client
     public function apiPost($url, $postData = null, $handleAsyncTask = true, $requestOptions = [])
     {
         $requestOptions = $this->filterRequestOptions($requestOptions);
-        $requestOptions['form_params'] = $postData;
-        return $this->request('post', $url, $requestOptions, null, $handleAsyncTask);
+        if ($postData !== null && $postData !== []) {
+            $requestOptions['form_params'] = $postData;
+        }
+        return $this->request('POST', $url, $requestOptions, null, $handleAsyncTask);
     }
 
     /**
@@ -2399,7 +2401,9 @@ class Client
     public function apiPostJson($url, $data = [], bool $handleAsyncTask = true, array $requestOptions = [])
     {
         $requestOptions = $this->filterRequestOptions($requestOptions);
-        $requestOptions['json'] = $data;
+        if ($data !== []) {
+            $requestOptions['json'] = $data;
+        }
         return $this->request('POST', $url, $requestOptions, null, $handleAsyncTask);
     }
 
@@ -2411,9 +2415,11 @@ class Client
      */
     public function apiPut($url, $data = null)
     {
-        return $this->request('put', $url, [
-            'form_params' => $data,
-        ]);
+        $options = [];
+        if ($data !== null && $data !== []) {
+            $options['form_params'] = $data;
+        }
+        return $this->request('PUT', $url, $options);
     }
 
     /**
@@ -2421,9 +2427,11 @@ class Client
      */
     public function apiPutJson(string $url, array $data = [])
     {
-        return $this->request('put', $url, [
-            'json' => $data,
-        ]);
+        $options = [];
+        if ($data !== []) {
+            $options['json'] = $data;
+        }
+        return $this->request('PUT', $url, $options);
     }
 
     /**
@@ -2432,7 +2440,7 @@ class Client
      */
     public function apiDelete($url)
     {
-        return $this->request('delete', $url);
+        return $this->request('DELETE', $url);
     }
 
     /**
@@ -2440,9 +2448,11 @@ class Client
      */
     public function apiDeleteJson(string $url, array $data = [])
     {
-        return $this->request('delete', $url, [
-            'json' => $data,
-        ]);
+        $options = [];
+        if ($data !== []) {
+            $options['json'] = $data;
+        }
+        return $this->request('DELETE', $url, $options);
     }
 
     protected function request($method, $url, $options = [], $responseFileName = null, $handleAsyncTask = true)
