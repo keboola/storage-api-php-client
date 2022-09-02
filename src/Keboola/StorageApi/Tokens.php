@@ -36,7 +36,7 @@ class Tokens
      */
     public function createToken(TokenCreateOptions $options)
     {
-        return $this->client->apiPost('tokens', $options->toParamsArray());
+        return $this->client->apiPostJson('tokens', $options->toParamsArray());
     }
 
     /**
@@ -44,7 +44,7 @@ class Tokens
      */
     public function updateToken(TokenUpdateOptions $options)
     {
-        return $this->client->apiPut("tokens/{$options->getTokenId()}", $options->toParamsArray());
+        return $this->client->apiPutJson("tokens/{$options->getTokenId()}", $options->toParamsArray());
     }
 
     /**
@@ -62,7 +62,7 @@ class Tokens
      */
     public function shareToken($id, $recipientEmail, $message)
     {
-        $this->client->apiPost("tokens/{$id}/share", [
+        $this->client->apiPostJson("tokens/{$id}/share", [
             'recipientEmail' => $recipientEmail,
             'message' => $message,
         ]);
@@ -74,6 +74,6 @@ class Tokens
      */
     public function refreshToken($id)
     {
-        return $this->client->apiPost("tokens/{$id}/refresh");
+        return $this->client->apiPostJson("tokens/{$id}/refresh");
     }
 }
