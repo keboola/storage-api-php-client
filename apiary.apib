@@ -7564,14 +7564,14 @@ Gets stats for a given Run Id. Provides the count of imported/exported tables an
             }
 # Group Triggers
 
-###Create [POST /v2/storage/triggers/]
+### Create [POST /v2/storage/triggers/]
 Created a trigger listening on set of tables
 
 Token has to be [*master*](https://help.keboola.com/storage/tokens/) (then `runWithTokenId` can be also master). If it isn't master, it has to have `canManageBuckets` permission or `componentAccess` permission for the component which you want to trigger. This also applies when updating and deleting triggers.
 When updating the component of trigger you need permissions for both the current component and the component you're updating the trigger to.
 
 + Attributes
-    + runWithTokenId (required, number) - Id of token used for running configured component
+    + runWithTokenId (required, number) - ID of token used for running configured component
     + component: `orchestration` (required, enum[string]) - For now we support only 'orchestration'
     + configurationId (required, string) - Id of component configuration
     + coolDownPeriodMinutes (required, number) - Minimal cool down period before firing action again in minutes (min is 1 minute)
@@ -7610,7 +7610,7 @@ When updating the component of trigger you need permissions for both the current
             ]
         }
 
-###List [GET /v2/storage/triggers/?component={component}&configurationId={configurationId}]
+### List [GET /v2/storage/triggers/?component={component}&configurationId={configurationId}]
 List all token of project with possible filters
 
 + Parameters
@@ -7642,11 +7642,48 @@ List all token of project with possible filters
             }
         ]
 
-##Update or delete [/v2/storage/triggers/{id}]
-###Update [PUT]
-Updates an existing trigger
+## Get, update or delete [/v2/storage/triggers/{id}]
+
+### Get detail [GET]
+Get trigger detail
+
 + Parameters
-    + id (required, number) - Id of trigger you want to update
+    + id (required, number) - ID of trigger you want to get
+
++ Request
+
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+
+        {
+            "id": "3",
+            "runWithTokenId": 123,
+            "component": "orchestration",
+            "configurationId": "config-100",
+            "lastRun": "2017-02-13T16:42:00+0100",
+            "coolDownPeriodMinutes": 20,
+            "creatorToken": {
+                "id": 1,
+                "description": "dev@keboola.com"
+            },
+            "tables": [
+                {
+                    "tableId": "in.c-test.watched-1"
+                },
+                {
+                    "tableId": "in.c-prod.watched-5"
+                }
+            ]
+        }
+
+### Update [PUT]
+Updates an existing trigger
+
++ Parameters
+    + id (required, number) - ID of trigger you want to update
 
 + Attributes
     + runWithTokenId (optional, number) - Id of token used for running configured component
@@ -7689,13 +7726,12 @@ Updates an existing trigger
             ]
         }
 
-###Delete [DELETE]
+### Delete [DELETE]
 Deletes an existing trigger.
-
 
 + Parameters
 
-    + id (required, number) - Id of trigger you want to delete
+    + id (required, number) - ID of trigger you want to delete
 
 + Request
 
@@ -7707,7 +7743,7 @@ Deletes an existing trigger.
 
 # Group Webalize
 
-###Webalize Display Name [POST /v2/storage/webalize/display-name]
+### Webalize Display Name [POST /v2/storage/webalize/display-name]
 Webalize string which you want to use as `displayName` for [tables](https://keboola.docs.apiary.io/#reference/tables/manage-tables/table-update)
 and [buckets](https://keboola.docs.apiary.io/#reference/buckets/manage-bucket/bucket-update)
 + Attributes
