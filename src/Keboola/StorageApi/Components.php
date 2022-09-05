@@ -218,7 +218,7 @@ class Components
 
     public function deleteConfigurationRow($componentId, $configurationId, $rowId, $changeDescription = null)
     {
-        return $this->client->apiDeleteJson(
+        return $this->client->apiDeleteParamsJson(
             $this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}",
             [
                 'changeDescription' => $changeDescription,
