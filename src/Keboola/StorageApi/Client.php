@@ -1278,6 +1278,7 @@ class Client
      */
     public function getToken($tokenId)
     {
+        /** @phpstan-ignore-next-line */
         return $this->tokens->getToken($tokenId);
     }
 
@@ -1350,6 +1351,7 @@ class Client
      */
     public function dropToken($tokenId)
     {
+        /** @phpstan-ignore-next-line */
         $this->tokens->dropToken($tokenId);
         $this->log("Token {$tokenId} deleted");
         return ''; // BC
@@ -1359,7 +1361,7 @@ class Client
      *
      * Refreshes a token. If refreshing current token, the token is updated.
      *
-     * @param string $tokenId If not set, defaults to self
+     * @param string|null $tokenId If not set, defaults to self
      * @return string new token
      * @deprecated $tokenId parameter will be removed in next major release. Use Tokens::refreshToken()
      */

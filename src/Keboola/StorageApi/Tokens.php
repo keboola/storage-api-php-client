@@ -14,43 +14,41 @@ class Tokens
         $this->client = $client;
     }
 
-    /**
-     * @return array
-     */
-    public function listTokens()
+    public function listTokens(): array
     {
-        return $this->client->apiGet('tokens');
-    }
-
-    /**
-     * @param int $id
-     * @return array
-     */
-    public function getToken($id)
-    {
-        return $this->client->apiGet("tokens/{$id}");
-    }
-
-    /**
-     * @return array
-     */
-    public function createToken(TokenCreateOptions $options)
-    {
-        return $this->client->apiPostJson('tokens', $options->toParamsArray());
-    }
-
-    /**
-     * @return array
-     */
-    public function updateToken(TokenUpdateOptions $options)
-    {
-        return $this->client->apiPutJson("tokens/{$options->getTokenId()}", $options->toParamsArray());
+        $result = $this->client->apiGet('tokens');
+        assert(is_array($result));
+        return $result;
     }
 
     /**
      * @param int $id
      */
-    public function dropToken($id)
+    public function getToken($id): array
+    {
+        $result = $this->client->apiGet("tokens/{$id}");
+        assert(is_array($result));
+        return $result;
+    }
+
+    public function createToken(TokenCreateOptions $options): array
+    {
+        $result = $this->client->apiPostJson('tokens', $options->toParamsArray());
+        assert(is_array($result));
+        return $result;
+    }
+
+    public function updateToken(TokenUpdateOptions $options): array
+    {
+        $result = $this->client->apiPutJson("tokens/{$options->getTokenId()}", $options->toParamsArray());
+        assert(is_array($result));
+        return $result;
+    }
+
+    /**
+     * @param int $id
+     */
+    public function dropToken($id): void
     {
         $this->client->apiDelete("tokens/{$id}");
     }
@@ -60,7 +58,7 @@ class Tokens
      * @param string $recipientEmail
      * @param string $message
      */
-    public function shareToken($id, $recipientEmail, $message)
+    public function shareToken($id, $recipientEmail, $message): void
     {
         $this->client->apiPostJson("tokens/{$id}/share", [
             'recipientEmail' => $recipientEmail,
@@ -70,10 +68,11 @@ class Tokens
 
     /**
      * @param int $id
-     * @return array
      */
-    public function refreshToken($id)
+    public function refreshToken($id): array
     {
-        return $this->client->apiPostJson("tokens/{$id}/refresh");
+        $result = $this->client->apiPostJson("tokens/{$id}/refresh");
+        assert(is_array($result));
+        return $result;
     }
 }
