@@ -30,6 +30,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
+use stdClass;
 use Symfony\Component\Filesystem\Filesystem;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Options\FileUploadOptions;
@@ -2400,7 +2401,9 @@ class Client
     public function apiPostJson($url, $data = [], bool $handleAsyncTask = true, array $requestOptions = [])
     {
         $requestOptions = $this->filterRequestOptions($requestOptions);
-        if ($data !== []) {
+        if (is_array($data) && empty($data)) {
+            $requestOptions['json'] = new stdClass();
+        } else {
             $requestOptions['json'] = $data;
         }
         return $this->request('POST', $url, $requestOptions, null, $handleAsyncTask);
@@ -2425,7 +2428,9 @@ class Client
     public function apiPutJson(string $url, array $data = [])
     {
         $options = [];
-        if ($data !== []) {
+        if (is_array($data) && empty($data)) {
+            $options['json'] = new stdClass();
+        } else {
             $options['json'] = $data;
         }
         return $this->request('PUT', $url, $options);
@@ -2459,7 +2464,9 @@ class Client
     public function apiDeleteParamsJson(string $url, array $data = [])
     {
         $options = [];
-        if ($data !== []) {
+        if (empty($data)) {
+            $options['json'] = new stdClass();
+        } else {
             $options['json'] = $data;
         }
         return $this->request('DELETE', $url, $options);
