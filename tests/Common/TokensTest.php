@@ -308,6 +308,7 @@ class TokensTest extends StorageApiTestCase
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Request parameter "id" is missing.');
         // false is not event sent, because "string" . false = "string"
+        /** @phpstan-ignore-next-line */
         $this->tokens->dropToken(false);
     }
 
@@ -315,6 +316,7 @@ class TokensTest extends StorageApiTestCase
     {
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Argument "id" is expected to be type "int", value "foo" given.');
+        /** @phpstan-ignore-next-line */
         $this->tokens->dropToken('foo');
     }
 
@@ -322,6 +324,7 @@ class TokensTest extends StorageApiTestCase
     {
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Argument "id" is expected to be type "int", value "foo" given.');
+        /** @phpstan-ignore-next-line */
         $this->tokens->refreshToken('foo');
     }
 
@@ -329,6 +332,7 @@ class TokensTest extends StorageApiTestCase
     {
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Argument "id" is expected to be type "int", value "foo" given.');
+        /** @phpstan-ignore-next-line */
         $this->tokens->getToken('foo');
     }
 
@@ -1454,6 +1458,7 @@ class TokensTest extends StorageApiTestCase
         $tokenId = $this->_client->updateToken($options);
         $this->assertSame($oldTokenData['id'], $tokenId);
 
+        /** @phpstan-ignore-next-line */
         $newTokenData = $this->_client->getToken($tokenId);
         $this->assertNotSame($oldTokenData['description'], $newTokenData['description']);
 
@@ -1461,12 +1466,14 @@ class TokensTest extends StorageApiTestCase
         $this->_client->shareToken($tokenId, 'test@devel.keboola.com', 'Hi');
 
         // token refresh
+        /** @phpstan-ignore-next-line */
         $newToken = $this->_client->refreshToken($tokenId);
 
         $client = $this->getClientForToken($newToken);
         $client->verifyToken();
 
         // token drop
+        /** @phpstan-ignore-next-line */
         $result = $this->_client->dropToken($tokenId);
         $this->assertSame('', $result);
 
