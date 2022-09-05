@@ -2378,9 +2378,7 @@ class Client
     public function apiPost($url, $postData = null, $handleAsyncTask = true, $requestOptions = [])
     {
         $requestOptions = $this->filterRequestOptions($requestOptions);
-        if ($postData !== null && $postData !== []) {
-            $requestOptions['form_params'] = $postData;
-        }
+        $requestOptions['form_params'] = $postData;
         return $this->request('POST', $url, $requestOptions, null, $handleAsyncTask);
     }
 
@@ -2416,11 +2414,9 @@ class Client
      */
     public function apiPut($url, $data = null)
     {
-        $options = [];
-        if ($data !== null && $data !== []) {
-            $options['form_params'] = $data;
-        }
-        return $this->request('PUT', $url, $options);
+        return $this->request('PUT', $url, [
+            'form_params' => $data,
+        ]);
     }
 
     /**
