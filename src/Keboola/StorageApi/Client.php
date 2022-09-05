@@ -2447,7 +2447,7 @@ class Client
     /**
      * @return mixed|string
      */
-    public function apiDeleteJson(string $url, array $data = [])
+    public function apiDeleteParamsJson(string $url, array $data = [])
     {
         $options = [];
         if ($data !== []) {
