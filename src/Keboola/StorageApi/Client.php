@@ -2400,9 +2400,7 @@ class Client
     public function apiPostJson($url, $data = [], bool $handleAsyncTask = true, array $requestOptions = [])
     {
         $requestOptions = $this->filterRequestOptions($requestOptions);
-        if ($data !== []) {
-            $requestOptions['json'] = $data;
-        }
+        $requestOptions['json'] = $data;
         return $this->request('POST', $url, $requestOptions, null, $handleAsyncTask);
     }
 
@@ -2424,11 +2422,9 @@ class Client
      */
     public function apiPutJson(string $url, array $data = [])
     {
-        $options = [];
-        if ($data !== []) {
-            $options['json'] = $data;
-        }
-        return $this->request('PUT', $url, $options);
+        return $this->request('PUT', $url, [
+            'json' => $data,
+        ]);
     }
 
     /**
@@ -2458,11 +2454,9 @@ class Client
      */
     public function apiDeleteParamsJson(string $url, array $data = [])
     {
-        $options = [];
-        if ($data !== []) {
-            $options['json'] = $data;
-        }
-        return $this->request('DELETE', $url, $options);
+        return $this->request('DELETE', $url, [
+            'json' => $data,
+        ]);
     }
 
     protected function request($method, $url, $options = [], $responseFileName = null, $handleAsyncTask = true)
@@ -2489,6 +2483,11 @@ class Client
 
         if ($this->getRunId()) {
             $requestOptions['headers']['X-KBC-RunId'] = $this->getRunId();
+        }
+
+        if (isset($requestOptions['json']) && is_array($requestOptions['json']) && empty($requestOptions['json'])) {
+            // if empty array -> send object `{}` instead of list `[]`
+            $requestOptions['json'] = (object) [];
         }
 
         try {
