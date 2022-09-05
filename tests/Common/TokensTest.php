@@ -308,6 +308,7 @@ class TokensTest extends StorageApiTestCase
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Request parameter "id" is missing.');
         // false is not event sent, because "string" . false = "string"
+        /** @phpstan-ignore-next-line */
         $this->tokens->dropToken(false);
     }
 
@@ -315,6 +316,7 @@ class TokensTest extends StorageApiTestCase
     {
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Argument "id" is expected to be type "int", value "foo" given.');
+        /** @phpstan-ignore-next-line */
         $this->tokens->dropToken('foo');
     }
 
@@ -322,6 +324,7 @@ class TokensTest extends StorageApiTestCase
     {
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Argument "id" is expected to be type "int", value "foo" given.');
+        /** @phpstan-ignore-next-line */
         $this->tokens->refreshToken('foo');
     }
 
@@ -329,6 +332,7 @@ class TokensTest extends StorageApiTestCase
     {
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Argument "id" is expected to be type "int", value "foo" given.');
+        /** @phpstan-ignore-next-line */
         $this->tokens->getToken('foo');
     }
 
@@ -1455,7 +1459,7 @@ class TokensTest extends StorageApiTestCase
         $options = (new TokenUpdateOptions($tokenId))
             ->setDescription(__METHOD__ . ' updated');
 
-        $tokenId = $this->_client->updateToken($options);
+        $tokenId = (string) $this->_client->updateToken($options);
         $this->assertSame($oldTokenData['id'], $tokenId);
 
         $newTokenData = $this->_client->getToken($tokenId);
