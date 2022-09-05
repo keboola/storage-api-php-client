@@ -1278,7 +1278,7 @@ class Client
      */
     public function getToken($tokenId)
     {
-        return $this->tokens->getToken($tokenId);
+        return $this->tokens->getToken((int) $tokenId);
     }
 
     /**
@@ -1346,11 +1346,12 @@ class Client
 
     /**
      * @param string $tokenId
+     * @return string
      * @deprecated Will be removed in next major release. Use Tokens::dropToken()
      */
     public function dropToken($tokenId)
     {
-        $this->tokens->dropToken($tokenId);
+        $this->tokens->dropToken((int) $tokenId);
         $this->log("Token {$tokenId} deleted");
         return ''; // BC
     }
@@ -1359,7 +1360,7 @@ class Client
      *
      * Refreshes a token. If refreshing current token, the token is updated.
      *
-     * @param string $tokenId If not set, defaults to self
+     * @param string|null $tokenId If not set, defaults to self
      * @return string new token
      * @deprecated $tokenId parameter will be removed in next major release. Use Tokens::refreshToken()
      */
@@ -1370,7 +1371,7 @@ class Client
             $tokenId = $currentToken['id'];
         }
 
-        $result = $this->tokens->refreshToken($tokenId);
+        $result = $this->tokens->refreshToken((int) $tokenId);
 
         if ($currentToken['id'] == $result['id']) {
             $this->token = $result['token'];
@@ -1382,14 +1383,15 @@ class Client
     }
 
     /**
-     * @param $tokenId
-     * @param $recipientEmail
-     * @param $message
+     * @param string $tokenId
+     * @param string $recipientEmail
+     * @param string $message
+     * @return void
      * @deprecated Will be removed in next major release. Use Tokens::shareToken()
      */
     public function shareToken($tokenId, $recipientEmail, $message)
     {
-        $this->tokens->shareToken($tokenId, $recipientEmail, $message);
+        $this->tokens->shareToken((int) $tokenId, $recipientEmail, $message);
     }
 
 
