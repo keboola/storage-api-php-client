@@ -672,8 +672,9 @@ class Client
             return $tableId;
         }
         $result = $this->apiPostMultipart('buckets/' . $bucketId . '/tables', $this->prepareMultipartData($options));
+        assert(is_array($result));
 
-        $this->log("Table {$result["id"]} created", ['options' => $options, 'result' => $result]);
+        $this->log("Table {$result['id']} created", ['options' => $options, 'result' => $result]);
 
         if (!empty($options['data']) && is_resource($options['data'])) {
             fclose($options['data']);
