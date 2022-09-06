@@ -35,7 +35,7 @@ class Workspaces
             $requestOptions = [];
         }
 
-        return $this->client->apiPost($url, $options, true, $requestOptions);
+        return $this->client->apiPostJson($url, $options, true, $requestOptions);
     }
 
     public function listWorkspaces()
@@ -67,7 +67,7 @@ class Workspaces
      */
     public function loadWorkspaceData($id, array $options = [])
     {
-        return $this->client->apiPost("workspaces/{$id}/load", $options);
+        return $this->client->apiPostJson("workspaces/{$id}/load", $options);
     }
 
     /**
@@ -77,11 +77,11 @@ class Workspaces
      */
     public function cloneIntoWorkspace($id, array $options = [])
     {
-        return $this->client->apiPost("workspaces/{$id}/load-clone", $options);
+        return $this->client->apiPostJson("workspaces/{$id}/load-clone", $options);
     }
 
     public function resetWorkspacePassword($id)
     {
-        return $this->client->apiPost("workspaces/{$id}/password");
+        return $this->client->apiPostJson("workspaces/{$id}/password");
     }
 }
