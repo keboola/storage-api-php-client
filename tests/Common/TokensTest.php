@@ -1455,10 +1455,9 @@ class TokensTest extends StorageApiTestCase
         $options = (new TokenUpdateOptions($tokenId))
             ->setDescription(__METHOD__ . ' updated');
 
-        $tokenId = $this->_client->updateToken($options);
+        $tokenId = (string) $this->_client->updateToken($options);
         $this->assertSame($oldTokenData['id'], $tokenId);
 
-        /** @phpstan-ignore-next-line */
         $newTokenData = $this->_client->getToken($tokenId);
         $this->assertNotSame($oldTokenData['description'], $newTokenData['description']);
 
@@ -1466,14 +1465,12 @@ class TokensTest extends StorageApiTestCase
         $this->_client->shareToken($tokenId, 'test@devel.keboola.com', 'Hi');
 
         // token refresh
-        /** @phpstan-ignore-next-line */
         $newToken = $this->_client->refreshToken($tokenId);
 
         $client = $this->getClientForToken($newToken);
         $client->verifyToken();
 
         // token drop
-        /** @phpstan-ignore-next-line */
         $result = $this->_client->dropToken($tokenId);
         $this->assertSame('', $result);
 

@@ -1278,8 +1278,7 @@ class Client
      */
     public function getToken($tokenId)
     {
-        /** @phpstan-ignore-next-line */
-        return $this->tokens->getToken($tokenId);
+        return $this->tokens->getToken((int) $tokenId);
     }
 
     /**
@@ -1347,12 +1346,12 @@ class Client
 
     /**
      * @param string $tokenId
+     * @return string
      * @deprecated Will be removed in next major release. Use Tokens::dropToken()
      */
     public function dropToken($tokenId)
     {
-        /** @phpstan-ignore-next-line */
-        $this->tokens->dropToken($tokenId);
+        $this->tokens->dropToken((int) $tokenId);
         $this->log("Token {$tokenId} deleted");
         return ''; // BC
     }
@@ -1372,7 +1371,7 @@ class Client
             $tokenId = $currentToken['id'];
         }
 
-        $result = $this->tokens->refreshToken($tokenId);
+        $result = $this->tokens->refreshToken((int) $tokenId);
 
         if ($currentToken['id'] == $result['id']) {
             $this->token = $result['token'];
@@ -1384,14 +1383,15 @@ class Client
     }
 
     /**
-     * @param $tokenId
-     * @param $recipientEmail
-     * @param $message
+     * @param string $tokenId
+     * @param string $recipientEmail
+     * @param string $message
+     * @return void
      * @deprecated Will be removed in next major release. Use Tokens::shareToken()
      */
     public function shareToken($tokenId, $recipientEmail, $message)
     {
-        $this->tokens->shareToken($tokenId, $recipientEmail, $message);
+        $this->tokens->shareToken((int) $tokenId, $recipientEmail, $message);
     }
 
 
