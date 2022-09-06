@@ -25,7 +25,7 @@ class WorkspacesUnloadTest extends FileWorkspaceTestCase
             'languages',
             'languagesLoaded',
             $workspaces,
-            $workspace['id']
+            (int) $workspace['id']
         );
         // load table 1 incremental
         $this->loadTable(
@@ -33,7 +33,7 @@ class WorkspacesUnloadTest extends FileWorkspaceTestCase
             'languagesInc',
             'languagesLoadedIncremental',
             $workspaces,
-            $workspace['id'],
+            (int) $workspace['id'],
             true
         );
         // upload csv
@@ -174,7 +174,7 @@ class WorkspacesUnloadTest extends FileWorkspaceTestCase
      * @param string $tableName
      * @param string $unloadDestination
      * @param Workspaces $workspaces
-     * @param string $workspaceId
+     * @param int $workspaceId
      * @param bool $preserve
      */
     private function loadTable(
