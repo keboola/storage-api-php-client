@@ -23,8 +23,8 @@ class Workspaces
     }
 
     /**
-     * @param array $options
-     *  - backend (optional)
+     * @param array $options backend (optional)
+     * @return array
      */
     public function createWorkspace(array $options = [], bool $async = false)
     {
@@ -35,20 +35,38 @@ class Workspaces
             $requestOptions = [];
         }
 
-        return $this->client->apiPostJson($url, $options, true, $requestOptions);
+        $result = $this->client->apiPostJson($url, $options, true, $requestOptions);
+        assert(is_array($result));
+        return $result;
     }
 
+    /**
+     * @return array
+     */
     public function listWorkspaces()
     {
-        return $this->client->apiGet('workspaces');
+        $result = $this->client->apiGet('workspaces');
+        assert(is_array($result));
+        return $result;
     }
 
+    /**
+     * @param int $id
+     * @return array
+     */
     public function getWorkspace($id)
     {
-        return $this->client->apiGet("workspaces/{$id}");
+        $result = $this->client->apiGet("workspaces/{$id}");
+        assert(is_array($result));
+        return $result;
     }
 
-    public function deleteWorkspace($id, array $options = [], bool $async = false): void
+    /**
+     * @param int $id
+     * @param array $options (boolean) async
+     * @return void
+     */
+    public function deleteWorkspace($id, array $options = [], bool $async = false)
     {
         $url = sprintf('workspaces/%s', $id);
         if (!array_key_exists('async', $options)) {
@@ -61,28 +79,34 @@ class Workspaces
     }
 
     /**
-     * @param $id
-     * @param array $options -- required input[mappings], optional preserve
-     * @return mixed|string
+     * @param int $id
+     * @param array $options input[mappings] (required), preserve (optional)
+     * @return void
      */
     public function loadWorkspaceData($id, array $options = [])
     {
-        return $this->client->apiPostJson("workspaces/{$id}/load", $options);
+        $this->client->apiPostJson("workspaces/{$id}/load", $options);
     }
 
     /**
-     * @param $id
-     * @param array $options -- required input[mappings], optional preserve
-     * @return mixed|string
+     * @param int $id
+     * @param array $options input[mappings] (required), preserve (optional)
+     * @return void
      */
     public function cloneIntoWorkspace($id, array $options = [])
     {
-        return $this->client->apiPostJson("workspaces/{$id}/load-clone", $options);
+        $this->client->apiPostJson("workspaces/{$id}/load-clone", $options);
     }
 
+    /**
+     * @param int $id
+     * @return array
+     */
     public function resetWorkspacePassword($id)
     {
-        return $this->client->apiPostJson("workspaces/{$id}/password");
+        $result = $this->client->apiPostJson("workspaces/{$id}/password");
+        assert(is_array($result));
+        return $result;
     }
 
     /**
