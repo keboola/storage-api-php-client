@@ -265,18 +265,18 @@ class Client
     }
 
     /**
-     *
      * List all buckets
      *
-     * @return array
+     * @param array $options (string) include
      */
-    public function listBuckets($options = [])
+    public function listBuckets($options = []): array
     {
-        return $this->apiGet('buckets?' . http_build_query($options));
+        $result = $this->apiGet('buckets?' . http_build_query($options));
+        assert(is_array($result));
+        return $result;
     }
 
     /**
-     *
      * Get bucket id from name and stage
      *
      * @param string $name
@@ -295,28 +295,25 @@ class Client
     }
 
     /**
-     *
      * Bucket details
      *
      * @param string $bucketId
-     * @return array
      */
-    public function getBucket($bucketId)
+    public function getBucket($bucketId): array
     {
-        return $this->apiGet('buckets/' . $bucketId);
+        $result = $this->apiGet('buckets/' . $bucketId);
+        assert(is_array($result));
+        return $result;
+    }
+
+    public function updateBucket(BucketUpdateOptions $options): array
+    {
+        $result = $this->apiPutJson('buckets/' . $options->getBucketId(), $options->toParamsArray());
+        assert(is_array($result));
+        return $result;
     }
 
     /**
-     * @param BucketUpdateOptions $options
-     * @return array
-     */
-    public function updateBucket(BucketUpdateOptions $options)
-    {
-        return $this->apiPutJson('buckets/' . $options->getBucketId(), $options->toParamsArray());
-    }
-
-    /**
-     *
      * Create a bucket. If a bucket exists, return existing bucket URL.
      *
      * @param string $name bucket name
@@ -348,6 +345,7 @@ class Client
         }
 
         $result = $this->apiPostJson('buckets', $options);
+        assert(is_array($result));
 
         $this->log("Bucket {$result["id"]} created", ['options' => $options, 'result' => $result]);
 
@@ -381,20 +379,20 @@ class Client
         }
 
         $result = $this->apiPostJson('buckets/register', $data);
+        assert(is_array($result));
 
         $this->log("Bucket {$result["id"]} registered", ['options' => $data, 'result' => $result]);
 
         return $result['id'];
     }
 
-    /**
-     * @return mixed
-     */
-    public function refreshBucket(string $bucketId)
+    public function refreshBucket(string $bucketId): array
     {
         $url = 'buckets/' . $bucketId . '/refresh';
 
-        return $this->apiPutJson($url);
+        $result = $this->apiPutJson($url);
+        assert(is_array($result));
+        return $result;
     }
 
     /**
@@ -405,7 +403,7 @@ class Client
      * @param int $sourceProjectId
      * @param string $sourceBucketId
      * @param string|null $displayName bucket display name
-     * @return mixed
+     * @return string|int string on sync call; int on async call
      */
     public function linkBucket($name, $stage, $sourceProjectId, $sourceBucketId, $displayName = null, $async = false)
     {
@@ -426,6 +424,7 @@ class Client
         }
 
         $result = $this->apiPostJson($url, $options, $async);
+        assert(is_array($result));
 
         $this->log("Shared bucket {$result["id"]} linked to the project", ['options' => $options, 'result' => $result]);
 
@@ -433,12 +432,11 @@ class Client
     }
 
     /**
-     *
      * Delete a bucket. Only empty buckets can be deleted
      *
      * @param string $bucketId
-     * @param array $options - (bool) force
-     * @return mixed|string
+     * @param array $options (bool) force, (bool) async
+     * @return array|string array on async call; empty string on sync call
      */
     public function dropBucket($bucketId, $options = [])
     {
@@ -453,17 +451,18 @@ class Client
 
         $url .= '?' . http_build_query($filteredOptions);
 
-        return $this->apiDelete($url);
+        $result = $this->apiDelete($url);
+        assert(is_string($result) || is_array($result));
+        return $result;
     }
 
     /**
      * @param string $bucketId
-     * @param array $options
-     * @return mixed
+     * @param array $options (bool) async
      * @deprecated use shareBucketToUsers, shareBucketToProjects, shareOrganizationProjectBucket or
      *     shareOrganizationBucket instead
      */
-    public function shareBucket($bucketId, $options = [])
+    public function shareBucket($bucketId, $options = []): array
     {
         $url = 'buckets/' . $bucketId . '/share';
 
@@ -475,13 +474,14 @@ class Client
         $url .= '?' . http_build_query($options);
 
         $result = $this->apiPostJson($url, [], $isAsync);
+        assert(is_array($result));
 
         $this->log("Bucket {$bucketId} shared", ['result' => $result]);
 
         return $result;
     }
 
-    public function shareOrganizationBucket($bucketId, $async = false)
+    public function shareOrganizationBucket($bucketId, $async = false): array
     {
         $url = 'buckets/' . $bucketId . '/share-organization';
 
@@ -490,13 +490,14 @@ class Client
         }
 
         $result = $this->apiPostJson($url, [], $async);
+        assert(is_array($result));
 
         $this->log("Bucket {$bucketId} shared", ['result' => $result]);
 
         return $result;
     }
 
-    public function shareOrganizationProjectBucket($bucketId, $async = false)
+    public function shareOrganizationProjectBucket($bucketId, $async = false): array
     {
         $url = 'buckets/' . $bucketId . '/share-organization-project';
 
@@ -505,13 +506,14 @@ class Client
         }
 
         $result = $this->apiPostJson($url, [], $async);
+        assert(is_array($result));
 
         $this->log("Bucket {$bucketId} shared", ['result' => $result]);
 
         return $result;
     }
 
-    public function shareBucketToProjects($bucketId, $targetProjectIds, $async = false)
+    public function shareBucketToProjects($bucketId, $targetProjectIds, $async = false): array
     {
         $url = 'buckets/' . $bucketId . '/share-to-projects';
 
@@ -525,13 +527,14 @@ class Client
 
         $url .= '?' . http_build_query($data);
         $result = $this->apiPostJson($url, [], $async);
+        assert(is_array($result));
 
         $this->log("Bucket {$bucketId} shared", ['result' => $result]);
 
         return $result;
     }
 
-    public function shareBucketToUsers($bucketId, $targetUsers = [], $async = false)
+    public function shareBucketToUsers($bucketId, $targetUsers = [], $async = false): array
     {
         $url = 'buckets/' . $bucketId . '/share-to-users';
 
@@ -546,13 +549,14 @@ class Client
         $url .= '?' . http_build_query($data);
 
         $result = $this->apiPostJson($url, [], $async);
+        assert(is_array($result));
 
         $this->log("Bucket {$bucketId} shared", ['result' => $result]);
 
         return $result;
     }
 
-    public function changeBucketSharing($bucketId, $sharing, $async = false)
+    public function changeBucketSharing($bucketId, $sharing, $async = false): array
     {
         $url = 'buckets/' . $bucketId . '/share';
 
@@ -565,12 +569,16 @@ class Client
         }
 
         $result = $this->apiPutJson($url, $data);
+        assert(is_array($result));
 
         $this->log("Bucket {$bucketId} sharing changed to {$sharing}", ['result' => $result]);
 
         return $result;
     }
 
+    /**
+     * @return string|array array on acync call; empty string on sync call
+     */
     public function unshareBucket($bucketId, $async = false)
     {
         $url = 'buckets/' . $bucketId . '/share';
@@ -579,9 +587,15 @@ class Client
             $url .= '?' . http_build_query(['async' => $async]);
         }
 
-        return $this->apiDelete($url);
+        $result = $this->apiDelete($url);
+        assert(is_string($result) || is_array($result));
+        return $result;
     }
 
+    /**
+     * @param $options (bool) async
+     * @return string|array array on acync call; empty string on sync call
+     */
     public function forceUnlinkBucket($bucketId, $projectId, $options = [])
     {
 
@@ -595,19 +609,25 @@ class Client
 
         $url .= '?' . http_build_query($filteredOptions);
 
-        return $this->apiDelete($url);
+        $result = $this->apiDelete($url);
+        assert(is_string($result) || is_array($result));
+        return $result;
     }
 
-    public function isSharedBucket($bucketId)
+    public function isSharedBucket($bucketId): bool
     {
         $url = 'buckets/' . $bucketId;
 
         $result = $this->apiGet($url);
+        assert(is_array($result));
 
         return !empty($result['sharing']);
     }
 
-    public function listSharedBuckets($options = [])
+    /**
+     * @param $options (string) include
+     */
+    public function listSharedBuckets($options = []): array
     {
         $url = 'shared-buckets';
 
@@ -621,19 +641,19 @@ class Client
             $url .= '?' . http_build_query($filteredOptions);
         }
 
-        return $this->apiGet($url);
+        $result = $this->apiGet($url);
+        assert(is_array($result));
+        return $result;
     }
 
     /**
-     *
      * Checks if a bucket exists
      *
      * @param string $bucketId
-     * @return bool
      * @throws ClientException
      * @throws \Exception
      */
-    public function bucketExists($bucketId)
+    public function bucketExists($bucketId): bool
     {
         try {
             $this->getBucket($bucketId);
