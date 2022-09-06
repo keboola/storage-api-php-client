@@ -738,7 +738,7 @@ class Client
      */
     public function createTableAsyncDirect($bucketId, $options = [])
     {
-        $createdTable = $this->apiPost("buckets/{$bucketId}/tables-async", $options);
+        $createdTable = $this->apiPostJson("buckets/{$bucketId}/tables-async", $options);
         return $createdTable['id'];
     }
 
@@ -811,7 +811,7 @@ class Client
             $filteredOptions['aliasColumns'] = (array) $options['aliasColumns'];
         }
 
-        $result = $this->apiPost('buckets/' . $bucketId . '/table-aliases', $filteredOptions);
+        $result = $this->apiPostJson('buckets/' . $bucketId . '/table-aliases', $filteredOptions);
         $this->log("Table alias {$result["id"]}  created", ['options' => $filteredOptions, 'result' => $result]);
         return $result['id'];
     }
@@ -822,7 +822,7 @@ class Client
      */
     public function createTableSnapshot($tableId, $snapshotDescription = null)
     {
-        $result = $this->apiPost("tables/{$tableId}/snapshots", [
+        $result = $this->apiPostJson("tables/{$tableId}/snapshots", [
             'description' => $snapshotDescription,
         ]);
         $this->log("Snapthos {$result['id']} of table {$tableId} created.");
@@ -844,7 +844,7 @@ class Client
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
 
         /** @var array{id: string} $result */
-        $result = $this->apiPut('tables/' . $tableId, $filteredOptions);
+        $result = $this->apiPutJson('tables/' . $tableId, $filteredOptions);
         $this->log("Table {$tableId} updated");
         if (array_key_exists('async', $filteredOptions) && $filteredOptions['async'] === true) {
             // async job has no result
@@ -869,7 +869,7 @@ class Client
      */
     public function setAliasTableFilter($tableId, array $filter)
     {
-        $result = $this->apiPost("tables/$tableId/alias-filter", $filter);
+        $result = $this->apiPostJson("tables/$tableId/alias-filter", $filter);
         $this->log("Table $tableId  filter set", [
             'filter' => $filter,
             'result' => $result,
@@ -887,7 +887,7 @@ class Client
      */
     public function enableAliasTableColumnsAutoSync($tableId)
     {
-        $this->apiPost("tables/{$tableId}/alias-columns-auto-sync");
+        $this->apiPostJson("tables/{$tableId}/alias-columns-auto-sync");
     }
 
     /**
@@ -1009,7 +1009,7 @@ class Client
      */
     public function writeTableAsyncDirect($tableId, $options = [])
     {
-        return $this->apiPost("tables/{$tableId}/import-async", $this->writeTableOptionsPrepare($options));
+        return $this->apiPostJson("tables/{$tableId}/import-async", $this->writeTableOptionsPrepare($options));
     }
 
     /**
@@ -1019,7 +1019,7 @@ class Client
      */
     public function queueTableCreate($bucketId, $options = [])
     {
-        $job = $this->apiPost("buckets/{$bucketId}/tables-async", $options, false);
+        $job = $this->apiPostJson("buckets/{$bucketId}/tables-async", $options, false);
         return $job['id'];
     }
 
@@ -1030,7 +1030,7 @@ class Client
      */
     public function queueTableImport($tableId, $options = [])
     {
-        $job = $this->apiPost("tables/{$tableId}/import-async", $this->writeTableOptionsPrepare($options), false);
+        $job = $this->apiPostJson("tables/{$tableId}/import-async", $this->writeTableOptionsPrepare($options), false);
         return $job['id'];
     }
 
@@ -1041,7 +1041,7 @@ class Client
      */
     public function queueTableExport($tableId, $options = [])
     {
-        $job = $this->apiPost("tables/{$tableId}/export-async", $this->prepareExportOptions($options), false);
+        $job = $this->apiPostJson("tables/{$tableId}/export-async", $this->prepareExportOptions($options), false);
         return $job['id'];
     }
 
@@ -1122,7 +1122,7 @@ class Client
         if ($protected !== null) {
             $data['protected'] = (bool) $protected;
         }
-        $this->apiPost("tables/$tableId/attributes/$key", $data);
+        $this->apiPostJson("tables/$tableId/attributes/$key", $data);
     }
 
     /**
@@ -1136,7 +1136,7 @@ class Client
         if (!empty($attributes)) {
             $params['attributes'] = $attributes;
         }
-        $this->apiPost("tables/$tableId/attributes", $params);
+        $this->apiPostJson("tables/$tableId/attributes", $params);
     }
 
     /**
@@ -1173,7 +1173,7 @@ class Client
         if ($basetype !== null) {
             $data['basetype'] = $basetype;
         }
-        $this->apiPost("tables/$tableId/columns", $data);
+        $this->apiPostJson("tables/$tableId/columns", $data);
     }
 
 
@@ -1432,7 +1432,7 @@ class Client
      */
     public function exportTableAsync($tableId, $options = [])
     {
-        return $this->apiPost(
+        return $this->apiPostJson(
             "tables/{$tableId}/export-async",
             $this->prepareExportOptions($options)
         );
@@ -2787,7 +2787,7 @@ class Client
         $data = [
             'columns' => $columns,
         ];
-        $this->apiPost("tables/$tableId/primary-key", $data);
+        $this->apiPostJson("tables/$tableId/primary-key", $data);
     }
 
     /**
