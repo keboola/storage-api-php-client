@@ -2546,51 +2546,6 @@ parameters:
 			path: src/Keboola/StorageApi/Tokens.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Workspaces\\:\\:cloneIntoWorkspace\\(\\) has parameter \\$id with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Workspaces.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Workspaces\\:\\:createWorkspace\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Workspaces.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Workspaces\\:\\:deleteWorkspace\\(\\) has parameter \\$id with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Workspaces.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Workspaces\\:\\:getWorkspace\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Workspaces.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Workspaces\\:\\:getWorkspace\\(\\) has parameter \\$id with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Workspaces.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Workspaces\\:\\:listWorkspaces\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Workspaces.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Workspaces\\:\\:loadWorkspaceData\\(\\) has parameter \\$id with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Workspaces.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Workspaces\\:\\:resetWorkspacePassword\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Workspaces.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Workspaces\\:\\:resetWorkspacePassword\\(\\) has parameter \\$id with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Workspaces.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\AlterTableTest\\:\\:invalidColumnNameProvider\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart1/AlterTableTest.php
