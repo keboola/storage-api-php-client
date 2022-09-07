@@ -2790,12 +2790,12 @@ class Client
 
     public function createTrigger($option)
     {
-        return $this->apiPost('triggers/', $option);
+        return $this->apiPostJson('triggers/', $option);
     }
 
     public function updateTrigger($triggerId, $options)
     {
-        return $this->apiPut('triggers/' . $triggerId .'/', $options);
+        return $this->apiPutJson('triggers/' . $triggerId .'/', $options);
     }
 
     public function getTrigger($triggerId)
