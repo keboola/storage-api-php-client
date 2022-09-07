@@ -46,7 +46,7 @@ class ComponentsTest extends StorageApiTestCase
     public function testDeprecatedUrlWithoutBranchIdStillWorks(): void
     {
         /** @var array $configuration */
-        $configuration = $this->client->apiPost('components/wr-db/configs', [
+        $configuration = $this->client->apiPostJson('components/wr-db/configs', [
             'name' => 'neco',
         ]);
 
@@ -668,7 +668,7 @@ class ComponentsTest extends StorageApiTestCase
             if (!$this->client instanceof BranchAwareClient) {
                 $branchPrefix = 'branch/default/';
             }
-            $this->client->apiPost($branchPrefix . 'components/wr-db/configs', []);
+            $this->client->apiPostJson($branchPrefix . 'components/wr-db/configs', []);
             $this->fail('Params should be invalid');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.components.validation', $e->getStringCode());
@@ -687,7 +687,7 @@ class ComponentsTest extends StorageApiTestCase
         if (!$this->client instanceof BranchAwareClient) {
             $branchPrefix = 'branch/default/';
         }
-        $resp = $this->client->apiPost($branchPrefix . 'components/wr-db/configs', [
+        $resp = $this->client->apiPostJson($branchPrefix . 'components/wr-db/configs', [
             'name' => 'neco',
         ]);
         $configuration = $components->getConfiguration('wr-db', $resp['id']);
@@ -704,7 +704,7 @@ class ComponentsTest extends StorageApiTestCase
             if (!$this->client instanceof BranchAwareClient) {
                 $branchPrefix = 'branch/default/';
             }
-            $this->client->apiPost($branchPrefix . 'components/wr-db/configs', [
+            $this->client->apiPostJson($branchPrefix . 'components/wr-db/configs', [
                 'name' => 'neco',
                 'description' => 'some',
                 'configuration' => '{sdf}',
@@ -726,7 +726,7 @@ class ComponentsTest extends StorageApiTestCase
             if (!$this->client instanceof BranchAwareClient) {
                 $branchPrefix = 'branch/default/';
             }
-            $this->client->apiPost($branchPrefix . 'components/wr-db/configs', [
+            $this->client->apiPostJson($branchPrefix . 'components/wr-db/configs', [
                 'name' => 'neco',
                 'description' => 'some',
                 'state' => '{sdf}',
@@ -2484,7 +2484,7 @@ class ComponentsTest extends StorageApiTestCase
         $stateEndpoint = $branchPrefix . "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/state";
 
         try {
-            $this->client->apiPut($stateEndpoint, [
+            $this->client->apiPutJson($stateEndpoint, [
                 'state' => '{sdf}',
             ]);
             $this->fail('Post invalid json should not be allowed.');
@@ -2495,7 +2495,7 @@ class ComponentsTest extends StorageApiTestCase
         }
 
         try {
-            $this->client->apiPut($stateEndpoint, [
+            $this->client->apiPutJson($stateEndpoint, [
                 'description' => 'Test',
                 'state' => json_encode('{}'),
             ]);
@@ -2507,7 +2507,7 @@ class ComponentsTest extends StorageApiTestCase
         }
 
         try {
-            $this->client->apiPut($stateEndpoint, [
+            $this->client->apiPutJson($stateEndpoint, [
                 'state' => '',
             ]);
             $this->fail('Post empty state should not be allowed.');
@@ -2518,7 +2518,7 @@ class ComponentsTest extends StorageApiTestCase
         }
 
         try {
-            $this->client->apiPut($stateEndpoint, []);
+            $this->client->apiPutJson($stateEndpoint, []);
             $this->fail('Post without state should not be allowed.');
         } catch (ClientException $e) {
             $this->assertEquals(400, $e->getCode());
@@ -3679,7 +3679,7 @@ class ComponentsTest extends StorageApiTestCase
         $stateEndpoint = $branchPrefix . "components/{$componentId}/configs/{$configurationId}/state";
 
         try {
-            $this->client->apiPut($stateEndpoint, [
+            $this->client->apiPutJson($stateEndpoint, [
                 'state' => '{sdf}',
             ]);
             $this->fail('Post invalid json should not be allowed.');
@@ -3690,7 +3690,7 @@ class ComponentsTest extends StorageApiTestCase
         }
 
         try {
-            $this->client->apiPut($stateEndpoint, [
+            $this->client->apiPutJson($stateEndpoint, [
                 'description' => 'Test',
                 'state' => json_encode('{}'),
             ]);
@@ -3702,7 +3702,7 @@ class ComponentsTest extends StorageApiTestCase
         }
 
         try {
-            $this->client->apiPut($stateEndpoint, [
+            $this->client->apiPutJson($stateEndpoint, [
                 'state' => '',
             ]);
             $this->fail('Post empty state should not be allowed.');
@@ -3713,7 +3713,7 @@ class ComponentsTest extends StorageApiTestCase
         }
 
         try {
-            $this->client->apiPut($stateEndpoint, []);
+            $this->client->apiPutJson($stateEndpoint, []);
             $this->fail('Post without state should not be allowed.');
         } catch (ClientException $e) {
             $this->assertEquals(400, $e->getCode());
