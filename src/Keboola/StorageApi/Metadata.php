@@ -22,71 +22,71 @@ class Metadata
     }
 
     /**
-     * @param $bucketId
+     * @param string $bucketId
      * @return array list of metadata
      */
     public function listBucketMetadata($bucketId)
     {
-        /** @var array $result */
         $result = $this->client->apiGet("buckets/{$bucketId}/metadata");
+        assert(is_array($result));
         return $result;
     }
 
     /**
-     * @param $tableId
+     * @param string $tableId
      * @return array list of metadata
      */
     public function listTableMetadata($tableId)
     {
-        /** @var array $result */
         $result = $this->client->apiGet("tables/{$tableId}/metadata");
+        assert(is_array($result));
         return $result;
     }
 
     /**
-     * @param $columnId  -- ex: "in.c-bucket.table.column"
+     * @param string $columnId  -- ex: "in.c-bucket.table.column"
      * @return array list of metadata
      */
     public function listColumnMetadata($columnId)
     {
-        /** @var array $result */
         $result = $this->client->apiGet("columns/{$columnId}/metadata");
+        assert(is_array($result));
         return $result;
     }
 
     /**
-     * @param $bucketId
-     * @param $metadataId
-     * @return mixed|string
+     * @param string $bucketId
+     * @param string|int $metadataId
+     * @return void
      */
     public function deleteBucketMetadata($bucketId, $metadataId)
     {
-        return $this->client->apiDelete("buckets/{$bucketId}/metadata/{$metadataId}");
+        $this->client->apiDelete("buckets/{$bucketId}/metadata/{$metadataId}");
     }
 
     /**
-     * @param $tableId
-     * @param $metadataId
-     * @return mixed|string
+     * @param string $tableId
+     * @param string|int $metadataId
+     * @return void
      */
     public function deleteTableMetadata($tableId, $metadataId)
     {
-        return $this->client->apiDelete("tables/{$tableId}/metadata/{$metadataId}");
+        $this->client->apiDelete("tables/{$tableId}/metadata/{$metadataId}");
     }
 
     /**
-     * @param $columnId
-     * @param $metadataId
-     * @return mixed|string
+     * @param string $columnId
+     * @param string|int $metadataId
+     * @return void
      */
     public function deleteColumnMetadata($columnId, $metadataId)
     {
-        return $this->client->apiDelete("columns/{$columnId}/metadata/{$metadataId}");
+        $this->client->apiDelete("columns/{$columnId}/metadata/{$metadataId}");
     }
 
     /**
-     * @param $bucketId
-     * @param $provider
+     * @param string $bucketId
+     * @param string $provider
      * @param array $metadata
      * @return array
      * @throws ClientException
@@ -96,11 +96,11 @@ class Metadata
         if (!is_array($metadata) || count($metadata) === 0) {
             throw new ClientException('Third argument must be a non-empty array of metadata objects');
         }
-        /** @var array $result */
         $result = $this->client->apiPostJson("buckets/{$bucketId}/metadata", [
             'provider' => $provider,
             'metadata' => $metadata,
         ]);
+        assert(is_array($result));
         return $result;
     }
 
@@ -118,25 +118,27 @@ class Metadata
         if (!is_array($metadata) || count($metadata) === 0) {
             throw new ClientException('Third argument must be a non-empty array of Metadata objects');
         }
-        /** @var array $result */
         $result = $this->client->apiPostJson("tables/{$tableId}/metadata", [
             'provider' => $provider,
             'metadata' => $metadata,
         ]);
+        assert(is_array($result));
         return $result;
     }
 
     /**
-     * @return mixed|string
+     * @return array
      */
     public function postTableMetadataWithColumns(TableMetadataUpdateOptions $options)
     {
-        return $this->client->apiPostJson("tables/{$options->getTableId()}/metadata", $options->toParamsArray());
+        $result = $this->client->apiPostJson("tables/{$options->getTableId()}/metadata", $options->toParamsArray());
+        assert(is_array($result));
+        return $result;
     }
 
     /**
-     * @param $columnId
-     * @param $provider
+     * @param string $columnId
+     * @param string $provider
      * @param array $metadata
      * @return array
      * @throws ClientException
@@ -146,11 +148,11 @@ class Metadata
         if (!is_array($metadata) || count($metadata) === 0) {
             throw new ClientException('Third argument must be a non-empty array of Metadata objects');
         }
-        /** @var array $result */
         $result = $this->client->apiPostJson("columns/{$columnId}/metadata", [
             'provider' => $provider,
             'metadata' => $metadata,
         ]);
+        assert(is_array($result));
         return $result;
     }
 }

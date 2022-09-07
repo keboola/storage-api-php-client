@@ -907,6 +907,7 @@ class MetadataTest extends StorageApiTestCase
 
         try {
             // provider null should be rejected
+            /** @phpstan-ignore-next-line */
             $metadataApi->postBucketMetadata($this->getTestBucketId(), null, [$md]);
             $this->fail('provider is required');
         } catch (ClientException $e) {
@@ -1079,13 +1080,13 @@ class MetadataTest extends StorageApiTestCase
         $metadataApi = new Metadata($this->_client);
         switch ($apiEndpoint) {
             case self::ENDPOINT_TYPE_COLUMNS:
-                $res = $metadataApi->deleteColumnMetadata($objId, $metadataId);
+                $metadataApi->deleteColumnMetadata($objId, $metadataId);
                 break;
             case self::ENDPOINT_TYPE_TABLES:
-                $res = $metadataApi->deleteTableMetadata($objId, $metadataId);
+                $metadataApi->deleteTableMetadata($objId, $metadataId);
                 break;
             case self::ENDPOINT_TYPE_BUCKETS:
-                $res = $metadataApi->deleteBucketMetadata($objId, $metadataId);
+                $metadataApi->deleteBucketMetadata($objId, $metadataId);
                 break;
         }
     }
