@@ -25,7 +25,7 @@ class Workspaces
     /**
      * @param array $options backend (optional)
      */
-    public function createWorkspace(array $options = [], bool $async = false): array
+    public function createWorkspace(array $options = [], bool $async = false)
     {
         $url = 'workspaces';
         $requestOptions = [Client::REQUEST_OPTION_EXTENDED_TIMEOUT => true];
@@ -39,7 +39,10 @@ class Workspaces
         return $result;
     }
 
-    public function listWorkspaces(): array
+    /**
+     * @return array
+     */
+    public function listWorkspaces()
     {
         $result = $this->client->apiGet('workspaces');
         assert(is_array($result));
@@ -48,8 +51,9 @@ class Workspaces
 
     /**
      * @param int $id
+     * @return array
      */
-    public function getWorkspace($id): array
+    public function getWorkspace($id)
     {
         $result = $this->client->apiGet("workspaces/{$id}");
         assert(is_array($result));
@@ -59,8 +63,9 @@ class Workspaces
     /**
      * @param int $id
      * @param array $options (boolean) async
+     * @return void
      */
-    public function deleteWorkspace($id, array $options = [], bool $async = false): void
+    public function deleteWorkspace($id, array $options = [], bool $async = false)
     {
         $url = sprintf('workspaces/%s', $id);
         if (!array_key_exists('async', $options)) {
@@ -75,8 +80,9 @@ class Workspaces
     /**
      * @param int $id
      * @param array $options input[mappings] (required), preserve (optional)
+     * @return void
      */
-    public function loadWorkspaceData($id, array $options = []): void
+    public function loadWorkspaceData($id, array $options = [])
     {
         $this->client->apiPostJson("workspaces/{$id}/load", $options);
     }
@@ -84,16 +90,18 @@ class Workspaces
     /**
      * @param int $id
      * @param array $options input[mappings] (required), preserve (optional)
+     * @return void
      */
-    public function cloneIntoWorkspace($id, array $options = []): void
+    public function cloneIntoWorkspace($id, array $options = [])
     {
         $this->client->apiPostJson("workspaces/{$id}/load-clone", $options);
     }
 
     /**
      * @param int $id
+     * @return array
      */
-    public function resetWorkspacePassword($id): array
+    public function resetWorkspacePassword($id)
     {
         $result = $this->client->apiPostJson("workspaces/{$id}/password");
         assert(is_array($result));
