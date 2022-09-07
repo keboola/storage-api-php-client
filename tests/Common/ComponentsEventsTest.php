@@ -54,7 +54,7 @@ class ComponentsEventsTest extends StorageApiTestCase
         }
 
         // initialize variables
-        $this->configurationId = $this->_client->generateId();
+        $this->configurationId = (int) $this->_client->generateId();
 
         $clientProvider = new ClientProvider($this);
         $this->client = $clientProvider->createClientForCurrentTest();
