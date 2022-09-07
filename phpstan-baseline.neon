@@ -301,16 +301,6 @@ parameters:
 			path: src/Keboola/StorageApi/Client.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:createTrigger\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:createTrigger\\(\\) has parameter \\$option with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:deleteFile\\(\\) has parameter \\$fileId with no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
@@ -342,16 +332,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:deleteTableRows\\(\\) has parameter \\$tableId with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:deleteTrigger\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:deleteTrigger\\(\\) has parameter \\$triggerId with no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
 
@@ -531,16 +511,6 @@ parameters:
 			path: src/Keboola/StorageApi/Client.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:getTrigger\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:getTrigger\\(\\) has parameter \\$triggerId with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:handleJobError\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
@@ -642,16 +612,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:listTokenEvents\\(\\) should return array but returns mixed\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:listTriggers\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:listTriggers\\(\\) has parameter \\$filter with no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
 
@@ -922,21 +882,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:updateBucket\\(\\) should return array but returns mixed\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:updateTrigger\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:updateTrigger\\(\\) has parameter \\$options with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:updateTrigger\\(\\) has parameter \\$triggerId with no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
 
