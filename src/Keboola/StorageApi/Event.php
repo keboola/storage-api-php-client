@@ -11,8 +11,6 @@ namespace Keboola\StorageApi;
 
 class Event
 {
-
-
     const TYPE_INFO = 'info';
     const TYPE_SUCCESS = 'success';
     const TYPE_WARN = 'warn';
