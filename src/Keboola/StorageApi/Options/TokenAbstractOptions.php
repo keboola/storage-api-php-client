@@ -114,9 +114,10 @@ abstract class TokenAbstractOptions
     }
 
     /**
+     * @param bool $forJson return structure for form-data (false) or for JSON (true)
      * @return array
      */
-    public function toParamsArray()
+    public function toParamsArray(bool $forJson = false)
     {
         $params = [];
 
@@ -132,14 +133,26 @@ abstract class TokenAbstractOptions
             $params['canPurgeTrash'] = $this->getCanPurgeTrash();
         }
 
-        foreach ($this->getBucketPermissions() as $bucketId => $permission) {
-            $index = sprintf('bucketPermissions[%s]', $bucketId);
-            $params[$index] = $permission;
+        if ($forJson) {
+            if ($this->getBucketPermissions()) {
+                $params['bucketPermissions'] = $this->getBucketPermissions();
+            }
+        } else {
+            foreach ($this->getBucketPermissions() as $bucketId => $permission) {
+                $index = sprintf('bucketPermissions[%s]', $bucketId);
+                $params[$index] = $permission;
+            }
         }
 
-        foreach ($this->getComponentAccess() as $index => $componentId) {
-            $index = sprintf('componentAccess[%s]', $index);
-            $params[$index] = $componentId;
+        if ($forJson) {
+            if ($this->getComponentAccess()) {
+                $params['componentAccess'] = $this->getComponentAccess();
+            }
+        } else {
+            foreach ($this->getComponentAccess() as $index => $componentId) {
+                $index = sprintf('componentAccess[%s]', $index);
+                $params[$index] = $componentId;
+            }
         }
 
         return $params;
