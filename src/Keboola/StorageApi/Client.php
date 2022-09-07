@@ -2208,7 +2208,7 @@ class Client
      */
     public function createEvent(Event $event)
     {
-        $result = $this->apiPost('events', [
+        $result = $this->apiPostJson('events', [
             'component' => $event->getComponent(),
             'configurationId' => $event->getConfigurationId(),
             'runId' => $event->getRunId(),
@@ -2219,6 +2219,7 @@ class Client
             'results' => json_encode($event->getResults()),
             'duration' => $event->getDuration(),
         ]);
+        assert(is_array($result));
         return $result['id'];
     }
 
