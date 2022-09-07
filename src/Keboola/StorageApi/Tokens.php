@@ -40,7 +40,7 @@ class Tokens
      */
     public function createToken(TokenCreateOptions $options)
     {
-        $result = $this->client->apiPostJson('tokens', $options->toParamsArray());
+        $result = $this->client->apiPostJson('tokens', $options->toParamsArray(true));
         assert(is_array($result));
         return $result;
     }
@@ -50,7 +50,7 @@ class Tokens
      */
     public function updateToken(TokenUpdateOptions $options)
     {
-        $result = $this->client->apiPutJson("tokens/{$options->getTokenId()}", $options->toParamsArray());
+        $result = $this->client->apiPutJson("tokens/{$options->getTokenId()}", $options->toParamsArray(true));
         assert(is_array($result));
         return $result;
     }
