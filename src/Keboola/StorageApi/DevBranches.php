@@ -22,7 +22,7 @@ class DevBranches
      */
     public function createBranch($branchName, $branchDescription = '')
     {
-        return $this->client->apiPost('dev-branches/', ['name' => $branchName, 'description' => $branchDescription]);
+        return $this->client->apiPostJson('dev-branches/', ['name' => $branchName, 'description' => $branchDescription]);
     }
 
     /**
@@ -39,7 +39,7 @@ class DevBranches
             $params['name'] = $branchName;
         }
         $params['description'] = $branchDescription;
-        return $this->client->apiPut('dev-branches/' . $branchId, $params);
+        return $this->client->apiPutJson('dev-branches/' . $branchId, $params);
     }
 
     /**
