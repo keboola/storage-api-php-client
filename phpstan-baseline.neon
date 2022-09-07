@@ -5256,11 +5256,6 @@ parameters:
 			path: tests/Common/BranchWorkspacesTest.php
 
 		-
-			message: "#^Cannot access offset 'id' on mixed\\.$#"
-			count: 1
-			path: tests/Common/ComponentsTest.php
-
-		-
 			message: "#^Cannot access property \\$configuration on mixed\\.$#"
 			count: 4
 			path: tests/Common/ComponentsTest.php
