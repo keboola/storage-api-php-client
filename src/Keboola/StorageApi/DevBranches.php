@@ -19,15 +19,20 @@ class DevBranches
     /**
      * @param string $branchName
      * @param string $branchDescription
+     * @return array
      */
     public function createBranch($branchName, $branchDescription = '')
     {
-        return $this->client->apiPostJson('dev-branches/', ['name' => $branchName, 'description' => $branchDescription]);
+        $result = $this->client->apiPostJson('dev-branches/', ['name' => $branchName, 'description' => $branchDescription]);
+        assert(is_array($result));
+        return $result;
     }
 
     /**
+     * @param int $branchId
      * @param string $branchName
      * @param string $branchDescription
+     * @return array
      */
     public function updateBranch(
         $branchId,
@@ -39,27 +44,38 @@ class DevBranches
             $params['name'] = $branchName;
         }
         $params['description'] = $branchDescription;
-        return $this->client->apiPutJson('dev-branches/' . $branchId, $params);
+        $result = $this->client->apiPutJson('dev-branches/' . $branchId, $params);
+        assert(is_array($result));
+        return $result;
     }
 
     /**
      * @param int $branchId
+     * @return void
      */
     public function deleteBranch($branchId)
     {
-        return $this->client->apiDelete('dev-branches/' . $branchId);
+        $this->client->apiDelete('dev-branches/' . $branchId);
     }
 
     /**
      * @param int $branchId
+     * @return array
      */
     public function getBranch($branchId)
     {
-        return $this->client->apiGet('dev-branches/' . $branchId);
+        $result = $this->client->apiGet('dev-branches/' . $branchId);
+        assert(is_array($result));
+        return $result;
     }
 
+    /**
+     * @return array
+     */
     public function listBranches()
     {
-        return $this->client->apiGet('dev-branches/');
+        $result = $this->client->apiGet('dev-branches/');
+        assert(is_array($result));
+        return $result;
     }
 }
