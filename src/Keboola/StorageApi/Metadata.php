@@ -97,7 +97,7 @@ class Metadata
             throw new ClientException('Third argument must be a non-empty array of metadata objects');
         }
         /** @var array $result */
-        $result = $this->client->apiPost("buckets/{$bucketId}/metadata", [
+        $result = $this->client->apiPostJson("buckets/{$bucketId}/metadata", [
             'provider' => $provider,
             'metadata' => $metadata,
         ]);
@@ -119,7 +119,7 @@ class Metadata
             throw new ClientException('Third argument must be a non-empty array of Metadata objects');
         }
         /** @var array $result */
-        $result = $this->client->apiPost("tables/{$tableId}/metadata", [
+        $result = $this->client->apiPostJson("tables/{$tableId}/metadata", [
             'provider' => $provider,
             'metadata' => $metadata,
         ]);
@@ -147,7 +147,7 @@ class Metadata
             throw new ClientException('Third argument must be a non-empty array of Metadata objects');
         }
         /** @var array $result */
-        $result = $this->client->apiPost("columns/{$columnId}/metadata", [
+        $result = $this->client->apiPostJson("columns/{$columnId}/metadata", [
             'provider' => $provider,
             'metadata' => $metadata,
         ]);
