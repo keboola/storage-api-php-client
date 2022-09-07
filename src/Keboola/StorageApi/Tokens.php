@@ -36,7 +36,6 @@ class Tokens
     }
 
     /**
-     * @param TokenCreateOptions $options
      * @return array
      */
     public function createToken(TokenCreateOptions $options)
@@ -47,7 +46,6 @@ class Tokens
     }
 
     /**
-     * @param TokenUpdateOptions $options
      * @return array
      */
     public function updateToken(TokenUpdateOptions $options)
