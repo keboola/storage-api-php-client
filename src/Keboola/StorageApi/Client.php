@@ -811,7 +811,9 @@ class Client
             $filteredOptions['aliasColumns'] = (array) $options['aliasColumns'];
         }
 
-        $result = $this->apiPostJson('buckets/' . $bucketId . '/table-aliases', $filteredOptions);
+        // TODO use apiPostJson after endpoint is ready
+        /** @var array{id:string} $result */
+        $result = $this->apiPost('buckets/' . $bucketId . '/table-aliases', $filteredOptions);
         $this->log("Table alias {$result["id"]}  created", ['options' => $filteredOptions, 'result' => $result]);
         return $result['id'];
     }
@@ -822,7 +824,9 @@ class Client
      */
     public function createTableSnapshot($tableId, $snapshotDescription = null)
     {
-        $result = $this->apiPostJson("tables/{$tableId}/snapshots", [
+        // TODO use apiPostJson after endpoint is ready
+        /** @var array{id: int} $result */
+        $result = $this->apiPost("tables/{$tableId}/snapshots", [
             'description' => $snapshotDescription,
         ]);
         $this->log("Snapthos {$result['id']} of table {$tableId} created.");
@@ -843,8 +847,9 @@ class Client
 
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
 
+        // TODO use apiPutJson after endpoint is ready
         /** @var array{id: string} $result */
-        $result = $this->apiPutJson('tables/' . $tableId, $filteredOptions);
+        $result = $this->apiPut('tables/' . $tableId, $filteredOptions);
         $this->log("Table {$tableId} updated");
         if (array_key_exists('async', $filteredOptions) && $filteredOptions['async'] === true) {
             // async job has no result
@@ -869,7 +874,8 @@ class Client
      */
     public function setAliasTableFilter($tableId, array $filter)
     {
-        $result = $this->apiPostJson("tables/$tableId/alias-filter", $filter);
+        // TODO use apiPostJson after endpoint is ready
+        $result = $this->apiPost("tables/$tableId/alias-filter", $filter);
         $this->log("Table $tableId  filter set", [
             'filter' => $filter,
             'result' => $result,
