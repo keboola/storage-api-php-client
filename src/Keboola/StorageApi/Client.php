@@ -1162,7 +1162,7 @@ class Client
      * @param string $tableId
      * @param string $name
      */
-    public function addTableColumn(string $tableId, string $name, ?array $definition = [], ?string $basetype = null)
+    public function addTableColumn(string $tableId, string $name, ?array $definition = null, ?string $basetype = null)
     {
         $data = [
             'name' => $name,
