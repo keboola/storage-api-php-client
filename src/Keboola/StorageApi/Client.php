@@ -2132,7 +2132,7 @@ class Client
      */
     public function prepareFileUpload(FileUploadOptions $options)
     {
-        return $this->apiPost('files/prepare', [
+        return $this->apiPostJson('files/prepare', [
             'isPublic' => $options->getIsPublic(),
             'isPermanent' => $options->getIsPermanent(),
             'isEncrypted' => $options->getIsEncrypted(),
@@ -2181,7 +2181,7 @@ class Client
 
     public function addFileTag($fileId, $tagName)
     {
-        $this->apiPost("files/$fileId/tags", [
+        $this->apiPostJson("files/$fileId/tags", [
             'tag' => $tagName,
         ]);
     }
