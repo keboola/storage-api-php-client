@@ -812,6 +812,7 @@ class Client
         }
 
         // TODO use apiPostJson after endpoint is ready
+        /** @var array{id:string} $result */
         $result = $this->apiPost('buckets/' . $bucketId . '/table-aliases', $filteredOptions);
         $this->log("Table alias {$result["id"]}  created", ['options' => $filteredOptions, 'result' => $result]);
         return $result['id'];
@@ -824,6 +825,7 @@ class Client
     public function createTableSnapshot($tableId, $snapshotDescription = null)
     {
         // TODO use apiPostJson after endpoint is ready
+        /** @var array{id: int} $result */
         $result = $this->apiPost("tables/{$tableId}/snapshots", [
             'description' => $snapshotDescription,
         ]);
