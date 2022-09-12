@@ -2326,10 +2326,11 @@ class Client
     /**
      * Unique 64bit sequence generator
      * @return int generated id
+     * @phpstan-return numeric-string
      */
     public function generateId()
     {
-        $result = $this->apiPost('tickets');
+        $result = $this->apiPostJson('tickets');
         return $result['id'];
     }
 
