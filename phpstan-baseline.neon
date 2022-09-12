@@ -166,52 +166,7 @@ parameters:
 			path: src/Keboola/StorageApi/Client.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:apiDeleteParams\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:apiDeleteParams\\(\\) has parameter \\$data with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:apiDeleteParams\\(\\) has parameter \\$url with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:apiGet\\(\\) has parameter \\$fileName with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:apiPost\\(\\) has parameter \\$handleAsyncTask with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:apiPostJson\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:apiPostMultipart\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:apiPostMultipart\\(\\) has parameter \\$handleAsyncTask with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:apiPostMultipart\\(\\) has parameter \\$postData with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:apiPostMultipart\\(\\) has parameter \\$url with no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
 
@@ -1072,11 +1027,6 @@ parameters:
 
 		-
 			message: "#^PHPDoc tag @param has invalid value \\(bool null \\$protected\\)\\: Unexpected token \"null\", expected variable at offset 169$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(string null \\$fileName\\)\\: Unexpected token \"null\", expected variable at offset 107$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
 
