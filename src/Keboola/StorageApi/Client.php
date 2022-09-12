@@ -672,8 +672,9 @@ class Client
             return $tableId;
         }
         $result = $this->apiPostMultipart('buckets/' . $bucketId . '/tables', $this->prepareMultipartData($options));
+        assert(is_array($result));
 
-        $this->log("Table {$result["id"]} created", ['options' => $options, 'result' => $result]);
+        $this->log("Table {$result['id']} created", ['options' => $options, 'result' => $result]);
 
         if (!empty($options['data']) && is_resource($options['data'])) {
             fclose($options['data']);
@@ -2354,7 +2355,7 @@ class Client
      * Prepare URL and call a GET request
      *
      * @param string $url
-     * @param string null $fileName
+     * @param string|null $fileName
      * @param array $requestOptions
      * @return mixed|string|array
      */
@@ -2365,21 +2366,28 @@ class Client
     }
 
     /**
-     *
      * Prepare URL and call a POST request
      *
      * @param string $url
-     * @param array $postData
+     * @param array|null $postData
+     * @param bool $handleAsyncTask
      * @param array $requestOptions
      * @return mixed|string
+     * @deprecated use apiPostJson method
      */
     public function apiPost($url, $postData = null, $handleAsyncTask = true, $requestOptions = [])
     {
         $requestOptions = $this->filterRequestOptions($requestOptions);
         $requestOptions['form_params'] = $postData;
-        return $this->request('post', $url, $requestOptions, null, $handleAsyncTask);
+        return $this->request('POST', $url, $requestOptions, null, $handleAsyncTask);
     }
 
+    /**
+     * @param string $url
+     * @param array|null $postData
+     * @param bool $handleAsyncTask
+     * @return mixed|string
+     */
     public function apiPostMultipart($url, $postData = null, $handleAsyncTask = true)
     {
         return $this->request('post', $url, ['multipart' => $postData], null, $handleAsyncTask);
@@ -2398,12 +2406,13 @@ class Client
 
     /**
      * @param string $url
-     * @param array $data
+     * @param array|null $data
      * @return mixed|string
+     * @deprecated use apiPutJson method
      */
     public function apiPut($url, $data = null)
     {
-        return $this->request('put', $url, [
+        return $this->request('PUT', $url, [
             'form_params' => $data,
         ]);
     }
@@ -2413,7 +2422,7 @@ class Client
      */
     public function apiPutJson(string $url, array $data = [])
     {
-        return $this->request('put', $url, [
+        return $this->request('PUT', $url, [
             'json' => $data,
         ]);
     }
@@ -2424,12 +2433,18 @@ class Client
      */
     public function apiDelete($url)
     {
-        return $this->request('delete', $url);
+        return $this->request('DELETE', $url);
     }
 
+    /**
+     * @param string $url
+     * @param array $data
+     * @return mixed|string
+     * @deprecated use apiDeleteParamsJson method
+     */
     public function apiDeleteParams($url, $data)
     {
-        return $this->request('delete', $url, [
+        return $this->request('DELETE', $url, [
             'form_params' => $data,
         ]);
     }
@@ -2439,7 +2454,7 @@ class Client
      */
     public function apiDeleteParamsJson(string $url, array $data = [])
     {
-        return $this->request('delete', $url, [
+        return $this->request('DELETE', $url, [
             'json' => $data,
         ]);
     }
@@ -2468,6 +2483,11 @@ class Client
 
         if ($this->getRunId()) {
             $requestOptions['headers']['X-KBC-RunId'] = $this->getRunId();
+        }
+
+        if (isset($requestOptions['json']) && is_array($requestOptions['json']) && empty($requestOptions['json'])) {
+            // if empty array -> send object `{}` instead of list `[]`
+            $requestOptions['json'] = (object) [];
         }
 
         try {
