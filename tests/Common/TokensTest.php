@@ -1319,13 +1319,18 @@ class TokensTest extends StorageApiTestCase
             $this->assertSame(sprintf('Created by %s', $creatorToken['description']), $token['description']);
         }
 
+        if ($options->getExpiresIn()) {
+            $this->assertNotEmpty($token['expires']);
+        } else {
+            $this->assertNull($token['expires']);
+        }
+
         $this->assertFalse($token['isMasterToken']);
         $this->assertFalse($token['canManageBuckets']);
         $this->assertFalse($token['canManageTokens']);
         $this->assertFalse($token['canReadAllFileUploads']);
         $this->assertFalse($token['canPurgeTrash']);
         $this->assertArrayNotHasKey('componentAccess', $token);
-        $this->assertNotEmpty($token['expires']);
         $this->assertSame([], $token['bucketPermissions']);
     }
 
@@ -1348,8 +1353,7 @@ class TokensTest extends StorageApiTestCase
     {
         return [
             'minimal configuration' => [
-                (new TokenCreateOptions())
-                    ->setExpiresIn(60 * 5),
+                (new TokenCreateOptions()),
             ],
             'all applicable params' => [
                 (new TokenCreateOptions())
@@ -1476,11 +1480,6 @@ class TokensTest extends StorageApiTestCase
 
     public function provideInvalidOptionsForGuestUser()
     {
-        yield 'missing required' => [
-            new TokenCreateOptions(),
-            ClientException::class,
-            'Minimal expiration must be greater or equal to 1 second(s)',
-        ];
         yield 'invalid expiration' => [
             (new TokenCreateOptions())
                 ->setExpiresIn(0)
