@@ -856,7 +856,7 @@ class SharingTest extends StorageApiSharingTestCase
 
         $sharedBucket = reset($response);
 
-        $linkedBucketId = $this->_client2->linkBucket('linked-' . time(), 'out', $sharedBucket['project']['id'], $sharedBucket['id'], $isAsync);
+        $linkedBucketId = $this->_client2->linkBucket('linked-' . time(), 'out', $sharedBucket['project']['id'], $sharedBucket['id'], null, $isAsync);
 
         $token = $this->tokensInLinkingProject->createToken($this->createTestTokenOptions(true));
 
