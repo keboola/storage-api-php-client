@@ -2788,29 +2788,58 @@ class Client
         $this->apiPost("tables/$tableId/primary-key", $data);
     }
 
+    /**
+     * @param array $option
+     * @return array
+     */
     public function createTrigger($option)
     {
-        return $this->apiPost('triggers/', $option);
+        $result = $this->apiPostJson('triggers/', $option);
+        assert(is_array($result));
+        return $result;
     }
 
+    /**
+     * @param int $triggerId
+     * @param array $options
+     * @return array
+     */
     public function updateTrigger($triggerId, $options)
     {
-        return $this->apiPut('triggers/' . $triggerId .'/', $options);
+        $result = $this->apiPutJson('triggers/' . $triggerId .'/', $options);
+        assert(is_array($result));
+        return $result;
     }
 
+    /**
+     * @param int $triggerId
+     * @return array
+     */
     public function getTrigger($triggerId)
     {
-        return $this->apiGet('triggers/' . $triggerId .'/');
+        $result = $this->apiGet('triggers/' . $triggerId .'/');
+        assert(is_array($result));
+        return $result;
     }
 
+    /**
+     * @param int $triggerId
+     * @return void
+     */
     public function deleteTrigger($triggerId)
     {
-        return $this->apiDelete('triggers/' . $triggerId .'/');
+        $this->apiDelete('triggers/' . $triggerId .'/');
     }
 
+    /**
+     * @param array $filter
+     * @return array
+     */
     public function listTriggers($filter = [])
     {
-        return $this->apiGet('triggers/?' . http_build_query($filter));
+        $result = $this->apiGet('triggers/?' . http_build_query($filter));
+        assert(is_array($result));
+        return $result;
     }
 
     /**
