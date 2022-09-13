@@ -1128,7 +1128,8 @@ class Client
         if ($protected !== null) {
             $data['protected'] = (bool) $protected;
         }
-        $this->apiPostJson("tables/$tableId/attributes/$key", $data);
+        // Keep form-data, doesn't support JSON - endpoint will be removed
+        $this->apiPost("tables/$tableId/attributes/$key", $data);
     }
 
     /**
@@ -1142,7 +1143,8 @@ class Client
         if (!empty($attributes)) {
             $params['attributes'] = $attributes;
         }
-        $this->apiPostJson("tables/$tableId/attributes", $params);
+        // Keep form-data, doesn't support JSON - endpoint will be removed
+        $this->apiPost("tables/$tableId/attributes", $params);
     }
 
     /**
