@@ -1015,7 +1015,8 @@ class Client
      */
     public function writeTableAsyncDirect($tableId, $options = [])
     {
-        return $this->apiPostJson("tables/{$tableId}/import-async", $this->writeTableOptionsPrepare($options));
+        // TODO use apiPostJson after endpoint is ready
+        return $this->apiPost("tables/{$tableId}/import-async", $this->writeTableOptionsPrepare($options));
     }
 
     /**
@@ -1036,7 +1037,8 @@ class Client
      */
     public function queueTableImport($tableId, $options = [])
     {
-        $job = $this->apiPostJson("tables/{$tableId}/import-async", $this->writeTableOptionsPrepare($options), false);
+        // TODO use apiPostJson after endpoint is ready
+        $job = $this->apiPost("tables/{$tableId}/import-async", $this->writeTableOptionsPrepare($options), false);
         return $job['id'];
     }
 
@@ -1047,7 +1049,8 @@ class Client
      */
     public function queueTableExport($tableId, $options = [])
     {
-        $job = $this->apiPostJson("tables/{$tableId}/export-async", $this->prepareExportOptions($options), false);
+        // TODO use apiPostJson after endpoint is ready
+        $job = $this->apiPost("tables/{$tableId}/export-async", $this->prepareExportOptions($options), false);
         return $job['id'];
     }
 
@@ -1440,7 +1443,8 @@ class Client
      */
     public function exportTableAsync($tableId, $options = [])
     {
-        return $this->apiPostJson(
+        // TODO use apiPostJson after endpoint is ready
+        return $this->apiPost(
             "tables/{$tableId}/export-async",
             $this->prepareExportOptions($options)
         );
@@ -1496,6 +1500,8 @@ class Client
             $filteredOptions['whereValues'] = (array) $options['whereValues'];
         }
 
+        // TODO use apiDeleteParamsJson after endpoint is ready
+        // TODO add example to API documentation
         return $this->apiDeleteParams("tables/{$tableId}/rows", $filteredOptions);
     }
 
