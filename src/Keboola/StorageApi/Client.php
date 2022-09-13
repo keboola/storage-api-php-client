@@ -1483,8 +1483,6 @@ class Client
      */
     public function deleteTableRows($tableId, $options = [])
     {
-        $url = "tables/{$tableId}/rows";
-
         $allowedOptions = [
             'changedSince',
             'changedUntil',
@@ -1498,9 +1496,7 @@ class Client
             $filteredOptions['whereValues'] = (array) $options['whereValues'];
         }
 
-        $url .= '?' . http_build_query($filteredOptions);
-
-        return $this->apiDelete($url);
+        return $this->apiDeleteParams("tables/{$tableId}/rows", $filteredOptions);
     }
 
     /**
