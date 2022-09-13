@@ -20,8 +20,8 @@ class ComponentsEventsTest extends StorageApiTestCase
     const CONFIGURATION_NAME = 'component-events-test';
 
     /**
-     * @var int
-     * generated uid
+     * @var string generated uid
+     * @phpstan-var numeric-string
      */
     private $configurationId;
 
@@ -54,7 +54,7 @@ class ComponentsEventsTest extends StorageApiTestCase
         }
 
         // initialize variables
-        $this->configurationId = (int) $this->_client->generateId();
+        $this->configurationId = $this->_client->generateId();
 
         $clientProvider = new ClientProvider($this);
         $this->client = $clientProvider->createClientForCurrentTest();
