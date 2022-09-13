@@ -2325,7 +2325,7 @@ class Client
 
     /**
      * Unique 64bit sequence generator
-     * @return int generated id
+     * @return string generated id
      * @phpstan-return numeric-string
      */
     public function generateId()
