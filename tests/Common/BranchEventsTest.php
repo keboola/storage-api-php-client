@@ -177,6 +177,8 @@ class BranchEventsTest extends StorageApiTestCase
      */
     public function testFilterBranchTokenEventsIsNotInDefaultBranch(): void
     {
+        $lastEventId = $this->getLastEventId($this->_client);
+
         // create new token
         $tokenOptions = (new TokenCreateOptions())
             ->setCanManageBuckets(true)
@@ -207,7 +209,7 @@ class BranchEventsTest extends StorageApiTestCase
 
         // test DEFAULT branch
         // check token events in default branch
-        $defaultTokenEvents = $this->_client->listTokenEvents($token['id']);
+        $defaultTokenEvents = $this->_client->listTokenEvents($token['id'], ['sinceId' => $lastEventId]);
         $this->assertCount(1, $defaultTokenEvents); // token created
 
         // check dummy event is not among token events
@@ -238,6 +240,22 @@ class BranchEventsTest extends StorageApiTestCase
         // check dummy event is among events
         $this->assertSame($eventInBranchFromMasterToken['id'], $branchEvents[0]['id']);
         $this->assertSame($event['id'], $branchEvents[1]['id']);
+    }
+
+    /**
+     * @see \Keboola\Test\Utils\EventTesterUtils::initEvents inspired by
+     */
+    private function getLastEventId(Client $client): string
+    {
+        $fireEvent = (new Event())
+            ->setComponent('dummy')
+            ->setMessage('dummy');
+        $lastEvent = $this->createAndWaitForEvent($fireEvent, $client);
+
+        if (!empty($lastEvent)) {
+            return $lastEvent['id'];
+        }
+        $this->fail('Get last event failed - not created');
     }
 
     private function waitForListEvents(Client $client, $query)
