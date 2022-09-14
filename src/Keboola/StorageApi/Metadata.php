@@ -106,6 +106,7 @@ class Metadata
 
     /**
      * @deprecated use self::postTableMetadataWithColumns() instead - beware of a bit different format of response!
+     * @see self::postTableMetadataWithColumns()
      *
      * @param string $tableId
      * @param string $provider
@@ -118,7 +119,8 @@ class Metadata
         if (!is_array($metadata) || count($metadata) === 0) {
             throw new ClientException('Third argument must be a non-empty array of Metadata objects');
         }
-        $result = $this->client->apiPostJson("tables/{$tableId}/metadata", [
+        // Keep call with form-data here - call with JSON has different format of response
+        $result = $this->client->apiPost("tables/{$tableId}/metadata", [
             'provider' => $provider,
             'metadata' => $metadata,
         ]);
