@@ -2224,6 +2224,29 @@ class Client
     }
 
     /**
+     * Create new event with form-data request
+     *
+     * @param Event $event
+     * @return int - created event id
+     */
+    public function createEventWithFormData(Event $event)
+    {
+        $result = $this->apiPost('events', [
+            'component' => $event->getComponent(),
+            'configurationId' => $event->getConfigurationId(),
+            'runId' => $event->getRunId(),
+            'message' => $event->getMessage(),
+            'description' => $event->getDescription(),
+            'type' => $event->getType(),
+            'params' => json_encode($event->getParams()),
+            'results' => json_encode($event->getResults()),
+            'duration' => $event->getDuration(),
+        ]);
+        assert(is_array($result));
+        return $result['id'];
+    }
+
+    /**
      * @param int|string $id
      * @return array
      */
