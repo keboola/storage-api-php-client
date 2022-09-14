@@ -416,11 +416,6 @@ parameters:
 			path: src/Keboola/StorageApi/Client.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:dropToken\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:enableAliasTableColumnsAutoSync\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
@@ -841,26 +836,6 @@ parameters:
 			path: src/Keboola/StorageApi/Client.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:shareToken\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:shareToken\\(\\) has parameter \\$message with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:shareToken\\(\\) has parameter \\$recipientEmail with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:shareToken\\(\\) has parameter \\$tokenId with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:unshareBucket\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
@@ -957,16 +932,6 @@ parameters:
 
 		-
 			message: "#^PHPDoc tag @param has invalid value \\(bool null \\$protected\\)\\: Unexpected token \"null\", expected variable at offset 169$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Parameter \\#1 \\$id of method Keboola\\\\StorageApi\\\\Tokens\\:\\:dropToken\\(\\) expects int, string given\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Parameter \\#1 \\$id of method Keboola\\\\StorageApi\\\\Tokens\\:\\:getToken\\(\\) expects int, string given\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
 
@@ -2509,41 +2474,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$entry of method Keboola\\\\StorageApi\\\\Downloader\\\\DownloaderInterface\\:\\:downloadManifestEntry\\(\\) expects array, mixed given\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/TableExporter.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Tokens\\:\\:createToken\\(\\) should return array but returns mixed\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Tokens.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Tokens\\:\\:dropToken\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Tokens.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Tokens\\:\\:getToken\\(\\) should return array but returns mixed\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Tokens.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Tokens\\:\\:listTokens\\(\\) should return array but returns mixed\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Tokens.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Tokens\\:\\:refreshToken\\(\\) should return array but returns mixed\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Tokens.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Tokens\\:\\:shareToken\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Tokens.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Tokens\\:\\:updateToken\\(\\) should return array but returns mixed\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Tokens.php
 
 		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Workspaces\\:\\:cloneIntoWorkspace\\(\\) has parameter \\$id with no type specified\\.$#"
@@ -5707,41 +5637,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\TokensTest\\:\\:provideInvalidOptionsForGuestUser\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/TokensTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$id of method Keboola\\\\StorageApi\\\\Tokens\\:\\:dropToken\\(\\) expects int, false given\\.$#"
-			count: 1
-			path: tests/Common/TokensTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$id of method Keboola\\\\StorageApi\\\\Tokens\\:\\:dropToken\\(\\) expects int, string given\\.$#"
-			count: 1
-			path: tests/Common/TokensTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$id of method Keboola\\\\StorageApi\\\\Tokens\\:\\:getToken\\(\\) expects int, string given\\.$#"
-			count: 1
-			path: tests/Common/TokensTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$id of method Keboola\\\\StorageApi\\\\Tokens\\:\\:refreshToken\\(\\) expects int, string given\\.$#"
-			count: 1
-			path: tests/Common/TokensTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$tokenId of method Keboola\\\\StorageApi\\\\Client\\:\\:dropToken\\(\\) expects string, int given\\.$#"
-			count: 1
-			path: tests/Common/TokensTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$tokenId of method Keboola\\\\StorageApi\\\\Client\\:\\:getToken\\(\\) expects string, int given\\.$#"
-			count: 1
-			path: tests/Common/TokensTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$tokenId of method Keboola\\\\StorageApi\\\\Client\\:\\:refreshToken\\(\\) expects string\\|null, int given\\.$#"
 			count: 1
 			path: tests/Common/TokensTest.php
 

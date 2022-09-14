@@ -19,7 +19,9 @@ class Tokens
      */
     public function listTokens()
     {
-        return $this->client->apiGet('tokens');
+        $result = $this->client->apiGet('tokens');
+        assert(is_array($result));
+        return $result;
     }
 
     /**
@@ -28,7 +30,9 @@ class Tokens
      */
     public function getToken($id)
     {
-        return $this->client->apiGet("tokens/{$id}");
+        $result = $this->client->apiGet("tokens/{$id}");
+        assert(is_array($result));
+        return $result;
     }
 
     /**
@@ -36,7 +40,9 @@ class Tokens
      */
     public function createToken(TokenCreateOptions $options)
     {
-        return $this->client->apiPost('tokens', $options->toParamsArray());
+        $result = $this->client->apiPostJson('tokens', $options->toParamsArray(true));
+        assert(is_array($result));
+        return $result;
     }
 
     /**
@@ -44,11 +50,14 @@ class Tokens
      */
     public function updateToken(TokenUpdateOptions $options)
     {
-        return $this->client->apiPut("tokens/{$options->getTokenId()}", $options->toParamsArray());
+        $result = $this->client->apiPutJson("tokens/{$options->getTokenId()}", $options->toParamsArray(true));
+        assert(is_array($result));
+        return $result;
     }
 
     /**
      * @param int $id
+     * @return void
      */
     public function dropToken($id)
     {
@@ -59,10 +68,11 @@ class Tokens
      * @param int $id
      * @param string $recipientEmail
      * @param string $message
+     * @return void
      */
     public function shareToken($id, $recipientEmail, $message)
     {
-        $this->client->apiPost("tokens/{$id}/share", [
+        $this->client->apiPostJson("tokens/{$id}/share", [
             'recipientEmail' => $recipientEmail,
             'message' => $message,
         ]);
@@ -74,6 +84,8 @@ class Tokens
      */
     public function refreshToken($id)
     {
-        return $this->client->apiPost("tokens/{$id}/refresh");
+        $result = $this->client->apiPostJson("tokens/{$id}/refresh");
+        assert(is_array($result));
+        return $result;
     }
 }
