@@ -542,7 +542,7 @@ class ComponentsTest extends StorageApiTestCase
         ], true);
 
         $response = $client->post('/v2/storage/branch/default/components/wr-db/configs', [
-            'form_params' => [
+            'json' => [
                 'name' => 'test configuration',
                 'isDisabled' => $isDisabled,
             ],
@@ -764,7 +764,7 @@ class ComponentsTest extends StorageApiTestCase
         ];
 
         $response = $client->post('/v2/storage/branch/default/components/wr-db/configs', [
-            'form_params' => [
+            'json' => [
                 'name' => 'test',
                 'configuration' => json_encode($config),
                 'state' => json_encode($state),
@@ -794,7 +794,7 @@ class ComponentsTest extends StorageApiTestCase
             'object' => (object) [],
         ];
         $response = $client->put("/v2/storage/branch/default/components/wr-db/configs/{$response->id}", [
-            'form_params' => [
+            'json' => [
                 'configuration' => json_encode($config),
             ],
             'headers' => [
