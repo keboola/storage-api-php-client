@@ -2199,16 +2199,9 @@ class Client
         return $this->apiGet('files?' . http_build_query($options ? $options->toArray() : []));
     }
 
-
-    /**
-     * Create new event
-     *
-     * @param Event $event
-     * @return int - created event id
-     */
-    public function createEvent(Event $event)
+    protected function prepareDataForCreateEvent(Event $event): array
     {
-        $result = $this->apiPostJson('events', [
+        return [
             'component' => $event->getComponent(),
             'configurationId' => $event->getConfigurationId(),
             'runId' => $event->getRunId(),
@@ -2218,7 +2211,18 @@ class Client
             'params' => json_encode($event->getParams()),
             'results' => json_encode($event->getResults()),
             'duration' => $event->getDuration(),
-        ]);
+        ];
+    }
+
+    /**
+     * Create new event
+     *
+     * @param Event $event
+     * @return int - created event id
+     */
+    public function createEvent(Event $event)
+    {
+        $result = $this->apiPostJson('events', $this->prepareDataForCreateEvent($event));
         assert(is_array($result));
         return $result['id'];
     }
@@ -2231,17 +2235,7 @@ class Client
      */
     public function createEventWithFormData(Event $event)
     {
-        $result = $this->apiPost('events', [
-            'component' => $event->getComponent(),
-            'configurationId' => $event->getConfigurationId(),
-            'runId' => $event->getRunId(),
-            'message' => $event->getMessage(),
-            'description' => $event->getDescription(),
-            'type' => $event->getType(),
-            'params' => json_encode($event->getParams()),
-            'results' => json_encode($event->getResults()),
-            'duration' => $event->getDuration(),
-        ]);
+        $result = $this->apiPost('events', $this->prepareDataForCreateEvent($event));
         assert(is_array($result));
         return $result['id'];
     }
