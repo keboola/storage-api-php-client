@@ -738,7 +738,7 @@ class Client
      */
     public function createTableAsyncDirect($bucketId, $options = [])
     {
-        $createdTable = $this->apiPost("buckets/{$bucketId}/tables-async", $options);
+        $createdTable = $this->apiPostJson("buckets/{$bucketId}/tables-async", $options);
         return $createdTable['id'];
     }
 
@@ -811,6 +811,8 @@ class Client
             $filteredOptions['aliasColumns'] = (array) $options['aliasColumns'];
         }
 
+        // TODO use apiPostJson after endpoint is ready
+        /** @var array{id:string} $result */
         $result = $this->apiPost('buckets/' . $bucketId . '/table-aliases', $filteredOptions);
         $this->log("Table alias {$result["id"]}  created", ['options' => $filteredOptions, 'result' => $result]);
         return $result['id'];
@@ -822,6 +824,8 @@ class Client
      */
     public function createTableSnapshot($tableId, $snapshotDescription = null)
     {
+        // TODO use apiPostJson after endpoint is ready
+        /** @var array{id: int} $result */
         $result = $this->apiPost("tables/{$tableId}/snapshots", [
             'description' => $snapshotDescription,
         ]);
@@ -843,6 +847,7 @@ class Client
 
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
 
+        // TODO use apiPutJson after endpoint is ready
         /** @var array{id: string} $result */
         $result = $this->apiPut('tables/' . $tableId, $filteredOptions);
         $this->log("Table {$tableId} updated");
@@ -869,6 +874,7 @@ class Client
      */
     public function setAliasTableFilter($tableId, array $filter)
     {
+        // TODO use apiPostJson after endpoint is ready
         $result = $this->apiPost("tables/$tableId/alias-filter", $filter);
         $this->log("Table $tableId  filter set", [
             'filter' => $filter,
@@ -887,7 +893,7 @@ class Client
      */
     public function enableAliasTableColumnsAutoSync($tableId)
     {
-        $this->apiPost("tables/{$tableId}/alias-columns-auto-sync");
+        $this->apiPostJson("tables/{$tableId}/alias-columns-auto-sync");
     }
 
     /**
@@ -1009,6 +1015,7 @@ class Client
      */
     public function writeTableAsyncDirect($tableId, $options = [])
     {
+        // TODO use apiPostJson after endpoint is ready
         return $this->apiPost("tables/{$tableId}/import-async", $this->writeTableOptionsPrepare($options));
     }
 
@@ -1019,7 +1026,7 @@ class Client
      */
     public function queueTableCreate($bucketId, $options = [])
     {
-        $job = $this->apiPost("buckets/{$bucketId}/tables-async", $options, false);
+        $job = $this->apiPostJson("buckets/{$bucketId}/tables-async", $options, false);
         return $job['id'];
     }
 
@@ -1030,6 +1037,7 @@ class Client
      */
     public function queueTableImport($tableId, $options = [])
     {
+        // TODO use apiPostJson after endpoint is ready
         $job = $this->apiPost("tables/{$tableId}/import-async", $this->writeTableOptionsPrepare($options), false);
         return $job['id'];
     }
@@ -1041,6 +1049,7 @@ class Client
      */
     public function queueTableExport($tableId, $options = [])
     {
+        // TODO use apiPostJson after endpoint is ready
         $job = $this->apiPost("tables/{$tableId}/export-async", $this->prepareExportOptions($options), false);
         return $job['id'];
     }
@@ -1122,6 +1131,7 @@ class Client
         if ($protected !== null) {
             $data['protected'] = (bool) $protected;
         }
+        // Keep form-data, doesn't support JSON - endpoint will be removed
         $this->apiPost("tables/$tableId/attributes/$key", $data);
     }
 
@@ -1136,6 +1146,7 @@ class Client
         if (!empty($attributes)) {
             $params['attributes'] = $attributes;
         }
+        // Keep form-data, doesn't support JSON - endpoint will be removed
         $this->apiPost("tables/$tableId/attributes", $params);
     }
 
@@ -1162,7 +1173,7 @@ class Client
      * @param string $tableId
      * @param string $name
      */
-    public function addTableColumn(string $tableId, string $name, ?array $definition = [], ?string $basetype = null)
+    public function addTableColumn(string $tableId, string $name, ?array $definition = null, ?string $basetype = null)
     {
         $data = [
             'name' => $name,
@@ -1173,7 +1184,7 @@ class Client
         if ($basetype !== null) {
             $data['basetype'] = $basetype;
         }
-        $this->apiPost("tables/$tableId/columns", $data);
+        $this->apiPostJson("tables/$tableId/columns", $data);
     }
 
 
@@ -1432,6 +1443,7 @@ class Client
      */
     public function exportTableAsync($tableId, $options = [])
     {
+        // TODO use apiPostJson after endpoint is ready
         return $this->apiPost(
             "tables/{$tableId}/export-async",
             $this->prepareExportOptions($options)
@@ -1475,8 +1487,6 @@ class Client
      */
     public function deleteTableRows($tableId, $options = [])
     {
-        $url = "tables/{$tableId}/rows";
-
         $allowedOptions = [
             'changedSince',
             'changedUntil',
@@ -1490,9 +1500,9 @@ class Client
             $filteredOptions['whereValues'] = (array) $options['whereValues'];
         }
 
-        $url .= '?' . http_build_query($filteredOptions);
-
-        return $this->apiDelete($url);
+        // TODO use apiDeleteParamsJson after endpoint is ready
+        // TODO add example to API documentation
+        return $this->apiDeleteParams("tables/{$tableId}/rows", $filteredOptions);
     }
 
     /**
@@ -2805,7 +2815,7 @@ class Client
         $data = [
             'columns' => $columns,
         ];
-        $this->apiPost("tables/$tableId/primary-key", $data);
+        $this->apiPostJson("tables/$tableId/primary-key", $data);
     }
 
     /**
