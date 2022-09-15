@@ -117,7 +117,7 @@ parameters:
 
 		-
 			message: "#^Cannot access offset 'id' on mixed\\.$#"
-			count: 13
+			count: 7
 			path: src/Keboola/StorageApi/Client.php
 
 		-
@@ -201,11 +201,6 @@ parameters:
 			path: src/Keboola/StorageApi/Client.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:createAliasTable\\(\\) should return string but returns mixed\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:createBucket\\(\\) has parameter \\$backend with no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
@@ -237,11 +232,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:createTableAsyncDirect\\(\\) has parameter \\$bucketId with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:createTableAsyncDirect\\(\\) should return string but returns mixed\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
 
@@ -282,11 +272,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:createTableSnapshot\\(\\) has parameter \\$tableId with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:createTableSnapshot\\(\\) should return int but returns mixed\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
 
@@ -626,11 +611,6 @@ parameters:
 			path: src/Keboola/StorageApi/Client.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:queueTableCreate\\(\\) should return int but returns mixed\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:queueTableExport\\(\\) has parameter \\$options with no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
@@ -962,12 +942,7 @@ parameters:
 
 		-
 			message: "#^Part \\$result\\[\"id\"\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#"
-			count: 3
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Part \\$result\\['id'\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#"
-			count: 1
+			count: 2
 			path: src/Keboola/StorageApi/Client.php
 
 		-
