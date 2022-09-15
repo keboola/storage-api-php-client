@@ -447,6 +447,32 @@ abstract class StorageApiTestCase extends ClientTestCase
         }
     }
 
+    /**
+     * @return array
+     * @throws \Exception
+     */
+    protected function createWithFormDataAndWaitForEvent(Event $event, Client $sapiClient = null)
+    {
+        $client = null !== $sapiClient ? $sapiClient : $this->_client;
+
+        $id = $client->createEventWithFormData($event);
+
+        sleep(2); // wait for ES refresh
+        $tries = 0;
+        while (true) {
+            try {
+                return $client->getEvent($id);
+            } catch (\Keboola\StorageApi\ClientException $e) {
+                echo 'Event not found: ' . $id . PHP_EOL;
+            }
+            if ($tries > 4) {
+                throw new \Exception('Max tries exceeded.');
+            }
+            $tries++;
+            sleep(pow(2, $tries));
+        }
+    }
+
     protected function createAndWaitForFile($path, FileUploadOptions $options, Client $sapiClient = null)
     {
         $client = $sapiClient ? $sapiClient : $this->_client;
