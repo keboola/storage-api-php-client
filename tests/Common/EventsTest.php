@@ -178,7 +178,7 @@ class EventsTest extends StorageApiTestCase
     /**
      * http://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-test.txt
      */
-    public function testCreateInvalidUTF8(): void
+    public function testCreateInvalidUTF8WithFormData(): void
     {
         $message = 'SQLSTATE[XX000]: ' . chr(0x00000080);
         $event = new Event();
@@ -187,11 +187,27 @@ class EventsTest extends StorageApiTestCase
             ->setMessage($message);
 
         try {
-            $this->createAndWaitForEvent($event);
+            $this->createWithFormDataAndWaitForEvent($event);
             $this->fail('event should not be created');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('malformedRequest', $e->getStringCode());
         }
+    }
+
+    /**
+     * http://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-test.txt
+     */
+    public function testCreateInvalidUTF8(): void
+    {
+        $message = 'SQLSTATE[XX000]: ' . chr(0x00000080);
+        $event = new Event();
+        $event->setComponent('ex-sfdc')
+            ->setType('info')
+            ->setMessage($message);
+
+        $this->expectException(\GuzzleHttp\Exception\InvalidArgumentException::class);
+        $this->expectExceptionMessage('json_encode error: Malformed UTF-8 characters, possibly incorrectly encoded');
+        $this->createAndWaitForEvent($event);
     }
 
     public function testEventList(): void
