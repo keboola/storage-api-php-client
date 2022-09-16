@@ -16,6 +16,7 @@ class MaintenanceTest extends StorageApiTestCase
 
     public function testMaintenance(): void
     {
+        self::markTestSkipped("Maintenance page isnt set up for e2e testing yet");
         try {
             $client = $this->getClient([
                 'token' => STORAGE_API_TOKEN,
