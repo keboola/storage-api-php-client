@@ -756,6 +756,19 @@ class Client
     }
 
     /**
+     * Starts and waits for async creation of table from configuration
+     *
+     * @param $bucketId
+     * @param array $data JSON
+     * @return string - created table id
+     */
+    public function createTableFromConfiguration($bucketId, $data = [])
+    {
+        $createdTable = $this->apiPostJson("buckets/{$bucketId}/tables-from-configuration", $data);
+        return $createdTable['id'];
+    }
+
+    /**
      * @param string $bucketId destination bucket
      * @param string|int $snapshotId source snapshot
      * @param string|null $name table name (optional) otherwise fetched from snapshot
