@@ -33,7 +33,7 @@ class Components
 
     public function addConfiguration(Configuration $options)
     {
-        return $this->client->apiPost($this->branchPrefix . "components/{$options->getComponentId()}/configs", [
+        return $this->client->apiPostJson($this->branchPrefix . "components/{$options->getComponentId()}/configs", [
             'name' => $options->getName(),
             'description' => $options->getDescription(),
             'configurationId' => $options->getConfigurationId(),
@@ -79,7 +79,7 @@ class Components
             $data['rowsSortOrder'] = $options->getRowsSortOrder();
         }
 
-        return $this->client->apiPut(
+        return $this->client->apiPutJson(
             $this->branchPrefix . "components/{$options->getComponentId()}/configs/{$options->getConfigurationId()}",
             $data
         );
@@ -97,7 +97,7 @@ class Components
             }
         }
 
-        return $this->client->apiPut(
+        return $this->client->apiPutJson(
             $this->branchPrefix . "components/{$options->getComponentId()}/configs/{$options->getConfigurationId()}/state",
             $data
         );
@@ -115,7 +115,7 @@ class Components
 
     public function resetToDefault($componentId, $configurationId)
     {
-        return $this->client->apiPost($this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/reset-to-default");
+        return $this->client->apiPostJson($this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/reset-to-default");
     }
 
     public function listComponents(ListComponentsOptions $options = null)
@@ -138,7 +138,7 @@ class Components
 
     public function restoreComponentConfiguration($componentId, $configurationId)
     {
-        return $this->client->apiPost($this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/restore");
+        return $this->client->apiPostJson($this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/restore");
     }
 
     public function listConfigurationVersions(ListConfigurationVersionsOptions $options)
@@ -154,7 +154,7 @@ class Components
 
     public function rollbackConfiguration($componentId, $configurationId, $version, $changeDescription = null)
     {
-        return $this->client->apiPost(
+        return $this->client->apiPostJson(
             $this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/versions/{$version}/rollback",
             ['changeDescription' => $changeDescription]
         );
@@ -162,7 +162,7 @@ class Components
 
     public function createConfigurationFromVersion($componentId, $configurationId, $version, $name, $description = null, $changeDescription = null)
     {
-        return $this->client->apiPost(
+        return $this->client->apiPostJson(
             $this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/versions/{$version}/create",
             ['name' => $name, 'description' => $description, 'changeDescription' => $changeDescription]
         );
@@ -261,7 +261,7 @@ class Components
             $data['changeDescription'] = $options->getChangeDescription();
         }
 
-        return $this->client->apiPut(
+        return $this->client->apiPutJson(
             sprintf(
                 $this->branchPrefix . 'components/%s/configs/%s/rows/%s',
                 $options->getComponentConfiguration()->getComponentId(),
@@ -315,7 +315,7 @@ class Components
 
     public function rollbackConfigurationRow($componentId, $configurationId, $rowId, $version, $changeDescription = null)
     {
-        return $this->client->apiPost(
+        return $this->client->apiPostJson(
             $this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/versions/{$version}/rollback",
             ['changeDescription' => $changeDescription]
         );
@@ -323,7 +323,7 @@ class Components
 
     public function createConfigurationRowFromVersion($componentId, $configurationId, $rowId, $version, $targetConfigurationId = null, $changeDescription = null)
     {
-        return $this->client->apiPost(
+        return $this->client->apiPostJson(
             $this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/versions/{$version}/create",
             ['targetConfigId' => $targetConfigurationId, 'changeDescription' => $changeDescription]
         );
@@ -331,7 +331,7 @@ class Components
 
     public function createConfigurationWorkspace($componentId, $configurationId, array $options = [])
     {
-        return $this->client->apiPost(
+        return $this->client->apiPostJson(
             $this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/workspaces",
             $options,
             true,
@@ -341,7 +341,7 @@ class Components
 
     public function addConfigurationMetadata(ConfigurationMetadata $options)
     {
-        return $this->client->apiPost(
+        return $this->client->apiPostJson(
             sprintf(
                 $this->branchPrefix . 'components/%s/configs/%s/metadata',
                 $options->getComponentConfiguration()->getComponentId(),
