@@ -2347,6 +2347,67 @@ If there is no column datatype specified (column.definition.type or column.baset
             }
         }
 
+## Create Table from Configuration [/v2/storage/buckets/{bucket_id}/tables-from-configuration]
+
+### Create new table from configuration [POST]
+
+**EXPERIMENTAL**
+
+Creates a table from given configuration (only supported component is: `keboola.app-custom-query-manager`)
+
+Request is handled asynchronously which means that the create request is created and added to a queue and the job resource URL for status polling is returned.
+
++ Parameters
+    + bucket_id (required) - The bucket Id
+
++ Attributes
+    + name (required) - New table name
+    + configurationId (required, string) - ID of configuration from supported component
+
++ Request (application/json)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            {
+                "name": "my-new-table",
+                "configurationId": "my-config"
+            }
+
++ Response 202 (application/json)
+
+        {
+            "id": 356,
+            "status": "waiting",
+            "url": "https:\/\/localhost:8700\/v2\/storage\/jobs\/356",
+            "tableId": null,
+            "operationName": "tableFromConfigurationCreate",
+            "operationParams": {
+                "name": "my-new-table",
+                "configurationId": "my-config",
+                "branchId": "1234",
+                "componentId": "keboola.app-custom-query-manager"
+            },
+            "createdTime": "2021-05-24T11:09:47+0200",
+            "startTime": null,
+            "endTime": null,
+            "runId": "5107",
+            "results": null,
+            "creatorToken": {
+                "id": "553",
+                "description": "devel+test-backend_admin@keboola.com"
+            },
+            "metrics": {
+                "inCompressed": false,
+                "inBytes": 0,
+                "inBytesUncompressed": 0,
+                "outCompressed": false,
+                "outBytes": 0,
+                "outBytesUncompressed": 0
+            }
+        }
 
 ## Create Table Asynchronously [/v2/storage/buckets/{bucket_id}/tables-async]
 
