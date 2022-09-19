@@ -16,22 +16,23 @@ class MaintenanceTest extends StorageApiTestCase
 
     public function testMaintenance(): void
     {
-        try {
-            $client = $this->getClient([
-                'token' => STORAGE_API_TOKEN,
-                'url' => STORAGE_API_MAINTENANCE_URL,
-                'backoffMaxTries' => 2,
-            ]);
-            $client->verifyToken();
-            $this->fail('maintenance exception should be thrown');
-        } catch (\Keboola\StorageApi\MaintenanceException $e) {
-            $this->assertNotEmpty($e->getRetryAfter());
-            $this->assertEquals('MAINTENANCE', $e->getStringCode());
-            $this->assertEquals(503, $e->getCode());
-            $params = $e->getContextParams();
-            $this->assertEquals('maintenance', $params['status']);
-            $this->assertArrayHasKey('reason', $params);
-            $this->assertArrayHasKey('estimatedEndTime', $params);
-        }
+        self::markTestSkipped('Maintenance page isnt set up for e2e testing yet');
+//        try {
+//            $client = $this->getClient([
+//                'token' => STORAGE_API_TOKEN,
+//                'url' => STORAGE_API_MAINTENANCE_URL,
+//                'backoffMaxTries' => 2,
+//            ]);
+//            $client->verifyToken();
+//            $this->fail('maintenance exception should be thrown');
+//        } catch (\Keboola\StorageApi\MaintenanceException $e) {
+//            $this->assertNotEmpty($e->getRetryAfter());
+//            $this->assertEquals('MAINTENANCE', $e->getStringCode());
+//            $this->assertEquals(503, $e->getCode());
+//            $params = $e->getContextParams();
+//            $this->assertEquals('maintenance', $params['status']);
+//            $this->assertArrayHasKey('reason', $params);
+//            $this->assertArrayHasKey('estimatedEndTime', $params);
+//        }
     }
 }
