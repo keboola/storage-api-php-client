@@ -178,7 +178,7 @@ class ConfigurationRowTest extends StorageApiTestCase
         ];
 
         $response = $guzzleClient->post('/v2/storage/branch/default/components/wr-db/configs/main-1/rows', [
-            'form_params' => [
+            'json' => [
                 'name' => 'test',
                 'configuration' => json_encode($config),
                 'state' => json_encode($state),
@@ -216,7 +216,7 @@ class ConfigurationRowTest extends StorageApiTestCase
         ];
 
         $guzzleClient->put('/v2/storage/branch/default/components/wr-db/configs/main-1/rows/' . $response->id . '/state', [
-            'form_params' => [
+            'json' => [
                 'state' => json_encode($state),
             ],
             'headers' => [
@@ -225,7 +225,7 @@ class ConfigurationRowTest extends StorageApiTestCase
         ]);
 
         $response = $guzzleClient->put('/v2/storage/branch/default/components/wr-db/configs/main-1/rows/' . $response->id, [
-            'form_params' => [
+            'json' => [
                 'configuration' => json_encode($config),
             ],
             'headers' => [
@@ -279,7 +279,7 @@ class ConfigurationRowTest extends StorageApiTestCase
         ];
 
         $response = $guzzleClient->post('/v2/storage/branch/default/components/wr-db/configs/main-1/rows', [
-            'form_params' => [
+            'json' => [
                 'configuration' => json_encode($config),
                 'state' => json_encode($state),
             ],
@@ -290,7 +290,7 @@ class ConfigurationRowTest extends StorageApiTestCase
         $response = json_decode((string) $response->getBody());
 
         $responsePut = $guzzleClient->put('/v2/storage/branch/default/components/wr-db/configs/main-1/rows/' . $response->id, [
-            'form_params' => [
+            'json' => [
                 'isDisabled' => 'true',
                 'changeDescription' => 'Row ABCD disabled',
             ],
@@ -339,7 +339,7 @@ class ConfigurationRowTest extends StorageApiTestCase
         ];
 
         $response = $client->post('/v2/storage/branch/default/components/wr-db/configs/main-1/rows', [
-            'form_params' => [
+            'json' => [
                 'name' => 'test configuration row',
                 'configuration' => json_encode($config),
                 'state' => json_encode($state),
