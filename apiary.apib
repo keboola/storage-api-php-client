@@ -289,7 +289,7 @@ In this case, you are allowed to set the `description` and token expiration via 
     + description (optional) - Token description
     + bucketPermissions[{id_bucket}] (optional) - Permissions for a bucket. Available permissions: `read`, `write`.
     + componentAccess[] (optional) - Grants access for component configurations. Allowed
-    values are [valid component IDs](#reference/miscellaneous/api-index/get).
+    values are [valid component IDs](#reference/miscellaneous/api-index/component-list).
     + canManageBuckets (optional, boolean) - Allows full access to all buckets including newly created buckets.
     Overrides `bucketPermissions` settings.
         + Default: false
@@ -434,7 +434,7 @@ bucket permissions, don't forget to specify the previous permissions.
     + description (required) - Token description
     + bucketPermissions[{id_bucket}] (optional) - Permissions for the bucket. Available permissions: `read`, `write`.
     + componentAccess[] (optional) - Grants access for component configurations. Allowed
-    values are [valid component IDs](#reference/miscellaneous/api-index/get).
+    values are [valid component IDs](#reference/miscellaneous/api-index/component-list).
     + canReadAllFileUploads (optional, boolean) - Allows access to all file uploads. When set to false,
     only files uploaded by the current token are accessible.
         + Default: false
