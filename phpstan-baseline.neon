@@ -1396,36 +1396,6 @@ parameters:
 			path: src/Keboola/StorageApi/Components.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\DevBranches\\:\\:createBranch\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/DevBranches.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\DevBranches\\:\\:deleteBranch\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/DevBranches.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\DevBranches\\:\\:getBranch\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/DevBranches.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\DevBranches\\:\\:listBranches\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/DevBranches.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\DevBranches\\:\\:updateBranch\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/DevBranches.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\DevBranches\\:\\:updateBranch\\(\\) has parameter \\$branchId with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/DevBranches.php
-
-		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Event\\:\\:getComponent\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Event.php
