@@ -765,7 +765,10 @@ class Client
     public function createTableFromConfiguration($bucketId, $data = [])
     {
         $createdTable = $this->apiPostJson("buckets/{$bucketId}/tables-from-configuration", $data);
-        return $createdTable['id'];
+        // DEBUG for now return full response with jobParameters
+        return $createdTable;
+        // TODO after service is ready return only table id
+        //return $createdTable['id'];
     }
 
     /**
