@@ -43,16 +43,22 @@ class CreateTableFromConfigurationTest extends StorageApiTestCase
 
     public function testTableCreate(): void
     {
-        $componentId = self::COMPONENT_ID;
         $configurationId = 'main-1';
 
         // create test configuration
         $configuration = (new Configuration())
-            ->setComponentId($componentId)
+            ->setComponentId(self::COMPONENT_ID)
             ->setConfigurationId($configurationId)
             ->setName('Main')
             ->setState(['stateValue' => 'some-value'])
-            ->setConfiguration(['value' => 1])
+            ->setConfiguration([
+                'migrations' => [
+                    [
+                        'sql' => 'CREATE TABLE {{bucketName}}.{{tableName}} (id integer, name varchar(100))',
+                        'description' => 'first ever',
+                    ],
+                ],
+            ])
             ->setDescription('Configuration for Custom Queries')
         ;
         $this->componentsClient->addConfiguration($configuration);
@@ -60,7 +66,7 @@ class CreateTableFromConfigurationTest extends StorageApiTestCase
         // create table from config
         $tableName = 'custom-table-1';
         $tableId = $this->_client->createTableFromConfiguration(
-            $this->getTestBucketId(self::STAGE_IN),
+            $this->getTestBucketId(),
             [
                 'name' => $tableName,
                 'configurationId' => $configurationId,
@@ -72,23 +78,23 @@ class CreateTableFromConfigurationTest extends StorageApiTestCase
             'name' => $tableName,
             'configurationId' => $configurationId,
             'branchId' => $branchId,
-            'componentId' => $componentId,
+            'componentId' => self::COMPONENT_ID,
         ], $tableId);
 
-        $this->markTestIncomplete('Complete while service is ready');
-        // TODO after service is ready check result
-        $table = $this->_client->getTable($tableId);
-        $this->assertArrayHasKey('displayName', $table['bucket']);
-
-        $this->assertEquals($tableId, $table['id']);
-        $this->assertEquals($tableName, $table['name']);
-        $this->assertEquals($tableName, $table['displayName'], 'display name is same as name');
-        $this->assertNotEmpty($table['created']);
-        $this->assertNotEmpty($table['lastChangeDate']);
-        $this->assertNotEmpty($table['lastImportDate']);
-        $this->assertEmpty($table['indexedColumns']);
-        $this->assertNotEquals('0000-00-00 00:00:00', $table['created']);
-        $this->assertNotEmpty($table['dataSizeBytes']);
+//        $this->markTestIncomplete('Complete while service is ready');
+//        // TODO after service is ready check result
+//        $table = $this->_client->getTable($tableId);
+//        $this->assertArrayHasKey('displayName', $table['bucket']);
+//
+//        $this->assertEquals($tableId, $table['id']);
+//        $this->assertEquals($tableName, $table['name']);
+//        $this->assertEquals($tableName, $table['displayName'], 'display name is same as name');
+//        $this->assertNotEmpty($table['created']);
+//        $this->assertNotEmpty($table['lastChangeDate']);
+//        $this->assertNotEmpty($table['lastImportDate']);
+//        $this->assertEmpty($table['indexedColumns']);
+//        $this->assertNotEquals('0000-00-00 00:00:00', $table['created']);
+//        $this->assertNotEmpty($table['dataSizeBytes']);
     }
 
     public function testTableWithUnsupportedCharactersInNameShouldNotBeCreated(): void
@@ -110,8 +116,8 @@ class CreateTableFromConfigurationTest extends StorageApiTestCase
         try {
             // create table from config
             $tableName = 'custom.table.1';
-            $tableId = $this->_client->createTableFromConfiguration(
-                $this->getTestBucketId(self::STAGE_IN),
+            $this->_client->createTableFromConfiguration(
+                $this->getTestBucketId(),
                 [
                     'name' => $tableName,
                     'configurationId' => $configurationId,
@@ -142,8 +148,8 @@ class CreateTableFromConfigurationTest extends StorageApiTestCase
         try {
             // create table from config
             $tableName = 'custom-table-1';
-            $tableId = $this->_client->createTableFromConfiguration(
-                $this->getTestBucketId(self::STAGE_IN),
+            his->_client->createTableFromConfiguration(
+                $this->getTestBucketId(),
                 [
                     'name' => $tableName,
                     'configurationId' => 'config-not-exists',
