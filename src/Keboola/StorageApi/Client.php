@@ -772,6 +772,18 @@ class Client
     }
 
     /**
+     * Starts and waits for async migration of table from configuration
+     */
+    public function migrateTableFromConfiguration(string $tableId): array
+    {
+        $migrated = $this->apiPostJson("tables/{$tableId}/migrate");
+        // DEBUG for now return full response with jobParameters
+        return $migrated;
+        // TODO after service is ready return what is necessary
+        //return $migrated;
+    }
+
+    /**
      * @param string $bucketId destination bucket
      * @param string|int $snapshotId source snapshot
      * @param string|null $name table name (optional) otherwise fetched from snapshot

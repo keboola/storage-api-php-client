@@ -2,6 +2,7 @@
 
 namespace Keboola\Test\Backend\CommonPart1;
 
+use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Components;
@@ -150,6 +151,65 @@ class CreateTableFromConfigurationTest extends StorageApiTestCase
                 ],
             );
             $this->fail('Table with invalid configurationId should not be created');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.validation.configurationNotFound', $e->getStringCode());
+        }
+    }
+
+    public function testMigrateTable(): void
+    {
+        $componentId = self::COMPONENT_ID;
+        $configurationId = 'main-1';
+
+        // create test configuration
+        $configuration = (new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setName('Main')
+            ->setState(['stateValue' => 'some-value'])
+            ->setConfiguration(['value' => 1])
+            ->setDescription('Configuration for Custom Queries')
+        ;
+        $this->componentsClient->addConfiguration($configuration);
+
+        // create table from config
+        $tableName = 'custom-table-1';
+        $tableId = $this->_client->createTableFromConfiguration(
+            $this->getTestBucketId(self::STAGE_IN),
+            [
+                'name' => $tableName,
+                'configurationId' => $configurationId,
+            ],
+        );
+
+
+        $this->markTestIncomplete('Complete while creating service is ready');
+        // TODO after service is ready check result
+        $table = $this->_client->getTable($tableId);
+        $this->assertEquals($tableId, $table['id']);
+
+        // migrate table
+        $this->markTestIncomplete('Complete while migration service is ready');
+        $this->_client->migrateTableFromConfiguration($tableId);
+
+        // TODO check migration result
+    }
+
+    public function testMigrateTableWithNotExistingConfiguration(): void
+    {
+        // create standard table without configuration
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $tableName = 'custom-table-1';
+        $tableId = $this->_client->createTableAsync(
+            $this->getTestBucketId(self::STAGE_IN),
+            $tableName,
+            new CsvFile($importFile),
+        );
+
+        // migrate table
+        try {
+            $this->_client->migrateTableFromConfiguration($tableId);
+            $this->fail('Table with not existing configurationId should not be migrated');
         } catch (ClientException $e) {
             $this->assertEquals('storage.validation.configurationNotFound', $e->getStringCode());
         }
