@@ -27,7 +27,6 @@ class CreateTableFromConfigurationTest extends StorageApiTestCase
             $this->markTestSkipped(sprintf('Creating tables from configurations feature is not enabled for project "%s"', $token['owner']['id']));
         }
 
-
         // init buckets
         $this->initEmptyTestBucketsForParallelTests();
 
@@ -51,7 +50,6 @@ class CreateTableFromConfigurationTest extends StorageApiTestCase
         $this->componentsClient = new Components($this->client);
         $component = $this->componentsClient->getComponent(self::COMPONENT_ID);
         $this->assertEquals(self::COMPONENT_ID, $component['id']);
-
     }
 
     public function testTableCreate(): void
