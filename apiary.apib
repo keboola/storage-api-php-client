@@ -2783,6 +2783,49 @@ Further information can be found in the [Developers Documentation](https://devel
                 }
             }
 
+## Migrate table from configuration [/v2/storage/tables/{table_id}/migrate]
+
+### Migrate table from configuration [POST]
+
+**EXPERIMENTAL**
+
+Migrate a table created from given configuration (only supported component is: `keboola.app-custom-query-manager`)
+
++ Parameters
+    + table_id (required) - Table Id
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 202 (application/json)
+
+            {
+                "id": 22070846,
+                "status": "waiting",
+                "url": "https://connection.keboola.com/v2/storage/jobs/22070846",
+                "tableId": "in.c-main.test",
+                "operationName": "tableMigrate",
+                "operationParams": {},
+                "createdTime": "2017-02-13T12:51:48+0100",
+                "startTime": null,
+                "endTime": null,
+                "runId": null,
+                "results": null,
+                "creatorToken": {
+                    "id": "27978",
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
+                }
+            }
 
 ## Data Preview [/v2/storage/tables/{table_id}/data-preview/]
 ### Data preview [GET]
