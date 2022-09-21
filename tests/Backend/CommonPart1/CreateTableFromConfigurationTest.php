@@ -27,18 +27,31 @@ class CreateTableFromConfigurationTest extends StorageApiTestCase
             $this->markTestSkipped(sprintf('Creating tables from configurations feature is not enabled for project "%s"', $token['owner']['id']));
         }
 
-        // init configurations
-        $this->cleanupConfigurations();
+
+        // init buckets
+        $this->initEmptyTestBucketsForParallelTests();
+
         $this->clientProvider = new ClientProvider($this);
         $this->client = $this->clientProvider->createClientForCurrentTest();
+
+        // init configurations
+        try {
+            $this->cleanupConfigurations();
+        } catch (ClientException $e) {
+            if (preg_match('/Configuration cannot be deleted because it is being used in following configured tables (.*). Delete them first./', $e->getMessage(), $out)) {
+                $tablesToDelete = explode(',', $out[1]);
+                foreach ($tablesToDelete as $tableId) {
+                    $this->client->dropTable($tableId);
+                }
+            }
+            $this->cleanupConfigurations();
+        }
 
         // check component exists
         $this->componentsClient = new Components($this->client);
         $component = $this->componentsClient->getComponent(self::COMPONENT_ID);
         $this->assertEquals(self::COMPONENT_ID, $component['id']);
 
-        // init buckets
-        $this->initEmptyTestBucketsForParallelTests();
     }
 
     public function testTableCreate(): void
@@ -59,8 +72,7 @@ class CreateTableFromConfigurationTest extends StorageApiTestCase
                     ],
                 ],
             ])
-            ->setDescription('Configuration for Custom Queries')
-        ;
+            ->setDescription('Configuration for Custom Queries');
         $this->componentsClient->addConfiguration($configuration);
 
         // create table from config
@@ -72,29 +84,92 @@ class CreateTableFromConfigurationTest extends StorageApiTestCase
                 'configurationId' => $configurationId,
             ],
         );
-        // DEBUG for now return full response with jobParameters
-        $branchId = $this->getDefaultBranchId($this);
-        $this->assertSame([
-            'name' => $tableName,
-            'configurationId' => $configurationId,
-            'branchId' => $branchId,
-            'componentId' => self::COMPONENT_ID,
-        ], $tableId);
 
-//        $this->markTestIncomplete('Complete while service is ready');
-//        // TODO after service is ready check result
-//        $table = $this->_client->getTable($tableId);
-//        $this->assertArrayHasKey('displayName', $table['bucket']);
-//
-//        $this->assertEquals($tableId, $table['id']);
-//        $this->assertEquals($tableName, $table['name']);
-//        $this->assertEquals($tableName, $table['displayName'], 'display name is same as name');
-//        $this->assertNotEmpty($table['created']);
-//        $this->assertNotEmpty($table['lastChangeDate']);
-//        $this->assertNotEmpty($table['lastImportDate']);
-//        $this->assertEmpty($table['indexedColumns']);
-//        $this->assertNotEquals('0000-00-00 00:00:00', $table['created']);
-//        $this->assertNotEmpty($table['dataSizeBytes']);
+        $table = $this->_client->getTable($tableId);
+        $this->assertArrayHasKey('displayName', $table['bucket']);
+
+        $this->assertEquals($tableId, $table['id']);
+        $this->assertEquals($tableName, $table['name']);
+        $this->assertEquals($tableName, $table['displayName'], 'display name is same as name');
+        $this->assertNotEmpty($table['created']);
+        $this->assertNotEquals('0000-00-00 00:00:00', $table['created']);
+    }
+
+    public function testTableCreateWithMeaningFullQueryAsSecond(): void
+    {
+        $configurationId = 'main-1';
+
+        // create test configuration
+        $configuration = (new Configuration())
+            ->setComponentId(self::COMPONENT_ID)
+            ->setConfigurationId($configurationId)
+            ->setName('Main')
+            ->setState(['stateValue' => 'some-value'])
+            ->setConfiguration([
+                'migrations' => [
+                    [
+                        'sql' => 'SELECT 1',
+                        'description' => 'first ever',
+                    ],
+                    [
+                        'sql' => 'CREATE TABLE {{bucketName}}.{{tableName}} (id integer, name varchar(100))',
+                        'description' => 'first ever',
+                    ],
+                ],
+            ])
+            ->setDescription('Configuration for Custom Queries');
+        $this->componentsClient->addConfiguration($configuration);
+
+        // create table from config
+        $tableName = 'custom-table-1';
+        $tableId = $this->_client->createTableFromConfiguration(
+            $this->getTestBucketId(),
+            [
+                'name' => $tableName,
+                'configurationId' => $configurationId,
+            ],
+        );
+
+        $table = $this->_client->getTable($tableId);
+        $this->assertArrayHasKey('displayName', $table['bucket']);
+
+        $this->assertEquals($tableId, $table['id']);
+        $this->assertEquals($tableName, $table['name']);
+        $this->assertEquals($tableName, $table['displayName'], 'display name is same as name');
+        $this->assertNotEmpty($table['created']);
+        $this->assertNotEquals('0000-00-00 00:00:00', $table['created']);
+    }
+
+    public function testTableCreateWithToothLessQuery(): void
+    {
+        $configurationId = 'main-1';
+
+        // create test configuration
+        $configuration = (new Configuration())
+            ->setComponentId(self::COMPONENT_ID)
+            ->setConfigurationId($configurationId)
+            ->setName('Main')
+            ->setState(['stateValue' => 'some-value'])
+            ->setConfiguration([
+                'migrations' => [
+                    [
+                        'sql' => 'SELECT 1',
+                    ],
+                ],
+            ])
+            ->setDescription('Configuration for Custom Queries');
+        $this->componentsClient->addConfiguration($configuration);
+
+        // create table from config
+        $tableName = 'custom-table-1';
+        self::expectExceptionMessage('Configuration did not create any table');
+        $this->_client->createTableFromConfiguration(
+            $this->getTestBucketId(),
+            [
+                'name' => $tableName,
+                'configurationId' => $configurationId,
+            ],
+        );
     }
 
     public function testTableWithUnsupportedCharactersInNameShouldNotBeCreated(): void
@@ -109,8 +184,7 @@ class CreateTableFromConfigurationTest extends StorageApiTestCase
             ->setName('Main')
             ->setState(['stateValue' => 'some-value'])
             ->setConfiguration(['value' => 1])
-            ->setDescription('Configuration for Custom Queries')
-        ;
+            ->setDescription('Configuration for Custom Queries');
         $this->componentsClient->addConfiguration($configuration);
 
         try {
@@ -141,14 +215,13 @@ class CreateTableFromConfigurationTest extends StorageApiTestCase
             ->setName('Main')
             ->setState(['stateValue' => 'some-value'])
             ->setConfiguration(['value' => 1])
-            ->setDescription('Configuration for Custom Queries')
-        ;
+            ->setDescription('Configuration for Custom Queries');
         $this->componentsClient->addConfiguration($configuration);
 
         try {
             // create table from config
             $tableName = 'custom-table-1';
-            his->_client->createTableFromConfiguration(
+            $this->_client->createTableFromConfiguration(
                 $this->getTestBucketId(),
                 [
                     'name' => $tableName,
