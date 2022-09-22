@@ -758,7 +758,7 @@ class Client
     /**
      * Starts and waits for async creation of table from configuration
      */
-    public function createTableWithConfiguration($bucketId, TableWithConfigurationOptions $data): string
+    public function createTableWithConfiguration(string $bucketId, TableWithConfigurationOptions $data): string
     {
         $createdTable = $this->apiPostJson("buckets/{$bucketId}/tables-with-configuration", [
             'name' => $data->getTablename(),
