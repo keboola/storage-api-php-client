@@ -762,9 +762,9 @@ class Client
      * @param array $data JSON
      * @return string - created table id
      */
-    public function createTableFromConfiguration($bucketId, $data = [])
+    public function createTableWithConfiguration($bucketId, $data = [])
     {
-        $createdTable = $this->apiPostJson("buckets/{$bucketId}/tables-from-configuration", $data);
+        $createdTable = $this->apiPostJson("buckets/{$bucketId}/tables-with-configuration", $data);
         return $createdTable['id'];
     }
 

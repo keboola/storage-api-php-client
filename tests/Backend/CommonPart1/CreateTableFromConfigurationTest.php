@@ -23,7 +23,7 @@ class CreateTableFromConfigurationTest extends StorageApiTestCase
 
         // check feature
         $token = $this->_client->verifyToken();
-        if (!in_array('tables-from-configuration', $token['owner']['features'])) {
+        if (!in_array('tables-with-configuration', $token['owner']['features'])) {
             $this->markTestSkipped(sprintf('Creating tables from configurations feature is not enabled for project "%s"', $token['owner']['id']));
         }
 
@@ -75,7 +75,7 @@ class CreateTableFromConfigurationTest extends StorageApiTestCase
 
         // create table from config
         $tableName = 'custom-table-1';
-        $tableId = $this->_client->createTableFromConfiguration(
+        $tableId = $this->_client->createTableWithConfiguration(
             $this->getTestBucketId(),
             [
                 'name' => $tableName,
@@ -120,7 +120,7 @@ class CreateTableFromConfigurationTest extends StorageApiTestCase
 
         // create table from config
         $tableName = 'custom-table-1';
-        $tableId = $this->_client->createTableFromConfiguration(
+        $tableId = $this->_client->createTableWithConfiguration(
             $this->getTestBucketId(),
             [
                 'name' => $tableName,
@@ -161,7 +161,7 @@ class CreateTableFromConfigurationTest extends StorageApiTestCase
         // create table from config
         $tableName = 'custom-table-1';
         self::expectExceptionMessage('Configuration did not create any table');
-        $this->_client->createTableFromConfiguration(
+        $this->_client->createTableWithConfiguration(
             $this->getTestBucketId(),
             [
                 'name' => $tableName,
@@ -188,7 +188,7 @@ class CreateTableFromConfigurationTest extends StorageApiTestCase
         try {
             // create table from config
             $tableName = 'custom.table.1';
-            $this->_client->createTableFromConfiguration(
+            $this->_client->createTableWithConfiguration(
                 $this->getTestBucketId(),
                 [
                     'name' => $tableName,
@@ -219,7 +219,7 @@ class CreateTableFromConfigurationTest extends StorageApiTestCase
         try {
             // create table from config
             $tableName = 'custom-table-1';
-            $this->_client->createTableFromConfiguration(
+            $this->_client->createTableWithConfiguration(
                 $this->getTestBucketId(),
                 [
                     'name' => $tableName,
