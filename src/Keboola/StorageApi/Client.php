@@ -21,11 +21,11 @@ use Keboola\StorageApi\Options\IndexOptions;
 use Keboola\StorageApi\Options\ListFilesOptions;
 use Keboola\StorageApi\Options\SearchTablesOptions;
 use Keboola\StorageApi\Options\StatsOptions;
+use Keboola\StorageApi\Options\TableWithConfigurationOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
 use MicrosoftAzure\Storage\Blob\Models\CommitBlobBlocksOptions;
 use MicrosoftAzure\Storage\Blob\Models\CreateBlockBlobOptions;
-use MicrosoftAzure\Storage\Common\Models\ServiceOptions;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
@@ -757,14 +757,13 @@ class Client
 
     /**
      * Starts and waits for async creation of table from configuration
-     *
-     * @param $bucketId
-     * @param array $data JSON
-     * @return string - created table id
      */
-    public function createTableWithConfiguration($bucketId, $data = [])
+    public function createTableWithConfiguration($bucketId, TableWithConfigurationOptions $data): string
     {
-        $createdTable = $this->apiPostJson("buckets/{$bucketId}/tables-with-configuration", $data);
+        $createdTable = $this->apiPostJson("buckets/{$bucketId}/tables-with-configuration", [
+            'name' => $data->getTablename(),
+            'configurationId' => $data->getConfigurationId(),
+        ]);
         return $createdTable['id'];
     }
 
