@@ -6,6 +6,7 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\Configuration;
+use Keboola\StorageApi\Options\TableWithConfigurationOptions;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
 
@@ -75,12 +76,12 @@ class CreateTableFromConfigurationTest extends StorageApiTestCase
 
         // create table from config
         $tableName = 'custom-table-1';
+        $configurationOptions = (new TableWithConfigurationOptions())
+            ->setTablename($tableName)
+            ->setConfigurationId($configurationId);
         $tableId = $this->_client->createTableWithConfiguration(
             $this->getTestBucketId(),
-            [
-                'name' => $tableName,
-                'configurationId' => $configurationId,
-            ],
+            $configurationOptions
         );
 
         $table = $this->_client->getTable($tableId);
@@ -120,12 +121,12 @@ class CreateTableFromConfigurationTest extends StorageApiTestCase
 
         // create table from config
         $tableName = 'custom-table-1';
+        $configurationOptions = (new TableWithConfigurationOptions())
+            ->setTablename($tableName)
+            ->setConfigurationId($configurationId);
         $tableId = $this->_client->createTableWithConfiguration(
             $this->getTestBucketId(),
-            [
-                'name' => $tableName,
-                'configurationId' => $configurationId,
-            ],
+            $configurationOptions
         );
 
         $table = $this->_client->getTable($tableId);
@@ -161,12 +162,12 @@ class CreateTableFromConfigurationTest extends StorageApiTestCase
         // create table from config
         $tableName = 'custom-table-1';
         self::expectExceptionMessage('Configuration did not create any table');
+        $configurationOptions = (new TableWithConfigurationOptions())
+            ->setTablename($tableName)
+            ->setConfigurationId($configurationId);
         $this->_client->createTableWithConfiguration(
             $this->getTestBucketId(),
-            [
-                'name' => $tableName,
-                'configurationId' => $configurationId,
-            ],
+            $configurationOptions
         );
     }
 
@@ -188,12 +189,12 @@ class CreateTableFromConfigurationTest extends StorageApiTestCase
         try {
             // create table from config
             $tableName = 'custom.table.1';
+            $configurationOptions = (new TableWithConfigurationOptions())
+                ->setTablename($tableName)
+                ->setConfigurationId($configurationId);
             $this->_client->createTableWithConfiguration(
                 $this->getTestBucketId(),
-                [
-                    'name' => $tableName,
-                    'configurationId' => $configurationId,
-                ],
+                $configurationOptions
             );
             $this->fail('Table with dot in name should not be created');
         } catch (ClientException $e) {
@@ -219,12 +220,12 @@ class CreateTableFromConfigurationTest extends StorageApiTestCase
         try {
             // create table from config
             $tableName = 'custom-table-1';
+            $configurationOptions = (new TableWithConfigurationOptions())
+                ->setTablename($tableName)
+                ->setConfigurationId('doesNotExist');
             $this->_client->createTableWithConfiguration(
                 $this->getTestBucketId(),
-                [
-                    'name' => $tableName,
-                    'configurationId' => 'config-not-exists',
-                ],
+                $configurationOptions
             );
             $this->fail('Table with invalid configurationId should not be created');
         } catch (ClientException $e) {
