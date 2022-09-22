@@ -7,35 +7,26 @@ class TableWithConfigurationOptions
     private string $tablename;
     private string $configurationId;
 
-    /**
-     * @return string
-     */
     public function getTablename(): string
     {
         return $this->tablename;
     }
 
-    /**
-     * @param string $tablename
-     */
-    public function setTablename(string $tablename): void
+
+    public function setTablename(string $tablename): self
     {
         $this->tablename = $tablename;
+        return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getConfigurationId(): string
     {
         return $this->configurationId;
     }
 
-    /**
-     * @param string $configurationId
-     */
-    public function setConfigurationId(string $configurationId): void
+    public function setConfigurationId(string $configurationId): self
     {
         $this->configurationId = $configurationId;
+        return $this;
     }
 }
