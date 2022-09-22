@@ -204,6 +204,24 @@ class CreateTableFromConfigurationTest extends StorageApiTestCase
 
     public function testTableWithInvalidConfigurationIdShouldNotBeCreated(): void
     {
+        try {
+            // create table from config
+            $tableName = 'custom-table-1';
+            $configurationOptions = (new TableWithConfigurationOptions())
+                ->setTablename($tableName)
+                ->setConfigurationId('doesNotExist');
+            $this->_client->createTableWithConfiguration(
+                $this->getTestBucketId(),
+                $configurationOptions
+            );
+            $this->fail('Table with invalid configurationId should not be created');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.validation.configurationNotFound', $e->getStringCode());
+        }
+    }
+
+    public function testTableWithInvalidConfigurationContent(): void
+    {
         $componentId = self::COMPONENT_ID;
         $configurationId = 'main-1';
 
@@ -222,14 +240,14 @@ class CreateTableFromConfigurationTest extends StorageApiTestCase
             $tableName = 'custom-table-1';
             $configurationOptions = (new TableWithConfigurationOptions())
                 ->setTablename($tableName)
-                ->setConfigurationId('doesNotExist');
+                ->setConfigurationId($configurationId);
             $this->_client->createTableWithConfiguration(
                 $this->getTestBucketId(),
                 $configurationOptions
             );
             $this->fail('Table with invalid configurationId should not be created');
         } catch (ClientException $e) {
-            $this->assertEquals('storage.validation.configurationNotFound', $e->getStringCode());
+            $this->assertEquals('storage.validation.invalidConfigurationForTables', $e->getStringCode());
         }
     }
 }
