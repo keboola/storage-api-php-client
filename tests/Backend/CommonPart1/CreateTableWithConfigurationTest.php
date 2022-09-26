@@ -298,7 +298,6 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
 
     public function testCreateTwoTablesWithSameConfiguration()
     {
-        // TODO
         $configurationId = 'main-1';
 
         // create test configuration
@@ -328,8 +327,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             $configurationOptions
         );
 
-        try{
-            // TODO
+        try {
             $tableName = 'custom-table-2';
             $configurationOptions = (new TableWithConfigurationOptions())
                 ->setTablename($tableName)
@@ -339,9 +337,8 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
                 $configurationOptions
             );
             $this->fail('shouldn\'t be able to create table with same config');
-        }
-        catch (ClientException $e){
-            $this->assertSame('xxx', $e->getMessage());
+        } catch (ClientException $e) {
+            $this->assertSame('Configuration is used for another table already', $e->getMessage());
         }
 
     }
