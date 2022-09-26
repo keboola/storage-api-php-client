@@ -10,7 +10,7 @@ use Keboola\StorageApi\Options\TableWithConfigurationOptions;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
 
-class CreateTableFromConfigurationTest extends StorageApiTestCase
+class CreateTableWithConfigurationTest extends StorageApiTestCase
 {
     public const COMPONENT_ID = 'keboola.app-custom-query-manager';
 
@@ -249,5 +249,50 @@ class CreateTableFromConfigurationTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertEquals('storage.validation.invalidConfigurationForTables', $e->getStringCode());
         }
+    }
+
+    public function testCreateAndDeleteTableWithMigration()
+    {
+        $configurationId = 'main-1';
+
+        // create test configuration
+        $configuration = (new Configuration())
+            ->setComponentId(self::COMPONENT_ID)
+            ->setConfigurationId($configurationId)
+            ->setName('Main')
+            ->setState(['stateValue' => 'some-value'])
+            ->setConfiguration([
+                'migrations' => [
+                    [
+                        'sql' => 'CREATE TABLE {{bucketName}}.{{tableName}} (id integer, name varchar(100))',
+                        'description' => 'first ever',
+                    ],
+                ],
+            ])
+            ->setDescription('Configuration for Custom Queries');
+        $this->componentsClient->addConfiguration($configuration);
+
+        // create table from config
+        $tableName = 'custom-table-1';
+        $configurationOptions = (new TableWithConfigurationOptions())
+            ->setTablename($tableName)
+            ->setConfigurationId($configurationId);
+        $tableId = $this->_client->createTableWithConfiguration(
+            $this->getTestBucketId(),
+            $configurationOptions
+        );
+
+        $table = $this->_client->getTable($tableId);
+        $this->assertArrayHasKey('displayName', $table['bucket']);
+
+        try {
+            $this->componentsClient->deleteConfiguration(self::COMPONENT_ID, $configuration->getConfigurationId());
+            $this->fail('deleting configuration with table should fail');
+        } catch (ClientException $e) {
+            $this->assertSame(sprintf('Configuration cannot be deleted because it is being used in following configured tables %s. Delete them first.', $tableId), $e->getMessage());
+        }
+
+        $this->client->dropTable($tableId);
+        $this->componentsClient->deleteConfiguration(self::COMPONENT_ID, $configuration->getConfigurationId());
     }
 }
