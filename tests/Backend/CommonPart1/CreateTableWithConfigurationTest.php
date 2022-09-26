@@ -38,8 +38,8 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         try {
             $this->cleanupConfigurations();
         } catch (ClientException $e) {
-            if (preg_match('/Configuration cannot be deleted because it is being used in following configured tables (.*). Delete them first./', $e->getMessage(), $out)) {
-                $tablesToDelete = explode(',', $out[1]);
+            if (preg_match('/Configuration cannot be deleted because it is being used in following configured tables: (.*). Delete them first./', $e->getMessage(), $out)) {
+                $tablesToDelete = explode(', ', $out[1]);
                 foreach ($tablesToDelete as $tableId) {
                     $this->client->dropTable($tableId);
                 }
@@ -289,10 +289,60 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             $this->componentsClient->deleteConfiguration(self::COMPONENT_ID, $configuration->getConfigurationId());
             $this->fail('deleting configuration with table should fail');
         } catch (ClientException $e) {
-            $this->assertSame(sprintf('Configuration cannot be deleted because it is being used in following configured tables %s. Delete them first.', $tableId), $e->getMessage());
+            $this->assertSame(sprintf('Configuration cannot be deleted because it is being used in following configured tables: %s. Delete them first.', $tableId), $e->getMessage());
         }
 
         $this->client->dropTable($tableId);
         $this->componentsClient->deleteConfiguration(self::COMPONENT_ID, $configuration->getConfigurationId());
+    }
+
+    public function testCreateTwoTablesWithSameConfiguration()
+    {
+        // TODO
+        $configurationId = 'main-1';
+
+        // create test configuration
+        $configuration = (new Configuration())
+            ->setComponentId(self::COMPONENT_ID)
+            ->setConfigurationId($configurationId)
+            ->setName('Main')
+            ->setState(['stateValue' => 'some-value'])
+            ->setConfiguration([
+                'migrations' => [
+                    [
+                        'sql' => 'CREATE TABLE {{bucketName}}.{{tableName}} (id integer, name varchar(100))',
+                        'description' => 'first ever',
+                    ],
+                ],
+            ])
+            ->setDescription('Configuration for Custom Queries');
+        $this->componentsClient->addConfiguration($configuration);
+
+        // create table from config
+        $tableName = 'custom-table-1';
+        $configurationOptions = (new TableWithConfigurationOptions())
+            ->setTablename($tableName)
+            ->setConfigurationId($configurationId);
+        $this->_client->createTableWithConfiguration(
+            $this->getTestBucketId(),
+            $configurationOptions
+        );
+
+        try{
+            // TODO
+            $tableName = 'custom-table-2';
+            $configurationOptions = (new TableWithConfigurationOptions())
+                ->setTablename($tableName)
+                ->setConfigurationId($configurationId);
+            $this->_client->createTableWithConfiguration(
+                $this->getTestBucketId(),
+                $configurationOptions
+            );
+            $this->fail('shouldn\'t be able to create table with same config');
+        }
+        catch (ClientException $e){
+            $this->assertSame('xxx', $e->getMessage());
+        }
+
     }
 }
