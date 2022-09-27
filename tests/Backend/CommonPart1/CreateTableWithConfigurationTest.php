@@ -251,7 +251,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         }
     }
 
-    public function testCreateAndDeleteTableWithMigration()
+    public function testCreateAndDeleteTableWithMigration(): void
     {
         $configurationId = 'main-1';
 
@@ -296,7 +296,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         $this->componentsClient->deleteConfiguration(self::COMPONENT_ID, $configuration->getConfigurationId());
     }
 
-    public function testCreateTwoTablesWithSameConfiguration()
+    public function testCreateTwoTablesWithSameConfiguration(): void
     {
         $configurationId = 'main-1';
 
