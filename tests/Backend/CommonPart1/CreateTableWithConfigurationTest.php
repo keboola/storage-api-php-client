@@ -56,6 +56,32 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         }
     }
 
+    protected function assertMetadata(array $table)
+    {
+        $expected = [
+            'ID' => [
+                'KBC.datatype.type' => 'NUMBER',
+                'KBC.datatype.nullable' => '1',
+                'KBC.datatype.basetype' => 'NUMERIC',
+                'KBC.datatype.length' => '38,0',
+            ],
+            'NAME' => [
+                'KBC.datatype.type' => 'VARCHAR',
+                'KBC.datatype.nullable' => '1',
+                'KBC.datatype.basetype' => 'STRING',
+                'KBC.datatype.length' => '100',
+            ],
+        ];
+        $actual = [];
+        foreach ($table['columnMetadata'] as $columnName => $metadatum) {
+            $actual[$columnName] = [];
+            foreach ($metadatum as $item) {
+                $actual[$columnName][$item['key']] = $item['value'];
+            }
+        }
+        $this->assertEquals($expected, $actual);
+    }
+
     public function testTableCreate(): void
     {
         // create test configuration
@@ -85,13 +111,16 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         );
 
         $table = $this->_client->getTable($tableId);
-        $this->assertArrayHasKey('displayName', $table['bucket']);
 
         $this->assertEquals($tableId, $table['id']);
         $this->assertEquals($tableName, $table['name']);
         $this->assertEquals($tableName, $table['displayName'], 'display name is same as name');
+
+        $this->assertTrue($table['isTyped']);
         $this->assertNotEmpty($table['created']);
-        $this->assertNotEquals('0000-00-00 00:00:00', $table['created']);
+        $this->assertEquals(['ID', 'NAME'], $table['columns']);
+
+        $this->assertMetadata($table);
     }
 
     public function testTableCreateWithMeaningFullQueryAsSecond(): void
@@ -127,13 +156,13 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         );
 
         $table = $this->_client->getTable($tableId);
-        $this->assertArrayHasKey('displayName', $table['bucket']);
 
         $this->assertEquals($tableId, $table['id']);
         $this->assertEquals($tableName, $table['name']);
         $this->assertEquals($tableName, $table['displayName'], 'display name is same as name');
         $this->assertNotEmpty($table['created']);
-        $this->assertNotEquals('0000-00-00 00:00:00', $table['created']);
+
+        $this->assertMetadata($table);
     }
 
     public function testTableCreateWithToothLessQuery(): void
