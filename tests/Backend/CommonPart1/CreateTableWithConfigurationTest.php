@@ -13,6 +13,7 @@ use Keboola\Test\StorageApiTestCase;
 class CreateTableWithConfigurationTest extends StorageApiTestCase
 {
     public const COMPONENT_ID = 'keboola.app-custom-query-manager';
+    protected string $configId;
 
     private ClientProvider $clientProvider;
     private Client $client;
@@ -34,35 +35,34 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         $this->clientProvider = new ClientProvider($this);
         $this->client = $this->clientProvider->createClientForCurrentTest();
 
-        // init configurations
+        // check component exists
+        $this->componentsClient = new Components($this->client);
+        $component = $this->componentsClient->getComponent(self::COMPONENT_ID);
+        $this->assertEquals(self::COMPONENT_ID, $component['id']);
+
+        $this->configId = sha1($this->generateDescriptionForTestObject());
+
+        // delete configuration for this test
         try {
-            $this->cleanupConfigurations();
+            $this->componentsClient->deleteConfiguration(self::COMPONENT_ID, $this->configId);
         } catch (ClientException $e) {
             if (preg_match('/Configuration cannot be deleted because it is being used in following configured tables: (.*). Delete them first./', $e->getMessage(), $out)) {
                 $tablesToDelete = explode(', ', $out[1]);
                 foreach ($tablesToDelete as $tableId) {
                     $this->client->dropTable($tableId);
                 }
+                $this->componentsClient->deleteConfiguration(self::COMPONENT_ID, $this->configId);
             }
-            $this->cleanupConfigurations();
         }
-
-        // check component exists
-        $this->componentsClient = new Components($this->client);
-        $component = $this->componentsClient->getComponent(self::COMPONENT_ID);
-        $this->assertEquals(self::COMPONENT_ID, $component['id']);
     }
 
     public function testTableCreate(): void
     {
-        $configurationId = 'main-1';
-
         // create test configuration
         $configuration = (new Configuration())
             ->setComponentId(self::COMPONENT_ID)
-            ->setConfigurationId($configurationId)
-            ->setName('Main')
-            ->setState(['stateValue' => 'some-value'])
+            ->setConfigurationId($this->configId)
+            ->setName($this->configId)
             ->setConfiguration([
                 'migrations' => [
                     [
@@ -78,7 +78,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         $tableName = 'custom-table-1';
         $configurationOptions = (new TableWithConfigurationOptions())
             ->setTableName($tableName)
-            ->setConfigurationId($configurationId);
+            ->setConfigurationId($this->configId);
         $tableId = $this->_client->createTableWithConfiguration(
             $this->getTestBucketId(),
             $configurationOptions
@@ -96,14 +96,11 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
 
     public function testTableCreateWithMeaningFullQueryAsSecond(): void
     {
-        $configurationId = 'main-1';
-
         // create test configuration
         $configuration = (new Configuration())
             ->setComponentId(self::COMPONENT_ID)
-            ->setConfigurationId($configurationId)
-            ->setName('Main')
-            ->setState(['stateValue' => 'some-value'])
+            ->setConfigurationId($this->configId)
+            ->setName($this->configId)
             ->setConfiguration([
                 'migrations' => [
                     [
@@ -123,7 +120,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         $tableName = 'custom-table-1';
         $configurationOptions = (new TableWithConfigurationOptions())
             ->setTableName($tableName)
-            ->setConfigurationId($configurationId);
+            ->setConfigurationId($this->configId);
         $tableId = $this->_client->createTableWithConfiguration(
             $this->getTestBucketId(),
             $configurationOptions
@@ -141,14 +138,11 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
 
     public function testTableCreateWithToothLessQuery(): void
     {
-        $configurationId = 'main-1';
-
         // create test configuration
         $configuration = (new Configuration())
             ->setComponentId(self::COMPONENT_ID)
-            ->setConfigurationId($configurationId)
-            ->setName('Main')
-            ->setState(['stateValue' => 'some-value'])
+            ->setConfigurationId($this->configId)
+            ->setName($this->configId)
             ->setConfiguration([
                 'migrations' => [
                     [
@@ -161,10 +155,10 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
 
         // create table from config
         $tableName = 'custom-table-1';
-        self::expectExceptionMessage('Configuration did not create any table');
         $configurationOptions = (new TableWithConfigurationOptions())
             ->setTableName($tableName)
-            ->setConfigurationId($configurationId);
+            ->setConfigurationId($this->configId);
+        self::expectExceptionMessage('Configuration did not create any table');
         $this->_client->createTableWithConfiguration(
             $this->getTestBucketId(),
             $configurationOptions
@@ -173,17 +167,12 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
 
     public function testTableWithUnsupportedCharactersInNameShouldNotBeCreated(): void
     {
-        $componentId = self::COMPONENT_ID;
-        $configurationId = 'main-1';
-
         // create test configuration
         $configuration = (new Configuration())
-            ->setComponentId($componentId)
-            ->setConfigurationId($configurationId)
-            ->setName('Main')
-            ->setState(['stateValue' => 'some-value'])
-            ->setConfiguration(['value' => 1])
-            ->setDescription('Configuration for Custom Queries');
+            ->setComponentId(self::COMPONENT_ID)
+            ->setConfigurationId($this->configId)
+            ->setName($this->configId)
+            ->setConfiguration(['value' => 1]);
         $this->componentsClient->addConfiguration($configuration);
 
         try {
@@ -191,7 +180,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             $tableName = 'custom.table.1';
             $configurationOptions = (new TableWithConfigurationOptions())
                 ->setTableName($tableName)
-                ->setConfigurationId($configurationId);
+                ->setConfigurationId($this->configId);
             $this->_client->createTableWithConfiguration(
                 $this->getTestBucketId(),
                 $configurationOptions
@@ -222,17 +211,12 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
 
     public function testTableWithInvalidConfigurationContent(): void
     {
-        $componentId = self::COMPONENT_ID;
-        $configurationId = 'main-1';
-
         // create test configuration
         $configuration = (new Configuration())
-            ->setComponentId($componentId)
-            ->setConfigurationId($configurationId)
-            ->setName('Main')
-            ->setState(['stateValue' => 'some-value'])
-            ->setConfiguration(['value' => 1])
-            ->setDescription('Configuration for Custom Queries');
+            ->setComponentId(self::COMPONENT_ID)
+            ->setConfigurationId($this->configId)
+            ->setName($this->configId)
+            ->setConfiguration(['value' => 1]);
         $this->componentsClient->addConfiguration($configuration);
 
         try {
@@ -240,7 +224,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             $tableName = 'custom-table-1';
             $configurationOptions = (new TableWithConfigurationOptions())
                 ->setTableName($tableName)
-                ->setConfigurationId($configurationId);
+                ->setConfigurationId($this->configId);
             $this->_client->createTableWithConfiguration(
                 $this->getTestBucketId(),
                 $configurationOptions
@@ -253,14 +237,11 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
 
     public function testCreateAndDeleteTableWithMigration(): void
     {
-        $configurationId = 'main-1';
-
         // create test configuration
         $configuration = (new Configuration())
             ->setComponentId(self::COMPONENT_ID)
-            ->setConfigurationId($configurationId)
-            ->setName('Main')
-            ->setState(['stateValue' => 'some-value'])
+            ->setConfigurationId($this->configId)
+            ->setName($this->configId)
             ->setConfiguration([
                 'migrations' => [
                     [
@@ -276,7 +257,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         $tableName = 'custom-table-1';
         $configurationOptions = (new TableWithConfigurationOptions())
             ->setTableName($tableName)
-            ->setConfigurationId($configurationId);
+            ->setConfigurationId($this->configId);
         $tableId = $this->_client->createTableWithConfiguration(
             $this->getTestBucketId(),
             $configurationOptions
@@ -298,14 +279,11 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
 
     public function testCreateTwoTablesWithSameConfiguration(): void
     {
-        $configurationId = 'main-1';
-
         // create test configuration
         $configuration = (new Configuration())
             ->setComponentId(self::COMPONENT_ID)
-            ->setConfigurationId($configurationId)
-            ->setName('Main')
-            ->setState(['stateValue' => 'some-value'])
+            ->setConfigurationId($this->configId)
+            ->setName($this->configId)
             ->setConfiguration([
                 'migrations' => [
                     [
@@ -321,7 +299,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         $tableName = 'custom-table-1';
         $configurationOptions = (new TableWithConfigurationOptions())
             ->setTableName($tableName)
-            ->setConfigurationId($configurationId);
+            ->setConfigurationId($this->configId);
         $this->_client->createTableWithConfiguration(
             $this->getTestBucketId(),
             $configurationOptions
@@ -331,7 +309,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             $tableName = 'custom-table-2';
             $configurationOptions = (new TableWithConfigurationOptions())
                 ->setTableName($tableName)
-                ->setConfigurationId($configurationId);
+                ->setConfigurationId($this->configId);
             $this->_client->createTableWithConfiguration(
                 $this->getTestBucketId(),
                 $configurationOptions
