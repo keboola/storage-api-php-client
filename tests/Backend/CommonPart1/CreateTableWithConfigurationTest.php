@@ -77,7 +77,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         // create table from config
         $tableName = 'custom-table-1';
         $configurationOptions = (new TableWithConfigurationOptions())
-            ->setTablename($tableName)
+            ->setTableName($tableName)
             ->setConfigurationId($configurationId);
         $tableId = $this->_client->createTableWithConfiguration(
             $this->getTestBucketId(),
@@ -122,7 +122,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         // create table from config
         $tableName = 'custom-table-1';
         $configurationOptions = (new TableWithConfigurationOptions())
-            ->setTablename($tableName)
+            ->setTableName($tableName)
             ->setConfigurationId($configurationId);
         $tableId = $this->_client->createTableWithConfiguration(
             $this->getTestBucketId(),
@@ -163,7 +163,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         $tableName = 'custom-table-1';
         self::expectExceptionMessage('Configuration did not create any table');
         $configurationOptions = (new TableWithConfigurationOptions())
-            ->setTablename($tableName)
+            ->setTableName($tableName)
             ->setConfigurationId($configurationId);
         $this->_client->createTableWithConfiguration(
             $this->getTestBucketId(),
@@ -190,7 +190,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             // create table from config
             $tableName = 'custom.table.1';
             $configurationOptions = (new TableWithConfigurationOptions())
-                ->setTablename($tableName)
+                ->setTableName($tableName)
                 ->setConfigurationId($configurationId);
             $this->_client->createTableWithConfiguration(
                 $this->getTestBucketId(),
@@ -208,7 +208,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             // create table from config
             $tableName = 'custom-table-1';
             $configurationOptions = (new TableWithConfigurationOptions())
-                ->setTablename($tableName)
+                ->setTableName($tableName)
                 ->setConfigurationId('doesNotExist');
             $this->_client->createTableWithConfiguration(
                 $this->getTestBucketId(),
@@ -239,7 +239,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             // create table from config
             $tableName = 'custom-table-1';
             $configurationOptions = (new TableWithConfigurationOptions())
-                ->setTablename($tableName)
+                ->setTableName($tableName)
                 ->setConfigurationId($configurationId);
             $this->_client->createTableWithConfiguration(
                 $this->getTestBucketId(),
@@ -275,7 +275,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         // create table from config
         $tableName = 'custom-table-1';
         $configurationOptions = (new TableWithConfigurationOptions())
-            ->setTablename($tableName)
+            ->setTableName($tableName)
             ->setConfigurationId($configurationId);
         $tableId = $this->_client->createTableWithConfiguration(
             $this->getTestBucketId(),
@@ -320,7 +320,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         // create table from config
         $tableName = 'custom-table-1';
         $configurationOptions = (new TableWithConfigurationOptions())
-            ->setTablename($tableName)
+            ->setTableName($tableName)
             ->setConfigurationId($configurationId);
         $this->_client->createTableWithConfiguration(
             $this->getTestBucketId(),
@@ -330,7 +330,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         try {
             $tableName = 'custom-table-2';
             $configurationOptions = (new TableWithConfigurationOptions())
-                ->setTablename($tableName)
+                ->setTableName($tableName)
                 ->setConfigurationId($configurationId);
             $this->_client->createTableWithConfiguration(
                 $this->getTestBucketId(),
