@@ -761,7 +761,7 @@ class Client
     public function createTableWithConfiguration(string $bucketId, TableWithConfigurationOptions $data): string
     {
         $createdTable = $this->apiPostJson("buckets/{$bucketId}/tables-with-configuration", [
-            'name' => $data->getTablename(),
+            'name' => $data->getTableName(),
             'configurationId' => $data->getConfigurationId(),
         ]);
         return $createdTable['id'];

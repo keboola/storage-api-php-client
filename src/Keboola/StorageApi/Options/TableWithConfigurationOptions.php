@@ -4,18 +4,18 @@ namespace Keboola\StorageApi\Options;
 
 class TableWithConfigurationOptions
 {
-    private string $tablename;
+    private string $tableName;
     private string $configurationId;
 
-    public function getTablename(): string
+    public function getTableName(): string
     {
-        return $this->tablename;
+        return $this->tableName;
     }
 
 
-    public function setTablename(string $tablename): self
+    public function setTableName(string $tableName): self
     {
-        $this->tablename = $tablename;
+        $this->tableName = $tableName;
         return $this;
     }
 
