@@ -66,7 +66,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             ->setConfiguration([
                 'migrations' => [
                     [
-                        'sql' => 'CREATE TABLE {{bucketName}}.{{tableName}} (id integer, name varchar(100))',
+                        'sql' => 'CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} (id integer, name varchar(100))',
                         'description' => 'first ever',
                     ],
                 ],
@@ -111,7 +111,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
                         'description' => 'first ever',
                     ],
                     [
-                        'sql' => 'CREATE TABLE {{bucketName}}.{{tableName}} (id integer, name varchar(100))',
+                        'sql' => 'CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} (id integer, name varchar(100))',
                         'description' => 'first ever',
                     ],
                 ],
@@ -264,7 +264,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             ->setConfiguration([
                 'migrations' => [
                     [
-                        'sql' => 'CREATE TABLE {{bucketName}}.{{tableName}} (id integer, name varchar(100))',
+                        'sql' => 'CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} (id integer, name varchar(100))',
                         'description' => 'first ever',
                     ],
                 ],
@@ -309,7 +309,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             ->setConfiguration([
                 'migrations' => [
                     [
-                        'sql' => 'CREATE TABLE {{bucketName}}.{{tableName}} (id integer, name varchar(100))',
+                        'sql' => 'CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} (id integer, name varchar(100))',
                         'description' => 'first ever',
                     ],
                 ],
@@ -340,6 +340,5 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame('Configuration is used for another table already', $e->getMessage());
         }
-
     }
 }
