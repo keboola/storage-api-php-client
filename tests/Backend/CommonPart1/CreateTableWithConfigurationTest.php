@@ -56,7 +56,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         }
     }
 
-    protected function assertMetadata(array $table)
+    protected function assertMetadata(array $table): void
     {
         $expected = [
             'ID' => [
