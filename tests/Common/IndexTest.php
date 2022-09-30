@@ -23,6 +23,9 @@ class IndexTest extends StorageApiTestCase
         $this->assertEquals('v2', $index['version']);
         $this->assertArrayHasKey('revision', $index);
 
+        $this->assertArrayHasKey('stack', $index);
+        $this->assertIsString($index['stack']);
+
         $this->assertIsArray($index['components']);
         $this->assertIsArray($index['features']);
 
