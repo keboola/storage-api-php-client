@@ -285,8 +285,10 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             );
             $this->fail('Table with invalid query in configuration should result in exception');
         } catch (ClientException $e) {
-            $errorMessage = 'Migration query "ASD" (id 1) failed because of: An exception occurred while executing a query: SQL compilation error:\nsyntax error line 1 at position 0 unexpected \'ASD\'.';
-            $this->assertEquals($errorMessage, $e->getMessage());
+            $errorMessage = 'Migration ID: 1 of custom table failed because of : An exception occurred while executing a query:';
+            $this->assertStringContainsString($errorMessage, $e->getMessage());
+            $errorMessage = 'syntax error line 1 at position 0 unexpected \'ASD\'. (executed query: ASD)';
+            $this->assertStringContainsString($errorMessage, $e->getMessage());
         }
     }
 
