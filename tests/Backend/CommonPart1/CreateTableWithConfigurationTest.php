@@ -52,7 +52,10 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
                     $this->client->dropTable($tableId);
                 }
                 $this->componentsClient->deleteConfiguration(self::COMPONENT_ID, $this->configId);
+            } else {
+                throw $e;
             }
+
         }
     }
 
