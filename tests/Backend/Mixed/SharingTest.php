@@ -1425,11 +1425,11 @@ class SharingTest extends StorageApiSharingTestCase
             [
                 [
                     'name' => 'id',
-                    'type' => 'VARCHAR(16777216)',
+                    'type' => 'VARCHAR',
                 ],
                 [
                     'name' => 'name',
-                    'type' => 'VARCHAR(16777216)',
+                    'type' => 'VARCHAR',
                 ],
                 [
                     'name' => '_timestamp',
@@ -1456,23 +1456,23 @@ class SharingTest extends StorageApiSharingTestCase
             [
                 [
                     'name' => '0',
-                    'type' => 'VARCHAR(16777216)',
+                    'type' => 'VARCHAR',
                 ],
                 [
                     'name' => '1',
-                    'type' => 'VARCHAR(16777216)',
+                    'type' => 'VARCHAR',
                 ],
                 [
                     'name' => '2',
-                    'type' => 'VARCHAR(16777216)',
+                    'type' => 'VARCHAR',
                 ],
                 [
                     'name' => '3',
-                    'type' => 'VARCHAR(16777216)',
+                    'type' => 'VARCHAR',
                 ],
                 [
                     'name' => '45',
-                    'type' => 'VARCHAR(16777216)',
+                    'type' => 'VARCHAR',
                 ],
                 [
                     'name' => '_timestamp',
@@ -1499,11 +1499,11 @@ class SharingTest extends StorageApiSharingTestCase
             [
                 [
                     'name' => 'id',
-                    'type' => 'VARCHAR(16777216)',
+                    'type' => 'VARCHAR',
                 ],
                 [
                     'name' => 'name',
-                    'type' => 'VARCHAR(16777216)',
+                    'type' => 'VARCHAR',
                 ],
                 [
                     'name' => '_timestamp',

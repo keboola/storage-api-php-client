@@ -95,15 +95,15 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $this->assertEquals('NUMBER(38,0)', $table[0]['type']);
 
         $this->assertEquals('name', $table[1]['name']);
-        $this->assertEquals('VARCHAR(16777216)', $table[1]['type']);
+        $this->assertEquals('VARCHAR', $table[1]['type']);
 
         $table = $backend->describeTableColumns('rates');
 
         $this->assertEquals('Date', $table[0]['name']);
-        $this->assertEquals('VARCHAR(16777216)', $table[0]['type']);
+        $this->assertEquals('VARCHAR', $table[0]['type']);
 
         $this->assertEquals('SKK', $table[1]['name']);
-        $this->assertEquals('VARCHAR(16777216)', $table[1]['type']);
+        $this->assertEquals('VARCHAR', $table[1]['type']);
     }
 
     public function testStatementTimeout(): void
@@ -226,17 +226,17 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $cols = $backend->describeTableColumns('languages-pk');
         $this->assertCount(6, $cols);
         $this->assertEquals('Paid_Search_Engine_Account', $cols[0]['name']);
-        $this->assertEquals('VARCHAR(16777216)', $cols[0]['type']);
+        $this->assertEquals('VARCHAR', $cols[0]['type']);
         $this->assertEquals('Advertiser_ID', $cols[1]['name']);
-        $this->assertEquals('VARCHAR(16777216)', $cols[1]['type']);
+        $this->assertEquals('VARCHAR', $cols[1]['type']);
         $this->assertEquals('Date', $cols[2]['name']);
-        $this->assertEquals('VARCHAR(16777216)', $cols[2]['type']);
+        $this->assertEquals('VARCHAR', $cols[2]['type']);
         $this->assertEquals('Paid_Search_Campaign', $cols[3]['name']);
-        $this->assertEquals('VARCHAR(16777216)', $cols[3]['type']);
+        $this->assertEquals('VARCHAR', $cols[3]['type']);
         $this->assertEquals('Paid_Search_Ad_ID', $cols[4]['name']);
-        $this->assertEquals('VARCHAR(16777216)', $cols[4]['type']);
+        $this->assertEquals('VARCHAR', $cols[4]['type']);
         $this->assertEquals('Site__DFA', $cols[5]['name']);
-        $this->assertEquals('VARCHAR(16777216)', $cols[5]['type']);
+        $this->assertEquals('VARCHAR', $cols[5]['type']);
 
         // Check that PK is NOT set if not all PK columns are present
         $mapping2 = [
@@ -258,9 +258,9 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $cols = $backend->describeTableColumns('languages-pk-skipped');
         $this->assertCount(2, $cols);
         $this->assertEquals('Paid_Search_Engine_Account', $cols[0]['name']);
-        $this->assertEquals('VARCHAR(16777216)', $cols[0]['type']);
+        $this->assertEquals('VARCHAR', $cols[0]['type']);
         $this->assertEquals('Date', $cols[1]['name']);
-        $this->assertEquals('VARCHAR(16777216)', $cols[1]['type']);
+        $this->assertEquals('VARCHAR', $cols[1]['type']);
     }
 
     public function testLoadIncremental(): void

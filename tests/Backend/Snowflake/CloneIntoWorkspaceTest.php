@@ -83,11 +83,11 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
             [
                 [
                     'name' => 'id',
-                    'type' => 'VARCHAR(16777216)',
+                    'type' => 'VARCHAR',
                 ],
                 [
                     'name' => 'name',
-                    'type' => 'VARCHAR(16777216)',
+                    'type' => 'VARCHAR',
                 ],
                 [
                     'name' => '_timestamp',

@@ -1843,7 +1843,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                     self::BACKEND_SNOWFLAKE => [
                         [
                             'name' => 'Id',
-                            'type' => 'VARCHAR(16777216)',
+                            'type' => 'VARCHAR',
                             'kind' => 'COLUMN',
                             'null?' => 'Y',
                             'default' => null,
@@ -1855,7 +1855,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                         ],
                         [
                             'name' => 'Name',
-                            'type' => 'VARCHAR(16777216)',
+                            'type' => 'VARCHAR',
                             'kind' => 'COLUMN',
                             'null?' => 'Y',
                             'default' => null,
