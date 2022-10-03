@@ -255,6 +255,40 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         }
     }
 
+    public function testTableWithInvalidQuery(): void
+    {
+        // create test configuration
+        $configuration = (new Configuration())
+            ->setComponentId(self::COMPONENT_ID)
+            ->setConfigurationId($this->configId)
+            ->setName($this->configId)
+            ->setConfiguration([
+                'migrations' => [
+                    [
+                        'sql' => 'CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} (id integer, name varchar(100))',
+                        'description' => 'first ever',
+                    ],
+                    [
+                        'sql' => 'ASD',
+                    ],
+                ],
+            ]);
+        $this->componentsClient->addConfiguration($configuration);
+
+        try {
+            // create table from config
+            $tableName = 'custom-table-1';
+            $configurationOptions = (new TableWithConfigurationOptions($tableName, $this->configId));
+            $this->_client->createTableWithConfiguration(
+                $this->getTestBucketId(),
+                $configurationOptions
+            );
+            $this->fail('Table with invalid query in configuration should result in exception');
+        } catch (ClientException $e) {
+            $this->assertEquals('Invalid query template "ASD"', $e->getMessage());
+        }
+    }
+
     public function testCreateAndDeleteTableWithMigration(): void
     {
         // create test configuration
