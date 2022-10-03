@@ -178,7 +178,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         // create table from config
         $tableName = 'custom-table-1';
         $configurationOptions = (new TableWithConfigurationOptions($tableName, $this->configId));
-        self::expectExceptionMessage('Configuration did not create any table');
+        $this->expectExceptionMessage('Configuration did not create any table');
         $this->_client->createTableWithConfiguration(
             $this->getTestBucketId(),
             $configurationOptions
