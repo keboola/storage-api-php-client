@@ -25,5 +25,4 @@ class TableWithConfigurationOptions
     {
         return $this->configurationId;
     }
-
 }
