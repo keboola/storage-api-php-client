@@ -96,8 +96,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
                         'description' => 'first ever',
                     ],
                 ],
-            ])
-            ->setDescription('Configuration for Custom Queries');
+            ]);
         $this->componentsClient->addConfiguration($configuration);
 
         // create table from config
@@ -139,8 +138,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
                         'description' => 'first ever',
                     ],
                 ],
-            ])
-            ->setDescription('Configuration for Custom Queries');
+            ]);
         $this->componentsClient->addConfiguration($configuration);
 
         // create table from config
@@ -174,8 +172,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
                         'sql' => 'SELECT 1',
                     ],
                 ],
-            ])
-            ->setDescription('Configuration for Custom Queries');
+            ]);
         $this->componentsClient->addConfiguration($configuration);
 
         // create table from config
@@ -266,8 +263,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
                         'description' => 'first ever',
                     ],
                 ],
-            ])
-            ->setDescription('Configuration for Custom Queries');
+            ]);
         $this->componentsClient->addConfiguration($configuration);
 
         // create table from config
@@ -306,8 +302,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
                         'description' => 'first ever',
                     ],
                 ],
-            ])
-            ->setDescription('Configuration for Custom Queries');
+            ]);
         $this->componentsClient->addConfiguration($configuration);
 
         // create table from config
