@@ -52,7 +52,13 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
                     $this->client->dropTable($tableId);
                 }
                 $this->componentsClient->deleteConfiguration(self::COMPONENT_ID, $this->configId);
+            } elseif (preg_match('/Configuration \w+ not found/', $e->getMessage(), $out)) {
+                // noop, config already deleted
+            } else {
+                // throw other
+                throw $e;
             }
+
         }
     }
 
