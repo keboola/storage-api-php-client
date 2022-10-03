@@ -274,9 +274,6 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             $configurationOptions
         );
 
-        $table = $this->_client->getTable($tableId);
-        $this->assertArrayHasKey('displayName', $table['bucket']);
-
         try {
             $this->componentsClient->deleteConfiguration(self::COMPONENT_ID, $configuration->getConfigurationId());
             $this->fail('deleting configuration with table should fail');
