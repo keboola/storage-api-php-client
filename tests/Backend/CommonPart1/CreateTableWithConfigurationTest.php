@@ -285,7 +285,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             );
             $this->fail('Table with invalid query in configuration should result in exception');
         } catch (ClientException $e) {
-            $this->assertEquals('Invalid query template "ASD"', $e->getMessage());
+            $this->assertContains('Migration failed', $e->getMessage());
         }
     }
 
