@@ -63,11 +63,13 @@ class IndexTest extends StorageApiTestCase
         $this->assertArrayHasKey(0, $componentsWithoutDetails);
 
         $firstComponent = $componentsWithoutDetails[0];
-        $this->assertCount(4, $firstComponent);
         $this->assertArrayHasKey('id', $firstComponent);
         $this->assertArrayHasKey('name', $firstComponent);
         $this->assertArrayHasKey('type', $firstComponent);
         $this->assertArrayHasKey('ico64', $firstComponent);
+        $this->assertArrayHasKey('description', $firstComponent);
+        $this->assertArrayHasKey('flags', $firstComponent);
+        $this->assertArrayHasKey('categories', $firstComponent);
 
         // exclude=components,componentDetails
         $indexWithoutComponents = $this->_client->indexAction((new IndexOptions())->setExclude(['components', 'componentDetails']));
