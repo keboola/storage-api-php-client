@@ -51,12 +51,12 @@ trait EventTesterUtils
      * @param int|string|null $expectedObjectId
      * @return array[]
      */
-    protected function listEvents(Client $client, $eventName, $expectedObjectId = null)
+    protected function listEvents(Client $client, $eventName, $expectedObjectId = null, int $limit = 1)
     {
-        return $this->retry(function () use ($client, $expectedObjectId) {
+        return $this->retry(function () use ($client, $expectedObjectId, $limit) {
             $tokenEvents = $client->listEvents([
                 'sinceId' => $this->lastEventId,
-                'limit' => 1,
+                'limit' => $limit,
                 'q' => sprintf('token.id:%s', $this->tokenId),
             ]);
 
@@ -86,7 +86,9 @@ trait EventTesterUtils
             $events = $apiCall();
 
             $this->assertNotEmpty($events, 'There were no events');
-            $this->assertEquals($eventName, $events[0]['event'], sprintf('Event does not matches "%s"', $eventName));
+
+            $eventsNames = array_column($events, 'event');
+            $this->assertContainsEquals($eventName, $eventsNames, sprintf('Event does not matches "%s"', $eventName));
 
             return $events;
         });
