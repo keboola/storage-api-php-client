@@ -46,12 +46,9 @@ trait EventTesterUtils
     }
 
     /**
-     * @param Client $client
-     * @param string $eventName
      * @param int|string|null $expectedObjectId
-     * @return array[]
      */
-    protected function listEvents(Client $client, $eventName, $expectedObjectId = null, int $limit = 1)
+    protected function listEvents(Client $client, string $eventName, $expectedObjectId = null, int $limit = 1): array
     {
         return $this->retry(function () use ($client, $expectedObjectId, $limit) {
             $tokenEvents = $client->listEvents([
@@ -68,6 +65,18 @@ trait EventTesterUtils
                 return $event['objectId'] === $expectedObjectId;
             });
         }, 10, $eventName);
+    }
+
+    /**
+     * @param int|string|null $expectedObjectId
+     */
+    protected function listEventsFilteredByName(Client $client, string $eventName, $expectedObjectId = null, int $limit = 1): array
+    {
+        $events = $this->listEvents($client, $eventName, $expectedObjectId, $limit);
+
+        return array_filter($events, static function ($event) use ($eventName) {
+            return $event['event'] === $eventName;
+        });
     }
 
     /**
