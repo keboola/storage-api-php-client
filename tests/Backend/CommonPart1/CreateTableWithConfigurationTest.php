@@ -58,7 +58,6 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
                 // throw other
                 throw $e;
             }
-
         }
     }
 
