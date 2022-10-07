@@ -63,7 +63,7 @@ class IndexTest extends StorageApiTestCase
         $this->assertArrayHasKey(0, $componentsWithoutDetails);
 
         $firstComponent = $componentsWithoutDetails[0];
-        $this->assertCount(4, $firstComponent);
+        $this->assertCount(7, $firstComponent);
         $this->assertArrayHasKey('id', $firstComponent);
         $this->assertArrayHasKey('name', $firstComponent);
         $this->assertArrayHasKey('type', $firstComponent);
