@@ -9,9 +9,12 @@ use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\TableWithConfigurationOptions;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
+use Keboola\Test\Utils\EventTesterUtils;
 
 class CreateTableWithConfigurationTest extends StorageApiTestCase
 {
+    use EventTesterUtils;
+
     public const COMPONENT_ID = 'keboola.app-custom-query-manager';
     protected string $configId;
 
@@ -59,6 +62,8 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
                 throw $e;
             }
         }
+
+        $this->initEvents($this->client);
     }
 
     protected function assertMetadata(array $table): void
@@ -123,6 +128,17 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         $this->assertEquals(['ID', 'NAME'], $table['columns']);
 
         $this->assertMetadata($table);
+
+        // check events
+        $events = $this->listEventsFilteredByName($this->client, 'storage.tableWithConfigurationMigrated', $tableId, 10);
+        $this->assertCount(1, $events);
+
+        $events = $this->listEventsFilteredByName($this->client, 'storage.tableCreated', $tableId, 10);
+        $this->assertCount(1, $events);
+        $event = reset($events);
+        $this->assertArrayHasKey('params', $event);
+        $this->assertArrayHasKey('columns', $event['params']);
+        $this->assertEqualsIgnoringCase(['ID', 'NAME'], $event['params']['columns']);
     }
 
     public function testTableCreateWithMeaningFullQueryAsSecond(): void
@@ -140,7 +156,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
                     ],
                     [
                         'sql' => 'CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} (id integer, name varchar(100))',
-                        'description' => 'first ever',
+                        'description' => 'second query',
                     ],
                 ],
             ]);
@@ -162,6 +178,21 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         $this->assertNotEmpty($table['created']);
 
         $this->assertMetadata($table);
+
+        // check events
+        $events = $this->listEventsFilteredByName($this->client, 'storage.tableWithConfigurationMigrated', $tableId, 10);
+        $this->assertCount(2, $events);
+        $event = end($events);
+        $this->assertArrayHasKey('params', $event);
+        $this->assertArrayHasKey('executedQuery', $event['params']);
+        $this->assertSame('SELECT 1', $event['params']['executedQuery']);
+        $event = prev($events);
+        $this->assertArrayHasKey('params', $event);
+        $this->assertArrayHasKey('executedQuery', $event['params']);
+        $this->assertStringContainsString('CREATE TABLE', $event['params']['executedQuery']);
+
+        $events = $this->listEventsFilteredByName($this->client, 'storage.tableCreated', $tableId, 10);
+        $this->assertCount(1, $events);
     }
 
     public function testTableCreateWithToothLessQuery(): void
@@ -188,6 +219,13 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             $this->getTestBucketId(),
             $configurationOptions
         );
+
+        // check events
+        $events = $this->listEventsFilteredByName($this->client, 'storage.tableWithConfigurationMigrated', null, 10);
+        $this->assertCount(1, $events);
+
+        $this->expectExceptionMessage('There were no events');
+        $this->listEventsFilteredByName($this->client, 'storage.tableCreated', null, 10);
     }
 
     public function testTableWithUnsupportedCharactersInNameShouldNotBeCreated(): void
@@ -289,6 +327,21 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             $errorMessage = 'syntax error line 1 at position 0 unexpected \'ASD\'. (executed query: ASD)';
             $this->assertStringContainsString($errorMessage, $e->getMessage());
         }
+
+        // check events
+        $events = $this->listEventsFilteredByName($this->client, 'storage.tableWithConfigurationMigrated', null, 10);
+        $this->assertCount(1, $events);
+        $event = reset($events);
+        $this->assertArrayHasKey('params', $event);
+        $this->assertArrayHasKey('executedQuery', $event['params']);
+        $this->assertStringContainsString('CREATE TABLE', $event['params']['executedQuery']);
+
+        $events = $this->listEventsFilteredByName($this->client, 'storage.tableWithConfigurationMigrationFailed', null, 10);
+        $this->assertCount(1, $events);
+        $event = reset($events);
+        $this->assertArrayHasKey('params', $event);
+        $this->assertArrayHasKey('executedQuery', $event['params']);
+        $this->assertSame('ASD', $event['params']['executedQuery']);
     }
 
     public function testCreateAndDeleteTableWithMigration(): void
