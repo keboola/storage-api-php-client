@@ -16,6 +16,7 @@ class BranchAwareGuzzleClient
 
     private Client $client;
 
+    /** @param string|int $branchId */
     public function __construct($branchId, array $config = [])
     {
         if (empty($branchId)) {

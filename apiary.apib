@@ -797,8 +797,8 @@ Use this API call to obtain definitions of all components, services and stack fe
 the KBC Component architecture, see the [Developers documentation](https://developers.keboola.com/overview/).
 
 - `?exclude=components` - the `components` field won't be present in a response
-- `?exclude=componentDetails` - the `components` field will include only `id`, `name`, `type` and
-`ico64` properties for each component
+- `?exclude=componentDetails` - the `components` field will include only `id`, `name`, `type`, `ico64`
+`flags`, `description` and `categories` properties for each component
 
 + Parameters
     + exclude (optional, enum[string]) - Comma-separated list of resources or parts to exclude from response
