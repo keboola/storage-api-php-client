@@ -96,11 +96,6 @@ parameters:
 			path: src/Keboola/StorageApi/BranchAwareClient.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\BranchAwareGuzzleClient\\:\\:__construct\\(\\) has parameter \\$branchId with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/BranchAwareGuzzleClient.php
-
-		-
 			message: "#^Property Keboola\\\\StorageApi\\\\BranchAwareGuzzleClient\\:\\:\\$branchId has no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/BranchAwareGuzzleClient.php
