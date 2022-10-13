@@ -64,7 +64,7 @@ trait EventTesterUtils
             return array_filter($tokenEvents, function ($event) use ($expectedObjectId) {
                 return $event['objectId'] === $expectedObjectId;
             });
-        }, 10, $eventName);
+        }, 20, $eventName);
     }
 
     /**
