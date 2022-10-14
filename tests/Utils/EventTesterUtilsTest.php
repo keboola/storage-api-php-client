@@ -5,33 +5,24 @@ declare(strict_types=1);
 namespace Keboola\Test\Utils;
 
 use Keboola\StorageApi\Client;
-use PHPUnit\Framework\AssertionFailedError;
+use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Event;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
 
 class EventTesterUtilsTest extends TestCase
 {
-    /** @var EventTesterUtils */
-    private $sut;
+    private EventTesterUtilsImpl $sut;
 
     public function setUp(): void
     {
-        $this->sut = new class() {
-            use EventTesterUtils;
-
-            public function __construct(
-            )
-            {
-                $this->tokenId = 7;
-                $this->lastEventId = 10;
-            }
-        };
+        $this->sut = new EventTesterUtilsImpl();
     }
 
     public function testWillRetryWhenEventsNotThere(): void
     {
         $clientMock = $this->createMock(Client::class);
-        $clientMock->expects(self::exactly(3))->method('listEvents')->willReturn(['a' ], ['a' ], ['a', 'b', 'c' ]);
+        $clientMock->expects(self::exactly(3))->method('listEvents')->willReturn(['a'], ['a'], ['a', 'b', 'c']);
         $this->sut->assertEventsCallback($clientMock, function ($events) {
             $this->assertCount(3, $events);
         });
@@ -40,7 +31,7 @@ class EventTesterUtilsTest extends TestCase
     public function testWillFailWhenRetriesAreSpent(): void
     {
         $clientMock = $this->createMock(Client::class);
-        $clientMock->expects(self::exactly(20))->method('listEvents')->willReturn(['a' ]);
+        $clientMock->expects(self::exactly(20))->method('listEvents')->willReturn(['a']);
         try {
             $this->sut->assertEventsCallback($clientMock, function ($events) {
                 $this->assertCount(4, $events);
@@ -49,5 +40,27 @@ class EventTesterUtilsTest extends TestCase
         } catch (ExpectationFailedException $e) {
             $this->assertSame('Failed asserting that actual size 1 matches expected size 4.', $e->getMessage());
         }
+    }
+
+    public function testCreateAndWaitForEvent(): void
+    {
+        $clientMock = $this->createMock(Client::class);
+        $clientMock->expects(self::once())->method('createEvent')->willReturn(1);
+        $event = new Event();
+        $clientMock->expects(self::once())->method('getEvent')->with(1)->willReturn(['something' => true]);
+
+        $res = $this->sut->createAndWaitForEvent($event, $clientMock);
+        $this->assertSame(['something' => true], $res);
+    }
+
+    public function testCreateAndWaitForEventNoEvent(): void
+    {
+        $clientMock = $this->createMock(Client::class);
+        $clientMock->expects(self::once())->method('createEvent')->willReturn(1);
+        $event = new Event();
+        $clientMock->expects(self::exactly(20))->method('getEvent')->with(1)->willThrowException(new ClientException());
+
+        $this->expectException(ClientException::class);
+        $this->sut->createAndWaitForEvent($event, $clientMock);
     }
 }
