@@ -756,15 +756,12 @@ class Client
     }
 
     /**
-     * Starts and waits for async creation of table from configuration
+     * Starts and waits for async migration of table from configuration
      */
-    public function createTableWithConfiguration(string $bucketId, TableWithConfigurationOptions $data): string
+    public function migrateTableWithConfiguration(string $tableId): string
     {
-        $createdTable = $this->apiPostJson("buckets/{$bucketId}/tables-with-configuration", [
-            'name' => $data->getTableName(),
-            'configurationId' => $data->getConfigurationId(),
-        ]);
-        return $createdTable['id'];
+        $migratedTable = $this->apiPutJson('tables/' . $tableId . '/migrate');
+        return $migratedTable['id'];
     }
 
     /**
