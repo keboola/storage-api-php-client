@@ -120,11 +120,22 @@ class BucketsTest extends StorageApiTestCase
         // create bucket event
         $this->_client->listTables($this->getTestBucketId());
 
-        // create dummy event
-        $event = new Event();
-        $event->setComponent('dummy')
-            ->setMessage('bucket sample event');
-        $this->createAndWaitForEvent($event);
+        // wait until the event is propagated through the queue and ES
+        $client = $this->_client;
+        $this->retryWithCallback(function () use ($client) {
+            return $client->listEvents([
+                'sinceId' => $this->lastEventId,
+                'limit' => 100,
+                'q' => sprintf(
+                    'token.id:%s AND event:%s AND objectId:%s',
+                    $this->tokenId,
+                    'storage.tablesListed',
+                    'in.c-API-tests'
+                ),
+            ]);
+        }, function ($events) {
+            $this->assertCount(1, $events);
+        });
 
         // check bucket events
         $events = $this->_client->listBucketEvents($this->getTestBucketId(), ['sinceId' => $this->lastEventId]);
