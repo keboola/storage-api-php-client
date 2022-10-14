@@ -78,8 +78,9 @@ trait EventTesterUtils
      */
     protected function retryWithCallback(callable $apiCall, callable $callback = null)
     {
+        sleep(2); // wait for ES to refresh
         $retryPolicy = new SimpleRetryPolicy(20);
-        $proxy = new RetryProxy($retryPolicy, new FixedBackOffPolicy(250));
+        $proxy = new RetryProxy($retryPolicy, new FixedBackOffPolicy(500));
         return $proxy->call(function () use ($apiCall, $callback) {
             $events = $apiCall();
             if ($callback !== null) {
