@@ -45,6 +45,30 @@ trait EventTesterUtils
         }
     }
 
+    public function assertEventsCallback(Client $client, callable $callback)
+    {
+        $this->retryWithCallback(function () use ($client) {
+            $tokenEvents = $client->listEvents([
+                'sinceId' => $this->lastEventId,
+                'limit' => 1,
+                'q' => sprintf('token.id:%s', $this->tokenId),
+            ]);
+
+            return $tokenEvents;
+        }, $callback);
+    }
+
+    protected function retryWithCallback(callable $apiCall, callable $callback)
+    {
+        $retryPolicy = new SimpleRetryPolicy(20);
+        $proxy = new RetryProxy($retryPolicy, new FixedBackOffPolicy(250));
+        /** @var array $proxiedCallResult */
+        $proxy->call(function () use ($apiCall, $callback) {
+            $events = $apiCall();
+            $callback($events);
+        });
+    }
+
     /**
      * @param Client $client
      * @param string $eventName
