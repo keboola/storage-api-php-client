@@ -95,17 +95,14 @@ trait EventTesterUtils
     }
 
     /**
-     * @param Client $client
-     * @param string $eventName
      * @param int|string|null $expectedObjectId
-     * @return array[]
      */
-    protected function listEvents(Client $client, $eventName, $expectedObjectId = null)
+    protected function listEvents(Client $client, string $eventName, $expectedObjectId = null, int $limit = 1): array
     {
-        return $this->retry(function () use ($client, $expectedObjectId) {
+        return $this->retry(function () use ($client, $expectedObjectId, $limit) {
             $tokenEvents = $client->listEvents([
                 'sinceId' => $this->lastEventId,
-                'limit' => 1,
+                'limit' => $limit,
                 'q' => sprintf('token.id:%s', $this->tokenId),
             ]);
 
@@ -117,6 +114,18 @@ trait EventTesterUtils
                 return $event['objectId'] === $expectedObjectId;
             });
         }, 20, $eventName);
+    }
+
+    /**
+     * @param int|string|null $expectedObjectId
+     */
+    protected function listEventsFilteredByName(Client $client, string $eventName, $expectedObjectId = null, int $limit = 1): array
+    {
+        $events = $this->listEvents($client, $eventName, $expectedObjectId, $limit);
+
+        return array_filter($events, static function ($event) use ($eventName) {
+            return $event['event'] === $eventName;
+        });
     }
 
     /**
@@ -138,7 +147,9 @@ trait EventTesterUtils
             $events = $apiCall();
 
             $this->assertNotEmpty($events, 'There were no events');
-            $this->assertEquals($eventName, $events[0]['event'], sprintf('Event does not matches "%s"', $eventName));
+
+            $eventsNames = array_column($events, 'event');
+            $this->assertContainsEquals($eventName, $eventsNames, sprintf('Event does not matches "%s"', $eventName));
 
             return $events;
         });
