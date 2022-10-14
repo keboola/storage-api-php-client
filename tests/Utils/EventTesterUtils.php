@@ -5,6 +5,7 @@ namespace Keboola\Test\Utils;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\Event;
 use Retry\BackOff\FixedBackOffPolicy;
+use Retry\BackOff\LinearBackOffPolicy;
 use Retry\Policy\SimpleRetryPolicy;
 use Retry\RetryProxy;
 
@@ -27,6 +28,23 @@ trait EventTesterUtils
     protected $lastEventId;
 
     /**
+     * @return array
+     * @throws \Exception
+     */
+    public function createAndWaitForEvent(Event $event, Client $sapiClient = null)
+    {
+        $client = null !== $sapiClient ? $sapiClient : $this->_client;
+
+        $id = $client->createEvent($event);
+
+        /** @var array $return */
+        $return = $this->retryWithCallback(
+            fn() => $client->getEvent($id)
+        );
+        return $return;
+    }
+
+    /**
      * @uses \Keboola\Test\StorageApiTestCase::createAndWaitForEvent()
      * @return void
      */
@@ -43,6 +61,37 @@ trait EventTesterUtils
         if (!empty($lastEvent)) {
             $this->lastEventId = $lastEvent['id'];
         }
+    }
+
+    public function assertEventsCallback(Client $client, callable $callback): array
+    {
+        return (array) $this->retryWithCallback(function () use ($client) {
+            return $client->listEvents([
+                'sinceId' => $this->lastEventId,
+                'limit' => 1,
+                'q' => sprintf('token.id:%s', $this->tokenId),
+            ]);
+        }, $callback);
+    }
+
+    /**
+     * @return mixed
+     */
+    protected function retryWithCallback(callable $apiCall, callable $callback = null)
+    {
+        sleep(2); // wait for ES to refresh
+        $retryPolicy = new SimpleRetryPolicy(20);
+        $proxy = new RetryProxy($retryPolicy, new LinearBackOffPolicy(
+            250,
+            250,
+        ));
+        return $proxy->call(function () use ($apiCall, $callback) {
+            $events = $apiCall();
+            if ($callback !== null) {
+                $callback($events);
+            }
+            return $events;
+        });
     }
 
     /**
@@ -67,7 +116,7 @@ trait EventTesterUtils
             return array_filter($tokenEvents, function ($event) use ($expectedObjectId) {
                 return $event['objectId'] === $expectedObjectId;
             });
-        }, 10, $eventName);
+        }, 20, $eventName);
     }
 
     /**
@@ -79,7 +128,10 @@ trait EventTesterUtils
     private function retry($apiCall, $retries, $eventName)
     {
         $retryPolicy = new SimpleRetryPolicy($retries);
-        $proxy = new RetryProxy($retryPolicy, new FixedBackOffPolicy(250));
+        $proxy = new RetryProxy($retryPolicy, new LinearBackOffPolicy(
+            250,
+            250,
+        ));
         /** @var array $proxiedCallResult */
         $proxiedCallResult = $proxy->call(function () use ($apiCall, $eventName) {
             /** @var array $events */

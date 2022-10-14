@@ -17,6 +17,7 @@ use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\StorageApi\Tokens;
 use Keboola\Test\ClientProvider\ClientProvider;
+use Keboola\Test\Utils\EventTesterUtils;
 use function array_key_exists;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
@@ -27,6 +28,8 @@ use Keboola\StorageApi\Options\ListFilesOptions;
 
 abstract class StorageApiTestCase extends ClientTestCase
 {
+    use EventTesterUtils;
+
     const BACKEND_REDSHIFT = 'redshift';
     const BACKEND_SNOWFLAKE = 'snowflake';
     const BACKEND_SYNAPSE = 'synapse';
@@ -419,32 +422,6 @@ abstract class StorageApiTestCase extends ClientTestCase
     protected function getTestBucketId($stage = self::STAGE_IN): string
     {
         return $this->_bucketIds[$stage];
-    }
-
-    /**
-     * @return array
-     * @throws \Exception
-     */
-    protected function createAndWaitForEvent(Event $event, Client $sapiClient = null)
-    {
-        $client = null !== $sapiClient ? $sapiClient : $this->_client;
-
-        $id = $client->createEvent($event);
-
-        sleep(2); // wait for ES refresh
-        $tries = 0;
-        while (true) {
-            try {
-                return $client->getEvent($id);
-            } catch (\Keboola\StorageApi\ClientException $e) {
-                echo 'Event not found: ' . $id . PHP_EOL;
-            }
-            if ($tries > 4) {
-                throw new \Exception('Max tries exceeded.');
-            }
-            $tries++;
-            sleep(pow(2, $tries));
-        }
     }
 
     /**
