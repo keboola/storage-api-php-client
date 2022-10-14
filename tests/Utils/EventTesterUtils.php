@@ -27,6 +27,23 @@ trait EventTesterUtils
     protected $lastEventId;
 
     /**
+     * @return array
+     * @throws \Exception
+     */
+    public function createAndWaitForEvent(Event $event, Client $sapiClient = null)
+    {
+        $client = null !== $sapiClient ? $sapiClient : $this->_client;
+
+        $id = $client->createEvent($event);
+
+        /** @var array $return */
+        $return = $this->retryWithCallback(
+            fn() => $client->getEvent($id)
+        );
+        return $return;
+    }
+
+    /**
      * @uses \Keboola\Test\StorageApiTestCase::createAndWaitForEvent()
      * @return void
      */
@@ -45,27 +62,30 @@ trait EventTesterUtils
         }
     }
 
-    public function assertEventsCallback(Client $client, callable $callback)
+    public function assertEventsCallback(Client $client, callable $callback): array
     {
-        $this->retryWithCallback(function () use ($client) {
-            $tokenEvents = $client->listEvents([
+        return (array) $this->retryWithCallback(function () use ($client) {
+            return $client->listEvents([
                 'sinceId' => $this->lastEventId,
                 'limit' => 1,
                 'q' => sprintf('token.id:%s', $this->tokenId),
             ]);
-
-            return $tokenEvents;
         }, $callback);
     }
 
-    protected function retryWithCallback(callable $apiCall, callable $callback)
+    /**
+     * @return mixed
+     */
+    protected function retryWithCallback(callable $apiCall, callable $callback = null)
     {
         $retryPolicy = new SimpleRetryPolicy(20);
         $proxy = new RetryProxy($retryPolicy, new FixedBackOffPolicy(250));
-        /** @var array $proxiedCallResult */
-        $proxy->call(function () use ($apiCall, $callback) {
+        return $proxy->call(function () use ($apiCall, $callback) {
             $events = $apiCall();
-            $callback($events);
+            if ($callback !== null) {
+                $callback($events);
+            }
+            return $events;
         });
     }
 
