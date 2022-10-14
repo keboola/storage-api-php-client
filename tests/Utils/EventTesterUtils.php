@@ -5,6 +5,7 @@ namespace Keboola\Test\Utils;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\Event;
 use Retry\BackOff\FixedBackOffPolicy;
+use Retry\BackOff\LinearBackOffPolicy;
 use Retry\Policy\SimpleRetryPolicy;
 use Retry\RetryProxy;
 
@@ -80,7 +81,10 @@ trait EventTesterUtils
     {
         sleep(2); // wait for ES to refresh
         $retryPolicy = new SimpleRetryPolicy(20);
-        $proxy = new RetryProxy($retryPolicy, new FixedBackOffPolicy(500));
+        $proxy = new RetryProxy($retryPolicy, new LinearBackOffPolicy(
+            250,
+            250,
+        ));
         return $proxy->call(function () use ($apiCall, $callback) {
             $events = $apiCall();
             if ($callback !== null) {
@@ -112,7 +116,7 @@ trait EventTesterUtils
             return array_filter($tokenEvents, function ($event) use ($expectedObjectId) {
                 return $event['objectId'] === $expectedObjectId;
             });
-        }, 10, $eventName);
+        }, 20, $eventName);
     }
 
     /**
@@ -124,7 +128,10 @@ trait EventTesterUtils
     private function retry($apiCall, $retries, $eventName)
     {
         $retryPolicy = new SimpleRetryPolicy($retries);
-        $proxy = new RetryProxy($retryPolicy, new FixedBackOffPolicy(250));
+        $proxy = new RetryProxy($retryPolicy, new LinearBackOffPolicy(
+            250,
+            250,
+        ));
         /** @var array $proxiedCallResult */
         $proxiedCallResult = $proxy->call(function () use ($apiCall, $eventName) {
             /** @var array $events */
