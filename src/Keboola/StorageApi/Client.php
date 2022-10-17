@@ -346,6 +346,7 @@ class Client
             return $bucketId;
         }
 
+        /** @var array{id: string} $result */
         $result = $this->apiPost('buckets', $options);
 
         $this->log("Bucket {$result["id"]} created", ['options' => $options, 'result' => $result]);
@@ -424,6 +425,7 @@ class Client
             $url .= '?' . http_build_query(['async' => $async]);
         }
 
+        /** @var array{id: string} $result */
         $result = $this->apiPost($url, $options, $async);
 
         $this->log("Shared bucket {$result["id"]} linked to the project", ['options' => $options, 'result' => $result]);
@@ -772,6 +774,7 @@ class Client
      */
     public function migrateTableWithConfiguration(string $tableId): string
     {
+        /** @var array{id: string} $migratedTable */
         $migratedTable = $this->apiPutJson('tables/' . $tableId . '/migrate');
         return $migratedTable['id'];
     }
@@ -2596,6 +2599,7 @@ class Client
      */
     private function handleAsyncTask(Response $jobCreatedResponse)
     {
+        /** @var array{id: int, results: mixed} $job */
         $job = json_decode((string) $jobCreatedResponse->getBody(), true);
         $job = $this->waitForJob($job['id']);
         $this->handleJobError($job);

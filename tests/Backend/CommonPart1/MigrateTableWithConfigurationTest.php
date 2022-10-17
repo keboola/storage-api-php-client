@@ -73,7 +73,7 @@ class MigrateTableWithConfigurationTest extends StorageApiTestCase
         $this->initEvents($this->client);
     }
 
-    protected function assertMetadata(array $table, $expected): void
+    protected function assertMetadata(array $table, array $expected): void
     {
         $actual = [];
         foreach ($table['columnMetadata'] as $columnName => $metadatum) {
@@ -357,7 +357,7 @@ class MigrateTableWithConfigurationTest extends StorageApiTestCase
         }
     }
 
-    private function prepareTableWithConfiguration(string $tableName)
+    private function prepareTableWithConfiguration(string $tableName): string
     {
 // create test configuration
         $configuration = (new Configuration())
