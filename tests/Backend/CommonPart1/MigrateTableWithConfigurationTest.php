@@ -95,18 +95,19 @@ class MigrateTableWithConfigurationTest extends StorageApiTestCase
             ->setConfigurationId($this->configId);
 
         $configurationArray = $this->componentsClient->getConfiguration(self::COMPONENT_ID, $this->configId);
-        $migrations = $configurationArray['configuration']['migrations'];
-        array_push($migrations, [
-            [
-                'sql' => 'ALTER TABLE {{ id(bucketName) }}.{{ id(tableName) }} DROP COLUMN "name"',
-                'description' => 'drop name',
-            ],
-            [
-                'sql' => 'ALTER TABLE {{ id(bucketName) }}.{{ id(tableName) }} ADD COLUMN "name_another" varchar(50)',
-                'description' => 'add name another',
+        $configuration->setConfiguration([
+            'migrations' => [
+                ...$configurationArray['configuration']['migrations'],
+                [
+                    'sql' => 'ALTER TABLE {{ id(bucketName) }}.{{ id(tableName) }} DROP COLUMN "name"',
+                    'description' => 'drop name',
+                ],
+                [
+                    'sql' => 'ALTER TABLE {{ id(bucketName) }}.{{ id(tableName) }} ADD "name_another" VARCHAR(50)',
+                    'description' => 'add name another',
+                ],
             ],
         ]);
-        $configuration->setConfiguration($migrations);
         $this->componentsClient->updateConfiguration($configuration);
 
         $this->_client->migrateTableWithConfiguration($tableId);
@@ -378,6 +379,7 @@ class MigrateTableWithConfigurationTest extends StorageApiTestCase
             $this->getTestBucketId(),
             $configurationOptions
         );
+        $this->initEvents($this->_client);
         return $tableId;
     }
 }
