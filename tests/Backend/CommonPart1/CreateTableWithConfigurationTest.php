@@ -347,6 +347,13 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         $this->assertArrayHasKey('params', $event);
         $this->assertArrayHasKey('executedQuery', $event['params']);
         $this->assertSame('ASD', $event['params']['executedQuery']);
+
+        $events = $this->listEventsFilteredByName($this->client, 'storage.tableCreated', null, 10);
+        $this->assertCount(1, $events);
+        $event = reset($events);
+        $this->assertArrayHasKey('params', $event);
+        $this->assertArrayHasKey('executedQuery', $event['params']);
+        $this->assertSame('ASD', $event['params']['executedQuery']);
     }
 
     public function testCreateAndDeleteTableWithMigration(): void
