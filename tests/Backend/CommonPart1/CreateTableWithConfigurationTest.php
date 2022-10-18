@@ -7,6 +7,7 @@ use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\TableWithConfigurationOptions;
+use Keboola\Test\Backend\TableWithConfigurationUtils;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Test\Utils\EventTesterUtils;
@@ -14,9 +15,7 @@ use Keboola\Test\Utils\EventTesterUtils;
 class CreateTableWithConfigurationTest extends StorageApiTestCase
 {
     use EventTesterUtils;
-
-    public const COMPONENT_ID = 'keboola.app-custom-query-manager';
-    protected string $configId;
+    use TableWithConfigurationUtils;
 
     private ClientProvider $clientProvider;
     private Client $client;
@@ -45,64 +44,19 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         $this->clientProvider = new ClientProvider($this);
         $this->client = $this->clientProvider->createClientForCurrentTest();
 
-        // check component exists
-        $this->componentsClient = new Components($this->client);
-        $component = $this->componentsClient->getComponent(self::COMPONENT_ID);
-        $this->assertEquals(self::COMPONENT_ID, $component['id']);
+        $this->assertComponentExists();
 
         $this->configId = sha1($this->generateDescriptionForTestObject());
-
-        // delete configuration for this test
-        try {
-            $this->componentsClient->deleteConfiguration(self::COMPONENT_ID, $this->configId);
-        } catch (ClientException $e) {
-            if (preg_match('/Configuration cannot be deleted because it is being used in following configured tables: (.*). Delete them first./', $e->getMessage(), $out)) {
-                $tablesToDelete = explode(', ', $out[1]);
-                foreach ($tablesToDelete as $tableId) {
-                    $this->client->dropTable($tableId);
-                }
-                $this->componentsClient->deleteConfiguration(self::COMPONENT_ID, $this->configId);
-            } elseif (preg_match('/Configuration \w+ not found/', $e->getMessage(), $out)) {
-                // noop, config already deleted
-            } else {
-                // throw other
-                throw $e;
-            }
-        }
+        $this->dropTableAndConfiguration($this->configId);
 
         $this->initEvents($this->client);
-    }
-
-    protected function assertMetadata(array $table): void
-    {
-        $expected = [
-            'id' => [
-                'KBC.datatype.type' => 'INT',
-                'KBC.datatype.nullable' => '1',
-                'KBC.datatype.basetype' => 'INTEGER',
-            ],
-            'name' => [
-                'KBC.datatype.type' => 'VARCHAR',
-                'KBC.datatype.nullable' => '1',
-                'KBC.datatype.basetype' => 'STRING',
-                'KBC.datatype.length' => '100',
-            ],
-        ];
-        $actual = [];
-        foreach ($table['columnMetadata'] as $columnName => $metadatum) {
-            $actual[$columnName] = [];
-            foreach ($metadatum as $item) {
-                $actual[$columnName][$item['key']] = $item['value'];
-            }
-        }
-        $this->assertEquals($expected, $actual);
     }
 
     public function testTableCreate(): void
     {
         // create test configuration
         $configuration = (new Configuration())
-            ->setComponentId(self::COMPONENT_ID)
+            ->setComponentId(self::CUSTOM_QUERY_MANAGER_COMPONENT_ID)
             ->setConfigurationId($this->configId)
             ->setName($this->configId)
             ->setConfiguration([
@@ -133,7 +87,19 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         $this->assertNotEmpty($table['created']);
         $this->assertEquals(['id', 'name'], $table['columns']);
 
-        $this->assertMetadata($table);
+        $this->assertTableColumnMetadata([
+            'id' => [
+                'KBC.datatype.type' => 'INT',
+                'KBC.datatype.nullable' => '1',
+                'KBC.datatype.basetype' => 'INTEGER',
+            ],
+            'name' => [
+                'KBC.datatype.type' => 'VARCHAR',
+                'KBC.datatype.nullable' => '1',
+                'KBC.datatype.basetype' => 'STRING',
+                'KBC.datatype.length' => '100',
+            ],
+        ], $table);
 
         // check events
         $events = $this->listEventsFilteredByName($this->client, 'storage.tableWithConfigurationMigrated', $tableId, 10);
@@ -151,7 +117,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
     {
         // create test configuration
         $configuration = (new Configuration())
-            ->setComponentId(self::COMPONENT_ID)
+            ->setComponentId(self::CUSTOM_QUERY_MANAGER_COMPONENT_ID)
             ->setConfigurationId($this->configId)
             ->setName($this->configId)
             ->setConfiguration([
@@ -183,7 +149,19 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         $this->assertEquals($tableName, $table['displayName'], 'display name is same as name');
         $this->assertNotEmpty($table['created']);
 
-        $this->assertMetadata($table);
+        $this->assertTableColumnMetadata([
+            'id' => [
+                'KBC.datatype.type' => 'INT',
+                'KBC.datatype.nullable' => '1',
+                'KBC.datatype.basetype' => 'INTEGER',
+            ],
+            'name' => [
+                'KBC.datatype.type' => 'VARCHAR',
+                'KBC.datatype.nullable' => '1',
+                'KBC.datatype.basetype' => 'STRING',
+                'KBC.datatype.length' => '100',
+            ],
+        ], $table);
 
         // check events
         $events = $this->listEventsFilteredByName($this->client, 'storage.tableWithConfigurationMigrated', $tableId, 10);
@@ -205,7 +183,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
     {
         // create test configuration
         $configuration = (new Configuration())
-            ->setComponentId(self::COMPONENT_ID)
+            ->setComponentId(self::CUSTOM_QUERY_MANAGER_COMPONENT_ID)
             ->setConfigurationId($this->configId)
             ->setName($this->configId)
             ->setConfiguration([
@@ -238,7 +216,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
     {
         // create test configuration
         $configuration = (new Configuration())
-            ->setComponentId(self::COMPONENT_ID)
+            ->setComponentId(self::CUSTOM_QUERY_MANAGER_COMPONENT_ID)
             ->setConfigurationId($this->configId)
             ->setName($this->configId)
             ->setConfiguration(['value' => 1]);
@@ -278,7 +256,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
     {
         // create test configuration
         $configuration = (new Configuration())
-            ->setComponentId(self::COMPONENT_ID)
+            ->setComponentId(self::CUSTOM_QUERY_MANAGER_COMPONENT_ID)
             ->setConfigurationId($this->configId)
             ->setName($this->configId)
             ->setConfiguration(['value' => 1]);
@@ -302,7 +280,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
     {
         // create test configuration
         $configuration = (new Configuration())
-            ->setComponentId(self::COMPONENT_ID)
+            ->setComponentId(self::CUSTOM_QUERY_MANAGER_COMPONENT_ID)
             ->setConfigurationId($this->configId)
             ->setName($this->configId)
             ->setConfiguration([
@@ -356,7 +334,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
     {
         // create test configuration
         $configuration = (new Configuration())
-            ->setComponentId(self::COMPONENT_ID)
+            ->setComponentId(self::CUSTOM_QUERY_MANAGER_COMPONENT_ID)
             ->setConfigurationId($this->configId)
             ->setName($this->configId)
             ->setConfiguration([
@@ -378,21 +356,21 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         );
 
         try {
-            $this->componentsClient->deleteConfiguration(self::COMPONENT_ID, $configuration->getConfigurationId());
+            $this->componentsClient->deleteConfiguration(self::CUSTOM_QUERY_MANAGER_COMPONENT_ID, $configuration->getConfigurationId());
             $this->fail('deleting configuration with table should fail');
         } catch (ClientException $e) {
             $this->assertSame(sprintf('Configuration cannot be deleted because it is being used in following configured tables: %s. Delete them first.', $tableId), $e->getMessage());
         }
 
         $this->client->dropTable($tableId);
-        $this->componentsClient->deleteConfiguration(self::COMPONENT_ID, $configuration->getConfigurationId());
+        $this->componentsClient->deleteConfiguration(self::CUSTOM_QUERY_MANAGER_COMPONENT_ID, $configuration->getConfigurationId());
     }
 
     public function testCreateTwoTablesWithSameConfiguration(): void
     {
         // create test configuration
         $configuration = (new Configuration())
-            ->setComponentId(self::COMPONENT_ID)
+            ->setComponentId(self::CUSTOM_QUERY_MANAGER_COMPONENT_ID)
             ->setConfigurationId($this->configId)
             ->setName($this->configId)
             ->setConfiguration([
