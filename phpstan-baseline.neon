@@ -112,7 +112,7 @@ parameters:
 
 		-
 			message: "#^Cannot access offset 'id' on mixed\\.$#"
-			count: 7
+			count: 2
 			path: src/Keboola/StorageApi/Client.php
 
 		-
@@ -197,11 +197,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:createBucket\\(\\) has parameter \\$backend with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:createBucket\\(\\) should return string but returns mixed\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
 
@@ -933,11 +928,6 @@ parameters:
 		-
 			message: "#^Parameter \\#4 \\$stringCode of class Keboola\\\\StorageApi\\\\ClientException constructor expects string\\|null, mixed given\\.$#"
 			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Part \\$result\\[\"id\"\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#"
-			count: 2
 			path: src/Keboola/StorageApi/Client.php
 
 		-
