@@ -12,19 +12,19 @@ namespace Keboola\Test;
 use Exception;
 use Google\Auth\FetchAuthTokenInterface;
 use Google\Cloud\Storage\StorageClient as GoogleStorageClient;
+use Keboola\Csv\CsvFile;
+use Keboola\StorageApi\Client;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\DevBranches;
+use Keboola\StorageApi\Event;
+use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
+use Keboola\StorageApi\Options\FileUploadOptions;
+use Keboola\StorageApi\Options\ListFilesOptions;
 use Keboola\StorageApi\Tokens;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\Utils\EventTesterUtils;
 use function array_key_exists;
-use Keboola\Csv\CsvFile;
-use Keboola\StorageApi\Client;
-use Keboola\StorageApi\Event;
-use Keboola\StorageApi\Metadata;
-use Keboola\StorageApi\Options\FileUploadOptions;
-use Keboola\StorageApi\Options\ListFilesOptions;
 
 abstract class StorageApiTestCase extends ClientTestCase
 {
@@ -35,6 +35,8 @@ abstract class StorageApiTestCase extends ClientTestCase
     const BACKEND_SYNAPSE = 'synapse';
     const BACKEND_EXASOL = 'exasol';
     const BACKEND_TERADATA = 'teradata';
+
+    public const CUSTOM_QUERY_MANAGER_COMPONENT_ID = 'keboola.app-custom-query-manager';
 
     const STAGE_IN = 'in';
     const STAGE_OUT = 'out';
