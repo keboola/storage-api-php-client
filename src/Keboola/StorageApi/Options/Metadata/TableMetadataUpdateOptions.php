@@ -39,6 +39,15 @@ class TableMetadataUpdateOptions
         $this->provider = $provider;
         $this->tableMetadata = $tableMetadata ?: [];
         $this->columnsMetadata = $columnsMetadata ?: [];
+
+        // backfill column name as array key to value of `columnName` key for all column metadata
+        foreach ($this->columnsMetadata as $columnName => &$columnMetadata) {
+            foreach ($columnMetadata as &$metadata) {
+                if (!array_key_exists('columnName', $metadata)) {
+                    $metadata['columnName'] = (string) $columnName;
+                }
+            }
+        }
     }
 
     /**
