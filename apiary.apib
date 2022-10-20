@@ -5287,20 +5287,20 @@ with the table and columns are returned to the response.
 At least one of the `metadata` or `columnsMetadata` object is required. Indexing columnsMetadata is deprecated and not recommended. Please add column name to metadata object.
 
 + Parameters
-    + table_id (required) - Id of the table
+    + table_id (string, required) - Id of the table
 
 + Attributes
-    + provider (required) - Id of the creating [component](#reference/miscellaneous/api-index/component-list).
+    + provider (string, required) - Id of the creating [component](#reference/miscellaneous/api-index/component-list)
     + metadata (optional, array) - Array of metadata objects
         + (object)
-            + key (required)
-            + value (required)
+            + key (string, required)
+            + value (string, required)
     + columnsMetadata (optional) - Object of columns with column names as key (`"id"`)
-        + `<columnName>` (required, array) - Array of metadata objects.
+        + `<columnName>` (required, array) - Array of metadata objects
             + (object)
-                + columnName (optional)
-                + key (required)
-                + value (required)
+                + columnName (string, optional)
+                + key (string, required)
+                + value (string, required)
 
 + Request (application/json)
     + Headers
