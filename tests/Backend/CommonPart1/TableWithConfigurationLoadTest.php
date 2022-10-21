@@ -54,99 +54,82 @@ class TableWithConfigurationLoadTest extends StorageApiTestCase
         $this->initEvents($this->client);
     }
 
-    public function testTableLoadFromFile(): void
+    public function testLoadFromFileToTable(): void
     {
         $tableName = 'custom-table-1';
+        
+        $json = <<<JSON
+{
+  "action": "generate",
+  "backend": "synapse",
+  "operation": "importFull",
+  "source": "fileAbs",
+  "columns": [
+    "id",
+    "NAME"
+  ],
+  "primaryKeys": [
+    "id"
+  ],
+  "output": {
+    "queries": [
+      {
+        "sql": "CREATE TABLE {{ id(stageSchemaName) }}.{{ id(stageTableName) }} ([id] NVARCHAR(4000), [NAME] NVARCHAR(4000)) WITH (DISTRIBUTION = ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX)",
+        "description": ""
+      },
+      {
+        "sql": "COPY INTO {{ id(stageSchemaName) }}.{{ id(stageTableName) }}\\nFROM {{ sourceFile1 }}\\nWITH (\\n    FILE_TYPE='CSV',\\n    CREDENTIAL=(IDENTITY='Managed Identity'),\\n    FIELDQUOTE='\\"',\\n    FIELDTERMINATOR=',',\\n    ENCODING = 'UTF8',\\n    \\n    IDENTITY_INSERT = 'OFF'\\n    ,FIRSTROW=2\\n)",
+        "description": ""
+      },
+      {
+        "sql": "CREATE TABLE {{ id(destSchemaName) }}.{{ id(stageTableName ~ '_tmp') }} WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT a.[id],a.[NAME] FROM (SELECT COALESCE([id], '') AS [id],COALESCE([NAME], '') AS [NAME], ROW_NUMBER() OVER (PARTITION BY [id] ORDER BY [id]) AS \"_row_number_\" FROM {{ id(stageSchemaName) }}.{{ id(stageTableName) }}) AS a WHERE a.\"_row_number_\" = 1",
+        "description": ""
+      },
+      {
+        "sql": "RENAME OBJECT {{ id(destSchemaName) }}.{{ id(destTableName) }} TO {{ id(stageTableName ~ '_tmp_rename') }}",
+        "description": ""
+      },
+      {
+        "sql": "RENAME OBJECT {{ id(destSchemaName) }}.{{ id(stageTableName ~ '_tmp') }} TO {{ id(destTableName) }}",
+        "description": ""
+      },
+      {
+        "sql": "DROP TABLE {{ id(destSchemaName) }}.{{ id(stageTableName ~ '_tmp_rename') }}",
+        "description": ""
+      },
+      {
+        "sql": "IF OBJECT_ID (N'{{ id(destSchemaName) }}.{{ id(stageTableName ~ '_tmp') }}', N'U') IS NOT NULL DROP TABLE {{ id(destSchemaName) }}.{{ id(stageTableName ~ '_tmp') }}",
+        "description": ""
+      },
+      {
+        "sql": "IF OBJECT_ID (N'{{ id(destSchemaName) }}.{{ id(stageTableName ~ '_tmp_rename') }}', N'U') IS NOT NULL DROP TABLE {{ id(destSchemaName) }}.{{ id(stageTableName ~ '_tmp_rename') }}",
+        "description": ""
+      }
+    ]
+  }
+}
+JSON;
+        $jsonDecoded = json_decode(
+            $json,
+            true,
+            512,
+            JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT
+        );
+
+        $queriesOverride = [];
+        $queriesOverride['ingestionFullLoad'] = $jsonDecoded['output'];
 
         // HTML NOWDOC used so that autoformat does not reformat SQL queries inside the strings
         $tableId = $this->prepareTableWithConfiguration($tableName, [
                 'migrations' => [
                     [
-
                         'sql' => <<<'HTML'
 CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} ([id] INTEGER, [NAME] VARCHAR(100))
 HTML,
                         'description' => 'first ever',
                     ],
                 ],
-                'ingestionFullLoad' => [
-                    'queries' => [
-                        [
-                            'sql' => <<<'HTML'
-CREATE TABLE {{ id(stageSchemaName) }}.{{ id(stageTableName) }} ([id] INTEGER, [NAME] VARCHAR(100)) WITH (DISTRIBUTION = ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX)
-HTML
-                            ,
-                            'description' => '',
-                        ],
-                        [
-                            'sql' => <<<'HTML'
-CREATE TABLE {{ id(destSchemaName) }}.{{ id(destTableName) }} ([id] INTEGER, [NAME] VARCHAR(100), [_timestamp] DATETIME2) WITH (DISTRIBUTION = ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX)
-HTML
-                            ,
-                            'description' => '',
-                        ],
-                        [
-                            'sql' => <<<'HTML'
-COPY INTO {{ id(stageSchemaName) }}.{{ id(stageTableName) }}
-FROM {{ sourceFile1 }}
-WITH (
-    FILE_TYPE='CSV',
-    CREDENTIAL=(IDENTITY='Shared Access Signature', SECRET='?sourceSasToken634fc11aae8fd349870618'),
-    FIELDQUOTE='"',
-    FIELDTERMINATOR=',',
-    ENCODING = 'UTF8',
-    
-    IDENTITY_INSERT = 'OFF'
-    ,FIRSTROW=2
-)
-HTML
-                            ,
-                            'description' => '',
-                        ],
-                        [
-                            'sql' => <<<'HTML'
-CREATE TABLE {{ id(destSchemaName) }}.{{ id(destTableName ~ '_tmp') }} WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT [id],[NAME] FROM {{ id(stageSchemaName) }}.{{ id(stageTableName) }}
-HTML
-                            ,
-                            'description' => '',
-                        ],
-                        [
-                            'sql' => <<<'HTML'
-RENAME OBJECT {{ id(destSchemaName) }}.{{ id(destTableName) }} TO {{ id(destSchemaName ~ '_rename')}}
-HTML
-                            ,
-                            'description' => '',
-                        ],
-                        [
-                            'sql' => <<<'HTML'
-RENAME OBJECT {{ id(destSchemaName) }}.{{ id(destTableName ~ '_tmp') }} TO {{ id(destTableName) }}
-HTML
-                            ,
-                            'description' => '',
-                        ],
-                        [
-                            'sql' => <<<'HTML'
-DROP TABLE {{ id(destSchemaName) }}.{{ id(destSchemaName ~ '_rename')}}
-HTML
-                            ,
-                            'description' => '',
-                        ],
-                        [
-                            'sql' => <<<'HTML'
-IF OBJECT_ID (N'{{ id(destSchemaName) }}.{{ id(destTableName ~ '_tmp') }}', N'U') IS NOT NULL DROP TABLE {{ id(destSchemaName) }}.{{ id(destTableName ~ '_tmp') }}
-HTML
-                            ,
-                            'description' => '',
-                        ],
-                        [
-                            'sql' => <<<'HTML'
-IF OBJECT_ID (N'{{ id(destSchemaName) }}.{{ id(destSchemaName ~ '_rename')}}', N'U') IS NOT NULL DROP TABLE {{ id(destSchemaName) }}.{{ id(destSchemaName ~ '_rename')}}
-HTML
-                            ,
-
-                        ],
-                    ],
-                ],
+                'queriesOverride' => $queriesOverride,
             ]
         );
 
