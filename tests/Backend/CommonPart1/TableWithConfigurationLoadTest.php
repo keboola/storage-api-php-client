@@ -78,7 +78,7 @@ class TableWithConfigurationLoadTest extends StorageApiTestCase
         "description": ""
       },
       {
-        "sql": "COPY INTO {{ id(stageSchemaName) }}.{{ id(stageTableName) }}\\nFROM {{ sourceFile1 }}\\nWITH (\\n    FILE_TYPE='CSV',\\n    CREDENTIAL=(IDENTITY='Managed Identity'),\\n    FIELDQUOTE='\\"',\\n    FIELDTERMINATOR=',',\\n    ENCODING = 'UTF8',\\n    \\n    IDENTITY_INSERT = 'OFF'\\n    ,FIRSTROW=2\\n)",
+        "sql": "COPY INTO {{ id(stageSchemaName) }}.{{ id(stageTableName) }}\\nFROM {{ listFiles(sourceFiles) }}\\nWITH (\\n    FILE_TYPE='CSV',\\n    CREDENTIAL=(IDENTITY='Managed Identity'),\\n    FIELDQUOTE='\\"',\\n    FIELDTERMINATOR=',',\\n    ENCODING = 'UTF8',\\n    \\n    IDENTITY_INSERT = 'OFF'\\n    ,FIRSTROW=2\\n)",
         "description": ""
       },
       {
