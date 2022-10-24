@@ -256,6 +256,9 @@
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/TeradataWorkspacesUnloadTest.php</file>
 	</testsuite>
+	<testsuite name="paratest-bigquery">
+		<file>tests/Backend/CommonPart1/BucketsTest.php</file>
+	</testsuite>
 	<testsuite name="unit">
 		<directory>tests-unit</directory>
 	</testsuite>

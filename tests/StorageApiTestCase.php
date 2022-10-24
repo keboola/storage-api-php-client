@@ -35,6 +35,7 @@ abstract class StorageApiTestCase extends ClientTestCase
     const BACKEND_SYNAPSE = 'synapse';
     const BACKEND_EXASOL = 'exasol';
     const BACKEND_TERADATA = 'teradata';
+    const BACKEND_BIGQUERY = 'bigquery';
 
     public const CUSTOM_QUERY_MANAGER_COMPONENT_ID = 'keboola.app-custom-query-manager';
 
