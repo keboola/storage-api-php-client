@@ -140,12 +140,12 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
         $this->assertMetadataHasKeys($listConfigurationMetadata[0]);
         $this->assertSearchResponseEquals([
             [
-                'idComponent' => 'transformation',
+                'componentId' => 'transformation',
                 'configurationId' => $configurationNameMain1,
                 'metadata' => self::TEST_METADATA,
             ],
             [
-                'idComponent' => 'transformation',
+                'componentId' => 'transformation',
                 'configurationId' => $configurationNameMain2,
                 'metadata' => [
                     [
@@ -168,7 +168,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
 
         $this->assertSearchResponseEquals([
             [
-                'idComponent' => 'transformation',
+                'componentId' => 'transformation',
                 'configurationId' => $configurationNameMain2,
                 'metadata' => [
                     [
@@ -182,7 +182,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
                 ],
             ],
             [
-                'idComponent' => 'wr-db',
+                'componentId' => 'wr-db',
                 'configurationId' => $configurationNameMain2,
                 'metadata' => self::TEST_METADATA,
             ],
@@ -196,7 +196,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
 
         $this->assertSearchResponseEquals([
             [
-                'idComponent' => 'transformation',
+                'componentId' => 'transformation',
                 'configurationId' => $configurationNameMain1,
                 'metadata' => [
                     [
@@ -206,7 +206,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
                 ],
             ],
             [
-                'idComponent' => 'transformation',
+                'componentId' => 'transformation',
                 'configurationId' => $configurationNameMain2,
                 'metadata' => [
                     [
@@ -216,7 +216,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
                 ],
             ],
             [
-                'idComponent' => 'wr-db',
+                'componentId' => 'wr-db',
                 'configurationId' => $configurationNameMain2,
                 'metadata' => [
                     [
@@ -234,7 +234,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
         self::assertCount(3, $listConfigurationMetadata);
         $this->assertSearchResponseEquals([
             [
-                'idComponent' => 'transformation',
+                'componentId' => 'transformation',
                 'configurationId' => $configurationNameMain1,
                 'metadata' => [
                     [
@@ -244,7 +244,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
                 ],
             ],
             [
-                'idComponent' => 'transformation',
+                'componentId' => 'transformation',
                 'configurationId' => $configurationNameMain2,
                 'metadata' => [
                     [
@@ -258,7 +258,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
                 ],
             ],
             [
-                'idComponent' => 'wr-db',
+                'componentId' => 'wr-db',
                 'configurationId' => $configurationNameMain2,
                 'metadata' => [
                     [
@@ -279,7 +279,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
 
         $this->assertSearchResponseEquals([
             [
-                'idComponent' => 'transformation',
+                'componentId' => 'transformation',
                 'configurationId' => $configurationNameMain2,
                 'metadata' => [
                     [
@@ -340,7 +340,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
         self::assertArrayHasKey('params', $event);
         self::assertSame(
             [
-                'idComponent' => null,
+                'componentId' => null,
                 'configurationId' => 'component-search-metadata-events-test',
                 'metadataKeys' => ['KBC.SomeEnity.metadataKey'],
                 'include' => ['filteredMetadata'],
@@ -352,7 +352,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
 
     private function assertMetadataHasKeys($listConfigurationMetadata)
     {
-        self::assertArrayHasKey('idComponent', $listConfigurationMetadata);
+        self::assertArrayHasKey('componentId', $listConfigurationMetadata);
         self::assertArrayHasKey('configurationId', $listConfigurationMetadata);
         self::assertArrayHasKey('metadata', $listConfigurationMetadata);
         self::assertArrayHasKey('id', $listConfigurationMetadata['metadata'][0]);
@@ -383,7 +383,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
         $result = [];
         foreach ($data as $key => $item) {
             $result[$key] = [
-                'idComponent' => $item['idComponent'],
+                'componentId' => $item['componentId'],
                 'configurationId' => $item['configurationId'],
             ];
             foreach ($item['metadata'] as $md) {

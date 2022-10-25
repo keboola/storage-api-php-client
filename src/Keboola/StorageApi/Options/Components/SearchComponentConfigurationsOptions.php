@@ -95,7 +95,7 @@ class SearchComponentConfigurationsOptions
         $params = [];
 
         if ($this->getComponentId()) {
-            $params['idComponent'] = $this->getComponentId();
+            $params['componentId'] = $this->getComponentId();
         }
 
         if ($this->getConfigurationId()) {
