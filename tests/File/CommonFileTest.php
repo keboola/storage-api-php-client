@@ -279,13 +279,16 @@ class CommonFileTest extends StorageApiTestCase
         $this->assertEmpty($newTokenClient->listFiles());
 
         $newFileId = $this->createAndWaitForFile($filePath, $uploadOptions, $newTokenClient);
+        /** @var array<array{id:int}> $files */
         $files = $newTokenClient->listFiles();
         $this->assertCount(1, $files);
-        $this->assertEquals($newFileId, reset($files)['id']);
+        /** @var array{id:int} $reset */
+        $reset = reset($files);
+        $this->assertEquals($newFileId, $reset['id']);
 
         // new file should be visible for master token
         $files = $this->_client->listFiles();
-        $this->assertEquals($newFileId, reset($files)['id']);
+        $this->assertEquals($newFileId, $reset['id']);
 
         $this->tokens->dropToken($newToken['id']);
     }

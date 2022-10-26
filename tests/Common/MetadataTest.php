@@ -279,12 +279,12 @@ class MetadataTest extends StorageApiTestCase
         /** @var array $metadatas */
         $metadatas = $metadataApi->postTableMetadataWithColumns($options);
 
-        $this->assertEquals(2, count($metadatas));
+        $this->assertCount(2, $metadatas);
         $this->assertArrayHasKey('metadata', $metadatas);
         $this->assertArrayHasKey('columnsMetadata', $metadatas);
         // check table metadata
         $metadata = $metadatas['metadata'];
-        $this->assertEquals(2, count($metadata));
+        $this->assertCount(2, $metadata);
         $this->assertArrayHasKey('key', $metadata[0]);
         $this->assertArrayHasKey('value', $metadata[0]);
         $this->assertArrayHasKey('provider', $metadata[0]);
@@ -293,12 +293,12 @@ class MetadataTest extends StorageApiTestCase
         $this->assertEquals(self::TEST_PROVIDER, $metadata[0]['provider']);
         // check columns metadata
         $columns = $metadatas['columnsMetadata'];
-        $this->assertEquals(2, count($columns));
+        $this->assertCount(2, $columns);
         $this->assertArrayHasKey($column1, $columns);
         $this->assertArrayHasKey($column2, $columns);
         // check column 1
         $metadata = $metadatas['columnsMetadata'][$column1];
-        $this->assertEquals(2, count($metadata));
+        $this->assertCount(2, $metadata);
         $this->assertArrayHasKey('key', $metadata[0]);
         $this->assertArrayHasKey('value', $metadata[0]);
         $this->assertArrayHasKey('provider', $metadata[0]);
@@ -313,7 +313,7 @@ class MetadataTest extends StorageApiTestCase
         $this->assertEquals(self::TEST_PROVIDER, $metadata[1]['provider']);
         // check column 2
         $metadata = $metadatas['columnsMetadata'][$column2];
-        $this->assertEquals(1, count($metadata));
+        $this->assertCount(1, $metadata);
         $this->assertArrayHasKey('key', $metadata[0]);
         $this->assertArrayHasKey('value', $metadata[0]);
         $this->assertArrayHasKey('provider', $metadata[0]);
@@ -345,6 +345,11 @@ class MetadataTest extends StorageApiTestCase
                 $this->assertEquals('testval', $metadata['value']);
             }
         }
+
+        $columns = $metadatas['columnsMetadata'];
+        // we did send only one column metadata, but there are still two columns in metadata
+        $this->assertCount(2, $columns);
+
         // check columns metadata
         foreach ($newMetadatas['columnsMetadata'] as $columnName => $columnMetadatas) {
             foreach ($columnMetadatas as $metadata) {
@@ -636,7 +641,7 @@ class MetadataTest extends StorageApiTestCase
 
         $metadatas = $metadataApi->postColumnMetadata($columnId, $provider, $testMetadata);
 
-        $this->assertEquals(2, count($metadatas));
+        $this->assertCount(2, $metadatas);
         $this->assertArrayHasKey('key', $metadatas[0]);
         $this->assertArrayHasKey('value', $metadatas[0]);
         $this->assertArrayHasKey('provider', $metadatas[0]);
@@ -648,6 +653,8 @@ class MetadataTest extends StorageApiTestCase
         $mdCopy['value'] = 'newValue';
 
         $newMetadata = $metadataApi->postColumnMetadata($columnId, $provider, [$mdCopy]);
+        // we send only one record which will be updated, but second record is still same
+        $this->assertCount(2, $newMetadata);
         foreach ($newMetadata as $metadata) {
             if ($metadata['id'] == $metadatas[0]['id']) {
                 $this->assertEquals('newValue', $metadata['value']);
@@ -664,7 +671,7 @@ class MetadataTest extends StorageApiTestCase
 
         $mdList = $metadataApi->listColumnMetadata($columnId);
 
-        $this->assertEquals(1, count($mdList));
+        $this->assertCount(1, $mdList);
 
         $this->assertEquals($metadatas[1]['key'], $mdList[0]['key']);
         $this->assertEquals($metadatas[1]['value'], $mdList[0]['value']);
