@@ -653,6 +653,8 @@ class MetadataTest extends StorageApiTestCase
         $mdCopy['value'] = 'newValue';
 
         $newMetadata = $metadataApi->postColumnMetadata($columnId, $provider, [$mdCopy]);
+        // we send only one record which will be updated, but second record is still same
+        $this->assertCount(2, $newMetadata);
         foreach ($newMetadata as $metadata) {
             if ($metadata['id'] == $metadatas[0]['id']) {
                 $this->assertEquals('newValue', $metadata['value']);
