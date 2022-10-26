@@ -5284,23 +5284,22 @@ Sets multiple metadata for table and columns with one call. If the given key and
 for the table, the data will be updated with the new value and timestamp. All metadata associated
 with the table and columns are returned to the response.
 
-At least one of the `metadata` or `columnsMetadata` object is required. Indexing columnsMetadata is deprecated and not recommended. Please add column name to metadata object.
+At least one of the `metadata` or `columnsMetadata` object is required.
 
 + Parameters
-    + table_id (string, required) - Id of the table
+    + table_id (required) - Id of the table
 
 + Attributes
-    + provider (string, required) - Id of the creating [component](#reference/miscellaneous/api-index/component-list)
+    + provider (required) - Id of the creating [component](#reference/miscellaneous/api-index/component-list).
     + metadata (optional, array) - Array of metadata objects
         + (object)
-            + key (string, required)
-            + value (string, required)
+            + key (required)
+            + value (required)
     + columnsMetadata (optional) - Object of columns with column names as key (`"id"`)
         + `<columnName>` (required, array) - Array of metadata objects
             + (object)
-                + columnName (string, optional)
-                + key (string, required)
-                + value (string, required)
+                + key (required)
+                + value (required)
 
 + Request (application/json)
     + Headers
