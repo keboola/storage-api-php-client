@@ -15,14 +15,14 @@ class TableMetadataUpdateOptions
     /** @var array<int, array{key: string, value: string}> */
     private $tableMetadata;
 
-    /** @var array<string|int, array<int, array{key: string, value: string, columnName?: string}>> */
+    /** @var array<string, array<int, array{key: string, value: string}>> */
     private $columnsMetadata;
 
     /**
      * @param string $tableId
      * @param string $provider
      * @param array<int, array{key: string, value: string}>|null $tableMetadata
-     * @param array<string|int, array<int, array{key: string, value: string, columnName?: string}>>|null $columnsMetadata
+     * @param array<string, array<int, array{key: string, value: string}>>|null $columnsMetadata
      */
     public function __construct($tableId, $provider, $tableMetadata = null, $columnsMetadata = null)
     {
@@ -39,15 +39,6 @@ class TableMetadataUpdateOptions
         $this->provider = $provider;
         $this->tableMetadata = $tableMetadata ?: [];
         $this->columnsMetadata = $columnsMetadata ?: [];
-
-        // backfill column name as array key to value of `columnName` key for all column metadata
-        foreach ($this->columnsMetadata as $columnName => &$columnMetadata) {
-            foreach ($columnMetadata as &$metadata) {
-                if (!array_key_exists('columnName', $metadata)) {
-                    $metadata['columnName'] = (string) $columnName;
-                }
-            }
-        }
     }
 
     /**
