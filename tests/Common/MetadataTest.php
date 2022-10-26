@@ -345,6 +345,11 @@ class MetadataTest extends StorageApiTestCase
                 $this->assertEquals('testval', $metadata['value']);
             }
         }
+
+        $columns = $metadatas['columnsMetadata'];
+        // we did send only one column metadata, but there are still two columns in metadata
+        $this->assertEquals(2, count($columns));
+
         // check columns metadata
         foreach ($newMetadatas['columnsMetadata'] as $columnName => $columnMetadatas) {
             foreach ($columnMetadatas as $metadata) {
