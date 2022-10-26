@@ -67,6 +67,7 @@ class IndexTest extends StorageApiTestCase
         $this->assertArrayHasKey('name', $firstComponent);
         $this->assertArrayHasKey('type', $firstComponent);
         $this->assertArrayHasKey('ico64', $firstComponent);
+        $this->assertArrayHasKey('ico128', $firstComponent);
         $this->assertArrayHasKey('description', $firstComponent);
         $this->assertArrayHasKey('flags', $firstComponent);
         $this->assertArrayHasKey('categories', $firstComponent);
