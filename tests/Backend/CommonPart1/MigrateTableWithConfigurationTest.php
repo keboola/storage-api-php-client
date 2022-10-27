@@ -56,14 +56,10 @@ class MigrateTableWithConfigurationTest extends StorageApiTestCase
     public function testTableMigrate(): void
     {
         $tableName = 'custom-table-1';
-        $tableId = $this->prepareTableWithConfiguration($tableName, [
-            'migrations' => [
-                [
-                    'sql' => 'CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} ("id" integer, "name" varchar(100))',
-                    'description' => 'first ever',
-                ],
-            ],
-        ]);
+
+        $configuration = $this->getDefaultConfiguration();
+
+        $tableId = $this->prepareTableWithConfiguration($tableName, $configuration);
 
         $table = $this->_client->getTable($tableId);
         $this->assertArrayHasKey('configuration', $table);
