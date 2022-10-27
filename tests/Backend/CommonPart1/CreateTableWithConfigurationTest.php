@@ -83,6 +83,15 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         $this->assertEquals($tableName, $table['name']);
         $this->assertEquals($tableName, $table['displayName'], 'display name is same as name');
 
+        $this->assertArrayHasKey('configuration', $table);
+        $this->assertArrayHasKey('branchId', $table['configuration']);
+        $this->assertArrayHasKey('componentId', $table['configuration']);
+        $this->assertSame('keboola.app-custom-query-manager', $table['configuration']['componentId']);
+        $this->assertArrayHasKey('migrationIndex', $table['configuration']);
+        $this->assertSame(0, $table['configuration']['migrationIndex']);
+        $this->assertArrayHasKey('configurationId', $table['configuration']);
+        $this->assertSame($this->configId, $table['configuration']['configurationId']);
+
         $this->assertTrue($table['isTyped']);
         $this->assertNotEmpty($table['created']);
         $this->assertEquals(['id', 'name'], $table['columns']);
