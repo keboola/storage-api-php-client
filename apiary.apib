@@ -3209,6 +3209,12 @@ Obtains information about a table.
                     "backend": "snowflake",
                     "sharing": null,
                     "metadata": []
+                },
+                "configuration": {
+                    "componentId": "keboola.app-custom-query-manager",
+                    "branchId": 1,
+                    "configurationId": "my-configuration",
+                    "migrationIndex":0,
                 }
             }
 
@@ -3300,7 +3306,13 @@ Synchronous call response (async=false)
                     "backend": "snowflake",
                     "sharing": null,
                     "metadata": []
-                }
+                },
+                 "configuration": {
+                     "componentId": "keboola.app-custom-query-manager",
+                     "branchId": 1,
+                     "configurationId": "my-configuration",
+                     "migrationIndex":0,
+                 }
             }
 + Response 202 (application/json)
 Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
