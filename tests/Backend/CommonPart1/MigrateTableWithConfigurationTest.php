@@ -65,6 +65,11 @@ class MigrateTableWithConfigurationTest extends StorageApiTestCase
             ],
         ]);
 
+        $table = $this->_client->getTable($tableId);
+        $this->assertArrayHasKey('configuration', $table);
+        $this->assertArrayHasKey('migrationIndex', $table['configuration']);
+        $this->assertSame(0, $table['configuration']['migrationIndex']);
+
         $configuration = (new Configuration())
             ->setComponentId(StorageApiTestCase::CUSTOM_QUERY_MANAGER_COMPONENT_ID)
             ->setConfigurationId($this->configId);
@@ -89,6 +94,9 @@ class MigrateTableWithConfigurationTest extends StorageApiTestCase
 
         $table = $this->_client->getTable($tableId);
 
+        $this->assertArrayHasKey('configuration', $table);
+        $this->assertArrayHasKey('migrationIndex', $table['configuration']);
+        $this->assertSame(2, $table['configuration']['migrationIndex']);
         $this->assertEquals(['id', 'name_another'], $table['columns']);
 
         $this->assertTableColumnMetadata([
