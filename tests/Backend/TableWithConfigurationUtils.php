@@ -60,17 +60,9 @@ trait TableWithConfigurationUtils
         $this->assertEquals($expected, $actual);
     }
 
-    /**
-     * @param array<string, mixed> $configurationJson
-     */
-    private function prepareTableWithConfiguration(string $tableName, array $configurationJson): string
+    private function prepareTableWithConfiguration(string $tableName, Configuration $configuration): string
     {
         // create test configuration
-        $configuration = (new Configuration())
-            ->setComponentId(StorageApiTestCase::CUSTOM_QUERY_MANAGER_COMPONENT_ID)
-            ->setConfigurationId($this->configId)
-            ->setName($this->configId)
-            ->setConfiguration($configurationJson);
         $this->componentsClient->addConfiguration($configuration);
 
         $configurationOptions = (new TableWithConfigurationOptions($tableName, $this->configId));
@@ -80,5 +72,21 @@ trait TableWithConfigurationUtils
         );
         $this->initEvents($this->_client);
         return $tableId;
+    }
+
+    private function getDefaultConfiguration(): Configuration
+    {
+        return (new Configuration())
+            ->setComponentId(StorageApiTestCase::CUSTOM_QUERY_MANAGER_COMPONENT_ID)
+            ->setConfigurationId($this->configId)
+            ->setName($this->configId)
+            ->setConfiguration([
+                'migrations' => [
+                    [
+                        'sql' => 'CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} ("id" integer, "name" varchar(100))',
+                        'description' => 'first ever',
+                    ],
+                ],
+            ]);
     }
 }
