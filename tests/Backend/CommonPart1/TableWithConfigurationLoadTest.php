@@ -4,7 +4,9 @@ namespace Keboola\Test\Backend\CommonPart1;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
+use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Components;
+use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\Test\Backend\TableWithConfigurationUtils;
 use Keboola\Test\ClientProvider\ClientProvider;
@@ -21,6 +23,65 @@ class TableWithConfigurationLoadTest extends StorageApiTestCase
     private ClientProvider $clientProvider;
 
     private Components $componentsClient;
+
+    /**
+     * @throws ClientException
+     */
+    private function loadTable(string $tableId): void
+    {
+        $csvFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
+        $fileId = $this->_client->uploadFile(
+            $csvFile->getPathname(),
+            (new FileUploadOptions())
+                ->setNotify(false)
+                ->setIsPublic(false)
+                ->setCompress(true)
+                ->setTags(['table-import'])
+        );
+
+        $this->_client->writeTableAsyncDirect($tableId, [
+            'dataFileId' => $fileId,
+        ]);
+    }
+
+    /**
+     * @return array{0: string, 1: Configuration}
+     * @throws \JsonException
+     */
+    private function createTableWithConfiguration(string $json, string $tableName): array
+    {
+        /** @var array{output:array} $jsonDecoded */
+        $jsonDecoded = json_decode(
+            $json,
+            true,
+            512,
+            JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT
+        );
+
+        $queriesOverride = [];
+        $queriesOverride['ingestionFullLoad'] = $jsonDecoded['output'];
+
+        $configuration = (new Configuration())
+            ->setComponentId(StorageApiTestCase::CUSTOM_QUERY_MANAGER_COMPONENT_ID)
+            ->setConfigurationId($this->configId)
+            ->setName($this->configId)
+            ->setConfiguration([
+                'migrations' => [
+                    [
+                        'sql' => /** @lang TSQL */ <<<SQL
+CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} ([id] INTEGER, [NAME] VARCHAR(100))
+SQL,
+                        'description' => 'first ever',
+                    ],
+                ],
+                'queriesOverride' => $queriesOverride,
+            ]);
+
+        return [
+            $this->prepareTableWithConfiguration($tableName, $configuration),
+            $configuration,
+        ];
+    }
 
     public function setUp(): void
     {
@@ -58,7 +119,8 @@ class TableWithConfigurationLoadTest extends StorageApiTestCase
     {
         $tableName = 'custom-table-1';
 
-        $json = /** @lang JSON */<<<JSON
+        $json = /** @lang JSON */
+            <<<JSON
 {
   "action": "generate",
   "backend": "synapse",
@@ -109,42 +171,9 @@ class TableWithConfigurationLoadTest extends StorageApiTestCase
   }
 }
 JSON;
-        $jsonDecoded = json_decode(
-            $json,
-            true,
-            512,
-            JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT
-        );
+        [$tableId,] = $this->createTableWithConfiguration($json, $tableName);
 
-        $queriesOverride = [];
-        $queriesOverride['ingestionFullLoad'] = $jsonDecoded['output'];
-
-        // HTML NOWDOC used so that autoformat does not reformat SQL queries inside the strings
-        $tableId = $this->prepareTableWithConfiguration($tableName, [
-            'migrations' => [
-                [
-                    'sql' => /** @lang TSQL */ <<<SQL
-CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} ([id] INTEGER, [NAME] VARCHAR(100))
-SQL,
-                    'description' => 'first ever',
-                ],
-            ],
-            'queriesOverride' => $queriesOverride,
-        ]);
-
-        $csvFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
-        $fileId = $this->_client->uploadFile(
-            $csvFile->getPathname(),
-            (new FileUploadOptions())
-                ->setNotify(false)
-                ->setIsPublic(false)
-                ->setCompress(true)
-                ->setTags(['table-import'])
-        );
-
-        $this->_client->writeTableAsyncDirect($tableId, [
-            'dataFileId' => $fileId,
-        ]);
+        $this->loadTable($tableId);
 
         $table = $this->_client->getTable($tableId);
 
@@ -170,5 +199,240 @@ SQL,
 
         $events = $this->listEventsFilteredByName($this->client, 'storage.tableImportDone', $tableId, 10);
         $this->assertCount(1, $events);
+    }
+
+    public function testLoadFromFileToTableOnError(): void
+    {
+        $tableName = 'custom-table-1';
+
+        /**
+         * This configuration will:
+         * - create two new tables tmp_test1,tmp_test2
+         * - clear tables (tmp_test1,tmp_test2) if exist in case of some failures
+         *
+         * Purpose is to test if tables are not exists, this would fail if table tmp_test1 or tmp_test2 exists
+         * Table existing in bucket means that cleanup or onError doesn't work in other configurations
+         */
+        $jsonTest = /** @lang JSON */
+            <<<JSON
+{
+  "action": "generate",
+  "backend": "synapse",
+  "operation": "importFull",
+  "source": "fileAbs",
+  "columns": [
+    "id",
+    "NAME"
+  ],
+  "primaryKeys": [
+    "id"
+  ],
+  "output": {
+    "queries": [
+      {
+        "sql": "CREATE TABLE {{ id(destSchemaName) }}.{{ id('tmp_test1') }} ([id] NVARCHAR(4000), [NAME] NVARCHAR(4000)) WITH (DISTRIBUTION = ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX)",
+        "description": ""
+      },
+      {
+        "sql": "CREATE TABLE {{ id(destSchemaName) }}.{{ id('tmp_test2') }} ([id] NVARCHAR(4000), [NAME] NVARCHAR(4000)) WITH (DISTRIBUTION = ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX)",
+        "description": ""
+      },
+      {
+        "sql": "IF OBJECT_ID (N'{{ id(destSchemaName) }}.{{ id('tmp_test1') }}', N'U') IS NOT NULL DROP TABLE {{ id(destSchemaName) }}.{{ id('tmp_test1') }}",
+        "description": ""
+      },
+      {
+        "sql": "IF OBJECT_ID (N'{{ id(destSchemaName) }}.{{ id('tmp_test2') }}', N'U') IS NOT NULL DROP TABLE {{ id(destSchemaName) }}.{{ id('tmp_test2') }}",
+        "description": ""
+      }
+    ],
+    "onError": [],
+    "cleanup": []
+  }
+}
+JSON;
+
+        $testConfig = json_decode(
+            $jsonTest,
+            true,
+            512,
+            JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT
+        )['output'];
+
+        /**
+         * This configuration will:
+         * - clear tables (tmp_test1,tmp_test2) if exist in case of some failures
+         * - create two new tables tmp_test1,tmp_test2
+         * - run query which fails
+         * - run cleanup for tables tmp_test1,tmp_test2
+         *
+         * there should not be any tables left
+         */
+        $jsonWithCleanup = /** @lang JSON */
+            <<<JSON
+{
+  "action": "generate",
+  "backend": "synapse",
+  "operation": "importFull",
+  "source": "fileAbs",
+  "columns": [
+    "id",
+    "NAME"
+  ],
+  "primaryKeys": [
+    "id"
+  ],
+  "output": {
+    "queries": [
+      {
+        "sql": "IF OBJECT_ID (N'{{ id(destSchemaName) }}.{{ id('tmp_test1') }}', N'U') IS NOT NULL DROP TABLE {{ id(destSchemaName) }}.{{ id('tmp_test1') }}",
+        "description": ""
+      },
+      {
+        "sql": "IF OBJECT_ID (N'{{ id(destSchemaName) }}.{{ id('tmp_test2') }}', N'U') IS NOT NULL DROP TABLE {{ id(destSchemaName) }}.{{ id('tmp_test2') }}",
+        "description": ""
+      },
+      {
+        "sql": "CREATE TABLE {{ id(destSchemaName) }}.{{ id('tmp_test1') }} ([id] NVARCHAR(4000), [NAME] NVARCHAR(4000)) WITH (DISTRIBUTION = ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX)",
+        "description": ""
+      },
+      {
+        "sql": "CREATE TABLE {{ id(destSchemaName) }}.{{ id('tmp_test2') }} ([id] NVARCHAR(4000), [NAME] NVARCHAR(4000)) WITH (DISTRIBUTION = ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX)",
+        "description": ""
+      },
+      {
+        "sql": "FAIL THIS",
+        "description": ""
+      }
+    ],
+    "onError": [],
+    "cleanup": [
+      {
+        "sql": "IF OBJECT_ID (N'{{ id(destSchemaName) }}.{{ id('tmp_test1') }}', N'U') IS NOT NULL DROP TABLE {{ id(destSchemaName) }}.{{ id('tmp_test1') }}",
+        "description": ""
+      },
+      {
+        "sql": "IF OBJECT_ID (N'{{ id(destSchemaName) }}.{{ id('tmp_test2') }}', N'U') IS NOT NULL DROP TABLE {{ id(destSchemaName) }}.{{ id('tmp_test2') }}",
+        "description": ""
+      }
+    ]
+  }
+}
+JSON;
+        [$tableId, $configuration] = $this->createTableWithConfiguration($jsonWithCleanup, $tableName);
+
+        try {
+            $this->loadTable($tableId);
+            $this->fail('import should fail');
+        } catch (ClientException $e) {
+            $this->assertStringStartsWith('Execution of custom table query failed because of', $e->getMessage());
+        }
+
+        /**
+         * Test if tables are cleared
+         */
+        $configuration->setConfiguration([
+            'migrations' => [/** we don't care about migrations they can be empty */],
+            'queriesOverride' => [
+                'ingestionFullLoad' => $testConfig,
+            ],
+        ]);
+        $this->componentsClient->updateConfiguration($configuration);
+        $this->loadTable($tableId); // now should succeed as tables were cleared in cleanup
+
+        /**
+         * This configuration will:
+         * - clear tables (tmp_test1,tmp_test2) if exist in case of some failures
+         * - create two new tables tmp_test1,tmp_test2
+         * - run query which fails
+         * - run onError for tables tmp_test1,tmp_test2
+         *
+         * there should not be any tables left
+         */
+        $jsonWithOnError = /** @lang JSON */
+            <<<JSON
+{
+  "action": "generate",
+  "backend": "synapse",
+  "operation": "importFull",
+  "source": "fileAbs",
+  "columns": [
+    "id",
+    "NAME"
+  ],
+  "primaryKeys": [
+    "id"
+  ],
+  "output": {
+    "queries": [
+      {
+        "sql": "IF OBJECT_ID (N'{{ id(destSchemaName) }}.{{ id('tmp_test1') }}', N'U') IS NOT NULL DROP TABLE {{ id(destSchemaName) }}.{{ id('tmp_test1') }}",
+        "description": ""
+      },
+      {
+        "sql": "IF OBJECT_ID (N'{{ id(destSchemaName) }}.{{ id('tmp_test2') }}', N'U') IS NOT NULL DROP TABLE {{ id(destSchemaName) }}.{{ id('tmp_test2') }}",
+        "description": ""
+      },
+      {
+        "sql": "CREATE TABLE {{ id(destSchemaName) }}.{{ id('tmp_test1') }} ([id] NVARCHAR(4000), [NAME] NVARCHAR(4000)) WITH (DISTRIBUTION = ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX)",
+        "description": ""
+      },
+      {
+        "sql": "CREATE TABLE {{ id(destSchemaName) }}.{{ id('tmp_test2') }} ([id] NVARCHAR(4000), [NAME] NVARCHAR(4000)) WITH (DISTRIBUTION = ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX)",
+        "description": ""
+      },
+      {
+        "sql": "FAIL THIS",
+        "description": ""
+      }
+    ],
+    "onError": [
+      {
+        "sql": "IF OBJECT_ID (N'{{ id(destSchemaName) }}.{{ id('tmp_test1') }}', N'U') IS NOT NULL DROP TABLE {{ id(destSchemaName) }}.{{ id('tmp_test1') }}",
+        "description": ""
+      },
+      {
+        "sql": "IF OBJECT_ID (N'{{ id(destSchemaName) }}.{{ id('tmp_test2') }}', N'U') IS NOT NULL DROP TABLE {{ id(destSchemaName) }}.{{ id('tmp_test2') }}",
+        "description": ""
+      }
+    ],
+    "cleanup": []
+  }
+}
+JSON;
+
+        $configOnError = json_decode(
+            $jsonWithOnError,
+            true,
+            512,
+            JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT
+        )['output'];
+
+        $configuration->setConfiguration([
+            'migrations' => [/** we don't care about migrations they can be empty */],
+            'queriesOverride' => [
+                'ingestionFullLoad' => $configOnError,
+            ],
+        ]);
+        $this->componentsClient->updateConfiguration($configuration);
+
+        try {
+            $this->loadTable($tableId);
+            $this->fail('import should fail');
+        } catch (ClientException $e) {
+            $this->assertStringStartsWith('Execution of custom table query failed because of', $e->getMessage());
+        }
+
+        /**
+         * Test if tables are cleared
+         */
+        $configuration->setConfiguration([
+            'migrations' => [/** we don't care about migrations they can be empty */],
+            'queriesOverride' => [
+                'ingestionFullLoad' => $testConfig,
+            ],
+        ]);
+        $this->componentsClient->updateConfiguration($configuration);
+        $this->loadTable($tableId); // now should succeed as tables were cleared in cleanup
     }
 }
