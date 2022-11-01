@@ -121,17 +121,16 @@ JSON;
 
         // HTML NOWDOC used so that autoformat does not reformat SQL queries inside the strings
         $tableId = $this->prepareTableWithConfiguration($tableName, [
-                'migrations' => [
-                    [
-                        'sql' => /** @lang TSQL */ <<<SQL
+            'migrations' => [
+                [
+                    'sql' => /** @lang TSQL */ <<<SQL
 CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} ([id] INTEGER, [NAME] VARCHAR(100))
 SQL,
-                        'description' => 'first ever',
-                    ],
+                    'description' => 'first ever',
                 ],
-                'queriesOverride' => $queriesOverride,
-            ]
-        );
+            ],
+            'queriesOverride' => $queriesOverride,
+        ]);
 
         $csvFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
         $fileId = $this->_client->uploadFile(
