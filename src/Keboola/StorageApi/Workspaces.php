@@ -84,4 +84,24 @@ class Workspaces
     {
         return $this->client->apiPost("workspaces/{$id}/password");
     }
+
+    /**
+     * @param $id
+     * @param array $options -- required input[mappings], optional preserve
+     */
+    public function queueWorkspaceLoadData($id, array $options = []): int
+    {
+        $job = $this->client->apiPost("workspaces/{$id}/load", $options, false);
+        return $job['id'];
+    }
+
+    /**
+     * @param $id
+     * @param array $options -- required input[mappings], optional preserve
+     */
+    public function queueWorkspaceCloneInto($id, array $options = []): int
+    {
+        $job = $this->client->apiPost("workspaces/{$id}/load-clone", $options, false);
+        return $job['id'];
+    }
 }

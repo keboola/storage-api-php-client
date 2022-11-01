@@ -2076,4 +2076,33 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
             );
         }
     }
+
+    public function testQueueWorkspaceLoadData(): void
+    {
+        $workspacesClient = new Workspaces($this->_client);
+        $workspace = $this->initTestWorkspace();
+
+        //setup test tables
+        $tableId = $this->_client->createTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'table1',
+                ],
+            ],
+        ];
+
+        $jobId = $workspacesClient->queueWorkspaceLoadData($workspace['id'], $options);
+        $job = $this->_client->getJob($jobId);
+
+        $this->assertEquals('workspaceLoad', $job['operationName']);
+        $this->assertEquals($workspace['id'], $job['operationParams']['workspaceId']);
+        $this->assertEquals($options['input'], $job['operationParams']['input']);
+    }
 }
