@@ -86,22 +86,22 @@ class Workspaces
     }
 
     /**
-     * @param $id
      * @param array $options -- required input[mappings], optional preserve
      */
-    public function queueWorkspaceLoadData($id, array $options = []): int
+    public function queueWorkspaceLoadData(int $id, array $options = []): int
     {
+        /** @var array{id: int} $job */
         $job = $this->client->apiPost("workspaces/{$id}/load", $options, false);
-        return $job['id'];
+        return (int) $job['id'];
     }
 
     /**
-     * @param $id
      * @param array $options -- required input[mappings], optional preserve
      */
-    public function queueWorkspaceCloneInto($id, array $options = []): int
+    public function queueWorkspaceCloneInto(int $id, array $options = []): int
     {
+        /** @var array{id: int} $job */
         $job = $this->client->apiPost("workspaces/{$id}/load-clone", $options, false);
-        return $job['id'];
+        return (int) $job['id'];
     }
 }
