@@ -436,6 +436,35 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         ];
     }
 
+    public function testQueueWorkspaceCloneInto(): void
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $table1Id = $this->_client->createTable(
+            $bucketId,
+            'languages',
+            new CsvFile(self::IMPORT_FILE_PATH)
+        );
+
+        $workspacesClient = new Workspaces($this->_client);
+        $workspace = $workspacesClient->createWorkspace([], true);
+
+        $options = [
+            'input' => [
+                [
+                    'source' => $table1Id,
+                    'destination' => 'languages',
+                ],
+            ],
+        ];
+
+        $jobId = $workspacesClient->queueWorkspaceCloneInto($workspace['id'], $options);
+        $job = $this->_client->getJob($jobId);
+
+        $this->assertEquals('workspaceLoadClone', $job['operationName']);
+        $this->assertEquals($workspace['id'], $job['operationParams']['workspaceId']);
+        $this->assertEquals($options['input'], $job['operationParams']['input']);
+    }
+
     /**
      * @param Client $client
      * @param string $bucketId
