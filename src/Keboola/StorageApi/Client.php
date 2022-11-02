@@ -13,6 +13,7 @@ use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Utils;
 use Keboola\StorageApi\Client\RequestTimeoutMiddleware;
 use Keboola\StorageApi\Downloader\BlobClientFactory;
+use Keboola\StorageApi\Options\BackendConfiguration;
 use Keboola\StorageApi\Options\BucketUpdateOptions;
 use Keboola\StorageApi\Options\Components\SearchComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\FileUploadTransferOptions;
@@ -59,6 +60,9 @@ class Client
 
     // current run id sent with all request
     private $runId = null;
+
+    // configuration will be send with all requests
+    private ?BackendConfiguration $backendConfiguration;
 
     // API URL
     private $apiUrl;
@@ -2540,6 +2544,10 @@ class Client
             $requestOptions['headers']['X-KBC-RunId'] = $this->getRunId();
         }
 
+        if ($this->getBackendConfiguration()) {
+            $requestOptions['headers']['X-KBC-Backend'] = $this->getBackendConfiguration()->toJson();
+        }
+
         if (isset($requestOptions['json']) && is_array($requestOptions['json']) && empty($requestOptions['json'])) {
             // if empty array -> send object `{}` instead of list `[]`
             $requestOptions['json'] = (object) [];
@@ -2772,6 +2780,18 @@ class Client
         $this->runId = $runId;
         return $this;
     }
+
+    public function withBackendConfiguration(?BackendConfiguration $configuration): self
+    {
+        $this->backendConfiguration = $configuration;
+        return $this;
+    }
+
+    public function getBackendConfiguration(): ?BackendConfiguration
+    {
+        return $this->backendConfiguration;
+    }
+
 
     /**
      * @return int
