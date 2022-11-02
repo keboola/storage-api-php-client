@@ -3640,6 +3640,22 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertArrayEqualsExceptKeys($originalConfigRow, $rollbackedConfigRow, ['version', 'changeDescription']);
     }
 
+    public function testCreateConfigurationWithEmptyStringIdWillGenerateTheId(): void
+    {
+        $components = new \Keboola\StorageApi\Components($this->client);
+        $configuration = new \Keboola\StorageApi\Options\Components\Configuration();
+        $componentId = 'wr-db';
+        $configurationId = '';
+        $configuration
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setName('Main');
+
+        $configurationResponse = $components->addConfiguration($configuration);
+
+        $this->assertNotEmpty($configurationResponse['id']);
+    }
+
     /**
      * @dataProvider provideComponentsClientType
      */
