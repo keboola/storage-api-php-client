@@ -18,6 +18,16 @@ class TableWithConfigurationLoadTest extends StorageApiTestCase
     use EventTesterUtils;
     use TableWithConfigurationUtils;
 
+    public const DEFAULT_CONFIGURATION_MIGRATIONS = [
+        [
+            'sql' => /** @lang TSQL */
+                <<<SQL
+                CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} ([id] INTEGER, [NAME] VARCHAR(100))
+                SQL,
+            'description' => 'first ever',
+        ],
+    ];
+
     private Client $client;
 
     private ClientProvider $clientProvider;
@@ -27,9 +37,12 @@ class TableWithConfigurationLoadTest extends StorageApiTestCase
     /**
      * @throws ClientException
      */
-    private function loadTable(string $tableId): void
-    {
-        $csvFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
+    private function loadTable(
+        string $tableId,
+        string $csvFilePath = __DIR__ . '/../../_data/languages.csv',
+        array $writeTableOptions = []
+    ): void {
+        $csvFile = new CsvFile($csvFilePath);
         $fileId = $this->_client->uploadFile(
             $csvFile->getPathname(),
             (new FileUploadOptions())
@@ -41,15 +54,19 @@ class TableWithConfigurationLoadTest extends StorageApiTestCase
 
         $this->_client->writeTableAsyncDirect($tableId, [
             'dataFileId' => $fileId,
-        ]);
+        ] + $writeTableOptions);
     }
 
     /**
      * @return array{0: string, 1: Configuration}
      * @throws \JsonException
      */
-    private function createTableWithConfiguration(string $json, string $tableName): array
-    {
+    private function createTableWithConfiguration(
+        string $json,
+        string $tableName,
+        string $queriesOverrideType,
+        array $migrations = null
+    ): array {
         /** @var array{output:array} $jsonDecoded */
         $jsonDecoded = json_decode(
             $json,
@@ -59,21 +76,14 @@ class TableWithConfigurationLoadTest extends StorageApiTestCase
         );
 
         $queriesOverride = [];
-        $queriesOverride['ingestionFullLoad'] = $jsonDecoded['output'];
+        $queriesOverride[$queriesOverrideType] = $jsonDecoded['output'];
 
         $configuration = (new Configuration())
             ->setComponentId(StorageApiTestCase::CUSTOM_QUERY_MANAGER_COMPONENT_ID)
             ->setConfigurationId($this->configId)
             ->setName($this->configId)
             ->setConfiguration([
-                'migrations' => [
-                    [
-                        'sql' => /** @lang TSQL */ <<<SQL
-CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} ([id] INTEGER, [NAME] VARCHAR(100))
-SQL,
-                        'description' => 'first ever',
-                    ],
-                ],
+                'migrations' => $migrations ?? self::DEFAULT_CONFIGURATION_MIGRATIONS,
                 'queriesOverride' => $queriesOverride,
             ]);
 
@@ -171,7 +181,7 @@ SQL,
   }
 }
 JSON;
-        [$tableId,] = $this->createTableWithConfiguration($json, $tableName);
+        [$tableId,] = $this->createTableWithConfiguration($json, $tableName, 'ingestionFullLoad');
 
         $this->loadTable($tableId);
 
@@ -319,7 +329,7 @@ JSON;
   }
 }
 JSON;
-        [$tableId, $configuration] = $this->createTableWithConfiguration($jsonWithCleanup, $tableName);
+        [$tableId, $configuration] = $this->createTableWithConfiguration($jsonWithCleanup, $tableName, 'ingestionFullLoad');
 
         try {
             $this->loadTable($tableId);
@@ -440,7 +450,8 @@ JSON;
     {
         $tableName = 'custom-table-2';
 
-        $json = /** @lang JSON */<<<JSON
+        $json = /** @lang JSON */
+            <<<JSON
 {
   "action": "generate",
   "backend": "synapse",
@@ -495,53 +506,35 @@ JSON;
   }
 }
 JSON;
-        $jsonDecoded = json_decode(
-            $json,
-            true,
-            512,
-            JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT
-        );
 
-        $queriesOverride = [];
-        $queriesOverride['ingestionIncrementalLoad'] = $jsonDecoded['output'];
+        [$tableId,] = $this->createTableWithConfiguration($json, $tableName, 'ingestionIncrementalLoad', [
+            [
+                'sql' => /** @lang TSQL */
+                    <<<SQL
+                    CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} ([id] INTEGER, [NAME] VARCHAR(100))
+                    SQL,
+                'description' => 'first ever',
+            ],
+            [
+                'sql' => /** @lang TSQL */
+                    <<<SQL
+                    INSERT INTO {{ id(bucketName) }}.{{ id(tableName) }} ([id], [NAME]) SELECT 0, '- unchecked -';
+                    INSERT INTO {{ id(bucketName) }}.{{ id(tableName) }} ([id], [NAME]) SELECT 26, 'czech';
+                    INSERT INTO {{ id(bucketName) }}.{{ id(tableName) }} ([id], [NAME]) SELECT 1, 'english';
+                    INSERT INTO {{ id(bucketName) }}.{{ id(tableName) }} ([id], [NAME]) SELECT 11, 'finnish';
+                    INSERT INTO {{ id(bucketName) }}.{{ id(tableName) }} ([id], [NAME]) SELECT 24, 'french';
+                    SQL,
+                'description' => 'initial data',
+            ],
+        ]);
 
-        $tableId = $this->prepareTableWithConfiguration($tableName, [
-                'migrations' => [
-                    [
-                        'sql' => /** @lang TSQL */ <<<SQL
-                        CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} ([id] INTEGER, [NAME] VARCHAR(100))
-                        SQL,
-                        'description' => 'first ever',
-                    ],
-                    [
-                        'sql' => /** @lang TSQL */ <<<SQL
-                        INSERT INTO {{ id(bucketName) }}.{{ id(tableName) }} ([id], [NAME]) SELECT 0, '- unchecked -';
-                        INSERT INTO {{ id(bucketName) }}.{{ id(tableName) }} ([id], [NAME]) SELECT 26, 'czech';
-                        INSERT INTO {{ id(bucketName) }}.{{ id(tableName) }} ([id], [NAME]) SELECT 1, 'english';
-                        INSERT INTO {{ id(bucketName) }}.{{ id(tableName) }} ([id], [NAME]) SELECT 11, 'finnish';
-                        INSERT INTO {{ id(bucketName) }}.{{ id(tableName) }} ([id], [NAME]) SELECT 24, 'french';
-                        SQL,
-                        'description' => 'initial data',
-                    ],
-                ],
-                'queriesOverride' => $queriesOverride,
+        $this->loadTable(
+            $tableId,
+            __DIR__ . '/../../_data/languages.increment.csv',
+            [
+                'incremental' => true,
             ]
         );
-
-        $csvFile = new CsvFile(__DIR__ . '/../../_data/languages.increment.csv');
-        $fileId = $this->_client->uploadFile(
-            $csvFile->getPathname(),
-            (new FileUploadOptions())
-                ->setNotify(false)
-                ->setIsPublic(false)
-                ->setCompress(true)
-                ->setTags(['table-import'])
-        );
-
-        $this->_client->writeTableAsyncDirect($tableId, [
-            'dataFileId' => $fileId,
-            'incremental' => true,
-        ]);
 
         $table = $this->_client->getTable($tableId);
 
@@ -568,5 +561,4 @@ JSON;
         $events = $this->listEventsFilteredByName($this->client, 'storage.tableImportDone', $tableId, 10);
         $this->assertCount(1, $events);
     }
-
 }
