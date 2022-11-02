@@ -435,4 +435,138 @@ JSON;
         $this->componentsClient->updateConfiguration($configuration);
         $this->loadTable($tableId); // now should succeed as tables were cleared in cleanup
     }
+
+    public function testLoadIncrementalFromFileToTable(): void
+    {
+        $tableName = 'custom-table-2';
+
+        $json = /** @lang JSON */<<<JSON
+{
+  "action": "generate",
+  "backend": "synapse",
+  "operation": "importIncremental",
+  "source": "fileAbs",
+  "columns": [
+    "id",
+    "NAME"
+  ],
+  "primaryKeys": [
+    "id"
+  ],
+  "output": {
+    "queries": [
+      {
+        "sql": "CREATE TABLE {{ id(destSchemaName) }}.{{ id(stageTableName) }} ([id] NVARCHAR(4000), [NAME] NVARCHAR(4000)) WITH (DISTRIBUTION = ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX)",
+        "description": ""
+      },
+      {
+        "sql": "COPY INTO {{ id(destSchemaName) }}.{{ id(stageTableName) }}\\nFROM {{ listFiles(sourceFiles) }}\\nWITH (\\n    FILE_TYPE='CSV',\\n    CREDENTIAL=(IDENTITY='Managed Identity'),\\n    FIELDQUOTE='\"',\\n    FIELDTERMINATOR=',',\\n    ENCODING = 'UTF8',\\n    \\n    IDENTITY_INSERT = 'OFF'\\n    ,FIRSTROW=2\\n)",
+        "description": ""
+      },
+      {
+        "sql": "CREATE TABLE {{ id(destSchemaName) }}.{{ id(destTableName ~ rand ~ '_tmp') }} ([id] NVARCHAR(4000), [NAME] NVARCHAR(4000)) WITH (DISTRIBUTION = ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX)",
+        "description": ""
+      },
+      {
+        "sql": "BEGIN TRANSACTION",
+        "description": ""
+      },
+      {
+        "sql": "UPDATE {{ id(destSchemaName) }}.{{ id(destTableName) }} SET [NAME] = COALESCE([src].[NAME], '') FROM {{ id(destSchemaName) }}.{{ id(stageTableName) }} AS [src] WHERE {{ id(destSchemaName) }}.{{ id(destTableName) }}.[id] = [src].[id] AND (COALESCE(CAST({{ id(destSchemaName) }}.{{ id(destTableName) }}.[NAME] AS NVARCHAR), '') != COALESCE([src].[NAME], '')) ",
+        "description": ""
+      },
+      {
+        "sql": "DELETE {{ id(destSchemaName) }}.{{ id(stageTableName) }} WHERE EXISTS (SELECT * FROM {{ id(destSchemaName) }}.{{ id(destTableName) }} WHERE {{ id(destSchemaName) }}.{{ id(destTableName) }}.[id] = {{ id(destSchemaName) }}.{{ id(stageTableName) }}.[id])",
+        "description": ""
+      },
+      {
+        "sql": "INSERT INTO {{ id(destSchemaName) }}.{{ id(destTableName ~ rand ~ '_tmp') }} ([id], [NAME]) SELECT a.[id],a.[NAME] FROM (SELECT [id], [NAME], ROW_NUMBER() OVER (PARTITION BY [id] ORDER BY [id]) AS \"_row_number_\" FROM {{ id(destSchemaName) }}.{{ id(stageTableName) }}) AS a WHERE a.\"_row_number_\" = 1",
+        "description": ""
+      },
+      {
+        "sql": "INSERT INTO {{ id(destSchemaName) }}.{{ id(destTableName) }} ([id], [NAME]) (SELECT CAST(COALESCE([id], '') as NVARCHAR) AS [id],CAST(COALESCE([NAME], '') as NVARCHAR) AS [NAME] FROM {{ id(destSchemaName) }}.{{ id(destTableName ~ rand ~ '_tmp') }} AS [src])",
+        "description": ""
+      },
+      {
+        "sql": "COMMIT",
+        "description": ""
+      }
+    ]
+  }
+}
+JSON;
+        $jsonDecoded = json_decode(
+            $json,
+            true,
+            512,
+            JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT
+        );
+
+        $queriesOverride = [];
+        $queriesOverride['ingestionIncrementalLoad'] = $jsonDecoded['output'];
+
+        $tableId = $this->prepareTableWithConfiguration($tableName, [
+                'migrations' => [
+                    [
+                        'sql' => /** @lang TSQL */ <<<SQL
+                        CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} ([id] INTEGER, [NAME] VARCHAR(100))
+                        SQL,
+                        'description' => 'first ever',
+                    ],
+                    [
+                        'sql' => /** @lang TSQL */ <<<SQL
+                        INSERT INTO {{ id(bucketName) }}.{{ id(tableName) }} ([id], [NAME]) SELECT 0, '- unchecked -';
+                        INSERT INTO {{ id(bucketName) }}.{{ id(tableName) }} ([id], [NAME]) SELECT 26, 'czech';
+                        INSERT INTO {{ id(bucketName) }}.{{ id(tableName) }} ([id], [NAME]) SELECT 1, 'english';
+                        INSERT INTO {{ id(bucketName) }}.{{ id(tableName) }} ([id], [NAME]) SELECT 11, 'finnish';
+                        INSERT INTO {{ id(bucketName) }}.{{ id(tableName) }} ([id], [NAME]) SELECT 24, 'french';
+                        SQL,
+                        'description' => 'initial data',
+                    ],
+                ],
+                'queriesOverride' => $queriesOverride,
+            ]
+        );
+
+        $csvFile = new CsvFile(__DIR__ . '/../../_data/languages.increment.csv');
+        $fileId = $this->_client->uploadFile(
+            $csvFile->getPathname(),
+            (new FileUploadOptions())
+                ->setNotify(false)
+                ->setIsPublic(false)
+                ->setCompress(true)
+                ->setTags(['table-import'])
+        );
+
+        $this->_client->writeTableAsyncDirect($tableId, [
+            'dataFileId' => $fileId,
+            'incremental' => true,
+        ]);
+
+        $table = $this->_client->getTable($tableId);
+
+        $this->assertEquals(['id', 'NAME'], $table['columns']);
+        $this->assertSame(6, $table['rowsCount']);
+        $this->assertTableColumnMetadata([
+            'id' => [
+                'KBC.datatype.type' => 'INT',
+                'KBC.datatype.nullable' => '1',
+                'KBC.datatype.basetype' => 'INTEGER',
+            ],
+            'NAME' => [
+                'KBC.datatype.type' => 'VARCHAR',
+                'KBC.datatype.nullable' => '1',
+                'KBC.datatype.basetype' => 'STRING',
+                'KBC.datatype.length' => '100',
+            ],
+        ], $table);
+
+        // check events
+        $events = $this->listEventsFilteredByName($this->client, 'storage.tableWithConfigurationImportQuery', $tableId, 50);
+        $this->assertCount(9, $events);
+
+        $events = $this->listEventsFilteredByName($this->client, 'storage.tableImportDone', $tableId, 10);
+        $this->assertCount(1, $events);
+    }
+
 }
