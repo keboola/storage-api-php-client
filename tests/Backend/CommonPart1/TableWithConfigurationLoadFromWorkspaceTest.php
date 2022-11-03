@@ -84,16 +84,14 @@ class TableWithConfigurationLoadFromWorkspaceTest extends ParallelWorkspacesTest
             $sourceTableName,
         ));
 
-        // data from `../../_data/languages.csv`
+        // data from `../../_data/languages.incremental.csv`
         $db->executeQuery("CREATE TABLE $quotedSourceTableId (
 			[Id] INTEGER,
 			[NAME] VARCHAR(100)
 		);");
-        $db->executeQuery("INSERT INTO $quotedSourceTableId ([id], [NAME]) SELECT 0, '- unchecked -'");
-        $db->executeQuery("INSERT INTO $quotedSourceTableId ([id], [NAME]) SELECT 26, 'czech'");
-        $db->executeQuery("INSERT INTO $quotedSourceTableId ([id], [NAME]) SELECT 1, 'english'");
-        $db->executeQuery("INSERT INTO $quotedSourceTableId ([id], [NAME]) SELECT 11, 'finnish'");
         $db->executeQuery("INSERT INTO $quotedSourceTableId ([id], [NAME]) SELECT 24, 'french'");
+        $db->executeQuery("INSERT INTO $quotedSourceTableId ([id], [NAME]) SELECT 25, 'russian'");
+        $db->executeQuery("INSERT INTO $quotedSourceTableId ([id], [NAME]) SELECT 26, 'slovak'");
 
         $this->_client->writeTableAsyncDirect($tableId, [
                 'dataWorkspaceId' => $workspace['id'],
@@ -167,7 +165,7 @@ JSON;
         $table = $this->_client->getTable($tableId);
 
         $this->assertEquals(['id', 'NAME'], $table['columns']);
-        $this->assertSame(5, $table['rowsCount']);
+        $this->assertSame(3, $table['rowsCount']);
         $this->assertTableColumnMetadata([
             'id' => [
                 'KBC.datatype.type' => 'INT',
