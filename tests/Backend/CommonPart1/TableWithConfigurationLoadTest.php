@@ -36,6 +36,38 @@ class TableWithConfigurationLoadTest extends ParallelWorkspacesTestCase
 
     private Components $componentsClient;
 
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        // check feature
+        $token = $this->_client->verifyToken();
+        if (!in_array('tables-with-configuration', $token['owner']['features'])) {
+            $this->markTestSkipped(sprintf('Creating tables from configurations feature is not enabled for project "%s"', $token['owner']['id']));
+        }
+
+        if ($token['owner']['defaultBackend'] !== self::BACKEND_SYNAPSE) {
+            self::markTestSkipped(sprintf(
+                'Backend "%s" is not supported tables with configuration',
+                $token['owner']['defaultBackend']
+            ));
+        }
+
+        // init buckets
+        $this->initEmptyTestBucketsForParallelTests();
+
+        $this->clientProvider = new ClientProvider($this);
+        $this->client = $this->clientProvider->createClientForCurrentTest();
+
+        $this->assertComponentExists();
+
+        $this->configId = sha1($this->generateDescriptionForTestObject());
+
+        $this->dropTableAndConfiguration($this->configId);
+
+        $this->initEvents($this->client);
+    }
+
     /**
      * @throws ClientException
      */
@@ -131,38 +163,6 @@ class TableWithConfigurationLoadTest extends ParallelWorkspacesTestCase
             $this->prepareTableWithConfiguration($tableName, $configuration),
             $configuration,
         ];
-    }
-
-    public function setUp(): void
-    {
-        parent::setUp();
-
-        // check feature
-        $token = $this->_client->verifyToken();
-        if (!in_array('tables-with-configuration', $token['owner']['features'])) {
-            $this->markTestSkipped(sprintf('Creating tables from configurations feature is not enabled for project "%s"', $token['owner']['id']));
-        }
-
-        if ($token['owner']['defaultBackend'] !== self::BACKEND_SYNAPSE) {
-            self::markTestSkipped(sprintf(
-                'Backend "%s" is not supported tables with configuration',
-                $token['owner']['defaultBackend']
-            ));
-        }
-
-        // init buckets
-        $this->initEmptyTestBucketsForParallelTests();
-
-        $this->clientProvider = new ClientProvider($this);
-        $this->client = $this->clientProvider->createClientForCurrentTest();
-
-        $this->assertComponentExists();
-
-        $this->configId = sha1($this->generateDescriptionForTestObject());
-
-        $this->dropTableAndConfiguration($this->configId);
-
-        $this->initEvents($this->client);
     }
 
     public function testLoadFromFileToTable(): void
