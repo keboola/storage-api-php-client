@@ -12,6 +12,16 @@ use Keboola\Test\StorageApiTestCase;
 
 trait TableWithConfigurationUtils
 {
+    public static array $DEFAULT_CONFIGURATION_MIGRATIONS = [
+        [
+            'sql' => /** @lang TSQL */
+                <<<SQL
+                CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} ([id] INTEGER, [NAME] VARCHAR(100))
+                SQL,
+            'description' => 'first ever',
+        ],
+    ];
+
     protected string $configId;
 
     public function dropTableAndConfiguration(string $configurationId): void
@@ -86,7 +96,7 @@ trait TableWithConfigurationUtils
             ->setConfigurationId($this->configId)
             ->setName($this->configId)
             ->setConfiguration([
-                'migrations' => $migrations ?? self::DEFAULT_CONFIGURATION_MIGRATIONS,
+                'migrations' => $migrations ?? self::$DEFAULT_CONFIGURATION_MIGRATIONS,
                 'queriesOverride' => $queriesOverride,
             ]);
 
