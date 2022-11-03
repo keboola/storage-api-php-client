@@ -129,42 +129,6 @@ class TableWithConfigurationLoadTest extends ParallelWorkspacesTestCase
             ] + $writeTableOptions);
     }
 
-    /**
-     * @return array{0: string, 1: Configuration}
-     * @throws \JsonException
-     */
-    private function createTableWithConfiguration(
-        string $json,
-        string $tableName,
-        string $queriesOverrideType,
-        array $migrations = null
-    ): array {
-        /** @var array{output:array} $jsonDecoded */
-        $jsonDecoded = json_decode(
-            $json,
-            true,
-            512,
-            JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT
-        );
-
-        $queriesOverride = [];
-        $queriesOverride[$queriesOverrideType] = $jsonDecoded['output'];
-
-        $configuration = (new Configuration())
-            ->setComponentId(StorageApiTestCase::CUSTOM_QUERY_MANAGER_COMPONENT_ID)
-            ->setConfigurationId($this->configId)
-            ->setName($this->configId)
-            ->setConfiguration([
-                'migrations' => $migrations ?? self::DEFAULT_CONFIGURATION_MIGRATIONS,
-                'queriesOverride' => $queriesOverride,
-            ]);
-
-        return [
-            $this->prepareTableWithConfiguration($tableName, $configuration),
-            $configuration,
-        ];
-    }
-
     public function testLoadFromFileToTable(): void
     {
         $tableName = 'custom-table-1';
