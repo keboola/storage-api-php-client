@@ -9,14 +9,16 @@ use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\Test\Backend\TableWithConfigurationUtils;
+use Keboola\Test\Backend\WorkspaceConnectionTrait;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
+use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
-use Keboola\Test\Utils\EventTesterUtils;
 
-class TableWithConfigurationLoadTest extends StorageApiTestCase
+class TableWithConfigurationLoadTest extends ParallelWorkspacesTestCase
 {
-    use EventTesterUtils;
     use TableWithConfigurationUtils;
+    use WorkspaceConnectionTrait;
 
     public const DEFAULT_CONFIGURATION_MIGRATIONS = [
         [
@@ -37,7 +39,7 @@ class TableWithConfigurationLoadTest extends StorageApiTestCase
     /**
      * @throws ClientException
      */
-    private function loadTable(
+    private function loadTableFromFile(
         string $tableId,
         string $csvFilePath = __DIR__ . '/../../_data/languages.csv',
         array $writeTableOptions = []
@@ -55,6 +57,44 @@ class TableWithConfigurationLoadTest extends StorageApiTestCase
         $this->_client->writeTableAsyncDirect($tableId, [
             'dataFileId' => $fileId,
         ] + $writeTableOptions);
+    }
+
+    private function loadTableFromWorkspace(
+        string $tableId,
+        array $writeTableOptions = []
+    ): void {
+        // create workspace and source table in workspace
+        $workspace = $this->initTestWorkspace();
+
+        $sourceTableName = 'languages';
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists($sourceTableName);
+
+        $connection = $workspace['connection'];
+
+        $db = $this->getDbConnectionSynapse($connection);
+
+        $quotedSourceTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
+            '%s.%s',
+            $connection['schema'],
+            $sourceTableName,
+        ));
+
+        // data from `../../_data/languages.csv`
+        $db->executeQuery("CREATE TABLE $quotedSourceTableId (
+			[Id] INTEGER,
+			[NAME] VARCHAR(100)
+		);");
+        $db->executeQuery("INSERT INTO $quotedSourceTableId ([id], [NAME]) SELECT 0, '- unchecked -'");
+        $db->executeQuery("INSERT INTO $quotedSourceTableId ([id], [NAME]) SELECT 26, 'czech'");
+        $db->executeQuery("INSERT INTO $quotedSourceTableId ([id], [NAME]) SELECT 1, 'english'");
+        $db->executeQuery("INSERT INTO $quotedSourceTableId ([id], [NAME]) SELECT 11, 'finnish'");
+        $db->executeQuery("INSERT INTO $quotedSourceTableId ([id], [NAME]) SELECT 24, 'french'");
+
+        $this->_client->writeTableAsyncDirect($tableId, [
+                'dataWorkspaceId' => $workspace['id'],
+                'dataObject' => $sourceTableName,
+            ] + $writeTableOptions);
     }
 
     /**
@@ -183,7 +223,7 @@ class TableWithConfigurationLoadTest extends StorageApiTestCase
 JSON;
         [$tableId,] = $this->createTableWithConfiguration($json, $tableName, 'ingestionFullLoad');
 
-        $this->loadTable($tableId);
+        $this->loadTableFromFile($tableId);
 
         $table = $this->_client->getTable($tableId);
 
@@ -332,7 +372,7 @@ JSON;
         [$tableId, $configuration] = $this->createTableWithConfiguration($jsonWithCleanup, $tableName, 'ingestionFullLoad');
 
         try {
-            $this->loadTable($tableId);
+            $this->loadTableFromFile($tableId);
             $this->fail('import should fail');
         } catch (ClientException $e) {
             $this->assertStringStartsWith('Execution of custom table query failed because of', $e->getMessage());
@@ -348,7 +388,7 @@ JSON;
             ],
         ]);
         $this->componentsClient->updateConfiguration($configuration);
-        $this->loadTable($tableId); // now should succeed as tables were cleared in cleanup
+        $this->loadTableFromFile($tableId); // now should succeed as tables were cleared in cleanup
 
         /**
          * This configuration will:
@@ -427,7 +467,7 @@ JSON;
         $this->componentsClient->updateConfiguration($configuration);
 
         try {
-            $this->loadTable($tableId);
+            $this->loadTableFromFile($tableId);
             $this->fail('import should fail');
         } catch (ClientException $e) {
             $this->assertStringStartsWith('Execution of custom table query failed because of', $e->getMessage());
@@ -443,7 +483,7 @@ JSON;
             ],
         ]);
         $this->componentsClient->updateConfiguration($configuration);
-        $this->loadTable($tableId); // now should succeed as tables were cleared in cleanup
+        $this->loadTableFromFile($tableId); // now should succeed as tables were cleared in cleanup
     }
 
     public function testLoadIncrementalFromFileToTable(): void
@@ -528,7 +568,7 @@ JSON;
             ],
         ]);
 
-        $this->loadTable(
+        $this->loadTableFromFile(
             $tableId,
             __DIR__ . '/../../_data/languages.increment.csv',
             [
@@ -566,6 +606,95 @@ JSON;
         // check events
         $events = $this->listEventsFilteredByName($this->client, 'storage.tableWithConfigurationImportQuery', $tableId, 50);
         $this->assertCount(9, $events);
+
+        $events = $this->listEventsFilteredByName($this->client, 'storage.tableImportDone', $tableId, 10);
+        $this->assertCount(1, $events);
+    }
+
+    public function testLoadFromWorkspaceToTable(): void
+    {
+        $tableName = 'custom-table-3';
+
+        $json = /** @lang JSON */
+            <<<JSON
+{
+  "action": "generate",
+  "backend": "synapse",
+  "operation": "importFull",
+  "source": "table",
+  "columns": [
+    "id",
+    "NAME"
+  ],
+  "primaryKeys": [
+    "id"
+  ],
+  "output": {
+    "queries": [
+      {
+        "sql": "CREATE TABLE {{ id(destSchemaName) }}.{{ id(stageTableName) }} ([id] NVARCHAR(4000), [NAME] NVARCHAR(4000)) WITH (DISTRIBUTION = ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX)",
+        "description": ""
+      },
+      {
+        "sql": "INSERT INTO {{ id(destSchemaName) }}.{{ id(stageTableName) }} ([id], [NAME]) SELECT [id], [NAME] FROM {{ id(sourceSchemaName) }}.{{ id(sourceTableName) }}",
+        "description": ""
+      },
+      {
+        "sql": "CREATE TABLE {{ id(destSchemaName) }}.{{ id(destTableName ~ rand ~ '_tmp') }} WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT a.[id],a.[NAME] FROM (SELECT COALESCE([id], '') AS [id],COALESCE([NAME], '') AS [NAME], ROW_NUMBER() OVER (PARTITION BY [id] ORDER BY [id]) AS \"_row_number_\" FROM {{ id(destSchemaName) }}.{{ id(stageTableName) }}) AS a WHERE a.\"_row_number_\" = 1",
+        "description": ""
+      },
+      {
+        "sql": "RENAME OBJECT {{ id(destSchemaName) }}.{{ id(destTableName) }} TO {{ id(destTableName ~ rand ~ '_tmp_rename') }}",
+        "description": ""
+      },
+      {
+        "sql": "RENAME OBJECT {{ id(destSchemaName) }}.{{ id(destTableName ~ rand ~ '_tmp') }} TO {{ id(destTableName) }}",
+        "description": ""
+      },
+      {
+        "sql": "DROP TABLE {{ id(destSchemaName) }}.{{ id(destTableName ~ rand ~ '_tmp_rename') }}",
+        "description": ""
+      },
+      {
+        "sql": "IF OBJECT_ID (N'{{ id(destSchemaName) }}.{{ id(destTableName ~ rand ~ '_tmp') }}', N'U') IS NOT NULL DROP TABLE {{ id(destSchemaName) }}.{{ id(destTableName ~ rand ~ '_tmp') }}",
+        "description": ""
+      },
+      {
+        "sql": "IF OBJECT_ID (N'{{ id(destSchemaName) }}.{{ id(destTableName ~ rand ~ '_tmp_rename') }}', N'U') IS NOT NULL DROP TABLE {{ id(destSchemaName) }}.{{ id(destTableName ~ rand ~ '_tmp_rename') }}",
+        "description": ""
+      }
+    ]
+  }
+}
+JSON;
+
+        [$tableId,] = $this->createTableWithConfiguration($json, $tableName, 'outputMappingFullLoad');
+
+        $this->loadTableFromWorkspace(
+            $tableId,
+        );
+
+        $table = $this->_client->getTable($tableId);
+
+        $this->assertEquals(['id', 'NAME'], $table['columns']);
+        $this->assertSame(5, $table['rowsCount']);
+        $this->assertTableColumnMetadata([
+            'id' => [
+                'KBC.datatype.type' => 'INT',
+                'KBC.datatype.nullable' => '1',
+                'KBC.datatype.basetype' => 'INTEGER',
+            ],
+            'NAME' => [
+                'KBC.datatype.type' => 'VARCHAR',
+                'KBC.datatype.nullable' => '1',
+                'KBC.datatype.basetype' => 'STRING',
+                'KBC.datatype.length' => '100',
+            ],
+        ], $table);
+
+        // check events
+        $events = $this->listEventsFilteredByName($this->client, 'storage.tableWithConfigurationImportQuery', $tableId, 50);
+        $this->assertCount(8, $events);
 
         $events = $this->listEventsFilteredByName($this->client, 'storage.tableImportDone', $tableId, 10);
         $this->assertCount(1, $events);
