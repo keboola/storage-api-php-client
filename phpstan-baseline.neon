@@ -2961,11 +2961,6 @@ parameters:
 			path: tests/Backend/FileWorkspace/Backend/Abs.php
 
 		-
-			message: "#^Anonymous function should return 'Id'\\|'iso' but returns 'Name'\\|'Something'\\.$#"
-			count: 1
-			path: tests/Backend/FileWorkspace/WorkspacesLoadTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\FileWorkspace\\\\WorkspacesLoadTest\\:\\:assertManifest\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/FileWorkspace/WorkspacesLoadTest.php
@@ -4839,11 +4834,6 @@ parameters:
 			message: "#^Unreachable statement \\- code above always terminates\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/WorkspacesExasolTest.php
-
-		-
-			message: "#^Anonymous function should return 'Id'\\|'iso' but returns 'Name'\\|'Something'\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/WorkspacesLoadTest.php
 
 		-
 			message: "#^Binary operation \"\\-\" between string and 1 results in an error\\.$#"
