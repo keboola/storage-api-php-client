@@ -179,10 +179,8 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
             [$primary, $primaryPosition, $identity] = [false, null, false];
             if ($row[$contype] == 'p') {
                 $primary = true;
-                assert($row[$conkey] !== null);
-                $primaryPosition = array_search($row[$attnum], explode(',', $row[$conkey])) + 1;
-                assert($row[$default_value] !== null);
-                $identity = (bool) (preg_match('/^nextval/', $row[$default_value]));
+                $primaryPosition = array_search($row[$attnum], explode(',', (string) $row[$conkey])) + 1;
+                $identity = (bool) (preg_match('/^nextval/', (string) $row[$default_value]));
             }
             $desc[$row[$colname]] = [
                 'SCHEMA_NAME' => $row[$nspname],
