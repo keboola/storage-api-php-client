@@ -540,6 +540,15 @@ JSON;
 
         $this->assertEquals(['id', 'NAME'], $table['columns']);
         $this->assertSame(6, $table['rowsCount']);
+        $tableData = Client::parseCsv($this->_client->getTableDataPreview($tableId));
+        $this->assertArrayEqualsSorted([
+            ['id' => '24', 'NAME' => 'french',],
+            ['id' => '1', 'NAME' => 'english',],
+            ['id' => '25', 'NAME' => 'russian',],
+            ['id' => '0', 'NAME' => '- unchecked -',],
+            ['id' => '11', 'NAME' => 'finnish',],
+            ['id' => '26', 'NAME' => 'slovak',],
+        ], $tableData, 'id');
         $this->assertTableColumnMetadata([
             'id' => [
                 'KBC.datatype.type' => 'INT',
