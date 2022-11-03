@@ -62,7 +62,7 @@ class Client
     private $runId = null;
 
     // configuration will be send with all requests
-    private ?BackendConfiguration $backendConfiguration;
+    private ?BackendConfiguration $backendConfiguration = null;
 
     // API URL
     private $apiUrl;

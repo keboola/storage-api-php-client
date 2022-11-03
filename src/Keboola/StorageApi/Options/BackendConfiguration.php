@@ -6,9 +6,9 @@ namespace Keboola\StorageApi\Options;
 
 class BackendConfiguration
 {
-    private string $context;
+    private ?string $context;
 
-    private string $size;
+    private ?string $size;
 
     public function __construct(
         ?string $context = null,
@@ -18,13 +18,13 @@ class BackendConfiguration
         $this->size = $size;
     }
 
-    public function withSize(string $size): self
+    public function withSize(?string $size): self
     {
         $this->size = $size;
         return $this;
     }
 
-    public function withContext(string $context): self
+    public function withContext(?string $context): self
     {
         $this->context = $context;
         return $this;
@@ -35,9 +35,13 @@ class BackendConfiguration
      */
     public function toJson(): string
     {
-        return json_encode([
-            'context' => $this->context,
-            'size' => $this->size,
-        ], JSON_THROW_ON_ERROR);
+        $payload = [];
+        if ($this->context !== null) {
+            $payload['context'] = $this->context;
+        }
+        if ($this->size !== null) {
+            $payload['size'] = $this->size;
+        }
+        return json_encode($payload, JSON_THROW_ON_ERROR);
     }
 }
