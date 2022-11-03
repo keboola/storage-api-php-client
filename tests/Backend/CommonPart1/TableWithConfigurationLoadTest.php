@@ -15,16 +15,6 @@ class TableWithConfigurationLoadTest extends StorageApiTestCase
 {
     use TableWithConfigurationUtils;
 
-    public const DEFAULT_CONFIGURATION_MIGRATIONS = [
-        [
-            'sql' => /** @lang TSQL */
-                <<<SQL
-                CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} ([id] INTEGER, [NAME] VARCHAR(100))
-                SQL,
-            'description' => 'first ever',
-        ],
-    ];
-
     private Client $client;
 
     private ClientProvider $clientProvider;
