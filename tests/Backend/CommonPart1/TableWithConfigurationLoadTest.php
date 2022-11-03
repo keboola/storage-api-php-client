@@ -518,13 +518,13 @@ JSON;
             [
                 'sql' => /** @lang TSQL */
                     <<<SQL
-                    INSERT INTO {{ id(bucketName) }}.{{ id(tableName) }} ([id], [NAME]) SELECT 0, '- unchecked -';
-                    INSERT INTO {{ id(bucketName) }}.{{ id(tableName) }} ([id], [NAME]) SELECT 26, 'czech';
-                    INSERT INTO {{ id(bucketName) }}.{{ id(tableName) }} ([id], [NAME]) SELECT 1, 'english';
-                    INSERT INTO {{ id(bucketName) }}.{{ id(tableName) }} ([id], [NAME]) SELECT 11, 'finnish';
-                    INSERT INTO {{ id(bucketName) }}.{{ id(tableName) }} ([id], [NAME]) SELECT 24, 'french';
+                    INSERT INTO {{ id(bucketName) }}.{{ id(tableName) }} ([id], [NAME]) 
+                        SELECT 0, '- unchecked -' UNION ALL
+                        SELECT 26, 'czech' UNION ALL
+                        SELECT 1, 'english' UNION ALL
+                        SELECT 11, 'finnish' UNION ALL
+                        SELECT 24, 'french';
                     SQL,
-                'description' => 'initial data',
             ],
         ]);
 
