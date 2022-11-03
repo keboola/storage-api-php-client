@@ -11,11 +11,23 @@ class BackendConfiguration
     private string $size;
 
     public function __construct(
-        string $context,
-        string $size
+        ?string $context = null,
+        ?string $size = null
     ) {
         $this->context = $context;
         $this->size = $size;
+    }
+
+    public function withSize(string $size): self
+    {
+        $this->size = $size;
+        return $this;
+    }
+
+    public function withContext(string $context): self
+    {
+        $this->context = $context;
+        return $this;
     }
 
     /**
