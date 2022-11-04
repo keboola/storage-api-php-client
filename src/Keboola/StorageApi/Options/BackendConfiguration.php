@@ -18,13 +18,13 @@ class BackendConfiguration
         $this->size = $size;
     }
 
-    public function withSize(?string $size): self
+    public function setSize(?string $size): self
     {
         $this->size = $size;
         return $this;
     }
 
-    public function withContext(?string $context): self
+    public function setContext(?string $context): self
     {
         $this->context = $context;
         return $this;
