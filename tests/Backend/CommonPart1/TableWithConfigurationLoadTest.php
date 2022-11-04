@@ -121,7 +121,7 @@ class TableWithConfigurationLoadTest extends StorageApiTestCase
   }
 }
 JSON;
-        [$tableId,] = $this->createTableWithConfiguration($json, $tableName, 'ingestionFullLoad');
+        [$tableId,] = $this->createTableWithConfiguration($json, $tableName, 'importFromFileFull');
 
         $this->loadTableFromFile($tableId);
 
@@ -269,7 +269,7 @@ JSON;
   }
 }
 JSON;
-        [$tableId, $configuration] = $this->createTableWithConfiguration($jsonWithCleanup, $tableName, 'ingestionFullLoad');
+        [$tableId, $configuration] = $this->createTableWithConfiguration($jsonWithCleanup, $tableName, 'importFromFileFull');
 
         try {
             $this->loadTableFromFile($tableId);
@@ -284,7 +284,7 @@ JSON;
         $configuration->setConfiguration([
             'migrations' => [/** we don't care about migrations they can be empty */],
             'queriesOverride' => [
-                'ingestionFullLoad' => $testConfig,
+                'importFromFileFull' => $testConfig,
             ],
         ]);
         $this->componentsClient->updateConfiguration($configuration);
@@ -361,7 +361,7 @@ JSON;
         $configuration->setConfiguration([
             'migrations' => [/** we don't care about migrations they can be empty */],
             'queriesOverride' => [
-                'ingestionFullLoad' => $configOnError,
+                'importFromFileFull' => $configOnError,
             ],
         ]);
         $this->componentsClient->updateConfiguration($configuration);
@@ -379,7 +379,7 @@ JSON;
         $configuration->setConfiguration([
             'migrations' => [/** we don't care about migrations they can be empty */],
             'queriesOverride' => [
-                'ingestionFullLoad' => $testConfig,
+                'importFromFileFull' => $testConfig,
             ],
         ]);
         $this->componentsClient->updateConfiguration($configuration);
@@ -447,7 +447,7 @@ JSON;
 }
 JSON;
 
-        [$tableId,] = $this->createTableWithConfiguration($json, $tableName, 'ingestionIncrementalLoad', [
+        [$tableId,] = $this->createTableWithConfiguration($json, $tableName, 'importFromFileIncremental', [
             [
                 'sql' => /** @lang TSQL */
                     <<<SQL
