@@ -69,6 +69,7 @@ class TableWithConfigurationLoadTest extends StorageApiTestCase
     {
         $tableName = 'custom-table-1';
 
+        // paste output from CustomQuery component + replace `\n` with `\\n`
         $json = /** @lang JSON */
             <<<JSON
 {
@@ -79,7 +80,7 @@ class TableWithConfigurationLoadTest extends StorageApiTestCase
         "description": ""
       },
       {
-        "sql": "COPY INTO {{ id(stageSchemaName) }}.{{ id(stageTableName) }}\\nFROM {{ listFiles(sourceFiles) }}\\nWITH (\\n    FILE_TYPE='CSV',\\n    CREDENTIAL=(IDENTITY='Managed Identity'),\\n    FIELDQUOTE='\\"',\\n    FIELDTERMINATOR=',',\\n    ENCODING = 'UTF8',\\n    \\n    IDENTITY_INSERT = 'OFF'\\n    ,FIRSTROW=2\\n)",
+        "sql": "COPY INTO {{ id(stageSchemaName) }}.{{ id(stageTableName) }}\\nFROM {{ listFiles(sourceFiles) }}\\nWITH (\\n    FILE_TYPE='CSV',\\n    CREDENTIAL=(IDENTITY='Managed Identity'),\\n    FIELDQUOTE='\"',\\n    FIELDTERMINATOR=',',\\n    ENCODING = 'UTF8',\\n    \\n    IDENTITY_INSERT = 'OFF'\\n    ,FIRSTROW=2\\n)",
         "description": ""
       },
       {
@@ -346,21 +347,22 @@ JSON;
     {
         $tableName = 'custom-table-2';
 
+        // put output from CustomQuery component + replace `\n` with `\\n`
         $json = /** @lang JSON */
             <<<JSON
 {
   "output": {
     "queries": [
       {
-        "sql": "CREATE TABLE {{ id(destSchemaName) }}.{{ id(stageTableName) }} ([id] NVARCHAR(4000), [NAME] NVARCHAR(4000)) WITH (DISTRIBUTION = ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX)",
+        "sql": "CREATE TABLE {{ id(stageSchemaName) }}.{{ id(stageTableName) }} ([id] NVARCHAR(4000), [NAME] NVARCHAR(4000)) WITH (DISTRIBUTION = ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX)",
         "description": ""
       },
       {
-        "sql": "COPY INTO {{ id(destSchemaName) }}.{{ id(stageTableName) }}\\nFROM {{ listFiles(sourceFiles) }}\\nWITH (\\n    FILE_TYPE='CSV',\\n    CREDENTIAL=(IDENTITY='Managed Identity'),\\n    FIELDQUOTE='\"',\\n    FIELDTERMINATOR=',',\\n    ENCODING = 'UTF8',\\n    \\n    IDENTITY_INSERT = 'OFF'\\n    ,FIRSTROW=2\\n)",
+        "sql": "COPY INTO {{ id(stageSchemaName) }}.{{ id(stageTableName) }}\\nFROM {{ listFiles(sourceFiles) }}\\nWITH (\\n    FILE_TYPE='CSV',\\n    CREDENTIAL=(IDENTITY='Managed Identity'),\\n    FIELDQUOTE='\"',\\n    FIELDTERMINATOR=',',\\n    ENCODING = 'UTF8',\\n    \\n    IDENTITY_INSERT = 'OFF'\\n    ,FIRSTROW=2\\n)",
         "description": ""
       },
       {
-        "sql": "CREATE TABLE {{ id(destSchemaName) }}.{{ id(destTableName ~ rand ~ '_tmp') }} ([id] NVARCHAR(4000), [NAME] NVARCHAR(4000)) WITH (DISTRIBUTION = ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX)",
+        "sql": "CREATE TABLE {{ id(stageSchemaName) }}.{{ id(destTableName ~ rand ~ '_tmp') }} ([id] NVARCHAR(4000), [NAME] NVARCHAR(4000)) WITH (DISTRIBUTION = ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX)",
         "description": ""
       },
       {
@@ -368,19 +370,19 @@ JSON;
         "description": ""
       },
       {
-        "sql": "UPDATE {{ id(destSchemaName) }}.{{ id(destTableName) }} SET [NAME] = COALESCE([src].[NAME], '') FROM {{ id(destSchemaName) }}.{{ id(stageTableName) }} AS [src] WHERE {{ id(destSchemaName) }}.{{ id(destTableName) }}.[id] = [src].[id] AND (COALESCE(CAST({{ id(destSchemaName) }}.{{ id(destTableName) }}.[NAME] AS NVARCHAR), '') != COALESCE([src].[NAME], '')) ",
+        "sql": "UPDATE {{ id(destSchemaName) }}.{{ id(destTableName) }} SET [NAME] = COALESCE([src].[NAME], '') FROM {{ id(stageSchemaName) }}.{{ id(stageTableName) }} AS [src] WHERE {{ id(destSchemaName) }}.{{ id(destTableName) }}.[id] = [src].[id] AND (COALESCE(CAST({{ id(destSchemaName) }}.{{ id(destTableName) }}.[NAME] AS NVARCHAR), '') != COALESCE([src].[NAME], '')) ",
         "description": ""
       },
       {
-        "sql": "DELETE {{ id(destSchemaName) }}.{{ id(stageTableName) }} WHERE EXISTS (SELECT * FROM {{ id(destSchemaName) }}.{{ id(destTableName) }} WHERE {{ id(destSchemaName) }}.{{ id(destTableName) }}.[id] = {{ id(destSchemaName) }}.{{ id(stageTableName) }}.[id])",
+        "sql": "DELETE {{ id(stageSchemaName) }}.{{ id(stageTableName) }} WHERE EXISTS (SELECT * FROM {{ id(destSchemaName) }}.{{ id(destTableName) }} WHERE {{ id(destSchemaName) }}.{{ id(destTableName) }}.[id] = {{ id(stageSchemaName) }}.{{ id(stageTableName) }}.[id])",
         "description": ""
       },
       {
-        "sql": "INSERT INTO {{ id(destSchemaName) }}.{{ id(destTableName ~ rand ~ '_tmp') }} ([id], [NAME]) SELECT a.[id],a.[NAME] FROM (SELECT [id], [NAME], ROW_NUMBER() OVER (PARTITION BY [id] ORDER BY [id]) AS \"_row_number_\" FROM {{ id(destSchemaName) }}.{{ id(stageTableName) }}) AS a WHERE a.\"_row_number_\" = 1",
+        "sql": "INSERT INTO {{ id(stageSchemaName) }}.{{ id(destTableName ~ rand ~ '_tmp') }} ([id], [NAME]) SELECT a.[id],a.[NAME] FROM (SELECT [id], [NAME], ROW_NUMBER() OVER (PARTITION BY [id] ORDER BY [id]) AS \"_row_number_\" FROM {{ id(stageSchemaName) }}.{{ id(stageTableName) }}) AS a WHERE a.\"_row_number_\" = 1",
         "description": ""
       },
       {
-        "sql": "INSERT INTO {{ id(destSchemaName) }}.{{ id(destTableName) }} ([id], [NAME]) (SELECT CAST(COALESCE([id], '') as NVARCHAR) AS [id],CAST(COALESCE([NAME], '') as NVARCHAR) AS [NAME] FROM {{ id(destSchemaName) }}.{{ id(destTableName ~ rand ~ '_tmp') }} AS [src])",
+        "sql": "INSERT INTO {{ id(destSchemaName) }}.{{ id(destTableName) }} ([id], [NAME]) (SELECT CAST(COALESCE([id], '') as NVARCHAR) AS [id],CAST(COALESCE([NAME], '') as NVARCHAR) AS [NAME] FROM {{ id(stageSchemaName) }}.{{ id(destTableName ~ rand ~ '_tmp') }} AS [src])",
         "description": ""
       },
       {
