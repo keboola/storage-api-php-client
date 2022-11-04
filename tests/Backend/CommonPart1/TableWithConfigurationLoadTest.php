@@ -6,27 +6,14 @@ use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Components;
-use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\Test\Backend\TableWithConfigurationUtils;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
-use Keboola\Test\Utils\EventTesterUtils;
 
 class TableWithConfigurationLoadTest extends StorageApiTestCase
 {
-    use EventTesterUtils;
     use TableWithConfigurationUtils;
-
-    public const DEFAULT_CONFIGURATION_MIGRATIONS = [
-        [
-            'sql' => /** @lang TSQL */
-                <<<SQL
-                CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} ([id] INTEGER, [NAME] VARCHAR(100))
-                SQL,
-            'description' => 'first ever',
-        ],
-    ];
 
     private Client $client;
 
@@ -34,10 +21,31 @@ class TableWithConfigurationLoadTest extends StorageApiTestCase
 
     private Components $componentsClient;
 
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->checkFeatureAndBackend();
+
+        // init buckets
+        $this->initEmptyTestBucketsForParallelTests();
+
+        $this->clientProvider = new ClientProvider($this);
+        $this->client = $this->clientProvider->createClientForCurrentTest();
+
+        $this->assertComponentExists();
+
+        $this->configId = sha1($this->generateDescriptionForTestObject());
+
+        $this->dropTableAndConfiguration($this->configId);
+
+        $this->initEvents($this->client);
+    }
+
     /**
      * @throws ClientException
      */
-    private function loadTable(
+    private function loadTableFromFile(
         string $tableId,
         string $csvFilePath = __DIR__ . '/../../_data/languages.csv',
         array $writeTableOptions = []
@@ -55,74 +63,6 @@ class TableWithConfigurationLoadTest extends StorageApiTestCase
         $this->_client->writeTableAsyncDirect($tableId, [
             'dataFileId' => $fileId,
         ] + $writeTableOptions);
-    }
-
-    /**
-     * @return array{0: string, 1: Configuration}
-     * @throws \JsonException
-     */
-    private function createTableWithConfiguration(
-        string $json,
-        string $tableName,
-        string $queriesOverrideType,
-        array $migrations = null
-    ): array {
-        /** @var array{output:array} $jsonDecoded */
-        $jsonDecoded = json_decode(
-            $json,
-            true,
-            512,
-            JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT
-        );
-
-        $queriesOverride = [];
-        $queriesOverride[$queriesOverrideType] = $jsonDecoded['output'];
-
-        $configuration = (new Configuration())
-            ->setComponentId(StorageApiTestCase::CUSTOM_QUERY_MANAGER_COMPONENT_ID)
-            ->setConfigurationId($this->configId)
-            ->setName($this->configId)
-            ->setConfiguration([
-                'migrations' => $migrations ?? self::DEFAULT_CONFIGURATION_MIGRATIONS,
-                'queriesOverride' => $queriesOverride,
-            ]);
-
-        return [
-            $this->prepareTableWithConfiguration($tableName, $configuration),
-            $configuration,
-        ];
-    }
-
-    public function setUp(): void
-    {
-        parent::setUp();
-
-        // check feature
-        $token = $this->_client->verifyToken();
-        if (!in_array('tables-with-configuration', $token['owner']['features'])) {
-            $this->markTestSkipped(sprintf('Creating tables from configurations feature is not enabled for project "%s"', $token['owner']['id']));
-        }
-
-        if ($token['owner']['defaultBackend'] !== self::BACKEND_SYNAPSE) {
-            self::markTestSkipped(sprintf(
-                'Backend "%s" is not supported tables with configuration',
-                $token['owner']['defaultBackend']
-            ));
-        }
-
-        // init buckets
-        $this->initEmptyTestBucketsForParallelTests();
-
-        $this->clientProvider = new ClientProvider($this);
-        $this->client = $this->clientProvider->createClientForCurrentTest();
-
-        $this->assertComponentExists();
-
-        $this->configId = sha1($this->generateDescriptionForTestObject());
-
-        $this->dropTableAndConfiguration($this->configId);
-
-        $this->initEvents($this->client);
     }
 
     public function testLoadFromFileToTable(): void
@@ -183,7 +123,7 @@ class TableWithConfigurationLoadTest extends StorageApiTestCase
 JSON;
         [$tableId,] = $this->createTableWithConfiguration($json, $tableName, 'ingestionFullLoad');
 
-        $this->loadTable($tableId);
+        $this->loadTableFromFile($tableId);
 
         $table = $this->_client->getTable($tableId);
 
@@ -332,7 +272,7 @@ JSON;
         [$tableId, $configuration] = $this->createTableWithConfiguration($jsonWithCleanup, $tableName, 'ingestionFullLoad');
 
         try {
-            $this->loadTable($tableId);
+            $this->loadTableFromFile($tableId);
             $this->fail('import should fail');
         } catch (ClientException $e) {
             $this->assertStringStartsWith('Execution of custom table query failed because of', $e->getMessage());
@@ -348,7 +288,7 @@ JSON;
             ],
         ]);
         $this->componentsClient->updateConfiguration($configuration);
-        $this->loadTable($tableId); // now should succeed as tables were cleared in cleanup
+        $this->loadTableFromFile($tableId); // now should succeed as tables were cleared in cleanup
 
         /**
          * This configuration will:
@@ -427,7 +367,7 @@ JSON;
         $this->componentsClient->updateConfiguration($configuration);
 
         try {
-            $this->loadTable($tableId);
+            $this->loadTableFromFile($tableId);
             $this->fail('import should fail');
         } catch (ClientException $e) {
             $this->assertStringStartsWith('Execution of custom table query failed because of', $e->getMessage());
@@ -443,7 +383,7 @@ JSON;
             ],
         ]);
         $this->componentsClient->updateConfiguration($configuration);
-        $this->loadTable($tableId); // now should succeed as tables were cleared in cleanup
+        $this->loadTableFromFile($tableId); // now should succeed as tables were cleared in cleanup
     }
 
     public function testLoadIncrementalFromFileToTable(): void
@@ -528,7 +468,7 @@ JSON;
             ],
         ]);
 
-        $this->loadTable(
+        $this->loadTableFromFile(
             $tableId,
             __DIR__ . '/../../_data/languages.increment.csv',
             [

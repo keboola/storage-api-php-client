@@ -12,6 +12,16 @@ use Keboola\Test\StorageApiTestCase;
 
 trait TableWithConfigurationUtils
 {
+    public static array $DEFAULT_CONFIGURATION_MIGRATIONS = [
+        [
+            'sql' => /** @lang TSQL */
+                <<<SQL
+                CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} ([id] INTEGER, [NAME] VARCHAR(100))
+                SQL,
+            'description' => 'first ever',
+        ],
+    ];
+
     protected string $configId;
 
     public function dropTableAndConfiguration(string $configurationId): void
@@ -60,6 +70,42 @@ trait TableWithConfigurationUtils
         $this->assertEquals($expected, $actual);
     }
 
+    /**
+     * @return array{0: string, 1: Configuration}
+     * @throws \JsonException
+     */
+    public function createTableWithConfiguration(
+        string $json,
+        string $tableName,
+        string $queriesOverrideType,
+        array $migrations = null
+    ): array {
+        /** @var array{output:array} $jsonDecoded */
+        $jsonDecoded = json_decode(
+            $json,
+            true,
+            512,
+            JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT
+        );
+
+        $queriesOverride = [];
+        $queriesOverride[$queriesOverrideType] = $jsonDecoded['output'];
+
+        $configuration = (new Configuration())
+            ->setComponentId(StorageApiTestCase::CUSTOM_QUERY_MANAGER_COMPONENT_ID)
+            ->setConfigurationId($this->configId)
+            ->setName($this->configId)
+            ->setConfiguration([
+                'migrations' => $migrations ?? self::$DEFAULT_CONFIGURATION_MIGRATIONS,
+                'queriesOverride' => $queriesOverride,
+            ]);
+
+        return [
+            $this->prepareTableWithConfiguration($tableName, $configuration),
+            $configuration,
+        ];
+    }
+
     private function prepareTableWithConfiguration(string $tableName, Configuration $configuration): string
     {
         // create test configuration
@@ -88,5 +134,20 @@ trait TableWithConfigurationUtils
                     ],
                 ],
             ]);
+    }
+
+    private function checkFeatureAndBackend(): void
+    {
+        $token = $this->_client->verifyToken();
+        if (!in_array('tables-with-configuration', $token['owner']['features'])) {
+            $this->markTestSkipped(sprintf('Creating tables from configurations feature is not enabled for project "%s"', $token['owner']['id']));
+        }
+
+        if ($token['owner']['defaultBackend'] !== self::BACKEND_SYNAPSE) {
+            self::markTestSkipped(sprintf(
+                'Backend "%s" is not supported tables with configuration',
+                $token['owner']['defaultBackend']
+            ));
+        }
     }
 }
