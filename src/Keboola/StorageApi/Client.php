@@ -2781,7 +2781,7 @@ class Client
         return $this;
     }
 
-    public function withBackendConfiguration(?BackendConfiguration $configuration): self
+    public function setBackendConfiguration(?BackendConfiguration $configuration): self
     {
         $this->backendConfiguration = $configuration;
         return $this;
