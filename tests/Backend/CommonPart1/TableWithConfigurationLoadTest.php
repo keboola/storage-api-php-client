@@ -72,17 +72,6 @@ class TableWithConfigurationLoadTest extends StorageApiTestCase
         $json = /** @lang JSON */
             <<<JSON
 {
-  "action": "generate",
-  "backend": "synapse",
-  "operation": "importFull",
-  "source": "fileAbs",
-  "columns": [
-    "id",
-    "NAME"
-  ],
-  "primaryKeys": [
-    "id"
-  ],
   "output": {
     "queries": [
       {
@@ -166,17 +155,6 @@ JSON;
         $jsonTest = /** @lang JSON */
             <<<JSON
 {
-  "action": "generate",
-  "backend": "synapse",
-  "operation": "importFull",
-  "source": "fileAbs",
-  "columns": [
-    "id",
-    "NAME"
-  ],
-  "primaryKeys": [
-    "id"
-  ],
   "output": {
     "queries": [
       {
@@ -221,17 +199,6 @@ JSON;
         $jsonWithCleanup = /** @lang JSON */
             <<<JSON
 {
-  "action": "generate",
-  "backend": "synapse",
-  "operation": "importFull",
-  "source": "fileAbs",
-  "columns": [
-    "id",
-    "NAME"
-  ],
-  "primaryKeys": [
-    "id"
-  ],
   "output": {
     "queries": [
       {
@@ -302,17 +269,6 @@ JSON;
         $jsonWithOnError = /** @lang JSON */
             <<<JSON
 {
-  "action": "generate",
-  "backend": "synapse",
-  "operation": "importFull",
-  "source": "fileAbs",
-  "columns": [
-    "id",
-    "NAME"
-  ],
-  "primaryKeys": [
-    "id"
-  ],
   "output": {
     "queries": [
       {
@@ -393,17 +349,6 @@ JSON;
         $json = /** @lang JSON */
             <<<JSON
 {
-  "action": "generate",
-  "backend": "synapse",
-  "operation": "importIncremental",
-  "source": "fileAbs",
-  "columns": [
-    "id",
-    "NAME"
-  ],
-  "primaryKeys": [
-    "id"
-  ],
   "output": {
     "queries": [
       {

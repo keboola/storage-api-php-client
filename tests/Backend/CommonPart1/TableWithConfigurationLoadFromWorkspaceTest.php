@@ -86,17 +86,6 @@ class TableWithConfigurationLoadFromWorkspaceTest extends ParallelWorkspacesTest
         $json = /** @lang JSON */
             <<<JSON
 {
-  "action": "generate",
-  "backend": "synapse",
-  "operation": "importFull",
-  "source": "table",
-  "columns": [
-    "id",
-    "NAME"
-  ],
-  "primaryKeys": [
-    "id"
-  ],
   "output": {
     "queries": [
       {
@@ -176,17 +165,6 @@ JSON;
         $json = /** @lang JSON */
             <<<JSON
 {
-  "action": "generate",
-  "backend": "synapse",
-  "operation": "importIncremental",
-  "source": "table",
-  "columns": [
-    "id",
-    "NAME"
-  ],
-  "primaryKeys": [
-    "id"
-  ],
   "output": {
     "queries": [
       {
