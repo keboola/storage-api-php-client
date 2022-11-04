@@ -25,18 +25,7 @@ class TableWithConfigurationLoadTest extends StorageApiTestCase
     {
         parent::setUp();
 
-        // check feature
-        $token = $this->_client->verifyToken();
-        if (!in_array('tables-with-configuration', $token['owner']['features'])) {
-            $this->markTestSkipped(sprintf('Creating tables from configurations feature is not enabled for project "%s"', $token['owner']['id']));
-        }
-
-        if ($token['owner']['defaultBackend'] !== self::BACKEND_SYNAPSE) {
-            self::markTestSkipped(sprintf(
-                'Backend "%s" is not supported tables with configuration',
-                $token['owner']['defaultBackend']
-            ));
-        }
+        $this->checkFeatureAndBackend();
 
         // init buckets
         $this->initEmptyTestBucketsForParallelTests();
