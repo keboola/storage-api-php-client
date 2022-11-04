@@ -136,7 +136,7 @@ class TableWithConfigurationLoadFromWorkspaceTest extends ParallelWorkspacesTest
 }
 JSON;
 
-        [$tableId,] = $this->createTableWithConfiguration($json, $tableName, 'outputMappingFullLoad');
+        [$tableId,] = $this->createTableWithConfiguration($json, $tableName, 'importFromWorkspaceFull');
 
         $this->loadTableFromWorkspace(
             $tableId,
@@ -230,7 +230,7 @@ JSON;
 }
 JSON;
 
-        [$tableId,] = $this->createTableWithConfiguration($json, $tableName, 'outputMappingIncrementalLoad', [
+        [$tableId,] = $this->createTableWithConfiguration($json, $tableName, 'importFromWorkspaceIncremental', [
             [
                 'sql' => /** @lang TSQL */
                     <<<SQL
