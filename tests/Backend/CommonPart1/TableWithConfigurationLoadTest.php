@@ -84,27 +84,27 @@ class TableWithConfigurationLoadTest extends StorageApiTestCase
         "description": ""
       },
       {
-        "sql": "CREATE TABLE {{ id(destSchemaName) }}.{{ id(destTableName ~ rand ~ '_tmp') }} WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT a.[id],a.[NAME] FROM (SELECT COALESCE([id], '') AS [id],COALESCE([NAME], '') AS [NAME], ROW_NUMBER() OVER (PARTITION BY [id] ORDER BY [id]) AS \"_row_number_\" FROM {{ id(stageSchemaName) }}.{{ id(stageTableName) }}) AS a WHERE a.\"_row_number_\" = 1",
+        "sql": "CREATE TABLE {{ id(schemaName) }}.{{ id(tableName ~ rand ~ '_tmp') }} WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT a.[id],a.[NAME] FROM (SELECT COALESCE([id], '') AS [id],COALESCE([NAME], '') AS [NAME], ROW_NUMBER() OVER (PARTITION BY [id] ORDER BY [id]) AS \"_row_number_\" FROM {{ id(stageSchemaName) }}.{{ id(stageTableName) }}) AS a WHERE a.\"_row_number_\" = 1",
         "description": ""
       },
       {
-        "sql": "RENAME OBJECT {{ id(destSchemaName) }}.{{ id(destTableName) }} TO {{ id(destTableName ~ rand ~ '_tmp_rename') }}",
+        "sql": "RENAME OBJECT {{ id(schemaName) }}.{{ id(tableName) }} TO {{ id(tableName ~ rand ~ '_tmp_rename') }}",
         "description": ""
       },
       {
-        "sql": "RENAME OBJECT {{ id(destSchemaName) }}.{{ id(destTableName ~ rand ~ '_tmp') }} TO {{ id(destTableName) }}",
+        "sql": "RENAME OBJECT {{ id(schemaName) }}.{{ id(tableName ~ rand ~ '_tmp') }} TO {{ id(tableName) }}",
         "description": ""
       },
       {
-        "sql": "DROP TABLE {{ id(destSchemaName) }}.{{ id(destTableName ~ rand ~ '_tmp_rename') }}",
+        "sql": "DROP TABLE {{ id(schemaName) }}.{{ id(tableName ~ rand ~ '_tmp_rename') }}",
         "description": ""
       },
       {
-        "sql": "IF OBJECT_ID (N'{{ id(destSchemaName) }}.{{ id(destTableName ~ rand ~ '_tmp') }}', N'U') IS NOT NULL DROP TABLE {{ id(destSchemaName) }}.{{ id(destTableName ~ rand ~ '_tmp') }}",
+        "sql": "IF OBJECT_ID (N'{{ id(schemaName) }}.{{ id(tableName ~ rand ~ '_tmp') }}', N'U') IS NOT NULL DROP TABLE {{ id(schemaName) }}.{{ id(tableName ~ rand ~ '_tmp') }}",
         "description": ""
       },
       {
-        "sql": "IF OBJECT_ID (N'{{ id(destSchemaName) }}.{{ id(destTableName ~ rand ~ '_tmp_rename') }}', N'U') IS NOT NULL DROP TABLE {{ id(destSchemaName) }}.{{ id(destTableName ~ rand ~ '_tmp_rename') }}",
+        "sql": "IF OBJECT_ID (N'{{ id(schemaName) }}.{{ id(tableName ~ rand ~ '_tmp_rename') }}', N'U') IS NOT NULL DROP TABLE {{ id(schemaName) }}.{{ id(tableName ~ rand ~ '_tmp_rename') }}",
         "description": ""
       }
     ]
@@ -159,19 +159,19 @@ JSON;
   "output": {
     "queries": [
       {
-        "sql": "CREATE TABLE {{ id(destSchemaName) }}.{{ id('tmp_test1') }} ([id] NVARCHAR(4000), [NAME] NVARCHAR(4000)) WITH (DISTRIBUTION = ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX)",
+        "sql": "CREATE TABLE {{ id(schemaName) }}.{{ id('tmp_test1') }} ([id] NVARCHAR(4000), [NAME] NVARCHAR(4000)) WITH (DISTRIBUTION = ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX)",
         "description": ""
       },
       {
-        "sql": "CREATE TABLE {{ id(destSchemaName) }}.{{ id('tmp_test2') }} ([id] NVARCHAR(4000), [NAME] NVARCHAR(4000)) WITH (DISTRIBUTION = ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX)",
+        "sql": "CREATE TABLE {{ id(schemaName) }}.{{ id('tmp_test2') }} ([id] NVARCHAR(4000), [NAME] NVARCHAR(4000)) WITH (DISTRIBUTION = ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX)",
         "description": ""
       },
       {
-        "sql": "IF OBJECT_ID (N'{{ id(destSchemaName) }}.{{ id('tmp_test1') }}', N'U') IS NOT NULL DROP TABLE {{ id(destSchemaName) }}.{{ id('tmp_test1') }}",
+        "sql": "IF OBJECT_ID (N'{{ id(schemaName) }}.{{ id('tmp_test1') }}', N'U') IS NOT NULL DROP TABLE {{ id(schemaName) }}.{{ id('tmp_test1') }}",
         "description": ""
       },
       {
-        "sql": "IF OBJECT_ID (N'{{ id(destSchemaName) }}.{{ id('tmp_test2') }}', N'U') IS NOT NULL DROP TABLE {{ id(destSchemaName) }}.{{ id('tmp_test2') }}",
+        "sql": "IF OBJECT_ID (N'{{ id(schemaName) }}.{{ id('tmp_test2') }}', N'U') IS NOT NULL DROP TABLE {{ id(schemaName) }}.{{ id('tmp_test2') }}",
         "description": ""
       }
     ],
@@ -203,19 +203,19 @@ JSON;
   "output": {
     "queries": [
       {
-        "sql": "IF OBJECT_ID (N'{{ id(destSchemaName) }}.{{ id('tmp_test1') }}', N'U') IS NOT NULL DROP TABLE {{ id(destSchemaName) }}.{{ id('tmp_test1') }}",
+        "sql": "IF OBJECT_ID (N'{{ id(schemaName) }}.{{ id('tmp_test1') }}', N'U') IS NOT NULL DROP TABLE {{ id(schemaName) }}.{{ id('tmp_test1') }}",
         "description": ""
       },
       {
-        "sql": "IF OBJECT_ID (N'{{ id(destSchemaName) }}.{{ id('tmp_test2') }}', N'U') IS NOT NULL DROP TABLE {{ id(destSchemaName) }}.{{ id('tmp_test2') }}",
+        "sql": "IF OBJECT_ID (N'{{ id(schemaName) }}.{{ id('tmp_test2') }}', N'U') IS NOT NULL DROP TABLE {{ id(schemaName) }}.{{ id('tmp_test2') }}",
         "description": ""
       },
       {
-        "sql": "CREATE TABLE {{ id(destSchemaName) }}.{{ id('tmp_test1') }} ([id] NVARCHAR(4000), [NAME] NVARCHAR(4000)) WITH (DISTRIBUTION = ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX)",
+        "sql": "CREATE TABLE {{ id(schemaName) }}.{{ id('tmp_test1') }} ([id] NVARCHAR(4000), [NAME] NVARCHAR(4000)) WITH (DISTRIBUTION = ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX)",
         "description": ""
       },
       {
-        "sql": "CREATE TABLE {{ id(destSchemaName) }}.{{ id('tmp_test2') }} ([id] NVARCHAR(4000), [NAME] NVARCHAR(4000)) WITH (DISTRIBUTION = ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX)",
+        "sql": "CREATE TABLE {{ id(schemaName) }}.{{ id('tmp_test2') }} ([id] NVARCHAR(4000), [NAME] NVARCHAR(4000)) WITH (DISTRIBUTION = ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX)",
         "description": ""
       },
       {
@@ -226,11 +226,11 @@ JSON;
     "onError": [],
     "cleanup": [
       {
-        "sql": "IF OBJECT_ID (N'{{ id(destSchemaName) }}.{{ id('tmp_test1') }}', N'U') IS NOT NULL DROP TABLE {{ id(destSchemaName) }}.{{ id('tmp_test1') }}",
+        "sql": "IF OBJECT_ID (N'{{ id(schemaName) }}.{{ id('tmp_test1') }}', N'U') IS NOT NULL DROP TABLE {{ id(schemaName) }}.{{ id('tmp_test1') }}",
         "description": ""
       },
       {
-        "sql": "IF OBJECT_ID (N'{{ id(destSchemaName) }}.{{ id('tmp_test2') }}', N'U') IS NOT NULL DROP TABLE {{ id(destSchemaName) }}.{{ id('tmp_test2') }}",
+        "sql": "IF OBJECT_ID (N'{{ id(schemaName) }}.{{ id('tmp_test2') }}', N'U') IS NOT NULL DROP TABLE {{ id(schemaName) }}.{{ id('tmp_test2') }}",
         "description": ""
       }
     ]
@@ -273,19 +273,19 @@ JSON;
   "output": {
     "queries": [
       {
-        "sql": "IF OBJECT_ID (N'{{ id(destSchemaName) }}.{{ id('tmp_test1') }}', N'U') IS NOT NULL DROP TABLE {{ id(destSchemaName) }}.{{ id('tmp_test1') }}",
+        "sql": "IF OBJECT_ID (N'{{ id(schemaName) }}.{{ id('tmp_test1') }}', N'U') IS NOT NULL DROP TABLE {{ id(schemaName) }}.{{ id('tmp_test1') }}",
         "description": ""
       },
       {
-        "sql": "IF OBJECT_ID (N'{{ id(destSchemaName) }}.{{ id('tmp_test2') }}', N'U') IS NOT NULL DROP TABLE {{ id(destSchemaName) }}.{{ id('tmp_test2') }}",
+        "sql": "IF OBJECT_ID (N'{{ id(schemaName) }}.{{ id('tmp_test2') }}', N'U') IS NOT NULL DROP TABLE {{ id(schemaName) }}.{{ id('tmp_test2') }}",
         "description": ""
       },
       {
-        "sql": "CREATE TABLE {{ id(destSchemaName) }}.{{ id('tmp_test1') }} ([id] NVARCHAR(4000), [NAME] NVARCHAR(4000)) WITH (DISTRIBUTION = ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX)",
+        "sql": "CREATE TABLE {{ id(schemaName) }}.{{ id('tmp_test1') }} ([id] NVARCHAR(4000), [NAME] NVARCHAR(4000)) WITH (DISTRIBUTION = ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX)",
         "description": ""
       },
       {
-        "sql": "CREATE TABLE {{ id(destSchemaName) }}.{{ id('tmp_test2') }} ([id] NVARCHAR(4000), [NAME] NVARCHAR(4000)) WITH (DISTRIBUTION = ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX)",
+        "sql": "CREATE TABLE {{ id(schemaName) }}.{{ id('tmp_test2') }} ([id] NVARCHAR(4000), [NAME] NVARCHAR(4000)) WITH (DISTRIBUTION = ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX)",
         "description": ""
       },
       {
@@ -295,11 +295,11 @@ JSON;
     ],
     "onError": [
       {
-        "sql": "IF OBJECT_ID (N'{{ id(destSchemaName) }}.{{ id('tmp_test1') }}', N'U') IS NOT NULL DROP TABLE {{ id(destSchemaName) }}.{{ id('tmp_test1') }}",
+        "sql": "IF OBJECT_ID (N'{{ id(schemaName) }}.{{ id('tmp_test1') }}', N'U') IS NOT NULL DROP TABLE {{ id(schemaName) }}.{{ id('tmp_test1') }}",
         "description": ""
       },
       {
-        "sql": "IF OBJECT_ID (N'{{ id(destSchemaName) }}.{{ id('tmp_test2') }}', N'U') IS NOT NULL DROP TABLE {{ id(destSchemaName) }}.{{ id('tmp_test2') }}",
+        "sql": "IF OBJECT_ID (N'{{ id(schemaName) }}.{{ id('tmp_test2') }}', N'U') IS NOT NULL DROP TABLE {{ id(schemaName) }}.{{ id('tmp_test2') }}",
         "description": ""
       }
     ],
@@ -362,7 +362,7 @@ JSON;
         "description": ""
       },
       {
-        "sql": "CREATE TABLE {{ id(stageSchemaName) }}.{{ id(destTableName ~ rand ~ '_tmp') }} ([id] NVARCHAR(4000), [NAME] NVARCHAR(4000)) WITH (DISTRIBUTION = ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX)",
+        "sql": "CREATE TABLE {{ id(stageSchemaName) }}.{{ id(tableName ~ rand ~ '_tmp') }} ([id] NVARCHAR(4000), [NAME] NVARCHAR(4000)) WITH (DISTRIBUTION = ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX)",
         "description": ""
       },
       {
@@ -370,19 +370,19 @@ JSON;
         "description": ""
       },
       {
-        "sql": "UPDATE {{ id(destSchemaName) }}.{{ id(destTableName) }} SET [NAME] = COALESCE([src].[NAME], '') FROM {{ id(stageSchemaName) }}.{{ id(stageTableName) }} AS [src] WHERE {{ id(destSchemaName) }}.{{ id(destTableName) }}.[id] = [src].[id] AND (COALESCE(CAST({{ id(destSchemaName) }}.{{ id(destTableName) }}.[NAME] AS NVARCHAR), '') != COALESCE([src].[NAME], '')) ",
+        "sql": "UPDATE {{ id(schemaName) }}.{{ id(tableName) }} SET [NAME] = COALESCE([src].[NAME], '') FROM {{ id(stageSchemaName) }}.{{ id(stageTableName) }} AS [src] WHERE {{ id(schemaName) }}.{{ id(tableName) }}.[id] = [src].[id] AND (COALESCE(CAST({{ id(schemaName) }}.{{ id(tableName) }}.[NAME] AS NVARCHAR), '') != COALESCE([src].[NAME], '')) ",
         "description": ""
       },
       {
-        "sql": "DELETE {{ id(stageSchemaName) }}.{{ id(stageTableName) }} WHERE EXISTS (SELECT * FROM {{ id(destSchemaName) }}.{{ id(destTableName) }} WHERE {{ id(destSchemaName) }}.{{ id(destTableName) }}.[id] = {{ id(stageSchemaName) }}.{{ id(stageTableName) }}.[id])",
+        "sql": "DELETE {{ id(stageSchemaName) }}.{{ id(stageTableName) }} WHERE EXISTS (SELECT * FROM {{ id(schemaName) }}.{{ id(tableName) }} WHERE {{ id(schemaName) }}.{{ id(tableName) }}.[id] = {{ id(stageSchemaName) }}.{{ id(stageTableName) }}.[id])",
         "description": ""
       },
       {
-        "sql": "INSERT INTO {{ id(stageSchemaName) }}.{{ id(destTableName ~ rand ~ '_tmp') }} ([id], [NAME]) SELECT a.[id],a.[NAME] FROM (SELECT [id], [NAME], ROW_NUMBER() OVER (PARTITION BY [id] ORDER BY [id]) AS \"_row_number_\" FROM {{ id(stageSchemaName) }}.{{ id(stageTableName) }}) AS a WHERE a.\"_row_number_\" = 1",
+        "sql": "INSERT INTO {{ id(stageSchemaName) }}.{{ id(tableName ~ rand ~ '_tmp') }} ([id], [NAME]) SELECT a.[id],a.[NAME] FROM (SELECT [id], [NAME], ROW_NUMBER() OVER (PARTITION BY [id] ORDER BY [id]) AS \"_row_number_\" FROM {{ id(stageSchemaName) }}.{{ id(stageTableName) }}) AS a WHERE a.\"_row_number_\" = 1",
         "description": ""
       },
       {
-        "sql": "INSERT INTO {{ id(destSchemaName) }}.{{ id(destTableName) }} ([id], [NAME]) (SELECT CAST(COALESCE([id], '') as NVARCHAR) AS [id],CAST(COALESCE([NAME], '') as NVARCHAR) AS [NAME] FROM {{ id(stageSchemaName) }}.{{ id(destTableName ~ rand ~ '_tmp') }} AS [src])",
+        "sql": "INSERT INTO {{ id(schemaName) }}.{{ id(tableName) }} ([id], [NAME]) (SELECT CAST(COALESCE([id], '') as NVARCHAR) AS [id],CAST(COALESCE([NAME], '') as NVARCHAR) AS [NAME] FROM {{ id(stageSchemaName) }}.{{ id(tableName ~ rand ~ '_tmp') }} AS [src])",
         "description": ""
       },
       {
