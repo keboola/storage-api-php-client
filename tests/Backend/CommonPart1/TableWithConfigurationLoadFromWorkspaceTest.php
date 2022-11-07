@@ -94,7 +94,7 @@ class TableWithConfigurationLoadFromWorkspaceTest extends ParallelWorkspacesTest
         "description": ""
       },
       {
-        "sql": "INSERT INTO {{ id(stageSchemaName) }}.{{ id(stageTableName) }} ([id], [NAME]) SELECT [id], [NAME] FROM {{ id(schemaName) }}.{{ id(tableName) }}",
+        "sql": "INSERT INTO {{ id(stageSchemaName) }}.{{ id(stageTableName) }} ([id], [NAME]) SELECT [id], [NAME] FROM {{ id(sourceSchemaName) }}.{{ id(sourceTableName) }}",
         "description": ""
       },
       {
@@ -174,7 +174,7 @@ JSON;
         "description": ""
       },
       {
-        "sql": "INSERT INTO {{ id(stageSchemaName) }}.{{ id(stageTableName) }} ([id], [NAME]) SELECT [id], [NAME] FROM {{ id(schemaName) }}.{{ id(tableName) }}",
+        "sql": "INSERT INTO {{ id(stageSchemaName) }}.{{ id(stageTableName) }} ([id], [NAME]) SELECT [id], [NAME] FROM {{ id(sourceSchemaName) }}.{{ id(sourceTableName) }}",
         "description": ""
       },
       {
