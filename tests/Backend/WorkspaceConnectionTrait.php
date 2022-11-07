@@ -116,6 +116,7 @@ trait WorkspaceConnectionTrait
             'SET SESSION DATABASE %s',
             TeradataQuote::quoteSingleIdentifier($connection['schema'])
         ));
+        $db->executeStatement('SET ROLE ALL');
 
         return $db;
     }
