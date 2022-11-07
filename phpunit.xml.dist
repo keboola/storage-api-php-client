@@ -164,6 +164,10 @@
 		<directory>tests/Backend/MixedSnowflakeExasol</directory>
 	</testsuite>
 
+	<testsuite name="backend-mixed-teradata">
+		<directory>tests/Backend/MixedSnowflakeTeradata</directory>
+	</testsuite>
+
 	<testsuite name="backend-synapse-part-2">
 		<file>tests/Backend/CommonPart1/BucketsTest.php</file>
 <!--		<file>tests/Backend/FileWorkspace/WorkspacesTest.php</file>-->
