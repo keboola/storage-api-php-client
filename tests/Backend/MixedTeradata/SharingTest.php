@@ -157,4 +157,57 @@ class SharingTest extends StorageApiSharingTestCase
         $firstLinked = reset($linkedBuckets);
         $this->assertEquals($bucketId, $firstLinked['sourceBucket']['id']);
     }
+
+
+    // TODO for manual test only
+    public function testDisabledSharingTDtoSNFLK()
+    {
+        $this->deleteAllWorkspaces();
+        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
+        $bucketId = $this->getTestBucketId();
+
+        // share SNFLK bucket
+        $this->_client->shareBucket($bucketId);
+        $response = $this->_client2->listSharedBuckets();
+        $sharedBucket = reset($response);
+
+        try {
+            // link SNFLK bucket to TD-only project
+            $this->_client2->linkBucket(
+                'linked-' . time(),
+                'out',
+                $sharedBucket['project']['id'],
+                $sharedBucket['id']
+            );
+            $this->fail('should fail');
+        } catch (ClientException $e) {
+            $this->assertEquals('Non-Teradata bucket cannot be linked to a project with Teradata backend only', $e->getMessage());
+        }
+    }
+
+
+    public function testDisabledSharingSNFLKtoTD()
+    {
+        $this->deleteAllWorkspaces();
+        $this->initTestBuckets(self::BACKEND_TERADATA);
+        $bucketId = $this->getTestBucketId();
+
+        // share TD bucket
+        $this->_client->shareBucket($bucketId);
+        $response = $this->_client2->listSharedBuckets();
+        $sharedBucket = reset($response);
+
+        try {
+            // link TD bucket to SNFLK-only project
+            $this->_client2->linkBucket(
+                'linked-' . time(),
+                'out',
+                $sharedBucket['project']['id'],
+                $sharedBucket['id']
+            );
+            $this->fail('should fail');
+        } catch (ClientException $e) {
+            $this->assertEquals('Teradata bucket cannot be linked in other backends', $e->getMessage());
+        }
+    }
 }
