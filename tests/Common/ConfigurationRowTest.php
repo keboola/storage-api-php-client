@@ -124,6 +124,27 @@ class ConfigurationRowTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
+    public function testConfigurationRowWithEmptyStringIdWillGenerateId(): void
+    {
+        $components = new Components($this->client);
+        $configuration = new Configuration();
+        $configuration
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main');
+        $components->addConfiguration($configuration);
+
+        $configurationRow1 = new ConfigurationRow($configuration);
+        $configurationRow1->setRowId('');
+
+        $row = $components->addConfigurationRow($configurationRow1);
+
+        $this->assertNotSame('', $row['id']);
+    }
+
+    /**
+     * @dataProvider provideComponentsClientType
+     */
     public function testConfigurationRowThrowsNotFoundException(): void
     {
         $this->expectException(ClientException::class);
