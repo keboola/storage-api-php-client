@@ -1,6 +1,7 @@
 <?php
 
-namespace Keboola\Test\Backend\MixedSnowflakeTeradata;
+// no SNFLK/other backend interaction because it is disabled for time being
+namespace Keboola\Test\Backend\MixedTeradata;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\ClientException;
@@ -14,7 +15,6 @@ class SharingTest extends StorageApiSharingTestCase
 {
     use WorkspaceConnectionTrait;
 
-
     /**
      * @return void
      */
@@ -25,7 +25,6 @@ class SharingTest extends StorageApiSharingTestCase
     }
 
     /**
-     * @return void
      * @throws ClientException
      * @throws \Doctrine\DBAL\Exception
      * @throws \Keboola\StorageApi\Exception
@@ -35,7 +34,7 @@ class SharingTest extends StorageApiSharingTestCase
         //setup test tables
         $this->deleteAllWorkspaces();
         $this->initTestBuckets(self::BACKEND_TERADATA);
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketId = $this->getTestBucketId();
 
         // create table in SHARING bucket in project A
         $this->_client->createTableAsync(
@@ -105,5 +104,57 @@ class SharingTest extends StorageApiSharingTestCase
 
         $this->assertCount(2, $dataCreatedInWs);
         $this->assertCount(5, $dataFromLinkedTable);
+    }
+
+    public function testAllSharingOperations(): void
+    {
+        //setup test tables
+        $this->initTestBuckets(self::BACKEND_TERADATA);
+        $bucketId = $this->getTestBucketId();
+
+        // share and link bucket A->B
+        $this->_client->shareBucket($bucketId);
+        self::assertTrue($this->_client->isSharedBucket($bucketId));
+        $response = $this->_client2->listSharedBuckets();
+        self::assertCount(1, $response);
+        $sharedBucket = reset($response);
+
+        // link
+        /** @var string $linkedId */
+        $linkedId = $this->_client2->linkBucket(
+            'linked-' . time(),
+            'out',
+            $sharedBucket['project']['id'],
+            $sharedBucket['id']
+        );
+
+        // unlink
+        $this->_client2->dropBucket($linkedId, ['async' => true]);
+        self::assertEmpty($this->_client2->listBuckets(['include' => 'linkedBuckets']));
+
+        // unshare
+        $this->_client->unshareBucket($bucketId);
+        self::assertFalse($this->_client->isSharedBucket($bucketId));
+
+        $response = $this->_client2->listSharedBuckets();
+        self::assertCount(0, $response);
+
+        // share back
+        $this->_client->shareBucket($bucketId);
+        self::assertTrue($this->_client->isSharedBucket($bucketId));
+
+        // link again!
+        $this->_client2->linkBucket(
+            'linked-' . time(),
+            'out',
+            $sharedBucket['project']['id'],
+            $sharedBucket['id']
+        );
+
+        $linkedBuckets = $this->_client2->listBuckets(['include' => 'linkedBuckets']);
+        $this->assertCount(1, $linkedBuckets);
+        /** @var array $firstLinked */
+        $firstLinked = reset($linkedBuckets);
+        $this->assertEquals($bucketId, $firstLinked['sourceBucket']['id']);
     }
 }
