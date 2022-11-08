@@ -51,6 +51,7 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
         );
 
         $tokenData = $this->_client->verifyToken();
+        self::assertTrue($tokenData['admin']['isOrganizationMember']);
         $tokenAdmin2InSameOrgData = $this->clientAdmin2InSameOrg->verifyToken();
         $tokenAdmin3InOtherOrg = $this->clientAdmin3InOtherOrg->verifyToken();
         $shareRoleTokenData = $this->shareRoleClient->verifyToken();
