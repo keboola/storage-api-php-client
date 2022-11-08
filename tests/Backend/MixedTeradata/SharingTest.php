@@ -16,15 +16,6 @@ class SharingTest extends StorageApiSharingTestCase
     use WorkspaceConnectionTrait;
 
     /**
-     * @return void
-     */
-    public function testOrganizationAdminInTokenVerify(): void
-    {
-        $token = $this->_client->verifyToken();
-        self::assertTrue($token['admin']['isOrganizationMember']);
-    }
-
-    /**
      * @throws ClientException
      * @throws \Doctrine\DBAL\Exception
      * @throws \Keboola\StorageApi\Exception
