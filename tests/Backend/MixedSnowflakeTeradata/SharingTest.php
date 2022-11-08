@@ -1,7 +1,6 @@
 <?php
 
-// no SNFLK/other backend interaction because it is disabled for time being
-namespace Keboola\Test\Backend\MixedTeradata;
+namespace Keboola\Test\Backend\MixedSnowflakeTeradata;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\ClientException;
