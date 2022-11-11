@@ -163,13 +163,11 @@ class CreateTableTest extends StorageApiTestCase
         $this->assertNotEquals('0000-00-00 00:00:00', $table['created']);
         $this->assertNotEmpty($table['dataSizeBytes']);
 
-        if ($this->getDefaultBackend($this->_client) !== self::BACKEND_BIGQUERY) {
-            $this->assertLinesEqualsSorted(
-                file_get_contents($expectationFile),
-                $this->_client->getTableDataPreview($tableId),
-                'initial data imported into table'
-            );
-        }
+        $this->assertLinesEqualsSorted(
+            file_get_contents($expectationFile),
+            $this->_client->getTableDataPreview($tableId),
+            'initial data imported into table'
+        );
         $displayName = 'Romanov-display-name';
         $tableId = $this->_client->updateTable(
             $tableId,
