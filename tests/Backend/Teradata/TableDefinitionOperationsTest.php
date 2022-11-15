@@ -87,13 +87,14 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $this->assertTableColumnNullable($m, $tableId, 'id', false);
         $this->assertTableColumnNullable($m, $tableId, 'name', true);
 
+        $this->markTestSkipped('Teradata does not support altering table');
         // remove PK
-        $this->_client->removeTablePrimaryKey($tableId);
+//        $this->_client->removeTablePrimaryKey($tableId);
         // set PK on two columns
-        $this->_client->createTablePrimaryKey($tableId, ['id', 'name']);
-        $this->assertTableColumnNullable($m, $tableId, 'id', false);
+//        $this->_client->createTablePrimaryKey($tableId, ['id', 'name']);
+//        $this->assertTableColumnNullable($m, $tableId, 'id', false);
         // second column nullability has not changed SNFLK allows nullable columns in primary key
-        $this->assertTableColumnNullable($m, $tableId, 'name', true);
+//        $this->assertTableColumnNullable($m, $tableId, 'name', true);
     }
 
     public function testDataPreviewForTableDefinitionWithDecimalType(): void
@@ -125,12 +126,6 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                     ],
                 ],
                 [
-                    'name' => 'column_boolean',
-                    'definition' => [
-                        'type' => 'BOOLEAN',
-                    ],
-                ],
-                [
                     'name' => 'column_date',
                     'definition' => [
                         'type' => 'DATE',
@@ -156,7 +151,6 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
             'id',
             'column_decimal',
             'column_float',
-            'column_boolean',
             'column_date',
             'column_timestamp',
             'column_varchar',
@@ -166,7 +160,6 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 '1',
                 '003.123',
                 '3.14',
-                0,
                 '1989-08-31',
                 '1989-08-31 00:00:00.000',
                 'roman',
@@ -198,18 +191,13 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                     'isTruncated' => false,
                 ],
                 [
-                    'columnName' => 'column_boolean',
-                    'value' => 'false',
-                    'isTruncated' => false,
-                ],
-                [
                     'columnName' => 'column_date',
                     'value' => '1989-08-31',
                     'isTruncated' => false,
                 ],
                 [
                     'columnName' => 'column_timestamp',
-                    'value' => '1989-08-31 00:00:00.000',
+                    'value' => '1989-08-31 00:00:00.000000',
                     'isTruncated' => false,
                 ],
                 [
@@ -297,7 +285,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 '3.14',
                 0,
                 '1989-08-31',
-                '1989-08-31 00:00:00.000',
+                '1989-08-31 00:00:00.000000',
                 'roman',
             ]
         );
@@ -328,7 +316,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 ],
                 [
                     'columnName' => 'column_boolean',
-                    'value' => 'false',
+                    'value' => '0',
                     'isTruncated' => false,
                 ],
                 [
@@ -419,7 +407,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 '3.14',
                 0,
                 '1989-08-31',
-                '1989-08-31 00:00:00.000',
+                '1989-08-31 00:00:00.000000',
                 'roman',
             ]
         );
@@ -494,7 +482,8 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
     public function testAddTypedColumnOnNonTypedTable(): void
     {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $this->markTestSkipped('Teradata does not support altering table');
+        /*$bucketId = $this->getTestBucketId(self::STAGE_IN);
 
         $tableDefinition = [
             'name' => 'my-new-table-non-typed',
@@ -516,7 +505,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame('Invalid parameters - definition: This field was not expected.', $e->getMessage());
             $this->assertSame('storage.tables.validation', $e->getStringCode());
-        }
+        }*/
     }
 
     public function testTableWithDot(): void
@@ -542,7 +531,8 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
     public function testAddColumnOnTypedTable(): void
     {
-        $tableDefinition = [
+        $this->markTestSkipped('Teradata does not support altering table');
+        /*$tableDefinition = [
             'name' => 'my-new-table-add-column',
             'primaryKeysNames' => ['id'],
             'columns' => [
@@ -656,12 +646,13 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 'value' => 'FLOAT',
                 'provider' => 'storage',
             ], $columnMetadata[2], ['id', 'timestamp']);
-        }
+        }*/
     }
 
     public function testAddTypedColumnToNonTypedTableShouldFail(): void
     {
-        $tableDefinition = [
+        $this->markTestSkipped('Teradata does not support altering table');
+        /*$tableDefinition = [
             'name' => 'my-new-table-typed-add-column',
             'primaryKeysNames' => ['id'],
             'columns' => [
@@ -686,12 +677,13 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Column "definition" or "basetype" must be set.');
-        $this->_client->addTableColumn($sourceTableId, 'addColumn');
+        $this->_client->addTableColumn($sourceTableId, 'addColumn');*/
     }
 
     public function testDropColumnOnTypedTable(): void
     {
-        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $this->tableId, 'table-1');
+        $this->markTestSkipped('Teradata does not support altering table');
+        /*$firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $this->tableId, 'table-1');
         $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $firstAliasTableId, 'table-2');
 
         $expectedColumns = ['id', 'name'];
@@ -705,12 +697,13 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $expectedColumns = ['id'];
         $this->assertEquals($expectedColumns, $this->_client->getTable($this->tableId)['columns']);
         $this->assertEquals($expectedColumns, $this->_client->getTable($firstAliasTableId)['columns']);
-        $this->assertEquals($expectedColumns, $this->_client->getTable($secondAliasTableId)['columns']);
+        $this->assertEquals($expectedColumns, $this->_client->getTable($secondAliasTableId)['columns']);*/
     }
 
     public function testPrimaryKeyOperationsOnTypedTable(): void
     {
-        $this->expectNotToPerformAssertions();
+        $this->markTestSkipped('Teradata does not support altering table');
+        /*$this->expectNotToPerformAssertions();
         $this->_client->removeTablePrimaryKey($this->tableId);
         $this->_client->createTablePrimaryKey($this->tableId, ['id']);
         $this->_client->removeTablePrimaryKey($this->tableId);
@@ -720,8 +713,8 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         // load data with nulls
         $this->_client->writeTableAsync($this->tableId, new CsvFile(__DIR__ . '/../../_data/languages.null.csv'));
         // try to create composite primary key on column with nulls
-        $this->_client->createTablePrimaryKey($this->tableId, ['id', 'name']);
-        // TODO Teradata supports PK on nulls?
+        $this->_client->createTablePrimaryKey($this->tableId, ['id', 'name']);*/
+        // TODO Teradata supports PK on nulls? -> https://docs.teradata.com/r/rgAb27O_xRmMVc_aQq2VGw/2MgtvUZK1RiDM0ha8JkCMw
     }
 
     public function testCreateSnapshotOnTypedTable(): void
