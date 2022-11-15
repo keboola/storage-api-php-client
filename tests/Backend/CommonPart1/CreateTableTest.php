@@ -109,8 +109,10 @@ class CreateTableTest extends StorageApiTestCase
 
     public function testLoadWithInvalidCSVColumns(): void
     {
-        if ($this->getDefaultBackend($this->_client) === self::BACKEND_SYNAPSE) {
-            $this->markTestSkipped('Synapse does not fail on invalid data');
+        if ($this->getDefaultBackend($this->_client) === self::BACKEND_SYNAPSE
+        || $this->getDefaultBackend($this->_client) === self::BACKEND_BIGQUERY
+        ) {
+            $this->markTestSkipped('Synapse and Bigquery does not fail on invalid data');
         }
 
         $this->expectExceptionMessageMatches('/Load error:*/m');
