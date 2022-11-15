@@ -134,6 +134,9 @@ class CreateTableTest extends StorageApiTestCase
      */
     public function testTableCreate($tableName, $createFile, $expectationFile, $async, $options = []): void
     {
+        if ($tableName === '1' && $this->getDefaultBackend($this->_client) === self::BACKEND_BIGQUERY) {
+            $this->markTestSkipped('Bigquery doesn\'t support number as column name');
+        }
         $createMethod = $async ? 'createTableAsync' : 'createTable';
         $tableId = $this->_client->{$createMethod}(
             $this->getTestBucketId(self::STAGE_IN),
@@ -158,12 +161,13 @@ class CreateTableTest extends StorageApiTestCase
         $this->assertNotEquals('0000-00-00 00:00:00', $table['created']);
         $this->assertNotEmpty($table['dataSizeBytes']);
 
-        $this->assertLinesEqualsSorted(
-            file_get_contents($expectationFile),
-            $this->_client->getTableDataPreview($tableId),
-            'initial data imported into table'
-        );
-
+        if ($this->getDefaultBackend($this->_client) !== self::BACKEND_BIGQUERY) {
+            $this->assertLinesEqualsSorted(
+                file_get_contents($expectationFile),
+                $this->_client->getTableDataPreview($tableId),
+                'initial data imported into table'
+            );
+        }
         $displayName = 'Romanov-display-name';
         $tableId = $this->_client->updateTable(
             $tableId,
@@ -399,7 +403,9 @@ class CreateTableTest extends StorageApiTestCase
 
     public function testTableCreateWithPK(): void
     {
-        if ($this->getDefaultBackend($this->_client) === self::BACKEND_TERADATA) {
+        if ($this->getDefaultBackend($this->_client) === self::BACKEND_TERADATA
+        || $this->getDefaultBackend($this->_client) === self::BACKEND_BIGQUERY
+        ) {
             $this->markTestSkipped('deduplication not supported for Teradata');
         }
         $tableId = $this->_client->createTable(
@@ -507,7 +513,9 @@ class CreateTableTest extends StorageApiTestCase
 
     public function testRowNumberAmbiguity(): void
     {
-        if ($this->getDefaultBackend($this->_client) === self::BACKEND_TERADATA) {
+        if ($this->getDefaultBackend($this->_client) === self::BACKEND_TERADATA
+        || $this->getDefaultBackend($this->_client) === self::BACKEND_BIGQUERY
+        ) {
             $this->markTestSkipped('createTablePrimaryKey not supported for Teradata');
         }
         $importFile = __DIR__ . '/../../_data/column-name-row-number.csv';
