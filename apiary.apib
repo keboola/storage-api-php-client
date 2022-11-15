@@ -2029,6 +2029,8 @@ Lists buckets which may be shared to the project.
 
 ### Create new table from CSV file [POST]
 
+***DEPRECATED**, use [Create table asynchronously](#reference/tables/create-table-asynchronously/create-new-table-from-csv-file-asynchronously) instead.*
+
 Creates a new table in a bucket. The CSV file must follow the [RFC 4180 Specification](https://tools.ietf.org/html/rfc4180).
 More information about the requirements can be found in the [Manual](https://help.keboola.com/storage/tables/csv-files/).
 Column names are extracted from the CSV file header; spaces and any other special characters in column names are
@@ -2696,7 +2698,7 @@ The create request is created and added to a queue, the job resource url for sta
 + Attributes
     + data (optional) - Multipart CSV file upload
     + dataString (optional) - CSV as a string in the request body
-    + incremental (optional) - If incremental is set to 0, the target table is truncated before each import. Default is 0.
+    + incremental (optional, boolean) - If `incremental` is a non-zero value, the import adds data to the existing data in the table. If `incremental` is 0, the target table will be truncated before the import.
     + delimiter (optional) - Field delimiter used in the CSV file. The default value is ','.  Use '\t' or type the tab char for the tabulator.
     + enclosure (optional) - Field enclosure used in the CSV file. The default value is '"'.
     + columns[] (optional) - List of columns present in the CSV file; the first line of the file will not be treated as a header!
@@ -2771,8 +2773,7 @@ Further information can be found in the [Developers Documentation](https://devel
     + dataWorkspaceId (optional) - Load from the table [workspace](#reference/workspaces). Use with the **dataTableName** attribute.
     + dataTableName (optional) - (deprecated use dataObject) Load from the table in the [workspace](#reference/workspaces).
     + dataObject (optional) - Load from the table/file in the [workspace](#reference/workspaces).
-    + incremental (optional, number) - If incremental is set to 0, the target table is truncated before each import.
-        Default: 0
+    + incremental (optional, boolean) - If `incremental` is a non-zero value, the import adds data to the existing data in the table. If `incremental` is 0, the target table will be truncated before the import.
     + delimiter (optional) - Field delimiter used in the CSV file. The default value is ','.  Use '\t' or type the tab char for tabulator.
     + enclosure (optional) - Field enclosure used in the CSV file. The default value is '"'. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both.)
     + escapedBy (optional) - Escape character used in the CSV file. The default value is an empty value - no escape character is used. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both.)
@@ -5834,12 +5835,11 @@ This kind of data is not kept forever. By default, all files are stored for **15
 using the `isPermanent` parameter. Files can also be tagged to categorize file uploads. When the `X-KBC-RunId` header is
 provided, it is stored as the file `runId`.
 
-Internally, all files are stored encrypted on [Amazon S3](http://docs.aws.amazon.com/AmazonS3/latest/dev/Welcome.html)
-and are private. When you access the file through the API, a URL with one hour expiration is generated. If you require
-a permanent URL, you can set the file as `public`.
+Internally, all files are stored encrypted and are private. When you access the file through the API,
+a URL with one hour expiration is generated.
 
-Large files may be split into slices (chunks). A sliced file must have the `sliced` parameter set to `true`. In that case
-the S3 key points to a **manifest file**. The manifest file contains the actual list of uploaded chunks. When uploading a sliced
+Large files may be split into slices (chunks). A sliced file must have the `isSliced` parameter set to `true`. In that case
+the provided key (blob) points to a **manifest file**. The manifest file contains the actual list of uploaded chunks. When uploading a sliced
 file, you have to use the provided key as a prefix for chunks and generate the manifest file with the list of uploaded chunks.
 When a CSV file is imported into Storage Tables, there is no difference between a normal and a sliced file.
 
@@ -5847,22 +5847,22 @@ When a CSV file is imported into Storage Tables, there is no difference between 
 
 Assume that the [upload method](#reference/files/upload-file/) returns the following S3 key `exp-180/11/files/2014/02/25/11085.import`.
 Then you can upload e.g. these files:
-- exp-180/11/files/2014/02/25/11085.import_001
-- exp-180/11/files/2014/02/25/11085.import_002
-- exp-180/11/files/2014/02/25/11085.import_003
+- exp-180/11/files/2014/02/25/11085.import001
+- exp-180/11/files/2014/02/25/11085.import002
+- exp-180/11/files/2014/02/25/11085.import003
 
 Then create the following manifest file:
 ```
 {
   "entries": [
-    {"url":"s3://kbc-sapi-files-devel/exp-180/11/files/2014/02/25/11085.import_001"},
-    {"url":"s3://kbc-sapi-files-devel/exp-180/11/files/2014/02/25/11085.import_002"},
-    {"url":"s3://kbc-sapi-files-devel/exp-180/11/files/2014/02/25/11085.import_003"}
+    {"url":"s3://kbc-sapi-files-devel/exp-180/11/files/2014/02/25/11085.import001"},
+    {"url":"s3://kbc-sapi-files-devel/exp-180/11/files/2014/02/25/11085.import002"},
+    {"url":"s3://kbc-sapi-files-devel/exp-180/11/files/2014/02/25/11085.import003"}
   ]
 }
 ```
 
-And then, upload that manifest file to the key `exp-180/11/files/2014/02/25/11085.import_manifest`. See our
+And then, upload that manifest file to the key `exp-180/11/files/2014/02/25/11085.importmanifest`. See our
 [Developers documentation](https://developers.keboola.com/integrate/storage/api/import-export/#working-with-sliced-files)
 for a more detailed guide.
 
@@ -5870,11 +5870,8 @@ for a more detailed guide.
 ### Create File Resource [POST]
 This method allows you to upload a file to KBC File Storage. The upload should be done in two steps:
 1. Create a new file resource (use this API call).
-2. Use the provided credentials to actually upload the file data to the Amazon S3 storage.
+2. Use the provided credentials to actually upload the file data to the storage provider.
 
-The credentials are generated either as standard *AWS credentials* (`federationToken` set to true) or for an HTTP *legacy form submission*
-(`federationToken` set to false). The *legacy form submission* method is *deprecated*. Please use always the federation token method and any of the many S3 clients or libraries to
-upload the files. The *legacy form submission* method is less reliable and does not work in all regions (e.g. eu-central-1, ap-northeast-2).
 For a more detailed guide on the file upload, see the corresponding part of the
 [Developers documentation](https://developers.keboola.com/integrate/storage/api/import-export/#manually-uploading-a-file).
 
@@ -5883,8 +5880,6 @@ For a more detailed guide on the file upload, see the corresponding part of the
     + sizeBytes (optional, number) - File size in bytes
     + contentType (optional) - File [MIME Type](https://en.wikipedia.org/wiki/Media_type)
         Default: `application/octet-stream`
-    + isPublic (optional, boolean) - When true, the file URL will be permanent and publicly accessible.
-        Default: false
     + isPermanent (optional, boolean) - Keeps a file forever. If false, the file will be **deleted after 15 days**.
         Default: false
     + notify (optional, boolean) - Notifies project administrators that a file was uploaded.
@@ -5892,9 +5887,9 @@ For a more detailed guide on the file upload, see the corresponding part of the
     + tags[] (optional) - Assigns one or more tags to the file.
     + federationToken (optional, boolean) - Must be set to `true`.
         Default: false
-    + sliced (optional, boolean) - If true, multiple chunks of a file are allowed to be uploaded. Must be used with `federationToken`.
+    + isSliced (optional, boolean) - If true, multiple chunks of a file are allowed to be uploaded. Must be used with `federationToken`.
         Default: false
-    + isEncrypted (optional, boolean) - If true, the file content will be encrypted in the S3 storage.
+    + isEncrypted (optional, boolean) - If true, the file content will be encrypted in the provided storage. Azure and Google Cloud always create encrypted file regardless this setting.
         Default: false
 
 + Request (application/x-www-form-urlencoded)
@@ -5917,6 +5912,7 @@ For a more detailed guide on the file upload, see the corresponding part of the
                 "isEncrypted": false,
                 "name": "somefile.csv",
                 "url": "https://s3.amazonaws.com/kbc-sapi-files/exp-180/578/files/2017/02/14/236518630.somefile.csv?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKI...0214%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20170214T093446Z&X-Amz-SignedHeaders=host&X-Amz-Expires=3600&X-Amz-Signature=374...a4c",
+                "provider": "aws",
                 "region": "us-east-1",
                 "sizeBytes": 12345,
                 "tags": [
@@ -5940,6 +5936,77 @@ For a more detailed guide on the file upload, see the corresponding part of the
                         "SessionToken": "Ago...sUF",
                         "Expiration": "2017-02-14T21:34:46+00:00"
                     }
+                }
+            }
+
++ Response 201 (application/json)
+    + Body
+
+            {
+                "id": 236518631,
+                "created": "2017-02-14T10:34:45+0100",
+                "isPublic": false,
+                "isSliced": false,
+                "isEncrypted": true,
+                "name": "somefile.csv",
+                "url": "https://kbcfshc7chguaeh2km.blob.core.windows.net/exp-15-files-4516-27364641-2022-11-09/somefile.csv?sv=2017-11-09&sr=c&st=2022-11-09T16:55:44Z&se=2022-11-10T04:55:44Z&sp=rl&sig=tBsXf...",
+                "provider": "azure",
+                "region": "us-east-1",
+                "sizeBytes": 12345,
+                "tags": [
+                    "tag1",
+                    "tag2"
+                ],
+                "maxAgeDays": 30,
+                "runId": null,
+                "runIds": [],
+                "creatorToken": {
+                    "id": 27978,
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "absUploadParams": {
+                    "blobName": "somefile.csv",
+                    "accountName": "kbcfshc7chguaeh2km",
+                    "container": "exp-15-files-4516-27364641-2022-11-09",
+                    "absCredentials": {
+                        "SASConnectionString": "BlobEndpoint=https://kbcfshc7chguaeh2km.blob.core.windows.net;SharedAccessSignature=sv=2017-11-09&sr=c&st=2022-11-09T16:55:44Z&se=2022-11-10T04:55:44Z&sp=rwl&sig=x6csI...",
+                        "expiration": "2022-11-10T05:55:44+0100"
+                    }
+                }
+            }
+
++ Response 201 (application/json)
+    + Body
+
+            {
+                "id": 236518631,
+                "created": "2017-02-14T10:34:45+0100",
+                "isPublic": false,
+                "isSliced": false,
+                "isEncrypted": true,
+                "name": "somefile.csv",
+                "url": "https://storage.googleapis.com/kbc-ci-connection-files-storage/exp-15/23058/files/2022/11/09/851783.somefile.csv?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=ci-connection-file-storage%40ci-connection-361807.iam.gserviceaccount.com%2F20221109%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20221109T193733Z&X-Goog-Expires=3600&X-Goog-SignedHeaders=host&response-content-disposition=attachment&X-Goog-Signature=57f3...",
+                "provider": "gcp",
+                "region": "us-east-1",
+                "sizeBytes": 12345,
+                "tags": [
+                    "tag1",
+                    "tag2"
+                ],
+                "maxAgeDays": 30,
+                "runId": null,
+                "runIds": [],
+                "creatorToken": {
+                    "id": 27978,
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "gcsUploadParams": {
+                    "projectId": "ci-connection-361807",
+                    "bucket": "kbc-ci-connection-files-storage",
+                    "key": "exp-15/23058/files/2022/11/09/851783.somefile.csv",
+                    "access_token": "ya29.dr...",
+                    "expires_in": 3599,
+                    "token_type": "Bearer"
                 }
             }
 
