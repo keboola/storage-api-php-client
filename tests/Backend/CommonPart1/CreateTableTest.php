@@ -112,7 +112,7 @@ class CreateTableTest extends StorageApiTestCase
         if ($this->getDefaultBackend($this->_client) === self::BACKEND_SYNAPSE
         || $this->getDefaultBackend($this->_client) === self::BACKEND_BIGQUERY
         ) {
-            $this->markTestSkipped('Synapse and Bigquery does not fail on invalid data');
+            $this->markTestSkipped("Synapse and Bigquery don't fail on invalid data");
         }
 
         $this->expectExceptionMessageMatches('/Load error:*/m');
