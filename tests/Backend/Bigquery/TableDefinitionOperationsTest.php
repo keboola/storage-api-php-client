@@ -1,15 +1,15 @@
 <?php
 
-namespace Keboola\Test\Backend\Snowflake;
+namespace Keboola\Test\Backend\Bigquery;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\ClientException;
-use Keboola\StorageApi\Metadata;
 use Keboola\Test\StorageApiTestCase;
+use Keboola\StorageApi\Metadata;
 
 class TableDefinitionOperationsTest extends StorageApiTestCase
 {
-    private string $tableId;
+    protected string $tableId;
 
     public function setUp(): void
     {
@@ -37,14 +37,14 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 [
                     'name' => 'id',
                     'definition' => [
-                        'type' => 'INT',
+                        'type' => 'INT64',
                         'nullable' => false,
                     ],
                 ],
                 [
                     'name' => 'name',
                     'definition' => [
-                        'type' => 'VARCHAR',
+                        'type' => 'STRING',
                     ],
                 ],
             ],
@@ -86,14 +86,6 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $m = new Metadata($this->_client);
         $this->assertTableColumnNullable($m, $tableId, 'id', false);
         $this->assertTableColumnNullable($m, $tableId, 'name', true);
-
-        // remove PK
-        $this->_client->removeTablePrimaryKey($tableId);
-        // set PK on two columns
-        $this->_client->createTablePrimaryKey($tableId, ['id', 'name']);
-        $this->assertTableColumnNullable($m, $tableId, 'id', false);
-        // second column nullability has not changed SNFLK allows nullable columns in primary key
-        $this->assertTableColumnNullable($m, $tableId, 'name', true);
     }
 
     public function testDataPreviewForTableDefinitionWithDecimalType(): void
@@ -107,7 +99,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 [
                     'name' => 'id',
                     'definition' => [
-                        'type' => 'INT',
+                        'type' => 'INT64',
                         'nullable' => false,
                     ],
                 ],
@@ -121,13 +113,13 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 [
                     'name' => 'column_float',
                     'definition' => [
-                        'type' => 'FLOAT',
+                        'type' => 'FLOAT64',
                     ],
                 ],
                 [
                     'name' => 'column_boolean',
                     'definition' => [
-                        'type' => 'BOOLEAN',
+                        'type' => 'BOOL',
                     ],
                 ],
                 [
@@ -145,7 +137,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 [
                     'name' => 'column_varchar',
                     'definition' => [
-                        'type' => 'VARCHAR',
+                        'type' => 'STRING',
                     ],
                 ],
             ],
@@ -199,7 +191,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 ],
                 [
                     'columnName' => 'column_boolean',
-                    'value' => 'false',
+                    'value' => '',
                     'isTruncated' => false,
                 ],
                 [
@@ -209,7 +201,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 ],
                 [
                     'columnName' => 'column_timestamp',
-                    'value' => '1989-08-31 00:00:00.000',
+                    'value' => '1989-08-31 00:00:00.000000+00:00',
                     'isTruncated' => false,
                 ],
                 [
@@ -244,7 +236,6 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
     public function testDataPreviewForTableDefinitionBaseType(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
-
         $tableDefinition = [
             'name' => 'my-new-table-for_data_preview',
             'primaryKeysNames' => [],
@@ -318,7 +309,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 ],
                 [
                     'columnName' => 'column_decimal',
-                    'value' => '0', // default is NUMBER(38,0) => no scale => 0
+                    'value' => '0.123',
                     'isTruncated' => false,
                 ],
                 [
@@ -328,7 +319,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 ],
                 [
                     'columnName' => 'column_boolean',
-                    'value' => 'false',
+                    'value' => '',
                     'isTruncated' => false,
                 ],
                 [
@@ -338,7 +329,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 ],
                 [
                     'columnName' => 'column_timestamp',
-                    'value' => '1989-08-31 00:00:00.000',
+                    'value' => '1989-08-31 00:00:00.000000+00:00',
                     'isTruncated' => false,
                 ],
                 [
@@ -540,274 +531,274 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $this->_client->createTableDefinition($bucketId, $tableDefinition);
     }
 
-    public function testAddColumnOnTypedTable(): void
-    {
-        $tableDefinition = [
-            'name' => 'my-new-table-add-column',
-            'primaryKeysNames' => ['id'],
-            'columns' => [
-                [
-                    'name' => 'id',
-                    'definition' => [
-                        'type' => 'INT',
-                        'nullable' => false,
-                    ],
-                ],
-                [
-                    'name' => 'column_decimal',
-                    'definition' => [
-                        'type' => 'DECIMAL',
-                        'length' => '4,3',
-                    ],
-                ],
-            ],
-        ];
+//    public function testAddColumnOnTypedTable(): void
+//    {
+//        $tableDefinition = [
+//            'name' => 'my-new-table-add-column',
+//            'primaryKeysNames' => ['id'],
+//            'columns' => [
+//                [
+//                    'name' => 'id',
+//                    'definition' => [
+//                        'type' => 'INT',
+//                        'nullable' => false,
+//                    ],
+//                ],
+//                [
+//                    'name' => 'column_decimal',
+//                    'definition' => [
+//                        'type' => 'DECIMAL',
+//                        'length' => '4,3',
+//                    ],
+//                ],
+//            ],
+//        ];
+//
+//        $sourceTableId = $this->_client->createTableDefinition($this->getTestBucketId(self::STAGE_IN), $tableDefinition);
+//
+//        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $sourceTableId, 'table-1');
+//        $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $firstAliasTableId, 'table-2');
+//
+//        $newColumns = [
+//            [
+//                'name' => 'column_float',
+//                'definition' => [
+//                    'type' => 'FLOAT',
+//                ],
+//                'basetype' => null,
+//            ],
+//            [
+//                'name' => 'column_boolean',
+//                'definition' => [
+//                    'type' => 'BOOLEAN',
+//                ],
+//                'basetype' => null,
+//            ],
+//            [
+//                'name' => 'column_date',
+//                'definition' => [
+//                    'type' => 'DATE',
+//                ],
+//                'basetype' => null,
+//            ],
+//            [
+//                'name' => 'column_timestamp',
+//                'definition' => [
+//                    'type' => 'TIMESTAMP',
+//                ],
+//                'basetype' => null,
+//            ],
+//            [
+//                'name' => 'column_varchar',
+//                'definition' => [
+//                    'type' => 'VARCHAR',
+//                ],
+//                'basetype' => null,
+//            ],
+//            [
+//                'name' => 'basetype',
+//                'definition' => null,
+//                'basetype' => 'STRING',
+//            ],
+//        ];
+//
+//        foreach ($newColumns as $newColumn) {
+//            $this->_client->addTableColumn($sourceTableId, $newColumn['name'], $newColumn['definition'], $newColumn['basetype']);
+//        }
+//
+//        $expectedColumns = [
+//            'id',
+//            'column_decimal',
+//            'column_float',
+//            'column_boolean',
+//            'column_date',
+//            'column_timestamp',
+//            'column_varchar',
+//            'basetype',
+//        ];
+//        $this->assertEquals($expectedColumns, $this->_client->getTable($sourceTableId)['columns']);
+//        $this->assertEquals($expectedColumns, $this->_client->getTable($firstAliasTableId)['columns']);
+//        $this->assertEquals($expectedColumns, $this->_client->getTable($secondAliasTableId)['columns']);
+//
+//        // check that the new table has correct datypes in metadata
+//        $metadataClient = new Metadata($this->_client);
+//        $addedColumnMetadata = $metadataClient->listColumnMetadata("{$sourceTableId}.column_float");
+//        // alias tables has metadata from source table
+//        $firstAliasAddedColumnMetadata = $this->_client->getTable($firstAliasTableId)['sourceTable']['columnMetadata']['column_float'];
+//        $secondAliasAddedColumnMetadata = $this->_client->getTable($secondAliasTableId)['sourceTable']['columnMetadata']['column_float'];
+//
+//        foreach ([
+//                     $addedColumnMetadata,
+//                     $firstAliasAddedColumnMetadata,
+//                     $secondAliasAddedColumnMetadata,
+//                 ] as $columnMetadata) {
+//            $this->assertArrayEqualsExceptKeys([
+//                'key' => 'KBC.datatype.type',
+//                'value' => 'REAL',
+//                'provider' => 'storage',
+//            ], $columnMetadata[0], ['id', 'timestamp']);
+//            $this->assertArrayEqualsExceptKeys([
+//                'key' => 'KBC.datatype.nullable',
+//                'value' => '1',
+//                'provider' => 'storage',
+//            ], $columnMetadata[1], ['id', 'timestamp']);
+//            $this->assertArrayEqualsExceptKeys([
+//                'key' => 'KBC.datatype.basetype',
+//                'value' => 'FLOAT',
+//                'provider' => 'storage',
+//            ], $columnMetadata[2], ['id', 'timestamp']);
+//        }
+//    }
 
-        $sourceTableId = $this->_client->createTableDefinition($this->getTestBucketId(self::STAGE_IN), $tableDefinition);
+//    public function testAddTypedColumnToNonTypedTableShouldFail(): void
+//    {
+//        $tableDefinition = [
+//            'name' => 'my-new-table-typed-add-column',
+//            'primaryKeysNames' => ['id'],
+//            'columns' => [
+//                [
+//                    'name' => 'id',
+//                    'definition' => [
+//                        'type' => 'INT',
+//                        'nullable' => false,
+//                    ],
+//                ],
+//                [
+//                    'name' => 'column_decimal',
+//                    'definition' => [
+//                        'type' => 'DECIMAL',
+//                        'length' => '4,3',
+//                    ],
+//                ],
+//            ],
+//        ];
+//
+//        $sourceTableId = $this->_client->createTableDefinition($this->getTestBucketId(self::STAGE_IN), $tableDefinition);
+//
+//        $this->expectException(ClientException::class);
+//        $this->expectExceptionMessage('Column "definition" or "basetype" must be set.');
+//        $this->_client->addTableColumn($sourceTableId, 'addColumn');
+//    }
 
-        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $sourceTableId, 'table-1');
-        $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $firstAliasTableId, 'table-2');
+//    public function testDropColumnOnTypedTable(): void
+//    {
+//        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $this->tableId, 'table-1');
+//        $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $firstAliasTableId, 'table-2');
+//
+//        $expectedColumns = ['id', 'name'];
+//        $this->assertEquals($expectedColumns, $this->_client->getTable($this->tableId)['columns']);
+//        $this->assertEquals($expectedColumns, $this->_client->getTable($firstAliasTableId)['columns']);
+//        $this->assertEquals($expectedColumns, $this->_client->getTable($secondAliasTableId)['columns']);
+//
+//        // force because table has aliases
+//        $this->_client->deleteTableColumn($this->tableId, 'name', ['force' => true]);
+//
+//        $expectedColumns = ['id'];
+//        $this->assertEquals($expectedColumns, $this->_client->getTable($this->tableId)['columns']);
+//        $this->assertEquals($expectedColumns, $this->_client->getTable($firstAliasTableId)['columns']);
+//        $this->assertEquals($expectedColumns, $this->_client->getTable($secondAliasTableId)['columns']);
+//    }
 
-        $newColumns = [
-            [
-                'name' => 'column_float',
-                'definition' => [
-                    'type' => 'FLOAT',
-                ],
-                'basetype' => null,
-            ],
-            [
-                'name' => 'column_boolean',
-                'definition' => [
-                    'type' => 'BOOLEAN',
-                ],
-                'basetype' => null,
-            ],
-            [
-                'name' => 'column_date',
-                'definition' => [
-                    'type' => 'DATE',
-                ],
-                'basetype' => null,
-            ],
-            [
-                'name' => 'column_timestamp',
-                'definition' => [
-                    'type' => 'TIMESTAMP',
-                ],
-                'basetype' => null,
-            ],
-            [
-                'name' => 'column_varchar',
-                'definition' => [
-                    'type' => 'VARCHAR',
-                ],
-                'basetype' => null,
-            ],
-            [
-                'name' => 'basetype',
-                'definition' => null,
-                'basetype' => 'STRING',
-            ],
-        ];
+//    public function testPrimaryKeyOperationsOnTypedTable(): void
+//    {
+//        $this->expectNotToPerformAssertions();
+//        $this->_client->removeTablePrimaryKey($this->tableId);
+//        $this->_client->createTablePrimaryKey($this->tableId, ['id']);
+//        $this->_client->removeTablePrimaryKey($this->tableId);
+//        // create composite primary key without data
+//        $this->_client->createTablePrimaryKey($this->tableId, ['id', 'name']);
+//        $this->_client->removeTablePrimaryKey($this->tableId);
+//        // load data with nulls
+//        $this->_client->writeTableAsync($this->tableId, new CsvFile(__DIR__ . '/../../_data/languages.null.csv'));
+//        // try to create composite primary key on column with nulls
+//        $this->_client->createTablePrimaryKey($this->tableId, ['id', 'name']);
+//        // Snowflake supports PK on nulls
+//    }
 
-        foreach ($newColumns as $newColumn) {
-            $this->_client->addTableColumn($sourceTableId, $newColumn['name'], $newColumn['definition'], $newColumn['basetype']);
-        }
-
-        $expectedColumns = [
-            'id',
-            'column_decimal',
-            'column_float',
-            'column_boolean',
-            'column_date',
-            'column_timestamp',
-            'column_varchar',
-            'basetype',
-        ];
-        $this->assertEquals($expectedColumns, $this->_client->getTable($sourceTableId)['columns']);
-        $this->assertEquals($expectedColumns, $this->_client->getTable($firstAliasTableId)['columns']);
-        $this->assertEquals($expectedColumns, $this->_client->getTable($secondAliasTableId)['columns']);
-
-        // check that the new table has correct datypes in metadata
-        $metadataClient = new Metadata($this->_client);
-        $addedColumnMetadata = $metadataClient->listColumnMetadata("{$sourceTableId}.column_float");
-        // alias tables has metadata from source table
-        $firstAliasAddedColumnMetadata = $this->_client->getTable($firstAliasTableId)['sourceTable']['columnMetadata']['column_float'];
-        $secondAliasAddedColumnMetadata = $this->_client->getTable($secondAliasTableId)['sourceTable']['columnMetadata']['column_float'];
-
-        foreach ([
-                     $addedColumnMetadata,
-                     $firstAliasAddedColumnMetadata,
-                     $secondAliasAddedColumnMetadata,
-                 ] as $columnMetadata) {
-            $this->assertArrayEqualsExceptKeys([
-                'key' => 'KBC.datatype.type',
-                'value' => 'REAL',
-                'provider' => 'storage',
-            ], $columnMetadata[0], ['id', 'timestamp']);
-            $this->assertArrayEqualsExceptKeys([
-                'key' => 'KBC.datatype.nullable',
-                'value' => '1',
-                'provider' => 'storage',
-            ], $columnMetadata[1], ['id', 'timestamp']);
-            $this->assertArrayEqualsExceptKeys([
-                'key' => 'KBC.datatype.basetype',
-                'value' => 'FLOAT',
-                'provider' => 'storage',
-            ], $columnMetadata[2], ['id', 'timestamp']);
-        }
-    }
-
-    public function testAddTypedColumnToNonTypedTableShouldFail(): void
-    {
-        $tableDefinition = [
-            'name' => 'my-new-table-typed-add-column',
-            'primaryKeysNames' => ['id'],
-            'columns' => [
-                [
-                    'name' => 'id',
-                    'definition' => [
-                        'type' => 'INT',
-                        'nullable' => false,
-                    ],
-                ],
-                [
-                    'name' => 'column_decimal',
-                    'definition' => [
-                        'type' => 'DECIMAL',
-                        'length' => '4,3',
-                    ],
-                ],
-            ],
-        ];
-
-        $sourceTableId = $this->_client->createTableDefinition($this->getTestBucketId(self::STAGE_IN), $tableDefinition);
-
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Column "definition" or "basetype" must be set.');
-        $this->_client->addTableColumn($sourceTableId, 'addColumn');
-    }
-
-    public function testDropColumnOnTypedTable(): void
-    {
-        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $this->tableId, 'table-1');
-        $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $firstAliasTableId, 'table-2');
-
-        $expectedColumns = ['id', 'name'];
-        $this->assertEquals($expectedColumns, $this->_client->getTable($this->tableId)['columns']);
-        $this->assertEquals($expectedColumns, $this->_client->getTable($firstAliasTableId)['columns']);
-        $this->assertEquals($expectedColumns, $this->_client->getTable($secondAliasTableId)['columns']);
-
-        // force because table has aliases
-        $this->_client->deleteTableColumn($this->tableId, 'name', ['force' => true]);
-
-        $expectedColumns = ['id'];
-        $this->assertEquals($expectedColumns, $this->_client->getTable($this->tableId)['columns']);
-        $this->assertEquals($expectedColumns, $this->_client->getTable($firstAliasTableId)['columns']);
-        $this->assertEquals($expectedColumns, $this->_client->getTable($secondAliasTableId)['columns']);
-    }
-
-    public function testPrimaryKeyOperationsOnTypedTable(): void
-    {
-        $this->expectNotToPerformAssertions();
-        $this->_client->removeTablePrimaryKey($this->tableId);
-        $this->_client->createTablePrimaryKey($this->tableId, ['id']);
-        $this->_client->removeTablePrimaryKey($this->tableId);
-        // create composite primary key without data
-        $this->_client->createTablePrimaryKey($this->tableId, ['id', 'name']);
-        $this->_client->removeTablePrimaryKey($this->tableId);
-        // load data with nulls
-        $this->_client->writeTableAsync($this->tableId, new CsvFile(__DIR__ . '/../../_data/languages.null.csv'));
-        // try to create composite primary key on column with nulls
-        $this->_client->createTablePrimaryKey($this->tableId, ['id', 'name']);
-        // Snowflake supports PK on nulls
-    }
-
-    public function testCreateSnapshotOnTypedTable(): void
-    {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
-
-        // check that the new table has correct datypes in metadata
-        $metadataClient = new Metadata($this->_client);
-
-        $idColumnMetadataBeforeSnapshot = $metadataClient->listColumnMetadata("{$this->tableId}.id");
-        $nameColumnMetadataBeforeSnapshot = $metadataClient->listColumnMetadata("{$this->tableId}.name");
-
-        $snapshotId = $this->_client->createTableSnapshot($this->tableId, 'table definition snapshot');
-
-        $newTableId = $this->_client->createTableFromSnapshot($bucketId, $snapshotId, 'restored');
-        $newTable = $this->_client->getTable($newTableId);
-        $this->assertEquals('restored', $newTable['name']);
-
-        $this->assertSame(['id'], $newTable['primaryKey']);
-        $this->assertTrue($newTable['isTyped']);
-
-        $this->assertSame(['id', 'name',], $newTable['columns']);
-
-        $this->assertCount(1, $newTable['metadata']);
-
-        $metadata = reset($newTable['metadata']);
-        $this->assertSame('storage', $metadata['provider']);
-        $this->assertSame('KBC.dataTypesEnabled', $metadata['key']);
-        $this->assertSame('true', $metadata['value']);
-
-        $idColumnMetadata = $metadataClient->listColumnMetadata("{$newTableId}.id");
-        $nameColumnMetadata = $metadataClient->listColumnMetadata("{$newTableId}.name");
-
-        // check that the new metadata has expected values
-        $this->assertArrayEqualsExceptKeys([
-            'key' => 'KBC.datatype.type',
-            'value' => 'NUMBER',
-            'provider' => 'storage',
-        ], $idColumnMetadata[0], ['id', 'timestamp']);
-        $this->assertArrayEqualsExceptKeys([
-            'key' => 'KBC.datatype.nullable',
-            'value' => '',
-            'provider' => 'storage',
-        ], $idColumnMetadata[1], ['id', 'timestamp']);
-        $this->assertArrayEqualsExceptKeys([
-            'key' => 'KBC.datatype.basetype',
-            'value' => 'NUMERIC',
-            'provider' => 'storage',
-        ], $idColumnMetadata[2], ['id', 'timestamp']);
-        $this->assertArrayEqualsExceptKeys([
-            'key' => 'KBC.datatype.length',
-            'value' => '38,0',
-            'provider' => 'storage',
-        ], $idColumnMetadata[3], ['id', 'timestamp']);
-
-        $this->assertArrayEqualsExceptKeys([
-            'key' => 'KBC.datatype.type',
-            'value' => 'VARCHAR',
-            'provider' => 'storage',
-        ], $nameColumnMetadata[0], ['id', 'timestamp']);
-        $this->assertArrayEqualsExceptKeys([
-            'key' => 'KBC.datatype.nullable',
-            'value' => '1',
-            'provider' => 'storage',
-        ], $nameColumnMetadata[1], ['id', 'timestamp']);
-        $this->assertArrayEqualsExceptKeys([
-            'key' => 'KBC.datatype.basetype',
-            'value' => 'STRING',
-            'provider' => 'storage',
-        ], $nameColumnMetadata[2], ['id', 'timestamp']);
-        $this->assertArrayEqualsExceptKeys([
-            'key' => 'KBC.datatype.length',
-            'value' => '16777216',
-            'provider' => 'storage',
-        ], $nameColumnMetadata[3], ['id', 'timestamp']);
-
-        // check that the new table has datatype metadata same as the table before
-        for ($i = 0; $i <= 3; $i++) {
-            $this->assertArrayEqualsExceptKeys($idColumnMetadataBeforeSnapshot[$i], $idColumnMetadata[$i], [
-                'id',
-                'timestamp',
-            ]);
-            $this->assertArrayEqualsExceptKeys($nameColumnMetadataBeforeSnapshot[$i], $nameColumnMetadata[$i], [
-                'id',
-                'timestamp',
-            ]);
-        }
-    }
+//    public function testCreateSnapshotOnTypedTable(): void
+//    {
+//        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+//
+//        // check that the new table has correct datypes in metadata
+//        $metadataClient = new Metadata($this->_client);
+//
+//        $idColumnMetadataBeforeSnapshot = $metadataClient->listColumnMetadata("{$this->tableId}.id");
+//        $nameColumnMetadataBeforeSnapshot = $metadataClient->listColumnMetadata("{$this->tableId}.name");
+//
+//        $snapshotId = $this->_client->createTableSnapshot($this->tableId, 'table definition snapshot');
+//
+//        $newTableId = $this->_client->createTableFromSnapshot($bucketId, $snapshotId, 'restored');
+//        $newTable = $this->_client->getTable($newTableId);
+//        $this->assertEquals('restored', $newTable['name']);
+//
+//        $this->assertSame(['id'], $newTable['primaryKey']);
+//        $this->assertTrue($newTable['isTyped']);
+//
+//        $this->assertSame(['id', 'name',], $newTable['columns']);
+//
+//        $this->assertCount(1, $newTable['metadata']);
+//
+//        $metadata = reset($newTable['metadata']);
+//        $this->assertSame('storage', $metadata['provider']);
+//        $this->assertSame('KBC.dataTypesEnabled', $metadata['key']);
+//        $this->assertSame('true', $metadata['value']);
+//
+//        $idColumnMetadata = $metadataClient->listColumnMetadata("{$newTableId}.id");
+//        $nameColumnMetadata = $metadataClient->listColumnMetadata("{$newTableId}.name");
+//
+//        // check that the new metadata has expected values
+//        $this->assertArrayEqualsExceptKeys([
+//            'key' => 'KBC.datatype.type',
+//            'value' => 'NUMBER',
+//            'provider' => 'storage',
+//        ], $idColumnMetadata[0], ['id', 'timestamp']);
+//        $this->assertArrayEqualsExceptKeys([
+//            'key' => 'KBC.datatype.nullable',
+//            'value' => '',
+//            'provider' => 'storage',
+//        ], $idColumnMetadata[1], ['id', 'timestamp']);
+//        $this->assertArrayEqualsExceptKeys([
+//            'key' => 'KBC.datatype.basetype',
+//            'value' => 'NUMERIC',
+//            'provider' => 'storage',
+//        ], $idColumnMetadata[2], ['id', 'timestamp']);
+//        $this->assertArrayEqualsExceptKeys([
+//            'key' => 'KBC.datatype.length',
+//            'value' => '38,0',
+//            'provider' => 'storage',
+//        ], $idColumnMetadata[3], ['id', 'timestamp']);
+//
+//        $this->assertArrayEqualsExceptKeys([
+//            'key' => 'KBC.datatype.type',
+//            'value' => 'VARCHAR',
+//            'provider' => 'storage',
+//        ], $nameColumnMetadata[0], ['id', 'timestamp']);
+//        $this->assertArrayEqualsExceptKeys([
+//            'key' => 'KBC.datatype.nullable',
+//            'value' => '1',
+//            'provider' => 'storage',
+//        ], $nameColumnMetadata[1], ['id', 'timestamp']);
+//        $this->assertArrayEqualsExceptKeys([
+//            'key' => 'KBC.datatype.basetype',
+//            'value' => 'STRING',
+//            'provider' => 'storage',
+//        ], $nameColumnMetadata[2], ['id', 'timestamp']);
+//        $this->assertArrayEqualsExceptKeys([
+//            'key' => 'KBC.datatype.length',
+//            'value' => '16777216',
+//            'provider' => 'storage',
+//        ], $nameColumnMetadata[3], ['id', 'timestamp']);
+//
+//        // check that the new table has datatype metadata same as the table before
+//        for ($i = 0; $i <= 3; $i++) {
+//            $this->assertArrayEqualsExceptKeys($idColumnMetadataBeforeSnapshot[$i], $idColumnMetadata[$i], [
+//                'id',
+//                'timestamp',
+//            ]);
+//            $this->assertArrayEqualsExceptKeys($nameColumnMetadataBeforeSnapshot[$i], $nameColumnMetadata[$i], [
+//                'id',
+//                'timestamp',
+//            ]);
+//        }
+//    }
 }
