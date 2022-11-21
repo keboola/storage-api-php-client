@@ -803,17 +803,4 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
             ]);
         }
     }
-
-    private function assertTableColumnNullable(
-        Metadata $m,
-        string $tableId,
-        string $columnName,
-        bool $expectNullable
-    ): void {
-        $columnMetadata = $m->listColumnMetadata(sprintf('%s.%s', $tableId, $columnName));
-        $nullable = array_filter($columnMetadata, static fn(array $item) => $item['key'] === 'KBC.datatype.nullable');
-        $nullable = array_values($nullable)[0];
-        $this->assertSame('storage', $nullable['provider']);
-        $this->assertSame($expectNullable === true ? '1' : '', $nullable['value']);
-    }
 }
