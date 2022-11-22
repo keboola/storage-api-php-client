@@ -4231,6 +4231,7 @@ Creates a new workspace and return its credentials.
             + synapse
             + exasol
             + teradata
+            + bigquery
             + abs - Azure blob storage file workspace
     + backendSize: small (optional, enum[string]) - Workspace backend size. Available only for `snowflake` backend and projects having `workspace-snowflake-dynamic-backend-size` feature enabled.
         + Members
@@ -4911,6 +4912,7 @@ Generates new password for the given workspace in [Development Branch](#referenc
     + user: xzy (string)
     + password: abc (string) - Password is not stored and is returned only after workspace creation
     + connectionString: `BlobEndpoint=https://<account>.blob.core.windows.net;SharedAccessSignature=sv=2017-11-09&sr=c&st=2020-11-03T10:31:36Z&se=2020-11-04T10:31:36Z&sp=rwl&sig=<SAS signature>` (string) only for file workspaces
+    + credentials(GCPCredentials) only for Bigquery workspace
     + container: file workspace containerName (string) - Only for file workspaces
 
 # Group Events
@@ -8207,3 +8209,15 @@ other buckets (production buckets or buckets belongs the other development branc
 
 + sourceTableId (required, string) - Create time travel snapshot of this table.
 + timestamp (required) - Datetime string. The preferred format is `YYYY-MM-DD hh:mm:ss Z`, other formats may also work, but time zone is required.
+
+### GCPCredentials
++ type: service_account (string, required)
++ project_id: 123456789 (string, required)
++ private_key_id: xxx (string, required)
++ private_key: `-----BEGIN PRIVATE KEY-----<key contents>-----END PRIVATE KEY-----\n` (string, required)
++ client_email: something@else.iam.gserviceaccount.com (string, required)
++ client_id: 123456789 (string, required)
++ auth_uri: https://accounts.google.com/o/oauth2/auth (string, required)
++ token_uri: https://oauth2.googleapis.com/token (string, required)
++ auth_provider_x509_cert_url: https://www.googleapis.com/oauth2/v1/certs (string, required)
++ client_x509_cert_url: https://www.googleapis.com/robot/v1/metadata/x509/something (string, required)
