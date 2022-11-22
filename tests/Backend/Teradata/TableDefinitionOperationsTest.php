@@ -28,7 +28,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
     private function createTableDefinition(): string
     {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketId = $this->getTestBucketId();
 
         $data = [
             'name' => 'my_new_table',
@@ -99,7 +99,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
     public function testDataPreviewForTableDefinitionWithDecimalType(): void
     {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketId = $this->getTestBucketId();
 
         $tableDefinition = [
             'name' => 'my-new-table-for_data_preview',
@@ -216,7 +216,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $this->assertCount(1, $data['rows']);
 
         //test types is provided from source table for alias
-        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $tableId, 'table-1');
+        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(), $tableId, 'table-1');
 
         /** @var array $data */
         $data = $this->_client->getTableDataPreview($firstAliasTableId, ['format' => 'json']);
@@ -231,7 +231,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
     public function testDataPreviewForTableDefinitionBaseType(): void
     {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketId = $this->getTestBucketId();
 
         $tableDefinition = [
             'name' => 'my-new-table-for_data_preview',
@@ -345,7 +345,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $this->assertCount(1, $data['rows']);
 
         //test types is provided from source table for alias
-        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $tableId, 'table-1');
+        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(), $tableId, 'table-1');
 
         /** @var array $data */
         $data = $this->_client->getTableDataPreview($firstAliasTableId, ['format' => 'json']);
@@ -360,7 +360,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
     public function testDataPreviewForTableDefinitionWithoutDefinitionAndBaseType(): void
     {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketId = $this->getTestBucketId();
 
         $tableDefinition = [
             'name' => 'my-new-table-for_data_preview',
@@ -467,7 +467,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $this->assertCount(1, $data['rows']);
 
         //test types is provided from source table for alias
-        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $tableId, 'table-1');
+        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(), $tableId, 'table-1');
 
         /** @var array $data */
         $data = $this->_client->getTableDataPreview($firstAliasTableId, ['format' => 'json']);
@@ -483,7 +483,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
     public function testAddTypedColumnOnNonTypedTable(): void
     {
         $this->markTestSkipped('Teradata does not support altering table');
-        /*$bucketId = $this->getTestBucketId(self::STAGE_IN);
+        /*$bucketId = $this->getTestBucketId();
 
         $tableDefinition = [
             'name' => 'my-new-table-non-typed',
@@ -510,7 +510,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
     public function testTableWithDot(): void
     {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketId = $this->getTestBucketId();
 
         $tableDefinition = [
             'name' => 'nameWith.Dot',
@@ -553,10 +553,10 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
             ],
         ];
 
-        $sourceTableId = $this->_client->createTableDefinition($this->getTestBucketId(self::STAGE_IN), $tableDefinition);
+        $sourceTableId = $this->_client->createTableDefinition($this->getTestBucketId(), $tableDefinition);
 
-        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $sourceTableId, 'table-1');
-        $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $firstAliasTableId, 'table-2');
+        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(), $sourceTableId, 'table-1');
+        $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(), $firstAliasTableId, 'table-2');
 
         $newColumns = [
             [
@@ -673,7 +673,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
             ],
         ];
 
-        $sourceTableId = $this->_client->createTableDefinition($this->getTestBucketId(self::STAGE_IN), $tableDefinition);
+        $sourceTableId = $this->_client->createTableDefinition($this->getTestBucketId(), $tableDefinition);
 
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Column "definition" or "basetype" must be set.');
@@ -683,8 +683,8 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
     public function testDropColumnOnTypedTable(): void
     {
         $this->markTestSkipped('Teradata does not support altering table');
-        /*$firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $this->tableId, 'table-1');
-        $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $firstAliasTableId, 'table-2');
+        /*$firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(), $this->tableId, 'table-1');
+        $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(), $firstAliasTableId, 'table-2');
 
         $expectedColumns = ['id', 'name'];
         $this->assertEquals($expectedColumns, $this->_client->getTable($this->tableId)['columns']);
@@ -719,7 +719,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
     public function testCreateSnapshotOnTypedTable(): void
     {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketId = $this->getTestBucketId();
 
         // check that the new table has correct datypes in metadata
         $metadataClient = new Metadata($this->_client);
