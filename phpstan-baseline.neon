@@ -4041,7 +4041,7 @@ parameters:
 			path: tests/Backend/Workspaces/Backend/ExasolWorkspaceBackend.php
 
 		-
-			message: "#^Property Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\Backend\\\\ExasolWorkspaceBackend\\:\\:\\$db \\(Doctrine\\\\DBAL\\\\Connection\\) does not accept Doctrine\\\\DBAL\\\\Connection\\|Keboola\\\\Db\\\\Import\\\\Snowflake\\\\Connection\\|PDO\\.$#"
+			message: "#^Property Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\Backend\\\\ExasolWorkspaceBackend\\:\\:\\$db \\(Doctrine\\\\DBAL\\\\Connection\\) does not accept Doctrine\\\\DBAL\\\\Connection\\|Google\\\\Cloud\\\\BigQuery\\\\BigQueryClient\\|Keboola\\\\Db\\\\Import\\\\Snowflake\\\\Connection\\|PDO\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/Backend/ExasolWorkspaceBackend.php
 
@@ -4501,7 +4501,7 @@ parameters:
 			path: tests/Backend/Workspaces/Backend/WorkspaceBackendFactory.php
 
 		-
-			message: "#^Call to an undefined method Doctrine\\\\DBAL\\\\Connection\\|Keboola\\\\Db\\\\Import\\\\Snowflake\\\\Connection\\|PDO\\:\\:getDatabasePlatform\\(\\)\\.$#"
+			message: "#^Call to an undefined method Doctrine\\\\DBAL\\\\Connection\\|Google\\\\Cloud\\\\BigQuery\\\\BigQueryClient\\|Keboola\\\\Db\\\\Import\\\\Snowflake\\\\Connection\\|PDO\\:\\:getDatabasePlatform\\(\\)\\.$#"
 			count: 3
 			path: tests/Backend/Workspaces/ExasolWorkspacesUnloadTest.php
 

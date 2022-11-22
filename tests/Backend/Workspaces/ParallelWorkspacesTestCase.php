@@ -51,7 +51,11 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
             || $oldWorkspace['connection']['backend'] === $options['backend']
         ) {
             $result = $workspaces->resetWorkspacePassword($oldWorkspace['id']);
-            $oldWorkspace['connection']['password'] = $result['password'];
+            if ($this->getDefaultBackend($this->workspaceSapiClient) === self::BACKEND_BIGQUERY) {
+                $oldWorkspace['connection']['credentials'] = $result['credentials'];
+            } else {
+                $oldWorkspace['connection']['password'] = $result['password'];
+            }
             return $oldWorkspace;
         }
 

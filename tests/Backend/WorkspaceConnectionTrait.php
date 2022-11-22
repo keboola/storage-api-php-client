@@ -2,6 +2,7 @@
 
 namespace Keboola\Test\Backend;
 
+use Google\Cloud\BigQuery\BigQueryClient;
 use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\TableBackendUtils\Connection\Exasol\ExasolConnection;
 use Keboola\TableBackendUtils\Connection\Teradata\TeradataConnection;
@@ -15,7 +16,7 @@ use Keboola\Test\StorageApiTestCase;
 trait WorkspaceConnectionTrait
 {
     /**
-     * @return SnowflakeConnection|DBALConnection|\PDO
+     * @return SnowflakeConnection|DBALConnection|\PDO|BigQueryClient
      */
     private function getDbConnection(array $connection)
     {
@@ -30,6 +31,8 @@ trait WorkspaceConnectionTrait
                 return $this->getDbConnectionExasol($connection);
             case StorageApiTestCase::BACKEND_TERADATA:
                 return $this->getDbConnectionTeradata($connection);
+            case StorageApiTestCase::BACKEND_BIGQUERY:
+                return $this->getDbConnectionBigquery($connection);
         }
 
         throw new \Exception('Unsupported Backend for workspaces');
@@ -119,5 +122,18 @@ trait WorkspaceConnectionTrait
         $db->executeStatement('SET ROLE ALL');
 
         return $db;
+    }
+
+    private function getDbConnectionBigquery(array $connection): BigQueryClient
+    {
+        $bqClient = new BigQueryClient([
+            'keyFile' => (array) json_decode($connection['credentials'], true, 512, JSON_THROW_ON_ERROR),
+        ]);
+
+        $bqClient->runQuery(
+            $bqClient->query('SELECT SESSION_USER() AS USER')
+        )->getIterator()->current();
+
+        return $bqClient;
     }
 }

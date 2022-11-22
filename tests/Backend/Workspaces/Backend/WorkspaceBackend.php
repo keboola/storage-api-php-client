@@ -9,13 +9,14 @@
 namespace Keboola\Test\Backend\Workspaces\Backend;
 
 use Doctrine\DBAL\Connection as DBALConnection;
+use Google\Cloud\BigQuery\BigQueryClient;
 use Keboola\Db\Import\Snowflake\Connection as SnowflakeConnection;
 use PDO;
 
 interface WorkspaceBackend
 {
     /**
-     * @return DBALConnection|SnowflakeConnection|PDO
+     * @return DBALConnection|SnowflakeConnection|PDO|BigQueryClient
      */
     public function getDb();
 
