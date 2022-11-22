@@ -4,9 +4,6 @@ namespace Keboola\Test\Backend\Teradata;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\ClientException;
-use Keboola\StorageApi\Workspaces;
-use Keboola\TableBackendUtils\Column\Teradata\TeradataColumn;
-use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
 
 class ImportTypedTableTest extends ParallelWorkspacesTestCase
@@ -28,7 +25,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
     {
         $fullLoadFile = __DIR__ . '/../../_data/users.csv';
 
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketId = $this->getTestBucketId();
         $payload = [
             'name' => 'users-types',
             'primaryKeysNames' => ['id'],
