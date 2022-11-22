@@ -54,6 +54,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
                     'incremental' => false,
                 ]
             );
+            $this->fail('Should throw ClientException');
         } catch (ClientException $e) {
             self::assertSame("Table import error: Load error: An exception occurred while executing a query: Numeric value 'male' is not recognized", $e->getMessage());
         }
@@ -67,6 +68,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
                     'incremental' => true,
                 ]
             );
+            $this->fail('Should throw ClientException');
         } catch (ClientException $e) {
             self::assertSame("Table import error: Load error: An exception occurred while executing a query: Numeric value 'male' is not recognized", $e->getMessage());
         }
