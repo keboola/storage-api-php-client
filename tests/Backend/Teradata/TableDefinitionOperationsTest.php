@@ -306,7 +306,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 ],
                 [
                     'columnName' => 'column_decimal',
-                    'value' => '0', // default is NUMBER(38,0) => no scale => 0
+                    'value' => '0.1230000000000000000',
                     'isTruncated' => false,
                 ],
                 [
@@ -326,7 +326,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 ],
                 [
                     'columnName' => 'column_timestamp',
-                    'value' => '1989-08-31 00:00:00.000',
+                    'value' => '1989-08-31 00:00:00.000000',
                     'isTruncated' => false,
                 ],
                 [
@@ -448,7 +448,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 ],
                 [
                     'columnName' => 'column_timestamp',
-                    'value' => '1989-08-31 00:00:00.000',
+                    'value' => '1989-08-31 00:00:00.000000',
                     'isTruncated' => false,
                 ],
                 [
