@@ -4854,6 +4854,25 @@ Generates new password for the given workspace, for file workspace new token wit
                 "password": "2Fd4e1c67a2d28fced849ee1bb76e7391b93eb12",
             }
 
++ Response 201 (application/json)
+Only for Bigquery workspace
+   + Body
+
+            {
+              "credentials": {
+                "type": "service_account",
+                "project_id": "123456789",
+                "private_key_id": "xxx",
+                "private_key": "-----BEGIN PRIVATE KEY-----<key contents>-----END PRIVATE KEY-----\\n",
+                "client_email": "something@else.iam.gserviceaccount.com",
+                "client_id": "123456789",
+                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                "token_uri": "https://oauth2.googleapis.com/token",
+                "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+                "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/something"
+              }
+            }
+
 
 ### Development Branch Workspace Password Reset [POST /v2/storage/branch/{branch_id}/workspaces/{workspace_id}/password]
 Generates new password for the given workspace in [Development Branch](#reference/development-branches), for file workspace new token with 24hours expiration is issued previously created tokens has to expire and can't be reset.
@@ -4874,6 +4893,25 @@ Generates new password for the given workspace in [Development Branch](#referenc
             {
                 "password": "2Fd4e1c67a2d28fced849ee1bb76e7391b93eb12",
             }
+
++ Response 201 (application/json)
+Only for Bigquery workspace
+   + Body
+
+            {
+              "credentials": {
+                "type": "service_account",
+                "project_id": "123456789",
+                "private_key_id": "xxx",
+                "private_key": "-----BEGIN PRIVATE KEY-----<key contents>-----END PRIVATE KEY-----\\n",
+                "client_email": "something@else.iam.gserviceaccount.com",
+                "client_id": "123456789",
+                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                "token_uri": "https://oauth2.googleapis.com/token",
+                "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+                "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/something"
+              }
+            }1
 
 ## Data Structures
 
