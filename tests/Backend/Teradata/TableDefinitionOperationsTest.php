@@ -9,8 +9,6 @@ use Keboola\Test\StorageApiTestCase;
 
 class TableDefinitionOperationsTest extends StorageApiTestCase
 {
-    private string $tableId;
-
     public function setUp(): void
     {
         parent::setUp();
@@ -22,8 +20,6 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         }
 
         $this->initEmptyTestBucketsForParallelTests();
-
-        $this->tableId = $this->createTableDefinition();
     }
 
     private function createTableDefinition(): string
@@ -58,7 +54,6 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
     public function testPrimaryKeys(): void
     {
-        $this->_client->dropTable($this->tableId);
         $bucketId = $this->getTestBucketId();
 
         // create table with PK on basetype defined column
@@ -683,19 +678,21 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
     public function testDropColumnOnTypedTable(): void
     {
         $this->markTestSkipped('Teradata does not support altering table');
-        /*$firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(), $this->tableId, 'table-1');
+        /*$tableId = $this->createTableDefinition();
+
+        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(), $tableId, 'table-1');
         $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(), $firstAliasTableId, 'table-2');
 
         $expectedColumns = ['id', 'name'];
-        $this->assertEquals($expectedColumns, $this->_client->getTable($this->tableId)['columns']);
+        $this->assertEquals($expectedColumns, $this->_client->getTable($tableId)['columns']);
         $this->assertEquals($expectedColumns, $this->_client->getTable($firstAliasTableId)['columns']);
         $this->assertEquals($expectedColumns, $this->_client->getTable($secondAliasTableId)['columns']);
 
         // force because table has aliases
-        $this->_client->deleteTableColumn($this->tableId, 'name', ['force' => true]);
+        $this->_client->deleteTableColumn($tableId, 'name', ['force' => true]);
 
         $expectedColumns = ['id'];
-        $this->assertEquals($expectedColumns, $this->_client->getTable($this->tableId)['columns']);
+        $this->assertEquals($expectedColumns, $this->_client->getTable($tableId)['columns']);
         $this->assertEquals($expectedColumns, $this->_client->getTable($firstAliasTableId)['columns']);
         $this->assertEquals($expectedColumns, $this->_client->getTable($secondAliasTableId)['columns']);*/
     }
@@ -703,24 +700,24 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
     public function testPrimaryKeyOperationsOnTypedTable(): void
     {
         $this->markTestSkipped('Teradata does not support altering table');
-        /*$this->expectNotToPerformAssertions();
-        $this->_client->removeTablePrimaryKey($this->tableId);
-        $this->_client->createTablePrimaryKey($this->tableId, ['id']);
-        $this->_client->removeTablePrimaryKey($this->tableId);
+        /*$tableId = $this->createTableDefinition();
+
+        $this->expectNotToPerformAssertions();
+        $this->_client->removeTablePrimaryKey($tableId);
+        $this->_client->createTablePrimaryKey($tableId, ['id']);
+        $this->_client->removeTablePrimaryKey($tableId);
         // create composite primary key without data
-        $this->_client->createTablePrimaryKey($this->tableId, ['id', 'name']);
-        $this->_client->removeTablePrimaryKey($this->tableId);
+        $this->_client->createTablePrimaryKey($tableId, ['id', 'name']);
+        $this->_client->removeTablePrimaryKey($tableId);
         // load data with nulls
-        $this->_client->writeTableAsync($this->tableId, new CsvFile(__DIR__ . '/../../_data/languages.null.csv'));
+        $this->_client->writeTableAsync($tableId, new CsvFile(__DIR__ . '/../../_data/languages.null.csv'));
         // try to create composite primary key on column with nulls
-        $this->_client->createTablePrimaryKey($this->tableId, ['id', 'name']);*/
+        $this->_client->createTablePrimaryKey($tableId, ['id', 'name']);*/
         // TODO Teradata supports PK on nulls? -> https://docs.teradata.com/r/rgAb27O_xRmMVc_aQq2VGw/2MgtvUZK1RiDM0ha8JkCMw
     }
 
     public function testCreateSnapshotOnTypedTable(): void
     {
-        $this->_client->dropTable($this->tableId);
-
         $bucketId = $this->getTestBucketId();
         // create table without primary keys
         $data = [
