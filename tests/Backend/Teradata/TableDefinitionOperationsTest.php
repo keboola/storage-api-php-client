@@ -719,21 +719,48 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
     public function testCreateSnapshotOnTypedTable(): void
     {
+        $this->_client->dropTable($this->tableId);
+
         $bucketId = $this->getTestBucketId();
+        // create table without primary keys
+        $data = [
+            'name' => 'my_new_table_no_primary_keys',
+            'primaryKeysNames' => [],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'INT',
+                        'nullable' => false,
+                    ],
+                ],
+                [
+                    'name' => 'name',
+                    'definition' => [
+                        'type' => 'VARCHAR',
+                    ],
+                ],
+            ],
+        ];
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        $tableId = $this->_client->createTableDefinition($bucketId, $data);
 
         // check that the new table has correct datypes in metadata
         $metadataClient = new Metadata($this->_client);
 
-        $idColumnMetadataBeforeSnapshot = $metadataClient->listColumnMetadata("{$this->tableId}.id");
-        $nameColumnMetadataBeforeSnapshot = $metadataClient->listColumnMetadata("{$this->tableId}.name");
+        $idColumnMetadataBeforeSnapshot = $metadataClient->listColumnMetadata("{$tableId}.id");
+        $nameColumnMetadataBeforeSnapshot = $metadataClient->listColumnMetadata("{$tableId}.name");
 
-        $snapshotId = $this->_client->createTableSnapshot($this->tableId, 'table definition snapshot');
+        $snapshotId = $this->_client->createTableSnapshot($tableId, 'table definition snapshot');
 
         $newTableId = $this->_client->createTableFromSnapshot($bucketId, $snapshotId, 'restored');
         $newTable = $this->_client->getTable($newTableId);
         $this->assertEquals('restored', $newTable['name']);
 
-        $this->assertSame(['id'], $newTable['primaryKey']);
+        $this->assertSame([], $newTable['primaryKey']);
         $this->assertTrue($newTable['isTyped']);
 
         $this->assertSame(['id', 'name',], $newTable['columns']);
