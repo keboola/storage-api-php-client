@@ -775,7 +775,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         // check that the new metadata has expected values
         $this->assertArrayEqualsExceptKeys([
             'key' => 'KBC.datatype.type',
-            'value' => 'NUMBER',
+            'value' => 'INTEGER',
             'provider' => 'storage',
         ], $idColumnMetadata[0], ['id', 'timestamp']);
         $this->assertArrayEqualsExceptKeys([
@@ -785,12 +785,12 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         ], $idColumnMetadata[1], ['id', 'timestamp']);
         $this->assertArrayEqualsExceptKeys([
             'key' => 'KBC.datatype.basetype',
-            'value' => 'NUMERIC',
+            'value' => 'INTEGER',
             'provider' => 'storage',
         ], $idColumnMetadata[2], ['id', 'timestamp']);
         $this->assertArrayEqualsExceptKeys([
             'key' => 'KBC.datatype.length',
-            'value' => '38,0',
+            'value' => '4',
             'provider' => 'storage',
         ], $idColumnMetadata[3], ['id', 'timestamp']);
 
@@ -811,7 +811,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         ], $nameColumnMetadata[2], ['id', 'timestamp']);
         $this->assertArrayEqualsExceptKeys([
             'key' => 'KBC.datatype.length',
-            'value' => '16777216',
+            'value' => '32000',
             'provider' => 'storage',
         ], $nameColumnMetadata[3], ['id', 'timestamp']);
 
