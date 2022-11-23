@@ -48,7 +48,6 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $connection = $workspace['connection'];
 
         $workspaceWithSnowflakeBackend = $connection['backend'] === self::BACKEND_SNOWFLAKE;
-        $workspaceWithBigqueryBackend = $connection['backend'] === self::BACKEND_BIGQUERY;
 
         $this->assertArrayHasKey('backendSize', $workspace);
         if ($workspaceWithSnowflakeBackend) {
@@ -63,11 +62,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-        if ($workspaceWithBigqueryBackend) {
-            $backend->createTable('mytable', ['amount' => 'STRING']);
-        } else {
-            $backend->createTable('mytable', ['amount' => ($workspaceWithSnowflakeBackend) ? 'NUMBER' : 'VARCHAR']);
-        }
+        $backend->createTable('mytable', ['amount' => $this->getColumnAmountType($connection['backend'])]);
 
         $tableNames = $backend->getTables();
         $backend = null; // force odbc disconnect
@@ -199,11 +194,8 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $connection = $workspace['connection'];
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-        if ($connection['backend'] === self::BACKEND_BIGQUERY) {
-            $backend->createTable('mytable', ['amount' => 'STRING']);
-        } else {
-            $backend->createTable('mytable', ['amount' => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? 'NUMBER' : 'VARCHAR']);
-        }
+
+        $backend->createTable('mytable', ['amount' => $this->getColumnAmountType($connection['backend'])]);
 
         if ($backend instanceof TeradataWorkspaceBackend) {
             // Teradata: cannot drop workspace if user is logged in
@@ -284,5 +276,22 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         yield 'defaults sync' => ['options' => [], 'async' => false];
         yield 'legacy options async' => ['options' => ['async' => true], 'async' => false];
         yield 'legacy options sync' => ['options' => ['async' => false], 'async' => true];
+    }
+
+    /**
+     * @return string
+     */
+    private function getColumnAmountType(string $backend): string
+    {
+        $columnAmountType = 'VARCHAR';
+        switch ($backend) {
+            case self::BACKEND_SNOWFLAKE:
+                $columnAmountType = 'NUMBER';
+                break;
+            case self::BACKEND_BIGQUERY:
+                $columnAmountType = 'STRING';
+                break;
+        }
+        return $columnAmountType;
     }
 }
