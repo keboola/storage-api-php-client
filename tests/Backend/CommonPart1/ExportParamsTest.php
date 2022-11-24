@@ -67,6 +67,11 @@ class ExportParamsTest extends StorageApiTestCase
         $data = $this->_client->getTableDataPreview($tableId);
         $this->assertEquals((3 * ($originalFileLinesCount - 1)) + 1, count(Client::parseCsv($data, false)), 'lines count after incremental load');
 
+        if ($this->_client->verifyToken()['owner']['defaultBackend'] === self::BACKEND_TERADATA) {
+            // TODO enable when getTableDataPreview is fully supported in TD
+            $this->markTestSkipped('TD does not support getTableDataPreview all params');
+        }
+
         $data = $this->_client->getTableDataPreview($tableId, [
             'changedSince' => sprintf('-%d second', ceil(time() - $startTime) + 5),
         ]);
@@ -85,6 +90,11 @@ class ExportParamsTest extends StorageApiTestCase
      */
     public function testTableExportFilters($exportOptions, $expectedResult): void
     {
+        if ($this->_client->verifyToken()['owner']['defaultBackend'] === self::BACKEND_TERADATA) {
+            // TODO enable when getTableDataPreview is fully supported in TD
+            $this->markTestSkipped('TD does not support getTableDataPreview all params');
+        }
+
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));
 
@@ -94,7 +104,6 @@ class ExportParamsTest extends StorageApiTestCase
 
         $this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
     }
-
 
     public function testTableExportShouldFailOnNonExistingColumn(): void
     {
