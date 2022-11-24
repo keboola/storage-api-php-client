@@ -3,6 +3,7 @@
 namespace Keboola\Test\Backend\Workspaces;
 
 use Generator;
+use Google\Cloud\Core\Exception\ServiceException;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
@@ -60,7 +61,8 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $this->assertEquals($tokenInfo['owner']['defaultBackend'], $connection['backend']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-        $backend->createTable('mytable', ['amount' => ($workspaceWithSnowflakeBackend) ? 'NUMBER' : 'VARCHAR']);
+
+        $backend->createTable('mytable', ['amount' => $this->getColumnAmountType($connection['backend'])]);
 
         $tableNames = $backend->getTables();
         $backend = null; // force odbc disconnect
@@ -113,6 +115,10 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
     public function testWorkspacePasswordReset(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
+
+        if ($this->getDefaultBackend($this->workspaceSapiClient) === self::BACKEND_BIGQUERY) {
+            $this->markTestSkipped('Is not implemented for Bigquery');
+        }
 
         $workspace = $this->initTestWorkspace();
 
@@ -188,7 +194,9 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $connection = $workspace['connection'];
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-        $backend->createTable('mytable', ['amount' => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? 'NUMBER' : 'VARCHAR']);
+
+        $backend->createTable('mytable', ['amount' => $this->getColumnAmountType($connection['backend'])]);
+
         if ($backend instanceof TeradataWorkspaceBackend) {
             // Teradata: cannot drop workspace if user is logged in
             $backend->disconnect();
@@ -200,6 +208,9 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         try {
             $backend->countRows('mytable');
             $this->fail('workspace no longer exists. connection should be dead.');
+        } catch (ServiceException $e) { // catch bigquery connection exception
+            $this->assertStringContainsString('Request had invalid authentication credentials. ', $e->getMessage());
+            $this->assertSame(401, $e->getCode());
         } catch (\PDOException $e) { // catch redshift connection exception
             $this->assertEquals('57P01', $e->getCode());
         } catch (\Doctrine\DBAL\Exception $e) {
@@ -265,5 +276,22 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         yield 'defaults sync' => ['options' => [], 'async' => false];
         yield 'legacy options async' => ['options' => ['async' => true], 'async' => false];
         yield 'legacy options sync' => ['options' => ['async' => false], 'async' => true];
+    }
+
+    /**
+     * @return string
+     */
+    private function getColumnAmountType(string $backend): string
+    {
+        $columnAmountType = 'VARCHAR';
+        switch ($backend) {
+            case self::BACKEND_SNOWFLAKE:
+                $columnAmountType = 'NUMBER';
+                break;
+            case self::BACKEND_BIGQUERY:
+                $columnAmountType = 'STRING';
+                break;
+        }
+        return $columnAmountType;
     }
 }
