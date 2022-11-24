@@ -74,7 +74,7 @@ trait WorkspaceCredentialsAssertTrait
         } catch (\Keboola\Db\Import\Exception $e) {
             $this->assertStringContainsString('Incorrect username or password was specified', $e->getMessage());
         } catch (ServiceException $e) {
-            $this->assertStringContainsString('{"error":"invalid_grant","error_description":"Invalid grant: account not found"}', $e->getMessage());
+            $this->assertStringContainsString('{"error":"invalid_grant","error_description":', $e->getMessage());
             $this->assertSame(400, $e->getCode());
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage(), (int) $e->getCode(), $e);

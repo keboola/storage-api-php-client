@@ -116,10 +116,6 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
-        if ($this->getDefaultBackend($this->workspaceSapiClient) === self::BACKEND_BIGQUERY) {
-            $this->markTestSkipped('Is not implemented for Bigquery');
-        }
-
         $workspace = $this->initTestWorkspace();
 
         $connection = $workspace['connection'];
@@ -129,7 +125,8 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $backend->dropTableIfExists('mytable');
-        $backend->createTable('mytable', ['amount' => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? 'NUMBER' : 'VARCHAR']);
+
+        $backend->createTable('mytable', ['amount' => $this->getColumnAmountType($connection['backend'])]);
 
         $tableNames = $backend->getTables();
 
@@ -140,7 +137,11 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $this->workspaceSapiClient->setRunId($runId);
 
         $newCredentials = $workspaces->resetWorkspacePassword($workspace['id']);
-        $this->assertArrayHasKey('password', $newCredentials);
+        if ($this->getDefaultBackend($this->workspaceSapiClient) === self::BACKEND_BIGQUERY) {
+            $this->assertArrayHasKey('credentials', $newCredentials);
+        } else {
+            $this->assertArrayHasKey('password', $newCredentials);
+        }
 
         $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
 
@@ -167,7 +168,11 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         // old password should not work anymore
         $this->assertCredentialsShouldNotWork($connection);
 
-        $workspace['connection']['password'] = $newCredentials['password'];
+        if ($this->getDefaultBackend($this->workspaceSapiClient) === self::BACKEND_BIGQUERY) {
+            $workspace['connection']['credentials'] = $newCredentials['credentials'];
+        } else {
+            $workspace['connection']['password'] = $newCredentials['password'];
+        }
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $tableNames = $backend->getTables();
