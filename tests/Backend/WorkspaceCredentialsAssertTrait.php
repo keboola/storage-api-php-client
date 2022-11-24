@@ -2,6 +2,7 @@
 
 namespace Keboola\Test\Backend;
 
+use Google\Cloud\Core\Exception\ServiceException;
 use Keboola\Test\StorageApiTestCase;
 use Retry\BackOff\ExponentialBackOffPolicy;
 use Retry\Policy\CallableRetryPolicy;
@@ -72,6 +73,9 @@ trait WorkspaceCredentialsAssertTrait
             $this->assertEquals(7, $e->getCode());
         } catch (\Keboola\Db\Import\Exception $e) {
             $this->assertStringContainsString('Incorrect username or password was specified', $e->getMessage());
+        } catch (ServiceException $e) {
+            $this->assertStringContainsString('{"error":"invalid_grant","error_description":"Invalid grant: account not found"}', $e->getMessage());
+            $this->assertSame(400, $e->getCode());
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage(), (int) $e->getCode(), $e);
         }
