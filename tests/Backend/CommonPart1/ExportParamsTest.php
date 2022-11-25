@@ -105,6 +105,7 @@ class ExportParamsTest extends StorageApiTestCase
                 'whereColumn' => 'city',
                 'whereValues' => ['PRG'],
             ]);
+            $this->fail('Should throw exception');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.tables.validation.columnNotIndexed', $e->getStringCode());
         }
@@ -120,6 +121,7 @@ class ExportParamsTest extends StorageApiTestCase
                 'whereColumn' => 'mesto',
                 'whereValues' => ['PRG'],
             ]);
+            $this->fail('Should throw exception');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.tables.validation.columnNotExists', $e->getStringCode());
         }
