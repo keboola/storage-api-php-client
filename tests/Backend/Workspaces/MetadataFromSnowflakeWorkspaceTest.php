@@ -40,14 +40,14 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         ]);
 
         $expectedNameMetadata = [
-            'KBC.datatype.type' => 'TEXT',
+            'KBC.datatype.type' => 'VARCHAR',
             'KBC.datatype.nullable' => '1',
             'KBC.datatype.basetype' => 'STRING',
             'KBC.datatype.length' => '16777216',
         ];
 
         $expectedIdMetadata = [
-            'KBC.datatype.type' => 'TEXT',
+            'KBC.datatype.type' => 'VARCHAR',
             'KBC.datatype.nullable' => '1',
             'KBC.datatype.basetype' => 'STRING',
             'KBC.datatype.length' => '16',
@@ -155,7 +155,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         ]);
 
         $expectedNameMetadata = [
-            'KBC.datatype.type' => 'TEXT',
+            'KBC.datatype.type' => 'VARCHAR',
             'KBC.datatype.nullable' => '',
             'KBC.datatype.basetype' => 'STRING',
             'KBC.datatype.length' => '1',
@@ -189,7 +189,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         ]);
 
         $expectedNameMetadata = [
-            'KBC.datatype.type' => 'TEXT',
+            'KBC.datatype.type' => 'VARCHAR',
             'KBC.datatype.nullable' => '1',
             'KBC.datatype.basetype' => 'STRING',
             'KBC.datatype.length' => '32',
@@ -239,14 +239,14 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
             'dataTableName' => 'test.metadata_columns',
         ]);
         $expectedStringMetadata = [
-            'KBC.datatype.type' => 'TEXT',
+            'KBC.datatype.type' => 'VARCHAR',
             'KBC.datatype.nullable' => '',
             'KBC.datatype.basetype' => 'STRING',
             'KBC.datatype.length' => '16',
             'KBC.datatype.default' => '\'string\'',
         ];
         $expectedCharMetadata = [
-            'KBC.datatype.type' => 'TEXT',
+            'KBC.datatype.type' => 'VARCHAR',
             'KBC.datatype.nullable' => '1',
             'KBC.datatype.basetype' => 'STRING',
             'KBC.datatype.length' => '1',
@@ -266,12 +266,12 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
             'KBC.datatype.default' => '234.123',
         ];
         $expectedRealMetadata = [
-            'KBC.datatype.type' => 'REAL',
+            'KBC.datatype.type' => 'FLOAT',
             'KBC.datatype.nullable' => '1',
             'KBC.datatype.basetype' => 'FLOAT',
         ];
         $expectedDoubleMetadata = [
-            'KBC.datatype.type' => 'REAL',
+            'KBC.datatype.type' => 'FLOAT',
             'KBC.datatype.nullable' => '1',
             'KBC.datatype.basetype' => 'FLOAT',
         ];
@@ -291,6 +291,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
             'KBC.datatype.nullable' => '',
             'KBC.datatype.basetype' => 'STRING',
             'KBC.datatype.default' => 'CURRENT_TIME()',
+            'KBC.datatype.length' => '9',
         ];
         $expectedDateMetadata = [
             'KBC.datatype.type' => 'DATE',
@@ -303,12 +304,14 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
             'KBC.datatype.nullable' => '',
             'KBC.datatype.basetype' => 'TIMESTAMP',
             'KBC.datatype.default' => 'CURRENT_TIMESTAMP()',
-        ];
+            'KBC.datatype.length' => '9',
+            ];
         $expectedTimestamptzMetadata = [
             'KBC.datatype.type' => 'TIMESTAMP_LTZ',
             'KBC.datatype.nullable' => '',
             'KBC.datatype.basetype' => 'TIMESTAMP',
             'KBC.datatype.default' => 'CURRENT_TIMESTAMP()',
+            'KBC.datatype.length' => '9',
         ];
         // check that the new table has the correct metadata
         $table = $this->_client->getTable($tableId);
@@ -380,7 +383,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
             'KBC.datatype.length' => '38,0',
         ];
         $expectedNameMetadata = [
-            'KBC.datatype.type' => 'TEXT',
+            'KBC.datatype.type' => 'VARCHAR',
             'KBC.datatype.nullable' => '',
             'KBC.datatype.basetype' => 'STRING',
             'KBC.datatype.length' => '16777216',
@@ -420,7 +423,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
             'new  column added'
         );
         $expectedUpdateMetadata = [
-            'KBC.datatype.type' => 'TEXT',
+            'KBC.datatype.type' => 'VARCHAR',
             'KBC.datatype.nullable' => '',
             'KBC.datatype.basetype' => 'STRING',
             'KBC.datatype.length' => '64',
@@ -462,7 +465,33 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         $table = $this->_client->getTable($tableId);
 
         $this->assertEquals(5, count($table['columns']));
-        $this->assertEquals([], $table['columnMetadata']);
+        $this->assertMetadata([
+            'KBC.datatype.type' => 'NUMBER',
+            'KBC.datatype.nullable' => '1',
+            'KBC.datatype.basetype' => 'NUMERIC',
+            'KBC.datatype.length' => '38,0',
+        ], $table['columnMetadata']['id']);
+        $this->assertMetadata([
+            'KBC.datatype.type' => 'VARCHAR',
+            'KBC.datatype.nullable' => '1',
+            'KBC.datatype.basetype' => 'STRING',
+            'KBC.datatype.length' => '16777216',
+        ], $table['columnMetadata']['name']);
+        $this->assertMetadata([
+            'KBC.datatype.type' => 'VARIANT',
+            'KBC.datatype.nullable' => '1',
+            'KBC.datatype.basetype' => 'STRING',
+        ], $table['columnMetadata']['variant']);
+        $this->assertMetadata([
+            'KBC.datatype.type' => 'VARIANT',
+            'KBC.datatype.nullable' => '1',
+            'KBC.datatype.basetype' => 'STRING',
+        ], $table['columnMetadata']['variant2']);
+        $this->assertMetadata([
+            'KBC.datatype.type' => 'VARIANT',
+            'KBC.datatype.nullable' => '1',
+            'KBC.datatype.basetype' => 'STRING',
+        ], $table['columnMetadata']['variant3']);
     }
 
     public function testCreateTableFromWorkspaceWithSnowflakeBug(): void
@@ -488,7 +517,33 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         $table = $this->_client->getTable($tableId);
 
         $this->assertEquals(5, count($table['columns']));
-        $this->assertEquals([], $table['columnMetadata']);
+        $this->assertMetadata([
+            'KBC.datatype.type' => 'NUMBER',
+            'KBC.datatype.nullable' => '1',
+            'KBC.datatype.basetype' => 'NUMERIC',
+            'KBC.datatype.length' => '38,0',
+        ], $table['columnMetadata']['id']);
+        $this->assertMetadata([
+            'KBC.datatype.type' => 'VARCHAR',
+            'KBC.datatype.nullable' => '1',
+            'KBC.datatype.basetype' => 'STRING',
+            'KBC.datatype.length' => '16777216',
+        ], $table['columnMetadata']['name']);
+        $this->assertMetadata([
+            'KBC.datatype.type' => 'VARIANT',
+            'KBC.datatype.nullable' => '1',
+            'KBC.datatype.basetype' => 'STRING',
+        ], $table['columnMetadata']['variant']);
+        $this->assertMetadata([
+            'KBC.datatype.type' => 'VARIANT',
+            'KBC.datatype.nullable' => '1',
+            'KBC.datatype.basetype' => 'STRING',
+        ], $table['columnMetadata']['variant2']);
+        $this->assertMetadata([
+            'KBC.datatype.type' => 'VARIANT',
+            'KBC.datatype.nullable' => '1',
+            'KBC.datatype.basetype' => 'STRING',
+        ], $table['columnMetadata']['variant3']);
     }
 
     private function assertMetadata($expectedKeyValues, $metadata)
