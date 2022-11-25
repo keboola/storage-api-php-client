@@ -643,7 +643,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                  ] as $columnMetadata) {
             $this->assertArrayEqualsExceptKeys([
                 'key' => 'KBC.datatype.type',
-                'value' => 'FLOAT',
+                'value' => 'REAL',
                 'provider' => 'storage',
             ], $columnMetadata[0], ['id', 'timestamp']);
             $this->assertArrayEqualsExceptKeys([
