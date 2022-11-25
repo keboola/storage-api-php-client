@@ -388,6 +388,7 @@ class CreateTableTest extends StorageApiTestCase
                 'languages',
                 new CsvFile(__DIR__ . '/../../_data/long-column-names.csv')
             );
+            $this->fail('Should throw exception');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.tables.validation.invalidColumnName', $e->getStringCode());
         }
