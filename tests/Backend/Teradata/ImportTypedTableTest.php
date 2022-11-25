@@ -1,12 +1,9 @@
 <?php
 
-namespace Keboola\Test\Backend\Snowflake;
+namespace Keboola\Test\Backend\Teradata;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\ClientException;
-use Keboola\StorageApi\Workspaces;
-use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
-use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
 
 class ImportTypedTableTest extends ParallelWorkspacesTestCase
@@ -26,9 +23,10 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
 
     public function testLoadTypedTablesConversionError(): void
     {
-        $fullLoadFile = __DIR__ . '/../../_data/users.csv';
+        $this->markTestSkipped('Teradata does not support deduplication and incremental loading');
+        /*$fullLoadFile = __DIR__ . '/../../_data/users.csv';
 
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketId = $this->getTestBucketId();
         $payload = [
             'name' => 'users-types',
             'primaryKeysNames' => ['id'],
@@ -74,6 +72,6 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
             $this->fail('Should throw ClientException');
         } catch (ClientException $e) {
             self::assertSame("Table import error: Load error: An exception occurred while executing a query: Numeric value 'male' is not recognized", $e->getMessage());
-        }
+        }*/
     }
 }
