@@ -2869,7 +2869,7 @@ To enable compression of API response traffic, please include the following HTTP
         + Default: eq
     + format (optional, enum[string]) - output format of preview
         + Members
-            + rfc - will returns CSV formatted output
+            + rfc - will return CSV formatted output
             + json - will return JSON formatted output
         + Default: rfc
     + whereFilters[] (optional)
@@ -2886,10 +2886,10 @@ To enable compression of API response traffic, please include the following HTTP
         + values[] (required, array) - array of variables to compare
         + dataType (optional, enum[string]) - Not supported for Redshift - for comparing (`[gt|lt|le|ge]`) numeric values you have to specify data type
             + Members
-                + INTEGER - for numbers without a decimal point (Snowflake)
+                + INTEGER - for numbers without a decimal point (Snowflake, Teradata)
                 + DOUBLE - for number with a decimal point (Snowflake)
                 + BIGINT - for number without a decimal point (Synapse)
-                + REAL - for number with a decimal point (Synapse)
+                + REAL - for number with a decimal point (Synapse, Teradata)
                 + DECIMAL - for numbers (Exasol)
     + orderBy[] (optional) - Not supported for Redshift
         + column (required) - name of column used for sorting
@@ -2900,12 +2900,12 @@ To enable compression of API response traffic, please include the following HTTP
             + Default ASC
         + dataType (optional, enum[string]) - required when sorting by column contains numeric value
             + Members
-                + INTEGER - for numbers without a decimal point (Snowflake)
+                + INTEGER - for numbers without a decimal point (Snowflake, Teradata)
                 + DOUBLE - for number with a decimal point (Snowflake)
                 + BIGINT - for number without a decimal point (Synapse)
-                + REAL - for number with a decimal point (Synapse)
+                + REAL - for number with a decimal point (Synapse, Teradata)
                 + DECIMAL - for numbers (Exasol)
-    + fulltextSearch (optional, string) - Makes fulltext search over all data in table. It cannot be combined with `whereFilters`. Snowflake/Synapse only
+    + fulltextSearch (optional, string) - Makes fulltext search over all data in table. It cannot be combined with `whereFilters`. On Teradata search only over char-base columns. Snowflake/Synapse/Teradata only
 
 + Request
     + Headers
