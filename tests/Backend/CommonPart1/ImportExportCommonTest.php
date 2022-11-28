@@ -32,11 +32,12 @@ class ImportExportCommonTest extends StorageApiTestCase
         $expectationsFile = __DIR__ . '/../../_data/' . $expectationsFileName;
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages-2', $importFile, $createTableOptions);
 
+        /** @var array $resultFullLoad */
         $resultFullLoad = $this->_client->writeTable($tableId, $importFile);
         $table = $this->_client->getTable($tableId);
 
         $this->assertEmpty($resultFullLoad['warnings']);
-        $this->assertEquals($colNames, array_values((array)$resultFullLoad['importedColumns']), 'columns');
+        $this->assertEquals($colNames, array_values((array) $resultFullLoad['importedColumns']), 'columns');
         $this->assertEmpty($resultFullLoad['transaction']);
         $this->assertNotEmpty($table['dataSizeBytes']);
         $this->assertNotEmpty($resultFullLoad['totalDataSizeBytes']);
@@ -50,6 +51,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         $this->assertLinesEqualsSorted($expectedData, $data1, 'imported data comparsion');
 
         // incremental
+        /** @var array $resultAfterIncremental */
         $resultAfterIncremental = $this->_client->writeTable($tableId, $importFile, [
             'incremental' => true,
         ]);
@@ -71,12 +73,11 @@ class ImportExportCommonTest extends StorageApiTestCase
      */
     public function testTableAsyncImportExport(
         CsvFile $importFile,
-        string  $expectationsFileName,
-        array   $colNames,
-        string  $format = 'rfc',
-        array   $createTableOptions = []
-    ): void
-    {
+        string $expectationsFileName,
+        array $colNames,
+        string $format = 'rfc',
+        array $createTableOptions = []
+    ): void {
         $expectationsFile = __DIR__ . '/../../_data/' . $expectationsFileName;
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages-3', $importFile, $createTableOptions);
 
@@ -106,18 +107,18 @@ class ImportExportCommonTest extends StorageApiTestCase
     public function tableImportData(): array
     {
         return [
-//            'simple' =>
-//                [
-//                    new CsvFile(__DIR__ . '/../../_data/languages.csv'),
-//                    'languages.csv',
-//                    ['id', 'name'],
-//                ],
-//            'special chars' =>
-//                [
-//                    new CsvFile(__DIR__ . '/../../_data/languages.encoding.csv'),
-//                    'languages.encoding.csv',
-//                    ['id', 'name'],
-//                ],
+            'simple' =>
+                [
+                    new CsvFile(__DIR__ . '/../../_data/languages.csv'),
+                    'languages.csv',
+                    ['id', 'name'],
+                ],
+            'special chars' =>
+                [
+                    new CsvFile(__DIR__ . '/../../_data/languages.encoding.csv'),
+                    'languages.encoding.csv',
+                    ['id', 'name'],
+                ],
             'duplicates' =>
                 [
                     new CsvFile(__DIR__ . '/../../_data/languages.with-duplicates.csv'),
@@ -338,11 +339,13 @@ class ImportExportCommonTest extends StorageApiTestCase
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', $importFile);
 
         $extendedFile = __DIR__ . '/../../_data/languages-more-columns.csv';
+
+        /** @var array $result */
         $result = $this->_client->writeTable($tableId, new CsvFile($extendedFile));
         $table = $this->_client->getTable($tableId);
 
         $this->assertEmpty($result['warnings']);
-        $this->assertEquals(['Id', 'Name', 'iso', 'Something'], array_values((array)$result['importedColumns']), 'columns');
+        $this->assertEquals(['Id', 'Name', 'iso', 'Something'], array_values((array) $result['importedColumns']), 'columns');
         $this->assertEmpty($result['transaction']);
         $this->assertNotEmpty($table['dataSizeBytes']);
         $this->assertNotEmpty($result['totalDataSizeBytes']);
@@ -391,6 +394,8 @@ class ImportExportCommonTest extends StorageApiTestCase
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../../_data/languages-headers.csv'));
 
         $importedFile = __DIR__ . '/../../_data/languages-without-headers.csv';
+
+        /** @var array $result */
         $result = $this->_client->writeTableAsync($tableId, new CsvFile($importedFile), [
             'withoutHeaders' => true,
         ]);
@@ -408,6 +413,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', $headersCsv);
 
         $importedFile = __DIR__ . '/../../_data/languages-without-headers.csv';
+        /** @var array $result */
         $result = $this->_client->writeTableAsync($tableId, new CsvFile($importedFile), [
             'columns' => $headersCsv->getHeader(),
         ]);

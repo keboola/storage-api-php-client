@@ -8,7 +8,7 @@ use Keboola\Csv\CsvFile;
 
 class ExasolImportExportCommonTest extends ImportExportCommonTest
 {
-    public function incrementalImportPkDedupeData()
+    public function incrementalImportPkDedupeData(): array
     {
         return [
             'simple' =>
