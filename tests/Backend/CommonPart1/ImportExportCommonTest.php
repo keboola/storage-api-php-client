@@ -36,7 +36,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         $table = $this->_client->getTable($tableId);
 
         $this->assertEmpty($result['warnings']);
-        $this->assertEquals($colNames, array_values((array) $result['importedColumns']), 'columns');
+        $this->assertEquals($colNames, array_values((array)$result['importedColumns']), 'columns');
         $this->assertEmpty($result['transaction']);
         $this->assertNotEmpty($table['dataSizeBytes']);
         $this->assertNotEmpty($result['totalDataSizeBytes']);
@@ -45,18 +45,28 @@ class ImportExportCommonTest extends StorageApiTestCase
         $data1 = $this->_client->getTableDataPreview($tableId, [
             'format' => $format,
         ]);
-        $this->assertLinesEqualsSorted(file_get_contents($expectationsFile), $data1, 'imported data comparsion');
+        $expectedData = file_get_contents($expectationsFile);
+
+        $this->assertLinesEqualsSorted($expectedData, $data1, 'imported data comparsion');
 
         // incremental
         $result = $this->_client->writeTable($tableId, $importFile, [
             'incremental' => true,
         ]);
-        // TODO check real data
         $data2 = $this->_client->getTableDataPreview($tableId, [
             'format' => $format,
         ]);
-        // TODO - je to dvojnasobne, nejsou PK -> checknout na snflk a dopsat assert
+
         $this->assertNotEmpty($result['totalDataSizeBytes']);
+        if (!isset($createTableOptions['primaryKeys'])) {
+            // PK not set -> inc load should double the data (just not with the header)
+            $dataWithoutHeader = explode("\n", $expectedData);
+            array_shift($dataWithoutHeader);
+            $dataWithoutHeader = implode("\n", $dataWithoutHeader);
+
+            $expectedData .= "\n" . $dataWithoutHeader;
+        }
+        $this->assertEquals($expectedData, $data2);
     }
 
     /**
