@@ -2556,41 +2556,6 @@ parameters:
 			path: tests/Backend/CommonPart1/ExportParamsTest.php
 
 		-
-			message: "#^Cannot access offset 'importedColumns' on mixed\\.$#"
-			count: 2
-			path: tests/Backend/CommonPart1/ImportExportCommonTest.php
-
-		-
-			message: "#^Cannot access offset 'totalDataSizeBytes' on mixed\\.$#"
-			count: 3
-			path: tests/Backend/CommonPart1/ImportExportCommonTest.php
-
-		-
-			message: "#^Cannot access offset 'transaction' on mixed\\.$#"
-			count: 2
-			path: tests/Backend/CommonPart1/ImportExportCommonTest.php
-
-		-
-			message: "#^Cannot access offset 'warnings' on mixed\\.$#"
-			count: 2
-			path: tests/Backend/CommonPart1/ImportExportCommonTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\ImportExportCommonTest\\:\\:incrementalImportPkDedupeData\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/ImportExportCommonTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\ImportExportCommonTest\\:\\:tableImportData\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/ImportExportCommonTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\ImportExportCommonTest\\:\\:tableImportInvalidData\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/ImportExportCommonTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\ImportExportCommonTest\\:\\:testIncrementalImportPkDedupe\\(\\) has parameter \\$createFile with no type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart1/ImportExportCommonTest.php
@@ -2612,26 +2577,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\ImportExportCommonTest\\:\\:testIncrementalImportPkDedupe\\(\\) has parameter \\$primaryKey with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/ImportExportCommonTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\ImportExportCommonTest\\:\\:testTableAsyncImportExport\\(\\) has parameter \\$colNames with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/ImportExportCommonTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\ImportExportCommonTest\\:\\:testTableAsyncImportExport\\(\\) has parameter \\$createTableOptions with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/ImportExportCommonTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\ImportExportCommonTest\\:\\:testTableAsyncImportExport\\(\\) has parameter \\$expectationsFileName with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/ImportExportCommonTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\ImportExportCommonTest\\:\\:testTableAsyncImportExport\\(\\) has parameter \\$format with no type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart1/ImportExportCommonTest.php
 
@@ -2660,10 +2605,6 @@ parameters:
 			count: 1
 			path: tests/Backend/CommonPart1/ImportExportCommonTest.php
 
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\TableExporterTest\\:\\:tableExportData\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/TableExporterTest.php
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\TableExporterTest\\:\\:testTableAsyncExport\\(\\) has parameter \\$expectationsFileName with no type specified\\.$#"
@@ -2677,16 +2618,6 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$csvString of static method Keboola\\\\StorageApi\\\\Client\\:\\:parseCsv\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/TableExporterTest.php
-
-		-
-			message: "#^Property Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\TableExporterTest\\:\\:\\$downloadPath has no type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/TableExporterTest.php
-
-		-
-			message: "#^Property Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\TableExporterTest\\:\\:\\$downloadPathGZip has no type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart1/TableExporterTest.php
 
@@ -2794,11 +2725,6 @@ parameters:
 			message: "#^Cannot access offset 'importedColumns' on mixed\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart2/SystemColumnsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Exasol\\\\ExasolImportExportCommonTest\\:\\:incrementalImportPkDedupeData\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Exasol/ExasolImportExportCommonTest.php
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Exasol\\\\OrderByTest\\:\\:getExportedTable\\(\\) has no return type specified\\.$#"
