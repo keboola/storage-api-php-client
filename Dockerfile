@@ -96,7 +96,7 @@ RUN set -ex; \
 # Exasol
 RUN set -ex; \
     mkdir -p /tmp/exasol/odbc /opt/exasol ;\
-    curl https://www.exasol.com/support/secure/attachment/161242/EXASOL_ODBC-7.1.1.tar.gz --output /tmp/exasol/odbc.tar.gz; \
+    curl https://x-up.s3.amazonaws.com/7.x/7.1.16/EXASOL_ODBC-7.1.16.tar.gz --output /tmp/exasol/odbc.tar.gz; \
     tar -xzf /tmp/exasol/odbc.tar.gz -C /tmp/exasol/odbc --strip-components 1; \
     cp /tmp/exasol/odbc/lib/linux/x86_64/libexaodbc-uo2214lv2.so /opt/exasol/;\
     echo "\n[exasol]\nDriver=/opt/exasol/libexaodbc-uo2214lv2.so\n" >> /etc/odbcinst.ini;\
