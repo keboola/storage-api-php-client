@@ -36,7 +36,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         $table = $this->_client->getTable($tableId);
 
         $this->assertEmpty($resultFullLoad['warnings']);
-        $this->assertEquals($colNames, array_values((array)$resultFullLoad['importedColumns']), 'columns');
+        $this->assertEquals($colNames, array_values((array) $resultFullLoad['importedColumns']), 'columns');
         $this->assertEmpty($resultFullLoad['transaction']);
         $this->assertNotEmpty($table['dataSizeBytes']);
         $this->assertNotEmpty($resultFullLoad['totalDataSizeBytes']);
@@ -71,12 +71,11 @@ class ImportExportCommonTest extends StorageApiTestCase
      */
     public function testTableAsyncImportExport(
         CsvFile $importFile,
-        string  $expectationsFileName,
-        array   $colNames,
-        string  $format = 'rfc',
-        array   $createTableOptions = []
-    ): void
-    {
+        string $expectationsFileName,
+        array $colNames,
+        string $format = 'rfc',
+        array $createTableOptions = []
+    ): void {
         $expectationsFile = __DIR__ . '/../../_data/' . $expectationsFileName;
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages-3', $importFile, $createTableOptions);
 
@@ -342,7 +341,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         $table = $this->_client->getTable($tableId);
 
         $this->assertEmpty($result['warnings']);
-        $this->assertEquals(['Id', 'Name', 'iso', 'Something'], array_values((array)$result['importedColumns']), 'columns');
+        $this->assertEquals(['Id', 'Name', 'iso', 'Something'], array_values((array) $result['importedColumns']), 'columns');
         $this->assertEmpty($result['transaction']);
         $this->assertNotEmpty($table['dataSizeBytes']);
         $this->assertNotEmpty($result['totalDataSizeBytes']);
