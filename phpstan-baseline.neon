@@ -2557,17 +2557,17 @@ parameters:
 
 		-
 			message: "#^Cannot access offset 'importedColumns' on mixed\\.$#"
-			count: 2
+			count: 1
 			path: tests/Backend/CommonPart1/ImportExportCommonTest.php
 
 		-
 			message: "#^Cannot access offset 'transaction' on mixed\\.$#"
-			count: 2
+			count: 1
 			path: tests/Backend/CommonPart1/ImportExportCommonTest.php
 
 		-
 			message: "#^Cannot access offset 'warnings' on mixed\\.$#"
-			count: 2
+			count: 1
 			path: tests/Backend/CommonPart1/ImportExportCommonTest.php
 
 		-

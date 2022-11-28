@@ -107,18 +107,18 @@ class ImportExportCommonTest extends StorageApiTestCase
     public function tableImportData(): array
     {
         return [
-//            'simple' =>
-//                [
-//                    new CsvFile(__DIR__ . '/../../_data/languages.csv'),
-//                    'languages.csv',
-//                    ['id', 'name'],
-//                ],
-//            'special chars' =>
-//                [
-//                    new CsvFile(__DIR__ . '/../../_data/languages.encoding.csv'),
-//                    'languages.encoding.csv',
-//                    ['id', 'name'],
-//                ],
+            'simple' =>
+                [
+                    new CsvFile(__DIR__ . '/../../_data/languages.csv'),
+                    'languages.csv',
+                    ['id', 'name'],
+                ],
+            'special chars' =>
+                [
+                    new CsvFile(__DIR__ . '/../../_data/languages.encoding.csv'),
+                    'languages.encoding.csv',
+                    ['id', 'name'],
+                ],
             'duplicates' =>
                 [
                     new CsvFile(__DIR__ . '/../../_data/languages.with-duplicates.csv'),
@@ -339,6 +339,8 @@ class ImportExportCommonTest extends StorageApiTestCase
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', $importFile);
 
         $extendedFile = __DIR__ . '/../../_data/languages-more-columns.csv';
+
+        /** @var array $result */
         $result = $this->_client->writeTable($tableId, new CsvFile($extendedFile));
         $table = $this->_client->getTable($tableId);
 
@@ -392,6 +394,8 @@ class ImportExportCommonTest extends StorageApiTestCase
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../../_data/languages-headers.csv'));
 
         $importedFile = __DIR__ . '/../../_data/languages-without-headers.csv';
+
+        /** @var array $result */
         $result = $this->_client->writeTableAsync($tableId, new CsvFile($importedFile), [
             'withoutHeaders' => true,
         ]);
@@ -409,6 +413,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', $headersCsv);
 
         $importedFile = __DIR__ . '/../../_data/languages-without-headers.csv';
+        /** @var array $result */
         $result = $this->_client->writeTableAsync($tableId, new CsvFile($importedFile), [
             'columns' => $headersCsv->getHeader(),
         ]);
