@@ -2556,11 +2556,6 @@ parameters:
 			path: tests/Backend/CommonPart1/ExportParamsTest.php
 
 		-
-			message: "#^Cannot access offset 'importedColumns' on mixed\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/ImportExportCommonTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\ImportExportCommonTest\\:\\:testIncrementalImportPkDedupe\\(\\) has parameter \\$createFile with no type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart1/ImportExportCommonTest.php
@@ -2725,6 +2720,11 @@ parameters:
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart2\\\\SnapshottingTest\\:\\:filterIdAndTimestampFromMetadataArray\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart2/SnapshottingTest.php
+
+		-
+			message: "#^Cannot access offset 'importedColumns' on mixed\\.$#"
+			count: 1
+			path: tests/Backend/CommonPart2/SystemColumnsTest.php
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Exasol\\\\OrderByTest\\:\\:getExportedTable\\(\\) has no return type specified\\.$#"
