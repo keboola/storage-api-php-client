@@ -32,6 +32,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         $expectationsFile = __DIR__ . '/../../_data/' . $expectationsFileName;
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages-2', $importFile, $createTableOptions);
 
+        /** @var array $resultFullLoad */
         $resultFullLoad = $this->_client->writeTable($tableId, $importFile);
         $table = $this->_client->getTable($tableId);
 
@@ -50,6 +51,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         $this->assertLinesEqualsSorted($expectedData, $data1, 'imported data comparsion');
 
         // incremental
+        /** @var array $resultAfterIncremental */
         $resultAfterIncremental = $this->_client->writeTable($tableId, $importFile, [
             'incremental' => true,
         ]);
