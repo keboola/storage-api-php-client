@@ -246,17 +246,30 @@
 	</testsuite>
 
 	<testsuite name="paratest-teradata">
+
+		<directory>tests/Backend/CommonPart1</directory>
+		<!--		alters are not ready-->
+		<exclude>tests/Backend/CommonPart1/AlterTableTest.php</exclude>
+		<!--		TD does not support TWC-->
+		<exclude>tests/Backend/CommonPart1/CreateTableWithConfigurationTest.php</exclude>
+		<exclude>tests/Backend/CommonPart1/MigrateTableWithConfigurationTest.php</exclude>
+		<exclude>tests/Backend/CommonPart1/RegisterBucketTest.php</exclude>
+		<!--		filters in data preview are in progress-->
+		<exclude>tests/Backend/CommonPart1/DataPreviewLimitsTest.php</exclude>
+		<!--		TD does not support external buckets yet-->
+		<exclude>tests/Backend/CommonPart1/RegisterBucketTest.php</exclude>
+
+		<directory>tests/Backend/CommonPart2</directory>
+
 		<!--BUCKET-->
-		<file>tests/Backend/CommonPart1/BucketsTest.php</file>
-		<file>tests/Backend/CommonPart1/CreateTableTest.php</file>
 		<file>tests/Backend/Export/ExportSimpleTest.php</file>
 		<file>tests/Backend/Export/SnapshotSimpleTest.php</file>
+
 		<directory>tests/Backend/Teradata</directory>
-		<!-- TODO use after export supports incremental load, filters... -->
-		<!--<file>tests/Backend/CommonPart1/ExportParamsTest.php</file>-->
-		<!--<file>tests/Backend/CommonPart1/ImportExportCommonTest.php</file>-->
+
 		<!-- TODO use after export supports filters -->
 		<!--<file>tests/Backend/Export/ExportParamsTest.php</file>-->
+
 		<!--WORKSPACE-->
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/TeradataWorkspacesUnloadTest.php</file>
