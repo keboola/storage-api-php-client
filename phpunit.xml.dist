@@ -250,6 +250,8 @@
 		<directory>tests/Backend/CommonPart1</directory>
 		<!--		alters are not ready-->
 		<exclude>tests/Backend/CommonPart1/AlterTableTest.php</exclude>
+		<!--		DELETE requires filters-->
+		<exclude>tests/Backend/CommonPart1/DeleteRowsTest.php</exclude>
 		<!--		TD does not support TWC-->
 		<exclude>tests/Backend/CommonPart1/CreateTableWithConfigurationTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/MigrateTableWithConfigurationTest.php</exclude>
@@ -260,6 +262,8 @@
 		<exclude>tests/Backend/CommonPart1/RegisterBucketTest.php</exclude>
 
 		<directory>tests/Backend/CommonPart2</directory>
+		<!--		requires add/delete column-->
+		<exclude>tests/Backend/CommonPart2/SimpleAliasTest.php</exclude>
 
 		<!--BUCKET-->
 		<file>tests/Backend/Export/ExportSimpleTest.php</file>
