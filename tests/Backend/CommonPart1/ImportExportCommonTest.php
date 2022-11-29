@@ -281,7 +281,7 @@ class ImportExportCommonTest extends StorageApiTestCase
     public function testTableImportInvalidCsvParams(): void
     {
         try {
-            $this->_client->apiPostJson("buckets/{$this->getTestBucketId()}/tables", [
+            $this->_client->apiPost("buckets/{$this->getTestBucketId()}/tables", [
                 'name' => 'invalidTable',
                 'dataString' => 'id,name',
                 'delimiter' => '/t',
@@ -292,7 +292,7 @@ class ImportExportCommonTest extends StorageApiTestCase
 
         $fileId = $this->_client->uploadFile(__DIR__ . '/../../_data/languages.csv', (new FileUploadOptions())->setFileName('test.csv'));
         try {
-            $this->_client->apiPostJson("buckets/{$this->getTestBucketId()}/tables-async", [
+            $this->_client->apiPost("buckets/{$this->getTestBucketId()}/tables-async", [
                 'name' => 'invalidTable',
                 'dataFileId' => $fileId,
                 'delimiter' => '/t',
@@ -303,7 +303,7 @@ class ImportExportCommonTest extends StorageApiTestCase
 
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../../_data/languages.csv'));
         try {
-            $this->_client->apiPostJson("tables/{$tableId}/import", [
+            $this->_client->apiPost("tables/{$tableId}/import", [
                 'name' => 'invalidTable',
                 'dataString' => 'id,name',
                 'delimiter' => '/t',
@@ -313,7 +313,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         }
 
         try {
-            $this->_client->apiPostJson("tables/{$tableId}/import-async", [
+            $this->_client->apiPost("tables/{$tableId}/import-async", [
                 'name' => 'invalidTable',
                 'dataFileId' => $fileId,
                 'delimiter' => '/t',
@@ -431,7 +431,7 @@ class ImportExportCommonTest extends StorageApiTestCase
 
         $lines = '"id","name"';
         $lines .= "\n" . '"first","second"' . "\n";
-        $this->_client->apiPostJson("tables/$tableId/import", [
+        $this->_client->apiPost("tables/$tableId/import", [
             'dataString' => $lines,
         ]);
 
