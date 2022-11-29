@@ -442,6 +442,12 @@ class ImportExportCommonTest extends StorageApiTestCase
 
     public function testTableInvalidAsyncImport(): void
     {
+        $tokenData = $this->_client->verifyToken();
+        // TODO
+        if ($tokenData['owner']['defaultBackend'] !== self::BACKEND_TERADATA) {
+            self::markTestSkipped('Add columns is not ready for TD yet');
+        }
+
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', $importFile);
         $this->_client->addTableColumn($tableId, 'missing');
