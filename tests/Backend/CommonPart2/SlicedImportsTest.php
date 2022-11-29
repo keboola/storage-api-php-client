@@ -60,6 +60,10 @@ class SlicedImportsTest extends StorageApiTestCase
 
     public function testSlicedImportSingleFile(): void
     {
+        // TODO
+        if ($this->_client->verifyToken()['owner']['defaultBackend'] === self::BACKEND_TERADATA) {
+            self::markTestSkipped('TD skip because of rows delete');
+        }
         $slices = [
             __DIR__ . '/../../_data/languages.no-headers.csv',
         ];
@@ -154,6 +158,11 @@ class SlicedImportsTest extends StorageApiTestCase
 
     public function testInvalidFilesInManifest(): void
     {
+        // TODO driver probably wont check manifest
+        if ($this->_client->verifyToken()['owner']['defaultBackend'] === self::BACKEND_TERADATA) {
+            self::markTestSkipped('TD skip because of rows delete');
+        }
+
         $tokenData = $this->_client->verifyToken();
         if ($tokenData['owner']['defaultBackend'] == self::BACKEND_REDSHIFT) {
             $this->markTestSkipped('TODO: redshift bug to fix');
@@ -284,6 +293,7 @@ class SlicedImportsTest extends StorageApiTestCase
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'entries', new CsvFile(__DIR__ . '/../../_data/sliced/header.csv'));
 
         try {
+
             $this->_client->writeTableAsyncDirect($tableId, [
                 'dataFileId' => $slicedFile['id'],
                 'columns' => ['id', 'added_manually', 'start', 'end', 'task_id', 'project_id'],

@@ -98,6 +98,10 @@ class TableExporterTest extends StorageApiTestCase
 
     public function testLimitParameter(): void
     {
+        // TODO
+        if ($this->_client->verifyToken()['owner']['defaultBackend'] === self::BACKEND_TERADATA) {
+            self::markTestSkipped('TD skip because of limits');
+        }
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', $importFile);
         $this->_client->writeTable($tableId, $importFile);
@@ -289,10 +293,11 @@ class TableExporterTest extends StorageApiTestCase
             // TODO add TD ^^
 
             // tests the redshift data too long bug https://github.com/keboola/connection/issues/412
-            [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_EXASOL, self::BACKEND_TERADATA], new CsvFile($filesBasePath . 'languages.64k.csv'), 'languages.64k.csv'],
-            [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_EXASOL, self::BACKEND_TERADATA], new CsvFile($filesBasePath . 'languages.64k.csv'), 'languages.64k.csv',  ['gzip' => true]],
-            [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_EXASOL, self::BACKEND_TERADATA], new CsvFile($filesBasePath . '64K.csv'), '64K.csv'],
-            [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_EXASOL, self::BACKEND_TERADATA], new CsvFile($filesBasePath . '64K.csv'), '64K.csv',  ['gzip' => true]],
+            // TD skipped because of TD limit 10666 chars
+            [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . 'languages.64k.csv'), 'languages.64k.csv'],
+            [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . 'languages.64k.csv'), 'languages.64k.csv',  ['gzip' => true]],
+            [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . '64K.csv'), '64K.csv'],
+            [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . '64K.csv'), '64K.csv',  ['gzip' => true]],
 
             [[self::BACKEND_REDSHIFT], new CsvFile($filesBasePath . 'escaping.csv'), 'escaping.standard.out.csv', ['gzip' => true]],
             [[self::BACKEND_REDSHIFT], new CsvFile($filesBasePath . 'numbers.csv'), 'numbers.csv', ['gzip' => true]],
