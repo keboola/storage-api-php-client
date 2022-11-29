@@ -23,7 +23,7 @@ class SlicedImportsWithSlicedUploadsTest extends StorageApiTestCase
 
     public function testSlicedImportGzipped(): void
     {
-
+        $this->expectNotToPerformAssertions();
         $uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
         $uploadOptions
             ->setFileName('entries_')
@@ -51,6 +51,9 @@ class SlicedImportsWithSlicedUploadsTest extends StorageApiTestCase
 
     public function testSlicedImportSingleFile(): void
     {
+        if ($this->_client->verifyToken()['owner']['defaultBackend'] === self::BACKEND_TERADATA) {
+            self::markTestSkipped('TD skip because of rows delete');
+        }
         $uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
         $uploadOptions
             ->setFileName('languages_')
