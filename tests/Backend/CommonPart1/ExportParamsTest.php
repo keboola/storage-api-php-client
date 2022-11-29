@@ -105,26 +105,6 @@ class ExportParamsTest extends StorageApiTestCase
         $this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
     }
 
-    public function testTableExportFilterShouldFailOnNonIndexedColumn(): void
-    {
-        if ($this->_client->verifyToken()['owner']['defaultBackend'] === self::BACKEND_TERADATA) {
-            // TODO enable when getTableDataPreview is fully supported in TD
-            $this->markTestSkipped('TD does not support getTableDataPreview all params');
-        }
-        $importFile = __DIR__ . '/../../_data/users.csv';
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));
-
-        try {
-            $this->_client->getTableDataPreview($tableId, [
-                'whereColumn' => 'city',
-                'whereValues' => ['PRG'],
-            ]);
-            $this->fail('Should fail');
-        } catch (\Keboola\StorageApi\ClientException $e) {
-            $this->assertEquals('storage.tables.validation.columnNotIndexed', $e->getStringCode());
-        }
-    }
-
     public function testTableExportShouldFailOnNonExistingColumn(): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
