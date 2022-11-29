@@ -293,7 +293,6 @@ class SlicedImportsTest extends StorageApiTestCase
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'entries', new CsvFile(__DIR__ . '/../../_data/sliced/header.csv'));
 
         try {
-
             $this->_client->writeTableAsyncDirect($tableId, [
                 'dataFileId' => $slicedFile['id'],
                 'columns' => ['id', 'added_manually', 'start', 'end', 'task_id', 'project_id'],
