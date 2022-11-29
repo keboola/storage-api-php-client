@@ -256,8 +256,6 @@
 		<exclude>tests/Backend/CommonPart1/CreateTableWithConfigurationTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/MigrateTableWithConfigurationTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/RegisterBucketTest.php</exclude>
-		<!--		filters in data preview are in progress-->
-		<exclude>tests/Backend/CommonPart1/DataPreviewLimitsTest.php</exclude>
 		<!--		TD does not support external buckets yet-->
 		<exclude>tests/Backend/CommonPart1/RegisterBucketTest.php</exclude>
 
@@ -272,7 +270,7 @@
 		<directory>tests/Backend/Teradata</directory>
 
 		<!-- TODO use after export supports filters -->
-		<!--<file>tests/Backend/Export/ExportParamsTest.php</file>-->
+		<exclude>tests/Backend/Export/ExportParamsTest.php</exclude>
 
 		<!--WORKSPACE-->
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
