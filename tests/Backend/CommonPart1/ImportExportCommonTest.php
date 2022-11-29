@@ -334,6 +334,11 @@ class ImportExportCommonTest extends StorageApiTestCase
 
     public function testTableImportCreateMissingColumns(): void
     {
+        // TODO
+        if ($this->_client->verifyToken()['owner']['defaultBackend'] === self::BACKEND_TERADATA) {
+            self::markTestSkipped('TD skip');
+        }
+
         $filePath = __DIR__ . '/../../_data/languages.camel-case-columns.csv';
         $importFile = new CsvFile($filePath);
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', $importFile);
@@ -368,6 +373,7 @@ class ImportExportCommonTest extends StorageApiTestCase
             self::BACKEND_SNOWFLAKE,
             self::BACKEND_REDSHIFT,
             self::BACKEND_EXASOL,
+            self::BACKEND_TERADATA,
         ])) {
             $this->markTestSkipped('TODO: fix issue on redshift and snflk backend.');
         }
@@ -444,7 +450,7 @@ class ImportExportCommonTest extends StorageApiTestCase
     {
         $tokenData = $this->_client->verifyToken();
         // TODO
-        if ($tokenData['owner']['defaultBackend'] !== self::BACKEND_TERADATA) {
+        if ($tokenData['owner']['defaultBackend'] === self::BACKEND_TERADATA) {
             self::markTestSkipped('Add columns is not ready for TD yet');
         }
 
