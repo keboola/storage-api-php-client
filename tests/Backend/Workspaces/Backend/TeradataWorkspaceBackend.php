@@ -244,4 +244,9 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
     {
         $this->disconnect();
     }
+
+    public function dropViewIfExists(string $table): void
+    {
+        // TODO: Implement dropViewIfExists() method.
+    }
 }
