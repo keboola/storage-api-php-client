@@ -168,4 +168,9 @@ class BigqueryWorkspaceBackend implements WorkspaceBackend
 
         return $table->exists();
     }
+
+    public function dropViewIfExists(string $table): void
+    {
+        // TODO: Implement dropViewIfExists() method.
+    }
 }

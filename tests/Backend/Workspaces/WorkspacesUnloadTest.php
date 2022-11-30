@@ -130,6 +130,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace();
 
+        /** @var array{id:string} $table */
         $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => 'Id,Name',
             'name' => 'languages',
@@ -190,6 +191,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 		);');
         $db->query("insert into \"test_Languages3\" (\"Id\", \"Name\", \"_update\") values (1, 'cz', 'x'), (2, 'en', 'z');");
 
+        /** @var array{id:string} $table */
         $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => 'Id,Name',
             'name' => 'languages',
@@ -211,6 +213,10 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
     public function testCopyImport(): void
     {
+        $tokenData = $this->_client->verifyToken();
+        $testViewLoad = in_array($tokenData['owner']['defaultBackend'], [self::BACKEND_SNOWFLAKE,], true);
+
+        /** @var array{id:string} $table */
         $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => 'Id,Name,update',
             'name' => 'languages',
@@ -222,6 +228,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $backend->dropTableIfExists('test_Languages3');
+        $backend->dropViewIfExists('test_Languages3_view');
         unset($backend);
 
         $db = $this->getDbConnection($workspace['connection']);
@@ -248,6 +255,24 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->getTableDataPreview($table['id'], [
             'format' => 'rfc',
         ]), 'imported data comparsion');
+
+        if ($testViewLoad) {
+            // test same thing like with table but on view
+            $db->query('create view "test_Languages3_view" as select * from "test_Languages3";');
+            /** @var array{id:string} $tableView */
+            $tableView = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
+                'dataString' => 'Id,Name,update',
+                'name' => 'languages_from_view',
+                'primaryKey' => 'Id',
+            ]);
+            $this->_client->writeTableAsyncDirect($tableView['id'], [
+                'dataWorkspaceId' => $workspace['id'],
+                'dataTableName' => 'test_Languages3_view',
+            ]);
+            $this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->getTableDataPreview($table['id'], [
+                'format' => 'rfc',
+            ]), 'imported data comparsion');
+        }
 
         $db->query('truncate table "test_Languages3"');
         $db->query("insert into \"test_Languages3\" values (1, 'cz', '1'), (3, 'sk', '1');");
