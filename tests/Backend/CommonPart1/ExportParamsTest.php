@@ -95,22 +95,6 @@ class ExportParamsTest extends StorageApiTestCase
         $this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
     }
 
-    public function testTableExportFilterShouldFailOnNonIndexedColumn(): void
-    {
-        $importFile = __DIR__ . '/../../_data/users.csv';
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));
-
-        try {
-            $this->_client->getTableDataPreview($tableId, [
-                'whereColumn' => 'city',
-                'whereValues' => ['PRG'],
-            ]);
-            $this->fail('Should throw exception');
-        } catch (\Keboola\StorageApi\ClientException $e) {
-            $this->assertEquals('storage.tables.validation.columnNotIndexed', $e->getStringCode());
-        }
-    }
-
     public function testTableExportShouldFailOnNonExistingColumn(): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
