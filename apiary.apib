@@ -934,6 +934,7 @@ existing bucket from another project (see below).
         + Members
             + snowflake
             + redshift
+            + bigquery
     + displayName (optional) - Bucket displayName, this name is displayed in UI and can be changed anytime; only alphanumeric characters,underscores and dashes are allowed.
 
 + Request (application/x-www-form-urlencoded)
@@ -2204,7 +2205,7 @@ Lists tables in a given bucket.
 
 **EXPERIMENTAL**
 
-Creates a table with typed columns. *Synapse|Exasol|Snowflake|Teradata only.*
+Creates a table with typed columns. *Synapse|Exasol|Snowflake|Teradata|Bigquery only.*
 
 Request is handled asynchronously which means that the create request is created and added to a queue and the job resource URL for status polling is returned.
 
@@ -2219,7 +2220,7 @@ If there is no column datatype specified (column.definition.type or column.baset
     + columns[] (required) - definition of table columns
        + name (required, string) - column name
        + definition (object) - column settings
-            + type (string) - datatype of this column, choose build in types for used backend [Exasol](https://bit.ly/3s2n4AP), [Synapse](https://bit.ly/3uZjN60), [Snowflake](https://docs.snowflake.com/en/sql-reference/intro-summary-data-types.html), [Teradata](https://docs.teradata.com/r/Teradata-VantageTM-Data-Types-and-Literals/July-2021/SQL-Data-Definition/Data-Definition-Phrases/Data-Type-Phrases)
+            + type (string) - datatype of this column, choose build in types for used backend [Exasol](https://bit.ly/3s2n4AP), [Synapse](https://bit.ly/3uZjN60), [Snowflake](https://docs.snowflake.com/en/sql-reference/intro-summary-data-types.html), [Teradata](https://docs.teradata.com/r/Teradata-VantageTM-Data-Types-and-Literals/July-2021/SQL-Data-Definition/Data-Definition-Phrases/Data-Type-Phrases), [Bigquery](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types)
             + length (string) - optional, default: depends on type
             + nullable (boolean) - optional, default: true
             + default (string) - optional, default value for column
