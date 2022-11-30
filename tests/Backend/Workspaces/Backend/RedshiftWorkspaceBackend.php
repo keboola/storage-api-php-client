@@ -211,4 +211,9 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
             $table
         ));
     }
+
+    public function dropViewIfExists(string $table): void
+    {
+        // TODO: Implement dropViewIfExists() method.
+    }
 }

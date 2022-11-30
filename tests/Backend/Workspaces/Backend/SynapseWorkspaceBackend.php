@@ -177,4 +177,9 @@ class SynapseWorkspaceBackend implements WorkspaceBackend
     {
         return $this->db;
     }
+
+    public function dropViewIfExists(string $table): void
+    {
+        // TODO: Implement dropViewIfExists() method.
+    }
 }

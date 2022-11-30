@@ -5051,16 +5051,6 @@ parameters:
 			path: tests/Backend/Workspaces/WorkspacesTestCase.php
 
 		-
-			message: "#^Cannot access offset 'id' on mixed\\.$#"
-			count: 8
-			path: tests/Backend/Workspaces/WorkspacesUnloadTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$tableId of method Keboola\\\\StorageApi\\\\Client\\:\\:getTableDataPreview\\(\\) expects string, mixed given\\.$#"
-			count: 3
-			path: tests/Backend/Workspaces/WorkspacesUnloadTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\ClientTestCase\\:\\:getBranchAwareClient\\(\\) has parameter \\$branchId with no type specified\\.$#"
 			count: 1
 			path: tests/ClientTestCase.php
