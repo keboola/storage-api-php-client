@@ -175,4 +175,9 @@ class ExasolWorkspaceBackend implements WorkspaceBackend
             ExasolQuote::quoteSingleIdentifier($table)
         ));
     }
+
+    public function dropViewIfExists(string $table): void
+    {
+        // TODO: Implement dropViewIfExists() method.
+    }
 }

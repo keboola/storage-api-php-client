@@ -131,4 +131,13 @@ class SnowflakeWorkspaceBackend implements WorkspaceBackend
             $this->db->quoteIdentifier($table)
         ));
     }
+
+    public function dropViewIfExists(string $table): void
+    {
+        $this->db->query(sprintf(
+            'DROP VIEW IF EXISTS %s.%s;',
+            $this->db->quoteIdentifier($this->schema),
+            $this->db->quoteIdentifier($table)
+        ));
+    }
 }

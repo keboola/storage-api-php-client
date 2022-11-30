@@ -32,6 +32,8 @@ interface WorkspaceBackend
 
     public function dropTableIfExists($table);
 
+    public function dropViewIfExists(string $table): void;
+
     public function dropTableColumn($table, $column);
 
     public function countRows($table);
