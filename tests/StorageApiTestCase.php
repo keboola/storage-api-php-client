@@ -831,4 +831,25 @@ abstract class StorageApiTestCase extends ClientTestCase
         $this->assertSame('storage', $nullable['provider']);
         $this->assertSame($expectNullable === true ? '1' : '', $nullable['value']);
     }
+
+    protected function skipTestForBackend(
+        array $backendsWhichAreSkipped,
+        string $reason = '',
+        ?Client $client = null
+    ): void {
+        if ($client === null) {
+            $client = $this->_client;
+        }
+        $tokenData = $client->verifyToken();
+        $defaultBackend = $tokenData['owner']['defaultBackend'];
+        if (in_array($defaultBackend, $backendsWhichAreSkipped, true)) {
+            $message = sprintf('Test skipped for backend %s', $defaultBackend);
+            if ($reason !== '') {
+                $message .= ': ' . $reason;
+            } else {
+                $message .= '.';
+            }
+            self::markTestSkipped($message);
+        }
+    }
 }

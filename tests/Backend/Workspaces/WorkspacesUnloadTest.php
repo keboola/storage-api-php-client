@@ -25,6 +25,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
             self::BACKEND_REDSHIFT,
             self::BACKEND_SYNAPSE,
             self::BACKEND_EXASOL,
+            self::BACKEND_BIGQUERY,
         ], true)) {
             $this->markTestSkipped('Test case-sensitivity columns name only for snowflake');
         }

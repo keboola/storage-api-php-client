@@ -29,6 +29,7 @@ class ImportExportCommonTest extends StorageApiTestCase
      */
     public function testTableImportExport(CsvFile $importFile, $expectationsFileName, $colNames, $format = 'rfc', $createTableOptions = []): void
     {
+        $this->skipTestForBackend([self::BACKEND_BIGQUERY], 'Don\'t test sync import.');
         $expectationsFile = __DIR__ . '/../../_data/' . $expectationsFileName;
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages-2', $importFile, $createTableOptions);
 
@@ -334,10 +335,10 @@ class ImportExportCommonTest extends StorageApiTestCase
 
     public function testTableImportCreateMissingColumns(): void
     {
-        // TODO
-        if ($this->_client->verifyToken()['owner']['defaultBackend'] === self::BACKEND_TERADATA) {
-            self::markTestSkipped('TD skip');
-        }
+        $this->skipTestForBackend([
+            self::BACKEND_BIGQUERY,
+            self::BACKEND_TERADATA,
+        ], 'Automatic add columns is not implemented.');
 
         $filePath = __DIR__ . '/../../_data/languages.camel-case-columns.csv';
         $importFile = new CsvFile($filePath);
@@ -448,11 +449,10 @@ class ImportExportCommonTest extends StorageApiTestCase
 
     public function testTableInvalidAsyncImport(): void
     {
-        $tokenData = $this->_client->verifyToken();
-        // TODO
-        if ($tokenData['owner']['defaultBackend'] === self::BACKEND_TERADATA) {
-            self::markTestSkipped('Add columns is not ready for TD yet');
-        }
+        $this->skipTestForBackend([
+            self::BACKEND_BIGQUERY,
+            self::BACKEND_TERADATA,
+        ], 'Automatic add columns is not implemented.');
 
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', $importFile);
