@@ -61,7 +61,7 @@ class ImportExportCommonTest extends StorageApiTestCase
 
         $expectedNumberOfRows = isset($createTableOptions['primaryKey']) ? $resultFullLoad['totalRowsCount'] : $resultFullLoad['totalRowsCount'] * 2;
         if (isset($createTableOptions['primaryKey'])) {
-            $this->assertEquals($data1, $data2);
+            $this->assertLinesEqualsSorted($data1, $data2);
         } else {
             $this->assertNotEquals($data1, $data2);
         }
