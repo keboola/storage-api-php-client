@@ -261,6 +261,7 @@
 
 		<directory>tests/Backend/CommonPart2</directory>
 		<!--		requires add/delete column-->
+		<!--		requires export filters-->
 		<exclude>tests/Backend/CommonPart2/SimpleAliasTest.php</exclude>
 
 		<!--BUCKET-->
