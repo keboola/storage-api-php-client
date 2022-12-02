@@ -80,11 +80,11 @@ class TableWithConfigurationLoadTest extends StorageApiTestCase
         "description": ""
       },
       {
-        "sql": "COPY INTO {{ id(stageSchemaName) }}.{{ id(stageTableName) }}\\nFROM {{ listFiles(sourceFiles) }}\\nWITH (\\n    FILE_TYPE='CSV',\\n    CREDENTIAL=(IDENTITY='Managed Identity'),\\n    FIELDQUOTE='\"',\\n    FIELDTERMINATOR=',',\\n    ENCODING = 'UTF8',\\n    \\n    IDENTITY_INSERT = 'OFF'\\n    ,FIRSTROW=2\\n)",
+        "sql": "COPY INTO {{ id(stageSchemaName) }}.{{ id(stageTableName) }}\\nFROM {{ listFiles(sourceFiles) }}\\nWITH (\\n    FILE_TYPE='CSV',\\n    CREDENTIAL=(IDENTITY='Managed Identity'),\\n    FIELDQUOTE='\\"',\\n    FIELDTERMINATOR=',',\\n    ENCODING = 'UTF8',\\n    \\n    IDENTITY_INSERT = 'OFF'\\n    ,FIRSTROW=2\\n)",
         "description": ""
       },
       {
-        "sql": "CREATE TABLE {{ id(schemaName) }}.{{ id(tableName ~ rand ~ '_tmp') }} WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT a.[id],a.[NAME] FROM (SELECT COALESCE([id], '') AS [id],COALESCE([NAME], '') AS [NAME], ROW_NUMBER() OVER (PARTITION BY [id] ORDER BY [id]) AS \"_row_number_\" FROM {{ id(stageSchemaName) }}.{{ id(stageTableName) }}) AS a WHERE a.\"_row_number_\" = 1",
+        "sql": "CREATE TABLE {{ id(schemaName) }}.{{ id(tableName ~ rand ~ '_tmp') }} WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT a.[id],a.[NAME],a.[_timestamp] FROM (SELECT COALESCE([id], '') AS [id],COALESCE([NAME], '') AS [NAME],CAST({{ timestamp }} as DATETIME2) AS [_timestamp], ROW_NUMBER() OVER (PARTITION BY [id] ORDER BY [id]) AS \\"_row_number_\\" FROM {{ id(stageSchemaName) }}.{{ id(stageTableName) }}) AS a WHERE a.\\"_row_number_\\" = 1",
         "description": ""
       },
       {
@@ -362,7 +362,7 @@ JSON;
         "description": ""
       },
       {
-        "sql": "CREATE TABLE {{ id(stageSchemaName) }}.{{ id(tableName ~ rand ~ '_tmp') }} ([id] NVARCHAR(4000), [NAME] NVARCHAR(4000)) WITH (DISTRIBUTION = ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX)",
+        "sql": "CREATE TABLE {{ id(stageSchemaName) }}.{{ id(stageTableName ~ rand ~ '_tmp') }} ([id] NVARCHAR(4000), [NAME] NVARCHAR(4000)) WITH (DISTRIBUTION = ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX)",
         "description": ""
       },
       {
@@ -370,7 +370,7 @@ JSON;
         "description": ""
       },
       {
-        "sql": "UPDATE {{ id(schemaName) }}.{{ id(tableName) }} SET [NAME] = COALESCE([src].[NAME], '') FROM {{ id(stageSchemaName) }}.{{ id(stageTableName) }} AS [src] WHERE {{ id(schemaName) }}.{{ id(tableName) }}.[id] = [src].[id] AND (COALESCE(CAST({{ id(schemaName) }}.{{ id(tableName) }}.[NAME] AS NVARCHAR), '') != COALESCE([src].[NAME], '')) ",
+        "sql": "UPDATE {{ id(schemaName) }}.{{ id(tableName) }} SET [NAME] = COALESCE([src].[NAME], ''), [_timestamp] = {{ timestamp }} FROM {{ id(stageSchemaName) }}.{{ id(stageTableName) }} AS [src] WHERE {{ id(schemaName) }}.{{ id(tableName) }}.[id] = [src].[id] AND (COALESCE(CAST({{ id(schemaName) }}.{{ id(tableName) }}.[NAME] AS NVARCHAR), '') != COALESCE([src].[NAME], '')) ",
         "description": ""
       },
       {
@@ -378,11 +378,11 @@ JSON;
         "description": ""
       },
       {
-        "sql": "INSERT INTO {{ id(stageSchemaName) }}.{{ id(tableName ~ rand ~ '_tmp') }} ([id], [NAME]) SELECT a.[id],a.[NAME] FROM (SELECT [id], [NAME], ROW_NUMBER() OVER (PARTITION BY [id] ORDER BY [id]) AS \"_row_number_\" FROM {{ id(stageSchemaName) }}.{{ id(stageTableName) }}) AS a WHERE a.\"_row_number_\" = 1",
+        "sql": "INSERT INTO {{ id(stageSchemaName) }}.{{ id(stageTableName ~ rand ~ '_tmp') }} ([id], [NAME]) SELECT a.[id],a.[NAME] FROM (SELECT [id], [NAME], ROW_NUMBER() OVER (PARTITION BY [id] ORDER BY [id]) AS \\"_row_number_\\" FROM {{ id(stageSchemaName) }}.{{ id(stageTableName) }}) AS a WHERE a.\\"_row_number_\\" = 1",
         "description": ""
       },
       {
-        "sql": "INSERT INTO {{ id(schemaName) }}.{{ id(tableName) }} ([id], [NAME]) (SELECT CAST(COALESCE([id], '') as NVARCHAR) AS [id],CAST(COALESCE([NAME], '') as NVARCHAR) AS [NAME] FROM {{ id(stageSchemaName) }}.{{ id(tableName ~ rand ~ '_tmp') }} AS [src])",
+        "sql": "INSERT INTO {{ id(schemaName) }}.{{ id(tableName) }} ([id], [NAME], [_timestamp]) (SELECT CAST(COALESCE([id], '') as NVARCHAR) AS [id],CAST(COALESCE([NAME], '') as NVARCHAR) AS [NAME],{{ timestamp }} FROM {{ id(stageSchemaName) }}.{{ id(stageTableName ~ rand ~ '_tmp') }} AS [src])",
         "description": ""
       },
       {
