@@ -98,10 +98,11 @@ class TableExporterTest extends StorageApiTestCase
 
     public function testLimitParameter(): void
     {
-        // TODO
-        if ($this->_client->verifyToken()['owner']['defaultBackend'] === self::BACKEND_TERADATA) {
-            self::markTestSkipped('TD skip because of limits');
-        }
+        $this->skipTestForBackend([
+            self::BACKEND_TERADATA,
+            self::BACKEND_BIGQUERY
+        ],'Not all preview params are supported');
+
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', $importFile);
         $this->_client->writeTable($tableId, $importFile);
@@ -148,8 +149,13 @@ class TableExporterTest extends StorageApiTestCase
         // compare data
         $this->assertTrue(file_exists($file1));
         $this->assertTrue(file_exists($file2));
-        $this->assertLinesEqualsSorted(file_get_contents($filesBasePath . 'languages.csv'), file_get_contents($file1), 'imported data comparison');
-        $this->assertLinesEqualsSorted(file_get_contents($filesBasePath . 'languages.csv'), file_get_contents($file2), 'imported data comparison');
+        $expected = $filesBasePath . 'languages.csv';
+        if ($this->getDefaultBackend($this->_client) === self::BACKEND_BIGQUERY) {
+            // big query will strip " characters
+            $expected = $filesBasePath . 'languages.expected.bigquery.csv';
+        }
+        $this->assertLinesEqualsSorted(file_get_contents($expected), file_get_contents($file1), 'imported data comparison');
+        $this->assertLinesEqualsSorted(file_get_contents($expected), file_get_contents($file2), 'imported data comparison');
 
         // check that columns has been set in export job params
         $table1Job = null;
@@ -284,24 +290,24 @@ class TableExporterTest extends StorageApiTestCase
     {
         $filesBasePath = __DIR__ . '/../../_data/';
         return [
-            [[self::BACKEND_SNOWFLAKE], new CsvFile($filesBasePath . '1200.csv'), '1200.csv'],
-            [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE, self::BACKEND_EXASOL, self::BACKEND_TERADATA], new CsvFile($filesBasePath . 'languages.csv.gz'), 'languages.csv'],
-            [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE, self::BACKEND_EXASOL, self::BACKEND_TERADATA], new CsvFile($filesBasePath . 'languages.encoding.csv'), 'languages.encoding.csv'],
-            [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE, self::BACKEND_EXASOL, self::BACKEND_TERADATA], new CsvFile($filesBasePath . 'languages.csv.gz'), 'languages.csv', ['gzip' => true]],
+            [[self::BACKEND_SNOWFLAKE, self::BACKEND_BIGQUERY], new CsvFile($filesBasePath . '1200.csv'), '1200.csv'],
+            [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE, self::BACKEND_EXASOL, self::BACKEND_TERADATA, self::BACKEND_BIGQUERY], new CsvFile($filesBasePath . 'languages.csv.gz'), 'languages.csv'],
+            [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE, self::BACKEND_EXASOL, self::BACKEND_TERADATA, self::BACKEND_BIGQUERY], new CsvFile($filesBasePath . 'languages.encoding.csv'), 'languages.encoding.csv'],
+            [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE, self::BACKEND_EXASOL, self::BACKEND_TERADATA, self::BACKEND_BIGQUERY], new CsvFile($filesBasePath . 'languages.csv.gz'), 'languages.csv', ['gzip' => true]],
             [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE, self::BACKEND_EXASOL, self::BACKEND_TERADATA], new CsvFile($filesBasePath . 'numbers.csv'), 'numbers.csv'],
             [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_SYNAPSE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . 'numbers.csv'), 'numbers.two-cols.csv', ['columns' => ['0', '45']]],
             // TODO add TD ^^
 
             // tests the redshift data too long bug https://github.com/keboola/connection/issues/412
             // TD skipped because of TD limit 10666 chars
-            [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . 'languages.64k.csv'), 'languages.64k.csv'],
-            [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . 'languages.64k.csv'), 'languages.64k.csv',  ['gzip' => true]],
-            [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . '64K.csv'), '64K.csv'],
-            [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_EXASOL], new CsvFile($filesBasePath . '64K.csv'), '64K.csv',  ['gzip' => true]],
+            [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_EXASOL, self::BACKEND_BIGQUERY], new CsvFile($filesBasePath . 'languages.64k.csv'), 'languages.64k.csv'],
+            [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_EXASOL, self::BACKEND_BIGQUERY], new CsvFile($filesBasePath . 'languages.64k.csv'), 'languages.64k.csv',  ['gzip' => true]],
+            [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_EXASOL, self::BACKEND_BIGQUERY], new CsvFile($filesBasePath . '64K.csv'), '64K.csv'],
+            [[self::BACKEND_REDSHIFT, self::BACKEND_SNOWFLAKE, self::BACKEND_EXASOL, self::BACKEND_BIGQUERY], new CsvFile($filesBasePath . '64K.csv'), '64K.csv',  ['gzip' => true]],
 
-            [[self::BACKEND_REDSHIFT], new CsvFile($filesBasePath . 'escaping.csv'), 'escaping.standard.out.csv', ['gzip' => true]],
-            [[self::BACKEND_REDSHIFT], new CsvFile($filesBasePath . 'numbers.csv'), 'numbers.csv', ['gzip' => true]],
-            [[self::BACKEND_REDSHIFT], new CsvFile($filesBasePath . 'numbers.csv'), 'numbers.two-cols.csv', ['gzip' => true, 'columns' => ['0', '45']]],
+            [[self::BACKEND_REDSHIFT, self::BACKEND_BIGQUERY], new CsvFile($filesBasePath . 'escaping.csv'), 'escaping.standard.out.csv', ['gzip' => true]],
+            [[self::BACKEND_REDSHIFT, self::BACKEND_BIGQUERY], new CsvFile($filesBasePath . 'numbers.csv'), 'numbers.csv', ['gzip' => true]],
+            [[self::BACKEND_REDSHIFT, self::BACKEND_BIGQUERY], new CsvFile($filesBasePath . 'numbers.csv'), 'numbers.two-cols.csv', ['gzip' => true, 'columns' => ['0', '45']]],
         ];
     }
 }

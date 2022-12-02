@@ -60,10 +60,11 @@ class SlicedImportsTest extends StorageApiTestCase
 
     public function testSlicedImportSingleFile(): void
     {
-        // TODO
-        if ($this->_client->verifyToken()['owner']['defaultBackend'] === self::BACKEND_TERADATA) {
-            self::markTestSkipped('TD skip because of rows delete');
-        }
+        $this->skipTestForBackend([
+            self::BACKEND_TERADATA,
+            self::BACKEND_BIGQUERY
+        ],'Rows delete supported');
+
         $slices = [
             __DIR__ . '/../../_data/languages.no-headers.csv',
         ];
@@ -158,10 +159,10 @@ class SlicedImportsTest extends StorageApiTestCase
 
     public function testInvalidFilesInManifest(): void
     {
-        // TODO driver probably wont check manifest
-        if ($this->_client->verifyToken()['owner']['defaultBackend'] === self::BACKEND_TERADATA) {
-            self::markTestSkipped('TD skip because of rows delete');
-        }
+        $this->skipTestForBackend([
+            self::BACKEND_TERADATA, // TODO driver probably wont check manifest
+            self::BACKEND_BIGQUERY
+        ],'Rows delete supported');
 
         $tokenData = $this->_client->verifyToken();
         if ($tokenData['owner']['defaultBackend'] == self::BACKEND_REDSHIFT) {

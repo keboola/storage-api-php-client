@@ -46,10 +46,10 @@ class SystemColumnsTest extends StorageApiTestCase
 
     public function testSystemColumnAdd(): void
     {
-        if ($this->_client->verifyToken()['owner']['defaultBackend'] === self::BACKEND_TERADATA) {
-            // TODO enable when addColumn is fully supported in TD
-            $this->markTestSkipped('TD does not support adding collumns');
-        }
+        $this->skipTestForBackend([
+            self::BACKEND_TERADATA,
+            self::BACKEND_BIGQUERY
+        ],'Column add not supported');
 
         $csvFile = new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/languages.csv');
 
@@ -90,10 +90,11 @@ class SystemColumnsTest extends StorageApiTestCase
 
     public function testImportWithNewSystemColumn(): void
     {
-        // TODO
-        if ($this->_client->verifyToken()['owner']['defaultBackend'] === self::BACKEND_TERADATA) {
-            self::markTestSkipped('TD skip for extra column');
-        }
+        $this->skipTestForBackend([
+            self::BACKEND_TERADATA,
+            self::BACKEND_BIGQUERY
+        ],'Column add not supported');
+
         $csvFile = new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/languages.csv');
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'system', $csvFile);
 
