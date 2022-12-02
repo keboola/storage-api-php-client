@@ -51,9 +51,10 @@ class SlicedImportsWithSlicedUploadsTest extends StorageApiTestCase
 
     public function testSlicedImportSingleFile(): void
     {
-        if ($this->_client->verifyToken()['owner']['defaultBackend'] === self::BACKEND_TERADATA) {
-            self::markTestSkipped('TD skip because of rows delete');
-        }
+        $this->skipTestForBackend([
+            self::BACKEND_TERADATA,
+            self::BACKEND_BIGQUERY
+        ],'Rows delete supported');
         $uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
         $uploadOptions
             ->setFileName('languages_')

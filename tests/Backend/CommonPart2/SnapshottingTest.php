@@ -43,6 +43,9 @@ class SnapshottingTest extends StorageApiTestCase
 
     public function testTableSnapshotDelete(): void
     {
+        $this->skipTestForBackend([
+            self::BACKEND_BIGQUERY
+        ], 'Bigquery needs to add permission storage.objects.delete https://keboola.atlassian.net/browse/BIG-81');
         $tableId = $this->initTestTable();
         $table = $this->_client->getTable($tableId);
 
