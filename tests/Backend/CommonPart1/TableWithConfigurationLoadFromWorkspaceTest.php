@@ -98,7 +98,7 @@ class TableWithConfigurationLoadFromWorkspaceTest extends ParallelWorkspacesTest
         "description": ""
       },
       {
-        "sql": "CREATE TABLE {{ id(schemaName) }}.{{ id(tableName ~ rand ~ '_tmp') }} WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT a.[id],a.[NAME],a.[_timestamp] FROM (SELECT COALESCE([id], '') AS [id],COALESCE([NAME], '') AS [NAME],CAST({{ timestamp }} as DATETIME2) AS [_timestamp], ROW_NUMBER() OVER (PARTITION BY [id] ORDER BY [id]) AS \\"_row_number_\\" FROM {{ id(stageSchemaName) }}.{{ id(stageTableName) }}) AS a WHERE a.\\"_row_number_\\" = 1",
+        "sql": "CREATE TABLE {{ id(schemaName) }}.{{ id(tableName ~ rand ~ '_tmp') }} WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT a.[id],a.[NAME],a.[_timestamp] FROM (SELECT COALESCE([id], '') AS [id],COALESCE([NAME], '') AS [NAME],CAST({{ q(timestamp) }} as DATETIME2) AS [_timestamp], ROW_NUMBER() OVER (PARTITION BY [id] ORDER BY [id]) AS \\"_row_number_\\" FROM {{ id(stageSchemaName) }}.{{ id(stageTableName) }}) AS a WHERE a.\\"_row_number_\\" = 1",
         "description": ""
       },
       {
@@ -186,7 +186,7 @@ JSON;
         "description": ""
       },
       {
-        "sql": "UPDATE {{ id(schemaName) }}.{{ id(tableName) }} SET [NAME] = COALESCE([src].[NAME], ''), [_timestamp] = {{ timestamp }} FROM {{ id(stageSchemaName) }}.{{ id(stageTableName) }} AS [src] WHERE {{ id(schemaName) }}.{{ id(tableName) }}.[id] = [src].[id] AND (COALESCE(CAST({{ id(schemaName) }}.{{ id(tableName) }}.[NAME] AS NVARCHAR), '') != COALESCE([src].[NAME], '')) ",
+        "sql": "UPDATE {{ id(schemaName) }}.{{ id(tableName) }} SET [NAME] = COALESCE([src].[NAME], ''), [_timestamp] = {{ q(timestamp) }} FROM {{ id(stageSchemaName) }}.{{ id(stageTableName) }} AS [src] WHERE {{ id(schemaName) }}.{{ id(tableName) }}.[id] = [src].[id] AND (COALESCE(CAST({{ id(schemaName) }}.{{ id(tableName) }}.[NAME] AS NVARCHAR), '') != COALESCE([src].[NAME], '')) ",
         "description": ""
       },
       {
@@ -198,7 +198,7 @@ JSON;
         "description": ""
       },
       {
-        "sql": "INSERT INTO {{ id(schemaName) }}.{{ id(tableName) }} ([id], [NAME], [_timestamp]) (SELECT CAST(COALESCE([id], '') as NVARCHAR) AS [id],CAST(COALESCE([NAME], '') as NVARCHAR) AS [NAME],{{ timestamp }} FROM {{ id(stageSchemaName) }}.{{ id(stageTableName ~ rand ~ '_tmp') }} AS [src])",
+        "sql": "INSERT INTO {{ id(schemaName) }}.{{ id(tableName) }} ([id], [NAME], [_timestamp]) (SELECT CAST(COALESCE([id], '') as NVARCHAR) AS [id],CAST(COALESCE([NAME], '') as NVARCHAR) AS [NAME],{{ q(timestamp) }} FROM {{ id(stageSchemaName) }}.{{ id(stageTableName ~ rand ~ '_tmp') }} AS [src])",
         "description": ""
       },
       {
@@ -214,7 +214,7 @@ JSON;
             [
                 'sql' => /** @lang TSQL */
                     <<<SQL
-                    CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} ([id] INTEGER, [NAME] VARCHAR(100))
+                    CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} ([id] INTEGER, [NAME] VARCHAR(100), [_timestamp] DATETIME2)
                     SQL,
                 'description' => 'first ever',
             ],
