@@ -71,9 +71,10 @@ class OrderByTest extends StorageApiTestCase
     }
 
     /**
+     * @param array<string, string> $order
      * @dataProvider invalidDataProvider
      */
-    public function testInvalidOrderByParamsShouldReturnErrorInDataPreview($order, $message): void
+    public function testInvalidOrderByParamsShouldReturnErrorInDataPreview(array $order, string $message): void
     {
         $tableId = $this->prepareTable();
 
@@ -83,9 +84,10 @@ class OrderByTest extends StorageApiTestCase
     }
 
     /**
+     * @param array<string, string> $order
      * @dataProvider invalidDataProvider
      */
-    public function testInvalidOrderByParamsShouldReturnErrorInExport($order, $message): void
+    public function testInvalidOrderByParamsShouldReturnErrorInExport(array $order, string $message): void
     {
         // TODO enable when export supports filters
         $this->markTestSkipped('export does not supports filters');
@@ -96,7 +98,10 @@ class OrderByTest extends StorageApiTestCase
 //        $this->getExportedTable($tableId, ['orderBy' => [$order]]);
     }
 
-    public function invalidDataProvider()
+    /**
+     * @return array{0: array<string, string>, 1: string}[]
+     */
+    public function invalidDataProvider(): array
     {
         return [
             [
@@ -174,15 +179,18 @@ class OrderByTest extends StorageApiTestCase
     }
 
 
-    private function getExportedTable($tableId, $exportOptions)
+    private function getExportedTable(string $tableId, array $exportOptions): array
     {
         $tableExporter = new TableExporter($this->_client);
         $path = tempnam(sys_get_temp_dir(), 'keboola-export');
+        $this->assertIsString($path);
         $tableExporter->exportTable($tableId, $path, $exportOptions);
-        return Client::parseCsv(file_get_contents($path));
+        $fileContents = file_get_contents($path);
+        $this->assertIsString($fileContents);
+        return Client::parseCsv($fileContents);
     }
 
-    private function prepareTable()
+    private function prepareTable(): string
     {
         $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
         $csvFile->writeRow(['column_string', 'column_string_number', 'column_double']);
@@ -191,6 +199,8 @@ class OrderByTest extends StorageApiTestCase
         $csvFile->writeRow(['aa', '4444', '0004.123']);
         $csvFile->writeRow(['zx', '5', '4']);
         $csvFile->writeRow(['zx', '555111', '1.1234']);
-        return $this->_client->createTable($this->getTestBucketId(), 'conditions', $csvFile);
+        $tableId = $this->_client->createTable($this->getTestBucketId(), 'conditions', $csvFile);
+        $this->assertIsString($tableId);
+        return $tableId;
     }
 }
