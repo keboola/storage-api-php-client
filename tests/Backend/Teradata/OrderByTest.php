@@ -1,8 +1,6 @@
 <?php
 
-
-
-namespace Keboola\Test\Backend\Snowflake;
+namespace Keboola\Test\Backend\Teradata;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
@@ -39,7 +37,7 @@ class OrderByTest extends StorageApiTestCase
 
         $order = [
             'column' => 'column_double',
-            'dataType' => 'DOUBLE',
+            'dataType' => 'REAL',
         ];
         $dataPreview = $this->_client->getTableDataPreview($tableId, ['orderBy' => [$order]]);
         $exportTable = $this->getExportedTable($tableId, ['orderBy' => [$order]]);
@@ -115,7 +113,7 @@ class OrderByTest extends StorageApiTestCase
                     'order' => 'DESC',
                     'dataType' => 'non-existing',
                 ],
-                'Data type non-existing not recognized. Possible datatypes are [INTEGER|DOUBLE]',
+                'Data type non-existing not recognized. Possible datatypes are [INTEGER|REAL]',
             ],
         ];
     }
