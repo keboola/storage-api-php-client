@@ -33,6 +33,31 @@ class WorkspacesLoadTestReadOnly extends ParallelWorkspacesTestCase
         }
     }
 
+    public function testWorkspaceCreatedWithOrWithoutAccess(): void
+    {
+        // prepare workspace
+        $workspace = $this->initTestWorkspace();
+
+        if ($workspace['connection']['backend'] !== 'snowflake') {
+            $this->fail('This feature works only for Snowflake at the moment');
+        }
+
+        $testBucketId = $this->getTestBucketId();
+        $this->_client->createTable(
+            $testBucketId,
+            'animals',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        assert($backend instanceof SnowflakeWorkspaceBackend);
+        $db = $backend->getDb();
+
+        $tables = $db->fetchAll(sprintf('SHOW TABLES IN SCHEMA %s', $db->quoteIdentifier($testBucketId)));
+        $this->assertCount(1, $tables);
+        $this->assertSame('animals', $tables[0]['name']);
+    }
+
     public function testCreateWorkspaceWithReadOnlyIM(): void
     {
         // prepare bucket
