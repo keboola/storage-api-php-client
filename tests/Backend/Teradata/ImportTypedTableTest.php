@@ -23,8 +23,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
 
     public function testLoadTypedTablesConversionError(): void
     {
-        $this->markTestSkipped('Teradata does not support deduplication and incremental loading');
-        /*$fullLoadFile = __DIR__ . '/../../_data/users.csv';
+        $fullLoadFile = __DIR__ . '/../../_data/users.csv';
 
         $bucketId = $this->getTestBucketId();
         $payload = [
@@ -72,6 +71,6 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
             $this->fail('Should throw ClientException');
         } catch (ClientException $e) {
             self::assertSame("Table import error: Load error: An exception occurred while executing a query: Numeric value 'male' is not recognized", $e->getMessage());
-        }*/
+        }
     }
 }
