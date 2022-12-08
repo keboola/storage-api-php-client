@@ -127,7 +127,7 @@ trait WorkspaceConnectionTrait
     private function getDbConnectionBigquery(array $connection): BigQueryClient
     {
         $bqClient = new BigQueryClient([
-            'keyFile' => (array) json_decode($connection['credentials'], true, 512, JSON_THROW_ON_ERROR),
+            'keyFile' => $connection['credentials'],
         ]);
 
         $bqClient->runQuery(

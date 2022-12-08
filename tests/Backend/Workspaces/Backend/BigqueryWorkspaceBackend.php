@@ -24,7 +24,7 @@ class BigqueryWorkspaceBackend implements WorkspaceBackend
     public function __construct(array $workspace)
     {
         $bqClient = new BigQueryClient([
-            'keyFile' => (array) json_decode($workspace['connection']['credentials'], true, 512, JSON_THROW_ON_ERROR),
+            'keyFile' => $workspace['connection']['credentials'],
         ]);
 
         assert($bqClient instanceof BigQueryClient);
