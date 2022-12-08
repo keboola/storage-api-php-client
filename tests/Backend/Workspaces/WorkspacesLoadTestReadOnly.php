@@ -10,12 +10,12 @@ use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class WorkspacesLoadTestReadOnly extends ParallelWorkspacesTestCase
 {
-    private ?Client $linkingClient;
+    private Client $linkingClient;
 
-    public function testCreateWorkspaceWithReadOnlyIM(): void
+    public function setUp(): void
     {
+        parent::setUp();
         $token = $this->_client->verifyToken();
-
         if (!in_array('input-mapping-read-only-storage', $token['owner']['features'])) {
             $this->markTestSkipped(sprintf('Read only mapping is not enabled for project "%s"', $token['owner']['id']));
         }
@@ -31,7 +31,10 @@ class WorkspacesLoadTestReadOnly extends ParallelWorkspacesTestCase
                 $tokenLinking['owner']['id']
             ));
         }
+    }
 
+    public function testCreateWorkspaceWithReadOnlyIM(): void
+    {
         // prepare bucket
         $testBucketId = $this->getTestBucketId();
         $testBucketName = str_replace('in.c-', '', $testBucketId);
@@ -125,23 +128,9 @@ class WorkspacesLoadTestReadOnly extends ParallelWorkspacesTestCase
         $tokenConsumer = $this->_client->verifyToken();
         $consumerProjectId = $tokenConsumer['owner']['id'];
 
-        if (!in_array('input-mapping-read-only-storage', $tokenConsumer['owner']['features'])) {
-            $this->markTestSkipped(sprintf('Read only mapping is not enabled for project "%s"', $consumerProjectId));
-        }
-
-        $this->linkingClient = $this->getClientForToken(
-            STORAGE_API_LINKING_TOKEN
-        );
-
         // aka linking token
         $tokenProducer = $this->linkingClient->verifyToken();
         $sharingProjectId = $tokenProducer['owner']['id'];
-        if (!in_array('input-mapping-read-only-storage', $tokenProducer['owner']['features'])) {
-            $this->markTestSkipped(sprintf(
-                'Read only mapping is not enabled for project "%s"',
-                $sharingProjectId
-            ));
-        }
 
         $sharedBucketName = $this->getTestBucketName($this->generateDescriptionForTestObject() . '-sharedBucket');
         $linkedBucketName = $this->getTestBucketName($this->generateDescriptionForTestObject() . '-linkedBucket');
