@@ -36,9 +36,11 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
      * @param null|string $backend
      * @return array workspace detail
      */
-    protected function initTestWorkspace($backend = null)
+    protected function initTestWorkspace($backend = null, array $options = [])
     {
-        $options = $backend ? ['backend' => $backend] : [];
+        if ($backend) {
+            $options['backend'] = $backend;
+        }
 
         $oldWorkspaces = $this->listTestWorkspaces($this->_client);
         $workspaces = new Workspaces($this->workspaceSapiClient);
