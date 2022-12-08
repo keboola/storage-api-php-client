@@ -1,11 +1,4 @@
 <?php
-/**
- * Created by JetBrains PhpStorm.
- * User: martinhalamicek
- * Date: 22/05/14
- * Time: 16:38
- * To change this template use File | Settings | File Templates.
- */
 
 namespace Keboola\Test\Backend\CommonPart1;
 
@@ -17,7 +10,6 @@ use Keboola\Csv\CsvFile;
 
 class DataPreviewLimitsTest extends StorageApiTestCase
 {
-
     public function setUp(): void
     {
         parent::setUp();
