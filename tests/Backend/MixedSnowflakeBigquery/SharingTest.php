@@ -48,6 +48,9 @@ class SharingTest extends StorageApiSharingTestCase
                 $this->_client->shareBucketToUsers($bucketId, [$targetUser['id']], $async);
                 break;
             default:
+                // deprecated method shareBucket use as parameter array of options
+                // async and sync action use the same service at background so in case of this deprecated method
+                // is good enough to test only one time
                 $this->_client->$shareMethod($bucketId, $async ?? []);
         }
 
@@ -91,20 +94,25 @@ class SharingTest extends StorageApiSharingTestCase
         ));
 
         $dataset = $wsDb->datasets();
-
+        // check there is two datasets available in workspace one is linked bucket
+        // second is workspace self
         $this->assertCount(2, $dataset);
 
+        // check is exist manually created table in workspaces
         $wsDataset = $wsDb->dataset($workspace['name']);
         $this->assertTrue($wsDataset->exists());
         $tableCreatedInWs = $wsDataset->table('tableInWs');
         $this->assertTrue($tableCreatedInWs->exists());
 
+        // check can select from linked table
         $linkedBucketSchemaName = 'out_c_' . str_replace('-', '_', $linkedBucketName);
         $linkedDataset = $wsDb->dataset($linkedBucketSchemaName);
         $this->assertTrue($linkedDataset->exists());
         $tableInLinkedDataset = $linkedDataset->table('languagesFromClient1');
         $this->assertTrue($tableInLinkedDataset->exists());
 
+        // check numbers of rows of table manually created in WS
+        // and linked bucket
         $this->assertCount(2, $tableCreatedInWs->rows());
         $this->assertCount(5, $tableInLinkedDataset->rows());
     }
