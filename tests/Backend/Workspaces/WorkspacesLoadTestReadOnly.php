@@ -5,8 +5,11 @@ namespace Keboola\Test\Backend\Workspaces;
 use Keboola\Csv\CsvFile;
 use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\StorageApi\Client;
+use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\SnowflakeWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
+use Keboola\Test\StorageApiTestCase;
 
 class WorkspacesLoadTestReadOnly extends ParallelWorkspacesTestCase
 {
@@ -33,10 +36,19 @@ class WorkspacesLoadTestReadOnly extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testWorkspaceCreatedWithOrWithoutAccess(): void
+    /**
+     * @dataProvider provideDataForWorkspaceCreation
+     */
+    public function testWorkspaceCreatedWithOrWithoutAccess(?bool $roParameter, bool $shouldHaveRo): void
     {
         // prepare workspace
-        $workspace = $this->initTestWorkspace();
+        $options = [];
+        if ($roParameter !== null) {
+            $options['readOnlyStorageAccess'] = $roParameter;
+        }
+        $workspace = $this->initTestWorkspace(null, $options);
+
+        $this->assertSame($shouldHaveRo, $workspace['readOnlyStorageAccess']);
 
         if ($workspace['connection']['backend'] !== 'snowflake') {
             $this->fail('This feature works only for Snowflake at the moment');
@@ -53,9 +65,23 @@ class WorkspacesLoadTestReadOnly extends ParallelWorkspacesTestCase
         assert($backend instanceof SnowflakeWorkspaceBackend);
         $db = $backend->getDb();
 
-        $tables = $db->fetchAll(sprintf('SHOW TABLES IN SCHEMA %s', $db->quoteIdentifier($testBucketId)));
-        $this->assertCount(1, $tables);
-        $this->assertSame('animals', $tables[0]['name']);
+        if ($shouldHaveRo) {
+            $tables = $db->fetchAll(sprintf('SHOW TABLES IN SCHEMA %s', $db->quoteIdentifier($testBucketId)));
+            $this->assertCount(1, $tables);
+            $this->assertSame('animals', $tables[0]['name']);
+        } else {
+            try {
+                $db->fetchAll(sprintf('SHOW TABLES IN SCHEMA %s', $db->quoteIdentifier($testBucketId)));
+                $this->fail('Should have failed');
+            } catch (\Throwable $e) {
+                $this->assertSame(
+                    'odbc_prepare(): SQL error: SQL compilation error:
+Object does not exist, or operation cannot be performed., SQL state 02000 in SQLPrepare',
+                    $e->getMessage(),
+                    'Workspace should not have access to storage'
+                );
+            }
+        }
     }
 
     public function testCreateWorkspaceWithReadOnlyIM(): void
@@ -252,5 +278,21 @@ Schema '%s.%s' does not exist or not authorized., SQL state 02000 in SQLPrepare"
                 sprintf('SELECT * FROM %s.%s."whales"', $quotedSharingProjectDatabase, $quotedSharedBucketId)
             )
         );
+    }
+
+    public function provideDataForWorkspaceCreation(): \Generator
+    {
+        yield 'asked for disabled, gets disabled' => [
+            false,
+            false,
+        ];
+        yield 'asked for enabled, gets enabled' => [
+            true,
+            true,
+        ];
+        yield 'nothing provided, gets enabled because feature is on' => [
+            null,
+            true,
+        ];
     }
 }
