@@ -129,10 +129,6 @@ class ExportParamsTest extends StorageApiTestCase
 
     public function testTableExportAsyncCache(): void
     {
-        if ($this->_client->verifyToken()['owner']['defaultBackend'] === self::BACKEND_TERADATA) {
-            // TODO enable when whereFilters for export is supported in TD
-            $this->markTestSkipped('TD does not support whereFilters for export');
-        }
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));
 

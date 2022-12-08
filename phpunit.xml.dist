@@ -246,7 +246,6 @@
 	</testsuite>
 
 	<testsuite name="paratest-teradata">
-
 		<directory>tests/Backend/CommonPart1</directory>
 		<!--		alters are not ready-->
 		<exclude>tests/Backend/CommonPart1/AlterTableTest.php</exclude>
@@ -261,7 +260,6 @@
 
 		<directory>tests/Backend/CommonPart2</directory>
 		<!--		requires add/delete column-->
-		<!--		requires export filters-->
 		<exclude>tests/Backend/CommonPart2/SimpleAliasTest.php</exclude>
 
 		<!--BUCKET-->
@@ -270,13 +268,11 @@
 
 		<directory>tests/Backend/Teradata</directory>
 
-		<!-- TODO use after export supports filters -->
-		<exclude>tests/Backend/Export/ExportParamsTest.php</exclude>
-
 		<!--WORKSPACE-->
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/TeradataWorkspacesUnloadTest.php</file>
 	</testsuite>
+
 	<testsuite name="paratest-bigquery">
 		<file>tests/Backend/CommonPart1/BucketsTest.php</file>
 		<file>tests/Backend/CommonPart1/CreateTableTest.php</file>
@@ -286,6 +282,7 @@
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/BigqueryWorkspacesUnloadTest.php</file>
 	</testsuite>
+
 	<testsuite name="unit">
 		<directory>tests-unit</directory>
 	</testsuite>
