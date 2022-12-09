@@ -118,7 +118,7 @@ class OrderByTest extends StorageApiTestCase
                     'order' => 'DESC',
                     'dataType' => 'non-existing',
                 ],
-                'Data type non-existing not recognized. Possible datatypes are [INTEGER|REAL]',
+                'Data type non-existing not recognized.',
             ],
         ];
     }
