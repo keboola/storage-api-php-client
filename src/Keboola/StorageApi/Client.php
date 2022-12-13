@@ -876,14 +876,19 @@ class Client
             'displayName',
             'async',
         ];
-
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
 
-        // TODO use apiPutJson after endpoint is ready
+        $url = 'tables/' . $tableId;
+        $async = $filteredOptions['async'] ?? null;
+        if ($async !== null) {
+            $url .= '?' . http_build_query(['async' => $async]);
+            unset($filteredOptions['async']);
+        }
+
         /** @var array{id: string} $result */
-        $result = $this->apiPut('tables/' . $tableId, $filteredOptions);
+        $result = $this->apiPutJson($url, $filteredOptions);
         $this->log("Table {$tableId} updated");
-        if (array_key_exists('async', $filteredOptions) && $filteredOptions['async'] === true) {
+        if ($async === true) {
             // async job has no result
             return null;
         }
