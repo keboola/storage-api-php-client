@@ -87,17 +87,18 @@ class TableExporter
                 $columns = $table['columns'];
             }
 
-            $header = $enclosure . join($enclosure . $delimiter . $enclosure, $columns) . $enclosure . "\n";
-            $fs->dumpFile($destination . '.tmp', $header);
+//            $header = $enclosure . join($enclosure . $delimiter . $enclosure, $columns) . $enclosure . "\n";
+//            $fs->dumpFile($destination . '.tmp', $header);
 
             // Concat all files into one, compressed files need to be decompressed first
             foreach ($fileSlices as $fileSlice) {
-                $catCmd = 'gunzip ' . escapeshellarg($fileSlice) . ' --to-stdout >> ' . escapeshellarg($destination) . '.tmp';
-                $process = ProcessPolyfill::createProcess($catCmd);
-                $process->setTimeout(null);
-                if (0 !== $process->run()) {
-                    throw new ProcessFailedException($process);
-                }
+                $fs->appendToFile($destination. '.tmp', file_get_contents($fileSlice));
+////                $catCmd = 'gunzip ' . escapeshellarg($fileSlice) . ' --to-stdout >> ' . escapeshellarg($destination) . '.tmp';
+////                $process = ProcessPolyfill::createProcess($catCmd);
+////                $process->setTimeout(null);
+////                if (0 !== $process->run()) {
+////                    throw new ProcessFailedException($process);
+////                }
                 $fs->remove($fileSlice);
             }
 
@@ -109,7 +110,7 @@ class TableExporter
                 if (0 !== $process->run()) {
                     throw new ProcessFailedException($process);
                 }
-                $fs->rename($destination . '.tmp.gz', $destination);
+                $fs->rename($destination . '.tmp.gz', $destination . '.gz');
             } else {
                 $fs->rename($destination . '.tmp', $destination);
             }
@@ -121,13 +122,14 @@ class TableExporter
             if ($gzipOutput) {
                 $fs->rename($tmpFilePath, $destination);
             } else {
-                $catCmd = 'gunzip ' . escapeshellarg($tmpFilePath) . ' --to-stdout >> ' . escapeshellarg($destination);
-                $process = ProcessPolyfill::createProcess($catCmd);
-                $process->setTimeout(null);
-                if (0 !== $process->run()) {
-                    throw new ProcessFailedException($process);
-                }
-                $fs->remove($tmpFilePath);
+                $fs->rename($tmpFilePath, $destination);
+//                $catCmd = 'gunzip ' . escapeshellarg($tmpFilePath) . ' --to-stdout >> ' . escapeshellarg($destination);
+//                $process = ProcessPolyfill::createProcess($catCmd);
+//                $process->setTimeout(null);
+//                if (0 !== $process->run()) {
+//                    throw new ProcessFailedException($process);
+//                }
+//                $fs->remove($tmpFilePath);
             }
         }
     }
