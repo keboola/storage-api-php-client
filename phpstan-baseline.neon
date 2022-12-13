@@ -2391,42 +2391,12 @@ parameters:
 			path: tests/Backend/CommonPart1/CreateTableTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\CreateTableTest\\:\\:tableCreateData\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/CreateTableTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\CreateTableTest\\:\\:testCreateTableFromSlicedFile\\(\\) has parameter \\$fileName with no type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart1/CreateTableTest.php
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\CreateTableTest\\:\\:testTableColumnNamesSanitize\\(\\) has parameter \\$async with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/CreateTableTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\CreateTableTest\\:\\:testTableCreate\\(\\) has parameter \\$async with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/CreateTableTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\CreateTableTest\\:\\:testTableCreate\\(\\) has parameter \\$createFile with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/CreateTableTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\CreateTableTest\\:\\:testTableCreate\\(\\) has parameter \\$expectationFile with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/CreateTableTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\CreateTableTest\\:\\:testTableCreate\\(\\) has parameter \\$options with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/CreateTableTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\CreateTableTest\\:\\:testTableCreate\\(\\) has parameter \\$tableName with no type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart1/CreateTableTest.php
 
@@ -3031,16 +3001,6 @@ parameters:
 			path: tests/Backend/Mixed/SharingTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingTest\\:\\:testLinkedBucket\\(\\) has parameter \\$backend with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/Mixed/SharingTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingTest\\:\\:testLinkedBucket\\(\\) has parameter \\$isAsync with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/Mixed/SharingTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingTest\\:\\:testNonOrganizationAdminInToken\\(\\) has parameter \\$isAsync with no type specified\\.$#"
 			count: 1
 			path: tests/Backend/Mixed/SharingTest.php
@@ -3342,11 +3302,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\StorageApiSharingTestCase\\:\\:sharingBackendData\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Mixed/StorageApiSharingTestCase.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\StorageApiSharingTestCase\\:\\:sharingBackendDataWithAsync\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Mixed/StorageApiSharingTestCase.php
 
