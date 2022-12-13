@@ -132,9 +132,8 @@ class CreateTableTest extends StorageApiTestCase
 
     /**
      * @dataProvider tableCreateData
-     * @param $createFile
      */
-    public function testTableCreate($tableName, $createFile, $expectationFile, $async, $options = []): void
+    public function testTableCreate(string $tableName, string $createFile, string $expectationFile, bool $async, array $options = []): void
     {
         if ($tableName === '1' && $this->getDefaultBackend($this->_client) === self::BACKEND_BIGQUERY) {
             $this->markTestSkipped('Bigquery doesn\'t support number as column name');
@@ -255,7 +254,10 @@ class CreateTableTest extends StorageApiTestCase
         }
     }
 
-    public function tableCreateData()
+    /**
+     * @return array{0: string, 1: string, 2: string, 3: bool}[]
+     */
+    public function tableCreateData(): array
     {
         return [
             ['Languages', __DIR__ . '/../../_data/languages.csv', __DIR__ . '/../../_data/languages.csv', false],
