@@ -34,7 +34,7 @@ class BigqueryTableExporterTest extends StorageApiTestCase
     /**
      * @dataProvider tableExportData
      */
-    public function testTableAsyncExport(CsvFile $importFile, $expectationsFileName, $exportOptions = []): void
+    public function testTableAsyncExport(CsvFile $importFile, string $expectationsFileName, array $exportOptions = []): void
     {
         $expectationsFile = __DIR__ . '/../../_data/bigquery/' . $expectationsFileName;
 

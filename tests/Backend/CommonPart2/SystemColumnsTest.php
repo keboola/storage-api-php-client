@@ -48,8 +48,8 @@ class SystemColumnsTest extends StorageApiTestCase
     {
         $this->skipTestForBackend([
             self::BACKEND_TERADATA,
-            self::BACKEND_BIGQUERY
-        ],'Column add not supported');
+            self::BACKEND_BIGQUERY,
+        ], 'Column add not supported');
 
         $csvFile = new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/languages.csv');
 
@@ -92,8 +92,8 @@ class SystemColumnsTest extends StorageApiTestCase
     {
         $this->skipTestForBackend([
             self::BACKEND_TERADATA,
-            self::BACKEND_BIGQUERY
-        ],'Column add not supported');
+            self::BACKEND_BIGQUERY,
+        ], 'Column add not supported');
 
         $csvFile = new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/languages.csv');
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'system', $csvFile);

@@ -100,8 +100,8 @@ class TableExporterTest extends StorageApiTestCase
     {
         $this->skipTestForBackend([
             self::BACKEND_TERADATA,
-            self::BACKEND_BIGQUERY
-        ],'Not all preview params are supported');
+            self::BACKEND_BIGQUERY,
+        ], 'Not all preview params are supported');
 
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', $importFile);
@@ -185,8 +185,8 @@ class TableExporterTest extends StorageApiTestCase
     public function testExportTablesWithColumns(): void
     {
         $this->skipTestForBackend([
-            self::BACKEND_BIGQUERY
-        ],'Export with filters is not supported yet.');
+            self::BACKEND_BIGQUERY,
+        ], 'Export with filters is not supported yet.');
         $filesBasePath = __DIR__ . '/../../_data/';
         $table1Id = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'languages1', new CsvFile($filesBasePath . 'languages.csv'));
 
