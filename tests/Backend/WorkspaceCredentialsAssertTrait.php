@@ -74,8 +74,18 @@ trait WorkspaceCredentialsAssertTrait
         } catch (\Keboola\Db\Import\Exception $e) {
             $this->assertStringContainsString('Incorrect username or password was specified', $e->getMessage());
         } catch (ServiceException $e) {
-            $this->assertStringContainsString('{"error":"invalid_grant","error_description":', $e->getMessage());
-            $this->assertSame(400, $e->getCode());
+            $this->assertContains(
+                $e->getCode(),
+                [
+                    400,
+                    401,
+                ],
+                sprintf(
+                    'Unexpected error message from Bigquery code: "%s" message: "%s".',
+                    $e->getCode(),
+                    $e->getMessage()
+                )
+            );
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage(), (int) $e->getCode(), $e);
         }
