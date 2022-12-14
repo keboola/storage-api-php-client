@@ -62,8 +62,8 @@ class SlicedImportsTest extends StorageApiTestCase
     {
         $this->skipTestForBackend([
             self::BACKEND_TERADATA,
-            self::BACKEND_BIGQUERY
-        ],'Rows delete supported');
+            self::BACKEND_BIGQUERY,
+        ], 'Rows delete supported');
 
         $slices = [
             __DIR__ . '/../../_data/languages.no-headers.csv',
@@ -161,8 +161,8 @@ class SlicedImportsTest extends StorageApiTestCase
     {
         $this->skipTestForBackend([
             self::BACKEND_TERADATA, // TODO driver probably wont check manifest
-            self::BACKEND_BIGQUERY
-        ],'Rows delete supported');
+            self::BACKEND_BIGQUERY,
+        ], 'Rows delete supported');
 
         $tokenData = $this->_client->verifyToken();
         if ($tokenData['owner']['defaultBackend'] == self::BACKEND_REDSHIFT) {

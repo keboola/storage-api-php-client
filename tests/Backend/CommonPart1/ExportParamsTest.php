@@ -69,8 +69,8 @@ class ExportParamsTest extends StorageApiTestCase
 
         $this->skipTestForBackend([
             self::BACKEND_TERADATA,
-            self::BACKEND_BIGQUERY
-        ],'Not all preview params are supported');
+            self::BACKEND_BIGQUERY,
+        ], 'Not all preview params are supported');
 
         $data = $this->_client->getTableDataPreview($tableId, [
             'changedSince' => sprintf('-%d second', ceil(time() - $startTime) + 5),
@@ -92,8 +92,8 @@ class ExportParamsTest extends StorageApiTestCase
     {
         $this->skipTestForBackend([
             self::BACKEND_TERADATA,
-            self::BACKEND_BIGQUERY
-        ],'Not all preview params are supported');
+            self::BACKEND_BIGQUERY,
+        ], 'Not all preview params are supported');
 
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));
