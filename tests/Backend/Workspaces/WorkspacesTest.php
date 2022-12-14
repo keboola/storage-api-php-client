@@ -109,6 +109,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $this->assertSame($runId, $workspaceDeletedEvent['runId']);
         $this->assertSame('storage.workspaceDeleted', $workspaceDeletedEvent['event']);
         $this->assertSame('storage', $workspaceDeletedEvent['component']);
+        sleep(1);
         $this->assertCredentialsShouldNotWork($connection);
     }
 
@@ -165,6 +166,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
 
         $backend = null; // force odbc disconnect
 
+        sleep(1);
         // old password should not work anymore
         $this->assertCredentialsShouldNotWork($connection);
 
