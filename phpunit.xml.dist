@@ -319,6 +319,7 @@
 
 		<directory>tests/Backend/Bigquery</directory>
 		<file>tests/Backend/Export/ExportSimpleTest.php</file>
+		<file>tests/Backend/Export/SnapshotSimpleTest.php</file>
 		<!--		Workspaces-->
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/BigqueryWorkspacesUnloadTest.php</file>
