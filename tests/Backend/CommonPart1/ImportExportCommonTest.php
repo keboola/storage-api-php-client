@@ -375,6 +375,7 @@ class ImportExportCommonTest extends StorageApiTestCase
             self::BACKEND_REDSHIFT,
             self::BACKEND_EXASOL,
             self::BACKEND_TERADATA,
+            self::BACKEND_BIGQUERY,
         ])) {
             $this->markTestSkipped('TODO: fix issue on redshift and snflk backend.');
         }
