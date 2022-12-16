@@ -10,6 +10,17 @@ use Keboola\Test\StorageApiTestCase;
 
 class AzureFileTest extends StorageApiTestCase
 {
+    public function setUp(): void
+    {
+        parent::setUp();
+        $token = $this->_client->verifyToken();
+        $this->assertSame(
+            'azure',
+            $token['owner']['fileStorageProvider'],
+            'Project must have ABS file storage'
+        );
+    }
+
     /**
      * @dataProvider uploadData
      */

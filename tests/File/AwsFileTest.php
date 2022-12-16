@@ -8,6 +8,17 @@ use Keboola\Test\StorageApiTestCase;
 
 class AwsFileTest extends StorageApiTestCase
 {
+    public function setUp(): void
+    {
+        parent::setUp();
+        $token = $this->_client->verifyToken();
+        $this->assertSame(
+            'aws',
+            $token['owner']['fileStorageProvider'],
+            'Project must have S3 file storage'
+        );
+    }
+
     /**
      * @dataProvider uploadData
      */
