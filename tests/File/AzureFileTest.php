@@ -10,6 +10,17 @@ use Keboola\Test\StorageApiTestCase;
 
 class AzureFileTest extends StorageApiTestCase
 {
+    public function setUp(): void
+    {
+        parent::setUp();
+        $token = $this->_client->verifyToken();
+        $this->assertSame(
+            'azure',
+            $token['owner']['fileStorageProvider'],
+            'Project must have ABS file storage'
+        );
+    }
+
     /**
      * @dataProvider uploadData
      */
@@ -137,6 +148,27 @@ class AzureFileTest extends StorageApiTestCase
         sleep(1); // tests sometimes return 403, but file can be downloaded just a few seconds later
         $manifest = json_decode(file_get_contents($file['url']), true);
         $this->assertCount(count($slices), $manifest['entries']);
+    }
+
+    public function testDeleteNonUploadedSlicedFile(): void
+    {
+        $options = new FileUploadOptions();
+        $options
+            ->setFileName('entries_')
+            ->setFederationToken(true)
+            ->setIsSliced(true)
+            ->setIsEncrypted(true);
+
+        $result = $this->_client->prepareFileUpload($options);
+
+        $fileId = $result['id'];
+        $file = $this->_client->getFile($fileId, (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
+        $this->assertNotNull($file);
+        $this->_client->deleteFile($fileId);
+
+        $this->expectException(\Keboola\StorageApi\ClientException::class);
+        $this->expectExceptionMessage('File not found');
+        $this->_client->getFile($fileId, (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
     }
 
     /**

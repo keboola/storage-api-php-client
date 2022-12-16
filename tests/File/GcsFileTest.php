@@ -10,6 +10,17 @@ use Keboola\Test\StorageApiTestCase;
 
 class GcsFileTest extends StorageApiTestCase
 {
+    public function setUp(): void
+    {
+        parent::setUp();
+        $token = $this->_client->verifyToken();
+        $this->assertSame(
+            'gcp',
+            $token['owner']['fileStorageProvider'],
+            'Project must have GCS file storage'
+        );
+    }
+
     /**
      * @dataProvider uploadData
      */
@@ -49,6 +60,27 @@ class GcsFileTest extends StorageApiTestCase
         // check attachment, download
         $client = new Client();
         $client->get($file['url']);
+    }
+
+    public function testDeleteNonUploadedSlicedFile(): void
+    {
+        $options = new FileUploadOptions();
+        $options
+            ->setFileName('entries_')
+            ->setFederationToken(true)
+            ->setIsSliced(true)
+            ->setIsEncrypted(true);
+
+        $result = $this->_client->prepareFileUpload($options);
+
+        $fileId = $result['id'];
+        $file = $this->_client->getFile($fileId, (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
+        $this->assertNotNull($file);
+        $this->_client->deleteFile($fileId);
+
+        $this->expectException(\Keboola\StorageApi\ClientException::class);
+        $this->expectExceptionMessage('File not found');
+        $this->_client->getFile($fileId, (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
     }
 
     public function uploadData(): array
