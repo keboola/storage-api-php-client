@@ -394,6 +394,8 @@ class CommonFileTest extends StorageApiTestCase
         $this->assertFileEquals($slices[0], $donwloadFiles[0]);
         $this->assertFileEquals($slices[1], $donwloadFiles[1]);
         $this->assertFileEquals($slices[2], $donwloadFiles[2]);
+
+        $this->_client->deleteFile($fileId);
     }
 
     public function testTagging(): void
