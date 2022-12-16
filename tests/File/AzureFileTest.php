@@ -139,6 +139,27 @@ class AzureFileTest extends StorageApiTestCase
         $this->assertCount(count($slices), $manifest['entries']);
     }
 
+    public function testDeleteNonUploadedSlicedFile(): void
+    {
+        $options = new FileUploadOptions();
+        $options
+            ->setFileName('entries_')
+            ->setFederationToken(true)
+            ->setIsSliced(true)
+            ->setIsEncrypted(true);
+
+        $result = $this->_client->prepareFileUpload($options);
+
+        $fileId = $result['id'];
+        $file = $this->_client->getFile($fileId, (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
+        $this->assertNotNull($file);
+        $this->_client->deleteFile($fileId);
+
+        $this->expectException(\Keboola\StorageApi\ClientException::class);
+        $this->expectExceptionMessage('File not found');
+        $this->_client->getFile($fileId, (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
+    }
+
     /**
      * @param string $filepath
      * @param int $fileSizeMegabytes
