@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 class ClientTestCase extends TestCase
 {
-    use \PHPUnitRetry\RetryTrait;
+//    use \PHPUnitRetry\RetryTrait;
 
     /**
      * @return Client

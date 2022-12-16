@@ -61,6 +61,8 @@
 		<exclude>tests/Backend/Snowflake/TableDefinitionOperationsTest.php</exclude>
 		<exclude>tests/Backend/Snowflake/TypedTableInWorkspaceTest.php</exclude>
 		<directory>tests/Backend/CommonPart1</directory>
+		<!--	excluded test is only for BQ specific -->
+		<exclude>tests/Backend/CommonPart1/BigqueryTableExporterTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/BucketsTest.php</exclude>
 		<directory>tests/Backend/CommonPart2</directory>
 		<exclude>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</exclude>
@@ -89,6 +91,8 @@
 		<exclude>tests/Backend/Snowflake/TableDefinitionOperationsTest.php</exclude>
 		<exclude>tests/Backend/Snowflake/TypedTableInWorkspaceTest.php</exclude>
 		<directory>tests/Backend/CommonPart1</directory>
+		<!--	excluded test is only for BQ specific -->
+		<exclude>tests/Backend/CommonPart1/BigqueryTableExporterTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/BucketsTest.php</exclude>
 		<directory>tests/Backend/CommonPart2</directory>
 		<exclude>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</exclude>
@@ -112,6 +116,8 @@
 
 	<testsuite name="paratest-backend-redshift-part-1">
 		<directory>tests/Backend/CommonPart1</directory>
+		<!--	excluded test is only for BQ specific -->
+		<exclude>tests/Backend/CommonPart1/BigqueryTableExporterTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/BucketsTest.php</exclude>
 		<directory>tests/Backend/CommonPart2</directory>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
@@ -137,6 +143,8 @@
 	<testsuite name="paratest-backend-snowflake-part-1">
 		<directory>tests/Backend/Snowflake</directory>
 		<directory>tests/Backend/CommonPart1</directory>
+		<!--	excluded test is only for BQ specific -->
+		<exclude>tests/Backend/CommonPart1/BigqueryTableExporterTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/BucketsTest.php</exclude>
 		<directory>tests/Backend/CommonPart2</directory>
 		<exclude>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</exclude>
@@ -199,6 +207,8 @@
 
 	<testsuite name="paratest-backend-synapse-part-1">
 		<directory>tests/Backend/CommonPart1</directory>
+		<!--	excluded test is only for BQ specific -->
+		<exclude>tests/Backend/CommonPart1/BigqueryTableExporterTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/BucketsTest.php</exclude>
 		<directory>tests/Backend/CommonPart2</directory>
 		<!--	excluded test is included in tests/Backend/Synapse/SynapseImportExportCommonTest.php -->
@@ -233,6 +243,9 @@
 
 	<testsuite name="paratest-exasol">
 		<directory>tests/Backend/CommonPart1</directory>
+		<!--	excluded test is only for BQ specific -->
+		<exclude>tests/Backend/CommonPart1/BigqueryTableExporterTest.php</exclude>
+
 		<exclude>tests/Backend/CommonPart1/BucketsTest.php</exclude>
 		<!--	excluded test is included in tests/Backend/Exasol/ExasolImportExportCommonTest.php -->
 		<exclude>tests/Backend/CommonPart1/ImportExportCommonTest.php</exclude>
@@ -252,6 +265,9 @@
 	<testsuite name="paratest-teradata">
 
 		<directory>tests/Backend/CommonPart1</directory>
+		<!--	excluded test is only for BQ specific -->
+		<exclude>tests/Backend/CommonPart1/BigqueryTableExporterTest.php</exclude>
+
 		<!--		alters are not ready-->
 		<exclude>tests/Backend/CommonPart1/AlterTableTest.php</exclude>
 		<!--		DELETE requires filters-->
@@ -282,11 +298,29 @@
 		<file>tests/Backend/Workspaces/TeradataWorkspacesUnloadTest.php</file>
 	</testsuite>
 	<testsuite name="paratest-bigquery">
-		<file>tests/Backend/CommonPart1/BucketsTest.php</file>
-		<file>tests/Backend/CommonPart1/CreateTableTest.php</file>
-		<file>tests/Backend/CommonPart1/DeleteTableTest.php</file>
+
+		<directory>tests/Backend/CommonPart1</directory>
+		<!--		alters are not ready-->
+		<exclude>tests/Backend/CommonPart1/AlterTableTest.php</exclude>
+		<!--		DELETE requires filters-->
+		<exclude>tests/Backend/CommonPart1/DeleteRowsTest.php</exclude>
+		<!--		BQ does not support TWC-->
+		<exclude>tests/Backend/CommonPart1/CreateTableWithConfigurationTest.php</exclude>
+		<exclude>tests/Backend/CommonPart1/MigrateTableWithConfigurationTest.php</exclude>
+		<exclude>tests/Backend/CommonPart1/RegisterBucketTest.php</exclude>
+		<!--		filters in data preview are in progress-->
+		<exclude>tests/Backend/CommonPart1/DataPreviewLimitsTest.php</exclude>
+		<!--		BQ does not support external buckets yet-->
+		<exclude>tests/Backend/CommonPart1/RegisterBucketTest.php</exclude>
+
+		<directory>tests/Backend/CommonPart2</directory>
+		<!--		requires add/delete column-->
+		<exclude>tests/Backend/CommonPart2/SimpleAliasTest.php</exclude>
+
 		<directory>tests/Backend/Bigquery</directory>
 		<file>tests/Backend/Export/ExportSimpleTest.php</file>
+		<file>tests/Backend/Export/SnapshotSimpleTest.php</file>
+		<!--		Workspaces-->
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/BigqueryWorkspacesUnloadTest.php</file>
 	</testsuite>

@@ -98,10 +98,11 @@ class TableExporterTest extends StorageApiTestCase
 
     public function testLimitParameter(): void
     {
-        // TODO
-        if ($this->_client->verifyToken()['owner']['defaultBackend'] === self::BACKEND_TERADATA) {
-            self::markTestSkipped('TD skip because of limits');
-        }
+        $this->skipTestForBackend([
+            self::BACKEND_TERADATA,
+            self::BACKEND_BIGQUERY,
+        ], 'Not all preview params are supported');
+
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', $importFile);
         $this->_client->writeTable($tableId, $importFile);
@@ -148,8 +149,13 @@ class TableExporterTest extends StorageApiTestCase
         // compare data
         $this->assertTrue(file_exists($file1));
         $this->assertTrue(file_exists($file2));
-        $this->assertLinesEqualsSorted(file_get_contents($filesBasePath . 'languages.csv'), file_get_contents($file1), 'imported data comparison');
-        $this->assertLinesEqualsSorted(file_get_contents($filesBasePath . 'languages.csv'), file_get_contents($file2), 'imported data comparison');
+        $expected = $filesBasePath . 'languages.csv';
+        if ($this->getDefaultBackend($this->_client) === self::BACKEND_BIGQUERY) {
+            // big query will strip " characters
+            $expected = $filesBasePath . 'languages.expected.bigquery.csv';
+        }
+        $this->assertLinesEqualsSorted(file_get_contents($expected), file_get_contents($file1), 'imported data comparison');
+        $this->assertLinesEqualsSorted(file_get_contents($expected), file_get_contents($file2), 'imported data comparison');
 
         // check that columns has been set in export job params
         $table1Job = null;
@@ -178,6 +184,9 @@ class TableExporterTest extends StorageApiTestCase
 
     public function testExportTablesWithColumns(): void
     {
+        $this->skipTestForBackend([
+            self::BACKEND_BIGQUERY,
+        ], 'Export with filters is not supported yet.');
         $filesBasePath = __DIR__ . '/../../_data/';
         $table1Id = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'languages1', new CsvFile($filesBasePath . 'languages.csv'));
 

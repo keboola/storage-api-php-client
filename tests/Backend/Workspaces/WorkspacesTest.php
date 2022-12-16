@@ -237,6 +237,17 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
                 case self::BACKEND_EXASOL:
                     $this->assertEquals(0, $e->getCode(), $e->getMessage());
                     break;
+                case self::BACKEND_BIGQUERY:
+                    $this->assertContains(
+                        $e->getCode(),
+                        [400, 401],
+                        sprintf(
+                            'Unexpected error message from Bigquery code: "%s" message: "%s".',
+                            $e->getCode(),
+                            $e->getMessage()
+                        )
+                    );
+                    break;
                 default:
                     $this->fail(sprintf(
                         'Unexpected exception for backend "%s". code: "%s",message: "%s"',

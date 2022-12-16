@@ -42,7 +42,13 @@ class BigqueryWorkspaceBackend implements WorkspaceBackend
 
     public function executeQuery(string $sql): void
     {
-        $this->bqClient->runQuery($this->bqClient->query($sql));
+        $this->bqClient->runQuery($this->bqClient->query($sql, [
+            'configuration' => [
+                'defaultDataset' => [
+                    'datasetId' => $this->schema,
+                ],
+            ],
+        ]));
     }
 
     /**
