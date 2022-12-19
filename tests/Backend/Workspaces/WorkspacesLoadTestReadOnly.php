@@ -294,5 +294,10 @@ Schema '%s.%s' does not exist or not authorized., SQL state 02000 in SQLPrepare"
             null,
             true,
         ];
+//        // for local test purposes
+//        yield 'nothing provided, gets disabled because feature is off' => [
+//            null,
+//            false,
+//        ];
     }
 }
