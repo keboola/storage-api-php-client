@@ -46,7 +46,7 @@ class WorkspacesLoadTestReadOnly extends ParallelWorkspacesTestCase
         if ($roParameter !== null) {
             $options['readOnlyStorageAccess'] = $roParameter;
         }
-        $workspace = $this->initTestWorkspace(null, $options);
+        $workspace = $this->initTestWorkspace(null, $options, true);
 
         $this->assertSame($shouldHaveRo, $workspace['readOnlyStorageAccess']);
 
