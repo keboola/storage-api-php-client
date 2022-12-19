@@ -216,6 +216,10 @@ class AlterTableTest extends StorageApiTestCase
             $this->markTestSkipped('Exasol backend does not have any limit');
         }
 
+        if ($tokenData['owner']['defaultBackend'] == self::BACKEND_TERADATA) {
+            $this->markTestSkipped('TODO, but skip for now');
+        }
+
         try {
             $this->_client->createTable(
                 $this->getTestBucketId(self::STAGE_IN),
@@ -250,6 +254,12 @@ class AlterTableTest extends StorageApiTestCase
             new CsvFile($importFile)
         );
 
+        $tokenData = $this->_client->verifyToken();
+
+        if ($tokenData['owner']['defaultBackend'] == self::BACKEND_TERADATA) {
+            $this->markTestSkipped('TD doesnt support altering PK yet');
+        }
+
         $this->_client->createTablePrimaryKey($table2Id, ['id']);
 
         $table = $this->_client->getTable($table2Id);
@@ -259,6 +269,13 @@ class AlterTableTest extends StorageApiTestCase
 
     public function testPrimaryKeyAddWithDuplicty(): void
     {
+
+        $tokenData = $this->_client->verifyToken();
+
+        if ($tokenData['owner']['defaultBackend'] == self::BACKEND_TERADATA) {
+            $this->markTestSkipped('TD doesnt support adding PK yet');
+        }
+
         $primaryKeyColumns = ['id'];
         $importFile = __DIR__ . '/../../_data/users.csv';
 
@@ -312,6 +329,13 @@ class AlterTableTest extends StorageApiTestCase
 
     public function testPrimaryKeyDelete(): void
     {
+
+        $tokenData = $this->_client->verifyToken();
+
+        if ($tokenData['owner']['defaultBackend'] == self::BACKEND_TERADATA) {
+            $this->markTestSkipped('TD doesnt support altering PK yet');
+        }
+
         $importFile = __DIR__ . '/../../_data/users.csv';
 
         $tableId = $this->_client->createTable(
@@ -446,6 +470,13 @@ class AlterTableTest extends StorageApiTestCase
 
     public function testEmptyPrimaryKeyDelete(): void
     {
+
+        $tokenData = $this->_client->verifyToken();
+
+        if ($tokenData['owner']['defaultBackend'] == self::BACKEND_TERADATA) {
+            $this->markTestSkipped('TD doesnt support altering PK yet');
+        }
+
         $tableId = $this->_client->createTable(
             $this->getTestBucketId(),
             'users',
