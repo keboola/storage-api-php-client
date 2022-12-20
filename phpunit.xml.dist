@@ -300,8 +300,6 @@
 	<testsuite name="paratest-bigquery">
 
 		<directory>tests/Backend/CommonPart1</directory>
-		<!--		alters are not ready-->
-		<exclude>tests/Backend/CommonPart1/AlterTableTest.php</exclude>
 		<!--		DELETE requires filters-->
 		<exclude>tests/Backend/CommonPart1/DeleteRowsTest.php</exclude>
 		<!--		BQ does not support TWC-->
