@@ -210,11 +210,11 @@ class AlterTableTest extends StorageApiTestCase
     {
         $importFile = __DIR__ . '/../../_data/many-more-columns.csv';
 
-        $tokenData = $this->_client->verifyToken();
         // TODO should be also checked for Snowflake, but it has it manually in Connection
-        if ($tokenData['owner']['defaultBackend'] == self::BACKEND_EXASOL) {
-            $this->markTestSkipped('Exasol backend does not have any limit');
-        }
+        $this->skipTestForBackend([
+            self::BACKEND_EXASOL,
+            self::BACKEND_BIGQUERY,
+        ], 'Exasol|Bigquery backend does not have any limit');
 
         if ($tokenData['owner']['defaultBackend'] == self::BACKEND_TERADATA) {
             $this->markTestSkipped('TODO, but skip for now');
@@ -270,11 +270,10 @@ class AlterTableTest extends StorageApiTestCase
     public function testPrimaryKeyAddWithDuplicty(): void
     {
 
-        $tokenData = $this->_client->verifyToken();
-
-        if ($tokenData['owner']['defaultBackend'] == self::BACKEND_TERADATA) {
-            $this->markTestSkipped('TD doesnt support adding PK yet');
-        }
+        $this->skipTestForBackend([
+            self::BACKEND_BIGQUERY,
+            self::BACKEND_TERADATA
+        ], 'TD|BQ doesnt support adding PK yet');
 
         $primaryKeyColumns = ['id'];
         $importFile = __DIR__ . '/../../_data/users.csv';
