@@ -5,17 +5,20 @@ namespace Keboola\Test\Backend\Workspaces;
 use Keboola\Csv\CsvFile;
 use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\StorageApi\Client;
+use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\SnowflakeWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
+use Keboola\Test\StorageApiTestCase;
 
 class WorkspacesLoadTestReadOnly extends ParallelWorkspacesTestCase
 {
-    private ?Client $linkingClient;
+    private Client $linkingClient;
 
-    public function testCreateWorkspaceWithReadOnlyIM(): void
+    public function setUp(): void
     {
+        parent::setUp();
         $token = $this->_client->verifyToken();
-
         if (!in_array('input-mapping-read-only-storage', $token['owner']['features'])) {
             $this->markTestSkipped(sprintf('Read only mapping is not enabled for project "%s"', $token['owner']['id']));
         }
@@ -31,7 +34,58 @@ class WorkspacesLoadTestReadOnly extends ParallelWorkspacesTestCase
                 $tokenLinking['owner']['id']
             ));
         }
+    }
 
+    /**
+     * @dataProvider provideDataForWorkspaceCreation
+     */
+    public function testWorkspaceCreatedWithOrWithoutAccess(?bool $roParameter, bool $shouldHaveRo): void
+    {
+        // prepare workspace
+        $options = [];
+        if ($roParameter !== null) {
+            $options['readOnlyStorageAccess'] = $roParameter;
+        }
+        $workspace = $this->initTestWorkspace(null, $options, true);
+
+        $this->assertSame($shouldHaveRo, $workspace['readOnlyStorageAccess']);
+
+        if ($workspace['connection']['backend'] !== 'snowflake') {
+            $this->fail('This feature works only for Snowflake at the moment');
+        }
+
+        $testBucketId = $this->getTestBucketId();
+        $this->_client->createTable(
+            $testBucketId,
+            'animals',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        assert($backend instanceof SnowflakeWorkspaceBackend);
+        $db = $backend->getDb();
+
+        if ($shouldHaveRo) {
+            $tables = $db->fetchAll(sprintf('SHOW TABLES IN SCHEMA %s', $db->quoteIdentifier($testBucketId)));
+            $this->assertCount(1, $tables);
+            $this->assertSame('animals', $tables[0]['name']);
+        } else {
+            try {
+                $db->fetchAll(sprintf('SHOW TABLES IN SCHEMA %s', $db->quoteIdentifier($testBucketId)));
+                $this->fail('Should have failed');
+            } catch (\Throwable $e) {
+                $this->assertSame(
+                    'odbc_prepare(): SQL error: SQL compilation error:
+Object does not exist, or operation cannot be performed., SQL state 02000 in SQLPrepare',
+                    $e->getMessage(),
+                    'Workspace should not have access to storage'
+                );
+            }
+        }
+    }
+
+    public function testCreateWorkspaceWithReadOnlyIM(): void
+    {
         // prepare bucket
         $testBucketId = $this->getTestBucketId();
         $testBucketName = str_replace('in.c-', '', $testBucketId);
@@ -125,23 +179,9 @@ class WorkspacesLoadTestReadOnly extends ParallelWorkspacesTestCase
         $tokenConsumer = $this->_client->verifyToken();
         $consumerProjectId = $tokenConsumer['owner']['id'];
 
-        if (!in_array('input-mapping-read-only-storage', $tokenConsumer['owner']['features'])) {
-            $this->markTestSkipped(sprintf('Read only mapping is not enabled for project "%s"', $consumerProjectId));
-        }
-
-        $this->linkingClient = $this->getClientForToken(
-            STORAGE_API_LINKING_TOKEN
-        );
-
         // aka linking token
         $tokenProducer = $this->linkingClient->verifyToken();
         $sharingProjectId = $tokenProducer['owner']['id'];
-        if (!in_array('input-mapping-read-only-storage', $tokenProducer['owner']['features'])) {
-            $this->markTestSkipped(sprintf(
-                'Read only mapping is not enabled for project "%s"',
-                $sharingProjectId
-            ));
-        }
 
         $sharedBucketName = $this->getTestBucketName($this->generateDescriptionForTestObject() . '-sharedBucket');
         $linkedBucketName = $this->getTestBucketName($this->generateDescriptionForTestObject() . '-linkedBucket');
@@ -238,5 +278,26 @@ Schema '%s.%s' does not exist or not authorized., SQL state 02000 in SQLPrepare"
                 sprintf('SELECT * FROM %s.%s."whales"', $quotedSharingProjectDatabase, $quotedSharedBucketId)
             )
         );
+    }
+
+    public function provideDataForWorkspaceCreation(): \Generator
+    {
+        yield 'asked for disabled, gets disabled' => [
+            false,
+            false,
+        ];
+        yield 'asked for enabled, gets enabled' => [
+            true,
+            true,
+        ];
+        yield 'nothing provided, gets enabled because feature is on' => [
+            null,
+            true,
+        ];
+//        // for local test purposes
+//        yield 'nothing provided, gets disabled because feature is off' => [
+//            null,
+//            false,
+//        ];
     }
 }
