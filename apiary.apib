@@ -4921,10 +4921,11 @@ Only for Bigquery workspace
 + id: 234 (number)
 + name: `boring_wozniak` (string) - working schema name
 + type: `file|table` (string) - workspace type
-+ component: `wr-db` (string) - name of the [registered component](#reference/miscellaneous/api-index/component-list) that created the workspace
-+ configurationId: `aws-1` (string) - id of a [configuration](#reference/components-and-configurations/component-configurations/list-configurations) used to create workspace
++ component: `wr-db` (string, nullable) - name of the [registered component](#reference/miscellaneous/api-index/component-list) that created the workspace
++ configurationId: `aws-1` (string, nullable) - id of a [configuration](#reference/components-and-configurations/component-configurations/list-configurations) used to create workspace
 + created: `2016-05-17T11:11:20+0200` (string)
 + backendSize: `small` (string, nullable) - string for backends supporting dynamic backend size (currently only Snowflake), null for other backends
++ statementTimeoutSeconds: 0 (number) - statement timeout in seconds (only Snowflake)
 + connection
     + backend: `snowflake` (string)
     + host: `keboola.snowflakecomputing.com` (string)
@@ -4939,6 +4940,7 @@ Only for Bigquery workspace
 + creatorUser
     + id: 234 (number)
     + name: `Martin` (string)
++ readOnlyStorageAccess: `true` (boolean, nullable) - has read only access to storage (null when unknown).
 
 ### WorkspaceCreated (Workspace)
 
