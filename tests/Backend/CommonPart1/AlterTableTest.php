@@ -272,7 +272,7 @@ class AlterTableTest extends StorageApiTestCase
 
         $this->skipTestForBackend([
             self::BACKEND_BIGQUERY,
-            self::BACKEND_TERADATA
+            self::BACKEND_TERADATA,
         ], 'TD|BQ doesnt support adding PK yet');
 
         $primaryKeyColumns = ['id'];
