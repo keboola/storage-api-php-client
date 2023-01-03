@@ -39,10 +39,8 @@ class AlterTableTest extends StorageApiTestCase
 
     /**
      * @dataProvider webalizeColumnNameProvider
-     * @param $requestedColumnName
-     * @param $expectedColumnName
      */
-    public function testTableColumnNameShouldBeWebalized($requestedColumnName, $expectedColumnName): void
+    public function testTableColumnNameShouldBeWebalized(string $requestedColumnName, string $expectedColumnName): void
     {
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile($importFile));
