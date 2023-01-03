@@ -254,12 +254,6 @@ class AlterTableTest extends StorageApiTestCase
             new CsvFile($importFile)
         );
 
-        $tokenData = $this->_client->verifyToken();
-
-        if ($tokenData['owner']['defaultBackend'] == self::BACKEND_TERADATA) {
-            $this->markTestSkipped('TD doesnt support altering PK yet');
-        }
-
         $this->_client->createTablePrimaryKey($table2Id, ['id']);
 
         $table = $this->_client->getTable($table2Id);
@@ -272,8 +266,7 @@ class AlterTableTest extends StorageApiTestCase
 
         $this->skipTestForBackend([
             self::BACKEND_BIGQUERY,
-            self::BACKEND_TERADATA,
-        ], 'TD|BQ doesnt support adding PK yet');
+        ], 'BQ doesnt support adding PK yet');
 
         $primaryKeyColumns = ['id'];
         $importFile = __DIR__ . '/../../_data/users.csv';
@@ -330,10 +323,6 @@ class AlterTableTest extends StorageApiTestCase
     {
 
         $tokenData = $this->_client->verifyToken();
-
-        if ($tokenData['owner']['defaultBackend'] == self::BACKEND_TERADATA) {
-            $this->markTestSkipped('TD doesnt support altering PK yet');
-        }
 
         $importFile = __DIR__ . '/../../_data/users.csv';
 
@@ -469,13 +458,6 @@ class AlterTableTest extends StorageApiTestCase
 
     public function testEmptyPrimaryKeyDelete(): void
     {
-
-        $tokenData = $this->_client->verifyToken();
-
-        if ($tokenData['owner']['defaultBackend'] == self::BACKEND_TERADATA) {
-            $this->markTestSkipped('TD doesnt support altering PK yet');
-        }
-
         $tableId = $this->_client->createTable(
             $this->getTestBucketId(),
             'users',
