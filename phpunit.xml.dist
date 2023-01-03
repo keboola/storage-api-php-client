@@ -303,8 +303,7 @@
 		<exclude>tests/Backend/CommonPart1/CreateTableWithConfigurationTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/MigrateTableWithConfigurationTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/RegisterBucketTest.php</exclude>
-		<!--		filters in data preview are in progress-->
-		<exclude>tests/Backend/CommonPart1/DataPreviewLimitsTest.php</exclude>
+		
 		<!--		BQ does not support external buckets yet-->
 		<exclude>tests/Backend/CommonPart1/RegisterBucketTest.php</exclude>
 
