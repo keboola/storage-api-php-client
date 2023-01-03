@@ -113,11 +113,6 @@ class DataPreviewLimitsTest extends StorageApiTestCase
             $this->markTestSkipped('Columns with large length for Synapse backend is not supported yet');
         }
 
-        $this->skipTestForBackend([
-            self::BACKEND_TERADATA,
-            self::BACKEND_BIGQUERY,
-        ], 'Teradata|Bigquery does not support truncate for table preview');
-
         $columnCount = 5;
         $rowCount = 5;
         $csvFile = $this->generateCsv($rowCount - 1, $columnCount);
