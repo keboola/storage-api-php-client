@@ -198,10 +198,6 @@ class AlterTableTest extends StorageApiTestCase
             self::BACKEND_BIGQUERY,
         ], 'Exasol|Bigquery backend does not have any limit');
 
-        $this->skipTestForBackend([
-            self::BACKEND_TERADATA,
-        ], 'TODO, but skip for now');
-
         try {
             $this->_client->createTable(
                 $this->getTestBucketId(),
