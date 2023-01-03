@@ -267,9 +267,6 @@
 		<directory>tests/Backend/CommonPart1</directory>
 		<!--	excluded test is only for BQ specific -->
 		<exclude>tests/Backend/CommonPart1/BigqueryTableExporterTest.php</exclude>
-
-		<!--		alters are not ready-->
-		<exclude>tests/Backend/CommonPart1/AlterTableTest.php</exclude>
 		<!--		DELETE requires filters-->
 		<exclude>tests/Backend/CommonPart1/DeleteRowsTest.php</exclude>
 		<!--		TD does not support TWC-->
