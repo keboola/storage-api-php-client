@@ -286,10 +286,6 @@
 		<file>tests/Backend/Export/SnapshotSimpleTest.php</file>
 
 		<directory>tests/Backend/Teradata</directory>
-
-		<!-- TODO use after export supports filters -->
-		<exclude>tests/Backend/Export/ExportParamsTest.php</exclude>
-
 		<!--WORKSPACE-->
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/TeradataWorkspacesUnloadTest.php</file>
@@ -303,7 +299,7 @@
 		<exclude>tests/Backend/CommonPart1/CreateTableWithConfigurationTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/MigrateTableWithConfigurationTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/RegisterBucketTest.php</exclude>
-		
+
 		<!--		BQ does not support external buckets yet-->
 		<exclude>tests/Backend/CommonPart1/RegisterBucketTest.php</exclude>
 
