@@ -4448,7 +4448,7 @@ Deletes a workspace in [Development Branch](#reference/development-branches). Th
 ## Load Data [/v2/storage/workspaces/{workspace_id}/load]
 
 ### Load Data [POST]
-Loads tables from Storage into a Workspace.
+Loads tables from Storage into a Workspace. Not supported for Teradata and Bigquery backends.
 
 + Parameters
     + workspace_id (required, number)
@@ -4566,7 +4566,7 @@ Loads tables from Storage into a Workspace.
             }
 
 ### Load Data into Development Branch Workspace [POST /v2/storage/branch/{branch_id}/workspaces/{workspace_id}/load]
-Loads tables from Storage into a Workspace in [Development Branch](#reference/development-branches).
+Loads tables from Storage into a Workspace in [Development Branch](#reference/development-branches). Not supported for Teradata and Bigquery backends.
 
 + Parameters
     + branch_id (required) - Id of the development branch
