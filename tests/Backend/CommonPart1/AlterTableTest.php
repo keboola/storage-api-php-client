@@ -192,7 +192,6 @@ class AlterTableTest extends StorageApiTestCase
     {
         $importFile = __DIR__ . '/../../_data/many-more-columns.csv';
 
-        // TODO should be also checked for Snowflake, but it has it manually in Connection
         $this->skipTestForBackend([
             self::BACKEND_EXASOL,
             self::BACKEND_BIGQUERY,
@@ -241,10 +240,7 @@ class AlterTableTest extends StorageApiTestCase
 
     public function testPrimaryKeyAddWithDuplicty(): void
     {
-
-        $this->skipTestForBackend([
-            self::BACKEND_BIGQUERY,
-        ], 'BQ doesnt support adding PK yet');
+        $this->skipTestForBackend([self::BACKEND_BIGQUERY,], 'BQ doesnt check duplicity in table');
 
         $primaryKeyColumns = ['id'];
         $importFile = __DIR__ . '/../../_data/users.csv';
