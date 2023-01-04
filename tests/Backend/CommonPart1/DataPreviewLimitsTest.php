@@ -112,10 +112,11 @@ class DataPreviewLimitsTest extends StorageApiTestCase
         if ($tokenData['owner']['defaultBackend'] === self::BACKEND_SYNAPSE) {
             $this->markTestSkipped('Columns with large length for Synapse backend is not supported yet');
         }
-        if ($tokenData['owner']['defaultBackend'] === self::BACKEND_TERADATA) {
-            // TODO enable when truncate is supported in TD
-            $this->markTestSkipped('TD does not support truncate for table preview');
-        }
+
+        $this->skipTestForBackend([
+            self::BACKEND_TERADATA,
+            self::BACKEND_BIGQUERY,
+        ], 'Teradata|Bigquery does not support truncate for table preview');
 
         $columnCount = 5;
         $rowCount = 5;
