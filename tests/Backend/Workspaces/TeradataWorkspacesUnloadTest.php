@@ -2,7 +2,9 @@
 
 namespace Keboola\Test\Backend\Workspaces;
 
+use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
@@ -294,5 +296,34 @@ class TeradataWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         //$this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->getTableDataPreview($table['id'], array(
         //    'format' => 'rfc',
         //)), 'new  column added');
+    }
+
+    public function testWorkspaceLoadShouldFail(): void
+    {
+        $workspaces = new Workspaces($this->workspaceSapiClient);
+        $workspace = $this->initTestWorkspace();
+        //setup test tables
+        $table1Id = $this->_client->createTable(
+            $this->getTestBucketId(),
+            'languages',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+
+        $mapping1 = ['source' => $table1Id, 'destination' => 'languagesLoaded'];
+
+        // test if job is created and listed
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+        $this->workspaceSapiClient->setRunId($runId);
+
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], ['input' => [$mapping1]]);
+            $this->fail('should fail');
+        } catch (ClientException $e) {
+            $this->assertEquals(
+                'Loading data into workspaces is only supported for snowflake, redshift, synapse, exasol, abs.',
+                $e->getMessage()
+            );
+        }
     }
 }
