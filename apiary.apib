@@ -7520,6 +7520,42 @@ Creates a new workspace for an existing configuration in [Development Branch](#r
 
    + Attributes (WorkspaceCreated)
 
++ Response 202 (application/json)
+Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
+    + Body
+
+            {
+                "id": 11,
+                "status": "waiting",
+                "url": "https://connection.keboola.com/v2/storage/jobs/11",
+                "operationName": "workspaceCreate",
+                "operationParams": {
+                    "values": {
+                        "backend": "snowflake"
+                        "branchId": 1
+                        "component_id": "wr-db"
+                        "config_id": "123"
+                    },
+                },
+                "createdTime": "2013-05-31T16:11:05+0200",
+                "startTime": null,
+                "endTime": null,
+                "runId": null,
+                "results": null,
+                "creatorToken": {
+                    "id": "27978",
+                    "description": "roman.bracinik@keboola.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
+                }
+            }
+
 ### Workspace List [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/workspaces]
 Returns all workspaces for the component configuration in [Development Branch](#reference/development-branches).
 
