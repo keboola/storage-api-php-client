@@ -1,7 +1,5 @@
 <?php
 
-
-
 namespace Keboola\Test\Backend\Bigquery;
 
 use Keboola\Csv\CsvFile;
@@ -72,7 +70,7 @@ class OrderByTest extends StorageApiTestCase
     /**
      * @dataProvider invalidDataProvider
      */
-    public function testInvalidOrderByParamsShouldReturnErrorInDataPreview($order, $message): void
+    public function testInvalidOrderByParamsShouldReturnErrorInDataPreview(array $order, string $message): void
     {
         $tableId = $this->prepareTable();
 
@@ -84,7 +82,7 @@ class OrderByTest extends StorageApiTestCase
     /**
      * @dataProvider invalidDataProvider
      */
-    public function testInvalidOrderByParamsShouldReturnErrorInExport($order, $message): void
+    public function testInvalidOrderByParamsShouldReturnErrorInExport(array $order, string $message): void
     {
         $tableId = $this->prepareTable();
 
@@ -93,7 +91,7 @@ class OrderByTest extends StorageApiTestCase
         $this->getExportedTable($tableId, ['orderBy' => [$order]]);
     }
 
-    public function invalidDataProvider()
+    public function invalidDataProvider(): array
     {
         return [
             [
@@ -131,7 +129,6 @@ class OrderByTest extends StorageApiTestCase
         $this->getExportedTable($tableId, ['orderBy' => $orderBy]);
     }
 
-
     public function testInvalidStructuredQueryInAsyncExport(): void
     {
         $tableId = $this->prepareTable();
@@ -154,7 +151,6 @@ class OrderByTest extends StorageApiTestCase
         $this->_client->getTableDataPreview($tableId, ['orderBy' => $orderBy]);
     }
 
-
     public function testInvalidStructuredQueryInADataPreview(): void
     {
         $tableId = $this->prepareTable();
@@ -166,16 +162,15 @@ class OrderByTest extends StorageApiTestCase
         $this->_client->getTableDataPreview($tableId, ['orderBy' => $orderBy]);
     }
 
-
-    private function getExportedTable($tableId, $exportOptions)
+    private function getExportedTable(string $tableId, array $exportOptions): array
     {
         $tableExporter = new TableExporter($this->_client);
-        $path = tempnam(sys_get_temp_dir(), 'keboola-export');
+        $path = (string) tempnam(sys_get_temp_dir(), 'keboola-export');
         $tableExporter->exportTable($tableId, $path, $exportOptions);
-        return Client::parseCsv(file_get_contents($path));
+        return Client::parseCsv((string) file_get_contents($path));
     }
 
-    private function prepareTable()
+    private function prepareTable(): string
     {
         $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
         $csvFile->writeRow(['column_string', 'column_string_number', 'column_double']);
