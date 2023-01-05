@@ -26,7 +26,10 @@ class BranchComponentsWorkspacesTest extends ComponentsWorkspacesTest
         $this->branchAwareClient = $this->getBranchAwareDefaultClient($branch['id']);
     }
 
-    public function testWorkspace(): void
+    /**
+     * @dataProvider createWorkspaceProvider
+     */
+    public function testWorkspace(bool $async): void
     {
         $componentId = 'wr-db';
         $configurationId = 'main-1';
@@ -40,7 +43,7 @@ class BranchComponentsWorkspacesTest extends ComponentsWorkspacesTest
             ->setDescription('some desc'));
 
         // create workspace
-        $branchWorkspace = $branchComponents->createConfigurationWorkspace($componentId, $configurationId);
+        $branchWorkspace = $branchComponents->createConfigurationWorkspace($componentId, $configurationId, [], $async);
         $this->assertEquals($componentId, $branchWorkspace['component']);
         $this->assertEquals($configurationId, $branchWorkspace['configurationId']);
         $this->assertArrayHasKey('password', $branchWorkspace['connection']);
@@ -64,7 +67,7 @@ class BranchComponentsWorkspacesTest extends ComponentsWorkspacesTest
             ->setDescription('some desc'));
 
         // create production  workspace
-        $workspace = $compnents->createConfigurationWorkspace($componentId, $configurationId);
+        $workspace = $compnents->createConfigurationWorkspace($componentId, $configurationId, [], $async);
         $this->assertEquals($componentId, $workspace['component']);
         $this->assertEquals($configurationId, $workspace['configurationId']);
         $this->assertArrayHasKey('password', $workspace['connection']);
@@ -88,7 +91,7 @@ class BranchComponentsWorkspacesTest extends ComponentsWorkspacesTest
         $this->assertArrayNotHasKey($branchWorkspace['id'], array_flip($workspaceIds));
 
         // create second workspace
-        $branchWorkspace = $branchComponents->createConfigurationWorkspace($componentId, $configurationId);
+        $branchWorkspace = $branchComponents->createConfigurationWorkspace($componentId, $configurationId, [], $async);
         $this->assertEquals($componentId, $branchWorkspace['component']);
         $this->assertEquals($configurationId, $branchWorkspace['configurationId']);
         $this->assertArrayHasKey('password', $branchWorkspace['connection']);
