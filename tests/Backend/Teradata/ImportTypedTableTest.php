@@ -55,7 +55,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
             );
             $this->fail('Should throw ClientException');
         } catch (ClientException $e) {
-            self::assertSame("Table import error: Load error: An exception occurred while executing a query: Numeric value 'male' is not recognized", $e->getMessage());
+            self::assertStringContainsString("Load error: Teradata TPT load ended with Error", $e->getMessage());
         }
 
         try {
@@ -69,7 +69,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
             );
             $this->fail('Should throw ClientException');
         } catch (ClientException $e) {
-            self::assertSame("Table import error: Load error: An exception occurred while executing a query: Numeric value 'male' is not recognized", $e->getMessage());
+            self::assertStringContainsString("Load error: Teradata TPT load ended with Error", $e->getMessage());
         }
     }
 }
