@@ -1,7 +1,5 @@
 <?php
 
-
-
 namespace Keboola\Test\Backend\Bigquery;
 
 use Keboola\Csv\CsvFile;
@@ -57,7 +55,7 @@ class FulltextSearchTest extends StorageApiTestCase
         $this->_client->getTableDataPreview($tableId, $params);
     }
 
-    private function prepareTable()
+    private function prepareTable(): string
     {
         $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
         $csvFile->writeRow(['column_1', 'column_2', 'column_3']);
