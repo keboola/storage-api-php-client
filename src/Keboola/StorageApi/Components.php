@@ -329,10 +329,14 @@ class Components
         );
     }
 
-    public function createConfigurationWorkspace($componentId, $configurationId, array $options = [])
+    public function createConfigurationWorkspace($componentId, $configurationId, array $options = [], bool $async = false)
     {
+        $url = $this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/workspaces";
+        if ($async) {
+            $url .= '?' . http_build_query(['async' => true]);
+        }
         return $this->client->apiPostJson(
-            $this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/workspaces",
+            $url,
             $options,
             true,
             [Client::REQUEST_OPTION_EXTENDED_TIMEOUT => true]
