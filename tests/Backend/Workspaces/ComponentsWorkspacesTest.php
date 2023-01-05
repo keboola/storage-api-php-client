@@ -1,6 +1,7 @@
 <?php
 namespace Keboola\Test\Backend\Workspaces;
 
+use Generator;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\Configuration;
@@ -30,7 +31,23 @@ class ComponentsWorkspacesTest extends WorkspacesTestCase
         }
     }
 
-    public function testWorkspaceCreate(): void
+    /**
+     * @return Generator<string, array{async:bool}>
+     */
+    public static function createWorkspaceProvider(): Generator
+    {
+        yield 'sync' => [
+            'async' => false,
+        ];
+        yield 'async' => [
+            'async' => true,
+        ];
+    }
+
+    /**
+     * @dataProvider createWorkspaceProvider
+     */
+    public function testWorkspaceCreate(bool $async): void
     {
         $componentId = 'wr-db';
         $configurationId = 'main-1';
@@ -44,7 +61,7 @@ class ComponentsWorkspacesTest extends WorkspacesTestCase
             ->setDescription('some desc'));
 
         // create workspace
-        $workspace = $components->createConfigurationWorkspace($componentId, $configurationId);
+        $workspace = $components->createConfigurationWorkspace($componentId, $configurationId, [], $async);
         $this->assertEquals($componentId, $workspace['component']);
         $this->assertEquals($configurationId, $workspace['configurationId']);
         $this->assertArrayHasKey('password', $workspace['connection']);
@@ -60,7 +77,7 @@ class ComponentsWorkspacesTest extends WorkspacesTestCase
         $this->assertArrayHasKey($workspace['id'], array_flip($workspacesIds));
 
         // create second workspace
-        $workspace = $components->createConfigurationWorkspace($componentId, $configurationId);
+        $workspace = $components->createConfigurationWorkspace($componentId, $configurationId, [], $async);
         $this->assertEquals($componentId, $workspace['component']);
         $this->assertEquals($configurationId, $workspace['configurationId']);
         $this->assertArrayHasKey('password', $workspace['connection']);
