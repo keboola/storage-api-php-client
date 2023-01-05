@@ -1,7 +1,5 @@
 <?php
 
-
-
 namespace Keboola\Test\Backend\Bigquery;
 
 use Keboola\Csv\CsvFile;
@@ -142,11 +140,11 @@ class WhereFilterTest extends StorageApiTestCase
         $tableId = $this->prepareTable();
 
         $where = [
-          [
-              'column' => 'column_double',
-              'operator' => 'non-existing',
-              'values' => [123],
-          ],
+            [
+                'column' => 'column_double',
+                'operator' => 'non-existing',
+                'values' => [123],
+            ],
         ];
 
         $this->expectException(ClientException::class);
@@ -159,11 +157,11 @@ class WhereFilterTest extends StorageApiTestCase
         $tableId = $this->prepareTable();
 
         $where = [
-          [
-              'column' => 'column_double',
-              'operator' => 'non-existing',
-              'values' => [123],
-          ],
+            [
+                'column' => 'column_double',
+                'operator' => 'non-existing',
+                'values' => [123],
+            ],
         ];
 
         $this->expectException(ClientException::class);
@@ -215,15 +213,15 @@ class WhereFilterTest extends StorageApiTestCase
         $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
     }
 
-    private function getExportedTable($tableId, $exportOptions)
+    private function getExportedTable(string $tableId, array $exportOptions): array
     {
         $tableExporter = new TableExporter($this->_client);
-        $path = tempnam(sys_get_temp_dir(), 'keboola-export');
+        $path = (string) tempnam(sys_get_temp_dir(), 'keboola-export');
         $tableExporter->exportTable($tableId, $path, $exportOptions);
-        return Client::parseCsv(file_get_contents($path));
+        return Client::parseCsv((string) file_get_contents($path));
     }
 
-    private function prepareTable()
+    private function prepareTable(): string
     {
         $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
         $csvFile->writeRow(['column_string', 'column_string_number', 'column_double']);
