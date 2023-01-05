@@ -76,100 +76,100 @@ class TeradataWorkspacesUnloadTest extends ParallelWorkspacesTestCase
             $this->fail('Table should not be created');
         } catch (ClientException $e) {
             $this->assertEquals('storage.invalidColumns', $e->getStringCode());
-            $this->assertStringContainsString('_id', $e->getMessage());
+            $this->assertStringContainsString('_Id', $e->getMessage());
         }
     }
 
     public function testImportFromWorkspaceWithInvalidTableNames(): void
     {
-        $this->markTestSkipped('TODO: deduplication');
-        //// create workspace and source table in workspace
-        //$workspace = $this->initTestWorkspace();
-        //
-        //$table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
-        //    'dataString' => 'Id,Name',
-        //    'name' => 'languages',
-        //    'primaryKey' => 'Id',
-        //]);
-        //
-        //try {
-        //    $this->_client->writeTableAsyncDirect($table['id'], [
-        //        'dataWorkspaceId' => $workspace['id'],
-        //        'dataTableName' => 'thisTableDoesNotExist',
-        //    ]);
-        //    $this->fail('Table should not be imported');
-        //} catch (ClientException $e) {
-        //    $this->assertEquals('storage.tableNotFound', $e->getStringCode());
-        //    $this->assertEquals(
-        //        sprintf(
-        //            'Table "thisTableDoesNotExist" not found in schema "%s"',
-        //            $workspace['connection']['schema']
-        //        ),
-        //        $e->getMessage()
-        //    );
-        //}
-        //
-        //try {
-        //    $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), [
-        //        'name' => 'thisTableDoesNotExist',
-        //        'dataWorkspaceId' => $workspace['id'],
-        //        'dataTableName' => 'thisTableDoesNotExist',
-        //    ]);
-        //    $this->fail('Table should not be imported');
-        //} catch (ClientException $e) {
-        //    $this->assertEquals('storage.tableNotFound', $e->getStringCode());
-        //    $this->assertEquals(
-        //        sprintf(
-        //            'Table "thisTableDoesNotExist" not found in schema "%s"',
-        //            $workspace['connection']['schema']
-        //        ),
-        //        $e->getMessage()
-        //    );
-        //}
+        // create workspace and source table in workspace
+        $workspace = $this->initTestWorkspace();
+
+        /** @var array $table */
+        $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
+            'dataString' => 'Id,Name',
+            'name' => 'languages',
+            'primaryKey' => 'Id',
+        ]);
+
+        try {
+            $this->_client->writeTableAsyncDirect($table['id'], [
+                'dataWorkspaceId' => $workspace['id'],
+                'dataTableName' => 'thisTableDoesNotExist',
+            ]);
+            $this->fail('Table should not be imported');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.tableNotFound', $e->getStringCode());
+            $this->assertEquals(
+                sprintf(
+                    'Table "thisTableDoesNotExist" not found in schema "%s"',
+                    $workspace['connection']['schema']
+                ),
+                $e->getMessage()
+            );
+        }
+
+        try {
+            $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), [
+                'name' => 'thisTableDoesNotExist',
+                'dataWorkspaceId' => $workspace['id'],
+                'dataTableName' => 'thisTableDoesNotExist',
+            ]);
+            $this->fail('Table should not be imported');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.tableNotFound', $e->getStringCode());
+            $this->assertEquals(
+                sprintf(
+                    'Table "thisTableDoesNotExist" not found in schema "%s"',
+                    $workspace['connection']['schema']
+                ),
+                $e->getMessage()
+            );
+        }
     }
 
     public function testImportFromWorkspaceWithInvalidColumnNames(): void
     {
-        $this->markTestSkipped('TODO: deduplication');
-        //// create workspace and source table in workspace
-        //$workspace = $this->initTestWorkspace();
-        //
-        //$backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-        //$backend->dropTableIfExists('test_Languages3');
-        //unset($backend);
-        //
-        //$db = $this->getDbConnection($workspace['connection']);
-        //
-        //$db->query('CREATE TABLE "test_Languages3" (
-        //"Id" integer NOT NULL,
-        //"Name" varchar(10) NOT NULL,
-        //"_update" varchar(10) NOT NULL
-        //);');
-        //$db->query('INSERT INTO "test_Languages3" ("Id", "Name", "_update") VALUES (1, \'cz\', \'x\');');
-        //$db->query('INSERT INTO "test_Languages3" ("Id", "Name", "_update") VALUES (2, \'en\', \'z\');');
-        //
-        //$table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
-        //    'dataString' => 'Id,Name',
-        //    'name' => 'languages',
-        //    'primaryKey' => 'Id',
-        //]);
+        // create workspace and source table in workspace
+        $workspace = $this->initTestWorkspace();
 
-        // incremental not implemented
-        //try {
-        //    $this->_client->writeTableAsyncDirect($table['id'], array(
-        //        'dataWorkspaceId' => $workspace['id'],
-        //        'dataTableName' => 'test_Languages3',
-        //        'incremental' => true,
-        //    ));
-        //    $this->fail('Table should not be imported');
-        //} catch (ClientException $e) {
-        //    $this->assertEquals('storage.invalidColumns', $e->getStringCode());
-        //    $this->assertStringContainsString('_update', $e->getMessage());
-        //}
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists('test_Languages3');
+        unset($backend);
+
+        $db = $this->getDbConnection($workspace['connection']);
+
+        $db->query('CREATE TABLE "test_Languages3" (
+        "Id" integer NOT NULL,
+        "Name" varchar(10) NOT NULL,
+        "_update" varchar(10) NOT NULL
+        );');
+        $db->query('INSERT INTO "test_Languages3" ("Id", "Name", "_update") VALUES (1, \'cz\', \'x\');');
+        $db->query('INSERT INTO "test_Languages3" ("Id", "Name", "_update") VALUES (2, \'en\', \'z\');');
+
+        /** @var array $table */
+        $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
+            'dataString' => 'Id,Name',
+            'name' => 'languages',
+            'primaryKey' => 'Id',
+        ]);
+
+        try {
+            $this->_client->writeTableAsyncDirect($table['id'], [
+                'dataWorkspaceId' => $workspace['id'],
+                'dataTableName' => 'test_Languages3',
+                'incremental' => true,
+            ]);
+            $this->fail('Table should not be imported');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.invalidColumns', $e->getStringCode());
+            $this->assertStringContainsString('_update', $e->getMessage());
+        }
     }
 
     public function testCopyImport(): void
     {
+        /** @var array $table */
         $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId() . '/tables', [
             'dataString' => 'Id,Name,update',
             'name' => 'languages',
