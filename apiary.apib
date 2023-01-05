@@ -7487,13 +7487,14 @@ Creates a new configuration row from an existing row version in [Development Bra
 
 ## Create or List Configuration Workspaces [/v2/storage/components/{component_id}/configs/{config_id}/workspaces]
 
-### Create Configuration Workspaces [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/workspaces]
+### Create Configuration Workspaces [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/workspaces?async={async}]
 Creates a new workspace for an existing configuration in [Development Branch](#reference/development-branches).
 
 + Parameters
     + branch_id (required) - Id of the development branch
     + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
     + config_id (required) - Id of the configuration
+    + async (optional, boolean) - Create workspace in a background job.
 
 + Attributes
     + backend: snowflake (optional, enum[string]) - Workspace backend. When omitted, the default backend is used.
