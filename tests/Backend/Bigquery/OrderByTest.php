@@ -1,6 +1,6 @@
 <?php
 
-namespace Keboola\Test\Backend\Teradata;
+namespace Keboola\Test\Backend\Bigquery;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
@@ -26,10 +26,9 @@ class OrderByTest extends StorageApiTestCase
         ];
 
         $dataPreview = $this->_client->getTableDataPreview($tableId, ['orderBy' => [$order]]);
+        $exportTable = $this->getExportedTable($tableId, ['orderBy' => [$order]]);
         $this->assertSame('aa', Client::parseCsv($dataPreview)[0]['column_string']);
-        // TODO enable when export supports filters
-//        $exportTable = $this->getExportedTable($tableId, ['orderBy' => [$order]]);
-//        $this->assertSame('aa', $exportTable[0]['column_string']);
+        $this->assertSame('aa', $exportTable[0]['column_string']);
     }
 
     public function testSortWithDataType(): void
@@ -38,13 +37,12 @@ class OrderByTest extends StorageApiTestCase
 
         $order = [
             'column' => 'column_double',
-            'dataType' => 'REAL',
+            'dataType' => 'DOUBLE',
         ];
         $dataPreview = $this->_client->getTableDataPreview($tableId, ['orderBy' => [$order]]);
+        $exportTable = $this->getExportedTable($tableId, ['orderBy' => [$order]]);
         $this->assertSame('1.1234', Client::parseCsv($dataPreview)[0]['column_double']);
-        // TODO enable when export supports filters
-//        $exportTable = $this->getExportedTable($tableId, ['orderBy' => [$order]]);
-//        $this->assertSame('1.1234', $exportTable[0]['column_double']);
+        $this->assertSame('1.1234', $exportTable[0]['column_double']);
     }
 
     public function testComplexSort(): void
@@ -64,14 +62,12 @@ class OrderByTest extends StorageApiTestCase
         ];
 
         $dataPreview = $this->_client->getTableDataPreview($tableId, ['orderBy' => $order]);
+        $exportTable = $this->getExportedTable($tableId, ['orderBy' => $order]);
         $this->assertSame('5', Client::parseCsv($dataPreview)[0]['column_string_number']);
-        // TODO enable when export supports filters
-//        $exportTable = $this->getExportedTable($tableId, ['orderBy' => $order]);
-//        $this->assertSame('5', $exportTable[0]['column_string_number']);
+        $this->assertSame('5', $exportTable[0]['column_string_number']);
     }
 
     /**
-     * @param array<string, string> $order
      * @dataProvider invalidDataProvider
      */
     public function testInvalidOrderByParamsShouldReturnErrorInDataPreview(array $order, string $message): void
@@ -84,23 +80,17 @@ class OrderByTest extends StorageApiTestCase
     }
 
     /**
-     * @param array<string, string> $order
      * @dataProvider invalidDataProvider
      */
     public function testInvalidOrderByParamsShouldReturnErrorInExport(array $order, string $message): void
     {
-        // TODO enable when export supports filters
-        $this->markTestSkipped('export does not supports filters');
-//        $tableId = $this->prepareTable();
-//
-//        $this->expectException(ClientException::class);
-//        $this->expectExceptionMessage($message);
-//        $this->getExportedTable($tableId, ['orderBy' => [$order]]);
+        $tableId = $this->prepareTable();
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage($message);
+        $this->getExportedTable($tableId, ['orderBy' => [$order]]);
     }
 
-    /**
-     * @return array{0: array<string, string>, 1: string}[]
-     */
     public function invalidDataProvider(): array
     {
         return [
@@ -130,29 +120,24 @@ class OrderByTest extends StorageApiTestCase
 
     public function testNonArrayParamsShouldReturnErrorInAsyncExport(): void
     {
-        // TODO enable when export supports filters
-        $this->markTestSkipped('export does not supports filters');
-//        $tableId = $this->prepareTable();
-//
-//        $orderBy = ['column' => 'column'];
-//
-//        $this->expectException(ClientException::class);
-//        $this->expectExceptionMessage("All items in param \"orderBy\" should be an arrays, but parameter contains:\n" . json_encode($orderBy));
-//        $this->getExportedTable($tableId, ['orderBy' => $orderBy]);
-    }
+        $tableId = $this->prepareTable();
 
+        $orderBy = ['column' => 'column'];
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage("All items in param \"orderBy\" should be an arrays, but parameter contains:\n" . json_encode($orderBy));
+        $this->getExportedTable($tableId, ['orderBy' => $orderBy]);
+    }
 
     public function testInvalidStructuredQueryInAsyncExport(): void
     {
-        // TODO enable when export supports filters
-        $this->markTestSkipped('export does not supports filters');
-//        $tableId = $this->prepareTable();
-//
-//        $orderBy = 'string';
-//
-//        $this->expectException(ClientException::class);
-//        $this->expectExceptionMessage("Parameter \"orderBy\" should be an array, but parameter contains:\n" . json_encode($orderBy));
-//        $this->getExportedTable($tableId, ['orderBy' => $orderBy]);
+        $tableId = $this->prepareTable();
+
+        $orderBy = 'string';
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage("Parameter \"orderBy\" should be an array, but parameter contains:\n" . json_encode($orderBy));
+        $this->getExportedTable($tableId, ['orderBy' => $orderBy]);
     }
 
     public function testNonArrayParamsShouldReturnErrorInDataPreview(): void
@@ -166,7 +151,6 @@ class OrderByTest extends StorageApiTestCase
         $this->_client->getTableDataPreview($tableId, ['orderBy' => $orderBy]);
     }
 
-
     public function testInvalidStructuredQueryInADataPreview(): void
     {
         $tableId = $this->prepareTable();
@@ -178,16 +162,12 @@ class OrderByTest extends StorageApiTestCase
         $this->_client->getTableDataPreview($tableId, ['orderBy' => $orderBy]);
     }
 
-
     private function getExportedTable(string $tableId, array $exportOptions): array
     {
         $tableExporter = new TableExporter($this->_client);
-        $path = tempnam(sys_get_temp_dir(), 'keboola-export');
-        $this->assertIsString($path);
+        $path = (string) tempnam(sys_get_temp_dir(), 'keboola-export');
         $tableExporter->exportTable($tableId, $path, $exportOptions);
-        $fileContents = file_get_contents($path);
-        $this->assertIsString($fileContents);
-        return Client::parseCsv($fileContents);
+        return Client::parseCsv((string) file_get_contents($path));
     }
 
     private function prepareTable(): string
@@ -199,8 +179,6 @@ class OrderByTest extends StorageApiTestCase
         $csvFile->writeRow(['aa', '4444', '0004.123']);
         $csvFile->writeRow(['zx', '5', '4']);
         $csvFile->writeRow(['zx', '555111', '1.1234']);
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'conditions', $csvFile);
-        $this->assertIsString($tableId);
-        return $tableId;
+        return $this->_client->createTable($this->getTestBucketId(), 'conditions', $csvFile);
     }
 }
