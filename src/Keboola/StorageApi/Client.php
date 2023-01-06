@@ -1528,6 +1528,10 @@ class Client
             $filteredOptions['whereValues'] = (array) $options['whereValues'];
         }
 
+        if (isset($options['whereFilters'])) {
+            $filteredOptions['whereFilters'] = (array) $options['whereFilters'];
+        }
+
         // TODO use apiDeleteParamsJson after endpoint is ready
         // TODO add example to API documentation
         return $this->apiDeleteParams("tables/{$tableId}/rows", $filteredOptions);
