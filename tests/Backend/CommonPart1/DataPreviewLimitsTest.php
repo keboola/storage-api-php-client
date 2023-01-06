@@ -115,8 +115,7 @@ class DataPreviewLimitsTest extends StorageApiTestCase
 
         $this->skipTestForBackend([
             self::BACKEND_TERADATA,
-            self::BACKEND_BIGQUERY,
-        ], 'Teradata|Bigquery does not support truncate for table preview');
+        ], 'Teradata does support truncate for table preview but string tables are created as VARCHAR(10666) which is less than truncation limit.');
 
         $columnCount = 5;
         $rowCount = 5;

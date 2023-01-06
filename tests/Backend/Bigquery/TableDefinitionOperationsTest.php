@@ -191,7 +191,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 ],
                 [
                     'columnName' => 'column_boolean',
-                    'value' => '',
+                    'value' => 'false',
                     'isTruncated' => false,
                 ],
                 [
@@ -319,7 +319,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 ],
                 [
                     'columnName' => 'column_boolean',
-                    'value' => '',
+                    'value' => 'false',
                     'isTruncated' => false,
                 ],
                 [
