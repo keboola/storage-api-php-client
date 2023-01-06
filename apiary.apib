@@ -4222,7 +4222,7 @@ It means that endpoint `GET /v2/storage/workspaces` is the same as `GET /v2/stor
 Creates a new workspace and return its credentials.
 
 + Parameters
-    + async (optional, boolean) - Create workspace in a background job.
+    + async (optional, boolean) - Create workspace in a background job. Calling the parameter as `async=false` is deprecated.
 
 + Attributes
     + backend: snowflake (optional, enum[string]) - Workspace backend. When omitted, the default backend is used.
@@ -7487,13 +7487,14 @@ Creates a new configuration row from an existing row version in [Development Bra
 
 ## Create or List Configuration Workspaces [/v2/storage/components/{component_id}/configs/{config_id}/workspaces]
 
-### Create Configuration Workspaces [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/workspaces]
+### Create Configuration Workspaces [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/workspaces?async={async}]
 Creates a new workspace for an existing configuration in [Development Branch](#reference/development-branches).
 
 + Parameters
     + branch_id (required) - Id of the development branch
     + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
     + config_id (required) - Id of the configuration
+    + async (optional, boolean) - Create workspace in a background job. Calling the parameter as `async=false` is deprecated.
 
 + Attributes
     + backend: snowflake (optional, enum[string]) - Workspace backend. When omitted, the default backend is used.
@@ -7518,6 +7519,42 @@ Creates a new workspace for an existing configuration in [Development Branch](#r
 + Response 201 (application/json)
 
    + Attributes (WorkspaceCreated)
+
++ Response 202 (application/json)
+Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
+    + Body
+
+            {
+                "id": 11,
+                "status": "waiting",
+                "url": "https://connection.keboola.com/v2/storage/jobs/11",
+                "operationName": "workspaceCreate",
+                "operationParams": {
+                    "values": {
+                        "backend": "snowflake"
+                        "branchId": 1
+                        "component_id": "wr-db"
+                        "config_id": "123"
+                    },
+                },
+                "createdTime": "2013-05-31T16:11:05+0200",
+                "startTime": null,
+                "endTime": null,
+                "runId": null,
+                "results": null,
+                "creatorToken": {
+                    "id": "27978",
+                    "description": "roman.bracinik@keboola.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
+                }
+            }
 
 ### Workspace List [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/workspaces]
 Returns all workspaces for the component configuration in [Development Branch](#reference/development-branches).
