@@ -64,8 +64,7 @@ class DeleteRowsTest extends StorageApiTestCase
         $tomorrow = new \DateTime('+1 day');
 
         return [
-            // 1st test
-            [
+            'deprecated where: col = value' => [
                 [
                     'whereColumn' => 'city',
                     'whereValues' => ['PRG'],
@@ -91,20 +90,47 @@ class DeleteRowsTest extends StorageApiTestCase
                     ],
                 ],
             ],
-            // 2nd test
-            [
+            'where filter: col = value' => [
+                [
+                    'whereFilters' => [
+                        [
+                            'column' => 'city',
+                            'values' => ['PRG'],
+                        ],
+                    ],
+                ],
+                [
+                    [
+                        '3',
+                        'ondra',
+                        'VAN',
+                        'male',
+                    ],
+                    [
+                        '4',
+                        'miro',
+                        'BRA',
+                        'male',
+                    ],
+                    [
+                        '5',
+                        'hidden',
+                        '',
+                        'male',
+                    ],
+                ],
+            ],
+            'since yesterday - timestamp' => [
                 [
                     'changedSince' => $yesterday->getTimestamp(),
                 ],
                 [],
             ],
-            // 3rd test
-            [
+            'no params' => [
                 [],
                 [],
             ],
-            // 4th test
-            [
+            'deprecated where: col != value' => [
                 [
                     'whereOperator' => 'ne',
                     'whereColumn' => 'city',
@@ -125,8 +151,7 @@ class DeleteRowsTest extends StorageApiTestCase
                     ],
                 ],
             ],
-            // 5th test
-            [
+            'deprecated where: col in values' => [
                 [
                     'whereOperator' => 'ne',
                     'whereColumn' => 'city',
@@ -153,8 +178,7 @@ class DeleteRowsTest extends StorageApiTestCase
                     ],
                 ],
             ],
-            // 6th test
-            [
+            'since tomorrow - timestamp' => [
                 [
                     'changedSince' => $tomorrow->getTimestamp(),
                 ],
