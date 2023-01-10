@@ -296,8 +296,6 @@
 	<testsuite name="paratest-bigquery">
 
 		<directory>tests/Backend/CommonPart1</directory>
-		<!--		DELETE requires filters-->
-		<exclude>tests/Backend/CommonPart1/DeleteRowsTest.php</exclude>
 		<!--		BQ does not support TWC-->
 		<exclude>tests/Backend/CommonPart1/CreateTableWithConfigurationTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/MigrateTableWithConfigurationTest.php</exclude>
