@@ -13,7 +13,7 @@ use Keboola\Test\StorageApiTestCase;
 
 class TimeTravelTest extends StorageApiTestCase
 {
-    private $downloadPath;
+    private string $downloadPath;
 
     public function setUp(): void
     {
@@ -270,9 +270,14 @@ class TimeTravelTest extends StorageApiTestCase
         $exporter = new TableExporter($this->_client);
         $downloadFile = $this->downloadPath . 'timeTravelOutput.csv';
         $exporter->exportTable($replicaTableId, $downloadFile, []);
+
+        /** @var string $downloadedFileContent */
+        $downloadedFileContent = file_get_contents($downloadFile);
+        /** @var string $importedFileContent */
+        $importedFileContent = file_get_contents($importFile);
         $this->assertArrayEqualsSorted(
-            Client::parseCsv(file_get_contents($importFile)),
-            Client::parseCsv(file_get_contents($downloadFile)),
+            Client::parseCsv($importedFileContent),
+            Client::parseCsv($downloadedFileContent),
             'id'
         );
     }
@@ -359,6 +364,7 @@ class TimeTravelTest extends StorageApiTestCase
         $token = $this->_client->verifyToken();
 
         // create a linked bucket in the same project
+        /** @var string $selfLinkedBucketId */
         $selfLinkedBucketId = $this->_client->linkBucket(
             'same-project-link-test',
             self::STAGE_OUT,
