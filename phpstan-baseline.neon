@@ -2501,21 +2501,6 @@ parameters:
 			path: tests/Backend/CommonPart1/DataPreviewLimitsTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\DeleteRowsTest\\:\\:tableDeleteRowsByFiltersData\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/DeleteRowsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\DeleteRowsTest\\:\\:testTableDeleteRowsByFilter\\(\\) has parameter \\$expectedTableContent with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/DeleteRowsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\DeleteRowsTest\\:\\:testTableDeleteRowsByFilter\\(\\) has parameter \\$filterParams with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/DeleteRowsTest.php
-
-		-
 			message: "#^Binary operation \"\\-\" between string and 1 results in an error\\.$#"
 			count: 2
 			path: tests/Backend/CommonPart1/ExportParamsTest.php
