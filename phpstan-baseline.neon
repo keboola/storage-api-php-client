@@ -2381,26 +2381,6 @@ parameters:
 			path: src/Keboola/StorageApi/Workspaces.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\AlterTableTest\\:\\:invalidColumnNameProvider\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/AlterTableTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\AlterTableTest\\:\\:testTableColumnNameShouldBeWebalized\\(\\) has parameter \\$expectedColumnName with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/AlterTableTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\AlterTableTest\\:\\:testTableColumnNameShouldBeWebalized\\(\\) has parameter \\$requestedColumnName with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/AlterTableTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\AlterTableTest\\:\\:webalizeColumnNameProvider\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/AlterTableTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\CreateTableTest\\:\\:createTableFromSlicedFileData\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart1/CreateTableTest.php
