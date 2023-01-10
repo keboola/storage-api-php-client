@@ -1,13 +1,13 @@
 <?php
 
-namespace Keboola\Test\Backend\Snowflake;
+namespace Keboola\Test\Backend\CommonPart1;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
-use Keboola\StorageApi\Options\TokenUpdateOptions;
 use Keboola\StorageApi\TableExporter;
 use Keboola\Test\StorageApiTestCase;
 
@@ -20,6 +20,201 @@ class TimeTravelTest extends StorageApiTestCase
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();
         $this->downloadPath = __DIR__ . '/../../_tmp/';
+    }
+
+    public function testCreateTypedTableFromTimestamp(): void
+    {
+        $this->skipTestForBackend(
+            [
+                self::BACKEND_SNOWFLAKE,
+            ],
+            'Snowflake doesn\'t support time travel from typed table.'
+        );
+
+        $sourceTable = 'languages_' . date('Ymd_His');
+        $tableDefinition = [
+            'name' => $sourceTable,
+            'primaryKeysNames' => [],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'INT64',
+                        'nullable' => false,
+                    ],
+                ],
+                [
+                    'name' => 'column_decimal',
+                    'definition' => [
+                        'type' => 'DECIMAL',
+                        'length' => '4,3',
+                    ],
+                ],
+                [
+                    'name' => 'column_float',
+                    'definition' => [
+                        'type' => 'FLOAT64',
+                    ],
+                ],
+                [
+                    'name' => 'column_boolean',
+                    'definition' => [
+                        'type' => 'BOOL',
+                    ],
+                ],
+                [
+                    'name' => 'column_date',
+                    'definition' => [
+                        'type' => 'DATE',
+                    ],
+                ],
+                [
+                    'name' => 'column_timestamp',
+                    'definition' => [
+                        'type' => 'TIMESTAMP',
+                    ],
+                ],
+                [
+                    'name' => 'column_varchar',
+                    'definition' => [
+                        'type' => 'STRING',
+                    ],
+                ],
+            ],
+        ];
+
+        $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
+        $csvFile->writeRow([
+            'id',
+            'column_decimal',
+            'column_float',
+            'column_boolean',
+            'column_date',
+            'column_timestamp',
+            'column_varchar',
+        ]);
+        $csvFile->writeRow(
+            [
+                '1',
+                '003.123',
+                '3.14',
+                0,
+                '1989-08-31',
+                '1989-08-31 00:00:00.000',
+                'roman',
+            ]
+        );
+
+        $sourceTableId = $this->_client->createTableDefinition($this->getTestBucketId(), $tableDefinition);
+
+        $this->_client->writeTable($sourceTableId, $csvFile);
+        $originalTable = $this->_client->getTable($sourceTableId);
+
+        sleep(10);
+        $timestamp = date(DATE_ATOM);
+        sleep(25);
+
+        $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
+        $csvFile->writeRow([
+            'id',
+            'column_decimal',
+            'column_float',
+            'column_boolean',
+            'column_date',
+            'column_timestamp',
+            'column_varchar',
+        ]);
+        $csvFile->writeRow([
+            '2',
+            '003.123',
+            '3.14',
+            0,
+            '1989-08-31',
+            '1989-08-31 00:00:00.000',
+            'roman',
+        ]);
+        $csvFile->writeRow(
+            [
+                '3',
+                '003.123',
+                '3.14',
+                0,
+                '1989-08-31',
+                '1989-08-31 00:00:00.000',
+                'roman',
+            ]
+        );
+
+        $this->_client->writeTable($sourceTableId, $csvFile, ['incremental' => true]);
+        $newTableName = 'new-table-name_' . date('Ymd_His', (int) strtotime($timestamp));
+
+        $updatedTable = $this->_client->getTable($sourceTableId);
+
+        $replicaTableId = $this->_client->createTableFromSourceTableAtTimestamp(
+            $this->getTestBucketId(self::STAGE_OUT),
+            $sourceTableId,
+            $timestamp,
+            $newTableName
+        );
+
+        $replicaTable = $this->_client->getTable($replicaTableId);
+
+        $this->assertEquals($newTableName, $replicaTable['name']);
+        $this->assertEquals([], $replicaTable['primaryKey']); // BQ doesn't support pk som this should be empty
+        $this->assertLessThan($updatedTable['rowsCount'], $originalTable['rowsCount']);
+        $this->assertEquals($originalTable['rowsCount'], $replicaTable['rowsCount']);
+
+        $metadata = reset($replicaTable['metadata']);
+        $this->assertSame('storage', $metadata['provider']);
+        $this->assertSame('KBC.dataTypesEnabled', $metadata['key']);
+        $this->assertSame('true', $metadata['value']);
+        $this->assertTrue($replicaTable['isTyped']);
+
+        // check that the new table has correct datypes in metadata
+        $metadataClient = new Metadata($this->_client);
+        $idColumnMetadata = $metadataClient->listColumnMetadata("{$replicaTableId}.id");
+        $decimalColumnMetadata = $metadataClient->listColumnMetadata("{$replicaTableId}.column_decimal");
+        $floatColumnMetadata = $metadataClient->listColumnMetadata("{$replicaTableId}.column_float");
+        $booleanColumnMetadata = $metadataClient->listColumnMetadata("{$replicaTableId}.column_boolean");
+        $dateColumnMetadata = $metadataClient->listColumnMetadata("{$replicaTableId}.column_date");
+        $timestampColumnMetadata = $metadataClient->listColumnMetadata("{$replicaTableId}.column_timestamp");
+        $varcharColumnMetadata = $metadataClient->listColumnMetadata("{$replicaTableId}.column_varchar");
+
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.type',
+            'value' => 'INT64',
+            'provider' => 'storage',
+        ], $idColumnMetadata[0], ['id', 'timestamp']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.type',
+            'value' => 'NUMERIC',
+            'provider' => 'storage',
+        ], $decimalColumnMetadata[0], ['id', 'timestamp']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.type',
+            'value' => 'FLOAT64',
+            'provider' => 'storage',
+        ], $floatColumnMetadata[0], ['id', 'timestamp']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.type',
+            'value' => 'BOOL',
+            'provider' => 'storage',
+        ], $booleanColumnMetadata[0], ['id', 'timestamp']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.type',
+            'value' => 'DATE',
+            'provider' => 'storage',
+        ], $dateColumnMetadata[0], ['id', 'timestamp']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.type',
+            'value' => 'TIMESTAMP',
+            'provider' => 'storage',
+        ], $timestampColumnMetadata[0], ['id', 'timestamp']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.type',
+            'value' => 'STRING',
+            'provider' => 'storage',
+        ], $varcharColumnMetadata[0], ['id', 'timestamp']);
     }
 
     public function testCreateTableFromTimestamp(): void
@@ -63,7 +258,11 @@ class TimeTravelTest extends StorageApiTestCase
         $replicaTable = $this->_client->getTable($replicaTableId);
 
         $this->assertEquals($newTableName, $replicaTable['name']);
-        $this->assertEquals(['id'], $replicaTable['primaryKey']);
+        if ($this->getDefaultBackend($this->_client) === self::BACKEND_BIGQUERY) {
+            $this->assertEquals([], $replicaTable['primaryKey']);
+        } else {
+            $this->assertEquals(['id'], $replicaTable['primaryKey']);
+        }
         $this->assertLessThan($updatedTable['rowsCount'], $originalTable['rowsCount']);
         $this->assertEquals($originalTable['rowsCount'], $replicaTable['rowsCount']);
 
