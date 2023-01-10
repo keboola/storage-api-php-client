@@ -120,6 +120,40 @@ class DeleteRowsTest extends StorageApiTestCase
                     ],
                 ],
             ],
+            'where filter: multiple' => [
+                [
+                    'whereFilters' => [
+                        [
+                            'column' => 'city',
+                            'values' => ['PRG', 'VAN'],
+                        ],
+                        [
+                            'column' => 'sex',
+                            'values' => ['male'],
+                        ],
+                    ],
+                ],
+                [
+                    [
+                        '2',
+                        'klara',
+                        'PRG',
+                        'female',
+                    ],
+                    [
+                        '4',
+                        'miro',
+                        'BRA',
+                        'male',
+                    ],
+                    [
+                        '5',
+                        'hidden',
+                        '',
+                        'male',
+                    ],
+                ],
+            ],
             'since yesterday - timestamp' => [
                 [
                     'changedSince' => $yesterday->getTimestamp(),
