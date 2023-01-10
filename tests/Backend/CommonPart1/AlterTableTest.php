@@ -1,19 +1,4 @@
 <?php
-/**
- * Created by JetBrains PhpStorm.
- * User: martinhalamicek
- * Date: 22/05/14
- * Time: 16:38
- * To change this template use File | Settings | File Templates.
- */
-
-/**
- *
- * User: Martin Halamíček
- * Date: 16.5.12
- * Time: 11:46
- *
- */
 
 namespace Keboola\Test\Backend\CommonPart1;
 
@@ -33,7 +18,7 @@ class AlterTableTest extends StorageApiTestCase
     public function testTableColumnAdd(): void
     {
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile($importFile));
+        $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile($importFile));
 
         $this->_client->addTableColumn($tableId, 'State');
 
@@ -43,7 +28,7 @@ class AlterTableTest extends StorageApiTestCase
         $this->assertContains('State', $detail['columns']);
         $this->assertEquals(['id', 'name', 'State'], $detail['columns']);
 
-        $importFileWithNewCol = $importFile = __DIR__ . '/../../_data/languages.with-state.csv';
+        $importFileWithNewCol = __DIR__ . '/../../_data/languages.with-state.csv';
         $this->_client->writeTable($tableId, new CsvFile($importFileWithNewCol));
         $this->assertLinesEqualsSorted(
             file_get_contents($importFileWithNewCol),
@@ -54,13 +39,11 @@ class AlterTableTest extends StorageApiTestCase
 
     /**
      * @dataProvider webalizeColumnNameProvider
-     * @param $requestedColumnName
-     * @param $expectedColumnName
      */
-    public function testTableColumnNameShouldBeWebalized($requestedColumnName, $expectedColumnName): void
+    public function testTableColumnNameShouldBeWebalized(string $requestedColumnName, string $expectedColumnName): void
     {
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile($importFile));
+        $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile($importFile));
 
         $this->_client->addTableColumn($tableId, $requestedColumnName);
 
@@ -68,7 +51,7 @@ class AlterTableTest extends StorageApiTestCase
         $this->assertEquals(['id', 'name', $expectedColumnName], $table['columns']);
     }
 
-    public function webalizeColumnNameProvider()
+    public function webalizeColumnNameProvider(): array
     {
         return [
             [
@@ -88,7 +71,7 @@ class AlterTableTest extends StorageApiTestCase
 
     public function testTableExistingColumnAdd(): void
     {
-        $this->expectException(\Keboola\StorageApi\ClientException::class);
+        $this->expectException(ClientException::class);
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile($importFile));
         $this->_client->addTableColumn($tableId, 'id');
@@ -107,9 +90,8 @@ class AlterTableTest extends StorageApiTestCase
 
     /**
      * @dataProvider invalidColumnNameProvider
-     * @param string $columnName
      */
-    public function testAddColumnWithInvalidNameShouldThrowError($columnName): void
+    public function testAddColumnWithInvalidNameShouldThrowError(string $columnName): void
     {
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile($importFile));
@@ -124,7 +106,7 @@ class AlterTableTest extends StorageApiTestCase
         }
     }
 
-    public function invalidColumnNameProvider()
+    public function invalidColumnNameProvider(): array
     {
         return [
             'too long column' => [
@@ -139,7 +121,7 @@ class AlterTableTest extends StorageApiTestCase
     public function testTableColumnDelete(): void
     {
         $importFile = __DIR__ . '/../../_data/languages.camel-case-columns.csv';
-        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile($importFile));
+        $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile($importFile));
 
         $this->_client->deleteTableColumn($tableId, 'Name');
 
@@ -149,7 +131,7 @@ class AlterTableTest extends StorageApiTestCase
         try {
             $this->_client->deleteTableColumn($tableId, 'Id');
             $this->fail('Exception should be thrown when last column is remaining');
-        } catch (\Keboola\StorageApi\ClientException $e) {
+        } catch (ClientException $e) {
         }
     }
 
@@ -185,7 +167,7 @@ class AlterTableTest extends StorageApiTestCase
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTable(
-            $this->getTestBucketId(self::STAGE_IN),
+            $this->getTestBucketId(),
             'users',
             new CsvFile($importFile),
             []
@@ -198,8 +180,8 @@ class AlterTableTest extends StorageApiTestCase
         try {
             $this->_client->createTablePrimaryKey($tableId, []);
             $this->fail('primary key should not be created');
-        } catch (\Keboola\StorageApi\ClientException $e) {
-            $this->assertEquals($e->getStringCode(), 'storage.validation.primaryKey');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.validation.primaryKey', $e->getStringCode());
         }
     }
 
@@ -210,25 +192,20 @@ class AlterTableTest extends StorageApiTestCase
     {
         $importFile = __DIR__ . '/../../_data/many-more-columns.csv';
 
-        // TODO should be also checked for Snowflake, but it has it manually in Connection
         $this->skipTestForBackend([
             self::BACKEND_EXASOL,
             self::BACKEND_BIGQUERY,
         ], 'Exasol|Bigquery backend does not have any limit');
 
-        $this->skipTestForBackend([
-            self::BACKEND_TERADATA,
-        ], 'TODO, but skip for now');
-
         try {
             $this->_client->createTable(
-                $this->getTestBucketId(self::STAGE_IN),
+                $this->getTestBucketId(),
                 'tooManyColumns',
                 new CsvFile($importFile),
                 []
             );
             $this->fail('There were 5000 columns man. fail.');
-        } catch (\Keboola\StorageApi\ClientException $e) {
+        } catch (ClientException $e) {
             $this->assertEquals('storage.tables.validation.tooManyColumns', $e->getStringCode());
         }
     }
@@ -241,7 +218,7 @@ class AlterTableTest extends StorageApiTestCase
         $importFile = __DIR__ . '/../../_data/users.csv';
 
         $table1Id = $this->_client->createTable(
-            $this->getTestBucketId(self::STAGE_IN),
+            $this->getTestBucketId(),
             'users',
             new CsvFile($importFile)
         );
@@ -254,12 +231,6 @@ class AlterTableTest extends StorageApiTestCase
             new CsvFile($importFile)
         );
 
-        $tokenData = $this->_client->verifyToken();
-
-        if ($tokenData['owner']['defaultBackend'] == self::BACKEND_TERADATA) {
-            $this->markTestSkipped('TD doesnt support altering PK yet');
-        }
-
         $this->_client->createTablePrimaryKey($table2Id, ['id']);
 
         $table = $this->_client->getTable($table2Id);
@@ -269,17 +240,13 @@ class AlterTableTest extends StorageApiTestCase
 
     public function testPrimaryKeyAddWithDuplicty(): void
     {
-
-        $this->skipTestForBackend([
-            self::BACKEND_BIGQUERY,
-            self::BACKEND_TERADATA,
-        ], 'TD|BQ doesnt support adding PK yet');
+        $this->skipTestForBackend([self::BACKEND_BIGQUERY,], 'BQ doesnt check duplicity in table');
 
         $primaryKeyColumns = ['id'];
         $importFile = __DIR__ . '/../../_data/users.csv';
 
         $tableId = $this->_client->createTable(
-            $this->getTestBucketId(self::STAGE_IN),
+            $this->getTestBucketId(),
             'users',
             new CsvFile($importFile),
             []
@@ -295,7 +262,7 @@ class AlterTableTest extends StorageApiTestCase
 
         try {
             $this->_client->createTablePrimaryKey($tableId, $primaryKeyColumns);
-        } catch (\Keboola\StorageApi\ClientException $e) {
+        } catch (ClientException $e) {
             $this->assertEquals('storage.tables.primaryKeyDuplicateValues', $e->getStringCode());
         }
 
@@ -304,7 +271,7 @@ class AlterTableTest extends StorageApiTestCase
         $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
 
         $tableId = $this->_client->createTable(
-            $this->getTestBucketId(self::STAGE_IN),
+            $this->getTestBucketId(),
             'languages',
             new CsvFile($importFile),
             []
@@ -321,20 +288,13 @@ class AlterTableTest extends StorageApiTestCase
         try {
             $this->_client->createTablePrimaryKey($tableId, $primaryKeyColumns);
             $this->fail('create should not be allowed');
-        } catch (\Keboola\StorageApi\ClientException $e) {
+        } catch (ClientException $e) {
             $this->assertEquals('storage.tables.primaryKeyDuplicateValues', $e->getStringCode());
         }
     }
 
     public function testPrimaryKeyDelete(): void
     {
-
-        $tokenData = $this->_client->verifyToken();
-
-        if ($tokenData['owner']['defaultBackend'] == self::BACKEND_TERADATA) {
-            $this->markTestSkipped('TD doesnt support altering PK yet');
-        }
-
         $importFile = __DIR__ . '/../../_data/users.csv';
 
         $tableId = $this->_client->createTable(
@@ -395,7 +355,6 @@ class AlterTableTest extends StorageApiTestCase
         $this->assertEmpty($tableDetail['primaryKey']);
 
         // delete primary key from table with filtered alias
-        $indexColumn = 'name';
         $importFile = __DIR__ . '/../../_data/languages.more-columns.csv';
 
         $tableId = $this->_client->createTable(
@@ -432,7 +391,7 @@ class AlterTableTest extends StorageApiTestCase
         $indexRemoved = true;
         try {
             $this->_client->removeTablePrimaryKey($tableId);
-        } catch (\Keboola\StorageApi\ClientException $e) {
+        } catch (ClientException $e) {
             if ($e->getStringCode() == 'storage.tables.cannotRemoveReferencedColumnFromPrimaryKey') {
                 $indexRemoved = false;
             } else {
@@ -451,7 +410,7 @@ class AlterTableTest extends StorageApiTestCase
         $indexRemoved = true;
         try {
             $this->_client->removeTablePrimaryKey($aliasTableId);
-        } catch (\Keboola\StorageApi\ClientException $e) {
+        } catch (ClientException $e) {
             if ($e->getStringCode() == 'storage.tables.aliasImportNotAllowed') {
                 $indexRemoved = false;
             } else {
@@ -469,13 +428,6 @@ class AlterTableTest extends StorageApiTestCase
 
     public function testEmptyPrimaryKeyDelete(): void
     {
-
-        $tokenData = $this->_client->verifyToken();
-
-        if ($tokenData['owner']['defaultBackend'] == self::BACKEND_TERADATA) {
-            $this->markTestSkipped('TD doesnt support altering PK yet');
-        }
-
         $tableId = $this->_client->createTable(
             $this->getTestBucketId(),
             'users',
@@ -497,14 +449,14 @@ class AlterTableTest extends StorageApiTestCase
         try {
             $this->_client->createTablePrimaryKey($tableId, ['fakeColumn']);
             $this->fail('Adding invalid primary key should result in an error');
-        } catch (\Keboola\StorageApi\ClientException $e) {
+        } catch (ClientException $e) {
             $this->assertEquals('storage.validation.primaryKey', $e->getStringCode());
         }
 
         try {
             $this->_client->createTablePrimaryKey($tableId, ['id', 'fakeColumn']);
             $this->fail('Adding invalid primary key should result in an error');
-        } catch (\Keboola\StorageApi\ClientException $e) {
+        } catch (ClientException $e) {
             $this->assertEquals('storage.validation.primaryKey', $e->getStringCode());
         }
     }
