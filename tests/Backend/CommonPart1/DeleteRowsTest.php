@@ -27,7 +27,7 @@ class DeleteRowsTest extends StorageApiTestCase
      * @param $expectedTableContent
      * @dataProvider tableDeleteRowsByFiltersData
      */
-    public function testTableDeleteRowsByFilter($filterParams, $expectedTableContent): void
+    public function testTableDeleteRowsByFilter(array $filterParams, array $expectedTableContent): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
@@ -58,7 +58,7 @@ class DeleteRowsTest extends StorageApiTestCase
         }
     }
 
-    public function tableDeleteRowsByFiltersData()
+    public function tableDeleteRowsByFiltersData(): array
     {
         $yesterday = new \DateTime('-1 day');
         $tomorrow = new \DateTime('+1 day');
