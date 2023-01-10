@@ -23,7 +23,22 @@ class FulltextSearchTest extends StorageApiTestCase
         $dataPreviewCsv = Client::parseCsv($dataPreview);
 
         $this->assertCount(2, $dataPreviewCsv);
-        $this->assertSame('DcontainsDD', $dataPreviewCsv[0]['column_2']);
+        $this->assertArrayEqualsSorted(
+            [
+                [
+                    'column_1' => 'AcontainsAA',
+                    'column_2' => 'DcontainsDD',
+                    'column_3' => 'EcontainsEE', // containsE
+                ],
+                [
+                    'column_1' => 'DcontainsDD',
+                    'column_2' => 'EcontainsEE', // containsE
+                    'column_3' => 'FcontainsFF',
+                ],
+            ],
+            $dataPreviewCsv,
+            'column_1'
+        );
     }
 
     public function testFindNonExistingDataByFulltext(): void
