@@ -64,6 +64,53 @@ class DeleteRowsTest extends StorageApiTestCase
         $tomorrow = new \DateTime('+1 day');
 
         return [
+            'no params' => [
+                [],
+                [],
+            ],
+            'since yesterday - timestamp' => [
+                [
+                    'changedSince' => $yesterday->getTimestamp(),
+                ],
+                [],
+            ],
+            'since tomorrow - timestamp' => [
+                [
+                    'changedSince' => $tomorrow->getTimestamp(),
+                ],
+                [
+                    [
+                        '1',
+                        'martin',
+                        'PRG',
+                        'male',
+                    ],
+                    [
+                        '2',
+                        'klara',
+                        'PRG',
+                        'female',
+                    ],
+                    [
+                        '3',
+                        'ondra',
+                        'VAN',
+                        'male',
+                    ],
+                    [
+                        '4',
+                        'miro',
+                        'BRA',
+                        'male',
+                    ],
+                    [
+                        '5',
+                        'hidden',
+                        '',
+                        'male',
+                    ],
+                ],
+            ],
             'deprecated where: col = value' => [
                 [
                     'whereColumn' => 'city',
@@ -86,6 +133,54 @@ class DeleteRowsTest extends StorageApiTestCase
                         '5',
                         'hidden',
                         '',
+                        'male',
+                    ],
+                ],
+            ],
+            'deprecated where: col != value' => [
+                [
+                    'whereOperator' => 'ne',
+                    'whereColumn' => 'city',
+                    'whereValues' => ['PRG'],
+                ],
+                [
+                    [
+                        '1',
+                        'martin',
+                        'PRG',
+                        'male',
+                    ],
+                    [
+                        '2',
+                        'klara',
+                        'PRG',
+                        'female',
+                    ],
+                ],
+            ],
+            'deprecated where: col in values' => [
+                [
+                    'whereOperator' => 'ne',
+                    'whereColumn' => 'city',
+                    'whereValues' => ['PRG', 'BRA'],
+                ],
+                [
+                    [
+                        '1',
+                        'martin',
+                        'PRG',
+                        'male',
+                    ],
+                    [
+                        '2',
+                        'klara',
+                        'PRG',
+                        'female',
+                    ],
+                    [
+                        '4',
+                        'miro',
+                        'BRA',
                         'male',
                     ],
                 ],
@@ -139,101 +234,6 @@ class DeleteRowsTest extends StorageApiTestCase
                         'klara',
                         'PRG',
                         'female',
-                    ],
-                    [
-                        '4',
-                        'miro',
-                        'BRA',
-                        'male',
-                    ],
-                    [
-                        '5',
-                        'hidden',
-                        '',
-                        'male',
-                    ],
-                ],
-            ],
-            'since yesterday - timestamp' => [
-                [
-                    'changedSince' => $yesterday->getTimestamp(),
-                ],
-                [],
-            ],
-            'no params' => [
-                [],
-                [],
-            ],
-            'deprecated where: col != value' => [
-                [
-                    'whereOperator' => 'ne',
-                    'whereColumn' => 'city',
-                    'whereValues' => ['PRG'],
-                ],
-                [
-                    [
-                        '1',
-                        'martin',
-                        'PRG',
-                        'male',
-                    ],
-                    [
-                        '2',
-                        'klara',
-                        'PRG',
-                        'female',
-                    ],
-                ],
-            ],
-            'deprecated where: col in values' => [
-                [
-                    'whereOperator' => 'ne',
-                    'whereColumn' => 'city',
-                    'whereValues' => ['PRG', 'BRA'],
-                ],
-                [
-                    [
-                        '1',
-                        'martin',
-                        'PRG',
-                        'male',
-                    ],
-                    [
-                        '2',
-                        'klara',
-                        'PRG',
-                        'female',
-                    ],
-                    [
-                        '4',
-                        'miro',
-                        'BRA',
-                        'male',
-                    ],
-                ],
-            ],
-            'since tomorrow - timestamp' => [
-                [
-                    'changedSince' => $tomorrow->getTimestamp(),
-                ],
-                [
-                    [
-                        '1',
-                        'martin',
-                        'PRG',
-                        'male',
-                    ],
-                    [
-                        '2',
-                        'klara',
-                        'PRG',
-                        'female',
-                    ],
-                    [
-                        '3',
-                        'ondra',
-                        'VAN',
-                        'male',
                     ],
                     [
                         '4',
