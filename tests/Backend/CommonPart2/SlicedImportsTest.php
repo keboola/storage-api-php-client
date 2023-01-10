@@ -60,10 +60,6 @@ class SlicedImportsTest extends StorageApiTestCase
 
     public function testSlicedImportSingleFile(): void
     {
-        $this->skipTestForBackend([
-            self::BACKEND_TERADATA,
-        ], 'Rows delete supported');
-
         $slices = [
             __DIR__ . '/../../_data/languages.no-headers.csv',
         ];
