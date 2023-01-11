@@ -62,7 +62,6 @@ class SlicedImportsTest extends StorageApiTestCase
     {
         $this->skipTestForBackend([
             self::BACKEND_TERADATA,
-            self::BACKEND_BIGQUERY,
         ], 'Rows delete supported');
 
         $slices = [

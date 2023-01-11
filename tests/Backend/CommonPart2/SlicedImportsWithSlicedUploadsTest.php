@@ -53,7 +53,6 @@ class SlicedImportsWithSlicedUploadsTest extends StorageApiTestCase
     {
         $this->skipTestForBackend([
             self::BACKEND_TERADATA,
-            self::BACKEND_BIGQUERY,
         ], 'Rows delete supported');
         $uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
         $uploadOptions
