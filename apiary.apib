@@ -2886,13 +2886,13 @@ To enable compression of API response traffic, please include the following HTTP
                 + le - Less than or equals  - Not supported for Redshift
             + Default: eq
         + values[] (required, array) - array of variables to compare
-        + dataType (optional, enum[string]) - Not supported for Redshift - for comparing (`[gt|lt|le|ge]`) numeric values you have to specify data type
+        + dataType (optional, enum[string]) - Not supported for Redshift - for comparing (`[gt|lt|le|ge]`) numeric values you have to specify data type. Bigquery supports all listed types and converts them to Bigquery equivalent in the background
             + Members
-                + INTEGER - for numbers without a decimal point (Snowflake, Teradata)
-                + DOUBLE - for number with a decimal point (Snowflake)
-                + BIGINT - for number without a decimal point (Synapse)
-                + REAL - for number with a decimal point (Synapse, Teradata)
-                + DECIMAL - for numbers (Exasol)
+                + INTEGER - for numbers without a decimal point (Snowflake, Teradata, Bigquery)
+                + DOUBLE - for number with a decimal point (Snowflake, Bigquery)
+                + BIGINT - for number without a decimal point (Synapse, Bigquery)
+                + REAL - for number with a decimal point (Synapse, Teradata, Bigquery)
+                + DECIMAL - for numbers (Exasol, Bigquery)
     + orderBy[] (optional) - Not supported for Redshift
         + column (required) - name of column used for sorting
         + order (optional, enum[string])
@@ -2902,12 +2902,12 @@ To enable compression of API response traffic, please include the following HTTP
             + Default ASC
         + dataType (optional, enum[string]) - required when sorting by column contains numeric value
             + Members
-                + INTEGER - for numbers without a decimal point (Snowflake, Teradata)
-                + DOUBLE - for number with a decimal point (Snowflake)
-                + BIGINT - for number without a decimal point (Synapse)
-                + REAL - for number with a decimal point (Synapse, Teradata)
-                + DECIMAL - for numbers (Exasol)
-    + fulltextSearch (optional, string) - Makes fulltext search over all data in table. It cannot be combined with `whereFilters`. On Teradata search only over char-base columns. Snowflake/Synapse/Teradata only
+                + INTEGER - for numbers without a decimal point (Snowflake, Teradata, Bigquery)
+                + DOUBLE - for number with a decimal point (Snowflake, Bigquery)
+                + BIGINT - for number without a decimal point (Synapse, Bigquery)
+                + REAL - for number with a decimal point (Synapse, Teradata, Bigquery)
+                + DECIMAL - for numbers (Exasol, Bigquery)
+    + fulltextSearch (optional, string) - Makes fulltext search over all data in table. It cannot be combined with `whereFilters`. On Teradata search only over char-base columns. Snowflake/Synapse/Teradata/Bigquery only
 
 + Request
     + Headers
@@ -3769,13 +3769,13 @@ This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls)
                 + le - Less than or equals  - Not supported for Redshift
             + Default: eq
         + values[] (required, array) - array of variables to compare
-        + dataType (optional, enum[string]) - Not supported for Redshift - for comparing (`[gt|lt|le|ge]`) numeric values you have to specify data type
+        + dataType (optional, enum[string]) - Not supported for Redshift - for comparing (`[gt|lt|le|ge]`) numeric values you have to specify data type. Bigquery supports all listed types and converts them to Bigquery equivalent in the background
             + Members
-                + INTEGER - for numbers without a decimal point (Snowflake, Teradata)
-                + DOUBLE - for number with a decimal point (Snowflake)
-                + BIGINT - for number without a decimal point (Synapse)
-                + REAL - for number with a decimal point (Synapse, Teradata)
-                + DECIMAL - for numbers (Exasol)
+                + INTEGER - for numbers without a decimal point (Snowflake, Teradata, Bigquery)
+                + DOUBLE - for number with a decimal point (Snowflake, Bigquery)
+                + BIGINT - for number without a decimal point (Synapse, Bigquery)
+                + REAL - for number with a decimal point (Synapse, Teradata, Bigquery)
+                + DECIMAL - for numbers (Exasol, Bigquery)
 
 + Request
     + Headers
@@ -4322,6 +4322,7 @@ Creates a new workspace for [Development Branch](#reference/development-branches
             + synapse
             + exasol
             + teradata
+            + bigquery
             + abs - Azure blob storage file workspace
     + backendSize: small (optional, enum[string]) - Workspace backend size. Available only for `snowflake` backend and projects having `workspace-snowflake-dynamic-backend-size` feature enabled.
         + Members
