@@ -62,13 +62,16 @@ class GcsFileTest extends StorageApiTestCase
         $client->get($file['url']);
     }
 
-    public function testDeleteNonUploadedSlicedFile(): void
+    /**
+     * @dataProvider isSliced
+     */
+    public function testDeleteNonUploadedSlicedFile(bool $isSliced): void
     {
         $options = new FileUploadOptions();
         $options
             ->setFileName('entries_')
             ->setFederationToken(true)
-            ->setIsSliced(true)
+            ->setIsSliced($isSliced)
             ->setIsEncrypted(true);
 
         $result = $this->_client->prepareFileUpload($options);
@@ -81,6 +84,14 @@ class GcsFileTest extends StorageApiTestCase
         $this->expectException(\Keboola\StorageApi\ClientException::class);
         $this->expectExceptionMessage('File not found');
         $this->_client->getFile($fileId, (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
+    }
+
+    public function isSliced(): array
+    {
+        return [
+            [false],
+            [true],
+        ];
     }
 
     public function uploadData(): array
