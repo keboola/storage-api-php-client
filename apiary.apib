@@ -2633,6 +2633,8 @@ The create request is created and added to a queue, the job resource url for sta
 
 ### Create new table from time travel asynchronously [POST]
 
+Supported by Snowflake and Bigquery, Bigquery doesn't support primary keys so if you create a table using time travel for Bigquery backend the new table won't get primary keys.
+
 The method of creating a table asynchronously should be used for larger imports (everything with 100 lines and more).
 The create request is created and added to a queue, the job resource url for status polling is returned.
 
