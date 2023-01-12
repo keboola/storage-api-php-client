@@ -38,16 +38,26 @@ class ComponentsWorkspacesTest extends WorkspacesTestCase
     {
         yield 'sync' => [
             'async' => false,
+            'roStorageAccess' => null,
         ];
         yield 'async' => [
             'async' => true,
+            'roStorageAccess' => null,
+        ];
+        yield 'async + ro' => [
+            'async' => true,
+            'roStorageAccess' => true,
+        ];
+        yield 'async + no ro' => [
+            'async' => true,
+            'roStorageAccess' => false,
         ];
     }
 
     /**
      * @dataProvider createWorkspaceProvider
      */
-    public function testWorkspaceCreate(bool $async): void
+    public function testWorkspaceCreate(bool $async, ?bool $roStorageAccess): void
     {
         $componentId = 'wr-db';
         $configurationId = 'main-1';
@@ -61,10 +71,17 @@ class ComponentsWorkspacesTest extends WorkspacesTestCase
             ->setDescription('some desc'));
 
         // create workspace
-        $workspace = $components->createConfigurationWorkspace($componentId, $configurationId, [], $async);
+        $options = [];
+        if ($roStorageAccess !== null) {
+            $options['readOnlyStorageAccess'] = $roStorageAccess;
+        }
+        $workspace = $components->createConfigurationWorkspace($componentId, $configurationId, $options, $async);
         $this->assertEquals($componentId, $workspace['component']);
         $this->assertEquals($configurationId, $workspace['configurationId']);
         $this->assertArrayHasKey('password', $workspace['connection']);
+        if ($roStorageAccess !== null) {
+            $this->assertSame($roStorageAccess, $workspace['readOnlyStorageAccess']);
+        }
 
         // list workspaces
         $workspaces = new Workspaces($this->_client);
