@@ -27,7 +27,7 @@ class DeleteRowsTest extends StorageApiTestCase
      * @param $expectedTableContent
      * @dataProvider tableDeleteRowsByFiltersData
      */
-    public function testTableDeleteRowsByFilter($filterParams, $expectedTableContent): void
+    public function testTableDeleteRowsByFilter(array $filterParams, array $expectedTableContent): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
@@ -58,12 +58,59 @@ class DeleteRowsTest extends StorageApiTestCase
         }
     }
 
-    public function tableDeleteRowsByFiltersData()
+    public function tableDeleteRowsByFiltersData(): array
     {
         $yesterday = new \DateTime('-1 day');
         $tomorrow = new \DateTime('+1 day');
 
         return [
+            'no params' => [
+                [],
+                [],
+            ],
+            'since yesterday - timestamp' => [
+                [
+                    'changedSince' => $yesterday->getTimestamp(),
+                ],
+                [],
+            ],
+            'since tomorrow - timestamp' => [
+                [
+                    'changedSince' => $tomorrow->getTimestamp(),
+                ],
+                [
+                    [
+                        '1',
+                        'martin',
+                        'PRG',
+                        'male',
+                    ],
+                    [
+                        '2',
+                        'klara',
+                        'PRG',
+                        'female',
+                    ],
+                    [
+                        '3',
+                        'ondra',
+                        'VAN',
+                        'male',
+                    ],
+                    [
+                        '4',
+                        'miro',
+                        'BRA',
+                        'male',
+                    ],
+                    [
+                        '5',
+                        'hidden',
+                        '',
+                        'male',
+                    ],
+                ],
+            ],
             'deprecated where: col = value' => [
                 [
                     'whereColumn' => 'city',
@@ -89,46 +136,6 @@ class DeleteRowsTest extends StorageApiTestCase
                         'male',
                     ],
                 ],
-            ],
-            'where filter: col = value' => [
-                [
-                    'whereFilters' => [
-                        [
-                            'column' => 'city',
-                            'values' => ['PRG'],
-                        ],
-                    ],
-                ],
-                [
-                    [
-                        '3',
-                        'ondra',
-                        'VAN',
-                        'male',
-                    ],
-                    [
-                        '4',
-                        'miro',
-                        'BRA',
-                        'male',
-                    ],
-                    [
-                        '5',
-                        'hidden',
-                        '',
-                        'male',
-                    ],
-                ],
-            ],
-            'since yesterday - timestamp' => [
-                [
-                    'changedSince' => $yesterday->getTimestamp(),
-                ],
-                [],
-            ],
-            'no params' => [
-                [],
-                [],
             ],
             'deprecated where: col != value' => [
                 [
@@ -178,28 +185,55 @@ class DeleteRowsTest extends StorageApiTestCase
                     ],
                 ],
             ],
-            'since tomorrow - timestamp' => [
+            'where filter: col = value' => [
                 [
-                    'changedSince' => $tomorrow->getTimestamp(),
+                    'whereFilters' => [
+                        [
+                            'column' => 'city',
+                            'values' => ['PRG'],
+                        ],
+                    ],
                 ],
                 [
-                    [
-                        '1',
-                        'martin',
-                        'PRG',
-                        'male',
-                    ],
-                    [
-                        '2',
-                        'klara',
-                        'PRG',
-                        'female',
-                    ],
                     [
                         '3',
                         'ondra',
                         'VAN',
                         'male',
+                    ],
+                    [
+                        '4',
+                        'miro',
+                        'BRA',
+                        'male',
+                    ],
+                    [
+                        '5',
+                        'hidden',
+                        '',
+                        'male',
+                    ],
+                ],
+            ],
+            'where filter: multiple' => [
+                [
+                    'whereFilters' => [
+                        [
+                            'column' => 'city',
+                            'values' => ['PRG', 'VAN'],
+                        ],
+                        [
+                            'column' => 'sex',
+                            'values' => ['male'],
+                        ],
+                    ],
+                ],
+                [
+                    [
+                        '2',
+                        'klara',
+                        'PRG',
+                        'female',
                     ],
                     [
                         '4',
