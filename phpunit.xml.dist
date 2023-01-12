@@ -270,8 +270,6 @@
 		<exclude>tests/Backend/CommonPart1/TimeTravelTest.php</exclude>
 		<!--	excluded test is only for BQ specific -->
 		<exclude>tests/Backend/CommonPart1/BigqueryTableExporterTest.php</exclude>
-		<!--		DELETE requires filters-->
-		<exclude>tests/Backend/CommonPart1/DeleteRowsTest.php</exclude>
 		<!--		TD does not support TWC-->
 		<exclude>tests/Backend/CommonPart1/CreateTableWithConfigurationTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/MigrateTableWithConfigurationTest.php</exclude>
