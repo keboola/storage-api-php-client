@@ -280,9 +280,6 @@
 
 	<testsuite name="paratest-teradata-part-2">
 		<directory>tests/Backend/CommonPart2</directory>
-		<!--		requires add/delete column-->
-		<!--		requires export filters-->
-		<exclude>tests/Backend/CommonPart2/SimpleAliasTest.php</exclude>
 
 		<!--BUCKET-->
 		<file>tests/Backend/Export/ExportSimpleTest.php</file>
