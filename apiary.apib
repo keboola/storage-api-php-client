@@ -3777,10 +3777,23 @@ This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls)
                 + REAL - for number with a decimal point (Synapse, Teradata, Bigquery)
                 + DECIMAL - for numbers (Exasol, Bigquery)
 
-+ Request
++ Request using whereFilters, send as form-data (application/x-www-form-urlencoded)
     + Headers
 
             X-StorageApi-Token: your_token
+
+    + Body
+
+            whereFilters%5B0%5D%5Bcolumn%5D=id&whereFilters%5B0%5D%5Boperator%5D=eq&whereFilters%5B0%5D%5Bvalues%5D%5B0%5D=12344
+
++ Request using **deprecated** attributes, send as form-data (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            whereColumn=id&whereOperator=eq&whereValues%5B0%5D=12344
 
 + Response 202 (application/json)
     + Body
@@ -3792,9 +3805,17 @@ This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls)
                "tableId":"in.c-main.another",
                "operationName":"tableRowsDelete",
                "operationParams":{
-                  "whereColumn":"id",
-                  "whereValues": [12344],
-                  "whereOperator": "eq"
+                  "request": {
+                      "changedUntil": null,
+                      "changedSince": null,
+                      "whereFilters": [
+                          {
+                              "column": "id,
+                              "values": [12344],
+                              "operator": "eq"
+                          }
+                      ]
+                  }
                },
                "createdTime":"2013-07-08T10:01:03+0200",
                "startTime":null,
