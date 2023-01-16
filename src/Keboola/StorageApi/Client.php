@@ -1508,12 +1508,10 @@ class Client
     }
 
     /**
-     * @param $tableId
-     * @param array $options - (int) limit, (timestamp | strtotime format) changedSince, (timestamp | strtotime format)
-     *     changedUntil, (bool) escape, (array) columns
-     * @return mixed|string
+     * @param array $options
+     * @return array
      */
-    public function deleteTableRows($tableId, $options = [])
+    private function deleteTableRowsPrepareOptions($options = []): array
     {
         $allowedOptions = [
             'changedSince',
@@ -1532,9 +1530,35 @@ class Client
             $filteredOptions['whereFilters'] = (array) $options['whereFilters'];
         }
 
+        return $filteredOptions;
+    }
+
+    /**
+     * @param string $tableId
+     * @param array $options
+     * @return mixed|string
+     */
+    public function deleteTableRows($tableId, $options = [])
+    {
+        $filteredOptions = $this->deleteTableRowsPrepareOptions($options);
+
         // TODO use apiDeleteParamsJson after endpoint is ready
         // TODO add example to API documentation
         return $this->apiDeleteParams("tables/{$tableId}/rows", $filteredOptions);
+    }
+
+    /**
+     * @deprecated use self::deleteTableRows instead
+     * @param string $tableId
+     * @param array $options
+     * @return mixed|string
+     */
+    public function deleteTableRowsAsQuery($tableId, $options = [])
+    {
+        $filteredOptions = $this->deleteTableRowsPrepareOptions($options);
+
+        $url = sprintf('tables/%s/rows?%s', $tableId, http_build_query($filteredOptions));
+        return $this->apiDelete($url);
     }
 
     /**
