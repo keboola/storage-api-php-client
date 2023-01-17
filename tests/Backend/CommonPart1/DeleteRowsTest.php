@@ -23,9 +23,9 @@ class DeleteRowsTest extends StorageApiTestCase
     }
 
     /**
+     * @dataProvider tableDeleteRowsByFiltersData
      * @param $filterParams
      * @param $expectedTableContent
-     * @dataProvider tableDeleteRowsByFiltersData
      */
     public function testTableDeleteRowsByFilter(array $filterParams, array $expectedTableContent): void
     {
@@ -33,6 +33,27 @@ class DeleteRowsTest extends StorageApiTestCase
         $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
         $this->_client->deleteTableRows($tableId, $filterParams);
+        $tableInfo = $this->_client->getTable($tableId);
+
+        $data = $this->_client->getTableDataPreview($tableId);
+
+        $parsedData = Client::parseCsv($data, false);
+        array_shift($parsedData); // remove header
+
+        $this->assertArrayEqualsSorted($expectedTableContent, $parsedData, 0);
+    }
+
+    /**
+     * @dataProvider tableDeleteRowsByFiltersData
+     * @param $filterParams
+     * @param $expectedTableContent
+     */
+    public function testTableDeleteRowsByFilterAsQuery(array $filterParams, array $expectedTableContent): void
+    {
+        $importFile = __DIR__ . '/../../_data/users.csv';
+        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+
+        $this->_client->deleteTableRowsAsQuery($tableId, $filterParams);
         $tableInfo = $this->_client->getTable($tableId);
 
         $data = $this->_client->getTableDataPreview($tableId);
