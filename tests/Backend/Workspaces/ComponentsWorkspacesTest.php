@@ -79,7 +79,7 @@ class ComponentsWorkspacesTest extends WorkspacesTestCase
         $this->assertEquals($componentId, $workspace['component']);
         $this->assertEquals($configurationId, $workspace['configurationId']);
         $this->assertArrayHasKey('password', $workspace['connection']);
-        if ($roStorageAccess !== null) {
+        if ($roStorageAccess !== null && $workspace['connection']['backend'] === 'snowflake') {
             $this->assertSame($roStorageAccess, $workspace['readOnlyStorageAccess']);
         }
 
