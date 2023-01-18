@@ -29,7 +29,7 @@ class BranchComponentsWorkspacesTest extends ComponentsWorkspacesTest
     /**
      * @dataProvider createWorkspaceProvider
      */
-    public function testWorkspace(bool $async): void
+    public function testWorkspace(bool $async, ?bool $roStorageAccess): void
     {
         $componentId = 'wr-db';
         $configurationId = 'main-1';
@@ -43,10 +43,17 @@ class BranchComponentsWorkspacesTest extends ComponentsWorkspacesTest
             ->setDescription('some desc'));
 
         // create workspace
-        $branchWorkspace = $branchComponents->createConfigurationWorkspace($componentId, $configurationId, [], $async);
+        $options = [];
+        if ($roStorageAccess !== null) {
+            $options['readOnlyStorageAccess'] = $roStorageAccess;
+        }
+        $branchWorkspace = $branchComponents->createConfigurationWorkspace($componentId, $configurationId, $options, $async);
         $this->assertEquals($componentId, $branchWorkspace['component']);
         $this->assertEquals($configurationId, $branchWorkspace['configurationId']);
         $this->assertArrayHasKey('password', $branchWorkspace['connection']);
+        if ($roStorageAccess !== null) {
+            $this->assertSame($roStorageAccess, $branchWorkspace['readOnlyStorageAccess']);
+        }
 
         // list workspaces
         $branchWorkspaces = new Workspaces($this->branchAwareClient);
