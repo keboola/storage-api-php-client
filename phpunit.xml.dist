@@ -274,8 +274,6 @@
 		<exclude>tests/Backend/CommonPart1/CreateTableWithConfigurationTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/MigrateTableWithConfigurationTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/RegisterBucketTest.php</exclude>
-		<!--		TD does not support external buckets yet-->
-		<exclude>tests/Backend/CommonPart1/RegisterBucketTest.php</exclude>
 
 		<directory>tests/Backend/CommonPart2</directory>
 		<!--		requires add/delete column-->
