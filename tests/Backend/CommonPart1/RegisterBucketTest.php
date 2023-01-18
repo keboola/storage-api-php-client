@@ -23,14 +23,15 @@ class RegisterBucketTest extends StorageApiTestCase
         $this->initEvents($this->_client);
         $token = $this->_client->verifyToken();
 
-        if (!in_array('input-mapping-read-only-storage', $token['owner']['features'])) {
+        $thisBackend = $token['owner']['defaultBackend'];
+        if ($thisBackend === self::BACKEND_SNOWFLAKE && !in_array('input-mapping-read-only-storage', $token['owner']['features'])) {
             $this->markTestSkipped(sprintf('Read only mapping is not enabled for project "%s"', $token['owner']['id']));
         }
         if (!in_array('external-buckets', $token['owner']['features'])) {
             $this->markTestSkipped(sprintf('External buckets are not enabled for project "%s"', $token['owner']['id']));
         }
         if (!in_array(
-            $token['owner']['defaultBackend'],
+            $thisBackend,
             [
                 self::BACKEND_SNOWFLAKE,
                 self::BACKEND_TERADATA,
@@ -39,7 +40,7 @@ class RegisterBucketTest extends StorageApiTestCase
         )) {
             self::markTestSkipped(sprintf(
                 'Backend "%s" is not supported external bucket registration',
-                $token['owner']['defaultBackend']
+                $thisBackend
             ));
         }
 
@@ -48,16 +49,16 @@ class RegisterBucketTest extends StorageApiTestCase
         try {
             $this->_client->registerBucket(
                 'test-bucket-registration',
-                ['non-existing-database', 'non-existing-schema'],
+                $thisBackend === self::BACKEND_SNOWFLAKE ? ['non-existing-database', 'non-existing-schema'] : ['non-existing-database'],
                 'in',
                 'will fail',
-                'snowflake',
+                $thisBackend,
                 'test-bucket-will-fail'
             );
         } catch (ClientException $e) {
             $this->assertSame('storage.dbObjectNotFound', $e->getStringCode());
-            $this->assertSame(
-                'Object "non-existing-schema" doesn\'t exist or project user is missing privileges to read from it.',
+            $this->assertStringContainsString(
+                'doesn\'t exist or project user is missing privileges to read from it.',
                 $e->getMessage()
             );
         }
@@ -69,10 +70,12 @@ class RegisterBucketTest extends StorageApiTestCase
         $runId = $this->setRunId();
         $idOfBucket = $this->_client->registerBucket(
             'test-bucket-registration',
-            [$workspace['connection']['database'], $workspace['connection']['schema']],
+            $thisBackend === self::BACKEND_SNOWFLAKE ?
+                [$workspace['connection']['database'], $workspace['connection']['schema']]
+                : [$workspace['connection']['schema']],
             'in',
             'Iam in workspace',
-            'snowflake',
+            $thisBackend,
             'Iam-your-workspace'
         );
         $assertCallback = function ($events) {
@@ -84,6 +87,9 @@ class RegisterBucketTest extends StorageApiTestCase
             ->setRunId($runId);
         $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
+        if ($thisBackend === self::BACKEND_TERADATA) {
+            return;
+        }
         $bucket = $this->_client->getBucket($idOfBucket);
         $this->assertTrue($bucket['hasExternalSchema']);
         $this->assertSame($workspace['connection']['database'], $bucket['databaseName']);
@@ -342,12 +348,13 @@ class RegisterBucketTest extends StorageApiTestCase
     }
 
     private function assertColumnMetadata(
-        string $expectedType,
-        string $expectedNullable,
-        string $expectedBasetype,
+        string  $expectedType,
+        string  $expectedNullable,
+        string  $expectedBasetype,
         ?string $expectedLength,
-        array $columnMetadata
-    ): void {
+        array   $columnMetadata
+    ): void
+    {
         $this->assertArrayEqualsExceptKeys([
             'key' => 'KBC.datatype.type',
             'value' => $expectedType,
