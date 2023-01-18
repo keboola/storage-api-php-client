@@ -55,9 +55,9 @@ class RegisterBucketTest extends StorageApiTestCase
                 'test-bucket-will-fail'
             );
         } catch (ClientException $e) {
-            $this->assertSame('storage.schemaNotFound', $e->getStringCode());
+            $this->assertSame('storage.dbObjectNotFound', $e->getStringCode());
             $this->assertSame(
-                'Schema "non-existing-schema" doesn\'t exist or project user is missing privileges to read from it.',
+                'Object "non-existing-schema" doesn\'t exist or project user is missing privileges to read from it.',
                 $e->getMessage()
             );
         }
