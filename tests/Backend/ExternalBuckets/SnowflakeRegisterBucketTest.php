@@ -1,60 +1,49 @@
 <?php
 
-namespace Keboola\Test\Backend\CommonPart1;
+namespace Keboola\Test\Backend\ExternalBuckets;
 
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\SnowflakeWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
-use Keboola\Test\StorageApiTestCase;
 use Keboola\Test\Utils\EventsQueryBuilder;
 
-class RegisterBucketTest extends StorageApiTestCase
+class SnowflakeRegisterBucketTest extends BaseExternalBuckets
 {
     public function setUp(): void
     {
         parent::setUp();
-        $this->initEmptyTestBucketsForParallelTests();
     }
-
     public function testRegisterBucket(): void
     {
         $this->initEvents($this->_client);
         $token = $this->_client->verifyToken();
 
-        $thisBackend = $token['owner']['defaultBackend'];
-        if ($thisBackend === self::BACKEND_SNOWFLAKE && !in_array('input-mapping-read-only-storage', $token['owner']['features'])) {
+        $this->thisBackend = $token['owner']['defaultBackend'];
+        if (!in_array('input-mapping-read-only-storage', $token['owner']['features'])) {
             $this->markTestSkipped(sprintf('Read only mapping is not enabled for project "%s"', $token['owner']['id']));
         }
         if (!in_array('external-buckets', $token['owner']['features'])) {
             $this->markTestSkipped(sprintf('External buckets are not enabled for project "%s"', $token['owner']['id']));
         }
-        if (!in_array(
-            $thisBackend,
-            [
-                self::BACKEND_SNOWFLAKE,
-                self::BACKEND_TERADATA,
-            ],
-            true
-        )) {
-            self::markTestSkipped(sprintf(
-                'Backend "%s" is not supported external bucket registration',
-                $thisBackend
-            ));
-        }
+        $this->allowTestForBackendsOnly([self::BACKEND_SNOWFLAKE], 'Backend has to support external buckets');
+    }
 
+    public function testInvalidDBToRegister(): void
+    {
         $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
 
         try {
             $this->_client->registerBucket(
                 'test-bucket-registration',
-                $thisBackend === self::BACKEND_SNOWFLAKE ? ['non-existing-database', 'non-existing-schema'] : ['non-existing-database'],
+                ['non-existing-database', 'non-existing-schema'],
                 'in',
                 'will fail',
-                $thisBackend,
+                $this->thisBackend,
                 'test-bucket-will-fail'
             );
+            $this->fail('should fail');
         } catch (ClientException $e) {
             $this->assertSame('storage.dbObjectNotFound', $e->getStringCode());
             $this->assertStringContainsString(
@@ -62,6 +51,13 @@ class RegisterBucketTest extends StorageApiTestCase
                 $e->getMessage()
             );
         }
+    }
+
+    public function testRegisterWSAsExternalBucket(): void
+    {
+        $token = $this->_client->verifyToken();
+
+        $this->thisBackend = $token['owner']['defaultBackend'];
 
         $ws = new Workspaces($this->_client);
 
@@ -70,12 +66,10 @@ class RegisterBucketTest extends StorageApiTestCase
         $runId = $this->setRunId();
         $idOfBucket = $this->_client->registerBucket(
             'test-bucket-registration',
-            $thisBackend === self::BACKEND_SNOWFLAKE ?
-                [$workspace['connection']['database'], $workspace['connection']['schema']]
-                : [$workspace['connection']['schema']],
+            [$workspace['connection']['database'], $workspace['connection']['schema']],
             'in',
             'Iam in workspace',
-            $thisBackend,
+            $this->thisBackend,
             'Iam-your-workspace'
         );
         $assertCallback = function ($events) {
@@ -87,9 +81,6 @@ class RegisterBucketTest extends StorageApiTestCase
             ->setRunId($runId);
         $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
-        if ($thisBackend === self::BACKEND_TERADATA) {
-            return;
-        }
         $bucket = $this->_client->getBucket($idOfBucket);
         $this->assertTrue($bucket['hasExternalSchema']);
         $this->assertSame($workspace['connection']['database'], $bucket['databaseName']);
@@ -288,11 +279,15 @@ class RegisterBucketTest extends StorageApiTestCase
         }
 
         $this->_client->dropBucket($idOfBucket, ['force' => true, 'async' => true]);
+    }
 
+    public function testRegisterExternalDB(): void
+    {
         $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration-ext', true);
 
         $runId = $this->setRunId();
-        // try same with schema outside of project database
+        // try same with schema outside of project database.
+        // This DB has been created when test project was inited
         $idOfBucket = $this->_client->registerBucket(
             'test-bucket-registration-ext',
             ['TEST_EXTERNAL_BUCKETS', 'TEST_SCHEMA'],
@@ -335,9 +330,16 @@ class RegisterBucketTest extends StorageApiTestCase
         $tables = $this->_client->listTables($idOfBucket);
         $this->assertCount(1, $tables);
 
+        $ws = new Workspaces($this->_client);
+
+        $workspace = $ws->createWorkspace();
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
         // check that workspace user can read from table in external bucket directly
         assert($db instanceof SnowflakeWorkspaceBackend);
-        $result = $db->getDb()->fetchAll('SELECT COUNT(*) AS CNT FROM "TEST_EXTERNAL_BUCKETS"."TEST_SCHEMA"."TEST_TABLE"');
+        $result = $db->getDb()->fetchAll(
+            'SELECT COUNT(*) AS CNT FROM "TEST_EXTERNAL_BUCKETS"."TEST_SCHEMA"."TEST_TABLE"'
+        );
         $this->assertSame([
             [
                 'CNT' => '1',
@@ -345,45 +347,5 @@ class RegisterBucketTest extends StorageApiTestCase
         ], $result);
 
         $this->_client->dropBucket($idOfBucket, ['force' => true, 'async' => true]);
-    }
-
-    private function assertColumnMetadata(
-        string  $expectedType,
-        string  $expectedNullable,
-        string  $expectedBasetype,
-        ?string $expectedLength,
-        array   $columnMetadata
-    ): void
-    {
-        $this->assertArrayEqualsExceptKeys([
-            'key' => 'KBC.datatype.type',
-            'value' => $expectedType,
-            'provider' => 'storage',
-        ], $columnMetadata[0], ['id', 'timestamp']);
-        $this->assertArrayEqualsExceptKeys([
-            'key' => 'KBC.datatype.nullable',
-            'value' => $expectedNullable,
-            'provider' => 'storage',
-        ], $columnMetadata[1], ['id', 'timestamp']);
-        $this->assertArrayEqualsExceptKeys([
-            'key' => 'KBC.datatype.basetype',
-            'value' => $expectedBasetype,
-            'provider' => 'storage',
-        ], $columnMetadata[2], ['id', 'timestamp']);
-
-        if ($expectedLength !== null) {
-            $this->assertArrayEqualsExceptKeys([
-                'key' => 'KBC.datatype.length',
-                'value' => $expectedLength,
-                'provider' => 'storage',
-            ], $columnMetadata[3], ['id', 'timestamp']);
-        }
-    }
-
-    private function setRunId(): string
-    {
-        $runId = $this->_client->generateRunId();
-        $this->_client->setRunId($runId);
-        return $runId;
     }
 }

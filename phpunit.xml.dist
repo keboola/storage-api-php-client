@@ -139,6 +139,7 @@
 		<file>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</file>
 		<file>tests/Backend/Snowflake/CopyIntoWorkspaceTest.php</file>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
+		<file>tests/Backend/ExternalBuckets/SnowflakeRegisterBucketTest.php</file>
 	</testsuite>
 
 	<testsuite name="paratest-backend-snowflake-part-1">
@@ -288,6 +289,9 @@
 		<!--WORKSPACE-->
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/TeradataWorkspacesUnloadTest.php</file>
+
+<!--		External buckets-->
+		<file>tests/Backend/ExternalBuckets/TeradataRegisterBucketTest.php</file>
 	</testsuite>
 	<testsuite name="paratest-bigquery">
 
