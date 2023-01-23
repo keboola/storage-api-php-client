@@ -1072,7 +1072,9 @@ Asynchronous call response (async=true) that creates a new job. To see job detai
             }
 
 ### Register bucket [POST /v2/storage/buckets/register]
-Use this API call to create a new bucket from existing schema.
+**EXPERIMENTAL**
+
+Use this API call to create a new bucket from existing resource (schema or DB - depends on backend). Available for **Snowflake** and **Teradata** backends only
 
 + Attributes
     + name (required) - New bucket name; only alphanumeric characters and underscores are allowed.
@@ -1085,9 +1087,9 @@ Use this API call to create a new bucket from existing schema.
     + backend (optional, enum[string]) - Bucket backend type; the default value is determined by the project settings.
         + Members
             + snowflake
-            + redshift
+            + teradata
     + displayName (optional) - Bucket displayName, this name is displayed in UI and can be changed anytime; only alphanumeric characters,underscores and dashes are allowed.
-    + path (required, array) - Path to the schema. On SNFLK ['database-name','schema-name']
+    + path (required, array) - Path to the schema. On SNFLK ['database-name','schema-name'], on Teradata ['database-name']
 
 + Request (application/json)
     + Headers
@@ -1265,7 +1267,10 @@ Asynchronous call response (async=true) that creates a new job. To see job detai
             }
 
 ### Bucket Refresh [PUT /v2/storage/buckets/{bucket_id}/refresh]
-Refresh external bucket
+**EXPERIMENTAL**
+
+Refresh external bucket. For **Snowflake** and **Teradata** backends only
+
 
 + Parameters
     + bucket_id (required) - Bucket Id
