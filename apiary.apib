@@ -103,6 +103,14 @@ the [table list](#reference/tables/create-or-list-tables/tables-in-bucket) also 
 the table bucket properties and table attributes. You can use the `include` parameter
 to return only the required resources in the response.
 
+## HTTP headers
+Some API calls supports custom http headers.
+
+Supported HTTP headers are:
+- `X-StorageApi-Token (string)`: storage api authentication token
+- `X-KBC-RunId (string)`: id mainly used to match component run with storage job
+- `X-KBC-Backend (json string)`: header used to customize underlying backend configuration. Supported options are `context` and `size` (Supported option are different for each backend). Example: `'{"context":"custom-wlm-group","size":"XL"}'`
+
 # Group Maintenance
 
 ## Maintenance Response Example [/v2/storage/]
