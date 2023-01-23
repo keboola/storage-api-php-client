@@ -105,6 +105,7 @@ class BranchWorkspacesTest extends WorkspacesTest
             $this->assertSame('storage', $workspaceDeletedEvent['component']);
             $this->assertEquals($this->branchId, $workspaceDeletedEvent['idBranch']);
         };
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.workspaceDeleted')
             ->setRunId($runId);
         $this->assertEventWithRetries($this->workspaceSapiClient, $assertCallback, $query);
