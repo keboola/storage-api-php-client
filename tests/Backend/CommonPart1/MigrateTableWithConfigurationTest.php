@@ -10,6 +10,7 @@ use Keboola\StorageApi\Options\TableWithConfigurationOptions;
 use Keboola\Test\Backend\TableWithConfigurationUtils;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
+use Keboola\Test\Utils\EventsBuilder;
 use Keboola\Test\Utils\EventTesterUtils;
 
 class MigrateTableWithConfigurationTest extends StorageApiTestCase
@@ -99,7 +100,14 @@ class MigrateTableWithConfigurationTest extends StorageApiTestCase
         ], $table);
 
         // check events
-        $events = $this->listEventsFilteredByName($this->client, 'storage.tableWithConfigurationMigrated', $tableId, 10);
-        $this->assertCount(2, $events);
+        $assertCallback = function ($events) {
+            $this->assertCount(2, $events);
+        };
+
+        $query = new EventsBuilder();
+        $query->setEvent('storage.tableWithConfigurationMigrated')
+            ->setTokenId($this->tokenId)
+            ->setObjectId($tableId);
+        $this->assertEventWithRetries($this->client, $assertCallback, $query);
     }
 }

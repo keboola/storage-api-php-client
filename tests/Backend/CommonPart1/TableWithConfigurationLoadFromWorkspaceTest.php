@@ -9,6 +9,7 @@ use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
 use Keboola\Test\ClientProvider\ClientProvider;
+use Keboola\Test\Utils\EventsBuilder;
 
 class TableWithConfigurationLoadFromWorkspaceTest extends ParallelWorkspacesTestCase
 {
@@ -151,12 +152,23 @@ JSON;
             ],
         ], $table);
 
-        // check events
-        $events = $this->listEventsFilteredByName($this->client, 'storage.tableWithConfigurationImportQuery', $tableId, 50);
-        $this->assertCount(8, $events);
+        $assertCallback = function ($events) {
+            $this->assertCount(8, $events);
+        };
+        $query = new EventsBuilder();
+        $query->setEvent('storage.tableWithConfigurationImportQuery')
+            ->setTokenId($this->tokenId)
+            ->setObjectId($tableId);
+        $this->assertEventWithRetries($this->client, $assertCallback, $query);
 
-        $events = $this->listEventsFilteredByName($this->client, 'storage.tableImportDone', $tableId, 10);
-        $this->assertCount(1, $events);
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsBuilder();
+        $query->setEvent('storage.tableImportDone')
+            ->setTokenId($this->tokenId)
+            ->setObjectId($tableId);
+        $this->assertEventWithRetries($this->client, $assertCallback, $query);
     }
 
     public function testLoadIncrementalFromWorkspaceToTable(): void

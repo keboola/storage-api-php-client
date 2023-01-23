@@ -10,6 +10,7 @@ use Keboola\StorageApi\Options\Components\ListConfigurationMetadataOptions;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\Utils\ComponentsConfigurationUtils;
 use Keboola\Test\StorageApiTestCase;
+use Keboola\Test\Utils\EventsBuilder;
 use Keboola\Test\Utils\EventTesterUtils;
 use Keboola\Test\Utils\MetadataUtils;
 
@@ -231,24 +232,28 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             ->setMetadata(self::TEST_METADATA);
         $components->addConfigurationMetadata($configurationMetadataOptions);
 
-        $events = $this->listEvents($this->client, 'storage.componentConfigurationMetadataSet');
-
-        self::assertSame(self::TEST_METADATA, $events[0]['results']['metadata']);
-
-        $this->assertEvent(
-            $events[0],
-            'storage.componentConfigurationMetadataSet',
-            'Component configuration metadata set "Component metadata event" (wr-db)',
-            $configurationOptions->getConfigurationId(),
-            'Component metadata event',
-            'componentConfiguration',
-            [
-                'component' => 'wr-db',
-                'configurationId' => $configurationOptions->getConfigurationId(),
-                'name' => 'Component metadata event',
-                'version' => 1,
-            ]
-        );
+        $assertCallback = function ($events) use ($configurationOptions) {
+            $this->assertCount(1, $events);
+            self::assertSame(self::TEST_METADATA, $events[0]['results']['metadata']);
+            $this->assertEvent(
+                $events[0],
+                'storage.componentConfigurationMetadataSet',
+                'Component configuration metadata set "Component metadata event" (wr-db)',
+                $configurationOptions->getConfigurationId(),
+                'Component metadata event',
+                'componentConfiguration',
+                [
+                    'component' => 'wr-db',
+                    'configurationId' => $configurationOptions->getConfigurationId(),
+                    'name' => 'Component metadata event',
+                    'version' => 1,
+                ]
+            );
+        };
+        $query = new EventsBuilder();
+        $query->setEvent('storage.componentConfigurationMetadataSet')
+            ->setTokenId($this->tokenId);
+        $this->assertEventWithRetries($this->client, $assertCallback, $query);
     }
 
     public function testCreateBranchCopyMetadataToTheDevBranch(): void
@@ -550,6 +555,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
         $defaultBranchId = $this->getDefaultBranchId($this);
 
         $branchClient = $this->getBranchAwareDefaultClient($defaultBranchId);
+        $this->initEvents($branchClient);
         $components = new Components($branchClient);
 
         $configurationOptions = $this->createConfiguration(
@@ -565,26 +571,31 @@ class ConfigurationMetadataTest extends StorageApiTestCase
 
         $components->deleteConfigurationMetadata('wr-db', 'component-metadata-events-test', $newMetadata[0]['id']);
 
-        $events = $this->listEvents($branchClient, 'storage.componentConfigurationMetadataDeleted');
-
-        $this->assertEvent(
-            $events[0],
-            'storage.componentConfigurationMetadataDeleted',
-            sprintf(
-                'Deleted component configuration metadata id "%s" with key "KBC.SomeEnity.metadataKey"',
-                (int) $newMetadata[0]['id']
-            ),
-            $configurationOptions->getConfigurationId(),
-            'Component metadata events',
-            'componentConfiguration',
-            [
-                'component' => 'wr-db',
-                'configurationId' => $configurationOptions->getConfigurationId(),
-                'name' => 'Component metadata events',
-                'version' => 1,
-                'metadataId' => (int) $newMetadata[0]['id'],
-                'key' => 'KBC.SomeEnity.metadataKey',
-            ]
-        );
+        $assertCallback = function ($events) use ($configurationOptions, $newMetadata) {
+            $this->assertCount(1, $events);
+            $this->assertEvent(
+                $events[0],
+                'storage.componentConfigurationMetadataDeleted',
+                sprintf(
+                    'Deleted component configuration metadata id "%s" with key "KBC.SomeEnity.metadataKey"',
+                    (int) $newMetadata[0]['id']
+                ),
+                $configurationOptions->getConfigurationId(),
+                'Component metadata events',
+                'componentConfiguration',
+                [
+                    'component' => 'wr-db',
+                    'configurationId' => $configurationOptions->getConfigurationId(),
+                    'name' => 'Component metadata events',
+                    'version' => 1,
+                    'metadataId' => (int) $newMetadata[0]['id'],
+                    'key' => 'KBC.SomeEnity.metadataKey',
+                ]
+            );
+        };
+        $query = new EventsBuilder();
+        $query->setEvent('storage.componentConfigurationMetadataDeleted')
+            ->setTokenId($this->tokenId);
+        $this->assertEventWithRetries($branchClient, $assertCallback, $query);
     }
 }

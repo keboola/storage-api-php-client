@@ -12,6 +12,7 @@ use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\SnowflakeWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\WorkspacesTestCase;
+use Keboola\Test\Utils\EventsBuilder;
 
 class CloneIntoWorkspaceTest extends WorkspacesTestCase
 {
@@ -24,6 +25,8 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
      */
     public function testClone($aliasNestingLevel): void
     {
+        $this->initEvents($this->_client);
+
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
         $sourceTableId = $this->createTableFromFile(
             $this->_client,
@@ -50,22 +53,25 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         ]);
 
         // test that events are properly created
+        $assertCallback = function ($events) use ($runId, $sourceTableId) {
+            $this->assertCount(1, $events);
+            $cloneEvent = array_pop($events);
+            $this->assertSame('storage.workspaceTableCloned', $cloneEvent['event']);
+            $this->assertSame($runId, $cloneEvent['runId']);
+            $this->assertSame('storage', $cloneEvent['component']);
+            $this->assertSame($sourceTableId, $cloneEvent['objectId']);
+            $this->assertArrayHasKey('params', $cloneEvent);
+            $this->assertSame($sourceTableId, $cloneEvent['params']['source']);
+            $this->assertSame('languagesDetails', $cloneEvent['params']['destination']);
+            $this->assertArrayHasKey('workspace', $cloneEvent['params']);
+        };
 
-        // block until async events are processed, processing in order is not guaranteed but it should work most of time
-        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
-        $events = $this->_client->listEvents([
-            'runId' => $runId,
-        ]);
-        // there are two events, dummy (0) and the clone event (1)
-        $cloneEvent = array_pop($events);
-        $this->assertSame('storage.workspaceTableCloned', $cloneEvent['event']);
-        $this->assertSame($runId, $cloneEvent['runId']);
-        $this->assertSame('storage', $cloneEvent['component']);
-        $this->assertSame($sourceTableId, $cloneEvent['objectId']);
-        $this->assertArrayHasKey('params', $cloneEvent);
-        $this->assertSame($sourceTableId, $cloneEvent['params']['source']);
-        $this->assertSame('languagesDetails', $cloneEvent['params']['destination']);
-        $this->assertArrayHasKey('workspace', $cloneEvent['params']);
+        $query = new EventsBuilder();
+        $query->setEvent('storage.workspaceTableCloned')
+            ->setTokenId($this->tokenId)
+            ->setObjectId($sourceTableId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
         // test that stats are generated
         $stats = $this->_client->getStats((new \Keboola\StorageApi\Options\StatsOptions())->setRunId($runId));

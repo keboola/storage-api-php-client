@@ -13,6 +13,7 @@ namespace Keboola\Test\Common;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Event;
 use Keboola\Test\StorageApiTestCase;
+use Keboola\Test\Utils\EventsBuilder;
 
 class EventsTest extends StorageApiTestCase
 {
@@ -212,11 +213,15 @@ class EventsTest extends StorageApiTestCase
 
     public function testEventList(): void
     {
+        $this->initEvents($this->_client);
         // at least one event should be generated
         $this->_client->listBuckets();
 
-        $events = $this->_client->listEvents(1);
-        $this->assertCount(1, $events);
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsBuilder();
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
     }
 
     public function testEventsFiltering(): void
@@ -246,27 +251,29 @@ class EventsTest extends StorageApiTestCase
         $event->setMessage('another');
         $this->createAndWaitForEvent($event);
 
-        $events = $this->_client->listEvents([
-            'sinceId' => $lastEventId,
-            'runId' => $runId,
-        ]);
+        $assertCallback = function ($events) {
+            $this->assertCount(3, $events);
+        };
+        $query = new EventsBuilder();
+        $query->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
-        $this->assertCount(3, $events);
-
-        $events = $this->_client->listEvents([
-            'sinceId' => $lastEventId,
-            'component' => 'transformation',
-        ]);
-        $this->assertCount(1, $events, 'filter by component');
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events, 'filter by component');
+        };
+        $query = new EventsBuilder();
+        $query->setComponent('transformation');
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
         $event->setRunId('rundId2');
         $this->createAndWaitForEvent($event);
 
-        $events = $this->_client->listEvents([
-            'sinceId' => $lastEventId,
-            'runId' => $runId,
-        ]);
-        $this->assertCount(3, $events);
+        $assertCallback = function ($events) {
+            $this->assertCount(3, $events);
+        };
+        $query = new EventsBuilder();
+        $query->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
     }
 
     public function testEventsSearch(): void

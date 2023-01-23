@@ -16,6 +16,7 @@ use Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
+use Keboola\Test\Utils\EventsBuilder;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\BufferedOutput;
 use function json_decode;
@@ -1321,6 +1322,7 @@ class ComponentsTest extends StorageApiTestCase
      */
     public function testConfigurationRollback($clientName): void
     {
+        $this->initEvents($this->client);
         $componentsApi = new \Keboola\StorageApi\Components($this->client);
 
         // create configuration
@@ -1358,18 +1360,20 @@ class ComponentsTest extends StorageApiTestCase
         // rollback to version 2 - conf V6
         // second row should be missing, and first row should be rolled back to first version
         $componentsApi->rollbackConfiguration('wr-db', $configurationV1['id'], 2);
-        $this->createAndWaitForEvent((new Event())->setComponent('dummy')->setMessage('dummy'));
 
-        $lastEvent = [];
         if ($clientName === ClientProvider::DEV_BRANCH) {
-            $events = $this->client->listEvents([
-                'component' => 'storage',
-                'q' => 'storage.componentConfigurationRolledBack',
-            ]);
-            $lastEvent = $events[0];
             /** @var BranchAwareClient $branchClient */
             $branchClient = $this->client;
-            $this->assertEquals($branchClient->getCurrentBranchId(), $lastEvent['idBranch']);
+            $assertCallback = function ($events) use ($branchClient) {
+                $this->assertCount(1, $events);
+                $this->assertEquals($branchClient->getCurrentBranchId(), $events[0]['idBranch']);
+            };
+            $query = new EventsBuilder();
+            $query->setEvent('storage.componentConfigurationRolledBack')
+                ->setTokenId($this->tokenId)
+                ->setObjectId((string) $branchClient->getCurrentBranchId())
+                ->setComponent('storage');
+            $this->assertEventWithRetries($this->client, $assertCallback, $query);
         }
 
         $rollbackedConfiguration = $componentsApi->getConfiguration('wr-db', $configurationV1['id']);
@@ -1409,19 +1413,20 @@ class ComponentsTest extends StorageApiTestCase
 
         // rollback to version 5 - conf V7
         $componentsApi->rollbackConfiguration('wr-db', $configurationV1['id'], 5, 'custom description');
-        $this->createAndWaitForEvent((new Event())->setComponent('dummy')->setMessage('dummy'));
 
         if ($clientName === ClientProvider::DEV_BRANCH) {
-            $events = $this->client->listEvents([
-                'component' => 'storage',
-                'q' => 'storage.componentConfigurationRolledBack',
-                'sinceId' => $lastEvent['id'],
-            ]);
-            $lastEvent = $events[0];
-
             /** @var BranchAwareClient $branchClient */
             $branchClient = $this->client;
-            $this->assertEquals($branchClient->getCurrentBranchId(), $lastEvent['idBranch']);
+            $assertCallback = function ($events) use ($branchClient) {
+                $this->assertCount(2, $events);
+
+                $this->assertEquals($branchClient->getCurrentBranchId(), $events[0]['idBranch']);
+            };
+            $query = new EventsBuilder();
+            $query->setEvent('storage.componentConfigurationRolledBack')
+                ->setTokenId($this->tokenId)
+                ->setComponent('storage');
+            $this->assertEventWithRetries($this->client, $assertCallback, $query);
         }
 
         $rollbackedConfiguration = $componentsApi->getConfiguration('wr-db', $configurationV1['id']);

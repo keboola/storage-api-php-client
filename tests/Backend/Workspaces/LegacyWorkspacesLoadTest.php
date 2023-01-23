@@ -10,6 +10,7 @@ use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\LegacyInputMappingConverter;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
+use Keboola\Test\Utils\EventsBuilder;
 
 class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
 {
@@ -53,6 +54,8 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
 
     public function testWorkspaceLoadData(): void
     {
+        $this->initEvents($this->workspaceSapiClient);
+
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
         $workspace = $this->initTestWorkspace();
@@ -133,24 +136,26 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $this->assertCount(1, $tables);
         $this->assertContains($backend->toIdentifier('table3'), $tables);
 
-        // block until async events are processed, processing in order is not guaranteed but it should work most of time
-        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
+        $assertCallback = function ($events) use ($runId, $table1_id) {
+            $this->assertCount(1, $events);
+            // there are two events, dummy (0) and the clone event (1)
+            $loadEvent = array_pop($events);
 
-        $events = $this->_client->listEvents([
-            'runId' => $runId,
-        ]);
+            $this->assertSame('storage.workspaceLoaded', $loadEvent['event']);
+            $this->assertSame($runId, $loadEvent['runId']);
+            $this->assertSame('storage', $loadEvent['component']);
+            $this->assertArrayHasKey('params', $loadEvent);
+            $this->assertSame($table1_id, $loadEvent['params']['source']);
+            $this->assertSame('table3', $loadEvent['params']['destination']);
+            $this->assertArrayHasKey('columns', $loadEvent['params']);
+            $this->assertArrayHasKey('workspace', $loadEvent['params']);
+        };
 
-        // there are two events, dummy (0) and the clone event (1)
-        $loadEvent = array_pop($events);
-
-        $this->assertSame('storage.workspaceLoaded', $loadEvent['event']);
-        $this->assertSame($runId, $loadEvent['runId']);
-        $this->assertSame('storage', $loadEvent['component']);
-        $this->assertArrayHasKey('params', $loadEvent);
-        $this->assertSame($table1_id, $loadEvent['params']['source']);
-        $this->assertSame('table3', $loadEvent['params']['destination']);
-        $this->assertArrayHasKey('columns', $loadEvent['params']);
-        $this->assertArrayHasKey('workspace', $loadEvent['params']);
+        $query = new EventsBuilder();
+        $query->setEvent('storage.workspaceLoaded')
+            ->setTokenId($this->tokenId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
     }
 
     public function dataTypesErrorDefinitions()
