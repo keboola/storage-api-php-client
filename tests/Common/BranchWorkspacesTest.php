@@ -94,9 +94,7 @@ class BranchWorkspacesTest extends WorkspacesTest
         };
         $query = new EventsQueryBuilder();
         $query->setEvent('storage.workspaceCreated')
-            ->setTokenId($this->tokenId)
-            ->setObjectId((string) $workspace['id'])
-            ->setIdBranch($this->branchId);
+            ->setRunId($runId);
         $this->assertEventWithRetries($this->workspaceSapiClient, $assertCallback, $query);
 
         $assertCallback = function ($events) use ($runId) {
@@ -108,9 +106,7 @@ class BranchWorkspacesTest extends WorkspacesTest
             $this->assertEquals($this->branchId, $workspaceDeletedEvent['idBranch']);
         };
         $query->setEvent('storage.workspaceDeleted')
-            ->setTokenId($this->tokenId)
-            ->setObjectId((string) $workspace['id'])
-            ->setIdBranch($this->branchId);
+            ->setRunId($runId);
         $this->assertEventWithRetries($this->workspaceSapiClient, $assertCallback, $query);
 
         $this->assertCredentialsShouldNotWork($connection);
