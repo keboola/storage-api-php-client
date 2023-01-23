@@ -306,7 +306,6 @@ class SharingTest extends StorageApiSharingTestCase
         };
         $query = new EventsQueryBuilder();
         $query->setEvent('storage.bucketForceUnlinked')
-            ->setTokenId($this->tokenId)
             ->setObjectId($linkedBucketId)
             ->setObjectType('bucket')
             ->setProjectId($linkedBucketProjectId);
@@ -338,7 +337,6 @@ class SharingTest extends StorageApiSharingTestCase
 
         $query = new EventsQueryBuilder();
         $query->setEvent('storage.bucketForceUnlinked')
-            ->setTokenId($this->tokenId)
             ->setObjectId($linkedBucketId)
             ->setObjectType('bucket')
             ->setProjectId($linkedBucketProjectId);

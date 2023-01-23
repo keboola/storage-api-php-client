@@ -100,8 +100,7 @@ class DevBranchesTest extends StorageApiTestCase
         };
         $query = new EventsQueryBuilder();
         $query->setEvent('storage.devBranchCreated')
-            ->setTokenId($this->tokenId)
-            ->setIdBranch($branchId);
+            ->setObjectId($branchId);
         $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
         // update name and description
@@ -119,8 +118,7 @@ class DevBranchesTest extends StorageApiTestCase
 
         $query = new EventsQueryBuilder();
         $query->setEvent('storage.devBranchUpdated')
-            ->setTokenId($this->tokenId)
-            ->setIdBranch($branchId);
+            ->setObjectId($branchId);
         $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
         // can get branch detail
@@ -175,8 +173,7 @@ class DevBranchesTest extends StorageApiTestCase
         };
         $query = new EventsQueryBuilder();
         $query->setEvent('storage.devBranchDeleted')
-            ->setTokenId($this->tokenId)
-            ->setIdBranch($branchId);
+            ->setObjectId($branchId);
         $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
         // cannot delete nonexistent branch

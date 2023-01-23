@@ -1370,8 +1370,6 @@ class ComponentsTest extends StorageApiTestCase
             };
             $query = new EventsQueryBuilder();
             $query->setEvent('storage.componentConfigurationRolledBack')
-                ->setTokenId($this->tokenId)
-                ->setObjectId((string) $branchClient->getCurrentBranchId())
                 ->setComponent('storage');
             $this->assertEventWithRetries($this->client, $assertCallback, $query);
         }
@@ -1419,12 +1417,10 @@ class ComponentsTest extends StorageApiTestCase
             $branchClient = $this->client;
             $assertCallback = function ($events) use ($branchClient) {
                 $this->assertCount(2, $events);
-
                 $this->assertEquals($branchClient->getCurrentBranchId(), $events[0]['idBranch']);
             };
             $query = new EventsQueryBuilder();
             $query->setEvent('storage.componentConfigurationRolledBack')
-                ->setTokenId($this->tokenId)
                 ->setComponent('storage');
             $this->assertEventWithRetries($this->client, $assertCallback, $query);
         }

@@ -6,7 +6,7 @@ namespace Keboola\Test\Utils;
 
 class EventsQueryBuilder
 {
-    private array $params;
+    private array $params = [];
 
     public function setTokenId(string $tokenId): self
     {

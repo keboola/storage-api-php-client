@@ -313,6 +313,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
      */
     public function testSearchComponentsEvent(): void
     {
+        $this->initEvents($this->client);
         $components = new Components($this->client);
         $configurationOptions = $this->createConfiguration(
             $components,
@@ -351,9 +352,8 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
             );
         };
         $query = new EventsQueryBuilder();
-        $query->setEvent('storage.componentsSearched')
-            ->setTokenId($this->tokenId);
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+        $query->setEvent('storage.componentsSearched');
+        $this->assertEventWithRetries($this->client, $assertCallback, $query);
     }
 
 

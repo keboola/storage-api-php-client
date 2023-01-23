@@ -226,13 +226,7 @@ class EventsTest extends StorageApiTestCase
 
     public function testEventsFiltering(): void
     {
-        $events = $this->_client->listEvents([
-            'limit' => 100,
-            'offset' => 0,
-        ]);
-
-        $lastEvent = reset($events);
-        $lastEventId = $lastEvent['id'];
+        $this->initEvents($this->_client);
 
         // we have assign runId to isolate testing events,
         // because if someone displays navigation in KBC "bucketListed" event is created
