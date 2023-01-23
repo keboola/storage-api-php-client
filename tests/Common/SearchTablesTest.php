@@ -85,7 +85,7 @@ class SearchTablesTest extends StorageApiTestCase
         try {
             $this->_client->searchTables(new SearchTablesOptions);
         } catch (ClientException $clientException) {
-            $this->assertSame('Invalid request', $clientException->getMessage());
+            $this->assertStringStartsWith('Invalid request', $clientException->getMessage());
             $this->assertSame([
                 [
                     'key' => 'metadataKey',

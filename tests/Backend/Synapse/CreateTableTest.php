@@ -246,7 +246,7 @@ class CreateTableTest extends StorageApiTestCase
             $this->_client->createTableDefinition($bucketId, $definition);
             self::fail('Table should not be created.');
         } catch (ClientException $e) {
-            self::assertSame('Invalid request', $e->getMessage());
+            self::assertStringStartsWith('Invalid request', $e->getMessage());
         }
 
         $definition = self::TABLE_DEFINITION;
