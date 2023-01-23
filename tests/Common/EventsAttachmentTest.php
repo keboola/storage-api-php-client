@@ -11,7 +11,7 @@ namespace Keboola\Test\Common;
 
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
-use Keboola\Test\Utils\EventsBuilder;
+use Keboola\Test\Utils\EventsQueryBuilder;
 
 class EventsAttachmentTest extends StorageApiTestCase
 {
@@ -38,7 +38,7 @@ class EventsAttachmentTest extends StorageApiTestCase
             $this->assertEquals('storage.tableImportDone', $importEvent['event']);
             $this->assertCount(1, $importEvent['attachments']);
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.tableImportDone')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);

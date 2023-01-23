@@ -7,7 +7,7 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Metadata;
 use Keboola\Test\StorageApiTestCase;
-use Keboola\Test\Utils\EventsBuilder;
+use Keboola\Test\Utils\EventsQueryBuilder;
 
 class CreateTableTest extends StorageApiTestCase
 {
@@ -191,7 +191,7 @@ class CreateTableTest extends StorageApiTestCase
             $this->assertSame('CLUSTERED INDEX', $eventParams['indexType']);
             $this->assertSame(['id'], $eventParams['indexKey']);
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.tableCreated')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
@@ -273,7 +273,7 @@ class CreateTableTest extends StorageApiTestCase
             self::assertSame([], $eventParams['distributionKey']);
             self::assertSame('ROUND_ROBIN', $eventParams['distribution']);
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.tableCreated')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);

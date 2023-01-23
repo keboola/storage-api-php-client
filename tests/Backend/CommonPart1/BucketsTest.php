@@ -15,7 +15,7 @@ use Keboola\StorageApi\Options\BucketUpdateOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
-use Keboola\Test\Utils\EventsBuilder;
+use Keboola\Test\Utils\EventsQueryBuilder;
 use Keboola\Test\Utils\EventTesterUtils;
 
 class BucketsTest extends StorageApiTestCase
@@ -131,7 +131,7 @@ class BucketsTest extends StorageApiTestCase
             $this->assertSame('bucket', $events[0]['objectType']);
         };
 
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.tablesListed')
             ->setTokenId($this->tokenId)
             ->setObjectId($this->getTestBucketId());

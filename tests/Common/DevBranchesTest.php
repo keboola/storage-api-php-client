@@ -6,7 +6,7 @@ use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\Test\StorageApiTestCase;
-use Keboola\Test\Utils\EventsBuilder;
+use Keboola\Test\Utils\EventsQueryBuilder;
 
 class DevBranchesTest extends StorageApiTestCase
 {
@@ -98,7 +98,7 @@ class DevBranchesTest extends StorageApiTestCase
             $this->assertSame($branchName . '-original', $events[0]['objectName']);
             $this->assertSame('devBranch', $events[0]['objectType']);
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.devBranchCreated')
             ->setTokenId($this->tokenId)
             ->setIdBranch($branchId);
@@ -117,7 +117,7 @@ class DevBranchesTest extends StorageApiTestCase
             $this->assertSame($branchName, $events[0]['params']['devBranchName']);
         };
 
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.devBranchUpdated')
             ->setTokenId($this->tokenId)
             ->setIdBranch($branchId);
@@ -173,7 +173,7 @@ class DevBranchesTest extends StorageApiTestCase
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.devBranchDeleted')
             ->setTokenId($this->tokenId)
             ->setIdBranch($branchId);

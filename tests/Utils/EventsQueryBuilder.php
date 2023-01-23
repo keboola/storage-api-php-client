@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Keboola\Test\Utils;
 
-class EventsBuilder
+class EventsQueryBuilder
 {
     private array $params;
-
 
     public function setTokenId(string $tokenId): self
     {

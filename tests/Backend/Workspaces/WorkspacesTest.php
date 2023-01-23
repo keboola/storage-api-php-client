@@ -10,7 +10,7 @@ use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\WorkspaceCredentialsAssertTrait;
 use Keboola\Test\Backend\Workspaces\Backend\TeradataWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
-use Keboola\Test\Utils\EventsBuilder;
+use Keboola\Test\Utils\EventsQueryBuilder;
 
 class WorkspacesTest extends ParallelWorkspacesTestCase
 {
@@ -104,7 +104,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
             $this->assertSame('storage', $workspaceCreatedEvent['component']);
         };
 
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.workspaceCreated')->setRunId($runId);
 
         $this->assertEventWithRetries($this->workspaceSapiClient, $assertCallback, $query);
@@ -117,7 +117,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
             $this->assertSame('storage', $workspaceDeletedEvent['component']);
         };
 
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.workspaceDeleted')->setRunId($runId);
         $this->assertEventWithRetries($this->workspaceSapiClient, $assertCallback, $query);
         $this->assertCredentialsShouldNotWork($connection);

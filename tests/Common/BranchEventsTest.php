@@ -9,7 +9,7 @@ use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\Event;
-use Keboola\Test\Utils\EventsBuilder;
+use Keboola\Test\Utils\EventsQueryBuilder;
 
 class BranchEventsTest extends StorageApiTestCase
 {
@@ -53,7 +53,7 @@ class BranchEventsTest extends StorageApiTestCase
             $this->assertCount(1, $events);
             $this->assertSame('config-id-dev-branch-' . $branch['id'], $events[0]['objectId']);
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.componentConfigurationCreated')
             ->setTokenId($this->tokenId);
         $this->assertEventWithRetries($branchAwareClient, $assertCallback, $query);
@@ -158,7 +158,7 @@ class BranchEventsTest extends StorageApiTestCase
             $this->assertSame($testBucketId, $events[0]['objectId']);
         };
 
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.bucketCreated')
             ->setTokenId($this->tokenId);
         $this->assertEventWithRetries($branchAwareClient, $assertCallback, $query);

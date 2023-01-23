@@ -9,7 +9,7 @@ use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
 use Keboola\Test\ClientProvider\ClientProvider;
-use Keboola\Test\Utils\EventsBuilder;
+use Keboola\Test\Utils\EventsQueryBuilder;
 
 class TableWithConfigurationLoadFromWorkspaceTest extends ParallelWorkspacesTestCase
 {
@@ -155,7 +155,7 @@ JSON;
         $assertCallback = function ($events) {
             $this->assertCount(8, $events);
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.tableWithConfigurationImportQuery')
             ->setTokenId($this->tokenId)
             ->setObjectId($tableId);
@@ -164,7 +164,7 @@ JSON;
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.tableImportDone')
             ->setTokenId($this->tokenId)
             ->setObjectId($tableId);

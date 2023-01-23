@@ -8,7 +8,7 @@ use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\DevBranchesMetadata;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
-use Keboola\Test\Utils\EventsBuilder;
+use Keboola\Test\Utils\EventsQueryBuilder;
 use Keboola\Test\Utils\EventTesterUtils;
 use Keboola\Test\Utils\MetadataUtils;
 
@@ -159,7 +159,7 @@ class BranchMetadataTest extends StorageApiTestCase
             );
         };
 
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.devBranchMetadataSet')
             ->setTokenId($this->tokenId);
         $this->assertEventWithRetries($this->client, $assertCallback, $query);
@@ -274,7 +274,7 @@ class BranchMetadataTest extends StorageApiTestCase
             );
         };
 
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.devBranchMetadataDeleted')
             ->setTokenId($this->tokenId);
         $this->assertEventWithRetries($this->client, $assertCallback, $query);

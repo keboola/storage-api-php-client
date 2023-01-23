@@ -9,7 +9,7 @@ use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\WorkspaceCredentialsAssertTrait;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\WorkspacesTest;
-use Keboola\Test\Utils\EventsBuilder;
+use Keboola\Test\Utils\EventsQueryBuilder;
 
 class BranchWorkspacesTest extends WorkspacesTest
 {
@@ -92,7 +92,7 @@ class BranchWorkspacesTest extends WorkspacesTest
             $this->assertSame('storage', $workspaceCreatedEvent['component']);
             $this->assertEquals($this->branchId, $workspaceCreatedEvent['idBranch']);
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.workspaceCreated')
             ->setTokenId($this->tokenId)
             ->setObjectId((string) $workspace['id'])

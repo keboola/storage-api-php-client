@@ -13,7 +13,7 @@ namespace Keboola\Test\Common;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Event;
 use Keboola\Test\StorageApiTestCase;
-use Keboola\Test\Utils\EventsBuilder;
+use Keboola\Test\Utils\EventsQueryBuilder;
 
 class EventsTest extends StorageApiTestCase
 {
@@ -220,7 +220,7 @@ class EventsTest extends StorageApiTestCase
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $this->assertEventWithRetries($this->_client, $assertCallback, $query);
     }
 
@@ -254,14 +254,14 @@ class EventsTest extends StorageApiTestCase
         $assertCallback = function ($events) {
             $this->assertCount(3, $events);
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setRunId($runId);
         $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
         $assertCallback = function ($events) {
             $this->assertCount(1, $events, 'filter by component');
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setComponent('transformation');
         $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
@@ -271,7 +271,7 @@ class EventsTest extends StorageApiTestCase
         $assertCallback = function ($events) {
             $this->assertCount(3, $events);
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setRunId($runId);
         $this->assertEventWithRetries($this->_client, $assertCallback, $query);
     }

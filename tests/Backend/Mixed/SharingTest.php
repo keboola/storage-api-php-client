@@ -14,7 +14,7 @@ use Keboola\StorageApi\Options\TokenUpdateOptions;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
-use Keboola\Test\Utils\EventsBuilder;
+use Keboola\Test\Utils\EventsQueryBuilder;
 
 class SharingTest extends StorageApiSharingTestCase
 {
@@ -304,7 +304,7 @@ class SharingTest extends StorageApiSharingTestCase
             $this->assertCount(1, $events);
             $this->assertSame('storage.bucketForceUnlinked', $events[0]['event']);
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.bucketForceUnlinked')
             ->setTokenId($this->tokenId)
             ->setObjectId($linkedBucketId)
@@ -336,7 +336,7 @@ class SharingTest extends StorageApiSharingTestCase
             $this->assertSame('storage.bucketForceUnlinked', $events[0]['event']);
         };
 
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.bucketForceUnlinked')
             ->setTokenId($this->tokenId)
             ->setObjectId($linkedBucketId)

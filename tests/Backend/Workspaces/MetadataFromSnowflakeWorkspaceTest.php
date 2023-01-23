@@ -6,7 +6,7 @@ namespace Keboola\Test\Backend\Workspaces;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Metadata;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
-use Keboola\Test\Utils\EventsBuilder;
+use Keboola\Test\Utils\EventsQueryBuilder;
 
 class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
 {
@@ -90,7 +90,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
             $this->assertSame($tableId, $notUpdateColumnTypeEvent['objectId']);
             $this->assertSame('id', $notUpdateColumnTypeEvent['params']['column']);
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.tableAutomaticDataTypesNotUpdateColumnType')
             ->setTokenId($this->tokenId)
             ->setObjectId($tableId);
@@ -108,7 +108,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
             $this->assertSame('name', $notUpdateNullableColumnEvent['params']['column']);
         };
 
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.tableAutomaticDataTypesNotUpdateColumnNullable')
             ->setTokenId($this->tokenId)
             ->setObjectId($tableId);
@@ -125,7 +125,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
             $this->assertSame($tableId, $notUpdateLengthEvent['objectId']);
             $this->assertSame('name', $notUpdateLengthEvent['params']['column']);
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.tableAutomaticDataTypesNotUpdateColumnLength')
             ->setTokenId($this->tokenId)
             ->setObjectId($tableId);

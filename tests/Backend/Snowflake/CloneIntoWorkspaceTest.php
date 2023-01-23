@@ -12,7 +12,7 @@ use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\SnowflakeWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\WorkspacesTestCase;
-use Keboola\Test\Utils\EventsBuilder;
+use Keboola\Test\Utils\EventsQueryBuilder;
 
 class CloneIntoWorkspaceTest extends WorkspacesTestCase
 {
@@ -66,7 +66,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
             $this->assertArrayHasKey('workspace', $cloneEvent['params']);
         };
 
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.workspaceTableCloned')
             ->setTokenId($this->tokenId)
             ->setObjectId($sourceTableId)

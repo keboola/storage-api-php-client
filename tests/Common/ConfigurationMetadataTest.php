@@ -10,7 +10,7 @@ use Keboola\StorageApi\Options\Components\ListConfigurationMetadataOptions;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\Utils\ComponentsConfigurationUtils;
 use Keboola\Test\StorageApiTestCase;
-use Keboola\Test\Utils\EventsBuilder;
+use Keboola\Test\Utils\EventsQueryBuilder;
 use Keboola\Test\Utils\EventTesterUtils;
 use Keboola\Test\Utils\MetadataUtils;
 
@@ -250,7 +250,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
                 ]
             );
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.componentConfigurationMetadataSet')
             ->setTokenId($this->tokenId);
         $this->assertEventWithRetries($this->client, $assertCallback, $query);
@@ -593,7 +593,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
                 ]
             );
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.componentConfigurationMetadataDeleted')
             ->setTokenId($this->tokenId);
         $this->assertEventWithRetries($branchClient, $assertCallback, $query);

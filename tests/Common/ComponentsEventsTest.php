@@ -9,7 +9,7 @@ use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
-use Keboola\Test\Utils\EventsBuilder;
+use Keboola\Test\Utils\EventsQueryBuilder;
 use Keboola\Test\Utils\EventTesterUtils;
 use PHPUnit\Framework\ExpectationFailedException;
 
@@ -105,7 +105,7 @@ class ComponentsEventsTest extends StorageApiTestCase
                 ]
             );
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.componentConfigurationChanged')
             ->setTokenId($this->tokenId);
         $this->assertEventWithRetries($this->client, $assertCallback, $query);
@@ -151,7 +151,7 @@ class ComponentsEventsTest extends StorageApiTestCase
                 ]
             );
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.componentConfigurationCreated')
             ->setTokenId($this->tokenId);
         $this->assertEventWithRetries($this->client, $assertCallback, $query);
@@ -178,7 +178,7 @@ class ComponentsEventsTest extends StorageApiTestCase
             );
         };
 
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.componentConfigurationRestored')
             ->setTokenId($this->tokenId);
         $this->assertEventWithRetries($this->client, $assertCallback, $query);
@@ -216,7 +216,7 @@ class ComponentsEventsTest extends StorageApiTestCase
             );
         };
 
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.componentConfigurationDeleted')
             ->setTokenId($this->tokenId);
         $this->assertEventWithRetries($this->client, $assertCallback, $query);
@@ -245,7 +245,7 @@ class ComponentsEventsTest extends StorageApiTestCase
             );
         };
 
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.componentConfigurationPurged')
             ->setTokenId($this->tokenId);
         $this->assertEventWithRetries($this->client, $assertCallback, $query);
@@ -280,7 +280,7 @@ class ComponentsEventsTest extends StorageApiTestCase
                 ]
             );
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.componentConfigurationRestored')
             ->setTokenId($this->tokenId);
         $this->assertEventWithRetries($this->client, $assertCallback, $query);
@@ -326,7 +326,7 @@ class ComponentsEventsTest extends StorageApiTestCase
                 ]
             );
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.componentConfigurationCopied')
             ->setTokenId($this->tokenId);
         $this->assertEventWithRetries($this->client, $assertCallback, $query);
@@ -368,7 +368,7 @@ class ComponentsEventsTest extends StorageApiTestCase
                 ]
             );
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.componentConfigurationRolledBack')
             ->setTokenId($this->tokenId);
         $this->assertEventWithRetries($this->client, $assertCallback, $query);
@@ -412,7 +412,7 @@ class ComponentsEventsTest extends StorageApiTestCase
             );
         };
 
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.componentConfigurationRowChanged')
             ->setTokenId($this->tokenId);
         $this->assertEventWithRetries($this->client, $assertCallback, $query);
@@ -466,7 +466,7 @@ class ComponentsEventsTest extends StorageApiTestCase
                 ]
             );
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.componentConfigurationRowCreated')
             ->setTokenId($this->tokenId);
         $this->assertEventWithRetries($this->client, $assertCallback, $query);
@@ -509,7 +509,7 @@ class ComponentsEventsTest extends StorageApiTestCase
                 ]
             );
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.componentConfigurationRowDeleted')
             ->setTokenId($this->tokenId);
         $this->assertEventWithRetries($this->client, $assertCallback, $query);
@@ -567,7 +567,7 @@ class ComponentsEventsTest extends StorageApiTestCase
                 ]
             );
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.componentConfigurationRowCopied')
             ->setTokenId($this->tokenId);
         $this->assertEventWithRetries($this->client, $assertCallback, $query);
@@ -634,7 +634,7 @@ class ComponentsEventsTest extends StorageApiTestCase
             );
         };
 
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.componentConfigurationRowRolledBack')
             ->setTokenId($this->tokenId);
         $this->assertEventWithRetries($this->client, $assertCallback, $query);

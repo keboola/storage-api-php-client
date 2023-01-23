@@ -10,7 +10,7 @@ use Keboola\StorageApi\Options\Components\SearchComponentConfigurationsOptions;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\Utils\ComponentsConfigurationUtils;
 use Keboola\Test\StorageApiTestCase;
-use Keboola\Test\Utils\EventsBuilder;
+use Keboola\Test\Utils\EventsQueryBuilder;
 use Keboola\Test\Utils\EventTesterUtils;
 
 class SearchComponentsConfigurationsTest extends StorageApiTestCase
@@ -350,7 +350,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
                 $event['params']
             );
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.componentsSearched')
             ->setTokenId($this->tokenId);
         $this->assertEventWithRetries($this->_client, $assertCallback, $query);

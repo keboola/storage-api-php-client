@@ -97,7 +97,7 @@ trait EventTesterUtils
     public function assertEventWithRetries(
         Client $client,
         callable $assertCallback,
-        EventsBuilder $query,
+        EventsQueryBuilder $query,
         int $limit = 10
     ): void {
         $query = $query->generateQuery();

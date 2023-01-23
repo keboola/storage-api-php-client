@@ -16,7 +16,7 @@ use Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
-use Keboola\Test\Utils\EventsBuilder;
+use Keboola\Test\Utils\EventsQueryBuilder;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\BufferedOutput;
 use function json_decode;
@@ -1368,7 +1368,7 @@ class ComponentsTest extends StorageApiTestCase
                 $this->assertCount(1, $events);
                 $this->assertEquals($branchClient->getCurrentBranchId(), $events[0]['idBranch']);
             };
-            $query = new EventsBuilder();
+            $query = new EventsQueryBuilder();
             $query->setEvent('storage.componentConfigurationRolledBack')
                 ->setTokenId($this->tokenId)
                 ->setObjectId((string) $branchClient->getCurrentBranchId())
@@ -1422,7 +1422,7 @@ class ComponentsTest extends StorageApiTestCase
 
                 $this->assertEquals($branchClient->getCurrentBranchId(), $events[0]['idBranch']);
             };
-            $query = new EventsBuilder();
+            $query = new EventsQueryBuilder();
             $query->setEvent('storage.componentConfigurationRolledBack')
                 ->setTokenId($this->tokenId)
                 ->setComponent('storage');

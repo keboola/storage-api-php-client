@@ -10,7 +10,7 @@ use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\LegacyInputMappingConverter;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
-use Keboola\Test\Utils\EventsBuilder;
+use Keboola\Test\Utils\EventsQueryBuilder;
 
 class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
 {
@@ -151,7 +151,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             $this->assertArrayHasKey('workspace', $loadEvent['params']);
         };
 
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.workspaceLoaded')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);

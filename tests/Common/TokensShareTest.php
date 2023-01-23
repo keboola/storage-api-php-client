@@ -4,7 +4,7 @@ namespace Keboola\Test\Common;
 
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\Test\StorageApiTestCase;
-use Keboola\Test\Utils\EventsBuilder;
+use Keboola\Test\Utils\EventsQueryBuilder;
 use Keboola\Test\Utils\EventTesterUtils;
 
 class TokensShareTest extends StorageApiTestCase
@@ -33,7 +33,7 @@ class TokensShareTest extends StorageApiTestCase
             $this->assertSame('storage.tokenShared', $events[0]['event']);
             $this->assertSame('test@devel.keboola.com', $events[0]['params']['recipientEmail']);
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.tokenShared')
             ->setTokenId($this->tokenId);
         $this->assertEventWithRetries($this->_client, $assertCallback, $query);

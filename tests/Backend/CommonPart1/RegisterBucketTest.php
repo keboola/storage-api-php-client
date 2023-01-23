@@ -8,7 +8,7 @@ use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\SnowflakeWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\StorageApiTestCase;
-use Keboola\Test\Utils\EventsBuilder;
+use Keboola\Test\Utils\EventsQueryBuilder;
 
 class RegisterBucketTest extends StorageApiTestCase
 {
@@ -77,7 +77,7 @@ class RegisterBucketTest extends StorageApiTestCase
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.bucketCreated')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
@@ -101,7 +101,7 @@ class RegisterBucketTest extends StorageApiTestCase
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.tableCreated')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
@@ -110,7 +110,7 @@ class RegisterBucketTest extends StorageApiTestCase
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.bucketRefreshed')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
@@ -155,7 +155,7 @@ class RegisterBucketTest extends StorageApiTestCase
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.tableCreated')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
@@ -164,7 +164,7 @@ class RegisterBucketTest extends StorageApiTestCase
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.bucketRefreshed')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
@@ -184,7 +184,7 @@ class RegisterBucketTest extends StorageApiTestCase
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.tableDeleted')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
@@ -193,7 +193,7 @@ class RegisterBucketTest extends StorageApiTestCase
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.tableCreated')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
@@ -202,7 +202,7 @@ class RegisterBucketTest extends StorageApiTestCase
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.tableColumnsUpdated')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
@@ -211,7 +211,7 @@ class RegisterBucketTest extends StorageApiTestCase
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.bucketRefreshed')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
@@ -298,7 +298,7 @@ class RegisterBucketTest extends StorageApiTestCase
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.bucketCreated')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
@@ -307,7 +307,7 @@ class RegisterBucketTest extends StorageApiTestCase
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.tableCreated')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);

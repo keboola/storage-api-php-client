@@ -10,7 +10,7 @@ use Keboola\StorageApi\Options\TableWithConfigurationOptions;
 use Keboola\Test\Backend\TableWithConfigurationUtils;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
-use Keboola\Test\Utils\EventsBuilder;
+use Keboola\Test\Utils\EventsQueryBuilder;
 use Keboola\Test\Utils\EventTesterUtils;
 
 class CreateTableWithConfigurationTest extends StorageApiTestCase
@@ -115,7 +115,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             $this->assertCount(1, $events);
         };
 
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.tableWithConfigurationMigrated')
             ->setTokenId($this->tokenId)
             ->setObjectId($tableId);
@@ -129,7 +129,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             $this->assertEqualsIgnoringCase(['id', 'name'], $event['params']['columns']);
         };
 
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.tableCreated')
             ->setTokenId($this->tokenId)
             ->setObjectId($tableId);
@@ -198,7 +198,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             $this->assertArrayHasKey('executedQuery', $event['params']);
             $this->assertStringContainsString('CREATE TABLE', $event['params']['executedQuery']);
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.tableWithConfigurationMigrated')
             ->setTokenId($this->tokenId)
             ->setObjectId($tableId);
@@ -208,7 +208,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             $this->assertCount(1, $events);
         };
 
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.tableCreated')
             ->setTokenId($this->tokenId)
             ->setObjectId($tableId);
@@ -245,7 +245,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         };
         $objectId = $this->getTestBucketId() . '.custom-table-1';
 
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.tableWithConfigurationMigrated')
             ->setTokenId($this->tokenId)
             ->setObjectId($objectId);
@@ -363,7 +363,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             $this->assertStringContainsString('CREATE TABLE', $event['params']['executedQuery']);
         };
         $objectId = $this->getTestBucketId() . '.custom-table-1';
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.tableWithConfigurationMigrated')
             ->setTokenId($this->tokenId)
             ->setObjectId($objectId);
@@ -377,7 +377,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             $this->assertSame('ASD', $event['params']['executedQuery']);
         };
         $objectId = $this->getTestBucketId() . '.custom-table-1';
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.tableWithConfigurationMigrationFailed')
             ->setTokenId($this->tokenId)
             ->setObjectId($objectId);
@@ -387,7 +387,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             $this->assertCount(1, $events);
         };
         $objectId = $this->getTestBucketId() . '.custom-table-1';
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.tableWithConfigurationMigrationFailed')
             ->setTokenId($this->tokenId)
             ->setObjectId($objectId);

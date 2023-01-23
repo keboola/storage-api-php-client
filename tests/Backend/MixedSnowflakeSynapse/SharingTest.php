@@ -12,7 +12,7 @@ use Keboola\Test\Backend\Mixed\StorageApiSharingTestCase;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\Workspaces\Backend\SynapseWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
-use Keboola\Test\Utils\EventsBuilder;
+use Keboola\Test\Utils\EventsQueryBuilder;
 
 class SharingTest extends StorageApiSharingTestCase
 {
@@ -186,7 +186,7 @@ class SharingTest extends StorageApiSharingTestCase
                 $this->assertSame($expectedLoadType, $event['results']['loadType']);
             }
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.workspaceLoaded')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
@@ -259,7 +259,7 @@ class SharingTest extends StorageApiSharingTestCase
             $this->assertCount(1, $events);
             $this->assertSame($expectedLoadType, $events[0]['results']['loadType']);
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.workspaceLoaded')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
@@ -283,7 +283,7 @@ class SharingTest extends StorageApiSharingTestCase
             $this->assertCount(1, $events);
             $this->assertSame($expectedLoadType, $events[0]['results']['loadType']);
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.workspaceLoaded')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);

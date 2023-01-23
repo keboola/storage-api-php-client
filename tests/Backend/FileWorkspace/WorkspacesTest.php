@@ -4,7 +4,7 @@ namespace Keboola\Test\Backend\FileWorkspace;
 
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\FileWorkspace\Backend\Abs;
-use Keboola\Test\Utils\EventsBuilder;
+use Keboola\Test\Utils\EventsQueryBuilder;
 use MicrosoftAzure\Storage\Common\Exceptions\ServiceException;
 
 class WorkspacesTest extends FileWorkspaceTestCase
@@ -58,7 +58,7 @@ class WorkspacesTest extends FileWorkspaceTestCase
             $this->assertSame('storage.workspaceCreated', $workspaceCreatedEvent['event']);
             $this->assertSame('storage', $workspaceCreatedEvent['component']);
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.workspaceCreated')
             ->setTokenId($this->tokenId)
             ->setObjectId((string) $workspace['id'])
@@ -74,7 +74,7 @@ class WorkspacesTest extends FileWorkspaceTestCase
             $this->assertSame('storage', $workspaceDeletedEvent['component']);
         };
 
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.workspaceDeleted')
             ->setTokenId($this->tokenId)
             ->setObjectId((string) $workspace['id'])
@@ -127,7 +127,7 @@ class WorkspacesTest extends FileWorkspaceTestCase
             $this->assertSame('storage.workspacePasswordReset', $workspaceCreatedEvent['event']);
             $this->assertSame('storage', $workspaceCreatedEvent['component']);
         };
-        $query = new EventsBuilder();
+        $query = new EventsQueryBuilder();
         $query->setEvent('storage.workspacePasswordReset')
             ->setTokenId($this->tokenId)
             ->setObjectId((string) $workspace['id'])
