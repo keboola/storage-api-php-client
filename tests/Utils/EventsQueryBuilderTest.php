@@ -12,7 +12,7 @@ class EventsQueryBuilderTest extends TestCase
     /**
      * @dataProvider eventsQueryBuilderProvider
      */
-    public function testBuildQuery(EventsQueryBuilder $queryBuilder, $expectedQuery)
+    public function testBuildQuery(EventsQueryBuilder $queryBuilder, string $expectedQuery): void
     {
         $this->assertSame($expectedQuery, $queryBuilder->generateQuery());
     }
@@ -21,12 +21,12 @@ class EventsQueryBuilderTest extends TestCase
     {
         yield 'tokenId and runId' => [
             (new EventsQueryBuilder())->setTokenId('1234-1234')->setRunId('123'),
-            'token.id:1234-1234 AND runId:123'
+            'token.id:1234-1234 AND runId:123',
         ];
 
         yield 'one parameter' => [
             (new EventsQueryBuilder())->setRunId('123'),
-            'runId:123'
+            'runId:123',
         ];
 
         yield 'all parameters' => [
@@ -40,12 +40,12 @@ class EventsQueryBuilderTest extends TestCase
                 ->setProjectId('project-123')
                 ->setObjectType('obj-123'),
             'token.id:123-token AND event:storage.createBucket AND objectId:obj-123 AND idBranch:branch-123'
-            . ' AND component:wr-db AND runId:123 AND project.id:project-123 AND objectType:obj-123'
+            . ' AND component:wr-db AND runId:123 AND project.id:project-123 AND objectType:obj-123',
         ];
 
         yield 'other random params' => [
             (new EventsQueryBuilder())->setProjectId('1234-1234')->setEvent('123'),
-            'project.id:1234-1234 AND event:123'
+            'project.id:1234-1234 AND event:123',
         ];
     }
 }
