@@ -1,4 +1,5 @@
-Jira: KBC-XXX
+Jira: CT-XXX
+KBC: XXX
 
 Before asking for review make sure that:
 
