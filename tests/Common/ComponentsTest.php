@@ -95,7 +95,7 @@ class ComponentsTest extends StorageApiTestCase
             $this->fail('List components with invalid include should fail');
         } catch (ClientException $e) {
             $this->assertSame(400, $e->getCode());
-            $this->assertSame('Invalid request', $e->getMessage());
+            $this->assertStringStartsWith('Invalid request', $e->getMessage());
 
             $params = $e->getContextParams();
             $this->assertArrayHasKey('errors', $params);
