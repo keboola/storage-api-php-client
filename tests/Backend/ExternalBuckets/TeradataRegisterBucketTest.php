@@ -144,24 +144,20 @@ class TeradataRegisterBucketTest extends BaseExternalBuckets
         // first tableDeleted event might come from dropBucket
         $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
-
         $query = new EventsQueryBuilder();
         $query->setEvent('storage.tableCreated')
             ->setRunId($runId);
         $this->assertEventWithRetries($this->_client, $assertCallback, $query);
-
 
         $query = new EventsQueryBuilder();
         $query->setEvent('storage.tableColumnsUpdated')
             ->setRunId($runId);
         $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
-
         $query = new EventsQueryBuilder();
         $query->setEvent('storage.bucketRefreshed')
             ->setRunId($runId);
         $this->assertEventWithRetries($this->_client, $assertCallback, $query);
-
 
         $tables = $this->_client->listTables($idOfBucket);
         $this->assertCount(2, $tables);
