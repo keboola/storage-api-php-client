@@ -8,6 +8,7 @@ use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\DevBranchesMetadata;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
+use Keboola\Test\Utils\EventsQueryBuilder;
 use Keboola\Test\Utils\EventTesterUtils;
 use Keboola\Test\Utils\MetadataUtils;
 
@@ -143,19 +144,25 @@ class BranchMetadataTest extends StorageApiTestCase
         $metadata = $defaultMdClient->addBranchMetadata(self::TEST_METADATA);
         $this->assertCount(2, $metadata);
 
-        $events = $this->listEvents($this->client, 'storage.devBranchMetadataSet');
+        $assertCallback = function ($events) use ($currentBranchName) {
+            $this->assertCount(1, $events);
+            $this->assertEvent(
+                $events[0],
+                'storage.devBranchMetadataSet',
+                sprintf('Development branch "%s" metadata set', $currentBranchName),
+                $this->client->getCurrentBranchId(),
+                $currentBranchName,
+                'devBranch',
+                [
+                    'metadata' => self::TEST_METADATA,
+                ]
+            );
+        };
 
-        $this->assertEvent(
-            $events[0],
-            'storage.devBranchMetadataSet',
-            sprintf('Development branch "%s" metadata set', $currentBranchName),
-            $this->client->getCurrentBranchId(),
-            $currentBranchName,
-            'devBranch',
-            [
-                'metadata' => self::TEST_METADATA,
-            ]
-        );
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.devBranchMetadataSet')
+            ->setTokenId($this->tokenId);
+        $this->assertEventWithRetries($this->client, $assertCallback, $query);
     }
 
     /**
@@ -251,20 +258,26 @@ class BranchMetadataTest extends StorageApiTestCase
         // delete metadata - first
         $defaultMdClient->deleteBranchMetadata((int) $metadata[0]['id']);
 
-        $events = $this->listEvents($this->client, 'storage.devBranchMetadataDeleted');
+        $assertCallback = function ($events) use ($currentBranchName, $metadata) {
+            $this->assertCount(1, $events);
+            $this->assertEvent(
+                $events[0],
+                'storage.devBranchMetadataDeleted',
+                sprintf('Development branch "%s" metadata with key "%s" deleted', $currentBranchName, $metadata[0]['key']),
+                $this->client->getCurrentBranchId(),
+                $currentBranchName,
+                'devBranch',
+                [
+                    'metadataId' => (int) $metadata[0]['id'],
+                    'key' => self::TEST_METADATA[0]['key'],
+                ]
+            );
+        };
 
-        $this->assertEvent(
-            $events[0],
-            'storage.devBranchMetadataDeleted',
-            sprintf('Development branch "%s" metadata with key "%s" deleted', $currentBranchName, $metadata[0]['key']),
-            $this->client->getCurrentBranchId(),
-            $currentBranchName,
-            'devBranch',
-            [
-                'metadataId' => (int) $metadata[0]['id'],
-                'key' => self::TEST_METADATA[0]['key'],
-            ]
-        );
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.devBranchMetadataDeleted')
+            ->setTokenId($this->tokenId);
+        $this->assertEventWithRetries($this->client, $assertCallback, $query);
     }
 
     /**

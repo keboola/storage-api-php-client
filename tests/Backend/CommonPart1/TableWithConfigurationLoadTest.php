@@ -10,6 +10,7 @@ use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\Test\Backend\TableWithConfigurationUtils;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
+use Keboola\Test\Utils\EventsQueryBuilder;
 
 class TableWithConfigurationLoadTest extends StorageApiTestCase
 {
@@ -134,11 +135,23 @@ JSON;
         ], $table);
 
         // check events
-        $events = $this->listEventsFilteredByName($this->client, 'storage.tableWithConfigurationImportQuery', $tableId, 50);
-        $this->assertCount(8, $events);
+        $assertCallback = function ($events) {
+            $this->assertCount(8, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableWithConfigurationImportQuery')
+            ->setTokenId($this->tokenId)
+            ->setObjectId($tableId);
+        $this->assertEventWithRetries($this->client, $assertCallback, $query);
 
-        $events = $this->listEventsFilteredByName($this->client, 'storage.tableImportDone', $tableId, 10);
-        $this->assertCount(1, $events);
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableImportDone')
+            ->setTokenId($this->tokenId)
+            ->setObjectId($tableId);
+        $this->assertEventWithRetries($this->client, $assertCallback, $query);
     }
 
     public function testLoadFromFileToTableOnError(): void
@@ -451,10 +464,22 @@ JSON;
         ], $table);
 
         // check events
-        $events = $this->listEventsFilteredByName($this->client, 'storage.tableWithConfigurationImportQuery', $tableId, 50);
-        $this->assertCount(9, $events);
+        $assertCallback = function ($events) {
+            $this->assertCount(9, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableWithConfigurationImportQuery')
+            ->setTokenId($this->tokenId)
+            ->setObjectId($tableId);
+        $this->assertEventWithRetries($this->client, $assertCallback, $query);
 
-        $events = $this->listEventsFilteredByName($this->client, 'storage.tableImportDone', $tableId, 10);
-        $this->assertCount(1, $events);
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableImportDone')
+            ->setTokenId($this->tokenId)
+            ->setObjectId($tableId);
+        $this->assertEventWithRetries($this->client, $assertCallback, $query);
     }
 }

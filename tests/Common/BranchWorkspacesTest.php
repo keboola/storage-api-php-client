@@ -9,6 +9,7 @@ use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\WorkspaceCredentialsAssertTrait;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\WorkspacesTest;
+use Keboola\Test\Utils\EventsQueryBuilder;
 
 class BranchWorkspacesTest extends WorkspacesTest
 {
@@ -45,6 +46,8 @@ class BranchWorkspacesTest extends WorkspacesTest
      */
     public function testWorkspaceCreate(bool $async): void
     {
+        $this->initEvents($this->workspaceSapiClient);
+
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
         foreach ($this->listTestWorkspaces($this->_client) as $workspace) {
@@ -81,25 +84,33 @@ class BranchWorkspacesTest extends WorkspacesTest
 
         $workspaces->deleteWorkspace($workspace['id']);
 
-        // block until async events are processed, processing in order is not guaranteed but it should work most of time
-        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
+        $assertCallback = function ($events) use ($runId) {
+            $this->assertCount(1, $events);
+            $workspaceCreatedEvent = array_pop($events);
+            $this->assertSame($runId, $workspaceCreatedEvent['runId']);
+            $this->assertSame('storage.workspaceCreated', $workspaceCreatedEvent['event']);
+            $this->assertSame('storage', $workspaceCreatedEvent['component']);
+            $this->assertEquals($this->branchId, $workspaceCreatedEvent['idBranch']);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.workspaceCreated')
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->workspaceSapiClient, $assertCallback, $query);
 
-        $events = $this->workspaceSapiClient->listEvents([
-            'runId' => $runId,
-        ]);
+        $assertCallback = function ($events) use ($runId) {
+            $this->assertCount(1, $events);
+            $workspaceDeletedEvent = array_pop($events);
+            $this->assertSame($runId, $workspaceDeletedEvent['runId']);
+            $this->assertSame('storage.workspaceDeleted', $workspaceDeletedEvent['event']);
+            $this->assertSame('storage', $workspaceDeletedEvent['component']);
+            $this->assertEquals($this->branchId, $workspaceDeletedEvent['idBranch']);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.workspaceDeleted')
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->workspaceSapiClient, $assertCallback, $query);
 
-        $workspaceCreatedEvent = array_pop($events);
-        $this->assertSame($runId, $workspaceCreatedEvent['runId']);
-        $this->assertSame('storage.workspaceCreated', $workspaceCreatedEvent['event']);
-        $this->assertSame('storage', $workspaceCreatedEvent['component']);
-        $this->assertEquals($this->branchId, $workspaceCreatedEvent['idBranch']);
-
-        $workspaceDeletedEvent = array_pop($events);
-        $this->assertSame($runId, $workspaceDeletedEvent['runId']);
-        $this->assertSame('storage.workspaceDeleted', $workspaceDeletedEvent['event']);
-        $this->assertSame('storage', $workspaceDeletedEvent['component']);
         $this->assertCredentialsShouldNotWork($connection);
-        $this->assertEquals($this->branchId, $workspaceCreatedEvent['idBranch']);
     }
 
     public function testWorkspacePasswordReset(): void
