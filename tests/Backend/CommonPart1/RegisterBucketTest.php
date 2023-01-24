@@ -8,6 +8,7 @@ use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\SnowflakeWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\StorageApiTestCase;
+use Keboola\Test\Utils\EventsQueryBuilder;
 
 class RegisterBucketTest extends StorageApiTestCase
 {
@@ -19,6 +20,7 @@ class RegisterBucketTest extends StorageApiTestCase
 
     public function testRegisterBucket(): void
     {
+        $this->initEvents($this->_client);
         $token = $this->_client->verifyToken();
 
         if (!in_array('input-mapping-read-only-storage', $token['owner']['features'])) {
@@ -72,7 +74,14 @@ class RegisterBucketTest extends StorageApiTestCase
             'snowflake',
             'Iam-your-workspace'
         );
-        $this->assertEvents($runId, ['storage.bucketCreated']);
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.bucketCreated')
+            ->setTokenId($this->tokenId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
         $bucket = $this->_client->getBucket($idOfBucket);
         $this->assertTrue($bucket['hasExternalSchema']);
@@ -88,7 +97,24 @@ class RegisterBucketTest extends StorageApiTestCase
 
         $runId = $this->setRunId();
         $this->_client->refreshBucket($idOfBucket);
-        $this->assertEvents($runId, ['storage.tableCreated', 'storage.bucketRefreshed']);
+
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableCreated')
+            ->setTokenId($this->tokenId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.bucketRefreshed')
+            ->setTokenId($this->tokenId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
         $tables = $this->_client->listTables($idOfBucket);
         $this->assertCount(1, $tables);
@@ -125,10 +151,24 @@ class RegisterBucketTest extends StorageApiTestCase
 
         $runId = $this->setRunId();
         $this->_client->refreshBucket($idOfBucket);
-        $this->assertEvents($runId, [
-            'storage.tableCreated',
-            'storage.bucketRefreshed',
-        ]);
+
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableCreated')
+            ->setTokenId($this->tokenId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.bucketRefreshed')
+            ->setTokenId($this->tokenId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
         $tables = $this->_client->listTables($idOfBucket);
         $this->assertCount(2, $tables);
@@ -140,12 +180,42 @@ class RegisterBucketTest extends StorageApiTestCase
 
         $runId = $this->setRunId();
         $this->_client->refreshBucket($idOfBucket);
-        $this->assertEvents($runId, [
-            'storage.tableDeleted',
-            'storage.tableCreated',
-            'storage.tableColumnsUpdated',
-            'storage.bucketRefreshed',
-        ]);
+
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableDeleted')
+            ->setTokenId($this->tokenId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableCreated')
+            ->setTokenId($this->tokenId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableColumnsUpdated')
+            ->setTokenId($this->tokenId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.bucketRefreshed')
+            ->setTokenId($this->tokenId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
         $tables = $this->_client->listTables($idOfBucket);
         $this->assertCount(2, $tables);
@@ -224,10 +294,24 @@ class RegisterBucketTest extends StorageApiTestCase
             'snowflake',
             'Iam-from-external-db-ext'
         );
-        $this->assertEvents($runId, [
-            'storage.bucketCreated',
-            'storage.tableCreated',
-        ]);
+
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.bucketCreated')
+            ->setTokenId($this->tokenId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableCreated')
+            ->setTokenId($this->tokenId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
         $bucket = $this->_client->getBucket($idOfBucket);
         $this->assertTrue($bucket['hasExternalSchema']);
@@ -293,28 +377,5 @@ class RegisterBucketTest extends StorageApiTestCase
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
         return $runId;
-    }
-
-    /**
-     * @param string[] $expectedEventsNames
-     */
-    private function assertEvents(string $runId, array $expectedEventsNames): void
-    {
-        // block until async events are processed, processing in order is not guaranteed but it should work most of time
-        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
-
-        $events = $this->_client->listEvents([
-            'runId' => $runId,
-        ]);
-
-        $eventsNames = [];
-        foreach ($events as $event) {
-            if ($event['event'] === 'ext.dummy.') {
-                continue;
-            }
-            $eventsNames[] = $event['event'];
-        }
-
-        $this->assertSame([], array_diff($expectedEventsNames, $eventsNames));
     }
 }

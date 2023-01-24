@@ -6,6 +6,7 @@ namespace Keboola\Test\Backend\Workspaces;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Metadata;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
+use Keboola\Test\Utils\EventsQueryBuilder;
 
 class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
 {
@@ -24,6 +25,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
 
     public function testIncrementalLoadUpdateDataType(): void
     {
+        $this->initEvents($this->_client);
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace(self::BACKEND_SNOWFLAKE);
 
@@ -77,67 +79,57 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
             'dataTableName' => 'test.metadata_columns',
         ]);
 
-        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
-        $events = $this->_client->listEvents([
-            'runId' => $runId,
-        ]);
+        $assertCallback = function ($events) use ($tableId) {
+            $this->assertCount(1, $events, $tableId);
+            // type event assert
+            $notUpdateColumnTypeEvent = $events[0];
+            $this->assertSame('storage.tableAutomaticDataTypesNotUpdateColumnType', $notUpdateColumnTypeEvent['event']);
+            $this->assertSame('storage', $notUpdateColumnTypeEvent['component']);
+            $this->assertSame('warn', $notUpdateColumnTypeEvent['type']);
+            $this->assertArrayHasKey('params', $notUpdateColumnTypeEvent);
+            $this->assertSame($tableId, $notUpdateColumnTypeEvent['objectId']);
+            $this->assertSame('id', $notUpdateColumnTypeEvent['params']['column']);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableAutomaticDataTypesNotUpdateColumnType')
+            ->setTokenId($this->tokenId)
+            ->setObjectId($tableId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
-        $notUpdateColumnTypeEvent = null;
-        $notUpdateNullableColumnEvent = null;
-        $notUpdateLengthEvent = null;
-        foreach ($events as $event) {
-            if ($event['event'] === 'storage.tableAutomaticDataTypesNotUpdateColumnType') {
-                $notUpdateColumnTypeEvent = $event;
-            }
-            if ($event['event'] === 'storage.tableAutomaticDataTypesNotUpdateColumnNullable') {
-                $notUpdateNullableColumnEvent = $event;
-            }
-            if ($event['event'] === 'storage.tableAutomaticDataTypesNotUpdateColumnLength') {
-                $notUpdateLengthEvent = $event;
-            }
-        }
+        $assertCallback = function ($events) use ($tableId) {
+            $this->assertCount(1, $events, $tableId);
+            // nullable event assert
+            $notUpdateNullableColumnEvent = $events[0];
+            $this->assertSame('storage.tableAutomaticDataTypesNotUpdateColumnNullable', $notUpdateNullableColumnEvent['event']);
+            $this->assertSame('storage', $notUpdateNullableColumnEvent['component']);
+            $this->assertSame('warn', $notUpdateNullableColumnEvent['type']);
+            $this->assertArrayHasKey('params', $notUpdateNullableColumnEvent);
+            $this->assertSame($tableId, $notUpdateNullableColumnEvent['objectId']);
+            $this->assertSame('name', $notUpdateNullableColumnEvent['params']['column']);
+        };
 
-        // type event assert
-        $this->assertSame('storage.tableAutomaticDataTypesNotUpdateColumnType', $notUpdateColumnTypeEvent['event']);
-        $this->assertSame('storage', $notUpdateColumnTypeEvent['component']);
-        $this->assertSame('warn', $notUpdateColumnTypeEvent['type']);
-        $this->assertArrayHasKey('params', $notUpdateColumnTypeEvent);
-        $this->assertSame($tableId, $notUpdateColumnTypeEvent['objectId']);
-        $this->assertSame('id', $notUpdateColumnTypeEvent['params']['column']);
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableAutomaticDataTypesNotUpdateColumnNullable')
+            ->setTokenId($this->tokenId)
+            ->setObjectId($tableId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
-        $table = $this->_client->getTable($tableId);
-
-        $this->assertEquals([], $table['metadata']);
-
-        $this->assertArrayHasKey('id', $table['columnMetadata']);
-        $this->assertMetadata($expectedIdMetadata, $table['columnMetadata']['id']);
-        $this->assertArrayHasKey('name', $table['columnMetadata']);
-        $this->assertMetadata($expectedNameMetadata, $table['columnMetadata']['name']);
-
-        // length event assert
-        $this->assertSame('storage.tableAutomaticDataTypesNotUpdateColumnLength', $notUpdateLengthEvent['event']);
-        $this->assertSame('storage', $notUpdateLengthEvent['component']);
-        $this->assertSame('warn', $notUpdateLengthEvent['type']);
-        $this->assertArrayHasKey('params', $notUpdateLengthEvent);
-        $this->assertSame($tableId, $notUpdateLengthEvent['objectId']);
-        $this->assertSame('name', $notUpdateLengthEvent['params']['column']);
-
-        $table = $this->_client->getTable($tableId);
-
-        $this->assertEquals([], $table['metadata']);
-
-        $this->assertArrayHasKey('id', $table['columnMetadata']);
-        $this->assertMetadata($expectedIdMetadata, $table['columnMetadata']['id']);
-        $this->assertArrayHasKey('name', $table['columnMetadata']);
-        $this->assertMetadata($expectedNameMetadata, $table['columnMetadata']['name']);
-
-        // nullable event assert
-        $this->assertSame('storage.tableAutomaticDataTypesNotUpdateColumnNullable', $notUpdateNullableColumnEvent['event']);
-        $this->assertSame('storage', $notUpdateNullableColumnEvent['component']);
-        $this->assertSame('warn', $notUpdateNullableColumnEvent['type']);
-        $this->assertArrayHasKey('params', $notUpdateNullableColumnEvent);
-        $this->assertSame($tableId, $notUpdateNullableColumnEvent['objectId']);
-        $this->assertSame('name', $notUpdateNullableColumnEvent['params']['column']);
+        $assertCallback = function ($events) use ($tableId) {
+            $this->assertCount(1, $events, $tableId);
+            // length event assert
+            $notUpdateLengthEvent = $events[0];
+            $this->assertSame('storage.tableAutomaticDataTypesNotUpdateColumnLength', $notUpdateLengthEvent['event']);
+            $this->assertSame('storage', $notUpdateLengthEvent['component']);
+            $this->assertSame('warn', $notUpdateLengthEvent['type']);
+            $this->assertArrayHasKey('params', $notUpdateLengthEvent);
+            $this->assertSame($tableId, $notUpdateLengthEvent['objectId']);
+            $this->assertSame('name', $notUpdateLengthEvent['params']['column']);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableAutomaticDataTypesNotUpdateColumnLength')
+            ->setTokenId($this->tokenId)
+            ->setObjectId($tableId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
         $table = $this->_client->getTable($tableId);
 

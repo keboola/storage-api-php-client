@@ -4,12 +4,14 @@ namespace Keboola\Test\Backend\FileWorkspace;
 
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\FileWorkspace\Backend\Abs;
+use Keboola\Test\Utils\EventsQueryBuilder;
 use MicrosoftAzure\Storage\Common\Exceptions\ServiceException;
 
 class WorkspacesTest extends FileWorkspaceTestCase
 {
     public function testWorkspaceCreate(): void
     {
+        $this->initEvents($this->_client);
         $workspaces = new Workspaces($this->_client);
 
         $runId = $this->_client->generateRunId();
@@ -49,22 +51,37 @@ class WorkspacesTest extends FileWorkspaceTestCase
 
         $workspaces->deleteWorkspace($workspace['id'], [], true);
 
-        // block until async events are processed, processing in order is not guaranteed but it should work most of time
-        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
+        $assertCallback = function ($events) use ($runId) {
+            $this->assertCount(1, $events);
+            $workspaceCreatedEvent = array_pop($events);
+            $this->assertSame($runId, $workspaceCreatedEvent['runId']);
+            $this->assertSame('storage.workspaceCreated', $workspaceCreatedEvent['event']);
+            $this->assertSame('storage', $workspaceCreatedEvent['component']);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.workspaceCreated')
+            ->setTokenId($this->tokenId)
+            ->setObjectId((string) $workspace['id'])
+            ->setComponent('storage')
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
-        $events = $this->_client->listEvents([
-            'runId' => $runId,
-        ]);
+        $assertCallback = function ($events) use ($runId) {
+            $this->assertCount(1, $events);
+            $workspaceDeletedEvent = array_pop($events);
+            $this->assertSame($runId, $workspaceDeletedEvent['runId']);
+            $this->assertSame('storage.workspaceDeleted', $workspaceDeletedEvent['event']);
+            $this->assertSame('storage', $workspaceDeletedEvent['component']);
+        };
 
-        $workspaceCreatedEvent = array_pop($events);
-        $this->assertSame($runId, $workspaceCreatedEvent['runId']);
-        $this->assertSame('storage.workspaceCreated', $workspaceCreatedEvent['event']);
-        $this->assertSame('storage', $workspaceCreatedEvent['component']);
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.workspaceDeleted')
+            ->setTokenId($this->tokenId)
+            ->setObjectId((string) $workspace['id'])
+            ->setComponent('storage')
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
-        $workspaceDeletedEvent = array_pop($events);
-        $this->assertSame($runId, $workspaceDeletedEvent['runId']);
-        $this->assertSame('storage.workspaceDeleted', $workspaceDeletedEvent['event']);
-        $this->assertSame('storage', $workspaceDeletedEvent['component']);
         $backend = new Abs($connection);
         $this->expectException(ServiceException::class);
         $this->expectExceptionMessage('The specified container does not exist');
@@ -73,6 +90,7 @@ class WorkspacesTest extends FileWorkspaceTestCase
 
     public function testWorkspacePasswordReset(): void
     {
+        $this->initEvents($this->_client);
         $workspaces = new Workspaces($this->_client);
 
         $runId = $this->_client->generateRunId();
@@ -102,16 +120,20 @@ class WorkspacesTest extends FileWorkspaceTestCase
         $newCredentials = $workspaces->resetWorkspacePassword($workspace['id']);
         $this->assertArrayHasKey('connectionString', $newCredentials);
 
-        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
-
-        $events = $this->_client->listEvents([
-            'runId' => $runId,
-        ]);
-
-        $workspaceCreatedEvent = array_pop($events);
-        $this->assertSame($runId, $workspaceCreatedEvent['runId']);
-        $this->assertSame('storage.workspacePasswordReset', $workspaceCreatedEvent['event']);
-        $this->assertSame('storage', $workspaceCreatedEvent['component']);
+        $assertCallback = function ($events) use ($runId) {
+            $this->assertCount(1, $events);
+            $workspaceCreatedEvent = array_pop($events);
+            $this->assertSame($runId, $workspaceCreatedEvent['runId']);
+            $this->assertSame('storage.workspacePasswordReset', $workspaceCreatedEvent['event']);
+            $this->assertSame('storage', $workspaceCreatedEvent['component']);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.workspacePasswordReset')
+            ->setTokenId($this->tokenId)
+            ->setObjectId((string) $workspace['id'])
+            ->setComponent('storage')
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
         $workspace['connection']['connectionString'] = $newCredentials['connectionString'];
         $backend2 = new Abs($workspace['connection']);
