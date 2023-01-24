@@ -10,6 +10,7 @@ use Keboola\StorageApi\Options\Components\SearchComponentConfigurationsOptions;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\Utils\ComponentsConfigurationUtils;
 use Keboola\Test\StorageApiTestCase;
+use Keboola\Test\Utils\EventsQueryBuilder;
 use Keboola\Test\Utils\EventTesterUtils;
 
 class SearchComponentsConfigurationsTest extends StorageApiTestCase
@@ -312,6 +313,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
      */
     public function testSearchComponentsEvent(): void
     {
+        $this->initEvents($this->client);
         $components = new Components($this->client);
         $configurationOptions = $this->createConfiguration(
             $components,
@@ -328,25 +330,30 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
             ->setInclude(['filteredMetadata'])
             ->setMetadataKeys(['KBC.SomeEnity.metadataKey']));
 
-        $events = $this->listEvents($this->client, 'storage.componentsSearched');
-        /** @var array $event */
-        $event = reset($events);
-        self::assertArrayHasKey('event', $event);
-        self::assertEquals('storage.componentsSearched', $event['event']);
-        self::assertArrayHasKey('message', $event);
-        self::assertEquals('Components were searched', $event['message']);
-        self::assertArrayHasKey('token', $event);
-        self::assertEquals($this->tokenId, $event['token']['id']);
-        self::assertArrayHasKey('params', $event);
-        self::assertSame(
-            [
-                'idComponent' => null,
-                'configurationId' => 'component-search-metadata-events-test',
-                'metadataKeys' => ['KBC.SomeEnity.metadataKey'],
-                'include' => ['filteredMetadata'],
-            ],
-            $event['params']
-        );
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+            /** @var array $event */
+            $event = reset($events);
+            self::assertArrayHasKey('event', $event);
+            self::assertEquals('storage.componentsSearched', $event['event']);
+            self::assertArrayHasKey('message', $event);
+            self::assertEquals('Components were searched', $event['message']);
+            self::assertArrayHasKey('token', $event);
+            self::assertEquals($this->tokenId, $event['token']['id']);
+            self::assertArrayHasKey('params', $event);
+            self::assertSame(
+                [
+                    'idComponent' => null,
+                    'configurationId' => 'component-search-metadata-events-test',
+                    'metadataKeys' => ['KBC.SomeEnity.metadataKey'],
+                    'include' => ['filteredMetadata'],
+                ],
+                $event['params']
+            );
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.componentsSearched');
+        $this->assertEventWithRetries($this->client, $assertCallback, $query);
     }
 
 

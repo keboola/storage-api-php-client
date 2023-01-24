@@ -9,6 +9,7 @@ use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\Event;
+use Keboola\Test\Utils\EventsQueryBuilder;
 
 class BranchEventsTest extends StorageApiTestCase
 {
@@ -22,7 +23,7 @@ class BranchEventsTest extends StorageApiTestCase
         $configurationId = 'config-id-dev-branch-' . $branch['id'];
         $branchAwareClient = $this->getBranchAwareDefaultClient($branch['id']);
         $branchComponents = new \Keboola\StorageApi\Components($branchAwareClient);
-
+        $this->initEvents($branchAwareClient);
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('transformation')
             ->setConfigurationId($configurationId)
@@ -48,18 +49,14 @@ class BranchEventsTest extends StorageApiTestCase
         // event for dummy branch dispatched
         $dummyBranchComponents->addConfiguration($config);
 
-        // There could be more than one event because for example bucket events are also returned
-        // Test if return only one event created before for branch
-        $branchAwareEvents = $this->waitForListEvents(
-            $branchAwareClient,
-            'event:storage.componentConfigurationCreated'
-        );
-
-        $this->assertCount(1, $branchAwareEvents);
-
-        $createConfigEventDetail = $branchAwareClient->getEvent($branchAwareEvents[0]['id']);
-
-        $this->assertSame('config-id-dev-branch-' . $branch['id'], $createConfigEventDetail['objectId']);
+        $assertCallback = function ($events) use ($branch) {
+            $this->assertCount(1, $events);
+            $this->assertSame('config-id-dev-branch-' . $branch['id'], $events[0]['objectId']);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.componentConfigurationCreated')
+            ->setTokenId($this->tokenId);
+        $this->assertEventWithRetries($branchAwareClient, $assertCallback, $query);
     }
 
     /**
@@ -150,26 +147,21 @@ class BranchEventsTest extends StorageApiTestCase
         $branch = $this->createDevBranchForTestCase($this);
         $configurationId = 'config-id-dev-branch-' . $branch['id'];
         $branchAwareClient = $this->getBranchAwareDefaultClient($branch['id']);
-
+        $this->initEvents($branchAwareClient);
         // test allowed non branch aware event - create bucket detail event in main branch
         $testBucketId = $this->_client->createBucket($configurationId, self::STAGE_IN);
 
         // event about bucket create should be return from branch aware event list
-        $bucketsListedEvents = $this->waitForListEvents(
-            $branchAwareClient,
-            'objectId:' . $testBucketId
-        );
-        $this->assertCount(1, $bucketsListedEvents);
-        $this->assertSame('storage.bucketCreated', $bucketsListedEvents[0]['event']);
+        $assertCallback = function ($events) use ($testBucketId) {
+            $this->assertCount(1, $events);
+            $this->assertSame('storage.bucketCreated', $events[0]['event']);
+            $this->assertSame($testBucketId, $events[0]['objectId']);
+        };
 
-        $bucketEventDetail = $branchAwareClient->getEvent($bucketsListedEvents[0]['id']);
-
-        $this->assertSame($testBucketId, $bucketEventDetail['objectId']);
-
-        $bucketClientEventList = $this->_client->listEvents([
-            'q' => 'objectId:' . $testBucketId,
-        ]);
-        $this->assertCount(1, $bucketClientEventList);
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.bucketCreated')
+            ->setTokenId($this->tokenId);
+        $this->assertEventWithRetries($branchAwareClient, $assertCallback, $query);
     }
 
     /**
