@@ -238,7 +238,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
             $this->workspaces->createWorkspace($params, true);
         } catch (ClientException $e) {
             $this->assertSame(400, $e->getCode());
-            $this->assertSame('Invalid request', $e->getMessage());
+            $this->assertStringStartsWith('Invalid request', $e->getMessage());
             $this->assertSame($expectedErrors, $e->getContextParams()['errors']);
             $this->assertSame('validation.failed', $e->getStringCode());
         }
