@@ -8,12 +8,14 @@ use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 use Keboola\Test\Backend\Workspaces\Backend\TeradataWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
+use Keboola\Test\Utils\EventsQueryBuilder;
 
 class TeradataRegisterBucketTest extends BaseExternalBuckets
 {
     public function setUp(): void
     {
         parent::setUp();
+        $this->initEvents($this->_client);
 
         $token = $this->_client->verifyToken();
 
@@ -49,6 +51,8 @@ class TeradataRegisterBucketTest extends BaseExternalBuckets
 
     public function testRegisterWSAsExternalBucket(): void
     {
+        $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
+
         $ws = new Workspaces($this->_client);
 
         $workspace = $ws->createWorkspace();
@@ -93,14 +97,14 @@ class TeradataRegisterBucketTest extends BaseExternalBuckets
             'NUMBER',
             '1',
             'NUMERIC',
-            '38,0',
+            '38,19', // default length for TD
             $tableDetail['columnMetadata']['AMOUNT']
         );
         $this->assertColumnMetadata(
             'VARCHAR',
             '1',
             'STRING',
-            '16777216',
+            '32000',
             $tableDetail['columnMetadata']['DESCRIPTION']
         );
 
@@ -123,18 +127,37 @@ class TeradataRegisterBucketTest extends BaseExternalBuckets
         $this->assertCount(2, $tables);
 
         $db->dropTable('TEST2');
-        $db->executeQuery('ALTER TABLE "TEST" DROP COLUMN "AMOUNT"');
-        $db->executeQuery('ALTER TABLE "TEST" ADD COLUMN "XXX" FLOAT');
+        $db->executeQuery('ALTER TABLE "TEST" DROP "AMOUNT"');
+        $db->executeQuery('ALTER TABLE "TEST" ADD "XXX" FLOAT');
         $db->createTable('TEST3', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'VARCHAR']);
 
         $runId = $this->setRunId();
         $this->_client->refreshBucket($idOfBucket);
-        $this->assertEvents($runId, [
-            'storage.tableDeleted',
-            'storage.tableCreated',
-            'storage.tableColumnsUpdated',
-            'storage.bucketRefreshed',
-        ]);
+
+        $assertCallback = function ($events) {
+            $this->assertLessThanOrEqual(2, count($events));
+        };
+
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableDeleted')
+            ->setRunId($runId);
+        // first tableDeleted event might come from dropBucket
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableCreated')
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableColumnsUpdated')
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.bucketRefreshed')
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
         $tables = $this->_client->listTables($idOfBucket);
         $this->assertCount(2, $tables);
@@ -146,7 +169,7 @@ class TeradataRegisterBucketTest extends BaseExternalBuckets
             'VARCHAR',
             '1',
             'STRING',
-            '16777216',
+            '32000',
             $tableDetail['columnMetadata']['DESCRIPTION']
         );
 

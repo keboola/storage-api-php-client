@@ -55,6 +55,8 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
 
     public function testRegisterWSAsExternalBucket(): void
     {
+        $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
+
         $token = $this->_client->verifyToken();
 
         $this->thisBackend = $token['owner']['defaultBackend'];
