@@ -20,7 +20,6 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         $this->initEvents($this->_client);
         $token = $this->_client->verifyToken();
 
-        $this->thisBackend = $token['owner']['defaultBackend'];
         if (!in_array('input-mapping-read-only-storage', $token['owner']['features'])) {
             $this->markTestSkipped(sprintf('Read only mapping is not enabled for project "%s"', $token['owner']['id']));
         }
@@ -40,7 +39,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
                 ['non-existing-database', 'non-existing-schema'],
                 'in',
                 'will fail',
-                $this->thisBackend,
+                'snowflake',
                 'test-bucket-will-fail'
             );
             $this->fail('should fail');
@@ -56,10 +55,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
     public function testRegisterWSAsExternalBucket(): void
     {
         $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
-
-        $token = $this->_client->verifyToken();
-
-        $this->thisBackend = $token['owner']['defaultBackend'];
+        $this->initEvents($this->_client);
 
         $ws = new Workspaces($this->_client);
 
@@ -71,7 +67,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
             [$workspace['connection']['database'], $workspace['connection']['schema']],
             'in',
             'Iam in workspace',
-            $this->thisBackend,
+            'snowflake',
             'Iam-your-workspace'
         );
         $assertCallback = function ($events) {
@@ -286,7 +282,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
     public function testRegisterExternalDB(): void
     {
         $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration-ext', true);
-
+        $this->initEvents($this->_client);
         $runId = $this->setRunId();
         // try same with schema outside of project database.
         // This DB has been created when test project was inited
