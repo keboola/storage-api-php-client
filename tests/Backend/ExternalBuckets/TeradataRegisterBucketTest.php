@@ -52,11 +52,12 @@ class TeradataRegisterBucketTest extends BaseExternalBuckets
     public function testRegisterWSAsExternalBucket(): void
     {
         $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
-
         $ws = new Workspaces($this->_client);
 
         $workspace = $ws->createWorkspace();
 
+        // register bucket
+        $this->initEvents($this->_client);
         $runId = $this->setRunId();
         $idOfBucket = $this->_client->registerBucket(
             'test-bucket-registration',
@@ -66,7 +67,15 @@ class TeradataRegisterBucketTest extends BaseExternalBuckets
             $this->thisBackend,
             'Iam-your-workspace'
         );
-        $this->assertEvents($runId, ['storage.bucketCreated']);
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.bucketCreated')
+            ->setRunId($runId)
+            ->setObjectId($idOfBucket);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
         $bucket = $this->_client->getBucket($idOfBucket);
         $this->assertTrue($bucket['hasExternalSchema']);
@@ -74,6 +83,8 @@ class TeradataRegisterBucketTest extends BaseExternalBuckets
         $tables = $this->_client->listTables($idOfBucket);
         $this->assertCount(0, $tables);
 
+        //create table in the WS
+        $this->initEvents($this->_client);
         $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $db->createTable('TEST', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'VARCHAR']);
@@ -81,8 +92,20 @@ class TeradataRegisterBucketTest extends BaseExternalBuckets
 
         $runId = $this->setRunId();
         $this->_client->refreshBucket($idOfBucket);
-        $this->assertEvents($runId, ['storage.tableCreated', 'storage.bucketRefreshed']);
 
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableCreated')
+            ->setRunId($runId)
+            ->setObjectId('in.test-bucket-registration.TEST');
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.bucketRefreshed')
+            ->setRunId($runId)
+            ->setObjectId($idOfBucket);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+
+        // check metadata and data
         $tables = $this->_client->listTables($idOfBucket);
         $this->assertCount(1, $tables);
         $tableDetail = $this->_client->getTable($tables[0]['id']);
@@ -108,60 +131,46 @@ class TeradataRegisterBucketTest extends BaseExternalBuckets
             $tableDetail['columnMetadata']['DESCRIPTION']
         );
 
-        $this->_client->exportTableAsync($tables[0]['id']);
-
         $preview = $this->_client->getTableDataPreview($tables[0]['id']);
         // expect two lines in preview because of the header
         $this->assertCount(2, Client::parseCsv($preview, false));
 
+        // create talbe 2 in WS
+        $this->initEvents($this->_client);
         $db->createTable('TEST2', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'VARCHAR']);
-
-        $runId = $this->setRunId();
         $this->_client->refreshBucket($idOfBucket);
-        $this->assertEvents($runId, [
-            'storage.tableCreated',
-            'storage.bucketRefreshed',
-        ]);
 
         $tables = $this->_client->listTables($idOfBucket);
         $this->assertCount(2, $tables);
-
-        $db->dropTable('TEST2');
-        $db->executeQuery('ALTER TABLE "TEST" DROP "AMOUNT"');
-        $db->executeQuery('ALTER TABLE "TEST" ADD "XXX" FLOAT');
-        $db->createTable('TEST3', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'VARCHAR']);
-
-        $runId = $this->setRunId();
-        $this->_client->refreshBucket($idOfBucket);
-
-        $assertCallback = function ($events) {
-            $this->assertLessThanOrEqual(2, count($events));
-        };
-
-        $query = new EventsQueryBuilder();
-        $query->setEvent('storage.tableDeleted')
-            ->setRunId($runId);
-        // first tableDeleted event might come from dropBucket
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
         $query = new EventsQueryBuilder();
         $query->setEvent('storage.tableCreated')
-            ->setRunId($runId);
+            ->setRunId($runId)
+            ->setObjectId('in.test-bucket-registration.TEST2');
         $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+
+        // drop table
+        $db->dropTable('TEST2');
+        $this->_client->refreshBucket($idOfBucket);
+
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableDeleted')
+            ->setRunId($runId)
+            ->setObjectId('in.test-bucket-registration.TEST2');
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+
+        // alter table
+        $this->initEvents($this->_client);
+        $db->executeQuery('ALTER TABLE "TEST" DROP "AMOUNT"');
+        $db->executeQuery('ALTER TABLE "TEST" ADD "XXX" FLOAT');
+        $this->_client->refreshBucket($idOfBucket);
 
         $query = new EventsQueryBuilder();
         $query->setEvent('storage.tableColumnsUpdated')
-            ->setRunId($runId);
+                ->setRunId($runId);
         $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
-        $query = new EventsQueryBuilder();
-        $query->setEvent('storage.bucketRefreshed')
-            ->setRunId($runId);
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
-
-        $tables = $this->_client->listTables($idOfBucket);
-        $this->assertCount(2, $tables);
-
+        // check columns after alter
         $tableDetail = $this->_client->getTable($tables[0]['id']);
         $this->assertSame(['DESCRIPTION', 'XXX'], $tableDetail['columns']);
 
@@ -188,6 +197,7 @@ class TeradataRegisterBucketTest extends BaseExternalBuckets
     {
         $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration-ext', true);
 
+        $this->initEvents($this->_client);
         $runId = $this->setRunId();
         // try same with schema outside of project database
         $token = $this->_client->verifyToken();
@@ -200,10 +210,21 @@ class TeradataRegisterBucketTest extends BaseExternalBuckets
             'teradata',
             'Iam-from-external-db-ext'
         );
-        $this->assertEvents($runId, [
-            'storage.bucketCreated',
-            'storage.tableCreated',
-        ]);
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.bucketCreated')
+            ->setRunId($runId)
+            ->setObjectId('in.test-bucket-registration-ext');
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableCreated')
+            ->setRunId($runId)
+            ->setObjectId('in.test-bucket-registration-ext.TEST_TABLE');
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
         $bucket = $this->_client->getBucket($idOfBucket);
         $this->assertTrue($bucket['hasExternalSchema']);
