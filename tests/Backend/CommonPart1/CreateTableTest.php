@@ -32,7 +32,7 @@ class CreateTableTest extends StorageApiTestCase
         $tableName = 'testSynthPk';
         $testTableId = $testBucketId . '.' . $tableName;
 
-        $this->dropBucketIfExists($this->_client, $testBucketId);
+        $this->dropBucketIfExists($this->_client, $testBucketId, true);
         $testBucketId = $this->_client->createBucket($testBucketName, self::STAGE_IN);
         $this->_client->createTable(
             $testBucketId,
