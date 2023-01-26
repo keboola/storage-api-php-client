@@ -30,7 +30,7 @@ class DeleteRowsTest extends StorageApiTestCase
     public function testTableDeleteRowsByFilter(array $filterParams, array $expectedTableContent): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
-        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
         $this->_client->deleteTableRows($tableId, $filterParams);
         $tableInfo = $this->_client->getTable($tableId);
@@ -51,7 +51,7 @@ class DeleteRowsTest extends StorageApiTestCase
     public function testTableDeleteRowsByFilterAsQuery(array $filterParams, array $expectedTableContent): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
-        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
         $this->_client->deleteTableRowsAsQuery($tableId, $filterParams);
         $tableInfo = $this->_client->getTable($tableId);
@@ -67,7 +67,7 @@ class DeleteRowsTest extends StorageApiTestCase
     public function testDeleteRowsMissingValuesShouldReturnUserError(): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
-        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
         try {
             $this->_client->deleteTableRows($tableId, [

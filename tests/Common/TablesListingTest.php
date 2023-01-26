@@ -26,7 +26,7 @@ class TablesListingTest extends StorageApiTestCase
     {
         $this->assertFalse($this->_client->tableExists($this->getTestBucketId() . '.languages'));
 
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'languages',
             new CsvFile(__DIR__ . '/../_data/languages.csv')
@@ -36,7 +36,7 @@ class TablesListingTest extends StorageApiTestCase
 
     public function testListTables(): void
     {
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
         $this->_client->setTableAttribute($tableId, 'test', 'something');
         $tables = $this->_client->listTables($this->getTestBucketId());
 
@@ -66,7 +66,7 @@ class TablesListingTest extends StorageApiTestCase
 
     public function testListTablesWithIncludeParam(): void
     {
-        $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+        $this->_client->createTableAsync($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
         $tables = $this->_client->listTables($this->getTestBucketId(), [
             'include' => '', // don't include anything
         ]);

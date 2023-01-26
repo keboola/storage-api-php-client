@@ -72,6 +72,6 @@ class FulltextSearchTest extends StorageApiTestCase
         $csvFile->writeRow(['AcontainsAA', 'BcontainsBB', 'CcontainsCC']);
         $csvFile->writeRow(['AcontainsAA', 'DcontainsDD', 'EcontainsEE']);
         $csvFile->writeRow(['DcontainsDD', 'EcontainsEE', 'FcontainsFF']);
-        return $this->_client->createTable($this->getTestBucketId(), 'fulltext', $csvFile);
+        return $this->_client->createTableAsync($this->getTestBucketId(), 'fulltext', $csvFile);
     }
 }

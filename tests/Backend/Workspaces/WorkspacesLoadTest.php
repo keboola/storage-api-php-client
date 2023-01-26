@@ -680,10 +680,10 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         sleep(35);
         $startTime = time();
         $importCsv = new \Keboola\Csv\CsvFile($importFile);
-        $this->_client->writeTable($tableId, $importCsv, [
+        $this->_client->writeTableAsync($tableId, $importCsv, [
             'incremental' => true,
         ]);
-        $this->_client->writeTable($tableId, $importCsv, [
+        $this->_client->writeTableAsync($tableId, $importCsv, [
             'incremental' => true,
         ]);
 

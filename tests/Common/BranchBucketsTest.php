@@ -52,7 +52,7 @@ class BranchBucketsTest extends StorageApiTestCase
         // create table and column with the same metadata to test delete dev branch don't delete table in main bucket
         $importFile = __DIR__ . '/../_data/languages.csv';
 
-        $sourceTableId = $this->_client->createTable(
+        $sourceTableId = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'languages',
             new CsvFile($importFile),
@@ -76,7 +76,7 @@ class BranchBucketsTest extends StorageApiTestCase
         // init data in branch1 bucket
         $metadata->postBucketMetadata($devBranchBucketId1, $metadataProvider, $branch1TestMetadata);
 
-        $devBranchTable1 = $this->_client->createTable(
+        $devBranchTable1 = $this->_client->createTableAsync(
             $devBranchBucketId1,
             'languages',
             new CsvFile($importFile)

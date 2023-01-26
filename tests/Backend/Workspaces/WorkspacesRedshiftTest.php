@@ -741,7 +741,7 @@ class WorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         $startTime = time();
 
         $importCsv = new CsvFile(__DIR__ . '/../../_data/languages.csv');
-        $this->_client->writeTable($table1Id, $importCsv, [
+        $this->_client->writeTableAsync($table1Id, $importCsv, [
             'incremental' => true,
         ]);
 

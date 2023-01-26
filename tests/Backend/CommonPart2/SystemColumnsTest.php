@@ -74,7 +74,7 @@ class SystemColumnsTest extends StorageApiTestCase
 
         $csvImportFile = new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/system-columns-sanitized.csv');
 
-        $result = $this->_client->writeTable($tableId, $csvImportFile);
+        $result = $this->_client->writeTableAsync($tableId, $csvImportFile);
         $excpectedColumns = [
             'id',
             'oid_',
@@ -99,7 +99,7 @@ class SystemColumnsTest extends StorageApiTestCase
         $tableId = $this->_client->createTable($this->getTestBucketId(), 'system', $csvFile);
 
         $importCsvFile = new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/system-column-added.csv');
-        $this->_client->writeTable($tableId, $importCsvFile);
+        $this->_client->writeTableAsync($tableId, $importCsvFile);
 
         $table = $this->_client->getTable($tableId);
         $expectedColumns = [

@@ -34,7 +34,7 @@ class DataPreviewLimitsTest extends StorageApiTestCase
         $csv->writeRow(['Name', 'Id']);
         $csv->writeRow(['aabb', 'test']);
         $csv->writeRow(['ccdd', 'test2']);
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'test1', $csv);
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'test1', $csv);
 
         $data = (array) $this->_client->getTableDataPreview(
             $tableId,
@@ -65,7 +65,7 @@ class DataPreviewLimitsTest extends StorageApiTestCase
     public function testDataPreviewDefaultLimit(): void
     {
         $csvFile = $this->generateCsv(2000);
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', $csvFile);
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'users', $csvFile);
 
         $preview = $this->_client->getTableDataPreview($tableId);
         $this->assertCount(100, Client::parseCsv($preview), 'only preview of 100 rows should be returned');
@@ -80,7 +80,7 @@ class DataPreviewLimitsTest extends StorageApiTestCase
     public function testDataPreviewParametrizedLimit(): void
     {
         $csvFile = $this->generateCsv(2000);
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', $csvFile);
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'users', $csvFile);
 
         $preview = $this->_client->getTableDataPreview($tableId, [
             'limit' => 2,
@@ -91,7 +91,7 @@ class DataPreviewLimitsTest extends StorageApiTestCase
     public function testDataPreviewMaximumLimit(): void
     {
         $csvFile = $this->generateCsv(2000);
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', $csvFile);
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'users', $csvFile);
 
         try {
             $this->_client->getTableDataPreview($tableId, [
@@ -125,7 +125,7 @@ class DataPreviewLimitsTest extends StorageApiTestCase
             $row[] = $this->createRandomString(20000);
         }
         $csvFile->writeRow($row);
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'slim', $csvFile);
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'slim', $csvFile);
 
         $jsonPreview = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);
 

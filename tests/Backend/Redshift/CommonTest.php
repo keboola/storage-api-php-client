@@ -42,7 +42,7 @@ class CommonTest extends StorageApiTestCase
         $this->assertEquals(0, $inBucket['rowsCount']);
         $this->assertEquals(0, $inBucket['dataSizeBytes']);
 
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $inBucketId,
             'rates',
             new CsvFile(__DIR__ . '/../../_data/rates.csv')
