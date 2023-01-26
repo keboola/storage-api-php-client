@@ -1006,7 +1006,7 @@ class SharingTest extends StorageApiSharingTestCase
         $this->validateTablesMetadata($bucketId, $linkedBucketId);
 
         // new import
-        $this->_client->writeTable(
+        $this->_client->writeTableAsync(
             $tableId,
             new CsvFile(__DIR__ . '/../../_data/pk.simple.increment.csv'),
             [

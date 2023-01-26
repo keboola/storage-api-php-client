@@ -107,7 +107,7 @@ class TimeTravelTest extends StorageApiTestCase
 
         $sourceTableId = $this->_client->createTableDefinition($this->getTestBucketId(), $tableDefinition);
 
-        $this->_client->writeTable($sourceTableId, $csvFile);
+        $this->_client->writeTableAsync($sourceTableId, $csvFile);
         $originalTable = $this->_client->getTable($sourceTableId);
 
         sleep(10);
@@ -145,7 +145,7 @@ class TimeTravelTest extends StorageApiTestCase
             ]
         );
 
-        $this->_client->writeTable($sourceTableId, $csvFile, ['incremental' => true]);
+        $this->_client->writeTableAsync($sourceTableId, $csvFile, ['incremental' => true]);
         $newTableName = 'new-table-name_' . date('Ymd_His', (int) strtotime($timestamp));
 
         $updatedTable = $this->_client->getTable($sourceTableId);
@@ -236,7 +236,7 @@ class TimeTravelTest extends StorageApiTestCase
         sleep(25);
         $originalTable = $this->_client->getTable($sourceTableId);
 
-        $this->_client->writeTable(
+        $this->_client->writeTableAsync(
             $sourceTableId,
             new CsvFile(__DIR__ . '/../../_data/languages.increment.csv'),
             [

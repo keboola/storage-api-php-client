@@ -26,7 +26,7 @@ class TimestampTest extends ParallelWorkspacesTestCase
         // count - header
         $count = iterator_count($importFile) - 1;
 
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages-3',
             $importFile,
@@ -66,14 +66,14 @@ class TimestampTest extends ParallelWorkspacesTestCase
         // count - header
         $count = iterator_count($importFile) - 1;
 
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages-2',
             $importFile,
             []
         );
 
-        $this->_client->writeTable($tableId, $importFile);
+        $this->_client->writeTableAsync($tableId, $importFile);
 
         $this->assertDataInTable(
             $tableId,
@@ -83,7 +83,7 @@ class TimestampTest extends ParallelWorkspacesTestCase
         );
 
         // incremental
-        $this->_client->writeTable($tableId, $importFile, [
+        $this->_client->writeTableAsync($tableId, $importFile, [
             'incremental' => true,
         ]);
 
@@ -117,7 +117,7 @@ class TimestampTest extends ParallelWorkspacesTestCase
             $uploadOptions
         );
 
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'entries',
             new CsvFile(__DIR__ . '/../../_data/languages.not-normalized-column-names.csv')

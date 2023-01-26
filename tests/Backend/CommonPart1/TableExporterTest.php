@@ -104,8 +104,8 @@ class TableExporterTest extends StorageApiTestCase
         ], 'Not all preview params are supported');
 
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', $importFile);
-        $this->_client->writeTable($tableId, $importFile);
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'languages', $importFile);
+        $this->_client->writeTableAsync($tableId, $importFile);
 
         $exportOptions = [
             'limit' => 2,
