@@ -15,8 +15,6 @@ class TeradataRegisterBucketTest extends BaseExternalBuckets
     public function setUp(): void
     {
         parent::setUp();
-        $this->initEvents($this->_client);
-
         $token = $this->_client->verifyToken();
 
         $this->thisBackend = $token['owner']['defaultBackend'];
