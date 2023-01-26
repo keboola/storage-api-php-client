@@ -133,12 +133,12 @@
 
 	<testsuite name="backend-snowflake-part-2">
 		<file>tests/Backend/CommonPart1/BucketsTest.php</file>
-		<file>tests/Backend/CommonPart1/RegisterBucketTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesLoadTestReadOnly.php</file>
 		<file>tests/Backend/Workspaces/ComponentsWorkspacesTest.php</file>
 		<file>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</file>
 		<file>tests/Backend/Snowflake/CopyIntoWorkspaceTest.php</file>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
+		<file>tests/Backend/ExternalBuckets/SnowflakeRegisterBucketTest.php</file>
 	</testsuite>
 
 	<testsuite name="paratest-backend-snowflake-part-1">
@@ -274,8 +274,6 @@
 		<exclude>tests/Backend/CommonPart1/CreateTableWithConfigurationTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/MigrateTableWithConfigurationTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/RegisterBucketTest.php</exclude>
-		<!--		TD does not support external buckets yet-->
-		<exclude>tests/Backend/CommonPart1/RegisterBucketTest.php</exclude>
 
 		<directory>tests/Backend/CommonPart2</directory>
 		<!--		requires add/delete column-->
@@ -290,6 +288,9 @@
 		<!--WORKSPACE-->
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/TeradataWorkspacesUnloadTest.php</file>
+
+<!--		External buckets-->
+		<file>tests/Backend/ExternalBuckets/TeradataRegisterBucketTest.php</file>
 	</testsuite>
 	<testsuite name="paratest-bigquery">
 
