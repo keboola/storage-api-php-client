@@ -49,7 +49,7 @@ class Client
     const STAGE_SYS = 'sys';
     const API_VERSION = 'v2';
 
-    const VERSION = '10.4.0';
+    const VERSION = '14';
 
     const FILE_PROVIDER_AWS = 'aws';
     const FILE_PROVIDER_AZURE = 'azure';
