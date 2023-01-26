@@ -64,7 +64,7 @@ class BranchWorkspacesTest extends WorkspacesTest
         $this->assertEquals($tokenInfo['owner']['defaultBackend'], $connection['backend']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-        $backend->createTableAsync('mytable', ['amount' => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? 'NUMBER' : 'VARCHAR']);
+        $backend->createTable('mytable', ['amount' => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? 'NUMBER' : 'VARCHAR']);
 
         $tableNames = $backend->getTables();
         $backend = null; // force odbc disconnect
