@@ -52,27 +52,4 @@ abstract class BaseExternalBuckets extends StorageApiTestCase
         $this->_client->setRunId($runId);
         return $runId;
     }
-
-    /**
-     * @param string[] $expectedEventsNames
-     */
-    protected function assertEvents(string $runId, array $expectedEventsNames): void
-    {
-        // block until async events are processed, processing in order is not guaranteed but it should work most of time
-        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
-
-        $events = $this->_client->listEvents([
-            'runId' => $runId,
-        ]);
-
-        $eventsNames = [];
-        foreach ($events as $event) {
-            if ($event['event'] === 'ext.dummy.') {
-                continue;
-            }
-            $eventsNames[] = $event['event'];
-        }
-
-        $this->assertSame([], array_diff($expectedEventsNames, $eventsNames));
-    }
 }
