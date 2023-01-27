@@ -81,7 +81,7 @@ class SimpleAliasTest extends StorageApiTestCase
         );
 
         // second import into source table
-        $this->_client->writeTable($sourceTableId, new CsvFile(__DIR__ . '/../../_data/languages.csv'));
+        $this->_client->writeTableAsync($sourceTableId, new CsvFile(__DIR__ . '/../../_data/languages.csv'));
         $sourceTable = $this->_client->getTable($sourceTableId);
         $firstAlias = $this->_client->getTable($firstAliasTableId);
         $secondAlias = $this->_client->getTable($secondAliasTableId);
@@ -91,7 +91,7 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->assertEquals($sourceTable['lastImportDate'], $thirdAlias['lastImportDate']);
 
         // columns auto-create
-        $this->_client->writeTable($sourceTableId, new CsvFile(__DIR__ . '/../../_data/languages.more-columns.csv'));
+        $this->_client->writeTableAsync($sourceTableId, new CsvFile(__DIR__ . '/../../_data/languages.more-columns.csv'));
         $sourceTable = $this->_client->getTable($sourceTableId);
         $expectedColumns = [
             'id',

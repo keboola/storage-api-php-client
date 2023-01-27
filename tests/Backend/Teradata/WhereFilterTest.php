@@ -233,7 +233,7 @@ class WhereFilterTest extends StorageApiTestCase
         $csvFile->writeRow(['third', '4', '0004.123']);
         $csvFile->writeRow(['fifth', '5', '4']);
         $csvFile->writeRow(['fifth', '555111', '5.1234']);
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'conditions', $csvFile);
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'conditions', $csvFile);
         $this->assertIsString($tableId);
         return $tableId;
     }

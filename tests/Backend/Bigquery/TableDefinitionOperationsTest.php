@@ -167,7 +167,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
         $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
 
-        $this->_client->writeTable($tableId, $csvFile);
+        $this->_client->writeTableAsync($tableId, $csvFile);
 
         /** @var array $data */
         $data = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);
@@ -295,7 +295,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
         $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
 
-        $this->_client->writeTable($tableId, $csvFile);
+        $this->_client->writeTableAsync($tableId, $csvFile);
 
         /** @var array $data */
         $data = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);
@@ -417,7 +417,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
         $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
 
-        $this->_client->writeTable($tableId, $csvFile);
+        $this->_client->writeTableAsync($tableId, $csvFile);
 
         /** @var array $data */
         $data = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);

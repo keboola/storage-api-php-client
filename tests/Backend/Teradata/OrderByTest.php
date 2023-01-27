@@ -199,7 +199,7 @@ class OrderByTest extends StorageApiTestCase
         $csvFile->writeRow(['aa', '4444', '0004.123']);
         $csvFile->writeRow(['zx', '5', '4']);
         $csvFile->writeRow(['zx', '555111', '1.1234']);
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'conditions', $csvFile);
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'conditions', $csvFile);
         $this->assertIsString($tableId);
         return $tableId;
     }

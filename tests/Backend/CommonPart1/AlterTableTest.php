@@ -29,7 +29,7 @@ class AlterTableTest extends StorageApiTestCase
         $this->assertEquals(['id', 'name', 'State'], $detail['columns']);
 
         $importFileWithNewCol = __DIR__ . '/../../_data/languages.with-state.csv';
-        $this->_client->writeTable($tableId, new CsvFile($importFileWithNewCol));
+        $this->_client->writeTableAsync($tableId, new CsvFile($importFileWithNewCol));
         $this->assertLinesEqualsSorted(
             file_get_contents($importFileWithNewCol),
             $this->_client->getTableDataPreview($tableId),

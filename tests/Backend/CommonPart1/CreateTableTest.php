@@ -34,7 +34,7 @@ class CreateTableTest extends StorageApiTestCase
 
         $this->dropBucketIfExists($this->_client, $testBucketId, true);
         $testBucketId = $this->_client->createBucket($testBucketName, self::STAGE_IN);
-        $this->_client->createTable(
+        $this->_client->createTableAsync(
             $testBucketId,
             $tableName,
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
@@ -276,7 +276,7 @@ class CreateTableTest extends StorageApiTestCase
     public function testTableWithUnsupportedCharactersInNameShouldNotBeCreated(): void
     {
         try {
-            $tableId = $this->_client->createTable(
+            $this->_client->createTable(
                 $this->getTestBucketId(),
                 'languages.main',
                 new CsvFile(__DIR__ . '/../../_data/languages.csv')
@@ -290,7 +290,7 @@ class CreateTableTest extends StorageApiTestCase
     public function testTableWithEmptyColumnNamesShouldNotBeCreated(): void
     {
         try {
-            $this->_client->createTable(
+            $this->_client->createTableAsync(
                 $this->getTestBucketId(self::STAGE_IN),
                 'languages',
                 new CsvFile(__DIR__ . '/../../_data/languages.invalid-column-name.csv')
@@ -304,7 +304,7 @@ class CreateTableTest extends StorageApiTestCase
     public function testTableFromEmptyFileShouldNotBeCreated(): void
     {
         try {
-            $this->_client->createTable(
+            $this->_client->createTableAsync(
                 $this->getTestBucketId(self::STAGE_IN),
                 'languages',
                 new CsvFile(__DIR__ . '/../../_data/empty.csv')
@@ -409,7 +409,7 @@ class CreateTableTest extends StorageApiTestCase
         ) {
             $this->markTestSkipped('deduplication not supported for Teradata');
         }
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),
@@ -429,7 +429,7 @@ class CreateTableTest extends StorageApiTestCase
     public function testTableCreateWithInvalidPK($primaryKey): void
     {
         try {
-            $this->_client->createTable(
+            $this->_client->createTableAsync(
                 $this->getTestBucketId(self::STAGE_IN),
                 'languages',
                 new CsvFile(__DIR__ . '/../../_data/languages.csv'),
@@ -460,7 +460,7 @@ class CreateTableTest extends StorageApiTestCase
     public function testCreateTableWithInvalidTableName(): void
     {
         $this->expectException(ClientException::class);
-        $this->_client->createTable(
+        $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'tableWith.Dot',
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),
@@ -522,7 +522,7 @@ class CreateTableTest extends StorageApiTestCase
         $importFile = __DIR__ . '/../../_data/column-name-row-number.csv';
 
         // create and import data into source table
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'column-name-row-number',
             new CsvFile($importFile)

@@ -39,7 +39,7 @@ class CreateTableTest extends StorageApiTestCase
 
     public function testTimeTravelNotSupported(): void
     {
-        $id = $this->_client->createTable(
+        $id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')

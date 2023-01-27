@@ -717,7 +717,7 @@ class TokensTest extends StorageApiTestCase
 
         // write into table
         try {
-            $client->writeTable($outTableId, new CsvFile(__DIR__ . '/../_data/languages.csv'));
+            $client->writeTableAsync($outTableId, new CsvFile(__DIR__ . '/../_data/languages.csv'));
             $this->fail('Table imported with read token');
         } catch (ClientException  $e) {
             $this->assertEquals('accessDenied', $e->getStringCode());
@@ -771,7 +771,7 @@ class TokensTest extends StorageApiTestCase
         $this->assertNotEmpty($tableData);
 
         // write into table
-        $client->writeTable($outTableId, new CsvFile(__DIR__ . '/../_data/languages.csv'));
+        $client->writeTableAsync($outTableId, new CsvFile(__DIR__ . '/../_data/languages.csv'));
 
         // table attribute
         $client->setTableAttribute($outTableId, 'my', 'value');
@@ -814,7 +814,7 @@ class TokensTest extends StorageApiTestCase
 
         // write into table
         try {
-            $client->writeTable($outTableId, new CsvFile(__DIR__ . '/../_data/languages.csv'));
+            $client->writeTableAsync($outTableId, new CsvFile(__DIR__ . '/../_data/languages.csv'));
             $this->fail('Table imported with no permission token');
         } catch (ClientException  $e) {
             $this->assertEquals('accessDenied', $e->getStringCode());

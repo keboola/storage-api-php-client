@@ -157,7 +157,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
         $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
 
-        $this->_client->writeTable($tableId, $csvFile);
+        $this->_client->writeTableAsync($tableId, $csvFile);
 
         /** @var array $data */
         $data = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);
@@ -306,7 +306,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         ]);
         $csvFile->writeRow(['1', 123, '003.123', '3.14', 1, '1989-08-31', '1989-08-31 05:00:01', 'roman', '3148.29', '3148.29', '0E984725-C51C-4BF4-9960-E1C80E27ABA0']);
 
-        $this->_client->writeTable($tableId, $csvFile);
+        $this->_client->writeTableAsync($tableId, $csvFile);
 
         /** @var array $data */
         $data = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);
@@ -425,7 +425,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         ]);
         $csvFile->writeRow(['1', 123, '003.123', '3.14', 1, '1989-08-31', '05:00:01', 'roman', '3148.29', '3148.29', '0E984725-C51C-4BF4-9960-E1C80E27ABA0']);
 
-        $this->_client->writeTable($tableId, $csvFile);
+        $this->_client->writeTableAsync($tableId, $csvFile);
 
         /** @var array $data */
         $data = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);

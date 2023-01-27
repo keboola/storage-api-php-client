@@ -102,7 +102,7 @@ class SearchTablesTest extends StorageApiTestCase
         $stage = self::STAGE_IN
     ) {
         $metadataApi = new Metadata($this->_client);
-        $tableId = $this->_client->createTable($this->getTestBucketId($stage), $tableName, new CsvFile(__DIR__ . '/../_data/languages.csv'));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId($stage), $tableName, new CsvFile(__DIR__ . '/../_data/languages.csv'));
 
         if (!empty($metadata)) {
             $metadataApi->postTableMetadata(
