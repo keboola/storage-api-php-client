@@ -984,6 +984,8 @@ Use this API call to create a new bucket which contains contents of a
 Linking a bucket from another project is only possible if it has been
 [enabled](#reference/buckets/bucket-sharing/share-bucket) in the source project.
 
+*Calling this endpoint [synchronously](/#introduction/synchronous-and-asynchronous-calls) is deprecated. Asynchronous call will be the default in the future.*
+
 + Parameters
     + async (optional, boolean) - Share the bucket in a background job.
 
@@ -1193,6 +1195,8 @@ Obtains information about a bucket.
 ### Bucket Update [PUT /v2/storage/buckets/{bucket_id}/?async={async}]
 Update an existing bucket
 
+*Calling this endpoint [synchronously](/#introduction/synchronous-and-asynchronous-calls) is deprecated. Asynchronous call will be the default in the future.*
+
 + Parameters
     + bucket_id (required) - Bucket Id
     + async (optional, boolean) - Updates the bucket in a background job. This is useful if updates takes too much time and times out.
@@ -1317,6 +1321,8 @@ Asynchronous call response that creates a new job. To see job detail use [Job De
 Deletes a bucket from the project. In the default mode, only empty buckets can be deleted.
 Use the optional `force` parameter to delete all bucket content too.
 
+*Calling this endpoint [synchronously](/#introduction/synchronous-and-asynchronous-calls) is deprecated. Asynchronous call will be the default in the future.*
+
 + Parameters
     + bucket_id (required) - Bucket Id
     + force (optional, boolean) - Drops all tables and aliases. Tables must not have any dependencies (aliases, etc.).
@@ -1371,6 +1377,8 @@ Asynchronous call response (async=true) that creates a new job. To see job detai
 ### Share Bucket [POST]
 
 ***DEPRECATED**, use methods listed below to share to organization admins, project admins, concrete users or concrete projects.*
+
+*Calling this endpoint [synchronously](/#introduction/synchronous-and-asynchronous-calls) is deprecated. Asynchronous call will be the default in the future.*
 
 [Enables sharing](https://help.keboola.com/storage/buckets/sharing/) of a bucket. The bucket will be shared
 to the entire organization to which the project belongs. It may then be shared to any project of that organization.
@@ -1453,6 +1461,9 @@ Asynchronous call response (async=true) that creates a new job. To see job detai
 [Enables sharing](https://help.keboola.com/storage/buckets/sharing/) or **update sharing** for this bucket within the organization.
 Any organization member will be able to link to this bucket from any project within the organization.
 This operations is available only for organization administrators.
+
+*Calling this endpoint [synchronously](/#introduction/synchronous-and-asynchronous-calls) is deprecated. Asynchronous call will be the default in the future.*
+
 + Parameters
     + bucket_id (required) - Bucket Id
     + async (optional, boolean) - Share the bucket in a background job.
@@ -1527,6 +1538,9 @@ Asynchronous call response (async=true) that creates a new job. To see job detai
 [Enables sharing](https://help.keboola.com/storage/buckets/sharing/) or **update sharing** for this bucket within the organization.
 Any member of a project within the organization will be able to link to this bucket from their project.
 This operations is available only for organization administrators.
+
+*Calling this endpoint [synchronously](/#introduction/synchronous-and-asynchronous-calls) is deprecated. Asynchronous call will be the default in the future.*
+
 + Parameters
     + bucket_id (required) - Bucket Id
     + async (optional, boolean) - Share the bucket in a background job.
@@ -1601,6 +1615,8 @@ Asynchronous call response (async=true) that creates a new job. To see job detai
 [Enables sharing](https://help.keboola.com/storage/buckets/sharing/) or **update sharing** for this bucket to a specific set of projects in the organization.
 All users who are member of one of the targeted projects will be able to link to this bucket from that specific project.
 This operations is available only for organization administrators.
+
+*Calling this endpoint [synchronously](/#introduction/synchronous-and-asynchronous-calls) is deprecated. Asynchronous call will be the default in the future.*
 
 + Parameters
     + bucket_id (required) - Bucket Id
@@ -1700,6 +1716,8 @@ Asynchronous call response (async=true) that creates a new job. To see job detai
 [Enables sharing](https://help.keboola.com/storage/buckets/sharing/) or **update sharing** for this bucket to a specific set of users in the organization.
 All users who are included in the targetUsers array will be able to link to this bucket.
 This operations is available only for organization administrators.
+
+*Calling this endpoint [synchronously](/#introduction/synchronous-and-asynchronous-calls) is deprecated. Asynchronous call will be the default in the future.*
 
 + Parameters
     + bucket_id (required) - Bucket Id
@@ -1802,6 +1820,7 @@ Asynchronous call response (async=true) that creates a new job. To see job detai
 Change [sharing type](https://help.keboola.com/storage/buckets/sharing/#sharing-type) of a bucket.
 This operations is available only for organization administrators.
 
+*Calling this endpoint [synchronously](/#introduction/synchronous-and-asynchronous-calls) is deprecated. Asynchronous call will be the default in the future.*
 
 + Parameters
     + bucket_id (required) - Bucket Id
@@ -1886,6 +1905,8 @@ To unshare an already linked bucket, you have to delete the links first - use th
 [Drop Bucket](#reference/buckets/manage-bucket/drop-bucket) in the linking project.
 This operations is available only for organization administrators.
 
+*Calling this endpoint [synchronously](/#introduction/synchronous-and-asynchronous-calls) is deprecated. Asynchronous call will be the default in the future.*
+
 + Parameters
     + bucket_id (required) - Bucket Id
     + async (optional, boolean) - Share the bucket in a background job.
@@ -1938,6 +1959,8 @@ When user of the linked bucket is not responding it's a blocker. Force unlink al
 a bucket from any project it's linked to, solving the situation.
 
 **Note:** You may break some workflows in the project that linked the data by force unlinking the bucket.
+
+*Calling this endpoint [synchronously](/#introduction/synchronous-and-asynchronous-calls) is deprecated. Asynchronous call will be the default in the future.*
 
 + Parameters
     + bucket_id (required) - Bucket Id
@@ -3238,6 +3261,8 @@ Obtains information about a table.
 ### Table update [PUT /v2/storage/tables/{table_id}/?async={async}]
 Update an existing table
 
+*Calling this endpoint [synchronously](/#introduction/synchronous-and-asynchronous-calls) is deprecated. Asynchronous call will be the default in the future.*
+
 + Parameters
     + table_id (required) - Table Id
     + async (optional, boolean) - Updates the table in a background job. This is useful if updates takes too much time and times out.
@@ -4276,6 +4301,8 @@ It means that endpoint `GET /v2/storage/workspaces` is the same as `GET /v2/stor
 ### Create Workspace [POST /v2/storage/workspaces?async={async}]
 Creates a new workspace and return its credentials.
 
+*Calling this endpoint [synchronously](/#introduction/synchronous-and-asynchronous-calls) is deprecated. Asynchronous call will be the default in the future.*
+
 + Parameters
     + async (optional, boolean) - Create workspace in a background job. Calling the parameter as `async=false` is deprecated.
 
@@ -4343,6 +4370,8 @@ Asynchronous call response (async=true) that creates a new job. To see job detai
 
 ### Create Development Branch Workspace [POST /v2/storage/branch/{branch_id}/workspaces?async={async}]
 Creates a new workspace for [Development Branch](#reference/development-branches) and return its credentials.
+
+*Calling this endpoint [synchronously](/#introduction/synchronous-and-asynchronous-calls) is deprecated. Asynchronous call will be the default in the future.*
 
 + Parameters
     + branch_id (required) - Id of the development branch
@@ -4475,6 +4504,8 @@ Retrieves information about a given workspace in [Development Branch](#reference
 ### Delete Workspace [DELETE /v2/storage/workspaces/{workspace_id}/?async={async}]
 Deletes a workspace. This also irreversibly removes the workspace content.
 
+*Calling this endpoint [synchronously](/#introduction/synchronous-and-asynchronous-calls) is deprecated. Asynchronous call will be the default in the future.*
+
 + Parameters
     + workspace_id (required, number)
     + async (optional, boolean) - Workspace will be deleted [asynchronously](#introduction/synchronous-and-asynchronous-calls). A job will be created and enqueued.
@@ -4488,6 +4519,8 @@ Deletes a workspace. This also irreversibly removes the workspace content.
 
 ### Delete Development Branch Workspace [DELETE /v2/storage/branch/{branch_id}/workspaces/{workspace_id}/?async={async}]
 Deletes a workspace in [Development Branch](#reference/development-branches). This also irreversibly removes the workspace content.
+
+*Calling this endpoint [synchronously](/#introduction/synchronous-and-asynchronous-calls) is deprecated. Asynchronous call will be the default in the future.*
 
 + Parameters
     + branch_id (required) - Id of the development branch
@@ -7545,6 +7578,8 @@ Creates a new configuration row from an existing row version in [Development Bra
 
 ### Create Configuration Workspaces [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/workspaces?async={async}]
 Creates a new workspace for an existing configuration in [Development Branch](#reference/development-branches).
+
+*Calling this endpoint [synchronously](/#introduction/synchronous-and-asynchronous-calls) is deprecated. Asynchronous call will be the default in the future.*
 
 + Parameters
     + branch_id (required) - Id of the development branch
