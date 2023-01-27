@@ -27,7 +27,7 @@ class StatsTest extends StorageApiTestCase
         $this->_client->setRunId($runId);
 
         $importFile = __DIR__ . '/../_data/languages.csv';
-        $table1Id = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile($importFile));
+        $table1Id = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile($importFile));
         $this->_client->writeTableAsync($table1Id, new CsvFile($importFile));
 
         // block until async events are processed, processing in order is not guaranteed but it should work most of time

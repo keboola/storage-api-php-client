@@ -652,6 +652,7 @@ class Client
     }
 
     /**
+     * @deprecated Use createTable
      * @param $bucketId
      * @param $name
      * @param CsvFile $csvFile
@@ -968,6 +969,7 @@ class Client
     }
 
     /**
+     * @deprecated use writeTableAsync
      * @param $tableId
      * @param CsvFile $csvFile
      * @param array $options

@@ -43,7 +43,7 @@ class SlicedImportsTest extends StorageApiTestCase
         );
 
         $headerFile = new CsvFile(__DIR__ . '/../../_data/sliced/header.csv');
-        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'entries', $headerFile, [
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'entries', $headerFile, [
             'primaryKey' => 'id',
         ]);
         $table = $this->_client->getTable($tableId);
@@ -75,7 +75,7 @@ class SlicedImportsTest extends StorageApiTestCase
             $uploadOptions
         );
 
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'entries',
             new CsvFile(__DIR__ . '/../../_data/languages.not-normalized-column-names.csv')
@@ -136,7 +136,7 @@ class SlicedImportsTest extends StorageApiTestCase
             ->setIsSliced(true);
         $slicedFile = $this->_client->prepareFileUpload($uploadOptions);
 
-        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'entries', new CsvFile(__DIR__ . '/../../_data/sliced/header.csv'));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'entries', new CsvFile(__DIR__ . '/../../_data/sliced/header.csv'));
 
         try {
             $this->_client->writeTableAsyncDirect($tableId, [
@@ -286,7 +286,7 @@ class SlicedImportsTest extends StorageApiTestCase
             ])->get('ObjectURL');
         }
 
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'entries', new CsvFile(__DIR__ . '/../../_data/sliced/header.csv'));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'entries', new CsvFile(__DIR__ . '/../../_data/sliced/header.csv'));
 
         try {
             $this->_client->writeTableAsyncDirect($tableId, [
@@ -302,7 +302,7 @@ class SlicedImportsTest extends StorageApiTestCase
 
     public function testUnauthorizedAccessInManifestFile(): void
     {
-        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'entries', new CsvFile(__DIR__ . '/../../_data/sliced/header.csv'));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'entries', new CsvFile(__DIR__ . '/../../_data/sliced/header.csv'));
 
         $uploadOptions = new \Keboola\StorageApi\Options\FileUploadOptions();
         $uploadOptions

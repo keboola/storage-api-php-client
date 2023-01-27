@@ -501,7 +501,7 @@ abstract class StorageApiTestCase extends ClientTestCase
             }
             $csvFile->writeRow($row);
         }
-        return $this->_client->createTable($this->getTestBucketId(), $tableName, $csvFile);
+        return $this->_client->createTableAsync($this->getTestBucketId(), $tableName, $csvFile);
     }
 
     /**

@@ -237,7 +237,7 @@ class TeradataWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
         //setup test tables
-        $table1Id = $this->_client->createTable(
+        $table1Id = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')

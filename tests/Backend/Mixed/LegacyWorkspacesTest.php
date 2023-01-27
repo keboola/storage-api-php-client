@@ -42,7 +42,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
         $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", 'in', '', $bucketBackend);
 
         //setup test table
-        $this->_client->createTable(
+        $this->_client->createTableAsync(
             $bucketId,
             'dates',
             new CsvFile(__DIR__ . '/../../_data/dates.csv')
@@ -106,7 +106,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../_data/languages.with-state.csv';
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $bucketId,
             'languages',
             new CsvFile($importFile),
@@ -209,7 +209,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../_data/languages.with-state.csv';
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $bucketId,
             'languages',
             new CsvFile($importFile),

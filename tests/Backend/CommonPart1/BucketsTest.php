@@ -227,7 +227,7 @@ class BucketsTest extends StorageApiTestCase
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
         // create and import data into source table
-        $sourceTableId = $this->_client->createTable(
+        $sourceTableId = $this->_client->createTableAsync(
             $newBucketId,
             'languages',
             new CsvFile($importFile)
@@ -260,7 +260,7 @@ class BucketsTest extends StorageApiTestCase
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
         // create and import data into source table
-        $sourceTableId = $this->_client->createTable(
+        $sourceTableId = $this->_client->createTableAsync(
             $newBucketId,
             'languages',
             new CsvFile($importFile)

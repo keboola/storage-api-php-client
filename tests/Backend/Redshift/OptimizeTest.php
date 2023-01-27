@@ -23,7 +23,7 @@ class OptimizeTest extends StorageApiTestCase
         $importFile = __DIR__ . '/../../_data/pk.simple.csv';
 
         // create and import data into source table
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'MyLanguages_test',
             new CsvFile($importFile),

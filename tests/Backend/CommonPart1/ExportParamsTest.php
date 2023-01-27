@@ -28,7 +28,7 @@ class ExportParamsTest extends StorageApiTestCase
     public function testInvalidExportFormat(): void
     {
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile($importFile));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'languages', new CsvFile($importFile));
 
         try {
             $this->_client->getTableDataPreview($tableId, [
@@ -43,7 +43,7 @@ class ExportParamsTest extends StorageApiTestCase
     public function testTableExportParams(): void
     {
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile($importFile));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile($importFile));
 
         $originalFileLinesCount = (string) exec('wc -l <' . escapeshellarg($importFile));
 
@@ -58,10 +58,10 @@ class ExportParamsTest extends StorageApiTestCase
         sleep(10);
         $startTime = time();
         $importCsv = new \Keboola\Csv\CsvFile($importFile);
-        $this->_client->writeTable($tableId, $importCsv, [
+        $this->_client->writeTableAsync($tableId, $importCsv, [
             'incremental' => true,
         ]);
-        $this->_client->writeTable($tableId, $importCsv, [
+        $this->_client->writeTableAsync($tableId, $importCsv, [
             'incremental' => true,
         ]);
         $data = $this->_client->getTableDataPreview($tableId);
@@ -86,7 +86,7 @@ class ExportParamsTest extends StorageApiTestCase
     public function testTableExportFilters($exportOptions, $expectedResult): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'users', new CsvFile($importFile));
 
         $data = $this->_client->getTableDataPreview($tableId, $exportOptions);
         $parsedData = Client::parseCsv($data, false);
@@ -98,7 +98,7 @@ class ExportParamsTest extends StorageApiTestCase
     public function testTableExportShouldFailOnNonExistingColumn(): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
-        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
         try {
             $this->_client->getTableDataPreview($tableId, [
@@ -114,7 +114,7 @@ class ExportParamsTest extends StorageApiTestCase
     public function testTableExportColumnsParam(): void
     {
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile($importFile));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'languages', new CsvFile($importFile));
 
         $data = $this->_client->getTableDataPreview($tableId, [
             'columns' => ['id'],
@@ -130,7 +130,7 @@ class ExportParamsTest extends StorageApiTestCase
     public function testTableExportAsyncCache(): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'users', new CsvFile($importFile));
 
         $results = $this->_client->exportTableAsync($tableId);
         $fileId = $results['file']['id'];
@@ -166,7 +166,7 @@ class ExportParamsTest extends StorageApiTestCase
         $this->assertFalse($results['cacheHit']);
         $this->assertNotEquals($fileId, $filteredByCityFileId);
 
-        $this->_client->writeTable($tableId, new CsvFile($importFile));
+        $this->_client->writeTableAsync($tableId, new CsvFile($importFile));
 
         $results = $this->_client->exportTableAsync($tableId);
         $newFileId = $results['file']['id'];
@@ -185,7 +185,7 @@ class ExportParamsTest extends StorageApiTestCase
     public function testTableExportAsyncPermissions(): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'users', new CsvFile($importFile));
 
         $results = $this->_client->exportTableAsync($tableId);
         $fileId = $results['file']['id'];
