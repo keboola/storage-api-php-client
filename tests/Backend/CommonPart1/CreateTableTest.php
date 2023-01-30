@@ -45,7 +45,7 @@ class CreateTableTest extends StorageApiTestCase
         $this->assertFalse($table['syntheticPrimaryKeyEnabled']);
 
         try {
-            $tableId = $this->_client->createTableAsync(
+            $tableId = $this->_client->createTable(
                 $testBucketId,
                 'myTable',
                 new CsvFile(__DIR__ . '/../../_data/languages.csv'),
@@ -276,7 +276,7 @@ class CreateTableTest extends StorageApiTestCase
     public function testTableWithUnsupportedCharactersInNameShouldNotBeCreated(): void
     {
         try {
-            $this->_client->createTableAsync(
+            $this->_client->createTable(
                 $this->getTestBucketId(),
                 'languages.main',
                 new CsvFile(__DIR__ . '/../../_data/languages.csv')
