@@ -679,7 +679,7 @@ class TokensTest extends StorageApiTestCase
 
     public function testBucketReadTokenPermission(): void
     {
-        $outTableId = $this->_client->createTable(
+        $outTableId = $this->_client->createTableAsync(
             $this->outBucketId,
             'languages',
             new CsvFile(__DIR__ . '/../_data/languages.csv')
@@ -734,7 +734,7 @@ class TokensTest extends StorageApiTestCase
 
     public function testBucketWriteTokenPermission(): void
     {
-        $outTableId = $this->_client->createTable(
+        $outTableId = $this->_client->createTableAsync(
             $this->outBucketId,
             'languages',
             new CsvFile(__DIR__ . '/../_data/languages.csv')
@@ -779,7 +779,7 @@ class TokensTest extends StorageApiTestCase
 
     public function testNoBucketTokenPermission(): void
     {
-        $outTableId = $this->_client->createTable(
+        $outTableId = $this->_client->createTableAsync(
             $this->outBucketId,
             'languages',
             new CsvFile(__DIR__ . '/../_data/languages.csv')

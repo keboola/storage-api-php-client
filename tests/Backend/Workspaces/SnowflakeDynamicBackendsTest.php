@@ -153,7 +153,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
             $this->client2
         );
 
-        $this->client2->createTable(
+        $this->client2->createTableAsync(
             $bucketId,
             'languages',
             new CsvFile(self::SOURCE_DATA_FILE_PATH)

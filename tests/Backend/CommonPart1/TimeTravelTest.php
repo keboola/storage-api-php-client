@@ -223,7 +223,7 @@ class TimeTravelTest extends StorageApiTestCase
 
         $sourceTable = 'languages_' . date('Ymd_His');
 
-        $sourceTableId = $this->_client->createTable(
+        $sourceTableId = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             $sourceTable,
             $importFile,
@@ -288,7 +288,7 @@ class TimeTravelTest extends StorageApiTestCase
 
         $sourceTable = 'languages_' . date('Ymd_His');
 
-        $sourceTableId = $this->_client->createTable(
+        $sourceTableId = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             $sourceTable,
             $importFile,
@@ -332,7 +332,7 @@ class TimeTravelTest extends StorageApiTestCase
 
         $sourceTable = 'languages_' . date('Ymd_His');
 
-        $sourceTableId = $this->_client->createTable(
+        $sourceTableId = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             $sourceTable,
             $importFile
