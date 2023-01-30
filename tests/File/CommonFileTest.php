@@ -3,6 +3,7 @@
 namespace Keboola\Test\File;
 
 use Exception;
+use Generator;
 use GuzzleHttp\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\GetFileOptions;
@@ -349,8 +350,6 @@ class CommonFileTest extends StorageApiTestCase
         $this->assertEquals(['first', 'second'], $file['tags']);
     }
 
-
-
     public function testDownloadFile(): void
     {
         $uploadOptions = (new FileUploadOptions())
@@ -474,5 +473,39 @@ class CommonFileTest extends StorageApiTestCase
             [null],
             [''],
         ];
+    }
+
+    /**
+     * @dataProvider downloadFileNotFoundErrorHandlingProvider
+     */
+    public function testDownloadFileNotFoundErrorHandling(bool $isSliced): void
+    {
+        $uploadOptions = (new FileUploadOptions())
+            ->setFileName('testing_file_name')
+            ->setIsSliced($isSliced)
+            ->setFederationToken(true)
+        ;
+
+        $file = $this->_client->prepareFileUpload($uploadOptions);
+        $tmpDestination = __DIR__ . '/../_tmp/testing_file_name';
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage(sprintf(
+            'Cannot download file "testing_file_name" (ID %s) from Storage, '
+            . 'please verify the contents of the file and that the file has not expired.',
+            $file['id']
+        ));
+
+        if (!$isSliced) {
+            $this->_client->downloadFile($file['id'], $tmpDestination);
+        } else {
+            $this->_client->downloadSlicedFile($file['id'], $tmpDestination);
+        }
+    }
+
+    public function downloadFileNotFoundErrorHandlingProvider(): Generator
+    {
+        yield 'non-sliced file' => [false];
+        yield 'sliced file' => [true];
     }
 }
