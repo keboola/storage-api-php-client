@@ -1,11 +1,10 @@
 <?php
 namespace Keboola\StorageApi;
 
+use Aws\S3\Exception\S3Exception;
 use Aws\S3\S3Client;
-use Google\Auth\Credentials\ServiceAccountCredentials;
 use Google\Auth\FetchAuthTokenInterface;
-use Google\Auth\HttpHandler\HttpHandlerFactory;
-use Google\Cloud\Storage\StorageClient;
+use Google\Cloud\Core\Exception\NotFoundException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\MessageFormatter;
 use GuzzleHttp\Middleware;
@@ -27,6 +26,7 @@ use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
 use MicrosoftAzure\Storage\Blob\Models\CommitBlobBlocksOptions;
 use MicrosoftAzure\Storage\Blob\Models\CreateBlockBlobOptions;
+use MicrosoftAzure\Storage\Common\Exceptions\ServiceException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
@@ -54,6 +54,9 @@ class Client
     const FILE_PROVIDER_AWS = 'aws';
     const FILE_PROVIDER_AZURE = 'azure';
     const FILE_PROVIDER_GCP = 'gcp';
+
+    // Errors
+    const ERROR_CANNOT_DOWNLOAD_FILE = 'Cannot download file "%s" (ID %s) from Storage, please verify the contents of the file and that the file has not expired.';
 
     // Token string
     public $token;
@@ -2003,7 +2006,21 @@ class Client
         $blobClient = BlobClientFactory::createClientFromConnectionString(
             $fileInfo['absCredentials']['SASConnectionString']
         );
-        $getResult = $blobClient->getBlob($fileInfo['absPath']['container'], $fileInfo['absPath']['name']);
+
+        try {
+            $getResult = $blobClient->getBlob($fileInfo['absPath']['container'], $fileInfo['absPath']['name']);
+        } catch (ServiceException $e) {
+            if (!in_array('BlobNotFound', $e->getResponse()->getHeader('x-ms-error-code'))) {
+                throw $e;
+            }
+
+            throw new ClientException(
+                sprintf(self::ERROR_CANNOT_DOWNLOAD_FILE, $fileInfo['name'], $fileInfo['id']),
+                404,
+                $e
+            );
+        }
+
         (new Filesystem())->dumpFile($destination, $getResult->getContentStream());
     }
 
@@ -2024,11 +2041,24 @@ class Client
                 'token' => $fileInfo['credentials']['SessionToken'],
             ],
         ]);
-        $s3Client->getObject([
-            'Bucket' => $fileInfo['s3Path']['bucket'],
-            'Key' => $fileInfo['s3Path']['key'],
-            'SaveAs' => $destination,
-        ]);
+
+        try {
+            $s3Client->getObject([
+                'Bucket' => $fileInfo['s3Path']['bucket'],
+                'Key' => $fileInfo['s3Path']['key'],
+                'SaveAs' => $destination,
+            ]);
+        } catch (S3Exception $e) {
+            if ($e->getAwsErrorCode() !== 'NoSuchKey') {
+                throw $e;
+            }
+
+            throw new ClientException(
+                sprintf(self::ERROR_CANNOT_DOWNLOAD_FILE, $fileInfo['name'], $fileInfo['id']),
+                404,
+                $e
+            );
+        }
     }
 
     private function downloadGcsFile(array $fileInfo, string $destination): void
@@ -2050,7 +2080,15 @@ class Client
 
         $retBucket = $gcsClient->bucket($fileInfo['gcsPath']['bucket']);
         $object = $retBucket->object($fileInfo['gcsPath']['key']);
-        $object->downloadToFile($destination);
+        try {
+            $object->downloadToFile($destination);
+        } catch (NotFoundException $e) {
+            throw new ClientException(
+                sprintf(self::ERROR_CANNOT_DOWNLOAD_FILE, $fileInfo['name'], $fileInfo['id']),
+                404,
+                $e,
+            );
+        }
     }
 
     public function downloadSlicedFile($fileId, $destinationFolder)
