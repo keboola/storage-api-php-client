@@ -109,7 +109,7 @@ Object does not exist, or operation cannot be performed., SQL state 02000 in SQL
         $testBucketId = $this->_client->createBucket($testBucketName, 'in');
 
         //setup test tables
-        $tableId = $this->linkingclient->createTableAsync(
+        $tableId = $this->linkingClient->createTableAsync(
             $sharedBucket,
             'whales',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
@@ -176,6 +176,7 @@ Object does not exist, or operation cannot be performed., SQL state 02000 in SQL
 
     public function testCreateWorkspaceWithReadOnlyIMUnlinkUnshare(): void
     {
+        assert($this->linkingClient !== null);
         $tokenConsumer = $this->_client->verifyToken();
         $consumerProjectId = $tokenConsumer['owner']['id'];
 
@@ -196,7 +197,7 @@ Object does not exist, or operation cannot be performed., SQL state 02000 in SQL
         $this->_client->linkBucket($linkedBucketName, 'in', $sharingProjectId, $sharedBucketId, null, false);
 
         //setup test tables
-        $this->linkingclient->createTableAsync(
+        $this->linkingClient->createTableAsync(
             $sharedBucket,
             'whales',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
