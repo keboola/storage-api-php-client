@@ -40,7 +40,7 @@ class ImportExportCommonTest extends StorageApiTestCase
      */
     public function testRedshiftUnsupportedCsvParams(): void
     {
-        $tableId = $this->_client->createTableAsync(
+        $tableId = $this->_client->createTable(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
@@ -55,7 +55,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         }
 
         try {
-            $this->_client->createTableAsync(
+            $this->_client->createTable(
                 $this->getTestBucketId(self::STAGE_IN),
                 'languages-2',
                 $csv
