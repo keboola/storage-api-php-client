@@ -20,7 +20,7 @@ class FulltextSearchTest extends StorageApiTestCase
     {
         $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
         $csvFile->writeRow(['test']);
-        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'conditions', $csvFile);
+        $tableId = $this->_client->createTable($this->getTestBucketId(), 'conditions', $csvFile);
 
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Fulltext search is not supported for Redshift backend.');
