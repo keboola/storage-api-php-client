@@ -31,13 +31,13 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
 
         // Create a table of sample data
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $table1Id = $this->_client->createTable(
+        $table1Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile($importFile)
         );
 
-        $table2Id = $this->_client->createTable(
+        $table2Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'rates',
             new CsvFile(__DIR__ . '/../../_data/rates.csv')
@@ -138,13 +138,13 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
 
         // Create a table of sample data
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $table1Id = $this->_client->createTable(
+        $table1Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages-rs',
             new CsvFile($importFile)
         );
 
-        $table2Id = $this->_client->createTable(
+        $table2Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'users',
             new CsvFile(__DIR__ . '/../../_data/users.csv')
@@ -203,7 +203,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
     public function testLoadedPrimaryKeys(): void
     {
         $primaries = ['Paid_Search_Engine_Account', 'Date', 'Paid_Search_Campaign', 'Paid_Search_Ad_ID', 'Site__DFA'];
-        $pkTableId = $this->_client->createTable(
+        $pkTableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages-pk',
             new CsvFile(__DIR__ . '/../../_data/multiple-columns-pk.csv'),
@@ -272,7 +272,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $bucketId,
             'languages',
             new CsvFile($importFile),
@@ -280,7 +280,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         );
 
         $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
-        $table2Id = $this->_client->createTable(
+        $table2Id = $this->_client->createTableAsync(
             $bucketId,
             'languagesDetails',
             new CsvFile($importFile),
@@ -353,7 +353,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $bucketId,
             'languages',
             new CsvFile($importFile),
@@ -361,7 +361,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         );
 
         $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
-        $table2Id = $this->_client->createTable(
+        $table2Id = $this->_client->createTableAsync(
             $bucketId,
             'languagesDetails',
             new CsvFile($importFile),
@@ -425,7 +425,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../_data/languages.with-state.csv';
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $bucketId,
             'languages',
             new CsvFile($importFile),
@@ -521,7 +521,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../_data/languages.with-state.csv';
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $bucketId,
             'languages',
             new CsvFile($importFile),
@@ -612,7 +612,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
 
         $importFile = __DIR__ . "/../../_data/$table.csv";
 
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             $table,
             new CsvFile($importFile)
@@ -662,7 +662,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $workspace = $workspaces->createWorkspace([], true);
 
         // Create a table of sample data
-        $table1Id = $this->_client->createTable(
+        $table1Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')

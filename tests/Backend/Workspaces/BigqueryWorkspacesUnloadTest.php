@@ -22,7 +22,7 @@ class BigqueryWorkspacesUnloadTest extends ParallelWorkspacesTestCase
     public function testTableCloneCaseSensitiveThrowsUserError(): void
     {
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
-        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages-case-sensitive', $importFile);
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'languages-case-sensitive', $importFile);
 
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace();
@@ -307,7 +307,7 @@ class BigqueryWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
         //setup test tables
-        $table1Id = $this->_client->createTable(
+        $table1Id = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')

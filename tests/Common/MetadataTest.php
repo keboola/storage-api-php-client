@@ -34,7 +34,7 @@ class MetadataTest extends StorageApiTestCase
         foreach ($metadatas as $md) {
             $metadataApi->deleteBucketMetadata($this->getTestBucketId(), $md['id']);
         }
-        $this->_client->createTable($this->getTestBucketId(), 'table', new CsvFile(__DIR__ . '/../_data/users.csv'));
+        $this->_client->createTableAsync($this->getTestBucketId(), 'table', new CsvFile(__DIR__ . '/../_data/users.csv'));
     }
 
     public function testBucketMetadata(): void
@@ -92,7 +92,7 @@ class MetadataTest extends StorageApiTestCase
     public function testColumnMetadataOverwrite(): void
     {
         $outTestBucketId = $this->getTestBucketId(self::STAGE_OUT);
-        $outBucketTableId = $this->_client->createTable(
+        $outBucketTableId = $this->_client->createTableAsync(
             $outTestBucketId,
             'table',
             new CsvFile(__DIR__ . '/../_data/users.csv')

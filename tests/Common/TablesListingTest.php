@@ -91,7 +91,7 @@ class TablesListingTest extends StorageApiTestCase
     public function testListTablesIncludeMetadata(): void
     {
         $metadataApi = new Metadata($this->_client);
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
 
         $tables = $this->_client->listTables($this->getTestBucketId(), [
             'include' => 'metadata',
@@ -132,9 +132,9 @@ class TablesListingTest extends StorageApiTestCase
 
     public function testListTablesWithColumns(): void
     {
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
-        $table2Id = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile(__DIR__ . '/../_data/users.csv'));
-        $table3Id = $this->_client->createTable($this->getTestBucketId(self::STAGE_OUT), 'dates', new CsvFile(__DIR__ . '/../_data/dates.csv'));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+        $table2Id = $this->_client->createTableAsync($this->getTestBucketId(), 'users', new CsvFile(__DIR__ . '/../_data/users.csv'));
+        $table3Id = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_OUT), 'dates', new CsvFile(__DIR__ . '/../_data/dates.csv'));
 
         $tables = $this->_client->listTables($this->getTestBucketId(), [
             'include' => 'columns',
@@ -185,7 +185,7 @@ class TablesListingTest extends StorageApiTestCase
 
     public function testListTablesIncludeColumnMetadata(): void
     {
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
 
         $tables = $this->_client->listTables($this->getTestBucketId(), [
             'include' => 'columnMetadata,metadata',
@@ -235,8 +235,8 @@ class TablesListingTest extends StorageApiTestCase
 
     public function testSomeTablesWithMetadataSomeWithout(): void
     {
-        $table1Id = $this->_client->createTable($this->getTestBucketId(), 'languages1', new CsvFile(__DIR__ . '/../_data/languages.csv'));
-        $table2Id = $this->_client->createTable($this->getTestBucketId(), 'languages2', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+        $table1Id = $this->_client->createTableAsync($this->getTestBucketId(), 'languages1', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+        $table2Id = $this->_client->createTableAsync($this->getTestBucketId(), 'languages2', new CsvFile(__DIR__ . '/../_data/languages.csv'));
 
         $metadataApi = new Metadata($this->_client);
         $metadataApi->postColumnMetadata(
@@ -274,7 +274,7 @@ class TablesListingTest extends StorageApiTestCase
 
     public function testTableAttributes(): void
     {
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
 
         $table = $this->_client->getTable($tableId);
         $this->assertEmpty($table['attributes'], 'empty attributes after table create');
@@ -329,7 +329,7 @@ class TablesListingTest extends StorageApiTestCase
 
     public function testTableAttributesReplace(): void
     {
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
         $this->_client->setTableAttribute($tableId, 'first', 'something');
 
         $newAttributes = [
@@ -355,7 +355,7 @@ class TablesListingTest extends StorageApiTestCase
 
     public function testTableAttributesClear(): void
     {
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
         $this->_client->setTableAttribute($tableId, 'first', 'something');
 
         $this->_client->replaceTableAttributes($tableId);
@@ -370,7 +370,7 @@ class TablesListingTest extends StorageApiTestCase
      */
     public function testTableAttributesReplaceValidation($attributes): void
     {
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
         try {
             $this->_client->replaceTableAttributes($tableId, $attributes);
             $this->fail('Attributes should be invalid');
@@ -381,7 +381,7 @@ class TablesListingTest extends StorageApiTestCase
 
     public function testTableListingIncludeAll(): void
     {
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
 
         $metadataApi = new Metadata($this->_client);
         $metadataApi->postColumnMetadata(
@@ -442,7 +442,7 @@ class TablesListingTest extends StorageApiTestCase
 
     public function testNullAtributesReplace(): void
     {
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
         $this->_client->replaceTableAttributes($tableId, [
             [
                 'name' => 'neco',
@@ -472,7 +472,7 @@ class TablesListingTest extends StorageApiTestCase
 
     public function testNullAttributeValueSet(): void
     {
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../_data/languages.csv'));
 
         $this->_client->setTableAttribute($tableId, 'test', null);
         $table = $this->_client->getTable($tableId);

@@ -133,13 +133,13 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
     public function testCloneMultipleTables(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
-        $table1Id = $this->_client->createTable(
+        $table1Id = $this->_client->createTableAsync(
             $bucketId,
             'languages',
             new CsvFile(self::IMPORT_FILE_PATH)
         );
 
-        $table2Id = $this->_client->createTable(
+        $table2Id = $this->_client->createTableAsync(
             $bucketId,
             'rates',
             new CsvFile(__DIR__ . '/../../_data/rates.csv')
@@ -445,7 +445,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
     public function testQueueWorkspaceCloneInto(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
-        $table1Id = $this->_client->createTable(
+        $table1Id = $this->_client->createTableAsync(
             $bucketId,
             'languages',
             new CsvFile(self::IMPORT_FILE_PATH)
@@ -487,7 +487,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         $tableName = 'languagesDetails'
     ) {
 
-        return $client->createTable(
+        return $client->createTableAsync(
             $bucketId,
             $tableName,
             new CsvFile($importFilePath),

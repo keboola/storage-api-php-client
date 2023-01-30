@@ -154,7 +154,7 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
 
     public function testCopyImport(): void
     {
-        $table_id = $this->_client->createTable(
+        $table_id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages3',
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),
@@ -223,7 +223,7 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
 
     public function testWriteTableFromWorkspaceWithUnsupportedDataType(): void
     {
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'metadata_columns',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')

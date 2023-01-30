@@ -590,7 +590,7 @@ class SharingTest extends StorageApiSharingTestCase
         $bucketId = reset($this->_bucketIds);
 
         $expectedTableName = 'numbers';
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $bucketId,
             $expectedTableName,
             new CsvFile(__DIR__ . '/../../_data/numbers.csv')
