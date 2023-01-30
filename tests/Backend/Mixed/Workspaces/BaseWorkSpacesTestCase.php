@@ -52,7 +52,7 @@ abstract class BaseWorkSpacesTestCase extends WorkspacesTestCase
             ]);
         }
         $bucketId = $this->_client->createBucket("mixed-test-{$sourceBackend}", 'in', '', $sourceBackend);
-        $sourceTableId = $this->_client->createTable(
+        $sourceTableId = $this->_client->createTableAsync(
             $bucketId,
             'transactions',
             new CsvFile(__DIR__ . '/../../../_data/transactions.csv')
@@ -98,7 +98,7 @@ abstract class BaseWorkSpacesTestCase extends WorkspacesTestCase
             ]);
         }
         $bucketId = $this->_client->createBucket("mixed-test-{$sourceBackend}", 'in', '', $sourceBackend);
-        $sourceTableId = $this->_client->createTable(
+        $sourceTableId = $this->_client->createTableAsync(
             $bucketId,
             'transactions',
             new CsvFile(__DIR__ . '/../../../_data/transactions-nullify.csv')

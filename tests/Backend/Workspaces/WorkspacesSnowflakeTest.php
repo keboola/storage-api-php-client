@@ -668,7 +668,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
 
-        $table2Id = $this->_client->createTable(
+        $table2Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'rates',
             new CsvFile(__DIR__ . '/../../_data/rates.csv')
@@ -711,13 +711,13 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $workspace = $workspaces->createWorkspace([], true);
 
         // Create a table of sample data
-        $table1Id = $this->_client->createTable(
+        $table1Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
 
-        $table2Id = $this->_client->createTable(
+        $table2Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'users',
             new CsvFile(__DIR__ . '/../../_data/users.csv')

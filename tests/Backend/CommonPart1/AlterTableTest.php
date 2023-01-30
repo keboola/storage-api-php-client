@@ -43,7 +43,7 @@ class AlterTableTest extends StorageApiTestCase
     public function testTableColumnNameShouldBeWebalized(string $requestedColumnName, string $expectedColumnName): void
     {
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile($importFile));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'languages', new CsvFile($importFile));
 
         $this->_client->addTableColumn($tableId, $requestedColumnName);
 
@@ -73,14 +73,14 @@ class AlterTableTest extends StorageApiTestCase
     {
         $this->expectException(ClientException::class);
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile($importFile));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'languages', new CsvFile($importFile));
         $this->_client->addTableColumn($tableId, 'id');
     }
 
     public function testsTableExistingColumnAddWithDifferentCaseShouldThrowError(): void
     {
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile($importFile));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'languages', new CsvFile($importFile));
         try {
             $this->_client->addTableColumn($tableId, 'ID');
         } catch (ClientException $e) {
@@ -94,7 +94,7 @@ class AlterTableTest extends StorageApiTestCase
     public function testAddColumnWithInvalidNameShouldThrowError(string $columnName): void
     {
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile($importFile));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'languages', new CsvFile($importFile));
         try {
             $this->_client->addTableColumn(
                 $tableId,
@@ -121,7 +121,7 @@ class AlterTableTest extends StorageApiTestCase
     public function testTableColumnDelete(): void
     {
         $importFile = __DIR__ . '/../../_data/languages.camel-case-columns.csv';
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile($importFile));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'languages', new CsvFile($importFile));
 
         $this->_client->deleteTableColumn($tableId, 'Name');
 
@@ -142,7 +142,7 @@ class AlterTableTest extends StorageApiTestCase
             $this->markTestSkipped('Bug on Redshift backend');
         }
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'languages',
             new CsvFile($importFile),
@@ -166,7 +166,7 @@ class AlterTableTest extends StorageApiTestCase
     public function testPrimaryKeyAddRequiredParam(): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'users',
             new CsvFile($importFile),
@@ -198,7 +198,7 @@ class AlterTableTest extends StorageApiTestCase
         ], 'Exasol|Bigquery backend does not have any limit');
 
         try {
-            $this->_client->createTable(
+            $this->_client->createTableAsync(
                 $this->getTestBucketId(),
                 'tooManyColumns',
                 new CsvFile($importFile),
@@ -217,7 +217,7 @@ class AlterTableTest extends StorageApiTestCase
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
 
-        $table1Id = $this->_client->createTable(
+        $table1Id = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'users',
             new CsvFile($importFile)
@@ -225,7 +225,7 @@ class AlterTableTest extends StorageApiTestCase
 
         $this->_client->addTableColumn($table1Id, 'new-column');
 
-        $table2Id = $this->_client->createTable(
+        $table2Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_OUT),
             'users',
             new CsvFile($importFile)
@@ -245,7 +245,7 @@ class AlterTableTest extends StorageApiTestCase
         $primaryKeyColumns = ['id'];
         $importFile = __DIR__ . '/../../_data/users.csv';
 
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'users',
             new CsvFile($importFile),
@@ -270,7 +270,7 @@ class AlterTableTest extends StorageApiTestCase
         $primaryKeyColumns = ['Id', 'Name'];
         $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
 
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'languages',
             new CsvFile($importFile),
@@ -297,7 +297,7 @@ class AlterTableTest extends StorageApiTestCase
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
 
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'users',
             new CsvFile($importFile),
@@ -333,7 +333,7 @@ class AlterTableTest extends StorageApiTestCase
         // composite primary key
         $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
 
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'languages',
             new CsvFile($importFile),
@@ -357,7 +357,7 @@ class AlterTableTest extends StorageApiTestCase
         // delete primary key from table with filtered alias
         $importFile = __DIR__ . '/../../_data/languages.more-columns.csv';
 
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'languages-more-columns',
             new CsvFile($importFile),
@@ -428,7 +428,7 @@ class AlterTableTest extends StorageApiTestCase
 
     public function testEmptyPrimaryKeyDelete(): void
     {
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'users',
             new CsvFile(__DIR__ . '/../../_data/users.csv')
@@ -441,7 +441,7 @@ class AlterTableTest extends StorageApiTestCase
 
     public function testAddInvalidPrimaryKey(): void
     {
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'users',
             new CsvFile(__DIR__ . '/../../_data/users.csv')
