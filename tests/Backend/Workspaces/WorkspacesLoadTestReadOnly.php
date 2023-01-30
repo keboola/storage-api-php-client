@@ -55,7 +55,7 @@ class WorkspacesLoadTestReadOnly extends ParallelWorkspacesTestCase
         }
 
         $testBucketId = $this->getTestBucketId();
-        $this->_client->createTable(
+        $this->_client->createTableAsync(
             $testBucketId,
             'animals',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
@@ -109,14 +109,14 @@ Object does not exist, or operation cannot be performed., SQL state 02000 in SQL
         $testBucketId = $this->_client->createBucket($testBucketName, 'in');
 
         //setup test tables
-        $tableId = $this->linkingClient->createTable(
+        $tableId = $this->linkingclient->createTableAsync(
             $sharedBucket,
             'whales',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
 
         // prepare table in the bucket
-        $this->_client->createTable(
+        $this->_client->createTableAsync(
             $testBucketId,
             'animals',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
@@ -130,7 +130,7 @@ Object does not exist, or operation cannot be performed., SQL state 02000 in SQL
         }
 
         // prepare table in the bucket created after workspace created
-        $this->_client->createTable(
+        $this->_client->createTableAsync(
             $testBucketId,
             'trains',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
@@ -196,7 +196,7 @@ Object does not exist, or operation cannot be performed., SQL state 02000 in SQL
         $this->_client->linkBucket($linkedBucketName, 'in', $sharingProjectId, $sharedBucketId, null, false);
 
         //setup test tables
-        $this->linkingClient->createTable(
+        $this->linkingclient->createTableAsync(
             $sharedBucket,
             'whales',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')

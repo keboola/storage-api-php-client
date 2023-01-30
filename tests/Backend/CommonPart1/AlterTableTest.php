@@ -18,7 +18,7 @@ class AlterTableTest extends StorageApiTestCase
     public function testTableColumnAdd(): void
     {
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'languages', new CsvFile($importFile));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'languages', new CsvFile($importFile));
 
         $this->_client->addTableColumn($tableId, 'State');
 

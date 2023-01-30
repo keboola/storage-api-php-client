@@ -146,7 +146,7 @@ class CopyIntoWorkspaceTest extends WorkspacesTestCase
         $tableName = 'languagesDetails'
     ) {
 
-        return $client->createTable(
+        return $client->createTableAsync(
             $bucketId,
             $tableName,
             new CsvFile($importFilePath),

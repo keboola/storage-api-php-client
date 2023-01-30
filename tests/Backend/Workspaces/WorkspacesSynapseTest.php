@@ -98,13 +98,13 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
 
         // Create a table of sample data
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $table1Id = $this->_client->createTable(
+        $table1Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile($importFile)
         );
 
-        $table2Id = $this->_client->createTable(
+        $table2Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'rates',
             new CsvFile(__DIR__ . '/../../_data/rates.csv')
