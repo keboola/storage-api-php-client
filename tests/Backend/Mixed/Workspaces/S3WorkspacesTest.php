@@ -89,7 +89,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../../_data/languages.csv';
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $bucketId,
             'languages',
             new CsvFile($importFile),
@@ -150,7 +150,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../../_data/languages.with-state.csv';
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $bucketId,
             'languages',
             new CsvFile($importFile),
@@ -264,7 +264,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../../_data/languages.with-state.csv';
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $bucketId,
             'languages',
             new CsvFile($importFile),
@@ -367,7 +367,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
         $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", 'in', '', $bucketBackend);
 
         //setup test table
-        $this->_client->createTable(
+        $this->_client->createTableAsync(
             $bucketId,
             'dates',
             new CsvFile(__DIR__ . '/../../../_data/dates.csv')
@@ -434,7 +434,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
         $outBucketId =  $this->_client->createBucket("mixed-test-{$bucketBackend}", 'out', '', $bucketBackend);
 
         //setup test table
-        $table1Id = $this->_client->createTable(
+        $table1Id = $this->_client->createTableAsync(
             $bucketId,
             'languages',
             new CsvFile(__DIR__ . '/../../../_data/languages.csv'),

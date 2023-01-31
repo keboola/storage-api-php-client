@@ -555,8 +555,8 @@ class ImportExportCommonTest extends StorageApiTestCase
         $importFileOut = new CsvFile(__DIR__ . '/../../_data/languages.more-rows.csv');
 
         // create tables with same name in different buckets (schemas)
-        $inTableId = $this->_client->createTable($this->getTestBucketId(), 'languages', $importFileIn);
-        $outTableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_OUT), 'languages', $importFileOut);
+        $inTableId = $this->_client->createTableAsync($this->getTestBucketId(), 'languages', $importFileIn);
+        $outTableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_OUT), 'languages', $importFileOut);
 
         $inTable = $this->_client->getTable($inTableId);
         $outTable = $this->_client->getTable($outTableId);

@@ -68,7 +68,7 @@ class MetricsTest extends StorageApiTestCase
      */
     public function testAsyncImportMetrics(CsvFile $csvFile, $expectedMetrics): void
     {
-        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', $csvFile);
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'languages', $csvFile);
         $tokenData = $this->_client->verifyToken();
 
         $fileId = $this->_client->uploadFile(
@@ -102,7 +102,7 @@ class MetricsTest extends StorageApiTestCase
     public function testTableExportMetrics(): void
     {
         $csvFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
-        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'languages', $csvFile);
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'languages', $csvFile);
 
         $job = $this->_client->apiPost("tables/{$tableId}/export-async", [], false);
         $job = $this->_client->waitForJob($job['id']);

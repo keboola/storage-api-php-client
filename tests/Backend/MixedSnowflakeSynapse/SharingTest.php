@@ -243,7 +243,7 @@ class SharingTest extends StorageApiSharingTestCase
 
         // now we'll load another table and use the preserve parameters to check that all tables are present
         // lets create it now to see if the table permissions are correctly propagated
-        $table3Id = $this->_client->createTable(
+        $table3Id = $this->_client->createTableAsync(
             $bucketId,
             'numbersLater',
             new CsvFile(__DIR__ . '/../../_data/numbers.csv')
